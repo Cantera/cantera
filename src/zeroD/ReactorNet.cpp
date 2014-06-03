@@ -56,13 +56,13 @@ void ReactorNet::initialize()
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
     size_t sensParamNumber = 0;
+    m_start.assign(1, 0);
     for (n = 0; n < m_nr; n++) {
         if (m_r[n]->type() >= ReactorType) {
             m_r[n]->initialize(m_time);
             Reactor* r = (Reactor*)m_r[n];
             m_reactors.push_back(r);
             nv = r->neq();
-            m_size.push_back(nv);
             m_nparams.push_back(r->nSensParams());
             std::vector<std::pair<void*, int> > sens_objs = r->getSensitivityOrder();
             for (size_t i = 0; i < sens_objs.size(); i++) {
@@ -75,6 +75,7 @@ void ReactorNet::initialize()
                 }
             }
             m_nv += nv;
+            m_start.push_back(m_nv);
             m_nreactors++;
 
             if (m_verbose) {
@@ -189,14 +190,12 @@ void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
 {
     size_t n;
-    size_t start = 0;
     size_t pstart = 0;
 
     updateState(y);
     for (n = 0; n < m_nreactors; n++) {
-        m_reactors[n]->evalEqs(t, y + start,
-                               ydot + start, p + pstart);
-        start += m_size[n];
+        m_reactors[n]->evalEqs(t, y + m_start[n],
+                               ydot + m_start[n], p + pstart);
         pstart += m_nparams[n];
     }
 }
@@ -230,20 +229,17 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
 
 void ReactorNet::updateState(doublereal* y)
 {
-    size_t start = 0;
     for (size_t n = 0; n < m_nreactors; n++) {
-        m_reactors[n]->updateState(y + start);
-        start += m_size[n];
+        m_reactors[n]->updateState(y + m_start[n]);
     }
 }
 
 void ReactorNet::getInitialConditions(doublereal t0,
                                       size_t leny, doublereal* y)
 {
-    size_t start = 0;
     for (size_t n = 0; n < m_nreactors; n++) {
-        m_reactors[n]->getInitialConditions(t0, m_size[n], y + start);
-        start += m_size[n];
+        m_reactors[n]->getInitialConditions(t0, m_start[n+1]-m_start[n],
+                                            y + m_start[n]);
     }
 }
 
@@ -252,12 +248,7 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
     if (!m_init) {
         initialize();
     }
-    size_t start = 0;
-    size_t n;
-    for (n = 0; n < reactor; n++) {
-        start += m_size[n];
-    }
-    return start + m_reactors[n]->componentIndex(component);
+    return m_start[reactor] + m_reactors[reactor]->componentIndex(component);
 }
 
 void ReactorNet::registerSensitivityReaction(void* reactor,
