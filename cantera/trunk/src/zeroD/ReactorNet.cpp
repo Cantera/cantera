@@ -18,9 +18,6 @@ ReactorNet::ReactorNet() : Cantera::FuncEval(),
     m_maxstep(-1.0), m_maxErrTestFails(0),
     m_verbose(false), m_ntotpar(0)
 {
-#ifdef DEBUG_MODE
-    m_verbose = true;
-#endif
     m_integ = newIntegrator("CVODE");
 
     // use backward differencing, with a full Jacobian computed
