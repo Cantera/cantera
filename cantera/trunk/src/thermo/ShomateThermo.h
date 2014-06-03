@@ -170,13 +170,8 @@ public:
                                              refPressure, chigh));
         m_low[igrp-1].push_back(ShomatePoly(index, tlow, tmid,
                                             refPressure, clow));
-        if (tlow > m_tlow_max) {
-            m_tlow_max = tlow;
-        }
-        if (thigh < m_thigh_min) {
-            m_thigh_min = thigh;
-        }
-
+        m_tlow_max = std::max(m_tlow_max, tlow);
+        m_thigh_min = std::min(m_thigh_min, thigh);
         if (m_tlow.size() < index + 1) {
             m_tlow.resize(index + 1,  tlow);
             m_thigh.resize(index + 1, thigh);

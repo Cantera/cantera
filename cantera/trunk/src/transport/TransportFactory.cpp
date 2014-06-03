@@ -447,7 +447,7 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
         tr.poly[i].resize(nsp);
     }
 
-    doublereal ts1, ts2, tstar_min = 1.e8, tstar_max = 0.0;
+    doublereal tstar_min = 1.e8, tstar_max = 0.0;
     doublereal f_eps, f_sigma;
 
     DenseMatrix& diam = tr.diam;
@@ -466,14 +466,8 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
 
             //  The polynomial fits of collision integrals vs. T*
             //  will be done for the T* from tstar_min to tstar_max
-            ts1 = Boltzmann * tr.tmin/epsilon(i,j);
-            ts2 = Boltzmann * tr.tmax/epsilon(i,j);
-            if (ts1 < tstar_min) {
-                tstar_min = ts1;
-            }
-            if (ts2 > tstar_max) {
-                tstar_max = ts2;
-            }
+            tstar_min = std::min(tstar_min, Boltzmann * tr.tmin/epsilon(i,j));
+            tstar_max = std::max(tstar_max, Boltzmann * tr.tmax/epsilon(i,j));
 
             // the effective dipole moment for (i,j) collisions
             tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
@@ -1300,12 +1294,8 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             }
             err = fit - val;
             relerr = err/val;
-            if (fabs(err) > mxerr) {
-                mxerr = fabs(err);
-            }
-            if (fabs(relerr) > mxrelerr) {
-                mxrelerr = fabs(relerr);
-            }
+            mxerr = std::max(mxerr, fabs(err));
+            mxrelerr = std::max(mxrelerr, fabs(relerr));
         }
 
         // evaluate max fit errors for conductivity
@@ -1320,12 +1310,8 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             }
             err = fit - val;
             relerr = err/val;
-            if (fabs(err) > mxerr_cond) {
-                mxerr_cond = fabs(err);
-            }
-            if (fabs(relerr) > mxrelerr_cond) {
-                mxrelerr_cond = fabs(relerr);
-            }
+            mxerr_cond = std::max(mxerr_cond, fabs(err));
+            mxrelerr_cond = std::max(mxrelerr_cond, fabs(relerr));
         }
         tr.visccoeffs.push_back(c);
         tr.condcoeffs.push_back(c2);
@@ -1428,12 +1414,8 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 }
                 err = fit - val;
                 relerr = err/val;
-                if (fabs(err) > mxerr) {
-                    mxerr = fabs(err);
-                }
-                if (fabs(relerr) > mxrelerr) {
-                    mxrelerr = fabs(relerr);
-                }
+                mxerr = std::max(mxerr, fabs(err));
+                mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
             tr.diffcoeffs.push_back(c);
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {

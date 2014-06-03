@@ -1292,10 +1292,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         m_IionicMolality += m_molalities[k] * z_k * z_k;
     }
     m_IionicMolality /= 2.0;
-
-    if (m_IionicMolality > m_maxIionicStrength) {
-        m_IionicMolality = m_maxIionicStrength;
-    }
+    m_IionicMolality = std::min(m_IionicMolality, m_maxIionicStrength);
 
     /*
      * Calculate the stoichiometric ionic charge
@@ -1313,10 +1310,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         }
     }
     m_IionicMolalityStoich /= 2.0;
-
-    if (m_IionicMolalityStoich > m_maxIionicStrength) {
-        m_IionicMolalityStoich = m_maxIionicStrength;
-    }
+    m_IionicMolalityStoich = std::min(m_IionicMolalityStoich, m_maxIionicStrength);
 
     /*
      * Possibly update the stored value of the

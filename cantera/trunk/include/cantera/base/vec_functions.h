@@ -163,16 +163,9 @@ template<class T>
 inline T absmax(const std::vector<T>& v)
 {
     int n = v.size();
-    T val;
     T maxval = 0.0;
     for (int i = 0; i < n; i++) {
-        val = v[i];
-        if (val < 0) {
-            val = -val;
-        }
-        if (val > maxval) {
-            maxval = val;
-        }
+        maxval = std::max(std::abs(v[i]), maxval);
     }
     return maxval;
 }

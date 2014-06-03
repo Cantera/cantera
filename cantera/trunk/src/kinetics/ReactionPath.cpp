@@ -122,9 +122,7 @@ vector_int ReactionPathDiagram::reactions()
     Path* p;
     for (i = 0; i < npaths; i++) {
         p = path(i);
-        if (p->flow() > flmax) {
-            flmax = p->flow();
-        }
+        flmax = std::max(p->flow(), flmax);
     }
     m_rxns.clear();
     for (i = 0; i < npaths; i++) {
@@ -170,9 +168,7 @@ void ReactionPathDiagram::findMajorPaths(doublereal athreshold, size_t lda,
             k1 = m_speciesNumber[n];
             k2 = m_speciesNumber[m];
             fl = fabs(netFlow(k1,k2));
-            if (fl > netmax) {
-                netmax = fl;
-            }
+            netmax = std::max(fl, netmax);
         }
     }
     for (n = 0; n < nn; n++) {
@@ -253,18 +249,13 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                     if (flx < 0.0) {
                         flx = -flx;
                     }
-                    if (flx > flmax) {
-                        flmax = flx;
-                    }
+                    flmax = std::max(flx, flmax);
                 }
             }
         } else {
             flmax = scale;
         }
-
-        if (flmax < 1.e-10) {
-            flmax = 1.e-10;
-        }
+        flmax = std::max(flmax, 1e-10);
 
         // loop over all unique pairs of nodes
 
@@ -346,9 +337,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
     else {
         for (size_t i = 0; i < nPaths(); i++) {
             p = path(i);
-            if (p->flow() > flmax) {
-                flmax = p->flow();
-            }
+            flmax = std::max(p->flow(), flmax);
         }
 
         for (size_t i = 0; i < nPaths(); i++) {
@@ -434,9 +423,7 @@ void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
     }
     ff->addReaction(rxn, value, legend);
     m_rxns[rxn] = 1;
-    if (ff->flow() > m_flxmax) {
-        m_flxmax = ff->flow();
-    }
+    m_flxmax = std::max(ff->flow(), m_flxmax);
 }
 
 std::vector<size_t> ReactionPathDiagram::species()

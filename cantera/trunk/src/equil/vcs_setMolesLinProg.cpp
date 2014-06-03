@@ -145,9 +145,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                             redo = true;
                         }
                     }
-                    if (delta_xi < dxi_min) {
-                        dxi_min = delta_xi;
-                    }
+                    dxi_min = std::min(dxi_min, delta_xi);
                 }
             }
 

@@ -125,11 +125,7 @@ int main(int argc, char** argv)
             double T = TTable.T[i];
             double RT = GasConstant * T;
 
-            double psat = HMW->satPressure(T);
-            pres = OneAtm;
-            if (psat > pres) {
-                pres = psat;
-            }
+            pres = std::max(HMW->satPressure(T), OneAtm);
 
             HMW->setState_TPM(T, pres, moll);
             solid->setState_TP(T, pres);

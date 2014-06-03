@@ -235,13 +235,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 }
             } else {
                 Tnew = sqrt(Tlow*Thigh);
-                dT = Tnew - Tnow;
-                if (dT < -200.) {
-                    dT = -200;
-                }
-                if (dT > 200.) {
-                    dT = 200.;
-                }
+                dT = clip(Tnew - Tnow, -200.0, 200.0);
             }
             double acpb = std::max(fabs(cpb), 1.0E-6);
             double denom = std::max(fabs(Htarget), acpb);
@@ -311,12 +305,8 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     doublereal Slow = Undef;
     doublereal Shigh = Undef;
     doublereal Tnow = m_mix->temperature();
-    if (Tnow < Tlow) {
-        Tlow = Tnow;
-    }
-    if (Tnow > Thigh) {
-        Thigh = Tnow;
-    }
+    Tlow = std::min(Tnow, Tlow);
+    Thigh = std::max(Tnow, Thigh);
     int printLvlSub = std::max(printLvl - 1, 0);
 
     for (int n = 0; n < maxiter; n++) {

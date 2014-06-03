@@ -134,9 +134,7 @@ doublereal norm_square(const doublereal* x,
         for (j = 0; j < np; j++) {
             f = step[nv*j + n]/ewt;
             sum += f*f;
-            if (f*f > f2max) {
-                f2max = f*f;
-            }
+            f2max = std::max(f*f, f2max);
         }
     }
     return sum;

@@ -434,9 +434,7 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
     } else {
         m_UpToDate = true;
         m_vcsStateStatus = vcsStateStatus;
-        if (m_existence > VCS_PHASE_EXIST_NO) {
-            m_existence = VCS_PHASE_EXIST_NO;
-        }
+        m_existence = std::min(m_existence, VCS_PHASE_EXIST_NO);
     }
     double fractotal = 1.0;
     v_totalMoles = totalMoles;

@@ -131,10 +131,7 @@ doublereal MolalityVPSSTP::moleFSolventMin() const
 void MolalityVPSSTP::calcMolalities() const
 {
     getMoleFractions(DATA_PTR(m_molalities));
-    double xmolSolvent = m_molalities[m_indexSolvent];
-    if (xmolSolvent < m_xmolSolventMIN) {
-        xmolSolvent = m_xmolSolventMIN;
-    }
+    double xmolSolvent = std::max(m_molalities[m_indexSolvent], m_xmolSolventMIN);
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         m_molalities[k] *= denomInv;
@@ -294,10 +291,7 @@ void MolalityVPSSTP::getActivityCoefficients(doublereal* ac) const
 {
     getMolalityActivityCoefficients(ac);
     AssertThrow(m_indexSolvent==0, "MolalityVPSSTP::getActivityCoefficients");
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    if (xmolSolvent < m_xmolSolventMIN) {
-        xmolSolvent = m_xmolSolventMIN;
-    }
+    double xmolSolvent = std::max(moleFraction(m_indexSolvent), m_xmolSolventMIN);
     for (size_t k = 1; k < m_kk; k++) {
         ac[k] /= xmolSolvent;
     }

@@ -13,6 +13,7 @@
 
 #include <cstdio>
 #include <cmath>
+#include <algorithm>
 
 namespace Cantera
 {
@@ -1066,9 +1067,7 @@ doublereal  WaterPropsIAPWSphi::dfind(doublereal  p_red, doublereal  tau, double
         if (n < 10) {
             dpdx = dpddelta * 1.1;
         }
-        if (dpdx < 0.001) {
-            dpdx = 0.001;
-        }
+        dpdx = std::max(dpdx, 0.001);
 
         /*
          * Formulate the update to reduced density using
