@@ -601,7 +601,9 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
         }
 
         for (size_t k = 0; k < nsp; k++) {
-            fracDelta_new[k] = std::min(fracDelta_new[k], 1e-13);
+            if (fracDelta_new[k] < 1.0E-13) {
+               fracDelta_new[k] =1.0E-13;
+            }
         }
         bool converged = false;
         for (int its = 0; its < 200  && (!converged); its++) {
