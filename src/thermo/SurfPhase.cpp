@@ -186,6 +186,12 @@ void SurfPhase::setParameters(int n, doublereal* const c)
     setSiteDensity(c[0]);
 }
 
+void SurfPhase::getPureGibbs(doublereal* g) const
+{
+    _updateThermo();
+    copy(m_mu0.begin(), m_mu0.end(), g);
+}
+
 void SurfPhase::getGibbs_RT(doublereal* grt) const
 {
     _updateThermo();
