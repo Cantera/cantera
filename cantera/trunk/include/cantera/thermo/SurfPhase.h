@@ -493,6 +493,8 @@ public:
         m_press = p;
     }
 
+    virtual void getPureGibbs(doublereal* g) const;
+
     //!  Returns the vector of nondimensional
     //!  Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
