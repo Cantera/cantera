@@ -88,7 +88,7 @@ InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
     /*
      * Call the assignment operator
      */
-    *this = operator=(right);
+    operator=(right);
 }
 
 InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
@@ -116,6 +116,7 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_rxneqn               = right.m_rxneqn;
     m_conc                 = right.m_conc;
     m_mu0                  = right.m_mu0;
+    m_mu0_Kc               = right.m_mu0_Kc;
     m_phi                  = right.m_phi;
     m_pot                  = right.m_pot;
     m_rwork                = right.m_rwork;
@@ -227,7 +228,7 @@ void InterfaceKinetics::getActivityConcentrations(doublereal* const conc)
     _update_rates_C();
     copy(m_conc.begin(), m_conc.end(), conc);
 }
-
+//============================================================================================================================
 void InterfaceKinetics::updateKc()
 {
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
@@ -235,30 +236,18 @@ void InterfaceKinetics::updateKc()
     if (m_nrev > 0) {
         /*
          * Get the vector of standard state electrochemical potentials for species in the Interfacial
-         * kinetics object and store it in m_mu0[]
+         * kinetics object and store it in m_mu0[] and m_mu0_Kc[]
          */
-        size_t nsp, ik = 0;
-        doublereal rt = GasConstant*thermo(0).temperature();
-        doublereal rrt = 1.0 / rt;
-        size_t np = nPhases();
-        for (size_t n = 0; n < np; n++) {
-            thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
-            nsp = thermo(n).nSpecies();
-            for (size_t k = 0; k < nsp; k++) {
-                m_mu0[ik] -= rt * thermo(n).logStandardConc(k);
-                m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
-                ik++;
-            }
-        }
-
+	updateMu0();
+	doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
+     
         // compute Delta mu^0 for all reversible reactions
-        m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0), DATA_PTR(m_rkcn));
+        m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0_Kc), DATA_PTR(m_rkcn));
 
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
             if (irxn == npos || irxn >= nReactions()) {
-                throw CanteraError("InterfaceKinetics",
-                                   "illegal value: irxn = "+int2str(irxn));
+                throw CanteraError("InterfaceKinetics", "illegal value: irxn = "+int2str(irxn));
             }
             // WARNING this may overflow HKM
             m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
@@ -268,7 +257,27 @@ void InterfaceKinetics::updateKc()
         }
     }
 }
-
+//============================================================================================================================
+void InterfaceKinetics::updateMu0()
+{   
+    /*
+     * Get the vector of standard state electrochemical potentials for species in the Interfacial
+     * kinetics object and store it in m_mu0[] and in m_mu0_Kc[]
+     */
+    size_t nsp, ik = 0;
+    doublereal rt = GasConstant * thermo(0).temperature();
+    size_t np = nPhases();
+    for (size_t n = 0; n < np; n++) {
+	thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
+	nsp = thermo(n).nSpecies();
+	for (size_t k = 0; k < nsp; k++) {
+	    m_mu0_Kc[ik] = m_mu0[ik] + Faraday * m_phi[n] * thermo(n).charge(k);
+	    m_mu0_Kc[ik] -= rt * thermo(n).logStandardConc(k);
+	    ik++;
+	}
+    }
+}
+//============================================================================================================================
 void InterfaceKinetics::checkPartialEquil()
 {
     vector_fp dmu(nTotalSpecies(), 0.0);
@@ -322,22 +331,12 @@ void InterfaceKinetics::getNetRatesOfProgress(doublereal* netROP)
 
 void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 {
-    size_t ik=0;
-    doublereal rt = GasConstant*thermo(0).temperature();
-    doublereal rrt = 1.0/rt;
-    for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
-        size_t nsp = thermo(n).nSpecies();
-        for (size_t k = 0; k < nsp; k++) {
-            m_mu0[ik] -= rt*thermo(n).logStandardConc(k);
-            m_mu0[ik] += Faraday * m_phi[n] * thermo(n).charge(k);
-            ik++;
-        }
-    }
+    updateMu0();
+    doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
 
-    fill(kc, kc + m_ii, 0.0);
+    std::fill(kc, kc + m_ii, 0.0);
 
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), kc);
+    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0_Kc), kc);
 
     for (size_t i = 0; i < m_ii; i++) {
         kc[i] = exp(-kc[i]*rrt);
@@ -601,13 +600,12 @@ void InterfaceKinetics::updateROP()
 void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
 {
     /*
-     * Get the chemical potentials of the species in the
-     * ideal gas solution.
+     * Get the chemical potentials of the species in the all of the phases used in the 
+     * kinetics mechanism
      */
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getChemPotentials(DATA_PTR(m_grt) + m_start[n]);
     }
-
     /*
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
@@ -618,8 +616,7 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
 void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
 {
     /*
-     * Get the chemical potentials of the species in the
-     * ideal gas solution.
+     * Get the chemical potentials of the species 
      */
     size_t np = nPhases();
     for (size_t n = 0; n < np; n++) {
@@ -635,8 +632,7 @@ void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
 void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
 {
     /*
-     * Get the partial molar enthalpy of all species in the
-     * ideal gas.
+     * Get the partial molar enthalpy of all species
      */
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getPartialMolarEnthalpies(DATA_PTR(m_grt) + m_start[n]);
@@ -664,7 +660,7 @@ void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
 }
 
-void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaG)
+void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
 {
     /*
      *  Get the standard state chemical potentials of the species.
@@ -673,13 +669,13 @@ void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaG)
      *  species at the temperature and pressure of the solution.
      */
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(DATA_PTR(m_grt) + m_start[n]);
+        thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
     }
     /*
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
+    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), deltaGSS);
 }
 
 void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
@@ -941,6 +937,7 @@ void InterfaceKinetics::init()
     m_prxn.resize(m_kk);
     m_conc.resize(m_kk);
     m_mu0.resize(m_kk);
+    m_mu0_Kc.resize(m_kk);
     m_grt.resize(m_kk);
     m_pot.resize(m_kk, 0.0);
     m_phi.resize(nPhases(), 0.0);
