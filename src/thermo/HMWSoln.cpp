@@ -439,8 +439,7 @@ HMWSoln::HMWSoln(int testProb) :
     m_debugCalc(0)
 {
     if (testProb != 1) {
-        printf("unknown test problem\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::HMWSoln", "unknown test problem");
     }
 
     initThermoFile("HMW_NaCl.xml", "");
@@ -1016,8 +1015,7 @@ double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
         m_A_Debye = A;
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::A_Debye_TP", "shouldn't be here");
     }
     return A;
 }
@@ -1041,8 +1039,7 @@ double HMWSoln::dA_DebyedT_TP(double tempArg, double presArg) const
         dAdT = m_waterProps->ADebye(T, P, 1);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::dA_DebyedT_TP", "shouldn't be here");
     }
     return dAdT;
 }
@@ -1074,8 +1071,7 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
         }
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::dA_DebyedP_TP", "shouldn't be here");
     }
     return dAdP;
 }
@@ -1133,8 +1129,7 @@ double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
         d2AdT2 = m_waterProps->ADebye(T, P, 2);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::d2A_DebyedT2_TP", "shouldn't be here");
     }
     return d2AdT2;
 }
@@ -1841,8 +1836,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      *        species 0.
      */
     if (m_indexSolvent != 0) {
-        printf("Wrong index solvent value!\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::s_updatePitzer_lnMolalityActCoeff",
+                           "Wrong index solvent value!");
     }
 
     std::string sni,  snj, snk;
@@ -2598,8 +2593,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
-                    printf("logic error 1 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_lnMolalityActCoeff",
+                                       "logic error 1 in Step 9 of hmw_act");
                 }
                 if (charge(k) > 0.0) {
                     /*
@@ -2628,8 +2623,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
-                    printf("logic error 2 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_lnMolalityActCoeff",
+                                       "logic error 2 in Step 9 of hmw_act");
                 }
                 if (charge(k) < 0) {
                     /*
@@ -2778,8 +2773,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     m_debugCalc = 0;
 #endif
     if (m_indexSolvent != 0) {
-        printf("Wrong index solvent value!\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT",
+                           "Wrong index solvent value!");
     }
 
     std::string sni, snj, snk;
@@ -3392,8 +3387,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
-                    printf("logic error 1 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT",
+                                       "logic error 1 in Step 9 of hmw_act");
                 }
                 if (charge(k) > 0.0) {
                     /*
@@ -3422,8 +3417,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
-                    printf("logic error 2 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT",
+                                       "logic error 2 in Step 9 of hmw_act");
                 }
                 if (charge(k) < 0) {
                     /*
@@ -3559,8 +3554,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     m_debugCalc = 0;
 #endif
     if (m_indexSolvent != 0) {
-        printf("Wrong index solvent value!\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2",
+                           "Wrong index solvent value!");
     }
 
     std::string sni, snj, snk;
@@ -4173,8 +4168,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
-                    printf("logic error 1 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2",
+                                       "logic error 1 in Step 9 of hmw_act");
                 }
                 if (charge(k) > 0.0) {
                     /*
@@ -4203,8 +4198,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
-                    printf("logic error 2 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2",
+                                       "logic error 2 in Step 9 of hmw_act");
                 }
                 if (charge(k) < 0) {
                     /*
@@ -4333,8 +4328,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     m_debugCalc = 0;
 #endif
     if (m_indexSolvent != 0) {
-        printf("Wrong index solvent value!\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP",
+                           "Wrong index solvent value!");
     }
 
     std::string sni, snj, snk;
@@ -4949,8 +4944,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == (m_kk-1)) {
                     // we should never reach this step
-                    printf("logic error 1 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP",
+                                       "logic error 1 in Step 9 of hmw_act");
                 }
                 if (charge(k) > 0.0) {
                     /*
@@ -4980,8 +4975,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             for (size_t k = j+1; k < m_kk; k++) {
                 if (j == m_kk-1) {
                     // we should never reach this step
-                    printf("logic error 2 in Step 9 of hmw_act");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP",
+                                       "logic error 2 in Step 9 of hmw_act");
                 }
                 if (charge(k) < 0) {
                     /*
@@ -5153,15 +5148,10 @@ void HMWSoln::calc_thetas(int z1, int z2,
     i = abs(z1);
     j = abs(z2);
 
-    if (DEBUG_MODE_ENABLED && (i > 4 || j > 4)) {
-        printf("we shouldn't be here\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if ((i == 0) || (j == 0)) {
-        printf("ERROR calc_thetas called with one species being neutral\n");
-        exit(EXIT_FAILURE);
-    }
+    AssertThrowMsg(i <= 4 && j <= 4, "HMWSoln::calc_thetas",
+                   "we shouldn't be here");
+    AssertThrowMsg(i != 0 && j != 0, "HMWSoln::calc_thetas",
+                   "called with one species being neutral");
 
     /*
      *  Check to see if the charges are of opposite sign. If they are of

@@ -10,6 +10,7 @@
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_prob.h"
 
@@ -20,6 +21,7 @@
 #include "cantera/base/clockWC.h"
 
 using namespace std;
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -654,8 +656,8 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         if (!strncmp(m_elementName[i].c_str(), "cn_", 3)) {
             m_elType[i] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
             if (pub->m_elType[i] != VCS_ELEM_TYPE_CHARGENEUTRALITY) {
-                plogf("we have an inconsistency!\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
+                                   "we have an inconsistency!");
             }
         }
     }
@@ -664,9 +666,10 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         if (m_elType[i] ==  VCS_ELEM_TYPE_CHARGENEUTRALITY) {
             if (m_elemAbundancesGoal[i] != 0.0) {
                 if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
-                    plogf("Charge neutrality condition %s is signicantly nonzero, %g. Giving up\n",
-                          m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
+                            "Charge neutrality condition " + m_elementName[i] +
+                            " is signicantly nonzero, " + fp2str(m_elemAbundancesGoal[i]) +
+                            ". Giving up");
                 } else {
                     if (m_debug_print_lvl >= 2) {
                         plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
@@ -932,25 +935,26 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
                 k1 = vPhase->spGlobalIndexVCS(k);
                 double tmp = m_molNumSpecies_old[k1];
                 if (! vcs_doubleEqual(pubPhase->electricPotential() , tmp)) {
-                    plogf("We have an inconsistency in voltage, %g, %g\n",
-                          pubPhase->electricPotential(), tmp);
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("VCS_SOLVE::vcs_prob_update",
+                            "We have an inconsistency in voltage, " +
+                            fp2str(pubPhase->electricPotential()) + " " +
+                            fp2str(tmp));
                 }
             }
 
             if (! vcs_doubleEqual(pub->mf[kT], vPhase->molefraction(k))) {
-                plogf("We have an inconsistency in mole fraction, %g, %g\n",
-                      pub->mf[kT], vPhase->molefraction(k));
-                exit(EXIT_FAILURE);
+                throw CanteraError("VCS_SOLVE::vcs_prob_update",
+                        "We have an inconsistency in mole fraction, " +
+                        fp2str(pub->mf[kT]) + " " + fp2str(vPhase->molefraction(k)));
             }
             if (pubPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 sumMoles +=  pub->w[kT];
             }
         }
         if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
-            plogf("We have an inconsistency in total moles, %g %g\n",
-                  sumMoles, pubPhase->totalMoles());
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SOLVE::vcs_prob_update",
+                            "We have an inconsistency in total moles, " +
+                            fp2str(sumMoles) + " " + fp2str(pubPhase->totalMoles()));
         }
 
     }

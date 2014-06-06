@@ -726,8 +726,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
-        printf("Failure to open file\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("MultiPhaseEquil::reportCSV", "Failure to open file");
     }
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();

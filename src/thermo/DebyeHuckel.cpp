@@ -644,12 +644,12 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (formString != "") {
             if (formString == "unity") {
                 m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("DebyeHuckel::initThermoXML",
+                                   "standardConc = unity not done");
             } else if (formString == "molar_volume") {
                 m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("DebyeHuckel::initThermoXML",
+                                   "standardConc = molar_volume not done");
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
@@ -1106,8 +1106,7 @@ double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
         m_A_Debye = A;
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::A_Debye_TP", "shouldn't be here");
     }
     return A;
 }
@@ -1131,8 +1130,7 @@ double DebyeHuckel::dA_DebyedT_TP(double tempArg, double presArg) const
         dAdT = m_waterProps->ADebye(T, P, 1);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::dA_DebyedT_TP", "shouldn't be here");
     }
     return dAdT;
 }
@@ -1156,8 +1154,7 @@ double DebyeHuckel::d2A_DebyedT2_TP(double tempArg, double presArg) const
         d2AdT2 = m_waterProps->ADebye(T, P, 2);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::d2A_DebyedT2_TP", "shouldn't be here");
     }
     return d2AdT2;
 }
@@ -1181,8 +1178,7 @@ double DebyeHuckel::dA_DebyedP_TP(double tempArg, double presArg) const
         dAdP = m_waterProps->ADebye(T, P, 3);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::dA_DebyedP_TP", "shouldn't be here");
     }
     return dAdP;
 }
@@ -1510,8 +1506,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::s_update_lnMolalityActCoeff", "ERROR");
     }
     /*
      * Above, we calculated the ln(activitySolvent). Translate that
@@ -1643,9 +1638,8 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
-        break;
+        throw CanteraError("DebyeHuckel::s_update_dlnMolalityActCoeff_dT",
+                           "ERROR");
     }
 
 
@@ -1767,9 +1761,8 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
-        break;
+        throw CanteraError("DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2",
+                           "ERROR");
     }
 }
 
@@ -1893,9 +1886,8 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
-        break;
+        throw CanteraError("DebyeHuckel::s_update_dlnMolalityActCoeff_dP",
+                           "ERROR");
     }
 }
 

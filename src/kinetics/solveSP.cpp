@@ -823,8 +823,8 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
             printf("\n   SOLVESP Called to integrate surface in time\n");
             printf("           for a total of %9.3e sec\n", time_scale);
         } else {
-            fprintf(stderr,"Unknown ifunc flag = %d\n", ifunc);
-            exit(EXIT_FAILURE);
+            throw CanteraError("solveSP::print_header",
+                               "Unknown ifunc flag = " + int2str(ifunc));
         }
 
         if (m_bulkFunc == BULK_DEPOSITION) {
@@ -832,8 +832,8 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
         } else if (m_bulkFunc == BULK_ETCH) {
             printf("     Bulk Phases have fixed compositions\n");
         } else {
-            fprintf(stderr,"Unknown bulkFunc flag = %d\n", m_bulkFunc);
-            exit(EXIT_FAILURE);
+            throw CanteraError("solveSP::print_header",
+                               "Unknown bulkFunc flag = " + int2str(m_bulkFunc));
         }
 
         if (damping) {

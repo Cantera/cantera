@@ -14,6 +14,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
+using namespace Cantera;
+
 namespace VCSnonideal
 {
 double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
@@ -32,9 +34,8 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_KELVIN:
         return Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
     default:
-        plogf("vcs_nondim_Farad error: unknown units: %d\n", mu_units);
-        plogendl();
-        exit(EXIT_FAILURE);
+        throw CanteraError("vcs_nondim_Farad",
+                           "unknown units: " + int2str(mu_units));
     }
 }
 
@@ -55,9 +56,8 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
         return TKelvin * Cantera::GasConstant;
     default:
-        plogf("vcs_nondimMult_TP error: unknown units: %d\n", mu_units);
-        plogendl();
-        exit(EXIT_FAILURE);
+        throw CanteraError("vcs_nondimMult_TP",
+                           "unknown units: " + int2str(mu_units));
     }
 }
 
@@ -104,12 +104,9 @@ void VCS_SOLVE::vcs_nondim_TP()
          * reasonable input would be between these two numbers below.
          */
         if (tmole_orig < 1.0E-200 || tmole_orig > 1.0E200) {
-            plogf(" VCS_SOLVE::vcs_nondim_TP ERROR: Total input moles , %g,  is outside the range handled by vcs. exit",
-                  tmole_orig);
-            plogendl();
-            throw Cantera::CanteraError("VCS_SOLVE::vcs_nondim_TP",
-                                        " Total input moles ," + Cantera::fp2str(tmole_orig) +
-                                        "is outside the range handled by vcs.\n");
+            throw CanteraError("VCS_SOLVE::vcs_nondim_TP",
+                               "Total input moles ," + fp2str(tmole_orig) +
+                               "is outside the range handled by vcs.\n");
         }
 
         // Determine the scale of the problem
@@ -212,8 +209,7 @@ void VCS_SOLVE::vcs_printChemPotUnits(int unitsFormat) const
         plogf("J/kmol");
         break;
     default:
-        plogf("unknown units!");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_SOLVE::vcs_printChemPotUnits", "unknown units!");
     }
 }
 

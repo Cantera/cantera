@@ -581,8 +581,8 @@ double VCS_SOLVE::vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal)
     double diag = hessianDiag_Ideal;
     double hessActCoef = vcs_Hessian_actCoeff_diag(irxn);
     if (hessianDiag_Ideal <= 0.0) {
-        plogf("vcs_Hessian_diag_adj::We shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_SOLVE::vcs_Hessian_diag_adj",
+                           "We shouldn't be here");
     }
     if (hessActCoef >= 0.0) {
         diag += hessActCoef;

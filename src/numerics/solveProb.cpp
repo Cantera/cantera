@@ -626,8 +626,8 @@ void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale,
             printf("\n   SOLVEPROB Called to integrate surface in time\n");
             printf("           for a total of %9.3e sec\n", time_scale);
         } else {
-            fprintf(stderr,"Unknown ifunc flag = %d\n", ifunc);
-            exit(EXIT_FAILURE);
+            throw CanteraError("solveProb::print_header",
+                               "Unknown ifunc flag = " + int2str(ifunc));
         }
 
 
