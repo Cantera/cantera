@@ -114,6 +114,13 @@ public:
     //@}
 
     //! Add the reactor *r* to this reactor network.
+    void addReactor(Reactor& r);
+
+    //! Add the reactor *r* to this reactor network.
+    /**
+     *  @deprecated To be removed after Cantera 2.2. Use addReactor(Reactor&)
+     *  instead.
+     */
     void addReactor(Reactor* r, bool iown = false);
 
     //! Return a reference to the *n*-th reactor in this network. The reactor

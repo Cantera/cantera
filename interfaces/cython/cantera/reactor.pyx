@@ -732,7 +732,7 @@ cdef class ReactorNet:
     def add_reactor(self, Reactor r):
         """Add a reactor to the network."""
         self._reactors.append(r)
-        self.net.addReactor(r.reactor)
+        self.net.addReactor(deref(r.reactor))
 
     def advance(self, double t):
         """

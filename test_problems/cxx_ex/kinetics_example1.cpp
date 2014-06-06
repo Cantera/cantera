@@ -76,7 +76,7 @@ int kinetics_example1(int job)
         // and add the reactor to it
         ReactorNet* sim_ptr = new ReactorNet();
         sim_ptr->setVerbose(false);
-        sim_ptr->addReactor(&r);
+        sim_ptr->addReactor(r);
 
         double tm;
         double dt = 1.e-5;    // interval at which output is written

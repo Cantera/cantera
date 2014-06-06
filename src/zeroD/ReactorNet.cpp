@@ -163,6 +163,12 @@ double ReactorNet::step(doublereal time)
 
 void ReactorNet::addReactor(Reactor* r, bool iown)
 {
+    warn_deprecated("ReactorNet::addReactor(Reactor*)",
+        "To be removed after Cantera 2.2. Use 'addReactor(Reactor&) instead'.");
+    if (iown) {
+        warn_deprecated("ReactorNet::addReactor",
+            "Ownership of Reactors by ReactorNet is deprecated.");
+    }
     r->setNetwork(this);
     if (r->type() >= ReactorType) {
         m_reactors.push_back(r);
@@ -172,6 +178,13 @@ void ReactorNet::addReactor(Reactor* r, bool iown)
         writelog("Not adding reactor "+r->name()+
                  ", since type = "+int2str(r->type())+"\n", m_verbose);
     }
+}
+
+void ReactorNet::addReactor(Reactor& r)
+{
+    r.setNetwork(this);
+    m_reactors.push_back(&r);
+    m_iown.push_back(false);
 }
 
 void ReactorNet::eval(doublereal t, doublereal* y,
