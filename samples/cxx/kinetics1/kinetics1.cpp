@@ -8,9 +8,6 @@
 
 #include "cantera/zerodim.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/numerics.h"
-
-#include <time.h>
 #include "example_utils.h"
 
 using namespace Cantera;
@@ -19,13 +16,11 @@ using std::endl;
 
 int kinetics1(int np, void* p)
 {
-
     cout << "Constant-pressure ignition of a "
          << "hydrogen/oxygen/nitrogen"
          " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
 
-    // create an ideal gas mixture that corresponds to GRI-Mech
-    // 3.0
+    // create an ideal gas mixture that corresponds to GRI-Mech 3.0
     IdealGasMix gas("gri30.cti", "gri30");
 
     // set the state
@@ -33,10 +28,7 @@ int kinetics1(int np, void* p)
     int nsp = gas.nSpecies();
 
     // create a reactor
-    Reactor r;
-
-    // create a reservoir to represent the environment
-    Reservoir env;
+    IdealGasConstPressureReactor r;
 
     // 'insert' the gas into the reactor and environment.  Note
     // that it is ok to insert the same gas object into multiple
@@ -44,25 +36,7 @@ int kinetics1(int np, void* p)
     // will be used to evaluate thermodynamic or kinetic
     // quantities needed.
     r.insert(gas);
-    env.insert(gas);
 
-    //r.addHomogenRxnSens(0);
-
-    // create a wall between the reactor and the environment
-    Wall w;
-    w.install(r,env);
-
-    // The wall "expansion rate coefficient" controls how fast it
-    // moves in response to a pressure difference. Set it to a
-    // large value to approach the constant-pressure limit, so
-    // that the wall moves to counteract even small pressure
-    // differences
-    w.setExpansionRateCoeff(1.e9);
-
-    // set the wall to have unit area (arbitrary)
-    w.setArea(1.0);
-
-    double tm;
     double dt = 1.e-5;    // interval at which output is written
     int nsteps = 100;     // number of intervals
 
@@ -79,7 +53,7 @@ int kinetics1(int np, void* p)
     // main loop
     clock_t t0 = clock();        // save start time
     for (int i = 1; i <= nsteps; i++) {
-        tm = i*dt;
+        double tm = i*dt;
         sim.advance(tm);
         cout << "time = " << tm << " s" << endl;
         saveSoln(tm, gas, soln);
@@ -109,11 +83,8 @@ int kinetics1(int np, void* p)
 }
 
 
-#ifndef CXX_DEMO
-
 int main()
 {
-
     try {
         int retn = kinetics1(0, 0);
         appdelete();
@@ -127,5 +98,3 @@ int main()
         return -1;
     }
 }
-
-#endif
