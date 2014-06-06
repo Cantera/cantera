@@ -7,6 +7,7 @@
 #include "zeroD/flowControllers.h"
 #include "zeroD/FlowReactor.h"
 #include "zeroD/ConstPressureReactor.h"
+#include "zeroD/IdealGasReactor.h"
+#include "zeroD/IdealGasConstPressureReactor.h"
 
 #endif
-
