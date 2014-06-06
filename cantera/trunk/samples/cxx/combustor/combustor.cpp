@@ -98,7 +98,7 @@ void runexample()
 
     // the simulation only contains one reactor
     ReactorNet sim;
-    sim.addReactor(&combustor);
+    sim.addReactor(combustor);
 
     // take single steps to 6 s, writing the results to a CSV file
     // for later plotting.

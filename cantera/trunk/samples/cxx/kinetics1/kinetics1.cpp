@@ -74,7 +74,7 @@ int kinetics1(int np, void* p)
     // create a container object to run the simulation
     // and add the reactor to it
     ReactorNet sim;
-    sim.addReactor(&r, false);
+    sim.addReactor(&r);
 
     // main loop
     clock_t t0 = clock();        // save start time

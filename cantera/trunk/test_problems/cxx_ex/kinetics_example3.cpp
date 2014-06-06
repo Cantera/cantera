@@ -73,7 +73,7 @@ int kinetics_example3(int job)
         // and add the reactor to it
         ReactorNet& sim = *(new ReactorNet());
         sim.setVerbose(false);
-        sim.addReactor(&r);
+        sim.addReactor(r);
 
         double tm;
         double dt = 1.e-5;    // interval at which output is written
