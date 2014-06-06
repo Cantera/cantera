@@ -345,3 +345,8 @@ class CtmlConverterTest(utilities.CanteraTest):
             err = e
 
         self.assertIn('Multiply-declared species', err.args[0])
+
+    def test_noninteger_atomicity(self):
+        gas = ct.Solution('../data/noninteger-atomicity.cti')
+        self.assertNear(gas.molecular_weights[gas.species_index('CnHm')],
+                        10.65*gas.atomic_weight('C') + 21.8*gas.atomic_weight('H'))

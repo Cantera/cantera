@@ -390,7 +390,10 @@ def getAtomicComp(atoms):
     d = {}
     for t in toks:
         b = t.split(':')
-        d[b[0]] = int(b[1])
+        try:
+            d[b[0]] = int(b[1])
+        except ValueError:
+            d[b[0]] = float(b[1])
     return d
 
 def getReactionSpecies(s):
