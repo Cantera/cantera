@@ -7,6 +7,7 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cstdio>
 #include <algorithm>
@@ -36,13 +37,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
 
-#ifdef DEBUG_MODE
-    int existence = Vphase->exists();
-    if (existence > 0) {
-        printf("ERROR vcs_popPhasePossible called for a phase that exists!");
-        std::exit(-1);
-    }
-#endif
+    AssertThrowMsg(!Vphase->exists(), "VCS_SOLVE::vcs_popPhasePossible",
+                   "called for a phase that exists!");
 
     /*
      * Loop through all of the species in the phase. We say the phase
@@ -52,11 +48,10 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
      */
     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
         size_t kspec = Vphase->spGlobalIndexVCS(k);
-        if (DEBUG_MODE_ENABLED && m_molNumSpecies_old[kspec] > 0.0) {
-            printf("ERROR vcs_popPhasePossible we shouldn't be here %lu %g > 0.0",
-                   kspec, m_molNumSpecies_old[kspec]);
-            exit(-1);
-        }
+        AssertThrowMsg(m_molNumSpecies_old[kspec] <= 0.0,
+                       "VCS_SOLVE::vcs_popPhasePossible",
+                       "we shouldn't be here " + int2str(kspec) + " "+
+                       fp2str(m_molNumSpecies_old[kspec]) + " > 0.0");
         size_t irxn = kspec - m_numComponents;
         if (kspec >= m_numComponents) {
             bool iPopPossible = true;
@@ -304,10 +299,8 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                 }
                 if (DEBUG_MODE_ENABLED && Fephase < 0.0) {
                     strcpy(anote," (not stable)");
-                    if (m_tPhaseMoles_old[iph] > 0.0) {
-                        printf("shouldn't be here\n");
-                        exit(-1);
-                    }
+                    AssertThrowMsg(m_tPhaseMoles_old[iph] <= 0.0,
+                        "VCS_SOLVE::vcs_popPhaseID", "shouldn't be here");
                 }
 
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
@@ -379,16 +372,12 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     //   zeroed out within the algorithm.  We may later adjust the value.
     doublereal tPhaseMoles = 10. * m_totalMolNum * VCS_DELETE_PHASE_CUTOFF;
 
-#ifdef DEBUG_MODE
-    if (Vphase->exists() > 0) {
-        printf("ERROR vcs_popPhaseRxnStepSizes called for a phase that exists!");
-        exit(-1);
-    }
-    if (m_debug_print_lvl >= 2) {
+    AssertThrowMsg(!Vphase->exists(), "VCS_SOLVE::vcs_popPhaseRxnStepSizes",
+                   "called for a phase that exists!");
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("  ---  vcs_popPhaseRxnStepSizes() called to pop phase %s %d into existence\n",
               Vphase->PhaseName.c_str(), iphasePop);
     }
-#endif
     // Section for a single-species phase
     if (Vphase->m_singleSpecies) {
         double s = 0.0;
@@ -825,8 +814,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
 
     } else {
-        printf("not done yet\n");
-        exit(-1);
+        throw CanteraError("VCS_SOLVE::vcs_phaseStabilityTest", "not done yet");
     }
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("  ------------------------------------------------------------"

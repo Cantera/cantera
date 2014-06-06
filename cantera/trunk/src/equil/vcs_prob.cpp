@@ -51,22 +51,22 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
 {
     NSPECIES0 = nspecies;
     if (nspecies <= 0) {
-        plogf("number of species is zero or neg\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_PROB::VCS_PROB",
+                           "number of species is zero or neg");
     }
     NE0       = ne;
     if (ne <= 0) {
-        plogf("number of elements is zero or neg\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_PROB::VCS_PROB",
+                           "number of elements is zero or neg");
     }
     NPHASE0   = NPhase;
     if (NPhase <= 0) {
-        plogf("number of phases is zero or neg\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_PROB::VCS_PROB",
+                           "number of phases is zero or neg");
     }
     if (nspecies < NPhase) {
-        plogf("number of species is less than number of phases\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_PROB::VCS_PROB",
+                           "number of species is less than number of phases");
     }
 
     m_gibbsSpecies.resize(nspecies, 0.0);
@@ -87,8 +87,8 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
     for (size_t kspec = 0; kspec < nspecies; kspec++) {
         VCS_SPECIES_THERMO* ts_tmp = new VCS_SPECIES_THERMO(0, 0);
         if (ts_tmp == 0) {
-            plogf("Failed to init a ts struct\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_PROB::VCS_PROB",
+                               "Failed to init a ts struct");
         }
         SpeciesThermo[kspec] = ts_tmp;
     }
@@ -132,9 +132,7 @@ void VCS_PROB::resizeSpecies(size_t nsp, int force)
         Charge.resize(nsp, 0.0);
         NSPECIES0 = nsp;
         if (nspecies > NSPECIES0) {
-            nspecies = NSPECIES0;
-            plogf("shouldn't be here\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_PROB::resizeSpecies", "shouldn't be here");
         }
     }
 }
@@ -186,8 +184,7 @@ void VCS_PROB::prob_report(int print_lvl)
 
             plogf("\t\tPres = %g atm\n", pres_atm);
         } else {
-            plogf("\tUnknown problem type\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_PROB::prob_report", "Unknown problem type");
         }
         plogf("\n");
         plogf("             Phase IDs of species\n");
@@ -321,8 +318,8 @@ void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
 size_t VCS_PROB::addElement(const char* elNameNew, int elType, int elactive)
 {
     if (!elNameNew) {
-        plogf("error: element must have a name\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_PROB::addElement",
+                           "error: element must have a name");
     }
     size_t nel = ne + 1;
     resizeElements(nel, 1);
@@ -339,15 +336,13 @@ size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
         /*
          * Need to expand the number of species here
          */
-        plogf("Shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_PROB::addOnePhaseSpecies", "Shouldn't be here");
     }
     const Cantera::Array2D& fm = volPhase->getFormulaMatrix();
     for (size_t eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
         size_t e = volPhase->elemGlobalIndex(eVP);
-        if (DEBUG_MODE_ENABLED && e == npos) {
-            exit(EXIT_FAILURE);
-        }
+        AssertThrowMsg(e != npos, "VCS_PROB::addOnePhaseSpecies",
+                       "element not found");
         FormulaMatrix(kT,e) = fm(k,eVP);
     }
     /*
@@ -362,8 +357,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
 {
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
-        plogf("Failure to open file\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_PROB::reportCSV", "Failure to open file");
     }
 
     std::vector<double> volPM(nspecies, 0.0);
@@ -492,10 +486,8 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
             tp->getChemPotentials(VCS_DATA_PTR(m_gibbsSpecies)+istart);
             for (size_t k = 0; k < nSpeciesPhase; k++) {
                 if (!vcs_doubleEqual(m_gibbsSpecies[istart+k], mu[k])) {
-                    fprintf(FP,"ERROR: incompatibility!\n");
                     fclose(FP);
-                    plogf("ERROR: incompatibility!\n");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("VCS_PROB::reportCSV", "incompatibility");
                 }
             }
         }

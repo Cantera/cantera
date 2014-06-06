@@ -17,6 +17,7 @@
 #include "cantera/equil/vcs_internal.h"
 
 using namespace std;
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -123,7 +124,6 @@ VCS_SPECIES_THERMO* VCS_SPECIES_THERMO::duplMyselfAsVCS_SPECIES_THERMO()
 double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
                                         double pres)
 {
-    char yo[] = "VCS_SPECIES_THERMO::GStar_R_calc ";
     double fe = G0_R_calc(kglob, TKelvin);
     double T = TKelvin;
     if (UseCanteraCalls) {
@@ -145,8 +145,8 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
             fe += T * log(pres/ pref);
             break;
         default:
-            plogf("%sERROR: unknown SSStar model\n", yo);
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
+                               "unknown SSStar model");
         }
     }
     return fe;
@@ -155,7 +155,6 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
 double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin, 
                                         double presPA)
 {
-    char yo[] = "VCS_SPECIES_THERMO::VStar_calc ";
     double vol;
 
     double T = TKelvin;
@@ -176,8 +175,8 @@ double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
             vol= Cantera::GasConstant * T / presPA;
             break;
         default:
-            plogf("%sERROR: unknown SSVol model\n", yo);
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
+                               "unknown SSVol model");
         }
     }
     return vol;
@@ -213,8 +212,8 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
             fe = H - TKelvin * S;
             break;
         default:
-            plogf("VS_SPECIES_THERMO::G0_R_calc ERROR: unknown model\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
+                               "unknown model");
         }
     }
     SS0_feSave = fe;
@@ -240,8 +239,7 @@ double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
             ac = 1.0;
             break;
         default:
-            plogf("VCS_SPECIES_THERMO::eval_ac ERROR: unknown model\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SPECIES_THERMO::eval_ac" ,"unknown model");
         }
     }
     return ac;

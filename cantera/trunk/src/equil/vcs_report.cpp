@@ -119,8 +119,7 @@ int VCS_SOLVE::vcs_report(int iconv)
             plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_old[l]);
             plogf("   Voltage = %14.7E", m_molNumSpecies_old[l] * molScale);
         } else {
-            plogf("we have a problem\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
         }
         plogf("\n");
     }
@@ -228,8 +227,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         totalMoles +=  m_tPhaseMoles_old[iphase];
         if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles()) {
             if (! vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->totalMoles())) {
-                plogf("We have a problem\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
             }
         }
         vcs_elabPhase(iphase, VCS_DATA_PTR(gaPhase));
@@ -320,8 +318,8 @@ int VCS_SOLVE::vcs_report(int iconv)
         double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l])
                      + lx - m_lnMnaughtSpecies[l] + eContrib;
         if (fabs(m_feSpecies_old[l] - tmp) > 1.0E-7) {
-            plogf("\n\t\twe have a problem - doesn't add up\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SOLVE::vcs_report",
+                               "we have a problem - doesn't add up");
         }
         plogf(" %12.4E |", m_feSpecies_old[l]);
         if (m_lnMnaughtSpecies[l] != 0.0) {

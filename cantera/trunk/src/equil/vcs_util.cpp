@@ -9,9 +9,12 @@
  */
 
 #include "cantera/equil/vcs_internal.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 #include <cassert>
 
 using namespace std;
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -83,9 +86,8 @@ double vcsUtil_gasConstant(int mu_units)
         /* joules / kg-mol K = kg m2 / s2 kg-mol K */
         return Cantera::GasConstant;
     default:
-        plogf("vcs_gasConstant error: uknown units: %d\n",
-              mu_units);
-        exit(EXIT_FAILURE);
+        throw CanteraError("vcsUtil_gasConstant",
+                           "uknown units: " + int2str(mu_units));
     }
 }
 

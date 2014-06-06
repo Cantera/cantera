@@ -548,13 +548,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             }
             // update the T estimate
             t0 = t0 + dt;
-            if (t0 <= tminPhase || t0 >= tmaxPhase) {
-                printf("We shouldn't be here\n");
-                exit(EXIT_FAILURE);
-            }
-            if (t0 < 100.) {
-                printf("t0 - we are here %g\n", t0);
-                exit(EXIT_FAILURE);
+            if (t0 <= tminPhase || t0 >= tmaxPhase || t0 < 100.0) {
+                throw CanteraError("ChemEquil::equilibrate", "T out of bounds");
             }
             s.setTemperature(t0);
         }

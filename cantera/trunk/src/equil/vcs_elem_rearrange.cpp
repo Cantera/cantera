@@ -12,6 +12,9 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
+#include "cantera/base/stringUtils.h"
+
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -76,9 +79,8 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                 }
             }
             if (k == m_numElemConstraints) {
-                plogf("vcs_elem_rearrange::Shouldn't be here. Algorithm misfired.");
-                plogendl();
-                exit(EXIT_FAILURE);
+                throw CanteraError("vcs_elem_rearrange",
+                        "Shouldn't be here. Algorithm misfired.");
             }
 
             /*
@@ -176,13 +178,9 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     if (ipos == jpos) {
         return;
     }
-    if (DEBUG_MODE_ENABLED && (ipos > (m_numElemConstraints - 1) ||
-                               jpos > (m_numElemConstraints - 1))) {
-        plogf("vcs_switch_elem_pos: ifunc = 0: inappropriate args: %d %d\n",
-              ipos, jpos);
-        plogendl();
-        exit(EXIT_FAILURE);
-    }
+    AssertThrowMsg(ipos < m_numElemConstraints && jpos < m_numElemConstraints,
+                   "vcs_switch_elem_pos",
+                   "inappropriate args: " + int2str(ipos) + " " + int2str(jpos));
     /*
      * Change the element Global Index list in each vcs_VolPhase object
      * to reflect the switch in the element positions.

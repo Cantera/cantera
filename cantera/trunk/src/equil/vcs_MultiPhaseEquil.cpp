@@ -608,8 +608,8 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
-        plogf("Failure to open file\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("vcs_MultiPhaseEquil::reportCSV",
+                           "Failure to open file");
     }
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
@@ -742,8 +742,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
             if (!vcs_doubleEqual(fe[istart+k], mu[k])) {
                 fprintf(FP,"ERROR: incompatibility!\n");
                 fclose(FP);
-                plogf("ERROR: incompatibility!\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("vcs_MultiPhaseEquil::reportCSV", "incompatibility!");
             }
         }
 #endif
@@ -874,8 +873,8 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             }
             VolPhase->m_eqnState = VCS_EOS_UNK_CANTERA;
             if (!VolPhase->usingCanteraCalls()) {
-                plogf("vcs functions asked for, but unimplemented\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("vcs_Cantera_to_vprob",
+                                   "vcs functions asked for, but unimplemented");
             }
             break;
         }
@@ -1028,8 +1027,8 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
                 ts_ptr->SS0_Model = VCS_SS0_NOTHANDLED;
                 ts_ptr->SSStar_Model = VCS_SSSTAR_NOTHANDLED;
                 if (!(ts_ptr->UseCanteraCalls)) {
-                    plogf("Cantera calls not being used -> exiting\n");
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("vcs_Cantera_to_vprob",
+                                       "Cantera calls not being used -> aborting");
                 }
             }
 

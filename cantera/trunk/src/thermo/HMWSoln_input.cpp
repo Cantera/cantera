@@ -1035,12 +1035,12 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
         if (formString != "") {
             if (formString == "unity") {
                 m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::constructPhaseXML",
+                                   "standardConc = unity not done");
             } else if (formString == "molar_volume") {
                 m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::constructPhaseXML",
+                   "standardConc = molar_volume not done");
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
@@ -1162,12 +1162,12 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (formString != "") {
             if (formString == "unity") {
                 m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::initThermoXML",
+                                   "standardConc = unity not done");
             } else if (formString == "molar_volume") {
                 m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::initThermoXML",
+                                   "standardConc = molar_volume not done");
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
