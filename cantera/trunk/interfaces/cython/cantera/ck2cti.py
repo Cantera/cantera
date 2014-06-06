@@ -1899,6 +1899,23 @@ def main(argv):
     parser.convertMech(inputFile, thermoFile, transportFile, phaseName,
                        outName, permissive=permissive)
 
+    # Do full validation by importing the resulting mechanism
+    try:
+        import cantera as ct
+    except ImportError:
+        print('WARNING: Unable to import Cantera Python module. Output '
+              'mechanism has not been validated')
+        sys.exit(0)
+
+    try:
+        print('Validating mechanism...', end='')
+        gas = ct.Solution(outName)
+        print('PASSED.')
+    except RuntimeError as e:
+        print('FAILED.')
+        print(e)
+        sys.exit(1)
+
 if __name__ == '__main__':
     import sys
     main(sys.argv[1:])
