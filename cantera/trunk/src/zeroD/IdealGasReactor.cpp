@@ -64,39 +64,8 @@ void IdealGasReactor::getInitialConditions(double t0, size_t leny, double* y)
 
 void IdealGasReactor::initialize(doublereal t0)
 {
-    m_thermo->restoreState(m_state);
-    m_sdot.resize(m_nsp, 0.0);
-    m_wdot.resize(m_nsp, 0.0);
+    Reactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
-    m_nv = m_nsp + 3;
-    for (size_t w = 0; w < m_nwalls; w++)
-        if (m_wall[w]->surface(m_lr[w])) {
-            m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
-        }
-
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_pressure = m_thermo->pressure();
-    m_intEnergy = m_thermo->intEnergy_mass();
-
-    size_t nt = 0, maxnt = 0;
-    for (size_t m = 0; m < m_nwalls; m++) {
-        m_wall[m]->initialize();
-        if (m_wall[m]->kinetics(m_lr[m])) {
-            nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
-            maxnt = std::max(maxnt, nt);
-            if (m_wall[m]->kinetics(m_lr[m])) {
-                if (&m_kin->thermo(0) !=
-                        &m_wall[m]->kinetics(m_lr[m])->thermo(0)) {
-                    throw CanteraError("IdealGasReactor::initialize",
-                                       "First phase of all kinetics managers must be"
-                                       " the gas.");
-                }
-            }
-        }
-    }
-    m_work.resize(maxnt);
-    std::sort(m_pnum.begin(), m_pnum.end());
-    m_init = true;
 }
 
 void IdealGasReactor::updateState(doublereal* y)

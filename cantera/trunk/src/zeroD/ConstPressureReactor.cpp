@@ -51,37 +51,8 @@ void ConstPressureReactor::getInitialConditions(double t0, size_t leny, double* 
 
 void ConstPressureReactor::initialize(doublereal t0)
 {
-    m_thermo->restoreState(m_state);
-    m_sdot.resize(m_nsp, 0.0);
-    m_wdot.resize(m_nsp, 0.0);
-    m_nv = m_nsp + 2;
-    for (size_t w = 0; w < m_nwalls; w++)
-        if (m_wall[w]->surface(m_lr[w])) {
-            m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
-        }
-
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_pressure = m_thermo->pressure();
-    m_intEnergy = m_thermo->intEnergy_mass();
-
-    size_t nt = 0, maxnt = 0;
-    for (size_t m = 0; m < m_nwalls; m++) {
-        if (m_wall[m]->kinetics(m_lr[m])) {
-            nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
-            maxnt = std::max(maxnt, nt);
-            if (m_wall[m]->kinetics(m_lr[m])) {
-                if (&m_kin->thermo(0) !=
-                        &m_wall[m]->kinetics(m_lr[m])->thermo(0)) {
-                    throw CanteraError("ConstPressureReactor::initialize",
-                                       "First phase of all kinetics managers must be"
-                                       " the gas.");
-                }
-            }
-        }
-    }
-    m_work.resize(maxnt);
-    std::sort(m_pnum.begin(), m_pnum.end());
-    m_init = true;
+    Reactor::initialize(t0);
+    m_nv -= 1; // Constant pressure reactor has one fewer state variable
 }
 
 void ConstPressureReactor::updateState(doublereal* y)
