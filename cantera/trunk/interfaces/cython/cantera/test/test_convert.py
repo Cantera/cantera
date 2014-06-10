@@ -110,8 +110,8 @@ class chemkinConverterTest(utilities.CanteraTest):
                     quiet=True, permissive=True)
 
         gas = ct.Solution('duplicate-thermo.cti')
-        self.assertTrue(gas.n_species, 3)
-        self.assertTrue(gas.n_reactions, 2)
+        self.assertEqual(gas.n_species, 3)
+        self.assertEqual(gas.n_reactions, 2)
 
     def test_duplicate_species(self):
         with self.assertRaises(ck2cti.InputParseError):

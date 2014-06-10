@@ -339,7 +339,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertEqual(self.r1.outlets, self.r2.inlets)
         self.assertTrue(self.r1.energy_enabled)
         self.assertTrue(self.r2.energy_enabled)
-        self.assertTrue((self.r1.thermo.P - self.r2.thermo.P) * k,
+        self.assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
                         valve.mdot(0))
 
         m1a = self.r1.thermo.density * self.r1.volume
@@ -352,7 +352,7 @@ class TestReactor(utilities.CanteraTest):
         m1b = self.r1.thermo.density * self.r1.volume
         m2b = self.r2.thermo.density * self.r2.volume
 
-        self.assertTrue((self.r1.thermo.P - self.r2.thermo.P) * k,
+        self.assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
                         valve.mdot(0.1))
         self.assertNear(m1a+m2a, m1b+m2b)
         Y1b = self.r1.thermo.Y
