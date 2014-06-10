@@ -117,49 +117,14 @@ void ConstPressureReactor::updateState(doublereal* y)
 void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
                                    doublereal* ydot, doublereal* params)
 {
-    size_t nk;
-    m_thermo->restoreState(m_state);
-
-    Kinetics* kin;
-    applySensitivity(params);
-
-    m_Q = 0.0;
-
-    // compute wall terms
-    doublereal rs0, sum, wallarea;
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 2;
 
-    SurfPhase* surf;
-    size_t lr, ns, loc = m_nsp+2, surfloc;
-    fill(m_sdot.begin(), m_sdot.end(), 0.0);
-    for (size_t i = 0; i < m_nwalls; i++) {
-        lr = 1 - 2*m_lr[i];
-        m_Q += lr*m_wall[i]->Q(time);
-        kin = m_wall[i]->kinetics(m_lr[i]);
-        surf = m_wall[i]->surface(m_lr[i]);
-        if (surf && kin) {
-            rs0 = 1.0/surf->siteDensity();
-            nk = surf->nSpecies();
-            sum = 0.0;
-            surf->setTemperature(m_state[0]);
-            m_wall[i]->syncCoverages(m_lr[i]);
-            kin->getNetProductionRates(DATA_PTR(m_work));
-            ns = kin->surfacePhaseIndex();
-            surfloc = kin->kineticsSpeciesIndex(0,ns);
-            for (size_t k = 1; k < nk; k++) {
-                ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
-                sum -= ydot[loc + k];
-            }
-            ydot[loc] = sum;
-            loc += nk;
-
-            wallarea = m_wall[i]->area();
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_sdot[k] += m_work[k]*wallarea;
-            }
-        }
-    }
+    m_thermo->restoreState(m_state);
+    applySensitivity(params);
+    evalWalls(time);
+    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 2);
+    dmdt += mdot_surf;
 
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* Y = m_thermo->massFractions();
@@ -168,21 +133,15 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    double mdot_surf = 0.0; // net mass flux from surface
     for (size_t k = 0; k < m_nsp; k++) {
         // production in gas phase and from surfaces
         dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k] / m_mass;
-        mdot_surf += m_sdot[k] * mw[k];
+        // dilution by net surface mass flux
+        dYdt[k] -= Y[k] * mdot_surf / m_mass;
     }
-    dmdt += mdot_surf;
 
     // external heat transfer
     double dHdt = - m_Q;
-
-    for (size_t n = 0; n < m_nsp; n++) {
-        // dilution by net surface mass flux
-        dYdt[n] -= Y[n] * mdot_surf / m_mass;
-    }
 
     // add terms for open system
     if (m_open) {
