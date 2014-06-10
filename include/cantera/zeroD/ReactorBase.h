@@ -113,11 +113,8 @@ public:
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
      */
     virtual void initialize(doublereal t0 = 0.0) {
-        tilt();
+        throw NotImplementedError("ReactorBase::initialize");
     }
-
-    //! @deprecated Not used in any derived class.
-    virtual void start() {}
 
     //@}
 
@@ -202,11 +199,6 @@ public:
 
     //@}
 
-    int error(const std::string& msg) const {
-        writelog("Error: "+msg);
-        return 1;
-    }
-
     //! The ReactorNet that this reactor belongs to.
     ReactorNet& network();
 
@@ -235,12 +227,6 @@ protected:
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net;
-
-private:
-    void tilt(const std::string& method="") const {
-        throw CanteraError("ReactorBase::"+method,
-                           "ReactorBase method called!");
-    }
 };
 }
 
