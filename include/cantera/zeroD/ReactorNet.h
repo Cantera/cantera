@@ -36,7 +36,7 @@ public:
      */
     void setInitialTime(doublereal time) {
         m_time = time;
-        m_init = false;
+        m_integrator_init = false;
     }
 
     //! Set the maximum time step.
@@ -205,6 +205,18 @@ public:
         return m_paramNames.at(p);
     }
 
+    //! Reinitialize the integrator. Used to solve a new problem (different
+    //! initial conditions) but with the same configuration of the reactor
+    //! network. Can be called manually, or automatically after calling
+    //! setInitialTime or modifying a reactor's contents.
+    void reinitialize();
+
+    //! Called to trigger integrator reinitialization before further
+    //! integration.
+    void setNeedsReinit() {
+        m_integrator_init = false;
+    }
+
 protected:
     void connect(size_t i, size_t j) {
         m_connect[j*m_reactors.size() + i] = 1;
@@ -225,6 +237,7 @@ protected:
     Integrator* m_integ;
     doublereal m_time;
     bool m_init;
+    bool m_integrator_init; //! True if integrator initialization is current
     size_t m_nv;
 
     //! m_start[n] is the starting point in the state vector for reactor n

@@ -251,6 +251,7 @@ cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
         CxxReactorBase()
         void setThermoMgr(CxxThermoPhase&) except +
         void restoreState() except +
+        void syncState() except +
         double volume()
         string name()
         void setName(string)
@@ -327,6 +328,7 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         void addReactor(CxxReactor&)
         void advance(double) except +
         double step(double) except +
+        void reinitialize() except +
         double time()
         void setInitialTime(double)
         void setTolerances(double, double)

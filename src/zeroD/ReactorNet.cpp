@@ -12,7 +12,7 @@ namespace Cantera
 {
 
 ReactorNet::ReactorNet() : Cantera::FuncEval(),
-    m_integ(0), m_time(0.0), m_init(false),
+    m_integ(0), m_time(0.0), m_init(false), m_integrator_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),
     m_maxstep(-1.0), m_maxErrTestFails(0),
@@ -132,7 +132,19 @@ void ReactorNet::initialize()
         writelog(buf);
     }
     m_integ->initialize(m_time, *this);
+    m_integrator_init = true;
     m_init = true;
+}
+
+void ReactorNet::reinitialize()
+{
+    if (m_init) {
+        writelog("Re-initializing reactor network.\n", m_verbose);
+        m_integ->reinitialize(m_time, *this);
+        m_integrator_init = true;
+    } else {
+        initialize();
+    }
 }
 
 void ReactorNet::advance(doublereal time)
@@ -142,6 +154,8 @@ void ReactorNet::advance(doublereal time)
             m_maxstep = time - m_time;
         }
         initialize();
+    } else if (!m_integrator_init) {
+        reinitialize();
     }
     m_integ->integrate(time);
     m_time = time;
@@ -155,6 +169,8 @@ double ReactorNet::step(doublereal time)
             m_maxstep = time - m_time;
         }
         initialize();
+    } else if (!m_integrator_init) {
+        reinitialize();
     }
     m_time = m_integ->step(time);
     updateState(m_integ->solution());

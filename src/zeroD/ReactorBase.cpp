@@ -7,6 +7,7 @@
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 using namespace std;
 namespace Cantera
@@ -37,6 +38,17 @@ void ReactorBase::setThermoMgr(thermo_t& thermo)
     m_enthalpy = m_thermo->enthalpy_mass();
     m_intEnergy = m_thermo->intEnergy_mass();
     m_pressure = m_thermo->pressure();
+}
+
+void ReactorBase::syncState()
+{
+    m_thermo->saveState(m_state);
+    m_enthalpy = m_thermo->enthalpy_mass();
+    m_intEnergy = m_thermo->intEnergy_mass();
+    m_pressure = m_thermo->pressure();
+    if (m_net) {
+        m_net->setNeedsReinit();
+    }
 }
 
 void ReactorBase::addInlet(FlowDevice& inlet)

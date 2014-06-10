@@ -474,6 +474,28 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(p1a, p1b)
         self.assertNear(p2a, p2b)
 
+    def test_reinitialize(self):
+        self.make_reactors(T1=300, T2=1000, independent=False)
+        self.add_wall(U=200, A=1.0)
+        self.net.advance(1.0)
+        T1a = self.r1.T
+        T2a = self.r2.T
+
+        self.r1.thermo.TD = 300, None
+        self.r1.syncState()
+
+        self.r2.thermo.TD = 1000, None
+        self.r2.syncState()
+
+        self.assertNear(self.r1.T, 300)
+        self.assertNear(self.r2.T, 1000)
+        self.net.advance(2.0)
+        T1b = self.r1.T
+        T2b = self.r2.T
+
+        self.assertNear(T1a, T1b)
+        self.assertNear(T2a, T2b)
+
     def test_unpicklable(self):
         self.make_reactors()
         import pickle
