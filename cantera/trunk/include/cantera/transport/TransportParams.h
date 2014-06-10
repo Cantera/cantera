@@ -15,20 +15,6 @@ namespace Cantera
 
 class XML_Writer;
 
-//! Error class to indicate an unimplemented method
-/*!
- * This class is used by transport objects
- */
-class NotImplemented : public CanteraError
-{
-public:
-    //! Constructor for error class
-    /*!
-     *  @param method Single string indicating a method that is not implemented
-     */
-    NotImplemented(const std::string& method);
-};
-
 //! Base structure to hold transport model parameters.
 /*!
  * This structure is used by TransportFactory.
