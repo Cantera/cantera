@@ -131,16 +131,16 @@ public:
     //! Return the mixture transport property value.
     //! (Must be implemented in subclasses.)
     virtual doublereal getMixTransProp(doublereal* speciesValues, doublereal* weightSpecies = 0) {
-        throw NotImplemented("LiquidTranInteraction::getMixTransProp");
+        throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
     virtual doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs) {
-        throw NotImplemented("LiquidTranInteraction::getMixTransProp");
+        throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
     virtual void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
         //mat = m_Dij;
-        throw NotImplemented("LiquidTranInteraction::getMixTransProp");
+        throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
 protected:
