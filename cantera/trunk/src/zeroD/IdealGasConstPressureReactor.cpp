@@ -7,9 +7,6 @@
 
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
-#include "cantera/zeroD/Wall.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 
@@ -49,15 +46,7 @@ void IdealGasConstPressureReactor::getInitialConditions(double t0, size_t leny,
 
     // set the remaining components to the surface species
     // coverages on the walls
-    size_t loc = m_nsp + 2;
-    SurfPhase* surf;
-    for (size_t m = 0; m < m_nwalls; m++) {
-        surf = m_wall[m]->surface(m_lr[m]);
-        if (surf) {
-            m_wall[m]->getCoverages(m_lr[m], y + loc);
-            loc += surf->nSpecies();
-        }
-    }
+    getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
 void IdealGasConstPressureReactor::initialize(doublereal t0)
@@ -75,16 +64,7 @@ void IdealGasConstPressureReactor::updateState(doublereal* y)
     m_thermo->setMassFractions_NoNorm(y+2);
     m_thermo->setState_TP(y[1], m_pressure);
     m_vol = m_mass / m_thermo->density();
-
-    size_t loc = m_nsp + 2;
-    SurfPhase* surf;
-    for (size_t m = 0; m < m_nwalls; m++) {
-        surf = m_wall[m]->surface(m_lr[m]);
-        if (surf) {
-            m_wall[m]->setCoverages(m_lr[m], y+loc);
-            loc += surf->nSpecies();
-        }
-    }
+    updateSurfaceState(y + m_nsp + 2);
 
     // save parameters needed by other connected reactors
     m_enthalpy = m_thermo->enthalpy_mass();

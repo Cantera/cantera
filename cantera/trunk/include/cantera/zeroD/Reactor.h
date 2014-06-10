@@ -169,6 +169,12 @@ protected:
     //! @returns          Net mass flux from surfaces
     virtual double evalSurfaces(double t, double* ydot);
 
+    //! Update the state of SurfPhase objects attached to this reactor
+    virtual void updateSurfaceState(double* y);
+
+    //! Get initial conditions for SurfPhase objects attached to this reactor
+    virtual void getSurfaceInitialConditions(double* y);
+
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics*   m_kin;
 
