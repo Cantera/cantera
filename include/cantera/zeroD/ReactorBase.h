@@ -57,7 +57,6 @@ public:
      */
     void setInitialVolume(doublereal vol) {
         m_vol = vol;
-        m_vol0 = vol;
     }
 
     /**
@@ -210,10 +209,8 @@ protected:
     size_t m_nsp;
 
     thermo_t*  m_thermo;
-    doublereal m_vol, m_vol0;
+    doublereal m_vol;
     bool m_init;
-    size_t m_nInlets, m_nOutlets;
-    bool m_open;
     doublereal m_enthalpy;
     doublereal m_intEnergy;
     doublereal m_pressure;
@@ -221,9 +218,7 @@ protected:
     std::vector<FlowDevice*> m_inlet, m_outlet;
     std::vector<Wall*> m_wall;
     vector_int m_lr;
-    size_t m_nwalls;
     std::string m_name;
-    double m_rho0;
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net;
