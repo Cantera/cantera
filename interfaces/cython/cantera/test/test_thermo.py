@@ -136,7 +136,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
         self.phase.name = 'something'
         self.assertEqual(self.phase.name, 'something')
-        self.assertTrue('something' in self.phase.report())
+        self.assertIn('something', self.phase.report())
 
     def test_ID(self):
         self.assertEqual(self.phase.ID, 'ohmech')

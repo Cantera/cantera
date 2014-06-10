@@ -287,7 +287,7 @@ class TestReactionPath(utilities.CanteraTest):
                     # nodes
                     nodes2.add(A.strip())
                     spec = re.search('label="(.*?)"', B).group(1)
-                    self.assertTrue(spec not in species)
+                    self.assertNotIn(spec, species)
                     species.add(spec)
 
             # Make sure that the output was actually parsable and that we
