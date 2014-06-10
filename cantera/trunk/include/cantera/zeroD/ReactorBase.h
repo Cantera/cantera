@@ -130,6 +130,11 @@ public:
         m_thermo->restoreState(m_state);
     }
 
+    //! Set the state of the reactor to correspond to the state of the
+    //! associated ThermoPhase object. This is the inverse of restoreState().
+    //! Calling this will trigger integrator reinitialization.
+    virtual void syncState();
+
     //! return a reference to the contents.
     thermo_t& contents() {
         return *m_thermo;

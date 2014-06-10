@@ -44,6 +44,14 @@ cdef class ReactorBase:
         def __set__(self, name):
             self.rbase.setName(stringify(name))
 
+    def syncState(self):
+        """
+        Set the state of the Reactor to match that of the associated
+        `ThermoPhase` object. After calling syncState(), call
+        ReactorNet.reinitialize() before further integration.
+        """
+        self.rbase.syncState()
+
     property thermo:
         """The `ThermoPhase` object representing the reactor's contents."""
         def __get__(self):
@@ -747,6 +755,14 @@ cdef class ReactorNet:
         taking the step is returned.
         """
         return self.net.step(t)
+
+    def reinitialize(self):
+        """
+        Reinitialize the integrator after making changing to the state of the
+        system. Changes to Reactor contents will automatically trigger
+        reinitialization.
+        """
+        self.net.reinitialize()
 
     property time:
         """The current time [s]."""

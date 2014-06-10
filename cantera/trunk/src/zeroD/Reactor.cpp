@@ -116,6 +116,12 @@ size_t Reactor::nSensParams()
     return m_nsens;
 }
 
+void Reactor::syncState()
+{
+    ReactorBase::syncState();
+    m_mass = m_thermo->density() * m_vol;
+}
+
 void Reactor::updateState(doublereal* y)
 {
     for (size_t i = 0; i < m_nv; i++) {
