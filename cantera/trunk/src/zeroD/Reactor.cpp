@@ -177,46 +177,14 @@ void Reactor::updateState(doublereal* y)
 void Reactor::evalEqs(doublereal time, doublereal* y,
                       doublereal* ydot, doublereal* params)
 {
-    m_thermo->restoreState(m_state);
-    applySensitivity(params);
-
-    m_vdot = 0.0;
-    m_Q    = 0.0;
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;
 
-    // compute wall terms
-    size_t loc = m_nsp+3;
-    fill(m_sdot.begin(), m_sdot.end(), 0.0);
-    for (size_t i = 0; i < m_nwalls; i++) {
-        int lr = 1 - 2*m_lr[i];
-        double vdot = lr*m_wall[i]->vdot(time);
-        m_vdot += vdot;
-        m_Q += lr*m_wall[i]->Q(time);
-        Kinetics* kin = m_wall[i]->kinetics(m_lr[i]);
-        SurfPhase* surf = m_wall[i]->surface(m_lr[i]);
-        if (surf && kin) {
-            double rs0 = 1.0/surf->siteDensity();
-            size_t nk = surf->nSpecies();
-            double sum = 0.0;
-            surf->setTemperature(m_state[0]);
-            m_wall[i]->syncCoverages(m_lr[i]);
-            kin->getNetProductionRates(DATA_PTR(m_work));
-            size_t ns = kin->surfacePhaseIndex();
-            size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
-            for (size_t k = 1; k < nk; k++) {
-                ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
-                sum -= ydot[loc + k];
-            }
-            ydot[loc] = sum;
-            loc += nk;
-
-            double wallarea = m_wall[i]->area();
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_sdot[k] += m_work[k]*wallarea;
-            }
-        }
-    }
+    m_thermo->restoreState(m_state);
+    applySensitivity(params);
+    evalWalls(time);
+    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
+    dmdt += mdot_surf; // mass added to gas phase from surface reations
 
     // volume equation
     ydot[1] = m_vdot;
@@ -228,15 +196,9 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    double mdot_surf = 0.0; // net mass flux from surfaces
     for (size_t k = 0; k < m_nsp; k++) {
         // production in gas phase and from surfaces
         dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k] / m_mass;
-        mdot_surf += m_sdot[k] * mw[k];
-    }
-    dmdt += mdot_surf; // mass added to gas phase from surface reations
-
-    for (size_t k = 0; k < m_nsp; k++) {
         // dilution by net surface mass flux
         dYdt[k] -= Y[k] * mdot_surf / m_mass;
     }
@@ -290,6 +252,54 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     }
 
     resetSensitivity(params);
+}
+
+void Reactor::evalWalls(double t)
+{
+    m_vdot = 0.0;
+    m_Q = 0.0;
+    for (size_t i = 0; i < m_nwalls; i++) {
+        int lr = 1 - 2*m_lr[i];
+        m_vdot += lr*m_wall[i]->vdot(t);
+        m_Q += lr*m_wall[i]->Q(t);
+    }
+}
+
+double Reactor::evalSurfaces(double t, double* ydot)
+{
+    const vector_fp& mw = m_thermo->molecularWeights();
+
+    fill(m_sdot.begin(), m_sdot.end(), 0.0);
+    size_t loc = 0; // offset into ydot
+    double mdot_surf = 0.0; // net mass flux from surface
+
+    for (size_t i = 0; i < m_nwalls; i++) {
+        Kinetics* kin = m_wall[i]->kinetics(m_lr[i]);
+        SurfPhase* surf = m_wall[i]->surface(m_lr[i]);
+        if (surf && kin) {
+            double rs0 = 1.0/surf->siteDensity();
+            size_t nk = surf->nSpecies();
+            double sum = 0.0;
+            surf->setTemperature(m_state[0]);
+            m_wall[i]->syncCoverages(m_lr[i]);
+            kin->getNetProductionRates(&m_work[0]);
+            size_t ns = kin->surfacePhaseIndex();
+            size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
+            for (size_t k = 1; k < nk; k++) {
+                ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
+                sum -= ydot[loc + k];
+            }
+            ydot[loc] = sum;
+            loc += nk;
+
+            double wallarea = m_wall[i]->area();
+            for (size_t k = 0; k < m_nsp; k++) {
+                m_sdot[k] += m_work[k]*wallarea;
+                mdot_surf += m_sdot[k] * mw[k];
+            }
+        }
+    }
+    return mdot_surf;
 }
 
 void Reactor::addSensitivityReaction(size_t rxn)

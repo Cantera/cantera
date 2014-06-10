@@ -135,50 +135,13 @@ void IdealGasReactor::updateState(doublereal* y)
 void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
                       doublereal* ydot, doublereal* params)
 {
-    m_thermo->restoreState(m_state);
-    applySensitivity(params);
-
-    m_vdot = 0.0;
-    m_Q    = 0.0;
-    double mcvdTdt = 0.0; // m * c_v * dT/dt
     double dmdt = 0.0; // dm/dt (gas phase)
+    double mcvdTdt = 0.0; // m * c_v * dT/dt
     double* dYdt = ydot + 3;
 
+    m_thermo->restoreState(m_state);
+    applySensitivity(params);
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-
-    // compute wall terms
-    size_t loc = m_nsp+3;
-    fill(m_sdot.begin(), m_sdot.end(), 0.0);
-    for (size_t i = 0; i < m_nwalls; i++) {
-        int lr = 1 - 2*m_lr[i];
-        double vdot = lr*m_wall[i]->vdot(time);
-        m_vdot += vdot;
-        m_Q += lr*m_wall[i]->Q(time);
-        Kinetics* kin = m_wall[i]->kinetics(m_lr[i]);
-        SurfPhase* surf = m_wall[i]->surface(m_lr[i]);
-        if (surf && kin) {
-            double rs0 = 1.0/surf->siteDensity();
-            size_t nk = surf->nSpecies();
-            double sum = 0.0;
-            surf->setTemperature(m_state[0]);
-            m_wall[i]->syncCoverages(m_lr[i]);
-            kin->getNetProductionRates(DATA_PTR(m_work));
-            size_t ns = kin->surfacePhaseIndex();
-            size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
-            for (size_t k = 1; k < nk; k++) {
-                ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
-                sum -= ydot[loc + k];
-            }
-            ydot[loc] = sum;
-            loc += nk;
-
-            double wallarea = m_wall[i]->area();
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_sdot[k] += m_work[k]*wallarea;
-            }
-        }
-    }
-
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* Y = m_thermo->massFractions();
 
@@ -186,12 +149,8 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    double mdot_surf = 0.0; // net mass flux from surfaces
-    for (size_t k = 0; k < m_nsp; k++) {
-        // production in gas phase and from surfaces
-        dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k] / m_mass;
-        mdot_surf += m_sdot[k] * mw[k];
-    }
+    evalWalls(time);
+    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
     dmdt += mdot_surf;
 
     // compression work and external heat transfer
@@ -201,6 +160,8 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
         // heat release from gas phase and surface reations
         mcvdTdt -= m_wdot[n] * m_uk[n] * m_vol;
         mcvdTdt -= m_sdot[n] * m_uk[n];
+        // production in gas phase and from surfaces
+        dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n] / m_mass;
         // dilution by net surface mass flux
         dYdt[n] -= Y[n] * mdot_surf / m_mass;
     }
