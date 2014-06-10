@@ -38,10 +38,10 @@ class TestReactor(utilities.CanteraTest):
 
     def test_insert(self):
         R = self.reactorClass()
-        f1 = lambda r: r.T
-        f2 = lambda r: r.kinetics.net_production_rates
-        self.assertRaises(Exception, f1, R)
-        self.assertRaises(Exception, f2, R)
+        with self.assertRaises(Exception):
+            R.T
+        with self.assertRaises(Exception):
+            R.kinetics.net_production_rates
 
         g = ct.Solution('h2o2.xml')
         g.TP = 300, 101325
@@ -782,14 +782,16 @@ class TestWallKinetics(utilities.CanteraTest):
         C_left = self.w.left.coverages
 
         self.assertEqual(self.w.right.kinetics, None)
-        self.assertRaises(Exception, lambda: self.w.right.coverages)
+        with self.assertRaises(Exception):
+            self.w.right.coverages
 
         self.make_reactors()
         self.w.right.kinetics = self.interface
         self.w.right.coverages = C
         self.assertArrayNear(self.w.right.coverages, C)
         self.assertEqual(self.w.left.kinetics, None)
-        self.assertRaises(Exception, lambda: self.w.left.coverages)
+        with self.assertRaises(Exception):
+            self.w.left.coverages
         self.net.advance(1e-5)
         C_right = self.w.right.coverages
 

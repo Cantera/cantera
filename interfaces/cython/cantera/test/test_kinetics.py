@@ -51,8 +51,10 @@ class TestKinetics(utilities.CanteraTest):
         self.assertNear(self.phase.reaction_type(2), 1) # elementary
         self.assertNear(self.phase.reaction_type(19), 4) # falloff
 
-        self.assertRaises(ValueError, self.phase.reaction_type, 33)
-        self.assertRaises(ValueError, self.phase.reaction_type, -2)
+        with self.assertRaises(ValueError):
+            self.phase.reaction_type(33)
+        with self.assertRaises(ValueError):
+            self.phase.reaction_type(-2)
 
     def test_reaction_equations(self):
         self.assertEqual(self.phase.n_reactions,

@@ -38,7 +38,8 @@ class TestFunc1(utilities.CanteraTest):
             raise ValueError('bad')
 
         f = ct.Func1(fails)
-        self.assertRaises(ValueError, f, 0.1)
+        with self.assertRaises(ValueError):
+            f(0.1)
 
     def test_unpicklable(self):
         import pickle

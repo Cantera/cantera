@@ -35,8 +35,10 @@ class TestThermoPhase(utilities.CanteraTest):
             kSpec = self.phase.species_index(species)
             self.assertEqual(self.phase.n_atoms(kSpec, mElem), n)
 
-        self.assertRaises(ValueError, lambda: self.phase.n_atoms('C', 'H2'))
-        self.assertRaises(ValueError, lambda: self.phase.n_atoms('H', 'CH4'))
+        with self.assertRaises(ValueError):
+            self.phase.n_atoms('C', 'H2')
+        with self.assertRaises(ValueError):
+            self.phase.n_atoms('H', 'CH4')
 
     def test_weights(self):
         atomic_weights = self.phase.atomic_weights
@@ -64,10 +66,8 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(X[0], 0.5)
         self.assertNear(X[3], 0.5)
 
-        def set_bad():
+        with self.assertRaises(Exception):
             self.phase.X = 'H2:1.0, CO2:1.5'
-
-        self.assertRaises(Exception, set_bad)
 
     def test_setCompositionStringBad(self):
         X0 = self.phase.X
@@ -147,13 +147,10 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_badLength(self):
         X = np.zeros(5)
-        def set_X():
+        with self.assertRaises(ValueError):
             self.phase.X = X
-        def set_Y():
+        with self.assertRaises(ValueError):
             self.phase.Y = X
-
-        self.assertRaises(ValueError, set_X)
-        self.assertRaises(ValueError, set_Y)
 
     def test_mass_basis(self):
         self.assertEqual(self.phase.basis, 'mass')
@@ -518,5 +515,5 @@ class ImportTest(utilities.CanteraTest):
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
     def test_checkReactionBalance(self):
-        self.assertRaises(Exception,
-                          lambda: ct.Solution('../data/h2o2_unbalancedReaction.xml'))
+        with self.assertRaises(Exception):
+            ct.Solution('../data/h2o2_unbalancedReaction.xml')

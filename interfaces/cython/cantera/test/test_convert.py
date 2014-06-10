@@ -88,22 +88,22 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_missingElement(self):
-        self.assertRaises(ck2cti.InputParseError,
-                          lambda: convertMech('../data/h2o2_missingElement.inp',
-                                              outName='h2o2_missingElement.cti',
-                                              quiet=True))
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech('../data/h2o2_missingElement.inp',
+                        outName='h2o2_missingElement.cti',
+                        quiet=True)
 
     def test_missingThermo(self):
-        self.assertRaises(ck2cti.InputParseError,
-                          lambda: convertMech('../data/h2o2_missingThermo.inp',
-                                              outName='h2o2_missingThermo.cti',
-                                              quiet=True))
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech('../data/h2o2_missingThermo.inp',
+                        outName='h2o2_missingThermo.cti',
+                        quiet=True)
 
     def test_duplicate_thermo(self):
-        self.assertRaises(ck2cti.InputParseError,
-                          lambda: convertMech('../data/duplicate-thermo.inp',
-                                              outName='duplicate-thermo.cti',
-                                              quiet=True))
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech('../data/duplicate-thermo.inp',
+                        outName='duplicate-thermo.cti',
+                        quiet=True)
 
         convertMech('../data/duplicate-thermo.inp',
                     outName='duplicate-thermo.cti',
@@ -114,10 +114,10 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertTrue(gas.n_reactions, 2)
 
     def test_duplicate_species(self):
-        self.assertRaises(ck2cti.InputParseError,
-                          lambda: convertMech('../data/duplicate-species.inp',
-                                              outName='duplicate-species.cti',
-                                              quiet=True))
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech('../data/duplicate-species.inp',
+                        outName='duplicate-species.cti',
+                        quiet=True)
 
         convertMech('../data/duplicate-species.inp',
                     outName='duplicate-species.cti',
@@ -149,10 +149,10 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(list(nu[:,5]), [1, 0, 0, 1, -1, -1])
 
     def test_unterminatedSections(self):
-        self.assertRaises(ck2cti.InputParseError,
-                          lambda: convertMech('../data/unterminated-sections.inp',
-                                              outName='unterminated-sections.cti',
-                                              quiet=True))
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech('../data/unterminated-sections.inp',
+                        outName='unterminated-sections.cti',
+                        quiet=True)
 
         convertMech('../data/unterminated-sections.inp',
                     outName='unterminated-sections.cti',
@@ -163,10 +163,10 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unterminatedSections2(self):
-        self.assertRaises(ck2cti.InputParseError,
-                          lambda: convertMech('../data/unterminated-sections2.inp',
-                                              outName='unterminated-sections2.cti',
-                                              quiet=True))
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech('../data/unterminated-sections2.inp',
+                        outName='unterminated-sections2.cti',
+                        quiet=True)
 
         convertMech('../data/unterminated-sections2.inp',
                     outName='unterminated-sections2.cti',
@@ -284,25 +284,19 @@ class chemkinConverterTest(utilities.CanteraTest):
             self.assertTrue(d > 0.0)
 
     def test_transport_missing_species(self):
-        def convert():
+        with self.assertRaises(ck2cti.InputParseError):
             convertMech('../../data/inputs/h2o2.inp',
                         transportFile='../data/h2o2-missing-species-tran.dat',
                         outName='h2o2_transport_missing_species.cti',
                         quiet=True)
 
-        self.assertRaises(ck2cti.InputParseError, convert)
-
     def test_transport_duplicate_species(self):
-        def convert():
+        with self.assertRaises(ck2cti.InputParseError):
             convertMech('../../data/inputs/h2o2.inp',
                         transportFile='../data/h2o2-duplicate-species-tran.dat',
                         outName='h2o2_transport_duplicate_species.cti',
                         quiet=True)
 
-        # This should fail
-        self.assertRaises(ck2cti.InputParseError, convert)
-
-        # This should succeed
         convertMech('../../data/inputs/h2o2.inp',
                     transportFile='../data/h2o2-duplicate-species-tran.dat',
                     outName='h2o2_transport_duplicate_species.cti',
@@ -310,13 +304,12 @@ class chemkinConverterTest(utilities.CanteraTest):
                     permissive=True)
 
     def test_transport_bad_geometry(self):
-        def convert():
+        with self.assertRaises(ck2cti.InputParseError):
             convertMech('../../data/inputs/h2o2.inp',
                         transportFile='../data/h2o2-bad-geometry-tran.dat',
                         outName='h2o2_transport_bad_geometry.cti',
                         quiet=True)
 
-        self.assertRaises(ck2cti.InputParseError, convert)
 
 class CtmlConverterTest(utilities.CanteraTest):
     def test_sofc(self):
