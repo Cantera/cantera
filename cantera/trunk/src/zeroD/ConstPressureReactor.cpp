@@ -94,27 +94,23 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     // external heat transfer
     double dHdt = - m_Q;
 
-    // add terms for open system
-    if (m_open) {
-        double enthalpy = m_thermo->enthalpy_mass();
-        // outlets
-        for (size_t i = 0; i < m_nOutlets; i++) {
-            double mdot_out = m_outlet[i]->massFlowRate(time); // mass flow out of system
-            dmdt -= mdot_out;
-            dHdt -= mdot_out * enthalpy;
-        }
+    // add terms for outlets
+    for (size_t i = 0; i < m_outlet.size(); i++) {
+        double mdot_out = m_outlet[i]->massFlowRate(time); // mass flow out of system
+        dmdt -= mdot_out;
+        dHdt -= mdot_out * m_enthalpy;
+    }
 
-        // inlets
-        for (size_t i = 0; i < m_nInlets; i++) {
-            double mdot_in = m_inlet[i]->massFlowRate(time);
-            dmdt += mdot_in; // mass flow into system
-            for (size_t n = 0; n < m_nsp; n++) {
-                double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
-                // flow of species into system and dilution by other species
-                dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
-            }
-            dHdt += mdot_in * m_inlet[i]->enthalpy_mass();
+    // add terms for inlets
+    for (size_t i = 0; i < m_inlet.size(); i++) {
+        double mdot_in = m_inlet[i]->massFlowRate(time);
+        dmdt += mdot_in; // mass flow into system
+        for (size_t n = 0; n < m_nsp; n++) {
+            double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
+            // flow of species into system and dilution by other species
+            dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
         }
+        dHdt += mdot_in * m_inlet[i]->enthalpy_mass();
     }
 
     ydot[0] = dmdt;

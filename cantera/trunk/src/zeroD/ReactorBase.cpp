@@ -6,7 +6,6 @@
 
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/FlowDevice.h"
-#include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/ReactorNet.h"
 
 using namespace std;
@@ -16,15 +15,10 @@ namespace Cantera
 ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_thermo(0),
     m_vol(1.0),
-    m_vol0(1.0),
     m_init(false),
-    m_nInlets(0),
-    m_nOutlets(0),
-    m_open(false),
     m_enthalpy(0.0),
     m_intEnergy(0.0),
     m_pressure(0.0),
-    m_nwalls(0),
     m_net(0)
 {
     m_name = name;
@@ -54,15 +48,11 @@ void ReactorBase::syncState()
 void ReactorBase::addInlet(FlowDevice& inlet)
 {
     m_inlet.push_back(&inlet);
-    m_open = true;
-    m_nInlets++;
 }
 
 void ReactorBase::addOutlet(FlowDevice& outlet)
 {
     m_outlet.push_back(&outlet);
-    m_open = true;
-    m_nOutlets++;
 }
 
 void ReactorBase::addWall(Wall& w, int lr)
@@ -73,7 +63,6 @@ void ReactorBase::addWall(Wall& w, int lr)
     } else {
         m_lr.push_back(1);
     }
-    m_nwalls++;
 }
 
 Wall& ReactorBase::wall(size_t n)
