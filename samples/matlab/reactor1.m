@@ -12,7 +12,7 @@ function reactor1(g)
 
 help reactor1
 
-if nargin == 1 & isa(g,'solution')
+if nargin == 1
    gas = g;
 else
    gas = GRI30;
