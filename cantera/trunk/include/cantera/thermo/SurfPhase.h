@@ -228,6 +228,18 @@ public:
      */
     virtual doublereal intEnergy_mole() const;
 
+    //! Return the Molar Entropy. Units: J/kmol-K
+    /**
+     * \f[
+     *  \hat s(T,P) = \sum_k X_k (\hat s^0_k(T) - R \log(\theta_k))
+     * \f]
+     */
+    virtual doublereal entropy_mole() const;
+
+    virtual doublereal cp_mole() const;
+
+    virtual doublereal cv_mole() const;
+
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
      * This function returns a vector of chemical potentials of the

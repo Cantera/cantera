@@ -113,6 +113,28 @@ doublereal SurfPhase::intEnergy_mole() const
     return enthalpy_mole();
 }
 
+doublereal SurfPhase::entropy_mole() const
+{
+    _updateThermo();
+    doublereal s = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        s += moleFraction(k) * (m_s0[k] -
+            GasConstant * log(std::max(concentration(k) * size(k)/m_n0, SmallNumber)));
+    }
+    return s;
+}
+
+doublereal SurfPhase::cp_mole() const
+{
+    _updateThermo();
+    return mean_X(&m_cp0[0]);
+}
+
+doublereal SurfPhase::cv_mole() const
+{
+    return cp_mole();
+}
+
 void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
