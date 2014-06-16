@@ -3,7 +3,7 @@ function transport1(g)
 %
 help transport1
 
-if nargin == 1 & isa(g,'GasMix')
+if nargin == 1
    gas = g;
 else
    gas = GRI30('Mix');
