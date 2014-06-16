@@ -21,7 +21,7 @@ setTemperature(surf, t);
 nsp = nSpecies(gas);
 
 % create a reactor, and insert the gas
-r = Reactor(gas);
+r = IdealGasReactor(gas);
 setInitialVolume(r, 1.0e-6)
 
 % create a reservoir to represent the environment

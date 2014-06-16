@@ -45,7 +45,7 @@ upstream = Reservoir(gas);
 % Now set the gas to the initial temperature of the reactor, and create
 % the reactor object.
 set(gas, 'T', t, 'P', p);
-cstr = Reactor(gas);
+cstr = IdealGasReactor(gas);
 
 % Set its volume to 10 cm^3. In this problem, the reactor volume is
 % fixed, so the initial volume is the volume at all later times.
