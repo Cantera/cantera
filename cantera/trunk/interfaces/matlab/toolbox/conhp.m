@@ -8,7 +8,8 @@ function dydt = conhp(t,y,gas,mw) %#ok<INUSL>
 
 
 % Set the state of the gas, based on the current solution vector.
-set(gas, 'T', y(1), 'P', pressure(gas), 'Y', y(2:end));
+setMassFractions(gas, y(2:end), 'nonorm');
+set(gas, 'T', y(1), 'P', pressure(gas));
 
 % energy equation
 wdot = netProdRates(gas);
