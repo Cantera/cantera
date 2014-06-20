@@ -183,8 +183,10 @@ public:
 
     //! Solve the matrix problem Ax = b
     /*!
-     *  @param b  INPUT rhs of the problem
-     *            OUTPUT solution to the problem
+     *  @param b     INPUT rhs of the problem
+     *               OUTPUT solution to the problem
+     *  @param nrhs  Number of right hand sides to solve
+     *  @param ldb   Leading dimension of `b`. Default is nColumns()
      *
      * @return Return a success flag
      *          0 indicates a success

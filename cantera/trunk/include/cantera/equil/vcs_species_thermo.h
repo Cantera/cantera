@@ -140,7 +140,7 @@ public:
      *
      *  @return standard state free energy in Kelvin.
      */
-    virtual double G0_R_calc(size_t kspec, double TKelvin);
+    virtual double G0_R_calc(size_t kglob, double TKelvin);
 
     /**
      *  This function calculates the standard state molar volume
