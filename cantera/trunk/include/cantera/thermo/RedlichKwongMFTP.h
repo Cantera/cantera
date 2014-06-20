@@ -385,18 +385,15 @@ public:
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and
-     * ThermoFactory.cpp.
+     * To see how they are used, see importPhase().
      */
     //@{
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     *  This method is called by function importPhase in
-     *  file importCTML.cpp when processing a phase definition in
-     *  an input file. It should be overloaded in subclasses to set
-     *  any parameters that are specific to that particular phase
-     *  model.
+     * This method is called by function importPhase() when processing a phase
+     * definition in an input file. It should be overloaded in subclasses to set
+     * any parameters that are specific to that particular phase model.
      *
      * @param thermoNode An XML_Node object corresponding to
      *                   the "thermo" entry for this phase in the input file.
@@ -414,8 +411,6 @@ public:
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
      * from function importPhase().
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 

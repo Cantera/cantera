@@ -67,7 +67,7 @@ public:
      * The following methods are used in the process of constructing the phase
      * and setting its parameters from a specification in an input file. They
      * are not normally used in application programs. To see how they are
-     * used, see files importCTML.cpp and ThermoFactory.cpp.
+     * used, see importPhase().
      */
     //@{
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);

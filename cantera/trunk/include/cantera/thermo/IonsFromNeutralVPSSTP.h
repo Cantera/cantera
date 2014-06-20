@@ -538,9 +538,7 @@ public:
      * and subclasses that do not require initialization do not
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
-     * from function importPhase.
-     *
-     * @see importCTML.cpp
+     * from function importPhase().
      */
     virtual void initThermo();
 

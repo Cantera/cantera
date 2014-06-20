@@ -468,8 +468,6 @@ public:
      *
      * This version sets the mole fraction vector to x[0] = 1.0, and then
      * calls the ThermoPhase::initThermo() function.
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 
