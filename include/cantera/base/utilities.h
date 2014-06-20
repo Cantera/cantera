@@ -667,13 +667,17 @@ template<class D>
 void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &toVec)
 {
     size_t is = toVec.size();
-    for (size_t i = 0; i < is; is++) {
+    for (size_t i = 0; i < is; i++) {
         delete toVec[i];
     }
     is = fromVec.size();
     toVec.resize(is);
-    for (size_t i = 0; i < is; is++) {
-        toVec[i] = new D(*(fromVec[i]));
+    for (size_t i = 0; i < is; i++) {
+        if (fromVec[i]) {
+            toVec[i] = new D(*(fromVec[i]));
+        } else {
+            toVec[i] = 0;
+        }
     }
 }
 
