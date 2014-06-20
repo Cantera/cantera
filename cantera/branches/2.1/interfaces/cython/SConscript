@@ -208,6 +208,7 @@ if localenv['python_package'] == 'new':
         def convert_example(target, source, env):
             shutil.copyfile(source[0].abspath, target[0].abspath)
             subprocess.call(['3to2', '--no-diff', '-n', '-w','-x', 'str',
+                             '-f', 'all', '-f', 'printfunction', '-x', 'print',
                              '-x', 'open', target[0].abspath])
 
         for subdir in subdirs('cantera/examples'):
