@@ -1277,6 +1277,7 @@ class Parser(object):
                     chebyshev.degreeT = int(float(tokens2[0].strip()))
                     chebyshev.degreeP = int(float(tokens2[1].strip()))
                     chebyshev.coeffs = np.zeros((chebyshev.degreeT,chebyshev.degreeP), np.float64)
+                    chebyshevCoeffs.extend([float(t.strip()) for t in tokens2[2:]])
                 else:
                     tokens2 = tokens[1].split()
                     chebyshevCoeffs.extend([float(t.strip()) for t in tokens2])
