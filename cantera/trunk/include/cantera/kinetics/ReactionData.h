@@ -103,7 +103,7 @@ public:
     //! depends on #falloffType.
     vector_fp falloffParameters;
 
-    int error; //!< @deprecated unused
+    int error; //!< @deprecated unused. To be removed after Cantera 2.2.
 
     //! The reaction equation. Used only for display purposes.
     std::string equation;

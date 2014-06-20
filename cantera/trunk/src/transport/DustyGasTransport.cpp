@@ -110,7 +110,7 @@ void DustyGasTransport::setThermo(thermo_t& thermo)
 
 void DustyGasTransport::setParameters(const int type, const int k, const doublereal* const p)
 {
-    warn_deprecated("DustyGasTransport::setParameters");
+    warn_deprecated("DustyGasTransport::setParameters", "To be removed after Cantera 2.2");
     switch (type) {
     case 0:
         setPorosity(p[0]);

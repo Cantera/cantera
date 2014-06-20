@@ -177,6 +177,7 @@ void getString(const Cantera::XML_Node& node, const std::string& titleString, st
 void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameString, std::string& valueString,
                          std::string& typeString)
 {
+    warn_deprecated("getNamedStringValue", "To be removed after Cantera 2.2");
     valueString = "";
     typeString = "";
     if (node.hasChild(nameString)) {

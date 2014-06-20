@@ -46,7 +46,7 @@ namespace VCSnonideal {
   int VCS_SOLVE::vcs_rank(const double * awtmp, size_t numSpecies,  const double matrix[], size_t numElemConstraints,
 			  std::vector<size_t> &compRes, std::vector<size_t>& elemComp, int * const usedZeroedSpecies) const 
   {
-
+    Cantera::warn_deprecated("VCS_SOLVE::vcs_rank", "To be removed after Cantera 2.2");
     int    lindep;
     size_t j, k, jl, i, l, ml;
     int numComponents = 0;
