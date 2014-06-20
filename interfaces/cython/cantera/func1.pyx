@@ -56,13 +56,20 @@ cdef class Func1:
     """
     def __cinit__(self, c):
         self.exception = None
-        if isinstance(c, (float, int)):
-            self.callable = lambda t: c
-        elif hasattr(c, '__call__'):
+        if hasattr(c, '__call__'):
             self.callable = c
         else:
-            raise TypeError('Func1 must be constructed from a number or a '
-                            'callable object')
+            try:
+                # calling float() converts numpy arrays of size 1 to scalars
+                k = float(c)
+            except TypeError:
+                if hasattr(c, '__len__') and len(c) == 1:
+                    # Handle lists or tuples with a single element
+                    k = float(c[0])
+                else:
+                    raise TypeError('Func1 must be constructed from a number or'
+                                    ' a callable object')
+            self.callable = lambda t: k
 
         self.func = new CxxFunc1(func_callback, <void*>self)
 
