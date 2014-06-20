@@ -205,31 +205,6 @@ void getIntegers(const Cantera::XML_Node& node,
     }
 }
 
-void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
-               const bool convert)
-{
-    warn_deprecated("ctml::getFloats",
-                    "To be removed in Cantera 2.2.");
-    std::vector<XML_Node*> f;
-    node.getChildren("float",f);
-    for (size_t i = 0; i < f.size(); i++) {
-        const XML_Node& fi = *(f[i]);
-        doublereal x = fpValue(fi());
-        const string& vmin = fi["min"];
-        const string& vmax = fi["max"];
-        if (vmin != "" && x < fpValue(vmin) - Tiny) {
-            writelog("\nWarning: value "+fi()+" is below lower limit of "
-                     +vmin+".\n");
-        }
-        if (fi["max"] != "" && x > fpValue(vmax) + Tiny) {
-            writelog("\nWarning: value "+fi()+" is above upper limit of "
-                     +vmax+".\n");
-        }
-        doublereal fctr = (convert ? toSI(fi["units"]) : 1.0); // toSI(typ,units);
-        v[fi["title"]] = fctr*x;
-    }
-}
-
 doublereal getFloat(const Cantera::XML_Node& parent,
                     const std::string& name,
                     const std::string& type)
