@@ -328,47 +328,6 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
     return s;
 }
 
-int stripLTWScstring(char str[])
-{
-    warn_deprecated("stripLTWScstring");
-    int  i = 0, j = 0;
-    char ch;
-    const char COM_CHAR='\0';
-    /*
-     *    Quick Returns
-     */
-    if ((str == 0) || (str[0] == '\0')) {
-        return 0;
-    }
-
-    /* Find first non-space character character */
-    while (((ch = str[i]) != '\0') && isspace(ch)) {
-        i++;
-    }
-
-    /*
-     * Move real part of str to the front by copying the string
-     *   - Comments are handled here, by terminating the copy at the
-     *     first comment indicator, and inserting the null character at
-     *     that point.
-     */
-
-    while ((ch = str[j+i]) != '\0' &&
-            (ch != COM_CHAR)) {
-        str[j] = ch;
-        j++;
-    }
-    str[j] = '\0';
-    j--;
-    /* Remove trailing white space by inserting a null character */
-    while ((j != -1) && isspace(str[j])) {
-        j--;
-    }
-    j++;
-    str[j] = '\0';
-    return j;
-}
-
 doublereal strSItoDbl(const std::string& strSI)
 {
     std::vector<std::string> v;

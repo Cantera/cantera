@@ -99,16 +99,6 @@ public:
         return m_press;
     }
 
-    //! @deprecated unused
-    virtual void setState(size_t point, const doublereal* state,
-                          doublereal* x) {
-        warn_deprecated("StFlow::setState");
-        setTemperature(point, state[2]);
-        for (size_t k = 0; k < m_nsp; k++) {
-            setMassFraction(point, k, state[4+k]);
-        }
-    }
-
     //! Write the initial solution estimate into array x.
     virtual void _getInitialSoln(doublereal* x) {
         for (size_t j = 0; j < m_points; j++) {

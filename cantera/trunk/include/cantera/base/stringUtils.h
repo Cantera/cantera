@@ -196,22 +196,6 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 std::string wrapString(const std::string& s,
                        const int len=70);
 
-//! Routine strips off white space from a c character string
-/*!
- *  This routine strips off blanks and tabs (only leading and trailing
- *  characters) in 'str'.  On return, it returns the number of
- *  characters still included in the string (excluding the null character).
- *
- *  Comments are excluded -> All instances of the comment character, '!', are
- *  replaced by NULL character thereby terminating the string.
- *
- *  @param str On output 'str' contains the same characters as on input except
- *             the leading and trailing white space and comments have been
- *             removed.
- *  @deprecated
- */
-int stripLTWScstring(char str[]);
-
 //! Interpret one or two token string as a single double
 /*!
  *  This is similar to atof(). However, the second token is interpreted as an
