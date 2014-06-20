@@ -1264,8 +1264,7 @@ public:
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used,
-     * see files importCTML.cpp and  ThermoFactory.cpp.
+     * To see how they are used, see importPhase().
      */
     //@{
 
@@ -1292,7 +1291,7 @@ public:
      * constructing solution properties. It is meant for internal
      * use, and some classes derived from ThermoPhase may not use
      * any species thermodynamic property manager. This method is
-     * called by function importPhase() in importCTML.cpp.
+     * called by function importPhase().
      *
      * @param spthermo input pointer to the species thermodynamic property
      *                 manager.
@@ -1380,8 +1379,6 @@ public:
      * description, this method is called from ThermoPhase::initThermoXML(),
      * which is called from importPhase(),
      * just prior to returning from function importPhase().
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 
@@ -1417,9 +1414,8 @@ public:
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     * This method is called by function importPhase() in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
+     * This method is called by function importPhase() when processing a phase
+     * definition in an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
      * initialized with elements and/or species.

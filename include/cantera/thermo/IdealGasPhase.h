@@ -859,8 +859,6 @@ public:
      * This method is called from ThermoPhase::initThermoXML(),
      * which is called from importPhase(),
      * just prior to returning from the function, importPhase().
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 

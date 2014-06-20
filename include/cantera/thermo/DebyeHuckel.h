@@ -1048,8 +1048,6 @@ public:
      * Cascading call sequence downwards starting with Parent.
      *
      * @internal
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 
