@@ -628,13 +628,18 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     // string representation. Post-process to convert "[" and "]" characters
     // back into "<" and ">" which cannot easily be stored in an XML file. This
     // reaction string is used only for display purposes. It is not parsed for
-    //  the identities of reactants or products.
+    // the identities of reactants or products.
     rdata.equation = (r.hasChild("equation")) ? r("equation") : "<no equation>";
-    for (size_t nn = 0; nn < rdata.equation.size(); nn++) {
-        if (rdata.equation[nn] == '[') {
-            rdata.equation[nn] = '<';
-        } else if (rdata.equation[nn] == ']') {
-            rdata.equation[nn] = '>';
+    static const char* delimiters[] = {" [=] ", " =] ", " = ", "[=]", "=]", "="};
+    static const char* replacements[] = {" <=> ", " => ", " = ", "<=>", "=>", "="};
+    for (size_t i = 0; i < 6; i++) {
+        size_t n = rdata.equation.find(delimiters[i]);
+        if (n != npos) {
+            size_t w = strlen(delimiters[i]);
+            rdata.reactantString = stripws(rdata.equation.substr(0, n));
+            rdata.productString = stripws(rdata.equation.substr(n+w, npos));
+            rdata.equation.replace(n, w, replacements[i]);
+            break;
         }
     }
 

@@ -165,6 +165,8 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         cbool isReversible(int) except +
         int reactionType(int) except +
         string reactionString(int) except +
+        string reactantString(int) except +
+        string productString(int) except +
         double reactantStoichCoeff(int, int) except +
         double productStoichCoeff(int, int) except +
 
