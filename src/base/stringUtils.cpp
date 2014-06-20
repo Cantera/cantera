@@ -55,6 +55,22 @@ std::string int2str(const size_t n)
     return ss.str();
 }
 
+std::string vec2str(const vector_fp& v, const std::string& fmt,
+                    const std::string& sep)
+{
+    char buf[64];
+    std::stringstream o;
+    for (size_t i = 0; i < v.size(); i++) {
+        SNPRINTF(buf, 63, fmt.c_str(), v[i]);
+        o << v[i];
+        if (i != v.size() - 1) {
+            o << sep;
+        }
+    }
+    return o.str();
+}
+
+
 std::string lowercase(const std::string& s)
 {
     std::string lc(s);

@@ -13,8 +13,6 @@
 namespace Cantera
 {
 
-class XML_Writer;
-
 //! Base structure to hold transport model parameters.
 /*!
  * This structure is used by TransportFactory.
@@ -51,9 +49,6 @@ public:
 
     //!  Mode parameter
     int mode_;
-
-    //! Pointer to the xml tree describing the implementation of transport for this object
-    XML_Writer* xml;
 
     //! Log level
     int log_level;

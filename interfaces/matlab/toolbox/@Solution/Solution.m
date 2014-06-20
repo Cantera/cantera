@@ -37,7 +37,7 @@ t = ThermoPhase(node);
 k = Kinetics(node,t);
 s.kin = k;
 s.th = t;
-tr = Transport(node,t,'default',4);
+tr = Transport(node,t,'default',0);
 s.tr = tr;
 s = class(s,'Solution',t,k,tr);
 
