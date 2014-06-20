@@ -94,6 +94,29 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(Y[0], 0.25)
         self.assertNear(Y[3], 0.75)
 
+    def test_setCompositionNoNorm(self):
+        X = np.zeros(self.phase.n_species)
+        X[2] = 1.0
+        X[0] = 0.01
+        self.phase.set_unnormalized_mole_fractions(X)
+        self.assertArrayNear(self.phase.X, X)
+        self.assertNear(sum(X), 1.01)
+
+        Y = np.zeros(self.phase.n_species)
+        Y[2] = 1.0
+        Y[0] = 0.01
+        self.phase.set_unnormalized_mass_fractions(Y)
+        self.assertArrayNear(self.phase.Y, Y)
+        self.assertNear(sum(Y), 1.01)
+
+    def test_setCompositionNoNormBad(self):
+        X = np.zeros(self.phase.n_species - 1)
+        with self.assertRaises(ValueError):
+            self.phase.set_unnormalized_mole_fractions(X)
+
+        with self.assertRaises(ValueError):
+            self.phase.set_unnormalized_mass_fractions([1,2,3])
+
     @unittest.expectedFailure
     def test_setCompositionDict_bad1(self):
         # Non-existent species should raise an exception
