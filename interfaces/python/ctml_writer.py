@@ -1475,8 +1475,9 @@ class chebyshev_reaction(reaction):
         self.coeffs = coeffs
 
         # clean up reactant and product lists
-        del self._r['(+']
-        del self._p['(+']
+        if '(+' in self._r:
+            del self._r['(+']
+            del self._p['(+']
         if 'M)' in self._r:
             del self._r['M)']
             del self._p['M)']
