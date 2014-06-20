@@ -108,6 +108,12 @@ public:
     //! The reaction equation. Used only for display purposes.
     std::string equation;
 
+    //! The reactants half of the reaction equation, used for display purposes.
+    std::string reactantString;
+
+    //! The products half of the reaction equation, used for display purposes.
+    std::string productString;
+
     //! The default third body efficiency for species not listed in
     //! #thirdBodyEfficiencies.
     doublereal default_3b_eff;

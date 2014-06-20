@@ -62,6 +62,18 @@ class TestKinetics(utilities.CanteraTest):
         self.assertEqual(self.phase.reaction_equation(16),
                          'H + H2O2 <=> HO2 + H2')
 
+    def test_reactants_products(self):
+        for i in range(self.phase.n_reactions):
+            R = self.phase.reactants(i)
+            P = self.phase.products(i)
+            self.assertTrue(self.phase.reaction_equation(i).startswith(R))
+            self.assertTrue(self.phase.reaction_equation(i).endswith(P))
+            for k in range(self.phase.n_species):
+                if self.phase.reactant_stoich_coeff(k,i) != 0:
+                    self.assertIn(self.phase.species_name(k), R)
+                if self.phase.product_stoich_coeff(k,i) != 0:
+                    self.assertIn(self.phase.species_name(k), P)
+
     def test_stoich_coeffs(self):
         nu_r = self.phase.reactant_stoich_coeffs()
         nu_p = self.phase.product_stoich_coeffs()

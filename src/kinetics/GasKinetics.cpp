@@ -87,6 +87,8 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_dn = right.m_dn;
     m_revindex = right.m_revindex;
     m_rxneqn = right.m_rxneqn;
+    m_reactantStrings = right.m_reactantStrings;
+    m_productStrings = right.m_productStrings;
 
     m_logp_ref = right.m_logp_ref;
     m_logc_ref  = right.m_logc_ref;
@@ -505,6 +507,8 @@ void GasKinetics::addReaction(ReactionData& r)
     installGroups(reactionNumber(), r.rgroups, r.pgroups);
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);
+    m_reactantStrings.push_back(r.reactantString);
+    m_productStrings.push_back(r.productString);
     m_rxntype.push_back(r.reactionType);
 }
 

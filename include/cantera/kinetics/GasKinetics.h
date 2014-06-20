@@ -112,6 +112,14 @@ public:
         return m_rxneqn[i];
     }
 
+    virtual std::string reactantString(size_t i) const {
+        return m_reactantStrings[i];
+    }
+
+    virtual std::string productString(size_t i) const {
+        return m_productStrings[i];
+    }
+
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) {
@@ -200,6 +208,8 @@ protected:
     std::vector<size_t> m_revindex;
 
     std::vector<std::string> m_rxneqn;
+    std::vector<std::string> m_reactantStrings;
+    std::vector<std::string> m_productStrings;
 
     //! @name Reaction rate data
     //!@{

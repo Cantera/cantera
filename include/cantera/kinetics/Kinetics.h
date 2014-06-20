@@ -700,6 +700,16 @@ public:
         throw NotImplementedError("Kinetics::reactionStd::String");
     }
 
+    //! Returns a string containing the reactants side of the reaction equation.
+    virtual std::string reactantString(size_t i) const {
+        throw NotImplementedError("Kinetics::reactionString");
+    }
+
+    //! Returns a string containing the products side of the reaction equation.
+    virtual std::string productString(size_t i) const {
+        throw NotImplementedError("Kinetics::productString");
+    }
+
     /**
      * Return the forward rate constants
      *

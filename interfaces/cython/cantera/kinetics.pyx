@@ -104,6 +104,16 @@ cdef class Kinetics(_SolutionBase):
         self._check_reaction_index(i_reaction)
         return pystr(self.kinetics.reactionString(i_reaction))
 
+    def reactants(self, int i_reaction):
+        """The reactants portion of the reaction equation"""
+        self._check_reaction_index(i_reaction)
+        return pystr(self.kinetics.reactantString(i_reaction))
+
+    def products(self, int i_reaction):
+        """The products portion of the reaction equation"""
+        self._check_reaction_index(i_reaction)
+        return pystr(self.kinetics.productString(i_reaction))
+
     def reaction_equations(self, indices=None):
         """
         Returns a list containing the reaction equation for all reactions in the
