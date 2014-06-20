@@ -392,6 +392,10 @@ def getReactionSpecies(s):
     >>> {'CH3':1, 'H':3.7, 'O2':5.2}
     """
 
+    # Normalize formatting of falloff third bodies so that there is always a
+    # space following the '+', e.g. '(+M)' -> '(+ M)'
+    s = s.replace(' (+', ' (+ ')
+
     # get rid of the '+' signs separating species. Only plus signs
     # surrounded by spaces are replaced, so that plus signs may be
     # used in species names (e.g. 'Ar3+')
