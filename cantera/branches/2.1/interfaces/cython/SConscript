@@ -29,7 +29,8 @@ def add_dependencies(mod, ext):
     for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
         localenv.Depends(ext, f)
 
-    for f in (mglob(localenv, 'cantera/test', 'py') +
+    for f in (mglob(localenv, 'cantera', 'py') +
+              mglob(localenv, 'cantera/test', 'py') +
               mglob(localenv, 'cantera/mixmaster', 'py') +
               mglob(localenv, 'cantera/mixmaster/Units', 'py') +
               mglob(localenv, 'cantera/examples/tutorial', 'py') +
