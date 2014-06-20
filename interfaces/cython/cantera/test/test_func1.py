@@ -33,6 +33,24 @@ class TestFunc1(utilities.CanteraTest):
         for t in [0.1, 0.7, 4.5]:
             self.assertNear(f(t), 5)
 
+    def test_sequence(self):
+        f = ct.Func1([5])
+        for t in [0.1, 0.7, 4.5]:
+            self.assertNear(f(t), 5)
+
+        with self.assertRaises(TypeError):
+            ct.Func1([3,4])
+
+    def test_numpy(self):
+        f = ct.Func1(np.array(5))
+        g = ct.Func1(np.array([[5]]))
+        for t in [0.1, 0.7, 4.5]:
+            self.assertNear(f(t), 5)
+            self.assertNear(g(t), 5)
+
+        with self.assertRaises(TypeError):
+            ct.Func1(np.array([3,4]))
+
     def test_failure(self):
         def fails(t):
             raise ValueError('bad')
