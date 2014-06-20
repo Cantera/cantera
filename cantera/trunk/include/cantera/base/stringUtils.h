@@ -37,6 +37,15 @@ std::string int2str(const int n, const std::string& fmt="%d");
  */
 std::string int2str(const size_t n);
 
+//!  Convert a vector to a string (separated by commas)
+/*!
+ *  @param v     vector to be converted
+ *  @param fmt   Format to be used (printf style) for each element
+ *  @param sep   Separator
+ */
+std::string vec2str(const vector_fp& v, const std::string& fmt="%g",
+                    const std::string& sep=", ");
+
 //! Strip the leading and trailing white space from a string
 /*!
  *  The command isprint() is used to determine printable characters.

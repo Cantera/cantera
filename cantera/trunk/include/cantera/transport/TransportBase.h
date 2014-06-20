@@ -57,9 +57,6 @@ const int cWaterTransport      = 721;
 const int cPecosTransport      = 900;
 //!   \endcond
 
-// forward reference
-class XML_Writer;
-
 //! The diffusion fluxes must be referenced to a particular reference
 //! fluid velocity.
 /*!

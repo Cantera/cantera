@@ -12,7 +12,6 @@
 #include "TransportParams.h"
 #include "LiquidTransportData.h"
 #include "cantera/base/xml.h"
-#include "cantera/base/XML_Writer.h"
 
 namespace Cantera
 {

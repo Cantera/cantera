@@ -97,9 +97,6 @@ protected:
     //! Minimum temperatures for parameter fits
     //    doublereal tmin;
 
-    //! Pointer to the xml tree describing the implementation of transport for this object
-    //    XML_Writer* xml;
-
     //! Log level
     //    int log_level;
 

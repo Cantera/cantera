@@ -7,9 +7,6 @@
 
 #include "cantera/transport/TransportParams.h"
 
-#ifdef DEBUG_MODE
-#include "cantera/base/XML_Writer.h"
-#endif
 using namespace std;
 
 namespace Cantera
@@ -23,16 +20,12 @@ TransportParams::TransportParams() :
     tmax(1000000.),
     tmin(10.),
     mode_(0),
-    xml(0),
     log_level(-1)
 {
 }
 
 TransportParams::~TransportParams()
 {
-#ifdef DEBUG_MODE
-    delete xml;
-#endif
 }
 
 GasTransportParams::GasTransportParams() :
