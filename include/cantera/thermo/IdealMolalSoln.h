@@ -322,38 +322,6 @@ public:
 
     /**
      * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
-
-    //!Set the potential energy of species k to pe.
-    /*!
-     * Units: J/kmol.
-     *
-     * @param k    Species index
-     * @param pe   Input potential energy.
-     */
-    virtual void setPotentialEnergy(int k, doublereal pe) {
-        throw NotImplementedError("IdealMolalSoln::setPotentialEnergy");
-    }
-
-    /**
-     * Get the potential energy of species k.
-     * Units: J/kmol.
-     *
-     * @param k Species index
-     */
-    virtual doublereal potentialEnergy(int k) const {
-        throw NotImplementedError("IdealMolalSoln::potentialEnergy");
-    }
-
-    /**
-     * @}
      * @name Activities and Activity Concentrations
      *
      * The activity \f$a_k\f$ of a species in solution is
