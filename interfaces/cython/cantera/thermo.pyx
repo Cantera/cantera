@@ -317,6 +317,32 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
 
+    def set_unnormalized_mass_fractions(self, Y):
+        """
+        Set the mass fractions without normalizing to force sum(Y) == 1.0.
+        Useful primarily when calculating derivatives with respect to Y[k] by
+        finite difference.
+        """
+        cdef np.ndarray[np.double_t, ndim=1] data
+        if len(Y) == self.n_species:
+            data = np.ascontiguousarray(Y, dtype=np.double)
+        else:
+            raise ValueError("Array has incorrect length")
+        self.thermo.setMassFractions_NoNorm(&data[0])
+
+    def set_unnormalized_mole_fractions(self, X):
+        """
+        Set the mole fractions without normalizing to force sum(X) == 1.0.
+        Useful primarily when calculating derivatives with respect to X[k]
+        by finite difference.
+        """
+        cdef np.ndarray[np.double_t, ndim=1] data
+        if len(X) == self.n_species:
+            data = np.ascontiguousarray(X, dtype=np.double)
+        else:
+            raise ValueError("Array has incorrect length")
+        self.thermo.setMoleFractions_NoNorm(&data[0])
+
     ######## Read-only thermodynamic properties ########
 
     property P:
