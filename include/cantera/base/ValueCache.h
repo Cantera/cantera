@@ -15,7 +15,7 @@ namespace Cantera
  *
  * This struct stores the value of some property evaluated at a particular
  * thermodynamic state. The #value can be either a real scalar or an array,
- * depending on the template parameter #T. The exact meaning of #state1,
+ * depending on the template parameter `T`. The exact meaning of #state1,
  * #state2, and #stateNum is determined by the function using the cached value,
  * which can check any combination of these variables before deciding whether
  * to recompute the cached values.

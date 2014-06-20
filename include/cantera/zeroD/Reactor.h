@@ -180,11 +180,14 @@ protected:
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics*   m_kin;
 
-    //! Tolerance on the temperature
-    doublereal m_vdot, m_Q;
+    doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
+    doublereal m_Q; //!< net heat transfer through walls [W]
     doublereal m_mass; //!< total mass
     vector_fp m_work;
-    vector_fp m_sdot;            // surface production rates
+
+    //! Production rates of gas phase species on surfaces [kmol/s]
+    vector_fp m_sdot;
+
     vector_fp m_wdot; //!< Species net molar production rates
     vector_fp m_uk; //!< Species molar internal energies
     bool m_chem;
