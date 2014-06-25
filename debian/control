@@ -3,7 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Raymond Speth <speth@mit.edu>
 Build-Depends: debhelper (>= 8.0.0), scons, python-dev, python-numpy-dev, gfortran, libsundials-serial-dev, liblapack-dev, libblas-dev, libboost-thread-dev
-Standards-Version: 3.9.2
+Standards-Version: 3.9.5
 Homepage: https://cantera.googlecode.com
 
 Package: cantera-common
