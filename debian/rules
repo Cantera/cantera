@@ -36,7 +36,7 @@ binary-indep: binary
 	/bin/true
 
 build:
-	scons build -j6 blas_lapack_libs=lapack,blas debug=n use_sundials=y single_library=y f90_interface=y build_thread_safe=y rename_shared_libraries=n boost_thread_lib=boost_system
+	scons build -j6 blas_lapack_libs=lapack,blas debug=n use_sundials=y single_library=y f90_interface=y build_thread_safe=y rename_shared_libraries=n boost_thread_lib=boost_system python_package=new
 
 build-arch: build
 
