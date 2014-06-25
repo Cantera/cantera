@@ -173,6 +173,9 @@ if localenv['python3_package'] == 'y':
                                build_cmd))
     env['python3_module'] = mod
     env['python3_extension'] = ext
+    if py3env['layout'] == 'debian':
+        # No scripts in /usr/bin, to avoid conflicts
+        py3env['py_scripts'] = ''
 
     py3env.AddPreAction(ext, Delete('interfaces/cython/cantera/_cantera.cpp'))
 
