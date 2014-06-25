@@ -44,9 +44,12 @@ def add_dependencies(mod, ext):
         localenv.Depends(mod, f)
 
 script_ext = '.py' if os.name == 'nt' else ''
-localenv['py_ctml_writer'] = repr('scripts/ctml_writer%s' % script_ext)
-localenv['py_ck2cti'] = repr('scripts/ck2cti%s' % script_ext)
-localenv['py_mixmaster'] = repr('scripts/mixmaster%s' % script_ext)
+setup_scripts = [repr('scripts/mixmaster%s' % script_ext)]
+if env['layout'] != 'debian':
+  # Debian package uses full versions installed with cantera-common
+  setup_scripts.append(repr('scripts/ctml_writer%s' % script_ext))
+  setup_scripts.append(repr('scripts/ck2cti%s' % script_ext))
+localenv['py_scripts'] = ', '.join(s for s in setup_scripts)
 
 # The actual ctml_writer and ck2cti scripts
 build(env.Command('cantera/ctml_writer.py',
