@@ -427,3 +427,54 @@ class TestDiffusionFlame(utilities.CanteraTest):
             bad = utilities.compareProfiles(self.referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
+
+
+class TestCounterflowPremixedFlame(utilities.CanteraTest):
+    referenceFile = '../data/CounterflowPremixedFlame-h2-mix.csv'
+    # Note: to re-create the reference file:
+    # (1) set PYTHONPATH to build/python2 or build/python3.
+    # (2) Start Python in the test/work directory and run:
+    #     >>> import cantera.test
+    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame("test_mixture_averaged")
+    #     >>> t.test_mixture_averaged(True)
+
+    def test_mixture_averaged(self, saveReference=False):
+        T_in = 373.0  # inlet temperature
+        comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
+
+        gas = ct.Solution('h2o2.xml')
+        gas.TPX = T_in, 0.05 * ct.one_atm, comp
+        initial_grid = np.linspace(0.0, 0.2, 12)  # m
+
+        sim = ct.CounterflowPremixedFlame(gas=gas, grid=initial_grid)
+
+        # set the properties at the inlets
+        sim.reactants.mdot = 0.12  # kg/m^2/s
+        sim.reactants.X = comp
+        sim.reactants.T = T_in
+        sim.products.mdot = 0.06  # kg/m^2/s
+
+        sim.flame.set_steady_tolerances(default=[1.0e-5, 1.0e-11])
+        sim.flame.set_transient_tolerances(default=[1.0e-5, 1.0e-11])
+        sim.set_initial_guess()  # assume adiabatic equilibrium products
+
+        sim.energy_enabled = False
+        sim.solve(loglevel=0, refine_grid=False)
+
+        sim.set_refine_criteria(ratio=3, slope=0.2, curve=0.4, prune=0.02)
+        sim.energy_enabled = True
+        sim.solve(loglevel=0, refine_grid=True)
+
+        data = np.empty((sim.flame.n_points, gas.n_species + 4))
+        data[:,0] = sim.grid
+        data[:,1] = sim.u
+        data[:,2] = sim.V
+        data[:,3] = sim.T
+        data[:,4:] = sim.Y.T
+
+        if saveReference:
+            np.savetxt(self.referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(self.referenceFile, data,
+                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+            self.assertFalse(bad, bad)

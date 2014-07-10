@@ -496,3 +496,81 @@ class ImpingingJet(FlameBase):
         locs = np.array([0.0, 1.0])
         self.set_profile('u', locs, [u0, 0.0])
         self.set_profile('V', locs, [0.0, 0.0])
+
+
+class CounterflowPremixedFlame(FlameBase):
+    """ A premixed counterflow flame """
+
+    def __init__(self, gas, grid=None):
+        """
+        :param gas:
+            `Solution` (using the IdealGas thermodynamic model) used to
+            evaluate all gas properties and reaction rates.
+        :param grid:
+            Array of initial grid points
+
+        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
+        be created to represent the flame. The three domains comprising the
+        stack are stored as ``self.reactants``, ``self.flame``, and
+        ``self.products``.
+        """
+        self.reactants = Inlet1D(name='reactants', phase=gas)
+        self.reactants.T = gas.T
+
+        self.products = Inlet1D(name='products', phase=gas)
+        self.products.T = gas.T
+
+        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+
+        super(CounterflowPremixedFlame, self).__init__(
+                (self.reactants, self.flame, self.products), gas, grid)
+
+    def set_initial_guess(self, equilibrate=True):
+        """
+        Set the initial guess for the solution.
+
+        If `equilibrate` is True, then the products composition and temperature
+        will be set to the equilibrium state of the reactants mixture.
+        """
+
+        super(CounterflowPremixedFlame, self).set_initial_guess()
+
+        Yu = self.reactants.Y
+        Tu = self.reactants.T
+        self.gas.TPY = Tu, self.flame.P, Yu
+        rhou = self.gas.density
+        uu = self.reactants.mdot / rhou
+
+        self.gas.equilibrate('HP')
+        Teq = self.gas.T
+        Yeq = self.gas.Y
+
+        if equilibrate:
+            Tb = Teq
+            Yb = Yeq
+            self.products.Y = Yb
+            self.products.T = Tb
+        else:
+            Tb = self.products.T
+            Yb = self.products.Y
+
+        self.gas.TPY = Tb, self.flame.P, Yb
+        rhob = self.gas.density
+        ub = self.products.mdot / rhob
+
+        locs = np.array([0.0, 0.4, 0.6, 1.0])
+        self.set_profile('T', locs, [Tu, Tu, Teq, Tb])
+        for k in range(self.gas.n_species):
+            self.set_profile(self.gas.species_name(k), locs,
+                             [Yu[k], Yu[k], Yeq[k], Yb[k]])
+
+        # estimate strain rate
+        self.gas.TPY = Teq, self.flame.P, Yeq
+        zz = self.flame.grid
+        dz = zz[-1] - zz[0]
+        a = (uu + ub)/dz
+        # estimate stagnation point
+        x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
+
+        self.set_profile('u', [0.0, 1.0], [uu, -ub])
+        self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
