@@ -17,6 +17,7 @@
 #define CT_UTILITIES_H
 
 #include "ct_defs.h"
+#include "global.h"
 
 #include <algorithm>
 
@@ -98,10 +99,12 @@ inline doublereal dot5(const V& x, const V& y)
  * @param y   second reference to the templated class V
  * @return
  *      This class returns a hard-coded type, doublereal.
+ * @deprecated Unused. To be removed after Cantera 2.2.
  */
 template<class V>
 inline doublereal dot6(const V& x, const V& y)
 {
+    warn_deprecated("dot6", "To be removed after Cantera 2.2.");
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
            x[4]*y[4] + x[5]*y[5];
 }
@@ -187,11 +190,14 @@ inline void scale(InputIter begin, InputIter end,
  * @param end   inputIter Iterator for end of y[]
  * @param out   OutputIter Iterator for beginning of x[]
  * @param scale_factor Scale Factor to multiply y[i] by
+ * @deprecated    Unused. To be removed after Cantera 2.2.
  */
 template<class InputIter, class OutputIter, class S>
 inline void increment_scale(InputIter begin, InputIter end,
                             OutputIter out, S scale_factor)
 {
+    warn_deprecated("increment_scale",
+                "To be removed after Cantera 2.2.");
     for (; begin != end; ++begin, ++out) {
         *out += scale_factor * *begin;
     }
@@ -258,10 +264,13 @@ inline void multiply_each(OutputIter x_begin, OutputIter x_end,
  *                  determines the loop length
  *
  * @note This is currently unused.
+ * @deprecated    Unused. To be removed after Cantera 2.2.
  */
 template<class InputIter>
 inline void resize_each(int m, InputIter begin, InputIter end)
 {
+    warn_deprecated("resize_each",
+                    "To be removed after Cantera 2.2.");
     for (; begin != end; ++begin) {
         begin->resize(m);
     }
@@ -495,11 +504,14 @@ inline void scatter_mult(InputIter mult_begin, InputIter mult_end,
  *                iterator class outputIter.
  * @param index   Iterator pointing to the beginning of the index vector, belonging to the
  *                iterator class IndexIter.
+ * @deprecated    Unused. To be removed after Cantera 2.2.
  */
 template<class InputIter, class OutputIter, class IndexIter>
 inline void scatter_divide(InputIter begin, InputIter end,
                            OutputIter result, IndexIter index)
 {
+    warn_deprecated("scatter_divide",
+                    "To be removed after Cantera 2.2.");
     for (; begin != end; ++begin, ++index) {
         *(result + *index) /= *begin;
     }
@@ -571,10 +583,13 @@ inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
  * @param alpha   scale factor - double
  * @param x       Templated Iterator to the start of the vector
  *                to be scaled.
+ * @deprecated    Unused. To be removed after Cantera 2.2.
  */
 template<class OutputIter>
 inline void scale(int N, double alpha, OutputIter x)
 {
+    warn_deprecated("scale(int N, double alpha, OutputIter x)",
+                    "To be removed after Cantera 2.2.");
     scale(x, x+N, x, alpha);
 }
 
@@ -607,10 +622,13 @@ R poly8(D x, R* c)
 /*!
  *  @param x   Value of the independent variable - First template parameter
  *  @param c   Pointer to the polynomial - Second template parameter
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 template<class D, class R>
 R poly10(D x, R* c)
 {
+    warn_deprecated("poly10",
+                    "To be removed after Cantera 2.2.");
     return ((((((((((c[10]*x + c[9])*x + c[8])*x + c[7])*x
                   + c[6])*x + c[5])*x + c[4])*x + c[3])*x
               + c[2])*x + c[1])*x + c[0]);

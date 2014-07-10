@@ -22,6 +22,7 @@ namespace Cantera
 //! Statistical mechanics
 /*!
  * @ingroup spthermo
+ * @deprecated Incomplete stub class, to be removed after Cantera 2.2.
  */
 class StatMech : public SpeciesThermoInterpType
 {
