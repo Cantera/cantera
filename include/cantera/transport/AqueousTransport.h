@@ -15,9 +15,6 @@
 
 namespace Cantera
 {
-
-class LiquidTransportParams;
-
 //! Class AqueousTransport implements mixture-averaged transport
 //! properties for brine phases.
 /*!

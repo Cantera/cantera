@@ -38,8 +38,6 @@ const int cSS_CONVENTION_VPSS = 1;
 const int cSS_CONVENTION_SLAVE = 2;
 //@}
 
-class XML_Node;
-
 //!   Base class for a phase with thermodynamic properties.
 /*!
  * Class ThermoPhase is the base class for the family of classes

@@ -16,9 +16,6 @@
 
 namespace Cantera
 {
-class XML_Node;
-class VPStandardStateTP;
-
 //! Derived class for pressure dependent standard states of an ideal gas species
 /*!
  * This class is for a single Ideal Gas species.

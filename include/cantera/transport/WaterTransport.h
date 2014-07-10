@@ -22,7 +22,6 @@ const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
 //! @}
 
 
-class TransportParams;
 class WaterProps;
 class PDSS_Water;
 

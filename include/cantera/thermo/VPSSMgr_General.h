@@ -20,12 +20,6 @@
 
 namespace Cantera
 {
-
-class SpeciesThermoInterpType;
-class VPStandardStateTP;
-class SpeciesThermo;
-class PDSS;
-
 //!  Class that handles the calculation of standard state thermo properties for
 //!  a set of species belonging to a single phase in a completely general
 //!  but slow way.

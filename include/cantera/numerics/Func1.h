@@ -32,10 +32,6 @@ const int ExpFuncType = 104;
 const int PowFuncType = 106;
 const int ConstFuncType = 110;
 
-class Sin1;
-class Cos1;
-class Exp1;
-class Pow1;
 class TimesConstant1;
 
 /**

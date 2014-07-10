@@ -19,11 +19,6 @@
 
 namespace Cantera
 {
-
-class SpeciesThermoInterpType;
-class VPStandardStateTP;
-class SpeciesThermo;
-class PDSS;
 class PDSS_Water;
 
 //! Manages standard state thermo properties for real water and a set of

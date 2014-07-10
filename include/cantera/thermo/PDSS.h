@@ -14,8 +14,6 @@
 #include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 
-class WaterPropsIAPWS;
-
 namespace Cantera
 {
 /**

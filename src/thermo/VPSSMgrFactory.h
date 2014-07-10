@@ -21,10 +21,6 @@
 
 namespace Cantera
 {
-
-class XML_Node;
-class VPStandardStateTP;
-
 //! Throw a named error for an unknown or missing vpss species thermo model.
 /*!
  * @ingroup mgrpdssthermocalc

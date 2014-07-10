@@ -14,10 +14,6 @@
 
 namespace Cantera
 {
-
-class LiquidTransportParams;
-
-
 //! Class SimpleTransport implements mixture-averaged transport
 //! properties for liquid phases.
 /*!

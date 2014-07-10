@@ -15,9 +15,6 @@
 
 namespace Cantera
 {
-
-class GasTransportParams;
-
 //! Class MixTransport implements mixture-averaged transport properties for ideal gas mixtures.
 /*!
  * The model is based on that described by Kee, Coltrin, and Glarborg,

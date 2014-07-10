@@ -17,7 +17,6 @@ namespace Cantera
 // forward references
 class ReactorBase;
 class Kinetics;
-class Func1;
 class SurfPhase;
 
 //! Represents a wall between between two ReactorBase objects.

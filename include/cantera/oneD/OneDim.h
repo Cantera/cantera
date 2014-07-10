@@ -10,7 +10,6 @@
 namespace Cantera
 {
 
-class MultiJac;
 class MultiNewton;
 class Func1;
 

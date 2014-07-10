@@ -79,7 +79,6 @@ namespace Cantera
 //@}
 
 class WaterProps;
-class PDSS_Water;
 
 /**
  * Class %HMWSoln represents a dilute or concentrated liquid electrolyte

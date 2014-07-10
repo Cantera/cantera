@@ -21,12 +21,6 @@
 
 namespace Cantera
 {
-
-class SpeciesThermoInterpType;
-class VPStandardStateTP;
-class SpeciesThermo;
-
-
 //! A VPSSMgr where all species in the phase obey an ideal gas equation of state
 class VPSSMgr_IdealGas : public VPSSMgr
 {

@@ -19,10 +19,6 @@
 
 namespace Cantera
 {
-
-class XML_Node;
-class PDSS;
-
 //! Various states of the Fugacity object. In general there can be multiple liquid
 //! objects for a single phase identified with each species.
 
