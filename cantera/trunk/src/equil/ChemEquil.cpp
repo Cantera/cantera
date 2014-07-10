@@ -273,12 +273,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
 
-    size_t nct = Cantera::ElemRearrange(m_nComponents, elMolesGoal, &mp,
-                                        m_orderVectorSpecies, m_orderVectorElements);
-    if (nct != m_nComponents) {
-        throw CanteraError("ChemEquil::estimateElementPotentials",
-                           "confused");
-    }
+    ElemRearrange(m_nComponents, elMolesGoal, &mp,
+                  m_orderVectorSpecies, m_orderVectorElements);
 
     s.getChemPotentials(DATA_PTR(mu_RT));
     doublereal rrt = 1.0/(GasConstant* s.temperature());

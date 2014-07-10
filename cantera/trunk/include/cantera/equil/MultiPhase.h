@@ -750,7 +750,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  * @param[out] orderVectorElements Output vector containing the order of the
  *         elements that is necessary for calculation of the formula matrix.
  *
- *  @ingroup equilfunctions
+ * @ingroup equilfunctions
+ * @deprecated - The return value for this function is deprecated. After
+ *               Cantera 2.2, this function will return void.
  */
 size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                      MultiPhase* mphase,
