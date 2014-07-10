@@ -508,6 +508,17 @@ std::string Application::findInputFile(const std::string& name)
     string inname;
     std::vector<string>& dirs = inputDirs;
 
+    // Expand "~/" to user's home directory, if possible
+    if (name.find("~/") == 0) {
+        char* home = getenv("HOME"); // POSIX systems
+        if (!home) {
+            home = getenv("USERPROFILE"); // Windows systems
+        }
+        if (home) {
+            return home + name.substr(1, npos);
+        }
+    }
+
     if (islash == string::npos && ibslash == string::npos) {
         size_t nd = dirs.size();
         inname = "";
