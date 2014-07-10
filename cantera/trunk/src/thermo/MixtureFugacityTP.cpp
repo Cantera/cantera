@@ -577,7 +577,8 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
          */
         if (dpdVBase >= 0.0) {
             if (TKelvin > tcrit) {
-                throw CanteraError("", "confused");
+                throw CanteraError("MixtureFugacityTP::densityCalc",
+                                   "T > tcrit unexpectedly");
             }
             /*
              * TODO Spawn a calculation for the value of the spinodal point that is

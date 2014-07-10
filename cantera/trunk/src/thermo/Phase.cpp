@@ -137,10 +137,10 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
     }
     m_xml = findXMLPhase(root_xml, iidd);
     if (!m_xml) {
-        throw CanteraError("Phase::setXMLdata()", "confused");
+        throw CanteraError("Phase::setXMLdata()", "XML 'phase' node not found");
     }
     if (&(m_xml->root()) != root_xml) {
-        throw CanteraError("Phase::setXMLdata()", "confused");
+        throw CanteraError("Phase::setXMLdata()", "Root XML node not found");
     }
 }
 
@@ -835,7 +835,7 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
     m_elementsFrozen = true;
     ii = elementIndex(symbol);
     if (ii != m_mm-1) {
-        throw CanteraError("Phase::addElementAfterFreeze()", "confused");
+        throw CanteraError("Phase::addElementAfterFreeze()", "index error");
     }
     if (m_kk > 0) {
         vector_fp old(m_speciesComp);

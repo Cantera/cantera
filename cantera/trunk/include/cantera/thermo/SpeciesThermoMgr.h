@@ -213,7 +213,7 @@ SpeciesThermoDuo<T1, T2>::reportParams(size_t index, int& type,
         m_thermo2.reportParams(index, type, c, minTemp_, maxTemp_,
                                refPressure_);
     } else {
-        throw CanteraError("  ", "confused");
+        throw CanteraError("SpeciesThermoDuo", "mismatched SpeciesThermoInterpType");
     }
 }
 

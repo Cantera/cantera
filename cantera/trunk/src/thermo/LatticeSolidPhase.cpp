@@ -378,7 +378,8 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
                     std::string oldEname = lp->elementName(m);
                     size_t newIndex = elementIndex(oldEname);
                     if (newIndex == npos) {
-                        throw CanteraError("LatticeSolidPhase::installSlavePhases", "confused");
+                        throw CanteraError("LatticeSolidPhase::installSlavePhases",
+                                           "element not found");
                     }
                     ecomp[newIndex] = constArr[m];
                 }
