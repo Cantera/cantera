@@ -14,13 +14,10 @@
 #ifndef CT_PDSS_HKFT_H
 #define CT_PDSS_HKFT_H
 
-class WaterPropsIAPWS;
 #include "PDSS.h"
 
 namespace Cantera
 {
-class XML_Node;
-class VPStandardState;
 class PDSS_Water;
 class WaterProps;
 

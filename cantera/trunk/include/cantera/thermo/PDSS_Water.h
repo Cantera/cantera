@@ -20,9 +20,6 @@
 
 namespace Cantera
 {
-class WaterPropsIAPWS;
-class WaterProps;
-
 //!  Class for the liquid water pressure dependent
 //!  standard state
 /*!

@@ -14,9 +14,6 @@
 namespace Cantera
 {
 
-class Phase;
-class ThermoPhase;
-
 //! Convert a double into a c++ string
 /*!
  * @param x double to be converted

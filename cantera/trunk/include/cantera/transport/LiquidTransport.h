@@ -12,10 +12,6 @@
 
 namespace Cantera
 {
-
-// Forward references
-class LiquidTransportParams;
-
 //! Class LiquidTransport implements models for transport
 //! properties for liquid phases.
 /*!

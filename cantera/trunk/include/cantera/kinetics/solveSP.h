@@ -63,8 +63,6 @@ const int BULK_ETCH = 2;
 namespace Cantera
 {
 
-class InterfaceKinetics;
-
 //! Method to solve a pseudo steady state surface problem
 /*!
  *  The following class handles solving the surface problem. The calculation

@@ -27,7 +27,6 @@
 namespace Cantera
 {
 
-class TransportParams;
 class GasTransportParams;
 class LiquidTransportParams;
 class SolidTransportData;

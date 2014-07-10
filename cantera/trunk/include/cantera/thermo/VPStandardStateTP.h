@@ -21,10 +21,6 @@
 
 namespace Cantera
 {
-
-class XML_Node;
-class PDSS;
-
 /**
  * @ingroup thermoprops
  *

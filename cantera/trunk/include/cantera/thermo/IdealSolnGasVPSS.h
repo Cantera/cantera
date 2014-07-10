@@ -19,9 +19,6 @@
 
 namespace Cantera
 {
-class XML_Node;
-class PDSS;
-
 /*!
   * @name CONSTANTS
   * Models for the Standard State of an IdealSolnPhase

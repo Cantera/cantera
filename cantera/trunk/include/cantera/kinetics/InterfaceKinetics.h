@@ -19,8 +19,6 @@ namespace Cantera
 {
 
 // forward references
-class ReactionData;
-class ThermoPhase;
 class SurfPhase;
 class ImplicitSurfChem;
 

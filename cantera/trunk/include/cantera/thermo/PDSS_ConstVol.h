@@ -16,9 +16,6 @@
 
 namespace Cantera
 {
-class XML_Node;
-class VPStandardStateTP;
-
 //! Class for pressure dependent standard states that use a constant volume model
 /*!
  * @ingroup pdssthermo

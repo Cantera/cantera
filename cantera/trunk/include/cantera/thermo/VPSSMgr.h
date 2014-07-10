@@ -22,9 +22,7 @@
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
 class VPStandardStateTP;
-class XML_Node;
 class SpeciesThermo;
 class PDSS;
 /**

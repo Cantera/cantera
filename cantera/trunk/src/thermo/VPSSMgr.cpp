@@ -22,8 +22,6 @@ using namespace std;
 
 namespace Cantera
 {
-class SpeciesThermo;
-
 VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spthermo) :
     m_kk(0),
     m_vptp_ptr(vptp_ptr),

@@ -19,10 +19,6 @@
 
 namespace Cantera
 {
-
-class SpeciesThermoInterpType;
-class PDSS;
-
 //! Constant Molar Volume e VPSS species thermo manager class
 /*!
  *  The calculation of multiple-species thermodynamic

@@ -14,9 +14,6 @@
 
 namespace Cantera
 {
-
-class GasTransportParams;
-
 //! Class MultiTransport implements multicomponent transport properties for
 //! ideal gas mixtures.
 /*!

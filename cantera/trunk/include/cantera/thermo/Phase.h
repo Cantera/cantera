@@ -14,8 +14,6 @@
 
 namespace Cantera
 {
-class SpeciesThermo;
-
 /**
  * @defgroup phases Models of Phases of Matter
  *

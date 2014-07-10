@@ -21,9 +21,6 @@ namespace Cantera
 
 // forward references
 class MMCollisionInt;
-class GasTransportParams;
-class LiquidTransportParams;
-class XML_Node;
 
 //! Factory class for creating new instances of classes derived from Transport.
 /*!
