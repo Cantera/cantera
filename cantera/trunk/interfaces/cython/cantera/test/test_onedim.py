@@ -47,6 +47,9 @@ class TestOnedim(utilities.CanteraTest):
         self.assertArrayNear(inlet.X, Xref)
         self.assertArrayNear(inlet.Y, Yref)
 
+        inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
+        self.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
+
     def test_unpicklable(self):
         import pickle
         gas = ct.Solution('h2o2.xml')
