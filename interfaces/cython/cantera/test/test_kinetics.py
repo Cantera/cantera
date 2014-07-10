@@ -78,30 +78,34 @@ class TestKinetics(utilities.CanteraTest):
         nu_r = self.phase.reactant_stoich_coeffs()
         nu_p = self.phase.product_stoich_coeffs()
 
-        def check_reactant(k, i, value):
+        def check_reactant(s, i, value):
+            k = self.phase.kinetics_species_index(s)
+            self.assertEqual(self.phase.reactant_stoich_coeff(s,i), value)
             self.assertEqual(self.phase.reactant_stoich_coeff(k,i), value)
             self.assertEqual(nu_r[k,i], value)
 
-        def check_product(k, i, value):
+        def check_product(s, i, value):
+            k = self.phase.kinetics_species_index(s)
             self.assertEqual(self.phase.product_stoich_coeff(k,i), value)
+            self.assertEqual(self.phase.product_stoich_coeff(s,i), value)
             self.assertEqual(nu_p[k,i], value)
 
         # H + H2O2 <=> HO2 + H2
-        check_reactant(1, 16, 1)
-        check_reactant(7, 16, 1)
-        check_reactant(6, 16, 0)
-        check_reactant(0, 16, 0)
+        check_reactant('H', 16, 1)
+        check_reactant('H2O2', 16, 1)
+        check_reactant('HO2', 16, 0)
+        check_reactant('H2', 16, 0)
 
-        check_product(1, 16, 0)
-        check_product(7, 16, 0)
-        check_product(6, 16, 1)
-        check_product(0, 16, 1)
+        check_product('H', 16, 0)
+        check_product('H2O2', 16, 0)
+        check_product('HO2', 16, 1)
+        check_product('H2', 16, 1)
 
         # 2 O + M <=> O2 + M
-        check_reactant(2, 0, 2)
-        check_reactant(3, 0, 0)
-        check_product(2, 0, 0)
-        check_product(3, 0, 1)
+        check_reactant('O', 0, 2)
+        check_reactant('O2', 0, 0)
+        check_product('O', 0, 0)
+        check_product('O2', 0, 1)
 
     def test_rates_of_progress(self):
         self.assertEqual(len(self.phase.net_rates_of_progress),
