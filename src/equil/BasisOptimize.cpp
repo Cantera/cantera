@@ -563,11 +563,10 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
             if (k == nelements) {
                 // When we are here, there is an error usually.
                 // We haven't found the number of elements necessary.
-                // This is signalled by returning jr != nComponents.
                 if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                     writelogf("Error exit: returning with nComponents = %d\n", jr);
                 }
-                return jr;
+                throw CanteraError("ElemRearrange", "Required number of elements not found.");
             }
 
             /*
