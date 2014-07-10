@@ -137,6 +137,10 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
 
     m_z[0] = z[0];
     for (j = 1; j < m_points; j++) {
+        if (z[j] <= z[j-1]) {
+            throw CanteraError("StFlow::setupGrid",
+                               "grid points must be monotonically increasing");
+        }
         m_z[j] = z[j];
         m_dz[j-1] = m_z[j] - m_z[j-1];
     }
