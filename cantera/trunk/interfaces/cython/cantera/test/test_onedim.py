@@ -50,6 +50,16 @@ class TestOnedim(utilities.CanteraTest):
         inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
         self.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
 
+    def test_grid_check(self):
+        gas = ct.Solution('h2o2.xml')
+        flame = ct.FreeFlow(gas)
+
+        with self.assertRaises(RuntimeError):
+            flame.grid = [0, 0.1, 0.1, 0.2]
+
+        with self.assertRaises(RuntimeError):
+            flame.grid = [0, 0.1, 0.2, 0.05]
+
     def test_unpicklable(self):
         import pickle
         gas = ct.Solution('h2o2.xml')
