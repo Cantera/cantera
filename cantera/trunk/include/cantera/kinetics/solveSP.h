@@ -200,27 +200,13 @@ private:
     //! Printing routine that optionally gets called at the start of every
     //! invocation
     void print_header(int ioflag, int ifunc, doublereal time_scale,
-                      int damping, doublereal reltol, doublereal abstol,
-                      doublereal TKelvin, doublereal PGas, doublereal netProdRate[],
-                      doublereal XMolKinSpecies[]);
+                      int damping, doublereal reltol, doublereal abstol);
 
     //! Printing routine that gets called after every iteration
     void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
                         doublereal inv_t, doublereal t_real, size_t iter,
                         doublereal update_norm, doublereal resid_norm,
-                        doublereal netProdRate[], doublereal CSolnSP[],
-                        doublereal resid[], doublereal XMolSolnSP[],
-                        doublereal wtSpecies[], size_t dim, bool do_time);
-
-    //! Print a summary of the solution
-    void printFinal(int ioflag, doublereal damp, int label_d, int label_t,
-                    doublereal inv_t, doublereal t_real, size_t iter,
-                    doublereal update_norm, doublereal resid_norm,
-                    doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
-                    const doublereal resid[], doublereal XMolSolnSP[],
-                    const doublereal wtSpecies[], const doublereal wtRes[],
-                    size_t dim, bool do_time,
-                    doublereal TKelvin, doublereal PGas);
+                        bool do_time, bool final=false);
 
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
