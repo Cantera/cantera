@@ -23,6 +23,7 @@ PecosTransport::PecosTransport() :
     m_temp(-1.0),
     m_logt(0.0)
 {
+    warn_deprecated("class PecosTransport", "To be removed after Cantera 2.2");
 }
 
 bool PecosTransport::initGas(GasTransportParams& tr)

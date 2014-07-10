@@ -10,7 +10,9 @@
 
 namespace Cantera
 {
-StatMech::StatMech() {}
+StatMech::StatMech() {
+    warn_deprecated("class StatMech", "To be removed after Cantera 2.2");
+}
 
 StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
                    doublereal pref,
