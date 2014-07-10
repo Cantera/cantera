@@ -58,14 +58,20 @@ cdef class Kinetics(_SolutionBase):
         if not 0 <= n < self.n_total_species:
             raise ValueError("Kinetics Species index ({0}) out of range".format(n))
 
-    def kinetics_species_index(self, int species, int phase):
+    def kinetics_species_index(self, species, int phase=0):
         """
         The index of species *species* of phase *phase* within arrays returned
-        by methods of class `Kinetics`.
+        by methods of class `Kinetics`. If *species* is a string, the *phase*
+        argument is unused.
         """
-        self._check_kinetics_species_index(species)
-        self._check_phase_index(phase)
-        return self.kinetics.kineticsSpeciesIndex(species, phase)
+        cdef int k
+        if isinstance(species, (str, unicode)):
+            return self.kinetics.kineticsSpeciesIndex(stringify(species))
+        else:
+            k = species
+            self._check_kinetics_species_index(k)
+            self._check_phase_index(k)
+            return self.kinetics.kineticsSpeciesIndex(k, phase)
 
     def is_reversible(self, int i_reaction):
         """True if reaction `i_reaction` is reversible."""
@@ -132,23 +138,35 @@ cdef class Kinetics(_SolutionBase):
         else:
             return [self.reaction_equation(i) for i in indices]
 
-    def reactant_stoich_coeff(self, int k_spec, int i_reaction):
+    def reactant_stoich_coeff(self, k_spec, int i_reaction):
         """
         The stoichiometric coefficient of species *k_spec* as a reactant in
         reaction *i_reaction*.
         """
-        self._check_kinetics_species_index(k_spec)
-        self._check_reaction_index(i_reaction)
-        return self.kinetics.reactantStoichCoeff(k_spec, i_reaction)
+        cdef int k
+        if isinstance(k_spec, (str, unicode)):
+            k = self.kinetics_species_index(k_spec)
+        else:
+            k = k_spec
+            self._check_kinetics_species_index(k_spec)
 
-    def product_stoich_coeff(self, int k_spec, int i_reaction):
+        self._check_reaction_index(i_reaction)
+        return self.kinetics.reactantStoichCoeff(k, i_reaction)
+
+    def product_stoich_coeff(self, k_spec, int i_reaction):
         """
         The stoichiometric coefficient of species *k_spec* as a product in
         reaction *i_reaction*.
         """
-        self._check_kinetics_species_index(k_spec)
+        cdef int k
+        if isinstance(k_spec, (str, unicode)):
+            k = self.kinetics_species_index(k_spec)
+        else:
+            k = k_spec
+            self._check_kinetics_species_index(k_spec)
+
         self._check_reaction_index(i_reaction)
-        return self.kinetics.productStoichCoeff(k_spec, i_reaction)
+        return self.kinetics.productStoichCoeff(k, i_reaction)
 
     def reactant_stoich_coeffs(self):
         """
