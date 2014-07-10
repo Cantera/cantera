@@ -2612,6 +2612,7 @@ validate()
 def convert(filename, outName=None):
 
     import os
+    filename = os.path.expanduser(filename)
     base = os.path.basename(filename)
     root, _ = os.path.splitext(base)
     dataset(root)
