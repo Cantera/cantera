@@ -208,12 +208,9 @@ cdef class Boundary1D(Domain1D):
             return self.phase.X
 
         def __set__(self, X):
-            cdef np.ndarray[np.double_t, ndim=1] data
-            if isinstance(X, (str, unicode)):
-                self.boundary.setMoleFractions(stringify(X))
-            else:
-                data = np.ascontiguousarray(X, dtype=np.double)
-                self.boundary.setMoleFractions(&data[0])
+            self.phase.TPX = None, None, X
+            cdef np.ndarray[np.double_t, ndim=1] data = self.phase.X
+            self.boundary.setMoleFractions(&data[0])
 
     property Y:
         """
