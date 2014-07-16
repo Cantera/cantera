@@ -1891,7 +1891,7 @@ def main(argv):
         if not outName.endswith('.cti'):
             outName += '.cti'
     else:
-        outName = None
+        outName = os.path.splitext(inputFile)[0] + '.cti'
 
     permissive = '--permissive' in options
     thermoFile = options.get('--thermo')
