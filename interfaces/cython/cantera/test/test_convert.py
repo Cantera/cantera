@@ -310,6 +310,15 @@ class chemkinConverterTest(utilities.CanteraTest):
                         outName='h2o2_transport_bad_geometry.cti',
                         quiet=True)
 
+    def test_empty_reaction_section(self):
+        convertMech('../data/h2o2_emptyReactions.inp',
+                    outName='h2o2_emptyReactions.cti',
+                    quiet=True)
+
+        gas = ct.Solution('h2o2_emptyReactions.cti')
+        self.assertEqual(gas.n_species, 9)
+        self.assertEqual(gas.n_reactions, 0)
+
 
 class CtmlConverterTest(utilities.CanteraTest):
     def test_sofc(self):
