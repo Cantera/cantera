@@ -1,9 +1,19 @@
 function x = solution(s, domain, component)
-% SOLUTION - get a solution component in one domain.
+% SOLUTION  Get a solution component in one domain.
+% x = solution(s, domain, component)
+% :param s:
+%     Instance of class :mat:func:`Stack`
+% :param domain:
+%     String, name of the domain from which the solution is desired
+% :param component:
+%     String, component for which the solution is desired. If omitted,
+%     solutions for all of the components will be returned in an
+%     :mat:func:`nPoints` x :mat:func:`nComponents` array.
+% :return:
+%     Either an :mat:func:`nPoints` x 1 vector, or
+%     :mat:func:`nPoints` x :mat:func:`nComponents` array.
 %
-%    x = solution(s, 'flow', 'T') returns in vector x the values of
-%    solution component 'T' in domain 'flow'.
-%
+
 idom = domainIndex(s, domain);
 d = s.domains(idom);
 np = nPoints(d);

@@ -1,3 +1,8 @@
 function p = oneatm
-% ONEATM  One atmosphere in Pascals.
+% ONEATM  Get one atmosphere in Pa.
+% p = oneatm
+% :return:
+%     One atmosphere in Pascals.
+%
+
 p = 101325.0;

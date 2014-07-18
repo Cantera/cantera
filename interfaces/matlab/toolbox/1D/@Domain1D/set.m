@@ -1,27 +1,43 @@
 function a = set(a,varargin)
-% SET -  Set properties.
+% SET  Set properties of a Domain1D.
+% a = set(a,varargin)
+% The properties that may be set are
 %
-%   The properties that may be set are
+% * Temperature     (T)
+% * Pressure        (P)
+% * Mole Fractions  (X)
+% * Mass Flux       (mdot)
+% * tol
+% * tol-time
+% * grid
+% * bounds
+% * T_fixed
+% * ID
 %
-%   Either the full property name or the symbol may be
-%   specified. For the extensive properties (V,H,U,S), the values
-%   must be given per unit mass. H, U, and S must be set in
-%   conjunction with pressure (for H,S) or volume (for U,S). Either
-%   (specific) volume or density may be specified. Mole and mass
-%   fractions must be input as vectors (either row or column) with
-%   length equal to the number of species.
+% Either the full property name or the symbol may be
+% specified. Mole and mass
+% fractions must be input as vectors (either row or column) with
+% length equal to the number of species.
 %
-%   Examples:
+% Examples::
 %
-%      set(gas,'Temperature',600.0);
-%      set(gas,'T',600.0);
-%      set(gas,'T',600.0,'P',2*oneatm,'Y',massfracs);
-%      set(gas,'H',0.5*enthalpy_mass(gas),'P',pressure(gas));
-%      set(gas,'S',entropy_mass(gas),'P',0.5*pressure(gas));
-%      set(gas,'X',ones(nSpecies(gas),1));
+%     >> set(gas,'Temperature',600.0);
+%     >> set(gas,'T',600.0);
+%     >> set(gas,'T',600.0,'P',2*oneatm,'Y',massfracs);
+%     >> set(gas,'X',ones(nSpecies(gas),1));
 %
-%  Alternatively, individual methods to set properties may be
-%  called (setTemperature, setMoleFractions, etc.)
+% Alternatively, individual methods to set properties may be
+% called (setTemperature, setMoleFractions, etc.)
+%
+% See also: :mat:func:`setBounds`, :mat:func:`setFixedTempProfile` :mat:func:`setID`,
+% :mat:func:`setMdot`, :mat:func:`setMoleFractions`, :mat:func:`setPressure`,
+% :mat:func:`setProfile`, :mat:func:`setSteadyTolerances`, :mat:func:`setTemperature`,
+% :mat:func:`setTransientTolerances`, :mat:func:`setupGrid`
+%
+% :param a:
+%     Instance of class :mat:func:`Domain1D`
+% :param varargin:
+%     Comma separated list of ``property, value`` pairs to be set
 %
 
 property_argin = varargin;

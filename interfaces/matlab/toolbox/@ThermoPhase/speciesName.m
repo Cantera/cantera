@@ -1,9 +1,13 @@
 function nm = speciesName(tp, k)
-% SPECIESNAME - Name of species k.
-%    If k is a scalar integer, the return value will be a string
-%    containing the name of the kth species. If it is an array of
-%    integers, the output will be a cell array of
-%    the same shape containing the name strings.
+% SPECIESNAME  Get the name of a species given the index.
+% nm = speciesName(tp, k)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     class derived from ThermoPhase)
+% :param k:
+%     Scalar or array of integer species numbers
+% :return:
+%     Cell array of strings
 %
 
 [m,n] = size(k);

@@ -1,7 +1,11 @@
 function setDensity(tp, rho)
-% SETDENSITY - Set the density [kg/m^3].
-%
-%   setDensity(phase, 0.01);
+% SETDENSITY  Set the density.
+% setDensity(tp,rho)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     class derived from ThermoPhase)
+% :param rho:
+%     Density. Units: kg/m**3
 %
 
 if rho <= 0.0

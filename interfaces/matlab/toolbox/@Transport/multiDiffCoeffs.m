@@ -1,20 +1,27 @@
 function v = multiDiffCoeffs(a)
-%MULTIDIFFCOEFFS  Multicomponent diffusion coefficients (m^2/s).
+% MULTIDIFFCOEFFS  Get the multicomponent diffusion coefficients.
+% v = multiDiffCoeffs(a)
+% Object ``a`` must belong to a class derived from
+% Transport, and that was constructed by specifying the ``'Multi'``
+% option. If ``'Multi'`` was not specified, you will get the
+% error message ::
 %
-%    d = multiDiffCoeffs(gas)
+%     **** Method getMultiDiffCoeffs not implemented. ****
 %
-%    returns in d the array of multicomponent diffusion
-%    coefficients. Object 'gas' must belong to a class derived from
-%    Transport, and that was constructed by specifying the 'Multi'
-%    option. If 'Multi' was not specified, you will get the error message
+% In this case, try method :mat:func:`mixDiffCoeffs`, or create a
+% new gas mixture model that uses a mixture-averaged transport manager,
+% for example::
 %
-%    **** Method getMultiDiffCoeffs not implemented. ****
+%     >> gas = GRI30('Multi');
 %
-%    In this case, try method 'mixDiffCoeffs', or create a new gas
-%    mixture model that uses a multicomponent transport manager,
-%    for example:
+% :param a:
+%     Instance of class :mat:func:`Transport` (or another
+%     object derived from Transport)
+%     for which multicomponent diffusion coefficients are desired.
+% :return:
+%     Vector of length nSpecies with the multicomponent diffusion
+%     coefficients. Units: m**2/s
 %
-%        gas = GRI30('Multi')
-%
+
 v = trans_get(a.id, 22, nSpecies(a.th));
 

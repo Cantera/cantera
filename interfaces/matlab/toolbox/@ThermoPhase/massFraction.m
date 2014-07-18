@@ -1,4 +1,15 @@
 function y = massFraction(tp, species)
+% MASSFRACTION  Get the mass fraction of a species.
+% y = massFraction(tp, species)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     object that derives from ThermoPhase)
+% :param species:
+%     String or cell array of strings of species whose mass
+%     fraction is desired
+% :return:
+%     Scalar or vector double mass fractions
+%
 
 y = 0.0;
 yarray = massFractions(tp);

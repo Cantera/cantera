@@ -1,8 +1,15 @@
 function m = Inlet(id)
-% INLET - Return a Domain1D instance representing an inlet.
+% INLET  Create an inlet domain.
+% m = Inlet(id)
+% Note that an inlet can only be a terminal domain - it must be
+% either the leftmost or rightmost domain in a stack.
 %
-%   Note that an inlet can only be a terminal domain - it must be
-%   either the leftmost or rightmost domain in a stack.
+% :param id:
+%     String name of the inlet.
+% :return:
+%     Instance of class :mat:func:`Domain1D` representing an inlet.
+%
+
 m = Domain1D(2);
 if nargin == 0
     setID(m, 'inlet');

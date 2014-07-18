@@ -1,33 +1,38 @@
 function m = Mixture(phases)
+% MIXTURE  Multiphase mixture class constructor.
+% m = Mixture(phases)
+% Class :mat:func:`Mixture` represents mixtures of one or more phases of matter.
+% To construct a mixture, supply a cell array of phases and
+% mole numbers::
 %
-% MIXTURE - Multiphase mixtures.
+%     >> gas = importPhase('gas.cti');
+%     >> graphite = importPhase('graphite.cti');
+%     >> mix = Mixture({gas, 1.0; graphite, 0.1});
 %
-%    Class Mixture represents
-%    mixtures of one or more phases of matter.  To construct a mixture,
-%    supply a cell array of phases and mole numbers:
+% Phases may also be added later using the addPhase method::
 %
-%    >> gas = importPhase('gas.cti');
-%    >> graphite = importPhase('graphite.cti');
-%    >> mix = Mixture({gas, 1.0; graphite, 0.1});
+%     >> water = importPhase('water.cti');
+%     >> addPhase(mix, water, 3.0);
 %
-%    Phases may also be added later using the addPhase method:
+% Note that the objects representing each phase compute only the
+% intensive state of the phase - they do not store any information
+% on the amount of this phase. Mixture objects, on the other hand,
+% represent the full extensive state.
 %
-%    >> water = importPhase('water.cti');
-%    >> addPhase(mix, water, 3.0);
+% Mixture objects are 'lightweight' in the sense that they do not
+% store parameters needed to compute thermodynamic or kinetic
+% properties of the phases. These are contained in the
+% ('heavyweight') phase objects. Multiple mixture objects may be
+% constructed using the same set of phase objects. Each one stores
+% its own state information locally, and synchronizes the phase
+% objects whenever it requires phase properties.
 %
-%    Note that the objects representing each phase compute only the
-%    intensive state of the phase -- they do not store any information
-%    on the amount of this phase. Mixture objects, on the other hand,
-%    represent the full extensive state.
+% :param phases:
+%     Cell array of phases and mole numbers
+% :return:
+%     Instance of class :mat:func:`Mixture`
 %
-%    Mixture objects are 'lightweight' in the sense that they do not
-%    store parameters needed to compute thermodynamic or kinetic
-%    properties of the phases. These are contained in the
-%    ('heavyweight') phase objects. Multiple mixture objects may be
-%    constructed using the same set of phase objects. Each one stores
-%    its own state information locally, and synchronizes the phase
-%    objects whenever it requires phase properties.
-%
+
 if nargin > 1
     error('Mixture: wrong number of arguments');
 end

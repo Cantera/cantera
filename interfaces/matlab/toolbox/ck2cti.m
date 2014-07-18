@@ -1,18 +1,30 @@
 function f = ck2cti(infile, thermo, transport)
-% CK2CTI - Convert a Chemkin-compatible reaction mechanism file to
-%           Cantera format.
+% CK2CTI  Convert a CHEMKIN input file to Cantera format.
+% f = ck2cti(infile, thermo, transport)
+% Examples::
 %
-%       f = ck2cti('chem.inp')
-%       f = ck2cti('chem.inp', 'therm.dat')
-%       f = ck2cti('chem.inp', 'therm.dat', 'tran.dat')
+%    f = ck2cti('chem.inp')
+%    f = ck2cti('chem.inp', 'therm.dat')
+%    f = ck2cti('chem.inp', 'therm.dat', 'tran.dat')
 %
-%    These 3 statements all create a Cantera input file 'chem.cti.' In
-%    the first case, the CK-format file contains all required species
-%    thermo data, while in the second case some or all thermo data is
-%    read from file 'therm.dat.' In the third form, the input file
-%    created will also contain transport property parameters. The
-%    function return value is a string containing the output file
-%    name.
+% These 3 statements all create a Cantera input file 'chem.cti.' In
+% the first case, the CK-format file contains all required species
+% thermo data, while in the second case some or all thermo data is
+% read from file 'therm.dat.' In the third form, the input file
+% created will also contain transport property parameters. The
+% function return value is a string containing the output file
+% name.
+%
+% :param infile:
+%     Chemistry input file in CHEMKIN format. Required.
+% :param thermo:
+%     Thermodynamic input file in CHEMKIN format. Optional if
+%     thermodynamic data is specified in the chemistry input file.
+% :param transport:
+%     Transport input file in CHEMKIN format. Optional.
+% :return:
+%     String with CTML output filename.
+%
 
 if nargin == 0
     error('input file name must be supplied')

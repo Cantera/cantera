@@ -1,9 +1,16 @@
 function addPhase(self, phase, moles)
-% ADDPHASE - Add a phase to the mixture.
+% ADDPHASE  Add a phase to a mixture.
+% addPhase(self, phase, moles)
+% :param self:
+%     Instance of class :mat:func:`Mixture` to which phases should be
+%     added
+% :param phase:
+%     Instance of class :mat:func:`ThermoPhase` which should be added
+% :param moles:
+%     Number of moles of the ``phase`` to be added to this mixture.
+%     Units: kmol
 %
-%            carbon = importPhase('graphite.cti');
-%            addPhase(mix, carbon, 1.0);
-%
+
 if ~isa(phase,'ThermoPhase')
     error('Phase object of wrong type.');
 end

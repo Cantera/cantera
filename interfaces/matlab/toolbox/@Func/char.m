@@ -1,6 +1,12 @@
 function s = char(p)
-% CHAR -
+% CHAR  Get the formatted string to display the function.
+% s = char(p)
+% :param p:
+%     Instance of class :mat:func:`Func`
+% :return:
+%     Formatted string displaying the function
 %
+
 if strcmp(p.typ,'sum')
     s = ['(' char(p.f1) ') + (' char(p.f2) ')'];
 elseif strcmp(p.typ,'diff')

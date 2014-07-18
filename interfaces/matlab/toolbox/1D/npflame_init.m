@@ -1,20 +1,32 @@
 function flame = npflame_init(gas, left, flow, right, fuel, oxidizer, nuox)
-%  FLAME - create a non-premixed flame object.
-%
-%    gas     --  object representing the gas. This object will be used to
-%                compute all required thermodynamic, kinetic, and transport
-%                properties. The state of this object should be set
-%                to an estimate of the gas state emerging from the
-%                burner before calling StagnationFlame.
-%
-%    left    --  object representing the left inlet, which must be
-%                created using function Inlet.
-%
-%    flow    --  object representing the flow, created with
-%                function AxisymmetricFlow.
-%
-%    right   --  object representing the right inlet, which must be
-%                created using function Inlet.
+% NPFLAME_INIT  Create a non-premixed flame stack.
+% flame = npflame_init(gas, left, flow, right, fuel, oxidizer, nuox)
+% :param gas:
+%     Object representing the gas, instance of class
+%     :mat:func:`Solution`, and an ideal gas. This object will be used
+%     to compute all required thermodynamic, kinetic, and transport
+%     properties. The state of this object should be set
+%     to an estimate of the gas state emerging from the
+%     burner before calling StagnationFlame.
+% :param left:
+%     Object representing the left inlet, which must be
+%     created using function :mat:func:`Inlet`.
+% :param flow:
+%     Object representing the flow, created with
+%     function :mat:func:`AxisymmetricFlow`.
+% :param right:
+%     Object representing the right inlet, which must be
+%     created using function :mat:func:`Inlet`.
+% :param fuel:
+%     String representing the fuel species
+% :param ox:
+%     String representing the oxidizer species
+% :param nuox:
+%     Number of oxidizer molecules required to completely combust
+%     one fuel molecule.
+% :return:
+%     Instance of :mat:func:`Stack` object representing the left
+%     inlet, flow, and right inlet.
 %
 
 % Check input parameters

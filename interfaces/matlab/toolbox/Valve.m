@@ -1,30 +1,33 @@
 function v = Valve(upstream, downstream)
+% VALVE  Create a valve.
+% v = Valve(upstream, downstream)
+% Create an instance of class :mat:func:`FlowDevice` configured to
+% simulate a valve that produces a flow rate proportional to the
+% pressure difference between the upstream and downstream reactors.
 %
-% VALVE - Create a valve connecting two reactors / reservoirs.
+% The mass flow rate [kg/s] is computed from the expression
 %
-%    m = Valve(upstream, downstream)
+% .. math:: \dot{m} = K(P_{upstream} - P_{downstream})
 %
-%    creates an instance of class FlowDevice configured to simulate a
-%    valve that produces a flow rate proportional to the pressure
-%    difference between the uupstream and downstream reactors. If two reactor
-%    objects are supplied as arguments, the valve is installed
-%    between the two reactors.
+% as long as this produces a positive value.  If this expression is
+% negative, zero is returned. Therefore, the :mat:func:`Valve` object
+% acts as a check valve - flow is always from the upstream reactor to
+% the downstream one.  Note: as currently implemented, the Valve object
+% does not model real valve characteristics - in particular, it
+% does not model choked flow. The mass flow rate is always assumed
+% to be linearly proportional to the pressure difference, no matter how
+% large the pressure difference. THIS MAY CHANGE IN A FUTURE
+% RELEASE.
 %
-%    The mass flow rate [kg/s] is computed from the expression
+% see also: :mat:func:`FlowDevice`, :mat:func:`MassFlowController`
 %
-%        mdot = K ( P_upstream - P_downstream )
+% :param upstream:
+%     Upstream reactor or reservoir
+% :param downstream:
+%     Downstream Reactor or reservoir
 %
-%    as long as this produces a positive value.  If this expression is
-%    negative, zero is returned. Therefore, the Valve object acts as a
-%    check valve - flow is always from the upstream reactor to the
-%    downstream one.  Note: as currently implemented, the Valve object
-%    does not model real valve characteristics - in particular, it
-%    does not model choked flow. The mass flow rate is always assumed
-%    to be linearly proportional to the mass flow rate, no matter how
-%    large the pressure difference. THIS MAY CHANGE IN A FUTURE
-%    RELEASE.
-%
-%    see also: FlowDevice, MassFlowController
+% :return:
+%     Instance of class :mat:func:`FlowDevice`
 %
 
 v = FlowDevice(3);

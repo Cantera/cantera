@@ -1,6 +1,14 @@
 function setCoverages(s, cov)
-% SETCOVERAGES - set surface coverages
+% SETCOVERAGES  Set surface coverages of the species on an interface.
+% setCoverages(s, cov)
+% :param s:
+%      Instance of class :mat:func:`Interface`
+% :param cov:
+%      Coverage of the species. ``cov`` can be either a vector of
+%      length ``n_surf_species``, or a string in the format
+%      ``'Species:Coverage, Species:Coverage'``
 %
+
 if isa(cov, 'double')
     sz = length(cov);
     if sz == nSpecies(s)
