@@ -1,4 +1,4 @@
-function d = setFixedTempProfile(d, profile)
+function setFixedTempProfile(d, profile)
 % SETFIXEDTEMPPROFILE - set the temperature profile to use when the
 % energy equation is not being solved. The profile must be entered
 % as an array of positions / temperatures, which may be in rows or

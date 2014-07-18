@@ -1,4 +1,4 @@
-function d = setSteadyTolerances(d, component, rtol, atol)
+function setSteadyTolerances(d, component, rtol, atol)
 % SETSTEADYTOLERANCES -
 %
 

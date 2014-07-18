@@ -1,4 +1,4 @@
-function d = setBounds(d, component, lower, upper)
+function setBounds(d, component, lower, upper)
 % SETBOUNDS -
 %
 n = componentIndex(d, component);

@@ -1,4 +1,4 @@
-function d = setProfile(d, n, p)
+function setProfile(d, n, p)
 % SETPROFILE -
 %
 if d.stack == 0

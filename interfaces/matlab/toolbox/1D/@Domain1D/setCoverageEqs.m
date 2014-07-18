@@ -1,4 +1,4 @@
-function d = setCoverageEqs(d, onoff)
+function setCoverageEqs(d, onoff)
 % SETCOVERAGEEQS - Enable or disable solving the coverage equations.
 %
 if d.domain_type ~= 6
