@@ -1,4 +1,4 @@
-function wtm = meanMolecularWeight(tp)
+function mmw = meanMolecularWeight(tp)
 % MEANMOLECULARWEIGHT - Mean molecular weight.
 %
 %    This method is a synonym for method meanMolarMass and is
@@ -7,4 +7,4 @@ function wtm = meanMolecularWeight(tp)
 %    See also; meanMolarMass
 %
 
-wtm = meanMolarMass(tp);
+mmw = phase_get(tp.tp_id,4);
