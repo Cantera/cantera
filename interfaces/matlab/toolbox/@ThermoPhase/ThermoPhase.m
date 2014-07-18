@@ -8,7 +8,7 @@ if nargin == 1
         return
     elseif isa(r, 'XML_Node')
         t.owner = 1;
-        hr = hndl(r);
+        hr = xml_hndl(r);
         t.tp_id = thermo_get(hr, 0);
         if t.tp_id < 0
             error(geterr);

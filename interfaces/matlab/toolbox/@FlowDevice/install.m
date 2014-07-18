@@ -5,8 +5,8 @@ if nargin == 3
         error(['Flow devices can only be installed between reactors or' ...
             ' reservoirs'])
     end
-    i = hndl(upstream);
-    j = hndl(downstream);
+    i = reactor_hndl(upstream);
+    j = reactor_hndl(downstream);
     ok = flowdevicemethods(2, f.index, i, j);
     if ok < 0
         error(geterr)

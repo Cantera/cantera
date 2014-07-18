@@ -32,7 +32,7 @@ if ~isa(r, 'XML_Node')
 end
 
 k.owner = 1;
-ixml = hndl(r);
+ixml = xml_hndl(r);
 
 % get the integer indices used to find the stored objects
 % representing the phases participating in the mechanism.
