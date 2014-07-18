@@ -11,4 +11,4 @@ function h = Hydrogen()
 %   Cantera C++ source code documentation.
 %
 
-h = importPhase('liquidvapor.cti', 'hydrogen');
+h = Solution('liquidvapor.cti', 'hydrogen');
