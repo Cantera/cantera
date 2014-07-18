@@ -1,4 +1,4 @@
-function s = setRefineCriteria(s, n, ratio, slope, curve, prune)
+function setRefineCriteria(s, n, ratio, slope, curve, prune)
 % SETREFINECRITERIA - Set the criteria used to refine the grid.
 %
 %     n  --  domain number beginning with domain 1 at the left
