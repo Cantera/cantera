@@ -1,4 +1,4 @@
-function s = Solution(src, id)
+function s = Solution(src, id, trans)
 % SOLUTION - class Solution constructor.
 %
 %    Class Solution represents solutions of multiple species. A
@@ -27,17 +27,24 @@ function s = Solution(src, id)
 %
 % See also: ThermoPhase, Kinetics, Transport
 %
-doc = XML_Node('doc',src);
+doc = XML_Node('doc', src);
 if nargin == 1
-    node = findByName(doc,'phase');
+    node = findByName(doc, 'phase');
 else
-    node = findByID(doc,id);
+    node = findByID(doc, id);
 end
 t = ThermoPhase(node);
-k = Kinetics(node,t);
+k = Kinetics(node, t);
 s.kin = k;
 s.th = t;
-tr = Transport(node,t,'default',0);
+if nargin == 3
+    if strcmp(trans, 'default') || strcmp(trans, 'Mix') || strcmp(trans, 'Multi')
+        tr = Transport(node, t, trans, 4);
+    else
+        error('Unknown transport modeling specified.')
+    end
+else
+    tr = Transport(node, t, 'default', 4);
+end
 s.tr = tr;
-s = class(s,'Solution',t,k,tr);
-
+s = class(s, 'Solution', t, k, tr);

@@ -1,10 +1,16 @@
-function d = Domain1D(a, b, c, d, e)
+function d = Domain1D(a, b, c)
 % DOMAIN1D - Create a new one-dimensional domain.
 %
 d.dom_id = -1;
 
+% Valid job numbers for one argument
+valid_jobs = [2, 3, 4, 5, -2];
 if nargin == 1
-    d.dom_id = domain_methods(0, a);
+    if any(a == valid_jobs)
+        d.dom_id = domain_methods(0, a);
+    else
+        error('Not enough arguments for that job number')
+    end
 elseif nargin == 2
     % a stagnation flow
     if a == 1
