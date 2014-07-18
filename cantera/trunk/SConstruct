@@ -55,6 +55,8 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('include/cantera/base/config.h')
     removeFile('ext/f2c_libs/arith.h')
     removeDirectory('doc/sphinx/matlab/examples')
+    removeDirectory('doc/sphinx/matlab/tutorials')
+    removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
     for name in os.listdir('.'):
         if name.endswith('.msi'):
