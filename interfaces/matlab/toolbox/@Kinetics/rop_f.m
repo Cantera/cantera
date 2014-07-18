@@ -8,10 +8,10 @@ function q = rop_f(a)
 %
 %    See also: rop_r, rop_net.
 %
-q = kinetics_get(a.id,11,0);
+q = kinetics_get(a.id, 11, 0);
 if nargout == 0
     figure
-    set(gcf,'Name','Rates of Progress')
+    set(gcf, 'Name', 'Rates of Progress')
     bar(q)
     xlabel('Reaction Number')
     ylabel('Forward Rate of Progress [kmol/m^3]')

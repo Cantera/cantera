@@ -10,4 +10,5 @@ function w = Water()
 %   For more details, see classes Cantera::PureFluid and tpx::water in the
 %   Cantera C++ source code documentation.
 %
-w = importPhase('liquidvapor.cti','water');
+
+w = Solution('liquidvapor.cti', 'water');

@@ -6,7 +6,7 @@ function m = FreeFlame(gas, id)
 %
 m = Domain1D(1, gas, 2);
 if nargin == 1
-    setID(m,'flame');
+    setID(m, 'flame');
 else
-    setID(m,id);
+    setID(m, id);
 end

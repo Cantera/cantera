@@ -1,4 +1,4 @@
-function x = moleFractions(a)
+function x = moleFractions(tp)
 % MOLEFRACTIONS - Mole fractions.
 %
 %     moleFractions(phase)
@@ -6,10 +6,11 @@ function x = moleFractions(a)
 %   returns the array of species mole fractions for phase 'phase'.  If
 %   no output argument is specified, a bar plot is produced.
 %
-x = phase_get(a.tp_id,20);
+
+x = phase_get(tp.tp_id, 20);
 if nargout == 0
     figure
-    set(gcf,'Name','Mole Fractions')
+    set(gcf, 'Name', 'Mole Fractions')
     bar(x)
     xlabel('Species Number')
     ylabel('Mole Fraction')

@@ -1,2 +1,3 @@
-function v = entropy_mass(a)
-v = thermo_get(a.tp_id,11);
+function v = entropy_mass(tp)
+
+v = thermo_get(tp.tp_id, 11);

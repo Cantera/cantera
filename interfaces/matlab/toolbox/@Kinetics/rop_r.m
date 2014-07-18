@@ -9,4 +9,12 @@ function q = rop_r(a)
 %
 %    See also: rop_r, rop_net.
 %
-q = kinetics_get(a.id,12,0);
+q = kinetics_get(a.id, 12, 0);
+if nargout == 0
+    figure
+    set(gcf, 'Name', 'Reverse Rates of Progress')
+    bar(q)
+    xlabel('Reaction Number')
+    ylabel('Reverse Rate of Progress [kmol/m^3]')
+    title('Reverse Rates of Progress')
+end

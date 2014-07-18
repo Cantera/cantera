@@ -32,21 +32,21 @@ while length(property_argin) >= 2,
     property_argin = property_argin(3:end);
     switch prop
         case 'Temperature'
-            setTemperature(a,val);
+            setTemperature(a, val);
         case 'T'
-            setTemperature(a,val);
+            setTemperature(a, val);
         case 'MassFractions'
-            setMassFractions(a,val);
+            setMassFractions(a, val);
         case 'Y'
-            setMassFractions(a,val);
+            setMassFractions(a, val);
         case 'mdot'
-            setMdot(a,val);
+            setMdot(a, val);
         case 'MassFlux'
-            setMdot(a,val);
+            setMdot(a, val);
         case 'P'
-            setPressure(a,val);
+            setPressure(a, val);
         case 'Pressure'
-            setPressure(a,val);
+            setPressure(a, val);
         case 'tol'
             sz = size(val);
             if sz == nComponents(a)
@@ -54,7 +54,7 @@ while length(property_argin) >= 2,
             elseif length(val) == 2
                 setSteadyTolerances(a, 'default', val(1), val(2));
             else
-                error('wrong array size for error tolerances');
+                error('Wrong array size for error tolerances.');
             end
         case 'tol-time'
             sz = size(val);
@@ -65,7 +65,7 @@ while length(property_argin) >= 2,
                 at = val(2);
                 setTransientTolerances(a, 'default', rt, at);
             else
-                error('wrong array size for error tolerances');
+                error('Wrong array size for error tolerances.');
             end
         case 'grid'
             setupGrid(a, val);

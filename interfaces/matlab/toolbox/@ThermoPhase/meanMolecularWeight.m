@@ -1,4 +1,4 @@
-function wtm = meanMolecularWeight(p)
+function wtm = meanMolecularWeight(tp)
 % MEANMOLECULARWEIGHT - Mean molecular weight.
 %
 %    This method is a synonym for method meanMolarMass and is
@@ -6,4 +6,5 @@ function wtm = meanMolecularWeight(p)
 %
 %    See also; meanMolarMass
 %
-wtm = meanMolarMass(p);
+
+wtm = meanMolarMass(tp);

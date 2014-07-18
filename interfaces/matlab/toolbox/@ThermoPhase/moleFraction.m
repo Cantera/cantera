@@ -1,18 +1,18 @@
-function x = moleFraction(s, species)
+function x = moleFraction(tp, species)
 
 x = 0.0;
-xarray = moleFractions(s);
-if isa(species,'char')
-    k = speciesIndex(s, species);
+xarray = moleFractions(tp);
+if isa(species, 'char')
+    k = speciesIndex(tp, species);
     if  k > 0
         x = xarray(k);
     end
 
-elseif isa(species,'cell')
+elseif isa(species, 'cell')
     n = length(species);
     x = zeros(1, n);
     for j = 1:n
-        k = speciesIndex(s, species{j});
+        k = speciesIndex(tp, species{j});
         if k > 0
             x(j) = xarray(k);
         end

@@ -44,17 +44,17 @@ else
             end
             d = d - 1;
         end
-    elseif strcmp(p.typ,'gaussian')
+    elseif strcmp(p.typ, 'gaussian')
         s = ['Gaussian(' num2str(p.coeffs(1)) ',' ...
             num2str(p.coeffs(2)) ',' ...
             num2str(p.coeffs(3)) ')'];
-    elseif strcmp(p.typ,'fourier')
-        c = reshape(p.coeffs, [],2);
-        Ao = c(1,1);
-        w = c(1,2);
-        A = c(2:end,1);
-        B = c(2:end,2);
-        N = size(c,1)-1;
+    elseif strcmp(p.typ, 'fourier')
+        c = reshape(p.coeffs, [], 2);
+        Ao = c(1, 1);
+        w = c(1, 2);
+        A = c(2:end, 1);
+        B = c(2:end, 2);
+        N = size(c, 1) - 1;
         if Ao ~= 0
             s = num2str(Ao/2);
         else

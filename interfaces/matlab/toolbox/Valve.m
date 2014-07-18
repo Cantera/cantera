@@ -1,4 +1,4 @@
-function m = Valve(upstream, downstream)
+function v = Valve(upstream, downstream)
 %
 % VALVE - Create a valve connecting two reactors / reservoirs.
 %
@@ -26,7 +26,8 @@ function m = Valve(upstream, downstream)
 %
 %    see also: FlowDevice, MassFlowController
 %
-m = FlowDevice(3);
+
+v = FlowDevice(3);
 if nargin == 2
-    install(m, upstream, downstream)
+    install(v, upstream, downstream)
 end

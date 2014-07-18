@@ -1,4 +1,4 @@
-function n = Methane()
+function m = Methane()
 % METHANE - Return an object representing methane.
 %
 %   The object returned by this method implements an accurate equation of
@@ -7,4 +7,5 @@ function n = Methane()
 %   equation of state is taken from W. C. Reynolds, "Thermodynamic
 %   Properties in SI."
 %
-n = importPhase('liquidvapor.cti','methane');
+
+m = Solution('liquidvapor.cti', 'methane');

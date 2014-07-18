@@ -5,17 +5,17 @@ function addPhase(self, phase, moles)
 %            addPhase(mix, carbon, 1.0);
 %
 if ~isa(phase,'ThermoPhase')
-    error('phase object of wrong type.');
+    error('Phase object of wrong type.');
 end
 if ~isa(moles,'numeric')
-    error('number of moles must be numeric.');
+    error('Number of moles must be numeric.');
 end
 if moles < 0.0
-    error('negative moles!');
+    error('Negative moles!');
 end
 
 iphase = thermo_hndl(phase);
 iok = mixturemethods(4, mix_hndl(self), iphase, moles);
 if iok < 0
-    error('error adding phase');
+    error('Error adding phase');
 end

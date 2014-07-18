@@ -4,12 +4,12 @@ function c = coverages(s)
 c = surfmethods(thermo_hndl(s), 101);
 if nargout == 0
     figure
-    set(gcf,'Name','Coverages')
+    set(gcf, 'Name', 'Coverages')
     bar(c);
     colormap(summer);
     nm = speciesNames(s);
-    legend(nm);
-    xlabel('Species Number');
+    set(gca,'XTickLabel', nm);
+    xlabel('Species Name');
     ylabel('Coverage');
     title('Surface Species Coverages');
 end

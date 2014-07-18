@@ -1,4 +1,4 @@
-function n = Hydrogen()
+function h = Hydrogen()
 % HYDROGEN - Return an object representing hydrogen.
 %
 %   The object returned by this method implements an accurate equation of
@@ -10,4 +10,5 @@ function n = Hydrogen()
 %   For more details, see classes Cantera::PureFluid and tpx::hydrogen in the
 %   Cantera C++ source code documentation.
 %
-n = importPhase('liquidvapor.cti','hydrogen');
+
+h = importPhase('liquidvapor.cti', 'hydrogen');

@@ -7,4 +7,5 @@ function n = Nitrogen()
 %   equation of state is taken from W. C. Reynolds, "Thermodynamic
 %   Properties in SI."
 %
-n = importPhase('liquidvapor.cti','nitrogen');
+
+n = Solution('liquidvapor.cti', 'nitrogen');

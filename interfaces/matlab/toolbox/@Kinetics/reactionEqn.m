@@ -14,12 +14,12 @@ elseif nargin == 2
 end
 
 if m == 1 && n == 1
-    e = kinetics_get(a.id, 31, irxn); % rxnstring(a.id, irxn);
+    e = kinetics_get(a.id, 31, irxn);
 else
     e = cell(m,n);
     for i = 1:m
         for j = 1:n
-            e{i,j} = kinetics_get(a.id, 31, irxn(i,j)); % rxnstring(a.id, irxn(i,j));
+            e{i, j} = kinetics_get(a.id, 31, irxn(i,j));
         end
     end
 end

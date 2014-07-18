@@ -1,4 +1,5 @@
-function n = pressure(self)
+function p = pressure(self)
 % PRESSURE - pressure (Pa)
 %
-n = mixturemethods(26, mix_hndl(self));
+
+p = mixturemethods(26, mix_hndl(self));

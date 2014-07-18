@@ -3,7 +3,7 @@ function setKinetics(w, left, right)
 %
 ileft = 0;
 iright = 0;
-if isa(left,'Kinetics')
+if isa(left, 'Kinetics')
     ileft = kinetics_hndl(left);
 end
 

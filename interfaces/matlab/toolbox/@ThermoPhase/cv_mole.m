@@ -1,3 +1,4 @@
-function v = cv_mole(a)
+function v = cv_mole(tp)
 % CV_MOLE - Molar heat capacity at constant volume [J/kmol-K].
-v = thermo_get(a.tp_id,7);
+
+v = thermo_get(tp.tp_id, 7);

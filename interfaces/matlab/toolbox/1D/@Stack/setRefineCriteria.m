@@ -1,4 +1,4 @@
-function d = setRefineCriteria(d, n, ratio, slope, curve, prune)
+function s = setRefineCriteria(s, n, ratio, slope, curve, prune)
 % SETREFINECRITERIA - Set the criteria used to refine the grid.
 %
 %     n  --  domain number beginning with domain 1 at the left
@@ -13,6 +13,7 @@ function d = setRefineCriteria(d, n, ratio, slope, curve, prune)
 %                 components, it will be deleted, unless either
 %                 neighboring point is already marked for deletion.
 %
+
 if nargin < 3
     ratio = 10.0;
 end
@@ -26,4 +27,4 @@ if nargin < 6
     prune = -0.1;
 end
 
-stack_methods(d.stack_id, 106, n, ratio, slope, curve, prune);
+stack_methods(s.stack_id, 106, n, ratio, slope, curve, prune);

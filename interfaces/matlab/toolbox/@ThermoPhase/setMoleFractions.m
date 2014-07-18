@@ -1,4 +1,4 @@
-function a = setMoleFractions(a,x,norm)
+function a = setMoleFractions(tp, x, norm)
 % SETMOLEFRACTIONS  Set the species mole fractions.
 %
 %   setMoleFractions(a,x)
@@ -29,19 +29,19 @@ function a = setMoleFractions(a,x,norm)
 %  the pressure fixed, use method 'set' (defined in class Solution)
 %  instead, or call setPressure after calling setMoleFractions.
 
-if isa(x,'double')
+if isa(x, 'double')
     if nargin == 3
-        if strcmp(norm,'nonorm')
-            phase_set(a.tp_id,22,x);
+        if strcmp(norm, 'nonorm')
+            phase_set(tp.tp_id, 22, x);
         else
-            phase_set(a.tp_id,20,x);
+            phase_set(tp.tp_id, 20, x);
         end
     else
-        phase_set(a.tp_id,20,x);
+        phase_set(tp.tp_id, 20, x);
     end
     %
     % string input
     %
-elseif isa(x,'char')
-    phase_set(a.tp_id,30,x);
+elseif isa(x, 'char')
+    phase_set(tp.tp_id, 30, x);
 end

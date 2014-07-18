@@ -9,10 +9,10 @@ function wdot = netProdRates(a)
 %
 %    See also: creationRates, destructionRates
 %
-wdot = kinetics_get(a.id,23,0);
+wdot = kinetics_get(a.id, 23, 0);
 if nargout == 0
     figure
-    set(gcf,'Name','Production Rates')
+    set(gcf, 'Name', 'Production Rates')
     bar(wdot)
     xlabel('Species Number')
     ylabel('Net Production Rate (kmol/m^3/s)')

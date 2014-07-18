@@ -1,4 +1,4 @@
-function v = minTemp(p)
+function v = minTemp(tp)
 % MINTEMP - Minimum temperature.
 %
 %   The parameterizations used to represent the temperature-dependent
@@ -9,4 +9,5 @@ function v = minTemp(p)
 %
 %   See also: maxTemp
 %
-v = thermo_get(p.tp_id,16);
+
+v = thermo_get(tp.tp_id, 16);

@@ -1,4 +1,5 @@
-function v = enthalpy_mass(a)
+function v = enthalpy_mass(tp)
 % ENTHALPY_MASS - Specific enthalpy [J/kg].
 %
-v = thermo_get(a.tp_id,9);
+
+v = thermo_get(tp.tp_id, 9);

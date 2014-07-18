@@ -1,5 +1,6 @@
-function clear(t)
+function clear(tp)
 % CLEAR - Delete the kernel object.
 %
-thermo_set(t.tp_id,0,10);
+
+thermo_set(tp.tp_id, 0, 10);
 

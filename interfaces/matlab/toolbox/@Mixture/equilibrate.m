@@ -1,5 +1,4 @@
-function r = equilibrate(self, XY, err, maxsteps, maxiter, ...
-    loglevel)
+function r = equilibrate(self, XY, err, maxsteps, maxiter, loglevel)
 %
 % EQUILIBRATE - Set the mixture to a state of chemical equilibrium.
 %

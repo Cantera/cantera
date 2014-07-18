@@ -1,4 +1,5 @@
 function clear(k)
 % CLEAR - delete the Kinetics instance.
 %
-kinetics_set(k.id,3);
+
+kinetics_set(k.id, 3, 0, 0);

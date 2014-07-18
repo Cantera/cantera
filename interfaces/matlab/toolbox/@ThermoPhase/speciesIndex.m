@@ -1,4 +1,4 @@
-function k = speciesIndex(a,name)
+function k = speciesIndex(tp, name)
 % SPECIESINDEX -  The species index of species with name 'name'.
 %
 %   The index is an integer assigned to each species in sequence as it
@@ -20,13 +20,15 @@ function k = speciesIndex(a,name)
 %
 
 if iscell(name)
-    [m, n] = size(name);
-    k = zeros(m,n);
+    [m,n] = size(name);
+    k = zeros(m, n);
     for i = 1:m
         for j = 1:n
-            k(i,j) = phase_get(a.tp_id,12,name{i,j});
+            k(i,j) = phase_get(tp.tp_id, 12, name{i,j});
         end
     end
+elseif ischar(name)
+    k = phase_get(tp.tp_id, 12, name);
 else
-    k = phase_get(a.tp_id,12,name);
+    error('name must be either a string or cell array of strings')
 end

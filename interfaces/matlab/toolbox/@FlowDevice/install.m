@@ -1,7 +1,7 @@
 function install(f, upstream, downstream)
 
 if nargin == 3
-    if ~isa(upstream,'Reactor') || ~isa(downstream,'Reactor')
+    if ~isa(upstream, 'Reactor') || ~isa(downstream, 'Reactor')
         error(['Flow devices can only be installed between reactors or' ...
             ' reservoirs'])
     end

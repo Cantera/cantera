@@ -5,7 +5,7 @@ function m = AxisymmetricFlow(gas, id)
 %
 m = Domain1D(1, gas);
 if nargin == 1
-    setID(m,'flow');
+    setID(m, 'flow');
 else
-    setID(m,id);
+    setID(m, id);
 end

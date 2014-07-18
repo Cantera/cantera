@@ -4,12 +4,12 @@ function c = concentrations(s)
 c = surfmethods(thermo_hndl(s), 101);
 if nargout == 0
     figure
-    set(gcf,'Name','Concentrations')
+    set(gcf, 'Name', 'Concentrations')
     bar(c);
     colormap(summer);
     nm = speciesNames(s);
-    legend(nm);
-    xlabel('Species Number');
+    set(gca,'XTickLabel', nm);
+    xlabel('Species Name');
     ylabel('Concentration [kmol/m2]');
     title('Surface Species Concentrations');
 end

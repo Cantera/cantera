@@ -1,4 +1,4 @@
-function nu = stoich_net(a,species,rxns)
+function nu = stoich_net(a, species, rxns)
 % stoich_net  Net stoichiometric coefficients.
 %
 %    nu = stoich_net(a)
@@ -23,8 +23,7 @@ function nu = stoich_net(a,species,rxns)
 if nargin == 1
     nu = stoich_p(a) - stoich_r(a);
 elseif nargin == 3
-    nu = stoich_p(a,species,rxns) - stoich_r(a,species,rxns);
+    nu = stoich_p(a, species, rxns) - stoich_r(a, species, rxns);
 else
-    error(['syntax error. Type ''help stoich_net'' for more' ...
-        ' information.'])
+    error(['stoich_net requires 1 or 3 arguments.'])
 end

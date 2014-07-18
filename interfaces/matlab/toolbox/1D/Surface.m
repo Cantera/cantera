@@ -4,11 +4,11 @@ function m = Surface(id, surface_mech)
 if nargin < 2
     m = Domain1D(3);
     if nargin == 0
-        setID(m,'surface');
+        setID(m, 'surface');
     elseif nargin == 1
-        setID(m,id);
+        setID(m, id);
     end
 else
     m = Domain1D(6, surface_mech);
-    setID(m,id);
+    setID(m, id);
 end

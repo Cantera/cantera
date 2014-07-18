@@ -1,4 +1,5 @@
-function n = temperature(self)
+function t = temperature(self)
 % TEMPERATURE - temperature (K)
 %
-n = mixturemethods(25, mix_hndl(self));
+
+t = mixturemethods(25, mix_hndl(self));

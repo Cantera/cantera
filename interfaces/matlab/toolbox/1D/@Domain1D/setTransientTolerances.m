@@ -1,7 +1,8 @@
 function d = setSteadyTolerances(d, component, rtol, atol)
 % SETSTEADYTOLERANCES -
 %
-if strcmp(component,'default')
+
+if strcmp(component, 'default')
     nc = nComponents(d);
     for ii = 1:nc
         domain_methods(d.dom_id, 56, ii, rtol, atol);

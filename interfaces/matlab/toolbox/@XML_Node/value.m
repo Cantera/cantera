@@ -1,4 +1,4 @@
-function v = value(x,loc)
+function v = value(x, loc)
 % VALUE - value(x) returns the value of the XML element.
 %         value(x, loc) is shorthand for value(child(x,loc))
 %

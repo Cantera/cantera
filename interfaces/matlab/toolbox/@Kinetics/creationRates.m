@@ -9,10 +9,10 @@ function cdot = creationRates(a)
 %
 %    See also: destructionRates, netProdRates.
 %
-cdot = kinetics_get(a.id,21,0);
+cdot = kinetics_get(a.id, 21, 0);
 if nargout == 0
     figure
-    set(gcf,'Name','Creation Rates')
+    set(gcf, 'Name', 'Creation Rates')
     bar(cdot)
     xlabel('Species Number')
     ylabel('Creation Rate (kmol/m^3-s)')

@@ -1,5 +1,6 @@
-function b = subsref(s,index)
+function b = subsref(s, index)
 % SUBSREF -
+
 switch index.type
     case '()'
         b = s.domains(index.subs{:});
