@@ -1,4 +1,4 @@
-function a = setState_SV(tp, sv)
+function setState_SV(tp, sv)
 % SETSTATE_SV    Set the specific entropy [J/kg/K] and specific
 % volume [m3/kg].
 %

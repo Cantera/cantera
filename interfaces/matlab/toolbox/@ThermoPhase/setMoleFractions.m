@@ -1,4 +1,4 @@
-function a = setMoleFractions(tp, x, norm)
+function setMoleFractions(tp, x, norm)
 % SETMOLEFRACTIONS  Set the species mole fractions.
 %
 %   setMoleFractions(a,x)

@@ -1,4 +1,4 @@
-function a = setState_satVapor(tp)
+function setState_satVapor(tp)
 % SETSTATE_SATVAPOR    Set the fluid to the saturated vapor state at the
 % current temperature.
 %

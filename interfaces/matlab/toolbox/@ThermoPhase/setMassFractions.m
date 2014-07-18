@@ -1,4 +1,4 @@
-function a = setMassFractions(tp, y, norm)
+function setMassFractions(tp, y, norm)
 % SETMASSFRACTIONS  Set the species mass fractions.
 %
 %   setMassFractions(a,y)

@@ -1,4 +1,4 @@
-function a = setState_Tsat(tp, tx)
+function setState_Tsat(tp, tx)
 % SETSTATE_TSAT    Set the fluid to a saturated state at
 % temperature t
 %

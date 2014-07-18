@@ -1,4 +1,4 @@
-function a = setState_UV(tp, uv)
+function setState_UV(tp, uv)
 % SETSTATE_UV    Set the specific internal energy [J/kg] and
 % specific volume [m^3/kg].
 %

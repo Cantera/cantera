@@ -1,4 +1,4 @@
-function a = setTemperature(tp,t)
+function setTemperature(tp,t)
 % SETTEMPERATURE  Set the temperature [K].
 %
 
