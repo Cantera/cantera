@@ -35,10 +35,6 @@ while length(property_argin) >= 2,
             setTemperature(a, val);
         case 'T'
             setTemperature(a, val);
-        case 'MassFractions'
-            setMassFractions(a, val);
-        case 'Y'
-            setMassFractions(a, val);
         case 'mdot'
             setMdot(a, val);
         case 'MassFlux'
