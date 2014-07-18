@@ -210,7 +210,6 @@ protected:
 
     thermo_t*  m_thermo;
     doublereal m_vol;
-    bool m_init;
     doublereal m_enthalpy;
     doublereal m_intEnergy;
     doublereal m_pressure;

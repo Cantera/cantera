@@ -28,7 +28,6 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 void IdealGasConstPressureReactor::getInitialConditions(double t0, size_t leny,
                                                         double* y)
 {
-    m_init = true;
     if (m_thermo == 0) {
         throw CanteraError("getInitialConditions",
                            "Error: reactor is empty.");
