@@ -218,15 +218,6 @@ public:
     }
 
 protected:
-    void connect(size_t i, size_t j) {
-        m_connect[j*m_reactors.size() + i] = 1;
-        m_connect[i*m_reactors.size() + j] = 1;
-    }
-
-    bool connected(size_t i, size_t j) {
-        return (m_connect[m_reactors.size()*i + j] == 1);
-    }
-
     /**
      * Initialize the reactor network. Called automatically the first time
      * advance or step is called.
@@ -264,7 +255,6 @@ protected:
     //! output.
     std::vector<size_t> m_sensIndex;
 
-    vector_int m_connect;
     vector_fp m_ydot;
 
     std::vector<bool> m_iown;
