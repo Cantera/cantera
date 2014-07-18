@@ -1,4 +1,4 @@
-function a= setState_HP(tp, hp)
+function setState_HP(tp, hp)
 % SETSTATE_HP - Set the specific enthalpy [J/kg] and pressure [Pa].
 %
 %    setState_HP(a, hp) sets the specific enthalpy and pressure

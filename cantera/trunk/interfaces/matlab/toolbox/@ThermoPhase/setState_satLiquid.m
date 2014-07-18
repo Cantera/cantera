@@ -1,4 +1,4 @@
-function a = setState_satLiquid(tp)
+function setState_satLiquid(tp)
 % SETSTATE_SATLIQUID    Set the fluid to the saturated liquid state
 % at the current temperature.
 %
