@@ -1,4 +1,4 @@
-function dydt = conuv(t,y,gas,mw) %#ok<INUSL>
+function dydt = conuv(t, y, gas, mw) %#ok<INUSL>
 % CONUV ODE system for a constant-volume, adiabatic reactor.
 %
 %    Function CONUV evaluates the system of ordinary differential
@@ -19,7 +19,7 @@ tdot = - temperature(gas) * gasconstant * (enthalpies_RT(gas) - ones(nsp,1))' ..
 
 % set up column vector for dydt
 dydt = [ tdot
-    zeros(53,1) ];
+    zeros(nsp, 1) ];
 
 % species equations
 rrho = 1.0/density(gas);
