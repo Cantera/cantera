@@ -8,12 +8,32 @@ from collections import namedtuple
 Page = namedtuple('Page', ['name', 'title', 'objects'])
 
 # Set up functions to pseudo-autodoc the MATLAB toolbox
-def extract_matlab_docstring(mfile):
+def extract_matlab_docstring(mfile, level):
     """
         Return the docstring from mfile, assuming that it consists of the
         first uninterrupted comment block.
+
+        :param mfile:
+            File name of the matlab file from which the documentation will be
+            read
+        :param level:
+            Level of documentation. Class = 0, Function = 1
     """
-    docstring = ".. mat:function:: "
+    # Set the start of the docstring based on the level passed in. This is only
+    # necessary for the old-style MATLAB classes, where each method is its own
+    # file.
+    if level == 0:
+        docstring = ".. mat:class:: "
+    elif level == 1:
+        docstring = "    .. mat:function:: "
+    else:
+        print "Unknown level for MATLAB documentation."
+        sys.exit(1)
+
+    # The leader is the number of spaces at the beginning of a regular line
+    # of documentation.
+    leader = ' '*4*(level + 1)
+
     with open(mfile, 'r') as in_file:
         # The function name is read from the first line
         docstring += get_function_name(in_file.readline()) + '\n'
@@ -21,11 +41,11 @@ def extract_matlab_docstring(mfile):
         # By convention, the second line (called H1 in the MATLAB documentation)
         # is read by various MATLAB functions, so it should be in the format
         # MATLAB expects - FUNCTIONNAME  Summary. We read in this line and
-        # add the summary to the docstring. If the line doesn't match the
+        # add the Summary to the docstring. If the line doesn't match the
         # format, just write it to the docstring as is.
         line = in_file.readline()
         try:
-            docstring += '    ' + line.split('  ')[1] + '\n'
+            docstring += leader + line.split('  ')[1] + '\n'
         except IndexError:
             docstring += line + '\n'
 
@@ -38,7 +58,7 @@ def extract_matlab_docstring(mfile):
         for line in in_file.readlines():
             try:
                 if line.lstrip().startswith('%'):
-                    docstring += ' '*4 + line.lstrip()[2:-1] + '\n'
+                    docstring += leader + line.lstrip()[2:-1] + '\n'
                 else:
                     break
             except IndexError:
@@ -152,7 +172,7 @@ if localenv['sphinx_docs']:
     # are generics that are overloaded per-class. Since the loop checks for these
     # strings in each file name, hndl.m is the same as *hndl.m* (to use globbing
     # notation).
-    nodoc_matlab_files = ['set.m', 'clear.m', 'display.m', 'hndl.m', 'private', 'subsref.m']
+    nodoc_matlab_files = ['clear.m', 'display.m', 'hndl.m', 'private', 'subsref.m']
 
     # Loop through the pages list to document each class
     for page in pages:
@@ -170,19 +190,25 @@ if localenv['sphinx_docs']:
             # Set the subheader based on the class name
             doc += obj.split('@')[1] + '\n' + '-'*len(obj.split('@')[1]) + '\n\n'
             if os.path.isdir(pjoin(base,obj)):
-                class_files = os.listdir(pjoin(base,obj))
-                class_files = [name for name in class_files if not any(x in name for x in nodoc_matlab_files)]
-                all_files = [class_files.pop(class_files.index(obj.split('@')[1]+'.m'))]
+                # Get a list of the functions in this class as long as its a file we care about
+                functions = [name for name in os.listdir(pjoin(base,obj)) if not any(x in name for x in nodoc_matlab_files)]
+
+                # Add the docstring for the class name at level 0
+                class_file = functions.pop(functions.index(obj.split('@')[1]+'.m'))
+                doc += extract_matlab_docstring(os.path.relpath(pjoin(base,obj,class_file)), 0)
+
+                # Get the extra files from the extra dictionary and sort them with
+                # the regular functions.
                 extra_files = extra.get(obj,[])
-                all_files += sorted(class_files + extra_files)
-                class_files.insert(0,all_files[0])
+                all_files += sorted(functions + extra_files)
             else:
                 all_files = extra.get(obj,[])
+
             for file in all_files:
-                if file in class_files:
-                    doc += extract_matlab_docstring(os.path.relpath(pjoin(base,obj,file)))
+                if file in functions:
+                    doc += extract_matlab_docstring(os.path.relpath(pjoin(base,obj,file)), 1)
                 else:
-                    doc += extract_matlab_docstring(os.path.relpath(pjoin(base,file)))
+                    doc += extract_matlab_docstring(os.path.relpath(pjoin(base,file)), 1)
 
         tempenv['matlab_docstrings'] = doc
         # Substitute the docstrings into the proper file. Since the docs change
