@@ -1,4 +1,4 @@
-function v = enthalpies_RT(p)
+function v = enthalpies_RT(tp)
 % ENTHALPIES_RT - Pure species non-dimensional enthalpies.
 %
 %      h_rt = enthalpies_RT(phase)
@@ -9,4 +9,5 @@ function v = enthalpies_RT(p)
 %    values are ideal gas enthalpies.
 %
 %
-v = thermo_get(p.tp_id,32);
+
+v = thermo_get(tp.tp_id, 32);

@@ -5,7 +5,7 @@ function m = Inlet(id)
 %   either the leftmost or rightmost domain in a stack.
 m = Domain1D(2);
 if nargin == 0
-    setID(m,'inlet');
+    setID(m, 'inlet');
 else
-    setID(m,id);
+    setID(m, id);
 end

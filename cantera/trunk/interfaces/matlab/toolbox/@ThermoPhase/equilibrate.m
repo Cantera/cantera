@@ -1,4 +1,4 @@
-function a = equilibrate(a, xy, solver, rtol, maxsteps, maxiter, loglevel)
+function tp = equilibrate(tp, xy, solver, rtol, maxsteps, maxiter, loglevel)
 % EQUILIBRATE  Set the phase to a state of chemical equilibrium.
 %
 %        XY -- A two-letter string, which must be one of the set
@@ -43,7 +43,7 @@ if nargin < 7
     loglevel = 0;
 end
 
-iok = thermo_set(a.tp_id, 50, xy, solver, rtol, maxsteps, maxiter, loglevel);
+iok = thermo_set(tp.tp_id, 50, xy, solver, rtol, maxsteps, maxiter, loglevel);
 if iok < 0
     e = geterr;
     if e == 0

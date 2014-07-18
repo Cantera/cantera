@@ -1,4 +1,4 @@
-function q = destruction_rates(a)
+function ddot = destruction_rates(a)
 % destruction_rates  Chemical destruction rates for all species.
 %
 %    q = destruction_rates(a)
@@ -7,11 +7,12 @@ function q = destruction_rates(a)
 %
 %    See also: creation_rates, net_production_rates.
 %
-q = production(a.id,nSpecies(a.ph),1);
+
+ddot = destructionRates(a);
 if nargout == 0
     figure
-    set(gcf,'Name','Destruction Rates')
-    bar(q)
+    set(gcf, 'Name', 'Destruction Rates')
+    bar(ddot)
     xlabel('Species Number')
     ylabel('Destruction Rate (kmol/m^3/s)')
     title('Species Chemical Destruction Rates')

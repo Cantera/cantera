@@ -10,5 +10,5 @@ elseif nargin == 5
 elseif nargin == 6
     s = Interface(file, name, phase1, phase2, phase3, phase4);
 else
-    error('importEdge only supports 4 neighbor phases');
+    error('importEdge only supports 4 neighbor phases.');
 end

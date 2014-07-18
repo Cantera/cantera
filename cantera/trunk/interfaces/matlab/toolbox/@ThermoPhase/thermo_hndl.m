@@ -1,2 +1,3 @@
-function i = thermo_hndl(p)
-i = p.tp_id;
+function i = thermo_hndl(tp)
+
+i = tp.tp_id;

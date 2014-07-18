@@ -1,2 +1,3 @@
-function v = entropy_mole(a)
-v = thermo_get(a.tp_id,4);
+function v = entropy_mole(tp)
+
+v = thermo_get(tp.tp_id, 4);

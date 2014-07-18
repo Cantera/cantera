@@ -1,2 +1,3 @@
-function n = speciesNames(a)
-n = speciesName(a,1:nSpecies(a));
+function n = speciesNames(tp)
+
+n = speciesName(tp, 1:nSpecies(tp));

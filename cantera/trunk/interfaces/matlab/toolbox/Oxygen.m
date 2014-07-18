@@ -1,4 +1,4 @@
-function n = Oxygen()
+function o = Oxygen()
 % OXYGEN - Return an object representing oxygen.
 %
 %   The object returned by this method implements an accurate equation of
@@ -7,4 +7,5 @@ function n = Oxygen()
 %   equation of state is taken from W. C. Reynolds, "Thermodynamic
 %   Properties in SI."
 %
-n = importPhase('liquidvapor.cti','oxygen');
+
+o = Solution('liquidvapor.cti', 'oxygen');

@@ -1,4 +1,4 @@
-function n = multiplier(a,irxn)
+function n = multiplier(a, irxn)
 % MULTIPLIER  Multiplier for reaction rate of progress.
 %
 %    The multiplier multiplies the reaction rate of progress. It may
@@ -10,4 +10,4 @@ function n = multiplier(a,irxn)
 %
 %       MULTIPLIER(K, IRXN)   Multiplier for reaction number IRXN
 %
-n = kinetics_get(a.id,2,irxn);
+n = kinetics_get(a.id, 2, irxn);

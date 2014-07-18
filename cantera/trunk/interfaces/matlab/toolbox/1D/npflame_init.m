@@ -19,7 +19,7 @@ function flame = npflame_init(gas, left, flow, right, fuel, oxidizer, nuox)
 
 % Check input parameters
 if nargin ~= 7
-    error('wrong number of input arguments.');
+    error('npflame_init expects seven input arguments.');
 end
 
 if ~isIdealGas(gas)
@@ -44,12 +44,12 @@ rho0 = density(gas);
 wt = molecularWeights(gas);
 
 % find the fuel and oxidizer
-ifuel = speciesIndex(gas,fuel);
-ioxidizer = speciesIndex(gas,oxidizer);
+ifuel = speciesIndex(gas, fuel);
+ioxidizer = speciesIndex(gas, oxidizer);
 
 s = nuox*wt(ioxidizer)/wt(ifuel);
-y0f = massFraction(left,ifuel);
-y0ox = massFraction(right,ioxidizer);
+y0f = massFraction(left, ifuel);
+y0ox = massFraction(right, ioxidizer);
 phi = s*y0f/y0ox;
 zst = 1.0/(1.0 + phi);
 
@@ -62,13 +62,13 @@ yox = zeros(1, nsp);
 yf = zeros(1, nsp);
 ystoich = zeros(1, nsp);
 for n = 1:nsp
-    yox(n) = massFraction(right,n);
-    yf(n) = massFraction(left,n);
+    yox(n) = massFraction(right, n);
+    yf(n) = massFraction(left, n);
     ystoich(n) = zst*yf(n) + (1.0 - zst)*yox(n);
 end
 
-set(gas,'T',temperature(left),'P',pressure(gas),'Y',ystoich);
-equilibrate(gas,'HP');
+set(gas, 'T', temperature(left), 'P', pressure(gas), 'Y', ystoich);
+equilibrate(gas, 'HP');
 teq = temperature(gas);
 yeq = massFractions(gas);
 
@@ -84,11 +84,11 @@ f = sqrt(a/(2.0*diff(ioxidizer)));
 x0 = massFlux(left)*dz/(massFlux(left) + massFlux(right));
 
 nz = nPoints(flow);
-zm = zeros(1,nz);
-u = zeros(1,nz);
-v = zeros(1,nz);
-y = zeros(nz,nsp);
-t = zeros(1,nz);
+zm = zeros(1, nz);
+u = zeros(1, nz);
+v = zeros(1, nz);
+y = zeros(nz, nsp);
+t = zeros(1, nz);
 for j = 1:nz
     x = zz(j);
     zeta = f*(x - x0);
@@ -116,7 +116,7 @@ setProfile(flame, 2, {'u', 'V'}, [zrel; u; v]);
 setProfile(flame, 2, 'T', [zrel; t] );
 
 for n = 1:nsp
-    nm = speciesName(gas,n);
+    nm = speciesName(gas, n);
     setProfile(flame, 2, nm, [zrel; transpose(y(:,n))])
 end
 

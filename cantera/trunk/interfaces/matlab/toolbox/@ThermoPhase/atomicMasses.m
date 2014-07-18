@@ -1,4 +1,5 @@
-function x = atomicMasses(a)
+function x = atomicMasses(tp)
 % ATOMICMASSES - Array of element atomic masses [kg/kmol].
 %
-x = phase_get(a.tp_id,30);
+
+x = phase_get(tp.tp_id, 30);

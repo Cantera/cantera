@@ -3,7 +3,7 @@ function m = Outlet(id)
 %
 m = Domain1D(5);
 if nargin == 0
-    setID(m,'outlet');
+    setID(m, 'outlet');
 else
-    setID(m,id);
+    setID(m, id);
 end

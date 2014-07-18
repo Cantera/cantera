@@ -1,4 +1,5 @@
-function r = times(a,b)
+function r = times(a, b)
 % TIMES -
 %
-r = Func('prod',a,b);
+
+r = Func('prod', a, b);

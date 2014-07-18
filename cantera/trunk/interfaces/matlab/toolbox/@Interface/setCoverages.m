@@ -1,7 +1,7 @@
-function setCoverages(s,cov)
+function setCoverages(s, cov)
 % SETCOVERAGES - set surface coverages
 %
-if isa(cov,'double')
+if isa(cov, 'double')
     sz = length(cov);
     if sz == nSpecies(s)
         surfmethods(thermo_hndl(s), 3, cov);

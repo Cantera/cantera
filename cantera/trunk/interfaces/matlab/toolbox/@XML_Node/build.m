@@ -1,6 +1,6 @@
 function x = build(x, file, pre)
 
-if nargin < 2 || ~isa(file,'char')
+if nargin < 2 || ~isa(file, 'char')
     error('Syntax error. Type "help build" for more information.')
 end
 

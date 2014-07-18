@@ -1,4 +1,4 @@
-function nu_r = stoich_r(a,species,rxns)
+function nu_r = stoich_r(a, species, rxns)
 % stoich_r  Reactant stoichiometric coefficients.
 %
 %    nu = stoich_r(a)
@@ -19,9 +19,8 @@ function nu_r = stoich_r(a,species,rxns)
 %    See also: stoich_p, stoich_net.
 %
 nsp = nTotalSpecies(a);
-nr =nReactions(a);
-b = sparse(nsp,nr);
-f = @kinetics_get;
+nr = nReactions(a);
+b = sparse(nsp, nr);
 if nargin == 1
     kvals = 1:nsp;
     ivals = 1:nr;
@@ -29,14 +28,14 @@ elseif nargin == 3
     kvals = species;
     ivals = rxns;
 else
-    error('Syntax error. type ''help stoich_r'' for more information.')
+    error('stoich_r requires 1 or 3 arguments.')
 end
 
 for k = kvals
     for i = ivals
-        nu = feval(f,a.id,5,i,k);
+        nu = kinetics_get(a.id, 5, i, k);
         if nu ~= 0.0
-            b(k,i) = nu;
+            b(k, i) = nu;
         end
     end
 end

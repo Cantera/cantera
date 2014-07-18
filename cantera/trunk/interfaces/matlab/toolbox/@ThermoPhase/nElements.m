@@ -1,4 +1,5 @@
-function n = nElements(a)
+function n = nElements(tp)
 % NELEMENTS - Number of elements in the phase.
 %
-n = phase_get(a.tp_id,10);
+
+n = phase_get(tp.tp_id, 10);

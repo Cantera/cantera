@@ -1,4 +1,5 @@
-function n = nSpecies(a)
+function n = nSpecies(tp)
 % NSPECIES - Number of species in the phase.
 %
-n = phase_get(a.tp_id,11);
+
+n = phase_get(tp.tp_id, 11);

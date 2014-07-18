@@ -23,7 +23,7 @@ elseif nargin == 2
     transport = '-';
 end
 
-dotloc = findstr(infile,'.');
+dotloc = findstr(infile, '.');
 if dotloc(end) > 1
     idtag = infile(1:dotloc(end)-1);
     outfile = [idtag '.cti'];
@@ -32,6 +32,6 @@ else
     outfile = [infile '.cti'];
 end
 
-iok = ctmethods(0,1, infile, thermo, transport, idtag, 0, 0);
+iok = ctmethods(0, 1, infile, thermo, transport, idtag, 0, 0);
 
 f = outfile;

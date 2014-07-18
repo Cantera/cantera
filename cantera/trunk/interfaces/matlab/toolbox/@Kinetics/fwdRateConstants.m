@@ -6,4 +6,4 @@ function kf = fwdRateConstants(a)
 %        Returns a column vector of the forward rate constants of
 %        all of the reactions.
 %
-kf = kinetics_get(a.id,15,0);
+kf = kinetics_get(a.id, 15, 0);

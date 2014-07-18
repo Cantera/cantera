@@ -1,3 +1,3 @@
-function v = intEnergy_mole(a)
+function v = intEnergy_mole(tp)
 % INTENERGY_MOLE - Molar internal energy [J/kmol].
-v = thermo_get(a.tp_id,3);
+v = thermo_get(tp.tp_id, 3);

@@ -1,4 +1,5 @@
-function v = critPressure(a)
+function v = critPressure(tp)
 % CRITPRESSURE - Critical pressure [Pa].
 %
-v = thermo_get(a.tp_id,20);
+
+v = thermo_get(tp.tp_id, 20);

@@ -3,7 +3,8 @@ function plotSolution(s, domain, component)
 %
 %     plotSolution(s, 'flow', 'T') plots component 'T' in domain 'flow'
 %
-n = domainIndex(s,domain);
+
+n = domainIndex(s, domain);
 d = s.domains(n);
 z = gridPoints(d);
 x = solution(s, domain, component);

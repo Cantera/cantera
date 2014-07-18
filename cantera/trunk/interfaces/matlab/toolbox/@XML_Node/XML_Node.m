@@ -8,12 +8,12 @@ if nargin == 3
     x.id = wrap;
 elseif nargin == 2
     % read tree from a file
-    x.id = ctmethods(10,15,0,src); % newxml(name)
+    x.id = ctmethods(10, 15, 0, src);
     if x.id < 0
         error(geterr);
     end
 elseif nargin == 1
-    x.id = ctmethods(10,0,0,name);
+    x.id = ctmethods(10, 0, 0, name);
 end
 
-x = class(x,'XML_Node');
+x = class(x, 'XML_Node');

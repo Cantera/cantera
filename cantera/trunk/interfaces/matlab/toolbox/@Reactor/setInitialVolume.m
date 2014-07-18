@@ -1,4 +1,5 @@
-function setInitialVolume(r, t0)
+function setInitialVolume(r, v0)
 % SETINITIALVOLUME -
 %
-reactormethods(4, reactor_hndl(r), t0);
+
+reactormethods(4, reactor_hndl(r), v0);

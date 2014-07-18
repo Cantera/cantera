@@ -1,4 +1,4 @@
-function a = setMassFractions(a, y, norm)
+function a = setMassFractions(tp, y, norm)
 % SETMASSFRACTIONS  Set the species mass fractions.
 %
 %   setMassFractions(a,y)
@@ -29,19 +29,19 @@ function a = setMassFractions(a, y, norm)
 %  the pressure fixed, use method 'set' (defined in class Solution)
 %  instead, or call setPressure after calling setMassFractions.
 %
-if isa(y,'double')
+if isa(y, 'double')
     if nargin == 3
-        if strcmp(norm,'nonorm')
-            phase_set(a.tp_id,23,y);
+        if strcmp(norm, 'nonorm')
+            phase_set(tp.tp_id, 23, y);
         else
-            phase_set(a.tp_id,21,y);
+            phase_set(tp.tp_id, 21, y);
         end
     else
-        phase_set(a.tp_id,21,y);
+        phase_set(tp.tp_id, 21, y);
     end
     %
     % string input
     %
-elseif isa(y,'char')
-    phase_set(a.tp_id,31,y);
+elseif isa(y, 'char')
+    phase_set(tp.tp_id, 31, y);
 end

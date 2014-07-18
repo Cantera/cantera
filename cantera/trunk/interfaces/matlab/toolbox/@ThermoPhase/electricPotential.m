@@ -1,4 +1,5 @@
-function v = electricPotential(a)
+function v = electricPotential(tp)
 % ELECTRICPOTENTIAL - the electric potential of the phase
 %
-v = thermo_get(a.tp_id,25);
+
+v = thermo_get(tp.tp_id, 25);

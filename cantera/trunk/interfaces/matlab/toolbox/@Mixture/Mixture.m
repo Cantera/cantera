@@ -36,19 +36,19 @@ end
 m.mixindex = mixturemethods(0, 0, 0);
 m.phases = phases;
 
-m = class(m,'Mixture');
+m = class(m, 'Mixture');
 
 % if phases are supplied, add them
 if nargin == 1
-    if ~isa(phases,'cell')
-        error('enter phases as a cell array');
+    if ~isa(phases, 'cell')
+        error('Enter phases as a cell array.');
     end
 
     % first column contains the phase objects, and the second column
     % the mole numbers of each phase
     [np nc] = size(phases);
     if nc ~= 2
-        error('wrong size for phases cell array');
+        error('Cell array of phases should have each phase on a new row');
     end
     for n = 1:np
         addPhase(m, phases{n,1}, phases{n,2});

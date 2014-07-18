@@ -12,8 +12,8 @@ if nargin == 4
     tr.th = th;
     if strcmp(model, 'default')
         try
-            node = child(xml_phase,'transport');
-            tr.model = attrib(node,'model');
+            node = child(xml_phase, 'transport');
+            tr.model = attrib(node, 'model');
         catch
             tr.model = 'None';
         end
@@ -21,8 +21,8 @@ if nargin == 4
         tr.model = model;
     end
     tr.id = trans_get(hndl(th), -1, tr.model, loglevel) ;
-    tr = class(tr,'Transport');
-elseif isa(model,'Transport')
+    tr = class(tr, 'Transport');
+elseif isa(model, 'Transport')
     tr = model;
 else
     error('syntax error');

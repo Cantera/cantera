@@ -1,3 +1,4 @@
-function v = cv_mass(a)
+function v = cv_mass(tp)
 % CV_MASS - Specific heat at constant volume [J/kg-K].
-v = thermo_get(a.tp_id,14);
+
+v = thermo_get(tp.tp_id, 14);

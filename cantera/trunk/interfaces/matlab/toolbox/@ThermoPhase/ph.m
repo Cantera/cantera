@@ -1,3 +1,4 @@
-function i = ph(t)
+function i = ph(tp)
 disp('method ph is deprecated.');
-i = t.ph;
+
+i = tp.ph;

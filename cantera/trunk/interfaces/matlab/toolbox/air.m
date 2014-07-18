@@ -4,4 +4,5 @@ function gas = air
 %    Air is modeled as an ideal gas mixture, and several reactions
 %    are defined.  The specification is taked from file air.xml.
 %
-gas = importPhase('air.cti','air');
+
+gas = Solution('air.cti', 'air');

@@ -17,7 +17,7 @@ if nargin == 1
     s.stack_id = stack_methods(0, 8, nd, ids);
 else
     help(Stack);
-    error('wrong number of parameters');
+    error('Wrong number of parameters.');
 end
 if s.stack_id < 0
     error(geterr);

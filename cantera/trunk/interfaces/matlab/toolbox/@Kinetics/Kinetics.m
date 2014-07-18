@@ -17,7 +17,7 @@ ineighbor4 = -1;
 % if only one argument is supplied, and it is an instance of
 % 'Kinetics', return a copy of this instance
 if nargin == 1
-    if isa(r,'Kinetics')
+    if isa(r, 'Kinetics')
         k = r;
         return
     else
@@ -25,9 +25,9 @@ if nargin == 1
     end
 end
 
-% if more than one arguement, first one must be an XML_Node
+% if more than one argument, first one must be an XML_Node
 % instance representing the XML tree
-if ~isa(r,'XML_Node')
+if ~isa(r, 'XML_Node')
     error('first argument must be an XML_Node object')
 end
 
@@ -49,11 +49,11 @@ if nargin > 2
         end
     end
 end
-k.id = kinetics_get(ixml,0,iphase,ineighbor1,ineighbor2,ineighbor3, ...
+k.id = kinetics_get(ixml, 0, iphase, ineighbor1, ineighbor2, ineighbor3, ...
     ineighbor4);
 if k.id < 0
     error(geterr);
 end
 
-k = class(k,'Kinetics');
+k = class(k, 'Kinetics');
 

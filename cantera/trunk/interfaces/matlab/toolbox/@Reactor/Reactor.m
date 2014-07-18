@@ -20,13 +20,13 @@ elseif nargin > 2
     error('too many arguments');
 end
 
-x.index = reactormethods(0,typ);
+x.index = reactormethods(0, typ);
 if x.index < 0
     error(geterr);
 end
 x.contents = contents;
-x = class(x,'Reactor');
+x = class(x, 'Reactor');
 
-if isa(contents,'Solution')
+if isa(contents, 'Solution')
     insert(x, contents);
 end

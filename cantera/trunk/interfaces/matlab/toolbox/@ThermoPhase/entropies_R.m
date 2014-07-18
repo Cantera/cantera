@@ -1,7 +1,8 @@
-function v = entropies_R(p)
+function s = entropies_R(tp)
 % ENTROPIES_R - Species non-dimensional entropies.
 %
 %        This method returns an array containing the pure species
 %        standard-state entropies.
 %
-v = thermo_get(p.tp_id,36);
+
+s = thermo_get(tp.tp_id, 36);

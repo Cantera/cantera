@@ -11,4 +11,4 @@ function yn = isReversible(a, i)
 %       ISREVERSIBLE(K, IRXN) returns 1 if reaction number IRXN is 
 %       reversible, and 0 if it is irreversible.
 %
-yn = kinetics_get(a.id,4,i);
+yn = kinetics_get(a.id, 4, i);

@@ -1,4 +1,4 @@
-function v = maxTemp(p)
+function v = maxTemp(tp)
 % MAXTEMP - Maximum temperature.
 %
 %   The parameterizations used to represent the temperature-dependent
@@ -9,4 +9,5 @@ function v = maxTemp(p)
 %
 %   See also: minTemp
 %
-v = thermo_get(p.tp_id,17);
+
+v = thermo_get(tp.tp_id, 17);

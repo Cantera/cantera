@@ -1,6 +1,6 @@
 function a = attrib(x, key)
 
-if nargin ~= 2 || ~isa(key,'char')
+if nargin ~= 2 || ~isa(key, 'char')
     error('Syntax error. Type "help attrib" for more information.')
 end
 
