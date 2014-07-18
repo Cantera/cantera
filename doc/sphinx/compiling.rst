@@ -522,6 +522,7 @@ Optional Programs
   * `Pygments <http://pygments.org/>`_ (install with ``easy_install -U pygments``)
   * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``easy_install -U pyparsing``)
   * `doxylink <http://pypi.python.org/pypi/sphinxcontrib-doxylink/>`_ (install with ``easy_install sphinxcontrib-doxylink``)
+  * `matlabdomain <https://pypi.python.org/pypi/sphinxcontrib-matlabdomain>`_ (install with ``easy_install sphinxcontrib-matlabdomain``)
 
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 

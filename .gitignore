@@ -35,4 +35,6 @@ config.log
 coverage/
 coverage.info
 doc/sphinx/cython/examples
-doc/sphinx/matlab/examples
+doc/sphinx/matlab/examples/*.rst
+doc/sphinx/matlab/tutorials/*.rst
+doc/sphinx/matlab/code-docs/*.rst
