@@ -1,10 +1,12 @@
 function x = moleFractions(tp)
-% MOLEFRACTIONS - Mole fractions.
-%
-%     moleFractions(phase)
-%
-%   returns the array of species mole fractions for phase 'phase'.  If
-%   no output argument is specified, a bar plot is produced.
+% MOLEFRACTIONS  Get the mole fractions of all species.
+% x = moleFractions(tp)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     object that derives from ThermoPhase)
+% :return:
+%     Vector of species mole fractions for input phase. If
+%     no output argument is specified, a bar plot is produced.
 %
 
 x = phase_get(tp.tp_id, 20);

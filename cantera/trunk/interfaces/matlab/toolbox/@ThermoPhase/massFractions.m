@@ -1,10 +1,12 @@
 function y = massFractions(tp)
-% MASSFRACTIONS - Mass fractions.
-%
-%     massFractions(phase);
-%
-%   returns the array of species mass fractions for phase 'phase'.  If
-%   no output argument is specified, a bar plot is produced.
+% MASSFRACTIONS  Get the mass fractions of all species.
+% y = massFractions(tp)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     object that derives from ThermoPhase)
+% :return:
+%     Vector of species mass fractions for input phase. If
+%     no output argument is specified, a bar plot is produced.
 %
 
 y = phase_get(tp.tp_id, 21);

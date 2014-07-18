@@ -1,12 +1,17 @@
 function q = rop_net(a)
-% ROP_F  Forward rates of progress for all reactions.
+% ROP_NET  Net rates of progress for all reactions.
+% q = rop_net(a)
 %
-%    Q = ROP_F(K)
+% See also: :mat:func:`rop_f`, :mat:func:`rop_r`, :mat:func:`rop`
 %
-%        Returns a column vector of the forward rates of progress
-%        for all reactions.
-%
-%    See also: rop_r, rop_net.
+% :param a:
+%     Instance of class :mat:func:`Kinetics` (or another
+%     object deriving from Kinetics)
+%     for which the net rates of progress are desired.
+% :return:
+%     Returns a column vector of the net rates of progress
+%     for all reactions. If this function
+%     is called with no output argument, a bar graph is produced.
 %
 
 q = kinetics_get(a.id, 13, 0);

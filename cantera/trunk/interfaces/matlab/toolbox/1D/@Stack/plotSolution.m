@@ -1,7 +1,13 @@
 function plotSolution(s, domain, component)
-% PLOTSOLUTION - plot a specified solution component
-%
-%     plotSolution(s, 'flow', 'T') plots component 'T' in domain 'flow'
+% PLOTSOLUTION  Plot a specified solution component.
+% plotSolution(s, domain, component)
+% :param s:
+%     Instance of class :mat:func:`Stack`
+% :param domain:
+%     Name of domain from which the component should be
+%     retrieved
+% :param component:
+%     Name of the component to be plotted
 %
 
 n = domainIndex(s, domain);

@@ -1,6 +1,14 @@
 function setCoverageEqs(d, onoff)
-% SETCOVERAGEEQS - Enable or disable solving the coverage equations.
+% SETCOVERAGEEQS  Enable or disable solving the coverage equations.
+% d = setCoverageEqs(d,onoff)
+% :param d:
+%     Instance of class :mat:func:`Domain1D`
+% :param onoff:
+%     String, one of ``'on'`` or ``'yes'`` to turn solving
+%     the coverage equations on. One of ``'off'`` or ``'no'``
+%     to turn off the coverage equations.
 %
+
 if d.domain_type ~= 6
     error('Wrong domain type. Expected a reacting surface domain.')
 end

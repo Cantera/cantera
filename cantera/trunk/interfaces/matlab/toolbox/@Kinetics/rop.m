@@ -1,10 +1,19 @@
 function rop = rop(a)
-% ROP - Forward and reverse rates of progress.
+% ROP  Get the forward and reverse rates of progress.
+% rop = rop(a)
 %
-%    ROP(K) returns an M x 2 array of reaction rates of
-%    progress. The first column contains the forward rates of progress,
-%    and the second column the reverse rates. If this function
-%    is called with no output argument, a bar graph is produced.
+% See also: :mat:func:`rop_f`, :mat:func:`rop_r`, :mat:func:`rop_net`
+%
+% :param a:
+%     Instance of class :mat:func:`Kinetics` (or another
+%     object deriving from Kinetics)
+%     for which forward and reverse rates of progress are desired.
+% :return:
+%     Returns an I x 2 array of reaction rates of
+%     progress, where I is the number of reactions. The first
+%     column contains the forward rates of progress, and the
+%     second column the reverse rates. If this function
+%     is called with no output argument, a bar graph is produced.
 %
 
 f = rop_f(a);

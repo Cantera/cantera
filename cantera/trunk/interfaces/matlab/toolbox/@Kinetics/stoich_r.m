@@ -1,23 +1,32 @@
 function nu_r = stoich_r(a, species, rxns)
-% stoich_r  Reactant stoichiometric coefficients.
+% STOICH_R  Get the reactant stoichiometric coefficients.
+% nu_r = stoich_r(a,species,rxns)
 %
-%    nu = stoich_r(a)
+% See also: :mat:func:`stoich_p`, :mat:func:`stoich_net`
 %
-%        Returns a sparse matrix of all reactant stoichiometric
-%        coefficients. The matrix element nu(k,i) is the
-%        stoichiometric coefficient of species k as a reactant in
-%        reaction i.
+% :param a:
+%     Instance of class :mat:func:`Kinetics` (or another
+%     object deriving from Kinetics)
+%     for which the reactant stoichiometric coefficients are desired.
+% :param species:
+%     Species indices for which reactant stoichiometric coefficients
+%     should be retrieved. Optional argument; if specified, ``rxns``
+%     must be specified as well.
+% :param rxns:
+%     Reaction indices for which reactant stoichiometric coefficients
+%     should be retrieved. Optional argument; if specified, ``species``
+%     must be specified as well.
+% :return:
+%     Returns a sparse matrix of all reactant stoichiometric
+%     coefficients. The matrix element ``nu(k,i)`` is the
+%     stoichiometric coefficient of species k as a reactant in
+%     reaction i. If ``species`` and ``rxns`` are specified, the matrix
+%     will contain only entries for the specified species and
+%     reactions. For example, ``stoich_r(a,3,[1 3 5 7])`` returns a
+%     sparse matrix containing only the coefficients for species 3
+%     in reactions 1, 3, 5, and 7.
 %
-%    nu = stoich_r(a, species, rxns)
-%
-%        Returns a sparse matrix the same size as above, but
-%        containing only entries for the specified species and
-%        reactions. For example, stoich_r(a,3,[1 3 5 7]) returns a
-%        sparse matrix containing only the coefficients for species 3
-%        in reactions 1, 3, 5, and 7.
-%
-%    See also: stoich_p, stoich_net.
-%
+
 nsp = nTotalSpecies(a);
 nr = nReactions(a);
 b = sparse(nsp, nr);

@@ -429,6 +429,8 @@ A stoichiometric liquid differs from a stoichiometric solid in only one respect:
 the transport manager computes the viscosity as well as the thermal
 conductivity.
 
+.. _sec-interfaces:
+
 Interfaces
 ==========
 

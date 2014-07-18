@@ -1,10 +1,34 @@
 function k = Kinetics(r, ph, neighbor1, neighbor2, neighbor3, neighbor4)
+% KINETICS  Kinetics class constructor.
+% k = Kinetics(r, ph, neighbor1, neighbor2, neighbor3, neighbor4)
+% Class Kinetics represents kinetics managers, which are classes
+% that manage reaction mechanisms.  The reaction mechanism
+% attributes are specified in a CTML file.
+% Instances of class :mat:func:`Kinetics` are responsible for evaluating reaction rates
+% of progress, species production rates, and other quantities pertaining to
+% a reaction mechanism.
 %
-% KINETICS - Kinetics class constructor.
-%
-%   Class Kinetics represents kinetics managers, which are classes
-%   that manage reaction mechanisms.  The reaction mechanism
-%   attributes are specified in a CTML file.
+% :param r:
+%     If ``r`` is an instance of class :mat:func:`Kinetics`, a copy of the instance
+%     is returned. In this case, ``r`` should be the only argument. Otherwise, ``r``
+%     must be an instance of class :mat:func:`XML_Node`.
+% :param ph:
+%     If ``r`` is an instance of :mat:func:`XML_Node`, ``ph`` is an instance of class
+%     :mat:func:`ThermoPhase`. Otherwise, optional.
+% :param neighbor1:
+%     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+%     neighboring phase.
+% :param neighbor2:
+%     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+%     neighboring phase.
+% :param neighbor3:
+%     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+%     neighboring phase.
+% :param neighbor4:
+%     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+%     neighboring phase.
+% :return:
+%      Instance of class :mat:func:`Kinetics`
 %
 
 % indices for bulk phases in a heterogeneous mechanism.

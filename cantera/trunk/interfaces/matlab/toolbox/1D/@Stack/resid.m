@@ -1,4 +1,15 @@
 function r = resid(s, domain, rdt, count)
+% RESID  Get the residuals.
+% r = resid(s, domain, rdt, count)
+% :param s:
+%     Instance of class :mat:func:`Stack`
+% :param domain:
+%     Name of the domain
+% :param rdt:
+% :param count:
+% :returns:
+%
+
 if nargin == 2
     rdt = 0.0;
     count = 0;

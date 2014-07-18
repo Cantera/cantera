@@ -1,19 +1,27 @@
 function v = mixDiffCoeffs(a)
-%MIXDIFFCOEFFS  Mixture-averaged diffusion coefficients (m^2/s).
+% MIXDIFFCOEFFS  Get the mixture-averaged diffusion coefficients.
+% v = mixDiffCoeffs(a)
+% Object ``a`` must belong to a class derived from
+% Transport, and that was constructed by specifying the ``'Mix'``
+% option. If ``'Mix'`` was not specified, you will get the error message ::
 %
-%    d = mixDiffCoeffs(gas)
+%     **** Method getMixDiffCoeffs not implemented. ****
 %
-%    returns in column vector d the mixture-averaged diffusion
-%    coefficients. Object 'gas' must belong to a class derived from
-%    Transport, and that was constructed by specifying the 'Mix'
-%    option. If 'Mix' was not specified, you will get the error message
+% In this case, try method :mat:func:`multiDiffCoeffs`, or create a
+% new gas mixture model that uses a mixture-averaged transport manager,
+% for example::
 %
-%    **** Method getMixDiffCoeffs not implemented. ****
+%     >> gas = GRI30('Mix');
 %
-%    In this case, try method 'multiDiffCoeffs', or create a new gas
-%    mixture model that uses a mixture-averaged transport manager,
-%    for example:
+% See also: :mat:func:`MultiDiffCoeffs`
 %
-%        gas = GRI30('Mix')
+% :param a:
+%     Instance of class :mat:func:`Transport` (or another
+%     object derived from Transport)
+%     for which mixture-averaged diffusion coefficients are desired.
+% :return:
+%     Vector of length nSpecies with the mixture-averaged diffusion
+%     coefficients. Units: m**2/s
 %
+
 v = trans_get(a.id, 11, nSpecies(a.th));

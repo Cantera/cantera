@@ -1,4 +1,10 @@
 function display(self)
+% DISPLAY  Display the state of the mixture on the terminal.
+% display(self)
+% :param self:
+%     Instance of class :mat:func:`Mixture`
+%
+
 [np nc] = size(self.phases);
 for n = 1:np
     s = [sprintf('\n*******************    Phase %d', n) ...

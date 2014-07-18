@@ -1,7 +1,13 @@
 function y = massFractions(r)
-% MASSFRACTION - Mass fractions of reactor contents after last call
-% to 'advance' or 'step'.
+% MASSFRACTIONS  Get the mass fractions of the species.
+% y = massFractions(r)
+% :param r:
+%     Instance of class :mat:func:`Reactor`
+% :return:
+%     The mass fractions of the reactor contents at the
+%     end of the last call to :mat:func:`advance` or :mat:func:`step`.
 %
+
 nsp = nSpecies(r.contents);
 ir = reactor_hndl(r);
 y = zeros(1, nsp);

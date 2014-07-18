@@ -1,5 +1,11 @@
 function b = subsref(s, index)
-% SUBSREF -
+% SUBSREF  Redefine subscripted references.
+% b = subsref(s,index)
+% :param s:
+%     Instance of class :mat:func:`Stack`
+% :param index:
+% :return:
+%
 
 switch index.type
     case '()'

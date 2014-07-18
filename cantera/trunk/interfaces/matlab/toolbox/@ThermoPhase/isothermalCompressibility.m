@@ -1,9 +1,11 @@
 function b = isothermalCompressibility(tp)
-% ISOTHERMALCOMPRESSIBILITY - Isothermal Compressibility [1/Pa]
-%
-%   b = isothermalCompressibility(a)
-%       Return the isothermal compressibility of ThermoPhase a
-%       in units of 1/Pa
+% ISOTHERMALCOMPRESSIBILITY  Get the isothermal compressibility.
+% b = isothermalCompressibility(tp)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     object that derives from ThermoPhase)
+% :return:
+%     Isothermal Compressibility. Units: 1/Pa
 %
 
 b = thermo_get(tp.tp_id, 26);
