@@ -1,8 +1,9 @@
-function x = molecularWeights(a)
+function mw = molecularWeights(tp)
 % MOLECULARWEIGHTS - Array of species molar masses [kg/kmol].
 %
 %   This method is deprecated - use molarMasses instead.
 %
 %   See also: molarMasses
 %
-x = molarMasses(a);
+
+mw = phase_get(tp.tp_id, 22);

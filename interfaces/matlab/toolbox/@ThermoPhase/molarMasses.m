@@ -1,5 +1,6 @@
-function x = molarMasses(tp)
+function mm = molarMasses(tp)
 % MOLARMASSES - Array of species molar masses [kg/kmol].
 %
 
-x = phase_get(tp.tp_id, 22);
+warning('Deprecated in favor of molecularWeights.m')
+mm = molecularWeights(tp);
