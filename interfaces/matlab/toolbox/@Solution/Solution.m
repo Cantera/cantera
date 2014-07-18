@@ -56,12 +56,12 @@ s.kin = k;
 s.th = t;
 if nargin == 3
     if strcmp(trans, 'default') || strcmp(trans, 'Mix') || strcmp(trans, 'Multi')
-        tr = Transport(node, t, trans, 4);
+        tr = Transport(node, t, trans, 0);
     else
         error('Unknown transport modeling specified.')
     end
 else
-    tr = Transport(node, t, 'default', 4);
+    tr = Transport(node, t, 'default', 0);
 end
 s.tr = tr;
 s = class(s, 'Solution', t, k, tr);
