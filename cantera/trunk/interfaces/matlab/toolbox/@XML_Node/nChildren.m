@@ -1,3 +1,3 @@
-function n = nChildren(root, id)
+function n = nChildren(root)
 %
-n = ctmethods(10, 10, root.id, id);
+n = ctmethods(10, 10, root.id);
