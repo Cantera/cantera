@@ -28,7 +28,6 @@ Reactor::Reactor() : ReactorBase(),
 
 void Reactor::getInitialConditions(double t0, size_t leny, double* y)
 {
-    m_init = true;
     if (m_thermo == 0) {
         cout << "Error: reactor is empty." << endl;
         return;
@@ -98,7 +97,6 @@ void Reactor::initialize(doublereal t0)
     }
     m_work.resize(maxnt);
     std::sort(m_pnum.begin(), m_pnum.end());
-    m_init = true;
 }
 
 size_t Reactor::nSensParams()

@@ -15,7 +15,6 @@ namespace Cantera
 ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_thermo(0),
     m_vol(1.0),
-    m_init(false),
     m_enthalpy(0.0),
     m_intEnergy(0.0),
     m_pressure(0.0),

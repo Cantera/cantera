@@ -21,7 +21,6 @@ FlowReactor::FlowReactor() :
 
 void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
-    m_init = true;
     if (m_thermo == 0) {
         writelog("Error: reactor is empty.\n");
         return;
@@ -40,7 +39,6 @@ void FlowReactor::initialize(doublereal t0)
 {
     m_thermo->restoreState(m_state);
     m_nv = m_nsp + 2;
-    m_init = true;
 }
 
 void FlowReactor::updateState(doublereal* y)
