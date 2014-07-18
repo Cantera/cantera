@@ -90,6 +90,12 @@ localenv.AddPreAction(target, copy_var)
 localenv.Depends(target, env['install_python2_action'])
 install('$inst_matlab_dir', target)
 
+contents = localenv.SubstFile('#interfaces/matlab/toolbox/Contents.m',
+                              '#interfaces/matlab/toolbox/Contents.m.in')
+localenv.AddPreAction(contents, copy_var)
+localenv.Depends(contents, env['install_python2_action'])
+install('$inst_matlab_dir', contents)
+
 # 'cantera_demos.m'
 install('$inst_matlab_dir', '#samples/matlab/cantera_demos.m')
 install(localenv.RecursiveInstall, '$inst_matlab_dir',

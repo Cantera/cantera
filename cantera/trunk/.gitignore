@@ -9,6 +9,7 @@ build/
 test/work/
 include/cantera/base/config.h
 interfaces/matlab/ctpath.m
+interfaces/matlab/toolbox/Contents.m
 stage/
 .sconsign.dblite
 .sconf_temp
@@ -35,6 +36,6 @@ config.log
 coverage/
 coverage.info
 doc/sphinx/cython/examples
-doc/sphinx/matlab/examples/*.rst
-doc/sphinx/matlab/tutorials/*.rst
-doc/sphinx/matlab/code-docs/*.rst
+doc/sphinx/matlab/examples/
+doc/sphinx/matlab/tutorials/
+doc/sphinx/matlab/code-docs/
