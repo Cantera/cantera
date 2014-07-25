@@ -159,7 +159,7 @@ if localenv['python_package'] == 'full':
     py2env['py_extension'] = ext[0].name
     py2env.SubstFile('setup2.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
-                 ' $python_cmd setup2.py build --build-lib=../../build/python2')
+                 ' $python_cmd_esc setup2.py build --build-lib=../../build/python2')
     mod = build(py2env.Command('#build/python2/cantera/__init__.py',
                                'setup2.py',
                                build_cmd))
