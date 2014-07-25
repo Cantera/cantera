@@ -1,4 +1,4 @@
-.. py:currentmodule:: ctml_writer
+.. py:currentmodule:: cantera.ctml_writer
 
 .. _sec-species:
 
