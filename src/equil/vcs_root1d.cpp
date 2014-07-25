@@ -165,9 +165,9 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
             c[3] = x0;
             c[4] = x1;
             c[5] = x2;
-            c[6] = SQUARE(x0);
-            c[7] = SQUARE(x1);
-            c[8] = SQUARE(x2);
+            c[6] = pow(x0, 2);
+            c[7] = pow(x1, 2);
+            c[8] = pow(x2, 2);
             f[0] = f0;
             f[1] = f1;
             f[2] = f2;
@@ -199,8 +199,8 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
                 *   Pick out situations where the convergence may be
                 *   accelerated.
                 */
-                if ((DSIGN(xnew - x2) == DSIGN(x2 - x1)) &&
-                        (DSIGN(x2   - x1) == DSIGN(x1 - x0))) {
+                if ((sign(xnew - x2) == sign(x2 - x1)) &&
+                        (sign(x2   - x1) == sign(x1 - x0))) {
                     xnew += xnew - x2;
                     if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                         fprintf(fp, " | xquada = %-9.4g", xnew);
@@ -225,13 +225,13 @@ QUAD_BAIL:
             */
             slope = fabs(x2 - x1) / 10.;
             if (fabs(xnew - x1) < slope) {
-                xnew = x1 + DSIGN(xnew-x1) * slope;
+                xnew = x1 + sign(xnew-x1) * slope;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                     fprintf(fp, " | x10%% = %-9.4g", xnew);
                 }
             }
             if (fabs(xnew - x2) < slope) {
-                xnew = x2 + DSIGN(xnew-x2) * slope;
+                xnew = x2 + sign(xnew-x2) * slope;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                     fprintf(fp, " | x10%% = %-9.4g", xnew);
                 }
@@ -243,7 +243,7 @@ QUAD_BAIL:
             */
             slope = 2.0 * fabs(x2 - x1);
             if (fabs(slope) < fabs(xnew - x2)) {
-                xnew = x2 + DSIGN(xnew-x2) * slope;
+                xnew = x2 + sign(xnew-x2) * slope;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                     fprintf(fp, " | xlimitsize = %-9.4g", xnew);
                 }

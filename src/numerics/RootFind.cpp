@@ -26,14 +26,6 @@ using namespace std;
 namespace Cantera
 {
 
-#ifndef SQUARE
-#  define SQUARE(x) ( (x) * (x) )
-#endif
-
-#ifndef DSIGN
-#define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
-#endif
-
 //!  Print out a form for the current function evaluation
 /*!
  *  @param fp     Pointer to the FILE object
@@ -524,13 +516,13 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
              */
             xDelMin = fabs(x2 - x1) / 10.;
             if (fabs(xnew - x1) < xDelMin) {
-                xnew = x1 + DSIGN(xnew-x1) * xDelMin;
+                xnew = x1 + sign(xnew-x1) * xDelMin;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
             }
             if (fabs(xnew - x2) < 0.1 * xDelMin) {
-                xnew = x2 + DSIGN(xnew-x2) * 0.1 *  xDelMin;
+                xnew = x2 + sign(xnew-x2) * 0.1 *  xDelMin;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
@@ -548,7 +540,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             }
             if (fabs(xDelMax) < fabs(xnew - x2)) {
-                xnew = x2 + DSIGN(xnew-x2) * xDelMax;
+                xnew = x2 + sign(xnew-x2) * xDelMax;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | xlimitsize = %-11.5E", xnew);
                 }
@@ -560,13 +552,13 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
              */
             xDelMin = 0.1 * fabs(x2 - x1);
             if (fabs(xnew - x2) < xDelMin) {
-                xnew = x2 + DSIGN(xnew - x2) * xDelMin;
+                xnew = x2 + sign(xnew - x2) * xDelMin;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
             }
             if (fabs(xnew - x1) < xDelMin) {
-                xnew = x1 + DSIGN(xnew - x1) * xDelMin;
+                xnew = x1 + sign(xnew - x1) * xDelMin;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }

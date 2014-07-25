@@ -2767,7 +2767,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
              */
             sa[jr] = 0.0;
             for (size_t ml = 0; ml < m_numElemConstraints; ++ml) {
-                sa[jr] += SQUARE(sm[ml + jr*m_numElemConstraints]);
+                sa[jr] += pow(sm[ml + jr*m_numElemConstraints], 2);
             }
             /* **************************************************** */
             /* **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT ********** */

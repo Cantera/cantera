@@ -14,21 +14,6 @@
 namespace VCSnonideal
 {
 
-/*
- * COMMON DEFINITIONS -> Protect them against redefinitions
- */
-//@{
-
-#ifndef SQUARE
-# define SQUARE(x) ((x) * (x))
-#endif
-
-#ifndef DSIGN
-# define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
-#endif
-
-//@}
-
 /*!
  *      ERROR CODES
  *
