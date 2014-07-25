@@ -90,7 +90,8 @@ example, if a phase definition specifies the elements as::
 
     ideal_gas(name = "gasmix",
               elements = "H C O N Ar",
-              ...)
+              # ...
+              )
 
 then when this definition is imported by an application, element-specific
 properties will be ordered in the same way::
@@ -285,7 +286,7 @@ reaction mechanism, as follows::
 If we import this into Matlab, for example, we get a gas mixture containing the
 8 species (out of 53 total) that contain only H and O:
 
-.. code-block:: matlab
+.. code-block:: matlabsession
 
     >> gas = importPhase('gas.cti', 'hydrogen_mech')
 
@@ -391,14 +392,16 @@ the string ``'Multi'``, and to select the mixture-averaged model, set it to the
 string ``'Mix'``::
 
     ideal_gas(name="gas1",
-              ...,
+              # ...
               transport="Multi", # use multicomponent formulation
-              ...)
+              # ...
+              )
 
     ideal_gas(name="gas2",
-              ...,
+              # ...
               transport="Mix", # use mixture-averaged formulation
-              ...)
+              # ...
+              )
 
 Stoichiometric Solid
 --------------------
@@ -414,7 +417,7 @@ reactions, since the composition is fixed.) ::
                          species='C(gr)',
                          density=(2.2, 'g/cm3'),
                          initial_state=state(temperature=300.0,
-                                             pressure=(1.0, 'atm'))
+                                             pressure=(1.0, 'atm')))
 
 In the example above, the definition of the species ``'C(gr)'`` must appear
 elsewhere in the input file.

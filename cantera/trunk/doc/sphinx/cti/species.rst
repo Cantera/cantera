@@ -64,7 +64,8 @@ defined to be composed solely of electrons::
 
     species(name = 'ysz-oxygen-vacancy',
             atoms = 'O:0, E:2',
-            ...)
+            # ...,
+            )
 
 Note that an atom number of zero may be given if desired, but is completely
 equivalent to omitting that element.
