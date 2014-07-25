@@ -83,21 +83,8 @@ opts = Variables('cantera.conf')
 
 windows_compiler_options = []
 if os.name == 'nt':
-    # On Windows, use the same version of Visual Studio that was used
-    # to compile Python, and target the same architecture, unless
-    # the user specified another option.
-
-    if 'MSC v.1400' in sys.version:
-        msvc_version = '8.0' # Visual Studio 2005
-    elif 'MSC v.1500' in sys.version:
-        msvc_version = '9.0' # Visual Studio 2008
-    elif 'MSC v.1600' in sys.version:
-        msvc_version = '10.0' # Visual Studio 2010
-    elif 'MSC v.1700' in sys.version:
-        msvc_version = '11.0' # Visual Studio 2012
-    else:
-        msvc_version = None
-
+    # On Windows, target the same architecture as the current copy of Python,
+    # unless the user specified another option.
     if '64 bit' in sys.version:
         target_arch = 'amd64'
     else:
@@ -111,9 +98,9 @@ if os.name == 'nt':
 
     windows_compiler_options.extend([
         ('msvc_version',
-         """Version of Visual Studio to use. The default is the same version
-            that was used to compile the installed version of Python.""",
-         msvc_version),
+         """Version of Visual Studio to use. The default is the newest
+            installed version.""",
+         ''),
         ('target_arch',
          """Target architecture. The default is the same
             architecture as the installed version of Python.""",
@@ -129,8 +116,10 @@ if os.name == 'nt':
 
     if pickCompilerEnv['toolchain'] == 'msvc':
         toolchain = ['default']
-        if msvc_version:
+        if pickCompilerEnv['msvc_version']:
             extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
+        print 'INFO: Compiling with MSVC', (pickCompilerEnv['msvc_version'] or
+                                            pickCompilerEnv['MSVC_VERSION'])
 
     elif pickCompilerEnv['toolchain'] == 'mingw':
         toolchain = ['mingw', 'f90']
