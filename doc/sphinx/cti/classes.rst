@@ -12,6 +12,8 @@ Basic Classes & Functions
 
 .. autofunction:: units
 
+.. autofunction:: validate
+
 .. autoclass:: state
    :no-undoc-members:
 

@@ -259,9 +259,6 @@ or a sequence of strings from the table below.
 ==================================  ================
 Option String                       Meaning
 ==================================  ================
-``'no_validation'``                 Turn off all validation. Use when the definition
-                                    has been previously validated to speed up importing
-                                    the definition into an application. Use with caution!
 ``'skip_undeclared_elements'``      When importing species, skip any containing undeclared
                                     elements, rather than flagging them as an error.
 ``'skip_undeclared_species'``       When importing reactions, skip any containing undeclared
