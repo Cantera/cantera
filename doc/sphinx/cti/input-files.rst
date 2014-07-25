@@ -42,7 +42,7 @@ The fields of an entry are specified in the form ``<field_name> = <value>``, and
 be listed on one line, or extend across several. For example, two entries for
 graphite are shown below. The first is compact::
 
-    stoichiometric_solid(name='graphite', species='C(gr)', elements='C', density=(2.2, 'g/cm3')))
+    stoichiometric_solid(name='graphite', species='C(gr)', elements='C', density=(2.2, 'g/cm3'))
 
 and the second is formatted to be easier to read::
 
@@ -226,7 +226,8 @@ length, which are set with a units directive::
     units(length = 'cm', quantity = 'molec')
     interface(name = 'Si-100',
               site_density = 1.0e15, # molecules/cm2 (default units)
-              ...)
+              # ...
+              )
 
 The second version uses a different default unit system, but overrides the
 default units by specifying an explicit units string for the site density::
@@ -234,7 +235,8 @@ default units by specifying an explicit units string for the site density::
     units(length = 'cm', quantity = 'mol')
     interface(name = 'Si-100',
               site_density = (1.0e15, 'molec/cm2') # override default units
-              ...)
+              # ...
+              )
 
 The second version is equivalent to the first, but would be very different if
 the units of the site density were not specified!
