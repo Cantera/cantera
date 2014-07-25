@@ -384,7 +384,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         for (size_t j = 0; j < m_numComponents; ++j) {
             if (!m_SSPhase[j]) {
                 if (m_molNumSpecies_old[j] > 0.0) {
-                    s += SQUARE(m_stoichCoeffRxnMatrix(j,irxn)) / m_molNumSpecies_old[j];
+                    s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
                 }
             }
         }
@@ -392,7 +392,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             Vphase = m_VolPhaseList[j];
             if (! Vphase->m_singleSpecies) {
                 if (m_tPhaseMoles_old[j] > 0.0) {
-                    s -= SQUARE(m_deltaMolNumPhase(j,irxn)) / m_tPhaseMoles_old[j];
+                    s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                 }
             }
         }

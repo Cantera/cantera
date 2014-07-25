@@ -271,6 +271,11 @@ inline T clip(const T& value, const T& lower, const T& upper)
     return std::max(lower, std::min(upper, value));
 }
 
+//! Sign of a number. Returns -1 if x < 0, 1 if x > 0 and 0 if x == 0.
+template <typename T> int sign(T x) {
+    return (T(0) < x) - (x < T(0));
+}
+
 }
 
 #endif

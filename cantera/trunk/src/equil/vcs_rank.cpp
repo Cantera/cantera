@@ -178,7 +178,7 @@ namespace VCSnonideal {
 	 */
 	sa[jr] = 0.0;
 	for (ml = 0; ml < numElemConstraints; ++ml) {
-	  sa[jr] += SQUARE(sm[ml + jr * numElemConstraints]);
+	  sa[jr] += pow(sm[ml + jr * numElemConstraints], 2);
 	}
 	/* **************************************************** */
 	/* **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT ********** */
@@ -253,7 +253,7 @@ namespace VCSnonideal {
 
 	sa[jr] = 0.0;
 	for (ml = 0; ml < numSpecies; ++ml) {
-	  sa[jr] += SQUARE(sm[ml + jr * numSpecies]);
+	  sa[jr] += pow(sm[ml + jr * numSpecies], 2);
 	}
 
 	if (sa[jr] < 1.0e-6)  lindep = true;

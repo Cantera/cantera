@@ -473,7 +473,7 @@ L_CLEANUP:
 #ifdef DEBUG_MODE
     double l2after = 0.0;
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
-        l2after += SQUARE(m_elemAbundances[i] - m_elemAbundancesGoal[i]);
+        l2after += pow(m_elemAbundances[i] - m_elemAbundancesGoal[i], 2);
     }
     l2after = sqrt(l2after/m_numElemConstraints);
     if (m_debug_print_lvl >= 2) {
