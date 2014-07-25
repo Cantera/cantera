@@ -94,14 +94,14 @@ for n in range(NReactors):
     # are included only on the side facing the reactor.
     w = ct.Wall(upstream, r, A=cat_area, kinetics=[None, surf])
 
-    # We need a valve between the reactor and the downstream reservoir. This
-    # will determine the pressure in the reactor. Set K large enough that the
-    # pressure difference is very small.
-    v = ct.Valve(r, downstream, K=1e-4)
-
     # The mass flow rate into the reactor will be fixed by using a
     # MassFlowController object.
     m = ct.MassFlowController(upstream, r, mdot=mass_flow_rate)
+
+    # We need an outlet to the downstream reservoir. This will determine the
+    # pressure in the reactor. The value of K will only affect the transient
+    # pressure difference.
+    v = ct.PressureController(r, downstream, master=m, K=1e-5)
 
     sim = ct.ReactorNet([r])
     sim.max_err_test_fails = 12
