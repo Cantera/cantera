@@ -14,6 +14,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <functional>
 
 #ifdef _WIN32
 #include <windows.h>
