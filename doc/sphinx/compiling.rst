@@ -59,15 +59,6 @@ depending on which interfaces (Python, Matlab) you want to build and what
 architecture (32-bit or 64-bit) you want to use. See :ref:`sec-dependencies` for
 the full list of dependencies.
 
-* If you want to build the Python module, you must use the same version of the
-  Microsoft compiler as was used to compile Python. For Python 2.6 and Python
-  2.7, this means that you must use Visual Studio 2008 or the equivalent version
-  of the Windows SDK (see link below). For Python 3.3, you should use Visual
-  Studio 2010, or the corresponding version of the Windows SDK. You can use
-  MinGW to sidestep this requirement.
-* Note that the the "Express" editions of Visual Studio 2008 do not include a
-  64-bit compiler, so if you want to build 64-bit Cantera, you will also need to
-  install the Windows SDK.
 * The build process will produce a Python module compatible with the version of
   Python used for the compilation. To generate different modules for other
   versions of Python, you will need to install those versions of Python and
@@ -233,11 +224,10 @@ Windows (MSVC)
   that Cantera depends on, so you will need to specify these paths explicitly.
 * Remember to put double quotes around any paths with spaces in them, e.g.
   "C:\Program Files".
-* By default, SCons attempts to use the same architecture and version of the
-  Microsoft compiler as was used to compile Python, typically Visual Studio
-  2008 or the equivalent version of the Windows SDK. If you aren't building the
-  Python module, you can override this with the configuration options
-  ``target_arch`` and ``msvc_version``.
+* By default, SCons attempts to use the same architecture as the copy of Python
+  that is running SCons, and the most recent installed version of the Visual
+  Studio compiler. If you aren't building the Python module, you can override
+  this with the configuration options ``target_arch`` and ``msvc_version``.
 
 .. note::
 
@@ -399,13 +389,8 @@ program.
 
 * Microsoft compilers (C/C++)
 
-  * Known to work with version 9.0 (Visual Studio 2008) and version 10.0
-    (Visual Studio 2010). Expected to work with version 11.0 (Visual Studio
-    2012).
-  * If you are building the Python module, you must use the same version and
-    architecture (32- or 64-bit) as your copy of Python was compiled with:
-    Visual Studio 2008 for Python 2.6, 2.7, and 3.2, or Visual Studio 2010 for
-    Python 3.3.
+  * Known to work with versions 9.0 (Visual Studio 2008) through 12.0 (Visual
+    Studio 2013).
   * The "Express" editions of Visual Studio 2008 and 2010 do not include a
     64-bit compiler. To compile Cantera with 64-bit support, you must install
     the corresponding version of the Windows SDK, available as a free download.
