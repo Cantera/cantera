@@ -3,6 +3,7 @@
 #define TPX_SUB_H
 
 #include "cantera/base/ctexceptions.h"
+#include <algorithm>
 
 namespace tpx
 {
