@@ -161,6 +161,18 @@ incorrect and would generate an error when processed::
     element(39.948, "Ar")                    # error
     element(symbol="Ar", 39.948)             # error
 
+Validation
+----------
+
+Normally, Cantera will make some checks for errors in the definitions of species
+and reactions, such as checking for duplicate reactions. To slightly speed up
+processing (if a mechanism has previously been validated), or in case of
+spurious validation errors, validation can be disabled using the
+:func:`validate` function. For example, to disable validation of reactions, add
+the following to the CTI file::
+
+    validate(reactions='no')
+
 .. _sec-dimensions:
 
 Dimensional Values

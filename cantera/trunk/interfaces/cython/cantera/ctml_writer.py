@@ -254,6 +254,14 @@ def export_species(filename, fmt = 'CSV'):
     _valfmt = fmt
 
 def validate(species = 'yes', reactions = 'yes'):
+    """
+    Enable or disable validation of species and reactions.
+    :param species:
+        Set to 'yes' (default) or 'no'.
+    :param reactions:
+        Set to 'yes' (default) or 'no'. This controls duplicate reaction checks
+        and validation of rate expressions for some reaction types.
+    """
     global _valsp
     global _valrxn
     _valsp = species
