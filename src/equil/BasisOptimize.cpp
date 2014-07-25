@@ -26,16 +26,6 @@ int BasisOptimize_print_lvl = 0;
  */
 static void print_stringTrunc(const char* str, int space, int alignment);
 
-//! Finds the location of the maximum component in a vector *x*
-/*!
- *  @param x  Vector to search
- *  @param j  j <= i < n : i is the range of indices to search in *x*
- *  @param n  Length of the vector
- *
- *  @return  index of the greatest value on *x* searched
- */
-static size_t amax(double* x, size_t j, size_t n);
-
 size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                               MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
                               std::vector<size_t>& orderVectorElements,
@@ -167,7 +157,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
              *    for the largest remaining species. Return its identity.
              *    kk is the raw number. k is the orderVectorSpecies index.
              */
-            kk = amax(DATA_PTR(molNum), 0, nspecies);
+            kk = max_element(molNum.begin(), molNum.end()) - molNum.begin();
             for (j = 0; j < nspecies; j++) {
                 if (orderVectorSpecies[j] == kk) {
                     k = j;
@@ -430,28 +420,6 @@ static void print_stringTrunc(const char* str, int space, int alignment)
             }
         }
     }
-}
-
-/*
- * Finds the location of the maximum component in a double vector
- * INPUT
- *    x(*) - Vector to search
- *    j <= i < n     : i is the range of indices to search in X(*)
- *
- * RETURN
- *    return index of the greatest value on X(*) searched
- */
-static size_t amax(double* x, size_t j, size_t n)
-{
-    size_t largest = j;
-    double big = x[j];
-    for (size_t i = j + 1; i < n; ++i) {
-        if (x[i] > big) {
-            largest = i;
-            big = x[i];
-        }
-    }
-    return largest;
 }
 
 size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
