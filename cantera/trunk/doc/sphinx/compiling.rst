@@ -33,11 +33,14 @@ Linux
 * For Ubuntu or Debian users, the following packages should be installed using
   your choice of package manager::
 
-      g++ python scons libboost-all-dev libsundials-serial-dev subversion
+      g++ python scons libboost-all-dev libsundials-serial-dev
 
 * Building the python module also requires::
 
       cython python-dev python-numpy python-numpy-dev
+
+* Checking out the source code from version control requires either Git (install
+  ``git`` and ``git-svn``) or Subversion (install ``subversion``).
 
 * The minimum compatible Cython version is 0.17. If your distribution does not
   contain a suitable version, you may be able to install a more recent version
@@ -121,25 +124,36 @@ Stable Release
   <https://sourceforge.net/projects/cantera/files/cantera/>`_ and extract the
   contents.
 
-* Option 2: Check out the code using Subversion::
+* Option 2: Check out the code from the Github mirror using Git::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.1/ cantera
+    git clone https://github.com/Cantera/cantera.git
+    cd cantera
+    git checkout 2.1-svn
 
-* Option 3: Check out the code using Git::
+* Option 3: Check out the code from the Subversion repository using Git::
 
     git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
+    cd cantera
     git checkout 2.1
+
+* Option 4: Check out the code using Subversion::
+
+    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.1/ cantera
 
 Development Version
 -------------------
 
-* Option 1: Check out the code using Subversion::
+* Option 1: Check out the code from the Github mirror using Git::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera
+    git clone https://github.com/Cantera/cantera.git
 
-* Option 2: Check out the code using Git::
+* Option 3: Check out the code from the Subversion repository using Git::
 
     git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
+
+* Option 2: Check out the code using Subversion::
+
+    svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera
 
 Determine configuration options
 ===============================
