@@ -523,12 +523,12 @@ public:
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
     void validate(const ReactionData& rdata) {
-        double T[] = {1.0, 10.0, 100.0, 1000.0, 10000.0};
+        double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
         for (pressureIter iter = pressures_.begin();
                 iter->first < 1000;
                 iter++) {
             update_C(&iter->first);
-            for (size_t i=0; i < 5; i++) {
+            for (size_t i=0; i < 6; i++) {
                 double k = updateRC(log(T[i]), 1.0/T[i]);
                 if (!(k >= 0)) {
                     // k is NaN. Increment the iterator so that the error
