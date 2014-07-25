@@ -1350,14 +1350,7 @@ Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, 
     if (f == 0) {
         f = TransportFactory::factory();
     }
-    Transport* ptr = f->newTransport(transportModel, thermo, loglevel, ndim);
-    /*
-     * Note: We delete the static s_factory instance here, instead of in
-     *       appdelete() in misc.cpp, to avoid linking problems involving
-     *       the need for multiple cantera and transport library statements
-     *       for applications that don't have transport in them.
-     */
-    return ptr;
+    return f->newTransport(transportModel, thermo, loglevel, ndim);
 }
 
 Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFactory* f)
@@ -1365,13 +1358,6 @@ Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFacto
     if (f == 0) {
         f = TransportFactory::factory();
     }
-    Transport* ptr = f->newTransport(thermo, loglevel);
-    /*
-     * Note: We delete the static s_factory instance here, instead of in
-     *       appdelete() in misc.cpp, to avoid linking problems involving
-     *       the need for multiple cantera and transport library statements
-     *       for applications that don't have transport in them.
-     */
-    return ptr;
+    return f->newTransport(thermo, loglevel);
 }
 }
