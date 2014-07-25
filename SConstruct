@@ -888,6 +888,8 @@ if env['VERBOSE']:
     print open('config.log').read()
     print '--------------------- end config.log ---------------------'
 
+env['python_cmd_esc'] = quoted(env['python_cmd'])
+
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.17')
 env['install_python2_action'] = ''
@@ -1270,7 +1272,7 @@ for cti in mglob(env, 'data/inputs', 'cti'):
     outName = os.path.splitext(cti.name)[0] + '.xml'
     convertedInputFiles.add(outName)
     build(env.Command('build/data/%s' % outName, cti.path,
-                      '$python_cmd interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
+                      '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
 
 # Copy input files which are not present as cti:

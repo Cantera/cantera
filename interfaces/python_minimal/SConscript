@@ -27,7 +27,7 @@ for script in ['ctml_writer', 'ck2cti']:
     localenv['py_%s' % script] = repr('scripts/%s%s' % (script, script_ext))
 
 build_cmd = ('cd interfaces/python_minimal &&'
-             ' $python_cmd setup.py build --build-lib=../../build/python2')
+             ' $python_cmd_esc setup.py build --build-lib=../../build/python2')
 
 mod = build(localenv.Command('#build/python2/cantera/__init__.py',
                              'setup.py',
