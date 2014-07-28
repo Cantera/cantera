@@ -1145,7 +1145,10 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             t = tr.tmin + dt*n;
 
             tr.thermo->setTemperature(t);
-            cp_R = ((IdealGasPhase*)tr.thermo)->cp_R_ref()[k];
+            vector_fp cp_R_all(tr.thermo->nSpecies());
+            tr.thermo->getCp_R_ref(&cp_R_all[0]);
+            cp_R = cp_R_all[k];
+
 
             tstar = Boltzmann * t/ tr.eps[k];
             sqrt_T = sqrt(t);
