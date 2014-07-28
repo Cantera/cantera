@@ -15,6 +15,7 @@
 #include "cantera/transport/SimpleTransport.h"
 #include "cantera/transport/LiquidTransport.h"
 #include "cantera/transport/AqueousTransport.h"
+#include "cantera/transport/HighPressureGasTransport.h"
 #include "cantera/transport/TransportFactory.h"
 
 #include "cantera/numerics/polyfit.h"
@@ -175,6 +176,7 @@ TransportFactory::TransportFactory() :
     m_models["Aqueous"] = cAqueousTransport;
     m_models["Simple"] = cSimpleTransport;
     m_models["User"] = cUserTransport;
+    m_models["HighP"] = cHighP;
     m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
     for (map<string, int>::iterator iter = m_models.begin();
@@ -350,6 +352,10 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         tr = new MixTransport;
         initTransport(tr, phase, CK_Mode, log_level);
         break;
+    case cHighP:
+        tr = new HighPressureGasTransport;
+        initTransport(tr, phase, 0, log_level);
+        break;
         // adding pecos transport model 2/13/12
     case cPecosTransport:
         tr = new PecosTransport;
@@ -438,6 +444,7 @@ void TransportFactory::setupMM(const std::vector<const XML_Node*> &transport_dat
     tr.poly.resize(nsp);
     tr.sigma.resize(nsp);
     tr.eps.resize(nsp);
+    tr.w_ac.resize(nsp);
 
     XML_Node root, log;
     getTransportData(transport_database, log, tr.thermo->speciesNames(), tr);
@@ -729,6 +736,14 @@ void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspe
             throw TransportDBError(i, "invalid geometry");
         }
 
+        // Pitzer's acentric factor:
+        double acentric;
+        ctml::getOptionalFloat(node, "acentric_factor", acentric);
+        if (acentric) {
+            tr.w_ac[j] = acentric;
+        } /*else {
+            throw TransportDBError(i, "acentric factor not defined");
+        }*/
         // Well-depth parameter in Kelvin (converted to Joules)
         double welldepth = ctml::getFloat(node, "LJ_welldepth");
         if (welldepth >= 0.0) {
