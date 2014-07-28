@@ -44,6 +44,7 @@ const int cMulticomponent      = 200;
 const int CK_Multicomponent    = 202;
 const int cMixtureAveraged     = 210;
 const int CK_MixtureAveraged   = 211;
+const int cHighP               = 270;
 const int cSolidTransport      = 300;
 const int cDustyGasTransport   = 400;
 const int cUserTransport       = 500;

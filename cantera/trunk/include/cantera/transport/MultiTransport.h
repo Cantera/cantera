@@ -164,6 +164,7 @@ public:
     vector_fp   m_eps;
     vector_fp   m_sigma;
     vector_fp   m_alpha;
+    vector_fp   m_w_ac;
     DenseMatrix   m_dipole;
 
 protected:

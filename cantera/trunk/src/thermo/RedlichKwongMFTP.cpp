@@ -672,6 +672,38 @@ doublereal RedlichKwongMFTP::critPressure() const
 
     return pc;
 }
+    
+doublereal RedlichKwongMFTP::critVolume() const
+{
+    double pc, tc, vc;
+    double a0 = 0.0;
+    double aT = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
+            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
+            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
+        }
+    }
+    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
+    return vc;
+}
+
+doublereal RedlichKwongMFTP::critCompressibility() const
+{
+    double pc, tc, vc;
+    double a0 = 0.0;
+    double aT = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
+            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
+            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
+        }
+    }
+    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
+    return pc*vc/tc/GasConstant;
+}
 
 doublereal RedlichKwongMFTP::critDensity() const
 {
