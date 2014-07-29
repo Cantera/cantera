@@ -61,7 +61,7 @@ double HighPressureGasTransport::thermalConductivity()
     
     m_thermo -> getPartialMolarVolumes(&V_k[0]);
     
-    doublereal L_i_min = pow(100,100);
+    doublereal L_i_min = BigNumber;
     
     for (size_t i = 0; i < m_nsp; i++) {
         doublereal Tc_i = Tcrit_i(i);
