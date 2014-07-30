@@ -32,9 +32,7 @@ using std::fabs;
  */
 // \cond
 static const doublereal  T_c = 647.096;  // Kelvin
-static const doublereal  P_c = 22.064E6; // Pascals
 static const doublereal  Rho_c = 322.;    // kg m-3
-static const doublereal  M_water = 18.015268; // kg kmol-1
 //  \endcond
 
 /*
