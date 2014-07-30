@@ -285,6 +285,26 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
     return x;
 }
 
+XML_Node* Application::get_XML_from_string(const std::string& text)
+{
+    ScopedLock xmlLock(xml_mutex);
+    std::pair<XML_Node*, int>& entry = xmlfiles[text];
+    if (entry.first) {
+        // Return existing cached XML tree
+        return entry.first;
+    }
+    std::stringstream s;
+    size_t start = text.find_first_not_of(" \t\r\n");
+    if (text.substr(start,5) == "<?xml") {
+        s << text;
+    } else {
+        s << ctml::ct_string2ctml_string(text);
+    }
+    entry.first = new XML_Node();
+    entry.first->build(s);
+    return entry.first;
+}
+
 void Application::close_XML_File(const std::string& file)
 {
     ScopedLock xmlLock(xml_mutex);

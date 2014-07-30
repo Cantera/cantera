@@ -544,6 +544,39 @@ class ImportTest(utilities.CanteraTest):
         gas2 = ct.Solution('../data/air-no-reactions.xml', 'notair')
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
+    def test_import_phase_cti_text(self):
+        cti_def = """
+ideal_gas(name='spam', elements='O H',
+          species='gri30: all',
+          options='skip_undeclared_elements',
+          initial_state=state(temperature=350, pressure=2e6))
+"""
+        gas = ct.Solution(source=cti_def)
+        self.check(gas, 'spam', 350, 2e6, 8, 2)
+
+    def test_import_phase_xml_text(self):
+        xml_def = """
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+  <phase dim="3" id="spam">
+    <elementArray datasrc="elements.xml">O</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">all
+      <skip element="undeclared"/>
+    </speciesArray>
+    <state>
+      <temperature units="K">350.0</temperature>
+      <pressure units="Pa">2000000.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+</ctml>"""
+        gas = ct.Solution(source=xml_def)
+        self.check(gas, 'spam', 350, 2e6, 2, 1)
+
+
     def test_checkReactionBalance(self):
         with self.assertRaises(Exception):
             ct.Solution('../data/h2o2_unbalancedReaction.xml')

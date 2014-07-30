@@ -203,6 +203,9 @@ doublereal actEnergyToSI(const std::string& unit);
 //! @copydoc Application::get_XML_File
 XML_Node* get_XML_File(const std::string& file, int debug = 0);
 
+//! @copydoc Application::get_XML_from_string
+XML_Node* get_XML_from_string(const std::string& text);
+
 //! @copydoc Application::close_XML_File
 void close_XML_File(const std::string& file);
 

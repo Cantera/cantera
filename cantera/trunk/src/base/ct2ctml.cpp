@@ -80,8 +80,17 @@ void ct2ctml(const char* file, const int debug)
     out << xml;
 }
 
-std::string ct2ctml_string(const std::string& file)
+static std::string call_ctml_writer(const std::string& text, bool isfile)
 {
+    std::string file, arg;
+    if (isfile) {
+        file = text;
+        arg = "r'" + text + "'";
+    } else {
+        file = "<string>";
+        arg = "text=r'''" + text + "'''";
+    }
+
 #ifdef HAS_NO_PYTHON
     /*
      *  Section to bomb out if python is not
@@ -109,7 +118,7 @@ std::string ct2ctml_string(const std::string& file)
                     "except ImportError:\n"
                     "    print('sys.path: ' + repr(sys.path) + '\\n', file=sys.stderr)\n"
                     "    raise\n"
-                    "ctml_writer.convert(r'" + file + "', 'STDOUT')\n"
+                    "ctml_writer.convert(" + arg + ", outName='STDOUT')\n"
                     "sys.exit(0)\n");
 
         python.start(pypath(), args.begin(), args.end());
@@ -170,6 +179,15 @@ std::string ct2ctml_string(const std::string& file)
     return python_output;
 }
 
+std::string ct2ctml_string(const std::string& file)
+{
+    return call_ctml_writer(file, true);
+}
+
+std::string ct_string2ctml_string(const std::string& cti)
+{
+    return call_ctml_writer(cti, false);
+}
 
 void ck2cti(const std::string& in_file, const std::string& thermo_file,
             const std::string& transport_file, const std::string& id_tag)
