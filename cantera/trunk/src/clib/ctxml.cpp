@@ -115,7 +115,7 @@ extern "C" {
     int xml_preprocess_and_build(int i, const char* file, int debug)
     {
         try {
-            get_CTML_Tree(&XmlCabinet::item(i), file, debug);
+            XmlCabinet::item(i) = *get_XML_File(file);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

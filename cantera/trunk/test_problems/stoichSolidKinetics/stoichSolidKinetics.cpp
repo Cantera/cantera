@@ -43,9 +43,8 @@ void printRates(InterfaceKinetics& iKin)
 void testProblem()
 {
     ss << std::scientific << std::setprecision(3) << std::uppercase;
-    XML_Node xc;
-    ctml::get_CTML_Tree(&xc, "ReactionSurf.xml");
-    XML_Node* xg = xc.findNameID("phase", "reaction_surface");
+    XML_Node* xc = get_XML_File("ReactionSurf.xml");
+    XML_Node* xg = xc->findNameID("phase", "reaction_surface");
     if (!xg) {
         throw CanteraError("couldn't find file", "");
     }

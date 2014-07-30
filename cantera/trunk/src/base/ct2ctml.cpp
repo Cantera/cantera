@@ -262,46 +262,19 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
 
 void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const int debug)
 {
-    std::string ext = "";
-
-    // find the input file on the Cantera search path
-    std::string inname = findInputFile(file);
-    writelog("Found file: "+inname+"\n", debug);
-
-    if (inname == "") {
-        throw CanteraError("get_CTML_Tree", "file "+file+" not found");
-    }
-
-    /*
-     * Check whether or not the file is XML. If not, it will be first
-     * processed with the preprocessor.
-     */
-    std::string::size_type idot = inname.rfind('.');
-    if (idot != string::npos) {
-        ext = inname.substr(idot, inname.size());
-    }
-    if (ext != ".xml" && ext != ".ctml") {
-        string phase_xml = ctml::ct2ctml_string(inname);
-        stringstream s(phase_xml);
-        rootPtr->build(s);
-        return;
-    }
-
-    writelog("Attempting to parse xml file " + inname + "\n", debug);
-    ifstream fin(inname.c_str());
-    if (!fin) {
-        throw
-        CanteraError("get_CTML_Tree",
-                     "XML file " + inname + " not found");
-    }
-    rootPtr->build(fin);
-    fin.close();
+    warn_deprecated("get_CTML_Tree", "To be removed after Cantera 2.2. "
+            "Use get_XML_File instead.");
+    XML_Node* src = get_XML_File(file);
+    src->copy(rootPtr);
 }
 
 Cantera::XML_Node getCtmlTree(const std::string& file)
 {
-    Cantera::XML_Node root;
-    get_CTML_Tree(&root, file);
+    warn_deprecated("getCtmlTree", "To be removed after Cantera 2.2. "
+            "Use get_XML_File instead.");
+    XML_Node root;
+    XML_Node* src = get_XML_File(file);
+    src->copy(&root);
     return root;
 }
 

@@ -18,7 +18,7 @@ cdef class _SolutionBase:
             return
 
         # Instantiate a set of new Cantera C++ objects
-        rootNode = getCtmlTree(stringify(infile))
+        rootNode = CxxGetXmlFile(stringify(infile))
 
         # Get XML data
         cdef XML_Node* phaseNode
