@@ -160,36 +160,36 @@ class KineticsRepeatability(utilities.CanteraTest):
 
     def check_rates_composition(self, mech):
         gas = self.setup_gas(mech)
-        gas.TRX = self.T0, self.rho0, self.X0
+        gas.TDX = self.T0, self.rho0, self.X0
         w1 = gas.net_production_rates
 
         # change everything to guarantee recomputation of rates
-        gas.TRX = self.T1, self.rho1, self.X1
+        gas.TDX = self.T1, self.rho1, self.X1
         w2 = gas.net_production_rates
 
-        gas.TRX = self.T0, self.rho0, self.X1
+        gas.TDX = self.T0, self.rho0, self.X1
         w3 = gas.net_production_rates
 
         # change only composition, and make sure the rates match
-        gas.TRX = self.T0, self.rho0, self.X0
+        gas.TDX = self.T0, self.rho0, self.X0
         w4 = gas.net_production_rates
 
         self.assertArrayNear(w1, w4)
 
     def check_rates_temperature1(self, mech):
         gas = self.setup_gas(mech)
-        gas.TRX = self.T0, self.rho0, self.X0
+        gas.TDX = self.T0, self.rho0, self.X0
         w1 = gas.net_production_rates
 
         # change everything to guarantee recomputation of rates
-        gas.TRX = self.T1, self.rho1, self.X1
+        gas.TDX = self.T1, self.rho1, self.X1
         w2 = gas.net_production_rates
 
-        gas.TRX = self.T1, self.rho0, self.X0
+        gas.TDX = self.T1, self.rho0, self.X0
         w3 = gas.net_production_rates
 
         # change only temperature, and make sure the rates match
-        gas.TRX = self.T0, self.rho0, self.X0
+        gas.TDX = self.T0, self.rho0, self.X0
         w4 = gas.net_production_rates
 
         self.assertArrayNear(w1, w4)
