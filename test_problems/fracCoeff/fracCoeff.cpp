@@ -34,9 +34,7 @@ int main(int argc, char** argv)
     double cdot[10], ddot[10];
     //double fwd_rop[10];
     try {
-        XML_Node* xc = new XML_Node();
-        string path = findInputFile(infile);
-        ctml::get_CTML_Tree(xc, path);
+        XML_Node* xc = get_XML_File(infile);
 
         XML_Node* const xg = xc->findNameID("phase", "gas");
         ThermoPhase* gasTP = newPhase(*xg);
@@ -150,7 +148,6 @@ int main(int argc, char** argv)
         delete iKin_ptr;
         iKin_ptr = 0;
         delete gasTP;
-        delete xc;
         appdelete();
 
 

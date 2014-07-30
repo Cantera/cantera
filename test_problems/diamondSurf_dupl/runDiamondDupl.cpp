@@ -30,9 +30,7 @@ int main(int argc, char** argv)
     string infile = "diamond.xml";
 
     try {
-        XML_Node* xc = new XML_Node();
-        string path = findInputFile(infile);
-        ctml::get_CTML_Tree(xc, path);
+        XML_Node* xc = get_XML_File(infile);
         cout.precision(3);
 
         XML_Node* const xg = xc->findNameID("phase", "gas");

@@ -217,9 +217,7 @@ int main(int argc, char** argv)
         }
 
         /************************************************************/
-        XML_Node* xc = new XML_Node();
-        string path = findInputFile(infile);
-        ctml::get_CTML_Tree(xc, path);
+        XML_Node* xc = get_XML_File(infile);
 
         XML_Node* const xg = (XML_Node*) findXMLPhase(xc, gasPhaseName);
         if (!xg) {
@@ -436,7 +434,6 @@ int main(int argc, char** argv)
         bulkPhaseTP = 0;
         delete surfPhaseTP;
         surfPhaseTP = 0;
-        delete xc;
         appdelete();
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
