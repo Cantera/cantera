@@ -402,7 +402,9 @@ protected:
     //! Current value of tmp_dir
     std::string tmp_dir;
     //! Current vector of xml file trees that have been previously parsed
-    std::map<std::string, XML_Node*> xmlfiles;
+    //! The second element of the value is used to store the last-modified time
+    //! for the file, to enable change detection.
+    std::map<std::string, std::pair<XML_Node*, int> > xmlfiles;
     //! Vector of deprecation warnings that have been emitted (to suppress duplicates)
     std::set<std::string> warnings;
 
