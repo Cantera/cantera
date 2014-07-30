@@ -512,6 +512,14 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaises(NotImplementedError):
             copy.copy(self.net)
 
+    def test_invalid_property(self):
+        self.make_reactors()
+        for x in (self.r1, self.net):
+            with self.assertRaises(AttributeError):
+                x.foobar = 300
+            with self.assertRaises(AttributeError):
+                x.foobar
+
 
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor

@@ -8,7 +8,7 @@ class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.Solution('h2o2.xml')
 
-    def teste_phases(self):
+    def test_phases(self):
         self.assertEqual(self.phase.n_phases, 1)
 
     def test_species(self):
@@ -307,6 +307,13 @@ class TestThermoPhase(utilities.CanteraTest):
 
         with self.assertRaises(AssertionError):
             self.phase.UVX = -4e5, 4.4, 'H2:1.0', -1
+
+    def test_invalid_property(self):
+        x = self.phase
+        with self.assertRaises(AttributeError):
+            x.foobar = 300
+        with self.assertRaises(AttributeError):
+            x.foobar
 
     def check_getters(self):
         T,P,X = self.phase.TPX

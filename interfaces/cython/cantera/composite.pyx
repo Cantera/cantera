@@ -1,4 +1,5 @@
 class Solution(ThermoPhase, Kinetics, Transport):
+    __slots__ = ()
     """
     A class for chemically-reacting solutions.
 
@@ -13,6 +14,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
     """
 
 class Interface(InterfacePhase, InterfaceKinetics):
+    __slots__ = ('_phase_indices',)
     """
     Two-dimensional interfaces.
 
@@ -23,6 +25,7 @@ class Interface(InterfacePhase, InterfaceKinetics):
     """
 
 class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
+    __slots__ = ()
     """
     A composite class which models a gas in a stationary, solid, porous medium.
 

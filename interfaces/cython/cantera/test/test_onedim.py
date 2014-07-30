@@ -74,6 +74,18 @@ class TestOnedim(utilities.CanteraTest):
         with self.assertRaises(NotImplementedError):
             copy.copy(flame)
 
+    def test_invalid_property(self):
+        gas1 = ct.Solution('h2o2.xml')
+        inlet = ct.Inlet1D(name='something', phase=gas1)
+        flame = ct.FreeFlow(gas1)
+        sim = ct.Sim1D((inlet, flame))
+
+        for x in (inlet, flame, sim):
+            with self.assertRaises(AttributeError):
+                x.foobar = 300
+            with self.assertRaises(AttributeError):
+                x.foobar
+
 
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
