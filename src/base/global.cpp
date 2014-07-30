@@ -118,6 +118,11 @@ XML_Node* get_XML_File(const std::string& file, int debug)
     return xtmp;
 }
 
+XML_Node* get_XML_from_string(const std::string& text)
+{
+    return app()->get_XML_from_string(text);
+}
+
 void close_XML_File(const std::string& file)
 {
     app()->close_XML_File(file) ;

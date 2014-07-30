@@ -2617,21 +2617,30 @@ class Lindemann(object):
 #get_atomic_wts()
 validate()
 
-def convert(filename, outName=None):
-
+def convert(filename=None, outName=None, text=None):
     import os
-    filename = os.path.expanduser(filename)
-    base = os.path.basename(filename)
-    root, _ = os.path.splitext(base)
-    dataset(root)
+    if filename is not None:
+        filename = os.path.expanduser(filename)
+        base = os.path.basename(filename)
+        root, _ = os.path.splitext(base)
+        dataset(root)
+    elif outName is None:
+        outName = 'STDOUT'
+
     try:
-        with open(filename, 'rU') as f:
-            code = compile(f.read(), filename, 'exec')
-            exec(code)
+        if filename is not None:
+            with open(filename, 'rU') as f:
+                code = compile(f.read(), filename, 'exec')
+        else:
+            code = compile(text, '<string>', 'exec')
+        exec(code)
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
-        text = open(filename, 'rU').readlines()
+        if filename:
+            text = open(filename, 'rU').readlines()
+        else:
+            text = text.split('\n')
         _printerr('%s in "%s" on line %i:\n' % (err.__class__.__name__,
                                                 err.filename,
                                                 err.lineno))
@@ -2646,7 +2655,11 @@ def convert(filename, outName=None):
     except Exception as err:
         import traceback
 
-        text = open(filename, 'rU').readlines()
+        if filename:
+            text = open(filename, 'rU').readlines()
+        else:
+            text = text.split('\n')
+            filename = '<string>'
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
         if tb[-1][0] == filename:

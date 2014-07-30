@@ -785,6 +785,15 @@ void ct2ctml(const char* file, const int debug = 0);
  */
 std::string ct2ctml_string(const std::string& file);
 
+//! Get a string with the ctml representation of a cti input string.
+/*!
+ *  @param   cti    String containing the cti representation
+ *  @return  String containing the xml representation of the input
+ *
+ *  @ingroup inputfiles
+ */
+std::string ct_string2ctml_string(const std::string& cti);
+
 //! Convert a Chemkin-format mechanism into a CTI file.
 /*!
  * @param in_file         input file containing species and reactions

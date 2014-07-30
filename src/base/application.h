@@ -300,6 +300,17 @@ public:
      */
     XML_Node* get_XML_File(const std::string& file, int debug=0) ;
 
+    //! Read a CTI or CTML string and fill up an XML tree.
+    /*!
+     *  Return a pointer to the XML tree corresponding to the specified
+     *  CTI or XML string. If the given string has been processed before,
+     *  the cached XML tree will be returned. Otherwise, the XML tree
+     *  will be generated and stored in the cache.
+     *  @param text    CTI or CTML string
+     *  @return        Root of the corresponding XML tree
+     */
+    XML_Node* get_XML_from_string(const std::string& text);
+
     //! Close an XML File
     /*!
      * Close a file that is opened by this application object
