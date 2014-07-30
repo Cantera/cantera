@@ -19,7 +19,7 @@ OneDim::OneDim()
       m_jac(0), m_newt(0),
       m_rdt(0.0), m_jac_ok(false),
       m_nd(0), m_bw(0), m_size(0),
-      m_init(false),
+      m_init(false), m_pts(0), m_solve_time(0.0),
       m_ss_jac_age(10), m_ts_jac_age(20),
       m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
@@ -31,7 +31,7 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_jac(0), m_newt(0),
     m_rdt(0.0), m_jac_ok(false),
     m_nd(0), m_bw(0), m_size(0),
-    m_init(false),
+    m_init(false), m_solve_time(0.0),
     m_ss_jac_age(10), m_ts_jac_age(20),
     m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {

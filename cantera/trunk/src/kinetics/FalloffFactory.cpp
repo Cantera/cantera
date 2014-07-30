@@ -233,7 +233,7 @@ class SRI3 : public Falloff
 {
 public:
     //! Constructor
-    SRI3() {}
+    SRI3() : m_a(-1.0), m_b(-1.0), m_c(-1.0) {}
 
     //! Initialization of the object
     /*!
@@ -318,7 +318,7 @@ class SRI5 : public Falloff
 {
 public:
     //! Constructor
-    SRI5() {}
+    SRI5() : m_a(-1.0), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {}
 
     //! Initialization of the object
     /*!

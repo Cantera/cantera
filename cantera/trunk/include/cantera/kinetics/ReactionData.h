@@ -16,21 +16,28 @@ namespace Cantera
 class ReactionData
 {
 public:
-    ReactionData() {
-        reactionType = ELEMENTARY_RXN;
-        validate = false;
-        number = 0;
-        rxn_number = 0;
-        reversible = true;
-        rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
-        falloffType = NONE;
-        error = 0;
-        equation = "";
-        default_3b_eff = 1.0;
-        global = false;
-        isReversibleWithFrac = false;
-        beta = 0.0;
-    }
+    ReactionData() :
+        reactionType(ELEMENTARY_RXN),
+        validate(false),
+        number(0),
+        rxn_number(0),
+        reversible(true),
+        duplicate(false),
+        rateCoeffType(ARRHENIUS_REACTION_RATECOEFF_TYPE),
+        falloffType(NONE),
+        error(0),
+        equation(""),
+        default_3b_eff(1.0),
+        global(false),
+        isReversibleWithFrac(false),
+        beta(0.0),
+        chebTmin(-1.0),
+        chebTmax(-1.0),
+        chebPmin(-1.0),
+        chebPmax(-1.0),
+        chebDegreeT(0),
+        chebDegreeP(0)
+    {}
 
     virtual ~ReactionData() {}
 
