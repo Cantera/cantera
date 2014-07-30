@@ -499,7 +499,7 @@ class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.Solution('diamond.xml', 'gas')
         self.solid = ct.Solution('diamond.xml', 'diamond')
-        self.interface = ct.Solution('diamond.xml', 'diamond_100',
+        self.interface = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas, self.solid))
 
     def test_properties(self):
