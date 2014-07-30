@@ -370,3 +370,95 @@ class ExplicitForwardOrderTest(utilities.CanteraTest):
         ratio = rop2/rop1
         self.assertNear(ratio[0], 2**0.5) # order of R1B is 0.5
         self.assertNear(ratio[1], 2**0.2) # order of P1 is 1.0
+
+
+class TestSofcKinetics(utilities.CanteraTest):
+    """ Test based on sofc.py """
+    def test_sofc(self):
+        mech = 'sofc-test.xml'
+        T = 1073.15  # T in K
+        P = ct.one_atm
+        TPB_length_per_area = 1.0e7  # TPB length per unit area [1/m]
+
+        def newton_solve(f, xstart, C=0.0):
+            """ Solve f(x) = C by Newton iteration. """
+            x0 = xstart
+            dx = 1.0e-6
+            while True:
+                f0 = f(x0) - C
+                x0 -= f0/(f(x0 + dx) - C - f0)*dx
+                if abs(f0) < 0.00001:
+                    return x0
+
+        # Anode-side phases
+        gas_a, anode_bulk, oxide_a = ct.import_phases(mech,
+                                                      ['gas', 'metal', 'oxide_bulk',])
+        anode_surf = ct.Interface(mech, 'metal_surface', [gas_a])
+        oxide_surf_a = ct.Interface(mech, 'oxide_surface', [gas_a, oxide_a])
+        tpb_a = ct.Interface(mech, 'tpb', [anode_bulk, anode_surf, oxide_surf_a])
+
+        # Cathode-side phases
+        gas_c, cathode_bulk, oxide_c = ct.import_phases(mech,
+                                                        ['gas', 'metal', 'oxide_bulk'])
+        cathode_surf = ct.Interface(mech, 'metal_surface', [gas_c])
+        oxide_surf_c = ct.Interface(mech, 'oxide_surface', [gas_c, oxide_c])
+        tpb_c = ct.Interface(mech, 'tpb', [cathode_bulk, cathode_surf,
+                                                 oxide_surf_c])
+
+        def anode_curr(E):
+            anode_bulk.electric_potential = E
+            w = tpb_a.net_production_rates
+            return ct.faraday * w[0] * TPB_length_per_area
+
+        def cathode_curr(E):
+            cathode_bulk.electric_potential = E + oxide_c.electric_potential
+            w = tpb_c.net_production_rates
+            return -ct.faraday * w[0] * TPB_length_per_area
+
+        # initialization
+        gas_a.TPX = T, P, 'H2:0.97, H2O:0.03'
+        gas_a.equilibrate('TP')
+        gas_c.TPX = T, P, 'O2:1.0, H2O:0.001'
+        gas_c.equilibrate('TP')
+
+        for p in [anode_bulk, anode_surf, oxide_surf_a, oxide_a, cathode_bulk,
+                  cathode_surf, oxide_surf_c, oxide_c, tpb_a, tpb_c]:
+            p.TP = T, P
+
+        for s in [anode_surf, oxide_surf_a, cathode_surf, oxide_surf_c]:
+            s.advance_coverages(50.0)
+
+        # These values are just a regression test with no theoretical basis
+        self.assertArrayNear(anode_surf.coverages,
+                             [6.18736755e-01, 3.81123779e-01, 8.63037850e-05,
+                              2.59274708e-06, 5.05702339e-05])
+        self.assertArrayNear(oxide_surf_a.coverages,
+                             [4.99435780e-02, 9.48927983e-01, 1.12840577e-03,
+                              3.35936530e-08])
+        self.assertArrayNear(cathode_surf.coverages,
+                             [1.48180380e-07, 7.57234727e-14, 9.99999827e-01,
+                              2.49235513e-08, 4.03296469e-13])
+        self.assertArrayNear(oxide_surf_c.coverages,
+                             [4.99896947e-02, 9.49804199e-01, 2.06104969e-04,
+                              1.11970271e-09])
+
+        Ea0 = newton_solve(anode_curr, xstart=-0.51)
+        Ec0 = newton_solve(cathode_curr, xstart=0.51)
+
+        data = []
+
+        # vary the anode overpotential, from cathodic to anodic polarization
+        for Ea in np.linspace(Ea0 - 0.25, Ea0 + 0.25, 20):
+            anode_bulk.electric_potential = Ea
+            curr = anode_curr(Ea)
+            delta_V = curr * 5.0e-5 / 2.0
+            phi_oxide_c = -delta_V
+            oxide_c.electric_potential = phi_oxide_c
+            oxide_surf_c.electric_potential = phi_oxide_c
+            Ec = newton_solve(cathode_curr, xstart=Ec0+0.1, C=curr)
+            cathode_bulk.electric_potential = phi_oxide_c + Ec
+            data.append([Ea - Ea0, 0.1*curr, Ec - Ec0, delta_V,
+                             cathode_bulk.electric_potential -
+                             anode_bulk.electric_potential])
+
+        self.compare(data, '../data/sofc-test.csv')

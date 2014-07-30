@@ -38,6 +38,7 @@ class CanteraTest(unittest.TestCase):
         Compare an array with a reference data file, or generate the reference
         file if it does not exist.
         """
+        data = np.array(data)
         if os.path.exists(reference_file):
             # Compare with existing output file
             ref = np.genfromtxt(reference_file)
