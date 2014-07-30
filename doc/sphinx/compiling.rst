@@ -418,6 +418,7 @@ Other Required Software
 
   * http://www.scons.org/download.php
   * Known to work with SCons 2.1.0; Expected to work with versions >= 1.0.0
+  * Version 2.3.2 or newer is required to use Visual Studio 2013.
 
 * Python:
 
