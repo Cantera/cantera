@@ -96,9 +96,7 @@ class Test(object):
             outName = 'test_output.txt'
 
         files = kwargs.get('files') or []
-        files += [self.passedFile,
-                  'ct2ctml.log',
-                  outName]
+        files += [self.passedFile, outName]
         files += list(self.artifacts)
         files += [comp[1] for comp in self.comparisons]
         files = [pjoin(os.getcwd(), self.subdir, name) for name in files]
