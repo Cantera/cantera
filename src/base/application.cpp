@@ -224,98 +224,41 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
     ScopedLock xmlLock(xml_mutex);
     std::string path = "";
     path = findInputFile(file);
-#ifdef _WIN32
-    // RFB: For Windows make the path POSIX compliant so code looking for directory
-    // separators is simpler.  Just look for '/' not both '/' and '\\'
-    std::replace_if(path.begin(), path.end(),
-                    std::bind2nd(std::equal_to<char>(), '\\'), '/') ;
-#endif
 
-    string ff = path;
-    if (xmlfiles.find(path)
-            == xmlfiles.end()) {
-        /*
-         * Check whether or not the file is XML. If not, it will
-         * be first processed with the preprocessor. We determine
-         * whether it is an XML file by looking at the file extension.
-         */
-        string::size_type idot = path.rfind('.');
-        string ext;
-        if (idot != string::npos) {
-            ext = path.substr(idot, path.size());
-        } else {
-            ext = "";
-            idot = path.size();
-        }
-        if (ext != ".xml" && ext != ".ctml") {
-            /*
-             * We will assume that we are trying to open a cti file.
-             * First, determine the name of the xml file, ff, derived from
-             * the cti file.
-             * In all cases, we will write the xml file to the current
-             * directory.
-             */
-            string::size_type islash = path.rfind('/');
-            if (islash != string::npos) {
-                ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
-            } else {
-                ff = string("./")+path.substr(0,idot) + ".xml";
-            }
-            if (debug > 0) {
-                writelog("get_XML_File(): Expected location of xml file = " +
-                         ff + "\n");
-            }
-            /*
-             * Do a search of the existing XML trees to determine if we have
-             * already processed this file. If we have, return a pointer to
-             * the processed xml tree.
-             */
-            if (xmlfiles.find(ff) != xmlfiles.end()) {
-                if (debug > 0) {
-                    writelog("get_XML_File(): File, " + ff +
-                             ", was previously read." +
-                             " Retrieving the stored xml tree.\n");
-                }
-                return xmlfiles[ff];
-            }
-            /*
-             * Ok, we didn't find the processed XML tree. Do the conversion from cti
-             */
-            string phase_xml = ctml::ct2ctml_string(path);
-            XML_Node* x = new XML_Node("doc");
-            std::stringstream s(phase_xml);
-            x->build(s);
-            x->lock();
-            xmlfiles[ff] = x;
-            return x;
-        } else {
-            ff = path;
-        }
-        /*
-         * Take the XML file ff, open it, and process it, creating an
-         * XML tree, and then adding an entry in the map. We will store
-         * the absolute pathname as the key for this map.
-         */
-        std::ifstream s(ff.c_str());
-
-        XML_Node* x = new XML_Node("doc");
+    if (xmlfiles.find(path) != xmlfiles.end()) {
+        // Already have the parsed XML tree for this file cached, so just return
+        // that.
+        return xmlfiles[path];
+    }
+    /*
+     * Check whether or not the file is XML (based on the file extension). If
+     * not, it will be first processed with the preprocessor.
+     */
+    string::size_type idot = path.rfind('.');
+    string ext;
+    if (idot != string::npos) {
+        ext = path.substr(idot, path.size());
+    } else {
+        ext = "";
+    }
+    XML_Node* x = new XML_Node("doc");
+    if (ext != ".xml" && ext != ".ctml") {
+        // Assume that we are trying to open a cti file. Do the conversion to XML.
+        std::stringstream phase_xml(ctml::ct2ctml_string(path));
+        x->build(phase_xml);
+    } else {
+        std::ifstream s(path.c_str());
         if (s) {
             x->build(s);
-            x->lock();
-            xmlfiles[ff] = x;
         } else {
-            string estring = "cannot open "+ff+" for reading.";
-            estring += "Note, this error indicates a possible configuration problem.";
-            throw CanteraError("get_XML_File", estring);
+            throw CanteraError("get_XML_File",
+                "cannot open "+file+" for reading.\n"
+                "Note, this error indicates a possible configuration problem.");
         }
     }
-
-    /*
-     * Return the XML node pointer. At this point, we are sure that the
-     * lookup operation in the return statement will return a valid
-     * pointer.
-     */
-    return xmlfiles[ff];
+    x->lock();
+    xmlfiles[path] = x;
+    return x;
 }
 
 void Application::close_XML_File(const std::string& file)
