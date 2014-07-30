@@ -10,6 +10,7 @@ except ImportError:
 
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
+    __slots__ = ('gas',)
 
     def __init__(self, domains, gas, grid=None):
         """
@@ -223,6 +224,7 @@ for attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rate
 
 class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
+    __slots__ = ('inlet', 'outlet', 'flame')
 
     def __init__(self, gas, grid=None):
         """
@@ -268,6 +270,7 @@ class FreeFlame(FlameBase):
 
 class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
+    __slots__ = ('burner', 'flame', 'outlet')
 
     def __init__(self, gas, grid=None):
         """
@@ -321,6 +324,7 @@ class BurnerFlame(FlameBase):
 
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
+    __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
 
     def __init__(self, gas, grid=None):
         """
@@ -434,6 +438,8 @@ class CounterflowDiffusionFlame(FlameBase):
 
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
+    __slots__ = ('inlet', 'flame', 'surface')
+
     def __init__(self, gas, grid=None, surface=None):
         """
         :param gas:
@@ -500,6 +506,7 @@ class ImpingingJet(FlameBase):
 
 class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
+    __slots__ = ('reactants', 'flame', 'products')
 
     def __init__(self, gas, grid=None):
         """
