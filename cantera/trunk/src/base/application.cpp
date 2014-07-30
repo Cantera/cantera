@@ -16,6 +16,8 @@ using std::endl;
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <sys/stat.h>
 #endif
 
 #ifdef _MSC_VER
@@ -48,6 +50,24 @@ static mutex_t app_mutex;
 
 //! Mutex for controlling access to XML file storage
 static mutex_t xml_mutex;
+
+static int get_modified_time(const std::string& path) {
+#ifdef _WIN32
+    HANDLE hFile = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_WRITE,
+                              NULL, OPEN_EXISTING, 0, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        throw CanteraError("get_modified_time", "Couldn't open file:" + path);
+    }
+    FILETIME modified;
+    GetFileTime(hFile, NULL, NULL, &modified);
+    CloseHandle(hFile);
+    return static_cast<int>(modified.dwLowDateTime);
+#else
+    struct stat attrib;
+    stat(path.c_str(), &attrib);
+    return static_cast<int>(attrib.st_mtime);
+#endif
+}
 
 Application::Messages::Messages() :
     errorMessage(0),
@@ -184,11 +204,11 @@ Application* Application::Instance()
 
 Application::~Application()
 {
-    std::map<std::string, XML_Node*>::iterator pos;
+    std::map<std::string, std::pair<XML_Node*, int> >::iterator pos;
     for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
-        pos->second->unlock();
-        delete pos->second;
-        pos->second = 0;
+        pos->second.first->unlock();
+        delete pos->second.first;
+        pos->second.first = 0;
     }
 }
 
@@ -224,11 +244,15 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
     ScopedLock xmlLock(xml_mutex);
     std::string path = "";
     path = findInputFile(file);
+    int mtime = get_modified_time(path);
 
     if (xmlfiles.find(path) != xmlfiles.end()) {
-        // Already have the parsed XML tree for this file cached, so just return
-        // that.
-        return xmlfiles[path];
+        // Already have a parsed XML tree for this file cached. Check the
+        // last-modified time.
+        std::pair<XML_Node*, int> cache = xmlfiles[path];
+        if (cache.second == mtime) {
+            return cache.first;
+        }
     }
     /*
      * Check whether or not the file is XML (based on the file extension). If
@@ -257,7 +281,7 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
         }
     }
     x->lock();
-    xmlfiles[path] = x;
+    xmlfiles[path] = std::make_pair(x, mtime);
     return x;
 }
 
@@ -265,17 +289,17 @@ void Application::close_XML_File(const std::string& file)
 {
     ScopedLock xmlLock(xml_mutex);
     if (file == "all") {
-        std::map<string, XML_Node*>::iterator
+        std::map<string, std::pair<XML_Node*, int> >::iterator
         b = xmlfiles.begin(),
         e = xmlfiles.end();
         for (; b != e; ++b) {
-            b->second->unlock();
-            delete b->second;
+            b->second.first->unlock();
+            delete b->second.first;
             xmlfiles.erase(b->first);
         }
     } else if (xmlfiles.find(file) != xmlfiles.end()) {
-        xmlfiles[file]->unlock();
-        delete xmlfiles[file];
+        xmlfiles[file].first->unlock();
+        delete xmlfiles[file].first;
         xmlfiles.erase(file);
     }
 }
