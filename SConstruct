@@ -131,6 +131,7 @@ if os.name == 'nt':
         toolchain = ['intelc'] # note: untested
 
     extraEnvArgs['TARGET_ARCH'] = pickCompilerEnv['target_arch']
+    print 'INFO: Compiling for architecture:', pickCompilerEnv['target_arch']
     print 'INFO: Compiling using the following toolchain(s):', repr(toolchain)
 
 else:
