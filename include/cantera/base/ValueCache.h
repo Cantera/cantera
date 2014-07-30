@@ -30,7 +30,8 @@ struct CachedValue {
     CachedValue() :
         state1(std::numeric_limits<double>::quiet_NaN()),
         state2(std::numeric_limits<double>::quiet_NaN()),
-        stateNum(std::numeric_limits<int>::min())
+        stateNum(std::numeric_limits<int>::min()),
+        value(T())
     {
     }
 

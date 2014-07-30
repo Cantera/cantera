@@ -22,6 +22,8 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     doMigration_(0),
     m_iStateMF(-1),
     concTot_(0.0),
+    meanMolecularWeight_(-1.0),
+    dens_(-1.0),
     m_temp(-1.0),
     m_press(-1.0),
     m_lambda(-1.0),

@@ -380,8 +380,12 @@ public:
 
     //! Constructor from ReactionData.
     explicit Plog(const ReactionData& rdata) :
+        logP_(-1000),
         logP1_(1000),
         logP2_(-1000),
+        m1_(npos),
+        m2_(npos),
+        rDeltaP_(-1.0),
         maxRates_(1) {
         typedef std::multimap<double, vector_fp>::const_iterator iter_t;
 
