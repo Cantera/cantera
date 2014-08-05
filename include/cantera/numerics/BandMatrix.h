@@ -301,6 +301,15 @@ public:
      */
     virtual size_t checkColumns(doublereal& valueSmall) const;
 
+    //! Change the way the matrix is factored
+    /*!
+     *  @param fAlgorithm   integer
+     *                   0 LU factorization
+     *                   1 QR factorization
+     */
+    virtual void useFactorAlgorithm(int fAlgorithm);
+
+
 protected:
 
     //! Matrix data
