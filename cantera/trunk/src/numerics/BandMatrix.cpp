@@ -441,4 +441,10 @@ void BandMatrix::copyData(const GeneralMatrix& y)
     (void) memcpy(DATA_PTR(data), yyPtr->ptrColumn(0), n);
 }
 
+void BandMatrix::useFactorAlgorithm(int fAlgorithm)
+{
+//    useQR_ = fAlgorithm;
+}
+
+
 }
