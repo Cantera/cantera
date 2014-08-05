@@ -35,7 +35,7 @@ HighPressureGasTransport::HighPressureGasTransport(thermo_t* thermo)
 bool HighPressureGasTransport::initGas(GasTransportParams& tr)
 {
     MultiTransport::initGas(tr);
-    
+
     // copy parameters into local storage
     m_w_ac = tr.w_ac;
     return true;
@@ -49,20 +49,20 @@ double HighPressureGasTransport::thermalConductivity()
     doublereal Lprime_m = 0.0;
     double* x1 = DATA_PTR(m_spwork1);
     const doublereal c1 = 1./16.04;
-    
+
     m_thermo->getMoleFractions(x1);
     vector_fp cp_0_R(m_thermo->nSpecies());
     m_thermo->getCp_R_ref(&cp_0_R[0]);
-    
+
     std::vector<doublereal> L_i(m_thermo->nSpecies());
     std::vector<doublereal> f_i(m_thermo->nSpecies());
     std::vector<doublereal> h_i(m_thermo->nSpecies());
     std::vector<doublereal> V_k(m_thermo->nSpecies());
-    
+
     m_thermo -> getPartialMolarVolumes(&V_k[0]);
-    
+
     doublereal L_i_min = BigNumber;
-    
+
     for (size_t i = 0; i < m_nsp; i++) {
         doublereal Tc_i = Tcrit_i(i);
         doublereal Vc_i = Vcrit_i(i);
@@ -70,11 +70,11 @@ double HighPressureGasTransport::thermalConductivity()
         doublereal V_r = V_k[i]/Vc_i;
         doublereal T_p = std::min(T_r,2.0);
         doublereal V_p = std::max(0.5,std::min(V_r,2.0));
-    
+
         // Calculate variables for density-independent component:
         doublereal theta_p = 1.0 + (m_w_ac[i] - 0.011)*(0.56553
             - 0.86276*log(T_p) - 0.69852/T_p);
-        doublereal phi_p = (1.0 + (m_w_ac[i] - 0.011)*(0.38560 \
+        doublereal phi_p = (1.0 + (m_w_ac[i] - 0.011)*(0.38560
             - 1.1617*log(T_p)))*0.288/Zcrit_i(i);
         doublereal f_fac = Tc_i*theta_p/190.4;
         doublereal h_fac = 1000*Vc_i*phi_p/99.2;
@@ -95,7 +95,7 @@ double HighPressureGasTransport::thermalConductivity()
         f_i[i] = Tc_i*theta_s/190.4;
         h_i[i] = 1000*Vc_i*phi_s/99.2;
     }
-    
+
     doublereal h_m = 0;
     doublereal f_m = 0;
     doublereal mw_m = 0;
@@ -113,16 +113,16 @@ double HighPressureGasTransport::thermalConductivity()
             mw_m += x1[i]*x1[j]*sqrt(mw_ij_inv*f_ij)*pow(h_ij,-4./3.);
         }
     }
-    
+
     f_m = f_m/h_m;
     mw_m = pow(mw_m,-2.)*f_m*pow(h_m,-8./3.);
-    
+
     doublereal rho_0 = 16.04*h_m/(1000*m_thermo->molarVolume());
     doublereal T_0 = m_temp/f_m;
     doublereal mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
-                + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4*pow(T_0,1./3.)
-                - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0 - 1.44591e1*pow(T_0,4./3.)
-                + 2.03712e-1*pow(T_0,5./3.));
+                + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4
+                *pow(T_0,1./3.) - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0
+                - 1.44591e1*pow(T_0,4./3.) + 2.03712e-1*pow(T_0,5./3.));
     doublereal L_1m = 1944*mu_0;
     doublereal L_2m = (-2.5276e-4 + 3.3433e-4*pow(1.12 - log(T_0/1.680e2),2))*rho_0;
     doublereal L_3m = exp(-7.19771 + 85.67822/T_0)*(exp((12.47183
@@ -152,7 +152,7 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
     doublereal P_corr_ij, Tr_ij, Pr_ij;
     std::vector<double> PcP(5);
     double* x1 = DATA_PTR(m_spwork1);
-    
+
     m_thermo->getMoleFractions(x1);
     update_T();
     // Evaluate the binary diffusion coefficients from the polynomial fits.
@@ -177,7 +177,7 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
             x_i = x_i/(x_i + x_j);
             x_j = x_j/(x_i + x_j);
 
-            //Calculate Tr and Pr based on mole-fraction-weighted critical constants:
+            //Calculate Tr and Pr based on mole-fraction-weighted crit constants:
             Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
             Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
 
@@ -187,25 +187,22 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
             }else {
                 // Otherwise, calculate the parameters for Takahashi correlation
                 //   by interpolating on Pr_ij:
-                // setPcorr(Pr_ij, PcP);
                 P_corr_ij = setPcorr(Pr_ij, Tr_ij);
-                // Calculate the correction factor:
-                // P_corr_ij = PcP[0]*(1.0 - PcP[1]*pow(Tr_ij,-PcP[2]))*(1-PcP[3]*pow(Tr_ij,-PcP[4]));
-                
+
                 // If the reduced temperature is too low, the correction factor
                 //  P_corr_ij will be < 0:
                 if (P_corr_ij<0) {
                     P_corr_ij = Tiny;
                 }
             }
-            
+
             // Multiply the standard low-pressure binary diffusion coefficient
             //   (m_bdiff) by the Takahashi correction factor P_corr_ij:
             d[ld*j + i] = P_corr_ij*rp * m_bdiff(i,j);
         }
     }
 }
-    
+
 void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 {
     // Not currently implemented.  m_Lmatrix inversion returns NaN.  Needs to be
@@ -214,24 +211,22 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
                        "Routine not yet implemented");
     // Calculate the multi-component Stefan-Maxwell diffusion coefficients,
     // based on the Takahashi-correlation-corrected binary diffusion coefficients.
-    
+
     // update the mole fractions
     update_C();
-    
+
     // update the binary diffusion coefficients
     update_T();
     updateThermal_T();
-    
+
     // Correct the binary diffusion coefficients for high-pressure effects; this
     // is basically the same routine used in 'getBinaryDiffCoeffs,' above:
     doublereal P_corr_ij, Tr_ij, Pr_ij;
-    //std::vector<double> PcP(5);
     double* x1 = DATA_PTR(m_spwork1);
-    
     m_thermo->getMoleFractions(x1);
     update_T();
-    // Evaluate the binary diffusion coefficients from the polynomial fits - this
-    // should perhaps be preceded by a check to see whether any of T, P, or C have changed.
+    // Evaluate the binary diffusion coefficients from the polynomial fits -
+    // this should perhaps be preceded by a check for changes in T, P, or C.
     //if (!m_bindiff_ok) {
     updateDiff_T();
     //}
@@ -251,15 +246,13 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
             if (Pr_ij < 0.1) {
                 P_corr_ij = 1;
             }else {
-                P_corr_ij = setPcorr(Pr_ij, Tr_ij);//setPcorr(Pr_ij, PcP);
-                //P_corr_ij = PcP[0]*(1.0 - PcP[1]*pow(Tr_ij,-PcP[2]))*(1-PcP[3] \
-                                *pow(Tr_ij,-PcP[4]));
+                P_corr_ij = setPcorr(Pr_ij, Tr_ij);
                 if (P_corr_ij<0) {
                     P_corr_ij = Tiny;
                 }
             }
                 
-            m_bdiff(i,j) *= P_corr_ij; // * m_bdiff(i,j);
+            m_bdiff(i,j) *= P_corr_ij;
         }
     }
     m_bindiff_ok = false;  // m_bdiff is overwritten by the above routine.
@@ -332,13 +325,15 @@ doublereal HighPressureGasTransport::viscosity()
         } else if (m_mw[i] < MW_L) {
             MW_L = m_mw[i];        }
         
-        // Calculate reduced dipole moment for contribution to polar correction term:
-        doublereal mu_ri = 52.46*100000*m_dipole(i,i)*m_dipole(i,i)*Pcrit_i(i)/(Tc*Tc);
+        // Calculate reduced dipole moment for polar correction term:
+        doublereal mu_ri = 52.46*100000*m_dipole(i,i)*m_dipole(i,i)
+            *Pcrit_i(i)/(Tc*Tc);
         if (mu_ri < 0.022) {
             FP_mix_o += x1[i];
         } else if (mu_ri < 0.075) {
             FP_mix_o += x1[i]*(1. + 30.55*pow(0.292 - Zc, 1.72));
-        } else { FP_mix_o += x1[i]*(1. + 30.55*pow(0.292 - Zc, 1.72)*fabs(0.96 + 0.1*(Tr - 0.7)));
+        } else { FP_mix_o += x1[i]*(1. + 30.55*pow(0.292 - Zc, 1.72)
+                                    *fabs(0.96 + 0.1*(Tr - 0.7)));
         }
         
         // Calculate contribution to quantum correction term.
@@ -491,7 +486,7 @@ doublereal HighPressureGasTransport::FQ_i(doublereal Q, doublereal Tr, doublerea
 
 // Set value of parameter values for Takahashi correlation, by interpolating
 //   table of constants vs. Pr:
-doublereal HighPressureGasTransport::setPcorr(doublereal Pr, doublereal Tr) //std::vector<double>& PcP)
+doublereal HighPressureGasTransport::setPcorr(doublereal Pr, doublereal Tr)
 {
     const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
         1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
