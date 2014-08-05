@@ -5,6 +5,7 @@
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
+#include <fenv.h>
 #include <sstream>
 #include <typeinfo>
 
@@ -75,5 +76,19 @@ std::string IndexError::getMessage() const
        " outside valid range of 0 to " << (mmax_) << ".";
     return ss.str();
 }
+//============================================================================================================
+bool check_FENV_OverUnder_Flow() {
+     fexcept_t ff;
+     fegetexceptflag(&ff, FE_OVERFLOW || FE_UNDERFLOW || FE_INVALID);
+     if (ff) {
+        return true;
+     }
+     return false;
+};
+//============================================================================================================
+void clear_FENV() {
+     feclearexcept(FE_ALL_EXCEPT);
+}
+//============================================================================================================
 
 } // namespace Cantera

@@ -55,6 +55,37 @@ namespace Cantera
  *  preprocessor symbol is defined, e.g. with the compiler option -DNDEBUG.
  */
 
+//! Enum containing Cantera's behavior for situations where overflow or underflow of real variables 
+//! may occur.
+/*!
+ * Note this frequently occurs when taking exponentials of delta gibbs energies of reactions
+ * or when taking the exponentials of logs of activity coefficients.
+ */
+enum CT_RealNumber_Range_Behavior {
+
+   //! For this specification of range behavior, nothing is done. This is the fastest
+   //! behavior when all calculations are believed to be ranged well. For situations
+   //! where there are range errors, NaN's or INF's will be introduced.
+   DONOTHING_CTRB = -1,
+
+   //! For this specification of range behavior, the overflow or underflow calculation is changed.
+   //! Cantera will proceed by bounding the real number to maintain its viability, silently
+   //! changing the actual answer.
+   CHANGE_OVERFLOW_CTRB,
+
+   //! When an overflow or underflow occurs, Cantera will throw an error
+   THROWON_OVERFLOW_CTRB,
+
+   //! Cantera will use the fenv check capability introduced in C99 to check for
+   //! overflow and underflow conditions at crucial points.
+   //! It will throw an error if these conditions occur.
+   FENV_CHECK_CTRB,
+
+   //!  Cantera will throw an error in debug mode but will not in production mode.
+   //! (default)
+   THROWON_OVERFLOW_DEBUGMODEONLY_CTRB
+};
+
 
 //! Base class for exceptions thrown by Cantera classes.
 /*!
@@ -189,6 +220,16 @@ public:
         return "NotImplementedError";
     }
 };
+
+//! Quick check on whether there has been an underflow or overflow condition in the floating point unit
+/*!
+ *    @return Returns true if there has been such a condition and it has not been cleared. returns false
+ *            if there hasn't been an overflow, underflow or invalid condition.
+ */
+extern bool check_FENV_OverUnder_Flow();
+
+//! Clear all the flags for floating-point exceptions
+extern void clear_FENV();
 
 
 //! Provides a line number
