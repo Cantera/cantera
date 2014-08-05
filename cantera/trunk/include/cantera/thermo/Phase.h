@@ -7,6 +7,7 @@
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
 
+#include "cantera/Cantera.h"
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/Elements.h"
@@ -784,6 +785,14 @@ private:
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
+
+public:
+    //! Overflow behavior of real number calculations involving this thermo object
+    /*!
+     *   The default is THROWON_OVERFLOW_CTRB
+     *   Which throws an error in debug mode, but silently changes the answer in non-debug mode
+     */
+    enum CT_RealNumber_Range_Behavior realNumberRangeBehavior_;
 
 };
 

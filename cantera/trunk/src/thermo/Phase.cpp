@@ -27,7 +27,8 @@ Phase::Phase() :
     m_stateNum(-1),
     m_elementsFrozen(false),
     m_mm(0),
-    m_elem_type(0)
+    m_elem_type(0),
+    realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
 {
 }
 
@@ -43,7 +44,8 @@ Phase::Phase(const Phase& right) :
     m_stateNum(-1),
     m_elementsFrozen(false),
     m_mm(0),
-    m_elem_type(0)
+    m_elem_type(0),
+    realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
 {
     // Use the assignment operator to do the actual copying
     operator=(right);
@@ -106,6 +108,7 @@ Phase& Phase::operator=(const Phase& right)
     }
     m_id    = right.m_id;
     m_name  = right.m_name;
+    realNumberRangeBehavior_ = right.realNumberRangeBehavior_;
 
     return *this;
 }
