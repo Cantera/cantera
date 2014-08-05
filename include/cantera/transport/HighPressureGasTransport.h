@@ -52,9 +52,9 @@ public:
      *  Currently not implemented for this model
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
-    
+
     virtual double thermalConductivity();
-    
+
     /*! Returns the matrix of binary diffusion coefficients
      *
      *      d[ld*j +  i] = rp*m_bdiff(i,j)*(DP)_R;
@@ -65,10 +65,10 @@ public:
     virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
-    
+
     virtual doublereal viscosity();
-    
-        //! Initialize the transport operator with parameters from GasTransportParams object
+
+    //! Initialize the transport operator with parameters from GasTransportParams object
     /*!
      *  @param tr  input GasTransportParams object
      */
@@ -77,21 +77,23 @@ public:
     friend class TransportFactory;
 
 protected:
-    
+
     virtual doublereal Tcrit_i(size_t i);
-    
+
     virtual doublereal Pcrit_i(size_t i);
-    
+
     virtual doublereal Vcrit_i(size_t i);
-    
+
     virtual doublereal Zcrit_i(size_t i);
-    
+
+    vector_fp store(size_t i, size_t nsp);
+
     //virtual doublereal CT_i(doublereal T_0);
-    
+
     virtual doublereal FQ_i(doublereal Q, doublereal Tr, doublereal MW);
-    
-    virtual doublereal setPcorr(doublereal Pr, doublereal Tr); //std::vector<double>& PcorrParams);
-    
+
+    virtual doublereal setPcorr(doublereal Pr, doublereal Tr);
+
 public:
     
 };
