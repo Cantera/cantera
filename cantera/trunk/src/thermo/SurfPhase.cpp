@@ -74,7 +74,7 @@ SurfPhase::SurfPhase(const SurfPhase& right) :
     m_logn0(right.m_logn0),
     m_press(right.m_press)
 {
-    *this = operator=(right);
+    operator=(right);
 }
 
 SurfPhase& SurfPhase::operator=(const SurfPhase& right)
