@@ -1544,7 +1544,7 @@ public:
      *                    greater than *threshold*.
      */
     virtual std::string report(bool show_thermo=true,
-                               doublereal threshold=1e-14) const;
+                               doublereal threshold=-1e-14) const;
 
     //! returns a summary of the state of the phase to a comma separated file.
     //! To customize the data included in the report, derived classes should
