@@ -64,8 +64,7 @@ public:
      *
      * @return Pointer to the new kinetics manager.
      */
-    virtual Kinetics* newKinetics(XML_Node& phase,
-                                  std::vector<ThermoPhase*> th);
+    virtual Kinetics* newKinetics(XML_Node& phase, std::vector<ThermoPhase*> th);
 
     /**
      * Return a new, empty kinetics manager.

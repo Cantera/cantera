@@ -19,6 +19,7 @@
 #include "ct_defs.h"
 #include "global.h"
 
+#include <numeric>
 #include <algorithm>
 
 namespace Cantera

@@ -908,6 +908,8 @@ private:
     /**
      * Map with the Reaction Number as key and the placement in the
      * vector of reactions list( i.e., m_c1_list[]) as key
+     * If for example, m_loc[7], was equal to 5, this means that the 7th overall reaction in the mechanism
+     * is located in the 5th position of m_c1_list if it unimolecular and only has one reactant/product.
      */
     std::map<size_t, size_t>  m_loc;
 };

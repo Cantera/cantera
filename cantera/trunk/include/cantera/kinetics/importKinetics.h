@@ -12,8 +12,8 @@
 // Copyright 2002  California Institute of Technology
 
 
-#ifndef CT_IMPORTCTML_H
-#define CT_IMPORTCTML_H
+#ifndef CT_IMPORTKINETICS_H
+#define CT_IMPORTKINETICS_H
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "Kinetics.h"
@@ -83,10 +83,18 @@ void checkRxnElementBalance(Kinetics& kin,
  *                  routine to skip this reaction and continue. Otherwise, we
  *                  will throw an error.
  */
-bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
-                 std::string default_phase,
+bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp, std::string default_phase,
                  std::vector<size_t>& spnum, vector_fp& stoich,
                  vector_fp& order, const ReactionRules& rules);
+
+//! Get non-mass-action orders for a reaction
+
+
+extern bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
+              std::string default_phase, const ReactionData& rdata,
+              vector_fp& order, vector_fp& fullForwardsOrders,
+              const ReactionRules& rules);
+
 
 //! Read the rate coefficient data from the XML file.
 /*!
@@ -159,7 +167,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
  *
  * @param kin   This is a pointer to a kinetics manager class that will be
  *              initialized with the kinetics mechanism. Inherited Kinetics
- *              classes may be used here.
+ *              classes should be used here.
  *
  * @ingroup kineticsmgr
  *
@@ -167,10 +175,11 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
 bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
                     Kinetics* kin);
 
-//!Build a single-phase ThermoPhase object with associated kinetics mechanism.
+//! Build a single-phase ThermoPhase object with associated kinetics mechanism.
 /*!
  *  In a single call, this routine initializes a ThermoPhase object and a
- *  homogeneous kinetics object for a phase.
+ *  homogeneous kinetics object for a phase. It returns the fully initialized
+ *  ThermoPhase object ptr and kinetics ptr.
  *
  * @param root pointer to the XML tree which will be searched to find the
  *             XML phase element.
@@ -179,7 +188,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  * @param nm   Name of the XML element. Should be "phase"
  * @param th   Pointer to a bare ThermoPhase object, which will be initialized
  *             by this operation.
- * @param k    Pointer to a bare Kinetics object, which will be initialized
+ * @param kin  Pointer to a bare Kinetics object, which will be initialized
  *             by this operation to a homogeneous kinetics manager
  *
  * @return
@@ -188,17 +197,17 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  * For Example
  *
  * @code
- *        ThermoPhase *th = new ThermoPhase();
- *        Kinetics    *k  = new Kinetics();
+ *        ThermoPhase *th   = new ThermoPhase();
+ *        Kinetics    *kin  = new Kinetics();
  *        XML_Node *root = get_XML_File("gri30.xml");
- *        ok =  buildSolutionFromXML(root, "gri30_mix", "phase", th, k)
+ *        ok =  buildSolutionFromXML(root, "gri30_mix", "phase", th, kin)
  * @endcode
  *
  * @ingroup inputfiles
  * @see importKinetics()
  */
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
-                          const std::string& nm, ThermoPhase* th, Kinetics* k);
+                          const std::string& nm, ThermoPhase* th, Kinetics* kin);
 
 //! Search an XML tree for species data.
 /*!

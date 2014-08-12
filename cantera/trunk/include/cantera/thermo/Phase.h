@@ -7,7 +7,6 @@
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
 
-#include "cantera/Cantera.h"
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/Elements.h"
