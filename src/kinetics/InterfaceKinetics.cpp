@@ -199,6 +199,9 @@ void InterfaceKinetics::_update_rates_T()
 
 void InterfaceKinetics::_update_rates_phi()
 {
+    //
+    // Store electric potentials for each phase in the array m_phi[].
+    //
     for (size_t n = 0; n < nPhases(); n++) {
         if (thermo(n).electricPotential() != m_phi[n]) {
             m_phi[n] = thermo(n).electricPotential();
@@ -222,7 +225,7 @@ void InterfaceKinetics::_update_rates_C()
     }
     m_ROP_ok = false;
 }
-
+//============================================================================================================================
 void InterfaceKinetics::getActivityConcentrations(doublereal* const conc)
 {
     _update_rates_C();
@@ -310,13 +313,13 @@ void InterfaceKinetics::checkPartialEquil()
         }
     }
 }
-
+//============================================================================================================================
 void InterfaceKinetics::getFwdRatesOfProgress(doublereal* fwdROP)
 {
     updateROP();
     std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
 }
-
+//============================================================================================================================
 void InterfaceKinetics::getRevRatesOfProgress(doublereal* revROP)
 {
     updateROP();
@@ -399,7 +402,7 @@ void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
     for (size_t n = 0; n < nPhases(); n++) {
         size_t nsp = thermo(n).nSpecies();
         for (size_t k = 0; k < nsp; k++) {
-            m_pot[ik] = Faraday*thermo(n).charge(k)*m_phi[n];
+            m_pot[ik] = Faraday * thermo(n).charge(k) * m_phi[n];
             ik++;
         }
     }
@@ -446,7 +449,7 @@ void InterfaceKinetics::applyButlerVolmerCorrection(doublereal* const kf)
         }
     }
 }
-
+//==================================================================================================================
 /*
  * For a reaction rate that was given in units of Amps/m2 (exchange current
  *  density formulation with iECDFormulation == true), convert the rate to
@@ -469,7 +472,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
         }
     }
 }
-
+//==================================================================================================================
 void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
 {
 
@@ -482,7 +485,7 @@ void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
     multiply_each(kfwd, kfwd + nReactions(), m_perturb.begin());
 
 }
-
+//==================================================================================================================
 void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
 {
     getFwdRateConstants(krev);
@@ -520,8 +523,10 @@ void InterfaceKinetics::updateROP()
     // the forward rates copied into m_ropr by the reciprocals of
     // the equilibrium constants
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
-
-    // multiply ropf by concentration products
+    //
+    // multiply ropf by the actyivity concentration reaction orders to obtain
+    // the forward rates of progress. 
+    //
     m_rxnstoich.multiplyReactants(DATA_PTR(m_conc), DATA_PTR(m_ropf));
 
     // for reversible reactions, multiply ropr by concentration
@@ -720,7 +725,7 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
 }
-
+//============================================================================================================================
 void InterfaceKinetics::addReaction(ReactionData& r)
 {
     /*
@@ -745,6 +750,7 @@ void InterfaceKinetics::addReaction(ReactionData& r)
      * increase the size of m_perturb by one as well.
      */
     incrementRxnCount();
+    //
     m_rxneqn.push_back(r.equation);
 
     m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
@@ -764,6 +770,7 @@ void InterfaceKinetics::addReaction(ReactionData& r)
         m_rxnPhaseIsProduct[i][p] = true;
     }
 }
+//============================================================================================================================
 
 void InterfaceKinetics::addElementaryReaction(ReactionData& r)
 {
@@ -791,7 +798,7 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& r)
     /*
      * Install the reaction rate into the vector of reactions handled by this class
      */
-    size_t iloc = m_rates.install(reactionNumber(), r);
+    size_t iloc = m_rates.install(m_ii, r);
 
     /*
      * Change the reaction rate coefficient type back to its original value
@@ -817,7 +824,7 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& r)
     m_rfn.push_back(r.rateCoeffParameters[0]);
     registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
-
+//============================================================================================================================
 void InterfaceKinetics::setIOFlag(int ioFlag)
 {
     m_ioFlag = ioFlag;

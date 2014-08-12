@@ -52,20 +52,40 @@ public:
     std::vector<size_t> products; //!< Indices of product species
 
     //! Reaction order with respect to each reactant species, in the order
-    //! given by #reactants. Usually the same as the stoichiometric
-    //! coefficients.
+    //! given by #reactants. Usually the same as the stoichiometric coefficients.
+    /*!
+     *  Length is equal to the number of reactants defined in the reaction
+     *  The order of species is given by the reactants vectors.
+     */
     vector_fp rorder;
 
     //! Reaction order of the reverse reaction with respect to each product
-    //! species, in the order given by #products. Usually the same as the
-    //! stoichiometric coefficients.
+    //! species, in the order given by #products. Usually the same as the stoichiometric coefficients.
+    /*!
+     *  Length is equal to the number of products defined in the reaction.
+     *  The order of species is given by the products vectors.
+     */
     vector_fp porder;
 
-    //! Reactant stoichiometric coefficients, in the order given by
-    //! #reactants.
+    //! Reaction order for the forward direction of the reaction
+    /*!
+     *  Length is equal to the number of kinetic species defined in the kinetics object
+     *  The order of species is given by kinetics species vector.
+     */
+    vector_fp forwardFullOrder_;
+
+    //! Reactant stoichiometric coefficients, in the order given by #reactants.
+    /*!
+     *  Length is equal to the number of products defined in the reaction.
+     *  The order of species is given by the products vectors.
+     */
     vector_fp rstoich;
 
     //! Product stoichiometric coefficients, in the order given by #products.
+    /*!
+     *  Length is equal to the number of products defined in the reaction.
+     *  The order of species is given by the products vectors.
+     */
     vector_fp pstoich;
 
     std::vector<grouplist_t> rgroups; //!< Optional data used in reaction path diagrams

@@ -313,9 +313,9 @@ public:
     void applyButlerVolmerCorrection(doublereal* const kf);
 
     //! When an electrode reaction rate is optionally specified in terms of its
-    //! exchange current density, adjust to standard reaction rate form.
-    /**
-     * For a reaction rate that was given in units of Amps/m2 (exchange current
+    //! exchange current density, adjust kfwd to the standard reaction rate constant form and units.
+    /*!
+     *  For a reaction rate constant that was given in units of Amps/m2 (exchange current
      *  density formulation with iECDFormulation == true), convert the rate to
      *  kmoles/m2/s.
      */
@@ -524,6 +524,12 @@ protected:
     //! Pointer to the single surface phase
     SurfPhase* m_surf;
 
+    //! Vector of reaction types
+    /*!
+     *    Length = m_ii the number of reactions in the mechanism.
+     */
+    vector_int reactionTypes_;
+
     //! Pointer to the Implicit surface chemistry object
     /*!
      * Note this object is owned by this InterfaceKinetics object. It may only
@@ -532,20 +538,42 @@ protected:
      */
     ImplicitSurfChem* m_integrator;
 
+    //! Electrochemical transfer coefficient for the forward direction
+    /*!
+     *   Electrochemical transfer coefficient for all reactions that have transfer reactions
+     *   the reaction is given by  m_ctrxn[i]
+     */
     vector_fp m_beta;
 
     //! Vector of reaction indexes specifying the id of the current transfer
     //! reactions in the mechanism
     /*!
      *  Vector of reaction indices which involve current transfers. This provides
-     *  an index into the m_beta array.
+     *  an index into the m_beta, ctrxn_BVform array.
      *
      *        irxn = m_ctrxn[i]
      */
     std::vector<size_t> m_ctrxn;
 
-    //! Vector of booleans indicating whether the charge transfer reaction may
-    //! be described by an exchange current density expression
+    //! Vector of Reactions which follow the butler volmer methodology for specifying the 
+    //! exchange current density first. Then, the other forms are specified based on this form.
+    /*!
+     *     Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *  
+     *    m_ctrxn_BVform[i] = 0;  This means that the irxn reaction is calculated via the standard forward 
+     *                            and reverse reaction rates
+     *    m_ctrxn_BVform[i] = 1;  This means that the irxn reaction is calculated via the BV format
+     *                            directly.
+     *    m_ctrxn_BVform[i] = 2;  this means that the irxn reaction is calculated via the BV format
+     *                            directly, using concentrations instead of activity concentrations.
+     */
+    std::vector<size_t> m_ctrxn_BVform;
+
+    //! Vector of booleans indicating whether the charge transfer reaction rate constant 
+    //! is described by an exchange current density rate constant expression
+    /*!
+     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     */
     vector_int m_ctrxn_ecdf;
 
     //! Vector of standard concentrations

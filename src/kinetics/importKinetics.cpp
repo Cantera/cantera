@@ -24,6 +24,7 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/reaction_defs.h"
 #include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/importKinetics.h"
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
@@ -138,7 +139,7 @@ void checkRxnElementBalance(Kinetics& kin,
         throw CanteraError("checkRxnElementBalance",msg);
     }
 }
-
+//====================================================================================================================
 bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
                  std::string default_phase, std::vector<size_t>& spnum,
                  vector_fp& stoich, vector_fp& order,
@@ -165,30 +166,30 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
      * are stored as a colon separated pair. Get all of these
      * pairs in the reactions/products object.
      */
-    vector<string> key, val;
-    getPairs(rg, key, val);
+    std::vector<string> key, val;
+    ctml::getPairs(rg, key, val);
 
     /*
      * Loop over each of the pairs and process them
      */
     doublereal ord, stch;
-    string ph, sp;
+    string ph, spName;
     map<string, size_t> speciesMap;
     for (size_t n = 0; n < key.size(); n++) {
-        sp = key[n]; // sp is the string name for species
+        spName = key[n]; // sp is the string name for species
         ph = "";
         /*
          * Search for the species in the kinetics object using the
          * member function kineticsSpeciesIndex(). We will search
          * for the species in all phases defined in the kinetics operator.
          */
-        size_t isp = kin.kineticsSpeciesIndex(sp);
+        size_t isp = kin.kineticsSpeciesIndex(spName);
         if (isp == npos) {
             if (rules.skipUndeclaredSpecies) {
                 return false;
             } else {
                 throw CanteraError("getReagents",
-                                   "Undeclared reactant or product species "+sp);
+                                   "Undeclared reactant or product species " + spName);
                 return false;
             }
         }
@@ -209,15 +210,16 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
         /*
          * Needed to process reaction orders below.
          */
-        speciesMap[sp] = order.size();
+        speciesMap[spName] = order.size();
     }
 
     /*
      * Check to see if reaction orders have been specified.
      */
+
     if (rp == 1 && rxn.hasChild("order")) {
-        vector<XML_Node*> ord;
-        rxn.getChildren("order",ord);
+        std::vector<XML_Node*> ord;
+        rxn.getChildren("order", ord);
         doublereal forder;
         for (size_t nn = 0; nn < ord.size(); nn++) {
             const XML_Node& oo = *ord[nn];
@@ -240,7 +242,133 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
     }
     return true;
 }
+//====================================================================================================================
+//  Fill in the fullForwardsOrders array for a specific reaction
+/*  
+ * rxnNode XML node for the reaction
+ */
+bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
+	       std::string default_phase, const ReactionData& rdata,
+	       vector_fp& order, vector_fp& fullForwardsOrders,
+	       const ReactionRules& rules)
+{
+    //
+    // Gather the number of species in the kinetics object and resize fullForwardsOrders
+    //
+    size_t nsp = kin.nTotalSpecies();
+    fullForwardsOrders.resize(nsp, 0.0);
 
+    const std::vector<size_t>& reactants = rdata.reactants;
+    //const std::vector<doublereal>& rstoich = rdata.rstoich;
+    const std::vector<size_t>& products = rdata.products;
+    const std::vector<doublereal>& pstoich = rdata.pstoich;
+  
+
+    /*
+     * Check to see if reaction orders have been specified.
+     */
+    if (rxnNode.hasChild("order")) {
+        std::vector<XML_Node*> ord;
+        rxnNode.getChildren("order", ord);
+        doublereal forder;
+        for (size_t nn = 0; nn < ord.size(); nn++) {
+            const XML_Node& oo = *ord[nn];
+            forder = fpValue(oo());
+	    std::string spName = oo["species"];
+            size_t k = kin.kineticsSpeciesIndex(spName);
+            if (k == npos) {
+                throw CanteraError("getOrders()",
+                                   "Species not in kinetics species list: " + spName);
+            }
+            for (size_t n = 0; n < reactants.size(); n++) {
+               if  (reactants[n] == k) {
+                 order[n] = forder;
+               }
+            }
+        }
+    }
+
+    if (rxnNode.hasChild("orders")) {
+        std::vector<XML_Node*> orders;
+        rxnNode.getChildren("orders", orders);
+	//
+	//  Doesn't really make sense to have more than one of these blocks
+	//
+        if (orders.size() != 1) {
+            throw CanteraError("getOrders()", " More than one XML orders block");
+        }
+        XML_Node& osNode = *orders[0];
+        // 
+        // read the model attribute and figure out how to initialize the full orders vector.
+        //
+        string baseHndling = osNode["model"];
+        string ss =  lowercase(baseHndling);
+        if (ss == "zeroorders") {
+          for (size_t k = 0; k < nsp; k++) {
+              fullForwardsOrders[k] = 0.0;
+          }
+        } else if (ss == "reactantorders") {
+            for (size_t k = 0; k < nsp; k++) {
+                fullForwardsOrders[k] = 0.0;
+            }
+            for (size_t n = 0; n < order.size(); n++) {
+                size_t k = reactants[n];
+                double fac = order[n];
+                fullForwardsOrders[k] = fac;
+            }
+	} else if (ss == "butlervolmerorders") {
+	    //
+	    // ok first thing to do is get the electrochemical transfer coefficient
+	    // since the order depend on the value.
+	    // Also, if we don't find one, then it's an error
+	    double beta = -10.0;
+	    if (rxnNode.hasChild("rateCoeff")) {
+		XML_Node& rc = rxnNode.child("rateCoeff");
+                if (rc.hasChild("electrochem")) {
+		    XML_Node& eb = rc.child("electrochem");
+                    string sbeta = eb["beta"];
+                    beta = fpValueCheck(sbeta);
+		}
+	    }
+	    if (beta == -10.0) {
+		throw CanteraError("getOrders()",
+				   "ButlerVolmerOrders model requested but no electrochem beta input");
+            }
+	    double betar = 1.0 - beta;
+	    for (size_t k = 0; k < nsp; k++) {
+                fullForwardsOrders[k] = 0.0;
+            }	    
+            for (size_t n = 0; n < reactants.size(); n++) {
+                size_t k = reactants[n];
+                double fac = order[n];
+                fullForwardsOrders[k] += fac * betar;
+            }
+	    for (size_t n = 0; n < products.size(); n++) {
+                size_t k = products[n];
+                double fac = pstoich[n];
+                fullForwardsOrders[k] += fac * beta;
+            }
+        } else {
+           throw CanteraError("getOrders()", "unknown model for orders XML_Node: " + baseHndling);
+        }
+         
+        std::vector<string> key, val;
+        int numFound = ctml::getPairs(osNode, key, val);
+
+        //
+        // Fill in the fullForwardsOrders array
+        //
+        for (size_t n = 0; n < (size_t) numFound; n++) {
+         double fac = fpValueCheck(val[n]);
+         string ss = key[n];
+         size_t k = kin.kineticsSpeciesIndex(ss);
+         fullForwardsOrders[k] = fac;
+        }
+    }
+
+    return true;
+}
+//====================================================================================================================
 /**
  * getArrhenius() parses the xml element called Arrhenius.
  * The Arrhenius expression is
@@ -442,7 +570,7 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin,
     rdata.default_3b_eff = fpValue(eff["default"]);
 
     vector<string> key, val;
-    getPairs(eff, key, val);
+    ctml::getPairs(eff, key, val);
     string nm;
     string phse = kin.thermo(0).id();
     for (size_t n = 0; n < key.size(); n++) {
@@ -599,37 +727,76 @@ doublereal isDuplicateReaction(std::map<int, doublereal>& r1,
     return ratio;
 }
 
-bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
+bool rxninfo::installReaction(int iRxn, const XML_Node& rxnNode, Kinetics& kin,
                               string default_phase, ReactionRules& rules,
                               bool validate_rxn)
 {
-    // Check to see that we are in fact at a reaction node
-    if (r.name() != "reaction") {
-        throw CanteraError(" rxninfo::installReaction",
-                           " expected xml node reaction, got " + r.name());
+    //
+    // Check to see that we are in fact at a reaction node in the XML tree
+    //
+    if (rxnNode.name() != "reaction") {
+        throw CanteraError("rxninfo::installReaction()",
+                           "Expected xml node reaction, got " + rxnNode.name());
     }
-
+    //
     // We use the ReactionData object to store initial values read in from the
-    // xml data. Then, when we have collected everything we add the reaction to
+    // xml data. Then, when we have collected everything, we add the reaction to
     // the kinetics object, kin, at the end of the routine.
+    //
     ReactionData& rdata = **m_rdata.insert(m_rdata.end(), new ReactionData());
     rdata.validate = validate_rxn;
+
+    /*
+     * Search the reaction element for the attribute "type".
+     * If found, then branch on the type, to fill in appropriate
+     * fields in rdata.
+     */
+    rdata.reactionType = ELEMENTARY_RXN;
+    string typ = rxnNode["type"];
+    string ltype = lowercase(typ); 
+    if (typ == "falloff") {
+        rdata.reactionType = FALLOFF_RXN;
+        rdata.falloffType = SIMPLE_FALLOFF;
+    } else if (typ == "chemAct") {
+        rdata.reactionType = CHEMACT_RXN;
+        rdata.falloffType = SIMPLE_FALLOFF;
+    } else if (typ == "threeBody") {
+        rdata.reactionType = THREE_BODY_RXN;
+    } else if (typ == "plog") {
+        rdata.reactionType = PLOG_RXN;
+    } else if (typ == "chebyshev") {
+        rdata.reactionType = CHEBYSHEV_RXN;
+    } else if (typ == "surface") {
+        rdata.reactionType = SURFACE_RXN;
+    } else if (typ == "edge") {
+        rdata.reactionType = EDGE_RXN;
+    } else if (ltype == "butlervolmer_noactivitycoeffs") {
+	rdata.reactionType = BUTLERVOLMER_NOACTIVITYCOEFFS_RXN;
+    } else if (ltype == "butlervolmer") {
+	rdata.reactionType = BUTLERVOLMER_RXN;
+    } else if (ltype == "surfaceaffinity") {
+	rdata.reactionType = SURFACEAFFINITY_RXN;
+    } else if (ltype == "global") {
+	rdata.reactionType = GLOBAL_RXN;
+    } else if (typ != "") {
+        throw CanteraError("installReaction()", "Unknown reaction type: " + typ);
+    }
 
     // Check to see if the reaction is specified to be a duplicate of another
     // reaction. It's an error if the reaction is a duplicate and this is not
     // set.
-    rdata.duplicate = (r.hasAttrib("duplicate")) ? 1 : 0;
+    rdata.duplicate = (rxnNode.hasAttrib("duplicate")) ? 1 : 0;
 
     // Check to see if the reaction rate constant can be negative. It's an
     // error if a negative rate constant is found and this is not set.
-    rules.allowNegativeA = (r.hasAttrib("negative_A")) ? 1 : 0;
+    rules.allowNegativeA = (rxnNode.hasAttrib("negative_A")) ? 1 : 0;
 
     // Use the contents of the "equation" child element as the reaction's
     // string representation. Post-process to convert "[" and "]" characters
     // back into "<" and ">" which cannot easily be stored in an XML file. This
     // reaction string is used only for display purposes. It is not parsed for
     // the identities of reactants or products.
-    rdata.equation = (r.hasChild("equation")) ? r("equation") : "<no equation>";
+    rdata.equation = (rxnNode.hasChild("equation")) ? rxnNode("equation") : "<no equation>";
     static const char* delimiters[] = {" [=] ", " =] ", " = ", "[=]", "=]", "="};
     static const char* replacements[] = {" <=> ", " => ", " = ", "<=>", "=>", "="};
     for (size_t i = 0; i < 6; i++) {
@@ -642,13 +809,14 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
             break;
         }
     }
-
-    // get the reactants
-    bool ok = getReagents(r, kin, 1, default_phase, rdata.reactants,
+    //
+    // get the reactant and their stoichiometries
+    //
+    bool ok = getReagents(rxnNode, kin, 1, default_phase, rdata.reactants,
                           rdata.rstoich, rdata.rorder, rules);
 
     // Get the products. We store the id of products in rdata.products
-    ok = ok && getReagents(r, kin, -1, default_phase, rdata.products,
+    ok = ok && getReagents(rxnNode, kin, -1, default_phase, rdata.products,
                            rdata.pstoich, rdata.porder, rules);
 
     // if there was a problem getting either the reactants or the products,
@@ -656,11 +824,15 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     if (!ok) {
         return false;
     }
-
+    //
     // check whether the reaction is specified to be
     // reversible. Default is irreversible.
-    string isrev = r["reversible"];
+    //
+    string isrev = rxnNode["reversible"];
     rdata.reversible = (isrev == "yes" || isrev == "true");
+
+
+    // HKM this will be removed shortly
 
     // If reaction orders are specified, then this reaction does not follow
     // mass-action kinetics, and is not an elementary reaction. So check that
@@ -668,12 +840,21 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     // thermochemistry only works for elementary reactions. Set the type to
     // global, so that kinetics managers will know to process the reaction
     // orders.
-    if (r.hasChild("order")) {
-        if (rdata.reversible == true)
+    if (rxnNode.hasChild("order")) {
+        if (rdata.reversible == true) {
             throw CanteraError("installReaction",
                                "reaction orders may only be given for "
                                "irreversible reactions");
+	}
         rdata.global = true;
+    }
+
+    //
+    // Fill in the forwardFullOrder_ array
+    //
+    if (rxnNode.hasChild("orders")) {
+	ok = getOrders(rxnNode, kin,  default_phase, rdata,
+		       rdata.rorder, rdata.forwardFullOrder_, rules);
     }
 
     // Some reactions can be elementary reactions but have fractional
@@ -712,39 +893,13 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
         }
     }
 
-    /*
-     * Search the reaction element for the attribute "type".
-     * If found, then branch on the type, to fill in appropriate
-     * fields in rdata.
-     */
-    rdata.reactionType = ELEMENTARY_RXN;
-    string typ = r["type"];
-    if (typ == "falloff") {
-        rdata.reactionType = FALLOFF_RXN;
-        rdata.falloffType = SIMPLE_FALLOFF;
-    } else if (typ == "chemAct") {
-        rdata.reactionType = CHEMACT_RXN;
-        rdata.falloffType = SIMPLE_FALLOFF;
-    } else if (typ == "threeBody") {
-        rdata.reactionType = THREE_BODY_RXN;
-    } else if (typ == "plog") {
-        rdata.reactionType = PLOG_RXN;
-    } else if (typ == "chebyshev") {
-        rdata.reactionType = CHEBYSHEV_RXN;
-    } else if (typ == "surface") {
-        rdata.reactionType = SURFACE_RXN;
-    } else if (typ == "edge") {
-        rdata.reactionType = EDGE_RXN;
-    } else if (typ != "") {
-        throw CanteraError("installReaction", "Unknown reaction type: " + typ);
-    }
-
+ 
     rdata.number = iRxn;
     rdata.rxn_number = iRxn;
 
     // Read the rate coefficient data from the XML file. Trigger an
     // exception for negative A unless specifically authorized.
-    getRateCoefficient(r.child("rateCoeff"), kin, rdata, rules);
+    getRateCoefficient(rxnNode.child("rateCoeff"), kin, rdata, rules);
 
     if (validate_rxn) {
         // Look for undeclared duplicate reactions.
@@ -1012,7 +1167,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
 }
 
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
-                          const std::string& nm, ThermoPhase* th, Kinetics* k)
+                          const std::string& nm, ThermoPhase* th, Kinetics* kin)
 {
     XML_Node* x;
     x = get_XML_NameID(nm, string("#")+id, &root);
@@ -1029,7 +1184,7 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
      * Create a vector of ThermoPhase pointers of length 1
      * having the current th ThermoPhase as the entry.
      */
-    vector<ThermoPhase*> phases(1);
+    std::vector<ThermoPhase*> phases(1);
     phases[0] = th;
     /*
      * Fill in the kinetics object k, by querying the
@@ -1037,7 +1192,7 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
      * eventually the source term vector will be constructed
      * from the list of ThermoPhases in the vector, phases.
      */
-    importKinetics(*x, phases, k);
+    importKinetics(*x, phases, kin);
     return true;
 }
 

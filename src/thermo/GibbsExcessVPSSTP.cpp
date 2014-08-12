@@ -72,8 +72,7 @@ GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
     return *this;
 }
 //=========================================================================================================================
-ThermoPhase*
-GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new GibbsExcessVPSSTP(*this);
 }
@@ -244,7 +243,7 @@ const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
 //=========================================================================================================================
 double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
 {
-    doublereal norm = accumulate(x, x + m_kk, 0.0);
+    doublereal norm = std::accumulate(x, x + m_kk, 0.0);
     if (fabs(norm - 1.0) > 1.0E-9) {
         throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
                            "(MF sum - 1) exceeded tolerance of 1.0E-9:" + fp2str(norm));
