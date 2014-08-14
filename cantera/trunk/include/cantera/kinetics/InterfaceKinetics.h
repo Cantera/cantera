@@ -273,12 +273,23 @@ public:
      */
     virtual void updateMu0();
 
+    //! Number of reactions in the mechanism
+    /*!
+     *  @deprecated This is a duplicate of Kinetics::nReactions()
+     */
     size_t reactionNumber() const {
         return m_ii;
     }
 
-    void addElementaryReaction(ReactionData& r);
-    //void addGlobalReaction(const ReactionData& r);
+    //!  Add a single elementary reaction to the list of reactions for the object
+    /*!
+     *    @param rdata 
+     */
+    void addElementaryReaction(ReactionData& rdata);
+
+
+    void addGlobalReaction(ReactionData& r);
+
     void installReagents(const ReactionData& r);
 
     
@@ -301,23 +312,31 @@ public:
         m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
     }
 
-    //! Apply corrections for interfacial charge transfer reactions
+    //! Apply modifications for the fowward reaction rate for interfacial charge transfer reactions
     /*!
      * For reactions that transfer charge across a potential difference,
      * the activation energies are modified by the potential difference.
      * (see, for example, ...). This method applies this correction.
      *
-     * @param kf  Vector of forward reaction rate constants on which to have
-     *            the correction applied
+     * @param kfwd  Vector of forward reaction rate constants on which to have
+     *              the voltage correction applied
      */
-    void applyButlerVolmerCorrection(doublereal* const kf);
+    void applyVoltageKfwdCorrection(doublereal* const kfwd);
 
     //! When an electrode reaction rate is optionally specified in terms of its
     //! exchange current density, adjust kfwd to the standard reaction rate constant form and units.
+    //! When the BV reaction types are used, keep the  exchange current density form.
     /*!
      *  For a reaction rate constant that was given in units of Amps/m2 (exchange current
      *  density formulation with iECDFormulation == true), convert the rate to
      *  kmoles/m2/s.
+     *
+     *  For a reaction rate constant that was given in units of kmol/m2/sec when the
+     *  reaction type is a butler-volmer form, convert it to exchange current density
+     *  form (amps/m2).
+     *
+     * @param kfwd  Vector of forward reaction rate constants, given in either 
+     *              normal form or in exchange current density form.
      */
     void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
@@ -444,6 +463,13 @@ protected:
      */
     mutable std::vector<std::map<size_t, doublereal> >     m_prxn;
 
+    //! Vector of reactionType for the reactions defined within this object
+    /*!
+     *  Length = number of reactions, m_ii
+     *  contains the type of reaction. 
+     */
+    vector_int reactionType_;
+
     //! String expression for each rxn
     /*!
      * Vector of strings of length m_ii, the number of
@@ -452,7 +478,7 @@ protected:
      */
     std::vector<std::string> m_rxneqn;
 
-    //! an array of generalized concentrations for each species
+    //! Array of concentrations for each species in the kinetics mechanism
     /*!
      * An array of generalized concentrations \f$ C_k \f$ that are defined
      * such that \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
@@ -465,6 +491,20 @@ protected:
      * each ThermoPhase class.
      */
     vector_fp m_conc;
+
+    //! Array of activity concentrations for each species in the kinetics object
+    /*!
+     * An array of activity concentrations \f$ Ca_k \f$ that are defined
+     * such that \f$ a_k = Ca_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
+     * concentration. These activity concentrations are used by this
+     * kinetics manager class to compute the forward and reverse rates of
+     * elementary reactions. The "units" for the concentrations of each phase
+     * depend upon the implementation of kinetics within that phase. The order
+     * of the species within the vector is based on the order of listed
+     * ThermoPhase objects in the class, and the order of the species within
+     * each ThermoPhase class.
+     */
+    vector_fp m_actConc;
 
     //! Vector of standard state chemical potentials for all species
     /*!
@@ -507,12 +547,14 @@ protected:
      */
     vector_fp m_pot;
 
-    //! Vector temporary
+    //! Storage for the net electric energy change due to reaction.
     /*!
      * Length is number of reactions. It's used to store the
-     * voltage contribution to the activation energy.
+     * net electric potential energy change due to the reaction.
+     *
+     *  deltaElectricEnergy_[jrxn] = sum_i ( F V_i z_i nu_ij)
      */
-    vector_fp m_rwork;
+    vector_fp deltaElectricEnergy_;
 
     //! Vector of raw activation energies for the reactions
     /*!
@@ -549,7 +591,7 @@ protected:
     //! reactions in the mechanism
     /*!
      *  Vector of reaction indices which involve current transfers. This provides
-     *  an index into the m_beta, ctrxn_BVform array.
+     *  an index into the m_beta and m_ctrxn_BVform array.
      *
      *        irxn = m_ctrxn[i]
      */
@@ -573,6 +615,11 @@ protected:
     //! is described by an exchange current density rate constant expression
     /*!
      *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *
+     *   m_ctrxn_ecdf[irxn] = 0   This means that the rate coefficient calculator will calculate
+     *                            the rate constant as a chemical forward rate constant, a standard format.
+     *   m_ctrxn_ecdf[irxn] = 1   this means that the rate coefficient calculator will calculate
+     *                            the rate constant as an exchange current density rate constant expression.
      */
     vector_int m_ctrxn_ecdf;
 

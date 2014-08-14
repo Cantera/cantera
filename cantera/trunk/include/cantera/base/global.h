@@ -85,9 +85,19 @@ void popError();
  *
  * There are two different types of input files within %Cantera:
  *  - ctml: This is an xml file laid out in such a way that %Cantera can
- *          interpret the contents.
- *  - cti:  A human-readable ascii format for information that %Cantera
- *          will read.
+ *          interpret the contents. This is the essential input file within
+ *          Cantera, and contains all elements that are involved with simulation,
+ *          error propagation, data support, and versioning.
+ *          
+ *
+ *  - cti:  A Chemkin-like input file that %Cantera will read. This file
+ *          may not contain all of the information storred in the ctml file,
+ *          nor all of options and equations of state that %Cantera can read.
+ *          The file supports backwards compatibility with gas-phase mechanisms
+ *          written for Chemkin. 
+ *
+ * %Cantera takes its input from the ctml file. Given a file in cti format, 
+ * %Cantera will perform a translation from the cti file into a ctml file.
  *
  * %Cantera can take its input from both types of files. However, given a file
  * in cti format, the initial operation that %Cantera will perform is to
@@ -99,6 +109,7 @@ void popError();
  *
  * Other input routines in other modules:
  *   @see importKinetics()
+ *
  * @{
  */
 

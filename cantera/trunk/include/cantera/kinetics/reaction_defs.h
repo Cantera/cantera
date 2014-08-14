@@ -19,14 +19,18 @@ const int NONE = 0;
 
 //@{
 
-/**
- * A reaction with a rate coefficient that depends only on
+//! A reaction with a rate coefficient that depends only on temperature and voltage
+//! that also obeys mass-action kinetics.
+/*!
+ *  Here mass-action kinetics is defined as the reaction orders being equal to
+ *  the reaction's stoichiometry.
+ *
  * temperature. Example: O + OH <-> O2 + H
  */
 const int ELEMENTARY_RXN = 1;
 
 /**
- * A reaction that requires a third-body collision partner. Example:
+ * A gas-phase reaction that requires a third-body collision partner. Example:
  * O2 + M <-> O + O + M
  */
 const int THREE_BODY_RXN = 2;
