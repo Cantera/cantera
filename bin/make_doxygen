@@ -4,6 +4,7 @@
 CUR=`pwd`
 CANTERA_SRC_ROOT=${CANTERA_SRC_ROOT:="$CUR"}
 
+# /bin/rm -rf build/docs/doxygen
 cd $CANTERA_SRC_ROOT
-# doxygen doc/doxygen/Doxyfile 
+#doxygen doc/doxygen/Doxyfile 
 doxygen doc/doxygen/Doxyfile.tested

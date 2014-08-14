@@ -485,7 +485,22 @@ static void getStick(const XML_Node& node, Kinetics& kin,
     E = getFloat(node, "E", "actEnergy");
     E /= GasConstant;
 }
-
+//=====================================================================================================
+//!  Read the XML data concerning the coverage dependence of an interfacial reaction
+/*!
+ *     @param node       XML node with name reaction containing the reaction information
+ *     @param surfphase  Surface phase
+ *     @param rdata      Reaction data for the reaction. 
+ *
+ *  Example:
+ * @verbatim
+        <coverage species="CH3*">
+	   <a> 1.0E-5 </a>
+           <m> 0.0 </m>
+	   <actEnergy> 0.0 </actEnergy>
+        </coverage>
+@endverbatim
+ */
 static void getCoverageDependence(const XML_Node& node,
                                   thermo_t& surfphase, ReactionData& rdata)
 {
@@ -507,7 +522,7 @@ static void getCoverageDependence(const XML_Node& node,
         }
     }
 }
-
+//=====================================================================================================
 //! Get falloff parameters for a reaction.
 /*!
  *  This routine reads the falloff XML node and extracts parameters into a
