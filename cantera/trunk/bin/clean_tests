@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+#
+/bin/rm -rf build/test
+#
+#
+scons test-clean
+#
+#
