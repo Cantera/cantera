@@ -40,12 +40,11 @@ public:
         : CanteraError(func, "Elements cannot be added after species.") {}
 };
 
-//! Base class for phases of matter
+//! Class %Phase is the base class for phases of matter, managing the species and elements in a phase, as well as the
+//! independent variables of temperature, mass density, species mass/mole fraction,
+//! and other generalized forces and intrinsic properties (such as electric potential)
+//! that define the thermodynamic state.
 /*!
- *
- * Class Phase manages the species and elements in a phase, as well as the
- * independent variables of temperature, mass density, and species mass/mole
- * fraction that define the thermodynamic state.
  *
  * Class Phase provides information about the elements and species in a
  * phase - names, index numbers (location in arrays), atomic or molecular
@@ -88,9 +87,18 @@ public:
  * The first two methods of naming may not yield a unique species within
  * complicated assemblies of %Cantera Phases.
  *
- * @todo Make the concept of saving state vectors more general, so that it can
+ * @todo 
+ * Make the concept of saving state vectors more general, so that it can
  * handle other cases where there are additional internal state variables, such
  * as the voltage, a potential energy, or a strain field.
+ *
+ * Specify that the input mole, mass, and volume fraction vectors must sum to one on entry to the set state routines.
+ * Non-conforming mole/mass fraction vectors are not thermodynamically consistent.
+ * Moreover, ynless we do this, the calculation of jacobians will be altered whenever the treatment of non-conforming mole
+ * fractions is changed. Add setState functions corresponding to specifying mole numbers, which is actually what
+ * is being done (well one of the options, there are many) when non-conforming mole fractions are input.
+ * Note, we realize that most numerical jacobian and some analytical jacobians use non-conforming calculations. 
+ * These can easily be changed to the set mole number setState functions.
  *
  * @ingroup phases
  */
@@ -488,14 +496,21 @@ public:
     virtual void setMassFractions_NoNorm(const doublereal* const y);
 
     //! Get the species concentrations (kmol/m^3).
-    //!     @param[out] c Array of species concentrations Length must be
-    //!                   greater than or equal to the number of species.
+    /*!
+     *    @param[out] c The vector of species concentrations. Units are kmol/m^3. The length of
+     *                  the vector must be greater than or equal to the number of species within the phase.
+     */
     void getConcentrations(doublereal* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
-    //!     @param  k Index of species
+    /*!
+     *    @param[in] k	 Index of the species within the phase.
+     *
+     *    @return Returns the concentration of species k (kmol m-3).
+     */
     doublereal concentration(const size_t k) const;
+
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -700,6 +715,10 @@ public:
                           doublereal size = 1.0);
     //!@} end group adding species and elements
 
+    //!  Returns a bool indicating wether the object is ready for use
+    /*!
+     *  @return returns true if the object is ready for calculation, false otherwise.
+     */ 
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
@@ -708,6 +727,12 @@ public:
     }
 
 protected:
+   
+    //! Cached for saved calculations within each ThermoPhase.
+    /*!
+     *   For more information on how to use this, see examples within the source code and documentation
+     *   for this within ValueCache class itself.
+     */ 
     mutable ValueCache m_cache;
 
     //! Set the molecular weight of a single species to a given value
@@ -760,7 +785,12 @@ private:
     //! weight of mixture.
     mutable vector_fp m_ym;
 
-    mutable vector_fp m_y; //!< species mass fractions
+    //! Mass fractions of the species
+    /*!
+     *   Note, this vector
+     *   Length is m_kk
+     */
+    mutable vector_fp m_y;
 
     vector_fp m_molwts; //!< species molecular weights (kg kmol-1)
 
