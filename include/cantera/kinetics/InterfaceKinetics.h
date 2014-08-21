@@ -10,6 +10,7 @@
 
 #include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
+#include "cantera/kinetics/RxnMolChange.h"
 
 #include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
@@ -21,6 +22,7 @@ namespace Cantera
 // forward references
 class SurfPhase;
 class ImplicitSurfChem;
+class RxnMolChange;
 
 //!  A kinetics manager for heterogeneous reaction mechanisms. The
 //!  reactions are assumed to occur at a 2D interface between two 3D phases.
@@ -145,9 +147,17 @@ public:
         return m_prxn[k][i];
     }
 
-    virtual int reactionType(size_t i) const {
-        return m_index[i].first;
-    }
+    //!  return the reaction type of the reaction i
+    /*!
+     *    @param[in]   Reaction index
+     *
+     *    @return      Returns the reaction type of the reaction. 
+     */
+    virtual int reactionType(size_t i) const; 
+   //virtual int reactionType(size_t i) const {
+    //    return m_index[i].first;
+    //}
+
 
     virtual void getActivityConcentrations(doublereal* const conc);
 
@@ -484,7 +494,13 @@ protected:
      */
     vector_int reactionType_;
 
-    //! String expression for each rxn
+    //! Vector of additional information about each reaction
+    /*!
+     *  This vector contains information about the phase mole change for each reaction,
+     *  for example.
+     */
+    std::vector<RxnMolChange*> rmcVector;
+
     /*!
      * Vector of strings of length m_ii, the number of
      * reactions, containing the string expressions for each reaction

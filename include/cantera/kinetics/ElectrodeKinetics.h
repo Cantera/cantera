@@ -51,9 +51,22 @@ public:
     //! Assignment operator
     ElectrodeKinetics& operator=(const ElectrodeKinetics& right);
 
+    //! Duplication function
+    /*!
+     *  @param tpVector Vector of %ThermoPhase pointers. These are shallow pointers to the
+     *                  %ThermoPhase objects that will comprise the phases for the new object.
+     * 
+     *   @return        Returns the duplicated object as the base class %Kinetics object.
+     */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     virtual int type() const;
+
+    //!  Identify the metal phase and the electrons species
+    /*!
+     *   We fill in the internal variables, metalPhaseRS_ and kElectronRS_ here
+     */
+    void identifyMetalPhase();
 
 
 
