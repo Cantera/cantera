@@ -66,8 +66,9 @@ public:
 
     ReactionStoichMgr& operator=(const ReactionStoichMgr& right);
 
-    /**
-     * Add a reaction with mass-action kinetics. Vectors
+    
+    //! Add a reaction with mass-action kinetics. 
+    /*!Vectors
      * 'reactants' and 'products' contain the integer species
      * indices of the reactants and products, respectively.  Note
      * that if more than one molecule of a given species is
@@ -86,11 +87,11 @@ public:
      *   - reactants: (2, 2)   [ note repeated index ]
      *   - products:  (1)
      *
-     * @param rxn Reaction number. This number will be used as the index
-     * into the rate of progress vector in the methods below.
-     * @param reactants vector of integer reactant indices
-     * @param products vector of integer product indices
-     * @param reversible true if the reaction is reversible, false otherwise
+     * @param rxn           Reaction number. This number will be used as the index
+     *                      into the rate of progress vector in the methods below.
+     * @param reactants     Vector of integer reactant indices
+     * @param products      Vector of integer product indices
+     * @param reversible    True if the reaction is reversible, false otherwise
      */
     virtual void add(size_t rxn, const std::vector<size_t>& reactants,
                      const std::vector<size_t>& products, bool reversible);

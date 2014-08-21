@@ -82,7 +82,7 @@ public:
         }
     }
 };
-
+//=======================================================================================================
 void checkRxnElementBalance(Kinetics& kin,
                             const ReactionData& rdata, doublereal errorTolerance)
 {

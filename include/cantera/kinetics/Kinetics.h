@@ -465,6 +465,7 @@ public:
 
     //! Return the vector of values for the reaction gibbs free energy change.
     /*!
+     * (virtual from Kinetics.h)
      * These values depend upon the concentration of the solution.
      *
      *  units = J kmol-1

@@ -31,6 +31,7 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_ctrxn_ecdf(0),
     m_StandardConc(0),
     m_deltaG0(0),
+    m_deltaG(0),
     m_ProdStanConcReac(0),
     m_logp0(0.0),
     m_logc0(0.0),
@@ -71,6 +72,7 @@ InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
     m_ctrxn_ecdf(0),
     m_StandardConc(0),
     m_deltaG0(0),
+    m_deltaG(0),
     m_ProdStanConcReac(0),
     m_logp0(0.0),
     m_logc0(0.0),
@@ -121,6 +123,7 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_conc                 = right.m_conc;
     m_actConc              = right.m_actConc;
     m_mu0                  = right.m_mu0;
+    m_mu                   = right.m_mu;
     m_mu0_Kc               = right.m_mu0_Kc;
     m_phi                  = right.m_phi;
     m_pot                  = right.m_pot;
@@ -134,6 +137,7 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_ctrxn_ecdf           = right.m_ctrxn_ecdf;
     m_StandardConc         = right.m_StandardConc;
     m_deltaG0              = right.m_deltaG0;
+    m_deltaG               = right.m_deltaG;
     m_ProdStanConcReac     = right.m_ProdStanConcReac;
     m_logp0                = right.m_logp0;
     m_logc0                = right.m_logc0;
@@ -347,13 +351,13 @@ void InterfaceKinetics::getRevRatesOfProgress(doublereal* revROP)
     updateROP();
     std::copy(m_ropr.begin(), m_ropr.end(), revROP);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getNetRatesOfProgress(doublereal* netROP)
 {
     updateROP();
     std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 {
     updateMu0();
@@ -367,8 +371,9 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
         kc[i] = exp(-kc[i]*rrt);
     }
 }
-
-/** values needed to convert from exchange current density to surface reaction rate.
+//===========================================================================================================
+/*
+ *  values needed to convert from exchange current density to surface reaction rate.
  */
 void InterfaceKinetics::updateExchangeCurrentQuantities()
 {
@@ -391,26 +396,28 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
 
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), DATA_PTR(m_deltaG0));
 
+    //
+    //  Calculate the product of the standard concentrations of the reactants
+    //
     for (size_t i = 0; i < m_ii; i++) {
         m_ProdStanConcReac[i] = 1.0;
     }
-
     m_rxnstoich.multiplyReactants(DATA_PTR(m_StandardConc), DATA_PTR(m_ProdStanConcReac));
 
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getCreationRates(doublereal* cdot)
 {
     updateROP();
     m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
     m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
@@ -566,34 +573,87 @@ void InterfaceKinetics::updateROP()
     _update_rates_T();
     // get updated activities (rates updated below)
     _update_rates_C();
+    
+    double TT = m_surf->temperature();
+    double rtdf = GasConstant * TT / Faraday;
 
     if (m_ROP_ok) {
         return;
     }
-
-    // copy rate coefficients into ropf
+    //
+    // Copy the reaction rate coefficients, m_rfn, into m_ropf
+    //
     copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
-
-    // multiply by perturbation factor
+    //
+    // Multiply by the perturbation factor
+    //
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
-
-    // copy the forward rates to the reverse rates
+    //
+    // Copy the forward rate constants to the reverse rate constants
+    //
     copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
-    // for reverse rates computed from thermochemistry, multiply
+
+
+    //
+    // For reverse rates computed from thermochemistry, multiply
     // the forward rates copied into m_ropr by the reciprocals of
     // the equilibrium constants
+    //
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
     //
     // multiply ropf by the actyivity concentration reaction orders to obtain
     // the forward rates of progress. 
     //
     m_rxnstoich.multiplyReactants(DATA_PTR(m_actConc), DATA_PTR(m_ropf));
+    //
+    // For reversible reactions, multiply ropr by the activity concentration products
+    //
+    m_rxnstoich.multiplyRevProducts(DATA_PTR(m_actConc), DATA_PTR(m_ropr));
+    //
+    //  Fix up these calculations for cases where the above formalism doesn't hold
+    //
+    double OCV = 0.0;
+    for (size_t jrxn = 0; jrxn != m_ii; ++jrxn) {
+	int reactionType = reactionTypes_[jrxn];
+	if (reactionType == BUTLERVOLMER_RXN) {
+	    //
+	    // OK, the reaction rate constant contains the current density rate constant calculation
+	    // the rxnstoich calculation contained the dependence of the current density on the activity concentrations
+	    // We finish up with the ROP calculation
+	    //
+	    // Calculate the overpotential of the reaction
+	    //   
+	    //    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
+	    double nStoichElectrons=1;
+	    //*nStoich = nStoichElectrons;
+   
 
-    // for reversible reactions, multiply ropr by the activity concentration
-    // products
-    m_rxnstoich.multiplyRevProducts(DATA_PTR(m_actConc),
-                                    DATA_PTR(m_ropr));
+   
+	    getDeltaGibbs(0);
+
+	    if (nStoichElectrons != 0.0) {
+		OCV = m_deltaG[jrxn]/Faraday/ nStoichElectrons;
+	    }
+
+	    /*
+
+	    double exp1 = nu * nStoich * beta / rtdf
+	    double exp2 = -nu * nStoich * Faraday * (1.0 - beta) / (GasConstant * temp);
+	    double val = io * (exp(exp1) - exp(exp2));
+
+	    doublereal BVterm = exp(exp1  ) - exp(exp2);
+	    m_ropnet[j] = m_ropf[j] * BVterm
+	    m_ropf[j] = 
+		//
+	    m_ropr[j] =  m_ropnet[j] - m_ropf[j];
+	    */
+        }
+
+
+    }
+
+
 
     for (size_t j = 0; j != m_ii; ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
@@ -670,13 +730,18 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
      * kinetics mechanism
      */
     for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getChemPotentials(DATA_PTR(m_grt) + m_start[n]);
+        m_thermo[n]->getChemPotentials(DATA_PTR(m_mu) + m_start[n]);
     }
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaG);
+    //
+    // Use the stoichiometric manager to find deltaG for each
+    // reaction.
+    //
+    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu), DATA_PTR(m_deltaG));
+    if (deltaG != 0 && (DATA_PTR(m_deltaG) != deltaG)) {
+	for (size_t j = 0; j < m_ii; ++j) {
+	    deltaG[j] = m_deltaG[j];
+	}
+    }
 }
 //==================================================================================================================
 void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
@@ -709,7 +774,7 @@ void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
 {
     /*
@@ -725,7 +790,7 @@ void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
 {
     /*
@@ -743,7 +808,7 @@ void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), deltaGSS);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
 {
     /*
@@ -755,7 +820,7 @@ void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getEnthalpy_RT(DATA_PTR(m_grt) + m_start[n]);
     }
-    doublereal RT = thermo().temperature() * GasConstant;
+    doublereal RT = thermo(0).temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
         m_grt[k] *= RT;
     }
@@ -765,7 +830,7 @@ void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
      */
     m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
 }
-
+//===========================================================================================================
 void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
 {
     /*
@@ -859,6 +924,12 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
         rp.push_back(rdata.cov[m]);
     }
 
+    //
+    // Find out the reaction type
+    //
+    int reactionType = rdata.reactionType;
+    reactionTypes_.push_back(reactionType);
+
     /*
      * Temporarily change the reaction rate coefficient type to surface arrhenius.
      * This is what is expected. We'll handle exchange current types below by hand.
@@ -919,7 +990,8 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
     //
     // Find out the reaction type
     //
-    int reactionType = rdata.reactionType;    
+    int reactionType = rdata.reactionType;
+    reactionTypes_.push_back(reactionType);
 
     /*
      * Temporarily change the reaction rate coefficient type to surface arrhenius.
@@ -945,10 +1017,15 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
     // store activation energy
     m_E.push_back(rdata.rateCoeffParameters[2]);
 
+    //
+    //  Add the reaction into the list of electrochemical extras
+    //
     if (rdata.beta > 0.0) {
         m_has_electrochem_rxns = true;
         m_beta.push_back(rdata.beta);
+	// Push back the id of the reaction
         m_ctrxn.push_back(m_ii);
+	// set the default to be the normal forward / reverse calculation method
 	m_ctrxn_BVform.push_back(0);
         if (rdata.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
             m_has_exchange_current_density_formulation = true;
@@ -1083,6 +1160,7 @@ void InterfaceKinetics::init()
     m_actConc.resize(m_kk);
     m_conc.resize(m_kk);
     m_mu0.resize(m_kk);
+    m_mu.resize(m_kk);
     m_mu0_Kc.resize(m_kk);
     m_grt.resize(m_kk);
     m_pot.resize(m_kk, 0.0);
@@ -1105,6 +1183,8 @@ void InterfaceKinetics::finalize()
 
     m_StandardConc.resize(m_kk, 0.0);
     m_deltaG0.resize(safe_reaction_size, 0.0);
+    m_deltaG.resize(safe_reaction_size, 0.0);
+
     m_ProdStanConcReac.resize(safe_reaction_size, 0.0);
 
     if (m_thermo.size() != m_phaseExists.size()) {
@@ -1219,6 +1299,20 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
     }
 }
 //==================================================================================================================
+// Write values into m_index
+/*
+ * @param rxnNumber reaction number
+ * @param type      reaction type
+ * @param loc       location location in the reaction rate coefficient calculator
+ */
+void InterfaceKinetics::registerReaction(size_t rxnNumber, int type, size_t loc) 
+{
+    //
+    //  type and loc is storred as a pair of values.
+    //
+    m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
+}
+//==================================================================================================================
 void EdgeKinetics::finalize()
 {
     deltaElectricEnergy_.resize(std::max<size_t>(m_ii, 1));
@@ -1243,5 +1337,6 @@ void EdgeKinetics::finalize()
 
     m_finalized = true;
 }
+
 //==================================================================================================================
 }

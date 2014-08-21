@@ -8,6 +8,7 @@
 #define CT_STOICH_MGR_H
 
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -452,7 +453,8 @@ public:
         m_rxn(right.m_rxn),
         m_ic(right.m_ic),
         m_order(right.m_order),
-        m_stoich(right.m_stoich) {
+        m_stoich(right.m_stoich) 
+    {
     }
 
     C_AnyN& operator=(const C_AnyN& right) {
@@ -560,27 +562,44 @@ public:
     }
 
 private:
+
     //! Length of the m_ic vector
     /*!
-     *   This is the number of species which have non-zero entries in either the
-     *   reaction order matrix or the stoichiometric order matrix for this reaction.
+     *   This is the number of species which participate in the reaction order
+     *   and stoichiometric coefficient vectors for the reactant or product description
+     *   of the reaction.
      */
     size_t m_n;
 
     //!  ID of the reaction corresponding to this stoichiometric manager
     /*!
-     *  This is used within the interface to select the
+     *  This is used within the interface to select the array position to read and write to
+     *  Normally this is associated with the reaction number in an array of quantities indexed
+     *  by the reaction number, e.g., ROP[irxn].
      */
     size_t m_rxn;
 
     //! Vector of species which are involved with this stoichiometric manager calculations
     /*!
-     *  This is an integer list of species which have non-zero entries in either the
+     *  This is an integer list of species which participate in either the
      *  reaction order matrix or the stoichiometric order matrix for this reaction, m_rxn.
-     *  It's used as the index into the arrays m_order[] and m_stoich[].
      */
     std::vector<size_t> m_ic;
+
+    //! Reaction orders for the reaction
+    /*!
+     * This is either for the reactants or products.
+     *  Length = m_n
+     *  Species number, m_ic[n], has a reaction order of m_order[n].
+     */
     vector_fp m_order;
+
+    //! Stoichiometric coefficients for the reaction, reactant or product side.
+    /*!
+     *  This is either for the reactants or products.
+     *  Length = m_n
+     *  Species number m_ic[m], has a stoichiometric coefficient of m_stoich[n].
+     */
     vector_fp m_stoich;
 };
 
@@ -689,7 +708,7 @@ inline static void _writeMultiply(InputIter begin, InputIter end,
  * be the number of molecules on the product or reactant side of
  * reaction number i.
  * \f[
- * r_i = \sum_m^{M_i} s_{k_{m,i}}
+ *     r_i = \sum_m^{M_i} s_{k_{m,i}}
  * \f]
  * To understand the operations performed by this class, let
  * \f$ N_{k,i}\f$ denote the stoichiometric coefficient of species k on
@@ -702,7 +721,7 @@ inline static void _writeMultiply(InputIter begin, InputIter end,
  * - \f$ S = S + N R\f$   (incrementSpecies)
  * - \f$ S = S - N R\f$   (decrementSpecies)
  * - \f$ R = R + N^T S \f$ (incrementReaction)
- * - \f$ R = R - N^T S \f$ (deccrementReaction)
+ * - \f$ R = R - N^T S \f$ (decrementReaction)
  *
  * The actual implementation, however, does not compute these
  * quantities by matrix multiplication. A faster algorithm is used
@@ -794,6 +813,12 @@ public:
     void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
              const vector_fp& stoich) {
         m_n[rxn] = k.size();
+        if (order.size() != k.size()) {
+           throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");    
+        }
+        if (stoich.size() != k.size()) {
+           throw CanteraError("StoichManagerN::add()", "size of stoich and species arrays differ");    
+        }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
             if (stoich[n] != 1.0 || order[n] != 1.0) {
@@ -900,11 +925,16 @@ private:
     std::vector<C2>     m_c2_list;
     std::vector<C3>     m_c3_list;
     std::vector<C_AnyN> m_cn_list;
-    /**
-     * Map with the Reaction Number as key and the Number of species
-     * as the value.
+    
+    //! Map with the Reaction Number as key and the Number of species
+    //! as the value.
+    /*!
+     *          An example of this is given below:
+     *
+     *          m_n[irxn] = nSpecies
      */
     std::map<size_t, size_t>  m_n;
+
     /**
      * Map with the Reaction Number as key and the placement in the
      * vector of reactions list( i.e., m_c1_list[]) as key

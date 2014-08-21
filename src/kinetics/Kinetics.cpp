@@ -1,7 +1,6 @@
 /**
  *  @file Kinetics.cpp Declarations for the base class for kinetics managers
- *      (see \ref  kineticsmgr and class \link Cantera::Kinetics
- *      Kinetics\endlink).
+ *      (see \ref  kineticsmgr and class \link Cantera::Kinetics  Kinetics \endlink).
  *
  *  Kinetics managers calculate rates of progress of species due to
  *  homogeneous or heterogeneous kinetics.
