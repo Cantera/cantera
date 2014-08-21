@@ -494,6 +494,7 @@ protected:
      */
     vector_int reactionType_;
 
+public:
     //! Vector of additional information about each reaction
     /*!
      *  This vector contains information about the phase mole change for each reaction,
@@ -501,6 +502,7 @@ protected:
      */
     std::vector<RxnMolChange*> rmcVector;
 
+protected:
     /*!
      * Vector of strings of length m_ii, the number of
      * reactions, containing the string expressions for each reaction
