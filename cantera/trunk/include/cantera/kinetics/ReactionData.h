@@ -13,6 +13,9 @@ namespace Cantera
 
 //! Intermediate class which stores data about a reaction and its rate
 //! parameterization before adding the reaction to a Kinetics object.
+/*!
+ *  All data in this class is public.
+ */
 class ReactionData
 {
 public:

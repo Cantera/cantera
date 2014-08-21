@@ -105,6 +105,16 @@ public:
      */
     void updateExchangeCurrentQuantities();
 
+    //! Return the vector of values for the reaction gibbs free energy change.
+    /*!
+     * (virtual from Kinetics.h)
+     * These values depend upon the concentration of the solution.
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaG  Output vector of  deltaG's for reactions Length: m_ii.
+     *                If 0, this updates the internally stored values only.
+     */
     virtual void getDeltaGibbs(doublereal* deltaG);
 
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
@@ -306,11 +316,13 @@ public:
     /*!
      * @param rxnNumber reaction number
      * @param type      reaction type
-     * @param loc       location ??
+     * @param loc       location location in the reaction rate coefficient calculator
+     *
+     *  Right now we only use one reaction rate coefficient calculated named ELEMENTARY_RXN
+     *  Therefore, this is not used within the code)
+     *    (type, loc) is stored as a std::pair
      */
-    void registerReaction(size_t rxnNumber, int type, size_t loc) {
-        m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
-    }
+    void registerReaction(size_t rxnNumber, int type, size_t loc);
 
     //! Apply modifications for the fowward reaction rate for interfacial charge transfer reactions
     /*!
@@ -395,6 +407,8 @@ public:
 protected:
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
+
+
 
     //! List of reactions numbers which are reversible reactions
     /*!
@@ -514,6 +528,14 @@ protected:
      * Length = m_kk. Units = J/kmol.
      */
     vector_fp m_mu0;
+
+    //! Vector of chemical potentials for all species
+    /*!
+     * This vector contains a vector of chemical potentials for all of the species in the kinetics object
+     *
+     * Length = m_kk. Units = J/kmol.
+     */
+    vector_fp m_mu;
 
     //! Vector of standard state electrochemical potentials modified by
     //! a standard concentration term.
@@ -636,6 +658,19 @@ protected:
      *    units are Joule kmol-1
      */
     vector_fp m_deltaG0;
+
+    //! Vector of deltaG[] of reaction, the delta gibbs free energies for each reaction
+    /*!
+     *    Length is the number of reactions
+     *    units are Joule kmol-1
+     */
+    vector_fp m_deltaG;
+
+    //! Vector of the products of the standard concentrations of the reactants
+    /*!
+     *   Units vary wrt what the units of the standard concentrations are
+     *   Length = number of reactions.
+     */
     vector_fp m_ProdStanConcReac;
 
     doublereal m_logp0;
