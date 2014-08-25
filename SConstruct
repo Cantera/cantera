@@ -948,7 +948,12 @@ if env['python_package'] in ('full','default'):
     # Check for 3to2. See http://pypi.python.org/pypi/3to2
     if env['python_package'] == 'full':
         try:
-            ret = getCommandOutput('3to2','-l')
+            if env['OS'] == 'Windows':
+                python_dir = os.path.dirname(which(env['python_cmd']))
+                threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
+                ret = getCommandOutput(env['python_cmd'], threetotwo_cmd, '-l')
+            else:
+                ret = getCommandOutput('3to2', '-l')
         except OSError:
             ret = ''
         if 'print' in ret:
