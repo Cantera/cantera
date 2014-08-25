@@ -13,13 +13,20 @@ Basic usage:
 
     '[sudo] scons uninstall' - Uninstall Cantera.
 
-    'scons test' - Run full test suite.
+    'scons test' - Run all tests which did not previously pass or for which the
+                   results may have changed.
+
+    'scons test-reset' - Reset the passing status of all tests.
 
     'scons test-clean' - Delete files created while running the tests.
 
     'scons test-help' - List available tests.
 
     'scons test-NAME' - Run the test named "NAME".
+
+    'scons <command> dump' - Dump the state of the SCons environment to the
+                             screen instead of doing <action>, e.g.
+                             'scons build dump'. For debugging purposes.
 
     'scons samples' - Compile the C++ and Fortran samples.
 
