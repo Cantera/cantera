@@ -5,7 +5,7 @@
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
-#ifdef HAVE_FENVH
+#ifdef HAVE_FENV_H
 #include <fenv.h>
 #endif
 #include <sstream>
