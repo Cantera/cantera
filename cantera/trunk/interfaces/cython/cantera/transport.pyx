@@ -22,6 +22,7 @@ cdef class Transport(_SolutionBase):
 
     Not all transport properties are implemented in all transport models.
     """
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         if self.transport == NULL:
             self.transport = newDefaultTransportMgr(self.thermo)
@@ -109,6 +110,7 @@ cdef class DustyGasTransport(Transport):
     is handled. The viscosity, thermal conductivity, and thermal diffusion
     coefficients are not implemented.
     """
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         self.transport = newTransportMgr(stringify("DustyGas"), self.thermo)
         super().__init__(*args, **kwargs)

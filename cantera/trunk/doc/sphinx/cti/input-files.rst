@@ -371,7 +371,7 @@ machines, and provide a preprocessor to convert the human-friendly format to the
 machine-friendly one.
 
 Preprocessor Internals: the ``ctml_writer`` Module
--------------------------------------------------
+--------------------------------------------------
 
 If you are interested in seeing the internals of how the preprocessing works,
 take a look at file ``ctml_writer.py`` in the Cantera Python package. Or simply

@@ -74,7 +74,7 @@ cdef class Mixture:
             return self.mix.nElements()
 
     cpdef int element_index(self, element) except *:
-        """Index of element with name 'element'::
+        """Index of element with name 'element'.
 
             >>> mix.element_index('H')
             2
