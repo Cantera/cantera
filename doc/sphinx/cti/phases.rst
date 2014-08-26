@@ -257,9 +257,9 @@ The options field is used to indicate how certain conditions should be handled
 when importing the phase definition.  The options field may be assigned a string
 or a sequence of strings from the table below.
 
-==================================  ================
+==================================  ========================================================
 Option String                       Meaning
-==================================  ================
+==================================  ========================================================
 ``'skip_undeclared_elements'``      When importing species, skip any containing undeclared
                                     elements, rather than flagging them as an error.
 ``'skip_undeclared_species'``       When importing reactions, skip any containing undeclared
@@ -270,7 +270,7 @@ Option String                       Meaning
 ``'allow_discontinuous_thermo'``    Disable the automatic adjustment of NASA polynomials to
                                     eliminate discontinuities in enthalpy and entropy at the
                                     midpoint temperature.
-==================================  ================
+==================================  ========================================================
 
 Using the ``options`` field, it is possible to extract a sub-mechanism from a large
 reaction mechanism, as follows::

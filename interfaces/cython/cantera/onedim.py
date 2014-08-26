@@ -187,7 +187,7 @@ def _array_property(attr, size=None):
     else:
         extradoc = "\nReturns an array of size `%s` x `n_points`." % size
 
-    doc = _trim(getattr(Solution, attr).__doc__) + extradoc
+    doc = _trim(getattr(Solution, attr).__doc__) +'\n' + extradoc
     return property(getter, doc=doc)
 
 # Add scalar properties to FlameBase

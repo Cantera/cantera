@@ -5,6 +5,7 @@ cdef class Domain1D:
     def __cinit__(self, *args, **kwargs):
         self.domain = NULL
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, name=None, **kwargs):
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
@@ -170,6 +171,7 @@ cdef class Boundary1D(Domain1D):
     def __cinit__(self, *args, **kwargs):
         self.boundary = NULL
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, _SolutionBase phase, **kwargs):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
@@ -440,6 +442,7 @@ cdef class Sim1D:
     def __cinit__(self, *args, **kwargs):
         self.sim = NULL
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, domains, *args, **kwargs):
         cdef vector[CxxDomain1D*] D
         cdef Domain1D d
@@ -744,6 +747,7 @@ cdef class Sim1D:
              loglevel=1):
         """
         Save the solution in XML format.
+
         :param filename:
             solution file
         :param name:

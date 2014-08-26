@@ -22,6 +22,7 @@ cdef class ThermoPhase(_SolutionBase):
     Class `ThermoPhase` is not usually instantiated directly. It is used
     as a base class for classes `Solution` and `Interface`.
     """
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
@@ -270,7 +271,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property Y:
         """
-        Get/Set the species mass fractions. Can be set as an array, as a dict,
+        Get/Set the species mass fractions. Can be set as an array, as a dictionary,
         or as a string. Always returns an array::
 
             >>> phase.Y = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
@@ -291,7 +292,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property X:
         """
-        Get/Set the species mole fractions. Can be set as an array, as a dict,
+        Get/Set the species mole fractions. Can be set as an array, as a dictionary,
         or as a string. Always returns an array::
 
             >>> phase.X = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]

@@ -11,6 +11,7 @@ cdef class ReactorBase:
     def __cinit__(self, *args, **kwargs):
         self.rbase = newReactor(stringify(self.reactor_type))
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, ThermoPhase contents=None, name=None, **kwargs):
         self._inlets = []
         self._outlets = []
@@ -142,6 +143,7 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, contents=None, *, name=None, energy='on', **kwargs):
         """
         :param contents:
@@ -364,6 +366,7 @@ cdef class Wall:
     temperature of the reactor it faces.
     """
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None, kinetics=(None,None)):
         """
@@ -543,6 +546,7 @@ cdef class FlowDevice:
         # Children of this abstract class are responsible for allocating dev
         self.dev = NULL
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None):
         assert self.dev != NULL
         self._rate_func = None
@@ -602,6 +606,7 @@ cdef class MassFlowController(FlowDevice):
     def __cinit__(self, *args, **kwargs):
         self.dev = new CxxMassFlowController()
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, mdot=None):
         super().__init__(upstream, downstream, name=name)
         if mdot is not None:
@@ -650,6 +655,7 @@ cdef class Valve(FlowDevice):
     def __cinit__(self, *args, **kwargs):
         self.dev = new CxxValve()
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, K=None):
         super().__init__(upstream, downstream, name=name)
         if K is not None:
@@ -696,6 +702,7 @@ cdef class PressureController(FlowDevice):
     def __cinit__(self, *args, **kwargs):
         self.dev = new CxxPressureController()
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, master=None, K=None):
         super().__init__(upstream, downstream, name=name)
         if master is not None:
