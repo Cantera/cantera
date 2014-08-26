@@ -61,7 +61,12 @@ InterfaceKinetics::~InterfaceKinetics()
     for (size_t i = 0; i < rmcVector.size(); i++) {
         delete rmcVector[i];
     }
-
+    for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
+        delete m_ctrxn_ROPOrdersList_[i];
+    }
+    for (size_t i = 0; i <  m_ctrxn_FwdOrdersList_.size(); i++) {
+        delete m_ctrxn_FwdOrdersList_[i];
+    }
 }
 //============================================================================================================================
 InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
@@ -173,6 +178,24 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
         if (right.rmcVector[i]) {
             rmcVector[i] = new RxnMolChange(*(right.rmcVector[i]));
         }
+    }
+
+    for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
+        delete m_ctrxn_ROPOrdersList_[i];
+    }
+    m_ctrxn_ROPOrdersList_  = right.m_ctrxn_ROPOrdersList_;
+    for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
+	RxnOrders* ro = right.m_ctrxn_ROPOrdersList_[i];
+	m_ctrxn_ROPOrdersList_[i] = new RxnOrders(*ro);
+    }
+
+    for (size_t i = 0; i <  m_ctrxn_FwdOrdersList_.size(); i++) {
+        delete m_ctrxn_FwdOrdersList_[i];
+    }
+    m_ctrxn_FwdOrdersList_  = right.m_ctrxn_FwdOrdersList_;
+    for (size_t i = 0; i <  m_ctrxn_FwdOrdersList_.size(); i++) {
+	RxnOrders* ro = right.m_ctrxn_FwdOrdersList_[i];
+	m_ctrxn_FwdOrdersList_[i] = new RxnOrders(*ro);
     }
 
 
@@ -390,6 +413,11 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 //===========================================================================================================
 /*
  *  values needed to convert from exchange current density to surface reaction rate.
+ *   Calculate:
+ *     - m_StandardConc[]
+ *     - m_ProdStandConcReac[]
+ *     - m_deltaG0[]
+ *     - m_mu0[]
  */
 void InterfaceKinetics::updateExchangeCurrentQuantities()
 {
@@ -419,7 +447,6 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
         m_ProdStanConcReac[i] = 1.0;
     }
     m_rxnstoich.multiplyReactants(DATA_PTR(m_StandardConc), DATA_PTR(m_ProdStanConcReac));
-
 }
 //===========================================================================================================
 void InterfaceKinetics::getCreationRates(doublereal* cdot)
@@ -476,25 +503,31 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
 #endif
     for (size_t i = 0; i < m_beta.size(); i++) {
         size_t irxn = m_ctrxn[i];
-        eamod = m_beta[i] * deltaElectricEnergy_[irxn];
-        if (eamod != 0.0) {
+	//
+	//   If we calculate the BV form directly, we don't add the voltage correction to the 
+	//   forward reaction rate constants. 
+	//
+	if (m_ctrxn_BVform[i] == 0) {
+	    eamod = m_beta[i] * deltaElectricEnergy_[irxn];
+	    if (eamod != 0.0) {
 #ifdef DEBUG_KIN_MODE
-            ea = GasConstant * m_E[irxn];
-            if (eamod + ea < 0.0) {
-                writelog("Warning: act energy mod too large!\n");
-                writelog("  Delta phi = "+fp2str(deltaElectricEnergy_[irxn]/Faraday)+"\n");
-                writelog("  Delta Ea = "+fp2str(eamod)+"\n");
-                writelog("  Ea = "+fp2str(ea)+"\n");
-                for (n = 0; n < np; n++) {
-                    writelog("Phase "+int2str(n)+": phi = "
-                             +fp2str(m_phi[n])+"\n");
-                }
-            }
+		ea = GasConstant * m_E[irxn];
+		if (eamod + ea < 0.0) {
+		    writelog("Warning: act energy mod too large!\n");
+		    writelog("  Delta phi = "+fp2str(deltaElectricEnergy_[irxn]/Faraday)+"\n");
+		    writelog("  Delta Ea = "+fp2str(eamod)+"\n");
+		    writelog("  Ea = "+fp2str(ea)+"\n");
+		    for (n = 0; n < np; n++) {
+			writelog("Phase "+int2str(n)+": phi = "
+				 +fp2str(m_phi[n])+"\n");
+		    }
+		}
 #endif
-            doublereal rt = GasConstant*thermo(0).temperature();
-            doublereal rrt = 1.0/rt;
-            kf[irxn] *= exp(-eamod*rrt);
-        }
+		doublereal rt = GasConstant*thermo(0).temperature();
+		doublereal rrt = 1.0/rt;
+		kf[irxn] *= exp(-eamod*rrt);
+	    }
+	}
     }
 }
 //==================================================================================================================
@@ -525,8 +558,10 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
 	int iECDFormulation =  m_ctrxn_ecdf[i];
 	if (iECDFormulation) {
 	    //
-	    // If the BV form is to be converted into the normal form then we go through this process
-	    // If it isn't to be converted, then we don't go through this process
+	    // If the BV form is to be converted into the normal form then we go through this process.
+	    // If it isn't to be converted, then we don't go through this process.
+	    //
+	    //   We need to have the straight chemical reaction rate constant to come out of this calculation.
 	    //
 	    if (m_ctrxn_BVform[i] == 0) {
 		//
@@ -537,7 +572,12 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
 		tmp *= 1.0  / tmp2 / Faraday;
 		kfwd[irxn] *= tmp;
 	    }
+	    //
+	    //  If BVform is nonzero we don't need to do anything.
+	    //
 	} else {
+	    //
+	    // kfwd[] is the chemical reaction rate constant
 	    //
 	    // If we are to calculate the BV form directly, then we will do the reverse.
 	    // We will calculate the exchange current density formulation here and
@@ -546,7 +586,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
 	    if (m_ctrxn_BVform[i] != 0) {
 		//
 		//  Calculate the term and modify the forward reaction rate constant so that
-		//  it's in  exchange current density formulation format
+		//  it's in the exchange current density formulation format
 		//
 		double tmp = exp(m_beta[i] * m_deltaG0[irxn] * rrt);
 		double tmp2 = m_ProdStanConcReac[irxn];
@@ -930,16 +970,20 @@ void InterfaceKinetics::addReaction(ReactionData& r)
 
 void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
 {
-    // install rate coeff calculator
+    //
+    // install rate coefficient calculator
+    //
     vector_fp& rp = rdata.rateCoeffParameters;
     size_t ncov = rdata.cov.size();
+    //
+    // Turn on the global flag indicating surface coverage dependence
+    //
     if (ncov > 3) {
         m_has_coverage_dependence = true;
     }
     for (size_t m = 0; m < ncov; m++) {
         rp.push_back(rdata.cov[m]);
     }
-
     //
     // Find out the reaction type
     //
@@ -981,6 +1025,8 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
         } else {
             m_ctrxn_ecdf.push_back(0);
         }
+	m_ctrxn_ROPOrdersList_.push_back(0);
+	m_ctrxn_FwdOrdersList_.push_back(0);
     }
 
     // add constant term to rate coeff value vector
@@ -1029,14 +1075,15 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
      * Change the reaction rate coefficient type back to its original value
      */
     rdata.rateCoeffType = reactionRateCoeffType_orig;
-
-    // store activation energy
+    //
+    //    Store activation energy
+    //
     m_E.push_back(rdata.rateCoeffParameters[2]);
 
     //
     //  Add the reaction into the list of electrochemical extras
     //
-    if (rdata.beta > 0.0) {
+    if (rdata.beta > 0.0 || 1) {
         m_has_electrochem_rxns = true;
         m_beta.push_back(rdata.beta);
 	// Push back the id of the reaction
@@ -1049,6 +1096,27 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
         } else {
             m_ctrxn_ecdf.push_back(0);
         }
+	
+	if (rdata.forwardFullOrder_.size() > 0) {
+	    RxnOrders* ro = new RxnOrders();
+	    ro->fill(rdata.forwardFullOrder_);
+	    m_ctrxn_ROPOrdersList_.push_back(ro);
+	    m_ctrxn_FwdOrdersList_.push_back(0);
+	    //
+	    //
+	    // Fill in the Fwd Orders dependence here for B-V reactions
+	    //
+	    if (rdata.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN || rdata.reactionType == BUTLERVOLMER_RXN) {
+		std::vector<double> fwdFullorders(m_kk, 0.0);
+		determineFwdOrdersBV(rdata, fwdFullorders);
+		RxnOrders* ro = new RxnOrders();
+		ro->fill(rdata.forwardFullOrder_);
+		m_ctrxn_FwdOrdersList_[m_ii] = ro;
+	    }
+	} else {
+	    m_ctrxn_ROPOrdersList_.push_back(0);
+	    m_ctrxn_FwdOrdersList_.push_back(0);
+	}
     }
 
     // add constant term to rate coeff value vector
@@ -1303,9 +1371,19 @@ int InterfaceKinetics::phaseStability(const size_t iphase) const
     return m_phaseIsStable[iphase];
 }
 //==================================================================================================================
-int InterfaceKinetics::reactionType(size_t i) const 
+doublereal InterfaceKinetics::reactantStoichCoeff(size_t kSpecKin, size_t irxn) const
 {
-      return reactionType_[i];
+    return m_rrxn[kSpecKin][irxn];
+} 
+//==================================================================================================================
+doublereal InterfaceKinetics::productStoichCoeff(size_t kSpecKin, size_t irxn) const 
+{
+    return m_prxn[kSpecKin][irxn];
+}
+//==================================================================================================================
+int InterfaceKinetics::reactionType(size_t irxn) const 
+{
+      return reactionType_[irxn];
 }
 //==================================================================================================================
 void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStable)
@@ -1332,6 +1410,41 @@ void InterfaceKinetics::registerReaction(size_t rxnNumber, int type, size_t loc)
     //  type and loc is storred as a pair of values.
     //
     m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
+}
+//==================================================================================================================
+//
+void InterfaceKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders)
+{
+    //
+    //   Start out with the full ROP orders vector.
+    //   This vector will have the BV exchange current density orders in it.
+    //
+    fwdFullorders = rdata.forwardFullOrder_;
+    //
+    //   forward and reverse beta values
+    //
+    double betaf = rdata.beta;
+    double betar = 1.0 - betaf;
+    //
+    //   Loop over the reactants doing away the BV terms.
+    //   This should leave the reactant terms only, even if they are non-mass action.
+    //
+    for (size_t j = 0; j < rdata.reactants.size(); j++) {
+	size_t kkin =  rdata.reactants[j];
+	double oo = rdata.rstoich[kkin];
+	fwdFullorders[kkin] += betaf * oo;
+	if (abs(fwdFullorders[kkin]) < 0.00001) {
+	    fwdFullorders[kkin] = 0.0;
+	}
+    }
+    for (size_t j = 0; j < rdata.products.size(); j++) {
+	size_t kkin =  rdata.products[j];
+	double oo = rdata.pstoich[kkin];
+	fwdFullorders[kkin] -= betaf * oo;
+	if (abs(fwdFullorders[kkin]) < 0.00001) {
+	    fwdFullorders[kkin] = 0.0;
+	}
+    }
 }
 //==================================================================================================================
 void EdgeKinetics::finalize()
@@ -1366,6 +1479,44 @@ void EdgeKinetics::finalize()
 
     m_finalized = true;
 }
-
+//==================================================================================================================
+RxnOrders::RxnOrders()
+{
+}
+//==================================================================================================================
+RxnOrders::~RxnOrders()
+{
+}
+//==================================================================================================================
+RxnOrders::RxnOrders(const RxnOrders& right) :
+    kinSpeciesIDs_(right.kinSpeciesIDs_),
+    kinSpeciesOrders_(right.kinSpeciesOrders_) 
+{
+}
+//==================================================================================================================
+RxnOrders& RxnOrders::operator=(const RxnOrders& right)
+{
+    if (this == &right) {
+        return *this;
+    }
+    kinSpeciesIDs_    = right.kinSpeciesIDs_;
+    kinSpeciesOrders_ = right.kinSpeciesOrders_;
+    return *this;
+}
+//==================================================================================================================
+int RxnOrders::fill(const std::vector<doublereal>& fullForwardOrders)
+{
+    int nzeroes = 0;
+    kinSpeciesIDs_.clear();
+    kinSpeciesOrders_.clear();
+    for (size_t k = 0; k < fullForwardOrders.size(); ++k) { 
+	if (fullForwardOrders[k] != 0.0) {
+	    kinSpeciesIDs_.push_back(k);
+	    kinSpeciesOrders_.push_back(fullForwardOrders[k]);
+            ++nzeroes;
+	}
+    }
+    return nzeroes;
+}
 //==================================================================================================================
 }

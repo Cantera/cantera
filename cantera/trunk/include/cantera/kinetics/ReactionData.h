@@ -24,6 +24,7 @@ public:
         validate(false),
         number(0),
         rxn_number(0),
+        filmResistivity(0.0),
         reversible(true),
         duplicate(false),
         rateCoeffType(ARRHENIUS_REACTION_RATECOEFF_TYPE),
@@ -101,6 +102,13 @@ public:
     //! duplicate reaction detection. Key is `-1-k` for reactants, `1+k` for
     //! products.
     std::map<int, doublereal> net_stoich;
+
+    //! Film Resistivity value
+    /*!
+     *  Only valid for Butler-Volmer formulations.
+     *  Units are in ohms m2.
+     */
+    double filmResistivity;
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible;

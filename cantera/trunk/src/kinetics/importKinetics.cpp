@@ -243,6 +243,56 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
     return true;
 }
 //====================================================================================================================
+//
+// Install the BV order coefficients into the fullForwardsOrders vector.
+//
+void installButlerVolmerOrders(const XML_Node& rxnNode, const Kinetics& kin, const ReactionData& rdata,
+			       std::vector<doublereal>& fullForwardsOrders)
+{  
+    const std::vector<size_t>& reactants = rdata.reactants;  
+    const std::vector<size_t>& products = rdata.products;
+    const std::vector<doublereal>& rstoich = rdata.rstoich;
+    const std::vector<doublereal>& pstoich = rdata.pstoich;
+    //
+    // Gather the number of species in the kinetics object and resize fullForwardsOrders
+    //
+    size_t nsp = kin.nTotalSpecies();
+    fullForwardsOrders.resize(nsp, 0.0);
+    //
+    // Ok first thing to do is get the electrochemical transfer coefficient
+    // since the order depend on the value.
+    // Also, if we don't find one, then it's an error. Zero is an acceptable value.
+    // Beta below 0 or greater than 1 are probably not good.
+    //
+    double beta = -10.0;
+    if (rxnNode.hasChild("rateCoeff")) {
+	XML_Node& rc = rxnNode.child("rateCoeff");
+	if (rc.hasChild("electrochem")) {
+	    XML_Node& eb = rc.child("electrochem");
+	    string sbeta = eb["beta"];
+	    beta = fpValueCheck(sbeta);
+	}
+    }
+    if (beta == -10.0) {
+	throw CanteraError("installButlerVolmerOrders()",
+			   "ButlerVolmerOrders model requested but no electrochem beta input");
+    }
+    double betar = 1.0 - beta;
+    for (size_t k = 0; k < nsp; k++) {
+	fullForwardsOrders[k] = 0.0;
+    }	    
+    for (size_t n = 0; n < reactants.size(); n++) {
+	size_t k = reactants[n];
+	double fac = rstoich[n];
+	fullForwardsOrders[k] += fac * betar;
+    }
+    for (size_t n = 0; n < products.size(); n++) {
+	size_t k = products[n];
+	double fac = pstoich[n];
+	fullForwardsOrders[k] += fac * beta;
+    }
+}
+//====================================================================================================================
 //  Fill in the fullForwardsOrders array for a specific reaction
 /*  
  * rxnNode XML node for the reaction
@@ -825,12 +875,13 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& rxnNode, Kinetics& kin,
         }
     }
     //
-    // get the reactant and their stoichiometries
+    // Get the reactant and their stoichiometries
     //
     bool ok = getReagents(rxnNode, kin, 1, default_phase, rdata.reactants,
                           rdata.rstoich, rdata.rorder, rules);
-
+    //
     // Get the products. We store the id of products in rdata.products
+    //
     ok = ok && getReagents(rxnNode, kin, -1, default_phase, rdata.products,
                            rdata.pstoich, rdata.porder, rules);
 
@@ -863,9 +914,26 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& rxnNode, Kinetics& kin,
 	}
         rdata.global = true;
     }
-
     //
-    // Fill in the forwardFullOrder_ array
+    //    For Butler Volmer reactions, we'll install the orders for the exchange current into the 
+    //    forwardFullOrders array. It may be altered by the getOrders function below.
+    //
+    if (rdata.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN || rdata.reactionType == BUTLERVOLMER_RXN) {
+	if (! rdata.reversible) {
+	    throw CanteraError("installReaction()", "a Butler-Volmer rxn must be reversible");
+        }
+        installButlerVolmerOrders(rxnNode, kin, rdata, rdata.forwardFullOrder_);
+	//
+	//    For Butler Volmer reactions, a common addition to the formulation is to add an electrical resistance
+	//    to the formulation. The resistance modifies the electrical current flow in both directions
+	//
+	if (rxnNode.hasChild("filmResistivity")) {
+	    XML_Node& fNode = rxnNode.child("filmResistivity");
+	    rdata.filmResistivity = fpValueCheck( fNode() );
+	}
+    }
+    //
+    //    Fill in the forwardFullOrder_ array
     //
     if (rxnNode.hasChild("orders")) {
 	ok = getOrders(rxnNode, kin,  default_phase, rdata,
