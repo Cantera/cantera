@@ -207,10 +207,15 @@ void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
             ac[k] = exp(ac[k]);
         }
         if (realNumberRangeBehavior_ == FENV_CHECK_CTRB) {
+#ifdef HAVE_FENV_H
             if (check_FENV_OverUnder_Flow()) {
                 throw CanteraError("GibbsExcessVPSSTP::getActivityCoefficients()",
                                    "activity coefficient is over/underflowing");
             }
+#else
+            throw CanteraError("GibbsExcessVPSSTP::getActivityCoefficients()",
+                               "realNumberRangeBehavior_ == FENV_CHECK_CTRB not supported by compiler");
+#endif
         }
     }
 }
