@@ -61,17 +61,31 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
     removeFile('ext/f2c_libs/arith.h')
+    removeFile('interfaces/cython/cantera/_cantera.cpp')
+    removeFile('interfaces/cython/setup2.py')
+    removeFile('interfaces/cython/setup3.py')
+    removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
     removeDirectory('doc/sphinx/matlab/tutorials')
     removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
+    removeDirectory('interfaces/cython/build')
     for name in os.listdir('.'):
         if name.endswith('.msi'):
             removeFile(name)
+    for name in os.listdir('site_scons/'):
+        if name.endswith('.pyc'):
+            removeFile('site_scons/' + name)
+    for name in os.listdir('site_scons/site_tools/'):
+        if name.endswith('.pyc'):
+            removeFile('site_scons/site_tools/' + name)
     removeFile('interfaces/matlab/toolbox/cantera_shared.dll')
+    removeFile('interfaces/matlab/Contents.m')
+    removeFile('interfaces/matlab/ctpath.m')
     for name in os.listdir('interfaces/matlab/toolbox'):
         if name.startswith('ctmethods.'):
             removeFile('interfaces/matlab/toolbox/' + name)
+
     print 'Done removing output files.'
 
     if COMMAND_LINE_TARGETS == ['clean']:
