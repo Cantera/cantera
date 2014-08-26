@@ -87,9 +87,20 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp, std::string default
                  std::vector<size_t>& spnum, vector_fp& stoich,
                  vector_fp& order, const ReactionRules& rules);
 
+//!  Install Butler Volmer Orders into the forward orders array.
+/*!
+ *  Install the BV order coefficients into the fullForwardsOrders vector.
+ *
+ *  @param[in]  rxnNode  XML node pointing to the reaction element in the xml tree.
+ *  @param[in]  kin      Reference to the kinetics object to install the information into.  
+ *  @param[in]  rdata    Reaction Data Object containing the information about one reaction
+ *  @param[out] fullForwardsOrders   Vectors of the orders of reaction.
+ *
+ */
+void installButlerVolmerOrders(const XML_Node& rxnNode, const Kinetics& kin, const ReactionData& rdata,
+			       std::vector<doublereal>& fullForwardsOrders);
+
 //! Get non-mass-action orders for a reaction
-
-
 extern bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
               std::string default_phase, const ReactionData& rdata,
               vector_fp& order, vector_fp& fullForwardsOrders,

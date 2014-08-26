@@ -68,21 +68,24 @@ public:
      */
     void identifyMetalPhase();
 
-
-
+    //! Internal routine that updates the Rates of Progress of the reactions
+    /*!
+     *  This is actually the guts of the functionality of the object
+     */
+    virtual void updateROP();
 
 
     //void addGlobalReaction(ReactionData& r);
 
-
+  double calcForwardROP_BV(size_t irxn, size_t iBeta);
 
 
 
 protected:
-
-    //! index of the metal phase in the list of phases for this surface
+    //! Index of the metal phase in the list of phases for this kinetics object
     size_t metalPhaseRS_;
 
+    //! Index of the electron phase in the list of phases for this kinetics object
     size_t electronPhaseRS_;
 
     //! Index of the solution phase in the list of phases for this surface
@@ -90,9 +93,6 @@ protected:
 
     //! Index of the electrons species in the list of species for this surface kinetics, if none set it to -1
     size_t kElectronRS_;
-
-
-
 
 };
 }

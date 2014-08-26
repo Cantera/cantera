@@ -24,6 +24,32 @@ class SurfPhase;
 class ImplicitSurfChem;
 class RxnMolChange;
 
+//! forward orders 
+class RxnOrders {
+
+  public:
+   //! constructors
+   RxnOrders();
+
+   RxnOrders(const RxnOrders &right);
+
+   ~RxnOrders();
+
+   RxnOrders& operator=(const RxnOrders &right);
+  
+   //! Fill in the structure with the array.
+   /*!
+    *  @param[in] Size of length kinetic species. The entries the values of the orders
+    */
+   int fill(const std::vector<doublereal>& fullForwardOrders);
+
+   //! ID's of the kinetic species
+   std::vector<size_t> kinSpeciesIDs_;
+
+   //! Orders of the kinetic species
+   std::vector<doublereal> kinSpeciesOrders_;
+};
+
 //!  A kinetics manager for heterogeneous reaction mechanisms. The
 //!  reactions are assumed to occur at a 2D interface between two 3D phases.
 /*!
@@ -139,27 +165,34 @@ public:
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-        return m_rrxn[k][i];
-    }
+    //! Provide a reactant stoichiometric coefficient
+    /*!
+     *  @param[in] kSpecKin    Species index within the kinetics object
+     *  @param[in] irxn        Reaction index
+     *
+     *  @return  Returns the reactant stoichiometic coefficient within the reaction
+     */
+    virtual doublereal reactantStoichCoeff(size_t kSpecKin, size_t irxn) const;
 
-    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-        return m_prxn[k][i];
-    }
+    //! Provide a product stoichiometric coefficient
+    /*!
+     *  @param[in] kSpecKin    Species index within the kinetics object
+     *  @param[in] irxn        Reaction index
+     *
+     *  @return  Returns the product stoichiometic coefficient within the reaction
+     */
+    virtual doublereal productStoichCoeff(size_t kSpecKin, size_t irxn) const;
 
-    //!  return the reaction type of the reaction i
+    //!  return the reaction type of the reaction irxn
     /*!
      *    @param[in]   Reaction index
      *
      *    @return      Returns the reaction type of the reaction. 
      */
-    virtual int reactionType(size_t i) const; 
-   //virtual int reactionType(size_t i) const {
-    //    return m_index[i].first;
-    //}
-
+    virtual int reactionType(size_t irxn) const; 
 
     virtual void getActivityConcentrations(doublereal* const conc);
+
 
     //! Return the charge transfer rxn Beta parameter for the ith reaction
     /*!
@@ -222,7 +255,7 @@ public:
     /*!
      *  This is actually the guts of the functionality of the object
      */
-    void updateROP();
+    virtual void updateROP();
 
     //! Update properties that depend on temperature
     /*!
@@ -413,6 +446,9 @@ public:
      *         species in that phase that are positive.
      */
     int phaseStability(const size_t iphase) const;
+
+
+    void determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders);
 
 protected:
     //! Temporary work vector of length m_kk
@@ -662,6 +698,23 @@ protected:
      *                            the rate constant as an exchange current density rate constant expression.
      */
     vector_int m_ctrxn_ecdf;
+
+    //! Vector of booleans indicating whether the charge transfer reaction rate constant 
+    //! is described by an exchange current density rate constant expression
+    /*!
+     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *
+     *   Some reactions have zero in this list, those that don't need special treatment.
+     */
+    std::vector<RxnOrders*> m_ctrxn_ROPOrdersList_;
+
+    //! Reaction Orders for the case where the forwards rate of progress is being calculated.
+    /*!
+     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *
+     *   Some reactions have zero in this list, indicating that the calculation isn't necessary.
+     */
+    std::vector<RxnOrders*> m_ctrxn_FwdOrdersList_;
 
     //! Vector of standard concentrations
     /*!
