@@ -7,9 +7,7 @@
 #define CT_CVODESWRAPPER_H
 
 #include "cantera/numerics/Integrator.h"
-#include "cantera/numerics/FuncEval.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/ct_defs.h"
 
 #ifdef HAS_SUNDIALS
 

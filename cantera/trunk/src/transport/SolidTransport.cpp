@@ -6,9 +6,8 @@
  */
 // copyright 2008 California Institute of Technology
 
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/transport/SolidTransportData.h"
 #include "cantera/transport/SolidTransport.h"
+#include "cantera/transport/SolidTransportData.h"
 
 using namespace std;
 

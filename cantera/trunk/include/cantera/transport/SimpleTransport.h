@@ -7,9 +7,6 @@
 #ifndef CT_SIMPLETRAN_H
 #define CT_SIMPLETRAN_H
 
-#include "TransportBase.h"
-#include "cantera/numerics/DenseMatrix.h"
-#include "TransportParams.h"
 #include "LiquidTransportParams.h"
 
 namespace Cantera

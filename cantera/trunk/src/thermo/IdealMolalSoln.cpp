@@ -19,6 +19,8 @@
  */
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/ctml.h"
+#include <iostream>
 
 using namespace ctml;
 

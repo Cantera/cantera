@@ -5,16 +5,12 @@
  */
 // Copyright 2001-2005  California Institute of Technology
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 #include "../../ext/libexecstream/exec-stream.h"
 
 #include <fstream>
 #include <sstream>
-#include <functional>
 
 #ifdef _WIN32
 #include <windows.h>

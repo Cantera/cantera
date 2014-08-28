@@ -6,12 +6,10 @@
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
 
-#include "cantera/transport/TransportBase.h"
 #include "Domain1D.h"
 #include "cantera/base/Array.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/numerics/funcs.h"
 
 namespace Cantera
 {
@@ -30,6 +28,8 @@ const size_t c_offset_Y = 4;    // mass fractions
 const int c_Mixav_Transport = 0;
 const int c_Multi_Transport = 1;
 const int c_Soret = 2;
+
+class Transport;
 
 /**
  *  This class represents 1D flow domains that satisfy the one-dimensional

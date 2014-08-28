@@ -6,6 +6,8 @@
  */
 
 #include "cantera/transport/LTPspecies.h"
+#include "cantera/base/ctml.h"
+
 using namespace std;
 using namespace ctml;
 

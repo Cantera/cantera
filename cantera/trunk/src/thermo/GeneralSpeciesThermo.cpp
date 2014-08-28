@@ -14,6 +14,7 @@
 #include "cantera/thermo/Mu0Poly.h"
 #include "cantera/thermo/AdsorbateThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/StatMech.h"
 #include <iostream>
 
 using namespace std;

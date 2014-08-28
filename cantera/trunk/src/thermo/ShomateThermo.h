@@ -12,7 +12,7 @@
 
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "ShomatePoly.h"
-#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

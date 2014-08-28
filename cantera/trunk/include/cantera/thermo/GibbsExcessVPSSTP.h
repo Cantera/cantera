@@ -20,6 +20,7 @@
 #define CT_GIBBSEXCESSVPSSTP_H
 
 #include "VPStandardStateTP.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {

@@ -15,9 +15,6 @@
 #ifndef CT_MINERALEQ3_H
 #define CT_MINERALEQ3_H
 
-#include "mix_defs.h"
-#include "SingleSpeciesTP.h"
-#include "SpeciesThermo.h"
 #include "StoichSubstanceSSTP.h"
 
 namespace Cantera

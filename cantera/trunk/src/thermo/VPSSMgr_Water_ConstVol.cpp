@@ -18,6 +18,8 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 

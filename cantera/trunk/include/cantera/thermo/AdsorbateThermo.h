@@ -12,7 +12,6 @@
 #define CT_ADSORBATE_H
 
 #include "SpeciesThermoInterpType.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {

@@ -1,13 +1,7 @@
-#include "cantera/base/ct_defs.h"
+#include "cantera/thermo/PDSS_Water.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
-#include "cantera/base/xml.h"
-#include "cantera/base/ctml.h"
-#include "cantera/thermo/PDSS_Water.h"
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/thermo/VPStandardStateTP.h"
-#include <new>
-
+#include <iostream>
 #include <cstdio>
 
 using namespace std;

@@ -9,11 +9,7 @@
 #ifndef CT_GASKINETICS_H
 #define CT_GASKINETICS_H
 
-#include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
-
-#include "cantera/base/utilities.h"
-
 #include "ReactionStoichMgr.h"
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"

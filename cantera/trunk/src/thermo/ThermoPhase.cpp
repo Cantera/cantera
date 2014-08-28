@@ -10,6 +10,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/vec_functions.h"
 
 #include <iomanip>
 #include <fstream>

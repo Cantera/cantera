@@ -6,9 +6,7 @@
 //  Copyright 2003  California Institute of Technology
 
 #include "cantera/thermo/Elements.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace ctml;

@@ -15,10 +15,10 @@
 
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/PDSS_Water.h"
-
+#include "cantera/thermo/electrolytes.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
 
 #include <cstdio>
 

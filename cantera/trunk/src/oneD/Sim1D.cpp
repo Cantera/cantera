@@ -5,6 +5,9 @@
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/StFlow.h"
+#include "cantera/numerics/funcs.h"
+#include "cantera/base/xml.h"
+
 #include <fstream>
 
 using namespace std;

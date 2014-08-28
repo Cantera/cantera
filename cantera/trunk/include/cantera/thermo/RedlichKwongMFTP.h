@@ -16,6 +16,7 @@
 #define CT_REDLICHKWONGMFTP_H
 
 #include "MixtureFugacityTP.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {

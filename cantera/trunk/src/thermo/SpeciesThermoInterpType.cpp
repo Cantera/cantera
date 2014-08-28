@@ -8,7 +8,6 @@
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/ctexceptions.h"
- #include "cantera/base/global.h"
 
 namespace Cantera
 {

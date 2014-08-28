@@ -15,10 +15,7 @@
 #ifndef CT_IDEALSOLIDSOLNPHASE_H
 #define CT_IDEALSOLIDSOLNPHASE_H
 
-#include "mix_defs.h"
 #include "ThermoPhase.h"
-#include "ThermoFactory.h"
-#include "SpeciesThermo.h"
 
 namespace Cantera
 {

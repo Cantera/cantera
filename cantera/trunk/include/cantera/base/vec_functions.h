@@ -11,9 +11,7 @@
 
 #include "ct_defs.h"
 #include "utilities.h"
-#include <numeric>
 #include <functional>
-#include <algorithm>
 #include <iostream>
 #include <cstring>
 

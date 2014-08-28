@@ -14,11 +14,7 @@
 #ifndef CT_MASKELLSOLIDSOLNPHASE_H
 #define CT_MASKELLSOLIDSOLNPHASE_H
 
-#include "mix_defs.h"
-#include "ThermoPhase.h"
 #include "VPStandardStateTP.h"
-#include "ThermoFactory.h"
-#include "SpeciesThermo.h"
 
 namespace Cantera
 {

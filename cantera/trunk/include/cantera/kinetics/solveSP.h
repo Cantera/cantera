@@ -12,7 +12,6 @@
 #ifndef SOLVESP_H
 #define SOLVESP_H
 
-#include "ImplicitSurfChem.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/numerics/SquareMatrix.h"
 

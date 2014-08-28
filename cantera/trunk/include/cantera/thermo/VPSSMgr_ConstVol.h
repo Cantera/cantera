@@ -14,7 +14,6 @@
 #ifndef CT_VPSSMGR_CONSTVOL_H
 #define CT_VPSSMGR_CONSTVOL_H
 
-#include "cantera/base/ct_defs.h"
 #include "VPSSMgr.h"
 
 namespace Cantera

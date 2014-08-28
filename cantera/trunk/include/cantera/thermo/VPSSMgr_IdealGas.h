@@ -15,8 +15,6 @@
 #ifndef CT_VPSSMGR_IDEALGAS_H
 #define CT_VPSSMGR_IDEALGAS_H
 
-#include "cantera/base/ct_defs.h"
-#include "PDSS.h"
 #include "VPSSMgr.h"
 
 namespace Cantera

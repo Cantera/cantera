@@ -20,7 +20,6 @@
 #include "global.h"
 
 #include <numeric>
-#include <algorithm>
 
 namespace Cantera
 {

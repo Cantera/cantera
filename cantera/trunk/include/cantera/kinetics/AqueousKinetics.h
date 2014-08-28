@@ -9,14 +9,8 @@
 #ifndef CT_AQUEOUSKINETICS_H
 #define CT_AQUEOUSKINETICS_H
 
-#include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
-
-#include "cantera/base/utilities.h"
-
 #include "ReactionStoichMgr.h"
-#include "ThirdBodyMgr.h"
-#include "FalloffMgr.h"
 #include "RateCoeffMgr.h"
 
 namespace Cantera

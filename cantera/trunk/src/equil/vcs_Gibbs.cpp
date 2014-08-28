@@ -9,9 +9,7 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "math.h"
 
 namespace VCSnonideal
 {

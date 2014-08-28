@@ -11,6 +11,8 @@
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/vec_functions.h"
 
 using namespace ctml;
 using namespace std;

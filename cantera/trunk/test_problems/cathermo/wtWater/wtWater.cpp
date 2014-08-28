@@ -1,15 +1,6 @@
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/ctexceptions.h"
-#include "cantera/base/global.h"
-#include "cantera/base/xml.h"
-#include "cantera/base/ctml.h"
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/thermo/VPStandardStateTP.h"
-
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/transport/WaterTransport.h"
-#include <new>
 
 #include <cstdio>
 

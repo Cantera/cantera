@@ -13,7 +13,6 @@
 #define WATERPROPSIAPWS_H
 
 #include "WaterPropsIAPWSphi.h"
-#include "cantera/base/config.h"
 
 namespace Cantera
 {

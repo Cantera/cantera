@@ -4,6 +4,8 @@
 // Copyright 2002-3  California Institute of Technology
 
 #include "cantera/oneD/Inlet1D.h"
+#include "cantera/oneD/OneDim.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 

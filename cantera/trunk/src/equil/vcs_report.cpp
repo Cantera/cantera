@@ -6,9 +6,8 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/base/global.h"
+#include "cantera/base/ctexceptions.h"
 
 using namespace Cantera;
 

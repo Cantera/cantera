@@ -10,8 +10,6 @@
 // Cantera includes
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
-#include "TransportParams.h"
-#include "LiquidTransportParams.h"
 
 namespace Cantera
 {

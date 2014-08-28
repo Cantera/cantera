@@ -22,7 +22,6 @@
 #define CT_TRANSPORTBASE_H
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {

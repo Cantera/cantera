@@ -8,11 +8,8 @@
 #ifndef CT_IFACEKINETICS_H
 #define CT_IFACEKINETICS_H
 
-#include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
 #include "cantera/kinetics/RxnMolChange.h"
-
-#include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
 #include "ReactionStoichMgr.h"
 

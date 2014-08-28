@@ -14,7 +14,6 @@
 #ifndef CT_METALSHEELECTRONS_H
 #define CT_METALSHEELECTRONS_H
 
-#include "mix_defs.h"
 #include "SingleSpeciesTP.h"
 
 namespace Cantera

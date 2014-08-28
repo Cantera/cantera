@@ -14,7 +14,6 @@
 #include <cstdio>
 
 using std::string;
-using std::endl;
 
 namespace Cantera
 {

@@ -8,20 +8,9 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/equil/vcs_prob.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
-#include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/equil.h"
 
 #include "cantera/base/stringUtils.h"
-#include "cantera/thermo/mix_defs.h"
-#include "cantera/thermo/speciesThermoTypes.h"
-#include "cantera/thermo/IdealSolidSolnPhase.h"
-#include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/equil/ChemEquil.h"
 
 using namespace std;

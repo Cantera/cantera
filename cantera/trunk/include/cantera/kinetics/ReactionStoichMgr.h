@@ -6,8 +6,8 @@
 #ifndef CT_RXN_STOICH
 #define CT_RXN_STOICH
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/kinetics/StoichManager.h"
+
 namespace Cantera
 {
 

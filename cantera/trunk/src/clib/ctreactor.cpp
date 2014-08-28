@@ -7,9 +7,7 @@
 // Cantera includes
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowReactor.h"
-#include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/ReactorNet.h"
-#include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/ReactorFactory.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/flowControllers.h"

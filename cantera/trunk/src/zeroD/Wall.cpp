@@ -1,10 +1,9 @@
 //! @file Wall.cpp
 #include "cantera/zeroD/Wall.h"
-#include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/numerics/Func1.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {

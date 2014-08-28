@@ -9,11 +9,8 @@
 #ifndef CT_IMPSURFCHEM_H
 #define CT_IMPSURFCHEM_H
 
-#include "cantera/numerics/FuncEval.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/thermo/SurfPhase.h"
-#include "solveSP.h"
 
 namespace Cantera
 {

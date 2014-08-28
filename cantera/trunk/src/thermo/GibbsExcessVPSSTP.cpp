@@ -18,8 +18,6 @@
 #include "cantera/thermo/GibbsExcessVPSSTP.h"
 #include "cantera/base/stringUtils.h"
 
-#include <iomanip>
-
 using namespace std;
 
 namespace Cantera

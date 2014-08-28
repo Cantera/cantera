@@ -15,7 +15,6 @@
 #include "cantera/kinetics/importKinetics.h"
 #include "clib/Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/thermo/PureFluidPhase.h"
 
 #include "clib/clib_defs.h"
 

@@ -11,7 +11,6 @@
 
 #include "cantera/numerics/BandMatrix.h"
 #include "OneDim.h"
-#include "time.h"
 
 namespace Cantera
 {

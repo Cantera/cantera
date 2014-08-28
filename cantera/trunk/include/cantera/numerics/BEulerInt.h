@@ -11,15 +11,9 @@
 #ifndef CT_BEULERINT_H
 #define CT_BEULERINT_H
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/utilities.h"
-#include "cantera/base/ctexceptions.h"
-
 #include "cantera/numerics/Integrator.h"
 #include "cantera/numerics/ResidJacEval.h"
-
 #include "cantera/numerics/GeneralMatrix.h"
-#include "cantera/numerics/NonlinearSolver.h"
 
 #define OPT_SIZE 10
 

@@ -3,7 +3,6 @@
  */
 #include "NasaThermo.h"
 
-#include "cantera/base/utilities.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/numerics/ctlapack.h"
 

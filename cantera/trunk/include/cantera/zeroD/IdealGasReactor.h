@@ -8,7 +8,6 @@
 #define CT_IDEALGASREACTOR_H
 
 #include "Reactor.h"
-#include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
 {

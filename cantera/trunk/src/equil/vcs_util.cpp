@@ -9,9 +9,11 @@
  */
 
 #include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_defs.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include <cassert>
+#include <cstring>
 
 using namespace std;
 using namespace Cantera;

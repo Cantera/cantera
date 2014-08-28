@@ -12,11 +12,10 @@
  *
  * Copyright 2001 California Institute of Technology
  */
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/StoichSubstanceSSTP.h"
-#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {

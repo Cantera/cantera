@@ -12,9 +12,7 @@
  */
 
 #include "cantera/thermo/VPStandardStateTP.h"
-#include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/base/stringUtils.h"
 
 using namespace std;
 

@@ -8,9 +8,7 @@
 #ifndef CT_RXNRATES_H
 #define CT_RXNRATES_H
 
-#include "reaction_defs.h"
 #include "ReactionData.h"
-
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 

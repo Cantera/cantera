@@ -1,15 +1,9 @@
 //! @file WaterTransport.cpp
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/WaterPropsIAPWS.h"
-#include "cantera/transport/TransportBase.h"
-#include "cantera/numerics/DenseMatrix.h"
-#include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/thermo/VPStandardStateTP.h"
-
 #include "cantera/transport/WaterTransport.h"
+
+#include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterSSTP.h"
-#include "cantera/thermo/WaterProps.h"
 
 using namespace std;
 

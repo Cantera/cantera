@@ -5,11 +5,7 @@
  */
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/equil/MultiPhaseEquil.h"
-
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/numerics/DenseMatrix.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 using namespace std;
 

@@ -3,12 +3,10 @@
  */
 // Copyright 2002  California Institute of Technology
 
-#include <stdlib.h>
-#include <time.h>
-
 #include "cantera/oneD/StFlow.h"
 #include "cantera/base/ctml.h"
-#include "cantera/oneD/MultiJac.h"
+#include "cantera/transport/TransportBase.h"
+#include "cantera/numerics/funcs.h"
 
 #include <cstdio>
 

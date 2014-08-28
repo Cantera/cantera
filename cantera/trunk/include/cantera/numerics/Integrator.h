@@ -12,7 +12,6 @@
 #define CT_INTEGRATOR_H
 #include "FuncEval.h"
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/global.h"
 
 namespace Cantera

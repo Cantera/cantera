@@ -9,12 +9,10 @@
 #define CT_TRANSPORTFACTORY_H
 
 // Cantera includes
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/ct_thread.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
 #include "LiquidTransportParams.h"
-#include "SolidTransportData.h"
 
 namespace Cantera
 {

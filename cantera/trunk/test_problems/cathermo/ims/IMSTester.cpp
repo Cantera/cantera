@@ -16,6 +16,7 @@
 
 #include "cantera/thermo/IdealMolalSoln.h"
 #include <cstdio>
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;

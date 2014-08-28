@@ -12,11 +12,9 @@
 #ifndef CT_PDSS_WATER_H
 #define CT_PDSS_WATER_H
 
-#include "cantera/base/ct_defs.h"
 #include "PDSS.h"
-#include "VPStandardStateTP.h"
 #include "WaterPropsIAPWS.h"
- #include "WaterProps.h"
+#include "WaterProps.h"
 
 namespace Cantera
 {

@@ -12,10 +12,9 @@
  * U.S. Government retains certain rights in this software.
  *
  */
-#include "cantera/base/ct_defs.h"
-
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/base/ctml.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
-#include "cantera/thermo/SingleSpeciesTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 namespace Cantera

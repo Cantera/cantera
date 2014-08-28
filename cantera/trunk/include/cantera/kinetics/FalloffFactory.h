@@ -10,7 +10,6 @@
 #define CT_NEWFALLOFF_H
 
 #include "cantera/base/ct_defs.h"
-#include "reaction_defs.h"
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/ct_thread.h"
 

@@ -4,12 +4,8 @@
  */
 // copyright 2001 California Institute of Technology
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/MixTransport.h"
-
-#include "cantera/base/utilities.h"
 #include "cantera/transport/TransportParams.h"
-#include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;

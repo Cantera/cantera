@@ -11,7 +11,11 @@
 
 #include "ct_defs.h"
 #include "xml.h"
-#include "Array.h"
+
+namespace Cantera
+{
+class Array2D;
+}
 
 //! The ctml namespace adds functionality to the XML object, by providing
 //! standard functions that read, write, and interpret XML files and

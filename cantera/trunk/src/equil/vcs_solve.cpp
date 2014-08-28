@@ -11,11 +11,9 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_prob.h"
 
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
 #include "cantera/equil/vcs_species_thermo.h"
 
 #include "cantera/base/clockWC.h"

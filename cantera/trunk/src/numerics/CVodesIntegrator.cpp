@@ -3,8 +3,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-#include "cantera/base/config.h"
-
 #include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
 
@@ -30,7 +28,6 @@ using namespace std;
 #define CV_SV 2
 
 #include <sstream>
-#include <algorithm>
 
 namespace Cantera
 {

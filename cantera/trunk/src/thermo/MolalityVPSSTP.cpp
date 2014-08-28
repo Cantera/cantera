@@ -18,9 +18,8 @@
  */
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
 
-#include <iomanip>
-#include <cstdio>
 #include <fstream>
 
 using namespace std;

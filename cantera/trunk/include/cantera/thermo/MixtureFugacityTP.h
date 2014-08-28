@@ -14,7 +14,6 @@
 #define CT_MIXTUREFUGACITYTP_H
 
 #include "ThermoPhase.h"
-#include "VPSSMgr.h"
 #include "cantera/numerics/ResidEval.h"
 
 namespace Cantera

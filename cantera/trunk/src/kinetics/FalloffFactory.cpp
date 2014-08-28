@@ -6,7 +6,7 @@
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
+#include "cantera/kinetics/reaction_defs.h"
 
 namespace Cantera
 {

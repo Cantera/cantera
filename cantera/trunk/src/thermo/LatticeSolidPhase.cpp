@@ -6,14 +6,12 @@
  *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
  */
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
-#include "cantera/thermo/LatticePhase.h"
-#include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 

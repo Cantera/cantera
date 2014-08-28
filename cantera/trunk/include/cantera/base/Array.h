@@ -7,8 +7,6 @@
 #ifndef CT_ARRAY_H
 #define CT_ARRAY_H
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
 #include "utilities.h"
 
 #include <iostream>

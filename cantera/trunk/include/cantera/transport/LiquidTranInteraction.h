@@ -7,8 +7,6 @@
 #ifndef CT_LIQUIDTRANINTERACTION_H
 #define CT_LIQUIDTRANINTERACTION_H
 
-#include "cantera/base/ct_defs.h"
-#include "TransportBase.h"
 #include "TransportParams.h"
 #include "LiquidTransportData.h"
 #include "cantera/base/xml.h"

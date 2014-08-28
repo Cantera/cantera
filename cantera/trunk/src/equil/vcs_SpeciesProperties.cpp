@@ -1,11 +1,7 @@
 /**
  * @file vcs_SpeciesProperties.cpp
  */
-#include "cantera/equil/vcs_defs.h"
 #include "cantera/equil/vcs_SpeciesProperties.h"
-#include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
-#include "cantera/equil/vcs_internal.h"
 
 using namespace std;
 

@@ -1,5 +1,4 @@
 //! @file OneDim.cpp
-#include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/OneDim.h"
 
@@ -7,6 +6,7 @@
 #include "cantera/base/ctml.h"
 
 #include <fstream>
+#include <ctime>
 
 using namespace ctml;
 using namespace std;

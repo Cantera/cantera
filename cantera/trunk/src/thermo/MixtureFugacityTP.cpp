@@ -11,10 +11,9 @@
  */
 
 #include "cantera/thermo/MixtureFugacityTP.h"
-#include "cantera/thermo/VPSSMgr.h"
-#include "cantera/thermo/PDSS.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/xml.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/vec_functions.h"
 
 using namespace std;
 

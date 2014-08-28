@@ -13,9 +13,7 @@
 #ifndef CT_STOICHSUBSTANCESSTP_H
 #define CT_STOICHSUBSTANCESSTP_H
 
-#include "mix_defs.h"
 #include "SingleSpeciesTP.h"
-#include "SpeciesThermo.h"
 
 namespace Cantera
 {
