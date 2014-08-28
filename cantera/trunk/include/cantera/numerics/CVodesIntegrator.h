@@ -80,6 +80,9 @@ public:
     //! responsible for integrator failures or unexpected small timesteps.
     virtual std::string getErrorInfo(int N);
 
+    //! Error message information provide by CVodes
+    std::string m_error_message;
+
 protected:
     //! Applies user-specified options to the underlying CVODES solver. Called
     //! during integrator initialization or reinitialization.
@@ -113,6 +116,7 @@ private:
     //! Indicates whether the sensitivities stored in m_yS have been updated
     //! for at the current integrator time.
     bool m_sens_ok;
+
 };
 
 }    // namespace
