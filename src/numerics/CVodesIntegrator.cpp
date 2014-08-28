@@ -43,8 +43,6 @@ public:
     vector_fp m_pars;
     FuncEval* m_func;
 };
-}
-
 
 extern "C" {
 
@@ -79,10 +77,19 @@ extern "C" {
         }
         return 0; // successful evaluation
     }
+
+    //! Function called by CVodes when an error is encountered instead of
+    //! writing to stdout. Here, save the error message provided by CVodes so
+    //! that it can be included in the subsequently raised CanteraError.
+    static void cvodes_err(int error_code, const char* module,
+                           const char* function, char* msg, void* eh_data)
+    {
+        CVodesIntegrator* integrator = (CVodesIntegrator*) eh_data;
+        integrator->m_error_message = msg;
+        integrator->m_error_message += "\n";
+    }
 }
 
-namespace Cantera
-{
 CVodesIntegrator::CVodesIntegrator() :
     m_neq(0),
     m_cvode_mem(0),
@@ -299,6 +306,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
             throw CVodesErr("CVodeInit failed.");
         }
     }
+    CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
 
     if (m_itol == CV_SV) {
         flag = CVodeSVtolerances(m_cvode_mem, m_reltol, m_abstol);
@@ -394,7 +402,7 @@ void CVodesIntegrator::integrate(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
+        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
                         "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
     }
     m_sens_ok = false;
@@ -404,7 +412,7 @@ double CVodesIntegrator::step(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
+        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
                         "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
 
     }
