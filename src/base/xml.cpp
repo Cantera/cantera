@@ -6,15 +6,12 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "cantera/base/config.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
+
 #include <sstream>
 
-#include <algorithm>
 using namespace std;
-
-#include "cantera/base/xml.h"
-#include "cantera/base/global.h"
-#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {

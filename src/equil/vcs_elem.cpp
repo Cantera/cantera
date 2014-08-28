@@ -4,12 +4,9 @@
  *  element abundances constraints and the algorithm for fixing violations
  *  of the element abundances constraints.
  */
-#include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/numerics/ctlapack.h"
-#include "math.h"
 
 using namespace Cantera;
 

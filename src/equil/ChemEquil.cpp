@@ -7,15 +7,10 @@
 //  Copyright 2001 California Institute of Technology
 
 #include "cantera/equil/ChemEquil.h"
-#include "cantera/numerics/DenseMatrix.h"
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
 #include "PropertyCalculator.h"
-#include "cantera/base/ctexceptions.h"
-#include "cantera/base/vec_functions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/equil/MultiPhase.h"
+#include "cantera/equil/MultiPhaseEquil.h"
 
 using namespace std;
 

@@ -12,6 +12,7 @@
  */
 #include "cantera/thermo/SingleSpeciesTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

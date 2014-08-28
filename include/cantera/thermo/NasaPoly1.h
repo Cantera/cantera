@@ -13,9 +13,7 @@
 #define CT_NASAPOLY1_H
 // Copyright 2001  California Institute of Technology
 
-#include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
-#include <iostream>
 
 namespace Cantera
 {

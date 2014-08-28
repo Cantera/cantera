@@ -7,13 +7,11 @@
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
  *
  */
-#include "cantera/base/config.h"
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/LatticePhase.h"
-#include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/vec_functions.h"
 
 namespace Cantera
 {

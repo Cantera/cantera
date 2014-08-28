@@ -2,11 +2,8 @@
  * @file equilibrate.cpp Driver routines for the chemical equilibrium solvers.
  */
 
-#include "cantera/equil/equil.h"
 #include "cantera/equil/ChemEquil.h"
-#include "cantera/equil/MultiPhaseEquil.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {

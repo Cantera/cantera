@@ -9,18 +9,14 @@
  */
 
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
 
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
-#include "cantera/equil/ChemEquil.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
 
 #include <cstdio>
 

@@ -9,6 +9,7 @@
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {

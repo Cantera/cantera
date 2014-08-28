@@ -8,11 +8,6 @@
 
 #include "cantera/kinetics/GasKinetics.h"
 
-#include "cantera/kinetics/ReactionData.h"
-#include "cantera/kinetics/Enhanced3BConc.h"
-#include "cantera/kinetics/ThirdBodyMgr.h"
-#include "cantera/kinetics/RateCoeffMgr.h"
-
 using namespace std;
 
 namespace Cantera

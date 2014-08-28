@@ -7,8 +7,6 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_solve.h"
 

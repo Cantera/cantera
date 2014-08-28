@@ -17,7 +17,6 @@
 #define CT_DEBYEHUCKEL_H
 
 #include "MolalityVPSSTP.h"
-#include "electrolytes.h"
 #include "cantera/base/Array.h"
 
 namespace Cantera

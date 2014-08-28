@@ -7,6 +7,7 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 using namespace ctml;

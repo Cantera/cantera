@@ -2,9 +2,7 @@
  * @file MultiPhaseEquil.cpp
  */
 #include "cantera/equil/MultiPhaseEquil.h"
-#include "cantera/equil/MultiPhase.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
-#include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>

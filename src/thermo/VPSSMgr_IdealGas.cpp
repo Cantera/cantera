@@ -13,8 +13,6 @@
  */
 
 #include "cantera/thermo/VPSSMgr_IdealGas.h"
-#include "cantera/base/utilities.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS_IdealGas.h"

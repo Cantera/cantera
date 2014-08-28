@@ -15,7 +15,6 @@
 #ifndef CT_IMPORTKINETICS_H
 #define CT_IMPORTKINETICS_H
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "Kinetics.h"
 
 namespace Cantera

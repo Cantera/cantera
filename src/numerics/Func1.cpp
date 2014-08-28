@@ -1,7 +1,6 @@
 //! @file Func1.cpp
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 using namespace std;
 

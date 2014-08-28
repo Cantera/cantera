@@ -8,7 +8,6 @@
 #ifndef CT_DOMAIN1D_H
 #define CT_DOMAIN1D_H
 
-#include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "refine.h"
@@ -29,6 +28,7 @@ const int cPorousType       = 109;
 
 class MultiJac;
 class OneDim;
+class XML_Node;
 
 /**
  * Base class for one-dimensional domains.

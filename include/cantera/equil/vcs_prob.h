@@ -12,8 +12,6 @@
 #define _VCS_PROB_H
 
 #include "cantera/base/Array.h"
-#include "cantera/equil/vcs_defs.h"
-#include <string>
 
 namespace VCSnonideal
 {

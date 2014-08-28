@@ -12,7 +12,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/ctlapack.h"
 #include "cantera/numerics/SquareMatrix.h"
-#include "cantera/base/global.h"
 
 using namespace std;
 

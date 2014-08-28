@@ -9,8 +9,6 @@
 #ifndef CT_EDGEPHASE_H
 #define CT_EDGEPHASE_H
 
-#include "mix_defs.h"
-#include "ThermoPhase.h"
 #include "SurfPhase.h"
 
 namespace Cantera

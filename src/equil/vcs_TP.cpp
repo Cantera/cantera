@@ -1,7 +1,5 @@
 //! @file vcs_TP.cpp
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
 namespace VCSnonideal

@@ -7,7 +7,6 @@
 
 #include "cantera/kinetics/ReactionStoichMgr.h"
 
-#include "cantera/kinetics/StoichManager.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/kinetics/ReactionData.h"
 

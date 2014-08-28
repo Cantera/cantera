@@ -7,11 +7,11 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "cantera/base/ct_defs.h"
-#include "speciesThermoTypes.h"
-
 #ifndef CT_SPECIESTHERMOINTERPTYPE_H
 #define CT_SPECIESTHERMOINTERPTYPE_H
+
+#include "cantera/base/ct_defs.h"
+#include "speciesThermoTypes.h"
 
 namespace Cantera
 {

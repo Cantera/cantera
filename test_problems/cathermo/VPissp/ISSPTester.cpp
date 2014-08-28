@@ -15,9 +15,8 @@
 //  working correctly
 //
 
-#include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
-
+#include <iostream>
 #include <cstdio>
 
 using namespace std;

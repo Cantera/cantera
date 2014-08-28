@@ -2,12 +2,7 @@
  *  @file SimpleTransport.cpp
  *  Simple mostly constant transport properties
  */
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/SimpleTransport.h"
-
-#include "cantera/base/utilities.h"
-#include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;

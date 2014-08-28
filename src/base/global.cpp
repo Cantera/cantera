@@ -1,7 +1,5 @@
 //! @file global.cpp
-#include "cantera/base/global.h"
 
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/xml.h"
 #include "application.h"

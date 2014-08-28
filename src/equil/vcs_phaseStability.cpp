@@ -4,13 +4,9 @@
  *   (see Class \link VCSnonideal::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"
-
-#include <cstdio>
-#include <algorithm>
+#include "cantera/base/ctexceptions.h"
 
 using namespace std;
 using namespace Cantera;

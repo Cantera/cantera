@@ -15,7 +15,6 @@
 #define CT_IDEALSOLNGASVPSS_H
 
 #include "VPStandardStateTP.h"
-#include "VPSSMgr.h"
 
 namespace Cantera
 {

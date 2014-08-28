@@ -9,8 +9,6 @@
 #ifndef CT_RXNPATH_H
 #define CT_RXNPATH_H
 
-// Cantera includes
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "Group.h"
 #include "Kinetics.h"

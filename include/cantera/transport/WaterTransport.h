@@ -4,8 +4,6 @@
 #ifndef CT_WATERTRAN_H
 #define CT_WATERTRAN_H
 
-#include "TransportBase.h"
-#include "cantera/numerics/DenseMatrix.h"
 #include "LiquidTransportParams.h"
 #include "cantera/thermo/WaterPropsIAPWS.h"
 

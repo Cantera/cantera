@@ -11,7 +11,6 @@
 #ifndef CT_SPECIESTHERMO_MGR_H
 #define CT_SPECIESTHERMO_MGR_H
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "SpeciesThermo.h"

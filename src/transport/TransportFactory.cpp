@@ -4,8 +4,6 @@
  *  Implementation file for class TransportFactory.
  */
 
-#include "cantera/thermo/ThermoPhase.h"
-
 // known transport models
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/transport/PecosTransport.h"
@@ -17,21 +15,13 @@
 #include "cantera/transport/AqueousTransport.h"
 #include "cantera/transport/HighPressureGasTransport.h"
 #include "cantera/transport/TransportFactory.h"
+#include "cantera/transport/SolidTransportData.h"
 
 #include "cantera/numerics/polyfit.h"
 #include "MMCollisionInt.h"
 
-#include "cantera/base/xml.h"
-#include "cantera/transport/TransportParams.h"
-#include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/transport/LiquidTranInteraction.h"
-#include "cantera/transport/SolidTransportData.h"
-#include "cantera/base/global.h"
-#include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
-
-#include <fstream>
 
 using namespace std;
 

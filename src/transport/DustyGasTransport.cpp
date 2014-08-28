@@ -8,7 +8,6 @@
  *  See file License.txt for licensing information
  */
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/base/stringUtils.h"
 

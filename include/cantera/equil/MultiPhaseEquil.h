@@ -2,7 +2,6 @@
 #ifndef CT_MULTIPHASE_EQUIL
 #define CT_MULTIPHASE_EQUIL
 
-#include "cantera/base/ct_defs.h"
 #include "MultiPhase.h"
 
 namespace Cantera

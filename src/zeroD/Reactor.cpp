@@ -7,7 +7,6 @@
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/zeroD/ReactorNet.h"
 

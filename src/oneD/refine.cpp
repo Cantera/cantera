@@ -1,10 +1,6 @@
 //! @file refine.cpp
 #include "cantera/oneD/refine.h"
-#include "cantera/oneD/Domain1D.h"
 #include "cantera/oneD/StFlow.h"
-
-#include <algorithm>
-#include <limits>
 
 using namespace std;
 

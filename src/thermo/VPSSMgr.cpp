@@ -17,6 +17,7 @@
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/base/vec_functions.h"
 
 using namespace std;
 

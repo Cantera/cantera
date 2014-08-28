@@ -1,15 +1,12 @@
 //! @file application.cpp
 #include "application.h"
 
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/xml.h"
 #include "units.h"
 
 #include <fstream>
 #include <sstream>
-#include <functional>
 
 using std::string;
 using std::endl;

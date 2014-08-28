@@ -8,14 +8,9 @@
 // Copyright 2001-2004  California Institute of Technology
 
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/thermo/SurfPhase.h"
-#include "cantera/kinetics/StoichManager.h"
-#include "cantera/kinetics/RateCoeffMgr.h"
-
-#include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
-
 
 namespace Cantera
 {

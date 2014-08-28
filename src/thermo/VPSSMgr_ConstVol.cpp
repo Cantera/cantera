@@ -13,10 +13,9 @@
  */
 
 #include "cantera/thermo/VPSSMgr_ConstVol.h"
-#include "cantera/base/xml.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-#include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 

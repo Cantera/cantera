@@ -9,7 +9,8 @@
  */
 
 #include "cantera/kinetics/solveSP.h"
-#include "cantera/base/clockWC.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
 
 #include <cstdio>
 

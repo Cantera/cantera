@@ -21,7 +21,6 @@
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
-#include "cantera/thermo/MixtureFugacityTP.h"
 
 using namespace std;
 using namespace Cantera;

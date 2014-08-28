@@ -9,7 +9,6 @@
 #define CT_IDA_SOLVER_H
 
 #include "DAE_Solver.h"
-#include "cantera/base/ctexceptions.h"
 
 #if HAS_SUNDIALS
 

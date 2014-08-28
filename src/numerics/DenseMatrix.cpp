@@ -4,12 +4,9 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/ctlapack.h"
-#include "cantera/base/utilities.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {

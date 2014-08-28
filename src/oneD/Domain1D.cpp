@@ -3,7 +3,6 @@
  */
 
 #include "cantera/oneD/Domain1D.h"
-#include "cantera/oneD/OneDim.h"
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/base/ctml.h"
 

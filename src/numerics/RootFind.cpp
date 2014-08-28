@@ -18,7 +18,6 @@
 #define DEBUG_MODE_ENABLED 1
 #endif
 
-#include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 

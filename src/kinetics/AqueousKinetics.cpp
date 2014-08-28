@@ -12,9 +12,7 @@
  */
 
 #include "cantera/kinetics/AqueousKinetics.h"
-#include "cantera/kinetics/ReactionData.h"
-#include "cantera/kinetics/RateCoeffMgr.h"
-#include "cantera/base/stringUtils.h"
+#include "cantera/base/vec_functions.h"
 
 using namespace std;
 

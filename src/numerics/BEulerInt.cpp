@@ -10,6 +10,7 @@
  */
 
 #include "cantera/numerics/BEulerInt.h"
+#include "cantera/numerics/SquareMatrix.h"
 
 using namespace std;
 

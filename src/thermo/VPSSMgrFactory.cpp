@@ -11,28 +11,16 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "cantera/thermo/SpeciesThermo.h"
-
-#include "cantera/thermo/VPSSMgr.h"
 #include "VPSSMgrFactory.h"
-
 #include "cantera/thermo/VPStandardStateTP.h"
-
 #include "cantera/thermo/VPSSMgr_IdealGas.h"
 #include "cantera/thermo/VPSSMgr_ConstVol.h"
 #include "cantera/thermo/VPSSMgr_Water_ConstVol.h"
 #include "cantera/thermo/VPSSMgr_Water_HKFT.h"
 #include "cantera/thermo/VPSSMgr_General.h"
 
-#include "cantera/thermo/SpeciesThermoMgr.h"
-#include "cantera/thermo/speciesThermoTypes.h"
-#include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
-
-#include "cantera/thermo/mix_defs.h"
-
-#include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
 using namespace ctml;

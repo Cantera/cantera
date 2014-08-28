@@ -7,7 +7,6 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/thermo/SpeciesThermoFactory.h"
-using namespace std;
 
 #include "cantera/thermo/SpeciesThermo.h"
 #include "NasaThermo.h"
@@ -25,9 +24,9 @@ using namespace std;
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 
+using namespace std;
 using namespace ctml;
 
 namespace Cantera

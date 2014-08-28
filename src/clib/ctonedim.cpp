@@ -6,11 +6,9 @@
 #include "ctonedim.h"
 
 // Cantera includes
-#include "cantera/base/config.h"
 #include "cantera/oneD/Sim1D.h"
-#include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/Inlet1D.h"
-#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/transport/TransportBase.h"
 #include "Cabinet.h"
 
 #include <fstream>

@@ -7,7 +7,6 @@
 #define CT_LTPSPECIES_H
 
 #include "TransportBase.h"
-#include "cantera/base/FactoryBase.h"
 
 namespace Cantera
 {

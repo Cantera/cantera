@@ -8,7 +8,6 @@
 #define KINETICS_FACTORY_H
 
 #include "Kinetics.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/ct_thread.h"
 

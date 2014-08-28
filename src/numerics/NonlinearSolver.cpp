@@ -9,16 +9,11 @@
  * See file License.txt for licensing information.
  */
 
-
-#include "cantera/numerics/SquareMatrix.h"
-#include "cantera/numerics/GeneralMatrix.h"
 #include "cantera/numerics/NonlinearSolver.h"
 #include "cantera/numerics/ctlapack.h"
 
 #include "cantera/base/clockWC.h"
-#include "cantera/base/vec_functions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 #include <limits>
 

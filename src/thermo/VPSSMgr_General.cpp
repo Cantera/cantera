@@ -13,9 +13,8 @@
  */
 
 #include "cantera/thermo/VPSSMgr_General.h"
-#include "cantera/thermo/PDSS.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
+#include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS_IdealGas.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
@@ -23,6 +22,7 @@
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/base/vec_functions.h"
 
 using namespace std;
 

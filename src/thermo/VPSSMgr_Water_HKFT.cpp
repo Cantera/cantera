@@ -17,7 +17,9 @@
 #include "cantera/thermo/VPSSMgr_Water_HKFT.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_HKFT.h"
+#include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/base/xml.h"
 
 using namespace std;
 

@@ -10,18 +10,15 @@
 
 // Cantera includes
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/vec_functions.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/numerics/DenseMatrix.h"
-
-#include "MultiPhaseEquil.h"
 
 #include <memory>
 
 namespace Cantera
 {
 
+class DenseMatrix;
 /// map property strings to integers
 int _equilflag(const char* xy);
 

@@ -8,8 +8,8 @@
 
 #define CTML_VERSION_1_4_1
 
-#include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/Array.h"
 
 using namespace std;
 using namespace Cantera;

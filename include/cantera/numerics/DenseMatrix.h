@@ -12,6 +12,7 @@
 #define CT_DENSEMATRIX_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 #include "cantera/base/Array.h"
 
 namespace Cantera

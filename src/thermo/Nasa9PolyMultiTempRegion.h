@@ -14,7 +14,6 @@
 #define CT_NASA9POLYMULTITEMPREGION_H
 // Copyright 2007  Sandia National Laboratories
 
-#include "cantera/base/global.h"
 #include "cantera/thermo/Nasa9Poly1.h"
 
 namespace Cantera

@@ -13,10 +13,8 @@
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_internal.h"
-
-#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/equil/vcs_defs.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
-#include "cantera/base/global.h"
 
 #include <cstdio>
 

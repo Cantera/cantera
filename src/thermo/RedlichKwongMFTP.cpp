@@ -18,6 +18,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/numerics/RootFind.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 

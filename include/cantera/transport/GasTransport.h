@@ -6,6 +6,7 @@
 #define CT_GAS_TRANSPORT_H
 
 #include "TransportBase.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {

@@ -11,11 +11,10 @@
  */
 
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
-
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/xml.h"
 
 #include <cassert>
-#include <iostream>
 
 namespace Cantera
 {

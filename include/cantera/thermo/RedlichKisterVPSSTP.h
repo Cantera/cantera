@@ -21,7 +21,6 @@
 #define CT_REDLICHKISTERVPSSTP_H
 
 #include "cantera/thermo/GibbsExcessVPSSTP.h"
-#include "cantera/base/Array.h"
 
 namespace Cantera
 {

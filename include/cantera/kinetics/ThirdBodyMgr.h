@@ -8,9 +8,6 @@
 #ifndef CT_THIRDBODY_MGR_H
 #define CT_THIRDBODY_MGR_H
 
-#include <algorithm>
-
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/utilities.h"
 #include "Enhanced3BConc.h"
 

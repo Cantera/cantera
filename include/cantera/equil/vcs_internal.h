@@ -11,9 +11,6 @@
 #ifndef _VCS_INTERNAL_H
 #define _VCS_INTERNAL_H
 
-#include <cstring>
-
-#include "cantera/equil/vcs_defs.h"
 #include "cantera/base/global.h"
 
 namespace VCSnonideal

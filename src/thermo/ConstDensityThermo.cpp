@@ -6,10 +6,9 @@
  */
 
 //  Copyright 2002 California Institute of Technology
-#include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ConstDensityThermo.h"
-#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/base/ctml.h"
 
 using namespace ctml;
 

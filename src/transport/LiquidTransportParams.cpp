@@ -4,8 +4,6 @@
  */
 
 #include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
-#include "cantera/thermo/MargulesVPSSTP.h"
 using namespace std;
 
 namespace Cantera

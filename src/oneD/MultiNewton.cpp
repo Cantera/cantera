@@ -7,12 +7,10 @@
  */
 
 #include "cantera/oneD/MultiNewton.h"
-
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/vec_functions.h"
-#include "cantera/base/stringUtils.h"
 
 #include <cstdio>
+#include <ctime>
 
 using namespace std;
 

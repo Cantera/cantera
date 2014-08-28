@@ -9,6 +9,7 @@
  */
 
 #include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_defs.h"
 #include "cantera/numerics/ctlapack.h"
 
 #include <cstdio>

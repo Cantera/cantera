@@ -5,6 +5,7 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/zeroD/FlowReactor.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

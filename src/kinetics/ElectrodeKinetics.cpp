@@ -4,6 +4,7 @@
 
 #include "cantera/kinetics/ElectrodeKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 

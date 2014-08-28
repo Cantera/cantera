@@ -13,7 +13,6 @@
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;

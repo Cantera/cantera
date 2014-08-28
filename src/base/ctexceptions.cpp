@@ -1,15 +1,11 @@
 //! @file ctexceptions.cpp
 #include "cantera/base/ctexceptions.h"
-
 #include "application.h"
-#include "cantera/base/global.h"
-#include "cantera/base/stringUtils.h"
 
 #ifdef HAVE_FENV_H
 #include <fenv.h>
 #endif
 #include <sstream>
-#include <typeinfo>
 
 namespace Cantera
 {

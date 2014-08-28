@@ -8,7 +8,6 @@
 #ifndef CT_MULTIPHASE_H
 #define CT_MULTIPHASE_H
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/thermo/ThermoPhase.h"
 

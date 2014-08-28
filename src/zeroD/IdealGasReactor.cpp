@@ -5,9 +5,6 @@
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
-#include "cantera/zeroD/ReactorNet.h"
-
-#include <cfloat>
 
 using namespace std;
 

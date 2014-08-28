@@ -7,8 +7,8 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/kinetics/ImplicitSurfChem.h"
-#include "cantera/numerics/Integrator.h"
 #include "cantera/kinetics/solveSP.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 

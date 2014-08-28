@@ -10,9 +10,6 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/numerics/polyfit.h"
-
-#include <algorithm>
 
 using namespace std;
 

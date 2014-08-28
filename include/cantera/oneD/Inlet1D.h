@@ -15,8 +15,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "StFlow.h"
-#include "OneDim.h"
-#include "cantera/base/ctml.h"
 
 #include <cstdio>
 

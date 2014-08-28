@@ -14,9 +14,7 @@
 #ifndef CT_FIXEDCHEMPOTSSTP_H
 #define CT_FIXEDCHEMPOTSSTP_H
 
-#include "mix_defs.h"
 #include "SingleSpeciesTP.h"
-#include "SpeciesThermo.h"
 
 namespace Cantera
 {

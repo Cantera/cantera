@@ -6,7 +6,6 @@
 #define CT_SIM1D_H
 
 #include "OneDim.h"
-#include "cantera/numerics/funcs.h"
 
 namespace Cantera
 {
