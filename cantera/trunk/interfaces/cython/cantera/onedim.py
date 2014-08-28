@@ -435,6 +435,96 @@ class CounterflowDiffusionFlame(FlameBase):
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
 
+    def strain_rate(self, definition, fuel=None, oxidizer='O2', stoich=None):
+        r"""
+        Return the axial strain rate of the counterflow diffusion flame in 1/s.
+
+        :param definition:
+            The definition of the strain rate to be calculated. Options are:
+            ``mean``, ``max``, ``stoichiometric``, ``potential_flow_fuel``, and
+            ``potential_flow_oxidizer``.
+        :param fuel: The fuel species. Used only if *definition* is
+            ``stoichiometric``.
+        :param oxidizer: The oxidizer species, default ``O2``. Used only if
+            *definition* is ``stoichiometric``.
+        :param stoich: The molar stoichiometric oxidizer-to-fuel ratio.
+            Can be omitted if the oxidizer is ``O2``. Used only if *definition*
+            is ``stoichiometric``.
+
+        The parameter *definition* sets the method to compute the strain rate.
+        Possible options are:
+
+        ``mean``:
+            The mean axial velocity gradient in the entire domain
+
+           .. math:: a_{mean} = \left| \frac{\Delta u}{\Delta z} \right|
+
+        ``max``:
+            The maximum axial velocity gradient
+
+            .. math:: a_{max} = \max \left( \left| \frac{du}{dz} \right| \right)
+
+        ``stoichiometric``:
+            The axial velocity gradient at the stoichiometric surface.
+
+            .. math::
+
+                a_{stoichiometric} = \left| \left. \frac{du}{dz}
+                \right|_{\phi=1} \right|
+
+            This method uses the additional keyword arguments *fuel*,
+            *oxidizer*, and *stoich*.
+
+            >>> f.strain_rate('stoichiometric', fuel='H2', oxidizer='O2',
+                              stoich=0.5)
+
+        ``potential_flow_fuel``:
+            The corresponding axial strain rate for a potential flow boundary
+            condition at the fuel inlet.
+
+            .. math:: a_{f} = \sqrt{-\frac{\Lambda}{\rho_{f}}}
+
+        ``potential_flow_oxidizer``:
+            The corresponding axial strain rate for a potential flow boundary
+            condition at the oxidizer inlet.
+
+            .. math:: a_{o} = \sqrt{-\frac{\Lambda}{\rho_{o}}}
+        """
+        if definition == 'mean':
+            return - (self.u[-1] - self.u[0]) / self.grid[-1]
+
+        elif definition == 'max':
+            return np.max(np.abs(np.gradient(self.u) / np.gradient(self.grid)))
+
+        elif definition == 'stoichiometric':
+            if fuel is None:
+                raise KeyError('Required argument "fuel" not defined')
+            if oxidizer != 'O2' and stoich is None:
+                raise KeyError('Required argument "stoich" not defined')
+
+            if stoich is None:
+                # oxidizer is O2
+                stoich = - 0.5 * self.gas.n_atoms(fuel, 'O')
+                if 'H' in self.gas.element_names:
+                    stoich += 0.25 * self.gas.n_atoms(fuel, 'H')
+                if 'C' in self.gas.element_names:
+                    stoich += self.gas.n_atoms(fuel, 'C')
+
+            d_u_d_z = np.gradient(self.u) / np.gradient(self.grid)
+            phi = (self.X[self.gas.species_index(fuel)]
+                   / self.X[self.gas.species_index(oxidizer)] * stoich)
+            z_stoich = np.interp(-1., -phi, self.grid)
+            return np.abs(np.interp(z_stoich, self.grid, d_u_d_z))
+
+        elif definition == 'potential_flow_fuel':
+            return np.sqrt(- self.L[0] / self.density[0])
+
+        elif definition == 'potential_flow_oxidizer':
+            return np.sqrt(- self.L[0] / self.density[-1])
+
+        else:
+            raise ValueError('Definition "' + definition + '" is not available')
+
 
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""

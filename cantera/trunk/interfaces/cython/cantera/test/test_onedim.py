@@ -440,6 +440,33 @@ class TestDiffusionFlame(utilities.CanteraTest):
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
+    def test_strain_rate(self):
+        # This doesn't test that the values are correct, just that they can be
+        # computed without error
+
+        self.create_sim(p=ct.one_atm)
+        self.solve_fixed_T()
+
+        a_max = self.sim.strain_rate('max')
+        a_mean = self.sim.strain_rate('mean')
+        a_pf_fuel = self.sim.strain_rate('potential_flow_fuel')
+        a_pf_oxidizer = self.sim.strain_rate('potential_flow_oxidizer')
+        a_stoich1 = self.sim.strain_rate('stoichiometric', fuel='H2')
+        a_stoich2 = self.sim.strain_rate('stoichiometric', fuel='H2', stoich=0.5)
+
+        self.assertLessEqual(a_mean, a_max)
+        self.assertLessEqual(a_pf_fuel, a_max)
+        self.assertLessEqual(a_pf_oxidizer, a_max)
+        self.assertLessEqual(a_stoich1, a_max)
+        self.assertEqual(a_stoich1, a_stoich2)
+
+        with self.assertRaises(ValueError):
+            self.sim.strain_rate('bad_keyword')
+        with self.assertRaises(KeyError): # missing 'fuel'
+            self.sim.strain_rate('stoichiometric')
+        with self.assertRaises(KeyError): # missing 'stoich'
+            self.sim.strain_rate('stoichiometric', fuel='H2', oxidizer='H2O2')
+
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     referenceFile = '../data/CounterflowPremixedFlame-h2-mix.csv'
