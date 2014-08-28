@@ -596,7 +596,7 @@ config_options = [
            NOTE: Matlab comes with a stripped-down version of 'dot'. If 'dot'
            is on your path, make sure it is not the Matlab version!""",
         '', PathVariable.PathAccept),
-    ('cantera_version', '', '2.2a')
+    ('cantera_version', '', '2.2a1')
 ]
 
 opts.AddVariables(*config_options)
