@@ -144,9 +144,10 @@ class WxsGenerator(object):
             matlab_dir = self.addDirectoryContents('matlab', instdir, matlab)
 
         # Registry entries
-        reg_key = self.addRegistryKey(core, product, Id='CanteraRegRoot', Root='HKLM',
-                                      Key='Software\\Cantera\\Cantera 2.2',
-                                      Action='createAndRemoveOnUninstall')
+        reg_options = dict(ForceCreateOnInstall="yes", ForceDeleteOnUninstall="yes",
+                           Id='CanteraRegRoot', Root='HKLM',
+                           Key='Software\\Cantera\\Cantera 2.2')
+        reg_key = self.addRegistryKey(core, product, options=reg_options)
         et.SubElement(reg_key, 'RegistryValue', dict(Type='string',
                                                      Name='InstallDir',
                                                      Value='[INSTALLDIR]'))
@@ -166,14 +167,13 @@ class WxsGenerator(object):
         tree = et.ElementTree(wix)
         tree.write(outFile)
 
-    def addRegistryKey(self, feature, parent, Id, Root, Key, Action):
+    def addRegistryKey(self, feature, parent, options):
+        Id = options['Id']
         guid = str(uuid.uuid5(self.CANTERA_UUID, Id))
-
         fields = {'Win64': 'yes'} if self.x64 else {}
         dr = et.SubElement(parent, "DirectoryRef", dict(Id="TARGETDIR"))
-        c = et.SubElement(dr, "Component",
-                          dict(Id=Id, Guid=guid, **fields))
-        r = et.SubElement(c, "RegistryKey", dict(Id=Id, Root=Root, Key=Key, Action=Action))
+        c = et.SubElement(dr, "Component", dict(Id=Id, Guid=guid, **fields))
+        r = et.SubElement(c, "RegistryKey", options)
         et.SubElement(feature, 'ComponentRef', dict(Id=Id))
         return r
 
