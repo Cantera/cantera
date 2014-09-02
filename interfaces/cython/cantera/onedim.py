@@ -415,7 +415,7 @@ class CounterflowDiffusionFlame(FlameBase):
         Y = np.zeros((nz, self.gas.n_species))
         T = np.zeros(nz)
         for j in range(nz):
-            x = zz[j]
+            x = zz[j] - zz[0]
             zeta = f * (x - x0)
             zmix = 0.5 * (1.0 - erf(zeta))
             if zmix > zst:
@@ -427,7 +427,7 @@ class CounterflowDiffusionFlame(FlameBase):
 
         T[0] = T0f
         T[-1] = T0o
-        zrel = zz/dz
+        zrel = (zz - zz[0])/dz
 
         self.set_profile('u', [0.0, 1.0], [u0f, -u0o])
         self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
