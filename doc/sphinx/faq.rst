@@ -19,6 +19,11 @@ Installation & Compilation
     <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
     instructions in the :ref:`sec-compiling`.
 
+**How do I install Cantera on Mac OS X?**
+
+    Cantera can be installed using Homebrew. See :ref:`Mac OS X Installation
+    <sec-install-osx>` for details.
+
 **What do I do if compiling Cantera fails?**
 
     - Examine the output of the ``scons build`` command, especially anything
