@@ -543,8 +543,8 @@ class CounterflowDiffusionFlame(FlameBase):
                     stoich += self.gas.n_atoms(fuel, 'C')
 
             d_u_d_z = np.gradient(self.u) / np.gradient(self.grid)
-            phi = (self.X[self.gas.species_index(fuel)]
-                   / self.X[self.gas.species_index(oxidizer)] * stoich)
+            phi = (self.X[self.gas.species_index(fuel)] * stoich /
+                   np.maximum(self.X[self.gas.species_index(oxidizer)], 1e-20))
             z_stoich = np.interp(-1., -phi, self.grid)
             return np.abs(np.interp(z_stoich, self.grid, d_u_d_z))
 
