@@ -435,6 +435,38 @@ class CounterflowDiffusionFlame(FlameBase):
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
 
+    def solve(self, loglevel=1, refine_grid=True):
+        super(CounterflowDiffusionFlame, self).solve(loglevel, refine_grid)
+
+        # Do some checks if loglevel is set
+        if loglevel > 0:
+            # Check if flame is extinct
+            if max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 1.0:
+                print('WARNING: Flame is extinct.')
+                return
+
+            # Check if the flame is very thick
+            # crude width estimate based on temperature
+            z_flame = self.grid[self.T > np.max(self.T) / 2]
+            flame_width = z_flame[-1] - z_flame[0]
+            domain_width = self.grid[-1] - self.grid[0]
+            if flame_width / domain_width > 0.4:
+                print('WARNING: The flame is thick compared to the domain '
+                      'size. The flame might be affected by the plug-flow '
+                      'boundary conditions. Consider increasing the inlet mass '
+                      'fluxes or using a larger domain.')
+
+            # Check if the temperature peak is close to a boundary
+            z_center = (self.grid[np.argmax(self.T)] - self.grid[0]) / domain_width
+            if z_center < 0.25:
+                print('WARNING: The flame temperature peak is close to the '
+                      'fuel inlet. Consider increasing the ratio of the '
+                      'fuel inlet mass flux to the oxidizer inlet mass flux.')
+            if z_center > 0.75:
+                print('WARNING: The flame temperature peak is close to the '
+                      'oxidizer inlet. Consider increasing the ratio of the '
+                      'oxidizer inlet mass flux to the fuel inlet mass flux.')
+
     def strain_rate(self, definition, fuel=None, oxidizer='O2', stoich=None):
         r"""
         Return the axial strain rate of the counterflow diffusion flame in 1/s.
