@@ -112,29 +112,6 @@ public:
         mu[0] = gibbs_mole();
     }
 
-    //!  Get the species electrochemical potentials.
-    /*!
-     *  These are partial molar quantities.  This method adds a term \f$ F z_k
-     *  \phi_p \f$ to each chemical potential.
-     *  The electrochemical potential of species k in a phase p, \f$ \zeta_k \f$,
-     *  is related to the chemical potential via
-     *  the following equation,
-     *
-     *       \f[
-     *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p
-     *       \f]
-     *
-     * @param mu  Output vector of species electrochemical
-     *            potentials. Length: m_kk. Units: J/kmol
-     */
-    void getElectrochemPotentials(doublereal* mu) const {
-        getChemPotentials(mu);
-        double ve = Faraday * electricPotential();
-        for (size_t k = 0; k < m_kk; k++) {
-            mu[k] += ve*charge(k);
-        }
-    }
-
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
     /*!
@@ -175,24 +152,6 @@ public:
      *                Length = m_kk. units are m^3/kmol.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-
-    //! This method returns the convention used in specification
-    //! of the standard state, of which there are currently two,
-    //! temperature based, and variable pressure based.
-    /*!
-     * Currently, there are two standard state conventions:
-     *  - Temperature-based activities
-     *   cSS_CONVENTION_TEMPERATURE 0
-     *      - default
-     *
-     *  -  Variable Pressure and Temperature -based activities
-     *   cSS_CONVENTION_VPSS 1
-     *
-     *  -  Thermodynamics is set via slave ThermoPhase objects with
-     *     nothing being carried out at this %ThermoPhase object level
-     *   cSS_CONVENTION_SLAVE 2
-     */
-    virtual int standardStateConvention() const;
 
     //! This method returns an array of generalized concentrations
     /*!

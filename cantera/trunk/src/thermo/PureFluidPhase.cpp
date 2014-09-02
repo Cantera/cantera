@@ -198,11 +198,6 @@ void  PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
     vbar[0] = 1.0 / molarDensity();
 }
 
-int PureFluidPhase::standardStateConvention() const
-{
-    return cSS_CONVENTION_TEMPERATURE;
-}
-
 void  PureFluidPhase::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;
