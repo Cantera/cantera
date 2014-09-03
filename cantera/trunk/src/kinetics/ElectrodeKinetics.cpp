@@ -140,8 +140,12 @@ void ElectrodeKinetics::identifyMetalPhase()
 
     }
     //
-    //  Right now, if we don't find an electron phase, let's error exit to avoid complications
+    //  Right now, if we don't find an electron phase, we will not error exit. Some functions will
+    //  be turned off and the object will behave as an InterfaceKinetics object.  This is needed
+    //  because downstream electrode objects have internal reaction surfaces that don't have
+    //  electrons.
     //
+    /*
     if (metalPhaseRS_ == npos) {
 	throw CanteraError("ElectrodeKinetics::identifyMetalPhase()",
 			   "Can't find electron phase -> treating this as an error right now");
@@ -150,6 +154,7 @@ void ElectrodeKinetics::identifyMetalPhase()
 	throw CanteraError("ElectrodeKinetics::identifyMetalPhase()",
 			   "Can't find solution phase -> treating this as an error right now");
     }
+    */
 }
 //============================================================================================================================
 // virtual from InterfaceKinetics
@@ -226,6 +231,8 @@ void ElectrodeKinetics::updateROP()
 	    //   Calculate the stoichiometric eletrons for the reaction
 	    //   This is the number of electrons that are the net products of the reaction
 	    //
+            AssertThrow(metalPhaseRS_ != npos, "ElectrodeKinetics::updateROP()");
+
 	    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
 	    //
 	    //   Calculate the open circuit voltage of the reaction
@@ -744,9 +751,14 @@ getExchangeCurrentDensityFormulation(size_t irxn,
 
     RxnMolChange*   rmc = rmcVector[irxn];
     // could also get this from reactant and product stoichiometry, maybe
-    nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
+    if (metalPhaseRS_ == npos) {
+        nStoichElectrons = 0;
+        OCV = 0.0;
+        return false;
+    } else {
+        nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
+    }
  
-    OCV = 0.0;
 
     getDeltaGibbs(0);
 
@@ -805,6 +817,25 @@ getExchangeCurrentDensityFormulation(size_t irxn,
 	
 	    double oo = kinSpeciesOrders[j];
 	    tmp *= pow(mfS, oo);
+	}
+	iO *= tmp;
+    } else if (reactionType == BUTLERVOLMER_RXN) {  
+	const RxnOrders* ro_fwd = m_ctrxn_ROPOrdersList_[iBeta];
+	if (ro_fwd == 0) {
+	    throw CanteraError("ElectrodeKinetics::calcForwardROP_BV()", "forward orders pointer is zero ?!?");
+	}
+	double tmp = 1.0;
+	const std::vector<size_t>& kinSpeciesIDs = ro_fwd->kinSpeciesIDs_;
+	const std::vector<doublereal>& kinSpeciesOrders = ro_fwd->kinSpeciesOrders_;
+	for (size_t j = 0; j < kinSpeciesIDs.size(); j++) {
+	    size_t ks = kinSpeciesIDs[j];
+	    thermo_t& th = speciesPhase(ks);
+	    size_t n = speciesPhaseIndex(ks);
+	    size_t klocal = ks - m_start[n];
+	    double mfS = th.moleFraction(klocal);
+	
+	    double oo = kinSpeciesOrders[j];
+	    tmp *= pow((m_actConc[ks]/m_StandardConc[ks]), oo);
 	}
 	iO *= tmp;
     } else {
