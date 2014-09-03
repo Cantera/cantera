@@ -6,9 +6,10 @@
 
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
+#include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/thermo/SurfPhase.h"
-#include "cantera/base/vec_functions.h"
 
 #include <cstdio>
 
@@ -221,6 +222,9 @@ void InterfaceKinetics::setElectricPotential(int n, doublereal V)
 //============================================================================================================================
 void InterfaceKinetics::_update_rates_T()
 {
+    //
+    // First task is update the electrical potentials from the Phases
+    //
     _update_rates_phi();
     if (m_has_coverage_dependence) {
         m_surf->getCoverages(DATA_PTR(m_actConc));
@@ -269,6 +273,9 @@ void InterfaceKinetics::_update_rates_phi()
     }
 }
 //============================================================================================================================
+//
+// Updates the internal variables m_actConc and m_conc
+//
 void InterfaceKinetics::_update_rates_C()
 {
     for (size_t n = 0; n < nPhases(); n++) {
@@ -327,6 +334,12 @@ void InterfaceKinetics::updateKc()
 //============================================================================================================================
 void InterfaceKinetics::updateMu0()
 {   
+    //
+    // First task is update the electrical potentials from the Phases
+    //
+    _update_rates_phi();
+
+    updateExchangeCurrentQuantities();
     /*
      * Get the vector of standard state electrochemical potentials for species in the Interfacial
      * kinetics object and store it in m_mu0[] and in m_mu0_Kc[]
@@ -347,6 +360,11 @@ void InterfaceKinetics::updateMu0()
 //============================================================================================================================
 void InterfaceKinetics::checkPartialEquil()
 {
+    //
+    // First task is update the electrical potentials from the Phases
+    //
+    _update_rates_phi();
+
     vector_fp dmu(nTotalSpecies(), 0.0);
     vector_fp rmu(std::max<size_t>(nReactions(), 1), 0.0);
     if (m_nrev > 0) {
@@ -424,7 +442,7 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
      * First collect vectors of the standard Gibbs free energies of the
      * species and the standard concentrations
      *   - m_mu0
-     *   - m_logStandardConc
+     *   - m_StandardConc
      */
     size_t ik = 0;
 
@@ -1026,6 +1044,11 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
         }
 	m_ctrxn_ROPOrdersList_.push_back(0);
 	m_ctrxn_FwdOrdersList_.push_back(0);
+	if (rdata.filmResistivity > 0.0) {
+	    throw CanteraError("InterfaceKinetics::addElementaryReaction()",
+			       "film resistivity set for elementary reaction");
+	}
+	m_ctrxn_resistivity_.push_back(rdata.filmResistivity);
     }
 
     // add constant term to rate coeff value vector
@@ -1085,16 +1108,29 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
     if (rdata.beta > 0.0 || 1) {
         m_has_electrochem_rxns = true;
         m_beta.push_back(rdata.beta);
-	// Push back the id of the reaction
+	//   Push back the id of the reaction
         m_ctrxn.push_back(m_ii);
-	// set the default to be the normal forward / reverse calculation method
-	m_ctrxn_BVform.push_back(0);
+        //
+        //   Specify alternative forms of the electrochemical reaction
+        // 
+        if (rdata.reactionType == BUTLERVOLMER_RXN) {
+	    m_ctrxn_BVform.push_back(1);
+        } else if (rdata.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN) {
+	    m_ctrxn_BVform.push_back(2);
+        } else {
+	    // set the default to be the normal forward / reverse calculation method
+	    m_ctrxn_BVform.push_back(0);
+        }
         if (rdata.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
             m_has_exchange_current_density_formulation = true;
             m_ctrxn_ecdf.push_back(1);
         } else {
             m_ctrxn_ecdf.push_back(0);
         }
+        //
+        //   Store the film resistivity
+        //
+        m_ctrxn_resistivity_.push_back(rdata.filmResistivity);
 	
 	if (rdata.forwardFullOrder_.size() > 0) {
 	    RxnOrders* ro = new RxnOrders();
@@ -1109,7 +1145,7 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
 		std::vector<double> fwdFullorders(m_kk, 0.0);
 		determineFwdOrdersBV(rdata, fwdFullorders);
 		RxnOrders* ro = new RxnOrders();
-		ro->fill(rdata.forwardFullOrder_);
+		ro->fill(fwdFullorders);
 		m_ctrxn_FwdOrdersList_[m_ii] = ro;
 	    }
 	} else {
@@ -1258,12 +1294,15 @@ void InterfaceKinetics::finalize()
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("InterfaceKinetics::finalize",
                                            "no surface phase is present.");
+    //
+    // Check to see that the interface routine has a dimension of 2
+    //
     m_surf = (SurfPhase*)&thermo(ks);
-    if (m_surf->nDim() != 2)
+    if (m_surf->nDim() != 2) {
         throw CanteraError("InterfaceKinetics::finalize",
                            "expected interface dimension = 2, but got dimension = "
                            +int2str(m_surf->nDim()));
-
+    }
     m_StandardConc.resize(m_kk, 0.0);
     m_deltaG0.resize(safe_reaction_size, 0.0);
     m_deltaG.resize(safe_reaction_size, 0.0);
@@ -1282,6 +1321,13 @@ void InterfaceKinetics::finalize()
         m_ropr.resize(1, 0.0);
         m_ropnet.resize(1, 0.0);
         m_rkcn.resize(1, 0.0);
+    }
+    //
+    // Malloc and calculate all of the quantities that go into the extra description of reactions
+    //
+    rmcVector.resize(m_ii, 0);
+    for (size_t i = 0; i < m_ii; i++) {
+          rmcVector[i] = new RxnMolChange(this, i);
     }
 
     m_finalized = true;
@@ -1425,20 +1471,25 @@ void InterfaceKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<do
     double betaf = rdata.beta;
     double betar = 1.0 - betaf;
     //
-    //   Loop over the reactants doing away the BV terms.
+    //   Loop over the reactants doing away with the BV terms.
     //   This should leave the reactant terms only, even if they are non-mass action.
     //
     for (size_t j = 0; j < rdata.reactants.size(); j++) {
 	size_t kkin =  rdata.reactants[j];
-	double oo = rdata.rstoich[kkin];
+	double oo = rdata.rstoich[j];
 	fwdFullorders[kkin] += betaf * oo;
+	// just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
 	if (abs(fwdFullorders[kkin]) < 0.00001) {
 	    fwdFullorders[kkin] = 0.0;
 	}
     }
+    //
+    //   Loop over the products doing away with the BV terms.
+    //   This should leave the reactant terms only, even if they are non-mass action.
+    //
     for (size_t j = 0; j < rdata.products.size(); j++) {
 	size_t kkin =  rdata.products[j];
-	double oo = rdata.pstoich[kkin];
+	double oo = rdata.pstoich[j];
 	fwdFullorders[kkin] -= betaf * oo;
 	if (abs(fwdFullorders[kkin]) < 0.00001) {
 	    fwdFullorders[kkin] = 0.0;
@@ -1448,15 +1499,36 @@ void InterfaceKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<do
 //==================================================================================================================
 void EdgeKinetics::finalize()
 {
-    deltaElectricEnergy_.resize(std::max<size_t>(m_ii, 1));
+    //
+    //  Note we can't call the Interface::finalize() routine because we need to check for a dimension of 1 below.
+    //  Therefore, we have to malloc room in arrays that would normally be 
+    //  handled by the InterfaceKinetics::finalize() call.
+    //
+    Kinetics::finalize();
+
+    size_t safe_reaction_size = std::max<size_t>(m_ii, 1);
+    deltaElectricEnergy_.resize(safe_reaction_size);
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("EdgeKinetics::finalize",
-                                           "no edge phase is present.");
+                                           "no surface phase is present.");
+    //
+    // Check to see edge phase has a dimension of 1
+    //
     m_surf = (SurfPhase*)&thermo(ks);
-    if (m_surf->nDim() != 1)
+    if (m_surf->nDim() != 1) {
         throw CanteraError("EdgeKinetics::finalize",
                            "expected interface dimension = 1, but got dimension = "
                            +int2str(m_surf->nDim()));
+    }
+    m_StandardConc.resize(m_kk, 0.0);
+    m_deltaG0.resize(safe_reaction_size, 0.0);
+    m_deltaG.resize(safe_reaction_size, 0.0);
+
+    m_ProdStanConcReac.resize(safe_reaction_size, 0.0);
+
+    if (m_thermo.size() != m_phaseExists.size()) {
+        throw CanteraError("InterfaceKinetics::finalize", "internal error");
+    }
 
     // Guarantee that these arrays can be converted to double* even in the
     // special case where there are no reactions defined.
@@ -1467,7 +1539,6 @@ void EdgeKinetics::finalize()
         m_ropnet.resize(1, 0.0);
         m_rkcn.resize(1, 0.0);
     }
-
     //
     // Malloc and calculate all of the quantities that go into the extra description of reactions
     //

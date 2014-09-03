@@ -434,6 +434,10 @@ public:
      *  units in array kc, which must be dimensioned at least as large as the
      *  total number of reactions.
      *
+     * \f[
+     *       Kc_i = exp [ \Delta G_{ss,i} ] prod(Cs_k) exp(\sum_k \nu_{k,i} F \phi_n) ]
+     * \f]
+     *
      * @param kc   Output vector containing the equilibrium constants.
      *             Length: m_ii.
      */
@@ -446,7 +450,7 @@ public:
      * property values \f$ z_k, k = 1, \dots, K \f$, return the
      * array of reaction values
      * \f[
-     * \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
+     *    \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
      * \f]
      * For example, if this method is called with the array of
      * standard-state molar Gibbs free energies for the species,

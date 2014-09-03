@@ -74,25 +74,49 @@ public:
      */
     virtual void updateROP();
 
+    virtual void determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders);
 
     //void addGlobalReaction(ReactionData& r);
 
-  double calcForwardROP_BV(size_t irxn, size_t iBeta);
+    double calcForwardROP_BV(size_t irxn, size_t iBeta, double ioc, double nStoich, double nu, doublereal ioNet);
 
+    double calcForwardROP_BV_NoAct(size_t irxn, size_t iBeta,  double ioc, double nStoich, double nu, doublereal ioNet);
+
+    bool getExchangeCurrentDensityFormulation(size_t irxn, doublereal& nStoich, doublereal& OCV, doublereal& io,
+                                                doublereal& overPotential, doublereal& beta, doublereal& resistance);
+
+    //! Calculate the open circuit voltage of a given reaction
+    /*!
+     *    If the reaction has no electron transport, then return 0.0
+     *
+     *  @param irxn   Reaction id
+     */
+    double openCircuitVoltage(size_t irxn);
+
+    double calcCurrentDensity(double nu, double nStoich, double io, double beta, double temp, doublereal resistivity = 0.0) const;
+
+    double solveCurrentRes(doublereal nu, doublereal nStoich, doublereal ioc, doublereal beta, doublereal temp,
+	                   doublereal resistivity = 0.0, int iprob = 0) const;
+
+    //! Prepare the class for the addition of reactions
+    /*!
+     *    (virtual from Kinetics)
+     *    We determine the metal phase and solution phase here
+     */ 
+    virtual void init();
 
 
 protected:
-    //! Index of the metal phase in the list of phases for this kinetics object
+    //! Index of the metal phase in the list of phases for this kinetics object. This is the electron phase.
     size_t metalPhaseRS_;
-
-    //! Index of the electron phase in the list of phases for this kinetics object
-    size_t electronPhaseRS_;
 
     //! Index of the solution phase in the list of phases for this surface
     size_t solnPhaseRS_;
 
     //! Index of the electrons species in the list of species for this surface kinetics, if none set it to -1
     size_t kElectronRS_;
+
+    
 
 };
 }
