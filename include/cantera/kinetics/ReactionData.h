@@ -25,6 +25,8 @@ public:
         number(0),
         rxn_number(0),
         filmResistivity(0.0),
+        equilibriumConstantPower(1.0),
+        affinityPower(1.0),
         reversible(true),
         duplicate(false),
         rateCoeffType(ARRHENIUS_REACTION_RATECOEFF_TYPE),
@@ -107,8 +109,23 @@ public:
     /*!
      *  Only valid for Butler-Volmer formulations.
      *  Units are in ohms m2.
+     *  default = 0.0 ohms m2
      */
-    double filmResistivity;
+    doublereal filmResistivity;
+
+    //! Power of the equilibrium constant within the Affinity representation
+    /*!   
+     *  Only valid for Affinity representation.
+     *  default = 1.0
+     */
+    doublereal equilibriumConstantPower;
+
+    //! Power of the "One minus Affinity" term within the Affinity representation
+    /*!
+     *   Only valud for Affinity representation
+     *   default = 1.0
+     */
+    doublereal affinityPower;
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible;
@@ -174,7 +191,8 @@ public:
     //! phases with unity activities.
     bool isReversibleWithFrac;
 
-    doublereal beta; //!< for electrochemical reactions
+    //! Forward value of the apparent Electrochemical transfer coefficient
+    doublereal beta; 
 
     //! Arrhenius parameters for P-log reactions.
     //! The keys are the pressures corresponding to each Arrhenius expression.

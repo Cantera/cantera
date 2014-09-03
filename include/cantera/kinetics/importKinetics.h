@@ -105,6 +105,12 @@ extern bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
               vector_fp& order, vector_fp& fullForwardsOrders,
               const ReactionRules& rules);
 
+extern bool getRxnFormulation(const XML_Node& rxnNode, Kinetics& kin,
+		       std::string default_phase, const ReactionData& rdata,
+		       vector_fp& order, vector_fp& fullForwardsOrders,
+		       doublereal &affinityPower,
+                       doublereal & equilibriumConstantPower,
+		       const ReactionRules& rules);
 
 //! Read the rate coefficient data from the XML file.
 /*!

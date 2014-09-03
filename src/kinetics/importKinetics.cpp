@@ -407,6 +407,92 @@ bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
     return true;
 }
 //====================================================================================================================
+bool getRxnFormulation(const XML_Node& rxnNode, Kinetics& kin,
+		       std::string default_phase, const ReactionData& rdata,
+		       vector_fp& order, vector_fp& fullForwardsOrders,
+		       doublereal &affinityPower,doublereal & equilibriumConstantPower,
+		       const ReactionRules& rules)
+{
+    //
+    // Gather the number of species in the kinetics object and resize fullForwardsOrders
+    //
+    size_t nsp = kin.nTotalSpecies();
+    fullForwardsOrders.resize(nsp, 0.0);
+
+    const std::vector<size_t>& reactants = rdata.reactants;
+    //const std::vector<doublereal>& rstoich = rdata.rstoich;
+    const std::vector<size_t>& products = rdata.products;
+    const std::vector<doublereal>& pstoich = rdata.pstoich;
+
+    if (rxnNode.hasChild("reactionOrderFormulation")) {
+	XML_Node& rfNode = rxnNode.child("reactionOrderFormulation");
+	// 
+        // read the model attribute and figure out how to initialize the full orders vector.
+        //
+        string baseHndling = rfNode["model"];
+        string ss =  lowercase(baseHndling);
+        if (ss == "zeroorders") {
+          for (size_t k = 0; k < nsp; k++) {
+              fullForwardsOrders[k] = 0.0;
+          }
+        } else if (ss == "reactantorders") {
+            for (size_t k = 0; k < nsp; k++) {
+                fullForwardsOrders[k] = 0.0;
+            }
+            for (size_t n = 0; n < order.size(); n++) {
+                size_t k = reactants[n];
+                double fac = order[n];
+                fullForwardsOrders[k] = fac;
+            }
+	} else if (ss == "butlervolmerorders") {
+	    //
+	    // ok first thing to do is get the electrochemical transfer coefficient
+	    // since the order depend on the value.
+	    // Also, if we don't find one, then it's an error
+	    double beta = -10.0;
+	    if (rxnNode.hasChild("rateCoeff")) {
+		XML_Node& rc = rxnNode.child("rateCoeff");
+                if (rc.hasChild("electrochem")) {
+		    XML_Node& eb = rc.child("electrochem");
+                    string sbeta = eb["beta"];
+                    beta = fpValueCheck(sbeta);
+		}
+	    }
+	    if (beta == -10.0) {
+		throw CanteraError("getRxnFormulation()",
+				   "ButlerVolmerOrders model requested but no electrochem beta input");
+            }
+	    double betar = 1.0 - beta;
+	    for (size_t k = 0; k < nsp; k++) {
+                fullForwardsOrders[k] = 0.0;
+            }	    
+            for (size_t n = 0; n < reactants.size(); n++) {
+                size_t k = reactants[n];
+                double fac = order[n];
+                fullForwardsOrders[k] += fac * betar;
+            }
+	    for (size_t n = 0; n < products.size(); n++) {
+                size_t k = products[n];
+                double fac = pstoich[n];
+                fullForwardsOrders[k] += fac * beta;
+            }
+        } else {
+           throw CanteraError("getRxnFormulation()", "unknown model for reactionOrders XML_Node: " + baseHndling);
+        }
+ 
+     
+	if (rfNode.hasChild("affinityPower")) {
+	    XML_Node& fNode = rxnNode.child("affinityPower");
+	    affinityPower = fpValueCheck( fNode() );
+	}
+	if (rfNode.hasChild("equilibriumConstantPower")) {
+	    XML_Node& eNode = rxnNode.child("equilibriumConstantPower");
+	    equilibriumConstantPower = fpValueCheck( eNode() );
+	}	
+    }
+    return true;
+}
+//====================================================================================================================
 /**
  * getArrhenius() parses the xml element called Arrhenius.
  * The Arrhenius expression is
@@ -921,12 +1007,23 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& rxnNode, Kinetics& kin,
 	}
     }
     //
+    //    Fill in the global reaction formulation terms (Affinity reactions)
+    //
+    if (rxnNode.hasChild("reactionOrderFormulation")) {
+      ok = getRxnFormulation(rxnNode, kin,  default_phase, rdata,
+                             rdata.rorder, rdata.forwardFullOrder_, rdata.affinityPower,
+                             rdata.equilibriumConstantPower, rules);
+    }
+
+    //
     //    Fill in the forwardFullOrder_ array
     //
     if (rxnNode.hasChild("orders")) {
 	ok = getOrders(rxnNode, kin,  default_phase, rdata,
 		       rdata.rorder, rdata.forwardFullOrder_, rules);
     }
+
+   
 
     // Some reactions can be elementary reactions but have fractional
     // stoichiometries wrt to some products and reactants. An example of these
