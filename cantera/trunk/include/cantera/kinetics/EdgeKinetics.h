@@ -45,7 +45,7 @@ public:
         return cEdgeKinetics;
     }
 
-    // defined in InterfaceKinetics.cpp
+    
     virtual void finalize();
 };
 }

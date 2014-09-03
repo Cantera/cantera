@@ -8,8 +8,11 @@
 #ifndef CT_IFACEKINETICS_H
 #define CT_IFACEKINETICS_H
 
+#include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
 #include "cantera/kinetics/RxnMolChange.h"
+
+#include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
 #include "ReactionStoichMgr.h"
 
@@ -445,7 +448,7 @@ public:
     int phaseStability(const size_t iphase) const;
 
 
-    void determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders);
+    virtual void determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders);
 
 protected:
     //! Temporary work vector of length m_kk
@@ -712,6 +715,8 @@ protected:
      *   Some reactions have zero in this list, indicating that the calculation isn't necessary.
      */
     std::vector<RxnOrders*> m_ctrxn_FwdOrdersList_;
+
+    std::vector<doublereal> m_ctrxn_resistivity_;
 
     //! Vector of standard concentrations
     /*!
