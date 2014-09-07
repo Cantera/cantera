@@ -1358,9 +1358,9 @@ class Parser(object):
         """
 
         transportLines = []
+        self.line_number = 0
 
         with open(path, 'rU') as ck_file:
-            self.line_number = 0
 
             def readline():
                 self.line_number += 1
