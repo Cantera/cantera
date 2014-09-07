@@ -547,7 +547,6 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
         }
         step(omega, m_work);
     }
-    printInfo(loglevel);
     return omega;
 }
 

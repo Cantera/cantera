@@ -67,8 +67,6 @@ public:
     std::string reactionString(size_t j) {
         return std::string("");
     }
-    void printInfo(int loglevel) {}
-
     void setInitialMixMoles(int loglevel = 0) {
         setInitialMoles(loglevel);
         finish();
