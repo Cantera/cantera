@@ -1618,6 +1618,7 @@ class Parser(object):
 
                 elif tokens[0].upper().startswith('TRAN'):
                     line, comment = readline()
+                    transport_start_line = self.line_number
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
                         if contains(line, 'REAC'):
@@ -1646,7 +1647,7 @@ class Parser(object):
             reaction.index = index
 
         if transportLines:
-            self.parseTransportData(transportLines)
+            self.parseTransportData(transportLines, path, transport_start_line)
 
     def checkDuplicateReactions(self):
         """
@@ -1679,13 +1680,13 @@ class Parser(object):
                 else:
                     raise InputParseError(message.format(r1, r1.line_number, r2.line_number))
 
-    def parseTransportData(self, lines):
+    def parseTransportData(self, lines, filename, line_offset):
         """
         Parse the Chemkin-format transport data in ``lines`` (a list of strings)
         and add that transport data to the previously-loaded species.
         """
 
-        for line in lines:
+        for i,line in enumerate(lines):
             line = line.strip()
             if not line or line.startswith('!'):
                 continue
@@ -1698,7 +1699,9 @@ class Parser(object):
             else:
                 data = line.split()
             if len(data) < 7:
-                raise InputParseError('Unable to parse transport data: not enough parameters')
+                raise InputParseError('Unable to parse transport data: not'
+                    ' enough parameters on line {0} of "{1}".'.format(
+                        line_offset + i, filename))
 
             speciesName = data[0]
             if speciesName in self.speciesDict:
@@ -1706,7 +1709,8 @@ class Parser(object):
                     self.speciesDict[speciesName].transport = TransportData(*data)
                 else:
                     self.warn('Ignoring duplicate transport data'
-                         ' for species "{0}".'.format(speciesName))
+                         ' for species "{0} on line {1} of "{2}".'.format(
+                            speciesName, line_offset + i, filename))
 
     def writeCTI(self, header=None, name='gas', transportModel='Mix',
                  outName='mech.cti'):
@@ -1835,7 +1839,7 @@ duplicate transport data) to be ignored.
             if not os.path.exists(transportFile):
                 raise IOError('Missing transport file: {0!r}'.format(transportFile))
             lines = [strip_nonascii(line) for line in open(transportFile, 'rU')]
-            self.parseTransportData(lines)
+            self.parseTransportData(lines, transportFile, 1)
 
             # Transport validation: make sure all species have transport data
             for s in self.speciesList:
