@@ -261,10 +261,9 @@ void StFlow::eval(size_t jg, doublereal* xg,
     //              update properties
     //-----------------------------------------------------
 
-    // update thermodynamic and transport properties only if a Jacobian is not
-    // being evaluated
+    updateThermo(x, j0, j1);
+    // update transport properties only if a Jacobian is not being evaluated
     if (jg == npos) {
-        updateThermo(x, j0, j1);
         updateTransport(x, j0, j1);
     }
 
