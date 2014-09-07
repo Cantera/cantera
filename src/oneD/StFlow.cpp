@@ -415,34 +415,21 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
             m_tcon[j] = m_trans->thermalConductivity();
         }
     } else if (m_transport_option == c_Multi_Transport) {
-        doublereal sum, sumx, wtm, dz;
-        doublereal eps = 1.0e-12;
-        for (size_t m = j0; m < j1; m++) {
-            setGasAtMidpoint(x,m);
-            dz = m_z[m+1] - m_z[m];
-            wtm = m_thermo->meanMolecularWeight();
+        for (size_t j = j0; j < j1; j++) {
+            setGasAtMidpoint(x,j);
+            doublereal wtm = m_thermo->meanMolecularWeight();
+            doublereal rho = m_thermo->density();
+            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
+            m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
 
-            m_visc[m] = (m_dovisc ? m_trans->viscosity() : 0.0);
-
-            m_trans->getMultiDiffCoeffs(m_nsp,
-                                        DATA_PTR(m_multidiff) + mindex(0,0,m));
-
+            // Use m_diff as storage for the factor outside the summation
             for (size_t k = 0; k < m_nsp; k++) {
-                sum = 0.0;
-                sumx = 0.0;
-                for (size_t j = 0; j < m_nsp; j++) {
-                    if (j != k) {
-                        sum += m_wt[j]*m_multidiff[mindex(k,j,m)]*
-                               ((X(x,j,m+1) - X(x,j,m))/dz + eps);
-                        sumx += (X(x,j,m+1) - X(x,j,m))/dz;
-                    }
-                }
-                m_diff[k + m*m_nsp] = sum/(wtm*(sumx+eps));
+                m_diff[k+j*m_nsp] = m_wt[k] * rho / (wtm*wtm);
             }
 
-            m_tcon[m] = m_trans->thermalConductivity();
+            m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + m*m_nsp);
+                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
             }
         }
     }
@@ -506,7 +493,6 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     switch (m_transport_option) {
 
     case c_Mixav_Transport:
-    case c_Multi_Transport:
         for (j = j0; j < j1; j++) {
             sum = 0.0;
             wtm = m_wtm[j];
@@ -521,6 +507,20 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             // correction flux to insure that \sum_k Y_k V_k = 0.
             for (k = 0; k < m_nsp; k++) {
                 m_flux(k,j) += sum*Y(x,k,j);
+            }
+        }
+        break;
+
+    case c_Multi_Transport:
+        for (j = j0; j < j1; j++) {
+            dz = z(j+1) - z(j);
+
+            for (k = 0; k < m_nsp; k++) {
+                doublereal sum = 0.0;
+                for (size_t m = 0; m < m_nsp; m++) {
+                    sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
+                }
+                m_flux(k,j) = sum * m_diff[k+j*m_nsp] / dz;
             }
         }
         break;
