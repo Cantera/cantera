@@ -1807,6 +1807,14 @@ duplicate transport data) to be ignored.
     def convertMech(self, inputFile, thermoFile=None,
                     transportFile=None, phaseName='gas',
                     outName=None, quiet=False, permissive=None):
+        inputFile = os.path.expanduser(inputFile)
+        if thermoFile:
+            thermoFile = os.path.expanduser(thermoFile)
+        if transportFile:
+            transportFile = os.path.expanduser(transportFile)
+        if outName:
+            outName = os.path.expanduser(outName)
+
         if quiet:
             logging.basicConfig(level=logging.ERROR)
         else:
