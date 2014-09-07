@@ -88,24 +88,18 @@ void popError();
  *          interpret the contents. This is the essential input file within
  *          Cantera, and contains all elements that are involved with simulation,
  *          error propagation, data support, and versioning.
- *          
  *
- *  - cti:  A Chemkin-like input file that %Cantera will read. This file
- *          may not contain all of the information storred in the ctml file,
- *          nor all of options and equations of state that %Cantera can read.
- *          The file supports backwards compatibility with gas-phase mechanisms
- *          written for Chemkin. 
+ *  - cti:  A human-readable input file written using Python syntax which
+ *    defines species and phases, and contains thermodynamic, chemical kinetic,
+ *    and transport data needed by %Cantera. Some options and equations of state
+ *    available in the CTML format have not yet been implemented for the CTI
+ *    format. %Cantera provides a converter (ck2cti) for converting Chemkin-
+ *    format gas-phase mechanisms to the CTI format.
  *
- * %Cantera takes its input from the ctml file. Given a file in cti format, 
- * %Cantera will perform a translation from the cti file into a ctml file.
- *
- * %Cantera can take its input from both types of files. However, given a file
- * in cti format, the initial operation that %Cantera will perform is to
- * translate the cti file into a ctml file. The translation is carried out via
- * a system call to a python interpreter program that actually carries out the
- * translation. In general, a new ctml file is created by the translation that
- * is written to the current local directory. The ctml file is then read back
- * into %Cantera as the input.
+ * Internally, %Cantera works with the CTML file. Given a file in CTI format,
+ * %Cantera will convert the CTI file into the CTML format on-the-fly using a
+ * Python script (ctml_writer). This process is done in-memory without writing
+ * any new files to disk.
  *
  * Other input routines in other modules:
  *   @see importKinetics()
