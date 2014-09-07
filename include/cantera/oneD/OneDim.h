@@ -241,6 +241,9 @@ public:
      */
     void saveStats();
 
+    //! Clear saved statistics
+    void clearStats();
+
     //! Set a function that will be called every time #eval is called.
     //! Can be used to provide keyboard interrupt support in the high-level
     //! language interfaces.

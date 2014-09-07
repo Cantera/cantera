@@ -129,6 +129,17 @@ void OneDim::saveStats()
     }
 }
 
+void OneDim::clearStats()
+{
+    m_gridpts.clear();
+    m_jacEvals.clear();
+    m_jacElapsed.clear();
+    m_funcEvals.clear();
+    m_funcElapsed.clear();
+    m_nevals = 0;
+    m_evaltime = 0.0;
+}
+
 void OneDim::resize()
 {
     m_bw = 0;

@@ -462,6 +462,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void save(string, string, string, int) except +
         void restore(string, string, int) except +
         void writeStats(int) except +
+        void clearStats()
         int domainIndex(string) except +
         double value(size_t, size_t, size_t) except +
         double workValue(size_t, size_t, size_t) except +

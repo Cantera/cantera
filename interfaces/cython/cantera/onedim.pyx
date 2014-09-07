@@ -787,5 +787,11 @@ cdef class Sim1D:
         """
         self.sim.writeStats(print_time)
 
+    def clear_stats(self):
+        """
+        Clear solver statistics.
+        """
+        self.sim.clearStats()
+
     def __dealloc__(self):
         del self.sim
