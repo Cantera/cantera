@@ -15,7 +15,7 @@ Installation
 
 **How do I install Cantera on Linux?**
 
-    Download the source code (e.g. ``cantera-2.1.1.tar.gz``) from `SourceForge
+    Download the source code (e.g. ``cantera-2.1.2.tar.gz``) from `SourceForge
     <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
     instructions in the :ref:`sec-compiling`.
 
@@ -55,7 +55,7 @@ General
 
     David G. Goodwin, Harry K. Moffat, and Raymond L. Speth. *Cantera: An object-
     oriented software toolkit for chemical kinetics, thermodynamics, and
-    transport processes*. http://www.cantera.org, 2014. Version 2.1.1.
+    transport processes*. http://www.cantera.org, 2014. Version 2.1.2.
 
     The following BibTeX entry may also be used::
 
@@ -64,7 +64,7 @@ General
            title = "Cantera: An Object-oriented Software Toolkit for Chemical
                     Kinetics, Thermodynamics, and Transport Processes",
            year = 2014,
-           note = "Version 2.1.1",
+           note = "Version 2.1.2",
            howpublished = "\url{http://www.cantera.org}"
         }
 
