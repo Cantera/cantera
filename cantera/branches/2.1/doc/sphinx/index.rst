@@ -24,6 +24,7 @@ Documentation
    :maxdepth: 2
 
    faq
+   Installation Instructions <install>
    Compiliation Instructions <compiling>
    language-interfaces
    cti/index
