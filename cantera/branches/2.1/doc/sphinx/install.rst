@@ -14,13 +14,13 @@ Windows
 =======
 
 Windows installers are provided for stable versions of Cantera. These
-installation instructions are for Cantera 2.1.1.
+installation instructions are for Cantera 2.1.2.
 
 1. **Choose your Python version and architecture**
 
-   - On Windows, Cantera supports Python 2.7 and Python 3.3. Python 3.3 is
-     recommended unless you need to use legacy code that does not work with
-     Python 3. You can install both Cantera Python modules simultaneously.
+   - On Windows, Cantera supports Python 2.7, Python 3.3, and Python 3.4. Python
+     3.4 is recommended unless you need to use legacy code that does not work
+     with Python 3. You can install both Cantera Python modules simultaneously.
 
    - Cantera supports both 32- and 64- bit Python installations.
 
@@ -39,7 +39,8 @@ installation instructions are for Cantera 2.1.1.
    - Go to `python.org <https://www.python.org/>`_.
 
      - *64-bit*: Download the most recent "Windows X86-64 MSI Installer" for
-       Python *X.Y* (i.e. prefer 3.3.5 to 3.3.4, but not 3.4.1).
+       Python *X.Y* (i.e. if *X.Y* is 3.4, prefer 3.4.1 to 3.4.0, but not
+       3.5.0).
      - *32-bit*: Download the most recent "Windows x86 MSI Installer" for
        Python *X.Y*.
 
@@ -61,7 +62,7 @@ installation instructions are for Cantera 2.1.1.
      <http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy>`_.
 
    - Download the most recent release of the 1.x series for Python *X.Y* that
-     matches your Python architecture. The binaries for Cantera 2.1.1 require
+     matches your Python architecture. The binaries for Cantera 2.1.2 require
      Numpy 1.8.0 or newer.
 
    - Run the installer.
@@ -77,12 +78,12 @@ installation instructions are for Cantera 2.1.1.
 5. **Install Cantera**
 
    - Go to the `Cantera Downloads
-     <https://sourceforge.net/projects/cantera/files/cantera/2.1.1/>`_ page.
+     <https://sourceforge.net/projects/cantera/files/cantera/2.1.2/>`_ page.
 
-     - *64-bit*: Download **Cantera-2.1.1-x64.msi** and
-       **Cantera-Python-2.1.1-x64-pyX.Y.msi**.
-     - *32-bit*: Download **Cantera-2.1.1-x86.msi** and
-       **Cantera-Python-2.1.1-x86-pyX.Y.msi**.
+     - *64-bit*: Download **Cantera-2.1.2-x64.msi** and
+       **Cantera-Python-2.1.2-x64-pyX.Y.msi**.
+     - *32-bit*: Download **Cantera-2.1.2-x86.msi** and
+       **Cantera-Python-2.1.2-x86-pyX.Y.msi**.
 
    - If you are only using the Python module, you do not need to download and
      install the base package.
