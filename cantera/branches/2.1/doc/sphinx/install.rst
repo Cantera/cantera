@@ -4,6 +4,10 @@
 Installing Cantera
 ******************
 
+.. contents::
+   :local:
+   :depth: 1
+
 .. _sec-install-win:
 
 Windows
@@ -120,3 +124,71 @@ installation instructions are for Cantera 2.1.1.
 
          gas = IdealGasMix('gri30.cti')
          h2o = importPhase('liquidvapor.cti','water')
+
+.. _sec-install-osx:
+
+Mac OS X
+========
+
+The easiest way to install Cantera on OS X is by using Homebrew. These
+instructions have been tested on Mac OS X 10.9 (Mavericks) with Xcode 5.1.
+
+Prerequisites
+-------------
+
+If you've used Homebrew before, you may have already completed some of these
+steps and can skip them.
+
+- Install Xcode from the App store
+
+- From a Terminal, run::
+
+      sudo xcodebuild
+
+  and agree to the Xcode license agreement
+
+- Install `Homebrew <http://brew.sh/>`_
+
+- Run the following commands:
+
+      brew tap homebrew/science
+      brew update
+      brew install python scons sundials
+
+- Put ``/usr/local/bin`` at the front of your path, e.g. add the following to
+  ``~/.bash_profile`` (creating this file if it doesn't already exist)::
+
+      export PATH=/usr/local/bin:$PATH
+
+- Run::
+
+      source ~/.bash_profile
+
+- If you want to build the Cantera Python 2 module, run::
+
+      pip install cython numpy
+
+- If you want to build the Cantera Python 3 module, run::
+
+      brew install python3
+      pip3 install numpy cython
+
+Installing Cantera
+------------------
+
+The installation command for Cantera supports several options:
+
+- To install Cantera with additional patches that will be included in the next
+  maintenance release, use the flag: ``--devel``
+
+- To Install the current development version of Cantera, use the flag:
+  ``--HEAD``
+
+- To install the Matlab toolbox, use the flag
+  ``--with-matlab=/Applications/MATLAB_R2014a.app/`` (with the version modified
+  to match your installed Matlab version)
+
+Install Cantera by adding the desired options to the ``brew install`` command,
+e.g.::
+
+    brew install cantera --devel --with-matlab=/Applications/MATLAB_R2014a.app/
