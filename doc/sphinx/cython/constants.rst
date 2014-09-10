@@ -5,43 +5,43 @@ Physical Constants
 
 These values are the same as those in the Cantera C++ header file ct_defs.h.
 
-.. data:: Avogadro
+.. data:: avogadro
 
    Avogadro's Number, /kmol
 
-.. data:: GasConstant
+.. data:: gas_constant
 
    The ideal gas constant in J/kmol-K
 
-.. data:: OneAtm
+.. data:: one_atm
 
    One atmosphere in Pascals
 
-.. data:: Boltzmann
+.. data:: boltzmann
 
    Boltzmann constant
 
-.. data:: Planck
+.. data:: planck
 
    Planck constant (J/s)
 
-.. data:: StefanBoltz
+.. data:: stefan_boltzmann
 
    The Stefan-Boltzmann constant, W/m^2K^4
 
-.. data:: ElectronCharge
+.. data:: electron_charge
 
    The charge on an electron (C)
 
-.. data:: ElectronMass
+.. data:: electron_mass
 
    The mass of an electron (kg)
 
-.. data:: Faraday
+.. data:: faraday
 
    Faraday constant, C/kmol
 
-.. data:: lightSpeed
+.. data:: light_speed
 
    Speed of Light (m/s).
 
