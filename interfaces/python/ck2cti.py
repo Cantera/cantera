@@ -1569,7 +1569,9 @@ class Parser(object):
                         kineticsList.append(kinetics)
                         commentsList.append(comments)
 
-                    if kineticsList[0] == '' and commentsList[-1] == '':
+                    if not kineticsList:
+                        pass
+                    elif kineticsList[0] == '' and commentsList[-1] == '':
                         # True for mechanism files generated from RMG-Py
                         kineticsList.pop(0)
                         commentsList.pop(-1)
