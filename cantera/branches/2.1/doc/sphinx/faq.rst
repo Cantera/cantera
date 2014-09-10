@@ -43,6 +43,29 @@ General
     the ``interfaces/cython/cantera/examples`` subdirectory of the Cantera
     source directory.
 
+**How should I cite Cantera?**
+
+    The recommended citation for Cantera is as follows:
+
+    David G. Goodwin, Harry K. Moffat, and Raymond L. Speth. *Cantera: An object-
+    oriented software toolkit for chemical kinetics, thermodynamics, and
+    transport processes*. http://www.cantera.org, 2014. Version 2.1.1.
+
+    The following BibTeX entry may also be used::
+
+        @Misc{Cantera,
+           author = "David G. Goodwin and Harry K. Moffat and Raymond L. Speth",
+           title = "Cantera: An Object-oriented Software Toolkit for Chemical
+                    Kinetics, Thermodynamics, and Transport Processes",
+           year = 2014,
+           note = "Version 2.1.1",
+           howpublished = "\url{http://www.cantera.org}"
+        }
+
+    If you are using a different version of Cantera, update the ``version`` and
+    ``year`` fields accordingly.
+
+
 Support and Bug Reporting
 -------------------------
 
