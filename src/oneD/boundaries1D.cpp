@@ -205,7 +205,8 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
         // specified.  Set mdot equal to rho*u, and also set
         // lambda to zero.
         if (!m_flow->fixed_mdot()) {
-            r[0] = m_flow->density(0)*xb[0] - x[0];
+            m_mdot = m_flow->density(0)*xb[0];
+            r[0] = m_mdot - x[0];
             rb[3] = xb[3];
         }
     }
