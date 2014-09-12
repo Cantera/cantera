@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <algorithm>
 
 /**
  * Namespace for the Cantera kernel.
