@@ -192,7 +192,7 @@ if localenv['python_package'] == 'new':
     build(make_setup)
 
     build_base = ('cd interfaces/cython &&'
-                 ' $python_cmd setup2.py %s'
+                 ' $python_cmd_esc setup2.py %s'
                  ' --build-lib=../../build/python2'
                  ' --build-temp=../../build/temp-py2'
                  + compilerOpt)
