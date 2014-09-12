@@ -14,6 +14,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <functional>
 
 using namespace Cantera;
 using namespace std;
