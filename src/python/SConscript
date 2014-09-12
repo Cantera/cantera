@@ -72,8 +72,8 @@ elif localenv['python_package'] == 'minimal':
 
 moddir = pjoin('interfaces', 'python')
 localenv.AddPostAction(make_setup,
-                       'cd %s && $python_cmd setup.py build %s' % (moddir,
-                                                                   extraArgs))
+                       'cd %s && $python_cmd_esc setup.py build %s' % (moddir,
+                                                                       extraArgs))
 
 # Install the Python module
 if localenv['python_prefix'] == 'USER':
@@ -88,7 +88,7 @@ else:
 
 if localenv['PYTHON_INSTALLER'] == 'direct':
     mod_inst = install(localenv.Command, 'dummy', pymodule,
-                       'cd %s && $python_cmd setup.py install %s' % (moddir,extra) +
+                       'cd %s && $python_cmd_esc setup.py install %s' % (moddir,extra) +
                        ' --record ../../build/python-installed-files.txt')
     global_env = env
     def find_module_dir(target, source, env):
@@ -104,11 +104,11 @@ if localenv['PYTHON_INSTALLER'] == 'direct':
 
 elif localenv['PYTHON_INSTALLER'] == 'debian':
     install(localenv.Command, 'dummy', pymodule,
-            'cd %s && $python_cmd setup.py install %s --install-layout=deb --no-compile' % (moddir,extra))
+            'cd %s && $python_cmd_esc setup.py install %s --install-layout=deb --no-compile' % (moddir,extra))
     env['python_module_loc'] = '<unspecified>'
 elif localenv['PYTHON_INSTALLER'] == 'binary':
     install(localenv.Command, 'dummy', pymodule,
-            'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir +
+            'cd %s && $python_cmd_esc setup.py bdist_msi --dist-dir=../..' % moddir +
             ' --target-version=' + distutils.sysconfig.get_python_version())
     env['python_module_loc'] = '<unspecified>'
 
