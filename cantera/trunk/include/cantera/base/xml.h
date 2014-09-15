@@ -225,6 +225,7 @@ public:
     //! Overloaded parenthesis operator returns the value of the Node
     /*!
      *  @return  Returns the value of the node as a string.
+     *  @deprecated Use value() instead.
      */
     std::string operator()() const;
 
