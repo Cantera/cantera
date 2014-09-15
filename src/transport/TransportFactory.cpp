@@ -437,7 +437,7 @@ void TransportFactory::setupMM(const std::vector<const XML_Node*> &transport_dat
     tr.w_ac.resize(nsp);
 
     XML_Node root, log;
-    getTransportData(transport_database, log, tr.thermo->speciesNames(), tr);
+    getTransportData(*thermo, transport_database, log, tr.thermo->speciesNames(), tr);
 
     for (size_t i = 0; i < nsp; i++) {
         tr.poly[i].resize(nsp);
@@ -687,7 +687,7 @@ void TransportFactory::fitCollisionIntegrals(GasTransportParams& tr,
     }
 }
 
-void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,
+void TransportFactory::getTransportData(const ThermoPhase& thermo, const std::vector<const XML_Node*> &xspecies,
                                         XML_Node& log, const std::vector<std::string> &names, GasTransportParams& tr)
 {
     std::map<std::string, size_t> speciesIndices;
@@ -713,14 +713,32 @@ void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspe
 
         // parameters are converted to SI units before storing
 
+        double nAtoms = 0;
+        size_t kSpec = thermo.speciesIndex(sp["name"]);
+        for (size_t m = 0; m < thermo.nElements(); m++) {
+            nAtoms += thermo.nAtoms(kSpec, m);
+        }
+
         // Molecular geometry; rotational heat capacity / R
         XML_Node* geomNode = ctml::getByTitle(node, "geometry");
         std::string geom = (geomNode) ? geomNode->value() : "";
         if (geom == "atom") {
+            if (nAtoms != 1) {
+                throw TransportDBError(i, "invalid geometry. 'atom' specified,"
+                    " but species contains multiple atoms.");
+            }
             tr.crot[j] = 0.0;
         } else if (geom == "linear") {
+            if (nAtoms == 1) {
+                throw TransportDBError(i, "invalid geometry. 'linear' specified,"
+                    " but species only contains one atom.");
+            }
             tr.crot[j] = 1.0;
         } else if (geom == "nonlinear") {
+            if (nAtoms < 3) {
+                throw TransportDBError(i, "invalid geometry. 'nonlinear' specified,"
+                    " but species only contains " + fp2str(nAtoms) + " atoms.");
+            }
             tr.crot[j] = 1.5;
         } else {
             throw TransportDBError(i, "invalid geometry");

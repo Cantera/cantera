@@ -43,6 +43,53 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(all(self.phase.multi_diff_coeffs.flat >= 0.0))
         self.assertTrue(all(self.phase.thermal_diff_coeffs.flat != 0.0))
 
+class TestTransportGeometryFlags(utilities.CanteraTest):
+    phase_data = """
+units(length="cm", time="s", quantity="mol", act_energy="cal/mol")
+
+ideal_gas(name="test",
+    elements="O  H",
+    species="H2  H  H2O",
+    initial_state=state(temperature=300.0, pressure=OneAtm),
+    transport='Mix'
+)
+
+species(name="H2",
+    atoms=" H:2 ",
+    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
+    transport=gas_transport(
+                geom="{H2}",
+                diam=2.92, well_depth=38.00, polar=0.79, rot_relax=280.00)
+)
+
+species(name="H",
+    atoms=" H:1 ",
+    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
+    transport=gas_transport(
+                geom="{H}",
+                diam=2.05, well_depth=145.00)
+)
+species(name="H2O",
+    atoms=" H:2  O:1 ",
+    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
+    transport=gas_transport(
+                geom="{H2O}",
+                diam=2.60, well_depth=572.40, dipole=1.84, rot_relax=4.00)
+)
+"""
+    def test_bad_geometry(self):
+        ct.Solution(source=self.phase_data.format(H='atom',
+                                                  H2='linear',
+                                                  H2O='nonlinear'))
+        bad = [{'H':'linear', 'H2':'linear', 'H2O':'nonlinear'},
+               {'H':'nonlinear', 'H2':'linear', 'H2O':'nonlinear'},
+               {'H':'atom', 'H2':'atom', 'H2O':'nonlinear'},
+               {'H':'atom', 'H2':'nonlinear', 'H2O':'nonlinear'},
+               {'H':'atom', 'H2':'linear', 'H2O':'atom'}]
+        for geoms in bad:
+            with self.assertRaises(RuntimeError):
+                ct.Solution(source=self.phase_data.format(**geoms))
+
 
 class TestDustyGas(utilities.CanteraTest):
     def setUp(self):

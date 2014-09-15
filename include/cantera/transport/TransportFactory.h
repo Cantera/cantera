@@ -174,6 +174,7 @@ private:
      * instance of TransportParams containing the transport data for
      * these species read from the file.
      *
+     *  @param thermo      The phase with species corresponding to the transport data
      *  @param xspecies    Vector of pointers to species XML_Node databases.
      *  @param log         reference to an XML_Node that will contain the log (unused)
      *  @param names       vector of species names that must be filled in with valid transport parameters
@@ -181,7 +182,7 @@ private:
      *                     for the species listed in names (in the order of their listing
      *                     in names).
      */
-    void getTransportData(const std::vector<const XML_Node*> &xspecies,
+    void getTransportData(const ThermoPhase& thermo, const std::vector<const XML_Node*> &xspecies,
                           XML_Node& log, const std::vector<std::string>& names,
                           GasTransportParams& tr);
 
