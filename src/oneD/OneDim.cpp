@@ -385,21 +385,17 @@ void OneDim::save(const std::string& fname, std::string id,
     XML_Node* ct;
     if (fin) {
         root.build(fin);
-        const XML_Node* same_ID = root.findID(id);
-        int jid = 1;
-        string idnew = id;
-        while (same_ID != 0) {
-            idnew = id + "_" + int2str(jid);
-            jid++;
-            same_ID = root.findID(idnew);
+        // Remove existing solution with the same id
+        XML_Node* same_ID = root.findID(id);
+        if (same_ID) {
+            same_ID->parent()->removeChild(same_ID);
         }
-        id = idnew;
         fin.close();
         ct = &root.child("ctml");
     } else {
         ct = &root.addChild("ctml");
     }
-    XML_Node& sim = (XML_Node&)ct->addChild("simulation");
+    XML_Node& sim = ct->addChild("simulation");
     sim.addAttribute("id",id);
     addString(sim,"timestamp",asctime(newtime));
     if (desc != "") {
