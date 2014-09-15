@@ -201,7 +201,7 @@ void getIntegers(const Cantera::XML_Node& node,
     for (size_t i = 0; i < f.size(); i++) {
         const XML_Node& fi = *f[i];
         if (fi["min"] != "" && fi["max"] != "") {
-            v[fi["title"]] = intValue(fi());
+            v[fi["title"]] = fi.int_value();
         }
     }
 }
@@ -222,16 +222,16 @@ doublereal getFloatCurrent(const Cantera::XML_Node& node,
                            const std::string& type)
 {
     doublereal fctr = 1.0;
-    doublereal x = fpValue(node());
+    doublereal x = node.fp_value();
     const string& units = node["units"];
     const string& vmin = node["min"];
     const string& vmax = node["max"];
     if (vmin != "" && x < fpValue(vmin) - Tiny) {
-        writelog("\nWarning: value "+node()+" is below lower limit of "
+        writelog("\nWarning: value "+node.value()+" is below lower limit of "
                  +vmin+".\n");
     }
     if (node["max"] != "" && x > fpValue(vmax) + Tiny) {
-        writelog("\nWarning: value "+node()+" is above upper limit of "
+        writelog("\nWarning: value "+node.value()+" is above upper limit of "
                  +vmax+".\n");
     }
     // Note, most types of converters default to toSI() type atm.
@@ -322,15 +322,15 @@ int getInteger(const Cantera::XML_Node& parent, const std::string& name)
                            "no child XML element named " + name);
     }
     const XML_Node& node = parent.child(name);
-    int x = intValue(node());
+    int x = node.int_value();
     const string& vmin = node["min"];
     const string& vmax = node["max"];
     if (vmin != "" && x < intValue(vmin)) {
-        writelog("\nWarning: value "+node()+" is below lower limit of "
+        writelog("\nWarning: value "+node.value()+" is below lower limit of "
                  +vmin+".\n");
     }
     if (node["max"] != "" && x > intValue(vmax)) {
-        writelog("\nWarning: value "+node()+" is above upper limit of "
+        writelog("\nWarning: value "+node.value()+" is above upper limit of "
                  +vmax+".\n");
     }
     return x;

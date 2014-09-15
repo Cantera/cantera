@@ -8,6 +8,7 @@
 
 #include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 #include <sstream>
 
@@ -464,6 +465,8 @@ std::string XML_Node::value() const
 
 std::string XML_Node::operator()() const
 {
+    warn_deprecated("XML_Node::operator()",
+                    "To be removed after Cantera 2.2. Use XML_Node::value().");
     return m_value;
 }
 

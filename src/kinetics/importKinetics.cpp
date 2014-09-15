@@ -217,7 +217,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
                 throw CanteraError("getReagents",
                                    "reaction order specified for non-reactant: "
                                    +sp);
-            forder = fpValue(oo());
+            forder = oo.fp_value();
             if (forder < 0.0) {
                 throw CanteraError("getReagents",
                                    "reaction order must be non-negative");
@@ -311,7 +311,7 @@ bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
         doublereal forder;
         for (size_t nn = 0; nn < ord.size(); nn++) {
             const XML_Node& oo = *ord[nn];
-            forder = fpValue(oo());
+            forder = oo.fp_value();
 	    std::string spName = oo["species"];
             size_t k = kin.kineticsSpeciesIndex(spName);
             if (k == npos) {
@@ -483,11 +483,11 @@ bool getRxnFormulation(const XML_Node& rxnNode, Kinetics& kin,
      
 	if (rfNode.hasChild("affinityPower")) {
 	    XML_Node& fNode = rxnNode.child("affinityPower");
-	    affinityPower = fpValueCheck( fNode() );
+	    affinityPower = fNode.fp_value();
 	}
 	if (rfNode.hasChild("equilibriumConstantPower")) {
 	    XML_Node& eNode = rxnNode.child("equilibriumConstantPower");
-	    equilibriumConstantPower = fpValueCheck( eNode() );
+	    equilibriumConstantPower = eNode.fp_value();
 	}	
     }
     return true;
@@ -1003,7 +1003,7 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& rxnNode, Kinetics& kin,
 	//
 	if (rxnNode.hasChild("filmResistivity")) {
 	    XML_Node& fNode = rxnNode.child("filmResistivity");
-	    rdata.filmResistivity = fpValueCheck( fNode() );
+	    rdata.filmResistivity = fNode.fp_value();
 	}
     }
     //
