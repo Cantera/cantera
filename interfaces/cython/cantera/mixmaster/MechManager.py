@@ -7,7 +7,7 @@ else:
     from Tkinter import *
 
 from .ControlPanel import ControlWindow
-from .ControlPanel import make_menu, menuitem_state
+from .ControlPanel import make_menu, menuitem_state, add_menu_item
 #from Cantera.Examples.Tk import _mechdir
 import os
 
@@ -52,9 +52,9 @@ class MechManager(Frame):
         self.mechanisms.append((name, mech))
         il = len(self.mechanisms)
         self.mlist[-1] = (name, self.setMechanism, 'check', self.mechindx, il)
+        add_menu_item(list(self.mechmenu.children.values())[0], self.mlist[-1])
         self.mlist.append([])
 
-        self.mechmenu = make_menu('Mixtures', self, self.mlist)
         self.mechindx.set(il)
         self.mechmenu.grid(row=0,column=0,sticky=W)
 
