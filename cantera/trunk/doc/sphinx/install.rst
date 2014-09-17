@@ -192,3 +192,38 @@ Install Cantera by adding the desired options to the ``brew install`` command,
 e.g.::
 
     brew install cantera --devel --with-matlab=/Applications/MATLAB_R2014a.app/
+
+.. _sec-install-ubuntu:
+
+Ubuntu
+======
+
+Ubuntu packages are provided for recent versions of Ubuntu using a Personal
+Package Archive (PPA). As of Cantera 2.1.2, packages are available for Ubuntu
+12.04 LTS (Precise Pangolin) and Ubuntu 14.04 LTS (Trusty Tahr). To see which
+Ubuntu releases and Cantera versions are currently available, visit
+https://launchpad.net/~speth/+archive/ubuntu/cantera
+
+The available packages are:
+
+- ``cantera-python`` - The Cantera Python module for Python 2. For Ubuntu 12.04,
+  this is the "legacy" Python module. For Ubuntu 14.04 and newer, this is the
+  "new" Python module.
+
+- ``cantera-python3`` - The Cantera Python module for Python 3. Only available
+  for Ubuntu 14.04 and newer.
+
+- ``cantera-dev`` - Libraries and header files for compiling your own C++ and
+  Fortran 90 programs that use Cantera.
+
+To add the Cantera PPA::
+
+    sudo aptitude install python-software-properties
+    sudo apt-add-repository ppa:speth/cantera
+    sudo aptitude update
+
+To install all of the Cantera packages::
+
+    sudo aptitude install cantera-python cantera-python3 cantera-dev
+
+or install whichever subset you need by adjusting the above command.
