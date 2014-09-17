@@ -1,0 +1,20 @@
+molar enthalpy   =      0.013282 J kg-1
+molar intEnergy  =      0.013282 J kg-1
+molar entropy    =        93.636 J kg-1 K-1
+molar gibbs      =   -3.8986e+07 J kg-1
+molar Cp         =         28836 J kg-1 K-1
+mixture density =        12.058 kg m-3
+molar density =       0.66727 kmol m-3
+mean molecular weight =         18.07 kg kmol-1
+ Printout of standard state properties
+            Name         mu_i       H_i_SS       S_i_SS      Cp_i_SS     Vol_i_SS
+          H2O(l)  -3.8962e+07     0.013282   3.8962e+07        28836          1.5
+         CO2(aq)  -3.8962e+07     0.013282   3.8962e+07        28836          1.3
+         H2S(aq)  -3.8962e+07     0.013282   3.8962e+07        28836          0.1
+         CH4(aq)  -3.8962e+07     0.013282   3.8962e+07        28836          0.1
+ Printout of Partial molar properties
+            Name         mu_i       H_i_PM       S_i_PM      Cp_i_PM     Vol_i_PM
+          H2O(l)  -3.8969e+07     0.013282       36.687        28836          1.5
+         CO2(aq)   -4.467e+07     0.013282        19160        28836          1.3
+         H2S(aq)  -4.7655e+07     0.013282        29171        28836          0.1
+         CH4(aq)  -5.0378e+07     0.013282        38305        28836          0.1

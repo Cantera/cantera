@@ -1,0 +1,132 @@
+"""
+CATCOMB  -- Catalytic combustion of methane on platinum.
+
+This script solves a catalytic combustion problem. A stagnation flow is set
+up, with a gas inlet 10 cm from a platinum surface at 900 K. The lean,
+premixed methane/air mixture enters at ~ 6 cm/s (0.06 kg/m2/s), and burns
+catalytically on the platinum surface. Gas-phase chemistry is included too,
+and has some effect very near the surface.
+
+The catalytic combustion mechanism is from Deutschman et al., 26th
+Symp. (Intl.) on Combustion,1996 pp. 1747-1754
+"""
+
+import numpy as np
+import cantera as ct
+
+#  Parameter values are collected here to make it easier to modify them
+p = ct.one_atm  # pressure
+tinlet = 300.0  # inlet temperature
+tsurf = 900.0  # surface temperature
+mdot = 0.06  # kg/m^2/s
+transport = 'Mix'  # transport model
+
+# We will solve first for a hydrogen/air case to use as the initial estimate
+# for the methane/air case
+
+# composition of the inlet premixed gas for the hydrogen/air case
+comp1 = 'H2:0.05, O2:0.21, N2:0.78, AR:0.01'
+
+# composition of the inlet premixed gas for the methane/air case
+comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01'
+
+# the initial grid, in meters. The inlet/surface separation is 10 cm.
+initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1]  # m
+
+# numerical parameters
+tol_ss = [1.0e-5, 1.0e-9]  # [rtol, atol] for steady-state problem
+tol_ts = [1.0e-4, 1.0e-9]  # [rtol, atol] for time stepping
+
+loglevel = 1  # amount of diagnostic output (0 to 5)
+refine_grid = True  # enable or disable refinement
+
+################ create the gas object ########################
+#
+# This object will be used to evaluate all thermodynamic, kinetic, and
+# transport properties. The gas phase will be taken from the definition of
+# phase 'gas' in input file 'ptcombust.cti,' which is a stripped-down version
+# of GRI-Mech 3.0.
+gas = ct.Solution('ptcombust.cti', 'gas')
+gas.TPX = tinlet, p, comp1
+
+################ create the interface object ##################
+#
+# This object will be used to evaluate all surface chemical production rates.
+# It will be created from the interface definition 'Pt_surf' in input file
+# 'ptcombust.cti,' which implements the reaction mechanism of Deutschmann et
+# al., 1995 for catalytic combustion on platinum.
+#
+surf_phase = ct.Interface('ptcombust.cti', 'Pt_surf', [gas])
+surf_phase.TP = tsurf, p
+
+# integrate the coverage equations in time for 1 s, holding the gas
+# composition fixed to generate a good starting estimate for the coverages.
+surf_phase.advance_coverages(1.0)
+
+# create the object that simulates the stagnation flow, and specify an initial
+# grid
+sim = ct.ImpingingJet(gas=gas, grid=initial_grid, surface=surf_phase)
+
+# Objects of class StagnationFlow have members that represent the gas inlet
+# ('inlet') and the surface ('surface'). Set some parameters of these objects.
+sim.inlet.mdot = mdot
+sim.inlet.T = tinlet
+sim.inlet.X = comp1
+sim.surface.T = tsurf
+
+# Set error tolerances
+sim.flame.set_steady_tolerances(default=tol_ss)
+sim.flame.set_transient_tolerances(default=tol_ts)
+
+# Show the initial solution estimate
+sim.show_solution()
+
+# Solving problems with stiff chemistry coulpled to flow can require a
+# sequential approach where solutions are first obtained for simpler problems
+# and used as the initial guess for more difficult problems.
+
+# start with the energy equation on (default is 'off')
+sim.energy_enabled = True
+
+# disable the surface coverage equations, and turn off all gas and surface
+# chemistry.
+sim.surface.coverage_enabled = False
+surf_phase.set_multiplier(0.0)
+gas.set_multiplier(0.0)
+
+# solve the problem, refining the grid if needed, to determine the non-
+# reacting velocity and temperature distributions
+sim.solve(loglevel, refine_grid)
+
+# now turn on the surface coverage equations, and turn the chemistry on slowly
+sim.surface.coverage_enabled = True
+for mult in np.logspace(-5, 0, 6):
+    surf_phase.set_multiplier(mult)
+    gas.set_multiplier(mult)
+    print('Multiplier =', mult)
+    sim.solve(loglevel, refine_grid)
+
+# At this point, we should have the solution for the hydrogen/air problem.
+sim.show_solution()
+
+# Now switch the inlet to the methane/air composition.
+sim.inlet.X = comp2
+
+# set more stringent grid refinement criteria
+sim.set_refine_criteria(100.0, 0.15, 0.2, 0.0)
+
+# solve the problem for the final time
+sim.solve(loglevel, refine_grid)
+
+# show the solution
+sim.show_solution()
+
+# save the solution in XML format. The 'restore' method can be used to restart
+# a simulation from a solution stored in this form.
+sim.save("catcomb.xml", "soln1")
+
+# save selected solution components in a CSV file for plotting in
+# Excel or MATLAB.
+sim.write_csv('catalytic_combustion.csv', quiet=False)
+
+sim.show_stats(0)

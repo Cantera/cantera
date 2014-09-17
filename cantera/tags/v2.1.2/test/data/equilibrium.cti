@@ -1,0 +1,27 @@
+ideal_gas(
+    name="complete",
+    elements=" C H O",
+    species="gri30: O2 CH4 H2O CO2",
+    initial_state=state(temperature=298.0,
+                        pressure = 100000.0))
+
+ideal_gas(
+    name="incomplete",
+    elements=" C H O",
+    species="gri30: O2 CH4 H2O CO2 CO H2 OH",
+    initial_state=state(temperature=298.0,
+                        pressure = 100000.0))
+
+ideal_gas(
+    name="overconstrained-1",
+    elements=" C H O",
+    species="gri30: O2 CH4",
+    initial_state=state(temperature=298.0,
+                        pressure = 100000.0))
+
+ideal_gas(
+    name="overconstrained-2",
+    elements=" C H O N Ar",
+    species="gri30: O2 CH4 AR",
+    initial_state=state(temperature=298.0,
+                        pressure = 100000.0))

@@ -1,0 +1,42 @@
+testing handling of non-integral stoichiometric coefficients...
+Reaction Equations:
+H2O  => 1.4 H + 0.2 O2 + 0.6 OH 
+0.7 H2 + 0.2 O2 + 0.6 OH  => H2O 
+
+Creation Rates: 
+          H2  0.0000e+00  0.0000e+00 
+           H  4.2653e+10  1.4000e+00 
+           O  0.0000e+00  0.0000e+00 
+          O2  6.0933e+09  2.0000e-01 
+          OH  1.8280e+10  6.0000e-01 
+         H2O  1.5750e-08  1.0000e+00 
+
+Destruction Rates:
+          H2  1.1025e-08  7.0000e-01 
+           H  0.0000e+00  0.0000e+00 
+           O  0.0000e+00  0.0000e+00 
+          O2  3.1501e-09  2.0000e-01 
+          OH  9.4503e-09  6.0000e-01 
+         H2O  3.0466e+10  1.0000e+00 
+
+
+Forward rate constants:
+[  1.00000000e+13   3.98107200e+04]
+
+Fwd rate of progress, kf*concentration product, difference:
+1.57505106844e-08 1.57505106844e-08 0.0
+
+Reactant stoichiometric coefficients:
+[[ 0.   0.7]
+ [ 0.   0. ]
+ [ 0.   0. ]
+ [ 0.   0.2]
+ [ 0.   0.6]
+ [ 1.   0. ]]
+Product stoichiometric coefficients:
+[[ 0.   0. ]
+ [ 1.4  0. ]
+ [ 0.   0. ]
+ [ 0.2  0. ]
+ [ 0.6  0. ]
+ [ 0.   1. ]]

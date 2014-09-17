@@ -1,0 +1,336 @@
+Initial T = 207.283, pres = 5.89439e-09 atm
+Final T = 207.283, pres = 5.89439e-09 atm
+enthalpy = -91746.5
+entropy = 11980.8
+Gibbs function = -2.57518e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
+
+Initial T = 207.283, pres = 5.89439e-08 atm
+Final T = 207.283, pres = 5.89439e-08 atm
+enthalpy = -91746.5
+entropy = 11317.4
+Gibbs function = -2.43765e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
+
+Initial T = 207.283, pres = 5.89439e-07 atm
+Final T = 207.283, pres = 5.89439e-07 atm
+enthalpy = -91746.5
+entropy = 10653.9
+Gibbs function = -2.30013e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
+
+Initial T = 207.283, pres = 5.89439e-06 atm
+Final T = 207.283, pres = 5.89439e-06 atm
+enthalpy = -91746.5
+entropy = 9990.5
+Gibbs function = -2.16261e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
+
+Initial T = 207.283, pres = 5.89439e-05 atm
+Final T = 207.283, pres = 5.89439e-05 atm
+enthalpy = -91746.5
+entropy = 9327.05
+Gibbs function = -2.02509e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
+
+Initial T = 207.283, pres = 0.000589439 atm
+Final T = 207.283, pres = 0.000589439 atm
+enthalpy = -91746.5
+entropy = 8663.6
+Gibbs function = -1.88757e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
+
+Initial T = 207.283, pres = 0.00589439 atm
+Final T = 207.283, pres = 0.00589439 atm
+enthalpy = -91746.5
+entropy = 8000.16
+Gibbs function = -1.75005e+06
+heat capacity c_p = 1009.36
+heat capacity c_v = 721.229
+
+Initial T = 414.143, pres = 1.17767e-08 atm
+Final T = 414.143, pres = 1.17767e-08 atm
+enthalpy = 117856
+entropy = 12482.2
+Gibbs function = -5.05157e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
+
+Initial T = 414.143, pres = 1.17767e-07 atm
+Final T = 414.143, pres = 1.17767e-07 atm
+enthalpy = 117856
+entropy = 11818.8
+Gibbs function = -4.77681e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
+
+Initial T = 414.143, pres = 1.17767e-06 atm
+Final T = 414.143, pres = 1.17767e-06 atm
+enthalpy = 117856
+entropy = 11155.3
+Gibbs function = -4.50205e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
+
+Initial T = 414.143, pres = 1.17767e-05 atm
+Final T = 414.143, pres = 1.17767e-05 atm
+enthalpy = 117856
+entropy = 10491.9
+Gibbs function = -4.22728e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
+
+Initial T = 414.143, pres = 0.000117767 atm
+Final T = 414.143, pres = 0.000117767 atm
+enthalpy = 117856
+entropy = 9828.43
+Gibbs function = -3.95252e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
+
+Initial T = 414.143, pres = 0.00117767 atm
+Final T = 414.143, pres = 0.00117767 atm
+enthalpy = 117856
+entropy = 9164.98
+Gibbs function = -3.67776e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
+
+Initial T = 414.143, pres = 0.0117767 atm
+Final T = 414.143, pres = 0.0117767 atm
+enthalpy = 117856
+entropy = 8501.54
+Gibbs function = -3.403e+06
+heat capacity c_p = 1022.57
+heat capacity c_v = 734.437
+
+Initial T = 1153.16, pres = 3.27918e-08 atm
+Final T = 1152.47, pres = 3.27723e-08 atm
+enthalpy = 930594
+entropy = 13299.8
+Gibbs function = -1.43969e+07
+heat capacity c_p = 1172.94
+heat capacity c_v = 884.809
+
+Initial T = 1152.47, pres = 3.27723e-07 atm
+Final T = 1152.61, pres = 3.27762e-07 atm
+enthalpy = 930634
+entropy = 12636.3
+Gibbs function = -1.36341e+07
+heat capacity c_p = 1172.96
+heat capacity c_v = 884.832
+
+Initial T = 1152.61, pres = 3.27762e-06 atm
+Final T = 1152.66, pres = 3.27775e-06 atm
+enthalpy = 930647
+entropy = 11972.9
+Gibbs function = -1.287e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.839
+
+Initial T = 1152.66, pres = 3.27775e-05 atm
+Final T = 1152.68, pres = 3.27779e-05 atm
+enthalpy = 930651
+entropy = 11309.4
+Gibbs function = -1.21054e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.841
+
+Initial T = 1152.68, pres = 0.000327779 atm
+Final T = 1152.68, pres = 0.00032778 atm
+enthalpy = 930652
+entropy = 10646
+Gibbs function = -1.13407e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.842
+
+Initial T = 1152.68, pres = 0.0032778 atm
+Final T = 1152.68, pres = 0.00327781 atm
+enthalpy = 930652
+entropy = 9982.52
+Gibbs function = -1.0576e+07
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.842
+
+Initial T = 1152.68, pres = 0.0327781 atm
+Final T = 1152.68, pres = 0.0327781 atm
+enthalpy = 930653
+entropy = 9319.07
+Gibbs function = -9.81127e+06
+heat capacity c_p = 1172.97
+heat capacity c_v = 884.842
+
+Initial T = 3008.94, pres = 8.55633e-08 atm
+Final T = 1764.11, pres = 5.3752e-08 atm
+enthalpy = 2.94317e+06
+entropy = 14438.6
+Gibbs function = -2.25281e+07
+heat capacity c_p = 1254.18
+heat capacity c_v = 945.446
+
+Initial T = 1764.11, pres = 5.3752e-07 atm
+Final T = 1879.19, pres = 5.69028e-07 atm
+enthalpy = 2.9751e+06
+entropy = 13729.9
+Gibbs function = -2.28259e+07
+heat capacity c_p = 1261.81
+heat capacity c_v = 954.993
+
+Initial T = 1879.19, pres = 5.69028e-06 atm
+Final T = 2006.78, pres = 6.03356e-06 atm
+enthalpy = 3.00988e+06
+entropy = 13025.8
+Gibbs function = -2.31301e+07
+heat capacity c_p = 1269.31
+heat capacity c_v = 964.67
+
+Initial T = 2006.78, pres = 6.03356e-05 atm
+Final T = 2147.22, pres = 6.40375e-05 atm
+enthalpy = 3.04739e+06
+entropy = 12327.1
+Gibbs function = -2.34218e+07
+heat capacity c_p = 1276.53
+heat capacity c_v = 974.347
+
+Initial T = 2147.22, pres = 0.000640375 atm
+Final T = 2299.14, pres = 0.000679482 atm
+enthalpy = 3.08701e+06
+entropy = 11634.4
+Gibbs function = -2.36622e+07
+heat capacity c_p = 1283.27
+heat capacity c_v = 983.817
+
+Initial T = 2299.14, pres = 0.00679482 atm
+Final T = 2457.5, pres = 0.0071917 atm
+enthalpy = 3.12723e+06
+entropy = 10948.3
+Gibbs function = -2.37781e+07
+heat capacity c_p = 1289.27
+heat capacity c_v = 992.753
+
+Initial T = 2457.5, pres = 0.071917 atm
+Final T = 2610.53, pres = 0.0756447 atm
+enthalpy = 3.165e+06
+entropy = 10268.9
+Gibbs function = -2.36423e+07
+heat capacity c_p = 1294.24
+heat capacity c_v = 1000.63
+
+Initial T = 6437.5, pres = 1.86538e-07 atm
+Final T = 2945.66, pres = 1.02718e-07 atm
+enthalpy = 7.43931e+06
+entropy = 16362.2
+Gibbs function = -4.0758e+07
+heat capacity c_p = 1321.41
+heat capacity c_v = 968.083
+
+Initial T = 2945.66, pres = 1.02718e-06 atm
+Final T = 3079.99, pres = 1.07046e-06 atm
+enthalpy = 7.48317e+06
+entropy = 15549.9
+Gibbs function = -4.04105e+07
+heat capacity c_p = 1323.23
+heat capacity c_v = 971.072
+
+Initial T = 3079.99, pres = 1.07046e-05 atm
+Final T = 3207.45, pres = 1.11114e-05 atm
+enthalpy = 7.52439e+06
+entropy = 14740.4
+Gibbs function = -3.97547e+07
+heat capacity c_p = 1324.78
+heat capacity c_v = 973.762
+
+Initial T = 3207.45, pres = 0.000111114 atm
+Final T = 3318.6, pres = 0.000114605 atm
+enthalpy = 7.55976e+06
+entropy = 13933.4
+Gibbs function = -3.86797e+07
+heat capacity c_p = 1326
+heat capacity c_v = 976.083
+
+Initial T = 3318.6, pres = 0.00114605 atm
+Final T = 3417.1, pres = 0.00117569 atm
+enthalpy = 7.5898e+06
+entropy = 13129.1
+Gibbs function = -3.72737e+07
+heat capacity c_p = 1326.98
+heat capacity c_v = 978.355
+
+Initial T = 3417.1, pres = 0.0117569 atm
+Final T = 3555.18, pres = 0.012144 atm
+enthalpy = 7.62902e+06
+entropy = 12328.9
+Gibbs function = -3.62024e+07
+heat capacity c_p = 1328.33
+heat capacity c_v = 982.219
+
+Initial T = 3555.18, pres = 0.12144 atm
+Final T = 3800.17, pres = 0.127987 atm
+enthalpy = 7.69536e+06
+entropy = 11537
+Gibbs function = -3.61473e+07
+heat capacity c_p = 1331
+heat capacity c_v = 989.741
+
+Initial T = 7052.08, pres = 2.37509e-07 atm
+Final T = 3293.99, pres = 1.2339e-07 atm
+enthalpy = 1.09488e+07
+entropy = 17407.2
+Gibbs function = -4.63903e+07
+heat capacity c_p = 1343.53
+heat capacity c_v = 963.973
+
+Initial T = 3293.99, pres = 1.2339e-06 atm
+Final T = 3516.01, pres = 1.31045e-06 atm
+enthalpy = 1.10263e+07
+entropy = 16535.4
+Gibbs function = -4.71122e+07
+heat capacity c_p = 1346.82
+heat capacity c_v = 969.17
+
+Initial T = 3516.01, pres = 1.31045e-05 atm
+Final T = 3766.66, pres = 1.39577e-05 atm
+enthalpy = 1.11128e+07
+entropy = 15668.2
+Gibbs function = -4.79042e+07
+heat capacity c_p = 1350.74
+heat capacity c_v = 975.267
+
+Initial T = 3766.66, pres = 0.000139577 atm
+Final T = 4050.36, pres = 0.000149089 atm
+enthalpy = 1.12092e+07
+entropy = 14806.5
+Gibbs function = -4.87625e+07
+heat capacity c_p = 1355.57
+heat capacity c_v = 982.6
+
+Initial T = 4050.36, pres = 0.00149089 atm
+Final T = 4371.57, pres = 0.00159659 atm
+enthalpy = 1.13163e+07
+entropy = 13951
+Gibbs function = -4.96714e+07
+heat capacity c_p = 1361.54
+heat capacity c_v = 991.482
+
+Initial T = 4371.57, pres = 0.0159659 atm
+Final T = 4734.02, pres = 0.0171296 atm
+enthalpy = 1.14342e+07
+entropy = 13102.7
+Gibbs function = -5.05943e+07
+heat capacity c_p = 1368.64
+heat capacity c_v = 1002
+
+Initial T = 4734.02, pres = 0.171296 atm
+Final T = 5139.7, pres = 0.18387 atm
+enthalpy = 1.15616e+07
+entropy = 12263.1
+Gibbs function = -5.14671e+07
+heat capacity c_p = 1376.17
+heat capacity c_v = 1013.69
+

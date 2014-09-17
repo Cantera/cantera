@@ -1,0 +1,12 @@
+prefix=@pc_prefix@
+exec_prefix=${prefix}/bin
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: Cantera
+Description: Cantera library
+URL: http://cantera.googlecode.com
+Version: @cantera_version@
+
+Libs: -L${libdir} @pc_libdirs@ @pc_libs@
+Cflags: @pc_cflags@ -I${includedir} @pc_incdirs@

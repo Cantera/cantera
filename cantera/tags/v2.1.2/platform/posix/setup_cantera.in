@@ -1,0 +1,49 @@
+#!/bin/sh
+
+if [ -z $LD_LIBRARY_PATH ]; then
+    LD_LIBRARY_PATH=@ct_libdir@
+else
+    LD_LIBRARY_PATH=@ct_libdir@:$LD_LIBRARY_PATH
+fi
+export LD_LIBRARY_PATH
+
+PYTHON_CMD=@python_cmd@
+export PYTHON_CMD
+
+PATH=@ct_bindir@:$PATH
+export PATH
+
+if [ "@python_cmd@" != `which python` ]; then
+   alias ctpython=@python_cmd@
+fi
+
+if [ "@matlab_toolbox@" = "y" ]; then
+    if [ -z $MATLAB_PATH ]; then
+        MATLABPATH=@ct_matlab_dir@:@ct_matlab_dir@/1D
+    else
+        MATLABPATH=$MATLABPATH:@ct_matlab_dir@:@ct_matlab_dir@/1D
+    fi
+    export MATLABPATH
+fi
+
+if [ "@python_module_loc_sc@" != "" ]; then
+    if [ -z $PYTHONPATH ]; then
+        PYTHONPATH=@python_module_loc@
+    else
+        PYTHONPATH=@python_module_loc@:$PYTHONPATH
+    fi
+fi
+
+if [ "@python_array_home@" != "" ]; then
+    PYTHONPATH=@python_array_home@:$PYTHONPATH
+fi
+
+export PYTHONPATH
+
+## Uncomment this if you want to specify the tmp dir location where
+## Cantera writes temporary files. The default is:
+##     (1) getenv("TMP")
+##     (2) getenv("TEMP")
+##     (3) "."
+# CANTERA_TMPDIR=/fill/in
+# export CANTERA_TMPDIR

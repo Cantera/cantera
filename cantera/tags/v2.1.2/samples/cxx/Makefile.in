@@ -1,0 +1,23 @@
+include @make_Cantera_dot_mak@
+
+CC=@CC@
+CXX=@CXX@
+RM=rm -f
+CCFLAGS=-g
+CPPFLAGS=$(CANTERA_INCLUDES)
+LDFLAGS=
+LDLIBS=$(CANTERA_LIBS)
+
+SRCS=@make_sourcefile@
+OBJS=$(subst .cpp,.o,$(SRCS))
+
+all: @make_target@
+
+@make_target@: $(OBJS)
+	$(CXX) $(LDFLAGS) -o @make_target@ $(OBJS) $(LDLIBS)
+
+clean:
+	$(RM) $(OBJS)
+
+dist-clean: clean
+	$(RM) *~ 
