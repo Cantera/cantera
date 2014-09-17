@@ -15,7 +15,11 @@ Installation & Compilation
 
 **How do I install Cantera on Linux?**
 
-    Download the source code (e.g. ``cantera-2.1.1.tar.gz``) from `SourceForge
+    For Ubuntu, packages for the current stable version of Cantera are available
+    in a PPA. See :ref:`Ubuntu Installation <sec-install-ubuntu>` for details.
+
+    For other Linux distributions, download the source code (e.g.
+    ``cantera-2.1.1.tar.gz``) from `SourceForge
     <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
     instructions in the :ref:`sec-compiling`.
 
