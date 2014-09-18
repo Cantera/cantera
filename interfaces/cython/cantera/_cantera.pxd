@@ -86,6 +86,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setMassFractionsByName(string) except +
         void setMassFractionsByName(stdmap[string,double]&) except +
         void setMassFractions_NoNorm(double*) except +
+        stdmap[string,double] getMassFractionsByName(double)
         double massFraction(size_t) except +
         double massFraction(string) except +
 
@@ -93,6 +94,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setMoleFractionsByName(stdmap[string,double]&) except +
         void setMoleFractions_NoNorm(double*) except +
         void getMoleFractions(double*) except +
+        stdmap[string,double] getMoleFractionsByName(double)
         double moleFraction(size_t) except +
         double moleFraction(string) except +
 

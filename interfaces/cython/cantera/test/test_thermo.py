@@ -94,6 +94,16 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(Y[0], 0.25)
         self.assertNear(Y[3], 0.75)
 
+    def test_getCompositionDict(self):
+        self.phase.X = 'OH:1e-9, O2:0.4, AR:0.6'
+        self.assertEqual(len(self.phase.mole_fraction_dict(1e-7)), 2)
+        self.assertEqual(len(self.phase.mole_fraction_dict()), 3)
+
+        self.phase.Y = 'O2:0.4, AR:0.6'
+        Y1 = self.phase.mass_fraction_dict()
+        self.assertNear(Y1['O2'], 0.4)
+        self.assertNear(Y1['AR'], 0.6)
+
     def test_setCompositionNoNorm(self):
         X = np.zeros(self.phase.n_species)
         X[2] = 1.0

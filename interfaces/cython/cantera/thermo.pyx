@@ -344,6 +344,14 @@ cdef class ThermoPhase(_SolutionBase):
             raise ValueError("Array has incorrect length")
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
+    def mass_fraction_dict(self, double threshold=0.0):
+        Y = self.thermo.getMassFractionsByName(threshold)
+        return {pystr(item.first):item.second for item in Y}
+
+    def mole_fraction_dict(self, double threshold=0.0):
+        X = self.thermo.getMoleFractionsByName(threshold)
+        return {pystr(item.first):item.second for item in X}
+
     ######## Read-only thermodynamic properties ########
 
     property P:
