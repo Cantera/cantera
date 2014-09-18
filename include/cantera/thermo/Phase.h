@@ -429,7 +429,16 @@ public:
 
     //! Get the mole fractions by name.
     //!     @param[out] x composition map containing the species mole fractions.
+    //!     @deprecated To be removed after Cantera 2.2. use
+    //!         `compositionMap getMoleFractionsByName(double threshold)`
+    //!         instead.
     void getMoleFractionsByName(compositionMap& x) const;
+
+    //! Get the mole fractions by name.
+    //!     @param threshold   Exclude species with mole fractions less than or
+    //!                        equal to this threshold.
+    //!     @return Map of species names to mole fractions
+    compositionMap getMoleFractionsByName(double threshold=0.0) const;
 
     //! Return the mole fraction of a single species
     //!     @param  k  species index
@@ -440,6 +449,12 @@ public:
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
     doublereal moleFraction(const std::string& name) const;
+
+    //! Get the mass fractions by name.
+    //!     @param threshold   Exclude species with mass fractions less than or
+    //!                        equal to this threshold.
+    //!     @return Map of species names to mass fractions
+    compositionMap getMassFractionsByName(double threshold=0.0) const;
 
     //! Return the mass fraction of a single species
     //!     @param  k species index
