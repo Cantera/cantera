@@ -5,7 +5,7 @@ import numpy as np
 cimport numpy as np
 import math
 
-from cython.operator cimport dereference as deref
+from cython.operator cimport dereference as deref, preincrement as inc
 
 from _cantera cimport *
 
