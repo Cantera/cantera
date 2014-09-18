@@ -536,11 +536,39 @@ const vector_fp& Phase::molecularWeights() const
 
 void Phase::getMoleFractionsByName(compositionMap& x) const
 {
+    warn_deprecated("void Phase::getMoleFractionsByName(compositionMap&)",
+                    "To be removed after Cantera 2.2. Use"
+                    " 'compositionMap getMoleFractionsByName(double threshold)'"
+                    " instead");
     x.clear();
     size_t kk = nSpecies();
     for (size_t k = 0; k < kk; k++) {
         x[speciesName(k)] = Phase::moleFraction(k);
     }
+}
+
+compositionMap Phase::getMoleFractionsByName(double threshold) const
+{
+    compositionMap comp;
+    for (size_t k = 0; k < m_kk; k++) {
+        double x = moleFraction(k);
+        if (x > threshold) {
+            comp[speciesName(k)] = x;
+        }
+    }
+    return comp;
+}
+
+compositionMap Phase::getMassFractionsByName(double threshold) const
+{
+    compositionMap comp;
+    for (size_t k = 0; k < m_kk; k++) {
+        double x = massFraction(k);
+        if (x > threshold) {
+            comp[speciesName(k)] = x;
+        }
+    }
+    return comp;
 }
 
 void Phase::getMoleFractions(doublereal* const x) const
