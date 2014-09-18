@@ -54,7 +54,7 @@ if localenv['PYTHON_INSTALLER'] == 'direct':
             filename = filename.strip()
             if filename.endswith(check):
                 filename = filename.replace(check,'')
-                global_env['python2_module_loc'] = os.path.normpath(filename)
+                global_env['python_module_loc'] = os.path.normpath(filename)
                 break
     localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
     env['install_python2_action'] = mod_inst
