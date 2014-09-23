@@ -12,7 +12,7 @@ cdef class ReactorBase:
         self.rbase = newReactor(stringify(self.reactor_type))
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, ThermoPhase contents=None, name=None):
+    def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -25,6 +25,9 @@ cdef class ReactorBase:
             reactor_counts[self.reactor_type] += 1
             n = reactor_counts[self.reactor_type]
             self.name = '{0}_{1}'.format(self.reactor_type, n)
+
+        if volume is not None:
+            self.volume = volume
 
     def __dealloc__(self):
         del self.rbase
