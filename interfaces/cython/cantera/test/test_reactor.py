@@ -50,6 +50,13 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(R.T, 300)
         self.assertEqual(len(R.kinetics.net_production_rates), g.n_species)
 
+    def test_volume(self):
+        R = self.reactorClass(volume=11)
+        self.assertEqual(R.volume, 11)
+
+        R.volume = 9
+        self.assertEqual(R.volume, 9)
+
     def test_names(self):
         self.make_reactors()
 
