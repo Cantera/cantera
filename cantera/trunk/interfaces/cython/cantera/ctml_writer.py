@@ -944,7 +944,7 @@ class gas_transport(transport):
     """
     def __init__(self, geom = 'nonlin',
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, acentric_factor = 0.0):
+                 polar = 0.0, rot_relax = 0.0, acentric_factor = None):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
