@@ -70,6 +70,12 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
     removeDirectory('interfaces/cython/build')
+    for name in os.listdir('interfaces/cython/cantera/data/'):
+        if name != '__init__.py':
+            removeFile('interfaces/cython/cantera/data/' + name)
+    for name in os.listdir('interfaces/cython/cantera/test/data/'):
+        if name != '__init__.py':
+            removeFile('interfaces/cython/cantera/test/data/' + name)
     for name in os.listdir('.'):
         if name.endswith('.msi'):
             removeFile(name)
