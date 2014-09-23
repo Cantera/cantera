@@ -520,6 +520,11 @@ class TestReactor(utilities.CanteraTest):
             with self.assertRaises(AttributeError):
                 x.foobar
 
+    def test_bad_kwarg(self):
+        self.reactorClass(name='ok')
+        with self.assertRaises(TypeError):
+            r1 = self.reactorClass(foobar=3.14)
+
 
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
@@ -1165,7 +1170,7 @@ class CombustorTestImplementation(object):
 
         # create the combustor, and fill it in initially with a diluent
         self.gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
-        self.combustor = ct.IdealGasReactor(self.gas, volume=1.0)
+        self.combustor = ct.IdealGasReactor(self.gas)
 
         # create a reservoir for the exhaust
         self.exhaust = ct.Reservoir(self.gas)

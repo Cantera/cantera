@@ -12,7 +12,7 @@ cdef class ReactorBase:
         self.rbase = newReactor(stringify(self.reactor_type))
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, ThermoPhase contents=None, name=None, **kwargs):
+    def __init__(self, ThermoPhase contents=None, name=None):
         self._inlets = []
         self._outlets = []
         self._walls = []
