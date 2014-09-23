@@ -468,20 +468,20 @@ void Application::setDefaultDirectories()
 void Application::addDataDirectory(const std::string& dir)
 {
     ScopedLock dirLock(dir_mutex);
-    if (inputDirs.size() == 0) {
+    if (inputDirs.empty()) {
         setDefaultDirectories();
     }
     string d = stripnonprint(dir);
-    size_t m, n = inputDirs.size();
 
-    // don't add if already present
-    for (m = 0; m < n; m++) {
-        if (d == inputDirs[m]) {
-            return;
-        }
+    // Remove any existing entry for this directory
+    std::vector<string>::iterator iter = std::find(inputDirs.begin(),
+                                                   inputDirs.end(), d);
+    if (iter != inputDirs.end()) {
+        inputDirs.erase(iter);
     }
 
-    inputDirs.push_back(d);
+    // Insert this directory at the beginning of the search path
+    inputDirs.insert(inputDirs.begin(), d);
 }
 
 std::string Application::findInputFile(const std::string& name)
