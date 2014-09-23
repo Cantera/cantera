@@ -136,10 +136,10 @@ protected:
 
     //! The name of the procedure where the exception occurred
     std::string procedure_;
+    mutable std::string formattedMessage_; //!< Formatted message returned by what()
 
 private:
     std::string msg_; //!< Message associated with the exception
-    mutable std::string formattedMessage_; //!< Formatted message returned by what()
     bool saved_; //!< Exception has already been saved to Cantera's error stack
 };
 

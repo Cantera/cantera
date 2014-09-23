@@ -3,6 +3,7 @@
 
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctexceptions.h"
+#include <stdexcept>
 
 #include "Python.h"
 
@@ -16,7 +17,46 @@ public:
     CallbackError(void* type, void* value) :
         m_type((PyObject*) type),
         m_value((PyObject*) value)
-    {}
+    {
+    }
+    const char* what() const throw() {
+        formattedMessage_ = "\n" + std::string(71, '*') + "\n";
+        formattedMessage_ += "Exception raised in Python callback function:\n";
+
+        PyObject* name = PyObject_GetAttrString(m_type, "__name__");
+        PyObject* value_str = PyObject_Str(m_value);
+
+        #if PY_MAJOR_VERSION > 2
+        PyObject* name_bytes = PyUnicode_AsASCIIString(name);
+        PyObject* value_bytes = PyUnicode_AsASCIIString(value_str);
+        #else
+        PyObject* name_bytes = PyObject_Bytes(name);
+        PyObject* value_bytes = PyObject_Bytes(value_str);
+        #endif
+
+        if (name_bytes) {
+            formattedMessage_ += PyBytes_AsString(name_bytes);
+            Py_DECREF(name_bytes);
+        } else {
+            formattedMessage_ += "<error determining exception type>";
+        }
+
+        formattedMessage_ += ": ";
+
+        if (value_bytes) {
+            formattedMessage_ += PyBytes_AsString(value_bytes);
+            Py_DECREF(value_bytes);
+        } else {
+            formattedMessage_ += "<error determining exception message>";
+        }
+
+        Py_XDECREF(name);
+        Py_XDECREF(value_str);
+
+        formattedMessage_ += "\n" + std::string(71, '*') + "\n";
+        return formattedMessage_.c_str();
+    }
+
     PyObject* m_type;
     PyObject* m_value;
 };
@@ -57,7 +97,7 @@ inline int translate_exception()
             // current one.
             throw;
         }
-    } catch (CallbackError& exn) {
+    } catch (const CallbackError& exn) {
         // Re-raise a Python exception generated in a callback
         PyErr_SetObject(exn.m_type, exn.m_value);
     } catch (const std::out_of_range& exn) {
