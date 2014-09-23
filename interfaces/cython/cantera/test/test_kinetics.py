@@ -12,7 +12,7 @@ class TestKinetics(utilities.CanteraTest):
         self.phase.TP = 800, 2*ct.one_atm
 
     def test_counts(self):
-        self.assertEqual(self.phase.n_reactions, 27)
+        self.assertEqual(self.phase.n_reactions, 28)
         self.assertEqual(self.phase.n_total_species, 9)
         self.assertEqual(self.phase.n_phases, 1)
         self.assertEqual(self.phase.reaction_phase_index, 0)
@@ -49,7 +49,7 @@ class TestKinetics(utilities.CanteraTest):
     def test_reaction_type(self):
         self.assertNear(self.phase.reaction_type(0), 2) # 3rd body
         self.assertNear(self.phase.reaction_type(2), 1) # elementary
-        self.assertNear(self.phase.reaction_type(19), 4) # falloff
+        self.assertNear(self.phase.reaction_type(20), 4) # falloff
 
         with self.assertRaises(ValueError):
             self.phase.reaction_type(33)
@@ -59,7 +59,7 @@ class TestKinetics(utilities.CanteraTest):
     def test_reaction_equations(self):
         self.assertEqual(self.phase.n_reactions,
                          len(self.phase.reaction_equations()))
-        self.assertEqual(self.phase.reaction_equation(16),
+        self.assertEqual(self.phase.reaction_equation(17),
                          'H + H2O2 <=> HO2 + H2')
 
     def test_reactants_products(self):
@@ -91,15 +91,15 @@ class TestKinetics(utilities.CanteraTest):
             self.assertEqual(nu_p[k,i], value)
 
         # H + H2O2 <=> HO2 + H2
-        check_reactant('H', 16, 1)
-        check_reactant('H2O2', 16, 1)
-        check_reactant('HO2', 16, 0)
-        check_reactant('H2', 16, 0)
+        check_reactant('H', 17, 1)
+        check_reactant('H2O2', 17, 1)
+        check_reactant('HO2', 17, 0)
+        check_reactant('H2', 17, 0)
 
-        check_product('H', 16, 0)
-        check_product('H2O2', 16, 0)
-        check_product('HO2', 16, 1)
-        check_product('H2', 16, 1)
+        check_product('H', 17, 0)
+        check_product('H2O2', 17, 0)
+        check_product('HO2', 17, 1)
+        check_product('H2', 17, 1)
 
         # 2 O + M <=> O2 + M
         check_reactant('O', 0, 2)
