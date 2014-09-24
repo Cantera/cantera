@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/NasaPoly1.h"
+#include "cantera/IdealGasMix.h"
 
 namespace Cantera
 {
@@ -107,6 +108,39 @@ TEST_F(NasaPoly1Test, updatePropertiesTemp)
     EXPECT_DOUBLE_EQ(h_RT1, h_RT2);
     EXPECT_DOUBLE_EQ(s_R1, s_R2);
 }
+
+
+TEST(Nasa9Test, Nasa9Thermo) {
+    IdealGasMix g("../data/gasNASA9.xml", "nasa9");
+    size_t nsp = g.nSpecies();
+    double pres = 1.0E5;
+    vector_fp Xset(nsp, 0.0);
+    Xset[0] = 0.5;
+    Xset[1] = 0.5;
+
+    vector_fp cp_R(nsp, 0.0);
+    vector_fp H_RT(nsp, 0.0);
+    vector_fp S_R(nsp, 0.0);
+
+    double T0 = 300.0;
+    double dT = 199.0;
+    double abstol = 1e-7;
+
+    for (size_t i = 0; i < 15; i++) {
+        g.setState_TPX(T0 + i*dT, pres, &Xset[0]);
+        g.getEntropy_R(&S_R[0]);
+        g.getCp_R(&cp_R[0]);
+        g.getEnthalpy_RT(&H_RT[0]);
+
+        EXPECT_NEAR(cp_R[0], cp_R[1], abstol);
+        EXPECT_NEAR(cp_R[0], cp_R[2], abstol);
+        EXPECT_NEAR(H_RT[0], H_RT[1], abstol);
+        EXPECT_NEAR(H_RT[0], H_RT[2], abstol);
+        EXPECT_NEAR(S_R[0], S_R[1], abstol);
+        EXPECT_NEAR(S_R[0], S_R[2], abstol);
+    }
+}
+
 
 } // namespace Cantera
 
