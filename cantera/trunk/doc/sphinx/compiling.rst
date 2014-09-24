@@ -79,6 +79,9 @@ the full list of dependencies.
   (e.g. ``C:\Python27``) to your PATH. This is accessible from::
 
       Control Panel > System and Security > System > Advanced System Settings > Environment Variables
+* In order to use SCons to install Cantera to a system folder (e.g. ``C:\Program
+  Files\Cantera``) you must run the ``scons install`` command in a command
+  prompt that has been launched by selecting the *run as administrator* option.
 
 OS X
 ----
