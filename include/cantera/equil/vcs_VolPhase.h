@@ -757,6 +757,7 @@ private:
 
     //!  If this is true, then calculations are actually performed within
     //!  Cantera
+    //!  @deprecated Will be implicitly 'true' after Cantera 2.2.
     bool m_useCanteraCalls;
 
     /**

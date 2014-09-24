@@ -106,6 +106,7 @@ public:
     double SSStar_Vol0;
 
     //! If true, this object will call Cantera to do its member calculations.
+    //! @deprecated Will always behave as if 'true' after Cantera 2.2
     bool UseCanteraCalls;
 
     int m_VCS_UnitsFormat;
