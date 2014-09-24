@@ -323,6 +323,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         convertMech('../data/pdep-test.inp',
                     outName='pdep_test.cti', quiet=True)
         text = open('pdep_test.cti').read()
+        self.assertIn('Generic mechanism header', text)
         self.assertIn('Single PLOG reaction', text)
         self.assertIn('PLOG with duplicate rates and negative A-factors', text)
 
