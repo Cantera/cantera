@@ -319,6 +319,21 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, 9)
         self.assertEqual(gas.n_reactions, 0)
 
+    def test_reaction_comments1(self):
+        convertMech('../data/pdep-test.inp',
+                    outName='pdep_test.cti', quiet=True)
+        text = open('pdep_test.cti').read()
+        self.assertIn('Single PLOG reaction', text)
+        self.assertIn('PLOG with duplicate rates and negative A-factors', text)
+
+    def test_reaction_comments2(self):
+        convertMech('../data/explicit-third-bodies.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='explicit_third_bodies.cti', quiet=True)
+        text = open('explicit_third_bodies.cti').read()
+        self.assertIn('An end of line comment', text)
+        self.assertIn('A comment after the last reaction', text)
+
 
 class CtmlConverterTest(utilities.CanteraTest):
     def test_sofc(self):
