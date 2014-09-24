@@ -249,6 +249,7 @@ class Reaction(object):
         self.duplicate = duplicate
         self.fwdOrders = fwdOrders if fwdOrders is not None else {}
         self.thirdBody = thirdBody
+        self.comment = ''
 
     def _coeff_string(self, coeffs):
         L = []
@@ -857,6 +858,7 @@ class Parser(object):
         self.speciesList = []
         self.speciesDict = {}
         self.reactions = []
+        self.finalReactionComment = ''
 
     def warn(self, message):
         if self.warning_as_error:
@@ -1558,7 +1560,7 @@ class Parser(object):
 
                         lineStartsWithComment = not line and comment
                         line = line.strip()
-                        comment = comment.strip()
+                        comment = comment.rstrip()
 
                         if '=' in line and not lineStartsWithComment:
                             # Finish previous record
@@ -1580,37 +1582,23 @@ class Parser(object):
                         kineticsList.append(kinetics)
                         commentsList.append(comments)
 
-                    if not kineticsList:
-                        pass
-                    elif kineticsList[0] == '' and commentsList[-1] == '':
-                        # True for mechanism files generated from RMG-Py
+                    # We don't actually know whether comments belong to the
+                    # previous or next reaction, but to keep them positioned
+                    # correctly, we associate them with the next reaction (and
+                    # keep track of the final trailing comment separately)
+                    if kineticsList and kineticsList[0] == '':
                         kineticsList.pop(0)
-                        commentsList.pop(-1)
-                    elif kineticsList[0] == '' and commentsList[0] == '':
-                        # True for mechanism files generated from RMG-Java
-                        kineticsList.pop(0)
-                        commentsList.pop(0)
-                    else:
-                        # In reality, comments can occur anywhere in the mechanism
-                        # file (e.g. either or both of before and after the
-                        # reaction equation)
-                        # If we can't tell what semantics we are using, then just
-                        # throw the comments away
-                        # (This is better than failing to load the mechanism file at
-                        # all, which would likely occur otherwise)
-                        if kineticsList[0] == '':
-                            kineticsList.pop(0)
-                        if len(kineticsList) != len(commentsList):
-                            commentsList = ['' for kinetics in kineticsList]
+                        self.finalReactionComment = commentsList.pop()
 
                     self.setupKinetics()
-                    for kinetics, comments, line_number in zip(kineticsList, commentsList, startLines):
+                    for kinetics, comment, line_number in zip(kineticsList, commentsList, startLines):
                         try:
                             reaction,revReaction = self.readKineticsEntry(kinetics)
                         except Exception as e:
                             logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
                         reaction.line_number = line_number
+                        reaction.comment = comment
                         self.reactions.append(reaction)
                         if revReaction is not None:
                             revReaction.line_number = line_number
@@ -1772,8 +1760,12 @@ class Parser(object):
         lines.append(delimiterLine)
 
         for i,r in enumerate(self.reactions):
+            lines.extend('# '+c for c in r.comment.split('\n') if c)
             lines.append('\n# Reaction {0}'.format(i+1))
             lines.append(r.to_cti())
+
+        # Comment after the last reaction
+        lines.extend('# '+c for c in self.finalReactionComment.split('\n') if c)
 
         lines.append('')
 
