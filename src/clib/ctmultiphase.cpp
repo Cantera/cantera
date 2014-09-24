@@ -15,7 +15,7 @@ using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<MultiPhase> mixCabinet;
-template<> mixCabinet* mixCabinet::__storage = 0;
+template<> mixCabinet* mixCabinet::s_storage = 0;
 
 extern "C" {
 

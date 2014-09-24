@@ -30,9 +30,9 @@ typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 typedef Cabinet<XML_Node, false> XmlCabinet;
 
-template<> ThermoCabinet* ThermoCabinet::__storage = 0;
-template<> KineticsCabinet* KineticsCabinet::__storage = 0;
-template<> TransportCabinet* TransportCabinet::__storage = 0;
+template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
+template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
+template<> TransportCabinet* TransportCabinet::s_storage = 0;
 
 /**
  * Exported functions.

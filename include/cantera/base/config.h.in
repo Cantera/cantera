@@ -84,7 +84,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // in that system , you need to declare the static storage variable.
 // with the following line in the include file
 //
-//    template<class M> Cabinet<M>* Cabinet<M>::__storage;
+//    template<class M> Cabinet<M>* Cabinet<M>::s_storage;
 //
 // Note, on other systems that declaration is treated as a definition
 // and this leads to multiple defines at link time

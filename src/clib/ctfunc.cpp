@@ -16,7 +16,7 @@ typedef Func1 func_t;
 
 typedef Cabinet<Func1> FuncCabinet;
 // Assign storage to the Cabinet<Func1> static member
-template<> FuncCabinet* FuncCabinet::__storage = 0;
+template<> FuncCabinet* FuncCabinet::s_storage = 0;
 
 extern "C" {
 

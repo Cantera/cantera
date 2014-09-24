@@ -24,10 +24,10 @@ typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 
-template<> ReactorCabinet* ReactorCabinet::__storage = 0;
-template<> NetworkCabinet* NetworkCabinet::__storage = 0;
-template<> FlowDeviceCabinet* FlowDeviceCabinet::__storage = 0;
-template<> WallCabinet* WallCabinet::__storage = 0;
+template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
+template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
+template<> FlowDeviceCabinet* FlowDeviceCabinet::s_storage = 0;
+template<> WallCabinet* WallCabinet::s_storage = 0;
 
 extern "C" {
 
