@@ -262,7 +262,6 @@ CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport',
                'multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
-CompileAndTest('NASA9poly', 'NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
 
 negA = localenv.Program('negATest/negATest',
                            mglob(env, 'negATest', 'cpp'),

@@ -1,0 +1,95 @@
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <phase dim="3" id="nasa9">
+    <elementArray datasrc="elements.xml"> O  H  C  N  Ar </elementArray>
+    <speciesArray datasrc="#species_data">
+     H2 H2_NASA9 H2_NASA9_4REG
+    </speciesArray>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="None"/>
+    <transport model="None"/>
+  </phase>
+
+  <!--     species definitions     -->
+  <speciesData id="species_data">
+
+    <!--    species H2    -->
+    <species name="H2">
+      <atomArray>H:2 </atomArray>
+      <note>TPIS78</note>
+      <thermo>
+        <NASA P0="100000.0" Tmax="1000.0" Tmin="200.0">
+          <floatArray name="coeffs" size="7">
+            2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,   2.015720940E-08, 
+           -7.376117610E-12,  -9.179351730E+02,   6.830102380E-01
+        </floatArray>
+        </NASA>
+        <NASA P0="100000.0" Tmax="3500.0" Tmin="1000.0">
+          <floatArray name="coeffs" size="7">
+            3.337279200E+00,  -4.940247310E-05,   4.994567780E-07,  -1.795663940E-10, 
+            2.002553760E-14,  -9.501589220E+02,  -3.205023310E+00
+          </floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+   <!--    species H2_NASA9    -->
+    <species name="H2_NASA9">
+      <atomArray>H:2 </atomArray>
+      <note>Fictional - made up</note>
+      <thermo>
+        <NASA9 P0="100000.0" Tmax="1000.0" Tmin="200.0">
+          <floatArray name="coeffs" size="9">
+            0.0, 0.0, 2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,   2.015720940E-08, 
+           -7.376117610E-12,  -9.179351730E+02,   6.830102380E-01
+          </floatArray>
+        </NASA9>
+        <NASA9 P0="100000.0" Tmax="3500.0" Tmin="1000.0">
+          <floatArray name="coeffs" size="9">
+            0.0, 0.0, 3.337279200E+00,  -4.940247310E-05,   4.994567780E-07,  -1.795663940E-10, 
+            2.002553760E-14,   -9.501589220E+02,  -3.205023310E+00
+          </floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+
+   <!--    species H2_NASA9_4REG    -->
+    <species name="H2_NASA9_4REG">
+      <atomArray>H:2 </atomArray>
+      <note>Fictional - made up</note>
+      <thermo>
+        <NASA9 P0="100000.0" Tmax="500.0" Tmin="200.0">
+          <floatArray name="coeffs" size="9">
+            0.0, 0.0, 2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,   2.015720940E-08, 
+           -7.376117610E-12,  -9.179351730E+02,   6.830102380E-01
+          </floatArray>
+        </NASA9>
+         <NASA9 P0="100000.0" Tmax="1000.0" Tmin="500.0">
+          <floatArray name="coeffs" size="9">
+            0.0, 0.0, 2.344331120E+00,   7.980520750E-03,  -1.947815100E-05,   2.015720940E-08, 
+           -7.376117610E-12,  -9.179351730E+02,   6.830102380E-01
+          </floatArray>
+        </NASA9>
+        <NASA9 P0="100000.0" Tmax="2000.0" Tmin="1000.0">
+          <floatArray name="coeffs" size="9">
+            0.0, 0.0, 3.337279200E+00,  -4.940247310E-05,   4.994567780E-07,  -1.795663940E-10, 
+            2.002553760E-14,   -9.501589220E+02,  -3.205023310E+00
+          </floatArray>
+        </NASA9>
+        <NASA9 P0="100000.0" Tmax="3500.0" Tmin="2000.0">
+          <floatArray name="coeffs" size="9">
+            0.0, 0.0, 3.337279200E+00,  -4.940247310E-05,   4.994567780E-07,  -1.795663940E-10, 
+            2.002553760E-14,   -9.501589220E+02,  -3.205023310E+00
+          </floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+  </speciesData>
+</ctml>
