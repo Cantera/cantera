@@ -485,7 +485,6 @@ Optional Programs
 
           configure --with-cflags=-fPIC
 
-* `Windows Installer XML (WiX) toolset <http://wix.sourceforge.net/>`_
   .. note:: If you are compiling Sundials 2.5.0 on Windows using CMake, you need
             to edit the ``CMakeLists.txt`` file first and change the lines::
 
@@ -500,6 +499,7 @@ Optional Programs
             instead, so that Cantera can correctly identify the version of
             Sundials.
 
+* `Windows Installer XML (WiX) toolset <http://wix.sourceforge.net/>`_
 
   * Required to build MSI installers on Windows.
   * Known to work with version 3.5.
