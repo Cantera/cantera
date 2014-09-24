@@ -193,7 +193,7 @@ public:
      * Constructor.
      */
     Cabinet() {
-        __table.push_back(new M);
+        m_table.push_back(new M);
     }
 
 private:
@@ -203,21 +203,21 @@ private:
      * access the data through this function.
      */
     static dataRef getData() {
-        if (__storage == 0) {
-            __storage = new Cabinet<M, canDelete>();
+        if (s_storage == 0) {
+            s_storage = new Cabinet<M, canDelete>();
         }
-        return __storage->__table;
+        return s_storage->m_table;
     }
 
     /**
      * Pointer to the single instance of this class.
      */
-    static Cabinet<M, canDelete>* __storage;
+    static Cabinet<M, canDelete>* s_storage;
 
     /**
      * Vector to hold pointers to objects.
      */
-    std::vector<M*> __table;
+    std::vector<M*> m_table;
 };
 
 //! Declaration stating that the storage for the static member
@@ -226,7 +226,7 @@ private:
  *   The actual storage will be allocated in .cpp files
  */
 #ifdef NEEDS_GENERIC_TEMPL_STATIC_DECL
-template<class M, bool canDelete> Cabinet<M, canDelete>* Cabinet<M, canDelete>::__storage;
+template<class M, bool canDelete> Cabinet<M, canDelete>* Cabinet<M, canDelete>::s_storage;
 #endif
 
 #endif

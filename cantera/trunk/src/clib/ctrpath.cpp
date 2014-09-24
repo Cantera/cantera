@@ -15,8 +15,8 @@ using namespace std;
 
 typedef Cabinet<ReactionPathBuilder> BuilderCabinet;
 typedef Cabinet<ReactionPathDiagram> DiagramCabinet;
-template<> DiagramCabinet* DiagramCabinet::__storage = 0;
-template<> BuilderCabinet* BuilderCabinet::__storage = 0;
+template<> DiagramCabinet* DiagramCabinet::s_storage = 0;
+template<> BuilderCabinet* BuilderCabinet::s_storage = 0;
 
 typedef Cabinet<Kinetics> KineticsCabinet;
 

@@ -16,7 +16,7 @@ using namespace Cantera;
 using namespace ctml;
 
 typedef Cabinet<XML_Node, false> XmlCabinet;
-template<> XmlCabinet* XmlCabinet::__storage = 0;
+template<> XmlCabinet* XmlCabinet::s_storage = 0;
 
 extern "C" {
 
