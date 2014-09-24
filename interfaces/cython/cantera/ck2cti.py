@@ -859,6 +859,7 @@ class Parser(object):
         self.speciesDict = {}
         self.reactions = []
         self.finalReactionComment = ''
+        self.headerLines = []
 
     def warn(self, message):
         if self.warning_as_error:
@@ -1376,10 +1377,14 @@ class Parser(object):
 
             line, comment = readline()
             advance = True
+            inHeader = True
             while line is not None:
                 tokens = line.split() or ['']
+                if inHeader and not line.strip():
+                    self.headerLines.append(comment.rstrip())
 
                 if tokens[0].upper().startswith('ELEM'):
+                    inHeader = False
                     tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
@@ -1401,6 +1406,7 @@ class Parser(object):
                 elif tokens[0].upper().startswith('SPEC'):
                     # List of species identifiers
                     tokens = tokens[1:]
+                    inHeader = False
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
                         if (contains(line, 'REAC') or contains(line, 'TRAN') or
@@ -1431,6 +1437,7 @@ class Parser(object):
                             self.speciesList.append(species)
 
                 elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
+                    inHeader = False
                     entryPosition = 0
                     entryLength = None
                     entry = []
@@ -1488,6 +1495,7 @@ class Parser(object):
 
                 elif tokens[0].upper().startswith('THER'):
                     # List of thermodynamics (hopefully one per species!)
+                    inHeader = False
                     line, comment = readline()
                     if line is not None and not contains(line, 'END'):
                         TintDefault = float(line.split()[1])
@@ -1522,7 +1530,7 @@ class Parser(object):
 
                 elif tokens[0].upper().startswith('REAC'):
                     # Reactions section
-
+                    inHeader = False
                     for token in tokens[1:]:
                         units = token.upper()
                         if units in ENERGY_UNITS:
@@ -1605,6 +1613,7 @@ class Parser(object):
                             self.reactions.append(revReaction)
 
                 elif tokens[0].upper().startswith('TRAN'):
+                    inHeader = False
                     line, comment = readline()
                     transport_start_line = self.line_number
                     while line is not None and not contains(line, 'END'):
@@ -1729,6 +1738,14 @@ class Parser(object):
         speciesNames = '\n'.join(speciesNames).strip()
 
         lines = []
+
+        # Original header
+        if self.headerLines:
+            lines.append('"""')
+            lines.extend(self.headerLines)
+            lines.extend(('"""', ''))
+
+        # Cantera-generated header
         if header:
             lines.extend(header)
 
