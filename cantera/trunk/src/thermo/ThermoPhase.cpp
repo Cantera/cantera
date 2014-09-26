@@ -631,33 +631,14 @@ SpeciesThermo& ThermoPhase::speciesThermo(int k)
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
-    if (inputFile.size() == 0) {
-        throw CanteraError("ThermoPhase::initThermoFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("initThermoFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
+    XML_Node* fxml = get_XML_File(inputFile);
     XML_Node* fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
-        throw CanteraError("ThermoPhase::initThermo",
+        throw CanteraError("ThermoPhase::initThermoFile",
                            "ERROR: Can not find phase named " +
                            id + " in file named " + inputFile);
     }
-    bool m_ok = importPhase(*fxml_phase, this);
-    if (!m_ok) {
-        throw CanteraError("ThermoPhase::initThermoFile","importPhase failed ");
-    }
-    delete fxml;
+    importPhase(*fxml_phase, this);
 }
 
 void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
