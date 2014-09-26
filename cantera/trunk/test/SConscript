@@ -47,7 +47,8 @@ def addTestProgram(subdir, progName, env_vars={}):
             # Determine individual test status
             results = ElementTree.parse(resultsFile)
             for test in results.findall('.//testcase'):
-                testName = ': '.join((progName, test.get('name')))
+                testName = '{0}: {1}.{2}'.format(progName, test.get('classname'),
+                                                 test.get('name'))
                 if test.findall('failure'):
                     testResults.failed[testName] = 1
                 else:
