@@ -1,10 +1,6 @@
-#
-# Input file to test use of non-integral stoichiometric
-# coefficients. Used with script frac.py.
-# 
+# Input file to test use of non-integral stoichiometric coefficients.
 
 units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
-
 
 ideal_gas(name = "gas",
       elements = " O H ",
@@ -12,8 +8,6 @@ ideal_gas(name = "gas",
       reactions = "all",
       initial_state = state(temperature = 300.0,
                         pressure = OneAtm)    )
-
-
 
 #-------------------------------------------------------------------------------
 #  Species data 
@@ -103,4 +97,3 @@ reaction( "H2O => 1.4 H + 0.6 OH + 0.2 O2",   [1.0e13, 0.0, 0.0])
 # coefficients.
 reaction( "0.7 H2 + 0.6 OH + 0.2 O2 => H2O",   [1.0e13, 0.0, 0.0],
           order = "H2:0.8 OH:2 O2:1")
-
