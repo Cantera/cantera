@@ -108,7 +108,7 @@ public:
      *  @return       Returns the pointer to the newly malloced species
      *                property manager for the reference state
      */
-    SpeciesThermo* newSpeciesThermoManager(std::string& stype) const;
+    SpeciesThermo* newSpeciesThermoManager(const std::string& stype) const;
 
     //! Create a new species property manager for the reference
     //! state for a group of species
@@ -216,7 +216,7 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
  * @param f           Pointer to a SpeciesThermoFactory. optional parameter.
  *                    Defaults to NULL.
  */
-SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
+SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
                                    SpeciesThermoFactory* f=0);
 
 //! Function to return SpeciesThermo manager
