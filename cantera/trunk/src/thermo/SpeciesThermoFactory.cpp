@@ -160,7 +160,7 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) const
     }
 }
 
-SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(std::string& stype) const
+SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(const std::string& stype) const
 {
     std::string ltype = lowercase(stype);
     if (ltype == "nasa") {
@@ -775,7 +775,7 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
     return f->newSpeciesThermo(type);
 }
 
-SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
+SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
                                    SpeciesThermoFactory* f)
 {
     if (f == 0) {
