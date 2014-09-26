@@ -196,7 +196,7 @@ else:
 
 # Instantiate tests
 addTestProgram('thermo', 'thermo', env_vars=python_env_vars)
-addTestProgram('kinetics', 'kinetics')
+addTestProgram('kinetics', 'kinetics', env_vars=python_env_vars)
 
 python_subtests = ['']
 test_root = '#interfaces/cython/cantera/test'

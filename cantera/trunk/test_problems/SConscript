@@ -257,7 +257,6 @@ if haveConverters:
          options='diamond.cti', artifacts=diamond_name)
 CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
                'output_blessed.txt')
-CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
 CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport',
