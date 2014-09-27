@@ -85,8 +85,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     setID(pname);
     setName(pname);
     setNDim(3);
-    addUniqueElement(Ename, -12345.);
-    freezeElements();
+    addElement(Ename);
     vector_fp ecomp(nElements(), 0.0);
     ecomp[0] = 1.0;
     double chrg = 0.0;

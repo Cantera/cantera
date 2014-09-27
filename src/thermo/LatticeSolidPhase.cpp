@@ -359,7 +359,7 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             int an = lp->atomicNumber(es);
             int e298 = lp->entropyElement298(es); //! @todo Why is this an int instead of a double?
             int et = lp->elementType(es);
-            addUniqueElementAfterFreeze(esName, wt, an, e298, et);
+            addElement(esName, wt, an, e298, et);
         }
         const std::vector<const XML_Node*> & spNode =  lp->speciesData();
         kstart = kk;
@@ -397,7 +397,7 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             string econ = "LC_";
             econ += int2str(n);
             econ += "_" + id();
-            size_t m = addUniqueElementAfterFreeze(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
+            size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
             size_t mm = nElements();
             LatticePhase* lp0 = m_lattice[0];
             size_t nsp0 =  lp0->nSpecies();

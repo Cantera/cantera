@@ -230,6 +230,9 @@ ThermoPhase* newPhase(const std::string& infile, std::string id);
  */
 bool importPhase(XML_Node& phase, ThermoPhase* th, SpeciesThermoFactory* spfactory = 0);
 
+//! Add the elements given in an XML_Node tree to the specified phase
+void installElements(Phase& th, const XML_Node& phaseNode);
+
 //! Install a species into a ThermoPhase object, which defines
 //! the phase thermodynamics and speciation.
 /*!

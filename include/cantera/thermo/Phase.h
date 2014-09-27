@@ -25,20 +25,6 @@ namespace Cantera
  * support thermodynamic calculations (see \ref thermoprops).
  */
 
-//!  Exception class to indicate a fixed set of elements.
-/*!
- *   This class is used to warn the user when the number of elements
- *   are changed after at least one species is defined.
- */
-class ElementsFrozen : public CanteraError
-{
-public:
-    //! Constructor for class
-    //! @param func Function where the error occurred.
-    ElementsFrozen(const std::string& func)
-        : CanteraError(func, "Elements cannot be added after species.") {}
-};
-
 //! Class %Phase is the base class for phases of matter, managing the species and elements in a phase, as well as the
 //! independent variables of temperature, mass density, species mass/mole fraction,
 //! and other generalized forces and intrinsic properties (such as electric potential)
@@ -658,10 +644,21 @@ public:
     //! Add an element.
     //!     @param symbol Atomic symbol std::string.
     //!     @param weight Atomic mass in amu.
-    void addElement(const std::string& symbol, doublereal weight=-12345.0);
+    //!     @param atomicNumber Atomic number of the element (unitless)
+    //!     @param entropy298 Entropy of the element at 298 K and 1 bar in its
+    //!         most stable form. The default is the value ENTROPY298_UNKNOWN,
+    //!         which is interpreted as an unknown, and if used will cause
+    //!         %Cantera to throw an error.
+    //!     @param elem_type Specifies the type of the element constraint
+    //!         equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+    //!     @return index of the element added
+    size_t addElement(const std::string& symbol, doublereal weight=-12345.0,
+                      int atomicNumber=0, doublereal entropy298=ENTROPY298_UNKNOWN,
+                      int elem_type=CT_ELEM_TYPE_ABSPOS);
 
     //! Add an element from an XML specification.
     //!     @param e Reference to the XML_Node where the element is described.
+    //! @deprecated. To be removed after Cantera 2.2.
     void addElement(const XML_Node& e);
 
     //! Add an element, checking for uniqueness
@@ -676,6 +673,7 @@ public:
     //! error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+    //! @deprecated. Equivalent to addElement. To be removed after Cantera 2.2.
     void addUniqueElement(const std::string& symbol, doublereal weight=-12345.0,
                           int atomicNumber = 0,
                           doublereal entropy298 = ENTROPY298_UNKNOWN,
@@ -685,16 +683,20 @@ public:
     //! The uniqueness is checked by comparing the string symbol. If not unique,
     //! nothing is done.
     //!     @param e Reference to the XML_Node where the element is described.
+    //! @deprecated. To be removed after Cantera 2.2.
     void addUniqueElement(const XML_Node& e);
 
     //! Add all elements referenced in an XML_Node tree
     //!     @param phase Reference to the root XML_Node of a phase
+    //! @deprecated. To be removed after Cantera 2.2.
     void addElementsFromXML(const XML_Node& phase);
 
     //! Prohibit addition of more elements, and prepare to add species.
+    //! @deprecated. To be removed after Cantera 2.2.
     void freezeElements();
 
     //! True if freezeElements has been called.
+    //! @deprecated. To be removed after Cantera 2.2.
     bool elementsFrozen();
 
     //! Add an element after elements have been frozen, checking for uniqueness
@@ -708,6 +710,7 @@ public:
     //! if used will cause Cantera to throw an error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+    //! @deprecated. Equivalentto addElement. To be removed after Cantera 2.2.
     size_t addUniqueElementAfterFreeze(const std::string& symbol,
                                        doublereal weight, int atomicNumber,
                                        doublereal entropy298 = ENTROPY298_UNKNOWN,
@@ -813,9 +816,6 @@ private:
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
     int m_stateNum;
-
-    //! If this is true, then no elements may be added to the object.
-    bool m_elementsFrozen;
 
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
