@@ -164,11 +164,11 @@ SpeciesThermoDuo<T1, T2>::install(const std::string& name, size_t sp, int type,
 {
     m_p0 = refPressure_;
     if (type == m_thermo1.ID) {
-        m_thermo1.install(name, sp, 0, c, minTemp_, maxTemp_,
+        m_thermo1.install(name, sp, type, c, minTemp_, maxTemp_,
                           refPressure_);
         speciesToType[sp] = m_thermo1.ID;
     } else if (type == m_thermo2.ID) {
-        m_thermo2.install(name, sp, 0, c, minTemp_, maxTemp_,
+        m_thermo2.install(name, sp, type, c, minTemp_, maxTemp_,
                           refPressure_);
         speciesToType[sp] = m_thermo2.ID;
     } else {
