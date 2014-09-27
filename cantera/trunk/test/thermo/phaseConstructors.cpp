@@ -13,7 +13,7 @@ class FixedChemPotSstpConstructorTest : public testing::Test
 
 TEST_F(FixedChemPotSstpConstructorTest, fromXML)
 {
-    ThermoPhase* p = newPhase("../data/LiFixed.xml", "");
+    ThermoPhase* p = newPhase("../data/LiFixed.xml");
     ASSERT_EQ((int) p->nSpecies(), 1);
     double mu;
     p->getChemPotentials(&mu);
@@ -51,15 +51,15 @@ public:
 };
 
 TEST_F(CtiConversionTest, ExplicitConversion) {
-    p1 = newPhase("../data/air-no-reactions.xml", "");
+    p1 = newPhase("../data/air-no-reactions.xml");
     ctml::ct2ctml("../data/air-no-reactions.cti");
     p2 = newPhase("air-no-reactions.xml", "");
     compare();
 }
 
 TEST_F(CtiConversionTest, ImplicitConversion) {
-    p1 = newPhase("../data/air-no-reactions.xml", "");
-    p2 = newPhase("../data/air-no-reactions.cti", "");
+    p1 = newPhase("../data/air-no-reactions.xml");
+    p2 = newPhase("../data/air-no-reactions.cti");
     compare();
 }
 
@@ -76,7 +76,7 @@ public:
 TEST_F(ChemkinConversionTest, ValidConversion) {
     copyInputFile("pdep-test.inp");
     ctml::ck2cti("pdep-test.inp");
-    ThermoPhase* p = newPhase("pdep-test.cti", "");
+    ThermoPhase* p = newPhase("pdep-test.cti");
     ASSERT_GT(p->temperature(), 0.0);
 }
 

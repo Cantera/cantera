@@ -161,7 +161,7 @@ ThermoPhase* newPhase(XML_Node& phase);
  * @return
  *   Returns an initialized ThermoPhase object.
  */
-ThermoPhase* newPhase(const std::string& infile, std::string id);
+ThermoPhase* newPhase(const std::string& infile, std::string id="");
 
 //! Import a phase information into an empty thermophase object
 /*!
