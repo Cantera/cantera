@@ -382,7 +382,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
      * Add the elements.
      ***************************************************************/
     if (ssConvention != cSS_CONVENTION_SLAVE) {
-        th->addElementsFromXML(phase);
+        installElements(*th, phase);
     }
 
     /***************************************************************
@@ -521,6 +521,73 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     th->initThermoXML(phase, id);
 
     return true;
+}
+
+void installElements(Phase& th, const XML_Node& phaseNode)
+{
+    // get the declared element names
+    if (!phaseNode.hasChild("elementArray")) {
+        throw CanteraError("installElements",
+                           "phase xml node doesn't have \"elementArray\" XML Node");
+    }
+    XML_Node& elements = phaseNode.child("elementArray");
+    vector<string> enames;
+    getStringArray(elements, enames);
+
+    // // element database defaults to elements.xml
+    string element_database = "elements.xml";
+    if (elements.hasAttrib("datasrc")) {
+        element_database = elements["datasrc"];
+    }
+
+    XML_Node* doc = get_XML_File(element_database);
+    XML_Node* dbe = &doc->child("ctml/elementData");
+
+    XML_Node& root = phaseNode.root();
+    XML_Node* local_db = 0;
+    if (root.hasChild("ctml")) {
+        if (root.child("ctml").hasChild("elementData")) {
+            local_db = &root.child("ctml/elementData");
+        }
+    }
+
+    for (size_t i = 0; i < enames.size(); i++) {
+        // Find the element data
+        XML_Node* e = 0;
+        if (local_db) {
+            e = local_db->findByAttr("name",enames[i]);
+        }
+        if (!e) {
+            e = dbe->findByAttr("name",enames[i]);
+        }
+        if (!e) {
+            throw CanteraError("addElementsFromXML","no data for element "
+                               +enames[i]);
+        }
+
+        // Add the element
+        doublereal weight = 0.0;
+        if (e->hasAttrib("atomicWt")) {
+            weight = fpValue(e->attrib("atomicWt"));
+        }
+        int anum = 0;
+        if (e->hasAttrib("atomicNumber")) {
+            anum = intValue(e->attrib("atomicNumber"));
+        }
+        string symbol = e->attrib("name");
+        doublereal entropy298 = ENTROPY298_UNKNOWN;
+        if (e->hasChild("entropy298")) {
+            XML_Node& e298Node = e->child("entropy298");
+            if (e298Node.hasAttrib("value")) {
+                entropy298 = fpValueCheck(e298Node["value"]);
+            }
+        }
+        if (weight != 0.0) {
+            th.addElement(symbol, weight, anum, entropy298);
+        } else {
+            th.addElement(symbol);
+        }
+    }
 }
 
 bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,

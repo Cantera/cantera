@@ -9,6 +9,7 @@
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 using namespace std;
 
@@ -25,7 +26,6 @@ Phase::Phase() :
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
-    m_elementsFrozen(false),
     m_mm(0),
     m_elem_type(0),
     realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
@@ -42,7 +42,6 @@ Phase::Phase(const Phase& right) :
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
-    m_elementsFrozen(false),
     m_mm(0),
     m_elem_type(0),
     realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
@@ -76,7 +75,6 @@ Phase& Phase::operator=(const Phase& right)
     m_speciesSize = right.m_speciesSize;
 
     m_mm             = right.m_mm;
-    m_elementsFrozen = right.m_elementsFrozen;
     m_atomicWeights  = right.m_atomicWeights;
     m_atomicNumbers  = right.m_atomicNumbers;
     m_elementNames   = right.m_elementNames;
@@ -695,85 +693,67 @@ doublereal Phase::sum_xlogQ(doublereal* Q) const
     return m_mmw * Cantera::sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
 }
 
-void Phase::addElement(const std::string& symbol, doublereal weight)
+size_t Phase::addElement(const std::string& symbol, doublereal weight,
+                         int atomic_number, doublereal entropy298,
+                         int elem_type)
 {
+    // Look up the atomic weight if not given
     if (weight == -12345.0) {
         weight = LookupWtElements(symbol);
         if (weight < 0.0) {
-            throw ElementsFrozen("addElement");
+            throw CanteraError("Phase::addElement",
+                               "No atomic weight found for element: " + symbol);
         }
     }
-    if (m_elementsFrozen) {
-        throw ElementsFrozen("addElement");
-        return;
+
+    // Check for duplicates
+    vector<string>::const_iterator iter = find(m_elementNames.begin(),
+                                               m_elementNames.end(),
+                                               symbol);
+    if (iter != m_elementNames.end()) {
+        size_t m = iter - m_elementNames.begin();
+        if (m_atomicWeights[m] != weight) {
+            throw CanteraError("Phase::addElement",
+                "Duplicate elements (" + symbol + ") have different weights");
+        } else {
+            // Ignore attempt to add duplicate element with the same weight
+            return m;
+        }
     }
+
+    // Add the new element
     m_atomicWeights.push_back(weight);
     m_elementNames.push_back(symbol);
+    m_atomicNumbers.push_back(atomic_number);
+    m_entropy298.push_back(entropy298);
     if (symbol == "E") {
         m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
     } else {
-        m_elem_type.push_back(CT_ELEM_TYPE_ABSPOS);
+        m_elem_type.push_back(elem_type);
     }
 
     m_mm++;
+
+    // Update species compositions
+    if (m_kk) {
+        vector_fp old(m_speciesComp);
+        m_speciesComp.resize(m_kk*m_mm, 0.0);
+        for (size_t k = 0; k < m_kk; k++) {
+            size_t m_old = m_mm - 1;
+            for (size_t m = 0; m < m_old; m++) {
+                m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
+            }
+            m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0;
+        }
+    }
+
+    return m_mm-1;
 }
 
 void Phase::addElement(const XML_Node& e)
 {
-    doublereal weight = fpValue(e["atomicWt"]);
-    string symbol = e["name"];
-    addElement(symbol, weight);
-}
-
-void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
-                             int atomic_number, doublereal entropy298,
-                             int elem_type)
-{
-    if (weight == -12345.0) {
-        weight =  LookupWtElements(symbol);
-        if (weight < 0.0) {
-            throw ElementsFrozen("addElement");
-        }
-    }
-    /*
-     * First decide if this element has been previously added
-     * by conducting a string search. If it unique, add it to
-     * the list.
-     */
-    int ifound = 0;
-    int i = 0;
-    for (vector<string>::const_iterator it = m_elementNames.begin();
-            it < m_elementNames.end(); ++it, ++i) {
-        if (*it == symbol) {
-            ifound = 1;
-            break;
-        }
-    }
-    if (!ifound) {
-        if (m_elementsFrozen) {
-            throw ElementsFrozen("addElement");
-            return;
-        }
-        m_atomicWeights.push_back(weight);
-        m_elementNames.push_back(symbol);
-        m_atomicNumbers.push_back(atomic_number);
-        m_entropy298.push_back(entropy298);
-        if (symbol == "E") {
-            m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
-        } else {
-            m_elem_type.push_back(elem_type);
-        }
-        m_mm++;
-    } else {
-        if (m_atomicWeights[i] != weight) {
-            throw CanteraError("AddUniqueElement",
-                               "Duplicate Elements (" + symbol + ") have different weights");
-        }
-    }
-}
-
-void Phase::addUniqueElement(const XML_Node& e)
-{
+    warn_deprecated("Phase::addElement(XML_Node&)",
+                    "To be removed after Cantera 2.2.");
     doublereal weight = 0.0;
     if (e.hasAttrib("atomicWt")) {
         weight = fpValue(stripws(e["atomicWt"]));
@@ -791,101 +771,61 @@ void Phase::addUniqueElement(const XML_Node& e)
         }
     }
     if (weight != 0.0) {
-        addUniqueElement(symbol, weight, anum, entropy298);
+        addElement(symbol, weight, anum, entropy298);
     } else {
-        addUniqueElement(symbol);
+        addElement(symbol);
     }
+}
+
+void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
+                             int atomic_number, doublereal entropy298,
+                             int elem_type)
+{
+    warn_deprecated("Phase::addUniqueElement",
+                    "Equivalent to Phase::addElement. "
+                    "To be removed after Cantera 2.2.");
+    addElement(symbol, weight, atomic_number, entropy298, elem_type);
+}
+
+void Phase::addUniqueElement(const XML_Node& e)
+{
+    warn_deprecated("Phase::addUniqueElement",
+                    "To be removed after Cantera 2.2.");
+    addElement(e);
 }
 
 void Phase::addElementsFromXML(const XML_Node& phase)
 {
-    // get the declared element names
-    if (! phase.hasChild("elementArray")) {
-        throw CanteraError("Elements::addElementsFromXML",
-                           "phase xml node doesn't have \"elementArray\" XML Node");
-    }
-    XML_Node& elements = phase.child("elementArray");
-    vector<string> enames;
-    ctml::getStringArray(elements, enames);
-
-    // // element database defaults to elements.xml
-    string element_database = "elements.xml";
-    if (elements.hasAttrib("datasrc")) {
-        element_database = elements["datasrc"];
-    }
-
-    XML_Node* doc = get_XML_File(element_database);
-    XML_Node* dbe = &doc->child("ctml/elementData");
-
-    XML_Node& root = phase.root();
-    XML_Node* local_db = 0;
-    if (root.hasChild("ctml")) {
-        if (root.child("ctml").hasChild("elementData")) {
-            local_db = &root.child("ctml/elementData");
-        }
-    }
-
-    for (size_t i = 0; i < enames.size(); i++) {
-        XML_Node* e = 0;
-        if (local_db) {
-            e = local_db->findByAttr("name",enames[i]);
-        }
-        if (!e) {
-            e = dbe->findByAttr("name",enames[i]);
-        }
-        if (e) {
-            addUniqueElement(*e);
-        } else {
-            throw CanteraError("addElementsFromXML","no data for element "
-                               +enames[i]);
-        }
-    }
+    warn_deprecated("Phase::addElementsFromXML",
+                    "Use 'addElements' function. "
+                    "To be removed after Cantera 2.2.");
+    installElements(*this, phase);
 }
 
 void Phase::freezeElements()
 {
-    m_elementsFrozen = true;
+    warn_deprecated("Phase::freezeElements", "To be removed after Cantera 2.2.");
 }
 
 bool Phase::elementsFrozen()
 {
-    return m_elementsFrozen;
+    warn_deprecated("Phase::elementsFrozen", "To be removed after Cantera 2.2.");
+    return false;
 }
 
 size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
         doublereal weight, int atomicNumber,
         doublereal entropy298, int elem_type)
 {
-    size_t ii = elementIndex(symbol);
-    if (ii != npos) {
-        return ii;
-    }
-    // Check to see that the element isn't really in the list
-    m_elementsFrozen = false;
-    addUniqueElement(symbol, weight, atomicNumber, entropy298, elem_type);
-    m_elementsFrozen = true;
-    ii = elementIndex(symbol);
-    if (ii != m_mm-1) {
-        throw CanteraError("Phase::addElementAfterFreeze()", "index error");
-    }
-    if (m_kk > 0) {
-        vector_fp old(m_speciesComp);
-        m_speciesComp.resize(m_kk*m_mm, 0.0);
-        for (size_t k = 0; k < m_kk; k++) {
-            size_t m_old = m_mm - 1;
-            for (size_t m = 0; m < m_old; m++) {
-                m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
-            }
-            m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0;
-        }
-    }
-    return ii;
+    warn_deprecated("Phase::addUniqueElementAfterFreeze",
+                    "Equivalent to Phase::addElement. "
+                    "To be removed after Cantera 2.2");
+    return addElement(symbol, weight, atomicNumber, entropy298, elem_type);
 }
 
 void Phase::addSpecies(const std::string& name_, const doublereal* comp,
                        doublereal charge_, doublereal size_)
 {
-    freezeElements();
     m_speciesNames.push_back(name_);
     m_speciesCharge.push_back(charge_);
     m_speciesSize.push_back(size_);
@@ -914,8 +854,7 @@ void Phase::addSpecies(const std::string& name_, const doublereal* comp,
                 }
             }
         } else {
-            addUniqueElementAfterFreeze("E", 0.000545, 0, 0.0,
-                                        CT_ELEM_TYPE_ELECTRONCHARGE);
+            addElement("E", 0.000545, 0, 0.0, CT_ELEM_TYPE_ELECTRONCHARGE);
             ne = nElements();
             eindex = elementIndex("E");
             compNew.resize(ne);
@@ -979,7 +918,7 @@ void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
 
 bool Phase::ready() const
 {
-    return (m_kk > 0 && m_elementsFrozen);
+    return (m_kk > 0);
 }
 
 } // namespace Cantera
