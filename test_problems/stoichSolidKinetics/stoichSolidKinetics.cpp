@@ -49,7 +49,7 @@ void testProblem()
         throw CanteraError("couldn't find file", "");
     }
     std::auto_ptr<ThermoPhase> surfTP(newPhase(*xg));
-    std::auto_ptr<ThermoPhase> gasTP(newPhase("gas.xml", ""));
+    std::auto_ptr<ThermoPhase> gasTP(newPhase("gas.xml"));
 
     std::auto_ptr<ThermoPhase> cao_s(newPhase("solidPhases.xml", "CaO(S)"));
     std::auto_ptr<ThermoPhase> caco3_s(newPhase("solidPhases.xml", "CaCO3(S)"));

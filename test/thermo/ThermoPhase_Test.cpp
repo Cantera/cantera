@@ -51,7 +51,7 @@ class TestThermoMethods : public testing::Test
 public:
     ThermoPhase* thermo;
     TestThermoMethods() {
-        thermo = newPhase("h2o2.xml", "");
+        thermo = newPhase("h2o2.xml");
     }
 
     ~TestThermoMethods() {
