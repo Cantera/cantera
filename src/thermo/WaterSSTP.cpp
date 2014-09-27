@@ -107,11 +107,6 @@ WaterSSTP::~WaterSSTP()
     delete m_waterProps;
 }
 
-void WaterSSTP::initThermo()
-{
-    SingleSpeciesTP::initThermo();
-}
-
 void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*

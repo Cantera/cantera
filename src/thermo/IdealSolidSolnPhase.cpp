@@ -523,10 +523,6 @@ const vector_fp& IdealSolidSolnPhase::entropy_R_ref() const
  *    Utility Functions
  *********************************************************************/
 
-void IdealSolidSolnPhase::initThermo()
-{
-}
-
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string subname = "IdealSolidSolnPhase::initThermoXML";

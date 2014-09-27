@@ -348,21 +348,6 @@ public:
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
     //! @}
 
-    //! Internal initialization required after all species have
-    //! been added
-    /*!
-     * @internal Initialize. This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called just prior to returning
-     * from function importPhase().
-     */
-    virtual void initThermo();
-
     //! Initialize the phase parameters from an XML file.
     /*!
      * initThermoXML()                 (virtual from ThermoPhase)

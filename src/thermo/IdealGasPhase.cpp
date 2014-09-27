@@ -327,6 +327,7 @@ void IdealGasPhase::getStandardVolumes_ref(doublereal* vol) const
 
 void IdealGasPhase::initThermo()
 {
+    ThermoPhase::initThermo();
     m_p0 = refPressure();
     m_h0_RT.resize(m_kk);
     m_g0_RT.resize(m_kk);

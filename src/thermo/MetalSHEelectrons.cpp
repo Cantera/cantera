@@ -224,14 +224,6 @@ void MetalSHEelectrons::getIntEnergy_RT_ref(doublereal* urt) const
  * ---- Initialization and Internal functions
  */
 
-void MetalSHEelectrons::initThermo()
-{
-    /*
-     * Call the base class thermo initializer
-     */
-    SingleSpeciesTP::initThermo();
-}
-
 void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     /*

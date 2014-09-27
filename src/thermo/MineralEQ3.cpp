@@ -218,14 +218,6 @@ void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
  * ---- Initialization and Internal functions
  */
 
-void MineralEQ3::initThermo()
-{
-    /*
-     * Call the base class thermo initializer
-     */
-    StoichSubstanceSSTP::initThermo();
-}
-
 void MineralEQ3::setParameters(int n, doublereal* const c)
 {
     doublereal rho = c[0];
