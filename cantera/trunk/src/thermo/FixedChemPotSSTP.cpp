@@ -296,14 +296,6 @@ void FixedChemPotSSTP::getCp_R_ref(doublereal* cpr) const
  * ---- Initialization and Internal functions
  */
 
-void FixedChemPotSSTP::initThermo()
-{
-    /*
-     * Call the base class thermo initializer
-     */
-    SingleSpeciesTP::initThermo();
-}
-
 void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     /*

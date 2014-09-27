@@ -123,7 +123,7 @@ void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const
 
 void ConstDensityThermo::initThermo()
 {
-    m_kk = nSpecies();
+    ThermoPhase::initThermo();
     m_h0_RT.resize(m_kk);
     m_g0_RT.resize(m_kk);
     m_cp0_R.resize(m_kk);

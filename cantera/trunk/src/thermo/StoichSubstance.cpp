@@ -73,6 +73,7 @@ doublereal StoichSubstance::cv_mole() const
 
 void StoichSubstance::initThermo()
 {
+    ThermoPhase::initThermo();
     if (m_kk > 1) {
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");

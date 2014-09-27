@@ -274,10 +274,7 @@ void SurfPhase::getCp_R_ref(doublereal* cprt) const
 
 void SurfPhase::initThermo()
 {
-    if (m_kk == 0) {
-        throw CanteraError("SurfPhase::initThermo",
-                           "Number of species is equal to zero");
-    }
+    ThermoPhase::initThermo();
     m_h0.resize(m_kk);
     m_s0.resize(m_kk);
     m_cp0.resize(m_kk);

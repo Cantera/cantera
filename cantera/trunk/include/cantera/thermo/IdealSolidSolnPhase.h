@@ -792,13 +792,6 @@ public:
     //@{
 
     /**
-     *  Initialization of an IdealSolidSolnPhase phase:
-     *  Note this function is pretty much useless because it doesn't
-     *  get the xml tree passed to it. Suggest a change.
-     */
-    virtual void initThermo();
-
-    /**
       * @internal Import and initialize a ThermoPhase object using an XML
       *   tree. Here we read extra information about the XML description of a
       *   phase. Regular information about elements and species and their
