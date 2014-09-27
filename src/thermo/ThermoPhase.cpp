@@ -677,6 +677,11 @@ void ThermoPhase::initThermo()
         throw CanteraError("ThermoPhase::initThermo()",
                            "Number of species is equal to zero");
     }
+    // Check to see that all of the species thermo objects have been initialized
+    if (!m_spthermo->ready(m_kk)) {
+        throw CanteraError("ThermoPhase::initThermo()",
+                           "Missing species thermo data");
+    }
     xMol_Ref.resize(m_kk, 0.0);
 }
 void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)

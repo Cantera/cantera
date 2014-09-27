@@ -165,6 +165,7 @@ void GeneralSpeciesThermo::install(const std::string& name,
     }
     m_tlow_max = max(minTemp_, m_tlow_max);
     m_thigh_min = min(maxTemp_, m_thigh_min);
+    markInstalled(index);
 }
 
 void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
@@ -194,6 +195,7 @@ void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
      */
     m_tlow_max = max(stit_ptr->minTemp(), m_tlow_max);
     m_thigh_min = min(stit_ptr->maxTemp(), m_thigh_min);
+    markInstalled(index);
 }
 
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,

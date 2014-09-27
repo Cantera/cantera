@@ -166,6 +166,7 @@ public:
             throw CanteraError("install()", "Species have different reference pressures");
         }
         m_p0 = refPressure_;
+        markInstalled(index);
     }
 
     virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
