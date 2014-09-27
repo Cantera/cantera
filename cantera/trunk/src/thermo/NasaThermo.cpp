@@ -59,6 +59,12 @@ void NasaThermo::install(const std::string& name, size_t index, int type,
                          doublereal min_temp, doublereal max_temp,
                          doublereal ref_pressure)
 {
+    if (type != NASA) {
+        throw CanteraError("NasaThermo::install",
+                           "Incompatible thermo parameterization: Got " +
+                           int2str(type) + " but " + int2str(NASA) +
+                           " was expected.");
+    }
     m_name[index] = name;
     int imid = int(c[0]);       // midpoint temp converted to integer
     int igrp = m_index[imid];   // has this value been seen before?

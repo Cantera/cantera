@@ -148,6 +148,12 @@ public:
                          const doublereal* c,
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure) {
+        if (type != SHOMATE) {
+            throw CanteraError("ShomateThermo::install",
+                               "Incompatible thermo parameterization: Got " +
+                               int2str(type) + " but " + int2str(SHOMATE) +
+                               " was expected.");
+        }
         int imid = int(c[0]);       // midpoint temp converted to integer
         int igrp = m_index[imid];   // has this value been seen before?
         if (igrp == 0) {            // if not, prepare new group

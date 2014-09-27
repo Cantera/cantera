@@ -133,7 +133,12 @@ public:
      */
     virtual void install(const std::string& name, size_t index, int type, const doublereal* c,
                          doublereal minTemp_, doublereal maxTemp_, doublereal refPressure_) {
-
+        if (type != SIMPLE) {
+            throw CanteraError("SimpleThermo::install",
+                               "Incompatible thermo parameterization: Got " +
+                               int2str(type) + " but " + int2str(SIMPLE) +
+                               " was expected.");
+        }
         m_logt0.push_back(log(c[0]));
         m_t0.push_back(c[0]);
         m_h0_R.push_back(c[1]/GasConstant);
