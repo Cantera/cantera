@@ -174,6 +174,7 @@ SpeciesThermoDuo<T1, T2>::install(const std::string& name, size_t sp, int type,
     } else {
         throw UnknownSpeciesThermo("SpeciesThermoDuo:install",type);
     }
+    markInstalled(sp);
 }
 
 template<class T1, class T2>

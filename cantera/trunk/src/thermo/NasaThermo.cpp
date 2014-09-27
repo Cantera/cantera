@@ -108,6 +108,7 @@ void NasaThermo::install(const std::string& name, size_t index, int type,
         throw CanteraError("install()", "species have different reference pressures");
     }
     m_p0 = ref_pressure;
+    markInstalled(index);
 }
 
 void NasaThermo::update_one(size_t k, doublereal t, doublereal* cp_R,

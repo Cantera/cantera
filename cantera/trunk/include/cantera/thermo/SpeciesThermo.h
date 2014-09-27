@@ -331,6 +331,15 @@ public:
      */
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) = 0;
 
+    //! Check if data for all species (0 through nSpecies-1) has been installed.
+    bool ready(size_t nSpecies);
+
+protected:
+    //! Mark species *k* as having its thermodynamic data installed
+    void markInstalled(size_t k);
+
+private:
+    std::vector<bool> m_installed; // indicates if data for species has been installed
 };
 //@}
 }
