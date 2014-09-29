@@ -131,14 +131,20 @@ if os.name == 'nt':
         ('target_arch',
          """Target architecture. The default is the same
             architecture as the installed version of Python.""",
-         target_arch),
-        EnumVariable(
-            'toolchain',
-            """The preferred compiler toolchain.""",
-            defaultToolchain, ('msvc', 'mingw', 'intel'))])
+         target_arch)])
     opts.AddVariables(*windows_compiler_options)
 
     pickCompilerEnv = Environment()
+    opts.Update(pickCompilerEnv)
+
+    if pickCompilerEnv['msvc_version']:
+        defaultToolchain = 'msvc'
+
+    windows_compiler_options.append(EnumVariable(
+        'toolchain',
+        """The preferred compiler toolchain.""",
+        defaultToolchain, ('msvc', 'mingw', 'intel')))
+    opts.AddVariables(windows_compiler_options[-1])
     opts.Update(pickCompilerEnv)
 
     if pickCompilerEnv['toolchain'] == 'msvc':
