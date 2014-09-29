@@ -1036,6 +1036,9 @@ class Arrhenius(rate_expression):
                 self._cov = [coverage]
             else:
                 self._cov = coverage
+            for cov in self._cov:
+                if len(cov) != 4:
+                    raise CTI_Error("Incorrect number of coverage parameters")
         else:
             self._cov = None
 
