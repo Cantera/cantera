@@ -12,6 +12,13 @@ for optimize_flag in ('-O3', '-O2', '/O2'):
         ccflags.remove(optimize_flag)
 localenv['CCFLAGS'] = ccflags
 
+# Where possible, link tests against the shared libraries to minimize the sizes
+# of the resulting binaries.
+if localenv['OS'] == 'Linux':
+    cantera_libs = localenv['cantera_shared_libs']
+else:
+    cantera_libs = localenv['cantera_libs']
+
 if localenv['python_package'] in ('full', 'minimal'):
     localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build2']
     localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
@@ -24,6 +31,12 @@ else:
     haveConverters = False
 
 localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
+
+# Add build/lib in order to find Cantera shared library
+if localenv['ENV'].get('LD_LIBRARY_PATH'):
+    localenv['ENV']['LD_LIBRARY_PATH'] += os.pathsep + Dir('#build/lib').abspath
+else:
+    localenv['ENV']['LD_LIBRARY_PATH'] = Dir('#build/lib').abspath
 
 PASSED_FILES = {}
 
@@ -122,7 +135,7 @@ class CompileAndTest(Test):
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
                            mglob(env, self.subdir, *self.extensions),
-                           LIBS=env['cantera_libs'])
+                           LIBS=cantera_libs)
         source = [prog]
         return Test.run(self, env, *source)
 
@@ -135,7 +148,7 @@ class CompileAndTest(Test):
 
 dhGraph = localenv.Program('cathermo/DH_graph_1/DH_graph_1',
                            mglob(env, 'cathermo/DH_graph_1', 'cpp'),
-                           LIBS=env['cantera_libs'])
+                           LIBS=cantera_libs)
 dhGraph_name = dhGraph[0].name
 
 Test('DH_graph_dilute',
@@ -255,7 +268,7 @@ CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
 
 diamond = localenv.Program('diamondSurf/runDiamond',
                            'diamondSurf/runDiamond.cpp',
-                           LIBS=env['cantera_libs'])
+                           LIBS=cantera_libs)
 diamond_name = diamond[0].name
 Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
      options='diamond_blessed.xml', artifacts=diamond_name)
@@ -271,7 +284,7 @@ CompileAndTest('multiGasTransport',
 
 negA = localenv.Program('negATest/negATest',
                            mglob(env, 'negATest', 'cpp'),
-                           LIBS=env['cantera_libs'])
+                           LIBS=cantera_libs)
 negA_name = negA[0].name
 Test('negA-xml', 'negATest', negA, 'negATest_blessed.out',
      options='noxNeg_blessed.xml', artifacts=negA_name)
