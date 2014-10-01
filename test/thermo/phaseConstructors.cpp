@@ -37,8 +37,12 @@ TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
 class CtiConversionTest : public testing::Test
 {
 public:
-    CtiConversionTest() {
+    CtiConversionTest() : p1(0), p2(0) {
         appdelete();
+    }
+    ~CtiConversionTest() {
+        delete p1;
+        delete p2;
     }
 
     ThermoPhase* p1;
@@ -81,6 +85,7 @@ TEST_F(ChemkinConversionTest, ValidConversion) {
     ctml::ck2cti("pdep-test.inp");
     ThermoPhase* p = newPhase("pdep-test.cti");
     ASSERT_GT(p->temperature(), 0.0);
+    delete p;
 }
 
 TEST_F(ChemkinConversionTest, MissingInputFile) {
