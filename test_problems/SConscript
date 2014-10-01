@@ -5,6 +5,13 @@ localenv = env.Clone()
 localenv.Prepend(CPPPATH=['#include', '#src', 'shared'])
 localenv.Append(CCFLAGS=env['warning_flags'])
 
+# Turn of optimization to speed up compilation
+ccflags = localenv['CCFLAGS']
+for optimize_flag in ('-O3', '-O2', '/O2'):
+    if optimize_flag in ccflags:
+        ccflags.remove(optimize_flag)
+localenv['CCFLAGS'] = ccflags
+
 if localenv['python_package'] in ('full', 'minimal'):
     localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build2']
     localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
