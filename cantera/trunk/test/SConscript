@@ -10,6 +10,13 @@ localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
 localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
                 CCFLAGS=env['warning_flags'])
 
+# Turn of optimization to speed up compilation
+ccflags = localenv['CCFLAGS']
+for optimize_flag in ('-O3', '-O2', '/O2'):
+    if optimize_flag in ccflags:
+        ccflags.remove(optimize_flag)
+localenv['CCFLAGS'] = ccflags
+
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 
 PASSED_FILES = {}
