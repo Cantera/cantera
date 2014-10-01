@@ -5,9 +5,16 @@ from xml.etree import ElementTree
 Import('env','build','install')
 localenv = env.Clone()
 
+# Where possible, link tests against the shared libraries to minimize the sizes
+# of the resulting binaries.
+if localenv['OS'] == 'Linux':
+    cantera_libs = localenv['cantera_shared_libs']
+else:
+    cantera_libs = localenv['cantera_libs']
+
 localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
                  LIBPATH='#build/lib')
-localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
+localenv.Append(LIBS=['gtest'] + cantera_libs,
                 CCFLAGS=env['warning_flags'])
 
 # Turn of optimization to speed up compilation
@@ -22,9 +29,11 @@ localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 PASSED_FILES = {}
 
 # Needed for Intel runtime libraries when compiling with ICC
-if 'LD_LIBRARY_PATH' in os.environ:
-    localenv['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
-
+# Add build/lib in order to find Cantera shared library
+if localenv['ENV'].get('LD_LIBRARY_PATH'):
+    localenv['ENV']['LD_LIBRARY_PATH'] += os.pathsep + Dir('#build/lib').abspath
+else:
+    localenv['ENV']['LD_LIBRARY_PATH'] = Dir('#build/lib').abspath
 
 def addTestProgram(subdir, progName, env_vars={}):
     """
