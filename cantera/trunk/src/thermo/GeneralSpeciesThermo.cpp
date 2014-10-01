@@ -54,14 +54,10 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
         m_thigh_min = b.m_thigh_min;
 
         for (size_t k = 0; k < m_kk; k++) {
-            SpeciesThermoInterpType* sp = m_sp[k];
-            if (sp) {
-                delete sp;
-                m_sp[k] = 0;
-            }
+            delete m_sp[k];
         }
         m_kk = b.m_kk;
-        m_sp.resize(m_kk, 0);
+        m_sp.assign(m_kk, 0);
         for (size_t k = 0; k < m_kk; k++) {
             SpeciesThermoInterpType* bk = b.m_sp[k];
             if (bk) {
@@ -75,14 +71,9 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
 GeneralSpeciesThermo::~GeneralSpeciesThermo()
 {
     for (size_t k = 0; k < m_kk; k++) {
-        SpeciesThermoInterpType* sp = m_sp[k];
-        if (sp) {
-            delete sp;
-            m_sp[k] = 0;
-        }
+        delete m_sp[k];
     }
 }
-
 
 SpeciesThermo*
 GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
