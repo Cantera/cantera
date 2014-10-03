@@ -8,9 +8,9 @@
 
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/NasaPoly1.h"
-#include "NasaPoly2.h"
-#include "ShomatePoly.h"
-#include "ConstCpPoly.h"
+#include "cantera/thermo/NasaPoly2.h"
+#include "cantera/thermo/ShomatePoly.h"
+#include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/Mu0Poly.h"
 #include "cantera/thermo/AdsorbateThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"

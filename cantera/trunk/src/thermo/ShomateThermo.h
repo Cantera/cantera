@@ -11,7 +11,7 @@
 #define CT_SHOMATETHERMO_H
 
 #include "cantera/thermo/SpeciesThermoMgr.h"
-#include "ShomatePoly.h"
+#include "cantera/thermo/ShomatePoly.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
 

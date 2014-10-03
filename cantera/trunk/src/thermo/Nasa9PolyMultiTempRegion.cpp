@@ -13,7 +13,7 @@
 // Copyright 2007  Sandia National Laboratories
 
 #include "cantera/base/ctexceptions.h"
-#include "Nasa9PolyMultiTempRegion.h"
+#include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
 
 using namespace std;
 
