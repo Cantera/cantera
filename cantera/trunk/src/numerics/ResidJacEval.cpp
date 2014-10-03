@@ -25,7 +25,7 @@ ResidJacEval::ResidJacEval(doublereal atol) :
 ResidJacEval::ResidJacEval(const ResidJacEval& right) :
     ResidEval()
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 ResidJacEval& ResidJacEval::operator=(const ResidJacEval& right)

@@ -63,7 +63,7 @@ public:
      * @param right Object to be copied
      */
     SpeciesThermoDuo(const SpeciesThermoDuo& right) {
-        *this = operator=(right);
+        *this = right;
     }
 
     //! Assignment operator

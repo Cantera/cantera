@@ -33,7 +33,7 @@ public:
     SemiconductorPhase(std::string infile, std::string id="");
 
     SemiconductorPhase(const SemiconductorPhase& right) {
-        *this = operator=(right);
+        *this = right;
     }
 
     SemiconductorPhase& operator=(const SemiconductorPhase& right) {

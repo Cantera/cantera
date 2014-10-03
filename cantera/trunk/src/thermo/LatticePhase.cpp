@@ -30,7 +30,7 @@ LatticePhase::LatticePhase(const LatticePhase& right) :
     m_speciesMolarVolume(0),
     m_site_density(0.0)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 LatticePhase& LatticePhase::operator=(const LatticePhase& right)

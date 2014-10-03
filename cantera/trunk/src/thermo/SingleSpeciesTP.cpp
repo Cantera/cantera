@@ -30,7 +30,7 @@ SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP& right):
     m_press(OneAtm),
     m_p0(OneAtm)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 SingleSpeciesTP& SingleSpeciesTP::operator=(const SingleSpeciesTP& right)

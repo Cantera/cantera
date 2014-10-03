@@ -51,7 +51,7 @@ PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP& b) :
     cationPhase_(0),
     anionPhase_(0)
 {
-    *this = operator=(b);
+    *this = b;
 }
 
 PseudoBinaryVPSSTP& PseudoBinaryVPSSTP::operator=(const PseudoBinaryVPSSTP& b)

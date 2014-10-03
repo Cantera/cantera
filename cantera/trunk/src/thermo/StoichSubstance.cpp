@@ -21,7 +21,7 @@ StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     m_press(OneAtm),
     m_p0(OneAtm)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 StoichSubstance& StoichSubstance::operator=(const StoichSubstance& right)

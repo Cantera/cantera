@@ -22,7 +22,7 @@ ConstDensityThermo::ConstDensityThermo()
 
 ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo& right)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& right)

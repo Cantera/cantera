@@ -77,7 +77,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
     numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
-    *this = operator=(b);
+    *this = b;
 }
 
 MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b)

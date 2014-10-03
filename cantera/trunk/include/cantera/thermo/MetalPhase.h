@@ -28,7 +28,7 @@ public:
     MetalPhase() {}
 
     MetalPhase(const MetalPhase& right) {
-        *this = operator=(right);
+        *this = right;
     }
 
     MetalPhase& operator=(const MetalPhase& right) {

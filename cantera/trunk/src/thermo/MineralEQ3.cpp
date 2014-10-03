@@ -75,7 +75,7 @@ MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_) :
 MineralEQ3::MineralEQ3(const MineralEQ3&  right) :
     StoichSubstanceSSTP()
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 MineralEQ3&

@@ -85,7 +85,7 @@ public:
         m_thigh_min(1.e30),
         m_p0(-1.0),
         m_ngroups(0) {
-        *this = operator=(right);
+        *this = right;
     }
 
     //! Assignment Operator
