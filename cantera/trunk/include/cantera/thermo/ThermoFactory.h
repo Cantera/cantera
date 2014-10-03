@@ -227,6 +227,9 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  *                  created.
  *
  * @ingroup thermoprops
+ *
+ * @deprecated: The return value of this function is always 'true'. After
+ * Cantera 2.2, this function will return 'void'.
  */
 bool importPhase(XML_Node& phase, ThermoPhase* th, SpeciesThermoFactory* spfactory = 0);
 
