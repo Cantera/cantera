@@ -6,7 +6,7 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "ConstCpPoly.h"
+#include "cantera/thermo/ConstCpPoly.h"
 
 namespace Cantera
 {

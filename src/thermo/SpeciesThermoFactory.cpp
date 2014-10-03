@@ -14,7 +14,7 @@
 #include "cantera/thermo/SimpleThermo.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/Mu0Poly.h"
-#include "Nasa9PolyMultiTempRegion.h"
+#include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
 #include "cantera/thermo/StatMech.h"
 
