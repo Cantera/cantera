@@ -53,11 +53,11 @@ public:
     }
 
     virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-        return m_rrxn[k][i];
+        return getValue(m_rrxn[k], i, 0.0);
     }
 
     virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-        return m_prxn[k][i];
+        return getValue(m_prxn[k], i, 0.0);
     }
 
     //! @}
@@ -101,7 +101,7 @@ public:
     //! @{
 
     virtual int reactionType(size_t i) const {
-        return m_index[i].first;
+        return getValue(m_index, i).first;
     }
 
     virtual std::string reactionString(size_t i) const {
@@ -167,7 +167,7 @@ protected:
     Rate1<Arrhenius>                    m_falloff_high_rates;
     Rate1<Arrhenius>                    m_rates;
 
-    mutable std::map<size_t, std::pair<int, size_t> > m_index;
+    std::map<size_t, std::pair<int, size_t> > m_index;
 
     FalloffMgr                          m_falloffn;
 
@@ -191,8 +191,8 @@ protected:
 
     std::vector<int>                         m_rxntype;
 
-    mutable std::vector<std::map<size_t, doublereal> > m_rrxn;
-    mutable std::vector<std::map<size_t, doublereal> > m_prxn;
+    std::vector<std::map<size_t, doublereal> > m_rrxn;
+    std::vector<std::map<size_t, doublereal> > m_prxn;
 
     /**
      * Difference between the input global reactants order

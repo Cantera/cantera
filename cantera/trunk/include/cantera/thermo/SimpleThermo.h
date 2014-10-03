@@ -11,6 +11,7 @@
 #include "SpeciesThermoMgr.h"
 #include "speciesThermoTypes.h"
 #include "cantera/base/global.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -203,7 +204,7 @@ public:
                             doublereal* h_RT, doublereal* s_R) const {
         doublereal logt = log(t);
         doublereal rt = 1.0/t;
-        size_t loc = m_loc[k];
+        size_t loc = getValue(m_loc, k);
         cp_R[k] = m_cp0_R[loc];
         h_RT[k] = rt*(m_h0_R[loc] + (t - m_t0[loc]) * m_cp0_R[loc]);
         s_R[k] = m_s0_R[loc] + m_cp0_R[loc] * (logt - m_logt0[loc]);
@@ -213,7 +214,7 @@ public:
         if (k == npos) {
             return m_tlow_max;
         } else {
-            return m_tlow[m_loc[k]];
+            return m_tlow[getValue(m_loc, k)];
         }
     }
 
@@ -221,7 +222,7 @@ public:
         if (k == npos) {
             return m_thigh_min;
         } else {
-            return m_thigh[m_loc[k]];
+            return m_thigh[getValue(m_loc, k)];
         }
     }
 
@@ -252,7 +253,7 @@ public:
                               doublereal& maxTemp_,
                               doublereal& refPressure_) const {
         type = reportType(index);
-        size_t loc = m_loc[index];
+        size_t loc = getValue(m_loc, index);
         if (type == SIMPLE) {
             c[0] = m_t0[loc];
             c[1] = m_h0_R[loc] * GasConstant;
@@ -280,7 +281,7 @@ protected:
      * This index keeps track of it.
      *      indexData = m_loc[kspec]
      */
-    mutable std::map<size_t, size_t> m_loc;
+    std::map<size_t, size_t> m_loc;
 
     //! Map between the vector index where the coefficients are kept and the species index
     /*!

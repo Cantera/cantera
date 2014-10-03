@@ -1418,12 +1418,12 @@ int InterfaceKinetics::phaseStability(const size_t iphase) const
 //==================================================================================================================
 doublereal InterfaceKinetics::reactantStoichCoeff(size_t kSpecKin, size_t irxn) const
 {
-    return m_rrxn[kSpecKin][irxn];
+    return getValue(m_rrxn[kSpecKin], irxn, 0.0);
 } 
 //==================================================================================================================
 doublereal InterfaceKinetics::productStoichCoeff(size_t kSpecKin, size_t irxn) const 
 {
-    return m_prxn[kSpecKin][irxn];
+    return getValue(m_prxn[kSpecKin], irxn, 0.0);
 }
 //==================================================================================================================
 int InterfaceKinetics::reactionType(size_t irxn) const 

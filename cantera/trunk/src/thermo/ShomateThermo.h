@@ -13,6 +13,7 @@
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "ShomatePoly.h"
 #include "cantera/base/global.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -223,8 +224,8 @@ public:
         m_t[5] = 1.0/GasConstant;
         m_t[6] = 1.0/(GasConstant * t);
 
-        size_t grp = m_group_map[k];
-        size_t pos = m_posInGroup_map[k];
+        size_t grp = getValue(m_group_map, k);
+        size_t pos = getValue(m_posInGroup_map, k);
         const std::vector<ShomatePoly> &mlg = m_low[grp-1];
         const ShomatePoly* nlow = &(mlg[pos]);
 
@@ -297,8 +298,8 @@ public:
                               doublereal& refPressure) const {
         type = reportType(index);
         if (type == SHOMATE) {
-            size_t grp = m_group_map[index];
-            size_t pos = m_posInGroup_map[index];
+            size_t grp = getValue(m_group_map, index);
+            size_t pos = getValue(m_posInGroup_map, index);
             int itype = SHOMATE;
             const std::vector<ShomatePoly> &mlg = m_low[grp-1];
             const std::vector<ShomatePoly> &mhg = m_high[grp-1];
@@ -337,8 +338,8 @@ public:
         doublereal h;
         doublereal t = 298.15;
 
-        size_t grp = m_group_map[k];
-        size_t pos = m_posInGroup_map[k];
+        size_t grp = getValue(m_group_map, k);
+        size_t pos = getValue(m_posInGroup_map, k);
         const std::vector<ShomatePoly> &mlg = m_low[grp-1];
         const ShomatePoly* nlow = &(mlg[pos]);
 
@@ -444,14 +445,14 @@ protected:
      * for that species are stored. group indices start at 1,
      * so a decrement is always performed to access vectors.
      */
-    mutable std::map<size_t, size_t> m_group_map;
+    std::map<size_t, size_t> m_group_map;
 
     /*!
      * This map takes as its index, the species index in the phase.
      * It returns the position index within the group, where the
      * temperature polynomials for that species are stored.
      */
-    mutable std::map<size_t, size_t> m_posInGroup_map;
+    std::map<size_t, size_t> m_posInGroup_map;
 };
 
 }

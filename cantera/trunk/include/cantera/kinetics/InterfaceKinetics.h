@@ -478,7 +478,7 @@ protected:
      * The first pair is the reactionType of the reaction.
      * The second pair is ...
      */
-    mutable std::map<size_t, std::pair<int, size_t> > m_index;
+    std::map<size_t, std::pair<int, size_t> > m_index;
 
     //! Vector of irreversible reaction numbers
     /*!
@@ -507,11 +507,8 @@ protected:
      *  kinetics object. For each species, there exists a map, with the
      *  reaction number being the key, and the reactant stoichiometric
      *  coefficient for the species being the value.
-     *
-     *  HKM -> mutable because search sometimes creates extra
-     *         entries. To be fixed in future...
      */
-    mutable std::vector<std::map<size_t, doublereal> >     m_rrxn;
+    std::vector<std::map<size_t, doublereal> > m_rrxn;
 
     //!  m_prxn is a vector of maps, containing the reactant
     //!  stoichiometric coefficient information
@@ -521,7 +518,7 @@ protected:
      *  exists a map, with the reaction number being the key, and the product
      *  stoichiometric coefficient for the species being the value.
      */
-    mutable std::vector<std::map<size_t, doublereal> >     m_prxn;
+    std::vector<std::map<size_t, doublereal> > m_prxn;
 
     //! Vector of reactionType for the reactions defined within this object
     /*!

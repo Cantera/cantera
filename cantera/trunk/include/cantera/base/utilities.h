@@ -18,6 +18,7 @@
 
 #include "ct_defs.h"
 #include "global.h"
+#include <stdexcept>
 
 #include <numeric>
 
@@ -702,6 +703,34 @@ void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &t
 
 //! Check to see that a number is finite (not NaN, +Inf or -Inf)
 void checkFinite(const double tmp);
+
+//! Const accessor for a value in a std::map.
+/*!
+ *  This is a const alternative to operator[]. Roughly equivalent to the 'at'
+ *  member function introduced in C++11. Throws std::out_of_range if the key
+ *  does not exist.
+ */
+template <class T, class U>
+const U& getValue(const std::map<T, U>& m, const T& key) {
+    typename std::map<T,U>::const_iterator iter = m.find(key);
+    if (iter == m.end()) {
+        throw std::out_of_range("std::map: key not found");
+    } else {
+        return iter->second;
+    }
+}
+
+//! Const accessor for a value in a std::map.
+/*
+ *  Similar to the two-argument version of getValue, but returns *default_val*
+ *  if the key is not found instead of throwing an exception.
+ */
+template <class T, class U>
+const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {
+    typename std::map<T,U>::const_iterator iter = m.find(key);
+    return (iter == m.end()) ? default_val : iter->second;
+}
+
 }
 
 #endif
