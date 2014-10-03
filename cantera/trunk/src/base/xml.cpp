@@ -9,6 +9,7 @@
 #include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
+#include "cantera/base/utilities.h"
 
 #include <sstream>
 
@@ -518,11 +519,7 @@ std::string XML_Node::operator[](const std::string& attr) const
 
 std::string XML_Node::attrib(const std::string& attr) const
 {
-    std::map<std::string,std::string>::const_iterator i = m_attribs.find(attr);
-    if (i != m_attribs.end()) {
-        return i->second;
-    }
-    return "";
+    return getValue<string,string>(m_attribs, attr, "");
 }
 
 std::map<std::string,std::string>& XML_Node::attribs()

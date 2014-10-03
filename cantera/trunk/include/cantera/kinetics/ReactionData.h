@@ -7,6 +7,7 @@
 #define CT_REACTION_DATA_H
 
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -212,12 +213,7 @@ public:
 
     //! Get the actual third-body efficiency for species *k*
     double efficiency(size_t k) const {
-        std::map<size_t, doublereal>::const_iterator iter = thirdBodyEfficiencies.find(k);
-        if (iter != thirdBodyEfficiencies.end()) {
-            return iter->second;
-        } else {
-            return default_3b_eff;
-        }
+        return getValue(thirdBodyEfficiencies, k, default_3b_eff);
     }
 };
 }

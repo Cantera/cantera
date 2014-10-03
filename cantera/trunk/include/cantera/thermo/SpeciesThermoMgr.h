@@ -14,6 +14,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "SpeciesThermo.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -190,11 +191,7 @@ template<class T1, class T2>
 int
 SpeciesThermoDuo<T1, T2>::reportType(size_t k) const
 {
-    std::map<size_t, int>::const_iterator p = speciesToType.find(k);
-    if (p != speciesToType.end()) {
-        return p->second;
-    }
-    return -1;
+    return getValue(speciesToType, k, -1);
 }
 
 template<class T1, class T2>

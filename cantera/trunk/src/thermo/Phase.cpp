@@ -383,10 +383,7 @@ void Phase::setMoleFractionsByName(const compositionMap& xMap)
     size_t kk = nSpecies();
     vector_fp mf(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-        compositionMap::const_iterator iter = xMap.find(speciesName(k));
-        if (iter != xMap.end() && iter->second > 0.0) {
-            mf[k] = iter->second;
-        }
+        mf[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
     }
     setMoleFractions(&mf[0]);
 }
@@ -427,10 +424,7 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
     size_t kk = nSpecies();
     vector_fp mf(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-        compositionMap::const_iterator iter = yMap.find(speciesName(k));
-        if (iter != yMap.end() && iter->second > 0.0) {
-            mf[k] = iter->second;
-        }
+        mf[k] = std::max(getValue(yMap, speciesName(k), 0.0), 0.0);
     }
     setMassFractions(&mf[0]);
 }
