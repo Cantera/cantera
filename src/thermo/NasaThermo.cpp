@@ -127,8 +127,8 @@ void NasaThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
     m_t[4] = 1.0/t;
     m_t[5] = log(t);
 
-    size_t grp = m_group_map[k];
-    size_t pos = m_posInGroup_map[k];
+    size_t grp = getValue(m_group_map, k);
+    size_t pos = getValue(m_posInGroup_map, k);
     const std::vector<NasaPoly1> &mlg = m_low[grp-1];
     const NasaPoly1* nlow = &(mlg[pos]);
 
@@ -179,8 +179,8 @@ void NasaThermo::reportParams(size_t index, int& type,
 {
     type = reportType(index);
     if (type == NASA) {
-        size_t grp = m_group_map[index];
-        size_t pos = m_posInGroup_map[index];
+        size_t grp = getValue(m_group_map, index);
+        size_t pos = getValue(m_posInGroup_map, index);
         const std::vector<NasaPoly1> &mlg = m_low[grp-1];
         const std::vector<NasaPoly1> &mhg = m_high[grp-1];
         const NasaPoly1* lowPoly  = &(mlg[pos]);
@@ -215,8 +215,8 @@ void NasaThermo::reportParams(size_t index, int& type,
 
 doublereal NasaThermo::reportOneHf298(const size_t k) const
 {
-    size_t grp = m_group_map[k];
-    size_t pos = m_posInGroup_map[k];
+    size_t grp = getValue(m_group_map, k);
+    size_t pos = getValue(m_posInGroup_map, k);
     const std::vector<NasaPoly1> &mlg = m_low[grp-1];
     const NasaPoly1* nlow = &(mlg[pos]);
     doublereal tmid = nlow->maxTemp();
@@ -233,8 +233,8 @@ doublereal NasaThermo::reportOneHf298(const size_t k) const
 
 void NasaThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
-    size_t grp = m_group_map[k];
-    size_t pos = m_posInGroup_map[k];
+    size_t grp = getValue(m_group_map, k);
+    size_t pos = getValue(m_posInGroup_map, k);
     std::vector<NasaPoly1> &mlg = m_low[grp-1];
     NasaPoly1* nlow = &(mlg[pos]);
     std::vector<NasaPoly1> &mhg = m_high[grp-1];
