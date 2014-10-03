@@ -70,9 +70,11 @@ def addTestProgram(subdir, progName, env_vars={}):
                 else:
                     testResults.passed[testName] = 1
         else:
-            # Total failure of the test program - unable to determine status
-            # of individual tests
-            testResults.failed[passedFile.name] = program
+            # Total failure of the test program - unable to determine status of
+            # individual tests. This is potentially very bad, so it counts as
+            # more than one failure.
+            testResults.failed[passedFile.name +
+                ' ***no results for entire test suite***'] = 100
 
     testenv = localenv.Clone()
     testenv['ENV'].update(env_vars)
@@ -127,8 +129,10 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
                     failures += 1
 
         if code and failures == 0:
-            # Failure, but unable to determine status of individual tests
-            testResults.failed[testname] = True
+            # Failure, but unable to determine status of individual tests. This
+            # gets counted as many failures.
+            testResults.failed[testname +
+                ' ***no results for entire test suite***'] = 100
 
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
@@ -176,9 +180,9 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
         print results
         print '------ end Matlab test results ------'
         if 'FAILED' in results:
-            testResults.failed[passedFile.name] = True
+            testResults.failed[passedFile.name] = 1
         else:
-            testResults.passed[passedFile.name] = True
+            testResults.passed[passedFile.name] = 1
             open(target[0].path, 'w').write(time.asctime()+'\n')
 
     testenv = localenv.Clone()
