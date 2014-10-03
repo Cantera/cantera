@@ -51,7 +51,7 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     /*
      * Call the assignment operator
      */
-    *this = operator=(right);
+    *this = right;
 }
 
 ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)

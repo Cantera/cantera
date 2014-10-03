@@ -37,7 +37,7 @@ LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
     theta_(0),
     tmpV_(0)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 LatticeSolidPhase&

@@ -73,7 +73,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& 
 StoichSubstanceSSTP::StoichSubstanceSSTP(const StoichSubstanceSSTP&  right) :
     SingleSpeciesTP()
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 StoichSubstanceSSTP&
@@ -324,7 +324,7 @@ electrodeElectron::electrodeElectron(XML_Node& xmlphase, const std::string& id_)
 electrodeElectron::electrodeElectron(const electrodeElectron&  right) :
     StoichSubstanceSSTP()
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 electrodeElectron&

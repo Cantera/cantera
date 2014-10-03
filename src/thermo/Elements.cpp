@@ -233,7 +233,7 @@ Elements::Elements(const Elements& right) :
     m_elementsFrozen(false),
     numSubscribers(0)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 Elements& Elements::operator=(const Elements& right)

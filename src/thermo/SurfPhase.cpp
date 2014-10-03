@@ -415,7 +415,7 @@ EdgePhase::EdgePhase(const EdgePhase& right) :
     SurfPhase(right.m_n0)
 {
     setNDim(1);
-    *this = operator=(right);
+    *this = right;
 }
 
 EdgePhase& EdgePhase::operator=(const EdgePhase& right)

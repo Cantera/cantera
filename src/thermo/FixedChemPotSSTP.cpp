@@ -126,7 +126,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
 FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP&  right) :
     SingleSpeciesTP()
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 FixedChemPotSSTP&

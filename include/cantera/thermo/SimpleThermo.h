@@ -72,7 +72,7 @@ public:
         /*
          * Call the assignment operator
          */
-        *this = operator=(right);
+        *this = right;
     }
 
     //! Assignment operator

@@ -53,7 +53,7 @@ MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
     m_Mnaught(b.m_Mnaught),
     m_molalities(b.m_molalities)
 {
-    *this = operator=(b);
+    *this = b;
 }
 
 MolalityVPSSTP& MolalityVPSSTP::operator=(const MolalityVPSSTP& b)
