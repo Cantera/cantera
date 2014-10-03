@@ -427,10 +427,7 @@ void MultiPhase::setMolesByName(const compositionMap& xMap)
     size_t kk = nSpecies();
     vector_fp moles(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-        compositionMap::const_iterator iter = xMap.find(speciesName(k));
-        if (iter != xMap.end() && iter->second > 0.0) {
-            moles[k] = iter->second;
-        }
+        moles[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
     }
     setMoles(DATA_PTR(moles));
 }

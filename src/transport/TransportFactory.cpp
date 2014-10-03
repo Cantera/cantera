@@ -22,6 +22,7 @@
 
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -213,13 +214,7 @@ void TransportFactory::deleteFactory()
 
 std::string TransportFactory::modelName(int model)
 {
-    TransportFactory& f = *factory();
-    map<int, string>::iterator iter = f.m_modelNames.find(model);
-    if (iter != f.m_modelNames.end()) {
-        return iter->second;
-    } else {
-        return "";
-    }
+    return getValue<int,string>(factory()->m_modelNames, model, "");
 }
 
 LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, const std::string& name,
@@ -699,12 +694,8 @@ void TransportFactory::getTransportData(const ThermoPhase& thermo, const std::ve
         const XML_Node& sp = *xspecies[i];
 
         // Find the index for this species in 'names'
-        std::map<std::string, size_t>::const_iterator iter =
-            speciesIndices.find(sp["name"]);
-        size_t j;
-        if (iter != speciesIndices.end()) {
-            j = iter->second;
-        } else {
+        size_t j = getValue(speciesIndices, sp["name"], npos);
+        if (j == npos) {
             // Don't need transport data for this species
             continue;
         }

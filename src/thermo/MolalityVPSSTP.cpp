@@ -19,6 +19,7 @@
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/utilities.h"
 
 #include <fstream>
 
@@ -190,9 +191,9 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
     double xmolS = mf[m_indexSolvent];
     double xmolSmin = std::max(xmolS, m_xmolSolventMIN);
     for (size_t k = 0; k < kk; k++) {
-        compositionMap::const_iterator iter = mMap.find(speciesName(k));
-        if (iter != mMap.end() && iter->second > 0.0) {
-            mf[k] = iter->second * m_Mnaught * xmolSmin;
+        double mol_k = getValue(mMap, speciesName(k), 0.0);
+        if (mol_k > 0) {
+            mf[k] = mol_k * m_Mnaught * xmolSmin;
         }
     }
     /*
