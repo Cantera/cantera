@@ -282,12 +282,7 @@ void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string i
      * all of the species into the phase. This will also handle
      * all of the solvent and solute standard states
      */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
-                           "importPhase failed ");
-    }
-
+    importPhase(phaseNode, this);
 }
 
 /*

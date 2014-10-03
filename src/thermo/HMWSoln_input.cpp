@@ -1125,11 +1125,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
      * all of the species into the phase. This will also handle
      * all of the solvent and solute standard states
      */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("HMWSoln::constructPhaseXML","importPhase failed ");
-    }
-
+    importPhase(phaseNode, this);
 }
 
 void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
