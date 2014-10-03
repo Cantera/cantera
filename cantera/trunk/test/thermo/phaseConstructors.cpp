@@ -149,9 +149,9 @@ public:
 
 TEST_F(ConstructFromScratch, AddElements)
 {
-    ASSERT_EQ(3, p.nElements());
+    ASSERT_EQ((size_t) 3, p.nElements());
     ASSERT_EQ("H", p.elementName(0));
-    ASSERT_EQ(1, p.elementIndex("O"));
+    ASSERT_EQ((size_t) 1, p.elementIndex("O"));
 }
 
 TEST_F(ConstructFromScratch, AddSpeciesNasa)
@@ -164,14 +164,14 @@ TEST_F(ConstructFromScratch, AddSpeciesNasa)
     p.addUniqueSpecies("H2", h2_comp);
     sp.install("H2", 1, NASA, h2_coeffs, 200.0, 3500.0, 101325.0);
 
-    ASSERT_EQ(2, p.nSpecies());
+    ASSERT_EQ((size_t) 2, p.nSpecies());
 
     p.addUniqueSpecies("O2", o2_comp);
     sp.install("O2", 2, NASA, o2_coeffs, 200.0, 3500.0, 101325.0);
     p.addUniqueSpecies("OH", oh_comp);
     sp.install("OH", 3, NASA, oh_coeffs, 200.0, 3500.0, 101325.0);
 
-    ASSERT_EQ(4, p.nSpecies());
+    ASSERT_EQ((size_t) 4, p.nSpecies());
     ASSERT_EQ("H2", p.speciesName(1));
     ASSERT_EQ(2, p.nAtoms(2, 1)); // O in O2
     ASSERT_EQ(2, p.nAtoms(0, 0)); // H in H2O
