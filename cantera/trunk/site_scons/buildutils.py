@@ -93,8 +93,8 @@ Up-to-date tests skipped: %(skipped)s
 Tests failed: %(failed)s
 %(failures)s
 *****************************""" % dict(
-            passed=len(self.passed),
-            failed=len(self.failed),
+            passed=sum(self.passed.values()),
+            failed=sum(self.failed.values()),
             skipped=len(self.tests),
             failures=failures)
 
