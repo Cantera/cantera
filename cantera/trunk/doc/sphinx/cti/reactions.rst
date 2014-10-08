@@ -416,6 +416,40 @@ Note that the Chebyshev polynomials are not defined outside the interval
 :math:`(-1,1)`, and therefore extrapolation of rates outside the range of
 temperatures and pressure for which they are defined is strongly discouraged.
 
+Surface Reactions
+=================
+
+Heterogeneous reactions on surfaces are represented by an extended Arrhenius-
+like rate expression, which combines the modified Arrhenius rate expression with
+further corrections dependent on the fractional surface coverages
+:math:`\theta_k` of one or more surface species. The forward rate constant for a
+reaction of this type is:
+
+.. math::
+
+    k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+            \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+            \exp \left( \frac{- E_k \theta_k}{RT} \right)
+
+where :math:`A`, :math:`b`, and :math:`E_a` are the modified Arrhenius
+parameters and :math:`a_k`, :math:`m_k`, and :math:`E_k` are the coverage
+dependencies from species *k*. A reaction of this form with a single coverage
+dependency (on the species ``H(S)``) can be written using class
+:class:`surface_reaction` with the ``coverage`` keyword argument supplied to the
+class :class:`Arrhenius`::
+
+    surface_reaction("2 H(S) => H2 + 2 PT(S)",
+                     Arrhenius(A, b, E_a,
+                               coverage=['H(S)', a_1, m_1, E_1]))
+
+For a reaction with multiple coverage dependencies, the following syntax is
+used::
+
+    surface_reaction("2 H(S) => H2 + 2 PT(S)",
+                     Arrhenius(A, b, E_a,
+                               coverage=[['H(S)', a_1, m_1, E_1],
+                                         ['PT(S)', a_2, m_2, E_2]]))
+
 .. rubric:: References
 
 .. [#Gilbert1983] R. G. Gilbert, K. Luther, and
