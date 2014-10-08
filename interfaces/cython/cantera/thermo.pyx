@@ -921,7 +921,8 @@ cdef class PureFluid(ThermoPhase):
             return self.T, self.X
         def __set__(self, values):
             T = values[0] if values[0] is not None else self.T
-            self.thermo.setState_Tsat(T, values[1])
+            X = values[1] if values[1] is not None else self.X
+            self.thermo.setState_Tsat(T, X)
 
     property PX:
         """Get/Set the pressure and vapor fraction of a two-phase state."""
@@ -929,4 +930,5 @@ cdef class PureFluid(ThermoPhase):
             return self.P, self.X
         def __set__(self, values):
             P = values[0] if values[0] is not None else self.P
-            self.thermo.setState_Psat(P, values[1])
+            X = values[1] if values[1] is not None else self.X
+            self.thermo.setState_Psat(P, X)
