@@ -83,6 +83,7 @@ class Test(object):
 
         for dep in kwargs.get('dependencies', []):
             localenv.Depends(run, dep)
+        env.Depends(run, localenv.get('cantera_shlib', ()))
 
     def run(self, env, *args):
         source = list(args)
