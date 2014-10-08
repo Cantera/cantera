@@ -197,13 +197,19 @@ public:
      */
     virtual void multiplyRevProducts(const doublereal* c, doublereal* r);
 
+    //! @deprecated To be removed after Cantera 2.2
     virtual void write(const std::string& filename);
 
 protected:
+    //! @deprecated To be removed after Cantera 2.2
     void writeCreationRates(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeDestructionRates(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeNetProductionRates(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiplyReactants(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiplyRevProducts(std::ostream& f);
     StoichManagerN m_reactants;
     StoichManagerN m_revproducts;

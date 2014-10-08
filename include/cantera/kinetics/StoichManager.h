@@ -135,6 +135,7 @@ static doublereal ppow(doublereal x, doublereal order)
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 inline static std::string fmt(const std::string& r, size_t n)
 {
     return r + "[" + int2str(n) + "]";
@@ -203,20 +204,27 @@ public:
         return 1;
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " + "+fmt(r, m_rxn);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " - "+fmt(r, m_rxn);
     }
@@ -293,21 +301,29 @@ public:
         return 2;
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
@@ -392,21 +408,30 @@ public:
         return 3;
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1) + " * " + fmt(r, m_ic2);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1)+" + "+fmt(r, m_ic2);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1)+" - "+fmt(r, m_ic2);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
         out[m_ic2] += s;
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
@@ -524,6 +549,7 @@ public:
             -= m_stoich[n]*input[m_ic[n]];
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = "";
         for (size_t n = 0; n < m_n; n++) {
@@ -537,16 +563,22 @@ public:
             }
         }
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " + "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " - "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
@@ -554,6 +586,7 @@ public:
         }
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
@@ -648,7 +681,7 @@ inline static void _decrementReactions(InputIter begin,
     }
 }
 
-
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeIncrementSpecies(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -658,6 +691,7 @@ inline static void _writeIncrementSpecies(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeDecrementSpecies(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -667,6 +701,7 @@ inline static void _writeDecrementSpecies(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeIncrementReaction(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -676,6 +711,7 @@ inline static void _writeIncrementReaction(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeDecrementReaction(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -685,6 +721,7 @@ inline static void _writeDecrementReaction(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeMultiply(InputIter begin, InputIter end,
                                   const std::string& r, std::map<size_t, std::string>& out)
@@ -885,6 +922,7 @@ public:
         _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -892,6 +930,7 @@ public:
         _writeIncrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -899,6 +938,7 @@ public:
         _writeDecrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -906,6 +946,7 @@ public:
         _writeIncrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -913,6 +954,7 @@ public:
         _writeDecrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         _writeMultiply(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeMultiply(m_c2_list.begin(), m_c2_list.end(), r, out);
