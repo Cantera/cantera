@@ -85,6 +85,7 @@ public:
      * If it does then it will produce a negative overflow result, and
      * a zero net forwards reaction rate, instead of a negative reaction
      * rate constant that is the expected result.
+     * @deprecated. To be removed after Cantera 2.2
      */
     doublereal update(doublereal logT, doublereal recipT) const {
         return m_logA + m_b*logT - m_E*recipT;
@@ -101,7 +102,7 @@ public:
         return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
-
+    //! @deprecated. To be removed after Cantera 2.2
     void writeUpdateRHS(std::ostream& s) const {
         s << " exp(" << m_logA;
         if (m_b != 0.0) {
@@ -113,10 +114,12 @@ public:
         s << ");" << std::endl;
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     doublereal activationEnergy_R() const {
         return m_E;
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     static bool alwaysComputeRate() {
         return false;
     }
@@ -222,6 +225,7 @@ public:
      *
      * This calculation is not safe for negative values of
      * the preexponential.
+     * @deprecated. To be removed after Cantera 2.2
      */
     doublereal update(doublereal logT, doublereal recipT) const {
         return m_logA + m_acov + m_b*logT
@@ -240,10 +244,12 @@ public:
                               (m_E + m_ecov)*recipT + m_mcov);
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     doublereal activationEnergy_R() const {
         return m_E + m_ecov;
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     static bool alwaysComputeRate() {
         return true;
     }
@@ -326,6 +332,7 @@ public:
      * If it does then it will produce a negative overflow result, and
      * a zero net forwards reaction rate, instead of a negative reaction
      * rate constant that is the expected result.
+     * @deprecated. To be removed after Cantera 2.2
      */
     doublereal update(doublereal logT, doublereal recipT) const {
         return m_logA + m_b*logT - m_E*recipT;
@@ -342,6 +349,7 @@ public:
         return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     void writeUpdateRHS(std::ostream& s) const {
         s << " exp(" << m_logA;
         if (m_b != 0.0) {
@@ -353,10 +361,12 @@ public:
         s << ");" << std::endl;
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     doublereal activationEnergy_R() const {
         return m_E;
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     static bool alwaysComputeRate() {
         return false;
     }
@@ -478,8 +488,18 @@ public:
 
     /**
      * Update the value of the logarithm of the rate constant.
+     * @deprecated. To be removed after Cantera 2.2
      */
     doublereal update(doublereal logT, doublereal recipT) const {
+        return std::log(updateRC(logT, recipT));
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT) const {
         double log_k1, log_k2;
         if (m1_ == 1) {
             log_k1 = A1_[0] + n1_[0] * logT - Ea1_[0] * recipT;
@@ -501,22 +521,15 @@ public:
             log_k2 = std::log(k);
         }
 
-        return log_k1 + (log_k2 - log_k1) * (logP_ - logP1_) * rDeltaP_;
+        return std::exp(log_k1 + (log_k2-log_k1) * (logP_-logP1_) * rDeltaP_);
     }
 
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return std::exp(update(logT, recipT));
-    }
-
+    //! @deprecated. To be removed after Cantera 2.2
     doublereal activationEnergy_R() const {
         throw CanteraError("Plog::activationEnergy_R", "Not implemented");
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     static bool alwaysComputeRate() {
         return false;
     }
@@ -623,8 +636,18 @@ public:
 
     /**
      * Update the value of the base-10 logarithm of the rate constant.
+     * @deprecated. To be removed after Cantera 2.2
      */
     doublereal update(doublereal logT, doublereal recipT) const {
+        return std::log10(updateRC(logT, recipT));
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT) const {
         double Tr = (2 * recipT + TrNum_) * TrDen_;
         double Cnm1 = 1;
         double Cn = Tr;
@@ -636,22 +659,15 @@ public:
             Cnm1 = Cn;
             Cn = Cnp1;
         }
-        return logk;
+        return std::pow(10, logk);
     }
 
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return std::pow(10, update(logT, recipT));
-    }
-
+    //! @deprecated. To be removed after Cantera 2.2
     doublereal activationEnergy_R() const {
         return 0.0;
     }
 
+    //! @deprecated. To be removed after Cantera 2.2
     static bool alwaysComputeRate() {
         return false;
     }
@@ -669,5 +685,3 @@ protected:
 }
 
 #endif
-
-
