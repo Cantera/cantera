@@ -132,9 +132,9 @@ protected:
  * The rate expression is given by:
  * \f[
  *     k_f = A T^b \exp \left(
- *             \sum a_k \theta_k
+ *             \ln 10 \sum a_k \theta_k
  *             - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
- *             + \sum m_k \log \theta_k
+ *             + \sum m_k \ln \theta_k
  *             \right)
  *   \f]
  * where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
@@ -236,7 +236,8 @@ public:
      * factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * std::exp(m_acov + m_b*logT - (m_E + m_ecov)*recipT + m_mcov);
+        return m_A * std::exp(std::log(10.0)*m_acov + m_b*logT -
+                              (m_E + m_ecov)*recipT + m_mcov);
     }
 
     doublereal activationEnergy_R() const {
