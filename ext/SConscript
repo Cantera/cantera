@@ -136,7 +136,7 @@ for subdir, extensions, prepFunction in libs:
 # and compiled library can be installed alongside Cantera using the scons
 # option 'install_gtest=y'.
 localenv = prep_gtest(env)
-gtest = build(localenv.Library(pjoin('../lib', 'gtest'),
+gtest = build(localenv.Library('../lib/gtest',
                               source=['gtest/src/gtest-all.cc']))
 
 if localenv['install_gtest']:

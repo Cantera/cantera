@@ -1330,15 +1330,15 @@ if addInstallActions:
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Data files
-    install('$inst_datadir', mglob(env, pjoin('build','data'), 'cti', 'xml'))
+    install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
 
     # Converter scripts
     pyExt = '.py' if env['OS'] == 'Windows' else ''
     install(env.InstallAs,
-            pjoin('$inst_bindir','ck2cti%s' % pyExt),
+            '$inst_bindir/ck2cti%s' % pyExt,
             'interfaces/cython/cantera/ck2cti.py')
     install(env.InstallAs,
-            pjoin('$inst_bindir','ctml_writer%s' % pyExt),
+            '$inst_bindir/ctml_writer%s' % pyExt,
             'interfaces/cython/cantera/ctml_writer.py')
 
     # Copy external libaries for Windows installations
@@ -1346,8 +1346,8 @@ if addInstallActions:
         boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
                                         env['BOOST_LIB_VERSION'])
         for lib in env['boost_windows_libs'].split(','):
-            install('$inst_libdir', pjoin('$boost_lib_dir',
-                                          'libboost_{0}{1}'.format(lib, boost_suffix)))
+            install('$inst_libdir',
+                    '$boost_lib_dir/libboost_{0}{1}'.format(lib, boost_suffix))
 
     # Copy sundials library and header files
     if env['install_sundials']:
@@ -1356,7 +1356,7 @@ if addInstallActions:
                 install(env.RecursiveInstall, pjoin('$inst_incdir', '..', subdir),
                         pjoin(env['sundials_include'], subdir))
         if os.path.exists(env['sundials_license']):
-            install(pjoin('$inst_incdir', '..', 'sundials'), env['sundials_license'])
+            install('$inst_incdir/../sundials', env['sundials_license'])
         libprefix = '' if os.name == 'nt' else 'lib'
         install('$inst_libdir', mglob(env, env['sundials_libdir'],
                                       '^{0}sundials_*'.format(libprefix)))
@@ -1452,7 +1452,7 @@ if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
     SConscript('build/samples/cxx/SConscript')
 
     # Install C++ samples
-    install(env.RecursiveInstall, pjoin('$inst_sampledir', 'cxx'),
+    install(env.RecursiveInstall, '$inst_sampledir/cxx',
             'samples/cxx', exclude=sampledir_excludes)
 
     if env['f90_interface'] == 'y':
@@ -1460,9 +1460,9 @@ if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
         SConscript('build/samples/f90/SConscript')
 
         # install F90 / F77 samples
-        install(env.RecursiveInstall, pjoin('$inst_sampledir', 'f77'),
+        install(env.RecursiveInstall, '$inst_sampledir/f77',
                 'samples/f77', sampledir_excludes)
-        install(env.RecursiveInstall, pjoin('$inst_sampledir', 'f90'),
+        install(env.RecursiveInstall, '$inst_sampledir/f90',
                 'samples/f90', sampledir_excludes)
 
 ### Meta-targets ###
@@ -1613,13 +1613,11 @@ if 'msi' in COMMAND_LINE_TARGETS:
                                   includeMatlab=env['matlab_toolbox']=='y')
         wxs.make_wxs(str(target[0]))
 
-    wxs_target = env.Command(pjoin('build', 'wix', 'cantera.wxs'),
-                             [], build_wxs)
+    wxs_target = env.Command('build/wix/cantera.wxs', [], build_wxs)
     env.AlwaysBuild(wxs_target)
 
     env.Append(WIXLIGHTFLAGS=['-ext', 'WixUIExtension'])
-    msi_target = env.WiX('cantera.msi',
-                         [pjoin('build', 'wix', 'cantera.wxs')])
+    msi_target = env.WiX('cantera.msi', ['build/wix/cantera.wxs'])
     env.Depends(wxs_target, installTargets)
     env.Depends(msi_target, wxs_target)
     build_msi = Alias('msi', msi_target)

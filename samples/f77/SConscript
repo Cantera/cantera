@@ -44,5 +44,5 @@ sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
 # Generate Makefile to be installed
 makefile = localenv.SubstFile('Makefile', 'Makefile.in')
 
-install(pjoin('$inst_sampledir', 'f77'), makefile)
-install(pjoin('$inst_sampledir', 'f77'), sconstruct)
+install('$inst_sampledir/f77', makefile)
+install('$inst_sampledir/f77', sconstruct)

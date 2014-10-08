@@ -13,7 +13,7 @@ mods = [o for o in artifacts if o.path.endswith('.mod')]
 objects = [o for o in artifacts if not o.path.endswith('.mod')]
 localenv.Depends(objects, localenv['config_h_target'])
 
-lib = build(localenv.Library(target=pjoin('..','..','lib','cantera_fortran'),
+lib = build(localenv.Library(target='../../lib/cantera_fortran',
                              source=objects))
 
 install('$inst_libdir', lib)

@@ -100,7 +100,7 @@ install('$inst_matlab_dir', '#samples/matlab/cantera_demos.m')
 install(localenv.RecursiveInstall, '$inst_matlab_dir',
         '#interfaces/matlab/toolbox',
         exclude=['dll$', 'exp$', 'lib$', 'ilk$', 'manifest$'])
-install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'matlab'), '#samples/matlab')
+install(localenv.RecursiveInstall, '$inst_sampledir/matlab', '#samples/matlab')
 
 if os.name == 'nt':
     shlib = [f for f in localenv['cantera_shlib']

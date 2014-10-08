@@ -43,5 +43,5 @@ for programName, sources in samples:
     localenv['make_sourcefile'] = programName + '.f90'
     makefile = localenv.SubstFile('Makefile', 'Makefile.in')
 
-    install(pjoin('$inst_sampledir', 'f90'), makefile)
-    install(pjoin('$inst_sampledir', 'f90'), sconstruct)
+    install('$inst_sampledir/f90', makefile)
+    install('$inst_sampledir/f90', sconstruct)

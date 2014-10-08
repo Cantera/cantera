@@ -100,7 +100,7 @@ if localenv['doxygen_docs']:
                       mglob(env, '#src/cantera/*', 'h', 'cpp'))
 
     env.Alias('doxygen', docs)
-    install(pjoin('$inst_docdir', 'doxygen/html'),
+    install('$inst_docdir/doxygen/html',
             mglob(localenv, '#/build/docs/doxygen/html', 'html', 'svg', 'css', 'png'))
 
 if localenv['sphinx_docs']:
