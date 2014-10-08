@@ -655,8 +655,7 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
 
     if (vpss_ptr) {
         VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
-        factory->installVPThermoForSpecies(k, s, vp_ptr, vpss_ptr, spthermo_ptr,
-                                           phaseNode_ptr);
+        factory->installVPThermoForSpecies(k, s, vp_ptr, phaseNode_ptr);
     } else {
         // install the thermo parameterization for this species into
         // the species thermo manager for phase th

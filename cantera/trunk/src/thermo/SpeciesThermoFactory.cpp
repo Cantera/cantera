@@ -755,7 +755,9 @@ void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
     SpeciesThermo* spthermo_ptr,
     const XML_Node* phaseNode_ptr) const
 {
-
+    warn_deprecated("SpeciesThermoFactory::installVPThermoForSpecies",
+                    "Use alternate overload without unused VPSSMgr* and "
+                    "SpeciesThermo* arguments.");
     // Call the VPStandardStateTP object to install the pressure dependent species
     // standard state into the object.
     //
@@ -764,6 +766,15 @@ void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
     //
     // We don't need to pass vpssmgr_ptr down, because it's already installed
     // into vp_ptr.
+    vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
+}
+
+void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
+    const XML_Node& speciesNode, VPStandardStateTP* vp_ptr,
+    const XML_Node* phaseNode_ptr) const
+{
+    // Call the VPStandardStateTP object to install the pressure dependent
+    // species standard state into the object.
     vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
 }
 
