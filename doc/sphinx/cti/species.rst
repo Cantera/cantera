@@ -218,12 +218,20 @@ follows:
     \hat{s}^0(T) = \hat{s}^0(T_0) + \hat{c}_p^0 \ln (T/T_0)
 
 The parameterization uses four constants: :math:`T_0, \hat{c}_p^0(T_0),
-\hat{h}^0(T_0), \hat{s}^0(T)`.
+\hat{h}^0(T_0), \hat{s}^0(T)`. The default value of :math:`T_0` is 298.15 K; the
+default value for the other parameters is 0.0.
 
 Example::
 
-    thermo = const_cp( t0 = 1200.0,
-                       h0 = (-5.0, 'kcal/mol') )
+    thermo = const_cp(h0=(-393.51, 'kJ/mol'),
+                      s0=(213.785, 'J/mol/K'),
+                      cp0=(37.12, 'J/mol/K'))
+
+Assuming that the :func:`units` function has been used to set the default energy
+units to Joules and the default quantity unit to kmol, this may be equivalently
+written as::
+
+    thermo = const_cp(h0=-3.9351e8, s0=2.13785e5, cp0=3.712e4)
 
 .. See ##REF## for more examples of use of this parameterization.
 
