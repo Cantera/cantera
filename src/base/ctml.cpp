@@ -5,9 +5,6 @@
 // Copyright 2002  California Institute of Technology
 
 #include "cantera/base/ctml.h"
-
-#define CTML_VERSION_1_4_1
-
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Array.h"
 
@@ -21,12 +18,7 @@ std::string FP_Format = "%23.15E";
 void addInteger(Cantera::XML_Node& node, const std::string& title, const int val,
                 const std::string& units, const std::string& type)
 {
-#ifdef CTML_VERSION_1_4
-    XML_Node& f = node.addChild("integer", val);
-    f.addAttribute("title", title);
-#else
     XML_Node& f = node.addChild(title, val);
-#endif
     f.addAttribute("vtype", "integer");
     if (type != "") {
         f.addAttribute("type",type);
@@ -41,12 +33,7 @@ void addFloat(Cantera::XML_Node& node, const std::string& title,
               const std::string& type, const doublereal minval,
               const doublereal maxval)
 {
-#ifdef CTML_VERSION_1_4
-    XML_Node& f = node.addChild("float", val, ctml::FP_Format);
-    f.addAttribute("title", title);
-#else
     XML_Node& f = node.addChild(title, val, ctml::FP_Format);
-#endif
     if (type != "") {
         f.addAttribute("type",type);
     }
