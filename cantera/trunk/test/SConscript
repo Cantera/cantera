@@ -187,7 +187,7 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
             open(target[0].path, 'w').write(time.asctime()+'\n')
 
     testenv = localenv.Clone()
-    passedFile = File(pjoin('matlab', '%s.passed' % (script)))
+    passedFile = File('matlab/%s.passed' % (script))
     PASSED_FILES[testName] = str(passedFile)
     testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
