@@ -1007,8 +1007,11 @@ class Arrhenius(rate_expression):
             The temperature exponent. Dimensionless. Default: 0.0.
         :param E:
             Activation energy. Default: 0.0.
-        :param coverage:
-
+        :param coverage: For a single coverage dependency, a list with four
+            elements: the species name followed by the three coverage
+            parameters. For multiple coverage dependencies, a list of lists
+            containing the individual sets of coverage parameters. Only used for
+            surface and edge reactions.
         :param rate_type:
 
         :param n:
