@@ -15,9 +15,9 @@ namespace Cantera
 //============================================================================================================================
 ElectrodeKinetics::ElectrodeKinetics(thermo_t* thermo) :
     InterfaceKinetics(thermo),
-    metalPhaseRS_(npos),
-    solnPhaseRS_(npos),
-    kElectronRS_(npos)
+    metalPhaseIndex_(npos),
+    solnPhaseIndex_(npos),
+    kElectronIndex_(npos)
 {
  
 }
@@ -48,9 +48,9 @@ ElectrodeKinetics& ElectrodeKinetics::operator=(const ElectrodeKinetics& right)
 
     InterfaceKinetics::operator=(right);
 
-    metalPhaseRS_   = right.metalPhaseRS_;
-    solnPhaseRS_ = right.solnPhaseRS_;
-    kElectronRS_ = right.kElectronRS_;
+    metalPhaseIndex_   = right.metalPhaseIndex_;
+    solnPhaseIndex_ = right.solnPhaseIndex_;
+    kElectronIndex_ = right.kElectronIndex_;
    
     return *this;
 }
@@ -70,9 +70,9 @@ Kinetics* ElectrodeKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> &
 //  Identify the metal phase and the electron species
 void ElectrodeKinetics::identifyMetalPhase()
 {
-    metalPhaseRS_ = npos;
-    kElectronRS_ = npos;
-    solnPhaseRS_ = npos;
+    metalPhaseIndex_ = npos;
+    kElectronIndex_ = npos;
+    solnPhaseIndex_ = npos;
     size_t np = nPhases();
     //
     // Identify the metal phase as the phase with the electron species (element index of 1 for element E
@@ -95,8 +95,8 @@ void ElectrodeKinetics::identifyMetalPhase()
                         }
                     }
                     if (ifound == 1) {
-                        metalPhaseRS_ = iph;
-                        kElectronRS_ = m_start[iph] + k;
+                        metalPhaseIndex_ = iph;
+                        kElectronIndex_ = m_start[iph] + k;
                     }
                 }
             }
@@ -107,12 +107,12 @@ void ElectrodeKinetics::identifyMetalPhase()
        //
 	/*
 	 *  Haven't filled in reactions yet when this is called, unlike previous treatment.
-       if (iph != metalPhaseRS_) {
+       if (iph != metalPhaseIndex_) {
             for (size_t i = 0; i < m_ii; i++) {
                 RxnMolChange* rmc = rmcVector[i];
                 if (rmc->m_phaseChargeChange[iph] != 0) {
                     if (rmc->m_phaseDims[iph] == 3) {
-                       solnPhaseRS_ = iph;
+                       solnPhaseIndex_ = iph;
                        break;
                     }
                 }
@@ -122,14 +122,14 @@ void ElectrodeKinetics::identifyMetalPhase()
 	//
 	// New method is to find the first multispecies 3D phase with charged species as the solution phase
 	//
-	if (iph != metalPhaseRS_) {
+	if (iph != metalPhaseIndex_) {
 	    ThermoPhase& tp =*( m_thermo[iph]);
 	    size_t nsp = tp.nSpecies();
 	    size_t nd = tp.nDim();
 	    if (nd == 3 && nsp > 1) {
 		for (size_t k = 0; k < nsp; k++) {
 		    if (tp.charge(k) != 0.0) {
-			solnPhaseRS_ = iph;
+			solnPhaseIndex_ = iph;
                         string ss = tp.name();
 			// cout << "solution phase = "<< ss << endl;
 			break;
@@ -146,11 +146,11 @@ void ElectrodeKinetics::identifyMetalPhase()
     //  electrons.
     //
     /*
-    if (metalPhaseRS_ == npos) {
+    if (metalPhaseIndex_ == npos) {
 	throw CanteraError("ElectrodeKinetics::identifyMetalPhase()",
 			   "Can't find electron phase -> treating this as an error right now");
     }
-    if (solnPhaseRS_ == npos) {
+    if (solnPhaseIndex_ == npos) {
 	throw CanteraError("ElectrodeKinetics::identifyMetalPhase()",
 			   "Can't find solution phase -> treating this as an error right now");
     }
@@ -231,9 +231,9 @@ void ElectrodeKinetics::updateROP()
 	    //   Calculate the stoichiometric eletrons for the reaction
 	    //   This is the number of electrons that are the net products of the reaction
 	    //
-            AssertThrow(metalPhaseRS_ != npos, "ElectrodeKinetics::updateROP()");
+            AssertThrow(metalPhaseIndex_ != npos, "ElectrodeKinetics::updateROP()");
 
-	    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
+	    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseIndex_];
 	    //
 	    //   Calculate the open circuit voltage of the reaction
 	    //
@@ -246,7 +246,7 @@ void ElectrodeKinetics::updateROP()
 	    //
 	    //   Calculate the voltage of the electrode.
 	    //
-	    double voltage = m_phi[metalPhaseRS_] - m_phi[solnPhaseRS_];
+	    double voltage = m_phi[metalPhaseIndex_] - m_phi[solnPhaseIndex_];
 	    //
 	    //   Calculate the overpotential
 	    //
@@ -325,7 +325,7 @@ void ElectrodeKinetics::updateROP()
 	    //   Calculate the stoichiometric eletrons for the reaction
 	    //   This is the number of electrons that are the net products of the reaction
 	    //
-	    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
+	    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseIndex_];
 	    //
 	    //   Calculate the open circuit voltage of the reaction
 	    //
@@ -339,7 +339,7 @@ void ElectrodeKinetics::updateROP()
 	    //
 	    //   Calculate the voltage of the electrode.
 	    //
-	    double voltage = m_phi[metalPhaseRS_] - m_phi[solnPhaseRS_];
+	    double voltage = m_phi[metalPhaseIndex_] - m_phi[solnPhaseIndex_];
 	    //
 	    //   Calculate the overpotential
 	    //
@@ -495,7 +495,7 @@ void ElectrodeKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<do
     for (size_t j = 0; j < rdata.reactants.size(); j++) {
 	size_t kkin =  rdata.reactants[j];
 	double oo = rdata.rstoich[j];
-	if (kkin != kElectronRS_) {
+	if (kkin != kElectronIndex_) {
 	    fwdFullorders[kkin] += betaf * oo;
 	    if (abs(fwdFullorders[kkin]) < 0.00001) {
 		fwdFullorders[kkin] = 0.0;
@@ -507,7 +507,7 @@ void ElectrodeKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<do
     for (size_t j = 0; j < rdata.products.size(); j++) {
 	size_t kkin =  rdata.products[j];
 	double oo = rdata.pstoich[j];
-	if (kkin != kElectronRS_) {
+	if (kkin != kElectronIndex_) {
 	    fwdFullorders[kkin] -= betaf * oo;
 	    if (abs(fwdFullorders[kkin]) < 0.00001) {
 		fwdFullorders[kkin] = 0.0;
@@ -719,7 +719,7 @@ double ElectrodeKinetics::openCircuitVoltage(size_t irxn)
     //    Look up the net number of electrons that are products.
     //
     RxnMolChange*  rmc = rmcVector[irxn];
-    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
+    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseIndex_];
     double OCV = 0.0;
     if (nStoichElectrons != 0.0) {
         OCV = m_deltaG[irxn] / Faraday / nStoichElectrons;
@@ -751,12 +751,12 @@ getExchangeCurrentDensityFormulation(size_t irxn,
 
     RxnMolChange*   rmc = rmcVector[irxn];
     // could also get this from reactant and product stoichiometry, maybe
-    if (metalPhaseRS_ == npos) {
+    if (metalPhaseIndex_ == npos) {
         nStoichElectrons = 0;
         OCV = 0.0;
         return false;
     } else {
-        nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
+        nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseIndex_];
     }
  
 
@@ -856,8 +856,8 @@ getExchangeCurrentDensityFormulation(size_t irxn,
     io = iO;
     resistivity = m_ctrxn_resistivity_[iBeta];
 
-    double phiMetal = m_thermo[metalPhaseRS_]->electricPotential();
-    double phiSoln = m_thermo[solnPhaseRS_]->electricPotential();
+    double phiMetal = m_thermo[metalPhaseIndex_]->electricPotential();
+    double phiSoln = m_thermo[solnPhaseIndex_]->electricPotential();
     double E = phiMetal - phiSoln;
     overPotential = E - OCV;
 
