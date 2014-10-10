@@ -64,7 +64,7 @@ public:
 
     //!  Identify the metal phase and the electrons species
     /*!
-     *   We fill in the internal variables, metalPhaseRS_ and kElectronRS_ here
+     *   We fill in the internal variables, metalPhaseIndex_ and kElectronIndex_ here
      */
     void identifyMetalPhase();
 
@@ -108,13 +108,13 @@ public:
 
 protected:
     //! Index of the metal phase in the list of phases for this kinetics object. This is the electron phase.
-    size_t metalPhaseRS_;
+    size_t metalPhaseIndex_;
 
     //! Index of the solution phase in the list of phases for this surface
-    size_t solnPhaseRS_;
+    size_t solnPhaseIndex_;
 
     //! Index of the electrons species in the list of species for this surface kinetics, if none set it to -1
-    size_t kElectronRS_;
+    size_t kElectronIndex_;
 
     
 
