@@ -133,6 +133,8 @@ private:
      */
     SpeciesThermoInterpType* provideSTIT(size_t k);
 
+    const SpeciesThermoInterpType* provideSTIT(size_t k) const;
+
 protected:
     /**
      * This is the main unknown in the object. It is
@@ -144,7 +146,11 @@ protected:
      * species. These cases must be handled by the calling
      * routine.
      */
-    std::vector<SpeciesThermoInterpType*> m_sp;
+    std::map<int, std::vector<SpeciesThermoInterpType*> > m_sp;
+
+    mutable std::map<int, std::vector<double> > m_tpoly;
+
+    std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature
     doublereal                         m_tlow_max;
