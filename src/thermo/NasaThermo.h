@@ -41,6 +41,7 @@ namespace Cantera
  * @see importCTML
  *
  * @ingroup mgrsrefcalc
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo instead.
  */
 class NasaThermo : public SpeciesThermo
 {

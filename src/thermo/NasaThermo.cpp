@@ -14,9 +14,12 @@ NasaThermo::NasaThermo() :
     m_tlow_max(0.0),
     m_thigh_min(1.e30),
     m_p0(-1.0),
-    m_ngroups(0) {
+    m_ngroups(0)
+{
+    warn_deprecated("class NasaThermo", "To be removed after "
+        "Cantera 2.2. Use GeneralSpeciesThermo instead.");
     m_t.resize(6);
-    }
+}
 
 NasaThermo::NasaThermo(const NasaThermo& right) :
     ID(NASA),

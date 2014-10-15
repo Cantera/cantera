@@ -124,6 +124,8 @@ void SpeciesThermoFactory::deleteFactory()
 
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const
 {
+    warn_deprecated("SpeciesThermoFactory::newSpeciesThermo",
+        "To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly.");
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
     try {
         getSpeciesThermoTypes(spDataNodeList, inasa, ishomate, isimple, iother);
@@ -140,6 +142,8 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & s
 
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) const
 {
+    warn_deprecated("SpeciesThermoFactory::newSpeciesThermo",
+        "To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly.");
     switch (type) {
     case NASA:
         return new NasaThermo;
@@ -162,6 +166,8 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) const
 
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(const std::string& stype) const
 {
+    warn_deprecated("SpeciesThermoFactory::newSpeciesThermo",
+        "To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly.");
     std::string ltype = lowercase(stype);
     if (ltype == "nasa") {
         return new NasaThermo;
@@ -780,6 +786,8 @@ void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
 
 SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
 {
+    warn_deprecated("newSpeciesThermoMgr", "To be removed after Cantera 2.2. "
+        "Use class GeneralSpeciesThermo directly.");
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
@@ -789,6 +797,8 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
 SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
                                    SpeciesThermoFactory* f)
 {
+    warn_deprecated("newSpeciesThermoMgr", "To be removed after Cantera 2.2. "
+        "Use class GeneralSpeciesThermo directly.");
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
@@ -798,6 +808,8 @@ SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes,
                                    SpeciesThermoFactory* f)
 {
+    warn_deprecated("newSpeciesThermoMgr", "To be removed after Cantera 2.2. "
+        "Use class GeneralSpeciesThermo directly.");
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
