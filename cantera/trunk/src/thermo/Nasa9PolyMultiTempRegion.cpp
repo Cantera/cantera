@@ -129,32 +129,21 @@ void Nasa9PolyMultiTempRegion::updateProperties(const doublereal* tt,
         doublereal* h_RT,
         doublereal* s_R) const
 {
-    // Let's put some additional debugging here.
-    // This is an external routine
-#ifdef DEBUG_HKM
-    double temp = tt[0];
-    if (temp < m_regionPts[m_currRegion]->minTemp()) {
-        if (m_currRegion != 0) {
-            throw CanteraError("Nasa9PolyMultiTempRegion::updateProperties",
-                               "region problem");
+    m_currRegion = 0;
+    for (size_t i = 1; i < m_numTempRegions; i++) {
+        if (tt[0] < m_lowerTempBounds[i]) {
+            break;
         }
+        m_currRegion++;
     }
-    if (temp > m_regionPts[m_currRegion]->maxTemp()) {
-        if (m_currRegion != m_numTempRegions - 1) {
-            throw CanteraError("Nasa9PolyMultiTempRegion::updateProperties",
-                               "region problem");
-        }
-    }
-#endif
-    (m_regionPts[m_currRegion])->updateProperties(tt, cp_R, h_RT, s_R);
+
+    m_regionPts[m_currRegion]->updateProperties(tt, cp_R, h_RT, s_R);
 }
 
 void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const doublereal temp,
         doublereal* cp_R, doublereal* h_RT,
         doublereal* s_R) const
 {
-    double tPoly[7];
-    updateTemperaturePoly(temp, tPoly);
     // Now find the region
     m_currRegion = 0;
     for (size_t i = 1; i < m_numTempRegions; i++) {
@@ -164,7 +153,7 @@ void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const doublereal temp,
         m_currRegion++;
     }
 
-    updateProperties(tPoly, cp_R, h_RT, s_R);
+    m_regionPts[m_currRegion]->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
 }
 
 void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
