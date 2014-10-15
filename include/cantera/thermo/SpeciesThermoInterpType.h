@@ -195,6 +195,15 @@ public:
         return m_index;
     }
 
+    //! Number of terms in the temperature polynomial for this parameterization
+    virtual size_t temperaturePolySize() const { return 1; }
+
+    //! Given the temperature *T*, compute the terms of the temperature
+    //! polynomial *T_poly*.
+    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+        T_poly[0] = T;
+    }
+
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the functions
