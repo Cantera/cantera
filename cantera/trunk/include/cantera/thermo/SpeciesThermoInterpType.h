@@ -1,8 +1,9 @@
 /**
  *  @file SpeciesThermoInterpType.h
- * Pure Virtual Base class for individual species reference state
- * thermodynamic managers and text for the spthermo module
- * (see \ref spthermo and class \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink).
+ *
+ * Pure Virtual Base class for individual species reference state thermodynamic
+ * managers and text for the spthermo module (see \ref spthermo and class \link
+ * Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink).
  */
 
 // Copyright 2001  California Institute of Technology
@@ -157,24 +158,15 @@ class VPSSMgr;
 class SpeciesThermoInterpType
 {
 public:
-
-    //! Constructor
     SpeciesThermoInterpType();
 
-    //! Constructor
     SpeciesThermoInterpType(size_t n, doublereal tlow,
                             doublereal thigh, doublereal pref);
 
-    //! Constructor
-    /*!
-     *  @param b Object to be copied
-     */
     SpeciesThermoInterpType(const SpeciesThermoInterpType& b);
 
-    //! Destructor
-    virtual ~SpeciesThermoInterpType();
+    virtual ~SpeciesThermoInterpType() {}
 
-    //! duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const = 0;
 
@@ -205,13 +197,13 @@ public:
 
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * This method is called with a pointer to an array containing the functions
+     * of temperature needed by this  parameterization, and three pointers to
+     * arrays where the computed property values should be written. This method
+     * updates only one value in each array.
      *
-     * The form and length of the Temperature Polynomial may vary depending on the
-     * parameterization.
+     * The form and length of the Temperature Polynomial may vary depending on
+     * the parameterization.
      *
      * @param tempPoly  vector of temperature polynomials
      * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
@@ -266,25 +258,31 @@ public:
      */
     virtual void modifyParameters(doublereal* coeffs) {}
 
-    //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
+    //! Report the 298 K Heat of Formation of the standard state of one species
+    //! (J kmol-1)
     /*!
-     *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *   The 298K Heat of Formation is defined as the enthalpy change to create
+     *   the standard state of the species from its constituent elements in
+     *   their standard states at 298 K and 1 bar.
      *
-     *   @param h298 If this is nonnull,  the current value of the Heat of Formation at 298K and 1 bar for
-     *               species m_speciesIndex is returned in h298[m_speciesIndex].
-     *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar for
-     *               species m_speciesIndex.
+     *   @param h298 If this is nonnull,  the current value of the Heat of
+     *               Formation at 298K and 1 bar for species m_speciesIndex is
+     *               returned in h298[m_speciesIndex].
+     *   @return     Returns the current value of the Heat of Formation at 298K
+     *               and 1 bar for species m_speciesIndex.
      */
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;
 
-    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
+    //! Modify the value of the 298 K Heat of Formation of one species in the
+    //! phase (J kmol-1)
     /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *   The 298K heat of formation is defined as the enthalpy change to create
+     *   the standard state of the species from its constituent elements in
+     *   their standard states at 298 K and 1 bar.
      *
      *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at
+     *       298K and 1 bar
      */
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
 
@@ -299,15 +297,15 @@ protected:
     size_t m_index;
 };
 
-//!  Class for the thermodynamic manager for an individual species' reference state
-//!  which uses the PDSS base class to satisfy the requests.
+//! Class for the thermodynamic manager for an individual species' reference
+//! state which uses the PDSS base class to satisfy the requests.
 /*!
  *  This class is a pass-through class for handling thermodynamics calls
  *  for reference state thermo to an pressure dependent standard state (PDSS)
  *  class. For some situations, it makes no sense to have a reference state
  *  at all. One example of this is the real water standard state.
  *
- *  What this class does is just to pass through the calls for thermo at (T , p0)
+ *  What this class does is just to pass through the calls for thermo at (T, p0)
  *  to the PDSS class, which evaluates the calls at (T, p0).
  *
  * @ingroup spthermo
@@ -323,10 +321,12 @@ public:
      *  @param speciesIndex species index for this object. Note, this must
      *         agree with what was internally set before.
      *
-     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state manager
-     *                      that owns the PDSS object that will handle calls for this object
+     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state
+     *      manager that owns the PDSS object that will handle calls for this
+     *      object
      *
-     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for this object
+     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for
+     *      this object
      */
     STITbyPDSS(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
 
@@ -341,16 +341,18 @@ public:
     //! Initialize and/or Reinitialize all the pointers for this object
     /*!
      *  This routine is needed because the STITbyPDSS object doesn't own the
-     *  underlying objects. Therefore, shallow copies during duplication operations
-     *  may fail.
+     *  underlying objects. Therefore, shallow copies during duplication
+     *  operations may fail.
      *
      *  @param speciesIndex species index for this object. Note, this must
      *         agree with what was internally set before.
      *
-     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state manager
-     *                      that owns the PDSS object that will handle calls for this object
+     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state
+     *      manager that owns the PDSS object that will handle calls for this
+     *      object
      *
-     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for this object
+     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for
+     *      this object
      */
     void initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
 
@@ -382,7 +384,7 @@ public:
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
 
-    virtual void modifyParameters(doublereal* coeffs);
+    virtual void modifyParameters(doublereal* coeffs) {}
 
 private:
     //! Pointer to the Variable pressure standard state manager
