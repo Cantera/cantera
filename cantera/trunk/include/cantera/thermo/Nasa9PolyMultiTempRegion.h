@@ -72,6 +72,9 @@ public:
 
     virtual int reportType() const;
 
+    virtual size_t temperaturePolySize() const { return 7; }
+    virtual void updateTemperaturePoly(double T, double* T_poly) const;
+
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the

@@ -118,6 +118,19 @@ public:
         return SHOMATE;
     }
 
+    virtual size_t temperaturePolySize() const { return 7; }
+
+    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+        doublereal tt = 1.e-3*T;
+        T_poly[0] = tt;
+        T_poly[1] = tt * tt;
+        T_poly[2] = T_poly[1] * tt;
+        T_poly[3] = 1.0/T_poly[1];
+        T_poly[4] = std::log(tt);
+        T_poly[5] = 1.0/GasConstant;
+        T_poly[6] = 1.0/(GasConstant * T);
+    }
+
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the
@@ -174,14 +187,7 @@ public:
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const {
         double tPoly[7];
-        doublereal tt = 1.e-3*temp;
-        tPoly[0] = tt;
-        tPoly[1] = tt * tt;
-        tPoly[2] = tPoly[1] * tt;
-        tPoly[3] = 1.0/tPoly[1];
-        tPoly[4] = std::log(tt);
-        tPoly[5] = 1.0/GasConstant;
-        tPoly[6] = 1.0/(GasConstant * temp);
+        updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
@@ -213,13 +219,8 @@ public:
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
-        double tPoly[4];
-        doublereal tt = 1.e-3*298.15;
-        tPoly[0] = tt;
-        tPoly[1] = tt * tt;
-        tPoly[2] = tPoly[1] * tt;
-        tPoly[3] = 1.0/tPoly[1];
-
+        double tPoly[7];
+        updateTemperaturePoly(298.15, tPoly);
         doublereal A      = m_coeff[0];
         doublereal Bt     = m_coeff[1]*tPoly[0];
         doublereal Ct2    = m_coeff[2]*tPoly[1];
@@ -357,6 +358,12 @@ public:
 
     virtual int reportType() const {
         return SHOMATE2;
+    }
+
+    virtual size_t temperaturePolySize() const { return 7; }
+
+    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+        msp_low.updateTemperaturePoly(T, T_poly);
     }
 
     //! Update the properties for this species, given a temperature polynomial

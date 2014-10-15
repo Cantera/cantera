@@ -109,6 +109,12 @@ public:
         return NASA2;
     }
 
+    virtual size_t temperaturePolySize() const { return 6; }
+
+    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+        mnp_low.updateTemperaturePoly(T, T_poly);
+    }
+
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the
@@ -131,8 +137,7 @@ public:
      */
     void updateProperties(const doublereal* tt,
                           doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
-        double T = tt[0];
-        if (T <= m_midT) {
+        if (tt[0] <= m_midT) {
             mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
         } else {
             mnp_high.updateProperties(tt, cp_R, h_RT, s_R);

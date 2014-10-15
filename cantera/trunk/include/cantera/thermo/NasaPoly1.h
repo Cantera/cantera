@@ -97,6 +97,17 @@ public:
         return NASA1;
     }
 
+    virtual size_t temperaturePolySize() const { return 6; }
+
+    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+        T_poly[0] = T;
+        T_poly[1] = T * T;
+        T_poly[2] = T_poly[1] * T;
+        T_poly[3] = T_poly[2] * T;
+        T_poly[4] = 1.0 / T;
+        T_poly[5] = std::log(T);
+    }
+
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the
@@ -145,12 +156,7 @@ public:
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const {
         double tPoly[6];
-        tPoly[0]  = temp;
-        tPoly[1]  = temp * temp;
-        tPoly[2]  = tPoly[1] * temp;
-        tPoly[3]  = tPoly[2] * temp;
-        tPoly[4]  = 1.0 / temp;
-        tPoly[5]  = std::log(temp);
+        updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
@@ -186,12 +192,7 @@ public:
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
         double tt[6];
         double temp = 298.15;
-        tt[0]  = temp;
-        tt[1]  = temp * temp;
-        tt[2]  = tt[1] * temp;
-        tt[3]  = tt[2] * temp;
-        tt[4]  = 1.0 / temp;
-        //tt[5]  = std::log(temp);
+        updateTemperaturePoly(temp, tt);
         doublereal ct0 = m_coeff[2];          // a0
         doublereal ct1 = m_coeff[3]*tt[0];    // a1 * T
         doublereal ct2 = m_coeff[4]*tt[1];    // a2 * T^2
