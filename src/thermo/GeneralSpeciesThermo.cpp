@@ -153,6 +153,7 @@ void GeneralSpeciesThermo::install(const std::string& name,
         break;
     case NASA2:
         sp = new NasaPoly2(index, minTemp_, maxTemp_, refPressure_, c);
+        dynamic_cast<NasaPoly2*>(sp)->checkContinuity(name);
         break;
     case STAT:
         sp = new StatMech(index, minTemp_, maxTemp_, refPressure_, c, name);

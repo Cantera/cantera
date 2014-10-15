@@ -197,6 +197,8 @@ public:
         mnp_high.modifyOneHf298(k, hnew);
     }
 
+    double checkContinuity(const std::string& name="<unknown>");
+
 protected:
     //! Midrange temperature
     doublereal m_midT;
