@@ -99,6 +99,8 @@ public:
      *  @param type the integer type to be created.
      *  @return  Returns the pointer to the newly allocated species property
      *           manager for the reference state
+     * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+     *     directly.
      */
     SpeciesThermo* newSpeciesThermo(int type) const;
 
@@ -107,6 +109,8 @@ public:
      *  @param stype  String name for the species thermo type
      *  @return       Returns the pointer to the newly malloced species
      *                property manager for the reference state
+     * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+     *     directly.
      */
     SpeciesThermo* newSpeciesThermoManager(const std::string& stype) const;
 
@@ -121,6 +125,7 @@ public:
      *                        nodes that will be in the phase
      * @return  Returns the pointer to the newly malloced species property
      *          manager for the reference state
+     * @deprecated To be removed after Cantera 2.2.
      */
     SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const;
 
@@ -222,6 +227,8 @@ private:
  * @param type         Species thermo type.
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
  *                     Defaults to NULL.
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+ *     directly.
  */
 SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
 
@@ -238,6 +245,8 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
  * @param stype       String specifying the species thermo type
  * @param f           Pointer to a SpeciesThermoFactory. optional parameter.
  *                    Defaults to NULL.
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+ *     directly.
  */
 SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
                                    SpeciesThermoFactory* f=0);
@@ -255,6 +264,7 @@ SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
  *                       will be in the phase
  * @param f              Pointer to a SpeciesThermoFactory. optional
  *                       parameter. Defaults to NULL.
+ * @deprecated To be removed after Cantera 2.2.
  */
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
                                    SpeciesThermoFactory* f=0);

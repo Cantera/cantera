@@ -9,6 +9,7 @@
 
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "VPSSMgrFactory.h"
@@ -461,31 +462,14 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
                            sparrays, dbases, sprule);
 
     // Decide whether the the phase has a variable pressure ss or not
-    SpeciesThermo* spth = 0;
+    SpeciesThermo* spth = &th->speciesThermo();
     VPSSMgr* vp_spth = 0;
-    if (ssConvention == cSS_CONVENTION_TEMPERATURE) {
-        // Create a new species thermo manager.  Function
-        // 'newSpeciesThermoMgr' looks at the species in the database
-        // to see what thermodynamic property parameterizations are
-        // used, and selects a class that can handle the
-        // parameterizations found.
-        spth = newSpeciesThermoMgr(spDataNodeList);
-
-        // install it in the phase object
-        th->setSpeciesThermo(spth);
-    } else if (ssConvention == cSS_CONVENTION_SLAVE) {
-        /*
-         * No species thermo manager for this type
-         */
-    } else if (ssConvention == cSS_CONVENTION_VPSS) {
+    if (ssConvention == cSS_CONVENTION_VPSS) {
         vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
         vpss_ptr->setVPSSMgr(vp_spth);
         spth = vp_spth->SpeciesThermoMgr();
         th->setSpeciesThermo(spth);
-    } else {
-        throw CanteraError("importPhase()", "unknown convention");
     }
-
 
     size_t k = 0;
 

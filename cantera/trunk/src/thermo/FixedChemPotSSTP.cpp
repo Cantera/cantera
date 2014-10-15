@@ -89,15 +89,13 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     vector_fp ecomp(nElements(), 0.0);
     ecomp[0] = 1.0;
     double chrg = 0.0;
-    SpeciesThermo* spth = new SimpleThermo();
-    setSpeciesThermo(spth);
     addUniqueSpecies(pname, &ecomp[0], chrg, 0.0);
     double c[4];
     c[0] = 298.15;
     c[1] = val;
     c[2] = 0.0;
     c[3] = 0.0;
-    m_spthermo->install(pname, 0, SIMPLE, c, 0.0, 1.0E30, OneAtm);
+    m_spthermo->install(pname, 0, SIMPLE, c, 0.1, 1.0E30, OneAtm);
     initThermo();
     m_p0 = OneAtm;
     m_tlast = 298.15;

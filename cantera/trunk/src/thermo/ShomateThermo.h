@@ -55,6 +55,7 @@ namespace Cantera
  *  the implicit integration of (t = T 1000), which provides a
  *  multiplier of 1000 to the Enthalpy equation.
  *
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo instead.
  * @ingroup mgrsrefcalc
  */
 class ShomateThermo : public SpeciesThermo
@@ -73,6 +74,8 @@ public:
         m_thigh_min(1.e30),
         m_p0(-1.0),
         m_ngroups(0) {
+        warn_deprecated("class ShomateThermo", "To be removed after "
+            "Cantera 2.2. Use GeneralSpeciesThermo instead.");
         m_t.resize(7);
     }
 

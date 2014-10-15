@@ -50,6 +50,7 @@ public:
  *
  * Note this seems to be a slow way to do things, and it may be on its way out.
  *
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo instead.
  * @ingroup mgrsrefcalc
  */
 template<class T1, class T2>
@@ -57,7 +58,10 @@ class SpeciesThermoDuo : public SpeciesThermo
 {
 public:
     //! Constructor
-    SpeciesThermoDuo() {};
+    SpeciesThermoDuo() {
+        warn_deprecated("class SpeciesThermoDuo", "To be removed after "
+            "Cantera 2.2. Use GeneralSpeciesThermo instead.");
+    };
 
     //! copy constructor
     /*!

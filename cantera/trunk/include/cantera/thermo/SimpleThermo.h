@@ -44,6 +44,7 @@ namespace Cantera
  * @see ConstCpPoly
  *
  * @ingroup mgrsrefcalc
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo instead.
  */
 class SimpleThermo : public SpeciesThermo
 {
@@ -58,7 +59,10 @@ public:
         m_tlow_max(0.0),
         m_thigh_min(1.e30),
         m_p0(-1.0),
-        m_nspData(0) {}
+        m_nspData(0) {
+        warn_deprecated("class SimpleThermo", "To be removed after "
+            "Cantera 2.2. Use GeneralSpeciesThermo instead.");
+    }
 
     //! Copy constructor
     /*!

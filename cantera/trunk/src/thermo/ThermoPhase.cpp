@@ -10,6 +10,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/vec_functions.h"
 
@@ -23,7 +24,7 @@ namespace Cantera
 {
 
 ThermoPhase::ThermoPhase() :
-    m_spthermo(0), m_speciesData(0),
+    m_spthermo(new GeneralSpeciesThermo()), m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
@@ -41,7 +42,7 @@ ThermoPhase::~ThermoPhase()
 }
 
 ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
-    m_spthermo(0),
+    m_spthermo(new GeneralSpeciesThermo()),
     m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
@@ -611,6 +612,11 @@ void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 
 void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
 {
+    if (!dynamic_cast<GeneralSpeciesThermo*>(spthermo)) {
+        warn_deprecated("ThermoPhase::setSpeciesThermo",
+                        "Use of SpeciesThermo classes other than "
+                        "GeneralSpeciesThermo is deprecated.");
+    }
     if (m_spthermo) {
         if (m_spthermo != spthermo) {
             delete m_spthermo;

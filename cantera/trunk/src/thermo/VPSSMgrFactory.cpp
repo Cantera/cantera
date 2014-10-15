@@ -20,6 +20,7 @@
 #include "cantera/thermo/VPSSMgr_General.h"
 
 #include "cantera/thermo/SpeciesThermoFactory.h"
+ #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
@@ -230,14 +231,8 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
         }
     }
 
-    // first get the reference state handler. If we have explicit instructions,
-    // use them to spawn the object.
-    SpeciesThermo* spth = 0;
-    if (ssManager != "") {
-        spth = newSpeciesThermoMgr(ssManager);
-    } else {
-        spth = newSpeciesThermoMgr(spDataNodeList);
-    }
+    // first get the reference state handler.
+    SpeciesThermo* spth = new GeneralSpeciesThermo();
     vp_ptr->setSpeciesThermo(spth);
 
     // Next, if we have specific directions, use them to get the VPSSSMgr object

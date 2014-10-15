@@ -339,8 +339,6 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
     size_t kk = 0;
     size_t kstart = 0;
     SpeciesThermoFactory* spFactory = SpeciesThermoFactory::factory();
-    SpeciesThermo* spthermo_ptr = new GeneralSpeciesThermo();
-    setSpeciesThermo(spthermo_ptr);
     m_speciesData.clear();
 
     XML_Node& eosdata = phaseNode->child("thermo");
