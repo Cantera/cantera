@@ -132,40 +132,34 @@ private:
      * @return pointer to the SpeciesThermoInterpType object.
      */
     SpeciesThermoInterpType* provideSTIT(size_t k);
-
     const SpeciesThermoInterpType* provideSTIT(size_t k) const;
 
-protected:
-    /**
-     * This is the main unknown in the object. It is
-     * a list of pointers to type SpeciesThermoInterpType.
-     * Note, this object owns the objects, so they are deleted
-     * in the destructor of this object.
-     *   Note, that in some instances, m_sp[k] = 0, e.g., no
-     * SpeciesThermoInterpType is installed for one or more
-     * species. These cases must be handled by the calling
-     * routine.
-     */
-    std::map<int, std::vector<SpeciesThermoInterpType*> > m_sp;
+    void clear(); //<! Delete owned SpeciesThermoInterpType objects.
 
-    mutable std::map<int, std::vector<double> > m_tpoly;
+protected:
+    typedef std::map<int, std::vector<SpeciesThermoInterpType*> > STIT_map;
+    typedef std::map<int, std::vector<double> > tpoly_map;
+    /**
+     * This is the main unknown in the object. It contains pointers to
+     * SpeciesThermoInterpType objects, sorted by the parameterization type.
+     * This object owns the SpeciesThermoInterpType objects, so they are deleted
+     * in the destructor of this object.
+     */
+    STIT_map m_sp;
+
+    //! Temperature polynomials for each thermo parameterization
+    mutable tpoly_map m_tpoly;
 
     std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature
-    doublereal                         m_tlow_max;
+    doublereal m_tlow_max;
 
     //! Minimum value of the highest temperature
-    doublereal                         m_thigh_min;
+    doublereal m_thigh_min;
 
     //! reference pressure (Pa)
-    doublereal                         m_p0;
-
-    /**
-     * Internal variable indicating the length of the
-     * number of species in the phase.
-     */
-    size_t m_kk;
+    doublereal m_p0;
 
     //! Make the class VPSSMgr a friend because we need to access
     //! the function provideSTIT()

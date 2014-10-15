@@ -13,11 +13,7 @@
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/Mu0Poly.h"
 #include "cantera/thermo/AdsorbateThermo.h"
-#include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/StatMech.h"
-#include <iostream>
-
-using namespace std;
 
 namespace Cantera
 {
@@ -25,30 +21,21 @@ GeneralSpeciesThermo::GeneralSpeciesThermo() :
     SpeciesThermo(),
     m_tlow_max(0.0),
     m_thigh_min(1.0E30),
-    m_p0(OneAtm),
-    m_kk(0)
+    m_p0(OneAtm)
 {
-    m_tlow_max = 0.0;
-    m_thigh_min = 1.0E30;
 }
 
 GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
     m_tpoly(b.m_tpoly),
     m_tlow_max(b.m_tlow_max),
     m_thigh_min(b.m_thigh_min),
-    m_kk(b.m_kk)
+    m_p0(b.m_p0)
 {
-    // Delete current SpeciesThermoInterpType objects
-    std::map<int, std::vector<SpeciesThermoInterpType*> >::const_iterator iter;
-    for (iter = m_sp.begin(); iter != m_sp.end(); iter++) {
-        for (size_t k = 0; k < iter->second.size(); k++) {
-            delete iter->second[k];
-        }
-    }
-    m_sp.clear();
-
+    clear();
     // Copy SpeciesThermoInterpTypes from 'b'
-    for (iter = b.m_sp.begin(); iter != b.m_sp.end(); iter++) {
+    for (STIT_map::const_iterator iter = b.m_sp.begin();
+         iter != b.m_sp.end();
+         iter++) {
         for (size_t k = 0; k < iter->second.size(); k++) {
             const SpeciesThermoInterpType* spec = iter->second[k];
             m_sp[iter->first].push_back(spec->duplMyselfAsSpeciesThermoInterpType());
@@ -62,18 +49,11 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     if (&b == this) {
         return *this;
     }
-
-    // Delete current SpeciesThermoInterpType objects
-    std::map<int, std::vector<SpeciesThermoInterpType*> >::const_iterator iter;
-    for (iter = m_sp.begin(); iter != m_sp.end(); iter++) {
-        for (size_t k = 0; k < iter->second.size(); k++) {
-            delete iter->second[k];
-        }
-    }
-    m_sp.clear();
-
+    clear();
     // Copy SpeciesThermoInterpType objects from 'b'
-    for (iter = b.m_sp.begin(); iter != b.m_sp.end(); iter++) {
+    for (STIT_map::const_iterator iter = b.m_sp.begin();
+         iter != b.m_sp.end();
+         iter++) {
         for (size_t k = 0; k < iter->second.size(); k++) {
             const SpeciesThermoInterpType* spec = iter->second[k];
             m_sp[iter->first].push_back(spec->duplMyselfAsSpeciesThermoInterpType());
@@ -83,7 +63,6 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     m_tpoly = b.m_tpoly;
     m_tlow_max = b.m_tlow_max;
     m_thigh_min = b.m_thigh_min;
-    m_kk = b.m_kk;
     m_p0 = b.m_p0;
 
     return *this;
@@ -91,20 +70,25 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
 
 GeneralSpeciesThermo::~GeneralSpeciesThermo()
 {
-    for (std::map<int, std::vector<SpeciesThermoInterpType*> >::iterator iter=m_sp.begin();
-         iter != m_sp.end();
-         iter++) {
-        std::vector<SpeciesThermoInterpType*>& sp = iter->second;
-        for (size_t k = 0; k < sp.size(); k++) {
-            delete sp[k];
-        }
-    }
+    clear();
 }
 
 SpeciesThermo*
 GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
 {
     return new GeneralSpeciesThermo(*this);
+}
+
+void GeneralSpeciesThermo::clear()
+{
+    for (STIT_map::const_iterator iter = m_sp.begin();
+         iter != m_sp.end();
+         iter++) {
+        for (size_t k = 0; k < iter->second.size(); k++) {
+            delete iter->second[k];
+        }
+    }
+    m_sp.clear();
 }
 
 void GeneralSpeciesThermo::install(const std::string& name,
@@ -115,25 +99,15 @@ void GeneralSpeciesThermo::install(const std::string& name,
                                    doublereal maxTemp_,
                                    doublereal refPressure_)
 {
-    /*
-     * Resize the arrays if necessary, filling the empty
-     * slots with the zero pointer.
-     */
-
     if (minTemp_ <= 0.0) {
-        throw CanteraError("Error in GeneralSpeciesThermo.cpp",
-                           " Cannot take 0 tmin as input. \n\n");
-    }
-
-    if (index >= m_kk) {
-        m_kk = index+1;
+        throw CanteraError("GeneralSpeciesThermo::install",
+                           "T_min must be positive");
     }
 
     /*
      * Create the necessary object
      */
-
-     SpeciesThermoInterpType* sp;
+    SpeciesThermoInterpType* sp;
     switch (type) {
     case NASA1:
         sp = new NasaPoly1(index, minTemp_, maxTemp_, refPressure_, c);
@@ -162,9 +136,8 @@ void GeneralSpeciesThermo::install(const std::string& name,
         sp = new Adsorbate(index, minTemp_, maxTemp_, refPressure_, c);
         break;
     default:
-        throw UnknownSpeciesThermoModel(
-            "GeneralSpeciesThermo::install",
-            "unknown species type", int2str(type));
+        throw CanteraError("GeneralSpeciesThermo::install",
+                           "unknown species type: " + int2str(type));
     }
 
     install_STIT(sp);
@@ -172,33 +145,24 @@ void GeneralSpeciesThermo::install(const std::string& name,
 
 void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
 {
-    /*
-     * Resize the arrays if necessary, filling the empty
-     * slots with the zero pointer.
-     */
     if (!stit_ptr) {
         throw CanteraError("GeneralSpeciesThermo::install_STIT",
                            "zero pointer");
     }
     size_t index = stit_ptr->speciesIndex();
-    if (index >= m_kk) {
-        m_kk = index+1;
-    }
     AssertThrow(m_speciesLoc.find(index) == m_speciesLoc.end(),
                 "Index position isn't null, duplication of assignment: " + int2str(index));
 
     int type = stit_ptr->reportType();
-    m_speciesLoc[index] = make_pair(type, m_sp[type].size());
+    m_speciesLoc[index] = std::make_pair(type, m_sp[type].size());
     m_sp[type].push_back(stit_ptr);
     if (m_sp[type].size() == 1) {
         m_tpoly[type].resize(stit_ptr->temperaturePolySize());
     }
 
-    /*
-     * Calculate max and min
-     */
-    m_tlow_max = max(stit_ptr->minTemp(), m_tlow_max);
-    m_thigh_min = min(stit_ptr->maxTemp(), m_thigh_min);
+    // Calculate max and min T
+    m_tlow_max = std::max(stit_ptr->minTemp(), m_tlow_max);
+    m_thigh_min = std::min(stit_ptr->maxTemp(), m_thigh_min);
     markInstalled(index);
 }
 
@@ -221,10 +185,10 @@ void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
 void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
                                   doublereal* h_RT, doublereal* s_R) const
 {
-    map<int, vector<SpeciesThermoInterpType*> >::const_iterator iter = m_sp.begin();
-    map<int, vector<double> >::iterator jter = m_tpoly.begin();
+    STIT_map::const_iterator iter = m_sp.begin();
+    tpoly_map::iterator jter = m_tpoly.begin();
     for (; iter != m_sp.end(); iter++, jter++) {
-        const vector<SpeciesThermoInterpType*>& species = iter->second;
+        const std::vector<SpeciesThermoInterpType*>& species = iter->second;
         double* tpoly = &jter->second[0];
         species[0]->updateTemperaturePoly(t, tpoly);
         for (size_t k = 0; k < species.size(); k++) {
@@ -262,9 +226,7 @@ void GeneralSpeciesThermo::reportParams(size_t index, int& type,
 
 doublereal GeneralSpeciesThermo::minTemp(size_t k) const
 {
-    if (k == npos) {
-        return m_tlow_max;
-    } else {
+    if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
         if (sp) {
             return sp->minTemp();
@@ -275,9 +237,7 @@ doublereal GeneralSpeciesThermo::minTemp(size_t k) const
 
 doublereal GeneralSpeciesThermo::maxTemp(size_t k) const
 {
-    if (k == npos) {
-        return m_thigh_min;
-    } else {
+    if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
         if (sp) {
             return sp->maxTemp();
@@ -288,9 +248,7 @@ doublereal GeneralSpeciesThermo::maxTemp(size_t k) const
 
 doublereal GeneralSpeciesThermo::refPressure(size_t k) const
 {
-    if (k == npos) {
-        return m_p0;
-    } else {
+    if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
         if (sp) {
             return sp->refPressure();
