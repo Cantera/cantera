@@ -1278,7 +1278,7 @@ public:
     //@{
 
     using Phase::addSpecies;
-    virtual void addSpecies(const Species& spec);
+    virtual bool addSpecies(const Species& spec);
 
     //! Store a reference pointer to the XML tree containing the species data
     //! for this phase.

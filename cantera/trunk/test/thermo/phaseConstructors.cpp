@@ -1,11 +1,12 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/thermo/SpeciesThermoFactory.h"
-#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/stringUtils.h"
 #include <fstream>
+#include "thermo_data.h"
 
 namespace Cantera
 {
@@ -99,5 +100,94 @@ TEST_F(ChemkinConversionTest, FailedConversion) {
                  CanteraError);
 }
 #endif
+
+class ConstructFromScratch : public testing::Test
+{
+public:
+    ConstructFromScratch()
+        : sH2O("H2O", parseCompString("H:2 O:1"),
+               new NasaPoly2(0, 200, 3500, 101325, h2o_nasa_coeffs))
+        , sH2("H2", parseCompString("H:2"),
+               new NasaPoly2(0, 200, 3500, 101325, h2_nasa_coeffs))
+        , sO2("O2", parseCompString("O:2"),
+               new NasaPoly2(0, 200, 3500, 101325, o2_nasa_coeffs))
+        , sOH("OH", parseCompString("H:1 O:1"),
+               new NasaPoly2(0, 200, 3500, 101325, oh_nasa_coeffs))
+        , sCO("CO", parseCompString("C:1 O:1"),
+               new NasaPoly2(0, 200, 3500, 101325, o2_nasa_coeffs))
+        , sCO2("CO2", parseCompString("C:1 O:2"),
+               new NasaPoly2(0, 200, 3500, 101325, h2o_nasa_coeffs))
+    {
+    }
+
+    IdealGasPhase p;
+    Species sH2O, sH2, sO2, sOH, sCO, sCO2;
+};
+
+TEST_F(ConstructFromScratch, AddElements)
+{
+    p.addElement("H");
+    p.addElement("O");
+    ASSERT_EQ((size_t) 2, p.nElements());
+    ASSERT_EQ("H", p.elementName(0));
+    ASSERT_EQ((size_t) 1, p.elementIndex("O"));
+}
+
+TEST_F(ConstructFromScratch, AddSpeciesDefaultBehavior)
+{
+    p.addElement("H");
+    p.addElement("O");
+    p.addSpecies(sH2O);
+    p.addSpecies(sH2);
+
+    ASSERT_EQ((size_t) 2, p.nSpecies());
+
+    p.addSpecies(sO2);
+    p.addSpecies(sOH);
+
+    ASSERT_EQ((size_t) 4, p.nSpecies());
+    ASSERT_EQ("H2", p.speciesName(1));
+    ASSERT_EQ(2, p.nAtoms(2, 1)); // O in O2
+    ASSERT_EQ(2, p.nAtoms(0, 0)); // H in H2O
+    ASSERT_THROW(p.addSpecies(sCO), CanteraError);
+}
+
+TEST_F(ConstructFromScratch, ignoreUndefinedElements)
+{
+    p.addElement("H");
+    p.addElement("O");
+    p.ignoreUndefinedElements();
+
+    p.addSpecies(sO2);
+    p.addSpecies(sOH);
+    ASSERT_EQ((size_t) 2, p.nSpecies());
+
+    p.addSpecies(sCO);
+    p.addSpecies(sCO2);
+    ASSERT_EQ((size_t) 2, p.nSpecies());
+    ASSERT_EQ((size_t) 2, p.nElements());
+    ASSERT_EQ(npos, p.speciesIndex("CO2"));
+}
+
+TEST_F(ConstructFromScratch, addUndefinedElements)
+{
+    p.addElement("H");
+    p.addElement("O");
+    p.addUndefinedElements();
+
+    p.addSpecies(sH2);
+    p.addSpecies(sOH);
+    ASSERT_EQ((size_t) 2, p.nSpecies());
+    ASSERT_EQ((size_t) 2, p.nElements());
+
+    p.addSpecies(sCO);
+    p.addSpecies(sCO2);
+    ASSERT_EQ((size_t) 4, p.nSpecies());
+    ASSERT_EQ((size_t) 3, p.nElements());
+    ASSERT_EQ((size_t) 1, p.nAtoms(p.speciesIndex("CO2"), p.elementIndex("C")));
+    ASSERT_EQ((size_t) 2, p.nAtoms(p.speciesIndex("CO2"), p.elementIndex("O")));
+    p.setMassFractionsByName("H2:0.5, CO2:0.5");
+    ASSERT_FLOAT_EQ(0.5, p.massFraction("CO2"));
+}
 
 } // namespace Cantera
