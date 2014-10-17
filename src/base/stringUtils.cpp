@@ -169,6 +169,35 @@ compositionMap parseCompString(const std::string& ss,
     return x;
 }
 
+compositionMap parseCompString(const std::string& ss)
+{
+    compositionMap x;
+    std::string s = ss;
+    std::string num;
+    while (!s.empty()) {
+        size_t ibegin = s.find_first_not_of(", ;\n\t");
+        if (ibegin != std::string::npos) {
+            s = s.substr(ibegin,s.size());
+            size_t icolon = s.find(':');
+            size_t iend = s.find_first_of(", ;\n\t");
+            if (icolon != std::string::npos) {
+                std::string name = stripws(s.substr(0, icolon));
+                if (iend != std::string::npos) {
+                    num = s.substr(icolon+1, iend-icolon-1);
+                    s = s.substr(iend+1, s.size());
+                } else {
+                    num = s.substr(icolon+1, s.size());
+                    s = "";
+                }
+                x[name] = fpValueCheck(num);
+            } else {
+                s = "";
+            }
+        }
+    };
+    return x;
+}
+
 void split(const std::string& ss, std::vector<std::string>& w)
 {
     std::string s = ss;

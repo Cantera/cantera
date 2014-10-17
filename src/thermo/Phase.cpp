@@ -817,47 +817,54 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
     return addElement(symbol, weight, atomicNumber, entropy298, elem_type);
 }
 
-void Phase::addSpecies(const std::string& name_, const doublereal* comp,
-                       doublereal charge_, doublereal size_)
-{
-    m_speciesNames.push_back(name_);
-    m_speciesCharge.push_back(charge_);
-    m_speciesSize.push_back(size_);
-    size_t ne = nElements();
-    // Create a changeable copy of the element composition. We now change
-    // the charge potentially
-    vector_fp compNew(ne);
-    for (size_t m = 0; m < ne; m++) {
-        compNew[m] = comp[m];
+void Phase::addSpecies(const Species& spec) {
+    m_species[spec.name] = spec;
+    vector_fp comp(nElements());
+    for (map<string, double>::const_iterator iter = spec.composition.begin();
+         iter != spec.composition.end();
+         iter++) {
+        size_t m = elementIndex(iter->first);
+        if (m == npos) {
+            throw CanteraError("Phase::addSpecies",
+                               "Species '" + spec.name + "' contains an "
+                               "undefined element '" + iter->first + "'.");
+        }
+        comp[m] = iter->second;
     }
+
+    m_speciesNames.push_back(spec.name);
+    m_speciesCharge.push_back(spec.charge);
+    m_speciesSize.push_back(spec.size);
+    size_t ne = nElements();
+
     double wt = 0.0;
     const vector_fp& aw = atomicWeights();
-    if (charge_ != 0.0) {
+    if (spec.charge != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
-            doublereal ecomp = compNew[eindex];
-            if (fabs(charge_ + ecomp) > 0.001) {
+            doublereal ecomp = comp[eindex];
+            if (fabs(spec.charge + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",
                                        "Input charge and element E compositions differ "
-                                       "for species " + name_);
+                                       "for species " + spec.name);
                 } else {
                     // Just fix up the element E composition based on the input
                     // species charge
-                    compNew[eindex] = -charge_;
+                    comp[eindex] = -spec.charge;
                 }
             }
         } else {
             addElement("E", 0.000545, 0, 0.0, CT_ELEM_TYPE_ELECTRONCHARGE);
             ne = nElements();
             eindex = elementIndex("E");
-            compNew.resize(ne);
-            compNew[ne - 1] = - charge_;
+            comp.resize(ne);
+            comp[ne - 1] = - spec.charge;
         }
     }
     for (size_t m = 0; m < ne; m++) {
-        m_speciesComp.push_back(compNew[m]);
-        wt += compNew[m] * aw[m];
+        m_speciesComp.push_back(comp[m]);
+        wt += comp[m] * aw[m];
     }
 
     // Some surface phases may define species representing empty sites
@@ -879,6 +886,18 @@ void Phase::addSpecies(const std::string& name_, const doublereal* comp,
         m_y.push_back(0.0);
         m_ym.push_back(0.0);
     }
+}
+
+void Phase::addSpecies(const std::string& name_, const doublereal* comp,
+                       doublereal charge_, doublereal size_)
+{
+    compositionMap cmap;
+    for (size_t i = 0; i < nElements(); i++) {
+        if (comp[i]) {
+            cmap[elementName(i)] = comp[i];
+        }
+    }
+    Phase::addSpecies(Species(name_, cmap, 0, charge_, size_));
 }
 
 void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
