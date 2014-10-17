@@ -187,12 +187,20 @@ public:
         return m_Pref;
     }
 
+    //! Check for problems with the parameterization, and generate warnings or
+    //! throw and exception if any are found.
+    virtual void validate(const std::string& name) {}
+
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const = 0;
 
     //! Returns an integer representing the species index
     virtual size_t speciesIndex() const {
         return m_index;
+    }
+
+    virtual void setIndex(size_t index) {
+      m_index = index;
     }
 
     //! Number of terms in the temperature polynomial for this parameterization

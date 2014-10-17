@@ -17,7 +17,8 @@
 #include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
 #include "cantera/thermo/StatMech.h"
-
+#include "cantera/thermo/NasaPoly2.h"
+#include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/AdsorbateThermo.h"
 #include "cantera/thermo/SpeciesThermoMgr.h"
 #include "cantera/thermo/speciesThermoTypes.h"
@@ -97,15 +98,6 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
     }
 }
 
-//! Static method to return an instance of this class
-/*!
- * This class is implemented as a singleton -- one in which
- * only one instance is needed.  The recommended way to access
- * the factory is to call this static method, which
- * instantiates the class if it is the first call, but
- * otherwise simply returns the pointer to the existing
- * instance.
- */
 SpeciesThermoFactory* SpeciesThermoFactory::factory()
 {
     ScopedLock lock(species_thermo_mutex);
@@ -190,6 +182,61 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(const std::string& 
                                    stype);
     }
     return (SpeciesThermo*) 0;
+}
+
+SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
+    double thigh, double pref, const double* coeffs)
+{
+    switch (type) {
+    case NASA1:
+        return new NasaPoly1(0, tlow, thigh, pref, coeffs);
+    case SHOMATE1:
+        return new ShomatePoly(0, tlow, thigh, pref, coeffs);
+    case CONSTANT_CP:
+    case SIMPLE:
+        return new ConstCpPoly(0, tlow, thigh, pref, coeffs);
+    case MU0_INTERP:
+        return new Mu0Poly(0, tlow, thigh, pref, coeffs);
+    case SHOMATE2:
+        return new ShomatePoly2(0, tlow, thigh, pref, coeffs);
+    case NASA2:
+        return new NasaPoly2(0, tlow, thigh, pref, coeffs);
+    case ADSORBATE:
+        return new Adsorbate(0, tlow, thigh, pref, coeffs);
+    default:
+        throw CanteraError("newSpeciesThermoInterpType",
+                           "Unknown species thermo type: " + int2str(type) + ".");
+    }
+}
+
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
+    double tlow, double thigh, double pref, const double* coeffs)
+{
+    int itype = -1;
+    std::string type = lowercase(stype);
+    if (type == "nasa2" || type == "nasa") {
+        itype = NASA2; // two-region 7-coefficient NASA polynomials
+    } else if (type == "const_cp" || type == "simple") {
+        itype = CONSTANT_CP;
+    } else if (type == "shomate" || type == "shomate1") {
+        itype = SHOMATE1; // single-region Shomate polynomial
+    } else if (type == "shomate2") {
+        itype = SHOMATE2; // two-region Shomate polynomials
+    } else if (type == "nasa1") {
+        itype = NASA1; // single-region, 7-coefficient NASA polynomial
+    } else if (type == "nasa9") {
+        itype = NASA9; // single-region, 9-coefficient NASA polynomial
+    } else if (type == "nasa9multi") {
+        itype = NASA9MULTITEMP; // multi-region, 9-coefficient NASA polynomials
+    } else if (type == "mu0") {
+        itype = MU0_INTERP;
+    } else if (type == "adsorbate") {
+        itype = ADSORBATE;
+    } else {
+        throw CanteraError("newSpeciesThermoInterpType",
+                           "Unknown species thermo type: '" + stype + "'.");
+    }
+    return newSpeciesThermoInterpType(itype, tlow, thigh, pref, coeffs);
 }
 
 //!  Install a NASA polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.

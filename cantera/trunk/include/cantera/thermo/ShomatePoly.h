@@ -360,6 +360,12 @@ public:
         return SHOMATE2;
     }
 
+    virtual void setIndex(size_t index) {
+        SpeciesThermoInterpType::setIndex(index);
+        msp_low.setIndex(index);
+        msp_high.setIndex(index);
+    }
+
     virtual size_t temperaturePolySize() const { return 7; }
 
     virtual void updateTemperaturePoly(double T, double* T_poly) const {
