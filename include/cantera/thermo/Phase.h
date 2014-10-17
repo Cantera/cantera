@@ -14,6 +14,7 @@
 
 namespace Cantera
 {
+
 /**
  * @defgroup phases Models of Phases of Matter
  *
@@ -717,7 +718,10 @@ public:
                                        doublereal entropy298 = ENTROPY298_UNKNOWN,
                                        int elem_type = CT_ELEM_TYPE_ABSPOS);
 
-    virtual void addSpecies(const Species& spec);
+    //! Add a Species to this Phase. Returns `true` if the species was
+    //! successfully added, or `false` if the species was ignored.
+    //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
+    virtual bool addSpecies(const Species& spec);
 
     void addSpecies(const std::string& name, const doublereal* comp,
                     doublereal charge = 0.0, doublereal size = 1.0);
@@ -733,6 +737,23 @@ public:
     void addUniqueSpecies(const std::string& name, const doublereal* comp,
                           doublereal charge = 0.0,
                           doublereal size = 1.0);
+
+    //! Set behavior when adding a species containing undefined elements to just
+    //! skip the species.
+    void ignoreUndefinedElements();
+
+    //! Set behavior when adding a species containing undefined elements to add
+    //! those elements to the phase.
+    void addUndefinedElements();
+
+    //! Set the behavior when adding a species containing undefined elements to
+    //! throw an exception. This is the default behavior.
+    void throwUndefinedElements();
+
+    struct UndefElement { enum behavior {
+        error, ignore, add
+    }; };
+
     //!@} end group adding species and elements
 
     //!  Returns a bool indicating wether the object is ready for use
@@ -781,6 +802,9 @@ protected:
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
 
     std::map<std::string, Species> m_species;
+
+    //! Flag determining behavior when adding species with an undefined element
+    UndefElement::behavior m_undefinedElementBehavior;
 
 private:
     XML_Node* m_xml; //!< XML node containing the XML info for this phase

@@ -19,6 +19,7 @@ namespace Cantera
 Phase::Phase() :
     m_kk(0),
     m_ndim(3),
+    m_undefinedElementBehavior(UndefElement::error),
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_name(""),
@@ -35,6 +36,7 @@ Phase::Phase() :
 Phase::Phase(const Phase& right) :
     m_kk(0),
     m_ndim(3),
+    m_undefinedElementBehavior(right.m_undefinedElementBehavior),
     m_xml(0),
     m_id("<phase>"),
     m_name(""),
@@ -60,6 +62,7 @@ Phase& Phase::operator=(const Phase& right)
     // Handle our own data
     m_kk = right.m_kk;
     m_ndim = right.m_ndim;
+    m_undefinedElementBehavior = right.m_undefinedElementBehavior;
     m_temp = right.m_temp;
     m_dens = right.m_dens;
     m_mmw = right.m_mmw;
@@ -817,17 +820,30 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
     return addElement(symbol, weight, atomicNumber, entropy298, elem_type);
 }
 
-void Phase::addSpecies(const Species& spec) {
+bool Phase::addSpecies(const Species& spec) {
     m_species[spec.name] = spec;
     vector_fp comp(nElements());
     for (map<string, double>::const_iterator iter = spec.composition.begin();
          iter != spec.composition.end();
          iter++) {
         size_t m = elementIndex(iter->first);
-        if (m == npos) {
-            throw CanteraError("Phase::addSpecies",
-                               "Species '" + spec.name + "' contains an "
-                               "undefined element '" + iter->first + "'.");
+        if (m == npos) { // Element doesn't exist in this phase
+            switch (m_undefinedElementBehavior) {
+            case UndefElement::ignore:
+                return false;
+
+            case UndefElement::add:
+                addElement(iter->first);
+                comp.resize(nElements());
+                m = elementIndex(iter->first);
+                break;
+
+            case UndefElement::error:
+            default:
+                throw CanteraError("Phase::addSpecies",
+                                   "Species '" + spec.name + "' contains an "
+                                   "undefined element '" + iter->first + "'.");
+            }
         }
         comp[m] = iter->second;
     }
@@ -886,6 +902,7 @@ void Phase::addSpecies(const Species& spec) {
         m_y.push_back(0.0);
         m_ym.push_back(0.0);
     }
+    return true;
 }
 
 void Phase::addSpecies(const std::string& name_, const doublereal* comp,
@@ -927,6 +944,18 @@ void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
         }
     }
     addSpecies(name_, comp, charge_, size_);
+}
+
+void Phase::ignoreUndefinedElements() {
+    m_undefinedElementBehavior = UndefElement::ignore;
+}
+
+void Phase::addUndefinedElements() {
+    m_undefinedElementBehavior = UndefElement::add;
+}
+
+void Phase::throwUndefinedElements() {
+    m_undefinedElementBehavior = UndefElement::error;
 }
 
 bool Phase::ready() const

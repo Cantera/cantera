@@ -695,10 +695,13 @@ void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
 }
 
-void ThermoPhase::addSpecies(const Species& spec)
+bool ThermoPhase::addSpecies(const Species& spec)
 {
-    Phase::addSpecies(spec);
-    m_spthermo->install_STIT(spec.thermo().duplMyselfAsSpeciesThermoInterpType());
+    bool added = Phase::addSpecies(spec);
+    if (added) {
+        m_spthermo->install_STIT(spec.thermo().duplMyselfAsSpeciesThermoInterpType());
+    }
+    return added;
 }
 
 void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
