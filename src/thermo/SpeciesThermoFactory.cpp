@@ -316,56 +316,6 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(
     return newSpeciesThermoInterpType(NASA, tmin, tmax, p0, &c[0]);
 }
 
-//!   Look up the elemental reference state entropies
-/*!
- *  @param elemName String name of the element
- *  @param th_ptr   Pointer to the thermophase.
- */
-static doublereal LookupGe(const std::string& elemName, ThermoPhase* th_ptr)
-{
-    size_t iE = th_ptr->elementIndex(elemName);
-    if (iE == npos) {
-        throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
-    }
-    doublereal geValue = th_ptr->entropyElement298(iE);
-    if (geValue == ENTROPY298_UNKNOWN) {
-        throw CanteraError("PDSS_HKFT::LookupGe",
-                           "element " + elemName + " does not have a supplied entropy298");
-    }
-    geValue *= (-298.15);
-    return geValue;
-}
-
-//! Convert delta G formulation
-/*!
- *  Calculates the sum of the elemental reference state entropies
- *
- *  @param   k               species index
- *  @param   th_ptr          Pointer to the ThermoPhase
- */
-static doublereal convertDGFormation(const compositionMap& comp, ThermoPhase* th_ptr)
-{
-    /*
-     * Ok let's get the element compositions and conversion factors.
-     */
-    doublereal na;
-    doublereal ge;
-    string ename;
-
-    doublereal totalSum = 0.0;
-    for (compositionMap::const_iterator iter = comp.begin();
-         iter != comp.end();
-         ++iter) {
-        na = iter->second;
-        if (na > 0.0) {
-            ge = LookupGe(iter->first, th_ptr);
-            totalSum += na * ge;
-        }
-    }
-    return totalSum;
-}
-
-
 //! Create a Shomate polynomial from an XML node giving the 'EQ3' coefficients
 /*!
  *  This is called if a 'MinEQ3' node is found in the XML input.
@@ -376,7 +326,6 @@ static doublereal convertDGFormation(const compositionMap& comp, ThermoPhase* th
 SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
                                                  const XML_Node& MinEQ3node)
 {
-    vector_fp coef(15), c0(7, 0.0);
     std::string astring = MinEQ3node["Tmin"];
     doublereal tmin0 = strSItoDbl(astring);
     astring = MinEQ3node["Tmax"];
@@ -393,19 +342,11 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
     doublereal b = getFloatDefaultUnits(MinEQ3node, "b", "cal/gmol/K2");
     doublereal c = getFloatDefaultUnits(MinEQ3node, "c", "cal-K/gmol");
     doublereal dg = deltaG_formation_pr_tr * 4.184 * 1.0E3;
-    doublereal fac = 0; // convertDGFormation(comp, th_ptr);
+    doublereal DHjmol = deltaH_formation_pr_tr * 1.0E3 * 4.184;
+    doublereal fac = DHjmol - dg - 298.15 * Entrop_pr_tr * 1.0E3 * 4.184;
     doublereal Mu0_tr_pr = fac + dg;
     doublereal e = Entrop_pr_tr * 1.0E3 * 4.184;
     doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
-    doublereal DHjmol = deltaH_formation_pr_tr * 1.0E3 * 4.184;
-
-    // If the discrepancy is greater than 100 cal gmol-1, print
-    // an error and exit.
-    if (fabs(Hcalc -DHjmol) > 10.* 1.0E6 * 4.184) {
-        throw CanteraError("installMinEQ3asShomateThermoFromXML()",
-                           "DHjmol is not consistent with G and S" +
-                           fp2str(Hcalc) + " vs " + fp2str(DHjmol));
-    }
 
     /*
      * Now calculate the shomate polynomials
@@ -433,6 +374,7 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
     double ScalcS = e / 1.0E3;
     double Gs = ScalcS - S298smGs;
 
+    double c0[7] = {As, Bs, Cs, Ds, Es, Fs, Gs};
     c0[0] = As;
     c0[1] = Bs;
     c0[2] = Cs;
@@ -441,10 +383,7 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
     c0[5] = Fs;
     c0[6] = Gs;
 
-    coef[0] = tmax0 - 0.001;
-    copy(c0.begin(), c0.begin()+7, coef.begin() + 1);
-    copy(c0.begin(), c0.begin()+7, coef.begin() + 8);
-    return newSpeciesThermoInterpType(SHOMATE, tmin0, tmax0, p0, &coef[0]);
+    return newSpeciesThermoInterpType(SHOMATE1, tmin0, tmax0, p0, c0);
 }
 
 //! Create a Shomate polynomial thermodynamic property parameterization for a
