@@ -225,7 +225,8 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  * @param spfactory species Thermo factory pointer, if
  *                  available. If not available, one will be
  *                  created.
- *
+ * @deprecated the 'spfactory' argument is unused and will be removed after
+ *     Cantera 2.2.
  * @ingroup thermoprops
  *
  * @deprecated: The return value of this function is always 'true'. After
@@ -273,7 +274,8 @@ void installElements(Phase& th, const XML_Node& phaseNode);
  *                state thermo properties
  * @param factory Pointer to the SpeciesThermoFactory .
  *              (defaults to 0)
- *
+ * @deprecated The 'factory' argument is unused and will be removed after
+ *     Cantera 2.2.
  * @return
  *  Returns true if everything is ok, false otherwise.
  */
