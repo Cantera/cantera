@@ -374,11 +374,6 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         }
     }
 
-    // if no species thermo factory was supplied, use the default one.
-    if (!spfactory) {
-        spfactory = SpeciesThermoFactory::factory();
-    }
-
     /***************************************************************
      * Add the elements.
      ***************************************************************/
@@ -626,7 +621,7 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
     if (vpss_ptr) {
         th.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
         VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
-        factory->installVPThermoForSpecies(k, s, vp_ptr, phaseNode_ptr);
+        vp_ptr->createInstallPDSS(k, s, phaseNode_ptr);
     } else {
         SpeciesThermoInterpType* st = newSpeciesThermoInterpType(s);
         th.addSpecies(Species(s["name"], comp_map, st, chrg, sz));

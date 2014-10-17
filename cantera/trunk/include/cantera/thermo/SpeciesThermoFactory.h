@@ -69,6 +69,7 @@ public:
  * otherwise simply returns the pointer to the existing
  * instance.
  *
+ * @deprecated To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly
  * @ingroup thermoprops
  */
 class SpeciesThermoFactory : public FactoryBase
@@ -162,34 +163,13 @@ public:
      * @param spthermo_ptr  Species reference state thermo manager
      * @param phaseNode_ptr Optional Pointer to the XML phase information for
      *                      the phase in which the species resides
-     * @deprecated To be removed after Cantera 2.2. Use the alternate form
-     *             which omits the unused arguments 'vpss_ptr' and
-     *             'spthermo_ptr'.
+     * @deprecated To be removed after Cantera 2.2. Call
+     *     VPStandardStateTP::createInstallVPSS directly instead.
      */
     void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
                                    VPStandardStateTP* vp_ptr,
                                    VPSSMgr* vpss_ptr,
                                    SpeciesThermo* spthermo_ptr,
-                                   const XML_Node* phaseNode_ptr) const;
-
-    //! Install a species thermodynamic property parameterization for the
-    //! standard state for one species into a species thermo manager, VPSSMgr
-    /*!
-     * This is a wrapper around the createInstallVPSS() function in the
-     * VPStandardStateTP object.
-     *
-     * This serves to install the species into vpss_ptr, create a PDSS file. We
-     * also read the xml database to extract the constants for these steps.
-     *
-     * @param k             species number
-     * @param speciesNode   Reference to the XML node specifying the species
-     *                      standard state information
-     * @param vp_ptr        variable pressure ThermoPhase object
-     * @param phaseNode_ptr Optional Pointer to the XML phase information for
-     *                      the phase in which the species resides
-     */
-    void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
-                                   VPStandardStateTP* vp_ptr,
                                    const XML_Node* phaseNode_ptr) const;
 
 private:

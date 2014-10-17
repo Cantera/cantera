@@ -101,6 +101,8 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
 
 SpeciesThermoFactory* SpeciesThermoFactory::factory()
 {
+    warn_deprecated("class SpeciesThermoFactory",
+                    "To be removed after Cantera 2.2.");
     ScopedLock lock(species_thermo_mutex);
     if (!s_factory) {
         s_factory = new SpeciesThermoFactory;
@@ -615,8 +617,7 @@ void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
     const XML_Node* phaseNode_ptr) const
 {
     warn_deprecated("SpeciesThermoFactory::installVPThermoForSpecies",
-                    "Use alternate overload without unused VPSSMgr* and "
-                    "SpeciesThermo* arguments.");
+                    "Call VPStandardStateTP::createInstallPDSS directly.");
     // Call the VPStandardStateTP object to install the pressure dependent species
     // standard state into the object.
     //
@@ -625,15 +626,6 @@ void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
     //
     // We don't need to pass vpssmgr_ptr down, because it's already installed
     // into vp_ptr.
-    vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
-}
-
-void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
-    const XML_Node& speciesNode, VPStandardStateTP* vp_ptr,
-    const XML_Node* phaseNode_ptr) const
-{
-    // Call the VPStandardStateTP object to install the pressure dependent
-    // species standard state into the object.
     vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
 }
 
