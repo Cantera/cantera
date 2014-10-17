@@ -109,6 +109,12 @@ public:
         return NASA2;
     }
 
+    virtual void setIndex(size_t index) {
+        SpeciesThermoInterpType::setIndex(index);
+        mnp_low.setIndex(index);
+        mnp_high.setIndex(index);
+    }
+
     virtual size_t temperaturePolySize() const { return 6; }
 
     virtual void updateTemperaturePoly(double T, double* T_poly) const {
@@ -197,7 +203,7 @@ public:
         mnp_high.modifyOneHf298(k, hnew);
     }
 
-    double checkContinuity(const std::string& name="<unknown>");
+    void validate(const std::string& name);
 
 protected:
     //! Midrange temperature

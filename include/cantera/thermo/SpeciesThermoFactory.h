@@ -269,8 +269,33 @@ SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
                                    SpeciesThermoFactory* f=0);
 
+
+//! Create a new SpeciesThermoInterpType object given a corresponding constant.
+/*!
+ *  @param type A constant specifying the type to be created
+ *  @param tlow The lowest temperature at which the parameterization is valid
+ *  @param thigh The highest temperature at which the parameterization is valid
+ *  @param pref The reference pressure for the parameterization
+ *  @param coeffs The array of coefficients for the parameterization
+ *  @return       Returns the pointer to the newly allocated
+ *                SpeciesThermoInterpType object
+ */
+SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
+    double thigh, double pref, const double* coeffs);
+
+//! Create a new SpeciesThermoInterpType object given a string
+/*!
+ *  @param type String name for the species thermo type
+ *  @param tlow The lowest temperature at which the parameterization is valid
+ *  @param thigh The highest temperature at which the parameterization is valid
+ *  @param pref The reference pressure for the parameterization
+ *  @param coeffs The array of coefficients for the parameterization
+ *  @return       Returns the pointer to the newly allocated
+ *                SpeciesThermoInterpType object
+ */
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
+    double tlow, double thigh, double pref, const double* coeffs);
+
 }
 
 #endif
-
-

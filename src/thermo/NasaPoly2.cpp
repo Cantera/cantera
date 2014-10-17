@@ -4,7 +4,7 @@
 
 namespace Cantera {
 
-double NasaPoly2::checkContinuity(const std::string& name)
+void NasaPoly2::validate(const std::string& name)
 {
     size_t offset = mnp_low.speciesIndex();
     double cp_low, h_low, s_low;
@@ -15,7 +15,6 @@ double NasaPoly2::checkContinuity(const std::string& name)
                                   &h_high - offset, &s_high - offset);
 
     double delta = cp_low - cp_high;
-    double maxError = std::abs(delta);
     if (fabs(delta/(fabs(cp_low)+1.0E-4)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in cp/R detected at Tmid = "
@@ -28,7 +27,6 @@ double NasaPoly2::checkContinuity(const std::string& name)
 
     // enthalpy
     delta = h_low - h_high;
-    maxError = std::max(std::abs(delta), maxError);
     if (fabs(delta/(fabs(h_low)+cp_low*m_midT)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in h/RT detected at Tmid = "
@@ -41,7 +39,6 @@ double NasaPoly2::checkContinuity(const std::string& name)
 
     // entropy
     delta = s_low - s_high;
-    maxError = std::max(std::abs(delta), maxError);
     if (fabs(delta/(fabs(s_low)+cp_low)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in s/R detected at Tmid = "
@@ -51,7 +48,6 @@ double NasaPoly2::checkContinuity(const std::string& name)
         writelog("\tValue computed using high-temperature polynomial: "
                  +fp2str(s_high)+".\n");
     }
-    return maxError;
 }
 
 }

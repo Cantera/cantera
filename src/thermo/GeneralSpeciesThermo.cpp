@@ -7,13 +7,7 @@
 // Copyright 2001-2004  California Institute of Technology
 
 #include "cantera/thermo/GeneralSpeciesThermo.h"
-#include "cantera/thermo/NasaPoly1.h"
-#include "cantera/thermo/NasaPoly2.h"
-#include "cantera/thermo/ShomatePoly.h"
-#include "cantera/thermo/ConstCpPoly.h"
-#include "cantera/thermo/Mu0Poly.h"
-#include "cantera/thermo/AdsorbateThermo.h"
-#include "cantera/thermo/StatMech.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
 
 namespace Cantera
 {
@@ -107,39 +101,10 @@ void GeneralSpeciesThermo::install(const std::string& name,
     /*
      * Create the necessary object
      */
-    SpeciesThermoInterpType* sp;
-    switch (type) {
-    case NASA1:
-        sp = new NasaPoly1(index, minTemp_, maxTemp_, refPressure_, c);
-        break;
-    case SHOMATE1:
-        sp = new ShomatePoly(index, minTemp_, maxTemp_, refPressure_, c);
-        break;
-    case CONSTANT_CP:
-    case SIMPLE:
-        sp = new ConstCpPoly(index, minTemp_, maxTemp_, refPressure_, c);
-        break;
-    case MU0_INTERP:
-        sp = new Mu0Poly(index, minTemp_, maxTemp_, refPressure_, c);
-        break;
-    case SHOMATE2:
-        sp = new ShomatePoly2(index, minTemp_, maxTemp_, refPressure_, c);
-        break;
-    case NASA2:
-        sp = new NasaPoly2(index, minTemp_, maxTemp_, refPressure_, c);
-        dynamic_cast<NasaPoly2*>(sp)->checkContinuity(name);
-        break;
-    case STAT:
-        sp = new StatMech(index, minTemp_, maxTemp_, refPressure_, c, name);
-        break;
-    case ADSORBATE:
-        sp = new Adsorbate(index, minTemp_, maxTemp_, refPressure_, c);
-        break;
-    default:
-        throw CanteraError("GeneralSpeciesThermo::install",
-                           "unknown species type: " + int2str(type));
-    }
-
+    SpeciesThermoInterpType* sp = newSpeciesThermoInterpType(type,
+        minTemp_, maxTemp_, refPressure_, c);
+    sp->setIndex(index);
+    sp->validate(name);
     install_STIT(sp);
 }
 

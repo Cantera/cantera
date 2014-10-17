@@ -113,6 +113,13 @@ int Nasa9PolyMultiTempRegion::reportType() const
     return NASA9MULTITEMP;
 }
 
+void Nasa9PolyMultiTempRegion::setIndex(size_t index) {
+    SpeciesThermoInterpType::setIndex(index);
+    for (size_t i = 0; i < m_numTempRegions; i++) {
+        m_regionPts[i]->setIndex(index);
+    }
+}
+
 void Nasa9PolyMultiTempRegion::updateTemperaturePoly(double T, double* T_poly) const
 {
     T_poly[0]  = T;
