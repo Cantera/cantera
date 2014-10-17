@@ -18,6 +18,7 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/base/vec_functions.h"
+#include "cantera/base/xml.h"
 
 using namespace std;
 
@@ -400,9 +401,10 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
 void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,
                                const XML_Node* phaseNode_ptr)
 {
-
-    SpeciesThermoFactory*  f = SpeciesThermoFactory::factory();
-    f->installThermoForSpecies(k, s, m_vptp_ptr, *m_spthermo, phaseNode_ptr);
+    SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(s);
+    stit->setIndex(k);
+    stit->validate(s["name"]);
+    m_spthermo->install_STIT(stit);
     if (m_p0 < 0.0) {
         m_p0 = m_spthermo->refPressure(k);
     }

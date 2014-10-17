@@ -16,6 +16,7 @@
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS_IdealGas.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
 
 using namespace std;
 using namespace ctml;
@@ -103,8 +104,10 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         m_Vss.resize(k+1, 0.0);
     }
 
-    SpeciesThermoFactory* f = SpeciesThermoFactory::factory();
-    f->installThermoForSpecies(k, speciesNode,(ThermoPhase*) m_vptp_ptr, *m_spthermo, phaseNode_ptr);
+    SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(speciesNode);
+    stit->setIndex(k);
+    stit->validate(speciesNode["name"]);
+    m_spthermo->install_STIT(stit);
 
     PDSS* kPDSS = new PDSS_IdealGas(m_vptp_ptr, k, speciesNode,
                                     *phaseNode_ptr, true);

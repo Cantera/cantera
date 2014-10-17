@@ -34,7 +34,7 @@ public:
     ~Species();
 
     //! Access the thermodynamic parameterization for the species
-    const SpeciesThermoInterpType& thermo() const;
+    SpeciesThermoInterpType& thermo();
 
     //! The name of the species
     std::string name;
