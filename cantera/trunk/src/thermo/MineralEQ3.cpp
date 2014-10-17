@@ -16,6 +16,7 @@
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/MineralEQ3.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 
@@ -338,6 +339,16 @@ void MineralEQ3::convertDGFormation()
     doublereal dg = m_deltaG_formation_pr_tr * 4.184 * 1.0E3;
     //! Store the result into an internal variable.
     m_Mu0_pr_tr = dg + totalSum;
+
+    double Hcalc = m_Mu0_pr_tr + 298.15 * m_Entrop_pr_tr * 4184.0;
+    double DHjmol = m_deltaH_formation_pr_tr * 4184.0;
+
+    // If the discrepancy is greater than 100 cal gmol-1, print an error
+    if (fabs(Hcalc -DHjmol) > 10.* 1.0E6 * 4.184) {
+        throw CanteraError("installMinEQ3asShomateThermoFromXML()",
+                           "DHjmol is not consistent with G and S" +
+                           fp2str(Hcalc) + " vs " + fp2str(DHjmol));
+    }
 }
 
 }
