@@ -9,6 +9,7 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/Elements.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/ValueCache.h"
 
 namespace Cantera
@@ -716,6 +717,8 @@ public:
                                        doublereal entropy298 = ENTROPY298_UNKNOWN,
                                        int elem_type = CT_ELEM_TYPE_ABSPOS);
 
+    virtual void addSpecies(const Species& spec);
+
     void addSpecies(const std::string& name, const doublereal* comp,
                     doublereal charge = 0.0, doublereal size = 1.0);
 
@@ -776,6 +779,8 @@ protected:
     vector_fp m_speciesSize;
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
+
+    std::map<std::string, Species> m_species;
 
 private:
     XML_Node* m_xml; //!< XML node containing the XML info for this phase

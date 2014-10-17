@@ -10,6 +10,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/vec_functions.h"
@@ -692,6 +693,12 @@ void ThermoPhase::initThermo()
 }
 void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
+}
+
+void ThermoPhase::addSpecies(const Species& spec)
+{
+    Phase::addSpecies(spec);
+    m_spthermo->install_STIT(spec.thermo().duplMyselfAsSpeciesThermoInterpType());
 }
 
 void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)

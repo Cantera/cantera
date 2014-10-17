@@ -94,6 +94,18 @@ std::string lowercase(const std::string& s);
 compositionMap parseCompString(const std::string& ss,
                                const std::vector<std::string>& names);
 
+//! Parse a composition string into a map consisting of individual
+//! key:composition pairs.
+/*!
+ *  This version of the function returns a map containing only those keys in
+ *  the provided string, and does not require them to be drawn from a specific
+ *  set of names.
+ *
+ *  @param ss    original string consisting of multiple key:composition pairs
+ *  @return      map of names to values
+ */
+compositionMap parseCompString(const std::string& ss);
+
 //! Parse a composition string into individual key:composition pairs
 /*!
  *  @param ss   original string consisting of multiple key:composition
