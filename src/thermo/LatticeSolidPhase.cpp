@@ -338,7 +338,6 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
     size_t kk = 0;
     size_t kstart = 0;
-    SpeciesThermoFactory* spFactory = SpeciesThermoFactory::factory();
     m_speciesData.clear();
 
     XML_Node& eosdata = phaseNode->child("thermo");
@@ -347,7 +346,6 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
     la.getChildren("phase",lattices);
     for (size_t n = 0; n < m_nlattice; n++) {
         LatticePhase* lp = m_lattice[n];
-        XML_Node* phaseNode_ptr = lattices[n];
         size_t nsp =  lp->nSpecies();
         vector<doublereal> constArr(lp->nElements());
         const vector_fp& aws = lp->atomicWeights();
@@ -383,8 +381,10 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             double chrg = lp->charge(k);
             double sz = lp->size(k);
             addUniqueSpecies(sname, &ecomp[0], chrg, sz);
-            spFactory->installThermoForSpecies(kk, *(spNode[k]), this, *m_spthermo, phaseNode_ptr);
-
+            SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(*spNode[k]);
+            stit->setIndex(kk);
+            stit->validate(spNode[k]->attrib("name"));
+            m_spthermo->install_STIT(stit);
             m_speciesData.push_back(new XML_Node(*(spNode[k])));
             kk++;
         }

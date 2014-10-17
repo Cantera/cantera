@@ -585,39 +585,28 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
         throw CanteraError("installSpecies",
                            "Unexpected XML name of species XML_Node: " + xname);
     }
+
+    if (rule) {
+        th.ignoreUndefinedElements();
+    }
+
     // get the composition of the species
     const XML_Node& a = s.child("atomArray");
     map<string,string> comp;
     getMap(a, comp);
-
-    // check that all elements in the species exist in 'p'. If rule != 0,
-    // quietly skip this species if some elements are undeclared; otherwise,
-    // throw an exception
-    map<string,string>::const_iterator _b = comp.begin();
-    for (; _b != comp.end(); ++_b) {
-        if (th.elementIndex(_b->first) == npos) {
-            if (rule == 0) {
-                throw CanteraError("installSpecies",
-                                   "Species " + s["name"] +
-                                   " contains undeclared element " + _b->first);
-            } else {
-                return false;
-            }
-        }
-    }
 
     // construct a vector of atom numbers for each element in phase th. Elements
     // not declared in the species (i.e., not in map comp) will have zero
     // entries in the vector.
     size_t nel = th.nElements();
     vector_fp ecomp(nel, 0.0);
+    compositionMap comp_map = parseCompString(a.value());
     for (size_t m = 0; m < nel; m++) {
         std::string& es = comp[th.elementName(m)];
         if (!es.empty()) {
             ecomp[m] = fpValueCheck(es);
         }
     }
-
 
     // get the species charge, if any. Note that the charge need
     // not be explicitly specified if special element 'E'
@@ -634,16 +623,13 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
         sz = getFloat(s, "size");
     }
 
-    // add the species to phase th
-    th.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
-
     if (vpss_ptr) {
+        th.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
         VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
         factory->installVPThermoForSpecies(k, s, vp_ptr, phaseNode_ptr);
     } else {
-        // install the thermo parameterization for this species into
-        // the species thermo manager for phase th
-        factory->installThermoForSpecies(k, s, &th, *spthermo_ptr, phaseNode_ptr);
+        SpeciesThermoInterpType* st = newSpeciesThermoInterpType(s);
+        th.addSpecies(Species(s["name"], comp_map, st, chrg, sz));
     }
 
     return true;

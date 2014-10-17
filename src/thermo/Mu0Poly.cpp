@@ -117,14 +117,11 @@ void Mu0Poly::modifyParameters(doublereal* coeffs)
     processCoeffs(coeffs);
 }
 
-void installMu0ThermoFromXML(const std::string& speciesName,
-                             SpeciesThermo& sp, size_t k,
-                             const XML_Node* Mu0Node_ptr)
+Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
+                             const XML_Node& Mu0Node)
 {
-
     doublereal tmin, tmax;
     bool dimensionlessMu0Values = false;
-    const XML_Node& Mu0Node = *Mu0Node_ptr;
 
     tmin = fpValue(Mu0Node["Tmin"]);
     tmax = fpValue(Mu0Node["Tmax"]);
@@ -200,7 +197,7 @@ void installMu0ThermoFromXML(const std::string& speciesName,
         c[2+i*2+1] = cValues[i];
     }
 
-    sp.install(speciesName, k, MU0_INTERP, &c[0], tmin, tmax, pref);
+    return new Mu0Poly(0, tmin, tmax, pref, &c[0]);
 }
 
 void Mu0Poly::processCoeffs(const doublereal* coeffs)

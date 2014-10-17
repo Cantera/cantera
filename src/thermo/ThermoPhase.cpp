@@ -699,7 +699,10 @@ bool ThermoPhase::addSpecies(const Species& spec)
 {
     bool added = Phase::addSpecies(spec);
     if (added) {
-        m_spthermo->install_STIT(spec.thermo().duplMyselfAsSpeciesThermoInterpType());
+        Species& s = m_species[spec.name];
+        s.thermo().validate(spec.name);
+        s.thermo().setIndex(m_kk-1);
+        m_spthermo->install_STIT(s.thermo().duplMyselfAsSpeciesThermoInterpType());
     }
     return added;
 }

@@ -62,7 +62,7 @@ Species& Species::operator=(const Species& other)
 }
 
 
-const SpeciesThermoInterpType& Species::thermo() const
+SpeciesThermoInterpType& Species::thermo()
 {
     if (thermo_) {
         return *thermo_;
