@@ -104,12 +104,19 @@ def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):
             xerr = abserr / (abs(slope[j]) + atol)
 
             if abserr > atol and relerr > rtol and xerr > xtol:
-                bad.append(template.format(reference[0][j], i, a, b, abserr, relerr, xerr))
+                bad.append((reference[0][j], i, a, b, abserr, relerr, xerr))
+
+    footer = []
+    maxrows = 10
+    if len(bad) > maxrows:
+        bad.sort(key=lambda row: -row[5])
+        footer += ['Plus {0} more points exceeding error thresholds.'.format(len(bad)-maxrows)]
+        bad = bad[:maxrows]
 
     if bad:
         header = ['Failed series comparisons:',
                   'coordinate  comp.  reference val    test value    abs. err   rel. err    pos. err',
                   '----------  ---   --------------  --------------  ---------  ---------  ---------']
-        return '\n'.join(header + bad)
+        return '\n'.join(header + [template.format(*row) for row in bad] + footer)
     else:
         return None
