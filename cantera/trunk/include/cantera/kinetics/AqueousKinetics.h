@@ -171,8 +171,6 @@ protected:
 
     Rate1<Arrhenius>                    m_rates;
 
-    std::map<size_t, std::pair<int, size_t> > m_index;
-
     std::vector<size_t> m_irrev;
 
     ReactionStoichMgr m_rxnstoich;
@@ -181,9 +179,6 @@ protected:
 
     size_t m_nirrev;
     size_t m_nrev;
-
-    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
-    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
 
     std::vector<std::map<size_t, doublereal> > m_rrxn;
     std::vector<std::map<size_t, doublereal> > m_prxn;
@@ -229,9 +224,6 @@ private:
      */
     void updateKc();
 
-    void registerReaction(size_t rxnNumber, int type, size_t loc) {
-        m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
-    }
     bool m_finalized;
 };
 }
