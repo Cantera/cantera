@@ -755,8 +755,7 @@ void importFromXML(string infile, string id)
     if (x.name() != "multiphase")
         throw CanteraError("MultiPhase::importFromXML",
                            "Current XML_Node is not a multiphase element.");
-    vector<XML_Node*> phases;
-    x.getChildren("phase",phases);
+    vector<XML_Node*> phases = x.getChildren("phase");
     int np = phases.size();
     int n;
     ThermoPhase* p;

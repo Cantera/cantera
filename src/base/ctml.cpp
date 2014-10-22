@@ -183,8 +183,7 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
 void getIntegers(const Cantera::XML_Node& node,
                  std::map<std::string, int>& v)
 {
-    std::vector<XML_Node*> f;
-    node.getChildren("integer",f);
+    std::vector<XML_Node*> f = node.getChildren("integer");
     for (size_t i = 0; i < f.size(); i++) {
         const XML_Node& fi = *f[i];
         if (fi["min"] != "" && fi["max"] != "") {
@@ -329,16 +328,14 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
 {
     const Cantera::XML_Node* readNode = &node;
     if (node.name() != nodeName) {
-        vector<Cantera::XML_Node*> ll;
-        node.getChildren(nodeName, ll);
+        vector<Cantera::XML_Node*> ll = node.getChildren(nodeName);
         if (ll.size() == 0) {
             throw CanteraError("getFloatArray",
                                "wrong xml element type/name: was expecting "
                                + nodeName + "but accessed " + node.name());
         } else {
             readNode = ll[0];
-            ll.clear();
-            readNode->getChildren("floatArray", ll);
+            ll = readNode->getChildren("floatArray");
             if (ll.size() > 0) {
                 readNode = ll[0];
             }

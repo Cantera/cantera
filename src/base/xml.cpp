@@ -897,11 +897,24 @@ void XML_Node::unlock()
 void XML_Node::getChildren(const std::string& nm,
                            std::vector<XML_Node*>& children_) const
 {
+    warn_deprecated("XML_Node::getChildren", "To be removed after Cantera 2.2."
+                    "Use overload that returns the vector of XML_Node pointers.");
     for (size_t i = 0; i < nChildren(); i++) {
         if (child(i).name() == nm) {
             children_.push_back(&child(i));
         }
     }
+}
+
+std::vector<XML_Node*> XML_Node::getChildren(const std::string& nm) const
+{
+    std::vector<XML_Node*> children_;
+    for (size_t i = 0; i < nChildren(); i++) {
+        if (child(i).name() == nm) {
+            children_.push_back(&child(i));
+        }
+    }
+    return children_;
 }
 
 XML_Node& XML_Node::child(const std::string& aloc) const

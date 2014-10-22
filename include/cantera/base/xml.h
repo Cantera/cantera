@@ -566,8 +566,18 @@ public:
      *
      * @param children  output vector of pointers to XML_Node children
      *                  with the matching name
+     * @deprecated To be removed after Cantera 2.2. Use the version that returns
+     *     the vector of child nodes
      */
     void getChildren(const std::string& name, std::vector<XML_Node*>& children) const;
+
+    //! Get a vector of pointers to XML_Node containing all of the children
+    //! of the current node which matche the given name
+    /*!
+     *  @param name   Name of the XML_Node children to search for
+     *  @return vector of pointers to child XML_Nodes with the matching name
+     */
+    std::vector<XML_Node*> getChildren(const std::string& name) const;
 
     //! Return a changeable reference to a child of the current node,  named by the argument
     /*!
