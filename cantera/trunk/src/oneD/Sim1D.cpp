@@ -127,8 +127,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         throw CanteraError("Sim1D::restore","No solution with id = "+id);
     }
 
-    vector<XML_Node*> xd;
-    f->getChildren("domain", xd);
+    vector<XML_Node*> xd = f->getChildren("domain");
     if (xd.size() != m_nd) {
         throw CanteraError("Sim1D::restore", "Solution does not contain the "
                            " correct number of domains. Found " +

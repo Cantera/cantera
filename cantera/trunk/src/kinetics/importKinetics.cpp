@@ -206,8 +206,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
      */
 
     if (rp == 1 && rxn.hasChild("order")) {
-        std::vector<XML_Node*> ord;
-        rxn.getChildren("order", ord);
+        std::vector<XML_Node*> ord = rxn.getChildren("order");
         doublereal forder;
         for (size_t nn = 0; nn < ord.size(); nn++) {
             const XML_Node& oo = *ord[nn];
@@ -306,8 +305,7 @@ bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
      * Check to see if reaction orders have been specified.
      */
     if (rxnNode.hasChild("order")) {
-        std::vector<XML_Node*> ord;
-        rxnNode.getChildren("order", ord);
+        std::vector<XML_Node*> ord = rxnNode.getChildren("order");
         doublereal forder;
         for (size_t nn = 0; nn < ord.size(); nn++) {
             const XML_Node& oo = *ord[nn];
@@ -327,8 +325,7 @@ bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
     }
 
     if (rxnNode.hasChild("orders")) {
-        std::vector<XML_Node*> orders;
-        rxnNode.getChildren("orders", orders);
+        std::vector<XML_Node*> orders = rxnNode.getChildren("orders");
 	//
 	//  Doesn't really make sense to have more than one of these blocks
 	//
@@ -628,8 +625,7 @@ static void getStick(const XML_Node& node, Kinetics& kin,
 static void getCoverageDependence(const XML_Node& node,
                                   thermo_t& surfphase, ReactionData& rdata)
 {
-    vector<XML_Node*> cov;
-    node.getChildren("coverage", cov);
+    vector<XML_Node*> cov = node.getChildren("coverage");
     size_t k, nc = cov.size();
     doublereal e;
     string spname;
@@ -1131,8 +1127,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                            std::string default_phase, bool check_for_duplicates)
 {
     rxninfo _rxns;
-
-    vector<XML_Node*> rarrays;
     int itot = 0;
     /*
      * Search the children of the phase element for the
@@ -1142,7 +1136,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
      * Each one will be processed sequentially, with the
      * end result being purely additive.
      */
-    p.getChildren("reactionArray",rarrays);
+    vector<XML_Node*> rarrays = p.getChildren("reactionArray");
     if (rarrays.empty()) {
         kin.finalize();
         return false;
@@ -1190,11 +1184,8 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
          * a reaction if it's tagged by one of the include fields.
          * Or, we include all reactions if there are no include fields.
          */
-        vector<XML_Node*> incl;
-        rxns.getChildren("include",incl);
-
-        vector<XML_Node*> allrxns;
-        rdata->getChildren("reaction",allrxns);
+        vector<XML_Node*> incl = rxns.getChildren("include");
+        vector<XML_Node*> allrxns = rdata->getChildren("reaction");
         // if no 'include' directive, then include all reactions
         if (incl.empty()) {
             for (size_t i = 0; i < allrxns.size(); i++) {

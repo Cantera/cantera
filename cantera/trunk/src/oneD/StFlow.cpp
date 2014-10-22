@@ -587,8 +587,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     size_t nsp = m_thermo->nSpecies();
     vector_int did_species(nsp, 0);
 
-    vector<XML_Node*> str;
-    dom.getChildren("string",str);
+    vector<XML_Node*> str = dom.getChildren("string");
     for (size_t istr = 0; istr < str.size(); istr++) {
         const XML_Node& nd = *str[istr];
         writelog(nd["title"]+": "+nd.value()+"\n");
@@ -598,8 +597,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
 
-    vector<XML_Node*> d;
-    dom.child("grid_data").getChildren("floatArray",d);
+    vector<XML_Node*> d = dom.child("grid_data").getChildren("floatArray");
     size_t nd = d.size();
 
     vector_fp x;

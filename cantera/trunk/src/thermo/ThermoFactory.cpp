@@ -243,8 +243,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
         // spArray_names field, then add all species
         // defined in the corresponding database to the phase
         if (nsp == 1 && spnames[0] == "all") {
-            std::vector<XML_Node*> allsp;
-            db->getChildren("species", allsp);
+            std::vector<XML_Node*> allsp = db->getChildren("species");
             nsp = allsp.size();
             spnames.resize(nsp);
             for (size_t nn = 0; nn < nsp; nn++) {
@@ -266,8 +265,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 }
             }
         } else if (nsp == 1 && spnames[0] == "unique") {
-            std::vector<XML_Node*> allsp;
-            db->getChildren("species", allsp);
+            std::vector<XML_Node*> allsp = db->getChildren("species");
             nsp = allsp.size();
             spnames.resize(nsp);
             for (size_t nn = 0; nn < nsp; nn++) {
@@ -388,8 +386,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
      * sources. For each one, a speciesArray element must be
      * present.
      ***************************************************************/
-    vector<XML_Node*> sparrays;
-    phase.getChildren("speciesArray", sparrays);
+    vector<XML_Node*> sparrays = phase.getChildren("speciesArray");
     if (ssConvention != cSS_CONVENTION_SLAVE) {
         if (sparrays.empty()) {
             throw CanteraError("importPhase",
@@ -641,8 +638,7 @@ const XML_Node* speciesXML_Node(const std::string& kname,
         throw CanteraError("speciesXML_Node()",
                            "Unexpected phaseSpeciesData name: " + jname);
     }
-    vector<XML_Node*> xspecies;
-    phaseSpeciesData->getChildren("species", xspecies);
+    vector<XML_Node*> xspecies = phaseSpeciesData->getChildren("species");
     for (size_t j = 0; j < xspecies.size(); j++) {
         const XML_Node& sp = *xspecies[j];
         jname = sp["name"];

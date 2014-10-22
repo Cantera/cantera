@@ -342,8 +342,7 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 
     XML_Node& eosdata = phaseNode->child("thermo");
     XML_Node& la = eosdata.child("LatticeArray");
-    std::vector<XML_Node*> lattices;
-    la.getChildren("phase",lattices);
+    std::vector<XML_Node*> lattices = la.getChildren("phase");
     for (size_t n = 0; n < m_nlattice; n++) {
         LatticePhase* lp = m_lattice[n];
         size_t nsp =  lp->nSpecies();
@@ -471,8 +470,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","LatticeSolid");
     XML_Node& la = eosdata.child("LatticeArray");
-    std::vector<XML_Node*> lattices;
-    la.getChildren("phase",lattices);
+    std::vector<XML_Node*> lattices = la.getChildren("phase");
     size_t nl = lattices.size();
     m_nlattice = nl;
     for (size_t n = 0; n < nl; n++) {

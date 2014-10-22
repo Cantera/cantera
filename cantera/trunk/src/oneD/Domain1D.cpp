@@ -109,8 +109,7 @@ XML_Node& Domain1D::save(XML_Node& o, const doublereal* const sol)
 void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     vector_fp values;
-    vector<XML_Node*> nodes;
-    dom.getChildren("floatArray", nodes);
+    vector<XML_Node*> nodes = dom.getChildren("floatArray");
     for (size_t i = 0; i < nodes.size(); i++) {
         string title = nodes[i]->attrib("title");
         getFloatArray(*nodes[i], values, false);
