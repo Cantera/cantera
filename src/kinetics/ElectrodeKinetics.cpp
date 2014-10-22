@@ -207,7 +207,7 @@ void ElectrodeKinetics::updateROP()
     for (size_t iBeta = 0; iBeta < m_beta.size(); iBeta++) {
         size_t irxn = m_ctrxn[iBeta];
 
-	int reactionType = reactionTypes_[irxn];
+	int reactionType = m_rxntype[irxn];
 	if (reactionType == BUTLERVOLMER_RXN) {
 	    //
 	    //   Get the beta value
@@ -778,7 +778,7 @@ getExchangeCurrentDensityFormulation(size_t irxn,
   
 
     double mG0 =  m_deltaG0[irxn];
-    int reactionType = reactionTypes_[irxn];
+    int reactionType = m_rxntype[irxn];
 
     //
     // Start with the forward reaction rate

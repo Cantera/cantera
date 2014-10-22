@@ -183,14 +183,6 @@ public:
      */
     virtual doublereal productStoichCoeff(size_t kSpecKin, size_t irxn) const;
 
-    //!  return the reaction type of the reaction irxn
-    /*!
-     *    @param[in]   Reaction index
-     *
-     *    @return      Returns the reaction type of the reaction.
-     */
-    virtual int reactionType(size_t irxn) const;
-
     virtual void getActivityConcentrations(doublereal* const conc);
 
 
@@ -511,13 +503,6 @@ protected:
      */
     std::vector<std::map<size_t, doublereal> > m_prxn;
 
-    //! Vector of reactionType for the reactions defined within this object
-    /*!
-     *  Length = number of reactions, m_ii
-     *  contains the type of reaction.
-     */
-    vector_int reactionType_;
-
 public:
     //! Vector of additional information about each reaction
     /*!
@@ -622,12 +607,6 @@ protected:
 
     //! Pointer to the single surface phase
     SurfPhase* m_surf;
-
-    //! Vector of reaction types
-    /*!
-     *    Length = m_ii the number of reactions in the mechanism.
-     */
-    vector_int reactionTypes_;
 
     //! Pointer to the Implicit surface chemistry object
     /*!

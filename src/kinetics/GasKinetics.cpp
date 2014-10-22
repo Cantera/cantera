@@ -74,7 +74,6 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
     m_nrev = right.m_nrev;
-    m_rxntype = right.m_rxntype;
     m_rrxn = right.m_rrxn;
     m_prxn = right.m_prxn;
     m_dn = right.m_dn;
@@ -494,7 +493,6 @@ void GasKinetics::addReaction(ReactionData& r)
 
     // operations common to all reaction types
     Kinetics::addReaction(r);
-    m_rxntype.push_back(r.reactionType);
 }
 
 void GasKinetics::addFalloffReaction(ReactionData& r)
