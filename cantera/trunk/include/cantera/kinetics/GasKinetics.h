@@ -104,18 +104,6 @@ public:
         return getValue(m_index, i).first;
     }
 
-    virtual std::string reactionString(size_t i) const {
-        return m_rxneqn[i];
-    }
-
-    virtual std::string reactantString(size_t i) const {
-        return m_reactantStrings[i];
-    }
-
-    virtual std::string productString(size_t i) const {
-        return m_productStrings[i];
-    }
-
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) {
@@ -140,13 +128,6 @@ public:
     //@}
 
     void updateROP();
-
-    const std::vector<grouplist_t>& reactantGroups(size_t i) {
-        return m_rgroups[i];
-    }
-    const std::vector<grouplist_t>& productGroups(size_t i) {
-        return m_pgroups[i];
-    }
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
@@ -186,9 +167,6 @@ protected:
     size_t m_nirrev;
     size_t m_nrev;
 
-    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
-    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
-
     std::vector<int>                         m_rxntype;
 
     std::vector<std::map<size_t, doublereal> > m_rrxn;
@@ -202,10 +180,6 @@ protected:
      */
     vector_fp  m_dn;
     std::vector<size_t> m_revindex;
-
-    std::vector<std::string> m_rxneqn;
-    std::vector<std::string> m_reactantStrings;
-    std::vector<std::string> m_productStrings;
 
     //! @name Reaction rate data
     //!@{
@@ -244,10 +218,7 @@ private:
     void addPlogReaction(ReactionData& r);
     void addChebyshevReaction(ReactionData& r);
 
-    void installReagents(const ReactionData& r);
-
-    void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
-                       const std::vector<grouplist_t>& p);
+    virtual void installReagents(const ReactionData& r);
 
     //! Update the equilibrium constants in molar units.
     void updateKc();

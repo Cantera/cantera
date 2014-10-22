@@ -74,16 +74,11 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
     m_nrev = right.m_nrev;
-    m_rgroups = right.m_rgroups;
-    m_pgroups = right.m_pgroups;
     m_rxntype = right.m_rxntype;
     m_rrxn = right.m_rrxn;
     m_prxn = right.m_prxn;
     m_dn = right.m_dn;
     m_revindex = right.m_revindex;
-    m_rxneqn = right.m_rxneqn;
-    m_reactantStrings = right.m_reactantStrings;
-    m_productStrings = right.m_productStrings;
 
     m_logp_ref = right.m_logp_ref;
     m_logc_ref  = right.m_logc_ref;
@@ -498,12 +493,7 @@ void GasKinetics::addReaction(ReactionData& r)
     }
 
     // operations common to all reaction types
-    installReagents(r);
-    installGroups(reactionNumber(), r.rgroups, r.pgroups);
-    incrementRxnCount();
-    m_rxneqn.push_back(r.equation);
-    m_reactantStrings.push_back(r.reactantString);
-    m_productStrings.push_back(r.productString);
+    Kinetics::addReaction(r);
     m_rxntype.push_back(r.reactionType);
 }
 
@@ -654,16 +644,6 @@ void GasKinetics::installReagents(const ReactionData& r)
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
         m_irrev.push_back(reactionNumber());
         m_nirrev++;
-    }
-}
-
-void GasKinetics::installGroups(size_t irxn,
-                                const vector<grouplist_t>& r, const vector<grouplist_t>& p)
-{
-    if (!r.empty()) {
-        writelog("installing groups for reaction "+int2str(reactionNumber()));
-        m_rgroups[reactionNumber()] = r;
-        m_pgroups[reactionNumber()] = p;
     }
 }
 

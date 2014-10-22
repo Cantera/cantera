@@ -127,10 +127,6 @@ public:
         return getValue(m_index, i).first;
     }
 
-    virtual std::string reactionString(size_t i) const {
-        return m_rxneqn[i];
-    }
-
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) {
@@ -158,13 +154,6 @@ public:
     virtual void update_C();
 
     void updateROP();
-
-    const std::vector<grouplist_t>& reactantGroups(size_t i) {
-        return m_rgroups[i];
-    }
-    const std::vector<grouplist_t>& productGroups(size_t i) {
-        return m_pgroups[i];
-    }
 
     /*!
      * Update temperature-dependent portions of reaction rates and
@@ -214,8 +203,6 @@ protected:
     vector_fp  m_dn;
     std::vector<size_t> m_revindex;
 
-    std::vector<std::string> m_rxneqn;
-
     vector_fp m_conc;
     vector_fp m_grt;
 
@@ -242,9 +229,6 @@ private:
     void addElementaryReaction(ReactionData& r);
 
     void installReagents(const ReactionData& r);
-
-    void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
-                       const std::vector<grouplist_t>& p);
 
     /**
      * Update the equilibrium constants in molar units.
