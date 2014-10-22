@@ -193,6 +193,17 @@ e.g.::
 
     brew install cantera --devel --with-matlab=/Applications/MATLAB_R2014a.app/
 
+The Matlab toolbox, if enabled, will be installed in::
+
+    /usr/local/lib/cantera/matlab
+
+To use the Cantera Matlab toolbox, run the following commands in Matlab (each
+time you start Matlab), or add them to a ``startup.m`` file located in
+``/Users/$USER/Documents/MATLAB``, where ``$USER`` is your username::
+
+    addpath(genpath('/usr/local/lib/cantera/matlab'))
+    setenv('PYTHON_CMD', '/usr/local/bin/python')
+
 .. _sec-install-ubuntu:
 
 Ubuntu
