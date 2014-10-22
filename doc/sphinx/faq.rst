@@ -15,7 +15,6 @@ Installation
 
 **How do I install Cantera on Linux?**
 
-<<<<<<< HEAD
     For Ubuntu, packages for the current stable version of Cantera are available
     in a PPA. See :ref:`Ubuntu Installation <sec-install-ubuntu>` for details.
 
