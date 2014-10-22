@@ -143,7 +143,7 @@ steps and can skip them.
 
 - From a Terminal, run::
 
-      sudo xcodebuild
+      sudo xcode-select --install
 
   and agree to the Xcode license agreement
 
