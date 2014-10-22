@@ -8,6 +8,7 @@
 // Copyright 2001-2004  California Institute of Technology
 
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/ReactionData.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -25,8 +26,7 @@ Kinetics::Kinetics() :
     m_phaseindex(),
     m_surfphase(npos),
     m_rxnphase(npos),
-    m_mindim(4),
-    m_dummygroups(0)
+    m_mindim(4)
 {
 }
 
@@ -43,8 +43,7 @@ Kinetics::Kinetics(const Kinetics& right) :
     m_phaseindex(),
     m_surfphase(npos),
     m_rxnphase(npos),
-    m_mindim(4),
-    m_dummygroups(0)
+    m_mindim(4)
 {
     /*
      * Call the assignment operator
@@ -74,7 +73,11 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_surfphase         = right.m_surfphase;
     m_rxnphase          = right.m_rxnphase;
     m_mindim            = right.m_mindim;
-    m_dummygroups       = right.m_dummygroups;
+    m_rxneqn            = right.m_rxneqn;
+    m_reactantStrings   = right.m_reactantStrings;
+    m_productStrings    = right.m_productStrings;
+    m_rgroups = right.m_rgroups;
+    m_pgroups = right.m_pgroups;
 
     return *this;
 }
@@ -286,6 +289,25 @@ void Kinetics::finalize()
     for (size_t n = 0; n < nPhases(); n++) {
         size_t nsp = m_thermo[n]->nSpecies();
         m_kk += nsp;
+    }
+}
+
+void Kinetics::addReaction(ReactionData& r) {
+    installReagents(r);
+    installGroups(nReactions(), r.rgroups, r.pgroups);
+    incrementRxnCount();
+    m_rxneqn.push_back(r.equation);
+    m_reactantStrings.push_back(r.reactantString);
+    m_productStrings.push_back(r.productString);
+}
+
+void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,
+                             const vector<grouplist_t>& p)
+{
+    if (!r.empty()) {
+        writelog("installing groups for reaction "+int2str(irxn));
+        m_rgroups[irxn] = r;
+        m_pgroups[irxn] = p;
     }
 }
 

@@ -129,7 +129,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_rrxn                 = right.m_rrxn;
     m_prxn                 = right.m_prxn;
     reactionType_          = right.reactionType_;
-    m_rxneqn               = right.m_rxneqn;
     m_conc                 = right.m_conc;
     m_actConc              = right.m_actConc;
     m_mu0                  = right.m_mu0;
@@ -888,25 +887,8 @@ void InterfaceKinetics::addReaction(ReactionData& r)
          */
         addElementaryReaction(r);
     }
-    /*
-     * Add the reactants and products for  m_ropnet;the current reaction
-     * to the various stoichiometric coefficient arrays.
-     */
-    installReagents(r);
-    /*
-     * Save the reaction and product groups, which are
-     * part of the ReactionData class, in this class.
-     * They aren't used for anything but reaction path
-     * analysis.
-     */
-    //installGroups(reactionNumber(), r.rgroups, r.pgroups);
-    /*
-     * Increase the internal number of reactions, m_ii, by one.
-     * increase the size of m_perturb by one as well.
-     */
-    incrementRxnCount();
 
-    m_rxneqn.push_back(r.equation);
+    Kinetics::addReaction(r);
 
     m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
     m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));

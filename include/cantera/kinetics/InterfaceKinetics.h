@@ -219,10 +219,6 @@ public:
         }
     }
 
-    virtual std::string reactionString(size_t i) const {
-        return m_rxneqn[i];
-    }
-
     virtual void getFwdRateConstants(doublereal* kfwd);
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
@@ -531,13 +527,6 @@ public:
     std::vector<RxnMolChange*> rmcVector;
 
 protected:
-    /*!
-     * Vector of strings of length m_ii, the number of
-     * reactions, containing the string expressions for each reaction
-     * (e.g., reactants <=> product1 + product2)
-     */
-    std::vector<std::string> m_rxneqn;
-
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
      * An array of generalized concentrations \f$ C_k \f$ that are defined

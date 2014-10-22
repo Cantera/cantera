@@ -63,14 +63,11 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
     m_nrev = right.m_nrev;
-    m_rgroups = right.m_rgroups;
-    m_pgroups = right.m_pgroups;
     m_rxntype = right.m_rxntype;
     m_rrxn = right.m_rrxn;
     m_prxn = right.m_prxn;
     m_dn = right.m_dn;
     m_revindex = right.m_revindex;
-    m_rxneqn = right.m_rxneqn;
 
     m_ropf = right.m_ropf;
     m_ropr = right.m_ropr;
@@ -356,12 +353,7 @@ void AqueousKinetics::addReaction(ReactionData& r)
     if (r.reactionType == ELEMENTARY_RXN) {
         addElementaryReaction(r);
     }
-
-    // operations common to all reaction types
-    installReagents(r);
-    installGroups(reactionNumber(), r.rgroups, r.pgroups);
-    incrementRxnCount();
-    m_rxneqn.push_back(r.equation);
+    Kinetics::addReaction(r);
 }
 
 void AqueousKinetics::addElementaryReaction(ReactionData& r)
@@ -439,17 +431,6 @@ void AqueousKinetics::installReagents(const ReactionData& r)
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
         m_irrev.push_back(reactionNumber());
         m_nirrev++;
-    }
-}
-
-void AqueousKinetics::installGroups(size_t irxn,
-                                    const vector<grouplist_t>& r,
-                                    const vector<grouplist_t>& p)
-{
-    if (!r.empty()) {
-        writelog("installing groups for reaction "+int2str(reactionNumber()));
-        m_rgroups[reactionNumber()] = r;
-        m_pgroups[reactionNumber()] = p;
     }
 }
 

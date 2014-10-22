@@ -700,18 +700,18 @@ public:
      *
      * @param i   reaction index
      */
-    virtual std::string reactionString(size_t i) const {
-        throw NotImplementedError("Kinetics::reactionStd::String");
+    const std::string& reactionString(size_t i) const {
+        return m_rxneqn[i];
     }
 
     //! Returns a string containing the reactants side of the reaction equation.
-    virtual std::string reactantString(size_t i) const {
-        throw NotImplementedError("Kinetics::reactionString");
+    const std::string& reactantString(size_t i) const {
+        return m_reactantStrings[i];
     }
 
     //! Returns a string containing the products side of the reaction equation.
-    virtual std::string productString(size_t i) const {
-        throw NotImplementedError("Kinetics::productString");
+    const std::string& productString(size_t i) const {
+        return m_productStrings[i];
     }
 
     /**
@@ -785,22 +785,29 @@ public:
     virtual void finalize();
 
     /**
-     * Add a single reaction to the mechanism. This routine
-     * must be called after init() and before finalize().
+     * Add a single reaction to the mechanism. This routine 
+     * must be called after init() and before finalize(). Derived classes
+     * should call the base class method in addition to handling their
+     * own specialized behavior.
      *
      * @param r      Reference to the ReactionData object for the reaction
      *               to be added.
      */
-    virtual void addReaction(ReactionData& r) {
-        throw NotImplementedError("Kinetics::addReaction");
+    virtual void addReaction(ReactionData& r);
+
+    virtual void installReagents(const ReactionData& r) {
+        throw NotImplementedError("Kinetics::installReagents");
     }
 
+    virtual void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
+                               const std::vector<grouplist_t>& p);
+
     virtual const std::vector<grouplist_t>& reactantGroups(size_t i) {
-        return m_dummygroups;
+        return m_rgroups[i];
     }
 
     virtual const std::vector<grouplist_t>& productGroups(size_t i) {
-        return m_dummygroups;
+        return m_pgroups[i];
     }
 
     //@}
@@ -949,9 +956,18 @@ protected:
     //! number of spatial dimensions of lowest-dimensional phase.
     size_t m_mindim;
 
+    //! Representation of each reaction equation
+    std::vector<std::string> m_rxneqn;
+
+    //! Representation of the reactant side of each reaction equation
+    std::vector<std::string> m_reactantStrings;
+
+    //! Representation of the product side of each reaction equation
+    std::vector<std::string> m_productStrings;
+
 private:
-    //! Vector of group lists
-    std::vector<grouplist_t> m_dummygroups;
+    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
+    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
 };
 
 }
