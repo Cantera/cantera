@@ -144,8 +144,6 @@ protected:
     Rate1<Arrhenius>                    m_falloff_high_rates;
     Rate1<Arrhenius>                    m_rates;
 
-    std::map<size_t, std::pair<int, size_t> > m_index;
-
     FalloffMgr                          m_falloffn;
 
     ThirdBodyMgr<Enhanced3BConc>        m_3b_concm;
@@ -217,9 +215,6 @@ private:
     //! Update the equilibrium constants in molar units.
     void updateKc();
 
-    void registerReaction(size_t rxnNumber, int type_, size_t loc) {
-        m_index[rxnNumber] = std::pair<int, size_t>(type_, loc);
-    }
     bool m_finalized;
 };
 }

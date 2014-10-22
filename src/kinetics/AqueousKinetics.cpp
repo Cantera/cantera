@@ -55,7 +55,6 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
 
     m_nfall = right.m_nfall;
     m_rates = right.m_rates;
-    m_index = right.m_index;
     m_irrev = right.m_irrev;
 
     m_rxnstoich = right.m_rxnstoich;
@@ -368,7 +367,6 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
 
     // forward rxn order equals number of reactants
     m_fwdOrder.push_back(r.reactants.size());
-    registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
 
 void AqueousKinetics::installReagents(const ReactionData& r)

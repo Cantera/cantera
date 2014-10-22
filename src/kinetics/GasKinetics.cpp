@@ -61,7 +61,6 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_falloff_low_rates = right.m_falloff_low_rates;
     m_falloff_high_rates = right.m_falloff_high_rates;
     m_rates = right.m_rates;
-    m_index = right.m_index;
     m_falloffn = right.m_falloffn;
     m_3b_concm = right.m_3b_concm;
     m_falloff_concm = right.m_falloff_concm;
@@ -499,7 +498,7 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
 {
     // install high and low rate coeff calculators
     // and add constant terms to high and low rate coeff value vectors
-    size_t iloc = m_falloff_high_rates.install(m_nfall, r);
+    m_falloff_high_rates.install(m_nfall, r);
     m_rfn_high.push_back(r.rateCoeffParameters[0]);
     std::swap(r.rateCoeffParameters, r.auxRateCoeffParameters);
     m_falloff_low_rates.install(m_nfall, r);
@@ -529,26 +528,24 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
 
     // increment the falloff reaction counter
     ++m_nfall;
-    registerReaction(reactionNumber(), r.reactionType, iloc);
 }
 
 void GasKinetics::addElementaryReaction(ReactionData& r)
 {
     // install rate coeff calculator
-    size_t iloc = m_rates.install(reactionNumber(), r);
+    m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
 
     // forward rxn order equals number of reactants
     m_fwdOrder.push_back(r.reactants.size());
-    registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
 
 void GasKinetics::addThreeBodyReaction(ReactionData& r)
 {
     // install rate coeff calculator
-    size_t iloc = m_rates.install(reactionNumber(), r);
+    m_rates.install(reactionNumber(), r);
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
@@ -558,31 +555,28 @@ void GasKinetics::addThreeBodyReaction(ReactionData& r)
 
     m_3b_concm.install(reactionNumber(), r.thirdBodyEfficiencies,
                        r.default_3b_eff);
-    registerReaction(reactionNumber(), THREE_BODY_RXN, iloc);
 }
 
 void GasKinetics::addPlogReaction(ReactionData& r)
 {
     // install rate coefficient calculator
-    size_t iloc = m_plog_rates.install(reactionNumber(), r);
+    m_plog_rates.install(reactionNumber(), r);
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
     m_rfn.push_back(0.0);
 
     m_fwdOrder.push_back(r.reactants.size());
-    registerReaction(reactionNumber(), PLOG_RXN, iloc);
 }
 
 void GasKinetics::addChebyshevReaction(ReactionData& r)
 {
     // install rate coefficient calculator
-    size_t iloc = m_cheb_rates.install(reactionNumber(), r);
+    m_cheb_rates.install(reactionNumber(), r);
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
     m_rfn.push_back(0.0);
 
     m_fwdOrder.push_back(r.reactants.size());
-    registerReaction(reactionNumber(), CHEBYSHEV_RXN, iloc);
 }
 
 void GasKinetics::installReagents(const ReactionData& r)

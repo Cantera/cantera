@@ -341,18 +341,6 @@ public:
      */
     void updateKc();
 
-    //! Write values into m_index
-    /*!
-     * @param rxnNumber reaction number
-     * @param type      reaction type
-     * @param loc       location location in the reaction rate coefficient calculator
-     *
-     *  Right now we only use one reaction rate coefficient calculated named ELEMENTARY_RXN
-     *  Therefore, this is not used within the code)
-     *    (type, loc) is stored as a std::pair
-     */
-    void registerReaction(size_t rxnNumber, int type, size_t loc);
-
     //! Apply modifications for the fowward reaction rate for interfacial charge transfer reactions
     /*!
      * For reactions that transfer charge across a potential difference,
@@ -454,14 +442,6 @@ protected:
     Rate1<SurfaceArrhenius> m_rates;
 
     bool m_redo_rates;
-
-    /**
-     * Vector of information about reactions in the mechanism.
-     * The key is the reaction index (0 < i < m_ii).
-     * The first pair is the reactionType of the reaction.
-     * The second pair is ...
-     */
-    std::map<size_t, std::pair<int, size_t> > m_index;
 
     //! Vector of irreversible reaction numbers
     /*!

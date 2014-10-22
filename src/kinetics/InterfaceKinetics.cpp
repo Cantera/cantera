@@ -121,7 +121,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_revindex             = right.m_revindex;
     m_rates                = right.m_rates;
     m_redo_rates           = right.m_redo_rates;
-    m_index                = right.m_index;
     m_irrev                = right.m_irrev;
     m_rxnstoich            = right.m_rxnstoich;
     m_nirrev               = right.m_nirrev;
@@ -936,7 +935,7 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
     /*
      * Install the reaction rate into the vector of reactions handled by this class
      */
-    size_t iloc = m_rates.install(m_ii, rdata);
+    m_rates.install(m_ii, rdata);
 
     /*
      * Change the reaction rate coefficient type back to its original value
@@ -968,7 +967,6 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(rdata.rateCoeffParameters[0]);
-    registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
 
 void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
@@ -1001,7 +999,7 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
     /*
      * Install the reaction rate into the vector of reactions handled by this class
      */
-    size_t iloc = m_rates.install(m_ii, rdata);
+    m_rates.install(m_ii, rdata);
 
     /*
      * Change the reaction rate coefficient type back to its original value
@@ -1059,7 +1057,6 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(rdata.rateCoeffParameters[0]);
-    registerReaction(m_ii, ELEMENTARY_RXN, iloc);
 }
 
 void InterfaceKinetics::setIOFlag(int ioFlag)
@@ -1335,12 +1332,6 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
     } else {
         m_phaseIsStable[iphase] = false;
     }
-}
-
-void InterfaceKinetics::registerReaction(size_t rxnNumber, int type, size_t loc)
-{
-    //  type and loc is storred as a pair of values.
-    m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
 }
 
 void InterfaceKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders)
