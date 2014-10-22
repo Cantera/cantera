@@ -65,6 +65,7 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_perturb           = right.m_perturb;
     m_reactants         = right.m_reactants;
     m_products          = right.m_products;
+    m_rxntype = right.m_rxntype;
 
     m_thermo            = right.m_thermo; //  DANGER -> shallow pointer copy
 
@@ -299,6 +300,7 @@ void Kinetics::addReaction(ReactionData& r) {
     m_rxneqn.push_back(r.equation);
     m_reactantStrings.push_back(r.reactantString);
     m_productStrings.push_back(r.productString);
+    m_rxntype.push_back(r.reactionType);
 }
 
 void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,

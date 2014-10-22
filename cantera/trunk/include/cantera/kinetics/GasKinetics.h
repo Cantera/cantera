@@ -100,10 +100,6 @@ public:
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    virtual int reactionType(size_t i) const {
-        return getValue(m_index, i).first;
-    }
-
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) {
@@ -166,8 +162,6 @@ protected:
 
     size_t m_nirrev;
     size_t m_nrev;
-
-    std::vector<int>                         m_rxntype;
 
     std::vector<std::map<size_t, doublereal> > m_rrxn;
     std::vector<std::map<size_t, doublereal> > m_prxn;

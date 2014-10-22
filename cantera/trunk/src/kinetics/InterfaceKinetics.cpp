@@ -128,7 +128,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_nrev                 = right.m_nrev;
     m_rrxn                 = right.m_rrxn;
     m_prxn                 = right.m_prxn;
-    reactionType_          = right.reactionType_;
     m_conc                 = right.m_conc;
     m_actConc              = right.m_actConc;
     m_mu0                  = right.m_mu0;
@@ -636,7 +635,7 @@ void InterfaceKinetics::updateROP()
     //  Fix up these calculations for cases where the above formalism doesn't hold
     double OCV = 0.0;
     for (size_t jrxn = 0; jrxn != m_ii; ++jrxn) {
-        int reactionType = reactionTypes_[jrxn];
+        int reactionType = m_rxntype[jrxn];
         if (reactionType == BUTLERVOLMER_RXN) {
             //
             // OK, the reaction rate constant contains the current density rate constant calculation
@@ -871,8 +870,6 @@ void InterfaceKinetics::addReaction(ReactionData& r)
 {
     int reactionType = r.reactionType;
 
-    reactionType_.push_back(reactionType);
-
     if ((reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ) ||
         (reactionType == BUTLERVOLMER_RXN ) ||
         (reactionType == SURFACEAFFINITY_RXN) ||
@@ -924,7 +921,6 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
 
     // Find out the reaction type
     int reactionType = rdata.reactionType;
-    reactionTypes_.push_back(reactionType);
 
     /*
      * Temporarily change the reaction rate coefficient type to surface arrhenius.
@@ -990,7 +986,6 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
 
     // Find out the reaction type
     int reactionType = rdata.reactionType;
-    reactionTypes_.push_back(reactionType);
 
     /*
      * Temporarily change the reaction rate coefficient type to surface arrhenius.
@@ -1328,11 +1323,6 @@ doublereal InterfaceKinetics::reactantStoichCoeff(size_t kSpecKin, size_t irxn) 
 doublereal InterfaceKinetics::productStoichCoeff(size_t kSpecKin, size_t irxn) const
 {
     return getValue(m_prxn[kSpecKin], irxn, 0.0);
-}
-
-int InterfaceKinetics::reactionType(size_t irxn) const
-{
-      return reactionType_[irxn];
 }
 
 void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStable)

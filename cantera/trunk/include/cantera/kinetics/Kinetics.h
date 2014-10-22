@@ -681,7 +681,7 @@ public:
      * @param i   reaction index
      */
     virtual int reactionType(size_t i) const {
-        throw NotImplementedError("Kinetics::reactionType");
+        return m_rxntype[i];
     }
 
     /**
@@ -908,6 +908,8 @@ protected:
      *       stoichiometric coefficients in the expression.
      */
     std::vector<std::vector<size_t> > m_products;
+
+    std::vector<int> m_rxntype;
 
     //! m_thermo is a vector of pointers to ThermoPhase objects that are
     //! involved with this kinetics operator
