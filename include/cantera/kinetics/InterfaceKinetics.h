@@ -19,12 +19,12 @@
 namespace Cantera
 {
 
-// forward references
+// forward declarations
 class SurfPhase;
 class ImplicitSurfChem;
 class RxnMolChange;
 
-//! forward orders 
+//! forward orders
 class RxnOrders {
 
   public:
@@ -36,18 +36,18 @@ class RxnOrders {
    ~RxnOrders();
 
    RxnOrders& operator=(const RxnOrders &right);
-  
+
    //! Fill in the structure with the array.
    /*!
     *  @param[in] Size of length kinetic species. The entries the values of the orders
     */
-   int fill(const std::vector<doublereal>& fullForwardOrders);
+   int fill(const vector_fp& fullForwardOrders);
 
    //! ID's of the kinetic species
    std::vector<size_t> kinSpeciesIDs_;
 
    //! Orders of the kinetic species
-   std::vector<doublereal> kinSpeciesOrders_;
+   vector_fp kinSpeciesOrders_;
 };
 
 //!  A kinetics manager for heterogeneous reaction mechanisms. The
@@ -187,9 +187,9 @@ public:
     /*!
      *    @param[in]   Reaction index
      *
-     *    @return      Returns the reaction type of the reaction. 
+     *    @return      Returns the reaction type of the reaction.
      */
-    virtual int reactionType(size_t irxn) const; 
+    virtual int reactionType(size_t irxn) const;
 
     virtual void getActivityConcentrations(doublereal* const conc);
 
@@ -336,16 +336,14 @@ public:
 
     //!  Add a single elementary reaction to the list of reactions for the object
     /*!
-     *    @param rdata 
+     *    @param rdata
      */
     void addElementaryReaction(ReactionData& rdata);
-
 
     void addGlobalReaction(ReactionData& r);
 
     void installReagents(const ReactionData& r);
 
-    
     //! Update the equilibrium constants and stored electrochemical potentials
     //! in molar units for all reversible reactions and for all species.
     /*!
@@ -390,7 +388,7 @@ public:
      *  reaction type is a butler-volmer form, convert it to exchange current density
      *  form (amps/m2).
      *
-     * @param kfwd  Vector of forward reaction rate constants, given in either 
+     * @param kfwd  Vector of forward reaction rate constants, given in either
      *              normal form or in exchange current density form.
      */
     void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
@@ -447,14 +445,11 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
-
-    virtual void determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders);
+    virtual void determineFwdOrdersBV(ReactionData& rdata, vector_fp& fwdFullorders);
 
 protected:
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
-
-
 
     //! List of reactions numbers which are reversible reactions
     /*!
@@ -523,7 +518,7 @@ protected:
     //! Vector of reactionType for the reactions defined within this object
     /*!
      *  Length = number of reactions, m_ii
-     *  contains the type of reaction. 
+     *  contains the type of reaction.
      */
     vector_int reactionType_;
 
@@ -595,7 +590,7 @@ protected:
      * potentials + RTln(Cs) for all of the species in the kinetics object
      *
      * In order to get the units correct for the concentration equilibrium
-     * constant, each species needs to have an 
+     * constant, each species needs to have an
      * RT ln(Cs)  added to its contribution to the equilibrium constant
      * Cs is the standard concentration for the species. Frequently, for
      * solid species, Cs is equal to 1. However, for gases Cs is P/RT.
@@ -670,12 +665,12 @@ protected:
      */
     std::vector<size_t> m_ctrxn;
 
-    //! Vector of Reactions which follow the butler volmer methodology for specifying the 
+    //! Vector of Reactions which follow the butler volmer methodology for specifying the
     //! exchange current density first. Then, the other forms are specified based on this form.
     /*!
      *     Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
-     *  
-     *    m_ctrxn_BVform[i] = 0;  This means that the irxn reaction is calculated via the standard forward 
+     *
+     *    m_ctrxn_BVform[i] = 0;  This means that the irxn reaction is calculated via the standard forward
      *                            and reverse reaction rates
      *    m_ctrxn_BVform[i] = 1;  This means that the irxn reaction is calculated via the BV format
      *                            directly.
@@ -684,7 +679,7 @@ protected:
      */
     std::vector<size_t> m_ctrxn_BVform;
 
-    //! Vector of booleans indicating whether the charge transfer reaction rate constant 
+    //! Vector of booleans indicating whether the charge transfer reaction rate constant
     //! is described by an exchange current density rate constant expression
     /*!
      *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
@@ -696,7 +691,7 @@ protected:
      */
     vector_int m_ctrxn_ecdf;
 
-    //! Vector of booleans indicating whether the charge transfer reaction rate constant 
+    //! Vector of booleans indicating whether the charge transfer reaction rate constant
     //! is described by an exchange current density rate constant expression
     /*!
      *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
@@ -713,7 +708,7 @@ protected:
      */
     std::vector<RxnOrders*> m_ctrxn_FwdOrdersList_;
 
-    std::vector<doublereal> m_ctrxn_resistivity_;
+    vector_fp m_ctrxn_resistivity_;
 
     //! Vector of standard concentrations
     /*!
@@ -811,7 +806,7 @@ protected:
     /*!
      *  Vector of booleans indicating whether a phase exists or not. We use
      *  this to set the ROP's so that unphysical things don't happen.
-     *  For example, a reaction can't go in the forwards direction if a 
+     *  For example, a reaction can't go in the forwards direction if a
      *  phase in which a reactant is present doesn't exist. Because InterfaceKinetics
      *  deals with intrinsic quantities only normally, nowhere else is this extrinsic
      *  concept introduced except here.
