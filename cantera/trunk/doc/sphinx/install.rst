@@ -204,6 +204,16 @@ time you start Matlab), or add them to a ``startup.m`` file located in
     addpath(genpath('/usr/local/lib/cantera/matlab'))
     setenv('PYTHON_CMD', '/usr/local/bin/python')
 
+The Matlab examples will be installed in::
+
+    /usr/local/share/cantera/samples/matlab
+
+The Python examples will be installed in::
+
+   /usr/local/lib/pythonX.Y/site-packages/cantera/examples/
+
+where ``X.Y`` is your Python version, e.g. ``2.7``.
+
 .. _sec-install-ubuntu:
 
 Ubuntu
