@@ -18,12 +18,7 @@ namespace Cantera
 Kinetics::Kinetics() :
     m_ii(0),
     m_kk(0),
-    m_perturb(0),
-    m_reactants(0),
-    m_products(0),
     m_thermo(0),
-    m_start(0),
-    m_phaseindex(),
     m_surfphase(npos),
     m_rxnphase(npos),
     m_mindim(4)
@@ -32,18 +27,7 @@ Kinetics::Kinetics() :
 
 Kinetics::~Kinetics() {}
 
-Kinetics::Kinetics(const Kinetics& right) :
-    m_ii(0),
-    m_kk(0),
-    m_perturb(0),
-    m_reactants(0),
-    m_products(0),
-    m_thermo(0),
-    m_start(0),
-    m_phaseindex(),
-    m_surfphase(npos),
-    m_rxnphase(npos),
-    m_mindim(4)
+Kinetics::Kinetics(const Kinetics& right)
 {
     /*
      * Call the assignment operator

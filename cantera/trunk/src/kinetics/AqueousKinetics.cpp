@@ -20,7 +20,6 @@ namespace Cantera
 {
 
 AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
-    Kinetics(),
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
@@ -34,7 +33,6 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
 }
 
 AqueousKinetics::AqueousKinetics(const AqueousKinetics& right) :
-    Kinetics(),
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),

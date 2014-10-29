@@ -19,20 +19,11 @@ namespace Cantera
 {
 
 InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
-    Kinetics(),
     m_redo_rates(false),
     m_nirrev(0),
     m_nrev(0),
     m_surf(0),
     m_integrator(0),
-    m_beta(0),
-    m_ctrxn(0),
-    m_ctrxn_BVform(0),
-    m_ctrxn_ecdf(0),
-    m_StandardConc(0),
-    m_deltaG0(0),
-    m_deltaG(0),
-    m_ProdStanConcReac(0),
     m_logp0(0.0),
     m_logc0(0.0),
     m_ROP_ok(false),
@@ -43,10 +34,6 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_has_electrochem_rxns(false),
     m_has_exchange_current_density_formulation(false),
     m_phaseExistsCheck(false),
-    m_phaseExists(0),
-    m_phaseIsStable(0),
-    m_rxnPhaseIsReactant(0),
-    m_rxnPhaseIsProduct(0),
     m_ioFlag(0)
 {
     if (thermo != 0) {
@@ -69,36 +56,7 @@ InterfaceKinetics::~InterfaceKinetics()
     }
 }
 
-InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right) :
-    Kinetics(),
-    m_redo_rates(false),
-    m_nirrev(0),
-    m_nrev(0),
-    m_surf(0),
-    m_integrator(0),
-    m_beta(0),
-    m_ctrxn(0),
-    m_ctrxn_BVform(0),
-    m_ctrxn_ecdf(0),
-    m_StandardConc(0),
-    m_deltaG0(0),
-    m_deltaG(0),
-    m_ProdStanConcReac(0),
-    m_logp0(0.0),
-    m_logc0(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0),
-    m_logtemp(0.0),
-    m_finalized(false),
-    m_has_coverage_dependence(false),
-    m_has_electrochem_rxns(false),
-    m_has_exchange_current_density_formulation(false),
-    m_phaseExistsCheck(false),
-    m_phaseExists(0),
-    m_phaseIsStable(0),
-    m_rxnPhaseIsReactant(0),
-    m_rxnPhaseIsProduct(0),
-    m_ioFlag(0)
+InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right)
 {
     /*
      * Call the assignment operator
