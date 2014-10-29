@@ -82,6 +82,8 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_productStrings    = right.m_productStrings;
     m_rgroups = right.m_rgroups;
     m_pgroups = right.m_pgroups;
+    m_rfn = right.m_rfn;
+    m_rkcn = right.m_rkcn;
     m_ropf = right.m_ropf;
     m_ropr = right.m_ropr;
     m_ropnet = right.m_ropnet;
@@ -355,6 +357,8 @@ void Kinetics::addReaction(ReactionData& r) {
     m_reactantStrings.push_back(r.reactantString);
     m_productStrings.push_back(r.productString);
     m_rxntype.push_back(r.reactionType);
+    m_rfn.push_back(0.0);
+    m_rkcn.push_back(0.0);
     m_ropf.push_back(0.0);
     m_ropr.push_back(0.0);
     m_ropnet.push_back(0.0);
