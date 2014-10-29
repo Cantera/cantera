@@ -68,7 +68,6 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_plog_rates = right.m_plog_rates;
     m_cheb_rates = right.m_cheb_rates;
 
-    m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
     m_nrev = right.m_nrev;
     m_rrxn = right.m_rrxn;
@@ -499,10 +498,6 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
     m_falloffn.install(m_nfall, r.falloffType, r.reactionType,
                        r.falloffParameters);
 
-    // forward rxn order equals number of reactants, since rate
-    // coeff is defined in terms of the high-pressure limit
-    m_fwdOrder.push_back(r.reactants.size());
-
     // increment the falloff reaction counter
     ++m_nfall;
 }
@@ -514,9 +509,6 @@ void GasKinetics::addElementaryReaction(ReactionData& r)
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
-
-    // forward rxn order equals number of reactants
-    m_fwdOrder.push_back(r.reactants.size());
 }
 
 void GasKinetics::addThreeBodyReaction(ReactionData& r)
@@ -526,9 +518,6 @@ void GasKinetics::addThreeBodyReaction(ReactionData& r)
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
-
-    // forward rxn order equals number of reactants + 1
-    m_fwdOrder.push_back(r.reactants.size() + 1);
 
     m_3b_concm.install(nReactions(), r.thirdBodyEfficiencies,
                        r.default_3b_eff);
@@ -541,8 +530,6 @@ void GasKinetics::addPlogReaction(ReactionData& r)
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
     m_rfn.push_back(0.0);
-
-    m_fwdOrder.push_back(r.reactants.size());
 }
 
 void GasKinetics::addChebyshevReaction(ReactionData& r)
@@ -552,8 +539,6 @@ void GasKinetics::addChebyshevReaction(ReactionData& r)
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
     m_rfn.push_back(0.0);
-
-    m_fwdOrder.push_back(r.reactants.size());
 }
 
 void GasKinetics::installReagents(const ReactionData& r)

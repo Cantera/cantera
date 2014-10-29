@@ -123,8 +123,6 @@ protected:
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;
 
-    std::vector<size_t> m_fwdOrder;
-
     size_t m_nirrev;
     size_t m_nrev;
 
