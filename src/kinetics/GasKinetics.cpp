@@ -68,8 +68,6 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_plog_rates = right.m_plog_rates;
     m_cheb_rates = right.m_cheb_rates;
 
-    m_rxnstoich = right.m_rxnstoich;
-
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
     m_nrev = right.m_nrev;
@@ -81,9 +79,6 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_logp_ref = right.m_logp_ref;
     m_logc_ref  = right.m_logc_ref;
     m_logStandConc = right.m_logStandConc;
-    m_ropf = right.m_ropf;
-    m_ropr = right.m_ropr;
-    m_ropnet = right.m_ropnet;
     m_rfn_low = right.m_rfn_low;
     m_rfn_high = right.m_rfn_high;
     m_ROP_ok  = right.m_ROP_ok;
@@ -313,24 +308,6 @@ void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
      * reaction.
      */
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
-}
-
-void GasKinetics::getNetProductionRates(doublereal* net)
-{
-    updateROP();
-    m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
-}
-
-void GasKinetics::getCreationRates(doublereal* cdot)
-{
-    updateROP();
-    m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
-}
-
-void GasKinetics::getDestructionRates(doublereal* ddot)
-{
-    updateROP();
-    m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
 }
 
 void GasKinetics::processFalloffReactions()
@@ -581,9 +558,6 @@ void GasKinetics::addChebyshevReaction(ReactionData& r)
 
 void GasKinetics::installReagents(const ReactionData& r)
 {
-    m_ropf.push_back(0.0);     // extend by one for new rxn
-    m_ropr.push_back(0.0);
-    m_ropnet.push_back(0.0);
     size_t n, ns, m;
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
