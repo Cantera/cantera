@@ -1731,8 +1731,10 @@ class Parser(object):
             raise InputParseError('Undefined elements: ' + str(missingElements))
 
         speciesNames = ['']
+        speciesPerLine = max(int((80-21)/(speciesNameLength + 2)), 1)
+
         for i,s in enumerate(self.speciesList):
-            if i and not i % 5:
+            if i and not i % speciesPerLine:
                 speciesNames.append(' '*21)
             speciesNames[-1] += '{0:{1}s}'.format(s.label, speciesNameLength+2)
 
