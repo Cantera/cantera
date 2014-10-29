@@ -179,13 +179,14 @@ class NASA(ThermoModel):
 
     def to_cti(self, indent=0):
         prefix = ' '*indent
-        vals = ['{0: 15.8E}'.format(i) for i in self.coeffs]
         if len(self.coeffs) == 7:
+            vals = ['{0: 15.8E}'.format(i) for i in self.coeffs]
             lines = ['NASA([{0:.2f}, {1:.2f}],'.format(self.Tmin[0], self.Tmax[0]),
                      prefix+'     [{0}, {1}, {2},'.format(*vals[0:3]),
                      prefix+'      {0}, {1}, {2},'.format(*vals[3:6]),
                      prefix+'      {0}]),'.format(vals[6])]
         else:
+            vals = ['{0: 15.9E}'.format(i) for i in self.coeffs]
             lines = ['NASA9([{0:.2f}, {1:.2f}],'.format(self.Tmin[0], self.Tmax[0]),
                      prefix+'      [{0}, {1}, {2},'.format(*vals[0:3]),
                      prefix+'       {0}, {1}, {2},'.format(*vals[3:6]),
