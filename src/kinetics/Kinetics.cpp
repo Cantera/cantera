@@ -334,7 +334,44 @@ void Kinetics::finalize()
 }
 
 void Kinetics::addReaction(ReactionData& r) {
-    installReagents(r);
+    // vectors rk and pk are lists of species numbers, with repeated entries
+    // for species with stoichiometric coefficients > 1. This allows the
+    // reaction to be defined with unity reaction order for each reactant, and
+    // so the faster method 'multiply' can be used to compute the rate of
+    // progress instead of 'power'.
+    std::vector<size_t> rk;
+    for (size_t n = 0; n < r.reactants.size(); n++) {
+        double nsFlt = r.rstoich[n];
+        size_t ns = (size_t) nsFlt;
+        if ((double) ns != nsFlt) {
+            ns = std::max<size_t>(ns, 1);
+        }
+        if (r.rstoich[n] != 0.0) {
+            m_rrxn[r.reactants[n]][m_ii] += r.rstoich[n];
+        }
+        for (size_t m = 0; m < ns; m++) {
+            rk.push_back(r.reactants[n]);
+        }
+    }
+    m_reactants.push_back(rk);
+
+    std::vector<size_t> pk;
+    for (size_t n = 0; n < r.products.size(); n++) {
+        double nsFlt = r.pstoich[n];
+        size_t ns = (size_t) nsFlt;
+        if ((double) ns != nsFlt) {
+            ns = std::max<size_t>(ns, 1);
+        }
+        if (r.pstoich[n] != 0.0) {
+            m_prxn[r.products[n]][m_ii] += r.pstoich[n];
+        }
+        for (size_t m = 0; m < ns; m++) {
+            pk.push_back(r.products[n]);
+        }
+    }
+    m_products.push_back(pk);
+    m_rxnstoich.add(nReactions(), r);
+
     installGroups(nReactions(), r.rgroups, r.pgroups);
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);

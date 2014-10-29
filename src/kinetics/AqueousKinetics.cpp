@@ -339,6 +339,16 @@ void AqueousKinetics::addReaction(ReactionData& r)
     if (r.reactionType == ELEMENTARY_RXN) {
         addElementaryReaction(r);
     }
+
+    m_dn.push_back(accumulate(r.pstoich.begin(), r.pstoich.end(), 0.0) -
+                   accumulate(r.rstoich.begin(), r.rstoich.end(), 0.0));
+    if (r.reversible) {
+        m_revindex.push_back(nReactions());
+        m_nrev++;
+    } else {
+        m_irrev.push_back(nReactions());
+        m_nirrev++;
+    }
     Kinetics::addReaction(r);
 }
 
@@ -346,63 +356,6 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
 {
     // install rate coeff calculator
     m_rates.install(nReactions(), r);
-}
-
-void AqueousKinetics::installReagents(const ReactionData& r)
-{
-    size_t n, ns, m;
-    doublereal nsFlt;
-    doublereal reactantGlobalOrder = 0.0;
-    doublereal productGlobalOrder  = 0.0;
-    size_t rnum = nReactions();
-
-    std::vector<size_t> rk;
-    size_t nr = r.reactants.size();
-    for (n = 0; n < nr; n++) {
-        nsFlt = r.rstoich[n];
-        reactantGlobalOrder += nsFlt;
-        ns = (size_t) nsFlt;
-        if ((doublereal) ns != nsFlt) {
-            ns = std::max<size_t>(ns, 1);
-        }
-        if (r.rstoich[n] != 0.0) {
-            m_rrxn[r.reactants[n]][rnum] += r.rstoich[n];
-        }
-        for (m = 0; m < ns; m++) {
-            rk.push_back(r.reactants[n]);
-        }
-    }
-    m_reactants.push_back(rk);
-
-    std::vector<size_t> pk;
-    size_t np = r.products.size();
-    for (n = 0; n < np; n++) {
-        nsFlt = r.pstoich[n];
-        productGlobalOrder += nsFlt;
-        ns = (size_t) nsFlt;
-        if ((double) ns != nsFlt) {
-            ns = std::max<size_t>(ns, 1);
-        }
-        if (r.pstoich[n] != 0.0) {
-            m_prxn[r.products[n]][rnum] += r.pstoich[n];
-        }
-        for (m = 0; m < ns; m++) {
-            pk.push_back(r.products[n]);
-        }
-    }
-    m_products.push_back(pk);
-
-    m_rxnstoich.add(nReactions(), r);
-
-    if (r.reversible) {
-        m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
-        m_revindex.push_back(nReactions());
-        m_nrev++;
-    } else {
-        m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
-        m_irrev.push_back(nReactions());
-        m_nirrev++;
-    }
 }
 
 void AqueousKinetics::init()

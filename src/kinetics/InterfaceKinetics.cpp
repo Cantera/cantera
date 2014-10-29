@@ -798,6 +798,13 @@ void InterfaceKinetics::addReaction(ReactionData& r)
         addElementaryReaction(r);
     }
 
+    if (r.reversible) {
+        m_revindex.push_back(nReactions());
+        m_nrev++;
+    } else {
+        m_irrev.push_back(nReactions());
+        m_nirrev++;
+    }
     Kinetics::addReaction(r);
 
     m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
@@ -972,92 +979,6 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
     m_ioFlag = ioFlag;
     if (m_integrator) {
         m_integrator->setIOFlag(ioFlag);
-    }
-}
-
-void InterfaceKinetics::installReagents(const ReactionData& r)
-{
-    size_t n, ns, m;
-    doublereal nsFlt;
-
-    /*
-     * Obtain the current reaction index for the reaction that we
-     * are adding. The first reaction is labeled 0.
-     */
-    size_t rnum = nReactions();
-
-    // vectors rk and pk are lists of species numbers, with
-    // repeated entries for species with stoichiometric
-    // coefficients > 1. This allows the reaction to be defined
-    // with unity reaction order for each reactant, and so the
-    // faster method 'multiply' can be used to compute the rate of
-    // progress instead of 'power'.
-
-    std::vector<size_t> rk;
-    size_t nr = r.reactants.size();
-    for (n = 0; n < nr; n++) {
-        nsFlt = r.rstoich[n];
-        ns = (size_t) nsFlt;
-        if ((doublereal) ns != nsFlt) {
-            ns = std::max<size_t>(ns, 1);
-        }
-        /*
-         * Add to m_rrxn. m_rrxn is a vector of maps. m_rrxn has a length
-         * equal to the total number of species for each species, there
-         * exists a map, with the reaction number being the key, and the
-         * reactant stoichiometric coefficient being the value.
-         */
-        m_rrxn[r.reactants[n]][rnum] = nsFlt;
-        for (m = 0; m < ns; m++) {
-            rk.push_back(r.reactants[n]);
-        }
-    }
-    /*
-     * Now that we have rk[], we add it into the vector<vector_int> m_reactants
-     * in the rnum index spot. Thus m_reactants[rnum] yields a vector
-     * of reactants for the rnum'th reaction
-     */
-    m_reactants.push_back(rk);
-    std::vector<size_t> pk;
-    size_t np = r.products.size();
-    for (n = 0; n < np; n++) {
-        nsFlt = r.pstoich[n];
-        ns = (size_t) nsFlt;
-        if ((doublereal) ns != nsFlt) {
-            ns = std::max<size_t>(ns, 1);
-        }
-        /*
-         * Add to m_prxn. m_prxn is a vector of maps. m_prxn has a length
-         * equal to the total number of species for each species, there
-         * exists a map, with the reaction number being the key, and the
-         * product stoichiometric coefficient being the value.
-         */
-        m_prxn[r.products[n]][rnum] = nsFlt;
-        for (m = 0; m < ns; m++) {
-            pk.push_back(r.products[n]);
-        }
-    }
-    /*
-     * Now that we have pk[], we add it into the vector<vector_int> m_products
-     * in the rnum index spot. Thus m_products[rnum] yields a vector
-     * of products for the rnum'th reaction
-     */
-    m_products.push_back(pk);
-    /*
-     * Add this reaction to the stoichiometric coefficient manager. This
-     * calculates rates of species production from reaction rates of
-     * progress.
-     */
-    m_rxnstoich.add(nReactions(), r);
-    /*
-     * register reaction in lists of reversible and irreversible rxns.
-     */
-    if (r.reversible) {
-        m_revindex.push_back(nReactions());
-        m_nrev++;
-    } else {
-        m_irrev.push_back(nReactions());
-        m_nirrev++;
     }
 }
 
