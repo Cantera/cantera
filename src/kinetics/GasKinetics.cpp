@@ -13,7 +13,6 @@ using namespace std;
 namespace Cantera
 {
 GasKinetics::GasKinetics(thermo_t* thermo) :
-    Kinetics(),
     m_nfall(0),
     m_nirrev(0),
     m_nrev(0),
@@ -28,23 +27,10 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
     if (thermo != 0) {
         addPhase(*thermo);
     }
-    m_temp = 0.0;
 }
 
-GasKinetics::GasKinetics(const GasKinetics& right) :
-    Kinetics(),
-    m_nfall(0),
-    m_nirrev(0),
-    m_nrev(0),
-    m_logp_ref(0.0),
-    m_logc_ref(0.0),
-    m_logStandConc(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0),
-    m_pres(0.0),
-    m_finalized(false)
+GasKinetics::GasKinetics(const GasKinetics& right)
 {
-    m_temp = 0.0;
     *this = right;
 }
 
