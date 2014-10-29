@@ -160,11 +160,6 @@ protected:
     vector_fp m_grt;
 
 private:
-    size_t reactionNumber() {
-        return m_ii;
-    }
-    std::vector<std::map<int, doublereal> > m_stoich;
-
     void addElementaryReaction(ReactionData& r);
     void addThreeBodyReaction(ReactionData& r);
     void addFalloffReaction(ReactionData& r);

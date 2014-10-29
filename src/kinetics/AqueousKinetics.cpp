@@ -353,7 +353,7 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
     size_t iloc;
 
     // install rate coeff calculator
-    iloc = m_rates.install(reactionNumber(), r);
+    iloc = m_rates.install(nReactions(), r);
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
@@ -368,7 +368,7 @@ void AqueousKinetics::installReagents(const ReactionData& r)
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
     doublereal productGlobalOrder  = 0.0;
-    size_t rnum = reactionNumber();
+    size_t rnum = nReactions();
 
     std::vector<size_t> rk;
     size_t nr = r.reactants.size();
@@ -408,15 +408,15 @@ void AqueousKinetics::installReagents(const ReactionData& r)
 
     m_rkcn.push_back(0.0);
 
-    m_rxnstoich.add(reactionNumber(), r);
+    m_rxnstoich.add(nReactions(), r);
 
     if (r.reversible) {
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
-        m_revindex.push_back(reactionNumber());
+        m_revindex.push_back(nReactions());
         m_nrev++;
     } else {
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
-        m_irrev.push_back(reactionNumber());
+        m_irrev.push_back(nReactions());
         m_nirrev++;
     }
 }
