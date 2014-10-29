@@ -164,8 +164,6 @@ protected:
 private:
     void addElementaryReaction(ReactionData& r);
 
-    void installReagents(const ReactionData& r);
-
     /**
      * Update the equilibrium constants in molar units.
      */

@@ -779,6 +779,8 @@ public:
      */
     virtual void addReaction(ReactionData& r);
 
+    //! @deprecated To be removed after Cantera 2.2. No longer called as part
+    //!     of addReaction.
     virtual void installReagents(const ReactionData& r) {
         throw NotImplementedError("Kinetics::installReagents");
     }

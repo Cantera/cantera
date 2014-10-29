@@ -162,8 +162,6 @@ private:
     void addPlogReaction(ReactionData& r);
     void addChebyshevReaction(ReactionData& r);
 
-    virtual void installReagents(const ReactionData& r);
-
     //! Update the equilibrium constants in molar units.
     void updateKc();
 

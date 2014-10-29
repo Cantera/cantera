@@ -307,8 +307,6 @@ public:
 
     void addGlobalReaction(ReactionData& r);
 
-    void installReagents(const ReactionData& r);
-
     //! Update the equilibrium constants and stored electrochemical potentials
     //! in molar units for all reversible reactions and for all species.
     /*!
