@@ -1038,7 +1038,7 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
      * Obtain the current reaction index for the reaction that we
      * are adding. The first reaction is labeled 0.
      */
-    size_t rnum = reactionNumber();
+    size_t rnum = nReactions();
 
     // vectors rk and pk are lists of species numbers, with
     // repeated entries for species with stoichiometric
@@ -1102,15 +1102,15 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
      * calculates rates of species production from reaction rates of
      * progress.
      */
-    m_rxnstoich.add(reactionNumber(), r);
+    m_rxnstoich.add(nReactions(), r);
     /*
      * register reaction in lists of reversible and irreversible rxns.
      */
     if (r.reversible) {
-        m_revindex.push_back(reactionNumber());
+        m_revindex.push_back(nReactions());
         m_nrev++;
     } else {
-        m_irrev.push_back(reactionNumber());
+        m_irrev.push_back(nReactions());
         m_nirrev++;
     }
 }

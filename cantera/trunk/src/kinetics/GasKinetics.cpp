@@ -487,7 +487,7 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
 
     // add this reaction number to the list of
     // falloff reactions
-    m_fallindx.push_back(reactionNumber());
+    m_fallindx.push_back(nReactions());
 
     // install the enhanced third-body concentration
     // calculator for this reaction
@@ -510,7 +510,7 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
 void GasKinetics::addElementaryReaction(ReactionData& r)
 {
     // install rate coeff calculator
-    m_rates.install(reactionNumber(), r);
+    m_rates.install(nReactions(), r);
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
@@ -522,7 +522,7 @@ void GasKinetics::addElementaryReaction(ReactionData& r)
 void GasKinetics::addThreeBodyReaction(ReactionData& r)
 {
     // install rate coeff calculator
-    m_rates.install(reactionNumber(), r);
+    m_rates.install(nReactions(), r);
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
@@ -530,14 +530,14 @@ void GasKinetics::addThreeBodyReaction(ReactionData& r)
     // forward rxn order equals number of reactants + 1
     m_fwdOrder.push_back(r.reactants.size() + 1);
 
-    m_3b_concm.install(reactionNumber(), r.thirdBodyEfficiencies,
+    m_3b_concm.install(nReactions(), r.thirdBodyEfficiencies,
                        r.default_3b_eff);
 }
 
 void GasKinetics::addPlogReaction(ReactionData& r)
 {
     // install rate coefficient calculator
-    m_plog_rates.install(reactionNumber(), r);
+    m_plog_rates.install(nReactions(), r);
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
     m_rfn.push_back(0.0);
@@ -548,7 +548,7 @@ void GasKinetics::addPlogReaction(ReactionData& r)
 void GasKinetics::addChebyshevReaction(ReactionData& r)
 {
     // install rate coefficient calculator
-    m_cheb_rates.install(reactionNumber(), r);
+    m_cheb_rates.install(nReactions(), r);
 
     // add a dummy entry in m_rfn, where computed rate coeff will be put
     m_rfn.push_back(0.0);
@@ -562,7 +562,7 @@ void GasKinetics::installReagents(const ReactionData& r)
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;
     doublereal productGlobalOrder  = 0.0;
-    size_t rnum = reactionNumber();
+    size_t rnum = nReactions();
 
     std::vector<size_t> rk;
     size_t nr = r.reactants.size();
@@ -600,15 +600,15 @@ void GasKinetics::installReagents(const ReactionData& r)
     }
     m_products.push_back(pk);
     m_rkcn.push_back(0.0);
-    m_rxnstoich.add(reactionNumber(), r);
+    m_rxnstoich.add(nReactions(), r);
 
     if (r.reversible) {
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
-        m_revindex.push_back(reactionNumber());
+        m_revindex.push_back(nReactions());
         m_nrev++;
     } else {
         m_dn.push_back(productGlobalOrder - reactantGlobalOrder);
-        m_irrev.push_back(reactionNumber());
+        m_irrev.push_back(nReactions());
         m_nirrev++;
     }
 }

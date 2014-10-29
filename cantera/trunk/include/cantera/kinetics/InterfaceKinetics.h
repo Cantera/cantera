@@ -287,6 +287,8 @@ public:
      *  @deprecated This is a duplicate of Kinetics::nReactions()
      */
     size_t reactionNumber() const {
+        warn_deprecated("InterfaceKinetics::reactionNumber",
+            "To be removed after Cantera 2.2. Duplicate of nReactions().");
         return m_ii;
     }
 

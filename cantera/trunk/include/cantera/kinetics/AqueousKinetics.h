@@ -167,12 +167,6 @@ protected:
     //!@}
 
 private:
-
-    size_t reactionNumber() {
-        return m_ii;
-    }
-    std::vector<std::map<int, doublereal> > m_stoich;
-
     void addElementaryReaction(ReactionData& r);
 
     void installReagents(const ReactionData& r);
