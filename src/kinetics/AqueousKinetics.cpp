@@ -64,8 +64,6 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
 
     m_ROP_ok  = right.m_ROP_ok;
     m_temp = right.m_temp;
-    m_rfn = right.m_rfn;
-    m_rkcn = right.m_rkcn;
 
     m_conc = right.m_conc;
     m_grt = right.m_grt;
@@ -348,13 +346,8 @@ void AqueousKinetics::addReaction(ReactionData& r)
 
 void AqueousKinetics::addElementaryReaction(ReactionData& r)
 {
-    size_t iloc;
-
     // install rate coeff calculator
-    iloc = m_rates.install(nReactions(), r);
-
-    // add constant term to rate coeff value vector
-    m_rfn.push_back(r.rateCoeffParameters[0]);
+    m_rates.install(nReactions(), r);
 }
 
 void AqueousKinetics::installReagents(const ReactionData& r)
@@ -400,8 +393,6 @@ void AqueousKinetics::installReagents(const ReactionData& r)
         }
     }
     m_products.push_back(pk);
-
-    m_rkcn.push_back(0.0);
 
     m_rxnstoich.add(nReactions(), r);
 

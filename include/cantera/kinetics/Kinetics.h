@@ -984,6 +984,12 @@ protected:
     //! Representation of the product side of each reaction equation
     std::vector<std::string> m_productStrings;
 
+    //! Forward rate constant for each reaction
+    vector_fp m_rfn;
+
+    //! Reciprocal of the equilibrium constant in concentration units
+    vector_fp m_rkcn;
+
     //! Forward rate-of-progress for each reaction
     vector_fp m_ropf;
 

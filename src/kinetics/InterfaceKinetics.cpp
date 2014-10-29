@@ -148,8 +148,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_ROP_ok               = right.m_ROP_ok;
     m_temp                 = right.m_temp;
     m_logtemp              = right.m_logtemp;
-    m_rfn                  = right.m_rfn;
-    m_rkcn                 = right.m_rkcn;
     m_finalized            = right.m_finalized;
     m_has_coverage_dependence = right.m_has_coverage_dependence;
     m_has_electrochem_rxns = right.m_has_electrochem_rxns;
@@ -922,9 +920,6 @@ void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
         }
         m_ctrxn_resistivity_.push_back(rdata.filmResistivity);
     }
-
-    // add constant term to rate coeff value vector
-    m_rfn.push_back(rdata.rateCoeffParameters[0]);
 }
 
 void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
@@ -1012,9 +1007,6 @@ void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
             m_ctrxn_FwdOrdersList_.push_back(0);
         }
     }
-
-    // add constant term to rate coeff value vector
-    m_rfn.push_back(rdata.rateCoeffParameters[0]);
 }
 
 void InterfaceKinetics::setIOFlag(int ioFlag)
@@ -1029,10 +1021,6 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
 {
     size_t n, ns, m;
     doublereal nsFlt;
-    /*
-     * extend temporary storage by one for this rxn.
-     */
-    m_rkcn.push_back(0.0);
 
     /*
      * Obtain the current reaction index for the reaction that we

@@ -122,6 +122,13 @@ public:
     //! @name Reaction Rates Of Progress
     //! @{
 
+    //! Equilibrium constant for all reactions including the voltage term
+    /*!
+     *   Kc = exp(deltaG/RT)
+     *
+     *   where deltaG is the electrochemical potential difference between
+     *   products minus reactants.
+     */
     virtual void getEquilibriumConstants(doublereal* kc);
 
     /** values needed to convert from exchange current density to surface reaction rate.
@@ -638,17 +645,6 @@ protected:
 
     //! Current log of the temperature
     doublereal m_logtemp;
-
-    vector_fp m_rfn;
-
-    //! Equilibrium constant for all reactions including the voltage term
-    /*!
-     *   Kc = exp(deltaG/RT)
-     *
-     *   where deltaG is the electrochemical potential difference between
-     *   products minus reactants.
-     */
-    vector_fp m_rkcn;
 
     //! Boolean indicating whether mechanism has been finalized
     bool m_finalized;

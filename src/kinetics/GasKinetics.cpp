@@ -82,11 +82,9 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_rfn_high = right.m_rfn_high;
     m_ROP_ok  = right.m_ROP_ok;
     m_temp = right.m_temp;
-    m_rfn  = right.m_rfn;
     falloff_work = right.falloff_work;
     concm_3b_values = right.concm_3b_values;
     concm_falloff_values = right.concm_falloff_values;
-    m_rkcn = right.m_rkcn;
 
     m_conc = right.m_conc;
     m_grt = right.m_grt;
@@ -480,10 +478,6 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
     m_falloff_low_rates.install(m_nfall, r);
     m_rfn_low.push_back(r.rateCoeffParameters[0]);
 
-    // add a dummy entry in m_rf, where computed falloff
-    // rate coeff will be put
-    m_rfn.push_back(0.0);
-
     // add this reaction number to the list of
     // falloff reactions
     m_fallindx.push_back(nReactions());
@@ -504,21 +498,13 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
 
 void GasKinetics::addElementaryReaction(ReactionData& r)
 {
-    // install rate coeff calculator
     m_rates.install(nReactions(), r);
-
-    // add constant term to rate coeff value vector
-    m_rfn.push_back(r.rateCoeffParameters[0]);
 }
 
 void GasKinetics::addThreeBodyReaction(ReactionData& r)
 {
     // install rate coeff calculator
     m_rates.install(nReactions(), r);
-
-    // add constant term to rate coeff value vector
-    m_rfn.push_back(r.rateCoeffParameters[0]);
-
     m_3b_concm.install(nReactions(), r.thirdBodyEfficiencies,
                        r.default_3b_eff);
 }
@@ -527,18 +513,12 @@ void GasKinetics::addPlogReaction(ReactionData& r)
 {
     // install rate coefficient calculator
     m_plog_rates.install(nReactions(), r);
-
-    // add a dummy entry in m_rfn, where computed rate coeff will be put
-    m_rfn.push_back(0.0);
 }
 
 void GasKinetics::addChebyshevReaction(ReactionData& r)
 {
     // install rate coefficient calculator
     m_cheb_rates.install(nReactions(), r);
-
-    // add a dummy entry in m_rfn, where computed rate coeff will be put
-    m_rfn.push_back(0.0);
 }
 
 void GasKinetics::installReagents(const ReactionData& r)
@@ -584,7 +564,6 @@ void GasKinetics::installReagents(const ReactionData& r)
         }
     }
     m_products.push_back(pk);
-    m_rkcn.push_back(0.0);
     m_rxnstoich.add(nReactions(), r);
 
     if (r.reversible) {

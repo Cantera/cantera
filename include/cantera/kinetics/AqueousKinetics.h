@@ -159,9 +159,6 @@ protected:
     bool m_ROP_ok;
 
     doublereal m_temp;
-    vector_fp  m_rfn;
-
-    vector_fp m_rkcn;
     //!@}
 
 private:
