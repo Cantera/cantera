@@ -56,8 +56,6 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
     m_nfall = right.m_nfall;
     m_rates = right.m_rates;
     m_irrev = right.m_irrev;
-
-    m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
     m_nrev = right.m_nrev;
     m_rxntype = right.m_rxntype;
@@ -357,9 +355,6 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
 
     // add constant term to rate coeff value vector
     m_rfn.push_back(r.rateCoeffParameters[0]);
-
-    // forward rxn order equals number of reactants
-    m_fwdOrder.push_back(r.reactants.size());
 }
 
 void AqueousKinetics::installReagents(const ReactionData& r)

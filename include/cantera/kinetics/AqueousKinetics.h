@@ -139,8 +139,6 @@ protected:
 
     std::vector<size_t> m_irrev;
 
-    std::vector<size_t> m_fwdOrder;
-
     size_t m_nirrev;
     size_t m_nrev;
 
