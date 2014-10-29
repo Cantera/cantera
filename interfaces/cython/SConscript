@@ -62,6 +62,11 @@ cythonized = localenv.Command('cantera/_cantera.cpp', ['cantera/_cantera.pyx'],
 for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
     localenv.Depends(cythonized, f)
 
+for line in open('cantera/_cantera.pxd'):
+    m = re.search(r'from "(cantera.*?)"', line)
+    if m:
+        localenv.Depends('cantera/_cantera.cpp', '#include/' + m.group(1))
+
 script_ext = '.py' if os.name == 'nt' else ''
 localenv['py_ctml_writer'] = repr('scripts/ctml_writer%s' % script_ext)
 localenv['py_ck2cti'] = repr('scripts/ck2cti%s' % script_ext)
