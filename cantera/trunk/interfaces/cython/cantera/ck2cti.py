@@ -1736,7 +1736,7 @@ class Parser(object):
                 speciesNames.append(' '*21)
             speciesNames[-1] += '{0:{1}s}'.format(s.label, speciesNameLength+2)
 
-        speciesNames = '\n'.join(speciesNames).strip()
+        speciesNames = '\n'.join(line.rstrip() for line in speciesNames)
 
         lines = []
 
