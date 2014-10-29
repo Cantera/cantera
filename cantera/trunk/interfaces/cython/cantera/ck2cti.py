@@ -1772,20 +1772,21 @@ class Parser(object):
         for s in self.speciesList:
             lines.append(s.to_cti())
 
-        # Write the reactions
-        lines.append(delimiterLine)
-        lines.append('# Reaction data')
-        lines.append(delimiterLine)
+        if self.reactions:
+            # Write the reactions
+            lines.append(delimiterLine)
+            lines.append('# Reaction data')
+            lines.append(delimiterLine)
 
-        for i,r in enumerate(self.reactions):
-            lines.extend('# '+c for c in r.comment.split('\n') if c)
-            lines.append('\n# Reaction {0}'.format(i+1))
-            lines.append(r.to_cti())
+            for i,r in enumerate(self.reactions):
+                lines.extend('# '+c for c in r.comment.split('\n') if c)
+                lines.append('\n# Reaction {0}'.format(i+1))
+                lines.append(r.to_cti())
 
-        # Comment after the last reaction
-        lines.extend('# '+c for c in self.finalReactionComment.split('\n') if c)
+            # Comment after the last reaction
+            lines.extend('# '+c for c in self.finalReactionComment.split('\n') if c)
 
-        lines.append('')
+            lines.append('')
 
         f = open(outName, 'w')
         f.write('\n'.join(lines))
