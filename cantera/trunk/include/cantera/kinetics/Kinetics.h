@@ -11,6 +11,7 @@
 #define CT_KINETICS_H
 
 #include "cantera/thermo/ThermoPhase.h"
+#include "ReactionStoichMgr.h"
 #include "cantera/thermo/mix_defs.h"
 
 namespace Cantera
@@ -401,9 +402,7 @@ public:
      * @param fwdROP  Output vector containing forward rates
      *                of progress of the reactions. Length: m_ii.
      */
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-        throw NotImplementedError("Kinetics::getFwdRatesOfProgress");
-    }
+    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
 
     //!  Return the Reverse rates of progress of the reactions
     /*!
@@ -413,9 +412,7 @@ public:
      * @param revROP  Output vector containing reverse rates
      *                of progress of the reactions. Length: m_ii.
      */
-    virtual void getRevRatesOfProgress(doublereal* revROP) {
-        throw NotImplementedError("Kinetics::getRevRatesOfProgress");
-    }
+    virtual void getRevRatesOfProgress(doublereal* revROP);
 
     /**
      * Net rates of progress.  Return the net (forward - reverse) rates of
@@ -424,9 +421,7 @@ public:
      *
      * @param netROP  Output vector of the net ROP. Length: m_ii.
      */
-    virtual void getNetRatesOfProgress(doublereal* netROP) {
-        throw NotImplementedError("Kinetics::getNetRatesOfProgress");
-    }
+    virtual void getNetRatesOfProgress(doublereal* netROP);
 
     //! Return a vector of Equilibrium constants.
     /*!
@@ -567,9 +562,7 @@ public:
      *
      * @param cdot   Output vector of creation rates. Length: m_kk.
      */
-    virtual void getCreationRates(doublereal* cdot) {
-        throw NotImplementedError("Kinetics::getCreationRates");
-    }
+    virtual void getCreationRates(doublereal* cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -578,9 +571,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
-    virtual void getDestructionRates(doublereal* ddot) {
-        throw NotImplementedError("Kinetics::getDestructionRates");
-    }
+    virtual void getDestructionRates(doublereal* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return
@@ -590,9 +581,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
-    virtual void getNetProductionRates(doublereal* wdot) {
-        throw NotImplementedError("Kinetics::getNetProductionRates");
-    }
+    virtual void getNetProductionRates(doublereal* wdot);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -604,19 +593,14 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-        throw NotImplementedError("Kinetics::reactantStoichCoeff");
-    }
-
+    virtual double reactantStoichCoeff(size_t k, size_t i) const;
     /**
      * Stoichiometric coefficient of species k as a product in reaction i.
      *
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-        throw NotImplementedError("Kinetics::productStoichCoeff");
-    }
+    virtual double productStoichCoeff(size_t k, size_t i) const;
 
     //! Reactant order of species k in reaction i.
     /*!
@@ -872,6 +856,19 @@ public:
                      doublereal* phase_data);
 
 protected:
+    // Update internal rate-of-progress variables #m_ropf and #m_ropr.
+    virtual void updateROP() {
+        throw NotImplementedError("Kinetics::updateROP");
+    }
+
+    //! Stoichiometric manager for the reaction mechanism
+    /*!
+     *  This is the manager for the kinetics mechanism that handles turning
+     *  reaction extents into species production rates and also handles
+     *  turning thermo properties into reaction thermo properties.
+     */
+    ReactionStoichMgr m_rxnstoich;
+
     //! Number of reactions in the mechanism
     size_t m_ii;
 
@@ -908,6 +905,26 @@ protected:
      *       stoichiometric coefficients in the expression.
      */
     std::vector<std::vector<size_t> > m_products;
+
+    //!  m_rrxn is a vector of maps, containing the reactant
+    //!  stoichiometric coefficient information
+    /*!
+     *  m_rrxn has a length equal to the total number of species in the
+     *  kinetics object. For each species, there exists a map, with the
+     *  reaction number being the key, and the reactant stoichiometric
+     *  coefficient for the species being the value.
+     */
+    std::vector<std::map<size_t, doublereal> > m_rrxn;
+
+    //!  m_prxn is a vector of maps, containing the reactant
+    //!  stoichiometric coefficient information
+    /**
+     *  m_prxn is a vector of maps. m_prxn has a length equal to the total
+     *  number of species in the kinetics object. For each species, there
+     *  exists a map, with the reaction number being the key, and the product
+     *  stoichiometric coefficient for the species being the value.
+     */
+    std::vector<std::map<size_t, doublereal> > m_prxn;
 
     std::vector<int> m_rxntype;
 
@@ -966,6 +983,15 @@ protected:
 
     //! Representation of the product side of each reaction equation
     std::vector<std::string> m_productStrings;
+
+    //! Forward rate-of-progress for each reaction
+    vector_fp m_ropf;
+
+    //! Reverse rate-of-progress for each reaction
+    vector_fp m_ropr;
+
+    //! Net rate-of-progress for each reaction
+    vector_fp m_ropnet;
 
 private:
     std::map<size_t, std::vector<grouplist_t> > m_rgroups;

@@ -60,11 +60,14 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
         return *this;
     }
 
+    m_rxnstoich = right.m_rxnstoich;
     m_ii                = right.m_ii;
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
     m_reactants         = right.m_reactants;
     m_products          = right.m_products;
+    m_rrxn = right.m_rrxn;
+    m_prxn = right.m_prxn;
     m_rxntype = right.m_rxntype;
 
     m_thermo            = right.m_thermo; //  DANGER -> shallow pointer copy
@@ -79,6 +82,9 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_productStrings    = right.m_productStrings;
     m_rgroups = right.m_rgroups;
     m_pgroups = right.m_pgroups;
+    m_ropf = right.m_ropf;
+    m_ropr = right.m_ropr;
+    m_ropnet = right.m_ropnet;
 
     return *this;
 }
@@ -249,6 +255,54 @@ size_t Kinetics::speciesPhaseIndex(size_t k)
     return npos;
 }
 
+double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const
+{
+    return getValue(m_rrxn[kSpec], irxn, 0.0);
+}
+
+double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
+{
+    return getValue(m_prxn[kSpec], irxn, 0.0);
+}
+
+void Kinetics::getFwdRatesOfProgress(doublereal* fwdROP)
+{
+    updateROP();
+    std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
+}
+
+void Kinetics::getRevRatesOfProgress(doublereal* revROP)
+{
+    updateROP();
+    std::copy(m_ropr.begin(), m_ropr.end(), revROP);
+}
+
+void Kinetics::getNetRatesOfProgress(doublereal* netROP)
+{
+    updateROP();
+    std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
+}
+
+
+
+void Kinetics::getCreationRates(double* cdot)
+{
+    updateROP();
+    m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
+}
+
+void Kinetics::getDestructionRates(doublereal* ddot)
+{
+    updateROP();
+    m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
+}
+
+void Kinetics::getNetProductionRates(doublereal* net)
+{
+    updateROP();
+    m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
+}
+
 void Kinetics::addPhase(thermo_t& thermo)
 {
     // if not the first thermo object, set the start position
@@ -301,6 +355,9 @@ void Kinetics::addReaction(ReactionData& r) {
     m_reactantStrings.push_back(r.reactantString);
     m_productStrings.push_back(r.productString);
     m_rxntype.push_back(r.reactionType);
+    m_ropf.push_back(0.0);
+    m_ropr.push_back(0.0);
+    m_ropnet.push_back(0.0);
 }
 
 void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,

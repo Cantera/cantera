@@ -75,21 +75,6 @@ public:
 
     //! @name Reaction Rates Of Progress
     //@{
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-        updateROP();
-        std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
-    }
-
-    virtual void getRevRatesOfProgress(doublereal* revROP) {
-        updateROP();
-        std::copy(m_ropr.begin(), m_ropr.end(), revROP);
-    }
-
-    virtual void getNetRatesOfProgress(doublereal* netROP) {
-        updateROP();
-        std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
-    }
-
     virtual void getEquilibriumConstants(doublereal* kc);
 
     virtual void getDeltaGibbs(doublereal* deltaG);
@@ -99,25 +84,6 @@ public:
     virtual void getDeltaSSGibbs(doublereal* deltaG);
     virtual void getDeltaSSEnthalpy(doublereal* deltaH);
     virtual void getDeltaSSEntropy(doublereal* deltaS);
-
-    //! @}
-    //! @name Species Production Rates
-    //! @{
-
-    virtual void getNetProductionRates(doublereal* net) {
-        updateROP();
-        m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
-    }
-
-    virtual void getCreationRates(doublereal* cdot) {
-        updateROP();
-        m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
-    }
-
-    virtual void getDestructionRates(doublereal* ddot) {
-        updateROP();
-        m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
-    }
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -173,15 +139,10 @@ protected:
 
     std::vector<size_t> m_irrev;
 
-    ReactionStoichMgr m_rxnstoich;
-
     std::vector<size_t> m_fwdOrder;
 
     size_t m_nirrev;
     size_t m_nrev;
-
-    std::vector<std::map<size_t, doublereal> > m_rrxn;
-    std::vector<std::map<size_t, doublereal> > m_prxn;
 
     /**
      * Difference between the input global reactants order
@@ -197,9 +158,6 @@ protected:
 
     //! @name Aqueous kinetics data
     //!@{
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_ropnet;
     bool m_ROP_ok;
 
     doublereal m_temp;

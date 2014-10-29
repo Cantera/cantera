@@ -57,20 +57,13 @@ AqueousKinetics& AqueousKinetics::operator=(const AqueousKinetics& right)
     m_rates = right.m_rates;
     m_irrev = right.m_irrev;
 
-    m_rxnstoich = right.m_rxnstoich;
-
     m_fwdOrder = right.m_fwdOrder;
     m_nirrev = right.m_nirrev;
     m_nrev = right.m_nrev;
     m_rxntype = right.m_rxntype;
-    m_rrxn = right.m_rrxn;
-    m_prxn = right.m_prxn;
     m_dn = right.m_dn;
     m_revindex = right.m_revindex;
 
-    m_ropf = right.m_ropf;
-    m_ropr = right.m_ropr;
-    m_ropnet = right.m_ropnet;
     m_ROP_ok  = right.m_ROP_ok;
     m_temp = right.m_temp;
     m_rfn = right.m_rfn;
@@ -371,10 +364,6 @@ void AqueousKinetics::addElementaryReaction(ReactionData& r)
 
 void AqueousKinetics::installReagents(const ReactionData& r)
 {
-
-    m_ropf.push_back(0.0);     // extend by one for new rxn
-    m_ropr.push_back(0.0);
-    m_ropnet.push_back(0.0);
     size_t n, ns, m;
     doublereal nsFlt;
     doublereal reactantGlobalOrder = 0.0;

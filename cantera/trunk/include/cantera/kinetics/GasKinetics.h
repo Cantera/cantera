@@ -52,32 +52,9 @@ public:
         return cGasKinetics;
     }
 
-    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-        return getValue(m_rrxn[k], i, 0.0);
-    }
-
-    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-        return getValue(m_prxn[k], i, 0.0);
-    }
-
     //! @}
     //! @name Reaction Rates Of Progress
     //! @{
-
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-        updateROP();
-        std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
-    }
-
-    virtual void getRevRatesOfProgress(doublereal* revROP) {
-        updateROP();
-        std::copy(m_ropr.begin(), m_ropr.end(), revROP);
-    }
-
-    virtual void getNetRatesOfProgress(doublereal* netROP) {
-        updateROP();
-        std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
-    }
 
     virtual void getEquilibriumConstants(doublereal* kc);
     virtual void getDeltaGibbs(doublereal* deltaG);
@@ -87,14 +64,6 @@ public:
     virtual void getDeltaSSGibbs(doublereal* deltaG);
     virtual void getDeltaSSEnthalpy(doublereal* deltaH);
     virtual void getDeltaSSEntropy(doublereal* deltaS);
-
-    //! @}
-    //! @name Species Production Rates
-    //! @{
-
-    virtual void getNetProductionRates(doublereal* net);
-    virtual void getCreationRates(doublereal* cdot);
-    virtual void getDestructionRates(doublereal* ddot);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -154,15 +123,10 @@ protected:
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;
 
-    ReactionStoichMgr m_rxnstoich;
-
     std::vector<size_t> m_fwdOrder;
 
     size_t m_nirrev;
     size_t m_nrev;
-
-    std::vector<std::map<size_t, doublereal> > m_rrxn;
-    std::vector<std::map<size_t, doublereal> > m_prxn;
 
     /**
      * Difference between the input global reactants order
@@ -178,9 +142,6 @@ protected:
     doublereal m_logp_ref;
     doublereal m_logc_ref;
     doublereal m_logStandConc;
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_ropnet;
     vector_fp m_rfn_low;
     vector_fp m_rfn_high;
     bool m_ROP_ok;

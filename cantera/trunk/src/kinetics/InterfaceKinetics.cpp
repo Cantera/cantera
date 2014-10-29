@@ -122,11 +122,8 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_rates                = right.m_rates;
     m_redo_rates           = right.m_redo_rates;
     m_irrev                = right.m_irrev;
-    m_rxnstoich            = right.m_rxnstoich;
     m_nirrev               = right.m_nirrev;
     m_nrev                 = right.m_nrev;
-    m_rrxn                 = right.m_rrxn;
-    m_prxn                 = right.m_prxn;
     m_conc                 = right.m_conc;
     m_actConc              = right.m_actConc;
     m_mu0                  = right.m_mu0;
@@ -148,9 +145,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_ProdStanConcReac     = right.m_ProdStanConcReac;
     m_logp0                = right.m_logp0;
     m_logc0                = right.m_logc0;
-    m_ropf                 = right.m_ropf;
-    m_ropr                 = right.m_ropr;
-    m_ropnet               = right.m_ropnet;
     m_ROP_ok               = right.m_ROP_ok;
     m_temp                 = right.m_temp;
     m_logtemp              = right.m_logtemp;
@@ -377,24 +371,6 @@ void InterfaceKinetics::checkPartialEquil()
     }
 }
 
-void InterfaceKinetics::getFwdRatesOfProgress(doublereal* fwdROP)
-{
-    updateROP();
-    std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
-}
-
-void InterfaceKinetics::getRevRatesOfProgress(doublereal* revROP)
-{
-    updateROP();
-    std::copy(m_ropr.begin(), m_ropr.end(), revROP);
-}
-
-void InterfaceKinetics::getNetRatesOfProgress(doublereal* netROP)
-{
-    updateROP();
-    std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
-}
-
 void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 {
     updateMu0();
@@ -443,24 +419,6 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
         m_ProdStanConcReac[i] = 1.0;
     }
     m_rxnstoich.multiplyReactants(DATA_PTR(m_StandardConc), DATA_PTR(m_ProdStanConcReac));
-}
-
-void InterfaceKinetics::getCreationRates(doublereal* cdot)
-{
-    updateROP();
-    m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
-}
-
-void InterfaceKinetics::getDestructionRates(doublereal* ddot)
-{
-    updateROP();
-    m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
-}
-
-void InterfaceKinetics::getNetProductionRates(doublereal* net)
-{
-    updateROP();
-    m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
 }
 
 void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
@@ -1074,9 +1032,6 @@ void InterfaceKinetics::installReagents(const ReactionData& r)
     /*
      * extend temporary storage by one for this rxn.
      */
-    m_ropf.push_back(0.0);
-    m_ropr.push_back(0.0);
-    m_ropnet.push_back(0.0);
     m_rkcn.push_back(0.0);
 
     /*
@@ -1310,16 +1265,6 @@ int InterfaceKinetics::phaseStability(const size_t iphase) const
         throw CanteraError("InterfaceKinetics:phaseStability()", "out of bounds");
     }
     return m_phaseIsStable[iphase];
-}
-
-doublereal InterfaceKinetics::reactantStoichCoeff(size_t kSpecKin, size_t irxn) const
-{
-    return getValue(m_rrxn[kSpecKin], irxn, 0.0);
-}
-
-doublereal InterfaceKinetics::productStoichCoeff(size_t kSpecKin, size_t irxn) const
-{
-    return getValue(m_prxn[kSpecKin], irxn, 0.0);
 }
 
 void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStable)

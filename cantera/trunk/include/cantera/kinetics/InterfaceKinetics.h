@@ -14,7 +14,6 @@
 
 #include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
-#include "ReactionStoichMgr.h"
 
 namespace Cantera
 {
@@ -123,10 +122,6 @@ public:
     //! @name Reaction Rates Of Progress
     //! @{
 
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
-    virtual void getRevRatesOfProgress(doublereal* revROP);
-    virtual void getNetRatesOfProgress(doublereal* netROP);
-
     virtual void getEquilibriumConstants(doublereal* kc);
 
     /** values needed to convert from exchange current density to surface reaction rate.
@@ -154,37 +149,10 @@ public:
     virtual void getDeltaSSEntropy(doublereal* deltaS);
 
     //! @}
-    //! @name Species Production Rates
-    //! @{
-
-    virtual void getCreationRates(doublereal* cdot);
-    virtual void getDestructionRates(doublereal* ddot);
-    virtual void getNetProductionRates(doublereal* net);
-
-    //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    //! Provide a reactant stoichiometric coefficient
-    /*!
-     *  @param[in] kSpecKin    Species index within the kinetics object
-     *  @param[in] irxn        Reaction index
-     *
-     *  @return  Returns the reactant stoichiometic coefficient within the reaction
-     */
-    virtual doublereal reactantStoichCoeff(size_t kSpecKin, size_t irxn) const;
-
-    //! Provide a product stoichiometric coefficient
-    /*!
-     *  @param[in] kSpecKin    Species index within the kinetics object
-     *  @param[in] irxn        Reaction index
-     *
-     *  @return  Returns the product stoichiometic coefficient within the reaction
-     */
-    virtual doublereal productStoichCoeff(size_t kSpecKin, size_t irxn) const;
-
     virtual void getActivityConcentrations(doublereal* const conc);
-
 
     //! Return the charge transfer rxn Beta parameter for the ith reaction
     /*!
@@ -449,39 +417,11 @@ protected:
      */
     std::vector<size_t> m_irrev;
 
-    //! Stoichiometric manager for the reaction mechanism
-    /*!
-     *  This is the manager for the kinetics mechanism that handles turning
-     *  reaction extents into species production rates and also handles
-     *  turning thermo properties into reaction thermo properties.
-     */
-    ReactionStoichMgr m_rxnstoich;
-
     //! Number of irreversible reactions in the mechanism
     size_t m_nirrev;
 
     //! Number of reversible reactions in the mechanism
     size_t m_nrev;
-
-    //!  m_rrxn is a vector of maps, containing the reactant
-    //!  stoichiometric coefficient information
-    /*!
-     *  m_rrxn has a length equal to the total number of species in the
-     *  kinetics object. For each species, there exists a map, with the
-     *  reaction number being the key, and the reactant stoichiometric
-     *  coefficient for the species being the value.
-     */
-    std::vector<std::map<size_t, doublereal> > m_rrxn;
-
-    //!  m_prxn is a vector of maps, containing the reactant
-    //!  stoichiometric coefficient information
-    /**
-     *  m_prxn is a vector of maps. m_prxn has a length equal to the total
-     *  number of species in the kinetics object. For each species, there
-     *  exists a map, with the reaction number being the key, and the product
-     *  stoichiometric coefficient for the species being the value.
-     */
-    std::vector<std::map<size_t, doublereal> > m_prxn;
 
 public:
     //! Vector of additional information about each reaction
@@ -688,9 +628,6 @@ protected:
 
     doublereal m_logp0;
     doublereal m_logc0;
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_ropnet;
 
     bool m_ROP_ok;
 
