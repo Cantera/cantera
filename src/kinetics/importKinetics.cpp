@@ -670,19 +670,8 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
                                + int2str(np) + ", is not equal to 3 or 4");
         }
     } else if (type == "SRI") {
-        if (np == 5) {
-            rdata.falloffType = SRI5_FALLOFF;
-            if (c[2] < 0.0) {
-                throw CanteraError("getFalloff()", "SRI5 m_c parameter is less than zero: " + fp2str(c[2]));
-            }
-            if (c[3] < 0.0) {
-                throw CanteraError("getFalloff()", "SRI5 m_d parameter is less than zero: " + fp2str(c[3]));
-            }
-        } else if (np == 3) {
-            rdata.falloffType = SRI3_FALLOFF;
-            if (c[2] < 0.0) {
-                throw CanteraError("getFalloff()", "SRI3 m_c parameter is less than zero: " + fp2str(c[2]));
-            }
+        if (np == 3 || np == 5) {
+            rdata.falloffType = SRI_FALLOFF;
         } else {
             throw CanteraError("getFalloff()", "SRI parameterization is specified by number of parameters, "
                                + int2str(np) + ", is not equal to 3 or 5");

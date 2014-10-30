@@ -172,80 +172,7 @@ protected:
     doublereal m_t2;
 };
 
-//! The 3-parameter SRI falloff function for <I>F</I>
-/*!
- * The falloff function defines the value of \f$ F \f$ in the following
- * rate expression
- *
- *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
- *  where
- *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
- *
- *  \f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n \f]
- *      where
- *  \f[ n = \frac{1.0}{1.0 + {\log_{10} P_r}^2} \f]
- *
- *  \f$ c \f$ s required to greater than or equal to zero. If it is zero,
- *  then the corresponding term is set to zero.
- *
- * @ingroup falloffGroup
- */
-class SRI3 : public Falloff
-{
-public:
-    //! Constructor
-    SRI3() : m_a(-1.0), m_b(-1.0), m_c(-1.0) {}
-
-    //! Initialization of the object
-    /*!
-     * @param c Vector of three doubles: The doubles are the parameters,
-     *          a, b, and c of the SRI parameterization
-     */
-    virtual void init(const vector_fp& c) {
-        if (c[2] < 0.0) {
-            throw CanteraError("SRI3::init()",
-                               "m_c parameter is less than zero: " + fp2str(c[2]));
-        }
-        m_a = c[0];
-        m_b = c[1];
-        m_c = c[2];
-    }
-
-    //! Update the temperature parameters in the representation
-    /*!
-     *   @param T         Temperature (Kelvin)
-     *   @param work      Vector of working space, length 1, representing the
-     *                    temperature-dependent part of the parameterization.
-     */
-    virtual void updateTemp(doublereal T, doublereal* work) const {
-        *work = m_a * exp(- m_b / T);
-        if (m_c != 0.0) {
-            *work += exp(- T/m_c);
-        }
-    }
-
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
-        doublereal lpr = log10(std::max(pr,SmallNumber));
-        doublereal xx = 1.0/(1.0 + lpr*lpr);
-        return pow(*work , xx);
-    }
-
-    virtual size_t workSize() {
-        return 1;
-    }
-
-protected:
-    //! parameter a in the 3-parameter SRI falloff function. Dimensionless.
-    doublereal m_a;
-
-    //! parameter b in the 3-parameter SRI falloff function. [K]
-    doublereal m_b;
-
-    //! parameter c in the 3-parameter SRI falloff function. [K]
-    doublereal m_c;
-};
-
-//! The 5-parameter SRI falloff function.
+//! The SRI falloff function
 /*!
  * The falloff function defines the value of \f$ F \f$ in the following
  * rate expression
@@ -266,31 +193,38 @@ protected:
  *
  * @ingroup falloffGroup
  */
-class SRI5 : public Falloff
+class SRI : public Falloff
 {
 public:
     //! Constructor
-    SRI5() : m_a(-1.0), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {}
+    SRI() : m_a(-1.0), m_b(-1.0), m_c(-1.0), m_d(-1.0), m_e(-1.0) {}
 
     //! Initialization of the object
     /*!
-     * @param c Vector of five doubles: The doubles are the parameters,
-     *          a, b, c, d, and e of the SRI parameterization
+     * @param c Vector of three or five doubles: The doubles are the parameters,
+     *          a, b, c, d (optional; default 1.0), and e (optional; default
+     *          0.0) of the SRI parameterization
      */
     virtual void init(const vector_fp& c) {
         if (c[2] < 0.0) {
-            throw CanteraError("SRI5::init()",
+            throw CanteraError("SRI::init()",
                                "m_c parameter is less than zero: " + fp2str(c[2]));
-        }
-        if (c[3] < 0.0) {
-            throw CanteraError("SRI5::init()",
-                               "m_d parameter is less than zero: " + fp2str(c[3]));
         }
         m_a = c[0];
         m_b = c[1];
         m_c = c[2];
-        m_d = c[3];
-        m_e = c[4];
+
+        if (c.size() == 5) {
+            if (c[3] < 0.0) {
+                throw CanteraError("SRI::init()",
+                                   "m_d parameter is less than zero: " + fp2str(c[3]));
+            }
+            m_d = c[3];
+            m_e = c[4];
+        } else {
+            m_d = 1.0;
+            m_e = 0.0;
+        }
     }
 
     //! Update the temperature parameters in the representation
