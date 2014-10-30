@@ -133,8 +133,7 @@ const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
 //@{
 const int SIMPLE_FALLOFF = 100;
 const int TROE_FALLOFF = 110;
-const int SRI3_FALLOFF  = 112;
-const int SRI5_FALLOFF  = 113;
+const int SRI_FALLOFF  = 112;
 //@}
 }
 
