@@ -9,18 +9,12 @@
 #ifndef CT_GASKINETICS_H
 #define CT_GASKINETICS_H
 
-#include "Kinetics.h"
-#include "ReactionStoichMgr.h"
+#include "BulkKinetics.h"
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"
-#include "RateCoeffMgr.h"
 
 namespace Cantera
 {
-
-// forward references
-class Enhanced3BConc;
-class ReactionData;
 
 /**
  * Kinetics manager for elementary gas-phase chemistry. This
@@ -28,7 +22,7 @@ class ReactionData;
  * expressions for low-density gases.
  * @ingroup kinetics
  */
-class GasKinetics : public Kinetics
+class GasKinetics : public BulkKinetics
 {
 public:
     //! @name Constructors and General Information
@@ -39,12 +33,6 @@ public:
      *  @param thermo  Pointer to the gas ThermoPhase (optional)
      */
     GasKinetics(thermo_t* thermo = 0);
-
-    //! Copy Constructor
-    GasKinetics(const GasKinetics& right);
-
-    //! Assignment operator
-    GasKinetics& operator=(const GasKinetics& right);
 
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
@@ -57,31 +45,7 @@ public:
     //! @{
 
     virtual void getEquilibriumConstants(doublereal* kc);
-    virtual void getDeltaGibbs(doublereal* deltaG);
-    virtual void getDeltaEnthalpy(doublereal* deltaH);
-    virtual void getDeltaEntropy(doublereal* deltaS);
-
-    virtual void getDeltaSSGibbs(doublereal* deltaG);
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH);
-    virtual void getDeltaSSEntropy(doublereal* deltaS);
-
-    //! @}
-    //! @name Reaction Mechanism Informational Query Routines
-    //! @{
-
-    virtual bool isReversible(size_t i) {
-        if (std::find(m_revindex.begin(), m_revindex.end(), i)
-                < m_revindex.end()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     virtual void getFwdRateConstants(doublereal* kfwd);
-
-    virtual void getRevRateConstants(doublereal* krev,
-                                     bool doIrreversible = false);
 
     //! @}
     //! @name Reaction Mechanism Setup Routines
@@ -111,29 +75,14 @@ protected:
 
     Rate1<Arrhenius>                    m_falloff_low_rates;
     Rate1<Arrhenius>                    m_falloff_high_rates;
-    Rate1<Arrhenius>                    m_rates;
 
     FalloffMgr                          m_falloffn;
 
     ThirdBodyMgr<Enhanced3BConc>        m_3b_concm;
     ThirdBodyMgr<Enhanced3BConc>        m_falloff_concm;
 
-    std::vector<size_t> m_irrev;
-
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;
-
-    size_t m_nirrev;
-    size_t m_nrev;
-
-    /**
-     * Difference between the input global reactants order
-     * and the input global products order. Changed to a double
-     * to account for the fact that we can have real-valued
-     * stoichiometries.
-     */
-    vector_fp  m_dn;
-    std::vector<size_t> m_revindex;
 
     //! @name Reaction rate data
     //!@{
@@ -142,21 +91,15 @@ protected:
     doublereal m_logStandConc;
     vector_fp m_rfn_low;
     vector_fp m_rfn_high;
-    bool m_ROP_ok;
 
-    doublereal m_temp;
     doublereal m_pres; //!< Last pressure at which rates were evaluated
     vector_fp falloff_work;
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
     //!@}
 
-    vector_fp m_conc;
     void processFalloffReactions();
-    vector_fp m_grt;
 
-private:
-    void addElementaryReaction(ReactionData& r);
     void addThreeBodyReaction(ReactionData& r);
     void addFalloffReaction(ReactionData& r);
     void addPlogReaction(ReactionData& r);
