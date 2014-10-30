@@ -13,73 +13,13 @@ using namespace std;
 namespace Cantera
 {
 GasKinetics::GasKinetics(thermo_t* thermo) :
+    BulkKinetics(thermo),
     m_nfall(0),
-    m_nirrev(0),
-    m_nrev(0),
     m_logp_ref(0.0),
     m_logc_ref(0.0),
     m_logStandConc(0.0),
-    m_ROP_ok(false),
-    m_temp(0.0),
-    m_pres(0.0),
-    m_finalized(false)
+    m_pres(0.0)
 {
-    if (thermo != 0) {
-        addPhase(*thermo);
-    }
-}
-
-GasKinetics::GasKinetics(const GasKinetics& right)
-{
-    *this = right;
-}
-
-GasKinetics& GasKinetics::operator=(const GasKinetics& right)
-{
-    if (this == &right) {
-        return *this;
-    }
-
-    Kinetics::operator=(right);
-
-    m_nfall = right.m_nfall;
-    m_fallindx = right.m_fallindx;
-    m_falloff_low_rates = right.m_falloff_low_rates;
-    m_falloff_high_rates = right.m_falloff_high_rates;
-    m_rates = right.m_rates;
-    m_falloffn = right.m_falloffn;
-    m_3b_concm = right.m_3b_concm;
-    m_falloff_concm = right.m_falloff_concm;
-    m_irrev = right.m_irrev;
-    m_plog_rates = right.m_plog_rates;
-    m_cheb_rates = right.m_cheb_rates;
-
-    m_nirrev = right.m_nirrev;
-    m_nrev = right.m_nrev;
-    m_rrxn = right.m_rrxn;
-    m_prxn = right.m_prxn;
-    m_dn = right.m_dn;
-    m_revindex = right.m_revindex;
-
-    m_logp_ref = right.m_logp_ref;
-    m_logc_ref  = right.m_logc_ref;
-    m_logStandConc = right.m_logStandConc;
-    m_rfn_low = right.m_rfn_low;
-    m_rfn_high = right.m_rfn_high;
-    m_ROP_ok  = right.m_ROP_ok;
-    m_temp = right.m_temp;
-    falloff_work = right.falloff_work;
-    concm_3b_values = right.concm_3b_values;
-    concm_falloff_values = right.concm_falloff_values;
-
-    m_conc = right.m_conc;
-    m_grt = right.m_grt;
-    m_finalized = right.m_finalized;
-
-    throw CanteraError("GasKinetics::operator=()",
-                       "Unfinished implementation");
-
-    return *this;
 }
 
 Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
@@ -166,13 +106,13 @@ void GasKinetics::updateKc()
     m_rxnstoich.getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (size_t i = 0; i < m_nrev; i++) {
+    for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
                                 BigNumber);
     }
 
-    for (size_t i = 0; i != m_nirrev; ++i) {
+    for (size_t i = 0; i != m_irrev.size(); ++i) {
         m_rkcn[ m_irrev[i] ] = 0.0;
     }
 }
@@ -194,103 +134,6 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     // force an update of T-dependent properties, so that m_rkcn will
     // be updated before it is used next.
     m_temp = 0.0;
-}
-
-void GasKinetics::getDeltaGibbs(doublereal* deltaG)
-{
-    /*
-     * Get the chemical potentials of the species in the
-     * ideal gas solution.
-     */
-    thermo().getChemPotentials(&m_grt[0]);
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
-}
-
-void GasKinetics::getDeltaEnthalpy(doublereal* deltaH)
-{
-    /*
-     * Get the partial molar enthalpy of all species in the
-     * ideal gas.
-     */
-    thermo().getPartialMolarEnthalpies(&m_grt[0]);
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
-}
-
-void GasKinetics::getDeltaEntropy(doublereal* deltaS)
-{
-    /*
-     * Get the partial molar entropy of all species in the
-     * solid solution.
-     */
-    thermo().getPartialMolarEntropies(&m_grt[0]);
-    /*
-     * Use the stoichiometric manager to find deltaS for each
-     * reaction.
-     */
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
-}
-
-void GasKinetics::getDeltaSSGibbs(doublereal* deltaG)
-{
-    /*
-     *  Get the standard state chemical potentials of the species.
-     *  This is the array of chemical potentials at unit activity
-     *  We define these here as the chemical potentials of the pure
-     *  species at the temperature and pressure of the solution.
-     */
-    thermo().getStandardChemPotentials(&m_grt[0]);
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
-}
-
-void GasKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
-{
-    /*
-     *  Get the standard state enthalpies of the species.
-     *  This is the array of chemical potentials at unit activity
-     *  We define these here as the enthalpies of the pure
-     *  species at the temperature and pressure of the solution.
-     */
-    thermo().getEnthalpy_RT(&m_grt[0]);
-    doublereal RT = thermo().temperature() * GasConstant;
-    for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= RT;
-    }
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
-}
-
-void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
-{
-    /*
-     *  Get the standard state entropy of the species.
-     *  We define these here as the entropies of the pure
-     *  species at the temperature and pressure of the solution.
-     */
-    thermo().getEntropy_R(&m_grt[0]);
-    doublereal R = GasConstant;
-    for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= R;
-    }
-    /*
-     * Use the stoichiometric manager to find deltaS for each
-     * reaction.
-     */
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 
 void GasKinetics::processFalloffReactions()
@@ -346,19 +189,15 @@ void GasKinetics::updateROP()
     // copy the forward rates to the reverse rates
     copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
-    // for reverse rates computed from thermochemistry, multiply
-    // the forward rates copied into m_ropr by the reciprocals of
-    // the equilibrium constants
+    // for reverse rates computed from thermochemistry, multiply the forward
+    // rates copied into m_ropr by the reciprocals of the equilibrium constants
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
     m_rxnstoich.multiplyReactants(&m_conc[0], &m_ropf[0]);
-    //m_reactantStoich.multiply(m_conc.begin(), ropf.begin());
 
-    // for reversible reactions, multiply ropr by concentration
-    // products
+    // for reversible reactions, multiply ropr by concentration products
     m_rxnstoich.multiplyRevProducts(&m_conc[0], &m_ropr[0]);
-    //m_revProductStoich.multiply(m_conc.begin(), ropr.begin());
 
     for (size_t j = 0; j != m_ii; ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
@@ -389,10 +228,6 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
         m_3b_concm.multiply(&m_ropf[0], &concm_3b_values[0]);
     }
 
-    /*
-     * This routine is hardcoded to replace some of the values
-     * of the ropf vector.
-     */
     if (m_nfall) {
         processFalloffReactions();
     }
@@ -402,28 +237,6 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
 
     for (size_t i = 0; i < m_ii; i++) {
         kfwd[i] = m_ropf[i];
-    }
-}
-
-void GasKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
-{
-    /*
-     * go get the forward rate constants. -> note, we don't
-     * really care about speed or redundancy in these
-     * informational routines.
-     */
-    getFwdRateConstants(krev);
-
-    if (doIrreversible) {
-        getEquilibriumConstants(&m_ropnet[0]);
-        for (size_t i = 0; i < m_ii; i++) {
-            krev[i] /=  m_ropnet[i];
-        }
-    } else {
-        // m_rkcn[] is zero for irreversible reactions
-        for (size_t i = 0; i < m_ii; i++) {
-            krev[i] *= m_rkcn[i];
-        }
     }
 }
 
@@ -451,17 +264,7 @@ void GasKinetics::addReaction(ReactionData& r)
     }
 
     // operations common to all reaction types
-    m_dn.push_back(accumulate(r.pstoich.begin(), r.pstoich.end(), 0.0) -
-                   accumulate(r.rstoich.begin(), r.rstoich.end(), 0.0));
-
-    if (r.reversible) {
-        m_revindex.push_back(nReactions());
-        m_nrev++;
-    } else {
-        m_irrev.push_back(nReactions());
-        m_nirrev++;
-    }
-    Kinetics::addReaction(r);
+    BulkKinetics::addReaction(r);
 }
 
 void GasKinetics::addFalloffReaction(ReactionData& r)
@@ -474,17 +277,15 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
     m_falloff_low_rates.install(m_nfall, r);
     m_rfn_low.push_back(r.rateCoeffParameters[0]);
 
-    // add this reaction number to the list of
-    // falloff reactions
+    // add this reaction number to the list of falloff reactions
     m_fallindx.push_back(nReactions());
 
-    // install the enhanced third-body concentration
-    // calculator for this reaction
+    // install the enhanced third-body concentration calculator for this
+    // reaction
     m_falloff_concm.install(m_nfall, r.thirdBodyEfficiencies,
                             r.default_3b_eff);
 
-    // install the falloff function calculator for
-    // this reaction
+    // install the falloff function calculator for this reaction
     m_falloffn.install(m_nfall, r.falloffType, r.reactionType,
                        r.falloffParameters);
 
@@ -492,14 +293,8 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
     ++m_nfall;
 }
 
-void GasKinetics::addElementaryReaction(ReactionData& r)
-{
-    m_rates.install(nReactions(), r);
-}
-
 void GasKinetics::addThreeBodyReaction(ReactionData& r)
 {
-    // install rate coeff calculator
     m_rates.install(nReactions(), r);
     m_3b_concm.install(nReactions(), r.thirdBodyEfficiencies,
                        r.default_3b_eff);
@@ -507,44 +302,26 @@ void GasKinetics::addThreeBodyReaction(ReactionData& r)
 
 void GasKinetics::addPlogReaction(ReactionData& r)
 {
-    // install rate coefficient calculator
     m_plog_rates.install(nReactions(), r);
 }
 
 void GasKinetics::addChebyshevReaction(ReactionData& r)
 {
-    // install rate coefficient calculator
     m_cheb_rates.install(nReactions(), r);
 }
 
 void GasKinetics::init()
 {
-    m_kk = thermo().nSpecies();
-    m_rrxn.resize(m_kk);
-    m_prxn.resize(m_kk);
-    m_conc.resize(m_kk);
-    m_grt.resize(m_kk);
+    BulkKinetics::init();
     m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
 }
 
 void GasKinetics::finalize()
 {
-    if (!m_finalized) {
-        falloff_work.resize(m_falloffn.workSize());
-        concm_3b_values.resize(m_3b_concm.workSize());
-        concm_falloff_values.resize(m_falloff_concm.workSize());
-        m_finalized = true;
-
-        // Guarantee that these arrays can be converted to double* even in the
-        // special case where there are no reactions defined.
-        if (!m_ii) {
-            m_perturb.resize(1, 1.0);
-            m_ropf.resize(1, 0.0);
-            m_ropr.resize(1, 0.0);
-            m_ropnet.resize(1, 0.0);
-            m_rkcn.resize(1, 0.0);
-        }
-    }
+    BulkKinetics::finalize();
+    falloff_work.resize(m_falloffn.workSize());
+    concm_3b_values.resize(m_3b_concm.workSize());
+    concm_falloff_values.resize(m_falloff_concm.workSize());
 }
 
 bool GasKinetics::ready() const
