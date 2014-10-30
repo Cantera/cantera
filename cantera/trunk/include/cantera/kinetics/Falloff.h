@@ -25,10 +25,7 @@ namespace Cantera
 class Falloff
 {
 public:
-    //! Default constructor is empty
     Falloff() {}
-
-    //! default destructor is empty
     virtual ~Falloff() {}
 
     /**
@@ -40,18 +37,16 @@ public:
     virtual void init(const vector_fp& c) {}
 
     /**
-     * Update the temperature-dependent portions of the falloff
-     * function, if any. This method evaluates temperature-dependent
-     * intermediate results and stores them in the 'work' array.
-     * If not overloaded, the default behavior is to do nothing.
+     * Update the temperature-dependent portions of the falloff function, if
+     * any, and store them in the 'work' array. If not overloaded, the default
+     * behavior is to do nothing.
      * @param T Temperature [K].
      * @param work storage space for intermediate results.
      */
     virtual void updateTemp(doublereal T, doublereal* work) const {}
 
     /**
-     * The falloff function. This is defined so that the
-     * rate coefficient is
+     * The falloff function. This is defined so that the rate coefficient is
      *
      * \f[  k = F(Pr)\frac{Pr}{1 + Pr}. \f]
      *
@@ -133,12 +128,9 @@ public:
 
     //! Update the temperature parameters in the representation
     /*!
-     *   The workspace has a length of one
-     *
      *   @param T         Temperature (Kelvin)
-     *   @param work      Vector of working space representing
-     *                    the temperature dependent part of the
-     *                    parameterization.
+     *   @param work      Vector of working space, length 1, representing the
+     *                    temperature-dependent part of the parameterization.
      */
     virtual void updateTemp(doublereal T, doublereal* work) const {
         doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
@@ -161,16 +153,13 @@ public:
     }
 
 protected:
-    //! parameter a in the  4-parameter Troe falloff function. This is
-    //! unitless.
+    //! parameter a in the 3-parameter Troe falloff function. Dimensionless.
     doublereal m_a;
 
-    //! parameter 1/T_3 in the  4-parameter Troe falloff function. This has
-    //! units of Kelvin-1
+    //! parameter 1/T_3 in the 3-parameter Troe falloff function. [K^-1]
     doublereal m_rt3;
 
-    //! parameter 1/T_1 in the  4-parameter Troe falloff function. This has
-    //! units of Kelvin-1.
+    //! parameter 1/T_1 in the 3-parameter Troe falloff function. [K^-1]
     doublereal m_rt1;
 };
 
@@ -211,7 +200,7 @@ public:
     //! Initialization of the object
     /*!
      * @param c Vector of four doubles: The doubles are the parameters,
-     *          a,, T_3, T_1, and T_2 of the Troe parameterization
+     *          a, T_3, T_1, and T_2 of the Troe parameterization
      */
     virtual void init(const vector_fp& c) {
         m_a  = c[0];
@@ -230,12 +219,9 @@ public:
 
     //! Update the temperature parameters in the representation
     /*!
-     *   The workspace has a length of one
-     *
      *   @param T         Temperature (Kelvin)
-     *   @param work      Vector of working space representing
-     *                    the temperature dependent part of the
-     *                    parameterization.
+     *   @param work      Vector of working space, length 1, representing the
+     *                    temperature-dependent part of the parameterization.
      */
     virtual void updateTemp(doublereal T, doublereal* work) const {
         doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
@@ -259,20 +245,16 @@ public:
     }
 
 protected:
-    //! parameter a in the  4-parameter Troe falloff function. This is
-    //! unitless.
+    //! parameter a in the 4-parameter Troe falloff function. Dimensionless
     doublereal m_a;
 
-    //! parameter 1/T_3 in the  4-parameter Troe falloff function. This has
-    //! units of Kelvin-1.
+    //! parameter 1/T_3 in the 4-parameter Troe falloff function. [K^-1]
     doublereal m_rt3;
 
-    //! parameter 1/T_1 in the  4-parameter Troe falloff function. This has
-    //! units of Kelvin-1.
+    //! parameter 1/T_1 in the 4-parameter Troe falloff function. [K^-1]
     doublereal m_rt1;
 
-    //! parameter T_2 in the  4-parameter Troe falloff function. This has
-    //! units of Kelvin.
+    //! parameter T_2 in the 4-parameter Troe falloff function. [K]
     doublereal m_t2;
 };
 
@@ -317,12 +299,9 @@ public:
 
     //! Update the temperature parameters in the representation
     /*!
-     *   The workspace has a length of one
-     *
      *   @param T         Temperature (Kelvin)
-     *   @param work      Vector of working space representing
-     *                    the temperature dependent part of the
-     *                    parameterization.
+     *   @param work      Vector of working space, length 1, representing the
+     *                    temperature-dependent part of the parameterization.
      */
     virtual void updateTemp(doublereal T, doublereal* work) const {
         *work = m_a * exp(- m_b / T);
@@ -342,16 +321,13 @@ public:
     }
 
 protected:
-    //! parameter a in the  3-parameter SRI falloff function. This is
-    //! unitless.
+    //! parameter a in the 3-parameter SRI falloff function. Dimensionless.
     doublereal m_a;
 
-    //! parameter b in the  3-parameter SRI falloff function. This has units
-    //! of Kelvin.
+    //! parameter b in the 3-parameter SRI falloff function. [K]
     doublereal m_b;
 
-    //! parameter c in the  3-parameter SRI falloff function. This has units
-    //! of Kelvin.
+    //! parameter c in the 3-parameter SRI falloff function. [K]
     doublereal m_c;
 };
 
@@ -372,10 +348,7 @@ protected:
  *  \f$ c \f$ s required to greater than or equal to zero. If it is zero, then
  *  the corresponding term is set to zero.
  *
- *  m_c is required to greater than or equal to zero. If it is zero, then the
- *  corresponding term is set to zero.
- *
- *  m_d is required to be greater than zero.
+ *  \f$ d \f$ is required to be greater than zero.
  *
  * @ingroup falloffGroup
  */
@@ -408,12 +381,9 @@ public:
 
     //! Update the temperature parameters in the representation
     /*!
-     *   The workspace has a length of two
-     *
      *   @param T         Temperature (Kelvin)
-     *   @param work      Vector of working space representing
-     *                    the temperature dependent part of the
-     *                    parameterization.
+     *   @param work      Vector of working space, length 2, representing the
+     *                    temperature-dependent part of the parameterization.
      */
     virtual void updateTemp(doublereal T, doublereal* work) const {
         *work = m_a * exp(- m_b / T);
@@ -434,21 +404,19 @@ public:
     }
 
 protected:
-    //! parameter a in the 5-parameter SRI falloff function. This is unitless.
+    //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
     doublereal m_a;
 
-    //! parameter b in the 5-parameter SRI falloff function. This has units of
-    //! Kelvin.
+    //! parameter b in the 5-parameter SRI falloff function. [K]
     doublereal m_b;
 
-    //! parameter c in the 5-parameter SRI falloff function. This has units of
-    //! Kelvin.
+    //! parameter c in the 5-parameter SRI falloff function. [K]
     doublereal m_c;
 
-    //! parameter d in the 5-parameter SRI falloff function. This is unitless.
+    //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
     doublereal m_d;
 
-    //! parameter d in the 5-parameter SRI falloff function. This is unitless.
+    //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
     doublereal m_e;
 };
 
