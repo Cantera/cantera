@@ -663,10 +663,8 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
         c.push_back(fpValue(p[n]));
     }
     if (type == "Troe") {
-        if (np == 4) {
-            rdata.falloffType = TROE4_FALLOFF;
-        } else if (np == 3) {
-            rdata.falloffType = TROE3_FALLOFF;
+        if (np == 3 || np == 4) {
+            rdata.falloffType = TROE_FALLOFF;
         } else {
             throw CanteraError("getFalloff()", "Troe parameterization is specified by number of parameters, "
                                + int2str(np) + ", is not equal to 3 or 4");
