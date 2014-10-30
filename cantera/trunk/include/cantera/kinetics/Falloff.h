@@ -74,96 +74,7 @@ public:
 };
 
 
-//! The 3-parameter Troe falloff parameterization.
-/*!
- * The falloff function defines the value of \f$ F \f$ in the following
- * rate expression
- *
- *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
- *  where
- *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
- *
- * This parameterization is  defined by
- * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
- * where
- * \f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) \f]
- *
- * \f[ f_1 = (\log_{10} P_r + C) / \left(N - 0.14
- *             (\log_{10} P_r + C)\right) \f]
- *
- * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
- *
- * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
- *
- *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
- *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
- *
- * @ingroup falloffGroup
- */
-class Troe3 : public Falloff
-{
-public:
-    //! Default constructor.
-    Troe3() : m_a(0.0), m_rt3(0.0), m_rt1(0.0) {}
-
-    /**
-     * Initialize.
-     * @param c Coefficient vector of length 3,
-     * with entries \f$ (A, T_3, T_1) \f$
-     */
-    virtual void init(const vector_fp& c) {
-        m_a  = c[0];
-
-        if (c[1] == 0.0) {
-            m_rt3 = 1000.;
-        } else {
-            m_rt3 = 1.0/c[1];
-        }
-        if (c[2] == 0.0) {
-            m_rt1 = 1000.;
-        } else {
-            m_rt1 = 1.0/c[2];
-        }
-    }
-
-    //! Update the temperature parameters in the representation
-    /*!
-     *   @param T         Temperature (Kelvin)
-     *   @param work      Vector of working space, length 1, representing the
-     *                    temperature-dependent part of the parameterization.
-     */
-    virtual void updateTemp(doublereal T, doublereal* work) const {
-        doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
-                           + m_a * exp(- T * m_rt1);
-        *work = log10(std::max(Fcent, SmallNumber));
-    }
-
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
-        doublereal lpr,f1,lgf, cc, nn;
-        lpr = log10(std::max(pr,SmallNumber));
-        cc = -0.4 - 0.67 * (*work);
-        nn = 0.75 - 1.27 * (*work);
-        f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
-        lgf = (*work) / (1.0 + f1 * f1);
-        return pow(10.0, lgf);
-    }
-
-    virtual size_t workSize() {
-        return 1;
-    }
-
-protected:
-    //! parameter a in the 3-parameter Troe falloff function. Dimensionless.
-    doublereal m_a;
-
-    //! parameter 1/T_3 in the 3-parameter Troe falloff function. [K^-1]
-    doublereal m_rt3;
-
-    //! parameter 1/T_1 in the 3-parameter Troe falloff function. [K^-1]
-    doublereal m_rt1;
-};
-
-//! The 4-parameter Troe falloff parameterization.
+//! The 3- or 4-parameter Troe falloff parameterization.
 /*!
  * The falloff function defines the value of \f$ F \f$ in the following
  * rate expression
@@ -187,20 +98,20 @@ protected:
  *
  *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
  *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
+ *  - If \f$ T_2 \f$ is zero, then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
-class Troe4 : public Falloff
+class Troe : public Falloff
 {
 public:
     //! Constructor
-    Troe4() : m_a(0.0), m_rt3(0.0), m_rt1(0.0),
-        m_t2(0.0) {}
+    Troe() : m_a(0.0), m_rt3(0.0), m_rt1(0.0), m_t2(0.0) {}
 
     //! Initialization of the object
     /*!
-     * @param c Vector of four doubles: The doubles are the parameters,
-     *          a, T_3, T_1, and T_2 of the Troe parameterization
+     * @param c Vector of three or four doubles: The doubles are the parameters,
+     *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
     virtual void init(const vector_fp& c) {
         m_a  = c[0];
@@ -214,7 +125,9 @@ public:
         } else {
             m_rt1 = 1.0/c[2];
         }
-        m_t2 = c[3];
+        if (c.size() == 4) {
+            m_t2 = c[3];
+        }
     }
 
     //! Update the temperature parameters in the representation
@@ -224,9 +137,10 @@ public:
      *                    temperature-dependent part of the parameterization.
      */
     virtual void updateTemp(doublereal T, doublereal* work) const {
-        doublereal Fcent = (1.0 - m_a) * exp(- T * m_rt3)
-                           + m_a * exp(- T * m_rt1)
-                           + exp(- m_t2 / T);
+        doublereal Fcent = (1.0 - m_a) * exp(-T*m_rt3) + m_a * exp(-T*m_rt1);
+        if (m_t2) {
+            Fcent += exp(- m_t2 / T);
+        }
         *work = log10(std::max(Fcent, SmallNumber));
     }
 

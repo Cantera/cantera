@@ -19,11 +19,8 @@ Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
     case SIMPLE_FALLOFF:
         f = new Falloff();
         break;
-    case TROE3_FALLOFF:
-        f = new Troe3();
-        break;
-    case TROE4_FALLOFF:
-        f = new Troe4();
+    case TROE_FALLOFF:
+        f = new Troe();
         break;
     case SRI3_FALLOFF:
         f = new SRI3();
