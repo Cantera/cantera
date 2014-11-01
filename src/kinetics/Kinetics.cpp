@@ -44,7 +44,9 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
         return *this;
     }
 
-    m_rxnstoich = right.m_rxnstoich;
+    m_reactantStoich = right.m_reactantStoich;
+    m_revProductStoich = right.m_revProductStoich;
+    m_irrevProductStoich = right.m_irrevProductStoich;
     m_ii                = right.m_ii;
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
@@ -269,24 +271,61 @@ void Kinetics::getNetRatesOfProgress(doublereal* netROP)
     std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
 }
 
+void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
+{
+    fill(deltaProp, deltaProp + m_ii, 0.0);
+    // products add
+    m_revProductStoich.incrementReactions(prop, deltaProp);
+    m_irrevProductStoich.incrementReactions(prop, deltaProp);
+    // reactants subtract
+    m_reactantStoich.decrementReactions(prop, deltaProp);
+}
 
+void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
+{
+    fill(deltaProp, deltaProp + m_ii, 0.0);
+    // products add
+    m_revProductStoich.incrementReactions(prop, deltaProp);
+    // reactants subtract
+    m_reactantStoich.decrementReactions(prop, deltaProp);
+}
 
 void Kinetics::getCreationRates(double* cdot)
 {
     updateROP();
-    m_rxnstoich.getCreationRates(m_kk, &m_ropf[0], &m_ropr[0], cdot);
+
+    // zero out the output array
+    fill(cdot, cdot + m_kk, 0.0);
+
+    // the forward direction creates product species
+    m_revProductStoich.incrementSpecies(&m_ropf[0], cdot);
+    m_irrevProductStoich.incrementSpecies(&m_ropf[0], cdot);
+
+    // the reverse direction creates reactant species
+    m_reactantStoich.incrementSpecies(&m_ropr[0], cdot);
 }
 
 void Kinetics::getDestructionRates(doublereal* ddot)
 {
     updateROP();
-    m_rxnstoich.getDestructionRates(m_kk, &m_ropf[0], &m_ropr[0], ddot);
+
+    fill(ddot, ddot + m_kk, 0.0);
+    // the reverse direction destroys products in reversible reactions
+    m_revProductStoich.incrementSpecies(&m_ropr[0], ddot);
+    // the forward direction destroys reactants
+    m_reactantStoich.incrementSpecies(&m_ropf[0], ddot);
 }
 
 void Kinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
-    m_rxnstoich.getNetProductionRates(m_kk, &m_ropnet[0], net);
+
+    fill(net, net + m_kk, 0.0);
+    // products are created for positive net rate of progress
+    m_revProductStoich.incrementSpecies(&m_ropnet[0], net);
+    m_irrevProductStoich.incrementSpecies(&m_ropnet[0], net);
+    // reactants are destroyed for positive net rate of progress
+    m_reactantStoich.decrementSpecies(&m_ropnet[0], net);
 }
 
 void Kinetics::addPhase(thermo_t& thermo)
@@ -340,10 +379,12 @@ void Kinetics::addReaction(ReactionData& r) {
     // so the faster method 'multiply' can be used to compute the rate of
     // progress instead of 'power'.
     std::vector<size_t> rk;
+    bool fracReactants = false;
     for (size_t n = 0; n < r.reactants.size(); n++) {
         double nsFlt = r.rstoich[n];
         size_t ns = (size_t) nsFlt;
         if ((double) ns != nsFlt) {
+            fracReactants = true;
             ns = std::max<size_t>(ns, 1);
         }
         if (r.rstoich[n] != 0.0) {
@@ -356,10 +397,12 @@ void Kinetics::addReaction(ReactionData& r) {
     m_reactants.push_back(rk);
 
     std::vector<size_t> pk;
+    bool fracProducts = false;
     for (size_t n = 0; n < r.products.size(); n++) {
         double nsFlt = r.pstoich[n];
         size_t ns = (size_t) nsFlt;
         if ((double) ns != nsFlt) {
+            fracProducts = true;
             ns = std::max<size_t>(ns, 1);
         }
         if (r.pstoich[n] != 0.0) {
@@ -370,7 +413,81 @@ void Kinetics::addReaction(ReactionData& r) {
         }
     }
     m_products.push_back(pk);
-    m_rxnstoich.add(nReactions(), r);
+
+    size_t irxn = nReactions();
+    bool doGlobal = false;
+    std::vector<size_t> extReactants = r.reactants;
+    vector_fp extRStoich = r.rstoich;
+    vector_fp extROrder = r.rorder;
+
+    // If we have a complete global reaction then we need to do something more
+    // complete than the previous treatment.  Basically we will use the reactant
+    // manager to calculate the global forward reaction rate of progress.
+    if (r.forwardFullOrder_.size() > 0) {
+        // Trigger a treatment where the order of the reaction and the
+        // stoichiometry are treated as different.
+        doGlobal = true;
+        size_t nsp = r.forwardFullOrder_.size();
+
+        // Set up a signal vector to indicate whether the species has been added
+        // into the input vectors for the stoich manager
+        vector_int kHandled(nsp, 0);
+
+        // Loop over the reactants which are also nonzero stoichioemtric entries
+        // making sure the forwardFullOrder_ entries take precedence over rorder
+        // entries
+        for (size_t kk = 0; kk < r.reactants.size(); kk++) {
+            size_t k = r.reactants[kk];
+            double oo = r.rorder[kk];
+            double of = r.forwardFullOrder_[k];
+            if (of != oo) {
+                extROrder[kk] = of;
+            }
+            kHandled[k] = 1;
+        }
+        for (size_t k = 0; k < nsp; k++) {
+            double of = r.forwardFullOrder_[k];
+            if (of != 0.0) {
+                if (kHandled[k] == 0) {
+                    // Add extra entries to reactant inputs. Set their reactant
+                    // stoichiometric entries to zero.
+                    extReactants.push_back(k);
+                    extROrder.push_back(of);
+                    extRStoich.push_back(0.0);
+                }
+            }
+        }
+    }
+
+    // If the reaction is non-mass action add it in in a general way
+    // Reactants get extra terms for the forward reaction rate of progress
+    // that may have zero stoichiometries.
+    if (doGlobal) {
+        m_reactantStoich.add(irxn, extReactants, extROrder, extRStoich);
+    } else {
+        // this is confusing. The only issue should be whether rorder is different than rstoich!
+        if (fracReactants || r.global || rk.size() > 3) {
+            m_reactantStoich.add(irxn, r.reactants, r.rorder, r.rstoich);
+        } else {
+            m_reactantStoich.add(irxn, rk);
+        }
+    }
+
+    if (r.reversible) {
+        // this is confusing. The only issue should be whether porder is different than pstoich!
+        if (pk.size() > 3 || r.isReversibleWithFrac) {
+            m_revProductStoich.add(irxn, r.products, r.porder, r.pstoich);
+        } else {
+            m_revProductStoich.add(irxn, pk);
+        }
+    } else {
+        // this is confusing. The only issue should be whether porder is different than pstoich!
+        if (fracProducts || pk.size() > 3) {
+            m_irrevProductStoich.add(irxn, r.products, r.porder, r.pstoich);
+        } else {
+            m_irrevProductStoich.add(irxn, pk);
+        }
+    }
 
     installGroups(nReactions(), r.rgroups, r.pgroups);
     incrementRxnCount();

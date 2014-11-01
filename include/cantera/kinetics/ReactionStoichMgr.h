@@ -51,7 +51,8 @@ class ReactionData;
  *     Vector of K species destruction rates.
  * - \f$ W = C - D \f$
  *     Vector of K species net production rates.
- *
+ * @deprecated Unused; Functionality merged into class Kinetics. To be removed
+ *     after Cantera 2.2.
  */
 class ReactionStoichMgr
 {

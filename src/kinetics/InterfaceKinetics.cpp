@@ -251,7 +251,7 @@ void InterfaceKinetics::updateKc()
         doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
 
         // compute Delta mu^0 for all reversible reactions
-        m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(m_mu0_Kc), DATA_PTR(m_rkcn));
+        getRevReactionDelta(DATA_PTR(m_mu0_Kc), DATA_PTR(m_rkcn));
 
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
@@ -314,7 +314,7 @@ void InterfaceKinetics::checkPartialEquil()
         }
 
         // compute Delta mu^ for all reversible reactions
-        m_rxnstoich.getRevReactionDelta(m_ii, DATA_PTR(dmu), DATA_PTR(rmu));
+        getRevReactionDelta(DATA_PTR(dmu), DATA_PTR(rmu));
         updateROP();
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
@@ -334,7 +334,7 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 
     std::fill(kc, kc + m_ii, 0.0);
 
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0_Kc), kc);
+    getReactionDelta(DATA_PTR(m_mu0_Kc), kc);
 
     for (size_t i = 0; i < m_ii; i++) {
         kc[i] = exp(-kc[i]*rrt);
@@ -368,13 +368,13 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
         }
     }
 
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), DATA_PTR(m_deltaG0));
+    getReactionDelta(DATA_PTR(m_mu0), DATA_PTR(m_deltaG0));
 
     //  Calculate the product of the standard concentrations of the reactants
     for (size_t i = 0; i < m_ii; i++) {
         m_ProdStanConcReac[i] = 1.0;
     }
-    m_rxnstoich.multiplyReactants(DATA_PTR(m_StandardConc), DATA_PTR(m_ProdStanConcReac));
+    m_reactantStoich.multiply(DATA_PTR(m_StandardConc), DATA_PTR(m_ProdStanConcReac));
 }
 
 void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
@@ -392,7 +392,7 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
     // Compute the change in electrical potential energy for each
     // reaction. This will only be non-zero if a potential
     // difference is present.
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_pot), DATA_PTR(deltaElectricEnergy_));
+    getReactionDelta(DATA_PTR(m_pot), DATA_PTR(deltaElectricEnergy_));
 
     // Modify the reaction rates. Only modify those with a
     // non-zero activation energy. Below we decrease the
@@ -540,10 +540,10 @@ void InterfaceKinetics::updateROP()
 
     // multiply ropf by the actyivity concentration reaction orders to obtain
     // the forward rates of progress.
-    m_rxnstoich.multiplyReactants(DATA_PTR(m_actConc), DATA_PTR(m_ropf));
+    m_reactantStoich.multiply(DATA_PTR(m_actConc), DATA_PTR(m_ropf));
 
     // For reversible reactions, multiply ropr by the activity concentration products
-    m_rxnstoich.multiplyRevProducts(DATA_PTR(m_actConc), DATA_PTR(m_ropr));
+    m_revProductStoich.multiply(DATA_PTR(m_actConc), DATA_PTR(m_ropr));
 
     //  Fix up these calculations for cases where the above formalism doesn't hold
     double OCV = 0.0;
@@ -663,7 +663,7 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu), DATA_PTR(m_deltaG));
+    getReactionDelta(DATA_PTR(m_mu), DATA_PTR(m_deltaG));
     if (deltaG != 0 && (DATA_PTR(m_deltaG) != deltaG)) {
         for (size_t j = 0; j < m_ii; ++j) {
             deltaG[j] = m_deltaG[j];
@@ -684,7 +684,7 @@ void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaM);
+    getReactionDelta(DATA_PTR(m_grt), deltaM);
 }
 
 void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
@@ -699,7 +699,7 @@ void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
+    getReactionDelta(DATA_PTR(m_grt), deltaH);
 }
 
 void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
@@ -715,7 +715,7 @@ void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
      * Use the stoichiometric manager to find deltaS for each
      * reaction.
      */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
+    getReactionDelta(DATA_PTR(m_grt), deltaS);
 }
 
 void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
@@ -733,7 +733,7 @@ void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_mu0), deltaGSS);
+    getReactionDelta(DATA_PTR(m_mu0), deltaGSS);
 }
 
 void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
@@ -755,7 +755,7 @@ void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
      * Use the stoichiometric manager to find deltaG for each
      * reaction.
      */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaH);
+    getReactionDelta(DATA_PTR(m_grt), deltaH);
 }
 
 void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
@@ -776,7 +776,7 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
      * Use the stoichiometric manager to find deltaS for each
      * reaction.
      */
-    m_rxnstoich.getReactionDelta(m_ii, DATA_PTR(m_grt), deltaS);
+    getReactionDelta(DATA_PTR(m_grt), deltaS);
 }
 
 void InterfaceKinetics::addReaction(ReactionData& r)

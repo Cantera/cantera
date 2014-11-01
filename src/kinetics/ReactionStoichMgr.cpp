@@ -18,6 +18,8 @@ namespace Cantera
 {
 ReactionStoichMgr::ReactionStoichMgr()
 {
+    warn_deprecated("class ReactionStoichMgr",
+        "To be removed after Cantera 2.2.");
     m_dummy.resize(10,1.0);
 }
 
