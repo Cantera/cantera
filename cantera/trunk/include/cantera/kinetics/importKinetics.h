@@ -11,7 +11,6 @@
  */
 // Copyright 2002  California Institute of Technology
 
-
 #ifndef CT_IMPORTKINETICS_H
 #define CT_IMPORTKINETICS_H
 
@@ -91,10 +90,9 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp, std::string default
  *  Install the BV order coefficients into the fullForwardsOrders vector.
  *
  *  @param[in]  rxnNode  XML node pointing to the reaction element in the xml tree.
- *  @param[in]  kin      Reference to the kinetics object to install the information into.  
+ *  @param[in]  kin      Reference to the kinetics object to install the information into.
  *  @param[in]  rdata    Reaction Data Object containing the information about one reaction
  *  @param[out] fullForwardsOrders   Vectors of the orders of reaction.
- *
  */
 void installButlerVolmerOrders(const XML_Node& rxnNode, const Kinetics& kin, const ReactionData& rdata,
 			       std::vector<doublereal>& fullForwardsOrders);
@@ -186,7 +184,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
  *              classes should be used here.
  *
  * @ingroup kineticsmgr
- *
  */
 bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
                     Kinetics* kin);
@@ -224,25 +221,6 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  */
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
                           const std::string& nm, ThermoPhase* th, Kinetics* kin);
-
-//! Search an XML tree for species data.
-/*!
- *   This utility routine will search the XML tree for the species named by
- *   the string, kname. It will return the XML_Node pointer. Failures of any
- *   kind return the null pointer.
- *
- * @param kname species Name
- * @param phaseSpeciesData Pointer to the phase XML node pertaining to the
- *                         species database for the phase to be found
- *
- * @return
- *    Returns a pointer to the XML node containing the species data.
- *
- * @ingroup inputfiles
- */
-//const XML_Node *speciesXML_Node(std::string kname,
-//                                const XML_Node *phaseSpeciesData);
-
 }
 
 #endif
