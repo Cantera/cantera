@@ -379,12 +379,10 @@ void Kinetics::addReaction(ReactionData& r) {
     // so the faster method 'multiply' can be used to compute the rate of
     // progress instead of 'power'.
     std::vector<size_t> rk;
-    bool fracReactants = false;
     for (size_t n = 0; n < r.reactants.size(); n++) {
         double nsFlt = r.rstoich[n];
         size_t ns = (size_t) nsFlt;
         if ((double) ns != nsFlt) {
-            fracReactants = true;
             ns = std::max<size_t>(ns, 1);
         }
         if (r.rstoich[n] != 0.0) {
@@ -397,12 +395,10 @@ void Kinetics::addReaction(ReactionData& r) {
     m_reactants.push_back(rk);
 
     std::vector<size_t> pk;
-    bool fracProducts = false;
     for (size_t n = 0; n < r.products.size(); n++) {
         double nsFlt = r.pstoich[n];
         size_t ns = (size_t) nsFlt;
         if ((double) ns != nsFlt) {
-            fracProducts = true;
             ns = std::max<size_t>(ns, 1);
         }
         if (r.pstoich[n] != 0.0) {
@@ -414,19 +410,14 @@ void Kinetics::addReaction(ReactionData& r) {
     }
     m_products.push_back(pk);
 
-    size_t irxn = nReactions();
-    bool doGlobal = false;
     std::vector<size_t> extReactants = r.reactants;
     vector_fp extRStoich = r.rstoich;
     vector_fp extROrder = r.rorder;
 
-    // If we have a complete global reaction then we need to do something more
-    // complete than the previous treatment.  Basically we will use the reactant
-    // manager to calculate the global forward reaction rate of progress.
+    // If the reaction order involves non-reactant species, add extra terms to
+    // the reactants with zero stoichiometry so that the stoichiometry manager
+    // can be used to compute the global forward reaction rate.
     if (r.forwardFullOrder_.size() > 0) {
-        // Trigger a treatment where the order of the reaction and the
-        // stoichiometry are treated as different.
-        doGlobal = true;
         size_t nsp = r.forwardFullOrder_.size();
 
         // Set up a signal vector to indicate whether the species has been added
@@ -459,34 +450,12 @@ void Kinetics::addReaction(ReactionData& r) {
         }
     }
 
-    // If the reaction is non-mass action add it in in a general way
-    // Reactants get extra terms for the forward reaction rate of progress
-    // that may have zero stoichiometries.
-    if (doGlobal) {
-        m_reactantStoich.add(irxn, extReactants, extROrder, extRStoich);
-    } else {
-        // this is confusing. The only issue should be whether rorder is different than rstoich!
-        if (fracReactants || r.global || rk.size() > 3) {
-            m_reactantStoich.add(irxn, r.reactants, r.rorder, r.rstoich);
-        } else {
-            m_reactantStoich.add(irxn, rk);
-        }
-    }
-
+    size_t irxn = nReactions();
+    m_reactantStoich.add(irxn, extReactants, extROrder, extRStoich);
     if (r.reversible) {
-        // this is confusing. The only issue should be whether porder is different than pstoich!
-        if (pk.size() > 3 || r.isReversibleWithFrac) {
-            m_revProductStoich.add(irxn, r.products, r.porder, r.pstoich);
-        } else {
-            m_revProductStoich.add(irxn, pk);
-        }
+        m_revProductStoich.add(irxn, r.products, r.porder, r.pstoich);
     } else {
-        // this is confusing. The only issue should be whether porder is different than pstoich!
-        if (fracProducts || pk.size() > 3) {
-            m_irrevProductStoich.add(irxn, r.products, r.porder, r.pstoich);
-        } else {
-            m_irrevProductStoich.add(irxn, pk);
-        }
+        m_irrevProductStoich.add(irxn, r.products, r.porder, r.pstoich);
     }
 
     installGroups(nReactions(), r.rgroups, r.pgroups);
