@@ -55,6 +55,12 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 %(LAPACK_NAMES_LOWERCASE)s
 %(LAPACK_FTN_TRAILING_UNDERSCORE)s
 
+//--------- shared_ptr implementation ---------
+%(CT_USE_STD_SHARED_PTR)s
+%(CT_USE_TR1_SHARED_PTR)s
+%(CT_USE_MSFT_SHARED_PTR)s
+%(CT_USE_BOOST_SHARED_PTR)s
+
 //-------- BOOST --------
 %(USE_BOOST_MATH)s
 

@@ -794,6 +794,8 @@ def get_expression_value(includes, expression):
               '}\n'))
     return '\n'.join(s)
 
+configh = {}
+
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 #
@@ -813,6 +815,22 @@ env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hp
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
+
+# Find shared pointer implementation
+configh['CT_USE_STD_SHARED_PTR'] = None
+configh['CT_USE_TR1_SHARED_PTR'] = None
+configh['CT_USE_MSFT_SHARED_PTR'] = None
+configh['CT_USE_BOOST_SHARED_PTR'] = None
+if conf.CheckStatement('std::shared_ptr<int> x', '#include <memory>'):
+    configh['CT_USE_STD_SHARED_PTR'] = 1
+elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <tr1/memory>'):
+    configh['CT_USE_TR1_SHARED_PTR'] = 1
+elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <memory>'):
+    configh['CT_USE_MSFT_SHARED_PTR'] = 1
+elif conf.CheckStatement('boost::shared_ptr<int> x', '#include <boost/shared_ptr.hpp>'):
+    configh['CT_USE_BOOST_SHARED_PTR'] = 1
+else:
+    config_error("Couldn't find a working shared_ptr implementation.")
 
 import SCons.Conftest, SCons.SConf
 ret = SCons.Conftest.CheckLib(SCons.SConf.CheckContext(conf),
@@ -1192,7 +1210,7 @@ else:
 # *** Set options needed in config.h ***
 # **************************************
 
-configh = {'CANTERA_VERSION': quoted(env['cantera_version'])}
+configh['CANTERA_VERSION'] = quoted(env['cantera_version'])
 
 # Conditional defines
 def cdefine(definevar, configvar, comp=True, value=1):
