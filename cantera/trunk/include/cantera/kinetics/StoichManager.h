@@ -155,19 +155,6 @@ public:
         m_ic0(ic0) {
     }
 
-    C1(const C1& right) :
-        m_rxn(right.m_rxn),
-        m_ic0(right.m_ic0) {
-    }
-
-    C1& operator=(const C1& right) {
-        if (this != &right) {
-            m_rxn = right.m_rxn;
-            m_ic0 = right.m_ic0;
-        }
-        return *this;
-    }
-
     size_t data(std::vector<size_t>& ic) {
         ic.resize(1);
         ic[0] = m_ic0;
@@ -246,21 +233,6 @@ class C2
 public:
     C2(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1) {}
-
-    C2(const C2& right) :
-        m_rxn(right.m_rxn),
-        m_ic0(right.m_ic0),
-        m_ic1(right.m_ic1) {
-    }
-
-    C2& operator=(const C2& right) {
-        if (this != &right) {
-            m_rxn = right.m_rxn;
-            m_ic0 = right.m_ic0;
-            m_ic1 = right.m_ic1;
-        }
-        return *this;
-    }
 
     size_t data(std::vector<size_t>& ic) {
         ic.resize(2);
@@ -348,23 +320,6 @@ class C3
 public:
     C3(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0, size_t ic2 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1), m_ic2(ic2) {}
-
-    C3(const C3& right) :
-        m_rxn(right.m_rxn),
-        m_ic0(right.m_ic0),
-        m_ic1(right.m_ic1),
-        m_ic2(right.m_ic2) {
-    }
-
-    C3& operator=(const C3& right) {
-        if (this != &right) {
-            m_rxn = right.m_rxn;
-            m_ic0 = right.m_ic0;
-            m_ic1 = right.m_ic1;
-            m_ic2 = right.m_ic2;
-        }
-        return *this;
-    }
 
     size_t data(std::vector<size_t>& ic) {
         ic.resize(3);
@@ -471,26 +426,6 @@ public:
             m_order[n] = order_[n];
             m_stoich[n] = stoich_[n];
         }
-    }
-
-    C_AnyN(const C_AnyN& right) :
-        m_n(right.m_n),
-        m_rxn(right.m_rxn),
-        m_ic(right.m_ic),
-        m_order(right.m_order),
-        m_stoich(right.m_stoich) 
-    {
-    }
-
-    C_AnyN& operator=(const C_AnyN& right) {
-        if (this != &right) {
-            m_n = right.m_n;
-            m_rxn = right.m_rxn;
-            m_ic = right.m_ic;
-            m_order = right.m_order;
-            m_stoich = right.m_stoich;
-        }
-        return *this;
     }
 
     size_t data(std::vector<size_t>& ic) {
@@ -788,24 +723,6 @@ public:
      * are not known initially.
      */
     StoichManagerN() {
-    }
-
-    StoichManagerN(const StoichManagerN& right) :
-        m_c1_list(right.m_c1_list),
-        m_c2_list(right.m_c2_list),
-        m_c3_list(right.m_c3_list),
-        m_cn_list(right.m_cn_list)
-    {
-    }
-
-    StoichManagerN& operator=(const StoichManagerN& right) {
-        if (this != &right) {
-            m_c1_list = right.m_c1_list;
-            m_c2_list = right.m_c2_list;
-            m_c3_list = right.m_c3_list;
-            m_cn_list = right.m_cn_list;
-        }
-        return *this;
     }
 
     /**
