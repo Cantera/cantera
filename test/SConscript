@@ -225,11 +225,11 @@ for f in mglob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
 def make_python_tests(version):
-    # Create test aliases for individual test modules (e.g. test-cython2-thermo;
+    # Create test aliases for individual test modules (e.g. test-python2-thermo;
     # not run as part of the main suite) and a single test runner with all the
-    # tests (test-cython2) for the main suite.
+    # tests (test-python2) for the main suite.
     for subset in python_subtests:
-        name = 'cython%i-' %version + subset if subset else 'cython%i' % version
+        name = 'python%i-' %version + subset if subset else 'python%i' % version
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
