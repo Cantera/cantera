@@ -794,9 +794,8 @@ public:
         m_c1_list(right.m_c1_list),
         m_c2_list(right.m_c2_list),
         m_c3_list(right.m_c3_list),
-        m_cn_list(right.m_cn_list),
-        m_n(right.m_n),
-        m_loc(right.m_loc) {
+        m_cn_list(right.m_cn_list)
+    {
     }
 
     StoichManagerN& operator=(const StoichManagerN& right) {
@@ -805,8 +804,6 @@ public:
             m_c2_list = right.m_c2_list;
             m_c3_list = right.m_c3_list;
             m_cn_list = right.m_cn_list;
-            m_n = right.m_n;
-            m_loc = right.m_loc;
         }
         return *this;
     }
@@ -849,7 +846,6 @@ public:
      */
     void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
              const vector_fp& stoich) {
-        m_n[rxn] = k.size();
         if (order.size() != k.size()) {
            throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");    
         }
@@ -864,7 +860,6 @@ public:
             }
         }
         if (frac || k.size() > 3) {
-            m_loc[rxn] = m_cn_list.size();
             m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
         } else {
             // Try to express the reaction with unity stoichiometric
@@ -879,19 +874,15 @@ public:
 
             switch (kRep.size()) {
             case 1:
-                m_loc[rxn] = m_c1_list.size();
                 m_c1_list.push_back(C1(rxn, kRep[0]));
                 break;
             case 2:
-                m_loc[rxn] = m_c2_list.size();
                 m_c2_list.push_back(C2(rxn, kRep[0], kRep[1]));
                 break;
             case 3:
-                m_loc[rxn] = m_c3_list.size();
                 m_c3_list.push_back(C3(rxn, kRep[0], kRep[1], kRep[2]));
                 break;
             default:
-                m_loc[rxn] = m_cn_list.size();
                 m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
             }
         }
@@ -977,23 +968,6 @@ private:
     std::vector<C2>     m_c2_list;
     std::vector<C3>     m_c3_list;
     std::vector<C_AnyN> m_cn_list;
-    
-    //! Map with the Reaction Number as key and the Number of species
-    //! as the value.
-    /*!
-     *          An example of this is given below:
-     *
-     *          m_n[irxn] = nSpecies
-     */
-    std::map<size_t, size_t>  m_n;
-
-    /**
-     * Map with the Reaction Number as key and the placement in the
-     * vector of reactions list( i.e., m_c1_list[]) as key
-     * If for example, m_loc[7], was equal to 5, this means that the 7th overall reaction in the mechanism
-     * is located in the 5th position of m_c1_list if it unimolecular and only has one reactant/product.
-     */
-    std::map<size_t, size_t>  m_loc;
 };
 
 }
