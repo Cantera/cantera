@@ -36,7 +36,7 @@ void BulkKinetics::getDeltaGibbs(doublereal* deltaG)
     // Get the chemical potentials of the species in the ideal gas solution.
     thermo().getChemPotentials(&m_grt[0]);
     // Use the stoichiometric manager to find deltaG for each reaction.
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
+    getReactionDelta(&m_grt[0], deltaG);
 }
 
 void BulkKinetics::getDeltaEnthalpy(doublereal* deltaH)
@@ -44,7 +44,7 @@ void BulkKinetics::getDeltaEnthalpy(doublereal* deltaH)
     // Get the partial molar enthalpy of all species in the ideal gas.
     thermo().getPartialMolarEnthalpies(&m_grt[0]);
     // Use the stoichiometric manager to find deltaH for each reaction.
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
+    getReactionDelta(&m_grt[0], deltaH);
 }
 
 void BulkKinetics::getDeltaEntropy(doublereal* deltaS)
@@ -52,7 +52,7 @@ void BulkKinetics::getDeltaEntropy(doublereal* deltaS)
     // Get the partial molar entropy of all species in the solid solution.
     thermo().getPartialMolarEntropies(&m_grt[0]);
     // Use the stoichiometric manager to find deltaS for each reaction.
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
+    getReactionDelta(&m_grt[0], deltaS);
 }
 
 void BulkKinetics::getDeltaSSGibbs(doublereal* deltaG)
@@ -63,7 +63,7 @@ void BulkKinetics::getDeltaSSGibbs(doublereal* deltaG)
     // pressure of the solution.
     thermo().getStandardChemPotentials(&m_grt[0]);
     // Use the stoichiometric manager to find deltaG for each reaction.
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaG);
+    getReactionDelta(&m_grt[0], deltaG);
 }
 
 void BulkKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
@@ -75,7 +75,7 @@ void BulkKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
         m_grt[k] *= RT;
     }
     // Use the stoichiometric manager to find deltaH for each reaction.
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaH);
+    getReactionDelta(&m_grt[0], deltaH);
 }
 
 void BulkKinetics::getDeltaSSEntropy(doublereal* deltaS)
@@ -89,7 +89,7 @@ void BulkKinetics::getDeltaSSEntropy(doublereal* deltaS)
         m_grt[k] *= R;
     }
     // Use the stoichiometric manager to find deltaS for each reaction.
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
+    getReactionDelta(&m_grt[0], deltaS);
 }
 
 void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)

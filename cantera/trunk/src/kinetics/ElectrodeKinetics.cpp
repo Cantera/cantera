@@ -195,11 +195,11 @@ void ElectrodeKinetics::updateROP()
     // multiply ropf by the actyivity concentration reaction orders to obtain
     // the forward rates of progress. 
     //
-    m_rxnstoich.multiplyReactants(DATA_PTR(m_actConc), DATA_PTR(m_ropf));
+    m_reactantStoich.multiply(DATA_PTR(m_actConc), DATA_PTR(m_ropf));
     //
     // For reversible reactions, multiply ropr by the activity concentration products
     //
-    m_rxnstoich.multiplyRevProducts(DATA_PTR(m_actConc), DATA_PTR(m_ropr));
+    m_revProductStoich.multiply(DATA_PTR(m_actConc), DATA_PTR(m_ropr));
     //
     //  Fix up these calculations for cases where the above formalism doesn't hold
     //

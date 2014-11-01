@@ -103,7 +103,7 @@ void GasKinetics::updateKc()
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reversible reactions
-    m_rxnstoich.getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
+    getRevReactionDelta(&m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_revindex.size(); i++) {
@@ -124,7 +124,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reactions
-    m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
+    getReactionDelta(&m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_ii; i++) {
@@ -194,10 +194,10 @@ void GasKinetics::updateROP()
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_rxnstoich.multiplyReactants(&m_conc[0], &m_ropf[0]);
+    m_reactantStoich.multiply(&m_conc[0], &m_ropf[0]);
 
     // for reversible reactions, multiply ropr by concentration products
-    m_rxnstoich.multiplyRevProducts(&m_conc[0], &m_ropr[0]);
+    m_revProductStoich.multiply(&m_conc[0], &m_ropr[0]);
 
     for (size_t j = 0; j != m_ii; ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];

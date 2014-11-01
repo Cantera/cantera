@@ -11,7 +11,7 @@
 #define CT_KINETICS_H
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "ReactionStoichMgr.h"
+#include "StoichManager.h"
 #include "cantera/thermo/mix_defs.h"
 
 namespace Cantera
@@ -457,9 +457,19 @@ public:
      * @param deltaProperty Output vector of deltaRxn. Length: m_ii.
      */
     virtual void getReactionDelta(const doublereal* property,
-                                  doublereal* deltaProperty) {
-        throw NotImplementedError("Kinetics::getReactionDelta");
-    }
+                                  doublereal* deltaProperty);
+
+    /**
+     * Given an array of species properties 'g', return in array 'dg' the
+     * change in this quantity in the reversible reactions. Array 'g' must
+     * have a length at least as great as the number of species, and array
+     * 'dg' must have a length as great as the total number of reactions.
+     * This method only computes 'dg' for the reversible reactions, and the
+     * entries of 'dg' for the irreversible reactions are unaltered. This is
+     * primarily designed for use in calculating reverse rate coefficients
+     * from thermochemistry for reversible reactions.
+     */
+    virtual void getRevReactionDelta(const doublereal* g, doublereal* dg);
 
     //! Return the vector of values for the reaction gibbs free energy change.
     /*!
@@ -863,13 +873,23 @@ protected:
         throw NotImplementedError("Kinetics::updateROP");
     }
 
-    //! Stoichiometric manager for the reaction mechanism
+    //! @name Stoichiometry management
     /*!
-     *  This is the manager for the kinetics mechanism that handles turning
-     *  reaction extents into species production rates and also handles
-     *  turning thermo properties into reaction thermo properties.
+     *  These objects and functions handle turning reaction extents into species
+     *  production rates and also handle turning thermo properties into reaction
+     *  thermo properties.
      */
-    ReactionStoichMgr m_rxnstoich;
+    //@{
+
+    //! Stoichiometry manager for the reactants for each reaction
+    StoichManagerN m_reactantStoich;
+
+    //! Stoichiometry manager for the products of reversible reactions
+    StoichManagerN m_revProductStoich;
+
+    //! Stoichiometry manager for the products of irreversible reactions
+    StoichManagerN m_irrevProductStoich;
+    //@}
 
     //! Number of reactions in the mechanism
     size_t m_ii;
