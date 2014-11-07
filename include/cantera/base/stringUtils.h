@@ -101,6 +101,7 @@ compositionMap parseCompString(const std::string& ss,
  *              pairs on multiple lines
  *  @param w    Output vector consisting of single key:composition
  *              items in each index.
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 void split(const std::string& ss, std::vector<std::string>& w);
 
@@ -111,6 +112,7 @@ void split(const std::string& ss, std::vector<std::string>& w);
  *   @param a       Output pointer to a vector of floats
  *   @param delim   character delimiter. Defaults to a space
  *   @return        Returns the number of floats found and converted
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 int fillArrayFromString(const std::string& str, doublereal* const a,
                         const char delim = ' ');
