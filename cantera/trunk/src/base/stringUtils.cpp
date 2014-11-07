@@ -166,6 +166,7 @@ compositionMap parseCompString(const std::string& ss,
 
 void split(const std::string& ss, std::vector<std::string>& w)
 {
+    warn_deprecated("split", "To be removed after Cantera 2.2.");
     std::string s = ss;
     std::string::size_type ibegin, iend;
     std::string name, num, nm;
@@ -188,6 +189,7 @@ void split(const std::string& ss, std::vector<std::string>& w)
 int fillArrayFromString(const std::string& str,
                         doublereal* const a, const char delim)
 {
+    warn_deprecated("fillArrayFromString", "To be removed after Cantera 2.2.");
     std::string::size_type iloc;
     int count = 0;
     std::string num;
