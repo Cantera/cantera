@@ -1027,15 +1027,13 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& rxnNode, Kinetics& kin,
         }
         for (size_t nn = 0; nn < rdata.products.size(); nn++) {
             rdata.net_stoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
-            participants += 1000000 * static_cast<unsigned long int>(rdata.products[nn]);
+            participants += static_cast<unsigned long int>(rdata.products[nn]);
         }
 
         vector<size_t>& related = m_participants[participants];
         for (size_t mm = 0; mm < related.size(); mm++) {
             ReactionData& other = *m_rdata[related[mm]];
-            if (rdata.reactants.size() != other.reactants.size()) {
-                continue; // different numbers of reactants
-            } else if (rdata.reactionType != other.reactionType) {
+            if (rdata.reactionType != other.reactionType) {
                 continue; // different reaction types
             } else if (rdata.duplicate && other.duplicate) {
                 continue; // marked duplicates

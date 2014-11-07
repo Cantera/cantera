@@ -462,3 +462,43 @@ class TestSofcKinetics(utilities.CanteraTest):
                              anode_bulk.electric_potential])
 
         self.compare(data, '../data/sofc-test.csv')
+
+
+class TestDuplicateReactions(utilities.CanteraTest):
+    infile = 'duplicate-reactions.cti'
+
+    def check(self, name):
+        with self.assertRaises(Exception) as cm:
+            ct.Solution(self.infile, name)
+        self.assertIn('duplicate reaction', str(cm.exception))
+
+    def test_forward_multiple(self):
+        self.check('A')
+
+    def test_opposite_direction1(self):
+        self.check('B')
+
+    def test_opposite_direction2(self):
+        self.check('C')
+
+    def test_opposite_direction3(self):
+        self.check('D')
+
+    def test_opposite_direction4(self):
+        gas = ct.Solution(self.infile, 'E')
+        self.assertEqual(gas.n_reactions, 2)
+
+    def test_common_efficiencies(self):
+        self.check('F')
+
+    def test_disjoint_efficiencies(self):
+        gas = ct.Solution(self.infile, 'G')
+        self.assertEqual(gas.n_reactions, 2)
+
+    def test_different_type(self):
+        gas = ct.Solution(self.infile, 'H')
+        self.assertEqual(gas.n_reactions, 2)
+
+    def test_declared_duplicate(self):
+        gas = ct.Solution(self.infile, 'I')
+        self.assertEqual(gas.n_reactions, 2)
