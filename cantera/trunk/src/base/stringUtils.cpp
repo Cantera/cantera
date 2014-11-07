@@ -139,62 +139,28 @@ compositionMap parseCompString(const std::string& ss,
     for (size_t k = 0; k < names.size(); k++) {
         x[names[k]] = 0.0;
     }
-    std::string s = ss;
-    std::string num;
-    do {
-        size_t ibegin = s.find_first_not_of(", ;\n\t");
-        if (ibegin != std::string::npos) {
-            s = s.substr(ibegin,s.size());
-            size_t icolon = s.find(':');
-            size_t iend = s.find_first_of(", ;\n\t");
-            if (icolon != std::string::npos) {
-                std::string name = stripws(s.substr(0, icolon));
-                if (iend != std::string::npos) {
-                    num = s.substr(icolon+1, iend-icolon-1);
-                    s = s.substr(iend+1, s.size());
-                } else {
-                    num = s.substr(icolon+1, s.size());
-                    s = "";
-                }
-                if (x.find(name) == x.end()) {
-                    throw CanteraError("parseCompString",
-                                       "unknown species " + name);
-                }
-                x[name] = fpValueCheck(num);
-            } else {
-                s = "";
-            }
-        }
-    } while (s != "");
-    return x;
-}
 
-compositionMap parseCompString(const std::string& ss)
-{
-    compositionMap x;
-    std::string s = ss;
-    std::string num;
-    while (!s.empty()) {
-        size_t ibegin = s.find_first_not_of(", ;\n\t");
-        if (ibegin != std::string::npos) {
-            s = s.substr(ibegin,s.size());
-            size_t icolon = s.find(':');
-            size_t iend = s.find_first_of(", ;\n\t");
-            if (icolon != std::string::npos) {
-                std::string name = stripws(s.substr(0, icolon));
-                if (iend != std::string::npos) {
-                    num = s.substr(icolon+1, iend-icolon-1);
-                    s = s.substr(iend+1, s.size());
-                } else {
-                    num = s.substr(icolon+1, s.size());
-                    s = "";
-                }
-                x[name] = fpValueCheck(num);
-            } else {
-                s = "";
-            }
+    size_t start = 0;
+    size_t stop = 0;
+    while (stop < ss.size()) {
+        size_t colon = ss.find(':', start);
+        if (colon == npos) {
+            break;
         }
-    };
+        size_t valstart = ss.find_first_not_of(" \t\n", colon+1);
+        stop = ss.find_first_of(", ;\n\t", valstart);
+        std::string name = stripws(ss.substr(start, colon-start));
+        if (!names.empty() && x.find(name) == x.end()) {
+            throw CanteraError("parseCompString",
+                "unknown species '" + name + "'");
+        }
+        x[name] = fpValueCheck(ss.substr(valstart, stop-colon-1));
+        start = ss.find_first_not_of(", ;\n\t", stop+1);
+    }
+    if (stop != npos && !stripws(ss.substr(stop)).empty()) {
+        throw CanteraError("parseCompString", "Found non-key:value data "
+            "in composition string: '" + ss.substr(stop) + "'");
+    }
     return x;
 }
 
