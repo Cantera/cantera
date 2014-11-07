@@ -811,15 +811,13 @@ void InterfaceKinetics::addReaction(ReactionData& r)
     m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));
 
     size_t i = m_ii - 1;
-    const std::vector<size_t>& vr = reactants(i);
-    for (size_t ik = 0; ik < vr.size(); ik++) {
-        size_t k = vr[ik];
+    for (size_t ik = 0; ik < r.reactants.size(); ik++) {
+        size_t k = r.reactants[ik];
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsReactant[i][p] = true;
     }
-    const std::vector<size_t>& vp = products(i);
-    for (size_t ik = 0; ik < vp.size(); ik++) {
-        size_t k = vp[ik];
+    for (size_t ik = 0; ik < r.products.size(); ik++) {
+        size_t k = r.products[ik];
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsProduct[i][p] = true;
     }

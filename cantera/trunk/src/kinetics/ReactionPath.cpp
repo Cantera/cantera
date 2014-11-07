@@ -439,8 +439,15 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
 
         size_t nrnet = m_reac[i].size();
         size_t npnet = m_prod[i].size();
-        const std::vector<size_t>& r = s.reactants(i);
-        const std::vector<size_t>& p = s.products(i);
+        std::vector<size_t> r, p;
+        for (size_t k = 0; k < s.nTotalSpecies(); k++) {
+            if (s.reactantStoichCoeff(k,i)) {
+                r.push_back(k);
+            }
+            if (s.productStoichCoeff(k,i)) {
+                p.push_back(k);
+            }
+        }
 
         size_t nr = r.size();
         size_t np = p.size();
@@ -656,11 +663,17 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 
     // all reactants / products, even ones appearing on both sides
     // of the reaction
-    vector<vector<size_t> > allProducts;
-    vector<vector<size_t> > allReactants;
+    vector<vector<size_t> > allProducts(m_nr);
+    vector<vector<size_t> > allReactants(m_nr);
     for (size_t i = 0; i < m_nr; i++) {
-        allReactants.push_back(kin.reactants(i));
-        allProducts.push_back(kin.products(i));
+        for (size_t k = 0; k < m_ns; k++) {
+            if (kin.reactantStoichCoeff(k, i)) {
+                allReactants[i].push_back(k);
+            }
+            if (kin.productStoichCoeff(k, i)) {
+                allProducts[i].push_back(k);
+            }
+        }
     }
 
     // m_reac and m_prod exclude indices for species that appear on

@@ -13,6 +13,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "StoichManager.h"
 #include "cantera/thermo/mix_defs.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -652,8 +653,11 @@ public:
      * index numbers for reaction i.
      *
      * @param i  reaction index
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual const std::vector<size_t>& reactants(size_t i) const {
+        warn_deprecated("Kinetics::reactants",
+                        "To be removed after Cantera 2.2.");
         return m_reactants[i];
     }
 
@@ -662,8 +666,11 @@ public:
      * index numbers for reaction i.
      *
      * @param i reaction index
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual const std::vector<size_t>& products(size_t i) const {
+        warn_deprecated("Kinetics::products",
+                        "To be removed after Cantera 2.2.");
         return m_products[i];
     }
 
@@ -912,6 +919,7 @@ protected:
      * stoichiometric coefficient.
      * NOTE: These vectors will be wrong if there are real
      *       stoichiometric coefficients in the expression.
+     * @deprecated To be removed after Cantera 2.2.
      */
     std::vector<std::vector<size_t> > m_reactants;
 
@@ -925,6 +933,7 @@ protected:
      * coefficient.
      * NOTE: These vectors will be wrong if there are real
      *       stoichiometric coefficients in the expression.
+     * @deprecated To be removed after Cantera 2.2.
      */
     std::vector<std::vector<size_t> > m_products;
 
