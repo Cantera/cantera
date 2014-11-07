@@ -1,0 +1,59 @@
+units(length='cm', time='s', quantity='mol', act_energy='cal/mol')
+
+def make_gas(name, reactions):
+    ideal_gas(name=name,
+          elements=" O  H  Ar ",
+          species="""h2o2: H2  H  O  O2  OH  H2O  HO2  H2O2  AR """,
+          reactions=reactions,
+          transport="None")
+
+make_gas('A', 'A-*')
+make_gas('B', 'B-*')
+make_gas('C', 'C-*')
+make_gas('D', 'D-*')
+make_gas('E', 'E-*')
+make_gas('F', 'F-*')
+make_gas('G', 'G-*')
+make_gas('H', 'H-*')
+make_gas('I', 'I-*')
+
+kf = [1e10, 0, 100]
+
+# Forward multiple (not allowed)
+reaction('O + H2 <=> H + OH', kf, id='A-1')
+reaction('2 O + 2 H2 <=> 2 H + 2 OH', kf, id='A-2')
+
+# Opposite direction #1 (not allowed)
+reaction('O + H2 <=> H + OH', kf, id='B-1')
+reaction('H + OH <=> O + H2', kf, id='B-2')
+
+# Opposite direction #2 (not allowed)
+reaction('H + O2 + AR <=> HO2 + AR', kf, id='C-1')
+reaction('HO2 + AR <=> H + O2 + AR', kf, id='C-2')
+
+# Opposite direction #3 (not allowed)
+reaction('H + O2 + AR <=> HO2 + AR', kf, id='D-1')
+reaction('HO2 + AR => H + O2 + AR', kf, id='D-2')
+
+# Opposite direction #4 (allowed)
+reaction('H + O2 + AR => HO2 + AR', kf, id='E-1')
+reaction('HO2 + AR => H + O2 + AR', kf, id='E-2')
+
+# Common efficiencies (not allowed)
+falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)', kf=kf, kf0=kf,
+                 efficiencies='H2:2.0 H2O:6.0', id='F-1')
+falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)', kf=kf, kf0=kf,
+                 efficiencies='AR:0.7 H2:2.0', id='F-2')
+
+# Disjoint efficiencies (allowed)
+falloff_reaction('2 OH (+ H2O) <=> H2O2 (+ H2O)', kf=kf, kf0=kf, id='G-1')
+falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)', kf=kf, kf0=kf,
+                 efficiencies='AR:0.7 H2:2.0 H2O:0.0', id='G-2')
+
+# Different reaction type (allowed)
+reaction('O + H2 <=> H + OH', kf, id='H-1')
+three_body_reaction('O + H2 + M <=> H + OH + M', kf, id='H-2')
+
+# Declared duplicate (allowed)
+reaction('O + H2 <=> H + OH', kf, options='duplicate', id='I-1')
+reaction('H + OH <=> O + H2', kf, options='duplicate', id='I-2')
