@@ -1273,37 +1273,6 @@ public:
      */
     HMWSoln& operator=(const HMWSoln& right);
 
-    //! This is a special constructor, used to replicate test problems
-    //! during the initial verification of the object
-    /*!
-     *  test problems:
-     *  1 = NaCl problem - 5 species - the thermo is read in from an XML file
-     *
-     *      speci   molality                        charge
-     *      Cl-     6.0954          6.0997E+00      -1
-     *      H+      1.0000E-08      2.1628E-09      1
-     *      Na+     6.0954E+00      6.0997E+00      1
-     *      OH-     7.5982E-07      1.3977E-06     -1
-     *
-     *      HMW_params____beta0MX__beta1MX__beta2MX__CphiMX_____alphaMX__thetaij
-     *      10
-     *      1  2          0.1775  0.2945   0.0      0.00080    2.0      0.0
-     *      1  3          0.0765  0.2664   0.0      0.00127    2.0      0.0
-     *      1  4          0.0     0.0      0.0      0.0        0.0     -0.050
-     *      2  3          0.0     0.0      0.0      0.0        0.0      0.036
-     *      2  4          0.0     0.0      0.0      0.0        0.0      0.0
-     *      3  4          0.0864  0.253    0.0      0.0044     2.0      0.0
-     *
-     *      Triplet_interaction_parameters_psiaa'_or_psicc'
-     *      2
-     *      1  2  3   -0.004
-     *      1  3  4   -0.006
-     *
-     * @param testProb Hard -coded test problem to instantiate.
-     *                 Current valid values are 1.
-     */
-    HMWSoln(int testProb);
-
     //! Destructor.
     virtual ~HMWSoln();
 
