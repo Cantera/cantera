@@ -3507,7 +3507,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
      *  Make a copy of the data. Note, this jacobian copy occurs before any matrix scaling operations.
      *  It's the raw matrix producted by this routine.
      */
-    jacCopyPtr_->copyData(J);
+    *jacCopyPtr_ = J;
 
     return retn;
 }

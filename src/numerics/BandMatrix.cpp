@@ -433,6 +433,7 @@ doublereal* const* BandMatrix::colPts()
 
 void BandMatrix::copyData(const GeneralMatrix& y)
 {
+    warn_deprecated("BandMatrix::copyData", "To be removed after Cantera 2.2.");
     m_factored = false;
     size_t n = sizeof(doublereal) * m_n * (2 *m_kl + m_ku + 1);
     GeneralMatrix* yyPtr = const_cast<GeneralMatrix*>(&y);

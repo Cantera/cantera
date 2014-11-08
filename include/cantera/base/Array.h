@@ -128,8 +128,10 @@ public:
     /*!
      *  This differs from the assignment operator as no resizing is done and memcpy() is used.
      *  @param y Array to be copied
+     *  @deprecated To be removed after Cantera 2.2.
      */
     void copyData(const Array2D& y) {
+        warn_deprecated("Array2D::copyData", "To be removed after Cantera 2.2.");
         size_t n = sizeof(doublereal) * m_nrows * m_ncols;
         (void) memcpy(DATA_PTR(m_data), y.ptrColumn(0), n);
     }
