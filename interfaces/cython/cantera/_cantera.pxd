@@ -54,6 +54,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double maxTemp() except +
         double refPressure() except +
         cbool getElementPotentials(double*) except +
+        void equilibrate(string, string, double, int, int, int, int) except +
 
         # basic thermodynamic properties
         double temperature() except +

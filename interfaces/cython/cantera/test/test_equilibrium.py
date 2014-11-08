@@ -85,6 +85,20 @@ class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
         EquilTestCases.__init__(self, 'gibbs')
         unittest.TestCase.__init__(self, *args, **kwargs)
 
+    @unittest.expectedFailure
+    def test_equil_gri_stoichiometric(self):
+        gas = ct.Solution('gri30.xml')
+        gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
+        gas.equilibrate('TP', self.solver)
+        self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
+
+    @unittest.expectedFailure
+    def test_equil_gri_lean(self):
+        gas = ct.Solution('gri30.xml')
+        gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
+        gas.equilibrate('TP', self.solver)
+        self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
+
 
 class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):

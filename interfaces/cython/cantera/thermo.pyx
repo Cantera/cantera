@@ -1,3 +1,5 @@
+import warnings
+
 cdef enum Thermasis:
     mass_basis = 0
     molar_basis = 1
@@ -99,7 +101,8 @@ cdef class ThermoPhase(_SolutionBase):
             return 1.0
 
     def equilibrate(self, XY, solver='auto', double rtol=1e-9,
-                    int maxsteps=1000, int maxiter=100, int loglevel=0):
+                    int maxsteps=1000, int maxiter=100, int estimate_equil=0,
+                    int loglevel=0):
         """
         Set to a state of chemical equilibrium holding property pair
         *XY* constant.
@@ -127,26 +130,33 @@ cdef class ThermoPhase(_SolutionBase):
             For the Gibbs minimization solver, this specifies the number of
             'outer' iterations on T or P when some property pair other
             than TP is specified.
+        :param estimate_equil:
+            Integer indicating whether the solver should estimate its own
+            initial condition. If 0, the initial mole fraction vector in the
+            ThermoPhase object is used as the initial condition. If 1, the
+            initial mole fraction vector is used if the element abundances are
+            satisfied. If -1, the initial mole fraction vector is thrown out,
+            and an estimate is formulated.
         :param loglevel:
             Set to a value > 0 to write diagnostic output.
             """
-        cdef int iSolver
         if isinstance(solver, int):
-            iSolver = solver
-        elif solver == 'auto':
-            iSolver = -1
-        elif solver == 'element_potential':
-            iSolver = 0
-        elif solver == 'gibbs':
-            iSolver = 1
-        elif solver == 'vcs':
-            iSolver = 2
-        else:
-            raise ValueError('Invalid equilibrium solver specified')
+            warnings.warn('ThermoPhase.equilibrate: Using integer solver '
+                'flags is deprecated, and will be disabled after Cantera 2.2.')
+            if solver == -1:
+                solver = 'auto'
+            elif solver == 0:
+                solver = 'element_potential'
+            elif solver == 1:
+                solver = 'gibbs'
+            elif solver == 2:
+                solver = 'vcs'
+            else:
+                raise ValueError('Invalid equilibrium solver specified: '
+                    '"{0}"'.format(solver))
 
-        XY = XY.upper()
-        equilibrate(deref(self.thermo), stringify(XY).c_str(),
-                    iSolver, rtol, maxsteps, maxiter, loglevel)
+        self.thermo.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
+                                maxsteps, maxiter, estimate_equil, loglevel)
 
     ####### Composition, species, and elements ########
 
