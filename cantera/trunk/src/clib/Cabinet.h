@@ -6,6 +6,7 @@
 
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 #include "clib_defs.h"
 
 /**
@@ -100,8 +101,11 @@ public:
      * Assign one object (index j) to another (index i).  This method
      * is not used currently, and may be removed from the class in the
      * future.
+     * @deprecated To be removed after Cantera 2.2
      */
     static int assign(int i, int j) {
+        Cantera::warn_deprecated("Cabinet::assign",
+            "To be removed after Cantera 2.2.");
         dataRef data = getData();
         try {
             M* src = data[j];
