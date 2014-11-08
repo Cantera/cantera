@@ -9,7 +9,6 @@
 #include "cantera/oneD/Inlet1D.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/equilibrium.h"
 #include "cantera/transport.h"
 
 using namespace Cantera;
@@ -64,7 +63,7 @@ int flamespeed(int np, void* p)
         gas.getMassFractions(yin);
 
         try {
-            equilibrate(gas,"HP");
+            gas.equilibrate("HP");
         } catch (CanteraError& err) {
             std::cout << err.what() << std::endl;
         }

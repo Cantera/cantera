@@ -7,7 +7,6 @@
  *   pointers are passed to or from the calling application.
  */
 // Cantera includes
-#include "cantera/equil/equil.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -559,7 +558,7 @@ extern "C" {
     status_t th_equil_(const integer* n, char* XY, ftnlen lenxy)
     {
         try {
-            equilibrate(*_fth(n), f2string(XY,lenxy).c_str());
+            _fth(n)->equilibrate(f2string(XY,lenxy));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

@@ -562,8 +562,18 @@ doublereal MultiPhase::volume() const
     return sum;
 }
 
-doublereal MultiPhase::equilibrate(int XY, doublereal err,
-                                   int maxsteps, int maxiter, int loglevel)
+double MultiPhase::equilibrate(int XY, doublereal err, int maxsteps,
+                               int maxiter, int loglevel)
+{
+    warn_deprecated("MultiPhase::equilibrate(int XY, ...)",
+        "Use MultiPhase::equilibrate(string XY, ...) instead. To be removed "
+        "after Cantera 2.2.");
+    return equilibrate_MultiPhaseEquil(XY, err, maxsteps, maxiter, loglevel);
+}
+
+double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
+                                               int maxsteps, int maxiter,
+                                               int loglevel)
 {
     bool strt = false;
     doublereal dt;
@@ -667,7 +677,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 }
             }
         }
-        throw CanteraError("MultiPhase::equilibrate",
+        throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "No convergence for T");
     } else if (XY == SP) {
         s0 = entropy();
@@ -714,7 +724,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 }
             }
         }
-        throw CanteraError("MultiPhase::equilibrate",
+        throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "No convergence for T");
     } else if (XY == TV) {
         doublereal v0 = volume();
@@ -742,7 +752,8 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
     }
 
     else {
-        throw CanteraError("MultiPhase::equilibrate","unknown option");
+        throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
+                           "unknown option");
     }
     return -1.0;
 }
@@ -790,7 +801,8 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
         try {
             writelog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
                      log_level);
-            equilibrate(ixy, rtol, max_steps, max_iter, log_level-1);
+            equilibrate_MultiPhaseEquil(ixy, rtol, max_steps, max_iter,
+                                        log_level-1);
             writelog("MultiPhaseEquil solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {

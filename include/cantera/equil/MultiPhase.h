@@ -569,6 +569,22 @@ private:
     //! Calculate the element abundance vector
     void calcElemAbundances() const;
 
+    //! Set the mixture to a state of chemical equilibrium using the
+    //! MultiPhaseEquil solver.
+    /*!
+     *  @param XY   Integer flag specifying properties to hold fixed.
+     *  @param err  Error tolerance for \f$\Delta \mu/RT \f$ for all reactions.
+     *              Also used as the relative error tolerance for the outer
+     *              loop.
+     *  @param maxsteps Maximum number of steps to take in solving the fixed
+     *                  TP problem.
+     *  @param maxiter Maximum number of "outer" iterations for problems holding
+     *                 fixed something other than (T,P).
+     *  @param loglevel Level of diagnostic output
+     */
+    double equilibrate_MultiPhaseEquil(int XY, doublereal err, int maxsteps,
+                                       int maxiter, int loglevel);
+
     //! Vector of the number of moles in each phase.
     /*!
      * Length = m_np, number of phases.

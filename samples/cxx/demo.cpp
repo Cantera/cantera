@@ -12,7 +12,6 @@
 // to include core headers directly, use the format "cantera/module/*.h".
 
 #include "cantera/IdealGasMix.h"    // defines class IdealGasMix
-#include "cantera/equilibrium.h"    // chemical equilibrium
 #include "cantera/transport.h"      // transport properties
 
 // All Cantera kernel names are in namespace Cantera. You can either
@@ -49,7 +48,7 @@ void demoprog()
 
     // set the gas to the equilibrium state with the same specific
     // enthalpy and pressure
-    equilibrate(gas,"HP");
+    gas.equilibrate("HP");
 
     printf("\n\nEquilibrium state:\n\n");
     printf(

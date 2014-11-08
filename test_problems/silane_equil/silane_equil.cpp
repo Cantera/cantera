@@ -3,7 +3,6 @@
  */
 
 #include "cantera/IdealGasMix.h"
-#include "cantera/equilibrium.h"
 
 using namespace std;
 using namespace Cantera;
@@ -16,7 +15,7 @@ int main(int argc, char** argv)
     try {
         IdealGasMix g("silane.xml", "silane");
         g.setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");
-        equilibrate(g, "TP");
+        g.equilibrate("TP");
         //cout << g;
         return 0;
     } catch (CanteraError& err) {

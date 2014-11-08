@@ -6,7 +6,6 @@
 /////////////////////////////////////////////////////////////
 
 #include "example_utils.h"
-#include "cantera/equilibrium.h"
 
 #include "cantera/IdealGasMix.h"
 
@@ -80,8 +79,7 @@ int equil_example1(int job)
         }
         gas.setState_TPX(temp, pres, "SIH4:0.01, H2:0.99");
 
-        //        equilibrate(gas,"TP",1,1.0e-9,1000,100,15);
-        equilibrate(gas,"TP");
+        gas.equilibrate("TP");
         output(0,i) = temp;
         output(1,i) = gas.pressure();
         gas.getMoleFractions(&output(2,i));
