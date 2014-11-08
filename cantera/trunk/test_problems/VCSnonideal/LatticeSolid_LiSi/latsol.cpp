@@ -2,10 +2,11 @@
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
-#include "cantera/equilibrium.h"
+#include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/thermo.h"
 
 #include <stdio.h>
+#include <memory>
 
 using namespace Cantera;
 
@@ -54,11 +55,10 @@ void testProblem()
     mmm.addPhase(LiSi_solid.get(), 1.);
     mmm.addPhase(&LiFixed, 100.);
 
-    int solver = 2;
     int printLvl = 3;
     int estimateEquil = 0;
 
-    vcs_equilibrate(mmm, "TP", estimateEquil, printLvl, solver);
+    mmm.equilibrate("TP", "vcs", 1e-9, 50000, 100, estimateEquil, printLvl);
     std::cout << mmm << std::endl;
 
     Cantera::appdelete();

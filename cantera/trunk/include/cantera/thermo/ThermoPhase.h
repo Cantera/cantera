@@ -1190,11 +1190,10 @@ public:
 
     //! Stores the element potentials in the ThermoPhase object
     /*!
-     * Called by function 'equilibrate' in ChemEquil.h to transfer
-     * the element potentials to this object after every successful
-     *  equilibration routine.
-     * The element potentials are stored in their dimensionless
-     * forms, calculated by dividing by RT.
+     * Called by the ChemEquil equilibrium solver to transfer the element
+     * potentials to this object after every successful equilibration routine.
+     * The element potentials are stored in their dimensionless forms,
+     * calculated by dividing by RT.
      *
      *    @param lambda Input vector containing the element potentials.
      *           Length = nElements. Units are Joules/kmol.

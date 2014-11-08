@@ -46,7 +46,8 @@ namespace Cantera
  *  @param loglevel Controls amount of diagnostic output. loglevel
  *                  = 0 suppresses diagnostics, and increasingly-verbose
  *                  messages are written as loglevel increases.
- *
+ *  @deprecated Use ThermoPhase::equilibrate instead. To be removed after
+ *      Cantera 2.2.
  *  @ingroup equilfunctions
  */
 int vcs_equilibrate(thermo_t& s, const char* XY,
@@ -87,7 +88,8 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
  *  @param loglevel Controls amount of diagnostic output. loglevel
  *                  = 0 suppresses diagnostics, and increasingly-verbose
  *                  messages are written as loglevel increases.
- *
+ *  @deprecated Use MultiPhase::equilibrate instead. To be removed after
+ *      Cantera 2.2.
  *  @ingroup equilfunctions
  */
 int vcs_equilibrate(MultiPhase& s, const char* XY,
@@ -129,7 +131,8 @@ int vcs_equilibrate(MultiPhase& s, const char* XY,
  *  @param loglevel Controls amount of diagnostic output. loglevel
  *                  = 0 suppresses diagnostics, and increasingly-verbose
  *                  messages are written as loglevel increases.
- *
+ *  @deprecated Use MultiPhase::equilibrate instead. To be removed after
+ *      Cantera 2.2.
  *  @ingroup equilfunctions
  */
 int vcs_equilibrate_1(MultiPhase& s, int ixy,

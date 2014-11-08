@@ -2,6 +2,8 @@
  * @file equil.h
  * This file contains the definition of some high level general equilibration
  * routines.
+ * @deprecated All functions defined in this file are deprecated. To be removed
+ *     after Cantera 2.2.
  */
 
 //  Copyright 2001  California Institute of Technology
@@ -9,6 +11,8 @@
 #ifndef CT_KERNEL_EQUIL_H
 #define CT_KERNEL_EQUIL_H
 
+
+#pragma message "cantera/equil/equil.h is deprecated"
 #include "MultiPhase.h"
 #include "vcs_defs.h"
 
@@ -47,7 +51,7 @@ namespace Cantera
  *                   are written as loglevel increases.
  *
  * @return The number of iterations it took to equilibrate the system.
- *
+ * @deprecated Use ThermoPhase::equilibrate instead. To be removed after Cantera 2.2.
  * @ingroup equilfunctions
  */
 int equilibrate(thermo_t& s, const char* XY,
@@ -72,7 +76,7 @@ int equilibrate(thermo_t& s, const char* XY,
  *  @param loglevel loglevel
  *
  *  @return The number of iterations it took to equilibrate the system.
- *
+ * @deprecated Use MultiPhase::equilibrate instead. To be removed after Cantera 2.2.
  *  @ingroup equilfunctions
  */
 doublereal equilibrate(MultiPhase& s, const char* XY,

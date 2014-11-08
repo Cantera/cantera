@@ -2,9 +2,7 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "cantera/equilibrium.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/equil/vcs_internal.h"
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -83,7 +81,6 @@ int main(int argc, char** argv)
 
 
     try {
-        int retnSub;
         int estimateEquil = 0;
         double T = 298.15;
         double pres = OneAtm;
@@ -122,20 +119,8 @@ int main(int argc, char** argv)
 
 
         try {
-            retnSub = vcs_equilibrate(*mp, "TP", estimateEquil, printLvl);
-
+            mp->equilibrate("TP", "vcs", 1e-9, 50000, 100, estimateEquil, printLvl);
             cout << *mp;
-            if (retnSub != 1) {
-                cerr << "ERROR: MultiEquil equilibration step failed at "
-                     << " T    = " << T
-                     << " Pres = " << pres
-                     << endl;
-                cout << "ERROR: MultiEquil equilibration step failed at "
-                     << " T    = " << T
-                     << " Pres = " << pres
-                     << endl;
-                exit(-1);
-            }
             numSucc++;
         } catch (CanteraError& err) {
             cout << *mp;

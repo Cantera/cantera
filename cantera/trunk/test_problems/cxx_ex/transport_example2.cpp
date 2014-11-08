@@ -8,7 +8,6 @@
 
 #include "cantera/transport.h"
 #include "example_utils.h"
-#include "cantera/equilibrium.h"
 #include "cantera/IdealGasMix.h"
 
 using namespace Cantera;
@@ -34,7 +33,7 @@ int transport_example2(int job)
         doublereal temp = 2000.0;
         doublereal pres = 2.0*OneAtm;
         gas.setState_TPX(temp, pres, "H2:1.0, O2:0.5, CH4:0.1, N2:0.2");
-        equilibrate(gas,"TP");
+        gas.equilibrate("TP");
 
         // create a transport manager that implements
         // multicomponent transport properties

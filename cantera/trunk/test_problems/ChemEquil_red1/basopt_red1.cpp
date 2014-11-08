@@ -1,5 +1,5 @@
 #include "cantera/IdealGasMix.h"
-#include "cantera/equilibrium.h"
+#include "cantera/equil/MultiPhase.h"
 
 using namespace std;
 using namespace Cantera;
@@ -43,11 +43,7 @@ int main(int argc, char** argv)
          * The ChemEquil solver throws an error for this case.
          * The MultiPhaseEquil solver just gets the wrong result.
          */
-        int it = equilibrate(g, "TP", -1);
-        if (it != 1) {
-            cerr << "incorrect number of iterations." << endl;
-            return -1;
-        }
+        g.equilibrate("TP", "auto");
         cout.unsetf(ios::floatfield);
         cout.precision(3);
         //cout << g;
