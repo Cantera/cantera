@@ -14,7 +14,6 @@
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
-#include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/vec_functions.h"
 
@@ -756,10 +755,10 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
                               double rtol, int max_steps, int max_iter,
                               int estimate_equil, int log_level)
 {
-    vector_fp initial_state;
-    saveState(initial_state);
 
     if (solver == "auto" || solver == "element_potential") {
+        vector_fp initial_state;
+        saveState(initial_state);
         writelog("Trying ChemEquil solver\n", log_level);
         try {
             ChemEquil E;
@@ -785,50 +784,13 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
         }
     }
 
-    int ixy = _equilflag(XY.c_str());
-    if (solver == "auto" || solver == "vcs") {
-        try {
-            writelog("Trying VCS equilibrium solver\n", log_level);
-            MultiPhase M;
-            M.addPhase(this, 1.0);
-            M.init();
-
-            VCSnonideal::vcs_MultiPhaseEquil eqsolve(&M, log_level-1);
-            int ret = eqsolve.equilibrate(ixy, estimate_equil, log_level-1,
-                                          rtol, max_steps);
-            if (ret) {
-                throw CanteraError("ThermoPhase::equilibrate",
-                    "VCS solver failed. Return code: " + int2str(ret));
-            }
-            writelog("VCS solver succeeded\n");
-            return;
-        } catch (std::exception& err) {
-            writelog("VCS solver failed.\n", log_level);
-            writelog(err.what(), log_level);
-            restoreState(initial_state);
-            if (solver == "auto") {
-            } else {
-                throw;
-            }
-        }
-    }
-
-    if (solver == "auto" || solver == "gibbs") {
-        try {
-            writelog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
-                     log_level);
-            MultiPhase M;
-            M.addPhase(this, 1.0);
-            M.init();
-            M.equilibrate(ixy, rtol, max_steps, max_iter, log_level-1);
-            writelog("MultiPhaseEquil solver succeeded\n");
-            return;
-        } catch (std::exception& err) {
-            writelog("MultiPhaseEquil solver failed.\n", log_level);
-            writelog(err.what(), log_level);
-            restoreState(initial_state);
-            throw;
-        }
+    if (solver == "auto" || solver == "vcs" || solver == "gibbs") {
+        MultiPhase M;
+        M.addPhase(this, 1.0);
+        M.init();
+        M.equilibrate(XY, solver, rtol, max_steps, max_iter,
+                      estimate_equil, log_level);
+        return;
     }
 
     if (solver != "auto") {

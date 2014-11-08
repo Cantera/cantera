@@ -3,8 +3,11 @@
  * Definitions for the \link Cantera::MultiPhase MultiPhase\endlink
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
+
+#include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/equil/MultiPhaseEquil.h"
+#include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -742,6 +745,70 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
         throw CanteraError("MultiPhase::equilibrate","unknown option");
     }
     return -1.0;
+}
+
+void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
+                             double rtol, int max_steps, int max_iter,
+                             int estimate_equil, int log_level)
+{
+    // Save the initial state so that it can be restored in case one of the
+    // solvers fails
+    vector_fp initial_moleFractions = m_moleFractions;
+    vector_fp initial_moles = m_moles;
+    double initial_T = m_temp;
+    double initial_P = m_press;
+
+    int ixy = _equilflag(XY.c_str());
+    if (solver == "auto" || solver == "vcs") {
+        try {
+            writelog("Trying VCS equilibrium solver\n", log_level);
+            VCSnonideal::vcs_MultiPhaseEquil eqsolve(this, log_level-1);
+            int ret = eqsolve.equilibrate(ixy, estimate_equil, log_level-1,
+                                          rtol, max_steps);
+            if (ret) {
+                throw CanteraError("MultiPhase::equilibrate",
+                    "VCS solver failed. Return code: " + int2str(ret));
+            }
+            writelog("VCS solver succeeded\n", log_level);
+            return;
+        } catch (std::exception& err) {
+            writelog("VCS solver failed.\n", log_level);
+            writelog(err.what(), log_level);
+            m_moleFractions = initial_moleFractions;
+            m_moles = initial_moles;
+            m_temp = initial_T;
+            m_press = initial_P;
+            updatePhases();
+            if (solver == "auto") {
+            } else {
+                throw;
+            }
+        }
+    }
+
+    if (solver == "auto" || solver == "gibbs") {
+        try {
+            writelog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
+                     log_level);
+            equilibrate(ixy, rtol, max_steps, max_iter, log_level-1);
+            writelog("MultiPhaseEquil solver succeeded\n", log_level);
+            return;
+        } catch (std::exception& err) {
+            writelog("MultiPhaseEquil solver failed.\n", log_level);
+            writelog(err.what(), log_level);
+            m_moleFractions = initial_moleFractions;
+            m_moles = initial_moles;
+            m_temp = initial_T;
+            m_press = initial_P;
+            updatePhases();
+            throw;
+        }
+    }
+
+    if (solver != "auto") {
+        throw CanteraError("MultiPhase::equilibrate",
+            "Invalid solver specified: '" + solver + "'");
+    }
 }
 
 #ifdef MULTIPHASE_DEVEL
