@@ -101,6 +101,7 @@ public:
             return *this;
         }
 
+        SpeciesThermo::operator=(right);
         m_high           = right.m_high;
         m_low            = right.m_low;
         m_index          = right.m_index;

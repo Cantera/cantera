@@ -161,22 +161,6 @@ public:
     //! Destructor
     virtual ~SpeciesThermo() {}
 
-    //! Copy Constructor for the %SpeciesThermo object.
-    /*!
-     * @param right    Reference to %SpeciesThermo object to be copied into the
-     *                 current one.
-     */
-    SpeciesThermo(const SpeciesThermo& right) {}
-
-    //! Assignment operator for the %SpeciesThermo object
-    /*!
-     * @param right    Reference to %SpeciesThermo object to be copied into the
-     *                 current one.
-     */
-    SpeciesThermo& operator=(const SpeciesThermo& right) {
-        return *this;
-    }
-
     //! Duplication routine for objects derived from SpeciesThermo
     /*!
      *  This function can be used to duplicate objects derived from
