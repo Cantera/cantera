@@ -350,6 +350,39 @@ public:
     doublereal equilibrate(int XY, doublereal err = 1.0e-9,
                            int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
 
+    //! Equilibrate a MultiPhase object
+    /*!
+     *  Set this mixture to chemical equilibrium by calling one of Cantera's
+     *  equilibrium solvers. The XY parameter indicates what two thermodynamic
+     *  quantities are to be held constant during the equilibration process.
+     *
+     *  @param XY      String representation of what two properties are being
+     *                 held constant
+     *  @param solver  Name of the solver to be used to equilibrate the phase.
+     *      If solver = 'vcs', the vcs_MultiPhaseEquil solver will be used. If
+     *      solver = 'gibbs', the MultiPhaseEquil solver will be used. If solver
+     *      = 'auto', the 'vcs' solver will be tried first, followed by the
+     *      'gibbs' solver if the first one fails.
+     *  @param rtol      Relative tolerance
+     *  @param max_steps Maximum number of steps to take to find the solution
+     *  @param max_iter  The maximum number of outer temperature or pressure
+     *      iterations to take when T and/or P is not held fixed.
+     *  @param estimate_equil integer indicating whether the solver should
+     *      estimate its own initial condition. If 0, the initial mole fraction
+     *      vector in the ThermoPhase object is used as the initial condition.
+     *      If 1, the initial mole fraction vector is used if the element
+     *      abundances are satisfied. If -1, the initial mole fraction vector is
+     *      thrown out, and an estimate is formulated.
+     *  @param log_level  loglevel Controls amount of diagnostic output.
+     *      log_level=0 suppresses diagnostics, and increasingly-verbose
+     *      messages are written as loglevel increases.
+     *
+     * @ingroup equilfunctions
+     */
+    void equilibrate(const std::string& XY, const std::string& solver="auto",
+                     double rtol=1e-9, int max_steps=50000, int max_iter=100,
+                     int estimate_equil=0, int log_level=0);
+
     /// Set the temperature [K].
     /*!
      * @param T   value of the temperature (Kelvin)

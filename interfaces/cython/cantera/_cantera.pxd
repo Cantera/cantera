@@ -211,6 +211,8 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         void addPhase(CxxThermoPhase*, double) except +
         void init() except +
 
+        void equilibrate(string, string, double, int, int, int, int) except +
+
         size_t nSpecies()
         size_t nElements()
         size_t nPhases()
@@ -242,12 +244,6 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         double gibbs() except +
         double cp() except +
         double volume() except +
-
-cdef extern from "cantera/equil/equil.h" namespace "Cantera":
-    int equilibrate(CxxThermoPhase&, char*, int, double, int, int, int) except +
-
-cdef extern from "cantera/equil/vcs_MultiPhaseEquil.h" namespace "Cantera":
-    int vcs_equilibrate(CxxMultiPhase&, char*, int, int, int, double, int, int, int) except +
 
 
 cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
