@@ -273,6 +273,7 @@ public:
     /*!
      *  This differs from the assignment operator as no resizing is done and memcpy() is used.
      *  @param y Array to be copied
+     *  @deprecated To be removed after Cantera 2.2.
      */
     virtual void copyData(const GeneralMatrix& y);
 
