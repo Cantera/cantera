@@ -144,6 +144,7 @@ SpeciesThermoDuo<T1, T2>::operator=(const SpeciesThermoDuo& right)
         return *this;
     }
 
+    SpeciesThermo::operator=(right);
     m_thermo1 = right.m_thermo1;
     m_thermo2 = right.m_thermo2;
     m_p0      = right.m_p0;

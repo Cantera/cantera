@@ -20,6 +20,7 @@ GeneralSpeciesThermo::GeneralSpeciesThermo() :
 }
 
 GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
+    SpeciesThermo(b),
     m_tpoly(b.m_tpoly),
     m_tlow_max(b.m_tlow_max),
     m_thigh_min(b.m_thigh_min),
@@ -43,6 +44,8 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     if (&b == this) {
         return *this;
     }
+
+    SpeciesThermo::operator=(b);
     clear();
     // Copy SpeciesThermoInterpType objects from 'b'
     for (STIT_map::const_iterator iter = b.m_sp.begin();

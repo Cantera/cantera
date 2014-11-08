@@ -69,6 +69,7 @@ public:
      * @param right Object to be copied
      */
     SimpleThermo(const SimpleThermo& right) :
+        SpeciesThermo(right),
         ID(SIMPLE),
         m_tlow_max(0.0),
         m_thigh_min(1.e30),
@@ -92,6 +93,7 @@ public:
             return *this;
         }
 
+        SpeciesThermo::operator=(right);
         m_loc          = right.m_loc;
         m_index        = right.m_index;
         m_tlow_max     = right.m_tlow_max;
