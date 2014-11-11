@@ -19,6 +19,7 @@ namespace Cantera
 
 class Array2D;
 class Plog;
+class SurfaceArrhenius;
 
 //! Arrhenius reaction rate type depends only on temperature
 /**
@@ -109,6 +110,7 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 
     friend class Plog;
+    friend class SurfaceArrhenius;
 };
 
 
@@ -135,6 +137,7 @@ public:
     }
 
     SurfaceArrhenius();
+    explicit SurfaceArrhenius(const Arrhenius& rate);
     explicit SurfaceArrhenius(const ReactionData& rdata);
 
     void addCoverageDependence(size_t k, doublereal a,
