@@ -17,6 +17,7 @@
 namespace Cantera
 {
 
+class Array2D;
 class Plog;
 
 //! Arrhenius reaction rate type depends only on temperature
@@ -440,6 +441,19 @@ public:
 
     //! Constructor from ReactionData.
     explicit ChebyshevRate(const ReactionData& rdata);
+
+    //! Constructor directly from coefficient array
+    /*
+     *  @param Pmin    Minimum pressure [Pa]
+     *  @param Pmax    Maximum pressure [Pa]
+     *  @param Tmin    Minimum temperature [K]
+     *  @param Tmax    Maximum temperature [K]
+     *  @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
+     *      `nP` are the number of temperatures and pressures used in the fit,
+     *      respectively.
+     */
+    ChebyshevRate(double Pmin, double Pmax, double Tmin, double Tmax,
+                  const Array2D& coeffs);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa

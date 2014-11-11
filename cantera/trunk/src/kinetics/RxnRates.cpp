@@ -1,6 +1,7 @@
 //! @file RxnRates.cpp
 
 #include "cantera/kinetics/RxnRates.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {
@@ -275,6 +276,30 @@ ChebyshevRate::ChebyshevRate(const ReactionData& rdata)
     TrDen_ = 1.0 / (TmaxInv - TminInv);
     PrNum_ = - logPmin - logPmax;
     PrDen_ = 1.0 / (logPmax - logPmin);
+}
+
+ChebyshevRate::ChebyshevRate(double Pmin, double Pmax, double Tmin, double Tmax,
+                             const Array2D& coeffs)
+    : nP_(coeffs.nColumns())
+    , nT_(coeffs.nRows())
+    , chebCoeffs_(coeffs.nColumns() * coeffs.nRows(), 0.0)
+    , dotProd_(coeffs.nRows())
+{
+    double logPmin = std::log10(Pmin);
+    double logPmax = std::log10(Pmax);
+    double TminInv = 1.0 / Tmin;
+    double TmaxInv = 1.0 / Tmax;
+
+    TrNum_ = - TminInv - TmaxInv;
+    TrDen_ = 1.0 / (TmaxInv - TminInv);
+    PrNum_ = - logPmin - logPmax;
+    PrDen_ = 1.0 / (logPmax - logPmin);
+
+    for (size_t t = 0; t < nT_; t++) {
+        for (size_t p = 0; p < nP_; p++) {
+            chebCoeffs_[nP_*t + p] = coeffs(t,p);
+        }
+    }
 }
 
 }
