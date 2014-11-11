@@ -11,7 +11,7 @@
 #include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
 #include "cantera/kinetics/RxnMolChange.h"
-
+#include "Reaction.h"
 #include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
 
@@ -210,6 +210,7 @@ public:
 
     virtual void init();
     virtual void addReaction(ReactionData& r);
+    virtual void addReaction(shared_ptr<Reaction> r);
     virtual void finalize();
     virtual bool ready() const;
     //! @}
@@ -389,8 +390,12 @@ public:
     int phaseStability(const size_t iphase) const;
 
     virtual void determineFwdOrdersBV(ReactionData& rdata, vector_fp& fwdFullorders);
+    virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
 
 protected:
+    void addElementaryReaction(InterfaceReaction& rdata);
+    void addGlobalReaction(InterfaceReaction& r);
+
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 

@@ -1,7 +1,9 @@
 #include "gtest/gtest.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/GasKinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/base/Array.h"
 
 using namespace Cantera;
@@ -157,4 +159,69 @@ TEST_F(KineticsFromScratch, add_chebyshev_reaction)
     kin.addReaction(R);
     kin.finalize();
     check_rates(4);
+}
+
+class InterfaceKineticsFromScratch : public testing::Test
+{
+public:
+    InterfaceKineticsFromScratch()
+        : gas("../data/sofc-test.xml", "gas")
+        , gas_ref("../data/sofc-test.xml", "gas")
+        , surf("../data/sofc-test.xml", "metal_surface")
+        , surf_ref("../data/sofc-test.xml", "metal_surface")
+    {
+        std::vector<ThermoPhase*> th;
+        th.push_back(&surf_ref);
+        th.push_back(&gas_ref);
+        importKinetics(surf_ref.xml(), th, &kin_ref);
+        kin.addPhase(surf);
+        kin.addPhase(gas);
+        kin.init();
+    }
+
+    IdealGasPhase gas;
+    IdealGasPhase gas_ref;
+    SurfPhase surf;
+    SurfPhase surf_ref;
+    InterfaceKinetics kin;
+    InterfaceKinetics kin_ref;
+
+    //! iRef is the index of the corresponding reaction in the reference mech
+    void check_rates(int iRef) {
+        ASSERT_EQ((size_t) 1, kin.nReactions());
+
+        std::string X = "H2:0.2 O2:0.5 H2O:0.1 N2:0.2";
+        std::string Xs = "H(m):0.1 O(m):0.2 OH(m):0.3 (m):0.4";
+        gas.setState_TPX(1200, 5*OneAtm, X);
+        gas_ref.setState_TPX(1200, 5*OneAtm, X);
+        surf.setState_TP(1200, 5*OneAtm);
+        surf_ref.setState_TP(1200, 5*OneAtm);
+        surf.setCoveragesByName(Xs);
+        surf_ref.setCoveragesByName(Xs);
+
+        vector_fp k(1), k_ref(kin_ref.nReactions());
+
+        kin.getFwdRateConstants(&k[0]);
+        kin_ref.getFwdRateConstants(&k_ref[0]);
+        EXPECT_FLOAT_EQ(k_ref[iRef], k[0]);
+
+        kin.getRevRateConstants(&k[0]);
+        kin_ref.getRevRateConstants(&k_ref[0]);
+        EXPECT_FLOAT_EQ(k_ref[iRef], k[0]);
+    }
+};
+
+TEST_F(InterfaceKineticsFromScratch, add_surface_reaction)
+{
+    // Reaction 3 on the metal surface
+    // surface_reaction( "H(m) + O(m) <=> OH(m) + (m)",
+    //                   [5.00000E+22, 0, 100.0], id = 'metal-rxn4')
+    Composition reac = parseCompString("H(m):1 O(m):1");
+    Composition prod = parseCompString("OH(m):1 (m):1");
+    Arrhenius rate(5e21, 0, 100.0e6 / GasConstant); // kJ/mol -> J/kmol
+
+    shared_ptr<InterfaceReaction>R(new InterfaceReaction(reac, prod, rate));
+    kin.addReaction(R);
+    kin.finalize();
+    check_rates(3);
 }
