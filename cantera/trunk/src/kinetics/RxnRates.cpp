@@ -50,6 +50,19 @@ SurfaceArrhenius::SurfaceArrhenius()
 {
 }
 
+SurfaceArrhenius::SurfaceArrhenius(const Arrhenius& rate)
+    : m_logA(rate.m_logA)
+    , m_b(rate.m_b)
+    , m_E(rate.m_E)
+    , m_A(rate.m_A)
+    , m_acov(0.0)
+    , m_ecov(0.0)
+    , m_mcov(0.0)
+    , m_ncov(0)
+    , m_nmcov(0)
+{
+}
+
 SurfaceArrhenius::SurfaceArrhenius(const ReactionData& rdata)
     : m_b(rdata.rateCoeffParameters[1])
     , m_E(rdata.rateCoeffParameters[2])
