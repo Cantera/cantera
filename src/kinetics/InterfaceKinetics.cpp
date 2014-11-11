@@ -900,7 +900,54 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
 {
     InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
     // Create a SurfaceArrhenius rate calculator and set the coverage dependencies
-    SurfaceArrhenius rate(r.rate);
+    double A_rate = r.rate.preExponentialFactor();
+    double b_rate = r.rate.temperatureExponent();
+
+    if (r.is_sticking_coefficient) {
+        // Identify the interface phase
+        size_t iInterface = npos;
+        size_t min_dim = 4;
+        for (size_t i = 0; i < nPhases(); i++) {
+            if (thermo(i).nDim() < min_dim) {
+                iInterface = i;
+                min_dim = thermo(i).nDim();
+            }
+        }
+
+        b_rate += 0.5;
+
+        // Identify the sticking species, and adjust the A-factor
+        bool foundStick = false;
+        for (Composition::const_iterator iter = r.reactants.begin();
+             iter != r.reactants.end();
+             ++iter) {
+            size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
+            const ThermoPhase& p = thermo(iPhase);
+            size_t k = p.speciesIndex(iter->first);
+            if (iPhase == iInterface) {
+                // Interface species. Convert from coverages used in the
+                // sticking probability expression to the concentration units
+                // used in the mass action rate expression
+                double order = getValue(r.orders, iter->first, iter->second);
+                A_rate /= pow(p.standardConcentration(k), order);
+            } else {
+                // Non-interface species. There should be exactly one of these
+                if (foundStick) {
+                    throw CanteraError("InterfaceKinetics::addReaction",
+                        "Multiple non-interface species found"
+                        "in sticking reaction: '" + r.equation() + "'");
+                }
+                foundStick = true;
+                A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
+            }
+        }
+        if (!foundStick) {
+            throw CanteraError("InterfaceKinetics::addReaction",
+                "No non-interface species found"
+                "in sticking reaction: '" + r.equation() + "'");
+        }
+    }
+    SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
 
     // Turn on the global flag indicating surface coverage dependence
     if (!r.coverage_deps.empty()) {

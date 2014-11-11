@@ -95,9 +95,11 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
 
 InterfaceReaction::InterfaceReaction(const Composition& reactants_,
                                      const Composition& products_,
-                                     const Arrhenius& rate_)
+                                     const Arrhenius& rate_,
+                                     bool isStick)
     : Reaction(INTERFACE_RXN, reactants_, products_)
     , rate(rate_)
+    , is_sticking_coefficient(isStick)
 {
 }
 
