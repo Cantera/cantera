@@ -11,6 +11,7 @@
  */
 
 #include "cantera/kinetics/AqueousKinetics.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/base/vec_functions.h"
 
 using namespace std;
@@ -151,6 +152,18 @@ void AqueousKinetics::addReaction(ReactionData& r)
 {
     if (r.reactionType == ELEMENTARY_RXN) {
         addElementaryReaction(r);
+    }
+
+    BulkKinetics::addReaction(r);
+}
+
+void AqueousKinetics::addReaction(shared_ptr<Reaction> r)
+{
+    if (r->reaction_type == ELEMENTARY_RXN) {
+        addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
+    } else {
+        throw CanteraError("AqueousKinetics::addReaction",
+            "Invalid reaction type: " + int2str(r->reaction_type));
     }
 
     BulkKinetics::addReaction(r);
