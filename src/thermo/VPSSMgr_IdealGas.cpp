@@ -95,9 +95,9 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     if (ss) {
         std::string model = (*ss)["model"];
         if (model != "ideal_gas") {
-            throw CanteraError("VPSSMgr_IdealGas::initThermoXML",
+            throw CanteraError("VPSSMgr_IdealGas::createInstallPDSS",
                                "standardState model for species isn't "
-                               "ideal_gas: " + speciesNode.name());
+                               "ideal_gas: " + speciesNode["name"]);
         }
     }
     if (m_Vss.size() < k+1) {
