@@ -160,6 +160,11 @@ const doublereal Tiny = 1.e-20;
  * to species.
  */
 typedef std::map<std::string, doublereal> compositionMap;
+
+//! Map from string names to doubles. Used for defining species mole/mass
+//! fractions, elemental compositions, and reaction stoichiometries.
+typedef std::map<std::string, doublereal> Composition;
+
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
 typedef std::vector<double>        vector_fp;
