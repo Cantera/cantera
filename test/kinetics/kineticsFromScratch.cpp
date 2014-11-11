@@ -2,6 +2,7 @@
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/GasKinetics.h"
+#include "cantera/base/Array.h"
 
 using namespace Cantera;
 
@@ -28,7 +29,7 @@ public:
     void check_rates(int iRef) {
         ASSERT_EQ((size_t) 1, kin.nReactions());
 
-        std::string X = "O:0.02 H2:0.2 O2:0.7 H:0.03 OH:0.05";
+        std::string X = "O:0.02 H2:0.2 O2:0.5 H:0.03 OH:0.05 H2O:0.1 HO2:0.01";
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
 
@@ -123,4 +124,37 @@ TEST_F(KineticsFromScratch, add_plog_reaction)
     kin.addReaction(R);
     kin.finalize();
     check_rates(3);
+}
+
+TEST_F(KineticsFromScratch, add_chebyshev_reaction)
+{
+    // reaction 4:
+    // chebyshev_reaction(
+    //     'HO2 <=> OH + O',
+    //     Tmin=290.0, Tmax=3000.0,
+    //     Pmin=(0.0098692326671601278, 'atm'), Pmax=(98.692326671601279, 'atm'),
+    //     coeffs=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
+    //             [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
+    //             [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
+    Composition reac = parseCompString("HO2:1");
+    Composition prod = parseCompString("OH:1 O:1");
+    Array2D coeffs(3, 4);
+    coeffs(0,0) = 8.2883e+00;
+    coeffs(0,1) = -1.1397e+00;
+    coeffs(0,2) = -1.2059e-01;
+    coeffs(0,3) = 1.6034e-02;
+    coeffs(1,0) = 1.9764e+00;
+    coeffs(1,1) = 1.0037e+00;
+    coeffs(1,2) = 7.2865e-03;
+    coeffs(1,3) = -3.0432e-02;
+    coeffs(2,0) = 3.1770e-01;
+    coeffs(2,1) = 2.6889e-01;
+    coeffs(2,2) = 9.4806e-02;
+    coeffs(2,3) = -7.6385e-03;
+    ChebyshevRate rate(1000.0, 10000000.0, 290, 3000, coeffs);
+
+    shared_ptr<ChebyshevReaction> R(new ChebyshevReaction(reac, prod, rate));
+    kin.addReaction(R);
+    kin.finalize();
+    check_rates(4);
 }
