@@ -50,11 +50,11 @@ SurfaceArrhenius::SurfaceArrhenius()
 {
 }
 
-SurfaceArrhenius::SurfaceArrhenius(const Arrhenius& rate)
-    : m_logA(rate.m_logA)
-    , m_b(rate.m_b)
-    , m_E(rate.m_E)
-    , m_A(rate.m_A)
+SurfaceArrhenius::SurfaceArrhenius(double A, double b, double Ta)
+    : m_logA(std::log(A))
+    , m_b(b)
+    , m_E(Ta)
+    , m_A(A)
     , m_acov(0.0)
     , m_ecov(0.0)
     , m_mcov(0.0)
@@ -223,9 +223,9 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
         maxRates_ = std::max(rateCount, maxRates_);
 
         j++;
-        A_.push_back(iter->second.m_A);
-        n_.push_back(iter->second.m_b);
-        Ea_.push_back(iter->second.m_E);
+        A_.push_back(iter->second.preExponentialFactor());
+        n_.push_back(iter->second.temperatureExponent());
+        Ea_.push_back(iter->second.activationEnergy_R());
     }
 
     // For pressures with only one Arrhenius expression, it is more

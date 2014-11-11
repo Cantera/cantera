@@ -18,8 +18,6 @@ namespace Cantera
 {
 
 class Array2D;
-class Plog;
-class SurfaceArrhenius;
 
 //! Arrhenius reaction rate type depends only on temperature
 /**
@@ -96,7 +94,19 @@ public:
         s << ");" << std::endl;
     }
 
-    //! @deprecated. To be removed after Cantera 2.2
+    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order)
+    double preExponentialFactor() const {
+        return m_A;
+    }
+
+    //! Return the temperature exponent *b*
+    double temperatureExponent() const {
+        return m_b;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
     doublereal activationEnergy_R() const {
         return m_E;
     }
@@ -108,9 +118,6 @@ public:
 
 protected:
     doublereal m_logA, m_b, m_E, m_A;
-
-    friend class Plog;
-    friend class SurfaceArrhenius;
 };
 
 
@@ -137,7 +144,7 @@ public:
     }
 
     SurfaceArrhenius();
-    explicit SurfaceArrhenius(const Arrhenius& rate);
+    explicit SurfaceArrhenius(double A, double b, double Ta);
     explicit SurfaceArrhenius(const ReactionData& rdata);
 
     void addCoverageDependence(size_t k, doublereal a,
@@ -187,7 +194,6 @@ public:
                               (m_E + m_ecov)*recipT + m_mcov);
     }
 
-    //! @deprecated. To be removed after Cantera 2.2
     doublereal activationEnergy_R() const {
         return m_E + m_ecov;
     }

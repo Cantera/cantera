@@ -168,7 +168,7 @@ class InterfaceReaction : public Reaction
 {
 public:
     InterfaceReaction(const Composition& reactants, const Composition& products,
-                      const Arrhenius& rate);
+                      const Arrhenius& rate, bool isStick=false);
 
     //! Adjustments to the Arrhenius rate expression dependent on surface
     //! species coverages. Three coverage parameters (a, E, m) are used for each
@@ -179,6 +179,10 @@ public:
     //! The rate coefficient, without taking into account the coverage
     //! dependencies.
     Arrhenius rate;
+
+    // Set to true if `rate` is a parameterization of the sticking coefficient
+    // rather than the forward rate constant
+    bool is_sticking_coefficient;
 };
 
 

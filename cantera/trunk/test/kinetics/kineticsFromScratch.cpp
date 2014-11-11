@@ -225,3 +225,18 @@ TEST_F(InterfaceKineticsFromScratch, add_surface_reaction)
     kin.finalize();
     check_rates(3);
 }
+
+TEST_F(InterfaceKineticsFromScratch, add_sticking_reaction)
+{
+    // Reaction 0 on the metal surface
+    // surface_reaction( "H2 + (m) + (m) <=> H(m) + H(m)",
+    //                   stick(0.1, 0, 0), id = 'metal-rxn1')
+    Composition reac = parseCompString("H2:1 (m):2");
+    Composition prod = parseCompString("H(m):2");
+    Arrhenius rate(0.1, 0, 0.0);
+
+    shared_ptr<InterfaceReaction>R(new InterfaceReaction(reac, prod, rate, true));
+    kin.addReaction(R);
+    kin.finalize();
+    check_rates(0);
+}
