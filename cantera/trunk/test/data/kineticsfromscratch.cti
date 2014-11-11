@@ -1,0 +1,20 @@
+units(length='m', time='s', quantity='kmol', act_energy='cal/mol')
+
+ideal_gas(name = "ohmech",
+      elements = " O  H  Ar ",
+      species = """ h2o2: H2  H  O  O2  OH  H2O  HO2  H2O2  AR""",
+      reactions = "all",
+      transport = "None",
+      initial_state = state(temperature = 300.0,
+                            pressure = OneAtm)    )
+
+reaction('O + H2 <=> H + OH', [3.870000e+01, 2.7, 6260.0])
+
+three_body_reaction('2 O + M <=> O2 + M', [1.200000e+11, -1.0, 0.0],
+                    efficiencies='AR:0.83 H2:2.4 H2O:15.4')
+
+falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)',
+                 kf=[7.400000e+10, -0.37, 0.0],
+                 kf0=[2.300000e+12, -0.9, -1700.0],
+                 efficiencies='AR:0.7 H2:2.0 H2O:6.0',
+                 falloff=Troe(A=0.7346, T3=94.0, T1=1756.0, T2=5182.0))

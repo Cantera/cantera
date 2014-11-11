@@ -267,6 +267,34 @@ void GasKinetics::addReaction(ReactionData& r)
     BulkKinetics::addReaction(r);
 }
 
+void GasKinetics::addReaction(shared_ptr<Reaction> r)
+{
+    switch (r->reaction_type) {
+    case ELEMENTARY_RXN:
+        addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
+        break;
+    case THREE_BODY_RXN:
+        addThreeBodyReaction(dynamic_cast<ThirdBodyReaction&>(*r));
+        break;
+    case FALLOFF_RXN:
+    case CHEMACT_RXN:
+        addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
+        break;
+    case PLOG_RXN:
+        addPlogReaction(dynamic_cast<PlogReaction&>(*r));
+        break;
+    case CHEBYSHEV_RXN:
+        addChebyshevReaction(dynamic_cast<ChebyshevReaction&>(*r));
+        break;
+    default:
+        throw CanteraError("GasKinetics::addReaction",
+            "Unknown reaction type specified: " + int2str(r->reaction_type));
+    }
+
+    // operations common to all reaction types
+    BulkKinetics::addReaction(r);
+}
+
 void GasKinetics::addFalloffReaction(ReactionData& r)
 {
     // install high and low rate coeff calculators
@@ -308,6 +336,59 @@ void GasKinetics::addPlogReaction(ReactionData& r)
 void GasKinetics::addChebyshevReaction(ReactionData& r)
 {
     m_cheb_rates.install(nReactions(), r);
+}
+
+void GasKinetics::addFalloffReaction(FalloffReaction& r)
+{
+    // install high and low rate coeff calculators
+    // and extend the high and low rate coeff value vectors
+    m_falloff_high_rates.install(m_nfall, r.high_rate);
+    m_rfn_high.push_back(0.0);
+    m_falloff_low_rates.install(m_nfall, r.low_rate);
+    m_rfn_low.push_back(0.0);
+
+    // add this reaction number to the list of falloff reactions
+    m_fallindx.push_back(nReactions());
+
+    // install the enhanced third-body concentration calculator
+    map<size_t, double> efficiencies;
+    for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
+         iter != r.third_body.efficiencies.end();
+         ++iter) {
+        efficiencies[kineticsSpeciesIndex(iter->first)] = iter->second;
+    }
+    m_falloff_concm.install(m_nfall, efficiencies,
+                            r.third_body.default_efficiency);
+
+    // install the falloff function calculator for this reaction
+    m_falloffn.install(m_nfall, r.falloff_type, r.reaction_type,
+                       r.falloff_parameters);
+
+    // increment the falloff reaction counter
+    ++m_nfall;
+}
+
+void GasKinetics::addThreeBodyReaction(ThirdBodyReaction& r)
+{
+    m_rates.install(nReactions(), r.rate);
+    map<size_t, double> efficiencies;
+    for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
+         iter != r.third_body.efficiencies.end();
+         ++iter) {
+        efficiencies[kineticsSpeciesIndex(iter->first)] = iter->second;
+    }
+    m_3b_concm.install(nReactions(), efficiencies,
+                       r.third_body.default_efficiency);
+}
+
+void GasKinetics::addPlogReaction(PlogReaction& r)
+{
+    m_plog_rates.install(nReactions(), r.rate);
+}
+
+void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
+{
+    m_cheb_rates.install(nReactions(), r.rate);
 }
 
 void GasKinetics::init()

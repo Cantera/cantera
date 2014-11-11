@@ -14,12 +14,14 @@
 #include "StoichManager.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/base/global.h"
+#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
 
 // forward references
 class ReactionData;
+class Reaction;
 
 /**
  * @defgroup chemkinetics Chemical Kinetics
@@ -796,6 +798,14 @@ public:
      */
     virtual void addReaction(ReactionData& r);
 
+    /**
+     * Add a single reaction to the mechanism. Derived classes should call the
+     * base class method in addition to handling their own specialized behavior.
+     *
+     * @param r      Pointer to the Reaction object to be added.
+     */
+    virtual void addReaction(shared_ptr<Reaction> r);
+
     //! @deprecated To be removed after Cantera 2.2. No longer called as part
     //!     of addReaction.
     virtual void installReagents(const ReactionData& r) {
@@ -908,6 +918,9 @@ protected:
     /// Vector of perturbation factors for each reaction's rate of
     /// progress vector. It is initialized to one.
     vector_fp m_perturb;
+
+    //! Vector of Reaction objects represented by this Kinetics manager
+    std::vector<shared_ptr<Reaction> > m_reactions;
 
     /**
      * This is a vector of vectors containing the reactants for

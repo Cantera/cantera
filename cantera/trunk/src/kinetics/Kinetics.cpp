@@ -9,6 +9,7 @@
 
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -50,6 +51,7 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_ii                = right.m_ii;
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
+    m_reactions = right.m_reactions;
     m_reactants         = right.m_reactants;
     m_products          = right.m_products;
     m_rrxn = right.m_rrxn;
@@ -470,6 +472,72 @@ void Kinetics::addReaction(ReactionData& r) {
     m_ropr.push_back(0.0);
     m_ropnet.push_back(0.0);
 }
+
+void Kinetics::addReaction(shared_ptr<Reaction> r)
+{
+    size_t irxn = nReactions();
+    std::vector<size_t> rk, pk;
+    vector_fp rstoich, pstoich;
+    for (Composition::const_iterator iter = r->reactants.begin();
+         iter != r->reactants.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        rk.push_back(k);
+        rstoich.push_back(iter->second);
+        m_rrxn[k][irxn] = iter->second;
+    }
+    m_reactants.push_back(rk);
+
+    for (Composition::const_iterator iter = r->products.begin();
+         iter != r->products.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        pk.push_back(k);
+        pstoich.push_back(iter->second);
+        m_prxn[k][irxn] = iter->second;
+    }
+    m_products.push_back(pk);
+
+    vector_fp rorder = rstoich;
+    for (Composition::const_iterator iter = r->orders.begin();
+         iter != r->orders.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        vector<size_t>::iterator rloc = std::find(rk.begin(), rk.end(), k);
+        if (rloc != rk.end()) {
+            rorder[rloc - rk.begin()] = iter->second;
+        } else {
+            // If the reaction order involves a non-reactant species, add an
+            // extra term to the reactants with zero stoichiometry so that the
+            // stoichiometry manager can be used to compute the global forward
+            // reaction rate.
+            rk.push_back(k);
+            rstoich.push_back(0.0);
+            rorder.push_back(iter->second);
+        }
+    }
+
+    m_reactantStoich.add(irxn, rk, rorder, rstoich);
+    // product orders = product stoichiometric coefficients
+    if (r->reversible) {
+        m_revProductStoich.add(irxn, pk, pstoich, pstoich);
+    } else {
+        m_irrevProductStoich.add(irxn, pk, pstoich, pstoich);
+    }
+
+    incrementRxnCount();
+    m_reactions.push_back(r);
+    m_rxneqn.push_back(r->equation());
+    m_reactantStrings.push_back(r->reactantString());
+    m_productStrings.push_back(r->productString());
+    m_rxntype.push_back(r->reaction_type);
+    m_rfn.push_back(0.0);
+    m_rkcn.push_back(0.0);
+    m_ropf.push_back(0.0);
+    m_ropr.push_back(0.0);
+    m_ropnet.push_back(0.0);
+}
+
 
 void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,
                              const vector<grouplist_t>& p)

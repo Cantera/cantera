@@ -12,6 +12,7 @@ namespace Cantera
 {
 
 class ReactionData;
+class Reaction;
 
 /**
  * Reaction mechanism stoichiometry manager. This is an internal class used
