@@ -6,6 +6,7 @@
 #define CT_REACTION_H
 
 #include "cantera/base/utilities.h"
+#include "cantera/base/smart_ptr.h"
 #include "cantera/kinetics/RxnRates.h"
 
 namespace Cantera
@@ -18,11 +19,10 @@ class Kinetics;
 class Reaction
 {
 public:
+    explicit Reaction(int type);
     Reaction(int type, const Composition& reactants,
              const Composition& products);
     virtual ~Reaction() {}
-
-    friend class Kinetics;
 
     virtual std::string reactantString() { return ""; } //!< @todo: implement
     virtual std::string productString() { return ""; } //!< @todo: implement
@@ -62,6 +62,7 @@ public:
 class ElementaryReaction : public Reaction
 {
 public:
+    ElementaryReaction();
     ElementaryReaction(const Composition& reactants, const Composition products,
                        const Arrhenius& rate);
 
@@ -91,6 +92,7 @@ public:
 class ThirdBodyReaction : public ElementaryReaction
 {
 public:
+    ThirdBodyReaction();
     ThirdBodyReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, const ThirdBody& tbody);
     virtual std::string reactantString();
@@ -103,6 +105,7 @@ public:
 class FalloffReaction : public Reaction
 {
 public:
+    FalloffReaction();
     FalloffReaction(const Composition& reactants, const Composition& products,
                     const Arrhenius& low_rate, const Arrhenius& high_rate,
                     const ThirdBody& tbody, int falloff_type,
@@ -127,6 +130,7 @@ public:
 class ChemicallyActivatedReaction : public FalloffReaction
 {
 public:
+    ChemicallyActivatedReaction();
     ChemicallyActivatedReaction(const Composition& reactants,
         const Composition& products, const Arrhenius& low_rate,
         const Arrhenius& high_rate, const ThirdBody& tbody, int falloff_type,
@@ -137,6 +141,7 @@ public:
 class PlogReaction : public Reaction
 {
 public:
+    PlogReaction();
     PlogReaction(const Composition& reactants, const Composition& products,
                  const Plog& rate);
 
@@ -147,6 +152,7 @@ public:
 class ChebyshevReaction : public Reaction
 {
 public:
+    ChebyshevReaction();
     ChebyshevReaction(const Composition& reactants, const Composition& products,
                       const ChebyshevRate& rate);
 
@@ -164,9 +170,10 @@ struct CoverageDependency
 };
 
 
-class InterfaceReaction : public Reaction
+class InterfaceReaction : public ElementaryReaction
 {
 public:
+    InterfaceReaction();
     InterfaceReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, bool isStick=false);
 
@@ -175,10 +182,6 @@ public:
     //! species on which the rate depends. See SurfaceArrhenius for details on
     //! the parameterization.
     std::map<std::string, CoverageDependency> coverage_deps;
-
-    //! The rate coefficient, without taking into account the coverage
-    //! dependencies.
-    Arrhenius rate;
 
     // Set to true if `rate` is a parameterization of the sticking coefficient
     // rather than the forward rate constant
@@ -189,13 +192,16 @@ public:
 class ElectrochemicalReaction : public InterfaceReaction
 {
 public:
+    ElectrochemicalReaction();
     ElectrochemicalReaction(const Composition& reactants,
                             const Composition& products, const Arrhenius& rate);
 
     //! Film Resistivity value
     /*!
-     *  Only valid for Butler-Volmer formulations. Units are in ohms m2.
-     *  Default = 0.0 ohms m2.
+     *  For Butler Volmer reactions, a common addition to the formulation is to
+     *  add an electrical resistance to the formulation. The resistance modifies
+     *  the electrical current flow in both directions. Only valid for Butler-
+     *  Volmer formulations. Units are in ohms m2. Default = 0.0 ohms m2.
      */
     doublereal film_resistivity;
 
@@ -217,6 +223,8 @@ public:
     bool exchange_current_density_formulation;
 };
 
+//! Create a new Reaction object for the reaction defined in `rxn_node`
+shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
 }
 
 #endif
