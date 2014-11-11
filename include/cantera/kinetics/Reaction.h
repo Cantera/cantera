@@ -209,6 +209,8 @@ public:
 
     //! Forward value of the apparent Electrochemical transfer coefficient
     doublereal beta;
+
+    bool exchange_current_density_formulation;
 };
 
 }

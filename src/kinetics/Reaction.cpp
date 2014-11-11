@@ -109,6 +109,7 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
     , equilibrium_constant_power(1.0)
     , affinity_power(1.0)
     , beta(0.0)
+    , exchange_current_density_formulation(false)
 {
 }
 

@@ -896,6 +896,122 @@ void InterfaceKinetics::addReaction(ReactionData& r)
     }
 }
 
+void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
+{
+    InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
+    // Create a SurfaceArrhenius rate calculator and set the coverage dependencies
+    SurfaceArrhenius rate(r.rate);
+
+    // Turn on the global flag indicating surface coverage dependence
+    if (!r.coverage_deps.empty()) {
+        m_has_coverage_dependence = true;
+    }
+
+    for (map<string, CoverageDependency>::const_iterator iter = r.coverage_deps.begin();
+         iter != r.coverage_deps.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        rate.addCoverageDependence(k, iter->second.a, iter->second.m, iter->second.E);
+    }
+
+    m_rates.install(m_ii, rate);
+
+    // Store activation energy
+    m_E.push_back(rate.activationEnergy_R());
+
+    ElectrochemicalReaction* re = dynamic_cast<ElectrochemicalReaction*>(&r);
+    if (re) {
+        m_has_electrochem_rxns = true;
+        m_beta.push_back(re->beta);
+        m_ctrxn.push_back(m_ii);
+        if (re->exchange_current_density_formulation) {
+            m_has_exchange_current_density_formulation = true;
+            m_ctrxn_ecdf.push_back(1);
+        } else {
+            m_ctrxn_ecdf.push_back(0);
+        }
+        m_ctrxn_resistivity_.push_back(re->film_resistivity);
+
+        if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
+            r.reaction_type == BUTLERVOLMER_RXN ||
+            r.reaction_type == SURFACEAFFINITY_RXN ||
+            r.reaction_type == GLOBAL_RXN) {
+            //   Specify alternative forms of the electrochemical reaction
+            if (r.reaction_type == BUTLERVOLMER_RXN) {
+                m_ctrxn_BVform.push_back(1);
+            } else if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN) {
+                m_ctrxn_BVform.push_back(2);
+            } else {
+                // set the default to be the normal forward / reverse calculation method
+                m_ctrxn_BVform.push_back(0);
+            }
+            if (!r.orders.empty()) {
+                vector_fp orders(nTotalSpecies(), 0.0);
+                for (Composition::const_iterator iter = r.orders.begin();
+                     iter != r.orders.end();
+                     ++iter) {
+                    orders[kineticsSpeciesIndex(iter->first)] = iter->second;
+                }
+                RxnOrders* ro = new RxnOrders();
+                ro->fill(orders);
+                m_ctrxn_ROPOrdersList_.push_back(ro);
+                m_ctrxn_FwdOrdersList_.push_back(0);
+
+                // Fill in the Fwd Orders dependence here for B-V reactions
+                if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
+                    r.reaction_type == BUTLERVOLMER_RXN) {
+                    vector_fp fwdFullorders(m_kk, 0.0);
+                    determineFwdOrdersBV(*re, fwdFullorders);
+                    RxnOrders* ro = new RxnOrders();
+                    ro->fill(fwdFullorders);
+                    m_ctrxn_FwdOrdersList_[m_ii] = ro;
+                }
+            } else {
+                m_ctrxn_ROPOrdersList_.push_back(0);
+                m_ctrxn_FwdOrdersList_.push_back(0);
+            }
+
+        } else {
+            m_ctrxn_BVform.push_back(0);
+            m_ctrxn_ROPOrdersList_.push_back(0);
+            m_ctrxn_FwdOrdersList_.push_back(0);
+            if (re->film_resistivity > 0.0) {
+                throw CanteraError("InterfaceKinetics::addReaction()",
+                                   "film resistivity set for elementary reaction");
+            }
+        }
+    }
+
+    if (r.reversible) {
+        m_revindex.push_back(nReactions());
+        m_nrev++;
+    } else {
+        m_irrev.push_back(nReactions());
+        m_nirrev++;
+    }
+    Kinetics::addReaction(r_base);
+
+    m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
+    m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));
+
+    size_t i = m_ii - 1;
+    for (Composition::const_iterator iter = r.reactants.begin();
+         iter != r.reactants.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        size_t p = speciesPhaseIndex(k);
+        m_rxnPhaseIsReactant[i][p] = true;
+    }
+    for (Composition::const_iterator iter = r.products.begin();
+         iter != r.products.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        size_t p = speciesPhaseIndex(k);
+        m_rxnPhaseIsProduct[i][p] = true;
+    }
+}
+
+
 void InterfaceKinetics::setIOFlag(int ioFlag)
 {
     m_ioFlag = ioFlag;
@@ -1101,6 +1217,49 @@ void InterfaceKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<do
         }
     }
 }
+
+void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, std::vector<doublereal>& fwdFullOrders)
+{
+    // Start out with the full ROP orders vector.
+    // This vector will have the BV exchange current density orders in it.
+    fwdFullOrders.assign(nTotalSpecies(), 0.0);
+    for (Composition::const_iterator iter = r.orders.begin();
+         iter != r.orders.end();
+         ++iter) {
+        fwdFullOrders[kineticsSpeciesIndex(iter->first)] = iter->second;
+    }
+
+    //   forward and reverse beta values
+    double betaf = r.beta;
+    double betar = 1.0 - betaf;
+
+    // Loop over the reactants doing away with the BV terms.
+    // This should leave the reactant terms only, even if they are non-mass action.
+    for (Composition::const_iterator iter = r.reactants.begin();
+         iter != r.reactants.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        fwdFullOrders[k] += betaf * iter->second;
+        // just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
+        if (abs(fwdFullOrders[k]) < 0.00001) {
+            fwdFullOrders[k] = 0.0;
+        }
+    }
+
+    // Loop over the products doing away with the BV terms.
+    // This should leave the reactant terms only, even if they are non-mass action.
+    for (Composition::const_iterator iter = r.products.begin();
+         iter != r.products.end();
+         ++iter) {
+        size_t k = kineticsSpeciesIndex(iter->first);
+        fwdFullOrders[k] -= betaf * iter->second;
+        // just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
+        if (abs(fwdFullOrders[k]) < 0.00001) {
+            fwdFullOrders[k] = 0.0;
+        }
+    }
+}
+
 
 void EdgeKinetics::finalize()
 {
