@@ -384,9 +384,14 @@ class TestSofcKinetics(utilities.CanteraTest):
             """ Solve f(x) = C by Newton iteration. """
             x0 = xstart
             dx = 1.0e-6
+
+            n = 0
             while True:
+                n += 1
                 f0 = f(x0) - C
                 x0 -= f0/(f(x0 + dx) - C - f0)*dx
+                if n > 1000:
+                    raise Exception('No convergence in Newton solve')
                 if abs(f0) < 0.00001:
                     return x0
 
