@@ -71,6 +71,9 @@ const int CHEMACT_RXN    = 8;
  */
 const int SURFACE_RXN    = 20;
 
+//! A reaction occurring on an interface, e.g a surface or edge.
+const int INTERFACE_RXN = 20;
+
 //!  This is a surface reaction that is formulated using the Butler-Volmer
 //!  formulation and using concentrations instead of activity concentrations
 //!  for its exchange current density formulat.

@@ -16,6 +16,8 @@ namespace Cantera
 //! parameterization before adding the reaction to a Kinetics object.
 /*!
  *  All data in this class is public.
+ *  @deprecated Use class Reaction and its children. To be removed after
+ *      Cantera 2.2.
  */
 class ReactionData
 {
