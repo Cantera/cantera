@@ -12,6 +12,8 @@
 namespace Cantera
 {
 
+class ElementaryReaction;
+
 //! Partial specialization of Kinetics for chemistry in a single bulk phase
 class BulkKinetics : public Kinetics
 {
@@ -33,12 +35,14 @@ public:
                                      bool doIrreversible = false);
 
     virtual void addReaction(ReactionData& r);
+    virtual void addReaction(shared_ptr<Reaction> r);
     virtual void init();
     virtual void finalize();
     virtual bool ready() const;
 
 protected:
     virtual void addElementaryReaction(ReactionData& r);
+    virtual void addElementaryReaction(ElementaryReaction& r);
 
     Rate1<Arrhenius> m_rates;
     std::vector<size_t> m_revindex; //!< Indices of reversible reactions

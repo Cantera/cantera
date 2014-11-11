@@ -1,4 +1,5 @@
 #include "cantera/kinetics/BulkKinetics.h"
+#include "cantera/kinetics/Reaction.h"
 
 namespace Cantera
 {
@@ -127,9 +128,38 @@ void BulkKinetics::addReaction(ReactionData& r)
     Kinetics::addReaction(r);
 }
 
+void BulkKinetics::addReaction(shared_ptr<Reaction> r)
+{
+    double dn = 0.0;
+    for (Composition::const_iterator iter = r->products.begin();
+         iter != r->products.end();
+         ++iter) {
+        dn += iter->second;
+    }
+    for (Composition::const_iterator iter = r->reactants.begin();
+         iter != r->reactants.end();
+         ++iter) {
+        dn -= iter->second;
+    }
+
+    m_dn.push_back(dn);
+
+    if (r->reversible) {
+        m_revindex.push_back(nReactions());
+    } else {
+        m_irrev.push_back(nReactions());
+    }
+    Kinetics::addReaction(r);
+}
+
 void BulkKinetics::addElementaryReaction(ReactionData& r)
 {
     m_rates.install(nReactions(), r);
+}
+
+void BulkKinetics::addElementaryReaction(ElementaryReaction& r)
+{
+    m_rates.install(nReactions(), r.rate);
 }
 
 void BulkKinetics::init()

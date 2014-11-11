@@ -46,6 +46,17 @@ public:
     }
 
     /**
+     * Install a rate coefficient calculator.
+     * @param rxnNumber the reaction number
+     * @param rdata rate coefficient specification for the reaction
+     */
+    void install(size_t rxnNumber, const R& rate) {
+        m_rxn.push_back(rxnNumber);
+        m_rates.push_back(rate);
+    }
+
+
+    /**
      * Update the concentration-dependent parts of the rate
      * coefficient, if any. Used by class SurfaceArrhenius to
      * compute coverage-dependent * modifications to the Arrhenius

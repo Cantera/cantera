@@ -12,6 +12,7 @@
 #include "BulkKinetics.h"
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"
+#include "Reaction.h"
 
 namespace Cantera
 {
@@ -52,6 +53,7 @@ public:
     //! @{
     virtual void init();
     virtual void addReaction(ReactionData& r);
+    virtual void addReaction(shared_ptr<Reaction> r);
     virtual void finalize();
     virtual bool ready() const;
     //@}
@@ -104,6 +106,11 @@ protected:
     void addFalloffReaction(ReactionData& r);
     void addPlogReaction(ReactionData& r);
     void addChebyshevReaction(ReactionData& r);
+
+    void addThreeBodyReaction(ThirdBodyReaction& r);
+    void addFalloffReaction(FalloffReaction& r);
+    void addPlogReaction(PlogReaction& r);
+    void addChebyshevReaction(ChebyshevReaction& r);
 
     //! Update the equilibrium constants in molar units.
     void updateKc();

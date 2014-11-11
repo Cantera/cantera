@@ -9,6 +9,7 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/Reaction.h"
 
 #include <fstream>
 
