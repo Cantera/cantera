@@ -5,6 +5,7 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/Array.h"
+#include <sstream>
 
 using namespace ctml;
 
@@ -28,6 +29,49 @@ Reaction::Reaction(int type, const Composition& reactants_,
     , validate(true)
     , duplicate(false)
 {
+}
+
+std::string Reaction::reactantString() const
+{
+    std::ostringstream result;
+    for (Composition::const_iterator iter = reactants.begin();
+         iter != reactants.end();
+         ++iter) {
+        if (iter != reactants.begin()) {
+            result << " + ";
+        }
+        if (iter->second != 1.0) {
+            result << iter->second << " ";
+        }
+        result << iter->first;
+    }
+  return result.str();
+}
+
+std::string Reaction::productString() const
+{
+    std::ostringstream result;
+    for (Composition::const_iterator iter = products.begin();
+         iter != products.end();
+         ++iter) {
+        if (iter != products.begin()) {
+            result << " + ";
+        }
+        if (iter->second != 1.0) {
+            result << iter->second << " ";
+        }
+        result << iter->first;
+    }
+  return result.str();
+}
+
+std::string Reaction::equation() const
+{
+    if (reversible) {
+        return reactantString() + " <=> " + productString();
+    } else {
+        return reactantString() + " => " + productString();
+    }
 }
 
 ElementaryReaction::ElementaryReaction(const Composition& reactants_,
@@ -63,11 +107,11 @@ ThirdBodyReaction::ThirdBodyReaction(const Composition& reactants_,
     reaction_type = THREE_BODY_RXN;
 }
 
-std::string ThirdBodyReaction::reactantString() {
+std::string ThirdBodyReaction::reactantString() const {
     return ElementaryReaction::reactantString() + " + M";
 }
 
-std::string ThirdBodyReaction::productString() {
+std::string ThirdBodyReaction::productString() const {
     return ElementaryReaction::productString() + " + M";
 }
 
@@ -91,12 +135,24 @@ FalloffReaction::FalloffReaction(
 {
 }
 
-std::string FalloffReaction::reactantString() {
-    return Reaction::reactantString() + " (+M)";
+std::string FalloffReaction::reactantString() const {
+    if (third_body.default_efficiency == 0 &&
+        third_body.efficiencies.size() == 1) {
+        return Reaction::reactantString() + " (+" +
+            third_body.efficiencies.begin()->first + ")";
+    } else {
+        return Reaction::reactantString() + " (+M)";
+    }
 }
 
-std::string FalloffReaction::productString() {
-    return Reaction::productString() + " (+M)";
+std::string FalloffReaction::productString() const {
+    if (third_body.default_efficiency == 0 &&
+        third_body.efficiencies.size() == 1) {
+        return Reaction::productString() + " (+" +
+            third_body.efficiencies.begin()->first + ")";
+    } else {
+        return Reaction::productString() + " (+M)";
+    }
 }
 
 ChemicallyActivatedReaction::ChemicallyActivatedReaction()
