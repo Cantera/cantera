@@ -24,9 +24,9 @@ public:
              const Composition& products);
     virtual ~Reaction() {}
 
-    virtual std::string reactantString() { return ""; } //!< @todo: implement
-    virtual std::string productString() { return ""; } //!< @todo: implement
-    std::string equation() { return ""; } //!< @todo: implement
+    virtual std::string reactantString() const;
+    virtual std::string productString() const;
+    std::string equation() const;
 
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
@@ -95,8 +95,8 @@ public:
     ThirdBodyReaction();
     ThirdBodyReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, const ThirdBody& tbody);
-    virtual std::string reactantString();
-    virtual std::string productString();
+    virtual std::string reactantString() const;
+    virtual std::string productString() const;
 
     ThirdBody third_body;
 };
@@ -110,8 +110,8 @@ public:
                     const Arrhenius& low_rate, const Arrhenius& high_rate,
                     const ThirdBody& tbody, int falloff_type,
                     const vector_fp& falloff_params);
-    virtual std::string reactantString();
-    virtual std::string productString();
+    virtual std::string reactantString() const;
+    virtual std::string productString() const;
 
     Arrhenius low_rate;
     Arrhenius high_rate;
