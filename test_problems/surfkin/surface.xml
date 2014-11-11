@@ -73,7 +73,7 @@
   <reactionData id="surf_rxn_data">
 
     <!-- reaction 1 -->
-    <reaction id="surf_rxn_1" reversible="yes">
+    <reaction id="surf_rxn_1" type="surface" reversible="yes">
       <equation>H + surf_H [=] H2 + surf_site</equation>
       <reactants> H:1 surf_H:1 </reactants>
       <products>H2:1 surf_site:1 </products>
