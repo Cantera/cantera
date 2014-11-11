@@ -181,6 +181,62 @@ Plog::Plog(const ReactionData& rdata)
     }
 }
 
+Plog::Plog(const std::multimap<double, Arrhenius>& rates)
+    : logP_(-1000)
+    , logP1_(1000)
+    , logP2_(-1000)
+    , m1_(npos)
+    , m2_(npos)
+    , rDeltaP_(-1.0)
+    , maxRates_(1)
+{
+    size_t j = 0;
+    size_t rateCount = 0;
+    // Insert intermediate pressures
+    for (std::multimap<double, Arrhenius>::const_iterator iter = rates.begin();
+            iter != rates.end();
+            iter++) {
+        double logp = std::log(iter->first);
+        if (pressures_.empty() || pressures_.rbegin()->first != logp) {
+            // starting a new group
+            pressures_[logp] = std::make_pair(j, j+1);
+            rateCount = 1;
+        } else {
+            // another rate expression at the same pressure
+            pressures_[logp].second = j+1;
+            rateCount++;
+        }
+        maxRates_ = std::max(rateCount, maxRates_);
+
+        j++;
+        A_.push_back(iter->second.m_A);
+        n_.push_back(iter->second.m_b);
+        Ea_.push_back(iter->second.m_E);
+    }
+
+    // For pressures with only one Arrhenius expression, it is more
+    // efficient to work with log(A)
+    for (pressureIter iter = pressures_.begin();
+            iter != pressures_.end();
+            iter++) {
+        if (iter->second.first == iter->second.second - 1) {
+            A_[iter->second.first] = std::log(A_[iter->second.first]);
+        }
+    }
+
+    // Duplicate the first and last groups to handle P < P_0 and P > P_N
+    pressures_.insert(std::make_pair(-1000.0, pressures_.begin()->second));
+    pressures_.insert(std::make_pair(1000.0, pressures_.rbegin()->second));
+
+    // Resize work arrays
+    A1_.resize(maxRates_);
+    A2_.resize(maxRates_);
+    n1_.resize(maxRates_);
+    n2_.resize(maxRates_);
+    Ea1_.resize(maxRates_);
+    Ea2_.resize(maxRates_);
+}
+
 void Plog::validate(const ReactionData& rdata)
 {
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
