@@ -299,14 +299,6 @@ public:
         return m_ii;
     }
 
-    //!  Add a single elementary reaction to the list of reactions for the object
-    /*!
-     *    @param rdata
-     */
-    void addElementaryReaction(ReactionData& rdata);
-
-    void addGlobalReaction(ReactionData& r);
-
     //! Update the equilibrium constants and stored electrochemical potentials
     //! in molar units for all reversible reactions and for all species.
     /*!

@@ -783,19 +783,92 @@ void InterfaceKinetics::addReaction(ReactionData& r)
 {
     int reactionType = r.reactionType;
 
-    if ((reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ) ||
-        (reactionType == BUTLERVOLMER_RXN ) ||
-        (reactionType == SURFACEAFFINITY_RXN) ||
-        (reactionType == GLOBAL_RXN)) {
+    // Install rate coeff calculator
+    if (r.cov.size() > 3) {
+        m_has_coverage_dependence = true;
+    }
+    for (size_t m = 0; m < r.cov.size(); m++) {
+        r.rateCoeffParameters.push_back(r.cov[m]);
+    }
 
-        // Add global reactions
-        addGlobalReaction(r);
-    } else {
-        /*
-         * Install the rate coefficient for the current reaction
-         * in the appropriate data structure.
-         */
-        addElementaryReaction(r);
+    /*
+     * Temporarily change the reaction rate coefficient type to surface arrhenius.
+     * This is what is expected. We'll handle exchange current types below by hand.
+     */
+    int reactionRateCoeffType_orig = r.rateCoeffType;
+    if (r.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
+        r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+    }
+    if (r.rateCoeffType == ARRHENIUS_REACTION_RATECOEFF_TYPE) {
+        r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+    }
+    /*
+     * Install the reaction rate into the vector of reactions handled by this class
+     */
+    m_rates.install(m_ii, r);
+
+    /*
+     * Change the reaction rate coefficient type back to its original value
+     */
+    r.rateCoeffType = reactionRateCoeffType_orig;
+
+    // Store activation energy
+    m_E.push_back(r.rateCoeffParameters[2]);
+
+    if (r.beta > 0.0) {
+        m_has_electrochem_rxns = true;
+        m_beta.push_back(r.beta);
+        m_ctrxn.push_back(m_ii);
+        if (r.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
+            m_has_exchange_current_density_formulation = true;
+            m_ctrxn_ecdf.push_back(1);
+        } else {
+            m_ctrxn_ecdf.push_back(0);
+        }
+        m_ctrxn_resistivity_.push_back(r.filmResistivity);
+
+        if (reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
+            reactionType == BUTLERVOLMER_RXN ||
+            reactionType == SURFACEAFFINITY_RXN ||
+            reactionType == GLOBAL_RXN) {
+            //   Specify alternative forms of the electrochemical reaction
+            if (r.reactionType == BUTLERVOLMER_RXN) {
+                m_ctrxn_BVform.push_back(1);
+            } else if (r.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN) {
+                m_ctrxn_BVform.push_back(2);
+            } else {
+                // set the default to be the normal forward / reverse calculation method
+                m_ctrxn_BVform.push_back(0);
+            }
+            if (r.forwardFullOrder_.size() > 0) {
+                RxnOrders* ro = new RxnOrders();
+                ro->fill(r.forwardFullOrder_);
+                m_ctrxn_ROPOrdersList_.push_back(ro);
+                m_ctrxn_FwdOrdersList_.push_back(0);
+
+                // Fill in the Fwd Orders dependence here for B-V reactions
+                if (r.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
+                    r.reactionType == BUTLERVOLMER_RXN) {
+                    vector_fp fwdFullorders(m_kk, 0.0);
+                    determineFwdOrdersBV(r, fwdFullorders);
+                    RxnOrders* ro = new RxnOrders();
+                    ro->fill(fwdFullorders);
+                    m_ctrxn_FwdOrdersList_[m_ii] = ro;
+                }
+            } else {
+                m_ctrxn_ROPOrdersList_.push_back(0);
+                m_ctrxn_FwdOrdersList_.push_back(0);
+            }
+
+        } else {
+            m_ctrxn_BVform.push_back(0);
+            m_ctrxn_ROPOrdersList_.push_back(0);
+            m_ctrxn_FwdOrdersList_.push_back(0);
+            if (r.filmResistivity > 0.0) {
+                throw CanteraError("InterfaceKinetics::addReaction()",
+                                   "film resistivity set for elementary reaction");
+            }
+        }
     }
 
     if (r.reversible) {
@@ -820,155 +893,6 @@ void InterfaceKinetics::addReaction(ReactionData& r)
         size_t k = r.products[ik];
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsProduct[i][p] = true;
-    }
-}
-
-void InterfaceKinetics::addElementaryReaction(ReactionData& rdata)
-{
-    // install rate coefficient calculator
-    vector_fp& rp = rdata.rateCoeffParameters;
-    size_t ncov = rdata.cov.size();
-
-    // Turn on the global flag indicating surface coverage dependence
-    if (ncov > 3) {
-        m_has_coverage_dependence = true;
-    }
-    for (size_t m = 0; m < ncov; m++) {
-        rp.push_back(rdata.cov[m]);
-    }
-
-    // Find out the reaction type
-    int reactionType = rdata.reactionType;
-
-    /*
-     * Temporarily change the reaction rate coefficient type to surface arrhenius.
-     * This is what is expected. We'll handle exchange current types below by hand.
-     */
-    int reactionRateCoeffType_orig = rdata.rateCoeffType;
-    if (rdata.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
-        rdata.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-    if (rdata.rateCoeffType == ARRHENIUS_REACTION_RATECOEFF_TYPE) {
-        rdata.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-    /*
-     * Install the reaction rate into the vector of reactions handled by this class
-     */
-    m_rates.install(m_ii, rdata);
-
-    /*
-     * Change the reaction rate coefficient type back to its original value
-     */
-    rdata.rateCoeffType = reactionRateCoeffType_orig;
-
-    // store activation energy
-    m_E.push_back(rdata.rateCoeffParameters[2]);
-
-    if (rdata.beta > 0.0) {
-        m_has_electrochem_rxns = true;
-        m_beta.push_back(rdata.beta);
-        m_ctrxn.push_back(m_ii);
-        m_ctrxn_BVform.push_back(0);
-        if (rdata.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
-            m_has_exchange_current_density_formulation = true;
-            m_ctrxn_ecdf.push_back(1);
-        } else {
-            m_ctrxn_ecdf.push_back(0);
-        }
-        m_ctrxn_ROPOrdersList_.push_back(0);
-        m_ctrxn_FwdOrdersList_.push_back(0);
-        if (rdata.filmResistivity > 0.0) {
-            throw CanteraError("InterfaceKinetics::addElementaryReaction()",
-                               "film resistivity set for elementary reaction");
-        }
-        m_ctrxn_resistivity_.push_back(rdata.filmResistivity);
-    }
-}
-
-void InterfaceKinetics::addGlobalReaction(ReactionData& rdata)
-{
-    // Install rate coeff calculator
-    // This is done no matter what the type of reaction it is
-    vector_fp& rp = rdata.rateCoeffParameters;
-    size_t ncov = rdata.cov.size();
-    if (ncov > 3) {
-        m_has_coverage_dependence = true;
-    }
-    for (size_t m = 0; m < ncov; m++) {
-        rp.push_back(rdata.cov[m]);
-    }
-
-    // Find out the reaction type
-    int reactionType = rdata.reactionType;
-
-    /*
-     * Temporarily change the reaction rate coefficient type to surface arrhenius.
-     * This is what is expected. We'll handle exchange current types below by hand.
-     */
-    int reactionRateCoeffType_orig = rdata.rateCoeffType;
-    if (rdata.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
-        rdata.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-    if (rdata.rateCoeffType == ARRHENIUS_REACTION_RATECOEFF_TYPE) {
-        rdata.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-    /*
-     * Install the reaction rate into the vector of reactions handled by this class
-     */
-    m_rates.install(m_ii, rdata);
-
-    /*
-     * Change the reaction rate coefficient type back to its original value
-     */
-    rdata.rateCoeffType = reactionRateCoeffType_orig;
-
-    //    Store activation energy
-    m_E.push_back(rdata.rateCoeffParameters[2]);
-
-    //  Add the reaction into the list of electrochemical extras
-    if (rdata.beta > 0.0 || 1) {
-        m_has_electrochem_rxns = true;
-        m_beta.push_back(rdata.beta);
-        //   Push back the id of the reaction
-        m_ctrxn.push_back(m_ii);
-
-        //   Specify alternative forms of the electrochemical reaction
-        if (rdata.reactionType == BUTLERVOLMER_RXN) {
-            m_ctrxn_BVform.push_back(1);
-        } else if (rdata.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN) {
-            m_ctrxn_BVform.push_back(2);
-        } else {
-            // set the default to be the normal forward / reverse calculation method
-            m_ctrxn_BVform.push_back(0);
-        }
-        if (rdata.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
-            m_has_exchange_current_density_formulation = true;
-            m_ctrxn_ecdf.push_back(1);
-        } else {
-            m_ctrxn_ecdf.push_back(0);
-        }
-
-        //   Store the film resistivity
-        m_ctrxn_resistivity_.push_back(rdata.filmResistivity);
-
-        if (rdata.forwardFullOrder_.size() > 0) {
-            RxnOrders* ro = new RxnOrders();
-            ro->fill(rdata.forwardFullOrder_);
-            m_ctrxn_ROPOrdersList_.push_back(ro);
-            m_ctrxn_FwdOrdersList_.push_back(0);
-
-            // Fill in the Fwd Orders dependence here for B-V reactions
-            if (rdata.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN || rdata.reactionType == BUTLERVOLMER_RXN) {
-                std::vector<double> fwdFullorders(m_kk, 0.0);
-                determineFwdOrdersBV(rdata, fwdFullorders);
-                RxnOrders* ro = new RxnOrders();
-                ro->fill(fwdFullorders);
-                m_ctrxn_FwdOrdersList_[m_ii] = ro;
-            }
-        } else {
-            m_ctrxn_ROPOrdersList_.push_back(0);
-            m_ctrxn_FwdOrdersList_.push_back(0);
-        }
     }
 }
 
