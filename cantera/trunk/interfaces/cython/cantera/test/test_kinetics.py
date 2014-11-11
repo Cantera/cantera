@@ -59,8 +59,11 @@ class TestKinetics(utilities.CanteraTest):
     def test_reaction_equations(self):
         self.assertEqual(self.phase.n_reactions,
                          len(self.phase.reaction_equations()))
-        self.assertEqual(self.phase.reaction_equation(17),
-                         'H + H2O2 <=> HO2 + H2')
+        r,p = [x.split() for x in self.phase.reaction_equation(17).split('<=>')]
+        self.assertIn('H', r)
+        self.assertIn('H2O2', r)
+        self.assertIn('HO2', p)
+        self.assertIn('H2', p)
 
     def test_reactants_products(self):
         for i in range(self.phase.n_reactions):
