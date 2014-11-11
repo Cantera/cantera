@@ -101,3 +101,26 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     kin.finalize();
     check_rates(2);
 }
+
+TEST_F(KineticsFromScratch, add_plog_reaction)
+{
+    // reaction 3:
+    // pdep_arrhenius('H2 + O2 <=> 2 OH',
+    //                [(0.01, 'atm'), 1.212400e+16, -0.5779, 10872.7],
+    //                [(1.0, 'atm'), 4.910800e+31, -4.8507, 24772.8],
+    //                [(10.0, 'atm'), 1.286600e+47, -9.0246, 39796.5],
+    //                [(100.0, 'atm'), 5.963200e+56, -11.529, 52599.6])
+    Composition reac = parseCompString("H2:1, O2:1");
+    Composition prod = parseCompString("OH:2");
+    std::multimap<double, Arrhenius> rates;
+    typedef std::multimap<double, Arrhenius>::value_type item;
+    rates.insert(item(0.01*101325, Arrhenius(1.212400e+16, -0.5779, 10872.7 / GasConst_cal_mol_K)));
+    rates.insert(item(1.0*101325, Arrhenius(4.910800e+31, -4.8507, 24772.8 / GasConst_cal_mol_K)));
+    rates.insert(item(10.0*101325, Arrhenius(1.286600e+47, -9.0246, 39796.5 / GasConst_cal_mol_K)));
+    rates.insert(item(100.0*101325, Arrhenius(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K)));
+
+    shared_ptr<PlogReaction> R(new PlogReaction(reac, prod, Plog(rates)));
+    kin.addReaction(R);
+    kin.finalize();
+    check_rates(3);
+}

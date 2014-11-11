@@ -17,6 +17,8 @@
 namespace Cantera
 {
 
+class Plog;
+
 //! Arrhenius reaction rate type depends only on temperature
 /**
  * A reaction rate coefficient of the following form.
@@ -104,6 +106,8 @@ public:
 
 protected:
     doublereal m_logA, m_b, m_E, m_A;
+
+    friend class Plog;
 };
 
 
@@ -302,6 +306,9 @@ public:
 
     //! Constructor from ReactionData.
     explicit Plog(const ReactionData& rdata);
+
+    //! Constructor from Arrhenius rate expressions at a set of pressures
+    explicit Plog(const std::multimap<double, Arrhenius>& rates);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
