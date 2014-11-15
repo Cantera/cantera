@@ -213,9 +213,7 @@ private:
  * getting the information from an XML database.
  *
  * @param speciesName  Name of the species
- * @param sp           Owning SpeciesThermo object
- * @param k            Species index
- * @param Mu0Node_ptr  Pointer to the XML element containing the
+ * @param Mu0Node      Pointer to the XML element containing the
  *                     Mu0 information.
  *
  *  @ingroup spthermo

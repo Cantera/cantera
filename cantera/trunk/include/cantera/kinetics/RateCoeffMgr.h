@@ -48,7 +48,7 @@ public:
     /**
      * Install a rate coefficient calculator.
      * @param rxnNumber the reaction number
-     * @param rdata rate coefficient specification for the reaction
+     * @param rate rate coefficient specification for the reaction
      */
     void install(size_t rxnNumber, const R& rate) {
         m_rxn.push_back(rxnNumber);
