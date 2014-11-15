@@ -162,6 +162,133 @@ void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
 
 }
 
+std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
+{
+    //! Map of (key indicating participating species) to reaction numbers
+    std::map<size_t, std::vector<size_t> > participants;
+    std::vector<std::map<int, double> > net_stoich;
+
+    for (size_t i = 0; i < m_reactions.size(); i++) {
+        // Get data about this reaction
+        unsigned long int key = 0;
+        Reaction& R = *m_reactions[i];
+        net_stoich.push_back(std::map<int, double>());
+        std::map<int, double>& net = net_stoich.back();
+        for (Composition::const_iterator iter = R.reactants.begin();
+             iter != R.reactants.end();
+             ++iter) {
+            size_t k = kineticsSpeciesIndex(iter->first);
+            key += k*(k+1);
+            net[-1 -k] -= iter->second;
+        }
+        for (Composition::const_iterator iter = R.products.begin();
+             iter != R.products.end();
+             ++iter) {
+            size_t k = kineticsSpeciesIndex(iter->first);
+            key += k*(k+1);
+            net[1+k] += iter->second;
+        }
+
+        // Compare this reaction to others with similar participants
+        vector<size_t>& related = participants[key];
+
+        for (size_t m = 0; m < related.size(); m++) {
+            Reaction& other = *m_reactions[related[m]];
+            if (R.reaction_type != other.reaction_type) {
+                continue; // different reaction types
+            } else if (R.duplicate && other.duplicate) {
+                continue; // marked duplicates
+            }
+            doublereal c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
+            if (c == 0) {
+                continue; // stoichiometries differ (not by a multiple)
+            } else if (c < 0.0 && !R.reversible && !other.reversible) {
+                continue; // irreversible reactions in opposite directions
+            } else if (R.reaction_type == FALLOFF_RXN ||
+                       R.reaction_type == CHEMACT_RXN) {
+                ThirdBody& tb1 = dynamic_cast<FalloffReaction&>(R).third_body;
+                ThirdBody& tb2 = dynamic_cast<FalloffReaction&>(other).third_body;
+                bool thirdBodyOk = true;
+                for (size_t k = 0; k < nTotalSpecies(); k++) {
+                    string s = kineticsSpeciesName(k);
+                    if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
+                        thirdBodyOk = false;
+                        break;
+                    }
+                }
+                if (thirdBodyOk) {
+                    continue; // No overlap in third body efficiencies
+                }
+            } else if (R.reaction_type == THREE_BODY_RXN) {
+                ThirdBody& tb1 = dynamic_cast<ThirdBodyReaction&>(R).third_body;
+                ThirdBody& tb2 = dynamic_cast<ThirdBodyReaction&>(other).third_body;
+                bool thirdBodyOk = true;
+                for (size_t k = 0; k < nTotalSpecies(); k++) {
+                    string s = kineticsSpeciesName(k);
+                    if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
+                        thirdBodyOk = false;
+                        break;
+                    }
+                }
+                if (thirdBodyOk) {
+                    continue; // No overlap in third body efficiencies
+                }
+            }
+            if (throw_err) {
+                string msg = string("Undeclared duplicate reactions detected:\n")
+                             +"Reaction "+int2str(i+1)+": "+other.equation()
+                             +"\nReaction "+int2str(m+1)+": "+R.equation()+"\n";
+                throw CanteraError("installReaction", msg);
+            } else {
+                return make_pair(i,m);
+            }
+        }
+        participants[key].push_back(i);
+    }
+    return make_pair(npos, npos);
+}
+
+double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
+                                      std::map<int, double>& r2) const
+{
+    map<int, doublereal>::const_iterator b = r1.begin(), e = r1.end();
+    int k1 = b->first;
+    // check for duplicate written in the same direction
+    doublereal ratio = 0.0;
+    if (r1[k1] && r2[k1]) {
+        ratio = r2[k1]/r1[k1];
+        ++b;
+        bool different = false;
+        for (; b != e; ++b) {
+            k1 = b->first;
+            if (!r1[k1] || !r2[k1] || fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) {
+                different = true;
+                break;
+            }
+        }
+        if (!different) {
+            return ratio;
+        }
+    }
+
+    // check for duplicate written in the reverse direction
+    b = r1.begin();
+    k1 = b->first;
+    if (r1[k1] == 0.0 || r2[-k1] == 0.0) {
+        return 0.0;
+    }
+    ratio = r2[-k1]/r1[k1];
+    ++b;
+    for (; b != e; ++b) {
+        k1 = b->first;
+        if (!r1[k1] || !r2[-k1] || fabs(r2[-k1]/r1[k1] - ratio) > 1.e-8) {
+            return 0.0;
+        }
+    }
+    return ratio;
+}
+
+
 void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
                            doublereal* phase_data)
 {
