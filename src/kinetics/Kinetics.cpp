@@ -22,7 +22,8 @@ Kinetics::Kinetics() :
     m_thermo(0),
     m_surfphase(npos),
     m_rxnphase(npos),
-    m_mindim(4)
+    m_mindim(4),
+    m_skipUndeclaredSpecies(false)
 {
 }
 
@@ -75,6 +76,7 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_ropf = right.m_ropf;
     m_ropr = right.m_ropr;
     m_ropnet = right.m_ropnet;
+    m_skipUndeclaredSpecies = right.m_skipUndeclaredSpecies;
 
     return *this;
 }
@@ -648,6 +650,34 @@ void Kinetics::addReaction(ReactionData& r) {
 
 void Kinetics::addReaction(shared_ptr<Reaction> r)
 {
+    // Check for undeclared species
+    for (Composition::const_iterator iter = r->reactants.begin();
+         iter != r->reactants.end();
+         ++iter) {
+        if (kineticsSpeciesIndex(iter->first) == npos) {
+            if (m_skipUndeclaredSpecies) {
+                return;
+            } else {
+                throw CanteraError("Kinetics::addReaction", "Reaction '" +
+                    r->equation() + "' contains the undeclared species '" +
+                    iter->first + "'");
+            }
+        }
+    }
+    for (Composition::const_iterator iter = r->products.begin();
+         iter != r->products.end();
+         ++iter) {
+        if (kineticsSpeciesIndex(iter->first) == npos) {
+            if (m_skipUndeclaredSpecies) {
+                return;
+            } else {
+                throw CanteraError("Kinetics::addReaction", "Reaction '" +
+                    r->equation() + "' contains the undeclared species '" +
+                    iter->first + "'");
+            }
+        }
+    }
+
     checkReactionBalance(*r);
 
     size_t irxn = nReactions();
