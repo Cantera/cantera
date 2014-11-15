@@ -117,7 +117,7 @@ VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
             throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
                                "no standardState Node for species " + s->attrib("name"));
         }
-        std::string model = (*ss)["model"];
+        std::string model = ss->attrib("model");
         if (model != "constant_incompressible" && model != "constantVolume") {
             throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
                                "standardState model for species isn't constant_incompressible: " + s->attrib("name"));
@@ -135,7 +135,7 @@ VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         throw CanteraError("VPSSMgr_ConstVol::createInstallPDSS",
                            "no standardState Node for species " + speciesNode["name"]);
     }
-    std::string model = (*ss)["model"];
+    std::string model = ss->attrib("model");
     if (model != "constant_incompressible" && model != "constantVolume") {
         throw CanteraError("VPSSMgr_ConstVol::createInstallPDSS",
                            "standardState model for species isn't "

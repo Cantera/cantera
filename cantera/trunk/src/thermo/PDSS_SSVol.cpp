@@ -98,7 +98,7 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_SSVol::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    std::string model = (*ss)["model"];
+    std::string model = ss->attrib("model");
     if (model == "constant_incompressible" || model == "constant") {
         volumeModel_ = cSSVOLUME_CONSTANT;
         m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");

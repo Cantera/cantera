@@ -646,7 +646,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                     const XML_Node* r = allrxns[i];
                     string rxid;
                     if (r) {
-                        rxid = (*r)["id"];
+                        rxid = r->attrib("id");
                         if (iwild != string::npos) {
                             rxid = rxid.substr(0,iwild);
                         }

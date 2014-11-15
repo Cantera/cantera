@@ -151,7 +151,7 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
      * form. If they were, then the assumed temperature needs to be
      * adjusted from the assumed T = 273.15
      */
-    string uuu = (*valNode_ptr)["units"];
+    string uuu = valNode_ptr->attrib("units");
     if (uuu == "Dimensionless") {
         dimensionlessMu0Values = true;
     }

@@ -232,7 +232,7 @@ VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode, const std::string& id)
             throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
                                "No standardState Node for species " + sss[k]);
         }
-        std::string model = lowercase((*ss)["model"]);
+        std::string model = lowercase(ss->attrib("model"));
         if (model != "hkft") {
             throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
                                "Standard state model for a solute species isn't "
@@ -263,7 +263,7 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                "h2o wrong name: " + xn);
         }
 
-        std::string model = (*ss)["model"];
+        std::string model = ss->attrib("model");
         if (model != "waterIAPWS" && model != "waterPDSS") {
             throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
                                "wrong SS mode: " + model);
@@ -281,7 +281,7 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 
         kPDSS = m_waterSS;
     } else {
-        std::string model = (*ss)["model"];
+        std::string model = ss->attrib("model");
         if (model != "HKFT") {
             std::string sName = speciesNode["name"];
             throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
