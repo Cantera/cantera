@@ -78,6 +78,33 @@ TEST_F(KineticsFromScratch, add_three_body_reaction)
     check_rates(1);
 }
 
+TEST_F(KineticsFromScratch, undefined_third_body)
+{
+    Composition reac = parseCompString("O:2");
+    Composition prod = parseCompString("O2:1");
+    Arrhenius rate(1.2e11, -1.0, 0.0);
+    ThirdBody tbody;
+    tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
+    shared_ptr<ThirdBodyReaction> R(new ThirdBodyReaction(reac, prod, rate, tbody));
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+}
+
+TEST_F(KineticsFromScratch, skip_undefined_third_body)
+{
+    Composition reac = parseCompString("O:2");
+    Composition prod = parseCompString("O2:1");
+    Arrhenius rate(1.2e11, -1.0, 0.0);
+    ThirdBody tbody;
+    tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
+    shared_ptr<ThirdBodyReaction> R(new ThirdBodyReaction(reac, prod, rate, tbody));
+
+    kin.skipUndeclaredThirdBodies(true);
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
+}
+
+
 TEST_F(KineticsFromScratch, add_falloff_reaction)
 {
     // reaction 2:
