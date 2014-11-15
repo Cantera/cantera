@@ -147,6 +147,9 @@ def regression_test(target, source, env):
                                stdout=outfile, stderr=outfile,
                                cwd=dir, env=env['ENV'])
 
+    if code:
+        print 'FAILED (program exit code:{0})'.format(code)
+
     diff = 0
     # Compare output files
     comparisons = env['test_comparisons']
@@ -155,13 +158,14 @@ def regression_test(target, source, env):
 
     for blessed,output in comparisons:
         print """Comparing '%s' with '%s'""" % (blessed, output)
-        diff |= compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
+        d = compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
+        if d:
+            print 'FAILED'
+        diff |= d
 
     del testResults.tests[env['active_test_name']]
 
     if diff or code:
-        print 'FAILED'
-
         if os.path.exists(target[0].abspath):
             os.path.unlink(target[0].abspath)
 
