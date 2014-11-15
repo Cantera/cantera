@@ -288,6 +288,52 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
     return ratio;
 }
 
+void Kinetics::checkReactionBalance(const Reaction& R)
+{
+    Composition balr, balp;
+    // iterate over the products
+    for (Composition::const_iterator iter = R.products.begin();
+         iter != R.products.end();
+         ++iter) {
+        const ThermoPhase& ph = speciesPhase(iter->first);
+        size_t k = ph.speciesIndex(iter->first);
+        double stoich = iter->second;
+        for (size_t m = 0; m < ph.nElements(); m++) {
+            balr[ph.elementName(m)] = 0.0; // so that balr contains all species
+            balp[ph.elementName(m)] += stoich*ph.nAtoms(k,m);
+        }
+    }
+    for (Composition::const_iterator iter = R.reactants.begin();
+         iter != R.reactants.end();
+         ++iter) {
+        const ThermoPhase& ph = speciesPhase(iter->first);
+        size_t k = ph.speciesIndex(iter->first);
+        double stoich = iter->second;
+        for (size_t m = 0; m < ph.nElements(); m++) {
+            balr[ph.elementName(m)] += stoich*ph.nAtoms(k,m);
+        }
+    }
+
+    string msg;
+    bool ok = true;
+    for (Composition::iterator iter = balr.begin();
+         iter != balr.end();
+         ++iter) {
+        const string& elem = iter->first;
+        double elemsum = balr[elem] + balp[elem];
+        double elemdiff = fabs(balp[elem] - balr[elem]);
+        if (elemsum > 0.0 && elemdiff/elemsum > 1e-5) {
+            ok = false;
+            msg += "  " + elem + "           " + fp2str(balr[elem]) +
+                   "           " + fp2str(balp[elem]) + "\n";
+        }
+    }
+    if (!ok) {
+        msg = "The following reaction is unbalanced: " + R.equation() + "\n" +
+              "  Element    Reactants    Products\n" + msg;
+        throw CanteraError("checkRxnElementBalance", msg);
+    }
+}
 
 void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
                            doublereal* phase_data)
@@ -602,6 +648,8 @@ void Kinetics::addReaction(ReactionData& r) {
 
 void Kinetics::addReaction(shared_ptr<Reaction> r)
 {
+    checkReactionBalance(*r);
+
     size_t irxn = nReactions();
     std::vector<size_t> rk, pk;
     vector_fp rstoich, pstoich;
