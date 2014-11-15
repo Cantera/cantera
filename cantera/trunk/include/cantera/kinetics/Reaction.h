@@ -198,6 +198,10 @@ public:
     // Set to true if `rate` is a parameterization of the sticking coefficient
     // rather than the forward rate constant
     bool is_sticking_coefficient;
+
+    // For reactions with multiple non-surface species, the sticking species
+    // needs to be explicitly identified.
+    std::string sticking_species;
 };
 
 

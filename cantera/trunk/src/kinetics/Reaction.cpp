@@ -492,6 +492,7 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
     XML_Node& arr = rxn_node.child("rateCoeff").child("Arrhenius");
     if (lowercase(arr["type"]) == "stick") {
         R.is_sticking_coefficient = true;
+        R.sticking_species = arr["species"];
     }
     setupElementaryReaction(R, rxn_node);
 }

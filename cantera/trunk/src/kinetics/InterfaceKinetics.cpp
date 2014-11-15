@@ -915,36 +915,48 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         }
 
         b_rate += 0.5;
+        std::string sticking_species = r.sticking_species;
+        if (sticking_species == "") {
+            // Identify the sticking species if not explicitly given
+            bool foundStick = false;
+            for (Composition::const_iterator iter = r.reactants.begin();
+                 iter != r.reactants.end();
+                 ++iter) {
+                size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
+                if (iPhase != iInterface) {
+                    // Non-interface species. There should be exactly one of these
+                    if (foundStick) {
+                        throw CanteraError("InterfaceKinetics::addReaction",
+                            "Multiple non-interface species found"
+                            "in sticking reaction: '" + r.equation() + "'");
+                    }
+                    foundStick = true;
+                    sticking_species = iter->first;
+                }
+            }
+            if (!foundStick) {
+                throw CanteraError("InterfaceKinetics::addReaction",
+                    "No non-interface species found"
+                    "in sticking reaction: '" + r.equation() + "'");
+            }
+        }
 
-        // Identify the sticking species, and adjust the A-factor
-        bool foundStick = false;
+        // Adjust the A-factor
         for (Composition::const_iterator iter = r.reactants.begin();
              iter != r.reactants.end();
              ++iter) {
             size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
             const ThermoPhase& p = thermo(iPhase);
             size_t k = p.speciesIndex(iter->first);
-            if (iPhase == iInterface) {
-                // Interface species. Convert from coverages used in the
+            if (iter->first == sticking_species) {
+                A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
+            } else {
+                // Non-sticking species. Convert from coverages used in the
                 // sticking probability expression to the concentration units
                 // used in the mass action rate expression
                 double order = getValue(r.orders, iter->first, iter->second);
                 A_rate /= pow(p.standardConcentration(k), order);
-            } else {
-                // Non-interface species. There should be exactly one of these
-                if (foundStick) {
-                    throw CanteraError("InterfaceKinetics::addReaction",
-                        "Multiple non-interface species found"
-                        "in sticking reaction: '" + r.equation() + "'");
-                }
-                foundStick = true;
-                A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
             }
-        }
-        if (!foundStick) {
-            throw CanteraError("InterfaceKinetics::addReaction",
-                "No non-interface species found"
-                "in sticking reaction: '" + r.equation() + "'");
         }
     }
     SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
