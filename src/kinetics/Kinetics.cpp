@@ -23,7 +23,8 @@ Kinetics::Kinetics() :
     m_surfphase(npos),
     m_rxnphase(npos),
     m_mindim(4),
-    m_skipUndeclaredSpecies(false)
+    m_skipUndeclaredSpecies(false),
+    m_skipUndeclaredThirdBodies(false)
 {
 }
 

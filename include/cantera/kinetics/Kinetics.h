@@ -814,6 +814,15 @@ public:
         m_skipUndeclaredSpecies = skip;
     }
 
+    //! Determine behavior when adding a new reaction that contains third-body
+    //! efficiencies for species not defined in any of the phases associated
+    //! with this kinetics manager. If set to true, the given third-body
+    //! efficiency will be ignored. If false, (the default) an exception will be
+    //! raised.
+    void skipUndeclaredThirdBodies(bool skip) {
+        m_skipUndeclaredThirdBodies = skip;
+    }
+
     //! @deprecated To be removed after Cantera 2.2. No longer called as part
     //!     of addReaction.
     virtual void installReagents(const ReactionData& r) {
@@ -1083,6 +1092,9 @@ protected:
 
     //! @see skipUndeclaredSpecies()
     bool m_skipUndeclaredSpecies;
+
+    //! @see skipUndeclaredThirdBodies()
+    bool m_skipUndeclaredThirdBodies;
 
 private:
     std::map<size_t, std::vector<grouplist_t> > m_rgroups;
