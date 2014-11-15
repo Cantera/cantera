@@ -153,5 +153,21 @@
       <reactants>H2:0.69999999999999996 O2:0.20000000000000001 OH:0.59999999999999998</reactants>
       <products>H2O:1.0</products>
     </reaction>
+
+    <reaction reversible="no" id="0002" negative_orders="yes">
+      <equation>H2 + 0.5 O2 =] H2O</equation>
+      <order species="H2">1.0</order>
+      <order species="O2">-0.25</order>
+      <rateCoeff>
+        <Arrhenius>
+           <A>3.981072E+00</A>
+           <b>0.0</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2:1.0 O2:0.5</reactants>
+      <products>H2O:1.0</products>
+    </reaction>
+
   </reactionData>
 </ctml>

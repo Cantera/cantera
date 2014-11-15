@@ -655,7 +655,7 @@ void Kinetics::addReaction(ReactionData& r) {
 
 void Kinetics::addReaction(shared_ptr<Reaction> r)
 {
-    r->validateRateConstant();
+    r->validate();
 
     // If reaction orders are specified, then this reaction does not follow
     // mass-action kinetics, and is not an elementary reaction. So check that it

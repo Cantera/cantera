@@ -261,6 +261,59 @@ TEST_F(KineticsFromScratch, invalid_reversible_with_orders)
     ASSERT_EQ(0, kin.nReactions());
 }
 
+TEST_F(KineticsFromScratch, negative_order_override)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 OH:1");
+    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+    R->reversible = false;
+    R->allow_negative_orders = true;
+    R->orders["H2"] = - 0.5;
+
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, invalid_negative_orders)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 OH:1");
+    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+    R->reversible = false;
+    R->orders["H2"] = - 0.5;
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ(0, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, nonreactant_order_override)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 OH:1");
+    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+    R->reversible = false;
+    R->allow_nonreactant_orders = true;
+    R->orders["OH"] = 0.5;
+
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, invalid_nonreactant_order)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 OH:1");
+    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+    R->reversible = false;
+    R->orders["OH"] = 0.5;
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ(0, kin.nReactions());
+}
 
 class InterfaceKineticsFromScratch : public testing::Test
 {

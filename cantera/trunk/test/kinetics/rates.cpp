@@ -116,10 +116,10 @@ TEST_F(FracCoeffTest, CreationDestructionRates)
     EXPECT_DOUBLE_EQ(0.6*ropf[0], cdot[kOH]);
     EXPECT_DOUBLE_EQ(0.2*ropf[0], cdot[kO2]);
 
-    EXPECT_DOUBLE_EQ(0.7*ropf[1], ddot[kH2]);
+    EXPECT_DOUBLE_EQ(0.7*ropf[1]+ropf[2], ddot[kH2]);
     EXPECT_DOUBLE_EQ(0.6*ropf[1], ddot[kOH]);
-    EXPECT_DOUBLE_EQ(0.2*ropf[1], ddot[kO2]);
-    EXPECT_DOUBLE_EQ(ropf[1], cdot[kH2O]);
+    EXPECT_DOUBLE_EQ(0.2*ropf[1]+0.5*ropf[2], ddot[kO2]);
+    EXPECT_DOUBLE_EQ(ropf[1]+ropf[2], cdot[kH2O]);
 
     EXPECT_DOUBLE_EQ(0.0, cdot[therm.speciesIndex("O")]);
     EXPECT_DOUBLE_EQ(0.0, ddot[therm.speciesIndex("O")]);
