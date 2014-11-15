@@ -179,11 +179,6 @@ public:
      */
     void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    //! returns a summary of the state of the phase as a string
-    /*!
-     * @param show_thermo If true, extra information is printed out
-     *                    about the thermodynamic state of the system.
-     */
     virtual std::string report(bool show_thermo=true,
                                doublereal threshold=1e-14) const;
 

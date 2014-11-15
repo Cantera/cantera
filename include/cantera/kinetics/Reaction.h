@@ -87,7 +87,7 @@ public:
     Composition efficiencies;
 
     //! The default third body efficiency for species not listed in
-    //! #third_body_efficiencies.
+    //! #efficiencies.
     double default_efficiency;
 };
 

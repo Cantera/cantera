@@ -1,5 +1,5 @@
 /**
- * @file TortuosityBruggeman.h
+ * @file Tortuosity.h
  *  Class to compute the increase in diffusive path length in porous media
  *  assuming the Bruggeman exponent relation
  */
@@ -182,7 +182,7 @@ public:
 
 protected:
     //! Relative  conductivities of the dispersed and continuous phases,
-    //! \code{relativeConductivites_}\f$  = \kappa_d / \kappa_0 \f$.
+    //! `relativeConductivites_` \f$ = \kappa_d / \kappa_0 \f$.
     double relativeConductivites_;
 
 };

@@ -322,7 +322,7 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(
 /*!
  *  This is called if a 'MinEQ3' node is found in the XML input.
  *
- *  @param speciesName  name of the species
+ *  @param name         name of the species
  *  @param MinEQ3node   The XML_Node containing the MinEQ3 parameterization
  */
 SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,

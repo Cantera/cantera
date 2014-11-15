@@ -750,11 +750,8 @@ public:
 public:
     //! Calculate the saturation pressure at the current mixture content for the given temperature
     /*!
-     *   @param TKelvin         (input) Temperature (Kelvin)
-     *   @param molarVolGas     (return) Molar volume of the gas
-     *   @param molarVolLiquid  (return) Molar volume of the liquid
-     *
-     *   @return          Returns the saturation pressure at the given temperature
+     *   @param TKelvin   Temperature (Kelvin)
+     *   @return          The saturation pressure at the given temperature
      */
     virtual doublereal satPressure(doublereal TKelvin);
 

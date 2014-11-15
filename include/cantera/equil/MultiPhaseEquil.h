@@ -33,6 +33,8 @@ public:
     //! @param start If true, the initial composition will be determined by a
     //!     linear Gibbs minimization, otherwise the initial mixture
     //!     composition will be used.
+    //! @param loglevel Desired level of debug printing. loglevel = 0 suppresses
+    //!     printing. Higher values request more verbose logging output.
     MultiPhaseEquil(MultiPhase* mix, bool start=true, int loglevel = 0);
 
     virtual ~MultiPhaseEquil() {}
