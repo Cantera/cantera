@@ -46,7 +46,10 @@ public:
         chebPmax(-1.0),
         chebDegreeT(0),
         chebDegreeP(0)
-    {}
+    {
+        warn_deprecated("class ReactionData",
+            "To be removed after Cantera 2.2.");
+    }
 
     virtual ~ReactionData() {}
 

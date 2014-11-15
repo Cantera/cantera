@@ -20,6 +20,7 @@ namespace Cantera
 {
 
 //! Rules for parsing and installing reactions
+//! @deprecated Unused. To be removed after Cantera 2.2.
 struct ReactionRules {
     ReactionRules();
     bool skipUndeclaredSpecies;
@@ -43,6 +44,8 @@ struct ReactionRules {
  *    stoichiometric coefficients.
  *
  * @ingroup kineticsmgr
+ * @deprecated Now handled by Kinetics::checkDuplicateStoich. To be removed
+ *     after Cantera 2.2.
  */
 doublereal isDuplicateReaction(std::map<int, doublereal>& r1,
                                std::map<int, doublereal>& r2);
@@ -54,6 +57,8 @@ doublereal isDuplicateReaction(std::map<int, doublereal>& r1,
  *   @param errorTolerance double containing the error tolerance.
  *
  * @ingroup kineticsmgr
+ * @deprecated Now handled by Kinetics::checkReactionBalance. To be removed
+ *     after Cantera 2.2.
  */
 void checkRxnElementBalance(Kinetics& kin,
                             const ReactionData& rdata,
@@ -80,35 +85,12 @@ void checkRxnElementBalance(Kinetics& kin,
  *                  a species we simply return false, allowing the calling
  *                  routine to skip this reaction and continue. Otherwise, we
  *                  will throw an error.
+ * @deprecated Now handled through newReaction() and its support functions. To
+ *     be removed after Cantera 2.2.
  */
 bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp, std::string default_phase,
                  std::vector<size_t>& spnum, vector_fp& stoich,
                  vector_fp& order, const ReactionRules& rules);
-
-//!  Install Butler Volmer Orders into the forward orders array.
-/*!
- *  Install the BV order coefficients into the fullForwardsOrders vector.
- *
- *  @param[in]  rxnNode  XML node pointing to the reaction element in the xml tree.
- *  @param[in]  kin      Reference to the kinetics object to install the information into.
- *  @param[in]  rdata    Reaction Data Object containing the information about one reaction
- *  @param[out] fullForwardsOrders   Vectors of the orders of reaction.
- */
-void installButlerVolmerOrders(const XML_Node& rxnNode, const Kinetics& kin, const ReactionData& rdata,
-			       std::vector<doublereal>& fullForwardsOrders);
-
-//! Get non-mass-action orders for a reaction
-extern bool getOrders(const XML_Node& rxnNode, Kinetics& kin,
-              std::string default_phase, const ReactionData& rdata,
-              vector_fp& order, vector_fp& fullForwardsOrders,
-              const ReactionRules& rules);
-
-extern bool getRxnFormulation(const XML_Node& rxnNode, Kinetics& kin,
-		       std::string default_phase, const ReactionData& rdata,
-		       vector_fp& order, vector_fp& fullForwardsOrders,
-		       doublereal &affinityPower,
-                       doublereal & equilibriumConstantPower,
-		       const ReactionRules& rules);
 
 //! Read the rate coefficient data from the XML file.
 /*!
@@ -123,6 +105,9 @@ extern bool getRxnFormulation(const XML_Node& rxnNode, Kinetics& kin,
  *  @param rules   Rules for parsing and installing reactions
  *
  *   Trigger an exception for negative A unless specifically authorized.
+ *
+ * @deprecated Now handled through newReaction() and its support functions. To
+ *     be removed after Cantera 2.2.
  *
  * @ingroup kineticsmgr
  */
