@@ -581,7 +581,7 @@ config_options = [
     BoolVariable(
         'install_gtest',
         """Determines whether to install the Google Test library and headers
-           alongside Cantera's libraries. Not recommended.""",
+           alongside Cantera's libraries. Deprecated.""",
         False),
     BoolVariable(
         'single_library',
@@ -606,7 +606,9 @@ config_options = [
            for creating the documentation, and for making reaction path
            diagrams. If "dot" is in your path, you can leave this unspecified.
            NOTE: Matlab comes with a stripped-down version of 'dot'. If 'dot'
-           is on your path, make sure it is not the Matlab version!""",
+           is on your path, make sure it is not the Matlab version!.
+           *Deprecated*. Make sure that 'dot' is on your path before building
+           the Doxygen documentation.""",
         '', PathVariable.PathAccept),
     ('cantera_version', '', '2.2a1')
 ]
@@ -660,6 +662,17 @@ print "Configuration variables read from 'cantera.conf' and command line:"
 for line in open('cantera.conf'):
     print '   ', line.strip()
 print
+
+# Check for deprecated SCons options
+if not env['single_library']:
+    print "WARNING: Setting the 'single_library' option to False is deprecated."
+    print "         This option will be removed in Cantera 2.2."
+if env['install_gtest']:
+    print "WARNING: The option 'install_gtest' is deprecated."
+    print "         This option will be removed in Cantera 2.2."
+if env['graphvizdir']:
+    print "WARNING: The option 'graphvizdir' is deprecated."
+    print "         This option will be removed in Cantera 2.2."
 
 # ********************************************
 # *** Configure system-specific properties ***
