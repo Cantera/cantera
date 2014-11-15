@@ -156,7 +156,7 @@ VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
         kPDSS = new PDSS_IdealGas(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
         return kPDSS;
     }
-    std::string model = (*ss)["model"];
+    std::string model = ss->attrib("model");
     if (model == "constant_incompressible") {
         VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
         kPDSS = new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);

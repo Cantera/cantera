@@ -253,7 +253,7 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "no standard state mode");
     }
     doublereal volVal = 0.0;
-    string smodel = (*aStandardState)["model"];
+    string smodel = aStandardState->attrib("model");
     if (smodel != "constantVolume") {
         throw CanteraError("MineralEQ3::initThermoXML",
                            "wrong standard state mode");

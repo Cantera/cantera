@@ -84,7 +84,7 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_ConstVol::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    std::string model = (*ss)["model"];
+    std::string model = ss->attrib("model");
     if (model != "constant_incompressible") {
         throw CanteraError("PDSS_ConstVol::initThermoXML",
                            "standardState model for species isn't constant_incompressible: " + speciesNode.name());

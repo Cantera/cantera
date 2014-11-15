@@ -119,7 +119,7 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    std::string model = lowercase((*tn)["model"]);
+    std::string model = lowercase(tn->attrib("model"));
     if (model != "ionfromneutral") {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "thermo model for species isn't IonsFromNeutral: "

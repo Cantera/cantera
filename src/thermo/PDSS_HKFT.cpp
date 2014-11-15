@@ -575,7 +575,7 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    std::string model = lowercase((*tn)["model"]);
+    std::string model = lowercase(tn->attrib("model"));
     if (model != "hkft") {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "thermo model for species isn't hkft: "
@@ -589,17 +589,17 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
 
     // go get the attributes
     m_p0 = OneAtm;
-    std::string p0string = (*hh)["Pref"];
+    std::string p0string = hh->attrib("Pref");
     if (p0string != "") {
         m_p0 = strSItoDbl(p0string);
     }
 
-    std::string minTstring = (*hh)["Tmin"];
+    std::string minTstring = hh->attrib("Tmin");
     if (minTstring != "") {
         m_minTemp = fpValueCheck(minTstring);
     }
 
-    std::string maxTstring = (*hh)["Tmax"];
+    std::string maxTstring = hh->attrib("Tmax");
     if (maxTstring != "") {
         m_maxTemp = fpValueCheck(maxTstring);
     }
@@ -627,7 +627,7 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    model = lowercase((*ss)["model"]);
+    model = lowercase(ss->attrib("model"));
     if (model != "hkft") {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "standardState model for species isn't hkft: "

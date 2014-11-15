@@ -955,7 +955,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
 		    throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
 				       "Unknown compositionDependence string: " + modelName);
 		} else {
-		    trParam.compositionDepTypeDefault_ = (*it).second;
+		    trParam.compositionDepTypeDefault_ = it->second;
 		}
 	    } else {
 		if (tranTypeNode.hasChild("compositionDependence")) {

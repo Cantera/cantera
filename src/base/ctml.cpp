@@ -154,7 +154,7 @@ void getString(const Cantera::XML_Node& node, const std::string& titleString, st
     XML_Node* s = getByTitle(node, titleString);
     if (s && s->name() == "string") {
         valueString = s->value();
-        typeString = (*s)["type"];
+        typeString = s->attrib("type");
     } else {
         valueString = "";
         typeString = "";
@@ -174,8 +174,8 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
     } else {
         XML_Node* s = getByTitle(node, nameString);
         if (s && s->name() == "string") {
-            valueString = (*s).value();
-            typeString = (*s)["type"];
+            valueString = s->value();
+            typeString = s->attrib("type");
         }
     }
 }
