@@ -1188,6 +1188,9 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
         }
     }
 
+    if (check_for_duplicates) {
+        kin.checkDuplicates();
+    }
     /*
      * Finalize the installation of the kinetics, now that we know
      * the true number of reactions in the mechanism, itot.

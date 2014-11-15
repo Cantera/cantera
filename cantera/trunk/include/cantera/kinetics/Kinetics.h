@@ -871,6 +871,15 @@ public:
         return false;
     }
 
+    //! Check for duplicate reactions.
+    /**
+     * If `throw_err` is true, then an exception will be thrown if any unmarked
+     * duplicate reactions are found. Otherwise, the indices of the first pair
+     * of duplicate reactions found will be returned. If no duplicate reactions
+     * are found, returns `(npos, npos)`.
+     */
+    virtual std::pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
+
     /*!
      * Takes as input an array of properties for all species in the mechanism
      * and copies those values belonging to a particular phase to the output
@@ -889,6 +898,22 @@ protected:
     virtual void updateROP() {
         throw NotImplementedError("Kinetics::updateROP");
     }
+
+    //! Check whether `r1` and `r2` represent duplicate stoichiometries
+    //! This function returns a ratio if two reactions are duplicates of
+    //! one another, and 0.0 otherwise.
+    /*!
+     *  `r1` and `r2` are maps of species key to stoichiometric coefficient, one
+     *  for each reaction, where the species key is `1+k` for reactants and
+     *  `-1-k` for products and `k` is the species index.
+     *
+     *  @return 0.0 if the stoichiometries are not multiples of one another
+     *    Otherwise, it returns the ratio of the stoichiometric coefficients.
+     *
+     * @ingroup kineticsmgr
+     */
+    double checkDuplicateStoich(std::map<int, double>& r1,
+                                std::map<int, double>& r2) const;
 
     //! @name Stoichiometry management
     /*!
