@@ -15,7 +15,6 @@ namespace Cantera
 Reaction::Reaction(int type)
     : reaction_type(type)
     , reversible(true)
-    , validate(true)
     , duplicate(false)
 {
 }
@@ -26,7 +25,6 @@ Reaction::Reaction(int type, const Composition& reactants_,
     , reactants(reactants_)
     , products(products_)
     , reversible(true)
-    , validate(true)
     , duplicate(false)
 {
 }
@@ -79,12 +77,24 @@ ElementaryReaction::ElementaryReaction(const Composition& reactants_,
                                        const Arrhenius& rate_)
     : Reaction(ELEMENTARY_RXN, reactants_, products_)
     , rate(rate_)
+    , allow_negative_pre_exponential_factor(false)
 {
 }
 
 ElementaryReaction::ElementaryReaction()
     : Reaction(ELEMENTARY_RXN)
+    , allow_negative_pre_exponential_factor(false)
 {
+}
+
+void ElementaryReaction::validateRateConstant()
+{
+    if (!allow_negative_pre_exponential_factor &&
+        rate.preExponentialFactor() < 0) {
+        throw CanteraError("ElementaryReaction::validateRateConstant",
+            "Undeclared negative pre-exponential factor found in reaction '"
+            + equation() + "'");
+    }
 }
 
 ThirdBody::ThirdBody(double default_eff)
@@ -152,6 +162,14 @@ std::string FalloffReaction::productString() const {
             third_body.efficiencies.begin()->first + ")";
     } else {
         return Reaction::productString() + " (+M)";
+    }
+}
+
+void FalloffReaction::validateRateConstant() {
+    if (low_rate.preExponentialFactor() < 0 ||
+        high_rate.preExponentialFactor() < 0) {
+        throw CanteraError("FalloffReaction::validateRateConstant", "Negative "
+            "pre-exponential factor found for reaction '" + equation() + "'");
     }
 }
 
@@ -321,6 +339,9 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
     } else {
         throw CanteraError("setupElementaryReaction", "Couldn't find Arrhenius node");
     }
+    if (rxn_node["negative_A"] == "yes") {
+        R.allow_negative_pre_exponential_factor = true;
+    }
     setupReaction(R, rxn_node);
 }
 
@@ -398,6 +419,11 @@ void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
     }
     R.rate = Plog(rates);
     setupReaction(R, rxn_node);
+}
+
+void PlogReaction::validateRateConstant()
+{
+    rate.validate(equation());
 }
 
 void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)

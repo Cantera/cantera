@@ -155,6 +155,21 @@ TEST_F(KineticsFromScratch, add_plog_reaction)
     check_rates(3);
 }
 
+TEST_F(KineticsFromScratch, plog_invalid_rate)
+{
+    Composition reac = parseCompString("H2:1, O2:1");
+    Composition prod = parseCompString("OH:2");
+    std::multimap<double, Arrhenius> rates;
+    typedef std::multimap<double, Arrhenius>::value_type item;
+    rates.insert(item(0.01*101325, Arrhenius(1.2124e+16, -0.5779, 10872.7 / GasConst_cal_mol_K)));
+    rates.insert(item(10.0*101325, Arrhenius(1e15, -1, 10000 / GasConst_cal_mol_K)));
+    rates.insert(item(10.0*101325, Arrhenius(-2e20, -2.0, 20000 / GasConst_cal_mol_K)));
+    rates.insert(item(100.0*101325, Arrhenius(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K)));
+
+    shared_ptr<PlogReaction> R(new PlogReaction(reac, prod, Plog(rates)));
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+}
+
 TEST_F(KineticsFromScratch, add_chebyshev_reaction)
 {
     // reaction 4:
@@ -211,6 +226,28 @@ TEST_F(KineticsFromScratch, skip_undeclared_species)
     ASSERT_EQ(0, kin.nReactions());
 }
 
+TEST_F(KineticsFromScratch, negative_A_error)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 OH:1");
+    Arrhenius rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ(0, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, allow_negative_A)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 OH:1");
+    Arrhenius rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+    R->allow_negative_pre_exponential_factor = true;
+
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 1, kin.nReactions());
+}
 
 class InterfaceKineticsFromScratch : public testing::Test
 {
