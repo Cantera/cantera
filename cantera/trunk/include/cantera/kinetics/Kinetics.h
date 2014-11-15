@@ -806,6 +806,14 @@ public:
      */
     virtual void addReaction(shared_ptr<Reaction> r);
 
+    //! Determine behavior when adding a new reaction that contains species not
+    //! defined in any of the phases associated with this kinetics manager. If
+    //! set to true, the reaction will silently be ignored. If false, (the
+    //! default) an exception will be raised.
+    void skipUndeclaredSpecies(bool skip) {
+        m_skipUndeclaredSpecies = skip;
+    }
+
     //! @deprecated To be removed after Cantera 2.2. No longer called as part
     //!     of addReaction.
     virtual void installReagents(const ReactionData& r) {
@@ -1072,6 +1080,9 @@ protected:
 
     //! Net rate-of-progress for each reaction
     vector_fp m_ropnet;
+
+    //! @see skipUndeclaredSpecies()
+    bool m_skipUndeclaredSpecies;
 
 private:
     std::map<size_t, std::vector<grouplist_t> > m_rgroups;

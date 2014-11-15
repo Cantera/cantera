@@ -161,6 +161,30 @@ TEST_F(KineticsFromScratch, add_chebyshev_reaction)
     check_rates(4);
 }
 
+TEST_F(KineticsFromScratch, undeclared_species)
+{
+    Composition reac = parseCompString("CO:1 OH:1");
+    Composition prod = parseCompString("CO2:1 H:1");
+    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ(0, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, skip_undeclared_species)
+{
+    Composition reac = parseCompString("CO:1 OH:1");
+    Composition prod = parseCompString("CO2:1 H:1");
+    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+
+    kin.skipUndeclaredSpecies(true);
+    kin.addReaction(R);
+    ASSERT_EQ(0, kin.nReactions());
+}
+
+
 class InterfaceKineticsFromScratch : public testing::Test
 {
 public:
