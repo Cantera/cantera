@@ -249,6 +249,19 @@ TEST_F(KineticsFromScratch, allow_negative_A)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
+TEST_F(KineticsFromScratch, invalid_reversible_with_orders)
+{
+    Composition reac = parseCompString("O:1 H2:1");
+    Composition prod = parseCompString("H:1 OH:1");
+    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    shared_ptr<ElementaryReaction> R(new ElementaryReaction(reac, prod, rate));
+    R->orders["H2"] = 0.5;
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    ASSERT_EQ(0, kin.nReactions());
+}
+
+
 class InterfaceKineticsFromScratch : public testing::Test
 {
 public:
