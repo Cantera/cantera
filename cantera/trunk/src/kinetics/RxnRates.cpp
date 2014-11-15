@@ -191,7 +191,7 @@ Plog::Plog(const ReactionData& rdata)
     Ea2_.resize(maxRates_);
 
     if (rdata.validate) {
-        validate(rdata);
+        validate(rdata.equation);
     }
 }
 
@@ -251,7 +251,7 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     Ea2_.resize(maxRates_);
 }
 
-void Plog::validate(const ReactionData& rdata)
+void Plog::validate(const std::string& equation)
 {
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
     for (pressureIter iter = pressures_.begin();
@@ -265,9 +265,8 @@ void Plog::validate(const ReactionData& rdata)
                 // message will correctly indicate that the problematic rate
                 // expression is at the higher of the adjacent pressures.
                 throw CanteraError("Plog::validate",
-                        "Invalid rate coefficient for reaction #" +
-                        int2str(rdata.number) + ":\n" + rdata.equation + "\n" +
-                        "at P = " + fp2str(std::exp((++iter)->first)) +
+                        "Invalid rate coefficient for reaction '" + equation +
+                        "'\nat P = " + fp2str(std::exp((++iter)->first)) +
                         ", T = " + fp2str(T[i]));
             }
         }

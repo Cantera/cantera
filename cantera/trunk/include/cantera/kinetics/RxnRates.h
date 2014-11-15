@@ -409,7 +409,7 @@ public:
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
-    void validate(const ReactionData& rdata);
+    void validate(const std::string& equation);
 
 protected:
     //! log(p) to (index range) in A_, n, Ea vectors

@@ -28,6 +28,9 @@ public:
     virtual std::string productString() const;
     std::string equation() const;
 
+    //! Ensure that the rate constant for this reaction is valid.
+    virtual void validateRateConstant() {}
+
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
     int reaction_type;
@@ -50,8 +53,6 @@ public:
     //! True if the current reaction is reversible. False otherwise
     bool reversible;
 
-    bool validate; //!< Perform validation of the rate coefficient data
-
     //! True if the current reaction is marked as duplicate
     bool duplicate;
 };
@@ -65,8 +66,10 @@ public:
     ElementaryReaction();
     ElementaryReaction(const Composition& reactants, const Composition products,
                        const Arrhenius& rate);
+    virtual void validateRateConstant();
 
     Arrhenius rate;
+    bool allow_negative_pre_exponential_factor;
 };
 
 //! A class for managing third-body efficiencies, including default values
@@ -112,6 +115,7 @@ public:
                     const vector_fp& falloff_params);
     virtual std::string reactantString() const;
     virtual std::string productString() const;
+    virtual void validateRateConstant();
 
     Arrhenius low_rate;
     Arrhenius high_rate;
@@ -144,7 +148,7 @@ public:
     PlogReaction();
     PlogReaction(const Composition& reactants, const Composition& products,
                  const Plog& rate);
-
+    virtual void validateRateConstant();
     Plog rate;
 };
 

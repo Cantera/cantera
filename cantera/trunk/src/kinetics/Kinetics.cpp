@@ -651,6 +651,8 @@ void Kinetics::addReaction(ReactionData& r) {
 
 void Kinetics::addReaction(shared_ptr<Reaction> r)
 {
+    r->validateRateConstant();
+
     // Check for undeclared species
     for (Composition::const_iterator iter = r->reactants.begin();
          iter != r->reactants.end();
