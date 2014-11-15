@@ -92,6 +92,8 @@ Note that the ID string is only used when selectively importing reactions. If
 all reactions in the local file or in an external one are imported into a phase
 or interface, then the reaction ``ID`` field is not used.
 
+.. _sec-reaction-options:
+
 Options
 -------
 
@@ -135,6 +137,12 @@ should be handled.
     factors. But if there are duplicate reactions such that the total rate is
     positive, then negative *A* parameters are acceptable, as long as the
     ``'negative_A'`` option is specified.
+
+``negative_orders``
+    Reaction orders are normally required to be non-negative, since negative
+    orders are non-physical and undefined at zero concentration. Cantera allows
+    negative orders for a global reaction only if the ``negative_orders``
+    override option is specified for the reaction.
 
 Reactions with Pressure-Independent Rate
 ========================================

@@ -1128,8 +1128,9 @@ class reaction(object):
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
-        :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+        :param options: Processing options, as described in
+            :ref:`sec-reaction-options`. May be one or more (as a list) of the
+            following: 'skip', 'duplicate', 'negative_A', 'negative_orders'.
         """
         self._id = id
         self._e = equation
@@ -1218,11 +1219,12 @@ class reaction(object):
         else:
             r['reversible'] = 'no'
 
-        for s in self._options:
-            if s == 'duplicate':
-                r['duplicate'] = 'yes'
-            elif s == 'negative_A':
-                r['negative_A'] = 'yes'
+        if 'duplicate' in self._options:
+            r['duplicate'] = 'yes'
+        if 'negative_A' in self._options:
+            r['negative_A'] = 'yes'
+        if 'negative_orders' in self._options:
+            r['negative_orders'] = 'yes'
 
         ee = self._e.replace('<','[').replace('>',']')
         r.addChild('equation',ee)
@@ -1337,8 +1339,8 @@ class three_body_reaction(reaction):
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
-        :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+        :param options: Processing options, as described in
+            :ref:`sec-reaction-options`.
         """
         reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
@@ -1426,7 +1428,7 @@ class falloff_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+            Processing options, as described in :ref:`sec-reaction-options`.
         """
         kf2 = (kf, kf0)
         reaction.__init__(self, equation, kf2, id, '', options)
@@ -1469,7 +1471,7 @@ class chemically_activated_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+            Processing options, as described in :ref:`sec-reaction-options`.
         """
         reaction.__init__(self, equation, (kLow, kHigh), id, '', options)
         self._type = 'chemAct'
@@ -1599,7 +1601,7 @@ class surface_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+            Processing options, as described in :ref:`sec-reaction-options`.
         """
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'

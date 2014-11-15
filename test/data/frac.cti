@@ -97,3 +97,7 @@ reaction( "H2O => 1.4 H + 0.6 OH + 0.2 O2",   [1.0e13, 0.0, 0.0])
 # coefficients.
 reaction( "0.7 H2 + 0.6 OH + 0.2 O2 => H2O",   [1.0e13, 0.0, 0.0],
           order = "H2:0.8 OH:2 O2:1")
+
+# A reaction with negative reaction orders
+reaction( "H2 + 0.5 O2 => H2O",   [1.0e9, 0.0, 0.0],
+          order = "H2:1.0 O2:-0.25", options='negative_orders')

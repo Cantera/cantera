@@ -16,6 +16,8 @@ Reaction::Reaction(int type)
     : reaction_type(type)
     , reversible(true)
     , duplicate(false)
+    , allow_nonreactant_orders(false)
+    , allow_negative_orders(false)
 {
 }
 
@@ -26,7 +28,34 @@ Reaction::Reaction(int type, const Composition& reactants_,
     , products(products_)
     , reversible(true)
     , duplicate(false)
+    , allow_nonreactant_orders(false)
+    , allow_negative_orders(false)
 {
+}
+
+void Reaction::validate()
+{
+    if (!allow_nonreactant_orders) {
+        for (Composition::iterator iter = orders.begin();
+             iter != orders.end();
+             ++iter) {
+            if (reactants.find(iter->first) == reactants.end()) {
+                throw CanteraError("Reaction::validate", "Reaction order "
+                    "specified for non-reactant species '" + iter->first + "'");
+            }
+        }
+    }
+
+    if (!allow_negative_orders) {
+        for (Composition::iterator iter = orders.begin();
+             iter != orders.end();
+             ++iter) {
+            if (iter->second < 0.0) {
+                throw CanteraError("Reaction::validate", "Negative reaction "
+                    "order specified for species '" + iter->first + "'");
+            }
+        }
+    }
 }
 
 std::string Reaction::reactantString() const
@@ -87,11 +116,12 @@ ElementaryReaction::ElementaryReaction()
 {
 }
 
-void ElementaryReaction::validateRateConstant()
+void ElementaryReaction::validate()
 {
+    Reaction::validate();
     if (!allow_negative_pre_exponential_factor &&
         rate.preExponentialFactor() < 0) {
-        throw CanteraError("ElementaryReaction::validateRateConstant",
+        throw CanteraError("ElementaryReaction::validate",
             "Undeclared negative pre-exponential factor found in reaction '"
             + equation() + "'");
     }
@@ -165,10 +195,11 @@ std::string FalloffReaction::productString() const {
     }
 }
 
-void FalloffReaction::validateRateConstant() {
+void FalloffReaction::validate() {
+    Reaction::validate();
     if (low_rate.preExponentialFactor() < 0 ||
         high_rate.preExponentialFactor() < 0) {
-        throw CanteraError("FalloffReaction::validateRateConstant", "Negative "
+        throw CanteraError("FalloffReaction::validate", "Negative "
             "pre-exponential factor found for reaction '" + equation() + "'");
     }
 }
@@ -342,6 +373,9 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
     if (rxn_node["negative_A"] == "yes") {
         R.allow_negative_pre_exponential_factor = true;
     }
+    if (rxn_node["negative_orders"] == "yes") {
+        R.allow_negative_orders = true;
+    }
     setupReaction(R, rxn_node);
 }
 
@@ -421,8 +455,9 @@ void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
-void PlogReaction::validateRateConstant()
+void PlogReaction::validate()
 {
+    Reaction::validate();
     rate.validate(equation());
 }
 
@@ -508,6 +543,7 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
 
         R.orders.clear();
         // Reaction orders based on species stoichiometric coefficients
+        R.allow_nonreactant_orders = true;
         for (Composition::const_iterator iter = R.reactants.begin();
              iter != R.reactants.end();
              ++iter) {
@@ -524,6 +560,7 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     if (rxn_node.hasChild("reactionOrderFormulation")) {
         Composition initial_orders = R.orders;
         R.orders.clear();
+        R.allow_nonreactant_orders = true;
         const XML_Node& rof_node = rxn_node.child("reactionOrderFormulation");
         if (lowercase(rof_node["model"]) == "reactantorders") {
             R.orders = initial_orders;
