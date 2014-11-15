@@ -653,6 +653,15 @@ void Kinetics::addReaction(shared_ptr<Reaction> r)
 {
     r->validateRateConstant();
 
+    // If reaction orders are specified, then this reaction does not follow
+    // mass-action kinetics, and is not an elementary reaction. So check that it
+    // is not reversible, since computing the reverse rate from thermochemistry
+    // only works for elementary reactions.
+    if (r->reversible && !r->orders.empty()) {
+        throw CanteraError("Kinetics::addReaction", "Reaction orders may only "
+            "be given for irreversible reactions");
+    }
+
     // Check for undeclared species
     for (Composition::const_iterator iter = r->reactants.begin();
          iter != r->reactants.end();
