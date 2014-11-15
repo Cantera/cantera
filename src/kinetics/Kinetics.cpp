@@ -215,6 +215,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 for (size_t k = 0; k < nTotalSpecies(); k++) {
                     string s = kineticsSpeciesName(k);
                     if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
+                        // non-zero third body efficiencies for species `s` in
+                        // both reactions
                         thirdBodyOk = false;
                         break;
                     }
@@ -229,6 +231,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 for (size_t k = 0; k < nTotalSpecies(); k++) {
                     string s = kineticsSpeciesName(k);
                     if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
+                        // non-zero third body efficiencies for species `s` in
+                        // both reactions
                         thirdBodyOk = false;
                         break;
                     }
@@ -692,9 +696,15 @@ void Kinetics::addReaction(shared_ptr<Reaction> r)
 
     checkReactionBalance(*r);
 
-    size_t irxn = nReactions();
+    size_t irxn = nReactions(); // index of the new reaction
+
+    // indices of reactant and product species within this Kinetics object
     std::vector<size_t> rk, pk;
+
+    // Reactant and product stoichiometric coefficients, such that rstoich[i] is
+    // the coefficient for species rk[i]
     vector_fp rstoich, pstoich;
+
     for (Composition::const_iterator iter = r->reactants.begin();
          iter != r->reactants.end();
          ++iter) {
@@ -715,11 +725,15 @@ void Kinetics::addReaction(shared_ptr<Reaction> r)
     }
     m_products.push_back(pk);
 
+    // The default order for each reactant is its stoichiometric coefficient,
+    // which can be overridden by entries in the Reaction.orders map. rorder[i]
+    // is the order for species rk[i].
     vector_fp rorder = rstoich;
     for (Composition::const_iterator iter = r->orders.begin();
          iter != r->orders.end();
          ++iter) {
         size_t k = kineticsSpeciesIndex(iter->first);
+        // Find the index of species k within rk
         vector<size_t>::iterator rloc = std::find(rk.begin(), rk.end(), k);
         if (rloc != rk.end()) {
             rorder[rloc - rk.begin()] = iter->second;
