@@ -29,7 +29,7 @@ public:
     std::string equation() const;
 
     //! Ensure that the rate constant and other parameters for this reaction are
-    //valid.
+    //! valid.
     virtual void validate();
 
     //! Type of the reaction. The valid types are listed in the file,
@@ -58,7 +58,7 @@ public:
     bool duplicate;
 
     //! True if reaction orders can be specified for non-reactant species.
-    //Default is `false`.
+    //! Default is `false`.
     bool allow_nonreactant_orders;
 
     //! True if negative reaction orders are allowed. Default is `false`.
@@ -195,12 +195,12 @@ public:
     //! the parameterization.
     std::map<std::string, CoverageDependency> coverage_deps;
 
-    // Set to true if `rate` is a parameterization of the sticking coefficient
-    // rather than the forward rate constant
+    //! Set to true if `rate` is a parameterization of the sticking coefficient
+    //! rather than the forward rate constant
     bool is_sticking_coefficient;
 
-    // For reactions with multiple non-surface species, the sticking species
-    // needs to be explicitly identified.
+    //! For reactions with multiple non-surface species, the sticking species
+    //! needs to be explicitly identified.
     std::string sticking_species;
 };
 
