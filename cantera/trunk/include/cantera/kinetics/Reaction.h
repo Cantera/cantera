@@ -24,8 +24,13 @@ public:
              const Composition& products);
     virtual ~Reaction() {}
 
+    //! The reactant side of the chemical equation for this reaction
     virtual std::string reactantString() const;
+
+    //! The product side of the chemical equation for this reaction
     virtual std::string productString() const;
+
+    //! The chemical equation for this reaction
     std::string equation() const;
 
     //! Ensure that the rate constant and other parameters for this reaction are
@@ -99,7 +104,8 @@ public:
     double default_efficiency;
 };
 
-
+//! A reaction with a non-reacting third body "M" that acts to add or remove
+//! energy from the reacting species
 class ThirdBodyReaction : public ElementaryReaction
 {
 public:
@@ -109,10 +115,13 @@ public:
     virtual std::string reactantString() const;
     virtual std::string productString() const;
 
+    //! Relative efficiencies of third-body species in enhancing the reaction
+    //! rate.
     ThirdBody third_body;
 };
 
-
+//! A reaction that is first-order in [M] at low pressure, like a third-body
+//! reaction, but zeroth-order in [M] as pressure increases.
 class FalloffReaction : public Reaction
 {
 public:
@@ -125,8 +134,13 @@ public:
     virtual std::string productString() const;
     virtual void validate();
 
+    //! The rate constant in the low-pressure limit
     Arrhenius low_rate;
+
+    //! The rate constant in the high-pressure limit
     Arrhenius high_rate;
+
+    //! Relative efficiencies of third-body species in enhancing the reaction rate
     ThirdBody third_body;
 
     //! Type of falloff parameterization to use. Values are defined in
@@ -138,7 +152,10 @@ public:
     vector_fp falloff_parameters;
 };
 
-
+//! A reaction where the rate decreases as pressure increases due to collisional
+//! stabilization of a reaction intermediate. Like a FalloffReaction, except !
+//! that the forward rate constant is written as being proportional to the low-
+//! pressure rate constant.
 class ChemicallyActivatedReaction : public FalloffReaction
 {
 public:
@@ -149,7 +166,8 @@ public:
         const vector_fp& falloff_params);
 };
 
-
+//! A pressure-dependent reaction parameterized by logarithmically interpolating
+//! between Arrhenius rate expressions at various pressures.
 class PlogReaction : public Reaction
 {
 public:
@@ -160,7 +178,8 @@ public:
     Plog rate;
 };
 
-
+//! A pressure-dependent reaction parameterized by a bi-variate Chebyshev
+//! polynomial in temperature and pressure
 class ChebyshevReaction : public Reaction
 {
 public:
@@ -181,7 +200,7 @@ struct CoverageDependency
     double m;
 };
 
-
+//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
 class InterfaceReaction : public ElementaryReaction
 {
 public:
@@ -204,7 +223,7 @@ public:
     std::string sticking_species;
 };
 
-
+//! An interface reaction which involves charged species
 class ElectrochemicalReaction : public InterfaceReaction
 {
 public:
