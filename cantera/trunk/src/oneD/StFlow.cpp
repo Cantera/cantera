@@ -149,12 +149,13 @@ void StFlow::setTransport(Transport& trans, bool withSoret)
     m_trans = &trans;
     m_do_soret = withSoret;
 
-    if (m_trans->model() == cMulticomponent) {
+    int model = m_trans->model();
+    if (model == cMulticomponent || model == CK_Multicomponent) {
         m_transport_option = c_Multi_Transport;
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_diff.resize(m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
-    } else if (m_trans->model() == cMixtureAveraged) {
+    } else if (model == cMixtureAveraged || model == CK_MixtureAveraged) {
         m_transport_option = c_Mixav_Transport;
         m_diff.resize(m_nsp*m_points);
         if (withSoret)
