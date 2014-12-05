@@ -62,7 +62,7 @@ public:
      * @param thermoData   Reference to an XML_Node named thermo
      *                     containing the equation-of-state data. The
      *                     XML_Node is within the phase XML_Node describing
-     *                     the %EdgePhase object.
+     *                     the EdgePhase object.
      *
      * An example of the contents of the thermoData XML_Node is provided
      * below. The units attribute is used to supply the units of the

@@ -56,7 +56,7 @@ class VPStandardStateTP : public ThermoPhase
 {
 
 public:
-    //! @name Constructors and Duplicators for %VPStandardStateTP
+    //! @name Constructors and Duplicators for VPStandardStateTP
 
     /// Constructor.
     VPStandardStateTP();

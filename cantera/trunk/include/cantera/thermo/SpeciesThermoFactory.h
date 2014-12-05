@@ -136,7 +136,7 @@ public:
      * @param k             Species number
      * @param speciesNode   Reference to the XML node specifying the species
      *                      standard state information
-     * @param th_ptr        Pointer to the %ThermoPhase object for the species
+     * @param th_ptr        Pointer to the ThermoPhase object for the species
      * @param spthermo      Species reference state thermo manager
      * @param phaseNode_ptr Optional pointer to the XML phase information for
      *                      the phase in which the species resides
@@ -177,7 +177,7 @@ private:
     //! Pointer to the sole instance of this class, which is static
     static SpeciesThermoFactory* s_factory;
 
-    //! Decl of the static mutex variable that locks the %SpeciesThermo factory singleton
+    //! Decl of the static mutex variable that locks the SpeciesThermo factory singleton
     static mutex_t species_thermo_mutex;
 
     //! Constructor. This is made private, so that only the static

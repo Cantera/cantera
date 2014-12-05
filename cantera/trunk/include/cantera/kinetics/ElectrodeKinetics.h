@@ -45,7 +45,7 @@ public:
     /// Destructor.
     virtual ~ElectrodeKinetics();
 
-    //! Copy Constructor for the %Kinetics object.
+    //! Copy Constructor
     ElectrodeKinetics(const ElectrodeKinetics& right);
 
     //! Assignment operator
@@ -53,10 +53,10 @@ public:
 
     //! Duplication function
     /*!
-     *  @param tpVector Vector of %ThermoPhase pointers. These are shallow pointers to the
-     *                  %ThermoPhase objects that will comprise the phases for the new object.
+     *  @param tpVector Vector of ThermoPhase pointers. These are shallow pointers to the
+     *                  ThermoPhase objects that will comprise the phases for the new object.
      * 
-     *   @return        Returns the duplicated object as the base class %Kinetics object.
+     *   @return        Returns the duplicated object as the base class Kinetics object.
      */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 

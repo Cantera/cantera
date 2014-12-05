@@ -34,7 +34,7 @@ const int    cAC_CONVENTION_MOLALITY = 1;
 const int cSS_CONVENTION_TEMPERATURE = 0;
 //! Standard state uses the molality convention
 const int cSS_CONVENTION_VPSS = 1;
-//! Standard state thermodynamics is obtained from slave %ThermoPhase objects
+//! Standard state thermodynamics is obtained from slave ThermoPhase objects
 const int cSS_CONVENTION_SLAVE = 2;
 //@}
 
@@ -57,7 +57,7 @@ const int cSS_CONVENTION_SLAVE = 2;
  * those of class Phase do not, since they only involve data values
  * stored within the object.
  *
- * Instances of subclasses of %ThermoPhase should be created using
+ * Instances of subclasses of ThermoPhase should be created using
  * the factory class ThermoFactory, not by calling the constructor
  * directly. This allows new classes to be used with the various
  * Cantera language interfaces.
@@ -105,7 +105,7 @@ public:
     //! Destructor. Deletes the species thermo manager.
     virtual ~ThermoPhase();
 
-    //!Copy Constructor for the %ThermoPhase object.
+    //!Copy Constructor for the ThermoPhase object.
     /*!
      * @param right  ThermoPhase to be copied
      */
@@ -113,16 +113,16 @@ public:
 
     //! Assignment operator
     /*!
-     * @param right    Reference to %ThermoPhase object to be copied into the
+     * @param right    Reference to ThermoPhase object to be copied into the
      *                 current one.
      */
     ThermoPhase& operator=(const ThermoPhase& right);
 
     //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
-    *  This virtual routine can be used to duplicate %ThermoPhase objects
-    *  inherited from %ThermoPhase even if the application only has
-    *  a pointer to %ThermoPhase to work with.
+    *  This virtual routine can be used to duplicate ThermoPhase objects
+    *  inherited from ThermoPhase even if the application only has
+    *  a pointer to ThermoPhase to work with.
     *
     *  These routines are basically wrappers around the derived copy
     *  constructor.
@@ -399,7 +399,7 @@ public:
      *   cSS_CONVENTION_VPSS 1
      *
      *  -  Thermodynamics is set via slave ThermoPhase objects with
-     *     nothing being carried out at this %ThermoPhase object level
+     *     nothing being carried out at this ThermoPhase object level
      *   cSS_CONVENTION_SLAVE 2
      */
     virtual int standardStateConvention() const;
@@ -463,7 +463,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -1256,7 +1256,7 @@ public:
      *
      * These methods are only implemented by subclasses that
      * implement full liquid-vapor equations of state. They may be
-     * moved out of %ThermoPhase at a later date.
+     * moved out of ThermoPhase at a later date.
      */
     //@{
 
@@ -1302,7 +1302,7 @@ public:
     //@}
 
 
-    //! @name Initialization Methods - For Internal Use (%ThermoPhase)
+    //! @name Initialization Methods - For Internal Use (ThermoPhase)
     /*!
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
@@ -1550,7 +1550,7 @@ public:
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * species log mole number (with all other species mole numbers held constant). The default treatment in the
-     * %ThermoPhase object is to set this vector to zero.
+     * ThermoPhase object is to set this vector to zero.
      *
      *  units = 1 / kmol
      *

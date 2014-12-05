@@ -367,7 +367,7 @@ public:
      *  @param estimateEquil integer indicating whether the solver should
      *                 estimate its own initial condition.
      *                 - If 0, the initial mole fraction vector in the
-     *                   %ThermoPhase object is used as the initial condition.
+     *                   ThermoPhase object is used as the initial condition.
      *                 - If 1, the initial mole fraction vector is used if the
      *                   element abundances are satisfied.
      *                 - If -1, the initial mole fraction vector is thrown

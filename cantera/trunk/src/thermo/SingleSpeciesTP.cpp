@@ -1,6 +1,6 @@
 /**
  *  @file SingleSpeciesTP.cpp
- *  Definitions for the %SingleSpeciesTP class, which is a filter class for %ThermoPhase,
+ *  Definitions for the SingleSpeciesTP class, which is a filter class for ThermoPhase,
  *  that eases the construction of single species phases
  *  ( see \ref thermoprops and class \link Cantera::SingleSpeciesTP SingleSpeciesTP\endlink).
  */

@@ -99,7 +99,7 @@ class XML_Node;
 
 //! Object containing the elements that make up species in a phase.
 /*!
- * Class %Elements manages the elements that are part of a
+ * Class Elements manages the elements that are part of a
  * chemistry specification.  This class may support calculations
  * employing Multiple phases. In this case, a single Elements object may
  * be shared by more than one Constituents class. Reactions between

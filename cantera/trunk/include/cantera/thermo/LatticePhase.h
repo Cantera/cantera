@@ -126,7 +126,7 @@ namespace Cantera
  *  concentration.
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ C^a_k = a_k = X_k  \f$
@@ -190,7 +190,7 @@ namespace Cantera
  * <HR>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %LatticePhase object may be created by the following code snippet:
+ * for %Cantera. A new LatticePhase object may be created by the following code snippet:
  *
  * @code
  *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");

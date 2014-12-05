@@ -18,14 +18,14 @@
 namespace Cantera
 {
 
-//!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed
+//!  Class StoichSubstanceSSTP represents a stoichiometric (fixed
 //!   composition)  incompressible substance.
 /*!
  * This class internally changes the independent degree of freedom from
  * density to pressure. This is necessary because the phase is
  * incompressible. It uses a constant volume approximation.
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It is assumed that the reference state thermodynamics may be
@@ -68,7 +68,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> Application within %Kinetics Managers </b>
+ * <b> Application within Kinetics Managers </b>
  *
  * The standard concentration is equal to 1.0. This means that the
  * kinetics operator works on an (activities basis). Since this
@@ -91,7 +91,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new %StoichSubstanceSSTP may be created by
+ * for %Cantera. However, a new StoichSubstanceSSTP may be created by
  * the following code snippets:
  *
  * @code
@@ -322,7 +322,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.

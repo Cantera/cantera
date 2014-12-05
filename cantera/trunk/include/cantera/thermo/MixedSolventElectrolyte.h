@@ -59,7 +59,7 @@ namespace Cantera
  *
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *  All species are defined to have standard states that depend upon both
@@ -152,7 +152,7 @@ namespace Cantera
  *       \f]
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -223,7 +223,7 @@ namespace Cantera
  *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
  *   \f]
  *
- *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *    Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
  *    using the second and third part of the above expression as a definition for the concentration
  *    equilibrium constant.
  *

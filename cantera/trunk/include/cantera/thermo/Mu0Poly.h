@@ -15,10 +15,10 @@ namespace Cantera
 class SpeciesThermo;
 class XML_Node;
 
-//!  The %Mu0Poly class implements an interpolation of the Gibbs free energy based on a
+//!  The Mu0Poly class implements an interpolation of the Gibbs free energy based on a
 //!  piecewise constant heat capacity approximation.
 /*!
- *   The %Mu0Poly class implements a piecewise constant heat capacity approximation.
+ *   The Mu0Poly class implements a piecewise constant heat capacity approximation.
  *   of the standard state chemical potential of one
  *   species at a single reference pressure.
  *   The chemical potential is input as a series of (\f$T\f$, \f$ \mu^o(T)\f$)

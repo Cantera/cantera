@@ -263,7 +263,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.

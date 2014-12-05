@@ -1,10 +1,10 @@
 /**
  *  @file DebyeHuckel.cpp
- *    Declarations for the %DebyeHuckel ThermoPhase object, which models dilute
+ *    Declarations for the DebyeHuckel ThermoPhase object, which models dilute
  *    electrolyte solutions
  *    (see \ref thermoprops and \link Cantera::DebyeHuckel DebyeHuckel \endlink).
  *
- * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
+ * Class DebyeHuckel represents a dilute liquid electrolyte phase which
  * obeys the Debye Huckel formulation for nonideality.
  */
 /*

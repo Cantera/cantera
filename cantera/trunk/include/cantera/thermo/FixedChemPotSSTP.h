@@ -19,14 +19,14 @@
 namespace Cantera
 {
 
-//!  Class %FixedChemPotSSTP represents a stoichiometric (fixed
+//!  Class FixedChemPotSSTP represents a stoichiometric (fixed
 //!   composition)  incompressible substance.
 /*!
  * This class internally changes the independent degree of freedom from
  * density to pressure. This is necessary because the phase is
  * incompressible. It uses a zero volume approximation.
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It uses a single value for the chemical potential which is assumed to be constant
@@ -46,7 +46,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> Application within %Kinetics Managers </b>
+ * <b> Application within Kinetics Managers </b>
  *
  * The standard concentration is equal to 1.0. This means that the
  * kinetics operator works on an (activities basis). Since this
@@ -69,7 +69,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * This phase may be instantiated by calling the default ThermoFactory routine
- * for %Cantera. This new %FixedChemPotSSTP object must then have a standalone xml file
+ * for %Cantera. This new FixedChemPotSSTP object must then have a standalone xml file
  * description an example of which is given below.
  *
  * It may also be created by the following code snippets. The code
@@ -181,7 +181,7 @@ public:
     //! Special constructor for the FixecChemPotSSTP class setting an element chemical
     //! potential directly
     /*!
-     *  This will create a %FixedChemPotSSTP consisting of a single species with the
+     *  This will create a FixedChemPotSSTP consisting of a single species with the
      *  stoichiometry of one of the specified atom. It will have a chemical potential
      *  that is given by the second argument.
      *
@@ -330,7 +330,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.

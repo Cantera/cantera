@@ -71,7 +71,7 @@ namespace Cantera
  * vector constant, all of the setState functions are redesigned at this layer.
  *
  *  <H3>
- *        Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
+ *        Activity Concentrations: Relationship of ThermoPhase to %Kinetics Expressions
  * </H3>
  *
  *   As explained in a similar discussion in the ThermoPhase class, the actual units used
@@ -85,7 +85,7 @@ namespace Cantera
  *   Here we set a standard for the specification of the standard concentrations for this class
  *   and all child classes underneath it. We specify here that the standard concentration is
  *   equal to 1 for all species. Therefore, the activities appear directly in kinetics expressions
- *   involving species in underlying %GibbsExcessVPSSTP phases.
+ *   involving species in underlying GibbsExcessVPSSTP phases.
  *
  *  <H3>
  *       SetState Strategy
@@ -296,7 +296,7 @@ public:
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * species log mole number (with all other species mole numbers held constant). The default treatment in the
-     * %ThermoPhase object is to set this vector to zero.
+     * ThermoPhase object is to set this vector to zero.
      *
      *  units = 1 / kmol
      *

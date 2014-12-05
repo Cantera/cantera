@@ -20,8 +20,8 @@ namespace Cantera
 //! A phase that is comprised of a fixed additive combination of other lattice phases
 /*!
  *  This is the main way %Cantera describes semiconductors and other solid phases.
- *  This %ThermoPhase object calculates its properties as a sum over other %LatticePhase objects. Each of the %LatticePhase
- *  objects is a %ThermoPhase object by itself.
+ *  This ThermoPhase object calculates its properties as a sum over other LatticePhase objects. Each of the LatticePhase
+ *  objects is a ThermoPhase object by itself.
  *
  *  The results from this LatticeSolidPhase model reduces to the LatticePhase model when there is one
  *  lattice phase and the molar densities of the sublattice and the molar density within the LatticeSolidPhase
@@ -32,7 +32,7 @@ namespace Cantera
  *  have been redefined to use this convention.
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *   The standard state properties are calculated in the normal way for each of the sublattices. The normal way
@@ -44,10 +44,10 @@ namespace Cantera
  * <H2> Specification of Solution Thermodynamic Properties </H2>
  * <HR>
 
- *  The sum over the %LatticePhase objects is carried out by weighting each %LatticePhase object
- *  value with the molar density (kmol m-3) of its %LatticePhase. Then the resulting quantity is divided by
+ *  The sum over the LatticePhase objects is carried out by weighting each LatticePhase object
+ *  value with the molar density (kmol m-3) of its LatticePhase. Then the resulting quantity is divided by
  *  the molar density of the total compound. The LatticeSolidPhase object therefore only contains a
- *  listing of the number of %LatticePhase object
+ *  listing of the number of LatticePhase object
  *  that comprises the solid, and it contains a value for the molar density of the entire mixture.
  *  This is the same thing as saying that
  *
@@ -173,7 +173,7 @@ public:
     //! of the standard state, of which there are currently two,
     //! temperature based, and variable pressure based.
     /*!
-     *  All of the thermo is determined by slave %ThermoPhase routines.
+     *  All of the thermo is determined by slave ThermoPhase routines.
      */
     virtual int standardStateConvention() const {
         return cSS_CONVENTION_SLAVE;

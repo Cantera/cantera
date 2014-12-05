@@ -163,7 +163,7 @@ class VPSSMgr;
  * Virtual base class for calculation of the
  * pressure dependent standard state for a single species
  *
- * Class %PDSS is the base class for a family of classes that compute
+ * Class PDSS is the base class for a family of classes that compute
  * properties of a set of species in their standard states at a range of
  * temperatures and pressures. The independent variables for this object are
  * temperature and pressure. The class may have a reference to a SpeciesThermo
@@ -224,12 +224,12 @@ public:
     //! Destructor for the phase
     virtual ~PDSS();
 
-    //! Duplication routine for objects which inherit from %PDSS
+    //! Duplication routine for objects which inherit from PDSS
     /*!
      * This function can be used to duplicate objects derived from PDSS even
      * if the application only has a pointer to PDSS to work with.
      *
-     * @return A pointer to the base %PDSS object type
+     * @return A pointer to the base PDSS object type
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 

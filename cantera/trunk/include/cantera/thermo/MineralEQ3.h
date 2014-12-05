@@ -20,13 +20,13 @@
 namespace Cantera
 {
 
-//!  Class %MineralEQ3 represents a stoichiometric (fixed
+//!  Class MineralEQ3 represents a stoichiometric (fixed
 //!   composition)  incompressible substance based on EQ3's parameterization
 /*!
  *  This class inherits from SingleSpeciesSSTP class.
  *  EQ's parameterization is mapped onto the Shomate polynomial class.
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It is assumed that the reference state thermodynamics may be
@@ -69,7 +69,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> %Application within %Kinetics Managers </b>
+ * <b> %Application within Kinetics Managers </b>
  *
  * The standard concentration is equal to 1.0. This means that the
  * kinetics operator works on an (activities basis). Since this
@@ -259,7 +259,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.

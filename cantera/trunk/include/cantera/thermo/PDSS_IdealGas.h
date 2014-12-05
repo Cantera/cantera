@@ -124,7 +124,7 @@ public:
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      *
      * @param spindex     Species index within the phase
@@ -147,7 +147,7 @@ public:
      *   - get stuff from species part of XML file
      *   - initThermoXML(phaseNode)     (cascade)
      *
-     * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
      *
      * @param spindex    Species index within the phase

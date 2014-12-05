@@ -102,7 +102,7 @@ public:
     /// Destructor.
     virtual ~InterfaceKinetics();
 
-    //! Copy Constructor for the %Kinetics object.
+    //! Copy Constructor
     InterfaceKinetics(const InterfaceKinetics& right);
 
     //! Assignment operator

@@ -149,12 +149,11 @@ public:
 
 protected:
 
-    //! Pointer to the %ThermoPhase object used to initialize this object.
-
+    //! Pointer to the ThermoPhase object used to initialize this object.
     /*!
-     *  This %ThermoPhase object must be compatible with the %ThermoPhase
+     *  This ThermoPhase object must be compatible with the ThermoPhase
      *  objects input from the equilibrate function. Currently, this
-     *  means that the 2 %ThermoPhases have to have consist of the same
+     *  means that the 2 ThermoPhases have to have consist of the same
      *  species and elements.
      */
     thermo_t*  m_phase;

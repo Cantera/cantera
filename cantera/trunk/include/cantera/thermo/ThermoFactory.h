@@ -1,6 +1,6 @@
 /**
  *  @file ThermoFactory.h
- *     Headers for the factory class that can create known %ThermoPhase objects
+ *     Headers for the factory class that can create known ThermoPhase objects
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  *
  */
@@ -24,8 +24,8 @@ class VPSSMgr;
 /*!
  *  @addtogroup thermoprops
  *
- *  Standard %ThermoPhase objects may be instantiated by calling
- *  the main %Cantera factory class for %ThermoPhase objects; This class is called ThermoFactory.
+ *  Standard ThermoPhase objects may be instantiated by calling
+ *  the main %Cantera factory class for ThermoPhase objects; This class is called ThermoFactory.
  */
 //@{
 
@@ -173,7 +173,7 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  *   variable parameterizations for the specification of the
  *   species standard states, the equation of state, and the
  *   specification of other nonidealities. Below, a description
- *   is presented of the main algorithm for bringing up a %ThermoPhase
+ *   is presented of the main algorithm for bringing up a ThermoPhase
  *   object, with care to present points where customizations
  *   occur.
  *

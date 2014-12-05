@@ -71,7 +71,7 @@ namespace Cantera
 class MixtureFugacityTP : public ThermoPhase
 {
 public:
-    //! @name Constructors and Duplicators for %MixtureFugacityTP
+    //! @name Constructors and Duplicators for MixtureFugacityTP
     //! @{
 
     //! Constructor.

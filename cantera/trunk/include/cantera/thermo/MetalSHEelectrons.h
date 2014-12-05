@@ -1,6 +1,6 @@
 /**
  * @file MetalSHEelectrons.h
- * Header file for the %MetalSHEElectrons class, which represents the
+ * Header file for the MetalSHEElectrons class, which represents the
  * electrons in a metal that are consistent with the
  * SHE electrode (see \ref thermoprops and
  * class \link Cantera::MetalSHEelectrons MetalSHEelectrons\endlink)
@@ -19,13 +19,13 @@
 namespace Cantera
 {
 
-//!  Class %MetalSHEelectrons represents electrons within
+//!  Class MetalSHEelectrons represents electrons within
 //!  a metal, adjacent to an aqueous electrolyte, that are consistent with the SHE reference electrode.
 /*!
  *  The class is based on the electron having a chemical potential
  *  equal to one-half of the entropy of the H<SUP>2</SUP> gas at the system pressure
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It is assumed that the reference state thermodynamics may be
@@ -78,7 +78,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> %Application within %Kinetics Managers </b>
+ * <b> %Application within Kinetics Managers </b>
  *
  *  The standard concentration is equal to 1.0. This means that the
  *  kinetics operator works on an activities basis. Since this
@@ -94,7 +94,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %MetalSHEelectrons object may be created by
+ * for %Cantera. A new MetalSHEelectrons object may be created by
  * the following code snippets, where the file metalSHEelectrons.xml exists
  * in a local directory:
  *
@@ -124,7 +124,7 @@ namespace Cantera
  *
  *   <b> XML Example </b>
  *
- * The phase model name for this is called %MetalSHEelectrons. It must be supplied
+ * The phase model name for this is called MetalSHEelectrons. It must be supplied
  * as the model attribute of the thermo XML element entry.
  * Within the phase XML block,
  * the density of the phase must be specified though it's not used. An example of an XML file
@@ -173,7 +173,7 @@ namespace Cantera
  * @endcode
  *
  * The model attribute, "MetalSHEelectrons", on the thermo element
- * identifies the phase as being a %MetalSHEelectrons object.
+ * identifies the phase as being a MetalSHEelectrons object.
  *
  * @ingroup thermoprops
  */
@@ -183,7 +183,7 @@ public:
     //! Default constructor for the MetalSHEelectrons class
     MetalSHEelectrons();
 
-    //! Construct and initialize a %MetalSHEelectrons %ThermoPhase object
+    //! Construct and initialize a MetalSHEelectrons ThermoPhase object
     //! directly from an ASCII input file
     /*!
      * @param infile name of the input file
@@ -345,7 +345,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
