@@ -82,13 +82,12 @@ WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
     if (&b == this) {
         return *this;
     }
-    m_sub->operator=(*(b.m_sub));
+    *m_sub = *b.m_sub;
 
     if (!m_waterProps) {
         m_waterProps = new WaterProps(m_sub);
     }
-    m_waterProps->operator=(*(b.m_waterProps));
-
+    *m_waterProps = *b.m_waterProps;
 
     m_mw = b.m_mw;
     m_ready = b.m_ready;
