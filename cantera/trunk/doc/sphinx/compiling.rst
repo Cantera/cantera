@@ -18,7 +18,7 @@ operating systems:
   * Debian 5.0 (Lenny) or newer
 
 * Windows Vista, Windows 7, or Windows 8 (32-bit or 64-bit versions)
-* OS X 10.6 (Snow Leopard) or newer. OS X 10.9 (Mavericks) is recommended.
+* OS X 10.9 (Mavericks) or OS X 10.10 (Yosemite).
 
 In addition to the above operating systems, Cantera should work on any
 Unix-like system where the necessary prerequisites are available, but some
@@ -86,10 +86,14 @@ the full list of dependencies.
 OS X
 ----
 
-* Download and install Xcode from the
-  `Apple Developer site <https://developer.apple.com/xcode/index.php>`_
-* Cantera can be compiled with the command line tools that ship with either
-  Xcode 3.x, Xcode 4.x, or Xcode 5.x. Xcode 5.x is recommended.
+* Download and install Xcode from the App Store
+
+* From a Terminal, run::
+
+      sudo xcode-select --install
+
+  and agree to the Xcode license agreement
+
 * If you don't have numpy version >= 1.3, you can install a recent version with::
 
     sudo easy_install -U numpy
@@ -255,28 +259,9 @@ Windows (MinGW)
 OS X
 ----
 
-* The available compilers to compile Cantera will depend on the version of
-  Xcode that is installed.
-
-  * If Xcode 3 is installed, you can use either GCC by leaving the ``CC`` and
-    ``CXX`` options unspecified, or setting them to::
-
-      CC=gcc CXX=g++
-
-    You can also use LLVM with the GCC frontend by specifying::
-
-      CC=llvm-gcc CXX=llvm-g++
-
-  * If Xcode 4 is installed, then you can either use LLVM-GCC as above or
-    Clang by specifying::
-
-      CC=clang CXX=clang++
-
-  * With Xcode 5, SCons should use Clang automatically, and not additional
-    compilation options are required.
-
-* The Accelerate framework provides optimized versions of BLAS and LAPACK, so
-  the ``blas_lapack_libs`` option should generally be left unspecified.
+* The Accelerate framework is automatically used to provide optimized versions
+  of BLAS and LAPACK, so the ``blas_lapack_libs`` option should generally be
+  left unspecified.
 
 Intel Compilers
 ---------------
@@ -381,9 +366,9 @@ program.
 
 * Clang/LLVM (C/C++)
 
-  * Known to work with versions 3.3 and 3.4. Expected to work with version >=
-    2.9.
-  * Works with the versions included with XCode 5.0.
+  * Known to work with versions 3.3 through 3.5. Expected to work with version
+    >= 2.9.
+  * Works with the versions included with Xcode 5.1 and Xcode 6.1.
 
 * Intel compilers (C/C++/Fortran)
 

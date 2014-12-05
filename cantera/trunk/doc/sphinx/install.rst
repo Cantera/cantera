@@ -131,7 +131,8 @@ Mac OS X
 ========
 
 The easiest way to install Cantera on OS X is by using Homebrew. These
-instructions have been tested on Mac OS X 10.9 (Mavericks) with Xcode 5.1.
+instructions have been tested on Mac OS X 10.9 (Mavericks) with Xcode 5.1 and
+Mac OS X 10.10 (Yosemite) with Xcode 6.1.
 
 Prerequisites
 -------------
