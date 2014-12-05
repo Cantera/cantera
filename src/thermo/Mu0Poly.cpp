@@ -138,8 +138,7 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
     }
 
     vector_fp cValues(numPoints);
-    const XML_Node* valNode_ptr =
-        getByTitle(const_cast<XML_Node&>(Mu0Node), "Mu0Values");
+    const XML_Node* valNode_ptr = getByTitle(Mu0Node, "Mu0Values");
     if (!valNode_ptr) {
         throw CanteraError("installMu0ThermoFromXML",
                            "missing required while processing "
@@ -163,8 +162,7 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
     }
 
     vector_fp cTemperatures(numPoints);
-    const XML_Node* tempNode_ptr =
-        getByTitle(const_cast<XML_Node&>(Mu0Node), "Mu0Temperatures");
+    const XML_Node* tempNode_ptr = getByTitle(Mu0Node, "Mu0Temperatures");
     if (!tempNode_ptr) {
         throw CanteraError("installMu0ThermoFromXML",
                            "missing required while processing + "
