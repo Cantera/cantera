@@ -240,6 +240,9 @@ cdef class Inlet1D(Boundary1D):
         del self.inlet
 
     property spread_rate:
+        """
+        Get/set the tangential velocity gradient [1/s] at this boundary.
+        """
         def __get__(self):
             return self.inlet.spreadRate()
         def __set__(self, s):
@@ -338,6 +341,9 @@ cdef class _FlowBase(Domain1D):
             self.flow.setPressure(P)
 
     def set_transport(self, _SolutionBase phase):
+        """
+        Set the `Solution` object used for calculating transport properties.
+        """
         self.gas = phase
         self.flow.setTransport(deref(self.gas.transport))
 

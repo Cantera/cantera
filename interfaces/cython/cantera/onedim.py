@@ -27,15 +27,53 @@ class FlameBase(Sim1D):
         self.flame.P = gas.P
 
     def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
+        """
+        Set the criteria used for grid refinement.
+
+        :param ratio:
+            additional points will be added if the ratio of the spacing on
+            either side of a grid point exceeds this value
+        :param slope:
+            maximum difference in value between two adjacent points, scaled by
+            the maximum difference in the profile (0.0 < slope < 1.0). Adds
+            points in regions of high slope.
+        :param curve:
+            maximum difference in slope between two adjacent intervals, scaled
+            by the maximum difference in the profile (0.0 < curve < 1.0). Adds
+            points in regions of high curvature.
+        :param prune:
+            if the slope or curve criteria are satisfied to the level of
+            'prune', the grid point is assumed not to be needed and is removed.
+            Set prune significantly smaller than 'slope' and 'curve'. Set to
+            zero to disable pruning the grid.
+
+        >>> f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0)
+        """
         super(FlameBase, self).set_refine_criteria(self.flame, ratio, slope,
                                                    curve, prune)
 
     def set_profile(self, component, locations, values):
+        """
+        Set an initial estimate for a profile of one component.
+
+        :param component:
+            component name or index
+        :param positions:
+            sequence of relative positions, from 0 on the left to 1 on the right
+        :param values:
+            sequence of values at the relative positions specified in *positions*
+
+        >>> f.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
+        """
         super(FlameBase, self).set_profile(self.flame, component, locations,
                                            values)
 
     @property
     def transport_model(self):
+        """
+        Get/Set the transport model used by the `Solution` object used for this
+        simulation.
+        """
         return self.gas.transport_model
 
     @transport_model.setter
@@ -45,6 +83,7 @@ class FlameBase(Sim1D):
 
     @property
     def energy_enabled(self):
+        """ Get/Set whether or not to solve the energy equation."""
         return self.flame.energy_enabled
 
     @energy_enabled.setter
@@ -53,6 +92,11 @@ class FlameBase(Sim1D):
 
     @property
     def soret_enabled(self):
+        """
+        Get/Set whether or not to include diffusive mass fluxes due to the
+        Soret effect. Enabling this option works only when using the
+        multicomponent transport model.
+        """
         return self.flame.soret_enabled
 
     @soret_enabled.setter
@@ -66,6 +110,7 @@ class FlameBase(Sim1D):
 
     @property
     def P(self):
+        """ Get/Set the pressure of the flame [Pa] """
         return self.flame.P
 
     @P.setter
@@ -100,12 +145,22 @@ class FlameBase(Sim1D):
         return self.profile(self.flame, 'lambda')
 
     def solution(self, component, point=None):
+        """
+        Get the solution at one point or for the full flame domain (if
+        `point=None`) for the specified *component*. The *compnent* can be
+        specified by name or index.
+        """
         if point is None:
             return self.profile(self.flame, component)
         else:
             return self.value(self.flame, component, point)
 
     def set_gas_state(self, point):
+        """
+        Set the state of the the Solution object used for calculations,
+        `self.gas`, to the temperature and composition at the point with index
+        *point*.
+        """
         k0 = self.flame.component_index(self.gas.species_name(0))
         Y = [self.solution(k, point)
              for k in range(k0, k0 + self.gas.n_species)]
@@ -436,6 +491,15 @@ class CounterflowDiffusionFlame(FlameBase):
             self.set_profile(spec, zrel, Y[:,k])
 
     def solve(self, loglevel=1, refine_grid=True):
+        """
+        Solve the problem.
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output. Zero
+            suppresses all output, and 5 produces very verbose output.
+        :param refine_grid:
+            if True, enable grid refinement.
+        """
         super(CounterflowDiffusionFlame, self).solve(loglevel, refine_grid)
 
         # Do some checks if loglevel is set
