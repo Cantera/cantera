@@ -87,18 +87,18 @@ class PDSS;
  *
  *     - ThermoPhase
  *          - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink
- *                 This is a pointer to a %SpeciesThermo manager class that
+ *                 This is a pointer to a SpeciesThermo manager class that
  *                 handles the reference %state Thermodynamic calculations.
- *     - VPStandardStateTP (inherits from %ThermoPhase)
+ *     - VPStandardStateTP (inherits from ThermoPhase)
  *          - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink
- *                 %SpeciesThermo manager handling reference %state Thermodynamic calculations.
+ *                 SpeciesThermo manager handling reference %state Thermodynamic calculations.
  *                  may or may not be used by the VPSSMgr class. For species
  *                  which don't have a reference state class defined, a default
  *                  class, called STITbyPDSS which is installed into the SpeciesThermo
  *                  class, actually calculates reference state
  *                  thermo by calling a PDSS object.
  *          - \link Cantera::VPStandardStateTP::m_VPSS_ptr m_VPSS_ptr\endlink
- *                  This is a pointer to a %VPSSMgr class which handles the
+ *                  This is a pointer to a VPSSMgr class which handles the
  *                  standard %state thermo calculations. It may
  *                  or may not use the pointer, m_spthermo, in its calculations.
  *
@@ -179,7 +179,7 @@ class PDSS;
  *    <\phase>
  *  @endcode
  *
- *  The "General" option will cause the VPSSMgr_General %VPSSMgr class to be
+ *  The "General" option will cause the VPSSMgr_General VPSSMgr class to be
  *  used. In this manager, the calculations are all handled at the PDSS object
  *  level. This is completely general, but, may be significantly slower.
  *
@@ -237,7 +237,7 @@ class VPSSMgr
 public:
     //! Constructor
     /*!
-     * @param vptp_ptr Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr Pointer to the Variable pressure ThermoPhase object
      *                 This object must have already been malloced.
      * @param spth     Pointer to the optional SpeciesThermo object
      *                 that will handle the calculation of the reference

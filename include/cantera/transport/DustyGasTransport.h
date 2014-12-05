@@ -76,7 +76,7 @@ public:
      *               object after this copy. The routine initialize() must be called after this
      *               routine to complete the copy.
      *
-     * @param right    Reference to %DustyGasTransport object to be copied
+     * @param right    Reference to DustyGasTransport object to be copied
      *                 into the current one.
      */
     DustyGasTransport& operator=(const  DustyGasTransport& right);

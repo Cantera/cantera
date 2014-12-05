@@ -105,7 +105,7 @@ const VelocityBasis VB_SPECIES_3 = 3;
  *  if called.
  *
  * <HR>
- * <H2> Relationship of the %Transport class to the ThermoPhase Class </H2>
+ * <H2> Relationship of the Transport class to the ThermoPhase Class </H2>
  * <HR>
  *
  *   This section describes how calculations are carried out within

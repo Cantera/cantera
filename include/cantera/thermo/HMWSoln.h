@@ -1,10 +1,10 @@
 /**
  *  @file HMWSoln.h
- *    Headers for the %HMWSoln ThermoPhase object, which models concentrated
+ *    Headers for the HMWSoln ThermoPhase object, which models concentrated
  *    electrolyte solutions
  *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
  *
- * Class %HMWSoln represents a concentrated liquid electrolyte phase which
+ * Class HMWSoln represents a concentrated liquid electrolyte phase which
  * obeys the Pitzer formulation for nonideality using molality-based
  * standard states.
  */
@@ -81,7 +81,7 @@ namespace Cantera
 class WaterProps;
 
 /**
- * Class %HMWSoln represents a dilute or concentrated liquid electrolyte
+ * Class HMWSoln represents a dilute or concentrated liquid electrolyte
  * phase which obeys the Pitzer formulation for nonideality.
  *
  * As a prerequisite to the specification of thermodynamic quantities,
@@ -89,7 +89,7 @@ class WaterProps;
  * electroneutrality condition.
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  * The solvent is assumed to be liquid water. A real model for liquid
@@ -150,7 +150,7 @@ class WaterProps;
  * base values of species sizes. These are defined as the
  * molar volumes of species at infinite dilution at 300 K and 1 atm
  * of water. m_speciesSize are calculated during the initialization of the
- * %HMWSoln object and are then not touched.
+ * HMWSoln object and are then not touched.
  *
  * The current model assumes that an incompressible molar volume for
  * all solutes. The molar volume for the water solvent, however,
@@ -614,10 +614,10 @@ class WaterProps;
  *  Therefore,
  *  a formalism wherein all of the coefficients in the base theory have
  *  temperature dependencies associated with them has been implemented
- *  within the  %HMWSoln object. Much of the formalism, however,
+ *  within the  HMWSoln object. Much of the formalism, however,
  *  has been unexercised.
  *
- *  In the %HMWSoln object, the temperature dependence of the Pitzer
+ *  In the HMWSoln object, the temperature dependence of the Pitzer
  *  parameters are specified in the following way.
  *
  *    - PIZTER_TEMP_CONSTANT      - string name "CONSTANT"
@@ -874,7 +874,7 @@ class WaterProps;
  * <H3> Specification of the Debye-Huckel Constant </H3>
  *
  *  In the equations above, the formula for  \f$  A_{Debye} \f$
- *  is needed. The %HMWSoln object uses two methods for specifying these quantities.
+ *  is needed. The HMWSoln object uses two methods for specifying these quantities.
  *  The default method is to assume that \f$  A_{Debye} \f$  is a constant, given
  *  in the initialization process, and stored in the
  *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
@@ -922,7 +922,7 @@ class WaterProps;
  *   </activityCoefficients>
  * @endcode
  *
- * An example of a variable value implementation within the %HMWSoln object is given below.
+ * An example of a variable value implementation within the HMWSoln object is given below.
  * The model attribute, "water", triggers the full implementation.
  *
  * @code
@@ -1001,7 +1001,7 @@ class WaterProps;
  *  s_update_dlnMolalityActCoeff_dP().
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  * For the time being, we have set the standard concentration for all solute
@@ -1101,7 +1101,7 @@ class WaterProps;
  * @endcode
  *
  *
- * A new %HMWSoln object may be created by  the following code snippets:
+ * A new HMWSoln object may be created by  the following code snippets:
  *
  * @code
  *      HMWSoln *HMW = new HMWSoln("HMW_NaCl.xml", "NaCl_electrolyte");
@@ -1654,7 +1654,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -2030,7 +2030,7 @@ public:
     //!  pressure, and solution concentration.
     /*!
      *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
-     *  classes which derive from %MolalityVPSSTP. This function takes over from the
+     *  classes which derive from MolalityVPSSTP. This function takes over from the
      *  molar-based activity coefficient calculation, getActivityCoefficients(), in
      *  derived classes.
      *

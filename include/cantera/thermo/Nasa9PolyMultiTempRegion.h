@@ -25,7 +25,7 @@ namespace Cantera
  * documentation for class Nasa9Poly1.
  *
  * These NASA representations may have multiple temperature regions
- * through the use of this %Nasa9PolyMultiTempRegion object, which uses
+ * through the use of this Nasa9PolyMultiTempRegion object, which uses
  * multiple copies of the Nasa9Poly1 object to handle multiple temperature
  * regions.
  *

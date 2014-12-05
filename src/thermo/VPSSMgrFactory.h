@@ -138,7 +138,7 @@ private:
     static VPSSMgrFactory* s_factory;
 
     //! Decl of the static mutex variable that locks the
-    //! %VPSSMgr factory singleton
+    //! VPSSMgr factory singleton
     static mutex_t vpss_species_thermo_mutex;
 
     //! Constructor. This is made private, so that only the static

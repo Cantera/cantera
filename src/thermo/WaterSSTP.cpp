@@ -1,6 +1,6 @@
 /**
  *  @file WaterSSTP.cpp
- * Definitions for a %ThermoPhase class consisting of  pure water (see \ref thermoprops
+ * Definitions for a ThermoPhase class consisting of  pure water (see \ref thermoprops
  * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*

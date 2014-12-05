@@ -27,9 +27,9 @@ public:
 
     //! Duplication routine for objects which inherit from Kinetics
     /*!
-     *  This virtual routine can be used to duplicate %Kinetics objects
-     *  inherited from %Kinetics even if the application only has
-     *  a pointer to %Kinetics to work with.
+     *  This virtual routine can be used to duplicate Kinetics objects
+     *  inherited from Kinetics even if the application only has
+     *  a pointer to Kinetics to work with.
      *
      *  These routines are basically wrappers around the derived copy  constructor.
      *

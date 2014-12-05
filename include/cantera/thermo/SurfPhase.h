@@ -76,7 +76,7 @@ namespace Cantera
  *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)
  *       \f]
  *
- * <b> %Application within %Kinetics Managers </b>
+ * <b> %Application within Kinetics Managers </b>
  *
  * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
  * the actual concentration, \f$ C^s_k \f$, and is given by the following
@@ -187,13 +187,13 @@ public:
      */
     SurfPhase& operator=(const SurfPhase& right);
 
-    //! Duplicator from the %ThermoPhase parent class
+    //! Duplicator from the ThermoPhase parent class
     /*
-     * Given a pointer to a %ThermoPhase object, this function will
-     * duplicate the %ThermoPhase object and all underlying structures.
+     * Given a pointer to a ThermoPhase object, this function will
+     * duplicate the ThermoPhase object and all underlying structures.
      * This is basically a wrapper around the copy constructor.
      *
-     * @return returns a pointer to a %ThermoPhase
+     * @return returns a pointer to a ThermoPhase
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
@@ -367,7 +367,7 @@ public:
      * @param thermoData   Reference to an XML_Node named thermo
      *                     containing the equation-of-state data. The
      *                     XML_Node is within the phase XML_Node describing
-     *                     the %SurfPhase object.
+     *                     the SurfPhase object.
      *
      * An example of the contents of the thermoData XML_Node is provided
      * below. The units attribute is used to supply the units of the

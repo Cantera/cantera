@@ -32,7 +32,7 @@ namespace Cantera
 //!  the Margules approximation for the excess gibbs free energy
 /*!
  *
- * %MargulesVPSSTP derives from class GibbsExcessVPSSTP which is derived
+ * MargulesVPSSTP derives from class GibbsExcessVPSSTP which is derived
  * from VPStandardStateTP,
  * and overloads the virtual methods defined there with ones that
  * use expressions appropriate for the Margules Excess gibbs free energy
@@ -59,7 +59,7 @@ namespace Cantera
  *
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *  All species are defined to have standard states that depend upon both
@@ -152,7 +152,7 @@ namespace Cantera
  *       \f]
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /

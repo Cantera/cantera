@@ -62,7 +62,7 @@ namespace Cantera
  *
  * These NASA representations may have multiple temperature regions
  * through the use of the Nasa9PolyMultiTempRegion object, which uses
- * multiple copies of this %Nasa9Poly1 object to handle multiple temperature
+ * multiple copies of this Nasa9Poly1 object to handle multiple temperature
  * regions.
  *
  * @ingroup spthermo

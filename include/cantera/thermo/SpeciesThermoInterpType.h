@@ -23,7 +23,7 @@ class VPSSMgr;
 /**
   * @defgroup spthermo Species Reference-State Thermodynamic Properties
   *
-  *  The %ThermoPhase object relies on classes to calculate the thermodynamic
+  *  The ThermoPhase object relies on classes to calculate the thermodynamic
   *  properties of the reference state for all of the species in the phase.
   *  This group describes the types and functionality of the classes that
   *  calculate the reference state thermodynamic functions within %Cantera.
@@ -66,14 +66,14 @@ class VPSSMgr;
   * for a family of classes that compute properties of all
   * species in a phase in their reference states, for a range of temperatures.
   * Note, the pressure dependence of the species thermodynamic functions is not
-  * handled by this particular species thermodynamic model. %SpeciesThermo
+  * handled by this particular species thermodynamic model. SpeciesThermo
   * calculates the reference-state thermodynamic values of all species in a single
   * phase during each call.
   *
   * The class SpeciesThermoInterpType is a pure virtual base class for
   * calculation of thermodynamic functions for a single species
   * in its reference state.
-  * The following classes inherit from %SpeciesThermoInterpType.
+  * The following classes inherit from SpeciesThermoInterpType.
   *
   *   - NasaPoly1          in file NasaPoly1.h
   *      - This is a one zone model,  consisting of a 7

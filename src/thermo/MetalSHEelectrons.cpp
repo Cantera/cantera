@@ -1,6 +1,6 @@
 /**
  * @file MetalSHEelectrons.cpp
- * Definition file for the %MetalSHEElectrons class, which represents the
+ * Definition file for the MetalSHEElectrons class, which represents the
  * electrons in a metal that are consistent with the
  * SHE electrode (see \ref thermoprops and
  * class \link Cantera::MetalSHEelectrons MetalSHEelectrons\endlink)

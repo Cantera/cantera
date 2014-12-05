@@ -37,8 +37,8 @@ namespace Cantera
  * for calculating liquid electrolyte thermodynamics that have been
  * developed since the 1970's.
  *
- * This class adds additional functions onto the %ThermoPhase interface
- * that handle molality based standard states. The %ThermoPhase
+ * This class adds additional functions onto the ThermoPhase interface
+ * that handle molality based standard states. The ThermoPhase
  * class includes a member function, ThermoPhase::activityConvention()
  * that indicates which convention the activities are based on. The
  * default is to assume activities are based on the molar convention.
@@ -130,7 +130,7 @@ namespace Cantera
  *   \mu_k^\triangle(T,P) = \mu_k^o(T,P) + R T \ln(\tilde{M}_o m^\triangle)
  * \f]
  *
- *  An important convention is followed in all routines that derive from <b>%MolalityVPSSTP</b>.
+ *  An important convention is followed in all routines that derive from MolalityVPSSTP.
  *  Standard state thermodynamic functions and reference state thermodynamic functions
  *  return the molality-based quantities. Also all functions which return
  *  activities return the molality-based activities. The reason for this convention
@@ -315,7 +315,7 @@ public:
      * Note, the entry for the solvent is not used.
      *   We are supplied with the molalities of all of the
      *   solute species. We then calculate the mole fractions of all
-     *   species and update the %ThermoPhase object.
+     *   species and update the ThermoPhase object.
      *  \f[
      *     m_i = \frac{X_i}{M_o/1000 * X_{o,p}}
      *  \f]
@@ -501,7 +501,7 @@ public:
     //!  pressure, and  solution concentration.
     /*!
      *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
-     *  classes which derive from %MolalityVPSSTP. This function takes over from the
+     *  classes which derive from MolalityVPSSTP. This function takes over from the
      *  molar-based activity coefficient calculation, getActivityCoefficients(), in
      *  derived classes.
      *
@@ -672,7 +672,7 @@ public:
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * species log mole number (with all other species mole numbers held constant). The default treatment in the
-     * %ThermoPhase object is to set this vector to zero.
+     * ThermoPhase object is to set this vector to zero.
      *
      *  units = 1 / kmol
      *
@@ -711,7 +711,7 @@ protected:
     //!  pressure, and  solution concentration.
     /*!
      *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
-     *  classes which derive from %MolalityVPSSTP. This function takes over from the
+     *  classes which derive from MolalityVPSSTP. This function takes over from the
      *  molar-based activity coefficient calculation, getActivityCoefficients(), in
      *  derived classes.
      *

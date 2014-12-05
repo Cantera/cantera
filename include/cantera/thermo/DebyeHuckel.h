@@ -1,10 +1,10 @@
 /**
  *  @file DebyeHuckel.h
- *    Headers for the %DebyeHuckel ThermoPhase object, which models dilute
+ *    Headers for the DebyeHuckel ThermoPhase object, which models dilute
  *    electrolyte solutions
  *    (see \ref thermoprops and \link Cantera::DebyeHuckel DebyeHuckel \endlink) .
  *
- * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
+ * Class DebyeHuckel represents a dilute liquid electrolyte phase which
  * obeys the Debye Huckel formulation for nonideality.
  */
 
@@ -48,14 +48,14 @@ class PDSS_Water;
 /**
  * @ingroup thermoprops
  *
- * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
+ * Class DebyeHuckel represents a dilute liquid electrolyte phase which
  * obeys the Debye Huckel formulation for nonideality.
  *
  * The concentrations of the ionic species are assumed to obey the electroneutrality
  * condition.
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  * The standard states are on the unit molality basis. Therefore, in the
@@ -103,7 +103,7 @@ class PDSS_Water;
  * base values of species sizes. These are defined as the
  * molar volumes of species at infinite dilution at 300 K and 1 atm
  * of water. m_speciesSize are calculated during the initialization of the
- * %DebyeHuckel object and are then not touched.
+ * DebyeHuckel object and are then not touched.
  *
  * The current model assumes that an incompressible molar volume for
  * all solutes. The molar volume for the water solvent, however,
@@ -399,7 +399,7 @@ class PDSS_Water;
  * <H3> Specification of the Debye Huckel Constants </H3>
  *
  *  In the equations above, the formulas for  \f$  A_{Debye} \f$ and \f$  B_{Debye} \f$
- *  are needed. The %DebyeHuckel object uses two methods for specifying these quantities.
+ *  are needed. The DebyeHuckel object uses two methods for specifying these quantities.
  *  The default method is to assume that \f$  A_{Debye} \f$  is a constant, given
  *  in the initialization process, and stored in the
  *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
@@ -458,7 +458,7 @@ class PDSS_Water;
  *  water value, or through the input file. This may have to be looked at, in the future.
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  * For the time being, we have set the standard concentration for all species in
@@ -514,7 +514,7 @@ class PDSS_Water;
  * <HR>
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new %DebyeHuckel object may be created by
+ * for %Cantera. However, a new DebyeHuckel object may be created by
  * the following code snippets:
  *
  * @code
@@ -849,7 +849,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.

@@ -43,11 +43,11 @@ public:
      */
     ConstDensityThermo& operator=(const ConstDensityThermo& right);
 
-    //! Duplication routine for objects which inherit from %ThermoPhase
+    //! Duplication routine for objects which inherit from ThermoPhase
     /*!
      *  This virtual routine can be used to duplicate objects
-     *  derived from %ThermoPhase even if the application only has
-     *  a pointer to %ThermoPhase to work with.
+     *  derived from ThermoPhase even if the application only has
+     *  a pointer to ThermoPhase to work with.
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 

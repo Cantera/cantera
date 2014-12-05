@@ -1,6 +1,6 @@
 /**
  *  @file HMWSoln_input.cpp
- *    Definitions for the %HMWSoln ThermoPhase object, which models concentrated
+ *    Definitions for the HMWSoln ThermoPhase object, which models concentrated
  *    electrolyte solutions
  *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
  *

@@ -28,7 +28,7 @@ class VPSSMgr_Water_HKFT : public VPSSMgr
 public:
     //! Constructor
     /*!
-     * @param vptp_ptr Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr Pointer to the Variable pressure ThermoPhase object
      *                 This object must have already been malloced.
      *
      * @param spth     Pointer to the optional SpeciesThermo object

@@ -111,13 +111,13 @@ public:
     PDSS_Water(VPStandardStateTP* tp, int spindex, const XML_Node& speciesNode,
                const XML_Node& phaseRef, bool spInstalled);
 
-    //! Duplication routine for objects which inherit from %PDSS
+    //! Duplication routine for objects which inherit from PDSS
     /*!
-     *  This virtual routine can be used to duplicate %PDSS  objects
-     *  inherited from %PDSS even if the application only has
-     *  a pointer to %PDSS to work with.
+     *  This virtual routine can be used to duplicate PDSS  objects
+     *  inherited from PDSS even if the application only has
+     *  a pointer to PDSS to work with.
      *
-     * @return returns a pointer to the base %PDSS object type
+     * @return returns a pointer to the base PDSS object type
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 
@@ -231,7 +231,7 @@ public:
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      *
      * @param spindex     Species index within the phase

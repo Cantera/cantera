@@ -57,7 +57,7 @@ namespace Cantera
  *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
  *    \f]
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  * The standard molar Gibbs free energy for species <I>k</I> is determined from
  * the enthalpy and entropy expressions
@@ -66,7 +66,7 @@ namespace Cantera
  *            G^o_k(T,P) = H^o_k(T,P) - S^o_k(T,P)
  *       \f]
  *
- * The enthalpy is calculated mostly from the %SpeciesThermo object's enthalpy
+ * The enthalpy is calculated mostly from the SpeciesThermo object's enthalpy
  * evalulator. The dependence on pressure originates from the Maxwell relation
  *
  *       \f[
@@ -78,7 +78,7 @@ namespace Cantera
  *            {\left(\frac{dH^o_k}{dP}\right)}_T =  V^o_k -  T  {\left(\frac{dV^o_k}{dT}\right)}_P
  *       \f]
  *
- * The entropy is calculated mostly from the %SpeciesThermo objects entropy
+ * The entropy is calculated mostly from the SpeciesThermo objects entropy
  * evalulator. The dependence on pressure originates from the Maxwell relation:
  *
  *       \f[
@@ -265,7 +265,7 @@ private:
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      *
      * @param spindex     Species index within the phase
@@ -288,7 +288,7 @@ private:
      *     - getStuff from species Part of XML file
      *     - initThermoXML(phaseNode)      (cascade)
      *
-     * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
      *
      * @param spindex    Species index within the phase

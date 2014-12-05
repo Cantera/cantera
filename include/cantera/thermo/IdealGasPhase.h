@@ -15,11 +15,11 @@
 namespace Cantera
 {
 
-//!  Class %IdealGasPhase represents low-density gases that obey the
+//!  Class IdealGasPhase represents low-density gases that obey the
 //!  ideal gas equation of state.
 /*!
  *
- * %IdealGasPhase derives from class ThermoPhase,
+ * IdealGasPhase derives from class ThermoPhase,
  * and overloads the virtual methods defined there with ones that
  * use expressions appropriate for ideal gas mixtures.
  *
@@ -50,7 +50,7 @@ namespace Cantera
  *  state thermo functions by calling the SpeciesThermo object.
  *
  *  Functions for the calculation of standard state properties for species
- *  at arbitrary pressure are provided in %IdealGasPhase. However, they
+ *  at arbitrary pressure are provided in IdealGasPhase. However, they
  *  are all derived from their reference state counterparts.
  *
  *  The standard state enthalpy is independent of pressure:
@@ -149,7 +149,7 @@ namespace Cantera
  *
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -255,7 +255,7 @@ namespace Cantera
  * <HR>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %IdealGasPhase may be created by the following code
+ * for %Cantera. A new IdealGasPhase may be created by the following code
  * snippet:
  *
  * @code
@@ -352,7 +352,7 @@ public:
      * duplicate the ThermoPhase object and all underlying structures.
      * This is basically a wrapper around the inherited copy constructor.
      *
-     * @return returns a pointer to a %ThermoPhase object, containing
+     * @return returns a pointer to a ThermoPhase object, containing
      *      a copy of the current object
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;

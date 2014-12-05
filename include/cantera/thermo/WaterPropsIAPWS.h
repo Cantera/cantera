@@ -105,7 +105,7 @@ namespace Cantera
  * however, the thermodynamic basis is set to that used in the steam tables.
  * (u = s = 0 for liquid water at the triple point).
  *
- * This class is not a %ThermoPhase. However, it does maintain an internal
+ * This class is not a ThermoPhase. However, it does maintain an internal
  * state of the object that is dependent on temperature and density. The
  * internal state is characterized by an internally stored \f$ \tau\f$ and a
  * \f$ \delta \f$ value, and an iState value, which indicates whether the

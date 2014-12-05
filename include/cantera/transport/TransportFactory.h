@@ -71,7 +71,7 @@ public:
      *  @param trNode XML node
      *  @param name  reference to the name
      *  @param tp_ind   TransportPropertyType class
-     *  @param thermo   Pointer to the %ThermoPhase class
+     *  @param thermo   Pointer to the ThermoPhase class
      */
     virtual LTPspecies* newLTP(const XML_Node& trNode, const std::string& name,
                                TransportPropertyType tp_ind, thermo_t* thermo);
@@ -281,7 +281,7 @@ private:
      *
      *  @param transport_database   Reference to a vector of pointers containing the
      *                              transport database for each species
-     *  @param thermo               Pointer to the %ThermoPhase object
+     *  @param thermo               Pointer to the ThermoPhase object
      *  @param mode                 Mode -> Either it's CK_Mode, chemkin compatibility mode, or it is not
      *                              We usually run with chemkin compatibility mode turned off.
      *  @param log_level            log level
@@ -293,7 +293,7 @@ private:
     //! Prepare to build a new transport manager for liquids assuming that
     //! viscosity transport data is provided in Arrhenius form.
     /*!
-     *  @param thermo               Pointer to the %ThermoPhase object
+     *  @param thermo               Pointer to the ThermoPhase object
      *  @param log_level            log level
      *  @param trParam              LiquidTransportParams structure to be filled up with information
      */
@@ -301,7 +301,7 @@ private:
 
     //! Prepare to build a new transport manager for solids
     /*!
-     *  @param thermo               Pointer to the %ThermoPhase object
+     *  @param thermo               Pointer to the ThermoPhase object
      *  @param log_level            log level
      *  @param trParam              SolidTransportData structure to be filled up with information
      */

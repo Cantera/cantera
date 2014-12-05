@@ -1,6 +1,6 @@
 /**
  *  @file WaterSSTP.h
- * Declares a %ThermoPhase class consisting of  pure water (see \ref thermoprops
+ * Declares a ThermoPhase class consisting of  pure water (see \ref thermoprops
  * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*
@@ -27,7 +27,7 @@ class WaterProps;
  *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *   The offsets used in the steam tables are different than NIST's.
@@ -64,7 +64,7 @@ class WaterProps;
  *   So(1bar) = S(P0) + RT ln(1bar/P0)
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   This is unimplemented.
@@ -74,7 +74,7 @@ class WaterProps;
  * <HR>
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new %WaterSSTP object may be created by
+ * for %Cantera. However, a new WaterSSTP object may be created by
  * the following code snippets, combined with an XML file given in the
  * XML example section.
  *

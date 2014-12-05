@@ -52,23 +52,23 @@ class SpeciesThermoInterpType;
  *  for a family of classes that compute properties of all
  *  species in a phase in their reference states, for a range of temperatures.
  *  Note, the pressure dependence of the species thermodynamic functions is not
- *  handled by this particular species thermodynamic model. %SpeciesThermo
+ *  handled by this particular species thermodynamic model. SpeciesThermo
  *  calculates the reference-state thermodynamic values of all species in a single
  *  phase during each call. The vector nature of the operation leads to
  *  a lower operation count and better efficiency, especially if the
  *  individual reference state classes are known to the reference-state
  *  manager class so that common operations may be grouped together.
  *
- *  The most important member function for the %SpeciesThermo class
+ *  The most important member function for the SpeciesThermo class
  *  is the member function \link SpeciesThermo::update() update()\endlink.
  *  The function calculates the values of Cp, H, and S for all of the
  *  species at once at the specified temperature.
  *
- *  Usually, all of the species in a phase are installed into a %SpeciesThermo
- *  class. However, there is no requirement that a %SpeciesThermo
+ *  Usually, all of the species in a phase are installed into a SpeciesThermo
+ *  class. However, there is no requirement that a SpeciesThermo
  *  object handles all of the species in a phase. There are
  *  two member functions that are called to install each species into
- *  the %SpeciesThermo.
+ *  the SpeciesThermo.
  *  One routine is called \link SpeciesThermo::install() install()\endlink.
  *  It is called with the index of the species in the phase,
  *  an integer type delineating
@@ -79,9 +79,9 @@ class SpeciesThermoInterpType;
  *  It accepts as an argument a pointer to an already formed
  *  SpeciesThermoInterpType object.
  *
- *  The following classes inherit from %SpeciesThermo. Each of these classes
+ *  The following classes inherit from SpeciesThermo. Each of these classes
  *  handle multiple species, usually all of the species in a phase. However,
- *  there is no requirement that a %SpeciesThermo object handles all of the
+ *  there is no requirement that a SpeciesThermo object handles all of the
  *  species in a phase.
  *
  *   - NasaThermo          in file NasaThermo.h
@@ -101,7 +101,7 @@ class SpeciesThermoInterpType;
  * The class SpeciesThermoInterpType is a pure virtual base class for
  * calculation of thermodynamic functions for a single species
  * in its reference state.
- * The following classes inherit from %SpeciesThermoInterpType.
+ * The following classes inherit from SpeciesThermoInterpType.
  *
  *   - NasaPoly1          in file NasaPoly1.h
  *      - This is a one zone model,  consisting of a 7
@@ -128,13 +128,13 @@ class SpeciesThermoInterpType;
  *      - This is a multiple zone model, consisting of the 9
  *        coefficient Nasa Polynomial format in each zone.
  *
- * In particular the NasaThermo %SpeciesThermo-derived model has been
+ * In particular the NasaThermo SpeciesThermo-derived model has been
  * optimized for execution speed. It's the main-stay of gas phase computations
  * involving large numbers of species in a phase. It combines the calculation
  * of each species, which individually have NasaPoly2 representations, to
  * minimize the computational time.
  *
- * The GeneralSpeciesThermo %SpeciesThermo object is completely general. It
+ * The GeneralSpeciesThermo SpeciesThermo object is completely general. It
  * does not try to coordinate the individual species calculations at all and
  * therefore is the slowest but most general implementation.
  *
