@@ -144,6 +144,7 @@ should be handled.
     negative orders for a global reaction only if the ``negative_orders``
     override option is specified for the reaction.
 
+
 Reactions with Pressure-Independent Rate
 ========================================
 
@@ -458,6 +459,42 @@ used::
                                coverage=[['H(S)', a_1, m_1, E_1],
                                          ['PT(S)', a_2, m_2, E_2]]))
 
+Additional Options
+==================
+
+Reaction Orders
+---------------
+
+Explicit reaction orders different from the stoichiometric coefficients are
+sometimes used for non-elementary reactions. For example, consider the global
+reaction:
+
+.. math::
+    \mathrm{C_8H_{18} + 12.5 O_2 \rightarrow 8 CO_2 + 9 H_2O}
+
+the forward rate constant might be given as [#Westbrook1981]_:
+
+.. math::
+    k_f = 4.6 \times 10^{11} [\mathrm{C_8H_{18}}]^{0.25} [\mathrm{O_2}]^{1.5}
+          \exp\left(\frac{30.0\,\mathrm{kcal/mol}}{RT}\right)
+
+This reaction could be defined as::
+
+    reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
+             order="C8H18:0.25 O2:1.5")
+
+Special care is required in this case since the units of the pre-exponential
+factor depend on the sum of the reaction orders, which may not be an integer.
+
+Normally, reaction orders are required to be positive. However, in some cases
+negative reaction orders are found to be better fits for experimental data. In
+these cases, the default behavior may be overridden by adding
+``negative_orders`` to the reaction options, e.g.::
+
+    reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
+             order="C8H18:-0.25 O2:1.75", options=['negative_orders'])
+
+
 .. rubric:: References
 
 .. [#Gilbert1983] R. G. Gilbert, K. Luther, and
@@ -477,3 +514,7 @@ used::
 .. [#Kee1989] R. J. Kee, F. M. Rupley, and J. A. Miller. Chemkin-II: A Fortran
    chemical kinetics package for the analysis of gas-phase chemical
    kinetics. Technical Report SAND89-8009, Sandia National Laboratories, 1989.
+
+.. [#Westbrook1981] C. K. Westbrook and F. L. Dryer. Simplified reaction
+   mechanisms for the oxidation of hydrocarbon fuels in flames. *Combustion
+   Science and Technology* **27**, pp. 31--43. 1981.

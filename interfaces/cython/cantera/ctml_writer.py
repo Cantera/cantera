@@ -1128,6 +1128,10 @@ class reaction(object):
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
+        :param order:
+            Override the default reaction orders implied by the reactant
+            stoichiometric coefficients. Given as a string of key:value pairs,
+            e.g. ``"CH4:0.25 O2:1.5"``.
         :param options: Processing options, as described in
             :ref:`sec-reaction-options`. May be one or more (as a list) of the
             following: 'skip', 'duplicate', 'negative_A', 'negative_orders'.
