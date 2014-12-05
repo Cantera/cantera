@@ -952,6 +952,11 @@ class Parser(object):
             composition2 = self.parseComposition(elements, len(elements)//10, 10)
             composition.update(composition2)
 
+        if not composition:
+            raise InputParseError("Error parsing elemental composition for "
+                                  "species '{0}'".format(species))
+
+
         # Construct and return the thermodynamics model
         thermo = MultiNASA(
             polynomials=[
