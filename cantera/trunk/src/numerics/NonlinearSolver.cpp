@@ -789,7 +789,7 @@ void NonlinearSolver::calcSolnToResNormVector()
         for (size_t irow = 0; irow < neq_; irow++) {
             m_wksp[irow] = 0.0;
         }
-        doublereal* jptr = &(jacCopyPtr_->operator()(0,0));
+        doublereal* jptr = &((*jacCopyPtr_)(0,0));
         for (size_t jcol = 0; jcol < neq_; jcol++) {
             for (size_t irow = 0; irow < neq_; irow++) {
                 m_wksp[irow] += (*jptr) * m_ewt[jcol];
