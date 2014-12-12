@@ -172,8 +172,8 @@ cdef class Mixture:
 
     property T:
         """
-        The Temperature [K] of all phases in the mixture. When set, the
-        pressure of the mixture is held fixed.
+        Get or set the Temperature [K] of all phases in the mixture. When set,
+        the pressure of the mixture is held fixed.
         """
         def __get__(self):
             return self.mix.temperature()
@@ -199,8 +199,8 @@ cdef class Mixture:
             return self.mix.maxTemp()
 
     property P:
-        """The Pressure [Pa] of all phases in the mixture. When set, the
-         temperature of the mixture is held fixed."""
+        """Get or set the Pressure [Pa] of all phases in the mixture. When set,
+         the temperature of the mixture is held fixed."""
         def __get__(self):
             return self.mix.pressure()
         def __set__(self, P):
@@ -233,11 +233,11 @@ cdef class Mixture:
 
     property species_moles:
         """
-        The number of moles of each species. May be set either
-        as a string, or as an array. If an array is used, it must be
-        dimensioned at least as large as the total number of species in the
-        mixture. Note that the species may belong to any phase, and
-        unspecified species are set to zero.
+        Get or set the number of moles of each species. May be set either as a
+        string or as an array. If an array is used, it must be dimensioned at
+        least as large as the total number of species in the mixture. Note that
+        the species may belong to any phase, and unspecified species are set to
+        zero.
 
         >>> mix.species_moles = 'C(s):1.0, CH4:2.0, O2:0.2'
         """
