@@ -302,10 +302,11 @@ Files\\Cantera\\data`` on Windows or ``/usr/local/cantera/data/`` on
 Unix/Linux/Mac OS X machines, depending on how you installed Cantera and the
 options you specified.
 
-If for some reason Cantera has difficulty finding where these files are on
-your system, set environment variable ``CANTERA_DATA`` to the directory where
-they are located. Alternatively, you can call function `add_directory` to add
-a directory to the Cantera search path::
+If for some reason Cantera has difficulty finding where these files are on your
+system, set environment variable ``CANTERA_DATA`` to the directory or
+directories (separated using ``;`` on Windows or ``:`` on other operating
+systems) where they are located. Alternatively, you can call function
+`add_directory` to add a directory to the Cantera search path::
 
     >>> ct.add_directory('/usr/local/cantera/my_data_files')
 

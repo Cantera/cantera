@@ -446,13 +446,26 @@ void Application::setDefaultDirectories()
     dirs.push_back("/Applications/Cantera/data");
 #endif
 
-    //
-    // if environment variable CANTERA_DATA is defined, then add
-    // it to the search path
-    //
+    // if environment variable CANTERA_DATA is defined, then add it to the
+    // search path. CANTERA_DATA may include multiple directory, separated by
+    // the OS-dependent path separator (in the same manner as the PATH
+    // environment variable).
+#ifdef _WIN32
+    std::string pathsep = ";";
+#else
+    std::string pathsep = ":";
+#endif
+
     if (getenv("CANTERA_DATA") != 0) {
-        string datadir = string(getenv("CANTERA_DATA"));
-        dirs.push_back(datadir);
+        string s = string(getenv("CANTERA_DATA"));
+        size_t start = 0;
+        size_t end = s.find(pathsep);
+        while(end != npos) {
+            dirs.push_back(s.substr(start, end-start));
+            start = end + 1;
+            end = s.find(pathsep, start);
+        }
+        dirs.push_back(s.substr(start,end));
     }
 
     // CANTERA_DATA is defined in file config.h. This file is written

@@ -31,9 +31,10 @@ reaction mechanism, and a few surface reaction mechanisms.  These files are kept
 in the ``data`` subdirectory within the Cantera installation directory.
 
 If for some reason Cantera has difficulty finding where these files are on your
-system, set environment variable ``CANTERA_DATA`` to the directory where they
-are located. Alternatively, you can call function ``addDirectory`` to add a
-directory to the Cantera search path::
+system, set environment variable ``CANTERA_DATA`` to the directory or
+directories (separated using ``;`` on Windows or ``:`` on other operating
+systems) where they are located. Alternatively, you can call function
+`add_directory` to add a directory to the Cantera search path::
 
     addDirectory('/usr/local/cantera/my_data_files');
 
