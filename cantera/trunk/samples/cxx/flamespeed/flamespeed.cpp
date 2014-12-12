@@ -16,7 +16,6 @@ using std::endl;
 int flamespeed(int np, void* p)
 {
     try {
-        int i;
         IdealGasMix gas("gri30.cti","gri30_mix");
 
         doublereal temp = 300.0; // K
@@ -24,7 +23,7 @@ int flamespeed(int np, void* p)
         doublereal uin=0.3; //m/sec
 
         gas.setState_TPX(temp, pressure, "CH4:1.0, O2:2.0, N2:7.52");
-        int nsp = gas.nSpecies();
+        size_t nsp = gas.nSpecies();
 
         vector_fp x;
         x.resize(nsp);
@@ -42,7 +41,7 @@ int flamespeed(int np, void* p)
         doublereal H_atoms=4.0;
         doublereal ax=C_atoms+H_atoms/4.0;
         doublereal fa_stoic=1.0/(4.76*ax);
-        for (int k=0; k<nsp; k++) {
+        for (size_t k=0; k<nsp; k++) {
             if (k==gas.speciesIndex("CH4")) {
                 x[k]=1.0;
             } else if (k==gas.speciesIndex("O2")) {
@@ -161,7 +160,7 @@ int flamespeed(int np, void* p)
         value[2]=Tad;
         flame.setInitialGuess("T",locs,value);
 
-        for (i=0; i<nsp; i++) {
+        for (size_t i=0; i<nsp; i++) {
             value[0]=yin[i];
             value[1]=yout[i];
             value[2]=yout[i];
