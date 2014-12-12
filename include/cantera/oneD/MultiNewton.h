@@ -23,7 +23,7 @@ class MultiNewton
 {
 public:
     MultiNewton(int sz);
-    virtual ~MultiNewton();
+    virtual ~MultiNewton() {};
 
     size_t size() {
         return m_n;
@@ -75,16 +75,14 @@ public:
     void resize(size_t points);
 
 protected:
-    //! Get a pointer to an array of length m_n for temporary work space.
-    doublereal* getWorkArray();
+    //! Work arrays of size #m_n used in solve().
+    vector_fp m_x, m_stp, m_stp1;
 
-    //! Release a work array by pushing its pointer onto the stack of
-    //! available arrays.
-    void releaseWorkArray(doublereal* work);
-
-    std::vector<doublereal*> m_workarrays;
     int m_maxAge;
-    size_t m_nv, m_np, m_n;
+
+    //! number of variables
+    size_t m_n;
+
     doublereal m_elapsed;
 
 private:
