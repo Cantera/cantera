@@ -161,8 +161,7 @@ protected:
 protected:
     //! Set the temperature (K)
     /*!
-     * Overwritten setTemperature(double) from State.h. This
-     * function sets the temperature, and makes sure that
+     * This function sets the temperature, and makes sure that
      * the value propagates to underlying objects
      *
      * @param temp Temperature in kelvin
