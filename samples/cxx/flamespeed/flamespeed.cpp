@@ -13,7 +13,7 @@ using namespace Cantera;
 using std::cout;
 using std::endl;
 
-int flamespeed(int np, void* p)
+int flamespeed(double phi)
 {
     try {
         IdealGasMix gas("gri30.cti","gri30_mix");
@@ -25,17 +25,7 @@ int flamespeed(int np, void* p)
         gas.setState_TPX(temp, pressure, "CH4:1.0, O2:2.0, N2:7.52");
         size_t nsp = gas.nSpecies();
 
-        vector_fp x;
-        x.resize(nsp);
-
-        double phi = 0.0;
-        if (np > 0) {
-            phi = *(double*)(p);
-        }
-        if (phi == 0.0) {
-            cout << "Enter phi: ";
-            std::cin >> phi;
-        }
+        vector_fp x(nsp);
 
         doublereal C_atoms=1.0;
         doublereal H_atoms=4.0;
@@ -70,17 +60,11 @@ int flamespeed(int np, void* p)
         doublereal Tad=gas.temperature();
         cout << phi<<' '<<Tad<<endl;
 
-        //double Tin=temp;
-        //double Tout=Tad;
-        //double breakpt=0.2;
-
-
         //=============  build each domain ========================
 
 
         //-------- step 1: create the flow -------------
 
-        //AxiStagnFlow flow(&gas);
         FreeFlame flow(&gas);
 
         // create an initial grid
@@ -127,8 +111,6 @@ int flamespeed(int np, void* p)
         domains.push_back(&inlet);
         domains.push_back(&flow);
         domains.push_back(&outlet);
-
-        //    OneDim flamesim(domains);
 
         Sim1D flame(domains);
 
@@ -177,17 +159,11 @@ int flamespeed(int np, void* p)
         double ratio=10.0;
         double slope=0.2;
         double curve=0.02;
-        double prune=-0.00005;
 
-        flame.setRefineCriteria(flowdomain,ratio,slope,curve,prune);
+        flame.setRefineCriteria(flowdomain,ratio,slope,curve);
 
         int loglevel=1;
         bool refine_grid = true;
-
-        /* Solve species*/
-        //flow.fixTemperature();
-        //refine_grid=false;
-        //flame.solve(loglevel,refine_grid);
 
         /* Solve freely propagating flame*/
 
@@ -261,10 +237,10 @@ int flamespeed(int np, void* p)
     return 0;
 }
 
-#ifndef CXX_DEMO
 int main()
 {
-    return flamespeed(0, 0);
+    double phi;
+    cout << "Enter phi: ";
+    std::cin >> phi;
+    return flamespeed(phi);
 }
-#endif
-
