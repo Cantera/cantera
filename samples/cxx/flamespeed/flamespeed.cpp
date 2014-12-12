@@ -1,8 +1,6 @@
 /*!
  * @file flamespeed.cpp
  * C++ demo program to compute flame speeds using GRI-Mech.
- *
- * @todo This demo compiles but does not run correctly.
  */
 
 #include "cantera/oneD/Sim1D.h"
