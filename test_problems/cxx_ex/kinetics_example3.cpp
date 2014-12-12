@@ -44,8 +44,7 @@ int kinetics_example3(int job)
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
-        IdealGasMix* gg = new IdealGasMix("gri30.xml", "gri30");
-        IdealGasMix& gas = *gg;
+        IdealGasMix gas("gri30.xml", "gri30");
 
         // set the state
         gas.setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
@@ -71,7 +70,7 @@ int kinetics_example3(int job)
 
         // create a container object to run the simulation
         // and add the reactor to it
-        ReactorNet& sim = *(new ReactorNet());
+        ReactorNet sim;
         sim.setVerbose(false);
         sim.addReactor(r);
 
@@ -102,8 +101,6 @@ int kinetics_example3(int job)
         cout << "Output files:" << endl
              << "  kin3.csv    (Excel CSV file)" << endl
              << "  kin3.dat    (Tecplot data file)" << endl;
-
-        delete gg;
     } catch (CanteraError& err) {
         // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;

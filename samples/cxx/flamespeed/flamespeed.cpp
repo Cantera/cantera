@@ -59,16 +59,16 @@ int flamespeed(int np, void* p)
         gas.setState_TPX(temp,pressure,DATA_PTR(x));
         doublereal rho_in=gas.density();
 
-        double* yin=new double[nsp];
-        gas.getMassFractions(yin);
+        vector_fp yin(nsp);
+        gas.getMassFractions(&yin[0]);
 
         try {
             gas.equilibrate("HP");
         } catch (CanteraError& err) {
             std::cout << err.what() << std::endl;
         }
-        double* yout=new double[nsp];
-        gas.getMassFractions(yout);
+        vector_fp yout(nsp);
+        gas.getMassFractions(&yout[0]);
         doublereal rho_out = gas.density();
         doublereal Tad=gas.temperature();
         cout << phi<<' '<<Tad<<endl;
@@ -89,7 +89,7 @@ int flamespeed(int np, void* p)
         // create an initial grid
         int nz=5;
         doublereal lz=0.02;
-        doublereal* z=new double[nz+1];
+        vector_fp z(nz+1);
         doublereal dz=lz/((doublereal)(nz-1));
         for (int iz=0; iz<nz; iz++) {
             z[iz]=((doublereal)iz)*dz;
@@ -98,13 +98,13 @@ int flamespeed(int np, void* p)
         z[nz]=lz*1.05;
         nz++;
 
-        flow.setupGrid(nz, z);
+        flow.setupGrid(nz, &z[0]);
 
         // specify the objects to use to compute kinetic rates and
         // transport properties
 
-        Transport* trmix = newTransportMgr("Mix", &gas);
-        Transport* trmulti = newTransportMgr("Multi", &gas);
+        std::auto_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
+        std::auto_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
 
         flow.setTransport(*trmix);
         flow.setKinetics(gas);
