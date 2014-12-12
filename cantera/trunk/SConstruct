@@ -126,7 +126,9 @@ if os.name == 'nt':
     windows_compiler_options.extend([
         ('msvc_version',
          """Version of Visual Studio to use. The default is the newest
-            installed version.""",
+            installed version. Specify '9.0' for Visual Studio 2008; '10.0'
+            for Visual Studio 2010; '11.0' for Visual Studio 2012; or '12.0'
+            for Visual Studio 2013.""",
          ''),
         ('target_arch',
          """Target architecture. The default is the same
