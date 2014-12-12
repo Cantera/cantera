@@ -1065,7 +1065,6 @@ extern "C" {
             thermo_t* t = _fth(ith);
             Kinetics* k = _fkin(ikin);
 
-            Kinetics& kin = *k;
             XML_Node* x, *r=0;
             if (root) {
                 r = &root->root();
@@ -1081,9 +1080,9 @@ extern "C" {
                 return 0;
             }
             importPhase(*x, t);
-            kin.addPhase(*t);
-            kin.init();
-            installReactionArrays(*x, kin, x->id());
+            k->addPhase(*t);
+            k->init();
+            installReactionArrays(*x, *k, x->id());
             t->setState_TP(300.0, OneAtm);
             if (r) {
                 if (&x->root() != &r->root()) {

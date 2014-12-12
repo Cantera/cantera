@@ -684,8 +684,6 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
         return false;
     }
 
-    Kinetics& kin = *k;
-
     // This phase will be the owning phase for the kinetics operator
     // For interfaces, it is the surface phase between two volumes.
     // For homogeneous kinetics, it's the current volumetric phase.
@@ -734,8 +732,8 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
 
                 // if no phase with this id has been added to
                 //the kinetics manager yet, then add this one
-                if (kin.phaseIndex(phase_id) == npos) {
-                    kin.addPhase(*th[m]);
+                if (k->phaseIndex(phase_id) == npos) {
+                    k->addPhase(*th[m]);
                 }
             }
             msg += " "+th[m]->id();
@@ -749,10 +747,10 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     // allocates arrays, etc. Must be called after the phases have
     // been added to 'kin', so that the number of species in each
     // phase is known.
-    kin.init();
+    k->init();
 
     // Install the reactions.
-    return installReactionArrays(phase, kin, owning_phase, check_for_duplicates);
+    return installReactionArrays(phase, *k, owning_phase, check_for_duplicates);
 }
 
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
