@@ -65,16 +65,16 @@ void demoprog()
     //   Reaction information
 
     int irxns = gas.nReactions();
-    double* qf = new double[irxns];
-    double* qr = new double[irxns];
-    double* q  = new double[irxns];
+    vector_fp qf(irxns);
+    vector_fp qr(irxns);
+    vector_fp q(irxns);
 
     // since the gas has been set to an equilibrium state, the forward
     // and reverse rates of progress should be equal for all
     // reversible reactions, and the net rates should be zero.
-    gas.getFwdRatesOfProgress(qf);
-    gas.getRevRatesOfProgress(qr);
-    gas.getNetRatesOfProgress(q);
+    gas.getFwdRatesOfProgress(&qf[0]);
+    gas.getRevRatesOfProgress(&qr[0]);
+    gas.getNetRatesOfProgress(&q[0]);
 
     printf("\n\n");
     for (int i = 0; i < irxns; i++) {
@@ -87,7 +87,7 @@ void demoprog()
 
     // create a transport manager for the gas that computes
     // mixture-averaged properties
-    Transport* tr = newTransportMgr("Mix", &gas, 1);
+    std::auto_ptr<Transport> tr(newTransportMgr("Mix", &gas, 1));
 
     // print the viscosity, thermal conductivity, and diffusion
     // coefficients
@@ -95,20 +95,13 @@ void demoprog()
     printf("Thermal conductivity: %14.5g W/m/K\n", tr->thermalConductivity());
 
     int nsp = gas.nSpecies();
-    double* diff = new double[nsp];
-    tr->getMixDiffCoeffs(diff);
+    vector_fp diff(nsp);
+    tr->getMixDiffCoeffs(&diff[0]);
     int k;
     printf("\n\n%20s  %26s\n", "Species","Diffusion Coefficient");
     for (k = 0; k < nsp; k++) {
         printf("%20s  %14.5g m2/s \n", gas.speciesName(k).c_str(), diff[k]);
     }
-
-    // clean up
-    delete qf;
-    delete qr;
-    delete q;
-    delete diff;
-    delete tr;
 }
 
 
