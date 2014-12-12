@@ -158,20 +158,12 @@ MultiNewton::MultiNewton(int sz)
     m_elapsed = 0.0;
 }
 
-MultiNewton::~MultiNewton()
-{
-    for (size_t i = 0; i < m_workarrays.size(); i++) {
-        delete[] m_workarrays[i];
-    }
-}
-
 void MultiNewton::resize(size_t sz)
 {
     m_n = sz;
-    for (size_t i = 0; i < m_workarrays.size(); i++) {
-        delete[] m_workarrays[i];
-    }
-    m_workarrays.clear();
+    m_x.resize(m_n);
+    m_stp.resize(m_n);
+    m_stp1.resize(m_n);
 }
 
 doublereal MultiNewton::norm2(const doublereal* x,
@@ -363,11 +355,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     bool forceNewJac = false;
     doublereal s1=1.e30;
 
-    doublereal* x    = getWorkArray();
-    doublereal* stp  = getWorkArray();
-    doublereal* stp1 = getWorkArray();
-
-    copy(x0, x0 + m_n, x);
+    copy(x0, x0 + m_n, &m_x[0]);
 
     bool frst = true;
     doublereal rdt = r.rdt();
@@ -382,20 +370,20 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         }
 
         if (forceNewJac) {
-            r.eval(npos, x, stp, 0.0, 0);
-            jac.eval(x, stp, 0.0);
+            r.eval(npos, &m_x[0], &m_stp[0], 0.0, 0);
+            jac.eval(&m_x[0], &m_stp[0], 0.0);
             jac.updateTransient(rdt, DATA_PTR(r.transientMask()));
             forceNewJac = false;
         }
 
         // compute the undamped Newton step
-        step(x, stp, r, jac, loglevel-1);
+        step(&m_x[0], &m_stp[0], r, jac, loglevel-1);
 
         // increment the Jacobian age
         jac.incrementAge();
 
         // damp the Newton step
-        m = dampStep(x, stp, x1, stp1, s1, r, jac, loglevel-1, frst);
+        m = dampStep(&m_x[0], &m_stp[0], x1, &m_stp1[0], s1, r, jac, loglevel-1, frst);
         if (loglevel == 1 && m >= 0) {
             if (frst) {
                 sprintf(m_buf,"\n\n    %10s    %10s   %5s ",
@@ -404,7 +392,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
                 sprintf(m_buf,"\n    ------------------------------------");
                 writelog(m_buf);
             }
-            doublereal ss = r.ssnorm(x, stp);
+            doublereal ss = r.ssnorm(&m_x[0], &m_stp[0]);
             sprintf(m_buf,"\n    %10.4f    %10.4f       %d ",
                     log10(ss),log10(s1),jac.nEvals());
             writelog(m_buf);
@@ -414,7 +402,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         // Successful step, but not converged yet. Take the damped
         // step, and try again.
         if (m == 0) {
-            copy(x1, x1 + m_n, x);
+            copy(x1, x1 + m_n, m_x.begin());
         }
 
         // convergence
@@ -443,34 +431,13 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     }
 
     if (m < 0) {
-        copy(x, x + m_n, x1);
+        copy(m_x.begin(), m_x.end(), x1);
     }
     if (m > 0 && jac.nEvals() == j0) {
         m = 100;
     }
-    releaseWorkArray(x);
-    releaseWorkArray(stp);
-    releaseWorkArray(stp1);
     m_elapsed += (clock() - t0)/(1.0*CLOCKS_PER_SEC);
     return m;
-}
-
-doublereal* MultiNewton::getWorkArray()
-{
-    doublereal* w = 0;
-
-    if (!m_workarrays.empty()) {
-        w = m_workarrays.back();
-        m_workarrays.pop_back();
-    } else {
-        w = new doublereal[m_n];
-    }
-    return w;
-}
-
-void MultiNewton::releaseWorkArray(doublereal* work)
-{
-    m_workarrays.push_back(work);
 }
 
 } // end namespace Cantera
