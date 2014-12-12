@@ -75,8 +75,10 @@ void popError();
  * On the Mac, directory '/Applications/Cantera/data' is added to the
  * search path.
  *
- * On any platform, if environment variable CANTERA_DATA is set to a
- * directory name, then this directory is added to the search path.
+ * On any platform, if environment variable CANTERA_DATA is set to a directory
+ * name or a list of directory names separated with the OS-dependent path
+ * separator (i.e. ";" on Windows, ":" elsewhere), then these directories will
+ * be added to the search path.
  *
  * Finally, the location where the data files were installed when
  * %Cantera was built is added to the search path.
