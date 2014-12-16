@@ -541,9 +541,8 @@ void MultiTransport::updateThermal_T()
      *       Chemkin has traditionally subtracted 1.5 here (SAND86-8246).
      *       The original Dixon-Lewis paper subtracted 1.5 here.
      */
-    vector_fp cp_R_all(m_thermo->nSpecies());
-    m_thermo->getCp_R_ref(&cp_R_all[0]);
-    const vector_fp& cp = cp_R_all;
+    vector_fp cp(m_thermo->nSpecies());
+    m_thermo->getCp_R_ref(&cp[0]);
     
     for (size_t k = 0; k < m_nsp; k++) {
         m_cinternal[k] = cp[k] - 2.5;
