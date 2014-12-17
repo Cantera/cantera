@@ -1,0 +1,29 @@
+ELEMENTS
+H  C   AR
+END
+
+SPECIES
+H
+R1A R1B P1
+R2 P2A P2B
+R3 P3A P3B
+R4 P4
+R6 P6A P6B
+END
+
+REACTIONS
+
+R1A+R1B = P1+H             1.0E18   -2.0   1000
+R2+H = P2A+P2B             2.3E15   -1.0    500
+R3+H+M = P3A+P3B+M         4.0E21    0.0   2400
+    H/2/
+R4 = P4                    1.0E12    2.0   1800
+R6(+M) = P6A + P6B(+M)      2.0E3    0.0   1500
+    LOW  /  3.0E24    -0.400  900.00/
+    TROE / 0.650 7050. 123.0/
+    DUPLICATE
+P6A + P6B(+M) = R6(+M)     4.0E12    2.0   1500
+    LOW  /  3.0E36    -1.400  900.00/
+    TROE / 0.650 7050. 123.0/
+    DUPLICATE
+END

@@ -1,0 +1,22 @@
+import os
+env = Environment(ENV = os.environ)
+
+env['F77'] = '@F77@'
+env['CC'] = '@CC@'
+env.Append(FFLAGS='-g',
+           CCFLAGS='-g',
+           CPPPATH=@tmpl_cantera_incdirs@,
+           LIBS=@tmpl_cantera_libs@,
+           LIBPATH=@tmpl_cantera_libdirs@,
+           LINKFLAGS=@tmpl_cantera_linkflags@,
+           FRAMEWORKS=@tmpl_cantera_frameworks@)
+
+ctlib = env.Object('demo_ftnlib.cpp')
+
+demo = env.Program('demo', [ctlib, 'demo.f'],
+                   LINK='$F77')
+isentropic = env.Program('isentropic', [ctlib, 'isentropic.f'],
+                         LINK='$F77')
+
+Default(demo)
+Default(isentropic)

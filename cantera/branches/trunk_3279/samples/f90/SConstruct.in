@@ -1,0 +1,13 @@
+import os
+env = Environment(ENV = os.environ)
+
+env['F90'] = '@F90@'
+env.Append(FFLAGS='-g',
+           F90PATH=@tmpl_cantera_incdirs@,
+           LIBS=@tmpl_cantera_libs@,
+           LIBPATH=@tmpl_cantera_libdirs@,
+           LINKFLAGS=@tmpl_cantera_linkflags@,
+           FRAMEWORKS=@tmpl_cantera_frameworks@)
+
+program = env.Program('@tmpl_progname@', '@tmpl_sourcename@')
+Default(program)

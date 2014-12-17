@@ -1,0 +1,44 @@
+Gas Temperature = 1.4e+03
+Gas Pressure    = 1.01e+05
+Gas Phase:  gas   (0)
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                        H      8.69602e-05     0.00999001   -2.365619e-03
+   1                       N2       0.00773858       0.889011    0.000000e+00
+   2                      CH3                0              0    0.000000e+00
+   3                      CH4      8.69601e-05     0.00999001    0.000000e+00
+   4                     C2H2      8.69602e-05     0.00999001   -1.007791e-04
+   5                       H2      0.000347841        0.03996    1.282498e-03
+   6                       OH      8.69602e-07    9.99001e-05   -7.542502e-05
+   7                      H2O      0.000347841        0.03996    3.880308e-05
+   8                       CO                0              0    3.843405e-05
+   9                       O2      8.69602e-06    0.000999001   -9.060640e-07
+Sum of gas mole fractions= 1
+
+Bulk Phase:  soot   (10)
+Bulk Temperature = 1.4e+03
+Bulk Pressure    = 1.01e+05
+                       Name           Conc              MoleF       SrcRate 
+                                    (kmol/m^3)                   (kmol/m^2/s) 
+   0                   CB-CB3          293.065              1    1.631241e-04
+Bulk Weight Growth Rate = 0.00196 kg/m^2/s
+Bulk Growth Rate = 5.57e-07 m/s
+Bulk Growth Rate = 2e+03 microns / hour
+Density of bulk phase = 3.52e+03 kg / m^3 
+                      = 3.52 gm / cm^3 
+Sum of bulk mole fractions= 1
+
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*        0.0184677     0.000000e+00
+   1                  Csoot-H         0.981532     0.000000e+00
+Sum of coverages = 1
+Surface Phase:  soot_interface (11)
+Surface Temperature = 1.4e+03
+Surface Pressure    = 1.01e+05
+                       Name         Coverage         SrcRate 
+   0                  Csoot-*        0.0184677     0.000000e+00
+   1                  Csoot-H         0.981532     0.000000e+00
+Sum of coverages = 1

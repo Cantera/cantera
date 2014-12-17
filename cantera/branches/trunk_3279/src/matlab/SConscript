@@ -1,0 +1,108 @@
+from buildutils import *
+
+Import('env', 'build', 'install')
+
+localenv = env.Clone()
+linkflags = []
+
+matlab_include = pjoin(localenv['matlab_path'], 'extern', 'include')
+
+if localenv['OS'] == 'Windows':
+    linklibs = list(env['cantera_shared_libs'])
+    linklibs += ['libmx', 'libmex', 'libmat']
+    if localenv['OS_BITS'] == 32:
+        matlab_libs = pjoin(localenv['matlab_path'], 'extern',
+                            'lib' ,'win32', 'microsoft')
+        mexSuffix = '.mexw32'
+    else:
+        matlab_libs = pjoin(localenv['matlab_path'], 'extern',
+                    'lib' ,'win64', 'microsoft')
+        mexSuffix = '.mexw64'
+
+    if localenv['CC'] == 'cl':
+        linkflags.append('/export:mexFunction')
+        machtype = 'X64' if localenv['OS_BITS'] == 64 else 'X86'
+        linkflags.append('/MACHINE:' + machtype)
+    elif localenv['CC'] == 'gcc':
+        linkflags.append('-Wl,--export-all-symbols')
+
+elif localenv['OS'] == 'Darwin':
+    linklibs = list(env['cantera_libs'])
+    linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
+    linkflags.extend(['-Wl,-exported_symbol,_mexFunction'])
+
+    if localenv['OS_BITS'] == 64:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'maci64')
+        mexSuffix = '.mexmaci64'
+    else:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'macx86')
+        mexSuffix = '.mexmaci'
+
+elif os.name == 'posix':
+    linklibs = list(env['cantera_libs'])
+    linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
+
+    if localenv['OS_BITS'] == 64:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'glnxa64')
+        mexSuffix = '.mexa64'
+    else:
+        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'glnx86')
+        mexSuffix = '.mexglx'
+
+    linkflags.extend(['-Wl,--no-undefined',
+                      '-Wl,--version-script,src/matlab/mexFunction.map'])
+
+localenv.Prepend(CPPPATH=['#include', '#src', matlab_include])
+localenv.Append(CPPDEFINES=['MATLAB_MEX_FILE'],
+                LIBPATH=[matlab_libs],
+                LINKFLAGS=linkflags)
+
+linklibs += localenv['sundials_libs']
+linklibs += localenv['blas_lapack_libs']
+
+ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
+                                         mglob(localenv, '.', 'cpp'),
+                                         LIBPREFIX='',
+                                         SHLIBPREFIX='',
+                                         SHLIBSUFFIX=mexSuffix,
+                                         LIBS=linklibs))
+
+if localenv['OS'] in ('Windows', 'Darwin'):
+    localenv.Depends(ctmethods, localenv['cantera_shlib'])
+else:
+    localenv.Depends(ctmethods, localenv['cantera_staticlib'])
+
+env['matlab_extension'] = ctmethods
+
+### Install the Matlab toolbox ###
+
+# 'ctpath.m'
+globalenv = env
+def copy_var(target, source, env):
+    if env['python_prefix'] == 'USER':
+        env['python_module_loc_sc'] = ''
+    else:
+        env['python_module_loc_sc'] = globalenv['python_module_loc']
+
+target = localenv.SubstFile('#interfaces/matlab/ctpath.m',
+                            '#interfaces/matlab/ctpath.m.in')
+localenv.AddPreAction(target, copy_var)
+localenv.Depends(target, env['install_python2_action'])
+install('$inst_matlab_dir', target)
+
+# 'Contents.m'
+contents = localenv.SubstFile('#interfaces/matlab/Contents.m',
+                              '#interfaces/matlab/Contents.m.in')
+install('$inst_matlab_dir', contents)
+
+# 'cantera_demos.m'
+install('$inst_matlab_dir', '#samples/matlab/cantera_demos.m')
+install(localenv.RecursiveInstall, '$inst_matlab_dir',
+        '#interfaces/matlab/toolbox',
+        exclude=['dll$', 'exp$', 'lib$', 'ilk$', 'manifest$'])
+install(localenv.RecursiveInstall, '$inst_sampledir/matlab', '#samples/matlab')
+
+if os.name == 'nt':
+    shlib = [f for f in localenv['cantera_shlib']
+             if f.name.endswith('dll')]
+    install('$inst_matlab_dir', shlib)

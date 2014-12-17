@@ -1,0 +1,18 @@
+
+
+**** WARNING ****
+For species SI2H6, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  49.5493.
+	Value computed using high-temperature polynomial: 49.7214.
+
+
+**** WARNING ****
+For species SI3H8, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  65.9731.
+	Value computed using high-temperature polynomial: 66.2781.
+
+
+**** WARNING ****
+For species SI2, discontinuity in s/R detected at Tmid = 1000
+	Value computed using low-temperature polynomial:  32.8813.
+	Value computed using high-temperature polynomial: 32.9489.

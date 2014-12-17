@@ -1,0 +1,67 @@
+from buildutils import *
+
+Import('env', 'build', 'install', 'buildSample')
+
+# (subdir, program name, [source extensions])
+samples = [('combustor', 'combustor', ['cpp']),
+           ('flamespeed', 'flamespeed', ['cpp']),
+           ('kinetics1', 'kinetics1', ['cpp']),
+           ('NASA_coeffs', 'NASA_coeffs', ['cpp']),
+           ('rankine', 'rankine', ['cpp'])]
+
+if env['CC'] == 'cl':
+    debug_link_flag = '/DEBUG'
+    compilerFlags = ['/EHsc', '/MD', '/nologo', '/W3',
+                     '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
+else:
+    debug_link_flag = '-g'
+    compilerFlags = ['-g', '-Wall']
+
+for subdir, name, extensions in samples:
+    localenv = env.Clone()
+    buildSample(localenv.Program, pjoin(subdir, name),
+                mglob(localenv, subdir, *extensions),
+                CPPPATH=['#include'],
+                LIBS=env['cantera_libs'])
+
+    # Note: These Makefiles and SConstruct files are automatically installed
+    # by the "RecursiveInstall" that grabs everything in the cxx directory.
+
+    ## Generate Makefiles to be installed
+    localenv['make_sourcefile'] = '%s.cpp' % name
+    localenv['make_target'] = name
+
+    mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
+    if ' ' in mak_path:
+        # There is no reasonable way to handle spaces in Makefile 'include'
+        # statement, so we fall back to using the relative path instead
+        mak_path = os.path.relpath(mak_path, pjoin(localenv['ct_sampledir'], 'cxx', subdir))
+    localenv['make_Cantera_dot_mak'] = mak_path
+
+    makefile = build(localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in'))
+    install(pjoin('$inst_sampledir', 'cxx', subdir), makefile)
+
+    ## Generate SConstruct files to be installed
+    incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
+               localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
+    libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
+               localenv['blas_lapack_dir'], localenv['boost_lib_dir']) +
+               tuple(localenv['extra_lib_dirs']))
+    linkflags = (debug_link_flag, localenv['thread_flags'])
+    localenv['tmpl_compiler_flags'] = repr(compilerFlags)
+    localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
+    localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
+    localenv['tmpl_cantera_libs'] = repr(localenv['cantera_libs'])
+    localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
+    localenv['tmpl_cantera_linkflags'] = repr([x for x in linkflags if x])
+    localenv['tmpl_progname'] = name
+    localenv['tmpl_sourcename'] = name + '.cpp'
+    env_args = []
+    if localenv['TARGET_ARCH'] is not None:
+        env_args.append('TARGET_ARCH={0!r}'.format(localenv['TARGET_ARCH']))
+    if 'MSVC_VERSION' in localenv:
+        env_args.append('MSVC_VERSION={0!r}'.format(localenv['MSVC_VERSION']))
+    localenv['tmpl_env_args'] = ', '.join(env_args)
+
+    sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
+    install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)

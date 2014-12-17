@@ -1,0 +1,81 @@
+from buildutils import *
+
+Import('env', 'build', 'install', 'libraryTargets')
+
+def defaultSetup(env, subdir, extensions):
+    return mglob(env, subdir, *extensions)
+
+def baseSetup(env, subdir, extensions):
+    escaped_datadir = '\\"' + env['ct_datadir'].replace('\\', '\\\\') + '\\"'
+    env.Append(CPPDEFINES={'CANTERA_DATA': escaped_datadir})
+    return defaultSetup(env, subdir, extensions)
+
+def equilSetup(env, subdir, extensions):
+    env.Append(CPPPATH=['#ext/f2c_libs'])
+    return defaultSetup(env, subdir, extensions)
+
+def numericsSetup(env, subdir, extensions):
+    if env['use_sundials'] == 'y':
+        remove = 'CVodeInt.cpp'
+    else:
+        remove = 'CVodesIntegrator.cpp'
+    return [s for s in mglob(env, subdir, *extensions)
+            if s.name != remove]
+
+# (subdir, (file extensions), (extra setup(env)))
+libs = [('base', ['cpp'], baseSetup),
+        ('thermo', ['cpp'], defaultSetup),
+        ('tpx', ['cpp'], defaultSetup),
+        ('equil', ['cpp','c'], equilSetup),
+        ('numerics', ['cpp'], numericsSetup),
+        ('kinetics', ['cpp'], defaultSetup),
+        ('transport', ['cpp'], defaultSetup),
+        ('oneD', ['cpp'], defaultSetup),
+        ('zeroD', ['cpp'], defaultSetup),
+        ('clib', ['cpp'], defaultSetup),
+        ]
+
+for subdir, extensions, setup in libs:
+    localenv = env.Clone()
+    localenv.Prepend(CPPPATH=Dir('#include'))
+    localenv.Append(CCFLAGS=env['warning_flags'])
+    source = setup(localenv, subdir, extensions)
+    objects = localenv.SharedObject(source)
+    localenv.Depends(objects, localenv['config_h_target'])
+    libraryTargets.extend(objects)
+
+
+# build the Cantera static library
+localenv = env.Clone()
+lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
+                                   SPAWN=getSpawn(localenv)))
+localenv.Depends(lib, localenv['config_h_target'])
+install('$inst_libdir', lib)
+env['cantera_staticlib'] = lib
+
+# Windows and OS X require shared libraries at link time
+if localenv['OS'] in ('Darwin', 'Windows', 'Cygwin'):
+    localenv.Append(LIBS=localenv['FORTRANSYSLIBS'])
+    if (localenv['use_sundials'] == 'y'):
+        localenv.Append(LIBS=localenv['sundials_libs'],
+                        LIBPATH=localenv['sundials_libdir'])
+    if localenv['blas_lapack_libs']:
+        localenv.Append(LIBS=localenv['blas_lapack_libs'],
+                        LIBPATH=localenv['blas_lapack_dir'])
+    if localenv['boost_libs']:
+        localenv.Append(LIBS=localenv['boost_libs'],
+                        LIBPATH=localenv['boost_lib_dir'])
+
+# Build the Cantera shared library using the correct name
+if localenv['layout'] != 'debian':
+    # Define the name according to the environmental variable
+    if localenv['renamed_shared_libraries'] == True:
+        sharedName = '../lib/cantera_shared'
+    else:
+        sharedName = '../lib/cantera'
+
+    lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
+                                       SPAWN=getSpawn(localenv)))
+    install('$inst_libdir', lib)
+    env['cantera_shlib'] = lib
+    localenv.Depends(lib, localenv['config_h_target'])

@@ -1,0 +1,60 @@
+
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+                   
+  <phase dim="3" id="Soln_Maskell9">
+    <elementArray datasrc="elements.xml">
+       H He
+    </elementArray>
+    <speciesArray datasrc="#species_Soln"> 
+        H(s) He(s) 
+    </speciesArray>
+    <thermo model="MaskellSolidSolnPhase">
+      <h_mix>-1000.</h_mix>
+      <product_species>H(s)</product_species>
+    </thermo>
+    <kinetics model="none"/>
+    <state>
+       <temperature> 298.15 </temperature>
+       <pressure units="atm"> 1.0 </pressure>
+       <moleFractions> 
+          H(s):0.90   He(s):0.10
+       </moleFractions>
+    </state>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_Soln">
+    <species name="H(s)">
+      <atomArray> H:1 He:2 </atomArray>
+      <thermo>     
+        <const_cp Pref="1 bar" Tmax="800." Tmin="250.0">
+          <t0>1</t0>
+          <h0>0</h0>
+          <s0>0</s0>
+          <cp0>0</cp0>
+        </const_cp>
+      </thermo>
+       <standardState  model="constant_incompressible">
+          <molarVolume units="m3/kmol"> 0.005 </molarVolume>
+      </standardState>
+    </species>
+
+    <species name="He(s)">
+      <atomArray> H:0 He:1 </atomArray>
+      <thermo>
+        <const_cp Pref="1 bar" Tmax="800." Tmin="250.0">
+          <t0>1</t0>
+          <h0>1000</h0>
+          <s0>0</s0>
+          <cp0>0</cp0>
+        </const_cp>
+      </thermo> 
+      <standardState  model="constant_incompressible">
+          <molarVolume units="m3/kmol"> 0.01 </molarVolume>
+      </standardState>
+    </species>
+  </speciesData>
+
+</ctml>

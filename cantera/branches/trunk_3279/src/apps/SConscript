@@ -1,0 +1,18 @@
+from buildutils import *
+
+Import('env', 'build', 'install')
+localenv = env.Clone()
+localenv.Prepend(CPPPATH=['#include', '#src/apps'])
+
+def buildProgram(name, src):
+    prog = build(localenv.Program(target=pjoin('#build/bin', name),
+                                  source=src,
+                                  LIBS=env['cantera_libs']))
+    install('$inst_bindir', prog)
+
+if env['layout'] != 'debian':
+    buildProgram('csvdiff', ['csvdiff.cpp', 'tok_input_util.cpp', 'mdp_allo.cpp'])
+
+# Copy man pages
+if env['INSTALL_MANPAGES']:
+    install('$inst_mandir', mglob(localenv, '#platform/posix/man', '*'))

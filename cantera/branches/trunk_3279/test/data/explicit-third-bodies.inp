@@ -1,0 +1,38 @@
+ELEMENTS
+H  C   AR
+END
+
+SPECIES
+H
+R1A R1B P1
+R2 SP)X
+END
+
+THERMO
+   300.000  1000.000  5000.000
+SP)X                    C   1H   3          G   200.000  3500.000  1000.000    1
+ 7.48514950E-02 1.33909467E-02-5.73285809E-06 1.22292535E-09-1.01815230E-13    2
+-9.46834459E+03 1.84373180E+01 5.14987613E+00-1.36709788E-02 4.91800599E-05    3
+-4.84743026E-08 1.66693956E-11-1.02466476E+04-4.64130376E+00                   4
+END
+
+REACTIONS
+
+R1A+R1B+m = P1+H+M                  3.0E19   -2.0   1900 ! An end of line comment
+  DUPLICATE
+
+R1A+R1B(+ M ) = P1+H(+m)            1.0E18   -2.0   1000
+  LOW/4.0E25 -3.0 0/
+  R2/0.0/ SP)X/0/
+  DUPLICATE
+
+R1A+R1B(+R2) = P1+H(+ R2)          2.0E18   -3.0   1200
+  LOW/3.0E25 -2.0 0/
+  DUPLICATE
+
+! A really pathological species name
+R1A+R1B(+SP)X) = P1+H(+SP)X)      3.0E18   -1.0   1400
+  LOW/1.0E25 -1.0 0/
+  DUPLICATE
+! A comment after the last reaction
+END

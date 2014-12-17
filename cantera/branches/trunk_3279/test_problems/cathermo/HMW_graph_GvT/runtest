@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+#
+temp_success="1"
+/bin/rm  -f output.txt outputa.txt
+
+##########################################################################
+prog=HMW_graph_GvT
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit 1
+fi
+##########################################################################
+/bin/rm -f test.out test.diff   output.txt
+
+#################################################################
+#
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+#################################################################
+
+./$prog HMW_NaCl_sp1977_alt.xml > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="0"
+  echo "$prog returned with bad status, $retnStat, check output"
+  exit 1
+fi
+
+$CANTERA_BIN/exp3to2.sh output.txt > outputa.txt
+diff -w outputa.txt output_blessed.txt > diff_test.out
+retnStat=$?
+if [ $retnStat = "0" ]
+then
+  echo "successful diff comparison on $prog test"
+  exit 0
+else
+  echo "unsuccessful diff comparison on $prog test"
+  echo "FAILED" > csvCode.txt
+  temp_success="0"
+  exit 0
+fi
+

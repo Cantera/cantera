@@ -1,0 +1,60 @@
+""" Minimal Python Module for Python 2 """
+from buildutils import *
+
+Import('env', 'build', 'install')
+
+localenv = env.Clone()
+
+script_ext = '.py' if os.name == 'nt' else ''
+
+make_setup = build(localenv.SubstFile('setup.py', 'setup.py.in'))
+
+# copy scripts from the full Cython module
+for script in ['ctml_writer', 'ck2cti']:
+    # The actual script
+    s = build(env.Command('cantera/%s.py' % script,
+                          '#interfaces/cython/cantera/%s.py' % script,
+                          Copy('$TARGET', '$SOURCE')))
+    # thin wrapper
+    w = build(env.Command('scripts/%s%s' % (script, script_ext),
+                          '#interfaces/cython/scripts/%s.py.in' % script,
+                          Copy('$TARGET', '$SOURCE')))
+    localenv.Depends(make_setup, s)
+    localenv.Depends(make_setup, w)
+
+    # Name used in setup.py
+    localenv['py_%s' % script] = repr('scripts/%s%s' % (script, script_ext))
+    localenv['py_%s' % script] = repr('scripts/%s%s' % (script, script_ext))
+
+build_cmd = ('cd interfaces/python_minimal &&'
+             ' $python_cmd_esc setup.py build --build-lib=../../build/python2')
+
+mod = build(localenv.Command('#build/python2/cantera/__init__.py',
+                             'setup.py',
+                             build_cmd))
+env['python2_module'] = mod
+
+if localenv['PYTHON_INSTALLER'] == 'direct':
+    if localenv['python_prefix'] == 'USER':
+        # Install to the OS-dependent user site-packages directory
+        extra = '--user'
+    elif localenv['python_prefix']:
+        # A specific location for the Cantera python module has been specified
+        extra = '--prefix="%s"' % localenv['python_prefix']
+    else:
+        # Install Python module in the default location
+        extra = ''
+    mod_inst = install(localenv.Command, 'dummy', mod,
+                       build_cmd + ' install %s' % extra +
+                       ' --record ../../build/python2-installed-files.txt')
+    global_env = env
+    def find_module_dir(target, source, env):
+        check = pjoin('cantera','__init__.py')
+        for filename in open('build/python2-installed-files.txt').readlines():
+            filename = filename.strip()
+            if filename.endswith(check):
+                filename = filename.replace(check,'')
+                global_env['python_module_loc'] = os.path.normpath(filename)
+                break
+    localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
+    env['install_python2_action'] = mod_inst

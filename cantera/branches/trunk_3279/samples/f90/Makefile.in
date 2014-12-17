@@ -1,0 +1,25 @@
+include @tmpl_Cantera_dot_mak@
+
+F90=@F90@
+RM=rm -f
+F90FLAGS=-g
+F90MODDIR=$(CANTERA_FORTRAN_MODS)
+LDFLAGS=
+LDLIBS=$(CANTERA_FORTRAN_LIBS)
+
+SRCS=@make_sourcefile@
+OBJS=$(subst .f90,.o,$(SRCS))
+
+all: @make_target@
+
+@make_target@: $(OBJS)
+	$(F90) $(LDFLAGS) -o @make_target@ $(OBJS) $(LDLIBS)
+
+%.o : %.f90
+	$(F90) -c $< @FORTRANMODDIRPREFIX@$(F90MODDIR) $(F90FLAGS)
+
+clean:
+	$(RM) $(OBJS)
+
+dist-clean: clean
+	$(RM) *~

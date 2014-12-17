@@ -1,0 +1,23 @@
+! This artificial reaction mechanism is extracted from the MIT soot
+! mechanism of Prof. Jack Howard. This is used to test Cantera's
+! ability to handle the extensions to the Chemkin format used to
+! specify very large molecules, and also to test the parsing of
+! non-integral stoichiometric coefficients.
+!
+ELEMENTS H O C END
+SPECIES
+H H2 C6H5 A1C2HJ2 C10H7J1 C10H7J2 A2CH2-1 A2CH2-2 BIN5 BIN6
+END
+!
+! Rate coefficients in form k=A*Tn*exp(-E/RT)
+! Units: moles, ccm, seconds, Kelvins and calories per mole)
+!
+!
+REACTIONS
+C6H5+BIN5=>.9846153846BIN5+1.53846154E-2BIN6+  1.0769H2+H             .562E+13    .500        .0
+A1C2HJ2+BIN5=>.9794871795BIN5+.0205128205BIN6+     .7692H2+H          .510E+13    .500        .0
+C10H7J1+BIN5=>.9743589744BIN5+.0256410256BIN6+    1.4615H2+H          .472E+13    .500        .0
+C10H7J2+BIN5=>9.743589744E-1BIN5+.0256410256BIN6+ 1.4615H2+H          .472E+13    .500        .0
+A2CH2-1+BIN5=>.9717948718BIN5+.0282051282BIN6+    2.3077H2+H          .456E+13    .500        .0
+A2CH2-2+BIN5=>.9717948718BIN5+.0282051282BIN6+    2.3077H2+H          .456E+13    .500        .0
+END

@@ -1,0 +1,55 @@
+.TH "ck2cti" 1 "4 Jun 2012" "ck2cti" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ck2cti \- convert Chemkin-II-format mechanisms to Cantera input files (.cti)
+
+.SH SYNOPSIS
+.B ck2cti
+--input=\fImech-file\fR
+[--thermo=\fIthermo-file\fR]
+[--transport=\fItransport-file\fR]
+[--id=\fIphase-id\fR]
+[--output=\fIout-file\fR]
+[-d | --debug]
+
+.SH DESCRIPTION
+
+.I ck2cti
+converts a Chemkin-II-format reaction mechanism file to Cantera input
+format.  The resulting Cantera input file contains a definition of one
+.B ideal_gas
+entry that represents an ideal gas mixture corresponding to the
+Chemkin-II reaction mechanism. The file also contains Cantera-format
+definitions for each species and each reaction in the input reaction
+mechanism file.  The Cantera-format mechanism is written to 
+.I out-file
+
+The parameters are as follows:
+.TP
+.B --input=\fImech-file\fR
+Chemkin-II reaction mechanism file to be converted. Required. This
+file must contain the declarations of the elements and species, as
+well as the reactions (if any). It may also contain the thermodyamic
+and transport data.
+.TP
+.B --thermo=\fIthermo-file\fR
+Thermodynamic property database. If the THERMO section of the input
+file is missing or does not have entries for one or more species, this
+file will be searched for the required thermo data.
+.TP
+.B --transport=\fItransport-file\fR
+Transport property database. If this file name is supplied, transport
+property parameters will be taken from this file and included in the
+output Cantera-format file. If this parameter is omitted, and no
+TRANSPORT section was included in the main input file, no transport
+property parameters will be included in the output.
+.TP
+.B --id=\fIphase-id\fR
+Optional identification string, used to set the \fIid\fR field of the
+\fBideal_gas\fR entry in the Cantera-format output. If this parameter
+is omitted, it will be set to
+.B gas
+
+.SH EXAMPLE
+ck2cti --input=chem.inp --thermo=therm.dat --transport=tran.dat
