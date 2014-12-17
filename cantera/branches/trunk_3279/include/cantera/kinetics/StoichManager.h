@@ -9,6 +9,7 @@
 
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
+#include <cstdio>
 
 namespace Cantera
 {
@@ -762,48 +763,7 @@ public:
      *                 on the product side of irreversible reactions.
      */
     void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
-             const vector_fp& stoich) {
-        if (order.size() != k.size()) {
-           throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");    
-        }
-        if (stoich.size() != k.size()) {
-           throw CanteraError("StoichManagerN::add()", "size of stoich and species arrays differ");    
-        }
-        bool frac = false;
-        for (size_t n = 0; n < stoich.size(); n++) {
-            if (fmod(stoich[n], 1.0) || fmod(order[n], 1.0)) {
-                frac = true;
-                break;
-            }
-        }
-        if (frac || k.size() > 3) {
-            m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
-        } else {
-            // Try to express the reaction with unity stoichiometric
-            // coefficients (by repeating species when necessary) so that the
-            // simpler 'multiply' function can be used to compute the rate
-            // instead of 'power'.
-            std::vector<size_t> kRep;
-            for (size_t n = 0; n < k.size(); n++) {
-                for (size_t i = 0; i < stoich[n]; i++)
-                    kRep.push_back(k[n]);
-            }
-
-            switch (kRep.size()) {
-            case 1:
-                m_c1_list.push_back(C1(rxn, kRep[0]));
-                break;
-            case 2:
-                m_c2_list.push_back(C2(rxn, kRep[0], kRep[1]));
-                break;
-            case 3:
-                m_c3_list.push_back(C3(rxn, kRep[0], kRep[1], kRep[2]));
-                break;
-            default:
-                m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
-            }
-        }
-    }
+             const vector_fp& stoich);
 
     void multiply(const doublereal* input, doublereal* output) const {
         _multiply(m_c1_list.begin(), m_c1_list.end(), input, output);

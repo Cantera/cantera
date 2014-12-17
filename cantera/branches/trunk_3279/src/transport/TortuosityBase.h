@@ -73,10 +73,9 @@ public:
     //! The tortuosity factor models the effective increase in the
     //! diffusive transport length.
     /*!
-     * This method returns \f$ 1/\tau^2 \f$ in the description of the  flux
+     * This method returns \f$ 1/\tau^2 \f$ in the description of the superficial flux
      *
-     *    \f$  C_T D_i \nabla X_i / \tau^2 \f$.
-     *
+     *    \f$ N_i = C_T D_i \nabla X_i / \tau^2 \f$.
      *
      */
     virtual doublereal tortuosityFactor(doublereal porosity);

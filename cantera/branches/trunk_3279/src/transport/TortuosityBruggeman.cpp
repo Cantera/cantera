@@ -65,8 +65,9 @@ TortuosityBase* TortuosityBruggeman::duplMyselfAsTortuosityBase() const
 /*
  * This method returns \f$ 1/\tau^2 \f$ in the description of the  flux
  *
- *    \f$  C_T D_i \nabla X_i / \tau^2 \f$.
+ *    \f$ \phi C_T D_i \nabla X_i / \tau^2 \f$.
  *
+ * where \f$ \phi \$ is the porosity of the media
  *
  */
 doublereal TortuosityBruggeman::tortuosityFactor(doublereal porosity)

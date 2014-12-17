@@ -209,9 +209,6 @@ Elements::Elements() :
     m_elem_type(0),
     numSubscribers(0)
 {
-    warn_deprecated("class Elements",
-        "Functionality is now part of class Phase. "
-        "To be removed after Cantera 2.2.");
 }
 
 /*

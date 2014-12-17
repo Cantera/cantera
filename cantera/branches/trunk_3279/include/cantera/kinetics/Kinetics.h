@@ -928,13 +928,16 @@ protected:
      */
     std::vector<std::vector<size_t> > m_products;
 
-    //!  m_rrxn is a vector of maps, containing the reactant
-    //!  stoichiometric coefficient information
+    //!  m_rrxn is a vector of maps, containing the reactant stoichiometric coefficient information
     /*!
      *  m_rrxn has a length equal to the total number of species in the
      *  kinetics object. For each species, there exists a map, with the
      *  reaction number being the key, and the reactant stoichiometric
      *  coefficient for the species being the value.
+     *
+     *   The map's key is the reaction index. The value is the reactant stoichiometric index
+     *   Therefore, m_rrxn[kKin][irxn] 
+     *         refers to the stoichiometric index of the kKin reactant 
      */
     std::vector<std::map<size_t, doublereal> > m_rrxn;
 

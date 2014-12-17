@@ -10,6 +10,7 @@
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/kinetics/AqueousKinetics.h"
+#include "cantera/kinetics/ElectrodeKinetics.h"
 #include "cantera/base/xml.h"
 
 using namespace std;
@@ -20,9 +21,9 @@ namespace Cantera
 KineticsFactory* KineticsFactory::s_factory = 0;
 mutex_t KineticsFactory::kinetics_mutex;
 
-static int ntypes = 5;
-static string _types[] = {"none", "GasKinetics", "Interface", "Edge", "AqueousKinetics"};
-static int _itypes[]   = {0, cGasKinetics, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics};
+static int ntypes = 6;
+static string _types[] = {"none", "GasKinetics", "Interface", "Edge", "AqueousKinetics", "ElectrodeKinetics"};
+static int _itypes[]   = {0, cGasKinetics, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics, cElectrodeKinetics};
 
 Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
                                        vector<ThermoPhase*> th)
@@ -55,23 +56,27 @@ Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
     switch (ikin) {
 
     case 0:
-        k = new Kinetics;
+        k = new Kinetics();
         break;
 
     case cGasKinetics:
-        k = new GasKinetics;
+        k = new GasKinetics();
         break;
 
     case cInterfaceKinetics:
-        k = new InterfaceKinetics;
+        k = new InterfaceKinetics();
         break;
 
     case cEdgeKinetics:
-        k = new EdgeKinetics;
+        k = new EdgeKinetics();
         break;
 
     case cAqueousKinetics:
-        k = new AqueousKinetics;
+        k = new AqueousKinetics();
+        break;
+
+     case cElectrodeKinetics:
+        k = new ElectrodeKinetics();
         break;
 
     default:
@@ -101,12 +106,18 @@ Kinetics* KineticsFactory::newKinetics(const string& model)
     switch (ikin) {
 
     case cGasKinetics:
-        k = new GasKinetics;
+        k = new GasKinetics();
         break;
 
     case cInterfaceKinetics:
-        k = new InterfaceKinetics;
+        k = new InterfaceKinetics();
         break;
+
+    case cElectrodeKinetics:
+        k = new ElectrodeKinetics();
+
+    case cAqueousKinetics:
+	k = new AqueousKinetics();
 
     default:
         throw UnknownKineticsModel("KineticsFactory::newKinetics",

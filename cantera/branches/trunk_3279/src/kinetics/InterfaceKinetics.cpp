@@ -720,6 +720,7 @@ void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
 
 void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
 {
+   updateMu0();
     /*
      *  Get the standard state chemical potentials of the species.
      *  This is the array of chemical potentials at unit activity
@@ -778,7 +779,7 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
      */
     getReactionDelta(DATA_PTR(m_grt), deltaS);
 }
-
+//================================================================================================
 void InterfaceKinetics::addReaction(ReactionData& r)
 {
     int reactionType = r.reactionType;

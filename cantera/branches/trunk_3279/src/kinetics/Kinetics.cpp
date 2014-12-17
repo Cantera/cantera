@@ -287,6 +287,7 @@ void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
     // products add
     m_revProductStoich.incrementReactions(prop, deltaProp);
     // reactants subtract
+    // This is broken for irreversible reactions, because it will write into the index.
     m_reactantStoich.decrementReactions(prop, deltaProp);
 }
 
@@ -373,27 +374,37 @@ void Kinetics::finalize()
 }
 
 void Kinetics::addReaction(ReactionData& r) {
+    //
     // vectors rk and pk are lists of species numbers, with repeated entries
     // for species with stoichiometric coefficients > 1. This allows the
     // reaction to be defined with unity reaction order for each reactant, and
     // so the faster method 'multiply' can be used to compute the rate of
     // progress instead of 'power'.
+    //
     std::vector<size_t> rk;
     for (size_t n = 0; n < r.reactants.size(); n++) {
         double nsFlt = r.rstoich[n];
         size_t ns = (size_t) nsFlt;
+        // If we are dealing with a noninteger stoichiometry make sure that ns is at least 1
         if ((double) ns != nsFlt) {
             ns = std::max<size_t>(ns, 1);
         }
+        size_t kKin = r.reactants[n]; 
         if (r.rstoich[n] != 0.0) {
-            m_rrxn[r.reactants[n]][m_ii] += r.rstoich[n];
+            m_rrxn[kKin][m_ii] += r.rstoich[n];
         }
         for (size_t m = 0; m < ns; m++) {
-            rk.push_back(r.reactants[n]);
+            rk.push_back(kKin);
         }
     }
+    //  
+    //  Push back the rk vector so that m_reactants has an entry for each reaction, m_ii
+    //
     m_reactants.push_back(rk);
 
+    //
+    //   Do the same for the product side
+    //
     std::vector<size_t> pk;
     for (size_t n = 0; n < r.products.size(); n++) {
         double nsFlt = r.pstoich[n];
@@ -414,19 +425,21 @@ void Kinetics::addReaction(ReactionData& r) {
     vector_fp extRStoich = r.rstoich;
     vector_fp extROrder = r.rorder;
 
-    // If the reaction order involves non-reactant species, add extra terms to
+    // If the reaction order involves reactant species with zero stoichiometries, add extra terms to
     // the reactants with zero stoichiometry so that the stoichiometry manager
     // can be used to compute the global forward reaction rate.
+    //
     if (r.forwardFullOrder_.size() > 0) {
         size_t nsp = r.forwardFullOrder_.size();
 
         // Set up a signal vector to indicate whether the species has been added
         // into the input vectors for the stoich manager
+        //
         vector_int kHandled(nsp, 0);
-
-        // Loop over the reactants which are also nonzero stoichioemtric entries
-        // making sure the forwardFullOrder_ entries take precedence over rorder
-        // entries
+        //
+        // Loop over the list of reactants which are also nonzero stoichioemtric entries
+        // making sure the forwardFullOrder_ entries take precedence over rorder entries
+        //
         for (size_t kk = 0; kk < r.reactants.size(); kk++) {
             size_t k = r.reactants[kk];
             double oo = r.rorder[kk];
@@ -440,8 +453,9 @@ void Kinetics::addReaction(ReactionData& r) {
             double of = r.forwardFullOrder_[k];
             if (of != 0.0) {
                 if (kHandled[k] == 0) {
-                    // Add extra entries to reactant inputs. Set their reactant
-                    // stoichiometric entries to zero.
+                    //
+                    // Add extra entries to reactant inputs. Set their reactant stoichiometric entries to zero.
+                    //
                     extReactants.push_back(k);
                     extROrder.push_back(of);
                     extRStoich.push_back(0.0);
@@ -450,7 +464,9 @@ void Kinetics::addReaction(ReactionData& r) {
         }
     }
 
+
     size_t irxn = nReactions();
+    
     m_reactantStoich.add(irxn, extReactants, extROrder, extRStoich);
     if (r.reversible) {
         m_revProductStoich.add(irxn, r.products, r.porder, r.pstoich);
@@ -459,18 +475,28 @@ void Kinetics::addReaction(ReactionData& r) {
     }
 
     installGroups(nReactions(), r.rgroups, r.pgroups);
+    /*
+     * Increment the reaction number, m_ii
+     */
     incrementRxnCount();
+    //
+    //  Store a string representation of the reaction
+    //
     m_rxneqn.push_back(r.equation);
     m_reactantStrings.push_back(r.reactantString);
     m_productStrings.push_back(r.productString);
     m_rxntype.push_back(r.reactionType);
+    /*
+     * Extend the reaction rate constant vectors and rates of progress vectors by one, as we are
+     * adding a new reaction. 
+     */
     m_rfn.push_back(0.0);
     m_rkcn.push_back(0.0);
     m_ropf.push_back(0.0);
     m_ropr.push_back(0.0);
     m_ropnet.push_back(0.0);
 }
-
+//==================================================================================================================
 void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,
                              const vector<grouplist_t>& p)
 {
@@ -480,5 +506,5 @@ void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,
         m_pgroups[irxn] = p;
     }
 }
-
+//===================================================================================================================
 }

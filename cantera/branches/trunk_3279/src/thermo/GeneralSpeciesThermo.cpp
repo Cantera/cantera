@@ -35,6 +35,7 @@ GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
             m_sp[iter->first].push_back(spec->duplMyselfAsSpeciesThermoInterpType());
         }
     }
+    m_speciesLoc = b.m_speciesLoc;
 }
 
 GeneralSpeciesThermo&
@@ -55,6 +56,7 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     }
 
     m_tpoly = b.m_tpoly;
+    m_speciesLoc = b.m_speciesLoc;
     m_tlow_max = b.m_tlow_max;
     m_thigh_min = b.m_thigh_min;
     m_p0 = b.m_p0;
@@ -101,8 +103,7 @@ void GeneralSpeciesThermo::install(const std::string& name,
     /*
      * Create the necessary object
      */
-    SpeciesThermoInterpType* sp = newSpeciesThermoInterpType(type,
-        minTemp_, maxTemp_, refPressure_, c);
+    SpeciesThermoInterpType* sp = newSpeciesThermoInterpType(type, minTemp_, maxTemp_, refPressure_, c);
     sp->setIndex(index);
     sp->validate(name);
     install_STIT(sp);
