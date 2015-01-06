@@ -704,6 +704,8 @@ public:
      */
     virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 
+    //!@}
+
 protected:
     //! Number of species in the phase
     size_t m_kk;

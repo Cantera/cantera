@@ -270,6 +270,7 @@ public:
 
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
+    //@}
 
 private:
     /**

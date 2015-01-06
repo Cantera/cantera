@@ -63,8 +63,6 @@ namespace Cantera
  *  Its SingleSpeciesTP::initThermo()
  *  member does check that one and only one species has been defined
  *  to occupy the phase.
- *
- *  \nosubgrouping
  */
 class SingleSpeciesTP : public ThermoPhase
 {

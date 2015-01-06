@@ -65,8 +65,6 @@ namespace Cantera
  *  multiple phases of the fluid in equilibrium with each other. This has yet to be resolved.
  *
  *  This class is usually used for non-ideal gases.
- *
- *  @nosubgrouping
  */
 class MixtureFugacityTP : public ThermoPhase
 {

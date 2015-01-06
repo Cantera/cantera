@@ -20,7 +20,6 @@ namespace Cantera
  *
  * Class StoichSubstance represents a stoichiometric (fixed composition)
  * incompressible substance.
- * \nosubgrouping
  */
 class StoichSubstance : public ThermoPhase
 {

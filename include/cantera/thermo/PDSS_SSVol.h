@@ -234,12 +234,12 @@ public:
     virtual doublereal entropy_R_ref() const;
     virtual doublereal cp_R_ref() const;
     virtual doublereal molarVolume_ref() const;
+    //! @}
 
 private:
     //! Does the internal calculation of the volume
     void calcMolarVolume() const;
 
-    //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 

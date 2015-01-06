@@ -1069,20 +1069,6 @@ public:
      */
     virtual void setState_UV(doublereal u, doublereal v, doublereal tol = 1.e-4);
 
-private:
-    //! Carry out work in HP and UV calculations.
-    /*!
-     * @param h     Specific enthalpy or internal energy (J/kg)
-     * @param p     Pressure (Pa) or specific volume (m^3/kg)
-     * @param tol   Optional parameter setting the tolerance of the calculation.
-     *              Defaults to 1.0E-4. Important for some applications where
-     *              numerical Jacobians are being calculated.
-     * @param doUV  True if solving for UV, false for HP.
-     */
-    void setState_HPorUV(doublereal h, doublereal p,
-                         doublereal tol = 1.e-4, bool doUV = false);
-
-public:
     //! Set the specific entropy (J/kg/K) and pressure (Pa).
     /*!
      * This function fixes the internal state of the phase so that
@@ -1109,7 +1095,20 @@ public:
      */
     virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
 
+    //@}
+
 private:
+    //! Carry out work in HP and UV calculations.
+    /*!
+     * @param h     Specific enthalpy or internal energy (J/kg)
+     * @param p     Pressure (Pa) or specific volume (m^3/kg)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     * @param doUV  True if solving for UV, false for HP.
+     */
+    void setState_HPorUV(doublereal h, doublereal p,
+                         doublereal tol = 1.e-4, bool doUV = false);
 
     //! Carry out work in SP and SV calculations.
     /*!
@@ -1128,8 +1127,6 @@ private:
     void setState_conditional_TP(doublereal t, doublereal p, bool set_p);
 
 public:
-
-    //@}
 
     /**
      * @name Chemical Equilibrium
