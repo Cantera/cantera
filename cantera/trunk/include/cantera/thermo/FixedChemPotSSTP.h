@@ -445,10 +445,6 @@ public:
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
 
-    //@}
-    /// @name Thermodynamic Values for the Species Reference State
-    ///
-
     /*!
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
@@ -516,6 +512,8 @@ public:
      *               Length: m_kk
      */
     virtual void getCp_R_ref(doublereal* cprt) const;
+
+    //@}
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 

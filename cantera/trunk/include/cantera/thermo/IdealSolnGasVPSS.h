@@ -33,8 +33,6 @@ const int cIdealSolnGasPhase2 = 6012;
  *
  * An ideal solution or an ideal gas approximation of a phase. Uses variable
  * pressure standard state methods for calculating thermodynamic properties.
- *
- *  @nosubgrouping
  */
 class IdealSolnGasVPSS : public VPStandardStateTP
 {

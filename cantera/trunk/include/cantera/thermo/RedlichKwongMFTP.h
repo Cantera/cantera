@@ -25,8 +25,6 @@ namespace Cantera
  *
  *  This class can handle either an ideal solution or an ideal gas approximation
  *  of a phase.
- *
- *  @nosubgrouping
  */
 class RedlichKwongMFTP : public MixtureFugacityTP
 {
