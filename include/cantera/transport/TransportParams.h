@@ -218,11 +218,11 @@ public:
 
     //! The effective dipole moment for (i,j) collisions
     /*!
-     *  tr.dipoleMoment has units of Debye's. A Debye is 10-18 cm3/2 erg1/2
+     *  dipoleMoment has units of Debye. A Debye is 3.335e-30 C-m
      *
-     *    tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
+     *    tr.dipole(i,i) = 1.e-21 / lightSpeed * dipoleMoment;
      *    tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
-     *  Units are  in Debye  (note, no kmol -> this is a per molecule amount)
+     *  (note, no kmol -> this is a per molecule amount)
      *
      *  Length nsp * nsp. This is a symmetric matrix.
      */
@@ -231,7 +231,7 @@ public:
     //! Matrix containing the reduced dipole moment of the interaction between two species
     /*!
      *  This is the reduced dipole moment of the interaction between two species
-     *        0.5 * tr.dipole(i,j)*tr.dipole(i,j)  (epsilon(i,j) * d * d * d);
+     *        0.5 * tr.dipole(i,j)^2 / (4 * Pi * epsilon_0 * epsilon(i,j) * d^3);
      *
      *  Length nsp * nsp .This is a symmetric matrix
      */

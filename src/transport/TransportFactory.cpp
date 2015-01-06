@@ -147,7 +147,7 @@ void TransportFactory::makePolarCorrections(size_t i, size_t j,
     d3np = pow(tr.sigma[knp],3);
     d3p  = pow(tr.sigma[kp],3);
     alpha_star = tr.alpha[knp]/d3np;
-    mu_p_star  = tr.dipole(kp,kp)/sqrt(d3p * tr.eps[kp]);
+    mu_p_star  = tr.dipole(kp,kp)/sqrt(4 * Pi * epsilon_0 * d3p * tr.eps[kp]);
     xi = 1.0 + 0.25 * alpha_star * mu_p_star * mu_p_star *
          sqrt(tr.eps[kp]/tr.eps[knp]);
     f_sigma = pow(xi, -1.0/6.0);
@@ -466,7 +466,7 @@ void TransportFactory::setupMM(const std::vector<const XML_Node*> &transport_dat
             // reduced dipole moment delta* (nondimensional)
             doublereal d = diam(i,j);
             tr.delta(i,j) =  0.5 * tr.dipole(i,j)*tr.dipole(i,j)
-                             / (epsilon(i,j) * d * d * d);
+                             / (4 * Pi * epsilon_0 * epsilon(i,j) * d * d * d);
 
             makePolarCorrections(i, j, tr, f_eps, f_sigma);
             tr.diam(i,j) *= f_sigma;
@@ -760,10 +760,10 @@ void TransportFactory::getTransportData(const ThermoPhase& thermo, const std::ve
         }
 
         // Dipole moment of the molecule.
-        // Given in Debye (a debye is 10-18 cm3/2 erg1/2)
+        // Given in Debye (a Debye is 1e-18 statC-m or 3.3356e-30 C-m)
         double dipole = ctml::getFloat(node, "dipoleMoment");
         if (dipole >= 0.0) {
-            tr.dipole(j,j) = 1.e-25 * SqrtTen * dipole;
+            tr.dipole(j,j) = 1e-21 / lightSpeed * dipole;
             tr.polar[j] = (dipole > 0.0);
         } else {
             throw TransportDBError(i, "negative dipole moment");
