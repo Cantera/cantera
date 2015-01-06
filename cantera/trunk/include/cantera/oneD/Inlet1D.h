@@ -65,7 +65,7 @@ public:
     }
 
     /// Set the mole fractions by specifying an array.
-    virtual void setMoleFractions(doublereal* xin) {
+    virtual void setMoleFractions(const doublereal* xin) {
         throw NotImplementedError("Bdry1D::setMoleFractions");
     }
 
@@ -157,7 +157,7 @@ public:
     }
 
     virtual void setMoleFractions(const std::string& xin);
-    virtual void setMoleFractions(doublereal* xin);
+    virtual void setMoleFractions(const doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yin[k];
     }
@@ -279,7 +279,7 @@ public:
     }
 
     virtual void setMoleFractions(const std::string& xin);
-    virtual void setMoleFractions(doublereal* xin);
+    virtual void setMoleFractions(const doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yres[k];
     }
