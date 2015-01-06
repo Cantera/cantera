@@ -222,9 +222,9 @@ Ubuntu
 
 Ubuntu packages are provided for recent versions of Ubuntu using a Personal
 Package Archive (PPA). As of Cantera 2.1.2, packages are available for Ubuntu
-12.04 LTS (Precise Pangolin) and Ubuntu 14.04 LTS (Trusty Tahr). To see which
-Ubuntu releases and Cantera versions are currently available, visit
-https://launchpad.net/~speth/+archive/ubuntu/cantera
+12.04 LTS (Precise Pangolin), Ubuntu 14.04 LTS (Trusty Tahr), and Ubuntu 14.10
+(Utopic Unicorn). To see which Ubuntu releases and Cantera versions are
+currently available, visit https://launchpad.net/~speth/+archive/ubuntu/cantera
 
 The available packages are:
 
