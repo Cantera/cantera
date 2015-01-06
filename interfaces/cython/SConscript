@@ -142,7 +142,8 @@ if localenv['python3_package'] == 'y':
 
     py3env.SubstFile('setup3.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
-                 ' $python3_cmd setup3.py build --build-lib=../../build/python3')
+                 ' $python3_cmd setup3.py build --build-lib=../../build/python3'
+                 ' --executable="/usr/bin/env python3"')
     mod = build(py3env.Command('#build/python3/cantera/__init__.py', 'setup3.py',
                                build_cmd))
     env['python3_module'] = mod
@@ -164,7 +165,8 @@ if localenv['python_package'] == 'full':
     py2env['py_extension'] = ext[0].name
     py2env.SubstFile('setup2.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
-                 ' $python_cmd_esc setup2.py build --build-lib=../../build/python2')
+                 ' $python_cmd_esc setup2.py build --build-lib=../../build/python2'
+                 ' --executable="/usr/bin/env python"')
     mod = build(py2env.Command('#build/python2/cantera/__init__.py',
                                'setup2.py',
                                build_cmd))
