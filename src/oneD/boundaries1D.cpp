@@ -87,7 +87,7 @@ void Inlet1D::setMoleFractions(const std::string& xin)
     }
 }
 
-void Inlet1D::setMoleFractions(doublereal* xin)
+void Inlet1D::setMoleFractions(const doublereal* xin)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xin);
@@ -496,7 +496,7 @@ void OutletRes1D::setMoleFractions(const std::string& xres)
     }
 }
 
-void OutletRes1D::setMoleFractions(doublereal* xres)
+void OutletRes1D::setMoleFractions(const doublereal* xres)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xres);
