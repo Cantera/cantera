@@ -17,9 +17,6 @@
 namespace Cantera
 {
 
-// forward references
-class MMCollisionInt;
-
 //! Factory class for creating new instances of classes derived from Transport.
 /*!
  * Creates 'transport managers', which are classes derived from class
@@ -110,20 +107,6 @@ public:
     virtual Transport*
     newTransport(thermo_t* thermo, int log_level=0);
 
-    //! Initialize an existing transport manager
-    /*!
-     *  This routine sets up an existing gas-phase transport manager. It
-     *  calculates the collision integrals and calls the initGas() function to
-     *  populate the species-dependent data structure.
-     *
-     *  @param tr        Pointer to the Transport manager
-     *  @param thermo    Pointer to the ThermoPhase object
-     *  @param mode      Chemkin compatible mode or not. This alters the specification of the
-     *                   collision integrals. defaults to no.
-     *  @param log_level Defaults to zero, no logging
-     */
-    virtual void initTransport(Transport* tr, thermo_t* thermo, int mode=0, int log_level=0);
-
     //! Initialize an existing transport manager for liquid phase
     /*!
      *  This routine sets up an existing liquid-phase transport manager. It is
@@ -165,26 +148,6 @@ private:
      *   for a transport model and the integer name.
      */
     TransportFactory();
-
-    //! Read the transport database
-    /*!
-     * Read transport property data from a file for a list of species.
-     * Given the name of a file containing transport property
-     * parameters and a list of species names, this method returns an
-     * instance of TransportParams containing the transport data for
-     * these species read from the file.
-     *
-     *  @param thermo      The phase with species corresponding to the transport data
-     *  @param xspecies    Vector of pointers to species XML_Node databases.
-     *  @param log         reference to an XML_Node that will contain the log (unused)
-     *  @param names       vector of species names that must be filled in with valid transport parameters
-     *  @param tr          Output object containing the transport parameters
-     *                     for the species listed in names (in the order of their listing
-     *                     in names).
-     */
-    void getTransportData(const ThermoPhase& thermo, const std::vector<const XML_Node*> &xspecies,
-                          XML_Node& log, const std::vector<std::string>& names,
-                          GasTransportParams& tr);
 
     //! Read transport property data from a file for a list of species that comprise
     //! the phase.
@@ -240,56 +203,6 @@ private:
                                const std::string phaseName,
                                SolidTransportData& tr);
 
-    //! Generate polynomial fits to the viscosity, conductivity, and
-    //! the binary diffusion coefficients
-    /*!
-     * If CK_mode, then the fits are of the form
-     *     \f[
-     *          \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
-     *     \f]
-     *  and
-     *     \f[
-     *          \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
-     *     \f]
-     *  Otherwise the fits are of the form
-     *     \f[
-     *          \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
-     *     \f]
-     *  and
-     *     \f[
-     *          D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
-     *     \f]
-     *
-     *  @param tr       Reference to the GasTransportParams object that will contain the results.
-     *  @param integrals interpolator for the collision integrals
-     */
-    void fitProperties(GasTransportParams& tr, MMCollisionInt& integrals);
-
-    //! Generate polynomial fits to collision integrals
-    /*!
-     *     @param tr       Reference to the GasTransportParams object that will contain the results.
-     *     @param integrals interpolator for the collision integrals
-     */
-    void fitCollisionIntegrals(GasTransportParams& tr,
-                               MMCollisionInt& integrals);
-
-    //! Prepare to build a new kinetic-theory-based transport manager for low-density gases
-    /*!
-     *  This class fills up the GastransportParams structure for the current phase
-     *
-     *  Uses polynomial fits to Monchick & Mason collision integrals. store then in tr
-     *
-     *  @param transport_database   Reference to a vector of pointers containing the
-     *                              transport database for each species
-     *  @param thermo               Pointer to the ThermoPhase object
-     *  @param mode                 Mode -> Either it's CK_Mode, chemkin compatibility mode, or it is not
-     *                              We usually run with chemkin compatibility mode turned off.
-     *  @param log_level            log level
-     *  @param tr                   GasTransportParams structure to be filled up with information
-     */
-    void setupMM(const std::vector<const XML_Node*> &transport_database,
-                 thermo_t* thermo, int mode, int log_level,  GasTransportParams& tr);
-
     //! Prepare to build a new transport manager for liquids assuming that
     //! viscosity transport data is provided in Arrhenius form.
     /*!
@@ -306,55 +219,6 @@ private:
      *  @param trParam              SolidTransportData structure to be filled up with information
      */
     void setupSolidTransport(thermo_t* thermo, int log_level, SolidTransportData& trParam);
-
-    //! Second-order correction to the binary diffusion coefficients
-    /*!
-     * Calculate second-order corrections to binary diffusion
-     * coefficient pair (dkj, djk). At first order, the binary
-     * diffusion coefficients are independent of composition, and
-     * d(k,j) = d(j,k). But at second order, there is a weak
-     * dependence on composition, with the result that d(k,j) !=
-     * d(j,k). This method computes the multiplier by which the
-     * first-order binary diffusion coefficient should be multiplied
-     * to produce the value correct to second order. The expressions
-     * here are taken from Marerro and Mason, J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
-     *
-     * @param t   Temperature (K)
-     * @param tr  Transport parameters
-     * @param integrals interpolator for the collision integrals
-     * @param k   index of first species
-     * @param j   index of second species
-     * @param xk  Mole fraction of species k
-     * @param xj  Mole fraction of species j
-     * @param fkj multiplier for d(k,j)
-     * @param fjk multiplier for d(j,k)
-     *
-     * @note This method is not used currently.
-     */
-    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr,
-                              MMCollisionInt& integrals, size_t k,
-                              size_t j, doublereal xk, doublereal xj,
-                              doublereal& fkj, doublereal& fjk);
-
-    //! Corrections for polar-nonpolar binary diffusion coefficients
-    /*!
-     * Calculate corrections to the well depth parameter and the
-     * diameter for use in computing the binary diffusion coefficient
-     * of polar-nonpolar pairs. For more information about this
-     * correction, see Dixon-Lewis, Proc. Royal Society (1968).
-     *
-     *  @param i          Species one - this is a bimolecular correction routine
-     *  @param j          species two - this is a bimolecular correction routine
-     *  @param tr         Database of species properties read in from the input xml file.
-     *  @param f_eps      Multiplicative correction factor to be applied to epsilon(i,j)
-     *  @param f_sigma    Multiplicative correction factor to be applied to diam(i,j)
-     */
-    void makePolarCorrections(size_t i, size_t j,
-                              const GasTransportParams& tr, doublereal& f_eps,
-                              doublereal& f_sigma);
-
-    //! Boolean indicating whether to turn on verbose printing
-    bool m_verbose;
 
     //! Mapping between between the string name for a transport model and the
     //! integer name.
