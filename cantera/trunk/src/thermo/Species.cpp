@@ -35,6 +35,7 @@ Species::Species(const Species& other)
     , composition(other.composition)
     , charge(other.charge)
     , size(other.size)
+    , transport(other.transport)
 {
     if (other.thermo_) {
         thermo_ = other.thermo_->duplMyselfAsSpeciesThermoInterpType();
@@ -52,6 +53,7 @@ Species& Species::operator=(const Species& other)
     composition = other.composition;
     charge = other.charge;
     size = other.size;
+    transport = other.transport;
     delete thermo_;
     if (other.thermo_) {
         thermo_ = other.thermo_->duplMyselfAsSpeciesThermoInterpType();
