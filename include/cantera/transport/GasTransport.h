@@ -164,8 +164,6 @@ protected:
      *  Uses polynomial fits to Monchick & Mason collision integrals. Store them
      *  in tr.
      *
-     *  @param transport_database   Reference to a vector of pointers containing
-     *                              the transport database for each species
      *  @param thermo     Pointer to the ThermoPhase object
      *  @param mode       Mode -> Either it's CK_Mode, chemkin compatibility
      *                    mode, or it is not We usually run with chemkin
@@ -174,8 +172,7 @@ protected:
      *  @param tr         GasTransportParams structure to be filled up with
      *      information
      */
-    void setupMM(const std::vector<const XML_Node*> &transport_database,
-                 thermo_t* thermo, int mode, int log_level,
+    void setupMM(thermo_t* thermo, int mode, int log_level,
                  GasTransportParams& tr);
 
     //! Read the transport database
@@ -186,18 +183,11 @@ protected:
      * containing the transport data for these species read from the file.
      *
      *  @param thermo    The phase with species corresponding to the transport data
-     *  @param xspecies  Vector of pointers to species XML_Node databases.
-     *  @param log       reference to an XML_Node that will contain the log (unused)
-     *  @param names     vector of species names that must be filled in with
-     *                   valid transport parameters
      *  @param tr        Output object containing the transport parameters for
      *                   the species listed in names (in the order of their
      *                   listing in names).
      */
-    void getTransportData(const ThermoPhase& thermo,
-                          const std::vector<const XML_Node*> &xspecies,
-                          XML_Node& log, const std::vector<std::string>& names,
-                          GasTransportParams& tr);
+    void getTransportData(const ThermoPhase& thermo, GasTransportParams& tr);
 
     //! Corrections for polar-nonpolar binary diffusion coefficients
     /*!
