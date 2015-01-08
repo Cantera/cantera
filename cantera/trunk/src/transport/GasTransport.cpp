@@ -2,9 +2,9 @@
 #include "cantera/transport/GasTransport.h"
 #include "cantera/transport/TransportParams.h"
 #include "MMCollisionInt.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/polyfit.h"
+#include "cantera/transport/TransportData.h"
 
 namespace Cantera
 {
@@ -390,13 +390,13 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
         m_verbose = 0;
     }
     // set up Monchick and Mason collision integrals
-    setupMM(thermo->speciesData(), thermo, mode, log_level, trParam);
+    setupMM(thermo, mode, log_level, trParam);
     // do model-specific initialization
     initGas(trParam);
 }
 
-void GasTransport::setupMM(const std::vector<const XML_Node*> &transport_database,
-                           thermo_t* thermo, int mode, int log_level, GasTransportParams& tr)
+void GasTransport::setupMM(thermo_t* thermo, int mode, int log_level,
+                           GasTransportParams& tr)
 {
     // constant mixture attributes
     tr.thermo = thermo;
@@ -426,8 +426,7 @@ void GasTransport::setupMM(const std::vector<const XML_Node*> &transport_databas
     tr.eps.resize(nsp);
     tr.w_ac.resize(nsp);
 
-    XML_Node root, log;
-    getTransportData(*thermo, transport_database, log, tr.thermo->speciesNames(), tr);
+    getTransportData(*thermo, tr);
 
     for (size_t i = 0; i < nsp; i++) {
         tr.poly[i].resize(nsp);
@@ -501,118 +500,27 @@ void GasTransport::setupMM(const std::vector<const XML_Node*> &transport_databas
 }
 
 void GasTransport::getTransportData(const ThermoPhase& thermo,
-                                    const std::vector<const XML_Node*> &xspecies,
-                                    XML_Node& log,
-                                    const std::vector<std::string> &names,
                                     GasTransportParams& tr)
 {
-    std::map<std::string, size_t> speciesIndices;
-    for (size_t i = 0; i < names.size(); i++) {
-        speciesIndices[names[i]] = i;
-    }
-
-    for (size_t i = 0; i < xspecies.size(); i++) {
-        const XML_Node& sp = *xspecies[i];
-
-        // Find the index for this species in 'names'
-        size_t j = getValue(speciesIndices, sp["name"], npos);
-        if (j == npos) {
-            // Don't need transport data for this species
-            continue;
+    for (size_t k = 0; k < thermo.nSpecies(); k++) {
+        const Species& s = thermo.species(thermo.speciesName(k));
+        const GasTransportData& sptran =
+            dynamic_cast<GasTransportData&>(*s.transport.get());
+        if (sptran.geometry == "atom") {
+            tr.crot[k] = 0.0;
+        } else if (sptran.geometry == "linear") {
+            tr.crot[k] = 1.0;
+        } else if (sptran.geometry == "nonlinear") {
+            tr.crot[k] = 1.5;
         }
 
-        XML_Node& node = sp.child("transport");
-
-        // parameters are converted to SI units before storing
-
-        double nAtoms = 0;
-        size_t kSpec = thermo.speciesIndex(sp["name"]);
-        for (size_t m = 0; m < thermo.nElements(); m++) {
-            nAtoms += thermo.nAtoms(kSpec, m);
-        }
-
-        // Molecular geometry; rotational heat capacity / R
-        XML_Node* geomNode = ctml::getByTitle(node, "geometry");
-        std::string geom = (geomNode) ? geomNode->value() : "";
-        if (geom == "atom") {
-            if (nAtoms != 1) {
-                throw CanteraError("GasTransport::getTransportData",
-                    "invalid geometry. 'atom' specified,"
-                    " but species contains multiple atoms.");
-            }
-            tr.crot[j] = 0.0;
-        } else if (geom == "linear") {
-            if (nAtoms == 1) {
-                throw CanteraError("GasTransport::getTransportData",
-                    "invalid geometry. 'linear' specified,"
-                    " but species only contains one atom.");
-            }
-            tr.crot[j] = 1.0;
-        } else if (geom == "nonlinear") {
-            if (nAtoms < 3) {
-                throw CanteraError("GasTransport::getTransportData",
-                    "invalid geometry. 'nonlinear' specified,"
-                    " but species only contains " + fp2str(nAtoms) + " atoms.");
-            }
-            tr.crot[j] = 1.5;
-        } else {
-            throw CanteraError("GasTransport::getTransportData",
-                               "invalid geometry");
-        }
-
-        // Pitzer's acentric factor:
-        double acentric;
-        ctml::getOptionalFloat(node, "acentric_factor", acentric);
-        if (acentric) {
-            tr.w_ac[j] = acentric;
-        }
-        // Well-depth parameter in Kelvin (converted to Joules)
-        double welldepth = ctml::getFloat(node, "LJ_welldepth");
-        if (welldepth >= 0.0) {
-            tr.eps[j] = Boltzmann * welldepth;
-        } else {
-            throw CanteraError("GasTransport::getTransportData",
-                               "negative well depth");
-        }
-
-        // Lennard-Jones diameter of the molecule, given in Angstroms.
-        double diam = ctml::getFloat(node, "LJ_diameter");
-        if (diam > 0.0) {
-            tr.sigma[j] = 1.e-10 * diam; // A -> m
-        } else {
-            throw CanteraError("GasTransport::getTransportData",
-                               "negative or zero diameter");
-        }
-
-        // Dipole moment of the molecule.
-        // Given in Debye (a Debye is 1e-18 statC-m or 3.3356e-30 C-m)
-        double dipole = ctml::getFloat(node, "dipoleMoment");
-        if (dipole >= 0.0) {
-            tr.dipole(j,j) = 1e-21 / lightSpeed * dipole;
-            tr.polar[j] = (dipole > 0.0);
-        } else {
-            throw CanteraError("GasTransport::getTransportData",
-                               "negative dipole moment");
-        }
-
-        // Polarizability of the molecule, given in cubic Angstroms.
-        double polar = ctml::getFloat(node, "polarizability");
-        if (polar >= 0.0) {
-            tr.alpha[j] = 1.e-30 * polar; // A^3 -> m^3
-        } else {
-            throw CanteraError("GasTransport::getTransportData",
-                               "negative polarizability");
-        }
-
-        // Rotational relaxation number. (Number of collisions it takes to
-        // equilibrate the rotational dofs with the temperature)
-        double rot = ctml::getFloat(node, "rotRelax");
-        if (rot >= 0.0) {
-            tr.zrot[j]  = std::max(1.0, rot);
-        } else {
-            throw CanteraError("GasTransport::getTransportData",
-                               "negative rotation relaxation number");
-        }
+        tr.sigma[k] = sptran.diameter;
+        tr.eps[k] = sptran.well_depth;
+        tr.dipole(k,k) = sptran.dipole;
+        tr.polar[k] = (sptran.dipole > 0);
+        tr.alpha[k] = sptran.polarizability;
+        tr.zrot[k] = sptran.rotational_relaxation;
+        tr.w_ac[k] = sptran.acentric_factor;
     }
 }
 
