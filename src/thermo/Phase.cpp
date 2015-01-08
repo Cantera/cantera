@@ -946,6 +946,11 @@ void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
     addSpecies(name_, comp, charge_, size_);
 }
 
+const Species& Phase::species(const std::string& name) const
+{
+    return getValue(m_species, name);
+}
+
 void Phase::ignoreUndefinedElements() {
     m_undefinedElementBehavior = UndefElement::ignore;
 }
