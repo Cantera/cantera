@@ -738,6 +738,9 @@ public:
                           doublereal charge = 0.0,
                           doublereal size = 1.0);
 
+    //! Return the Species object for the named species.
+    const Species& species(const std::string& name) const;
+
     //! Set behavior when adding a species containing undefined elements to just
     //! skip the species.
     void ignoreUndefinedElements();
