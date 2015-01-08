@@ -4,11 +4,13 @@
 #define CT_SPECIES_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
 
 class SpeciesThermoInterpType;
+class TransportData;
 
 //! Contains data about a single chemical species
 /*!
@@ -48,6 +50,8 @@ public:
 
     //! The effective size [m] of the species
     double size;
+
+    shared_ptr<TransportData> transport;
 
 protected:
     //! Thermodynamic data for the species
