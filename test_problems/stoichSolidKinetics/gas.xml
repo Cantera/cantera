@@ -17,7 +17,7 @@
     </state>
     <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
-    <transport model="Mix"/>
+    <transport model="None"/>
   </phase>
 
   <!-- species definitions     -->
@@ -36,14 +36,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
     <species name="H2">
@@ -56,14 +48,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
     <species name="H">
@@ -76,14 +60,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
     <species name="CH2O">
@@ -96,14 +72,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
     <species name="CHO">
@@ -116,14 +84,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
    <species name="OH">
@@ -136,14 +96,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
   <species name="CO2">
@@ -156,14 +108,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
   <species name="H2O">
@@ -176,14 +120,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
     <species name="CH4">
@@ -196,14 +132,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
     <species name="CO">
@@ -216,14 +144,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">107.400</LJ_welldepth>
-        <LJ_diameter units="A">3.460</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.600</polarizability>
-        <rotRelax>3.800</rotRelax>
-      </transport>
     </species>
 
 
@@ -238,14 +158,6 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
-      <transport model="gas_transport">
-        <string title="geometry">linear</string>
-        <LJ_welldepth units="K">97.530</LJ_welldepth>
-        <LJ_diameter units="A">3.620</LJ_diameter>
-        <dipoleMoment units="Debye">0.000</dipoleMoment>
-        <polarizability units="A3">1.760</polarizability>
-        <rotRelax>4.000</rotRelax>
-      </transport>
     </species>
   </speciesData>
  
