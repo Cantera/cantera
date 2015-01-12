@@ -64,14 +64,23 @@ ENERGY_UNITS = {'CAL/': 'cal/mol',
                 'KJOULES/MOL': 'kJ/mol',
                 'KJOULES/MOLE': 'kJ/mol'}
 
+_open = open
 if sys.version_info[0] == 2:
     string_types = (str, unicode)
     def strip_nonascii(s):
         return s.decode('ascii', 'ignore')
+
+    def open(filename, *args):
+        return _open(filename, *args)
+
 else:
     string_types = (str,)
     def strip_nonascii(s):
         return s.encode('ascii', 'ignore').decode()
+
+    def open(filename, *args):
+        return _open(filename, *args, errors='ignore')
+
 
 def compatible_quantities(quantity_basis, units):
     if quantity_basis == 'mol':
