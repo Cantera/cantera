@@ -25,15 +25,13 @@ namespace Cantera
  */
 class MultiTransport : public GasTransport
 {
-protected:
-
+public:
     //! default constructor
     /*!
      *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
      */
     MultiTransport(thermo_t* thermo=0);
 
-public:
     virtual int model() const {
         if (m_mode == CK_Mode) {
             return CK_Multicomponent;

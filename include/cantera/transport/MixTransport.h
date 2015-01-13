@@ -52,12 +52,9 @@ namespace Cantera
  */
 class MixTransport : public GasTransport
 {
-protected:
-
+public:
     //! Default constructor.
     MixTransport();
-
-public:
 
     MixTransport(const MixTransport& right);
     MixTransport& operator=(const  MixTransport& right);
