@@ -6,7 +6,7 @@ Installing Cantera
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 .. _sec-install-win:
 
@@ -130,12 +130,19 @@ installation instructions are for Cantera 2.1.1.
 Mac OS X
 ========
 
-The easiest way to install Cantera on OS X is by using Homebrew. These
-instructions have been tested on Mac OS X 10.9 (Mavericks) with Xcode 5.1 and
-Mac OS X 10.10 (Yosemite) with Xcode 6.1.
+Cantera can be installed on OS X using either Homebrew or MacPorts. With
+Homebrew, the current stable, maintenance, or development versions of Cantera
+can be installed, and both the Python 2.7 and Python 3.x modules are available,
+as well as the Matlab toolbox. The MacPorts portfile supports the current stable
+version of Cantera and builds the Python 2.7 module.
+
+Homebrew
+---------
+These instructions have been tested on Mac OS X 10.9 (Mavericks) with Xcode 5.1
+and Mac OS X 10.10 (Yosemite) with Xcode 6.1.
 
 Prerequisites
--------------
+~~~~~~~~~~~~~
 
 If you've used Homebrew before, you may have already completed some of these
 steps and can skip them.
@@ -175,7 +182,7 @@ steps and can skip them.
       pip3 install numpy cython
 
 Installing Cantera
-------------------
+~~~~~~~~~~~~~~~~~~
 
 The installation command for Cantera supports several options:
 
@@ -214,6 +221,21 @@ The Python examples will be installed in::
    /usr/local/lib/pythonX.Y/site-packages/cantera/examples/
 
 where ``X.Y`` is your Python version, e.g. ``2.7``.
+
+MacPorts
+--------
+
+If you have MacPorts installed (see https://www.macports.org/install.php), you
+can install Cantera by executing::
+
+    sudo port install cantera
+
+from the command line. All dependencies will be installed automatically.
+
+MacPorts installs its own Python interpreter. Be sure to be actually using it by
+checking::
+
+    sudo port select python python27
 
 .. _sec-install-ubuntu:
 
