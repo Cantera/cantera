@@ -214,34 +214,34 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         break;
     case cMulticomponent:
         tr = new MultiTransport;
-        dynamic_cast<GasTransport*>(tr)->init(phase, 0, log_level);
+        tr->init(phase, 0, log_level);
         break;
     case CK_Multicomponent:
         tr = new MultiTransport;
-        dynamic_cast<GasTransport*>(tr)->init(phase, CK_Mode, log_level);
+        tr->init(phase, CK_Mode, log_level);
         break;
     case cMixtureAveraged:
         tr = new MixTransport;
-        dynamic_cast<GasTransport*>(tr)->init(phase, 0, log_level);
+        tr->init(phase, 0, log_level);
         break;
     case CK_MixtureAveraged:
         tr = new MixTransport;
-        dynamic_cast<GasTransport*>(tr)->init(phase, CK_Mode, log_level);
+        tr->init(phase, CK_Mode, log_level);
         break;
     case cHighP:
         tr = new HighPressureGasTransport;
-        dynamic_cast<GasTransport*>(tr)->init(phase, 0, log_level);
+        tr->init(phase, 0, log_level);
         break;
     case cSolidTransport:
 
         tr = new SolidTransport;
         initSolidTransport(tr, phase, log_level);
-        dynamic_cast<GasTransport*>(tr)->setThermo(*phase);
+        tr->setThermo(*phase);
         break;
     case cDustyGasTransport:
         tr = new DustyGasTransport;
         gastr = new MultiTransport;
-        dynamic_cast<GasTransport*>(gastr)->init(phase, 0, log_level);
+        gastr->init(phase, 0, log_level);
         dtr = (DustyGasTransport*)tr;
         dtr->initialize(phase, gastr);
         break;

@@ -14,8 +14,6 @@
 namespace Cantera
 {
 
-class GasTransportParams;
-
 //! Class MultiTransport implements transport properties for
 //! high pressure gas mixtures.
 /*!
@@ -67,12 +65,6 @@ public:
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
 
     virtual doublereal viscosity();
-
-    //! Initialize the transport operator with parameters from GasTransportParams object
-    /*!
-     *  @param tr  input GasTransportParams object
-     */
-    virtual bool initGas(GasTransportParams& tr);
 
     friend class TransportFactory;
 

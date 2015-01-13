@@ -13,6 +13,8 @@
 
 namespace Cantera
 {
+
+class GasTransportParams;
 /**
  * Class PecosTransport implements mixture-averaged transport
  * properties for ideal gas mixtures.

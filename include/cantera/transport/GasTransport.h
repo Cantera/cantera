@@ -107,23 +107,11 @@ public:
      */
     virtual void getMixDiffCoeffsMass(doublereal* const d);
 
-    //! Initialize a transport manager
-    /*!
-     *  This routine sets up a gas-phase transport manager. It calculates the
-     *  collision integrals and calls the initGas() function to populate the
-     *  species-dependent data structure.
-     *
-     *  @param thermo  Pointer to the ThermoPhase object
-     *  @param mode    Chemkin compatible mode or not. This alters the
-     *                 specification of the collision integrals. defaults to no.
-     *  @param log_level Defaults to zero, no logging
-     */
     virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
 
 protected:
     GasTransport(ThermoPhase* thermo=0);
 
-    virtual bool initGas(GasTransportParams& tr);
     virtual void update_T();
     virtual void update_C() = 0;
 
@@ -159,35 +147,17 @@ protected:
     //! Prepare to build a new kinetic-theory-based transport manager for
     //! low-density gases
     /*!
-     *  This class fills up the GastransportParams structure for the current phase
-     *
-     *  Uses polynomial fits to Monchick & Mason collision integrals. Store them
-     *  in tr.
-     *
-     *  @param thermo     Pointer to the ThermoPhase object
-     *  @param mode       Mode -> Either it's CK_Mode, chemkin compatibility
-     *                    mode, or it is not We usually run with chemkin
-     *                    compatibility mode turned off.
-     *  @param log_level  log level
-     *  @param tr         GasTransportParams structure to be filled up with
-     *      information
+     *  Uses polynomial fits to Monchick & Mason collision integrals.
      */
-    void setupMM(thermo_t* thermo, int mode, int log_level,
-                 GasTransportParams& tr);
+    void setupMM();
 
     //! Read the transport database
     /*!
      * Read transport property data from a file for a list of species. Given the
      * name of a file containing transport property parameters and a list of
-     * species names, this method returns an instance of TransportParams
-     * containing the transport data for these species read from the file.
-     *
-     *  @param thermo    The phase with species corresponding to the transport data
-     *  @param tr        Output object containing the transport parameters for
-     *                   the species listed in names (in the order of their
-     *                   listing in names).
+     * species names.
      */
-    void getTransportData(const ThermoPhase& thermo, GasTransportParams& tr);
+    void getTransportData();
 
     //! Corrections for polar-nonpolar binary diffusion coefficients
     /*!
@@ -198,22 +168,17 @@ protected:
      *
      *  @param i        Species one - this is a bimolecular correction routine
      *  @param j        species two - this is a bimolecular correction routine
-     *  @param tr       Database of species properties read in from the input xml file.
      *  @param f_eps    Multiplicative correction factor to be applied to epsilon(i,j)
      *  @param f_sigma  Multiplicative correction factor to be applied to diam(i,j)
      */
-    void makePolarCorrections(size_t i, size_t j,
-                              const GasTransportParams& tr, doublereal& f_eps,
+    void makePolarCorrections(size_t i, size_t j, doublereal& f_eps,
                               doublereal& f_sigma);
 
     //! Generate polynomial fits to collision integrals
     /*!
-     *     @param tr        Reference to the GasTransportParams object that will
-     *                      contain the results.
      *     @param integrals interpolator for the collision integrals
      */
-    void fitCollisionIntegrals(GasTransportParams& tr,
-                               MMCollisionInt& integrals);
+    void fitCollisionIntegrals(MMCollisionInt& integrals);
 
     //! Generate polynomial fits to the viscosity, conductivity, and
     //! the binary diffusion coefficients
@@ -235,11 +200,9 @@ protected:
      *          D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
      *     \f]
      *
-     *  @param tr        Reference to the GasTransportParams object that will
-     *                   contain the results.
      *  @param integrals interpolator for the collision integrals
      */
-    void fitProperties(GasTransportParams& tr, MMCollisionInt& integrals);
+    void fitProperties(MMCollisionInt& integrals);
 
     //! Second-order correction to the binary diffusion coefficients
     /*!
@@ -253,7 +216,6 @@ protected:
      * Mason, J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
      *
      * @param t   Temperature (K)
-     * @param tr  Transport parameters
      * @param integrals interpolator for the collision integrals
      * @param k   index of first species
      * @param j   index of second species
@@ -264,8 +226,7 @@ protected:
      *
      * @note This method is not used currently.
      */
-    void getBinDiffCorrection(doublereal t, const GasTransportParams& tr,
-                              MMCollisionInt& integrals, size_t k,
+    void getBinDiffCorrection(doublereal t, MMCollisionInt& integrals, size_t k,
                               size_t j, doublereal xk, doublereal xj,
                               doublereal& fkj, doublereal& fjk);
 
@@ -360,9 +321,9 @@ protected:
 
     //! Polynomial fits to the binary diffusivity of each species
     /*!
-     *  m_diffcoeff[ic] is vector of polynomial coefficients for species  i species  j
-     *  that fits the binary diffusion coefficient. The relationship between i
-     *  j and ic is determined from the following algorithm:
+     *  m_diffcoeff[ic] is vector of polynomial coefficients for species  i
+     *  species  j that fits the binary diffusion coefficient. The relationship
+     *  between i j and ic is determined from the following algorithm:
      *
      *      int ic = 0;
      *      for (i = 0; i < m_nsp; i++) {
@@ -377,9 +338,149 @@ protected:
     //! the current temperature Size is nsp x nsp.
     DenseMatrix m_bdiff;
 
-    //! Boolean indicating whether to turn on verbose printing during
-    //! initialization
-    bool m_verbose;
+    //! temperature fits of the heat conduction
+    /*!
+     *  Dimensions are number of species (nsp) polynomial order of the collision
+     *  integral fit (degree+1).
+     */
+    std::vector<vector_fp> m_condcoeffs;
+
+    //! Indices for the (i,j) interaction in collision integral fits
+    /*!
+     *  m_poly[i][j] contains the index for (i,j) interactions in
+     *  #m_omega22_poly, #m_astar_poly, #m_bstar_poly, and #m_cstar_poly.
+     */
+    std::vector<vector_int> m_poly;
+
+    //! Fit for omega22 collision integral
+    /*!
+     *  m_omega22_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     *  (length degree+1) for the collision integral fit for the species pair
+     *  (i,j).
+     */
+    std::vector<vector_fp> m_omega22_poly;
+
+    //! Fit for astar collision integral
+    /*!
+     *  m_astar_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     *  (length degree+1) for the collision integral fit for the species pair
+     *  (i,j).
+     */
+    std::vector<vector_fp> m_astar_poly;
+
+    //! Fit for bstar collision integral
+    /*!
+     *  m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     *  (length degree+1) for the collision integral fit for the species pair
+     *  (i,j).
+     */
+    std::vector<vector_fp> m_bstar_poly;
+
+    //! Fit for cstar collision integral
+    /*!
+     *  m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     *  (length degree+1) for the collision integral fit for the species pair
+     *  (i,j).
+     */
+    std::vector<vector_fp> m_cstar_poly;
+
+    //! Rotational relaxation number for each species
+    /*!
+     * length is the number of species in the phase. units are dimensionless
+     */
+    vector_fp m_zrot;
+
+    //! Dimensionless rotational heat capacity of each species
+    /*!
+     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear
+     *  species respectively length is the number of species in the phase.
+     *  Dimensionless  (Cr / R)
+     */
+    vector_fp m_crot;
+
+    //! Vector of booleans indicating whether a species is a polar molecule
+    /*!
+     *   Length is nsp
+     */
+    std::vector<bool> m_polar;
+
+    //! Polarizability of each species in the phase
+    /*!
+     *  Length = nsp. Units = m^3
+     */
+    vector_fp m_alpha;
+
+    //! Lennard-Jones well-depth of the species in the current phase
+    /*!
+     * length is the number of species in the phase. Units are Joules (Note this
+     * is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
+     */
+    vector_fp m_eps;
+
+    //! Lennard-Jones diameter of the species in the current phase
+    /*!
+     * length is the number of species in the phase
+     * units are in meters.
+     */
+    vector_fp m_sigma;
+
+    //! This is the reduced mass of the interaction between species i and j
+    /*!
+     *  reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
+     *
+     *  Units are kg (note, no kmol -> this is a per molecule amount)
+     *
+     *  Length nsp * nsp. This is a symmetric matrix
+     */
+    DenseMatrix m_reducedMass;
+
+    //! hard-sphere diameter for (i,j) collision
+    /*!
+     *  diam(i,j) = 0.5*(sigma[i] + sigma[j]);
+     *  Units are m (note, no kmol -> this is a per molecule amount)
+     *
+     *  Length nsp * nsp. This is a symmetric matrix.
+     */
+    DenseMatrix m_diam;
+
+    //! The effective well depth for (i,j) collisions
+    /*!
+     *     epsilon(i,j) = sqrt(eps[i]*eps[j]);
+     *     Units are Joules (note, no kmol -> this is a per molecule amount)
+     *
+     *  Length nsp * nsp. This is a symmetric matrix.
+     */
+    DenseMatrix m_epsilon;
+
+    //! The effective dipole moment for (i,j) collisions
+    /*!
+     *  Given `dipoleMoment` in Debye (a Debye is 3.335e-30 C-m):
+     *
+     *    dipole(i,i) = 1.e-21 / lightSpeed * dipoleMoment;
+     *    dipole(i,j) = sqrt(dipole(i,i) * dipole(j,j));
+     *  (note, no kmol -> this is a per molecule amount)
+     *
+     *  Length nsp * nsp. This is a symmetric matrix.
+     */
+    DenseMatrix m_dipole;
+
+    //! Reduced dipole moment of the interaction between two species
+    /*!
+     *  This is the reduced dipole moment of the interaction between two species
+     *       0.5 * dipole(i,j)^2 / (4 * Pi * epsilon_0 * epsilon(i,j) * d^3);
+     *
+     *  Length nsp * nsp .This is a symmetric matrix
+     */
+    DenseMatrix m_delta;
+
+    //! Pitzer acentric factor
+    /*!
+     * Length is the number of species in the phase. Dimensionless.
+     */
+    vector_fp m_w_ac;
+
+    //! Level of verbose printing during initialization
+    int m_log_level;
 };
 
 } // namespace Cantera

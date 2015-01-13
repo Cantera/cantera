@@ -58,6 +58,8 @@ public:
 //! gases with a kinetic theory of gases derived transport model.
 /*!
  * This structure is used by TransportFactory object.
+ * @deprecated Unused. Mostly merged into class GasTransport. This class will be
+ *     removed after Cantera 2.2.
  */
 class GasTransportParams : public TransportParams
 {
