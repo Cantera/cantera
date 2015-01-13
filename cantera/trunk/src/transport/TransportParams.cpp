@@ -51,6 +51,8 @@ GasTransportParams::GasTransportParams() :
     dipole(0, 0),
     delta(0, 0)
 {
+    warn_deprecated("class GasTransportParams",
+                    "To be removed after Cantera 2.2.");
 }
 
 } // End of namespace Cantera

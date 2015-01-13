@@ -32,15 +32,6 @@ HighPressureGasTransport::HighPressureGasTransport(thermo_t* thermo)
 {
 }
 
-bool HighPressureGasTransport::initGas(GasTransportParams& tr)
-{
-    MultiTransport::initGas(tr);
-
-    // copy parameters into local storage
-    m_w_ac = tr.w_ac;
-    return true;
-}
-
 double HighPressureGasTransport::thermalConductivity()
 {
     //  Method of Ely and Hanley:

@@ -115,13 +115,7 @@ public:
                                const doublereal* state2, doublereal delta,
                                doublereal* fluxes);
 
-    //! Initialize the transport operator with parameters from GasTransportParams object
-    /*!
-     *  @param tr  input GasTransportParams object
-     */
-    virtual bool initGas(GasTransportParams& tr);
-
-    friend class TransportFactory;
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
 protected:
     //! Update basic temperature-dependent quantities if the temperature has changed.
@@ -136,13 +130,6 @@ protected:
 
     doublereal m_thermal_tlast;
 
-    // property values
-    std::vector<std::vector<int> > m_poly;
-    std::vector<vector_fp>   m_astar_poly;
-    std::vector<vector_fp>   m_bstar_poly;
-    std::vector<vector_fp>   m_cstar_poly;
-    std::vector<vector_fp>   m_om22_poly;
-
     //! Dense matrix for astar
     DenseMatrix          m_astar;
 
@@ -155,17 +142,8 @@ protected:
     //! Dense matrix for omega22
     DenseMatrix          m_om22;
 
-public:
-    vector_fp   m_crot;
     vector_fp   m_cinternal;
-    vector_fp   m_zrot;
-    vector_fp   m_eps;
-    vector_fp   m_sigma;
-    vector_fp   m_alpha;
-    vector_fp   m_w_ac;
-    DenseMatrix   m_dipole;
 
-protected:
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
     vector_fp  m_frot_298;

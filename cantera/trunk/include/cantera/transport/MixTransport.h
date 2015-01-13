@@ -157,17 +157,7 @@ public:
                                   size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
 
-    //! Initialize the transport object
-    /*!
-     * Here we change all of the internal dimensions to be sufficient.
-     * We get the object ready to do property evaluations.
-     *
-     * @param tr  Transport parameters for all of the species
-     *            in the phase.
-     */
-    virtual bool initGas(GasTransportParams& tr);
-
-    friend class TransportFactory;
+    virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
 
 private:
 
@@ -185,13 +175,6 @@ private:
     void updateCond_T();
 
 private:
-    //! Polynomial fits to the thermal conductivity of each species
-    /*!
-     *  m_condcoeffs[k] is vector of polynomial coefficients for species k
-     *  that fits the thermal conductivity
-     */
-    std::vector<vector_fp>            m_condcoeffs;
-
     //! vector of species thermal conductivities (W/m /K)
     /*!
      *  These are used in wilke's rule to calculate the viscosity of the
@@ -210,14 +193,7 @@ private:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok;
-public:
-    vector_fp m_eps;
-    vector_fp m_sigma;
-    vector_fp m_alpha;
-    DenseMatrix m_dipole;
-    vector_fp m_zrot;
-    vector_fp m_crot;
-private:
+
     //! Debug flag - turns on more printing
     bool m_debug;
 };

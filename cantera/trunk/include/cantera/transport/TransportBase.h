@@ -26,7 +26,6 @@
 namespace Cantera
 {
 
-class GasTransportParams;
 class LiquidTransportParams;
 class SolidTransportData;
 
@@ -713,26 +712,24 @@ public:
         return m_velocityBasis;
     }
 
-    friend class TransportFactory;
-
-protected:
-
     /**
      * @name Transport manager construction
-     * These methods are used internally during construction.
+     * These methods are used during construction.
      * @{
      */
 
-    //! Called by TransportFactory to set parameters.
+    //! Initialize a transport manager
     /*!
-     *  This is called by classes that use the gas phase parameter
-     *  list to initialize themselves.
+     *  This routine sets up a transport manager. It calculates the collision
+     *  integrals and populates species-dependent data structures.
      *
-     *   @param tr Reference to the parameter list that will be used
-     *             to initialize the class
+     *  @param thermo  Pointer to the ThermoPhase object
+     *  @param mode    Chemkin compatible mode or not. This alters the
+     *                 specification of the collision integrals. defaults to no.
+     *  @param log_level Defaults to zero, no logging
      */
-    virtual bool initGas(GasTransportParams& tr) {
-        throw NotImplementedError("Transport::initGas");
+    virtual void init(thermo_t* thermo, int mode=0, int log_level=0) {
+        throw NotImplementedError("Transport::init");
     }
 
     //! Called by TransportFactory to set parameters.
@@ -747,7 +744,6 @@ protected:
         throw NotImplementedError("Transport::initLiquid");
     }
 
-public:
     //! Called by TransportFactory to set parameters.
     /*!
      *  This is called by classes that use the solid phase parameter
