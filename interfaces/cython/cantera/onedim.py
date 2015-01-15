@@ -104,6 +104,20 @@ class FlameBase(Sim1D):
         self.flame.soret_enabled = enable
 
     @property
+    def radiation_enabled(self):
+        """
+        Get/Set whether or not to include radiative heat transfer
+        """
+        return self.flame.radiation_enabled
+
+    @radiation_enabled.setter
+    def radiation_enabled(self, enable):
+        self.flame.radiation_enabled = enable
+
+    def set_boundary_emissivities(self, e_left, e_right):
+        self.flame.set_boundary_emissivities(e_left, e_right)
+
+    @property
     def grid(self):
         """ Array of grid point positions along the flame. """
         return self.flame.grid

@@ -56,9 +56,9 @@ f.flame.set_transient_tolerances(default=tol_ts)
 f.set_initial_guess(fuel='C2H6')
 
 # Set the boundary emissivities
-f.flame.set_boundary_emissivities(0.0, 0.0)
+f.set_boundary_emissivities(0.0, 0.0)
 # Turn radiation off
-f.flame.radiation_enabled(0)
+f.radiation_enabled = False
 
 # First disable the energy equation and solve the problem without
 # refining the grid
@@ -86,7 +86,7 @@ plt.ylim(0,2500)
 plt.xlim(0.000, 0.020)
 
 # Turn on radiation and solve again
-f.flame.radiation_enabled(1)
+f.radiation_enabled = True
 f.solve(loglevel = 1, refine_grid = 0)
 f.show_solution()
 

@@ -29,8 +29,11 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_trans(0),
     m_jac(0),
     m_ok(false),
+    m_epsilon_left(0.0),
+    m_epsilon_right(0.0),
     m_do_soret(false),
-    m_transport_option(-1)
+    m_transport_option(-1),
+    m_do_radiation(false)
 {
     m_type = cFlowType;
 

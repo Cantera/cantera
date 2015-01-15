@@ -386,8 +386,6 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim = ct.CounterflowDiffusionFlame(self.gas, initial_grid)
         self.sim.flame.set_steady_tolerances(default=tol_ss)
         self.sim.flame.set_transient_tolerances(default=tol_ts)
-        self.sim.flame.radiation_enabled(0)
-        self.sim.flame.set_boundary_emissivities(0,0)
 
         # Set properties of the fuel and oxidizer mixtures
         self.sim.fuel_inlet.mdot = mdot_fuel
@@ -451,8 +449,10 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.solve_fixed_T()
         self.assertEqual(nPoints, len(self.sim.grid))
         self.assertArrayNear(Tfixed, self.sim.T)
-        self.sim.flame.radiation_enabled(1)
-        self.sim.flame.set_boundary_emissivities(0.25,0.15)
+        self.assertFalse(self.sim.radiation_enabled)
+        self.sim.radiation_enabled = True
+        self.assertTrue(self.sim.radiation_enabled)
+        self.sim.set_boundary_emissivities(0.25,0.15)
 
         self.solve_mix()
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
@@ -531,8 +531,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
 
         sim.set_refine_criteria(ratio=3, slope=0.2, curve=0.4, prune=0.02)
         sim.energy_enabled = True
-        sim.flame.radiation_enabled(0)
-        sim.flame.set_boundary_emissivities(0,0)
+        self.assertFalse(sim.radiation_enabled)
         sim.solve(loglevel=0, refine_grid=True)
 
         data = np.empty((sim.flame.n_points, gas.n_species + 4))

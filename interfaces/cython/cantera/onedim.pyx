@@ -393,9 +393,12 @@ cdef class _FlowBase(Domain1D):
     def set_boundary_emissivities(self, e_left, e_right):
         self.flow.setBoundaryEmissivities(e_left, e_right)
 
-    #turn radiation solving on / off
-    def radiation_enabled(self, do_Radiation):
-        self.flow.enableRadiation(do_Radiation)
+    property radiation_enabled:
+        """ Determines whether or not to include radiative heat transfer """
+        def __get__(self):
+            return self.flow.radiationEnabled()
+        def __set__(self, do_radiation):
+            self.flow.enableRadiation(<cbool>do_radiation)
 
 
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
