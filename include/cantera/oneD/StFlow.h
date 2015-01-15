@@ -520,6 +520,10 @@ protected:
     doublereal m_epsilon_left;
     doublereal m_epsilon_right;
 
+    //! Indices within the ThermoPhase of the radiating species. First index is
+    //! for CO2, second is for H2O.
+    std::vector<size_t> m_kRadiating;
+
     // flags
     std::vector<bool> m_do_energy;
     bool m_do_soret;
