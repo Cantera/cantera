@@ -17,9 +17,9 @@ namespace Cantera
 //! Class MultiTransport implements multicomponent transport properties for
 //! ideal gas mixtures.
 /*!
- * The implementation generally follows the procedure outlined in Kee,
- * Coltrin, and Glarborg, "Theoretical and Practical Aspects of Chemically
- * Reacting Flow Modeling," Wiley Interscience.
+ * The implementation generally follows the procedure outlined in: R. J. Kee, M.
+ * J. Coltrin, and P. Glarborg, "Chemically Reacting Flow: Theory & Practice",
+ * John Wiley & Sons, 2003.
  *
  * @ingroup tranprops
  */
