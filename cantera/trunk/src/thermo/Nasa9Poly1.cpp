@@ -81,10 +81,10 @@ void Nasa9Poly1::updateProperties(const doublereal* tt,
 
 
     doublereal cpdivR = ct0 + ct1 + ct2 + ct3 + ct4 + ct5 + ct6;
-    doublereal hdivRT = -ct0 + tt[6]*ct1  + ct2 + 0.5*ct3 + OneThird*ct4
+    doublereal hdivRT = -ct0 + tt[6]*ct1  + ct2 + 0.5*ct3 + 1.0/3.0*ct4
                         + 0.25*ct5  + 0.2*ct6 + m_coeff[7] * tt[4];
     doublereal sdivR  = -0.5*ct0  - ct1 + tt[6]*ct2  + ct3  + 0.5*ct4
-                        + OneThird*ct5 + 0.25*ct6 + m_coeff[8];
+                        + 1.0/3.0*ct5 + 0.25*ct6 + m_coeff[8];
 
     // return the computed properties in the location in the output
     // arrays for this species

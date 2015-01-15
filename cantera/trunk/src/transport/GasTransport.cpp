@@ -190,7 +190,7 @@ void GasTransport::updateViscosity_T()
 
             // Note that m_wratjk(k,j) holds the square root of m_wratjk(j,k)!
             factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
-            m_phi(k,j) = factor1*factor1 / (SqrtEight * m_wratkj1(j,k));
+            m_phi(k,j) = factor1*factor1 / (sqrt(8.0) * m_wratkj1(j,k));
             m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
         }
     }
@@ -650,8 +650,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                         (Pi * m_sigma[k] * m_sigma[k] * om11);
 
             // viscosity
-            visc = FiveSixteenths
-                   * sqrt(Pi * mw[k] * Boltzmann * t / Avogadro) /
+            visc = 5.0/16.0 * sqrt(Pi * mw[k] * Boltzmann * t / Avogadro) /
                    (om22 * Pi * m_sigma[k]*m_sigma[k]);
 
             // thermal conductivity

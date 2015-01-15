@@ -138,9 +138,9 @@ public:
 
         doublereal cp, h, s;
         cp = ct0 + ct1 + ct2 + ct3 + ct4;
-        h = ct0 + 0.5*ct1 + OneThird*ct2 + 0.25*ct3 + 0.2*ct4
+        h = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
             + m_coeff[0]*tt[4];               // last term is a5/T
-        s = ct0*tt[5] + ct1 + 0.5*ct2 + OneThird*ct3
+        s = ct0*tt[5] + ct1 + 0.5*ct2 + 1.0/3.0*ct3
             +0.25*ct4 + m_coeff[1];           // last term is a6
 
         // return the computed properties in the location in the output
@@ -199,7 +199,7 @@ public:
         doublereal ct3 = m_coeff[5]*tt[2];    // a3 * T^3
         doublereal ct4 = m_coeff[6]*tt[3];    // a4 * T^4
 
-        double h_RT = ct0 + 0.5*ct1 + OneThird*ct2 + 0.25*ct3 + 0.2*ct4
+        double h_RT = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
                       + m_coeff[0]*tt[4];               // last t
 
         double h = h_RT * GasConstant * temp;
