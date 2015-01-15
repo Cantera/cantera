@@ -71,7 +71,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_wdot.resize(m_nsp,m_points, 0.0);
     m_surfdot.resize(m_nsp, 0.0);
     m_ybar.resize(m_nsp);
-
+    m_qdotRadiation.resize(m_points, 0.0);
 
     //-------------- default solution bounds --------------------
 
@@ -130,6 +130,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
     m_do_energy.resize(m_points,false);
+    m_qdotRadiation.resize(m_points, 0.0);
 
     m_fixedy.resize(m_nsp, m_points);
     m_fixedtemp.resize(m_points);
@@ -305,9 +306,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     // Environment, NIST technical note 1402, 1993]. The coefficients for the
     // polynomials are taken from [http://www.sandia.gov/TNF/radiation.html].
 
-    // set the number of points in the radiative heat loss vector
-    m_qdotRadiation.resize(m_points);
-
     if (m_do_radiation) {
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
@@ -324,7 +322,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
         double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
 
         // loop over all grid points
-        for (size_t jnew = 0; jnew < m_points; jnew++) {
+        for (size_t j = jmin; j < jmax; j++) {
             // helping variable for the calculation
             double radiative_heat_loss = 0;
 
@@ -334,31 +332,27 @@ void StFlow::eval(size_t jg, doublereal* xg,
             if (m_kRadiating[1] != npos) {
                 double k_P_H2O = 0;
                 for (size_t n = 0; n <= 5; n++) {
-                    k_P_H2O += c_H2O[n] * pow(1000 / T(x, jnew), (double) n);
+                    k_P_H2O += c_H2O[n] * pow(1000 / T(x, j), (double) n);
                 }
                 k_P_H2O /= k_P_ref;
-                k_P += m_press * X(x, m_kRadiating[1], jnew) * k_P_H2O;
+                k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
             }
             // absorption coefficient for CO2
             if (m_kRadiating[0] != npos) {
                 double k_P_CO2 = 0;
                 for (size_t n = 0; n <= 5; n++) {
-                    k_P_CO2 += c_CO2[n] * pow(1000 / T(x, jnew), (double) n);
+                    k_P_CO2 += c_CO2[n] * pow(1000 / T(x, j), (double) n);
                 }
                 k_P_CO2 /= k_P_ref;
-                k_P += m_press * X(x, m_kRadiating[0], jnew) * k_P_CO2;
+                k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
             }
 
             // calculation of the radiative heat loss term
-            radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, jnew), 4)
+            radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
             - boundary_Rad_left - boundary_Rad_right);
 
             // set the radiative heat loss vector
-            m_qdotRadiation[jnew] = radiative_heat_loss;
-        }
-    } else {
-        for (size_t jnew = 0; jnew < m_points; jnew++) {
-            m_qdotRadiation[jnew] = 0;
+            m_qdotRadiation[j] = radiative_heat_loss;
         }
     }
 
