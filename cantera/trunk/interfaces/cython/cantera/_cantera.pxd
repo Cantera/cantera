@@ -432,6 +432,7 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setTransport(CxxTransport&) except +
         void setPressure(double)
         void enableRadiation(cbool)
+        cbool radiationEnabled()
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
         void setBoundaryEmissivities(double, double)

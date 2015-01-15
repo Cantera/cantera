@@ -201,11 +201,12 @@ public:
      *  1991]. This model considers the radiation of CO2 and H2O.
      */
     void enableRadiation(bool doRadiation) {
-        if (doRadiation) {
-            m_do_radiation = true;
-        } else {
-            m_do_radiation = false;
-        }
+        m_do_radiation = doRadiation;
+    }
+
+    //! Returns `true` if the radiation term in the energy equation is enabled
+    bool radiationEnabled() const {
+        return m_do_radiation;
     }
 
     //! Set the emissivities for the boundary values
