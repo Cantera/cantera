@@ -131,7 +131,7 @@ public:
      */
     void setMassFraction(size_t j, size_t k, doublereal y) {
         m_fixedy(k,j) = y;
-        m_do_species[k] = true; // false;
+        m_do_species[k] = true;
     }
 
     //! The fixed temperature value at point j.
@@ -469,21 +469,10 @@ protected:
     //             member data
     //---------------------------------------------------------
 
-    // inlet
-    doublereal m_inlet_u;
-    doublereal m_inlet_V;
-    doublereal m_inlet_T;
-    doublereal m_rho_inlet;
-    vector_fp m_yin;
-
-    // surface
-    doublereal m_surface_T;
-
     doublereal m_press;        // pressure
 
     // grid parameters
     vector_fp m_dz;
-    //vector_fp m_z;
 
     // mixture thermo properties
     vector_fp m_rho;
@@ -492,7 +481,6 @@ protected:
     // species thermo properties
     vector_fp m_wt;
     vector_fp m_cp;
-    vector_fp m_enth;
 
     // transport properties
     vector_fp m_visc;
@@ -504,7 +492,6 @@ protected:
 
     // production rates
     Array2D m_wdot;
-    vector_fp m_surfdot;
 
     size_t m_nsp;
 
@@ -513,8 +500,6 @@ protected:
     Transport* m_trans;
 
     MultiJac* m_jac;
-
-    bool m_ok;
 
     // boundary emissivities for the radiation calculations
     doublereal m_epsilon_left;
@@ -536,10 +521,6 @@ protected:
     // radiative heat loss vector
     // vector which contains the values of the radiative heat loss
     vector_fp m_qdotRadiation;
-
-    // solution estimate
-    //vector_fp m_zest;
-    //Array2D   m_yest;
 
     // fixed T and Y values
     Array2D   m_fixedy;
