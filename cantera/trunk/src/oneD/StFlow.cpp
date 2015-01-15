@@ -101,6 +101,13 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     }
     setupGrid(m_points, DATA_PTR(gr));
     setID("stagnation flow");
+
+    // Find indices for radiating species
+    m_kRadiating.resize(2, npos);
+    size_t kr = m_thermo->speciesIndex("CO2");
+    m_kRadiating[0] = (kr != npos) ? kr : m_thermo->speciesIndex("co2");
+    kr = m_thermo->speciesIndex("H2O");
+    m_kRadiating[1] = (kr != npos) ? kr : m_thermo->speciesIndex("h2o");
 }
 
 void StFlow::resize(size_t ncomponents, size_t points)
@@ -305,10 +312,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
         doublereal k_P_ref = 1.0*OneAtm;
-        size_t position_H2O = 0;
-        size_t position_CO2 = 0;
-        size_t check_H2O = 0;
-        size_t check_CO2 = 0;
 
         // polynomial coefficients:
         const doublereal c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
@@ -320,44 +323,32 @@ void StFlow::eval(size_t jg, doublereal* xg,
         double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
         double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
 
-        // check if H2O and / or CO2 are in the mechanism and set their positions
-        for (size_t n_comp = 0; n_comp < m_nv; n_comp++) {
-            if (componentName(n_comp) == "H2O") {
-                position_H2O = componentIndex("H2O") - c_offset_Y;
-                check_H2O = 1;
-            } else if (componentName(n_comp) == "CO2") {
-                position_CO2 = componentIndex("CO2") - c_offset_Y;
-                check_CO2 = 1;
-            }
-        }
-
         // loop over all grid points
         for (size_t jnew = 0; jnew < m_points; jnew++) {
             // helping variable for the calculation
             double radiative_heat_loss = 0;
 
             // calculation of the mean Planck absorption coefficient
-            double k_P_H2O = 0;
-            double k_P_CO2 = 0;
+            double k_P = 0;
             // absorption coefficient for H2O
-            if (check_H2O == 1) {
+            if (m_kRadiating[1] != npos) {
+                double k_P_H2O = 0;
                 for (size_t n = 0; n <= 5; n++) {
                     k_P_H2O += c_H2O[n] * pow(1000 / T(x, jnew), (double) n);
                 }
+                k_P_H2O /= k_P_ref;
+                k_P += m_press * X(x, m_kRadiating[1], jnew) * k_P_H2O;
             }
             // absorption coefficient for CO2
-            if (check_CO2 == 1) {
+            if (m_kRadiating[0] != npos) {
+                double k_P_CO2 = 0;
                 for (size_t n = 0; n <= 5; n++) {
                     k_P_CO2 += c_CO2[n] * pow(1000 / T(x, jnew), (double) n);
                 }
+                k_P_CO2 /= k_P_ref;
+                k_P += m_press * X(x, m_kRadiating[0], jnew) * k_P_CO2;
             }
-            // normalizing the coefficients
-            k_P_H2O /= k_P_ref;
-            k_P_CO2 /= k_P_ref;
 
-            // calculation of k_P
-            double k_P = m_press * (X(x, position_H2O, jnew) * k_P_H2O * check_H2O
-                         + X(x, position_CO2, jnew) * k_P_CO2 * check_CO2);
             // calculation of the radiative heat loss term
             radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, jnew), 4)
             - boundary_Rad_left - boundary_Rad_right);
