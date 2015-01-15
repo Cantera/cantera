@@ -18,17 +18,12 @@ namespace Cantera
 
 StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+4, points),
-    m_inlet_u(0.0),
-    m_inlet_V(0.0),
-    m_inlet_T(-1.0),
-    m_surface_T(-1.0),
     m_press(-1.0),
     m_nsp(nsp),
     m_thermo(0),
     m_kin(0),
     m_trans(0),
     m_jac(0),
-    m_ok(false),
     m_epsilon_left(0.0),
     m_epsilon_right(0.0),
     m_do_soret(false),
@@ -69,7 +64,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_multidiff.resize(m_nsp*m_nsp*m_points);
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
-    m_surfdot.resize(m_nsp, 0.0);
     m_ybar.resize(m_nsp);
     m_qdotRadiation.resize(m_points, 0.0);
 
@@ -116,7 +110,6 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_rho.resize(m_points, 0.0);
     m_wtm.resize(m_points, 0.0);
     m_cp.resize(m_points, 0.0);
-    m_enth.resize(m_points, 0.0);
     m_visc.resize(m_points, 0.0);
     m_tcon.resize(m_points, 0.0);
 
