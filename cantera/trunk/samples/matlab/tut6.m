@@ -19,7 +19,7 @@
 
 % Currently, two models are implemented. Both are based on kinetic
 % theory expressions, and follow the approach described in Dixon-Lewis
-% (1968) and Kee, Coltrin, and Glarborg (2002). The first is a full
+% (1968) and Kee, Coltrin, and Glarborg (2003). The first is a full
 % multicomponent formulation, and the second is a simplification that
 % uses expressions derived for mixtures with a small number of species
 % (1 to 3), using approximate mixture rules to average over
