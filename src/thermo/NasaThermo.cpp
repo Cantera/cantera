@@ -266,14 +266,14 @@ doublereal NasaThermo::cp_R(double t, const doublereal* c)
 }
 
 doublereal NasaThermo::enthalpy_RT(double t, const doublereal* c) {
-    return c[2] + 0.5*c[3]*t + OneThird*c[4]*t*t
+    return c[2] + 0.5*c[3]*t + 1.0/3.0*c[4]*t*t
            + 0.25*c[5]*t*t*t + 0.2*c[6]*t*t*t*t
            + c[0]/t;
 }
 
 doublereal NasaThermo::entropy_R(double t, const doublereal* c) {
     return c[2]*log(t) + c[3]*t + 0.5*c[4]*t*t
-           + OneThird*c[5]*t*t*t + 0.25*c[6]*t*t*t*t
+           + 1.0/3.0*c[5]*t*t*t + 0.25*c[6]*t*t*t*t
            + c[1];
 }
 

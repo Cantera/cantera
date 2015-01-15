@@ -26,9 +26,9 @@ namespace Cantera
  */
 inline doublereal Frot(doublereal tr, doublereal sqtr)
 {
-    const doublereal c1 = 0.5*SqrtPi*Pi;
+    const doublereal c1 = 0.5*sqrt(Pi)*Pi;
     const doublereal c2 = 0.25*Pi*Pi + 2.0;
-    const doublereal c3 = SqrtPi*Pi;
+    const doublereal c3 = sqrt(Pi)*Pi;
     return 1.0 + c1*sqtr + c2*tr + c3*sqtr*tr;
 }
 

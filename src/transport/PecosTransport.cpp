@@ -537,7 +537,7 @@ void PecosTransport::updateViscosity_T()
             // m_wratjk(j,k)!
             factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
             m_phi(k,j) = factor1*factor1 /
-                         (SqrtEight * m_wratkj1(j,k));
+                         (sqrt(8.0) * m_wratkj1(j,k));
             m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
         }
     }

@@ -49,8 +49,6 @@ namespace Cantera
 
 //! Pi
 const doublereal Pi = 3.14159265358979323846;
-//! sqrt(Pi)
-const doublereal SqrtPi = std::sqrt(Pi);
 
 /*!
  *   @name Variations of the Gas Constant
@@ -123,17 +121,6 @@ const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104,
           VU = -105, TS = -106, VS = -107, PU = -108, HV = -109,
           HT = -110, HS = -111, XP = -112, XT = -113;
 //@}
-
-//! 1/3
-const doublereal OneThird = 1.0/3.0;
-//! 5/16
-const doublereal FiveSixteenths = 5.0/16.0;
-//! sqrt(10)
-const doublereal SqrtTen = std::sqrt(10.0);
-//! sqrt(8)
-const doublereal SqrtEight = std::sqrt(8.0);
-//! sqrt(2)
-const doublereal SqrtTwo = std::sqrt(2.0);
 
 //! smallest number to compare to zero.
 const doublereal SmallNumber = 1.e-300;

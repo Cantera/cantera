@@ -166,8 +166,8 @@ public:
 
         doublereal cp, h, s;
         cp = A + Bt + Ct2 + Dt3 + Etm2;
-        h = tt[0]*(A + 0.5*Bt + OneThird*Ct2 + 0.25*Dt3 - Etm2) + F;
-        s = A*tt[4] + Bt + 0.5*Ct2 + OneThird*Dt3 - 0.5*Etm2 + G;
+        h = tt[0]*(A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2) + F;
+        s = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
 
         /*
          *  Shomate polynomials parameterizes assuming units of
@@ -228,7 +228,7 @@ public:
         doublereal Etm2   = m_coeff[4]*tPoly[3];
         doublereal F      = m_coeff[5];
 
-        doublereal h = tPoly[0]*(A + 0.5*Bt + OneThird*Ct2 + 0.25*Dt3 - Etm2) + F;
+        doublereal h = tPoly[0]*(A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2) + F;
 
         double hh =  1.e6 * h;
         if (h298) {
