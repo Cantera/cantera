@@ -13,7 +13,6 @@ namespace Cantera
 {
 
 FlowReactor::FlowReactor() :
-    Reactor(),
     m_speed(0.0),
     m_dist(0.0),
     m_T(0.0),

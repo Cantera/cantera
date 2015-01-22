@@ -20,22 +20,14 @@ namespace Cantera
 LatticeSolidPhase::LatticeSolidPhase() :
     m_press(-1.0),
     m_molar_density(0.0),
-    m_nlattice(0),
-    m_lattice(0),
-    m_x(0),
-    theta_(0),
-    tmpV_(0)
+    m_nlattice(0)
 {
 }
 
 LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
     m_press(-1.0),
     m_molar_density(0.0),
-    m_nlattice(0),
-    m_lattice(0),
-    m_x(0),
-    theta_(0),
-    tmpV_(0)
+    m_nlattice(0)
 {
     *this = right;
 }

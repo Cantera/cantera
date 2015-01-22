@@ -12,7 +12,6 @@ using namespace std;
 namespace Cantera
 {
 MixTransport::MixTransport() :
-    m_cond(0),
     m_lambda(0.0),
     m_spcond_ok(false),
     m_condmix_ok(false),
@@ -22,7 +21,6 @@ MixTransport::MixTransport() :
 
 MixTransport::MixTransport(const MixTransport& right) :
     GasTransport(right),
-    m_cond(0),
     m_lambda(0.0),
     m_spcond_ok(false),
     m_condmix_ok(false),

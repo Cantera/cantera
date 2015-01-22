@@ -34,7 +34,6 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
 }
 
 SimpleTransport::SimpleTransport(const SimpleTransport& right) :
-    Transport(),
     tempDepType_(0),
     compositionDepType_(LTI_MODEL_SOLVENT),
     useHydroRadius_(false),

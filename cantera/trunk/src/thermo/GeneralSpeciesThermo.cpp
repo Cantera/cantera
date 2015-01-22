@@ -12,7 +12,6 @@
 namespace Cantera
 {
 GeneralSpeciesThermo::GeneralSpeciesThermo() :
-    SpeciesThermo(),
     m_tlow_max(0.0),
     m_thigh_min(1.0E30),
     m_p0(OneAtm)

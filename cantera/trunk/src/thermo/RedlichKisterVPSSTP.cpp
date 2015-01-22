@@ -22,62 +22,34 @@ using namespace std;
 namespace Cantera
 {
 RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
-    m_pSpecies_A_ij(0),
-    m_pSpecies_B_ij(0),
-    m_N_ij(0),
-    m_HE_m_ij(0),
-    m_SE_m_ij(0),
     formRedlichKister_(0),
-    formTempModel_(0),
-    dlnActCoeff_dX_()
+    formTempModel_(0)
 {
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
-    m_pSpecies_A_ij(0),
-    m_pSpecies_B_ij(0),
-    m_N_ij(0),
-    m_HE_m_ij(0),
-    m_SE_m_ij(0),
     formRedlichKister_(0),
-    formTempModel_(0),
-    dlnActCoeff_dX_()
+    formTempModel_(0)
 {
     initThermoFile(inputFile, id_);
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
-    m_pSpecies_A_ij(0),
-    m_pSpecies_B_ij(0),
-    m_N_ij(0),
-    m_HE_m_ij(0),
-    m_SE_m_ij(0),
     formRedlichKister_(0),
-    formTempModel_(0),
-    dlnActCoeff_dX_()
+    formTempModel_(0)
 {
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
-    m_pSpecies_A_ij(0),
-    m_pSpecies_B_ij(0),
-    m_N_ij(0),
-    m_HE_m_ij(0),
-    m_SE_m_ij(0),
     formRedlichKister_(0),
-    formTempModel_(0),
-    dlnActCoeff_dX_()
+    formTempModel_(0)
 {
     initThermoFile("LiKCl_liquid.xml", "");
     numBinaryInteractions_ = 1;
@@ -115,16 +87,9 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
-    m_pSpecies_A_ij(0),
-    m_pSpecies_B_ij(0),
-    m_N_ij(0),
-    m_HE_m_ij(0),
-    m_SE_m_ij(0),
     formRedlichKister_(0),
-    formTempModel_(0),
-    dlnActCoeff_dX_()
+    formTempModel_(0)
 {
     RedlichKisterVPSSTP::operator=(b);
 }

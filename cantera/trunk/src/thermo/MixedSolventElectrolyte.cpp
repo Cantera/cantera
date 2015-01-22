@@ -21,7 +21,6 @@ using namespace std;
 namespace Cantera
 {
 MixedSolventElectrolyte::MixedSolventElectrolyte() :
-    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -30,7 +29,6 @@ MixedSolventElectrolyte::MixedSolventElectrolyte() :
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
         const std::string& id_) :
-    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -40,7 +38,6 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
         const std::string& id_) :
-    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -48,8 +45,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
-MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b) :
-    MolarityIonicVPSSTP()
+MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b)
 {
     MixedSolventElectrolyte::operator=(b);
 }

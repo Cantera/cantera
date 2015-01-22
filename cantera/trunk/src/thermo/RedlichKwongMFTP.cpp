@@ -30,24 +30,13 @@ const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
 const doublereal RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
 
 RedlichKwongMFTP::RedlichKwongMFTP() :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     Vroot_[0] = 0.0;
     Vroot_[1] = 0.0;
@@ -55,24 +44,13 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id_) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     Vroot_[0] = 0.0;
     Vroot_[1] = 0.0;
@@ -90,24 +68,13 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id_) :
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id_) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     Vroot_[0] = 0.0;
     Vroot_[1] = 0.0;
@@ -120,24 +87,13 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     std::string infile = "co2_redlichkwong.xml";
     std::string id_;
@@ -159,24 +115,13 @@ RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     *this = b;
 }

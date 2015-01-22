@@ -19,7 +19,6 @@ namespace Cantera
 {
 
 SquareMatrix::SquareMatrix() :
-    DenseMatrix(),
     GeneralMatrix(0),
     a1norm_(0.0),
     useQR_(0)

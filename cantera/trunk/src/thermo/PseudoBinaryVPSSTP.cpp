@@ -26,7 +26,6 @@ using namespace std;
 namespace Cantera
 {
 PseudoBinaryVPSSTP::PseudoBinaryVPSSTP() :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
@@ -40,7 +39,6 @@ PseudoBinaryVPSSTP::PseudoBinaryVPSSTP() :
 }
 
 PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP& b) :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),

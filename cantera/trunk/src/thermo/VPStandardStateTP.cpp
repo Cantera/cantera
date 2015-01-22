@@ -23,7 +23,6 @@ namespace Cantera
  * Default constructor
  */
 VPStandardStateTP::VPStandardStateTP() :
-    ThermoPhase(),
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),
@@ -33,7 +32,6 @@ VPStandardStateTP::VPStandardStateTP() :
 }
 
 VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
-    ThermoPhase(),
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),

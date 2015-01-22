@@ -12,8 +12,7 @@ namespace tpx
 class CarbonDioxide : public Substance
 {
 public:
-    CarbonDioxide() :
-        Substance() {
+    CarbonDioxide() {
         m_name="CarbonDioxide";
         m_formula="CO2";
     }

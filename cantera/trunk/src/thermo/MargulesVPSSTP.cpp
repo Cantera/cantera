@@ -20,7 +20,6 @@ using namespace std;
 namespace Cantera
 {
 MargulesVPSSTP::MargulesVPSSTP() :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -28,7 +27,6 @@ MargulesVPSSTP::MargulesVPSSTP() :
 }
 
 MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id_) :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -37,7 +35,6 @@ MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& 
 }
 
 MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id_) :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -45,8 +42,7 @@ MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id_) :
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
-MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b) :
-    GibbsExcessVPSSTP()
+MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b)
 {
     MargulesVPSSTP::operator=(b);
 }

@@ -28,7 +28,6 @@ namespace Cantera
 {
 
 IdealMolalSoln::IdealMolalSoln() :
-    MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.20),

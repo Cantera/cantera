@@ -23,29 +23,11 @@ using namespace std;
 namespace Cantera
 {
 //=========================================================================================================================
-GibbsExcessVPSSTP::GibbsExcessVPSSTP() :
-    VPStandardStateTP(),
-    moleFractions_(0),
-    lnActCoeff_Scaled_(0),
-    dlnActCoeffdT_Scaled_(0),
-    d2lnActCoeffdT2_Scaled_(0),
-    dlnActCoeffdlnN_diag_(0),
-    dlnActCoeffdlnX_diag_(0),
-    dlnActCoeffdlnN_(0,0),
-    m_pp(0)
+GibbsExcessVPSSTP::GibbsExcessVPSSTP()
 {
 }
 //=========================================================================================================================
-GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b) :
-    VPStandardStateTP(),
-    moleFractions_(0),
-    lnActCoeff_Scaled_(0),
-    dlnActCoeffdT_Scaled_(0),
-    d2lnActCoeffdT2_Scaled_(0),
-    dlnActCoeffdlnN_diag_(0),
-    dlnActCoeffdlnX_diag_(0),
-    dlnActCoeffdlnN_(0,0),
-    m_pp(0)
+GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b)
 {
     GibbsExcessVPSSTP::operator=(b);
 }

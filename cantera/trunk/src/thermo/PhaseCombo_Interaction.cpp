@@ -17,7 +17,6 @@ using namespace std;
 namespace Cantera
 {
 PhaseCombo_Interaction::PhaseCombo_Interaction() :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -26,7 +25,6 @@ PhaseCombo_Interaction::PhaseCombo_Interaction() :
 
 PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -36,7 +34,6 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
 
 PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -44,8 +41,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
-PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction& b) :
-    GibbsExcessVPSSTP()
+PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction& b)
 {
     PhaseCombo_Interaction::operator=(b);
 }

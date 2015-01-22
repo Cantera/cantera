@@ -24,14 +24,12 @@ namespace Cantera
 {
 
 IdealSolnGasVPSS::IdealSolnGasVPSS() :
-    VPStandardStateTP(),
     m_idealGas(0),
     m_formGC(0)
 {
 }
 
 IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
-    VPStandardStateTP(),
     m_idealGas(0),
     m_formGC(0)
 {
@@ -48,7 +46,6 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
 }
 
 IdealSolnGasVPSS::IdealSolnGasVPSS(const IdealSolnGasVPSS& b) :
-    VPStandardStateTP(),
     m_idealGas(0),
     m_formGC(0)
 {

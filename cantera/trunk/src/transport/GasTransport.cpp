@@ -14,21 +14,12 @@ namespace Cantera
 
 GasTransport::GasTransport(ThermoPhase* thermo) :
     Transport(thermo),
-    m_molefracs(0),
     m_viscmix(0.0),
     m_visc_ok(false),
     m_viscwt_ok(false),
     m_spvisc_ok(false),
     m_bindiff_ok(false),
     m_mode(0),
-    m_phi(0,0),
-    m_spwork(0),
-    m_visc(0),
-    m_visccoeffs(0),
-    m_mw(0),
-    m_wratjk(0,0),
-    m_wratkj1(0,0),
-    m_sqvisc(0),
     m_polytempvec(5),
     m_temp(-1.0),
     m_kbt(0.0),
@@ -37,28 +28,17 @@ GasTransport::GasTransport(ThermoPhase* thermo) :
     m_logt(0.0),
     m_t14(0.0),
     m_t32(0.0),
-    m_diffcoeffs(0),
-    m_bdiff(0, 0),
     m_log_level(0)
 {
 }
 
 GasTransport::GasTransport(const GasTransport& right) :
-    m_molefracs(0),
     m_viscmix(0.0),
     m_visc_ok(false),
     m_viscwt_ok(false),
     m_spvisc_ok(false),
     m_bindiff_ok(false),
     m_mode(0),
-    m_phi(0,0),
-    m_spwork(0),
-    m_visc(0),
-    m_visccoeffs(0),
-    m_mw(0),
-    m_wratjk(0,0),
-    m_wratkj1(0,0),
-    m_sqvisc(0),
     m_polytempvec(5),
     m_temp(-1.0),
     m_kbt(0.0),
@@ -67,8 +47,6 @@ GasTransport::GasTransport(const GasTransport& right) :
     m_logt(0.0),
     m_t14(0.0),
     m_t32(0.0),
-    m_diffcoeffs(0),
-    m_bdiff(0, 0),
     m_log_level(0)
 {
 }
