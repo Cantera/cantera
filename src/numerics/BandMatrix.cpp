@@ -26,8 +26,6 @@ BandMatrix::BandMatrix() :
     m_ku(0),
     m_zero(0.0)
 {
-    data.clear();
-    ludata.clear();
 }
 
 BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :

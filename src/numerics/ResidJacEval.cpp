@@ -17,13 +17,11 @@ using namespace std;
 namespace Cantera
 {
 ResidJacEval::ResidJacEval(doublereal atol) :
-    ResidEval(),
     m_atol(atol)
 {
 }
 
-ResidJacEval::ResidJacEval(const ResidJacEval& right) :
-    ResidEval()
+ResidJacEval::ResidJacEval(const ResidJacEval& right)
 {
     *this = right;
 }

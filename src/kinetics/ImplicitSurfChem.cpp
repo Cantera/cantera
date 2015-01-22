@@ -16,7 +16,6 @@ namespace Cantera
 {
 
 ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
-    FuncEval(),
     m_nsurf(0),
     m_nv(0),
     m_numBulkPhases(0),

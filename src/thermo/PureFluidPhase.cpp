@@ -19,7 +19,6 @@ namespace Cantera
 {
 
 PureFluidPhase::PureFluidPhase() :
-    ThermoPhase(),
     m_sub(0),
     m_subflag(0),
     m_mw(-1.0),
@@ -28,7 +27,6 @@ PureFluidPhase::PureFluidPhase() :
 }
 
 PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
-    ThermoPhase(),
     m_sub(0),
     m_subflag(0),
     m_mw(-1.0),

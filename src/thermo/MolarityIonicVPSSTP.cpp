@@ -28,7 +28,6 @@ namespace Cantera
 {
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
@@ -41,7 +40,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
@@ -55,7 +53,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
@@ -68,7 +65,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
 }
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),

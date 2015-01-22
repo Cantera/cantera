@@ -15,8 +15,7 @@ using namespace std;
 namespace Cantera
 {
 
-Sim1D::Sim1D() :
-    OneDim()
+Sim1D::Sim1D()
 {
 }
 

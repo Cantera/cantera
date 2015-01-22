@@ -12,8 +12,6 @@ namespace Cantera
 {
 
 DenseMatrix::DenseMatrix() :
-    Array2D(0,0,0.0),
-    m_ipiv(0),
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {
@@ -36,7 +34,6 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
 
 DenseMatrix::DenseMatrix(const DenseMatrix& y) :
     Array2D(y),
-    m_ipiv(0),
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {

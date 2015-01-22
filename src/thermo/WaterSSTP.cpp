@@ -20,7 +20,6 @@ using namespace std;
 namespace Cantera
 {
 WaterSSTP::WaterSSTP() :
-    SingleSpeciesTP(),
     m_sub(0),
     m_waterProps(0),
     m_mw(0.0),
@@ -32,7 +31,6 @@ WaterSSTP::WaterSSTP() :
 }
 
 WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
-    SingleSpeciesTP(),
     m_sub(0),
     m_waterProps(0),
     m_mw(0.0),
@@ -45,7 +43,6 @@ WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
 }
 
 WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
-    SingleSpeciesTP(),
     m_sub(0),
     m_waterProps(0),
     m_mw(0.0),

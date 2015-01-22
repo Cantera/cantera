@@ -20,7 +20,6 @@ using namespace std;
 namespace Cantera
 {
 SurfPhase::SurfPhase(doublereal n0):
-    ThermoPhase(),
     m_n0(n0),
     m_logn0(0.0),
     m_press(OneAtm)
@@ -32,7 +31,6 @@ SurfPhase::SurfPhase(doublereal n0):
 }
 
 SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
-    ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
     m_press(OneAtm)
@@ -57,7 +55,6 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
 }
 
 SurfPhase::SurfPhase(XML_Node& xmlphase) :
-    ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
     m_press(OneAtm)

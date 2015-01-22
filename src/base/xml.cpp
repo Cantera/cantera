@@ -310,7 +310,6 @@ std::string XML_Reader::readValue()
 
 XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
     m_name(nm),
-    m_value(""),
     m_parent(parent_),
     m_root(0),
     m_locked(false),
@@ -325,8 +324,6 @@ XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
 }
 
 XML_Node::XML_Node(const XML_Node& right) :
-    m_name(""),
-    m_value(""),
     m_parent(0),
     m_root(0),
     m_locked(false),

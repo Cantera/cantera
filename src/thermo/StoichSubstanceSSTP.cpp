@@ -24,13 +24,11 @@ namespace Cantera
  * ----  Constructors -------
  */
 
-StoichSubstanceSSTP::StoichSubstanceSSTP():
-    SingleSpeciesTP()
+StoichSubstanceSSTP::StoichSubstanceSSTP()
 {
 }
 
-StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string id_) :
-    SingleSpeciesTP()
+StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string id_)
 {
     XML_Node* root = get_XML_File(infile);
     if (id_ == "-") {
@@ -51,8 +49,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string 
     importPhase(*xphase, this);
 }
 
-StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& id_) :
-    SingleSpeciesTP()
+StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& id_)
 {
     if (id_ != "") {
         std::string idxml = xmlphase["id"];
@@ -70,8 +67,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& 
     importPhase(xmlphase, this);
 }
 
-StoichSubstanceSSTP::StoichSubstanceSSTP(const StoichSubstanceSSTP&  right) :
-    SingleSpeciesTP()
+StoichSubstanceSSTP::StoichSubstanceSSTP(const StoichSubstanceSSTP&  right)
 {
     *this = right;
 }

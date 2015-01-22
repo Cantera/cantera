@@ -29,7 +29,6 @@ namespace Cantera
 {
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
-    GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
     indexSpecialSpecies_(npos),
@@ -39,17 +38,13 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
     geThermo(0),
-    IOwnNThermoPhase_(true),
-    moleFractionsTmp_(0),
-    muNeutralMolecule_(0),
-    lnActCoeff_NeutralMolecule_(0)
+    IOwnNThermoPhase_(true)
 {
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
         const std::string& id_,
         ThermoPhase* neutralPhase) :
-    GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
     indexSpecialSpecies_(npos),
@@ -58,10 +53,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true),
-    moleFractionsTmp_(0),
-    muNeutralMolecule_(0),
-    lnActCoeff_NeutralMolecule_(0)
+    IOwnNThermoPhase_(true)
 {
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
@@ -72,7 +64,6 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
         const std::string& id_, ThermoPhase* neutralPhase) :
-    GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
     indexSpecialSpecies_(npos),
@@ -81,11 +72,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
     numAnionSpecies_(0),
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true),
-    moleFractionsTmp_(0),
-    muNeutralMolecule_(0),
-
-    lnActCoeff_NeutralMolecule_(0)
+    IOwnNThermoPhase_(true)
 {
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
@@ -99,7 +86,6 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
-    GibbsExcessVPSSTP(),
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
     indexSpecialSpecies_(npos),
@@ -109,11 +95,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
     numPassThroughSpecies_(0),
     neutralMoleculePhase_(0),
     geThermo(0),
-    IOwnNThermoPhase_(true),
-    moleFractionsTmp_(0),
-    muNeutralMolecule_(0),
-
-    lnActCoeff_NeutralMolecule_(0)
+    IOwnNThermoPhase_(true)
 {
     IonsFromNeutralVPSSTP::operator=(b);
 }

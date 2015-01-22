@@ -29,7 +29,6 @@ namespace Cantera
 {
 
 DebyeHuckel::DebyeHuckel() :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),
@@ -52,7 +51,6 @@ DebyeHuckel::DebyeHuckel() :
 
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
                          const std::string& id_) :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),
@@ -74,7 +72,6 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
 }
 
 DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),
@@ -96,7 +93,6 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
 }
 
 DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),

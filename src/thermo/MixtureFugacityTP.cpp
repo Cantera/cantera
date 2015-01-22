@@ -21,32 +21,20 @@ namespace Cantera
 {
 
 MixtureFugacityTP::MixtureFugacityTP() :
-    ThermoPhase(),
     m_Pcurrent(-1.0),
-    moleFractions_(0),
     iState_(FLUID_GAS),
     forcedState_(FLUID_UNDEFINED),
     m_Tlast_ref(-1.0),
-    m_logc0(0.0),
-    m_h0_RT(0),
-    m_cp0_R(0),
-    m_g0_RT(0),
-    m_s0_R(0)
+    m_logc0(0.0)
 {
 }
 
 MixtureFugacityTP::MixtureFugacityTP(const MixtureFugacityTP& b) :
-    ThermoPhase(),
     m_Pcurrent(-1.0),
-    moleFractions_(0),
     iState_(FLUID_GAS),
     forcedState_(FLUID_UNDEFINED),
     m_Tlast_ref(-1.0),
-    m_logc0(0.0),
-    m_h0_RT(0),
-    m_cp0_R(0),
-    m_g0_RT(0),
-    m_s0_R(0)
+    m_logc0(0.0)
 {
     MixtureFugacityTP::operator=(b);
 }

@@ -22,7 +22,6 @@ namespace Cantera
 {
 
 IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
-    ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
@@ -35,7 +34,6 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
 
 IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
         const std::string& id_, int formGC) :
-    ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
@@ -49,7 +47,6 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
 
 IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
         int formGC) :
-    ThermoPhase(),
     m_formGC(formGC),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)

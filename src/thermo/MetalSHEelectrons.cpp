@@ -25,13 +25,11 @@ namespace Cantera
  */
 
 MetalSHEelectrons::MetalSHEelectrons():
-    SingleSpeciesTP(),
     xdef_(0)
 {
 }
 
 MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_) :
-    SingleSpeciesTP(),
     xdef_(0)
 {
     XML_Node* root;
@@ -60,7 +58,6 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_)
 }
 
 MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_) :
-    SingleSpeciesTP(),
     xdef_(0)
 {
     if (id_ != "") {
@@ -80,7 +77,6 @@ MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 }
 
 MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons&  right) :
-    SingleSpeciesTP(),
     xdef_(0)
 {
     operator=(right);

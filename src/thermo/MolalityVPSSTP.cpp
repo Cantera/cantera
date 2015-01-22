@@ -29,7 +29,6 @@ namespace Cantera
 {
 
 MolalityVPSSTP::MolalityVPSSTP() :
-    VPStandardStateTP(),
     m_indexSolvent(0),
     m_pHScalingType(PHSCALE_PITZER),
     m_indexCLM(npos),
@@ -46,7 +45,6 @@ MolalityVPSSTP::MolalityVPSSTP() :
 }
 
 MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
-    VPStandardStateTP(),
     m_indexSolvent(b.m_indexSolvent),
     m_pHScalingType(b.m_pHScalingType),
     m_indexCLM(b.m_indexCLM),

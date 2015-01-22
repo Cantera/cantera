@@ -42,8 +42,6 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_useCanteraCalls(false),
     TP_ptr(0),
     v_totalMoles(0.0),
-    creationMoleNumbers_(0),
-    creationGlobalRxnNumbers_(0),
     m_phiVarIndex(npos),
     m_totalVol(0.0),
     m_vcsStateStatus(VCS_STATECALC_OLD),

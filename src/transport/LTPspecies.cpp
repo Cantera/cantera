@@ -174,7 +174,6 @@ LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node& propNode, const std::
 }
 
 LTPspecies_Arrhenius::LTPspecies_Arrhenius(const LTPspecies_Arrhenius& right)
-    : LTPspecies()
 {
     *this = right;
 }

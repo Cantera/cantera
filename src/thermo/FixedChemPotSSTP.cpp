@@ -24,13 +24,11 @@ namespace Cantera
  */
 
 FixedChemPotSSTP::FixedChemPotSSTP() :
-    SingleSpeciesTP(),
     chemPot_(0.0)
 {
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id_) :
-    SingleSpeciesTP(),
     chemPot_(0.0)
 {
     XML_Node* root = get_XML_File(infile);
@@ -52,7 +50,6 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id_) :
     importPhase(*xphase, this);
 }
 FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
-    SingleSpeciesTP(),
     chemPot_(0.0)
 {
     if (id_ != "") {
@@ -77,7 +74,6 @@ FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
-    SingleSpeciesTP(),
     chemPot_(0.0)
 {
 
@@ -121,8 +117,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     s = 0;
 }
 
-FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP&  right) :
-    SingleSpeciesTP()
+FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP&  right)
 {
     *this = right;
 }

@@ -27,13 +27,11 @@ namespace Cantera
  * ----  Constructors -------
  */
 
-MineralEQ3::MineralEQ3():
-    StoichSubstanceSSTP()
+MineralEQ3::MineralEQ3()
 {
 }
 
-MineralEQ3::MineralEQ3(const std::string& infile, std::string id_) :
-    StoichSubstanceSSTP()
+MineralEQ3::MineralEQ3(const std::string& infile, std::string id_)
 {
     XML_Node* root = get_XML_File(infile);
     if (id_ == "-") {
@@ -54,8 +52,7 @@ MineralEQ3::MineralEQ3(const std::string& infile, std::string id_) :
     importPhase(*xphase, this);
 }
 
-MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_) :
-    StoichSubstanceSSTP()
+MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
 {
     if (id_ != "") {
         std::string idxml = xmlphase["id"];
@@ -73,8 +70,7 @@ MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_) :
     importPhase(xmlphase, this);
 }
 
-MineralEQ3::MineralEQ3(const MineralEQ3&  right) :
-    StoichSubstanceSSTP()
+MineralEQ3::MineralEQ3(const MineralEQ3&  right)
 {
     *this = right;
 }

@@ -19,14 +19,12 @@ using namespace std;
 namespace Cantera
 {
 SingleSpeciesTP::SingleSpeciesTP() :
-    ThermoPhase(),
     m_press(OneAtm),
     m_p0(OneAtm)
 {
 }
 
 SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP& right):
-    ThermoPhase(),
     m_press(OneAtm),
     m_p0(OneAtm)
 {
