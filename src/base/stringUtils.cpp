@@ -240,7 +240,7 @@ doublereal fpValue(const std::string& val)
     ss >> rval;
     return rval;
 }
-//========================================================================================================================
+
 doublereal fpValueCheck(const std::string& val)
 {
     std::string str = stripws(val);
@@ -286,7 +286,7 @@ doublereal fpValueCheck(const std::string& val)
     }
     return fpValue(str);
 }
-//=====================================================================================================================
+
 std::string logfileName(const std::string& infile)
 {
     warn_deprecated("logfileName", "To be removed after Cantera 2.2.");
@@ -294,7 +294,7 @@ std::string logfileName(const std::string& infile)
     logfile += ".log";
     return logfile;
 }
-//====================================================================================================================
+
 std::string wrapString(const std::string& s, const int len)
 {
     int count=0;
@@ -313,7 +313,7 @@ std::string wrapString(const std::string& s, const int len)
     }
     return r;
 }
-//======================================================================================================================
+
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
     std::string s = stripws(nameStr);

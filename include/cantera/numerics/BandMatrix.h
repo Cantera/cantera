@@ -154,6 +154,7 @@ public:
     //! Return a reference to the pivot vector
     vector_int& ipiv();
 
+    //! Multiply A*b and write result to \c prod.
     virtual void mult(const doublereal* b, doublereal* prod) const;
     virtual void leftMult(const doublereal* const b, doublereal* const prod) const;
 

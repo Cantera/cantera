@@ -169,38 +169,32 @@ size_t BandMatrix::nRowsAndStruct(size_t* const iStruct) const
     }
     return m_n;
 }
-//====================================================================================================================
-// Number of columns
+
 size_t BandMatrix::nColumns() const
 {
     return m_n;
 }
-//====================================================================================================================
-// Number of subdiagonals
+
 size_t BandMatrix::nSubDiagonals() const
 {
     return m_kl;
 }
-//====================================================================================================================
-// Number of superdiagonals
+
 size_t BandMatrix::nSuperDiagonals() const
 {
     return m_ku;
 }
-//====================================================================================================================
+
 size_t BandMatrix::ldim() const
 {
     return 2*m_kl + m_ku + 1;
 }
-//====================================================================================================================
+
 vector_int&   BandMatrix::ipiv()
 {
     return m_ipiv;
 }
-//====================================================================================================================
-/*
- * Multiply A*b and write result to \c prod.
- */
+
 void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 {
     int kl = static_cast<int>(m_kl);

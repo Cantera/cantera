@@ -22,16 +22,16 @@ using namespace std;
 
 namespace Cantera
 {
-//=========================================================================================================================
+
 GibbsExcessVPSSTP::GibbsExcessVPSSTP()
 {
 }
-//=========================================================================================================================
+
 GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b)
 {
     GibbsExcessVPSSTP::operator=(b);
 }
-//=========================================================================================================================
+
 GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
 {
     if (&b == this) {
@@ -51,51 +51,50 @@ GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
 
     return *this;
 }
-//=========================================================================================================================
+
 ThermoPhase* GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new GibbsExcessVPSSTP(*this);
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y)
 {
     Phase::setMassFractions(y);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y)
 {
     Phase::setMassFractions_NoNorm(y);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
     Phase::setMoleFractions_NoNorm(x);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
 {
     Phase::setConcentrations(c);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
-//=========================================================================================================================
+
 /*
  * ------------ Mechanical Properties ------------------------------
  */
-//=========================================================================================================================
 void GibbsExcessVPSSTP::setPressure(doublereal p)
 {
     setState_TP(temperature(), p);
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::calcDensity()
 {
     vector_fp vbar = getPartialMolarVolumesVector();
@@ -106,7 +105,7 @@ void GibbsExcessVPSSTP::calcDensity()
     doublereal dd = meanMolecularWeight() / vtotal;
     Phase::setDensity(dd);
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
 {
     Phase::setTemperature(t);
@@ -125,7 +124,7 @@ void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
      */
     calcDensity();
 }
-//=========================================================================================================================
+
 /*
  * - Activities, Standard States, Activity Concentrations -----------
  */
@@ -133,17 +132,17 @@ void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const
 {
     getActivities(c);
 }
-//=========================================================================================================================
+
 doublereal GibbsExcessVPSSTP::standardConcentration(size_t k) const
 {
     return 1.0;
 }
-//=========================================================================================================================
+
 doublereal GibbsExcessVPSSTP::logStandardConc(size_t k) const
 {
     return 0.0;
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
 {
     getActivityCoefficients(ac);
@@ -152,7 +151,7 @@ void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
         ac[k] *= moleFractions_[k];
     }
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
 {
     getLnActivityCoefficients(ac);
@@ -199,7 +198,7 @@ void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
         }
     }
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
     getChemPotentials(mu);
@@ -208,11 +207,10 @@ void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
         mu[k] += ve*charge(k);
     }
 }
-//=========================================================================================================================
+
 /*
  * ------------ Partial Molar Properties of the Solution ------------
  */
-//=========================================================================================================================
 void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     /*
@@ -220,12 +218,12 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
      */
     getStandardVolumes(vbar);
 }
-//=========================================================================================================================
+
 const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
 {
     return getStandardVolumes();
 }
-//=========================================================================================================================
+
 double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
 {
     doublereal norm = std::accumulate(x, x + m_kk, 0.0);
@@ -235,7 +233,7 @@ double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
     }
     return norm;
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     //
@@ -263,14 +261,14 @@ void GibbsExcessVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) cons
         }
     }
 }
-//=========================================================================================================================
+
 void GibbsExcessVPSSTP::initThermo()
 {
     initLengths();
     VPStandardStateTP::initThermo();
     getMoleFractions(DATA_PTR(moleFractions_));
 }
-//=========================================================================================================================
+
 void  GibbsExcessVPSSTP::initLengths()
 {
     m_kk = nSpecies();
@@ -283,5 +281,5 @@ void  GibbsExcessVPSSTP::initLengths()
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
     m_pp.resize(m_kk);
 }
-//=========================================================================================================================
+
 } // end of namespace Cantera

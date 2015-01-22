@@ -222,7 +222,7 @@ extern "C" {
 
 namespace Cantera
 {
-//====================================================================================================================
+
 inline void ct_dgemv(ctlapack::storage_t storage,
                      ctlapack::transpose_t trans,
                      int m, int n, doublereal alpha, const doublereal* a, int lda,
@@ -246,7 +246,6 @@ inline void ct_dgemv(ctlapack::storage_t storage,
 #endif
 }
 
-//====================================================================================================================
 inline void ct_dgbsv(int n, int kl, int ku, int nrhs,
                      doublereal* a, int lda, integer* ipiv, doublereal* b, int ldb,
                      int& info)
@@ -355,7 +354,7 @@ inline void ct_dgetrs(ctlapack::transpose_t trans, size_t n,
 #endif
     info = f_info;
 }
-//====================================================================================================================
+
 inline void ct_dgetri(int n, doublereal* a, int lda, integer* ipiv,
                       doublereal* work, int lwork, int& info)
 {
@@ -368,7 +367,7 @@ inline void ct_dscal(int n, doublereal da, doublereal* dx, int incx)
     integer f_n = n, f_incx = incx;
     _DSCAL_(&f_n, &da, dx, &f_incx);
 }
-//====================================================================================================================
+
 inline void ct_dgeqrf(size_t m, size_t n, doublereal* a, size_t lda, doublereal* tau,
                       doublereal* work, size_t lwork, int& info)
 {
@@ -380,7 +379,7 @@ inline void ct_dgeqrf(size_t m, size_t n, doublereal* a, size_t lda, doublereal*
     _DGEQRF_(&f_m, &f_n, a, &f_lda, tau, work, &f_lwork, &f_info);
     info = f_info;
 }
-//====================================================================================================================
+
 inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, size_t m,
                       size_t n, size_t k, doublereal* a, size_t lda, doublereal* tau, doublereal* c, size_t ldc,
                       doublereal* work, size_t lwork, int& info)
@@ -406,7 +405,7 @@ inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, size
 #endif
     info = f_info;
 }
-//====================================================================================================================
+
 inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans, const char* diag,
                       size_t n, size_t nrhs, doublereal* a, size_t lda, doublereal* b, size_t ldb, int& info)
 {
@@ -433,7 +432,7 @@ inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans,
 #endif
     info = f_info;
 }
-//====================================================================================================================
+
 //!
 /*!
  *  @param work   Must be dimensioned equal to greater than 3N
@@ -468,7 +467,6 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  con
     info = f_info;
     return rcond;
 }
-//====================================================================================================================
 
 inline void ct_dpotrf(ctlapack::upperlower_t uplot, size_t n, doublereal* a, size_t lda, int& info)
 {
@@ -490,10 +488,7 @@ inline void ct_dpotrf(ctlapack::upperlower_t uplot, size_t n, doublereal* a, siz
     info = f_info;
     return;
 }
-//====================================================================================================================
-//!
-/*!
- */
+
 inline void ct_dpotrs(ctlapack::upperlower_t uplot, size_t n, size_t nrhs, doublereal* a, size_t lda,
                       doublereal* b, size_t ldb, int& info)
 {
@@ -518,10 +513,6 @@ inline void ct_dpotrs(ctlapack::upperlower_t uplot, size_t n, size_t nrhs, doubl
     return;
 }
 
-//====================================================================================================================
-//!
-/*!
- */
 inline doublereal ct_dgecon(const char norm, size_t n, doublereal* a, size_t lda, doublereal anorm,
                             doublereal* work, int* iwork, int& info)
 {
@@ -548,10 +539,6 @@ inline doublereal ct_dgecon(const char norm, size_t n, doublereal* a, size_t lda
     return rcond;
 }
 
-//====================================================================================================================
-//!
-/*!
- */
 inline doublereal ct_dgbcon(const char norm, size_t n, size_t kl, size_t ku,
                             doublereal* a, size_t ldab, int* ipiv, doublereal anorm,
                             doublereal* work, int* iwork, int& info)
@@ -581,10 +568,6 @@ inline doublereal ct_dgbcon(const char norm, size_t n, size_t kl, size_t ku,
     return rcond;
 }
 
-//====================================================================================================================
-//!
-/*!
- */
 inline doublereal ct_dlange(const char norm, size_t m, size_t n, doublereal* a, size_t lda,
                             doublereal* work)
 {
@@ -609,7 +592,7 @@ inline doublereal ct_dlange(const char norm, size_t m, size_t n, doublereal* a, 
 #endif
     return anorm;
 }
-//====================================================================================================================
+
 }
 
 #endif
