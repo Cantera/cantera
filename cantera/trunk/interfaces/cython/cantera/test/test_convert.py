@@ -87,6 +87,16 @@ class chemkinConverterTest(utilities.CanteraTest):
         ref, gas = self.checkConversion('../data/pdep-test.xml', 'pdep_test.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
+    def test_species_only(self):
+        convertMech(None,
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='dummy-thermo.cti', quiet=True)
+
+        cti = "ideal_gas(elements='C H', species='dummy-thermo:R1A R1B P1')"
+        gas = ct.Solution(source=cti)
+        self.assertEqual(gas.n_species, 3)
+        self.assertEqual(gas.n_reactions, 0)
+
     def test_missingElement(self):
         with self.assertRaises(ck2cti.InputParseError):
             convertMech('../data/h2o2_missingElement.inp',
