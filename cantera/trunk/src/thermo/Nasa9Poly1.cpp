@@ -29,6 +29,13 @@ Nasa9Poly1::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh,
 {
 }
 
+Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
+                       const double* coeffs) :
+    SpeciesThermoInterpType(tlow, thigh, pref),
+    m_coeff(coeffs, coeffs + 9)
+{
+}
+
 Nasa9Poly1::Nasa9Poly1(const Nasa9Poly1& b) :
     SpeciesThermoInterpType(b),
     m_coeff(b.m_coeff)

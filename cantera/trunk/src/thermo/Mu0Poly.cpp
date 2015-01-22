@@ -30,6 +30,14 @@ Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
     processCoeffs(coeffs);
 }
 
+Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
+    SpeciesThermoInterpType(tlow, thigh, pref),
+    m_numIntervals(0),
+    m_H298(0.0)
+{
+    processCoeffs(coeffs);
+}
+
 Mu0Poly::Mu0Poly(const Mu0Poly& b)
     : SpeciesThermoInterpType(b),
       m_numIntervals(b.m_numIntervals),
@@ -195,7 +203,7 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
         c[2+i*2+1] = cValues[i];
     }
 
-    return new Mu0Poly(0, tmin, tmax, pref, &c[0]);
+    return new Mu0Poly(tmin, tmax, pref, &c[0]);
 }
 
 void Mu0Poly::processCoeffs(const doublereal* coeffs)

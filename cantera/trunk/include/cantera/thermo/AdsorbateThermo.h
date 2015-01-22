@@ -41,10 +41,27 @@ public:
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
+     * @deprecated Use the constructor which does not require the species index.
+     *     To be removed after Cantera 2.2.
      */
     Adsorbate(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs)
         : SpeciesThermoInterpType(n, tlow, thigh, pref)
+    {
+        m_nFreqs = int(coeffs[0]);
+        m_be = coeffs[1];
+        m_freq.resize(m_nFreqs);
+        std::copy(coeffs+2, coeffs + 2 + m_nFreqs, m_freq.begin());
+    }
+
+    //! Full Constructor
+    /*!
+     * @param tlow      output - Minimum temperature
+     * @param thigh     output - Maximum temperature
+     * @param pref      output - reference pressure (Pa).
+     */
+    Adsorbate(double tlow, double thigh, double pref, const double* coeffs)
+        : SpeciesThermoInterpType(tlow, thigh, pref)
     {
         m_nFreqs = int(coeffs[0]);
         m_be = coeffs[1];

@@ -58,6 +58,8 @@ public:
      * @param pref    reference pressure (Pa).
      * @param coeffs  Vector of coefficients used to set the parameters for the
      *                standard state, in the order [a5,a6,a0,a1,a2,a3,a4]
+     * @deprecated  Use the constructor which does not take species index. To be
+     *     removed after Cantera 2.2.
      */
     NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
@@ -69,6 +71,20 @@ public:
         }
         m_coeff[5] = coeffs[0];
         m_coeff[6] = coeffs[1];
+    }
+
+    //! Normal constructor
+    /*!
+     * @param tlow    Minimum temperature
+     * @param thigh   Maximum temperature
+     * @param pref    reference pressure (Pa).
+     * @param coeffs  Vector of coefficients used to set the parameters for the
+     *                standard state, in the order [a0,a1,a2,a3,a4,a5,a6]
+     */
+    NasaPoly1(double tlow, double thigh, double pref, const double* coeffs)
+        : SpeciesThermoInterpType(tlow, thigh, pref)
+        , m_coeff(coeffs, coeffs+7)
+    {
     }
 
     //! copy constructor

@@ -192,20 +192,20 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
 {
     switch (type) {
     case NASA1:
-        return new NasaPoly1(0, tlow, thigh, pref, coeffs);
+        return new NasaPoly1(tlow, thigh, pref, coeffs);
     case SHOMATE1:
-        return new ShomatePoly(0, tlow, thigh, pref, coeffs);
+        return new ShomatePoly(tlow, thigh, pref, coeffs);
     case CONSTANT_CP:
     case SIMPLE:
-        return new ConstCpPoly(0, tlow, thigh, pref, coeffs);
+        return new ConstCpPoly(tlow, thigh, pref, coeffs);
     case MU0_INTERP:
-        return new Mu0Poly(0, tlow, thigh, pref, coeffs);
+        return new Mu0Poly(tlow, thigh, pref, coeffs);
     case SHOMATE2:
-        return new ShomatePoly2(0, tlow, thigh, pref, coeffs);
+        return new ShomatePoly2(tlow, thigh, pref, coeffs);
     case NASA2:
-        return new NasaPoly2(0, tlow, thigh, pref, coeffs);
+        return new NasaPoly2(tlow, thigh, pref, coeffs);
     case ADSORBATE:
-        return new Adsorbate(0, tlow, thigh, pref, coeffs);
+        return new Adsorbate(tlow, thigh, pref, coeffs);
     default:
         throw CanteraError("newSpeciesThermoInterpType",
                            "Unknown species thermo type: " + int2str(type) + ".");
@@ -304,17 +304,10 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(
                            "non-continuous temperature ranges.");
     }
 
-    // The NasaThermo species property manager expects the
-    // coefficients in a different order, so rearrange them.
     vector_fp c(15);
     c[0] = tmid;
-
-    c[1] = c0[5];
-    c[2] = c0[6];
-    copy(c0.begin(), c0.begin()+5, c.begin() + 3);
-    c[8] = c1[5];
-    c[9] = c1[6];
-    copy(c1.begin(), c1.begin()+5, c.begin() + 10);
+    copy(c1.begin(), c1.begin()+7, c.begin() + 1); // high-T coefficients
+    copy(c0.begin(), c0.begin()+7, c.begin() + 8); // low-T coefficients
     return newSpeciesThermoInterpType(NASA, tmin, tmax, p0, &c[0]);
 }
 
@@ -523,7 +516,7 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
                 throw CanteraError("installNasa9ThermoFromXML",
                                    "Expected 9 coeff polynomial");
             }
-            regionPtrs.push_back(new Nasa9Poly1(0, tmin, tmax, pref, &cPoly[0]));
+            regionPtrs.push_back(new Nasa9Poly1(tmin, tmax, pref, &cPoly[0]));
             nRegions++;
         }
     }

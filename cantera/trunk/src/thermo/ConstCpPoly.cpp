@@ -31,6 +31,17 @@ ConstCpPoly::ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
     m_logt0 = log(m_t0);
 }
 
+ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
+                         const double* coeffs) :
+    SpeciesThermoInterpType(tlow, thigh, pref)
+{
+    m_t0 = coeffs[0];
+    m_h0_R = coeffs[1]  / GasConstant;
+    m_s0_R = coeffs[2]  / GasConstant;
+    m_cp0_R = coeffs[3] / GasConstant;
+    m_logt0 = log(m_t0);
+}
+
 ConstCpPoly::ConstCpPoly(const ConstCpPoly& b) :
     SpeciesThermoInterpType(b),
     m_t0(b.m_t0),
