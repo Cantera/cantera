@@ -210,7 +210,7 @@ def compareTextFiles(env, file1, file2):
 
     # Replace nearly-equal floating point numbers with exactly equivalent
     # representations to avoid confusing difflib
-    reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.{0,1}\d*[eE]{0,1}[+-]{0,1}\d*)')
+    reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.{0,1}\d*([eE][+-]{0,1}\d*){0,1})')
     for i in range(min(len(text1), len(text2))):
         line1 = text1[i]
         line2 = text2[i]
