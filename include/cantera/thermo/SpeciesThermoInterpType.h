@@ -160,8 +160,12 @@ class SpeciesThermoInterpType
 public:
     SpeciesThermoInterpType();
 
+    //! @deprecated Use the constructor without the species index. To be removed
+    //! after Cantera 2.2.
     SpeciesThermoInterpType(size_t n, doublereal tlow,
                             doublereal thigh, doublereal pref);
+
+    SpeciesThermoInterpType(double tlow, double thigh, double pref);
 
     SpeciesThermoInterpType(const SpeciesThermoInterpType& b);
 
@@ -195,10 +199,12 @@ public:
     virtual int reportType() const = 0;
 
     //! Returns an integer representing the species index
+    //! @deprecated
     virtual size_t speciesIndex() const {
         return m_index;
     }
 
+    //! @deprecated
     virtual void setIndex(size_t index) {
       m_index = index;
     }
@@ -310,7 +316,7 @@ protected:
     doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;
-    //! species index
+    //! species index @deprecated
     size_t m_index;
 };
 
@@ -344,8 +350,21 @@ public:
      *
      *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for
      *      this object
+     *  @deprecated Use the constructor which does not require the species
+     *      index. To be removed after Cantera 2.2.
      */
     STITbyPDSS(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
+
+    //! Main Constructor
+    /*!
+     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state
+     *      manager that owns the PDSS object that will handle calls for this
+     *      object
+     *
+     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for
+     *      this object
+     */
+    STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
 
     //! copy constructor
     /*!

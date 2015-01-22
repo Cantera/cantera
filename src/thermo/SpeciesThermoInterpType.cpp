@@ -27,6 +27,20 @@ SpeciesThermoInterpType::SpeciesThermoInterpType(size_t n, doublereal tlow,
     m_Pref(pref),
     m_index(n)
 {
+    warn_deprecated("Constructor SpeciesThermoInterpType(size_t n, ...)",
+        "Use the constructor which does not take a species index."
+        " Applies to all classes derived from SpeciesThermoInterpType."
+        " To be removed after Cantera 2.2.");
+}
+
+SpeciesThermoInterpType::SpeciesThermoInterpType(double tlow,
+                                                 double thigh,
+                                                 double pref) :
+    m_lowT(tlow),
+    m_highT(thigh),
+    m_Pref(pref),
+    m_index(0)
+{
 }
 
 SpeciesThermoInterpType::SpeciesThermoInterpType(const SpeciesThermoInterpType &b) :
@@ -70,6 +84,13 @@ STITbyPDSS::STITbyPDSS(size_t k, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
     m_PDSS_ptr(PDSS_ptr)
 {
     m_index = k;
+}
+
+STITbyPDSS::STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
+    SpeciesThermoInterpType(),
+    m_vpssmgr_ptr(vpssmgr_ptr),
+    m_PDSS_ptr(PDSS_ptr)
+{
 }
 
 STITbyPDSS::STITbyPDSS(const STITbyPDSS& b) :

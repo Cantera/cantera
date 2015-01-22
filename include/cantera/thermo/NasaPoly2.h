@@ -60,8 +60,10 @@ public:
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
+     * @param coeffs    Vector of coefficients used to set the parameters for
+     *                  the standard state [Tmid, 7 low-T coeffs, 7 high-T coeffs]
+     * @deprecated Use constructor without species index. To be removed after
+     *     Cantera 2.2.
      */
     NasaPoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
@@ -69,6 +71,25 @@ public:
         m_midT(coeffs[0]),
         mnp_low(n, tlow, coeffs[0], pref, coeffs +1),
         mnp_high(n, tlow, thigh, pref, coeffs + 8),
+        m_coeff(coeffs, coeffs + 15) {
+    }
+
+    //! Full Constructor
+    /*!
+     * @param tlow      output - Minimum temperature
+     * @param thigh     output - Maximum temperature
+     * @param pref      output - reference pressure (Pa).
+     * @param coeffs    Vector of coefficients used to set the parameters for
+     *                  the standard state [Tmid, 7 high-T coeffs, 7 low-T
+     *                  coeffs]. This is the coefficient order used in the
+     *                  standard NASA format.
+     */
+    NasaPoly2(doublereal tlow, doublereal thigh, doublereal pref,
+              const doublereal* coeffs) :
+        SpeciesThermoInterpType(tlow, thigh, pref),
+        m_midT(coeffs[0]),
+        mnp_low(tlow, coeffs[0], pref, coeffs + 8),
+        mnp_high(coeffs[0], thigh, pref, coeffs + 1),
         m_coeff(coeffs, coeffs + 15) {
     }
 

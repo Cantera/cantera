@@ -63,10 +63,27 @@ public:
      *           -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
      *           -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
      *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
+     * @deprecated Use the constructor which does not take the species index. To
+     *     be removed after Cantera 2.2.
      */
     ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
                 doublereal pref,
                 const doublereal* coeffs);
+
+    //! Normal constructor
+    /*!
+     * @param tlow         Minimum temperature
+     * @param thigh        Maximum temperature
+     * @param pref         reference pressure (Pa).
+     * @param coeffs       Vector of coefficients used to set the
+     *                     parameters for the standard state for species n.
+     *                     There are 4 coefficients for the ConstCpPoly parameterization.
+     *           -   c[0] = \f$ T_0 \f$(Kelvin)
+     *           -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
+     *           -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
+     *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
+     */
+    ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
 
     //! copy constructor
     ConstCpPoly(const ConstCpPoly&);

@@ -19,11 +19,11 @@ class TransportFromScratch : public testing::Test
 public:
     TransportFromScratch()
         : sH2("H2", parseCompString("H:2"),
-              new NasaPoly2(0, 200, 3500, 101325, h2_nasa_coeffs))
+              new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs))
         , sO2("O2", parseCompString("O:2"),
-              new NasaPoly2(0, 200, 3500, 101325, o2_nasa_coeffs))
+              new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs))
         , sH2O("H2O", parseCompString("H:2 O:1"),
-              new NasaPoly2(0, 200, 3500, 101325, h2o_nasa_coeffs))
+              new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs))
         , tH2(new GasTransportData())
         , tO2(new GasTransportData())
         , tH2O(new GasTransportData())

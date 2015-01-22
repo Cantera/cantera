@@ -78,11 +78,31 @@ public:
      *
      *  See the class description for the polynomial representation of the
      *  thermo functions in terms of \f$ A, \dots, G \f$.
+     *
+     *  @deprecated Use the alternate constructor which does not take the
+     *      species index. To be removed after Cantera 2.2.
      */
     ShomatePoly(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
                 const doublereal* coeffs) :
             SpeciesThermoInterpType(n, tlow, thigh, pref),
             m_coeff(coeffs, coeffs + 7)
+    {
+    }
+
+    //! Normal constructor
+    /*!
+     * @param tlow         Minimum temperature
+     * @param thigh        Maximum temperature
+     * @param pref         reference pressure (Pa).
+     * @param coeffs       Vector of coefficients, [A,B,C,D,E,F,G], used to set
+     *                     the parameters for the species standard state.
+     *
+     *  See the class description for the polynomial representation of the
+     *  thermo functions in terms of \f$ A, \dots, G \f$.
+     */
+    ShomatePoly(double tlow, double thigh, double pref, const double* coeffs) :
+        SpeciesThermoInterpType(tlow, thigh, pref),
+        m_coeff(coeffs, coeffs + 7)
     {
     }
 
@@ -311,6 +331,8 @@ public:
      *                     The first coefficient is the value of Tmid. The next 7
      *                     coefficients are the low temperature range Shomate coefficients.
      *                     The last 7 are the high temperature range Shomate coefficients.
+     * @deprecated Use the constructor that does not require the species index.
+     *     To be removed after Cantera 2.2.
      */
     ShomatePoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
                  const doublereal* coeffs) :
@@ -318,6 +340,23 @@ public:
         m_midT(coeffs[0]),
         msp_low(n, tlow, coeffs[0], pref, coeffs+1),
         msp_high(n, coeffs[0], thigh, pref, coeffs+8),
+        m_coeff(coeffs, coeffs + 15)
+    {
+    }
+
+    //! Normal constructor
+    /*!
+     * @param tlow    Minimum temperature
+     * @param thigh   Maximum temperature
+     * @param pref    reference pressure (Pa).
+     * @param coeffs  Vector of coefficients used to set the parameters for the
+     *                standard state. [Tmid, 7 low-T coeffs, 7 high-T coeffs]
+     */
+    ShomatePoly2(double tlow, double thigh, double pref, const double* coeffs) :
+        SpeciesThermoInterpType(tlow, thigh, pref),
+        m_midT(coeffs[0]),
+        msp_low(tlow, coeffs[0], pref, coeffs+1),
+        msp_high(coeffs[0], thigh, pref, coeffs+8),
         m_coeff(coeffs, coeffs + 15)
     {
     }
