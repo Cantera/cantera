@@ -22,18 +22,13 @@
 using namespace std;
 using namespace ctml;
 
-
-
-
 namespace Cantera
 {
-//==================================================================================================================================
 /*
  *  Set the default to error exit if there is an input file inconsistency
  */ 
 int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 
-//==================================================================================================================================
 PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
@@ -63,7 +58,7 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     m_presR_bar = OneAtm * 1.0E-5;
     m_presR_bar = 1.0;
 }
-//==========================================================================================================================
+
 PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
                      const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
@@ -557,7 +552,7 @@ void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
     delete m_waterProps;
     m_waterProps = new WaterProps(m_waterSS);
 }
-//===================================================================================================================
+
 void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                  const XML_Node& speciesNode,
                                  const XML_Node& phaseNode, bool spInstalled)
@@ -1137,5 +1132,5 @@ void PDSS_HKFT::reportParams(size_t& kindex, int& type,
     c[9] =  m_c2;
     c[10] = m_omega_pr_tr;
 }
-//============================================================================================================
+
 }

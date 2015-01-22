@@ -673,7 +673,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeff
         }
     }
 }
-//=====================================================================================================================
+
 void MargulesVPSSTP::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
@@ -693,7 +693,7 @@ void MargulesVPSSTP::resizeNumInteractions(const size_t num)
     m_pSpecies_A_ij.resize(num, npos);
     m_pSpecies_B_ij.resize(num, npos);
 }
-//=====================================================================================================================
+
 void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     string xname = xmLBinarySpecies.name();
@@ -824,6 +824,5 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
     }
 }
-//=====================================================================================================================
+
 }
-//=====================================================================================================================

@@ -3160,7 +3160,7 @@ void NonlinearSolver::print_solnDelta_norm_contrib(const doublereal* const step_
     printf("\t\t   ");
     writeline('-', 125);
 }
-//====================================================================================================================
+
 //!  This routine subtracts two numbers for one another
 /*!
  *   This routine subtracts 2 numbers. If the difference is less

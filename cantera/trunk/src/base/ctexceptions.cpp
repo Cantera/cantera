@@ -74,7 +74,7 @@ std::string IndexError::getMessage() const
        " outside valid range of 0 to " << (mmax_) << ".";
     return ss.str();
 }
-//============================================================================================================
+
 bool check_FENV_OverUnder_Flow() {
 #ifdef HAVE_FENV_H
      fexcept_t ff;
@@ -85,12 +85,11 @@ bool check_FENV_OverUnder_Flow() {
 #endif
      return false;
 };
-//============================================================================================================
+
 void clear_FENV() {
 #ifdef HAVE_FENV_H
      feclearexcept(FE_ALL_EXCEPT);
 #endif
 }
-//============================================================================================================
 
 } // namespace Cantera

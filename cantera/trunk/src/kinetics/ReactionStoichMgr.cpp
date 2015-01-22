@@ -47,7 +47,7 @@ ReactionStoichMgr& ReactionStoichMgr::operator=(const ReactionStoichMgr& right)
     }
     return *this;
 }
-//=========================================================================================================
+
 void ReactionStoichMgr::add(size_t rxn, const std::vector<size_t>& reactants,
                             const std::vector<size_t>& products,
                             bool reversible)
@@ -61,7 +61,7 @@ void ReactionStoichMgr::add(size_t rxn, const std::vector<size_t>& reactants,
         m_irrevproducts.add(rxn, products);
     }
 }
-//=========================================================================================================
+
 // Add the reaction into the stoichiometric manager
 void ReactionStoichMgr::add(size_t rxn, const ReactionData& r)
 {
@@ -183,7 +183,6 @@ void ReactionStoichMgr::add(size_t rxn, const ReactionData& r)
 	}
     }
 }
-//=========================================================================================================
 
 void ReactionStoichMgr::getCreationRates(size_t nsp, const doublereal* ropf,
                                          const doublereal* ropr, doublereal* c)

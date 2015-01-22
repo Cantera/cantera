@@ -18,7 +18,7 @@
 
 namespace Cantera
 {
-//=====================================================================================================
+
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
@@ -31,7 +31,7 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     reactant_species_index(1)
 {
 }
-//=====================================================================================================
+
 MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
@@ -45,7 +45,7 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
 {
     *this = b;
 }
-//=====================================================================================================
+
 MaskellSolidSolnPhase&
 MaskellSolidSolnPhase::operator=(const MaskellSolidSolnPhase& b)
 {
@@ -54,12 +54,12 @@ MaskellSolidSolnPhase::operator=(const MaskellSolidSolnPhase& b)
     }
     return *this;
 }
-//=====================================================================================================
+
 ThermoPhase* MaskellSolidSolnPhase::duplMyselfAsThermoPhase() const
 {
     return new MaskellSolidSolnPhase(*this);
 }
-//=====================================================================================================
+
 void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
     getActivityCoefficients(c);
@@ -72,7 +72,6 @@ void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 /********************************************************************
  *            Molar Thermodynamic Properties of the Solution
  ********************************************************************/
-//=====================================================================================================
 doublereal MaskellSolidSolnPhase::enthalpy_mole() const
 {
     _updateThermo();
@@ -81,7 +80,7 @@ doublereal MaskellSolidSolnPhase::enthalpy_mole() const
     const doublereal fmval = fm(r);
     return h0 + r * fmval * h_mixing;
 }
-//=====================================================================================================
+
 doublereal xlogx(doublereal x)
 {
     return x * std::log(x);

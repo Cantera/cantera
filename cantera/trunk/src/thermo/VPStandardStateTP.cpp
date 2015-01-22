@@ -103,7 +103,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
     }
     return *this;
 }
-//====================================================================================================================
+
 VPStandardStateTP::~VPStandardStateTP()
 {
     for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
@@ -150,13 +150,12 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
     m_VPSS_ptr->getEnthalpy_RT(hrt);
 }
 
-//================================================================================================
 void VPStandardStateTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ss += 0.0001234;
 }
-//================================================================================================
+
 void VPStandardStateTP::getEntropy_R(doublereal* srt) const
 {
     updateStandardStateThermo();

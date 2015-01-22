@@ -207,7 +207,6 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
     return newPhase(*xphase);
 }
 
-//====================================================================================================================
 //!  Gather a vector of pointers to XML_Nodes for a phase
 /*!
  *   @param spDataNodeList   Output vector of pointer to XML_Nodes which contain the species XML_Nodes for the

@@ -13,22 +13,7 @@ using namespace Cantera;
 
 namespace VCSnonideal
 {
-//====================================================================================================================
-// Utility function that evaluates whether a phase can be popped into existence
-/*
- * A phase can be popped iff the stoichiometric coefficients for the
- * component species, whose concentrations will be lowered during the
- * process, are positive by at least a small degree.
- *  
- * If one of the phase species is a zeroed component, then the phase can
- * be popped if the component increases in mole number as the phase moles
- * are increased.
- * 
- * @param iphasePop  id of the phase, which is currently zeroed,
- *        
- * @return Returns true if the phase can come into existence
- *         and false otherwise.
- */
+
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
@@ -122,7 +107,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     }
     return false;
 }
-//=====================================================================================================
+
 int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
     int nfound = 0;
@@ -240,7 +225,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 
     return nfound;
 }
-//========================================================================================================
+
 size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
@@ -516,7 +501,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 
     return 0;
 }
- //====================================================================================================================
+
 double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 {
     /*
@@ -824,5 +809,5 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     }
     return funcPhaseStability;
 }
-//====================================================================================================================
+
 }

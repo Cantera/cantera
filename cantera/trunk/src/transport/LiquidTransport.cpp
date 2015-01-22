@@ -211,7 +211,7 @@ LiquidTransport::~LiquidTransport()
     delete m_lambdaMixModel;
     delete m_diffMixModel;
 }
-//=============================================================================================================================
+
 bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 {
     //
