@@ -854,9 +854,10 @@ cdef class ReactorNet:
         Returns the sensitivity of the solution variable *component* in
         reactor *r* with respect to the parameter *p*. *component* can be a
         string or an integer. See `component_index` and `sensitivities` to
-        determine the integer index for the variables. If it is not given, *r*
-        defaults to the first reactor. Returns an empty array until the first
-        time step is taken.
+        determine the integer index for the variables and the definition of the
+        resulting sensitivity coefficient. If it is not given, *r* defaults to
+        the first reactor. Returns an empty array until the first time step is
+        taken.
         """
         if isinstance(component, int):
             return self.net.sensitivity(component, p)
@@ -864,12 +865,22 @@ cdef class ReactorNet:
             return self.net.sensitivity(stringify(component), p, r)
 
     def sensitivities(self):
-        """
+        r"""
         Returns the senstivities of all of the solution variables with respect
-        to all of the registered parameters. The sensitivities are returned in
-        an array with dimensions *(n_vars, n_sensitivity_params)*, unless no
-        timesteps have been taken, in which case the shape is
-        *(0, n_sensitivity_params)*. The order of the variables (i.e. rows) is:
+        to all of the registered parameters. The normalized sensitivity
+        coefficient :math:`S_{ki}` of the solution varible :math:`y_k` with
+        respect to sensitivity parameter :math:`p_i` is defined as:
+
+        .. math:: S_{ki} = \frac{p_i}{y_k} \frac{\partial y_k}{\partial p_i}
+
+        For reaction sensitivities, the parameter is a multiplier on the forward
+        rate constant (and implicitly on the reverse rate constant for
+        reversible reactions).
+
+        The sensitivities are returned in an array with dimensions *(n_vars,
+        n_sensitivity_params)*, unless no timesteps have been taken, in which
+        case the shape is *(0, n_sensitivity_params)*. The order of the
+        variables (i.e. rows) is:
 
         `Reactor` or `IdealGasReactor`:
 
