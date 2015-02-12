@@ -84,6 +84,7 @@ doublereal IdealGasPhase::cv_mole() const
 
 doublereal IdealGasPhase::cv_tr(doublereal atomicity) const
 {
+    warn_deprecated("IdealGasPhase::cv_tr", "To be removed after Cantera 2.2.");
     // k is the species number
     int dum = 0;
     int type = m_spthermo->reportType();
@@ -104,17 +105,19 @@ doublereal IdealGasPhase::cv_tr(doublereal atomicity) const
 
 doublereal IdealGasPhase::cv_trans() const
 {
+    warn_deprecated("IdealGasPhase::cv_trans", "To be removed after Cantera 2.2.");
     return 1.5 * GasConstant;
 }
 
 doublereal IdealGasPhase::cv_rot(double atom) const
 {
+    warn_deprecated("IdealGasPhase::cv_rot", "To be removed after Cantera 2.2.");
     return std::max(cv_tr(atom) - cv_trans(), 0.);
 }
 
 doublereal IdealGasPhase::cv_vib(const int k, const doublereal T) const
 {
-
+    warn_deprecated("IdealGasPhase::cv_vib", "To be removed after Cantera 2.2.");
     // k is the species number
     int dum = 0;
     int type = m_spthermo->reportType();
