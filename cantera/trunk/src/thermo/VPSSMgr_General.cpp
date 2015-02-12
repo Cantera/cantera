@@ -120,17 +120,16 @@ void VPSSMgr_General::initThermo()
 
 void VPSSMgr_General::getGibbs_ref(doublereal* g) const
 {
-    doublereal _rt = GasConstant * m_tlast;
     if (m_useTmpRefStateStorage) {
         std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
-        scale(g, g+m_kk, g, _rt);
+        scale(g, g+m_kk, g, GasConstant * m_tlast);
     } else {
         for (size_t k = 0; k < m_kk; k++) {
             PDSS* kPDSS = m_PDSS_ptrs[k];
             kPDSS->setState_TP(m_tlast, m_plast);
             double h0_RT = kPDSS->enthalpy_RT_ref();
             double s0_R  = kPDSS->entropy_R_ref();
-            g[k] = _rt * (h0_RT - s0_R);
+            g[k] = GasConstant * m_tlast * (h0_RT - s0_R);
         }
     }
 }
@@ -229,8 +228,7 @@ VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 
 PDSS_enumType VPSSMgr_General::reportPDSSType(int k) const
 {
-    PDSS* kPDSS = m_PDSS_ptrs[k];
-    return  kPDSS->reportPDSSType();
+    return  m_PDSS_ptrs[k]->reportPDSSType();
 }
 
 VPSSMgr_enumType  VPSSMgr_General::reportVPSSMgrType() const

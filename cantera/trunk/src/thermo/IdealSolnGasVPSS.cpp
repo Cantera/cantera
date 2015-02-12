@@ -133,12 +133,11 @@ void IdealSolnGasVPSS::calcDensity()
     } else {
         const doublereal* const dtmp = moleFractdivMMW();
         const vector_fp& vss = m_VPSS_ptr->getStandardVolumes();
-        double invDens = dot(vss.begin(), vss.end(), dtmp);
+        double dens = 1.0 / dot(vss.begin(), vss.end(), dtmp);
         /*
          * Set the density in the parent State object directly,
          * by calling the Phase::setDensity() function.
          */
-        double dens = 1.0/invDens;
         Phase::setDensity(dens);
     }
 }
@@ -202,8 +201,7 @@ doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
 
 void IdealSolnGasVPSS::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
-    int eos = eosType();
-    if (eos == cIdealSolnGasPhase0) {
+    if (eosType() == cIdealSolnGasPhase0) {
         for (int i = 0; i < sizeUA; i++) {
             uA[i] = 0.0;
         }
@@ -254,10 +252,9 @@ void IdealSolnGasVPSS::getChemPotentials_RT(doublereal* muRT) const
 void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
-    doublereal xx;
     doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(SmallNumber, moleFraction(k));
+        double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt*(log(xx));
     }
 }
@@ -265,33 +262,29 @@ void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
 void IdealSolnGasVPSS::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
-    doublereal rt = GasConstant * temperature();
-    scale(hbar, hbar+m_kk, hbar, rt);
+    scale(hbar, hbar+m_kk, hbar, GasConstant * temperature());
 }
 
 void IdealSolnGasVPSS::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R(sbar);
-    doublereal r = GasConstant;
-    scale(sbar, sbar+m_kk, sbar, r);
+    scale(sbar, sbar+m_kk, sbar, GasConstant);
     for (size_t k = 0; k < m_kk; k++) {
         doublereal xx = std::max(SmallNumber, moleFraction(k));
-        sbar[k] += r * (- log(xx));
+        sbar[k] += GasConstant * (- log(xx));
     }
 }
 
 void IdealSolnGasVPSS::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     getIntEnergy_RT(ubar);
-    doublereal rt = GasConstant * temperature();
-    scale(ubar, ubar+m_kk, ubar, rt);
+    scale(ubar, ubar+m_kk, ubar, GasConstant * temperature());
 }
 
 void IdealSolnGasVPSS::getPartialMolarCp(doublereal* cpbar) const
 {
     getCp_R(cpbar);
-    doublereal r = GasConstant;
-    scale(cpbar, cpbar+m_kk, cpbar, r);
+    scale(cpbar, cpbar+m_kk, cpbar, GasConstant);
 }
 
 void IdealSolnGasVPSS::getPartialMolarVolumes(doublereal* vbar) const
@@ -307,7 +300,6 @@ void IdealSolnGasVPSS::initThermo()
 
 void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
 {
-    double tmp, tmp2;
     updateStandardStateThermo();
     const vector_fp& grt = m_VPSS_ptr->Gibbs_RT_ref();
 
@@ -322,11 +314,11 @@ void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
     doublereal pres = 0.0;
     double m_p0 = m_VPSS_ptr->refPressure();
     for (size_t k = 0; k < m_kk; k++) {
-        tmp = -grt[k] + mu_RT[k];
+        double tmp = -grt[k] + mu_RT[k];
         if (tmp < -600.) {
             m_pp[k] = 0.0;
         } else if (tmp > 500.0) {
-            tmp2 = tmp / 500.;
+            double tmp2 = tmp / 500.;
             tmp2 *= tmp2;
             m_pp[k] = m_p0 * exp(500.) * tmp2;
         } else {

@@ -98,48 +98,45 @@ void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const
 
 void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const
 {
-    size_t k;
-    doublereal sumCat;
-    doublereal sumAnion;
-    doublereal sum = 0.0;
     switch (PBType_) {
     case PBTYPE_PASSTHROUGH:
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             PBMoleFractions_[k] = moleFractions_[k];
         }
         break;
     case PBTYPE_SINGLEANION:
-        sumCat = 0.0;
-        sumAnion = 0.0;
-        for (k = 0; k < m_kk; k++) {
+    {
+        double sumCat = 0.0;
+        double sumAnion = 0.0;
+        for (size_t k = 0; k < m_kk; k++) {
             moleFractionsTmp_[k] = moleFractions_[k];
         }
-        for (k = 0; k < cationList_.size(); k++) {
+        for (size_t k = 0; k < cationList_.size(); k++) {
             sumCat += moleFractions_[cationList_[k]];
         }
-        sumAnion =  moleFractions_[anionList_[k]];
+        sumAnion =  moleFractions_[anionList_[0]];
         PBMoleFractions_[0] = sumCat -sumAnion;
         moleFractionsTmp_[indexSpecialSpecies_] -= PBMoleFractions_[0];
 
 
-        for (k = 0; k < numCationSpecies_; k++) {
+        for (size_t k = 0; k < numCationSpecies_; k++) {
             PBMoleFractions_[1+k] = moleFractionsTmp_[cationList_[k]];
         }
 
-        for (k = 0; k <  numPassThroughSpecies_; k++) {
+        for (size_t k = 0; k <  numPassThroughSpecies_; k++) {
             PBMoleFractions_[neutralPBindexStart + k] =
                 moleFractions_[cationList_[k]];
         }
 
-        sum = std::max(0.0, PBMoleFractions_[0]);
-        for (k = 1; k < numPBSpecies_; k++) {
+        double sum = std::max(0.0, PBMoleFractions_[0]);
+        for (size_t k = 1; k < numPBSpecies_; k++) {
             sum += PBMoleFractions_[k];
         }
-        for (k = 0; k < numPBSpecies_; k++) {
+        for (size_t k = 0; k < numPBSpecies_; k++) {
             PBMoleFractions_[k] /= sum;
         }
-
         break;
+    }
     case PBTYPE_SINGLECATION:
         throw CanteraError("eosType", "Unknown type");
 
@@ -195,13 +192,12 @@ std::string PseudoBinaryVPSSTP::report(bool show_thermo, doublereal threshold) c
         sprintf(p, "         potential    %12.6g  V\n", phi);
         s += p;
 
-        size_t kk = nSpecies();
-        vector_fp x(kk);
-        vector_fp molal(kk);
-        vector_fp mu(kk);
-        vector_fp muss(kk);
-        vector_fp acMolal(kk);
-        vector_fp actMolal(kk);
+        vector_fp x(m_kk);
+        vector_fp molal(m_kk);
+        vector_fp mu(m_kk);
+        vector_fp muss(m_kk);
+        vector_fp acMolal(m_kk);
+        vector_fp actMolal(m_kk);
         getMoleFractions(&x[0]);
 
         getChemPotentials(&mu[0]);

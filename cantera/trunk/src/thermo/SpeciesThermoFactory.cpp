@@ -55,12 +55,10 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
                                   int& has_nasa, int& has_shomate, int& has_simple,
                                   int& has_other)
 {
-    size_t ns = spDataNodeList.size();
-    for (size_t n = 0; n < ns; n++) {
+    for (size_t n = 0; n < spDataNodeList.size(); n++) {
         XML_Node* spNode = spDataNodeList[n];
         if (spNode->hasChild("standardState")) {
-            const XML_Node& ss = spNode->child("standardState");
-            string mname = ss["model"];
+            string mname = spNode->child("standardState")["model"];
             if (mname == "water" || mname == "waterIAPWS") {
                 has_other = 1;
                 continue;
@@ -254,13 +252,11 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
 static SpeciesThermoInterpType* newNasaThermoFromXML(
     const std::string& speciesName, vector<XML_Node*> nodes)
 {
-    doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
-
     const XML_Node& f0 = *nodes[0];
     bool dualRange = (nodes.size() > 1);
 
-    tmin0 = fpValue(f0["Tmin"]);
-    tmax0 = fpValue(f0["Tmax"]);
+    double tmin0 = fpValue(f0["Tmin"]);
+    double tmax0 = fpValue(f0["Tmax"]);
 
     doublereal p0 = OneAtm;
     if (f0.hasAttrib("P0")) {
@@ -271,14 +267,15 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(
     }
     p0 = OneAtm;
 
-    tmin1 = tmax0;
-    tmax1 = tmin1 + 0.0001;
+    double tmin1 = tmax0;
+    double tmax1 = tmin1 + 0.0001;
     if (dualRange) {
         tmin1 = fpValue(nodes[1]->attrib("Tmin"));
         tmax1 = fpValue(nodes[1]->attrib("Tmax"));
     }
 
     vector_fp c0, c1;
+    doublereal tmin, tmid, tmax;
     if (fabs(tmax0 - tmin1) < 0.01) {
         // f0 has the lower T data, and f1 the higher T data
         tmin = tmin0;
@@ -321,12 +318,9 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(
 SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
                                                  const XML_Node& MinEQ3node)
 {
-    std::string astring = MinEQ3node["Tmin"];
-    doublereal tmin0 = strSItoDbl(astring);
-    astring = MinEQ3node["Tmax"];
-    doublereal tmax0 = strSItoDbl(astring);
-    astring = MinEQ3node["Pref"];
-    doublereal p0 = strSItoDbl(astring);
+    doublereal tmin0 = strSItoDbl(MinEQ3node["Tmin"]);
+    doublereal tmax0 = strSItoDbl(MinEQ3node["Tmax"]);
+    doublereal p0 = strSItoDbl(MinEQ3node["Pref"]);
 
     doublereal deltaG_formation_pr_tr =
         getFloatDefaultUnits(MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
@@ -370,13 +364,6 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
     double Gs = ScalcS - S298smGs;
 
     double c0[7] = {As, Bs, Cs, Ds, Es, Fs, Gs};
-    c0[0] = As;
-    c0[1] = Bs;
-    c0[2] = Cs;
-    c0[3] = Ds;
-    c0[4] = Es;
-    c0[5] = Fs;
-    c0[6] = Gs;
 
     return newSpeciesThermoInterpType(SHOMATE1, tmin0, tmax0, p0, c0);
 }
@@ -393,13 +380,12 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
 static SpeciesThermoInterpType* newShomateThermoFromXML(
     const std::string& speciesName, vector<XML_Node*>& nodes)
 {
-    doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
     bool dualRange = false;
     if (nodes.size() == 2) {
         dualRange = true;
     }
-    tmin0 = fpValue(nodes[0]->attrib("Tmin"));
-    tmax0 = fpValue(nodes[0]->attrib("Tmax"));
+    double tmin0 = fpValue(nodes[0]->attrib("Tmin"));
+    double tmax0 = fpValue(nodes[0]->attrib("Tmax"));
 
     doublereal p0 = OneAtm;
     if (nodes[0]->hasAttrib("P0")) {
@@ -410,14 +396,15 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
     }
     p0 = OneAtm;
 
-    tmin1 = tmax0;
-    tmax1 = tmin1 + 0.0001;
+    double tmin1 = tmax0;
+    double tmax1 = tmin1 + 0.0001;
     if (dualRange) {
         tmin1 = fpValue(nodes[1]->attrib("Tmin"));
         tmax1 = fpValue(nodes[1]->attrib("Tmax"));
     }
 
     vector_fp c0, c1;
+    doublereal tmin, tmid, tmax;
     if (fabs(tmax0 - tmin1) < 0.01) {
         tmin = tmin0;
         tmid = tmax0;
@@ -581,12 +568,11 @@ static SpeciesThermoInterpType* newAdsorbateThermoFromXML(
     if (f.hasChild("floatArray")) {
         getFloatArray(f.child("floatArray"), freqs, false);
     }
-    size_t nfreq = freqs.size();
-    for (size_t n = 0; n < nfreq; n++) {
+    for (size_t n = 0; n < freqs.size(); n++) {
         freqs[n] *= 3.0e10;
     }
-    vector_fp coeffs(nfreq + 2);
-    coeffs[0] = static_cast<double>(nfreq);
+    vector_fp coeffs(freqs.size() + 2);
+    coeffs[0] = static_cast<double>(freqs.size());
     coeffs[1] = getFloat(f, "binding_energy", "toSI");
     copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
     return new Adsorbate(0, tmin, tmax, pref, &coeffs[0]);

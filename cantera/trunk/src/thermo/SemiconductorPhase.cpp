@@ -5,13 +5,9 @@ using namespace std;
 
 namespace Cantera
 {
-
-const doublereal JD_const1 = 1.0/sqrt(8.0);
-const doublereal JD_const2 = 3.0/16.0 - sqrt(3.0)/9.0;
-
 static doublereal JoyceDixon(doublereal r)
 {
-    return log(r) + JD_const1*r - JD_const2*r*r;
+    return log(r) + 1.0/sqrt(8.0)*r - (3.0/16.0 - sqrt(3.0)/9.0)*r*r;
 }
 
 
@@ -21,8 +17,7 @@ SemiconductorPhase::SemiconductorPhase(std::string infile,
 void SemiconductorPhase::getChemPotentials(doublereal* mu) const
 {
     getActivityConcentrations(DATA_PTR(m_work));
-    doublereal r = m_work[0]/nc();
-    mu[0] = ec() + GasConstant*temperature()*(JoyceDixon(r));
+    mu[0] = ec() + GasConstant*temperature()*(JoyceDixon(m_work[0]/nc()));
     mu[1] = ev() + GasConstant*temperature()*(log(m_work[1]/nv()));
 }
 

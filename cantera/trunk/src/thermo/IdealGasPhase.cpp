@@ -139,8 +139,7 @@ doublereal IdealGasPhase::cv_vib(const int k, const doublereal T) const
 
 doublereal IdealGasPhase::standardConcentration(size_t k) const
 {
-    double p = pressure();
-    return p / (GasConstant * temperature());
+    return pressure() / (GasConstant * temperature());
 }
 
 void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
@@ -166,10 +165,9 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 void IdealGasPhase::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
-    doublereal xx;
     doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(SmallNumber, moleFraction(k));
+        double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt * (log(xx));
     }
 }
@@ -184,12 +182,11 @@ void IdealGasPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     const vector_fp& _s = entropy_R_ref();
-    doublereal r = GasConstant;
-    scale(_s.begin(), _s.end(), sbar, r);
+    scale(_s.begin(), _s.end(), sbar, GasConstant);
     doublereal logp = log(pressure() / m_spthermo->refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         doublereal xx = std::max(SmallNumber, moleFraction(k));
-        sbar[k] += r * (-logp - log(xx));
+        sbar[k] += GasConstant * (-logp - log(xx));
     }
 }
 
@@ -339,7 +336,6 @@ void IdealGasPhase::initThermo()
 
 void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
 {
-    double tmp, tmp2;
     const vector_fp& grt = gibbs_RT_ref();
 
     /*
@@ -352,11 +348,11 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
      */
     doublereal pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        tmp = -grt[k] + mu_RT[k];
+        double tmp = -grt[k] + mu_RT[k];
         if (tmp < -600.) {
             m_pp[k] = 0.0;
         } else if (tmp > 300.0) {
-            tmp2 = tmp / 300.;
+            double tmp2 = tmp / 300.;
             tmp2 *= tmp2;
             m_pp[k] = m_p0 * exp(300.) * tmp2;
         } else {

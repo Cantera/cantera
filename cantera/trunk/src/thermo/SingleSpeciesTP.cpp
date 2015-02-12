@@ -118,8 +118,7 @@ doublereal SingleSpeciesTP::cv_mole() const
     doublereal cvbar = cp_mole();
     doublereal alpha = thermalExpansionCoeff();
     doublereal beta = isothermalCompressibility();
-    doublereal molecW = molecularWeight(0);
-    doublereal V = molecW/density();
+    doublereal V = molecularWeight(0)/density();
     doublereal T = temperature();
     if (beta != 0.0) {
         cvbar -= alpha * alpha * V * T / beta;
@@ -139,8 +138,7 @@ void SingleSpeciesTP::getChemPotentials(doublereal* mu) const
 void SingleSpeciesTP::getChemPotentials_RT(doublereal* murt) const
 {
     getStandardChemPotentials(murt);
-    double rt = GasConstant * temperature();
-    murt[0] /= rt;
+    murt[0] /= GasConstant * temperature();
 }
 
 void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const
@@ -150,16 +148,14 @@ void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const
 
 void SingleSpeciesTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    double _rt = GasConstant * temperature();
     getEnthalpy_RT(hbar);
-    hbar[0] *= _rt;
+    hbar[0] *= GasConstant * temperature();
 }
 
 void SingleSpeciesTP::getPartialMolarIntEnergies(doublereal* ubar) const
 {
-    double _rt = GasConstant * temperature();
     getIntEnergy_RT(ubar);
-    ubar[0] *= _rt;
+    ubar[0] *= GasConstant * temperature();
 }
 
 void SingleSpeciesTP::getPartialMolarEntropies(doublereal* sbar) const
@@ -176,9 +172,7 @@ void SingleSpeciesTP::getPartialMolarCp(doublereal* cpbar) const
 
 void SingleSpeciesTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    double mw = molecularWeight(0);
-    double dens = density();
-    vbar[0] = mw / dens;
+    vbar[0] = molecularWeight(0) / density();
 }
 
 /*
@@ -193,9 +187,7 @@ void SingleSpeciesTP::getPureGibbs(doublereal* gpure) const
 
 void SingleSpeciesTP::getStandardVolumes(doublereal* vbar) const
 {
-    double mw = molecularWeight(0);
-    double dens = density();
-    vbar[0] = mw / dens;
+    vbar[0] = molecularWeight(0) / density();
 }
 
 /*
@@ -319,10 +311,9 @@ void SingleSpeciesTP::initThermo()
     /*
      * Resize temporary arrays.
      */
-    int leng = 1;
-    m_h0_RT.resize(leng);
-    m_cp0_R.resize(leng);
-    m_s0_R.resize(leng);
+    m_h0_RT.resize(1);
+    m_cp0_R.resize(1);
+    m_s0_R.resize(1);
 
     /*
      *  Make sure the species mole fraction is equal to 1.0;

@@ -200,9 +200,9 @@ doublereal  LatticeSolidPhase::calcDensity()
 
 void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
 {
-    size_t nsp, strt = 0;
+    size_t strt = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        nsp =  m_lattice[n]->nSpecies();
+        size_t nsp =  m_lattice[n]->nSpecies();
         m_lattice[n]->setMoleFractions(x + strt);
         strt += nsp;
     }
@@ -215,13 +215,12 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
 
 void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
 {
-    size_t nsp, strt = 0;
+    size_t strt = 0;
     // the ifdef block should be the way we calculate this.!!!!!
     Phase::getMoleFractions(x);
-    doublereal sum;
     for (size_t n = 0; n < m_nlattice; n++) {
-        nsp =  m_lattice[n]->nSpecies();
-        sum = 0.0;
+        size_t nsp =  m_lattice[n]->nSpecies();
+        double sum = 0.0;
         for (size_t k = 0; k < nsp; k++) {
             sum += (x + strt)[k];
         }
@@ -332,36 +331,27 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
     size_t kstart = 0;
     m_speciesData.clear();
 
-    XML_Node& eosdata = phaseNode->child("thermo");
-    XML_Node& la = eosdata.child("LatticeArray");
+    XML_Node& la = phaseNode->child("thermo").child("LatticeArray");
     std::vector<XML_Node*> lattices = la.getChildren("phase");
     for (size_t n = 0; n < m_nlattice; n++) {
         LatticePhase* lp = m_lattice[n];
-        size_t nsp =  lp->nSpecies();
         vector<doublereal> constArr(lp->nElements());
         const vector_fp& aws = lp->atomicWeights();
         for (size_t es = 0; es < lp->nElements(); es++) {
-            string esName = lp->elementName(es);
-            double wt = aws[es];
-            int an = lp->atomicNumber(es);
-            int e298 = lp->entropyElement298(es); //! @todo Why is this an int instead of a double?
-            int et = lp->elementType(es);
-            addElement(esName, wt, an, e298, et);
+            addElement(lp->elementName(es), aws[es], lp->atomicNumber(es),
+                       lp->entropyElement298(es), lp->elementType(es));
         }
         const std::vector<const XML_Node*> & spNode =  lp->speciesData();
         kstart = kk;
 
 
-        for (size_t k = 0; k < nsp; k++) {
-            std::string sname = lp->speciesName(k);
+        for (size_t k = 0; k < lp->nSpecies(); k++) {
             std::map<std::string, double> comp;
             lp->getAtoms(k, DATA_PTR(constArr));
-            size_t nel = nElements();
-            vector_fp ecomp(nel, 0.0);
+            vector_fp ecomp(nElements(), 0.0);
             for (size_t m = 0; m < lp->nElements(); m++) {
                 if (constArr[m] != 0.0) {
-                    std::string oldEname = lp->elementName(m);
-                    size_t newIndex = elementIndex(oldEname);
+                    size_t newIndex = elementIndex(lp->elementName(m));
                     if (newIndex == npos) {
                         throw CanteraError("LatticeSolidPhase::installSlavePhases",
                                            "element not found");
@@ -369,9 +359,8 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
                     ecomp[newIndex] = constArr[m];
                 }
             }
-            double chrg = lp->charge(k);
-            double sz = lp->size(k);
-            addUniqueSpecies(sname, &ecomp[0], chrg, sz);
+            addUniqueSpecies(lp->speciesName(k), &ecomp[0], lp->charge(k),
+                             lp->size(k));
             SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(*spNode[k]);
             stit->setIndex(kk);
             stit->validate(spNode[k]->attrib("name"));
@@ -383,17 +372,14 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
          *  Add in the lattice stoichiometry constraint
          */
         if (n > 0) {
-            string econ = "LC_";
-            econ += int2str(n);
-            econ += "_" + id();
+            string econ = "LC_" + int2str(n) + "_" + id();
             size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
             size_t mm = nElements();
-            LatticePhase* lp0 = m_lattice[0];
-            size_t nsp0 =  lp0->nSpecies();
+            size_t nsp0 =  m_lattice[0]->nSpecies();
             for (size_t k = 0; k < nsp0; k++) {
                 m_speciesComp[k * mm + m] = -theta_[0];
             }
-            for (size_t k = 0; k < nsp; k++) {
+            for (size_t k = 0; k < lp->nSpecies(); k++) {
                 size_t ks = kstart + k;
                 m_speciesComp[ks * mm + m] = theta_[n];
             }
@@ -404,9 +390,9 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 void LatticeSolidPhase::initThermo()
 {
     initLengths();
-    size_t nsp, loc = 0;
+    size_t loc = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        nsp = m_lattice[n]->nSpecies();
+        size_t nsp = m_lattice[n]->nSpecies();
         lkstart_[n] = loc;
         for (size_t k = 0; k < nsp; k++) {
             m_x[loc] =m_lattice[n]->moleFraction(k) / (double) m_nlattice;
@@ -446,10 +432,9 @@ void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string&
 {
     m_lattice[nn]->setMoleFractionsByName(x);
     size_t loc = 0;
-    doublereal ndens;
     for (size_t n = 0; n < m_nlattice; n++) {
         size_t nsp = m_lattice[n]->nSpecies();
-        ndens = m_lattice[n]->molarDensity();
+        double ndens = m_lattice[n]->molarDensity();
         for (size_t k = 0; k < nsp; k++) {
             m_x[loc] = ndens * m_lattice[n]->moleFraction(k);
             loc++;
@@ -463,21 +448,18 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
     eosdata._require("model","LatticeSolid");
     XML_Node& la = eosdata.child("LatticeArray");
     std::vector<XML_Node*> lattices = la.getChildren("phase");
-    size_t nl = lattices.size();
-    m_nlattice = nl;
-    for (size_t n = 0; n < nl; n++) {
-        XML_Node& i = *lattices[n];
-        m_lattice.push_back((LatticePhase*)newPhase(i));
+    m_nlattice = lattices.size();
+    for (size_t n = 0; n < m_nlattice; n++) {
+        m_lattice.push_back((LatticePhase*)newPhase(*lattices[n]));
     }
     std::vector<string> pnam;
     std::vector<string> pval;
-    XML_Node& ls = eosdata.child("LatticeStoichiometry");
-    int np = ctml::getPairs(ls, pnam, pval);
-    theta_.resize(nl);
+    int np = ctml::getPairs(eosdata.child("LatticeStoichiometry"), pnam, pval);
+    theta_.resize(m_nlattice);
     for (int i = 0; i < np; i++) {
         double val = fpValueCheck(pval[i]);
         bool found = false;
-        for (size_t j = 0; j < nl; j++) {
+        for (size_t j = 0; j < m_nlattice; j++) {
             ThermoPhase& tp = *(m_lattice[j]);
             string idj = tp.id();
             if (idj == pnam[i]) {

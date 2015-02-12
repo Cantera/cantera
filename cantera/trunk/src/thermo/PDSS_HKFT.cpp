@@ -212,9 +212,7 @@ PDSS* PDSS_HKFT::duplMyselfAsPDSS() const
 doublereal PDSS_HKFT::enthalpy_mole() const
 {
     // Ok we may change this evaluation method in the future.
-    doublereal GG = gibbs_mole();
-    doublereal SS = entropy_mole();
-    doublereal h = GG + m_temp * SS;
+    doublereal h = gibbs_mole() + m_temp * entropy_mole();
 
 #ifdef DEBUG_MODE_NOT
     doublereal h2 = enthalpy_mole2();
@@ -230,29 +228,24 @@ doublereal PDSS_HKFT::enthalpy_mole() const
 #ifdef DEBUG_MODE
 doublereal PDSS_HKFT::enthalpy_mole2() const
 {
-    doublereal delH = deltaH();
     double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * 1.0E3 * 4.184;
-    return delH + enthTRPR;
+    return deltaH() + enthTRPR;
 }
 #endif
 
 doublereal PDSS_HKFT::intEnergy_mole() const
 {
-    doublereal hh = enthalpy_RT();
-    doublereal mv = molarVolume();
-    return hh - mv * m_pres;
+    return enthalpy_RT() - molarVolume() * m_pres;
 }
 
 doublereal PDSS_HKFT::entropy_mole() const
 {
-    doublereal delS = deltaS();
-    return m_Entrop_tr_pr * 1.0E3 * 4.184 + delS;
+    return m_Entrop_tr_pr * 1.0E3 * 4.184 + deltaS();
 }
 
 doublereal PDSS_HKFT::gibbs_mole() const
 {
-    doublereal delG = deltaG();
-    return m_Mu0_tr_pr + delG;
+    return m_Mu0_tr_pr + deltaG();
 }
 
 doublereal PDSS_HKFT::cp_mole() const
@@ -407,8 +400,7 @@ doublereal  PDSS_HKFT::molarVolume() const
 doublereal
 PDSS_HKFT::density() const
 {
-    doublereal val = molarVolume();
-    return m_mw/val;
+    return m_mw / molarVolume();
 }
 
 doublereal
@@ -570,8 +562,7 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    std::string model = lowercase(tn->attrib("model"));
-    if (model != "hkft") {
+    if (lowercase(tn->attrib("model")) != "hkft") {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "thermo model for species isn't hkft: "
                            + speciesNode.name());
@@ -622,52 +613,44 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    model = lowercase(ss->attrib("model"));
-    if (model != "hkft") {
+    if (lowercase(ss->attrib("model")) != "hkft") {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "standardState model for species isn't hkft: "
                            + speciesNode.name());
     }
     if (ss->hasChild("a1")) {
-        doublereal val = getFloat(*ss, "a1");
-        m_a1 = val;
+        m_a1 = getFloat(*ss, "a1");
     } else {
         throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a1 field");
     }
     if (ss->hasChild("a2")) {
-        doublereal val = getFloat(*ss, "a2");
-        m_a2 = val;
+        m_a2 = getFloat(*ss, "a2");
     } else {
         throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a2 field");
     }
     if (ss->hasChild("a3")) {
-        doublereal val = getFloat(*ss, "a3");
-        m_a3 = val;
+        m_a3 = getFloat(*ss, "a3");
     } else {
         throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a3 field");
     }
     if (ss->hasChild("a4")) {
-        doublereal val = getFloat(*ss, "a4");
-        m_a4 = val;
+        m_a4 = getFloat(*ss, "a4");
     } else {
         throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a4 field");
     }
 
     if (ss->hasChild("c1")) {
-        doublereal val = getFloat(*ss, "c1");
-        m_c1 = val;
+        m_c1 = getFloat(*ss, "c1");
     } else {
         throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c1 field");
     }
     if (ss->hasChild("c2")) {
-        doublereal val = getFloat(*ss, "c2");
-        m_c2 = val;
+        m_c2 = getFloat(*ss, "c2");
     } else {
         throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c2 field");
     }
     if (ss->hasChild("omega_Pr_Tr")) {
-        doublereal val = getFloat(*ss, "omega_Pr_Tr");
-        m_omega_pr_tr = val;
+        m_omega_pr_tr = getFloat(*ss, "omega_Pr_Tr");
     } else {
         throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing omega_Pr_Tr field");
     }
@@ -738,8 +721,7 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     XML_Node& speciesList = fxml_phase->child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &(fxml_phase->root()));
-    const vector<string>&sss = tp->speciesNames();
-    const XML_Node* s =  speciesDB->findByAttr("name", sss[spindex]);
+    const XML_Node* s =  speciesDB->findByAttr("name", tp->speciesName(spindex));
 
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
     delete fxml;
@@ -913,8 +895,7 @@ doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
 {
     static doublereal ag_coeff[3] = { -2.037662,  5.747000E-3,  -6.557892E-6};
     if (ifunc == 0) {
-        doublereal t2 = temp * temp;
-        return ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * t2;
+        return ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * temp * temp;
     } else if (ifunc == 1) {
         return  ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
     }
@@ -928,8 +909,7 @@ doublereal PDSS_HKFT::bg(const doublereal temp, const int ifunc) const
 {
     static doublereal bg_coeff[3] = { 6.107361, -1.074377E-2,  1.268348E-5};
     if (ifunc == 0) {
-        doublereal t2 = temp * temp;
-        return bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * t2;
+        return bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * temp * temp;
     }   else if (ifunc == 1) {
         return bg_coeff[1] + bg_coeff[2] * 2.0 * temp;
     }
@@ -955,29 +935,23 @@ doublereal PDSS_HKFT::f(const doublereal temp, const doublereal pres, const int 
 
 
     doublereal T1 = (TC-155.0)/300.;
-    doublereal fac1;
-
     doublereal p2 = (1000. - presBar) * (1000. - presBar);
     doublereal p3 = (1000. - presBar) * p2;
     doublereal p4 = p2 * p2;
     doublereal fac2 = af_coeff[1] * p3 + af_coeff[2] * p4;
     if (ifunc == 0) {
-        fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
-        return fac1 * fac2;
+        return pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0) * fac2;
     } else if (ifunc == 1) {
-        fac1 = (4.8 * pow(T1,3.8) + 16.0 * af_coeff[0] * pow(T1, 15.0)) / 300.;
-        return fac1 * fac2;
+        return (4.8 * pow(T1,3.8) + 16.0 * af_coeff[0] * pow(T1, 15.0)) / 300. * fac2;
     } else if (ifunc == 2) {
-        fac1 = (4.8 * 3.8 * pow(T1,2.8) + 16.0 * 15.0 * af_coeff[0] * pow(T1, 14.0)) / (300. * 300.);
-        return fac1 * fac2;
+        return (4.8 * 3.8 * pow(T1,2.8) + 16.0 * 15.0 * af_coeff[0] * pow(T1, 14.0)) / (300. * 300.) * fac2;
     } else if (ifunc == 3) {
-        fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
+        double fac1 = pow(T1,4.8) + af_coeff[0] * pow(T1, 16.0);
         fac2 = - (3.0 * af_coeff[1] * p2 + 4.0 * af_coeff[2] * p3)/ 1.0E5;
         return fac1 * fac2;
     } else {
         throw CanteraError("HKFT_PDSS::gg", "unimplemented");
     }
-    return 0.0;
 }
 
 doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int ifunc) const
@@ -1075,8 +1049,7 @@ doublereal PDSS_HKFT::LookupGe(const std::string& elemName)
         throw CanteraError("PDSS_HKFT::LookupGe",
                            "element " + elemName + " does not have a supplied entropy298");
     }
-    geValue *= (-298.15);
-    return geValue;
+    return geValue * -298.15;
 }
 
 void PDSS_HKFT::convertDGFormation()
@@ -1084,25 +1057,16 @@ void PDSS_HKFT::convertDGFormation()
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-    size_t ne = m_tp->nElements();
-    doublereal na;
-    doublereal ge;
-    string ename;
-
     doublereal totalSum = 0.0;
-    for (size_t m = 0; m < ne; m++) {
-        na = m_tp->nAtoms(m_spindex, m);
+    for (size_t m = 0; m < m_tp->nElements(); m++) {
+        double na = m_tp->nAtoms(m_spindex, m);
         if (na > 0.0) {
-            ename = m_tp->elementName(m);
-            ge = LookupGe(ename);
-            totalSum += na * ge;
+            totalSum += na * LookupGe(m_tp->elementName(m));
         }
     }
     // Add in the charge
     if (m_charge_j != 0.0) {
-        ename = "H";
-        ge = LookupGe(ename);
-        totalSum -= m_charge_j * ge;
+        totalSum -= m_charge_j * LookupGe("H");
     }
     // Ok, now do the calculation. Convert to joules kmol-1
     doublereal dg = m_deltaG_formation_tr_pr * 4.184 * 1.0E3;

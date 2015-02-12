@@ -119,8 +119,7 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    std::string model = lowercase(tn->attrib("model"));
-    if (model != "ionfromneutral") {
+    if (lowercase(tn->attrib("model")) != "ionfromneutral") {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "thermo model for species isn't IonsFromNeutral: "
                            + speciesNode.name());
@@ -194,9 +193,7 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
     XML_Node& speciesList = fxml_phase->child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &(fxml_phase->root()));
-    const vector<string>&sss = tp->speciesNames();
-
-    const XML_Node* s =  speciesDB->findByAttr("name", sss[spindex]);
+    const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
 
     constructPDSSXML(tp, spindex, *s, *fxml_phase, id);
     delete fxml;
@@ -205,8 +202,7 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
+    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex);
 }
@@ -226,9 +222,7 @@ PDSS_IonsFromNeutral::enthalpy_RT() const
 doublereal
 PDSS_IonsFromNeutral::intEnergy_mole() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex] - 1.0;
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
+    return (m_h0_RT_ptr[m_spindex] - 1.0) * GasConstant * m_temp;
 }
 
 doublereal

@@ -179,8 +179,7 @@ int RedlichKwongMFTP::eosType() const
 doublereal RedlichKwongMFTP::enthalpy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal rt = _RT();
-    doublereal h_ideal = rt * mean_X(DATA_PTR(m_h0_RT));
+    doublereal h_ideal = _RT() * mean_X(DATA_PTR(m_h0_RT));
     doublereal h_nonideal = hresid();
     return h_ideal + h_nonideal;
 }
@@ -222,10 +221,8 @@ doublereal RedlichKwongMFTP::pressure() const
     _updateReferenceStateThermo();
 
     //  Get a copy of the private variables stored in the State object
-    double rho = density();
     doublereal T = temperature();
-    doublereal mmw = meanMolecularWeight();
-    double molarV = mmw / rho;
+    double molarV = meanMolecularWeight() / density();
 
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
 
@@ -249,8 +246,7 @@ void RedlichKwongMFTP::calcDensity()
      * Set the density in the parent State object directly,
      * by calling the Phase::setDensity() function.
      */
-    double dens = 1.0/invDens;
-    Phase::setDensity(dens);
+    Phase::setDensity(1.0/invDens);
 }
 
 void RedlichKwongMFTP::setTemperature(const doublereal temp)
@@ -379,10 +375,9 @@ void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
 void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
 {
     getGibbs_ref(mu);
-    doublereal xx;
     doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(SmallNumber, moleFraction(k));
+        double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt*(log(xx));
     }
 

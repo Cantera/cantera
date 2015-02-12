@@ -48,9 +48,7 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_)
                            "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    std::string model = th["model"];
-    if (model != "MetalSHEelectrons") {
+    if (xphase->child("thermo")["model"] != "MetalSHEelectrons") {
         throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
                            "thermo model attribute must be MetalSHEelectrons");
     }
@@ -61,15 +59,12 @@ MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
     xdef_(0)
 {
     if (id_ != "") {
-        std::string idxml = xmlphase["id"];
-        if (id_ != idxml) {
+        if (id_ != xmlphase["id"]) {
             throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
                                "id's don't match");
         }
     }
-    const XML_Node& th = xmlphase.child("thermo");
-    std::string model = th["model"];
-    if (model != "MetalSHEelectrons") {
+    if (xmlphase.child("thermo")["model"] != "MetalSHEelectrons") {
         throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
                            "thermo model attribute must be MetalSHEelectrons");
     }
@@ -293,21 +288,18 @@ XML_Node* MetalSHEelectrons::makeDefaultXMLTree()
 
 void MetalSHEelectrons::setParameters(int n, doublereal* const c)
 {
-    doublereal rho = c[0];
-    setDensity(rho);
+    setDensity(c[0]);
 }
 
 void MetalSHEelectrons::getParameters(int& n, doublereal* const c) const
 {
-    doublereal rho = density();
     n = 1;
-    c[0] = rho;
+    c[0] = density();
 }
 
 void MetalSHEelectrons::setParametersFromXML(const XML_Node& eosdata)
 {
-    std::string model = eosdata["model"];
-    if (model != "MetalSHEelectrons") {
+    if ( eosdata["model"] != "MetalSHEelectrons") {
         throw CanteraError("MetalSHEelectrons::setParametersFromXML",
                            "thermo model attribute must be MetalSHEelectrons");
     }

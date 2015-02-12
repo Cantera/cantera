@@ -40,8 +40,7 @@ PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, size_t spindex, const XML_No
         throw CanteraError("PDSS_IdealGas", "sp installing not done yet");
     }
     m_pdssType = cPDSS_IDEALGAS;
-    std::string id = "";
-    constructPDSSXML(tp, spindex, phaseRoot, id);
+    constructPDSSXML(tp, spindex, phaseRoot, "");
 }
 
 PDSS_IdealGas::PDSS_IdealGas(const PDSS_IdealGas& b) :
@@ -107,8 +106,7 @@ void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
 void PDSS_IdealGas::initThermo()
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
+    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex);
 }
@@ -122,9 +120,7 @@ PDSS_IdealGas::enthalpy_RT() const
 doublereal
 PDSS_IdealGas::intEnergy_mole() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex] - 1.0;
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
+    return (m_h0_RT_ptr[m_spindex] - 1.0) * GasConstant * m_temp;
 }
 
 doublereal
@@ -193,7 +189,6 @@ doublereal PDSS_IdealGas::molarVolume_ref() const
 doublereal  PDSS_IdealGas::pressure() const
 {
     throw CanteraError("PDSS_IdealGas::pressure()", "unimplemented");
-    return 0.0;
 }
 
 void PDSS_IdealGas::setPressure(doublereal p)

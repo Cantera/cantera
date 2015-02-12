@@ -93,8 +93,7 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 {
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (ss) {
-        std::string model = ss->attrib("model");
-        if (model != "ideal_gas") {
+        if (ss->attrib("model") != "ideal_gas") {
             throw CanteraError("VPSSMgr_IdealGas::createInstallPDSS",
                                "standardState model for species isn't "
                                "ideal_gas: " + speciesNode["name"]);

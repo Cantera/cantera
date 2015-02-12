@@ -153,8 +153,7 @@ void MixtureFugacityTP::getPureGibbs(doublereal* g) const
 {
     _updateReferenceStateThermo();
     scale(m_g0_RT.begin(), m_g0_RT.end(), g, _RT());
-    double tmp = log(pressure() /m_spthermo->refPressure());
-    tmp *= _RT();
+    double tmp = log(pressure() /m_spthermo->refPressure()) * _RT();
     for (size_t k = 0; k < m_kk; k++) {
         g[k] += tmp;
     }
@@ -164,11 +163,8 @@ void MixtureFugacityTP::getIntEnergy_RT(doublereal* urt) const
 {
     _updateReferenceStateThermo();
     copy(m_h0_RT.begin(), m_h0_RT.end(), urt);
-    doublereal p = pressure();
-    doublereal tmp = p / _RT();
-    doublereal v0 = _RT() / p;
     for (size_t i = 0; i < m_kk; i++) {
-        urt[i] -= tmp * v0;
+        urt[i] -= 1.0;
     }
 }
 
@@ -220,7 +216,6 @@ void MixtureFugacityTP::getEntropy_R_ref(doublereal* er) const
 {
     _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), er);
-    return;
 }
 
 void MixtureFugacityTP::getCp_R_ref(doublereal* cpr) const
@@ -232,8 +227,7 @@ void MixtureFugacityTP::getCp_R_ref(doublereal* cpr) const
 void MixtureFugacityTP::getStandardVolumes_ref(doublereal* vol) const
 {
     _updateReferenceStateThermo();
-    double pp = refPressure();
-    doublereal v0 = _RT() / pp;
+    doublereal v0 = _RT() / refPressure();
     for (size_t i = 0; i < m_kk; i++) {
         vol[i]= v0;
     }
@@ -453,31 +447,23 @@ void MixtureFugacityTP::initThermoXML(XML_Node& phaseNode, const std::string& id
 
 doublereal MixtureFugacityTP::z() const
 {
-    doublereal p = pressure();
-    doublereal rho = density();
-    doublereal mmw = meanMolecularWeight();
-    doublereal molarV = mmw / rho;
-    doublereal rt = _RT();
-    return p * molarV / rt;
+    return pressure() * meanMolecularWeight() / (density() * _RT());
 }
 
 doublereal MixtureFugacityTP::sresid() const
 {
     throw CanteraError("MixtureFugacityTP::sresid()", "Base Class: not implemented");
-    return 0.0;
 }
 
 doublereal MixtureFugacityTP::hresid() const
 {
     throw CanteraError("MixtureFugacityTP::hresid()", "Base Class: not implemented");
-    return 0.0;
 }
 
 doublereal MixtureFugacityTP::psatEst(doublereal TKelvin) const
 {
-    doublereal tcrit = critTemperature();
     doublereal pcrit = critPressure();
-    doublereal tt = tcrit/TKelvin;
+    doublereal tt = critTemperature() / TKelvin;
     if (tt < 1.0) {
         return pcrit;
     }
@@ -488,13 +474,12 @@ doublereal MixtureFugacityTP::psatEst(doublereal TKelvin) const
 doublereal MixtureFugacityTP::liquidVolEst(doublereal TKelvin, doublereal& pres) const
 {
     throw CanteraError("MixtureFugacityTP::liquidVolEst()", "unimplemented");
-    return 0.0;
 }
 
 doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         int phase, doublereal rhoguess)
 {
-    double tcrit = critTemperature();
+    doublereal tcrit = critTemperature();
     doublereal mmw = meanMolecularWeight();
     if (rhoguess == -1.0) {
         if (phase != -1) {
@@ -526,8 +511,6 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
      *  be updated as we go.
      */
     double molarVolSpinodal = vc;
-    doublereal  pcheck = 1.0E-30 + 1.0E-8 * presPa;
-    doublereal presBase, dpdVBase, delMV;
     bool conv = false;
     /*
      *  We start on one side of the vc and stick with that side
@@ -555,7 +538,8 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
          * wrt the molar volume.
          *  This routine also returns the pressure, presBase
          */
-        dpdVBase = dpdVCalc(TKelvin, molarVolBase, presBase);
+        double presBase;
+        double dpdVBase = dpdVCalc(TKelvin, molarVolBase, presBase);
 
         /*
          * If dpdV is positve, then we are in the middle of the
@@ -593,7 +577,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         /*
          * Check for convergence
          */
-        if (fabs(presBase-presPa) < pcheck) {
+        if (fabs(presBase-presPa) < 1.0E-30 + 1.0E-8 * presPa) {
             conv = true;
             break;
         }
@@ -611,7 +595,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
          * Newton's method. Then, crop it to a max value
          * of 0.1 times the current volume
          */
-        delMV = - (presBase - presPa) / dpdV;
+        double delMV = - (presBase - presPa) / dpdV;
         if (!gasSide || delMV < 0.0) {
             if (fabs(delMV) > 0.2 * molarVolBase) {
                 delMV = delMV / fabs(delMV) * 0.2 * molarVolBase;
@@ -675,7 +659,6 @@ void MixtureFugacityTP::updateMixingExpressions()
 }
 
 MixtureFugacityTP::spinodalFunc::spinodalFunc(MixtureFugacityTP* tp) :
-    ResidEval(),
     m_tp(tp)
 {
 }
@@ -683,13 +666,10 @@ MixtureFugacityTP::spinodalFunc::spinodalFunc(MixtureFugacityTP* tp) :
 int MixtureFugacityTP::spinodalFunc::evalSS(const doublereal t, const doublereal* const y,
         doublereal* const r)
 {
-    int status = 0;
     doublereal molarVol = y[0];
-    doublereal tt = m_tp->temperature();
     doublereal pp;
-    doublereal val = m_tp->dpdVCalc(tt, molarVol, pp);
-    r[0] = val;
-    return status;
+    r[0] = m_tp->dpdVCalc(m_tp->temperature(), molarVol, pp);
+    return 0;
 }
 
 int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& densLiqGuess,
@@ -767,13 +747,11 @@ int MixtureFugacityTP::phaseState(bool checkState) const
 doublereal MixtureFugacityTP::densSpinodalLiquid() const
 {
     throw CanteraError("", "unimplmented");
-    return 0.0;
 }
 
 doublereal MixtureFugacityTP::densSpinodalGas() const
 {
     throw CanteraError("", "unimplmented");
-    return 0.0;
 }
     
 doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)
@@ -808,24 +786,19 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
 
     // we need this because this is a non-const routine that is public
     setTemperature(TKelvin);
-    double tcrit = critTemperature();
-    double RhoLiquid, RhoGas;
-    double RhoLiquidGood, RhoGasGood;
     double densSave = density();
     double tempSave = temperature();
     double pres;
     doublereal mw = meanMolecularWeight();
-    if (TKelvin < tcrit) {
+    if (TKelvin < critTemperature()) {
 
         pres = psatEst(TKelvin);
         // trial value = Psat from correlation
         doublereal volLiquid = liquidVolEst(TKelvin, pres);
-        RhoLiquidGood = mw / volLiquid;
-        RhoGasGood    = pres * mw / (GasConstant * TKelvin);
+        double RhoLiquidGood = mw / volLiquid;
+        double RhoGasGood = pres * mw / (GasConstant * TKelvin);
         doublereal delGRT = 1.0E6;
         doublereal liqGRT, gasGRT;
-        int stab;
-        doublereal presLast = pres;
 
         /*
          *  First part of the calculation involves finding a pressure at which the
@@ -922,9 +895,9 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         }
 
         pres = presGas;
-        presLast = pres;
-        RhoGas = RhoGasGood;
-        RhoLiquid = RhoLiquidGood;
+        double presLast = pres;
+        double RhoGas = RhoGasGood;
+        double RhoLiquid = RhoLiquidGood;
 
 
         /*
@@ -932,8 +905,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
          */
 
         for (int i = 0; i < 20; i++) {
-
-            stab = corr0(TKelvin, pres, RhoLiquid, RhoGas, liqGRT, gasGRT);
+            int stab = corr0(TKelvin, pres, RhoLiquid, RhoGas, liqGRT, gasGRT);
             if (stab == 0) {
                 presLast = pres;
                 delGRT = liqGRT - gasGRT;
@@ -986,8 +958,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
     } else {
         pres = critPressure();
         setState_TP(TKelvin, pres);
-        RhoGas = density();
-        molarVolGas =  mw / RhoGas;
+        molarVolGas = mw / density();
         molarVolLiquid =  molarVolGas;
         setState_TR(tempSave, densSave);
     }
@@ -997,13 +968,11 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
 doublereal MixtureFugacityTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
 {
     throw CanteraError("MixtureFugacityTP::pressureCalc", "unimplemented");
-    return 0.0;
 }
 
 doublereal MixtureFugacityTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
 {
     throw CanteraError("MixtureFugacityTP::dpdVCalc", "unimplemented");
-    return 0.0;
 }
 
 void MixtureFugacityTP::_updateReferenceStateThermo() const

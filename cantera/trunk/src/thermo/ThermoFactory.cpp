@@ -166,13 +166,12 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 
 std::string eosTypeString(int ieos, int length)
 {
-    std::string ss = "UnknownPhaseType";
     for (int n = 0; n < ntypes; n++) {
         if (_itypes[n] == ieos) {
             return _types[n];
         }
     }
-    return ss;
+    return "UnknownPhaseType";
 }
 
 ThermoPhase* newPhase(XML_Node& xmlphase)

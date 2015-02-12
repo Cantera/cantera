@@ -67,15 +67,12 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                             int& has_other)
 {
 
-    XML_Node* ss_ptr = 0;
     string ssModel = "idealGas";
-    size_t ns = spDataNodeList.size();
-    for (size_t n = 0; n < ns; n++) {
+    for (size_t n = 0; n < spDataNodeList.size(); n++) {
         bool ifound = false;
         XML_Node* spNode = spDataNodeList[n];
         if (spNode->hasChild("standardState")) {
-            const XML_Node& ssN = spNode->child("standardState");
-            string mm = ssN["model"];
+            string mm = spNode->child("standardState")["model"];
             if (mm == "waterIAPWS" || mm == "waterPDSS") {
                 has_water++;
                 ifound = true;
@@ -89,8 +86,7 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
             if (spNode->hasChild("thermo")) {
                 const XML_Node& th = spNode->child("thermo");
                 if (spNode->hasChild("standardState")) {
-                    ss_ptr = &(spNode->child("standardState"));
-                    ssModel = ss_ptr->attrib("model");
+                    ssModel = spNode->child("standardState")["model"];
                 }
                 if (th.hasChild("NASA")) {
                     if (ssModel == "idealGas") {
@@ -211,8 +207,8 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
                            std::vector<XML_Node*> & spDataNodeList)
 {
 
-    std::string ssManager="";
-    std::string vpssManager="";
+    std::string ssManager;
+    std::string vpssManager;
 
     // First look for any explicit instructions within the XML Database
     // for the standard state manager and the variable pressure
@@ -251,8 +247,7 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 
 
     int inasaIG = 0, inasaCV = 0, ishomateIG = 0, ishomateCV = 0,
-        isimpleIG = 0, isimpleCV = 0,
-        iwater = 0, itpx = 0, iother = 0;
+        isimpleIG = 0, isimpleCV = 0, iwater = 0, itpx = 0, iother = 0;
     int ihptx = 0;
 
     try {

@@ -149,8 +149,6 @@ void NasaThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
 void NasaThermo::update(doublereal t, doublereal* cp_R,
                         doublereal* h_RT, doublereal* s_R) const
 {
-    int i;
-
     // load functions of temperature into m_t vector
     m_t[0] = t;
     m_t[1] = t*t;
@@ -161,7 +159,7 @@ void NasaThermo::update(doublereal t, doublereal* cp_R,
 
     // iterate over the groups
     std::vector<NasaPoly1>::const_iterator _begin, _end;
-    for (i = 0; i != m_ngroups; i++) {
+    for (int i = 0; i != m_ngroups; i++) {
         if (t > m_tmid[i]) {
             _begin  = m_high[i].begin();
             _end    = m_high[i].end();
@@ -224,15 +222,13 @@ doublereal NasaThermo::reportOneHf298(const size_t k) const
     const std::vector<NasaPoly1> &mlg = m_low[grp-1];
     const NasaPoly1* nlow = &(mlg[pos]);
     doublereal tmid = nlow->maxTemp();
-    double h;
     if (298.15 <= tmid) {
-        h = nlow->reportHf298(0);
+        return nlow->reportHf298(0);
     } else {
         const std::vector<NasaPoly1> &mhg = m_high[grp-1];
         const NasaPoly1* nhigh = &(mhg[pos]);
-        h = nhigh->reportHf298(0);
+        return nhigh->reportHf298(0);
     }
-    return h;
 }
 
 void NasaThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)

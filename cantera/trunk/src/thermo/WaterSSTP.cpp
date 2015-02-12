@@ -197,28 +197,23 @@ void WaterSSTP::setParametersFromXML(const XML_Node& eosdata)
 
 void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
-    double T = temperature();
-    doublereal h = m_sub->enthalpy();
-    *hrt = (h + EW_Offset)/(GasConstant*T);
+    *hrt = (m_sub->enthalpy() + EW_Offset)/(GasConstant*temperature());
 }
 
 void WaterSSTP::getIntEnergy_RT(doublereal* ubar) const
 {
-    doublereal u = m_sub->intEnergy();
-    *ubar = (u + EW_Offset)/GasConstant;
+    *ubar = (m_sub->intEnergy() + EW_Offset)/GasConstant;
 }
 
 void WaterSSTP::getEntropy_R(doublereal* sr) const
 {
-    doublereal s = m_sub->entropy();
-    sr[0] = (s + SW_Offset) / GasConstant;
+    sr[0] = (m_sub->entropy() + SW_Offset) / GasConstant;
 }
 
 void WaterSSTP::getGibbs_RT(doublereal* grt) const
 {
     double T = temperature();
-    doublereal g = m_sub->Gibbs();
-    *grt = (g + EW_Offset - SW_Offset*T) / (GasConstant * T);
+    *grt = (m_sub->Gibbs() + EW_Offset - SW_Offset*T) / (GasConstant * T);
     if (!m_ready) {
         throw CanteraError("waterSSTP::", "Phase not ready");
     }
@@ -226,9 +221,7 @@ void WaterSSTP::getGibbs_RT(doublereal* grt) const
 
 void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
 {
-    double T = temperature();
-    doublereal g = m_sub->Gibbs();
-    *gss = (g + EW_Offset - SW_Offset*T);
+    *gss = (m_sub->Gibbs() + EW_Offset - SW_Offset*temperature());
     if (!m_ready) {
         throw CanteraError("waterSSTP::", "Phase not ready");
     }
@@ -236,8 +229,7 @@ void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
 
 void WaterSSTP::getCp_R(doublereal* cpr) const
 {
-    doublereal cp = m_sub->cp();
-    cpr[0] = cp / GasConstant;
+    cpr[0] = m_sub->cp() / GasConstant;
 }
 
 doublereal WaterSSTP::cv_mole() const
@@ -421,15 +413,13 @@ doublereal WaterSSTP::critDensity() const
 void WaterSSTP::setTemperature(const doublereal temp)
 {
     Phase::setTemperature(temp);
-    doublereal dd = density();
-    m_sub->setState_TR(temp, dd);
+    m_sub->setState_TR(temp, density());
 }
 
 void WaterSSTP::setDensity(const doublereal dens)
 {
     Phase::setDensity(dens);
-    doublereal temp = temperature();
-    m_sub->setState_TR(temp, dens);
+    m_sub->setState_TR(temperature(), dens);
 }
 
 doublereal WaterSSTP::satPressure(doublereal t) {
