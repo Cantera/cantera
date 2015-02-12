@@ -96,10 +96,9 @@ Phase& Phase::operator=(const Phase& right)
         XML_Node *rroot = &(right.m_xml->root());
         XML_Node *root_xml = new XML_Node();
         (rroot)->copy(root_xml);
-        string iidd = right.m_xml->id();
-        m_xml = findXMLPhase(root_xml, iidd); 
+        m_xml = findXMLPhase(root_xml, right.m_xml->id());
         if (!m_xml) {
-          throw CanteraError("Phase::operator=()", "Confused: Couldn't find original phase " + iidd);
+          throw CanteraError("Phase::operator=()", "Confused: Couldn't find original phase " + right.m_xml->id());
         }
         if (&(m_xml->root()) != root_xml) {
           throw CanteraError("Phase::operator=()", "confused: root changed");
@@ -131,13 +130,12 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
     XML_Node* xroot = &(xmlPhase.root());
     XML_Node *root_xml = new XML_Node();
     (xroot)->copy(root_xml);
-    std::string iidd = xmlPhase.id();
     if (m_xml) {
        XML_Node *rOld = &(m_xml->root());
        delete rOld;
        m_xml = 0;
     }
-    m_xml = findXMLPhase(root_xml, iidd);
+    m_xml = findXMLPhase(root_xml, xmlPhase.id());
     if (!m_xml) {
         throw CanteraError("Phase::setXMLdata()", "XML 'phase' node not found");
     }
@@ -300,8 +298,7 @@ void Phase::checkSpeciesArraySize(size_t kk) const
 
 std::string Phase::speciesSPName(int k) const
 {
-    std::string sn = speciesName(k);
-    return m_name + ":" + sn;
+    return m_name + ":" + speciesName(k);
 }
 
 void Phase::saveState(vector_fp& state) const
@@ -372,8 +369,7 @@ void Phase::setMoleFractions(const doublereal* const x)
 void Phase::setMoleFractions_NoNorm(const doublereal* const x)
 {
     m_mmw = dot(x, x + m_kk, m_molwts.begin());
-    doublereal rmmw = 1.0/m_mmw;
-    transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rmmw));
+    transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(1.0/m_mmw));
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
     m_stateNum++;
@@ -381,9 +377,8 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
 
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
-    size_t kk = nSpecies();
-    vector_fp mf(kk, 0.0);
-    for (size_t k = 0; k < kk; k++) {
+    vector_fp mf(m_kk, 0.0);
+    for (size_t k = 0; k < m_kk; k++) {
         mf[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
     }
     setMoleFractions(&mf[0]);
@@ -391,8 +386,7 @@ void Phase::setMoleFractionsByName(const compositionMap& xMap)
 
 void Phase::setMoleFractionsByName(const std::string& x)
 {
-    compositionMap c = parseCompString(x, speciesNames());
-    setMoleFractionsByName(c);
+    setMoleFractionsByName(parseCompString(x, speciesNames()));
 }
 
 void Phase::setMassFractions(const doublereal* const y)
@@ -422,9 +416,8 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
 
 void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
-    size_t kk = nSpecies();
-    vector_fp mf(kk, 0.0);
-    for (size_t k = 0; k < kk; k++) {
+    vector_fp mf(m_kk, 0.0);
+    for (size_t k = 0; k < m_kk; k++) {
         mf[k] = std::max(getValue(yMap, speciesName(k), 0.0), 0.0);
     }
     setMassFractions(&mf[0]);
@@ -432,8 +425,7 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
 
 void Phase::setMassFractionsByName(const std::string& y)
 {
-    compositionMap c = parseCompString(y, speciesNames());
-    setMassFractionsByName(c);
+    setMassFractionsByName(parseCompString(y, speciesNames()));
 }
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
@@ -534,8 +526,7 @@ void Phase::getMoleFractionsByName(compositionMap& x) const
                     " 'compositionMap getMoleFractionsByName(double threshold)'"
                     " instead");
     x.clear();
-    size_t kk = nSpecies();
-    for (size_t k = 0; k < kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         x[speciesName(k)] = Phase::moleFraction(k);
     }
 }
@@ -659,13 +650,11 @@ doublereal Phase::molarVolume() const
 
 doublereal Phase::chargeDensity() const
 {
-    size_t kk = nSpecies();
     doublereal cdens = 0.0;
-    for (size_t k = 0; k < kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         cdens += charge(k)*moleFraction(k);
     }
-    cdens *= Faraday;
-    return cdens;
+    return cdens * Faraday;
 }
 
 doublereal Phase::mean_X(const doublereal* const Q) const

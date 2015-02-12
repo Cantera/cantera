@@ -43,8 +43,7 @@ MineralEQ3::MineralEQ3(const std::string& infile, std::string id_)
                            "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    std::string model = th["model"];
+    std::string model = xphase->child("thermo")["model"];
     if (model != "StoichSubstance" && model != "MineralEQ3") {
         throw CanteraError("MineralEQ3::MineralEQ3",
                            "thermo model attribute must be StoichSubstance");
@@ -55,14 +54,12 @@ MineralEQ3::MineralEQ3(const std::string& infile, std::string id_)
 MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
 {
     if (id_ != "") {
-        std::string idxml = xmlphase["id"];
-        if (id_ != idxml) {
+        if (id_ != xmlphase["id"]) {
             throw CanteraError("MineralEQ3::MineralEQ3",
                                "id's don't match");
         }
     }
-    const XML_Node& th = xmlphase.child("thermo");
-    std::string model = th["model"];
+    std::string model = xmlphase.child("thermo")["model"];
     if (model != "StoichSubstance" && model != "MineralEQ3") {
         throw CanteraError("MineralEQ3::MineralEQ3",
                            "thermo model attribute must be StoichSubstance");
@@ -217,15 +214,13 @@ void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
 
 void MineralEQ3::setParameters(int n, doublereal* const c)
 {
-    doublereal rho = c[0];
-    setDensity(rho);
+    setDensity(c[0]);
 }
 
 void MineralEQ3::getParameters(int& n, doublereal* const c) const
 {
-    doublereal rho = density();
     n = 1;
-    c[0] = rho;
+    c[0] = density();
 }
 
 void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
@@ -238,8 +233,7 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "no thermo XML node");
     }
 
-    std::vector<const XML_Node*> xspecies = speciesData();
-    const XML_Node* xsp = xspecies[0];
+    const XML_Node* xsp = speciesData()[0];
 
     XML_Node* aStandardState = 0;
     if (xsp->hasChild("standardState")) {
@@ -249,18 +243,15 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "no standard state mode");
     }
     doublereal volVal = 0.0;
-    string smodel = aStandardState->attrib("model");
-    if (smodel != "constantVolume") {
+    if (aStandardState->attrib("model") != "constantVolume") {
         throw CanteraError("MineralEQ3::initThermoXML",
                            "wrong standard state mode");
     }
     if (aStandardState->hasChild("V0_Pr_Tr")) {
         XML_Node& aV = aStandardState->child("V0_Pr_Tr");
-        string Aunits = "";
         double Afactor = toSI("cm3/gmol");
         if (aV.hasAttrib("units")) {
-            Aunits = aV.attrib("units");
-            Afactor = toSI(Aunits);
+            Afactor = toSI(aV.attrib("units"));
         }
         volVal = ctml::getFloat(*aStandardState, "V0_Pr_Tr");
         m_V0_pr_tr= volVal;
@@ -270,12 +261,9 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         throw CanteraError("MineralEQ3::initThermoXML",
                            "wrong standard state mode");
     }
-    doublereal rho = molecularWeight(0) / volVal;
-    setDensity(rho);
+    setDensity(molecularWeight(0) / volVal);
 
-    const XML_Node& sThermo = xsp->child("thermo");
-    const XML_Node& MinEQ3node = sThermo.child("MinEQ3");
-
+    const XML_Node& MinEQ3node = xsp->child("thermo").child("MinEQ3");
 
     m_deltaG_formation_pr_tr =
         ctml::getFloatDefaultUnits(MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
@@ -291,8 +279,7 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
 void MineralEQ3::setParametersFromXML(const XML_Node& eosdata)
 {
-    std::string model = eosdata["model"];
-    if (model != "MineralEQ3") {
+    if (eosdata["model"] != "MineralEQ3") {
         throw CanteraError("MineralEQ3::MineralEQ3",
                            "thermo model attribute must be MineralEQ3");
     }
@@ -318,17 +305,12 @@ void MineralEQ3::convertDGFormation()
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-    doublereal na;
-    doublereal ge;
-    string ename;
 
     doublereal totalSum = 0.0;
     for (size_t m = 0; m < nElements(); m++) {
-        na = nAtoms(0, m);
+        double na = nAtoms(0, m);
         if (na > 0.0) {
-            ename = elementName(m);
-            ge = LookupGe(ename);
-            totalSum += na * ge;
+            totalSum += na * LookupGe(elementName(m));
         }
     }
     // Ok, now do the calculation. Convert to joules kmol-1

@@ -85,10 +85,8 @@ void  Mu0Poly::updateProperties(const doublereal* tt,  doublereal* cp_R,
     }
     double T1 = m_t0_int[j];
     double cp_Rj = m_cp0_R_int[j];
-
-    doublereal rt = 1.0/T;
     cp_R[m_index] = cp_Rj;
-    h_RT[m_index] = rt*(m_h0_R_int[j] + (T - T1) * cp_Rj);
+    h_RT[m_index] = (m_h0_R_int[j] + (T - T1) * cp_Rj)/T;
     s_R[m_index]  = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
@@ -128,12 +126,7 @@ void Mu0Poly::modifyParameters(doublereal* coeffs)
 Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
                              const XML_Node& Mu0Node)
 {
-    doublereal tmin, tmax;
     bool dimensionlessMu0Values = false;
-
-    tmin = fpValue(Mu0Node["Tmin"]);
-    tmax = fpValue(Mu0Node["Tmax"]);
-    doublereal pref = fpValue(Mu0Node["Pref"]);
 
     doublereal h298 = 0.0;
     if (Mu0Node.hasChild("H298")) {
@@ -158,12 +151,10 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
      * form. If they were, then the assumed temperature needs to be
      * adjusted from the assumed T = 273.15
      */
-    string uuu = valNode_ptr->attrib("units");
-    if (uuu == "Dimensionless") {
+    if (valNode_ptr->attrib("units") == "Dimensionless") {
         dimensionlessMu0Values = true;
     }
-    size_t ns = cValues.size();
-    if (ns != numPoints) {
+    if (cValues.size() != numPoints) {
         throw CanteraError("installMu0ThermoFromXML",
                            "numPoints inconsistent while processing "
                            + speciesName);
@@ -177,8 +168,7 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
                            + speciesName);
     }
     getFloatArray(*tempNode_ptr, cTemperatures, false);
-    ns = cTemperatures.size();
-    if (ns != numPoints) {
+    if (cTemperatures.size() != numPoints) {
         throw CanteraError("installMu0ThermoFromXML",
                            "numPoints inconsistent while processing "
                            + speciesName);
@@ -203,13 +193,12 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
         c[2+i*2+1] = cValues[i];
     }
 
-    return new Mu0Poly(tmin, tmax, pref, &c[0]);
+    return new Mu0Poly(fpValue(Mu0Node["Tmin"]), fpValue(Mu0Node["Tmax"]),
+                       fpValue(Mu0Node["Pref"]), &c[0]);
 }
 
 void Mu0Poly::processCoeffs(const doublereal* coeffs)
 {
-    size_t i, iindex;
-    double T1, T2;
     size_t nPoints = (size_t) coeffs[0];
     if (nPoints < 2) {
         throw CanteraError("Mu0Poly",
@@ -232,8 +221,8 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
      * Also distribute the data into the internal arrays.
      */
     bool ifound = false;
-    for (i = 0, iindex = 2; i < nPoints; i++) {
-        T1 = coeffs[iindex];
+    for (size_t i = 0, iindex = 2; i < nPoints; i++) {
+        double T1 = coeffs[iindex];
         m_t0_int[i] = T1;
         m_mu0_R_int[i] =  coeffs[iindex+1] / GasConstant;
         if (T1 == 298.15) {
@@ -241,8 +230,7 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
             ifound = true;
         }
         if (i < nPoints - 1) {
-            T2 = coeffs[iindex+2];
-            if (T2 <= T1) {
+            if (coeffs[iindex+2] <= T1) {
                 throw CanteraError("Mu0Poly",
                                    "Temperatures are not monotonic increasing");
             }
@@ -257,26 +245,18 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
     /*
      * Starting from the interval with T298, we go up
      */
-    doublereal mu2, s1, s2, h1, h2, cpi, deltaMu, deltaT;
-    T1 = m_t0_int[iT298];
-    doublereal mu1 = m_mu0_R_int[iT298];
     m_h0_R_int[iT298] = m_H298;
-    m_s0_R_int[iT298] = - (mu1 - m_h0_R_int[iT298]) / T1;
-    for (i = iT298; i < m_numIntervals; i++) {
-        T1      = m_t0_int[i];
-        s1      = m_s0_R_int[i];
-        h1      = m_h0_R_int[i];
-        mu1     = m_mu0_R_int[i];
-        T2      = m_t0_int[i+1];
-        mu2     = m_mu0_R_int[i+1];
-        deltaMu = mu2 - mu1;
-        deltaT  = T2 - T1;
-        cpi = (deltaMu - T1 * s1 + T2 * s1) / (deltaT - T2 * log(T2/T1));
-        h2 = h1 + cpi * deltaT;
-        s2 = s1 + cpi * log(T2/T1);
-        m_cp0_R_int[i]   = cpi;
-        m_h0_R_int[i+1]  = h2;
-        m_s0_R_int[i+1]  = s2;
+    m_s0_R_int[iT298] = - (m_mu0_R_int[iT298] - m_h0_R_int[iT298]) / m_t0_int[iT298];
+    for (size_t i = iT298; i < m_numIntervals; i++) {
+        double T1 = m_t0_int[i];
+        double s1 = m_s0_R_int[i];
+        double T2 = m_t0_int[i+1];
+        double deltaMu = m_mu0_R_int[i+1] - m_mu0_R_int[i];
+        double deltaT = T2 - T1;
+        double cpi = (deltaMu - T1 * s1 + T2 * s1) / (deltaT - T2 * log(T2/T1));
+        m_cp0_R_int[i] = cpi;
+        m_h0_R_int[i+1] = m_h0_R_int[i] + cpi * deltaT;
+        m_s0_R_int[i+1] = s1 + cpi * log(T2/T1);
         m_cp0_R_int[i+1] = cpi;
     }
 
@@ -284,25 +264,18 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
      * Starting from the interval with T298, we go down
      */
     if (iT298 != 0) {
-        T2 = m_t0_int[iT298];
-        mu2 = m_mu0_R_int[iT298];
         m_h0_R_int[iT298] = m_H298;
-        m_s0_R_int[iT298] = - (mu2 - m_h0_R_int[iT298]) / T2;
-        for (i = iT298 - 1; i != npos; i--) {
-            T1      = m_t0_int[i];
-            mu1     = m_mu0_R_int[i];
-            T2      = m_t0_int[i+1];
-            mu2     = m_mu0_R_int[i+1];
-            s2      = m_s0_R_int[i+1];
-            h2      = m_h0_R_int[i+1];
-            deltaMu = mu2 - mu1;
-            deltaT  = T2 - T1;
-            cpi = (deltaMu - T1 * s2 + T2 * s2) / (deltaT - T1 * log(T2/T1));
-            h1 = h2 - cpi * deltaT;
-            s1 = s2 - cpi * log(T2/T1);
-            m_cp0_R_int[i]   = cpi;
-            m_h0_R_int[i]    = h1;
-            m_s0_R_int[i]    = s1;
+        m_s0_R_int[iT298] = - (m_mu0_R_int[iT298] - m_h0_R_int[iT298]) / m_t0_int[iT298];
+        for (size_t i = iT298 - 1; i != npos; i--) {
+            double T1 = m_t0_int[i];
+            double T2 = m_t0_int[i+1];
+            double s2 = m_s0_R_int[i+1];
+            double deltaMu = m_mu0_R_int[i+1] - m_mu0_R_int[i];
+            double deltaT  = T2 - T1;
+            double cpi = (deltaMu - T1 * s2 + T2 * s2) / (deltaT - T1 * log(T2/T1));
+            m_cp0_R_int[i] = cpi;
+            m_h0_R_int[i] = m_h0_R_int[i+1] - cpi * deltaT;
+            m_s0_R_int[i] = s2 - cpi * log(T2/T1);
             if (i == (m_numIntervals-1)) {
                 m_cp0_R_int[i+1] = cpi;
             }

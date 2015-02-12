@@ -45,8 +45,7 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
                            "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    string model = th["model"];
+    string model = xphase->child("thermo")["model"];
     if (model != "Surface" && model != "Edge") {
         throw CanteraError("SurfPhase::SurfPhase",
                            "thermo model attribute must be Surface or Edge");
@@ -59,8 +58,7 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
     m_logn0(0.0),
     m_press(OneAtm)
 {
-    const XML_Node& th = xmlphase.child("thermo");
-    string model = th["model"];
+    string model = xmlphase.child("thermo")["model"];
     if (model != "Surface" && model != "Edge") {
         throw CanteraError("SurfPhase::SurfPhase",
                            "thermo model attribute must be Surface or Edge");
@@ -216,29 +214,25 @@ void SurfPhase::getPureGibbs(doublereal* g) const
 void SurfPhase::getGibbs_RT(doublereal* grt) const
 {
     _updateThermo();
-    double rrt = 1.0/(GasConstant*temperature());
-    scale(m_mu0.begin(), m_mu0.end(), grt, rrt);
+    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/(GasConstant*temperature()));
 }
 
 void SurfPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     _updateThermo();
-    double rrt = 1.0/(GasConstant*temperature());
-    scale(m_h0.begin(), m_h0.end(), hrt, rrt);
+    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/(GasConstant*temperature()));
 }
 
 void SurfPhase::getEntropy_R(doublereal* sr) const
 {
     _updateThermo();
-    double rr = 1.0/GasConstant;
-    scale(m_s0.begin(), m_s0.end(), sr, rr);
+    scale(m_s0.begin(), m_s0.end(), sr, 1.0/GasConstant);
 }
 
 void SurfPhase::getCp_R(doublereal* cpr) const
 {
     _updateThermo();
-    double rr = 1.0/GasConstant;
-    scale(m_cp0.begin(), m_cp0.end(), cpr, rr);
+    scale(m_cp0.begin(), m_cp0.end(), cpr, 1.0/GasConstant);
 }
 
 void SurfPhase::getStandardVolumes(doublereal* vol) const
@@ -341,13 +335,11 @@ void SurfPhase::getCoverages(doublereal* theta) const
 
 void SurfPhase::setCoveragesByName(const std::string& cov)
 {
-    size_t kk = nSpecies();
     compositionMap cc = parseCompString(cov, speciesNames());
-    doublereal c;
-    vector_fp cv(kk, 0.0);
+    vector_fp cv(m_kk, 0.0);
     bool ifound = false;
-    for (size_t k = 0; k < kk; k++) {
-        c = cc[speciesName(k)];
+    for (size_t k = 0; k < m_kk; k++) {
+        double c = cc[speciesName(k)];
         if (c > 0.0) {
             ifound = true;
             cv[k] = c;
@@ -367,9 +359,8 @@ void SurfPhase::_updateThermo(bool force) const
         m_spthermo->update(tnow, DATA_PTR(m_cp0), DATA_PTR(m_h0),
                            DATA_PTR(m_s0));
         m_tlast = tnow;
-        doublereal rt = GasConstant * tnow;
         for (size_t k = 0; k < m_kk; k++) {
-            m_h0[k] *= rt;
+            m_h0[k] *= GasConstant * tnow;
             m_s0[k] *= GasConstant;
             m_cp0[k] *= GasConstant;
             m_mu0[k] = m_h0[k] - tnow*m_s0[k];

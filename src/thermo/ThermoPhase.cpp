@@ -255,8 +255,6 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     double Ttop = Tnew;
     double Hbot = Hnew;
     double Tbot = Tnew;
-    double Told = Tnew;
-    double Hold = Hnew;
 
     bool ignoreBounds = false;
     // Unstable phases are those for which
@@ -270,8 +268,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
 
     // Newton iteration
     for (int n = 0; n < 500; n++) {
-        Told = Tnew;
-        Hold = Hnew;
+        double Told = Tnew;
+        double Hold = Hnew;
         double cpd = Cpnew;
         if (cpd < 0.0) {
             unstablePhase = true;
@@ -457,8 +455,6 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     double Ttop = Tnew;
     double Sbot = Snew;
     double Tbot = Tnew;
-    double Told = Tnew;
-    double Sold = Snew;
 
     bool ignoreBounds = false;
     // Unstable phases are those for which
@@ -470,8 +466,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 
     // Newton iteration
     for (int n = 0; n < 500; n++) {
-        Told = Tnew;
-        Sold = Snew;
+        double Told = Tnew;
+        double Sold = Snew;
         double cpd = Cpnew;
         if (cpd < 0.0) {
             unstablePhase = true;
@@ -653,8 +649,7 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
 void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     if (phaseNode.hasChild("state")) {
-        XML_Node& stateNode = phaseNode.child("state");
-        setStateFromXML(stateNode);
+        setStateFromXML(phaseNode.child("state"));
     }
     setReferenceComposition(0);
 }
@@ -958,10 +953,9 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
 
-        size_t kk = nSpecies();
-        vector_fp x(kk);
-        vector_fp y(kk);
-        vector_fp mu(kk);
+        vector_fp x(m_kk);
+        vector_fp y(m_kk);
+        vector_fp mu(m_kk);
         getMoleFractions(&x[0]);
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
@@ -977,7 +971,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             sprintf(p, "                     -------------     "
                     "------------     ------------\n");
             s += p;
-            for (size_t k = 0; k < kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] >= threshold) {
                     if (x[k] > SmallNumber) {
                         sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
@@ -1000,7 +994,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             sprintf(p, "                     -------------"
                     "     ------------\n");
             s += p;
-            for (size_t k = 0; k < kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] >= threshold) {
                     sprintf(p, "%18s   %12.6g     %12.6g\n",
                             speciesName(k).c_str(), x[k], y[k]);

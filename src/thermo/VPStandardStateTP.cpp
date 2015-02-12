@@ -68,8 +68,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
         }
         m_PDSS_storage.resize(m_kk);
         for (size_t k = 0; k < m_kk; k++) {
-            PDSS* ptmp = b.m_PDSS_storage[k];
-            m_PDSS_storage[k] = ptmp->duplMyselfAsPDSS();
+            m_PDSS_storage[k] = b.m_PDSS_storage[k]->duplMyselfAsPDSS();
         }
 
         /*
@@ -91,8 +90,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
          *  so it occurs after m_VPSS_ptr is set.
          */
         for (size_t k = 0; k < m_kk; k++) {
-            PDSS* ptmp = m_PDSS_storage[k];
-            ptmp->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
+            m_PDSS_storage[k]->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
         }
         /*
          *  Ok, the VPSSMgr object is ready for business.

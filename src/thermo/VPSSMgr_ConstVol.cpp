@@ -104,13 +104,12 @@ VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &phaseNode.root());
-    const vector<string>&sss = m_vptp_ptr->speciesNames();
 
     for (size_t k = 0; k < m_kk; k++) {
-        const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+        const XML_Node* s = speciesDB->findByAttr("name", m_vptp_ptr->speciesName(k));
         if (!s) {
             throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
-                               "no species Node for species " + sss[k]);
+                               "no species Node for species " + m_vptp_ptr->speciesName(k));
         }
         const XML_Node* ss = s->findByName("standardState");
         if (!ss) {
@@ -147,11 +146,7 @@ VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
 
     installSTSpecies(k, speciesNode, phaseNode_ptr);
-
-
-    PDSS* kPDSS = new PDSS_ConstVol(m_vptp_ptr, k, speciesNode,
-                                    *phaseNode_ptr, true);
-    return kPDSS;
+    return new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
 }
 
 PDSS_enumType VPSSMgr_ConstVol::reportPDSSType(int k) const

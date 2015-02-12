@@ -40,8 +40,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string 
                            "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    std::string model = th["model"];
+    std::string model = xphase->child("thermo")["model"];
     if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
         throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
                            "thermo model attribute must be StoichSubstance");
@@ -51,15 +50,11 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string 
 
 StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& id_)
 {
-    if (id_ != "") {
-        std::string idxml = xmlphase["id"];
-        if (id_ != idxml) {
-            throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
-                               "id's don't match");
-        }
+    if (id_ != "" && id_ != xmlphase["id"]) {
+        throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
+                           "id's don't match");
     }
-    const XML_Node& th = xmlphase.child("thermo");
-    std::string model = th["model"];
+    std::string model = xmlphase.child("thermo")["model"];
     if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
         throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
                            "thermo model attribute must be StoichSubstance");
@@ -158,9 +153,8 @@ void StoichSubstanceSSTP::getStandardChemPotentials(doublereal* mu0) const
 void StoichSubstanceSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
-    doublereal RT = GasConstant * temperature();
     doublereal presCorrect = (m_press - m_p0) /  molarDensity();
-    hrt[0] += presCorrect / RT;
+    hrt[0] += presCorrect / (GasConstant * temperature());
 }
 
 void StoichSubstanceSSTP::getEntropy_R(doublereal* sr) const
@@ -183,8 +177,7 @@ void StoichSubstanceSSTP::getCp_R(doublereal* cpr) const
 void StoichSubstanceSSTP::getIntEnergy_RT(doublereal* urt) const
 {
     _updateThermo();
-    doublereal RT = GasConstant * temperature();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / (GasConstant * temperature());
 }
 
 /*
@@ -194,8 +187,7 @@ void StoichSubstanceSSTP::getIntEnergy_RT(doublereal* urt) const
 void StoichSubstanceSSTP::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    doublereal RT = GasConstant * temperature();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / (GasConstant * temperature());
 }
 
 /*
@@ -247,15 +239,13 @@ void StoichSubstanceSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
 
 void StoichSubstanceSSTP::setParameters(int n, doublereal* const c)
 {
-    doublereal rho = c[0];
-    setDensity(rho);
+    setDensity(c[0]);
 }
 
 void StoichSubstanceSSTP::getParameters(int& n, doublereal* const c) const
 {
-    doublereal rho = density();
     n = 1;
-    c[0] = rho;
+    c[0] = density();
 }
 
 void StoichSubstanceSSTP::setParametersFromXML(const XML_Node& eosdata)
@@ -265,8 +255,7 @@ void StoichSubstanceSSTP::setParametersFromXML(const XML_Node& eosdata)
         throw CanteraError("StoichSubstanceSSTP::setParametersFromXML",
                            "thermo model attribute must be StoichSubstance");
     }
-    doublereal rho = ctml::getFloat(eosdata, "density", "toSI");
-    setDensity(rho);
+    setDensity(ctml::getFloat(eosdata, "density", "toSI"));
 }
 
 // ------ Methods of class electrodeElectron ------
@@ -289,9 +278,7 @@ electrodeElectron::electrodeElectron(const std::string& infile, std::string id_)
                            "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    std::string model = th["model"];
-    if (model != "electrodeElectron") {
+    if (xphase->child("thermo")["model"] != "electrodeElectron") {
         throw CanteraError("electrodeElectron::electrodeElectron",
                            "thermo model attribute must be electrodeElectron");
     }
@@ -301,16 +288,11 @@ electrodeElectron::electrodeElectron(const std::string& infile, std::string id_)
 electrodeElectron::electrodeElectron(XML_Node& xmlphase, const std::string& id_) :
     StoichSubstanceSSTP()
 {
-    if (id_ != "") {
-        std::string idxml = xmlphase["id"];
-        if (id_ != idxml) {
-            throw CanteraError("electrodeElectron::electrodeElectron",
-                               "id's don't match");
-        }
+    if (id_ != "" && id_ != xmlphase["id"]) {
+        throw CanteraError("electrodeElectron::electrodeElectron",
+                           "id's don't match");
     }
-    const XML_Node& th = xmlphase.child("thermo");
-    std::string model = th["model"];
-    if (model != "electrodeElectron") {
+    if (xmlphase.child("thermo")["model"] != "electrodeElectron") {
         throw CanteraError("electrodeElectron::electrodeElectron",
                            "thermo model attribute must be electrodeElectron");
     }
@@ -338,8 +320,7 @@ electrodeElectron::~electrodeElectron()
 
 void electrodeElectron::setParametersFromXML(const XML_Node& eosdata)
 {
-    std::string model = eosdata["model"];
-    if (model != "electrodeElectron") {
+    if (eosdata["model"] != "electrodeElectron") {
         throw CanteraError("electrodeElectron::setParametersFromXML",
                            "thermo model attribute must be electrodeElectron");
     }

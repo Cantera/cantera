@@ -125,8 +125,7 @@ void MaskellSolidSolnPhase::calcDensity()
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFracs[i];
     }
-    doublereal dd = meanMolecularWeight() / vtotal;
-    Phase::setDensity(dd);
+    Phase::setDensity(meanMolecularWeight() / vtotal);
 }
 
 void MaskellSolidSolnPhase::setPressure(doublereal p)
@@ -154,12 +153,10 @@ void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 
       const doublereal r = moleFraction(product_species_index);
       const doublereal pval = p(r);
-      const doublereal fmval = fm(r);
-      const doublereal rfm = r * fmval;
-      const doublereal RT = GasConstant * temperature();
+      const doublereal rfm = r * fm(r);
       const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
                            (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
-      const doublereal B = pval * h_mixing / RT;
+      const doublereal B = pval * h_mixing / (GasConstant * temperature());
       cached.value[product_species_index] = A * std::exp(B);
       cached.value[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
     }
@@ -171,8 +168,7 @@ void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
     _updateThermo();
     const doublereal r = moleFraction(product_species_index);
     const doublereal pval = p(r);
-    const doublereal fmval = fm(r);
-    const doublereal rfm = r * fmval;
+    const doublereal rfm = r * fm(r);
     const doublereal RT = GasConstant * temperature();
     const doublereal DgbarDr = pval * h_mixing +
                                GasConstant * temperature() *
@@ -237,13 +233,9 @@ void MaskellSolidSolnPhase::getStandardChemPotentials(doublereal* mu) const
  *********************************************************************/
 void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    std::string subname = "MaskellSolidSolnPhase::initThermoXML";
-    if (id_.size() > 0) {
-        std::string idp = phaseNode.id();
-        if (idp != id_) {
-            throw CanteraError(subname.c_str(),
-                               "phasenode and Id are incompatible");
-        }
+    if (id_.size() > 0 && phaseNode.id() != id_) {
+        throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
+                           "phasenode and Id are incompatible");
     }
 
     /*
@@ -252,32 +244,28 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
      */
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
-        std::string mStringa = thNode.attrib("model");
-        std::string mString = lowercase(mStringa);
-        if (mString != "maskellsolidsolnphase") {
-            throw CanteraError(subname.c_str(),
-                               "Unknown thermo model: " + mStringa);
+        std::string mString = thNode.attrib("model");
+        if (lowercase(mString) != "maskellsolidsolnphase") {
+            throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
+                               "Unknown thermo model: " + mString);
         }
-
 
         /*
          * Parse the enthalpy of mixing constant
          */
         if (thNode.hasChild("h_mix")) {
-            XML_Node& scNode = thNode.child("h_mix");
-            set_h_mix(fpValue(scNode.value()));
+            set_h_mix(fpValue(thNode.child("h_mix").value()));
         } else {
-            throw CanteraError(subname.c_str(),
+            throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
                                "Mixing enthalpy parameter not specified.");
         }
 
         if (thNode.hasChild("product_species")) {
-            XML_Node& scNode = thNode.child("product_species");
-            std::string product_species_name = scNode.value();
+            std::string product_species_name = thNode.child("product_species").value();
             product_species_index = speciesIndex(product_species_name);
             if( product_species_index == static_cast<int>(npos) )
             {
-              throw CanteraError(subname.c_str(),
+              throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
                                  "Species " + product_species_name + " not found.");
             }
             if( product_species_index == 0 )
@@ -289,15 +277,15 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
         }
 
     } else {
-        throw CanteraError(subname.c_str(),
+        throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
                            "Unspecified thermo model");
     }
 
 
     // Confirm that the phase only contains 2 species
-    if( m_kk != 2 )
-    {
-      throw CanteraError( subname.c_str(), "MaskellSolidSolution model requires exactly 2 species.");
+    if (m_kk != 2) {
+      throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
+                "MaskellSolidSolution model requires exactly 2 species.");
     }
 
     /*
@@ -333,8 +321,7 @@ doublereal MaskellSolidSolnPhase::s() const
 
 doublereal MaskellSolidSolnPhase::fm(const doublereal r) const
 {
-  const doublereal sval = s();
-  return (1 - std::sqrt(1 - 4*r*(1-r)/sval)) / (2*r);
+  return (1 - std::sqrt(1 - 4*r*(1-r)/s())) / (2*r);
 }
 
 doublereal MaskellSolidSolnPhase::p(const doublereal r) const

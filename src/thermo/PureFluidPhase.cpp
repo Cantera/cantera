@@ -70,8 +70,8 @@ void PureFluidPhase::initThermo()
     setMolecularWeight(0,m_mw);
     double one = 1.0;
     setMoleFractions(&one);
-    double cp0_R, h0_RT, s0_R, T0, p;
-    T0 = 298.15;
+    double cp0_R, h0_RT, s0_R, p;
+    double T0 = 298.15;
     if (T0 < m_sub->Tcrit()) {
         m_sub->Set(tpx::PropertyPair::TX, T0, 1.0);
         p = 0.01*m_sub->P();
@@ -218,22 +218,17 @@ void  PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
 
 void PureFluidPhase::getEnthalpy_RT(doublereal* hrt) const
 {
-    doublereal rt = _RT();
-    doublereal h = enthalpy_mole();
-    hrt[0] = h / rt;
+    hrt[0] = enthalpy_mole() / _RT();
 }
 
 void PureFluidPhase::getEntropy_R(doublereal* sr) const
 {
-    doublereal s = entropy_mole();
-    sr[0] = s / GasConstant;
+    sr[0] = entropy_mole() / GasConstant;
 }
 
 void  PureFluidPhase::getGibbs_RT(doublereal* grt) const
 {
-    doublereal rt = _RT();
-    doublereal g = gibbs_mole();
-    grt[0] = g / rt;
+    grt[0] = gibbs_mole() / _RT();
 }
 
 void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
@@ -327,8 +322,7 @@ void PureFluidPhase::setState_SP(doublereal s, doublereal p,
 
 doublereal PureFluidPhase::satPressure(doublereal t) 
 {
-    doublereal vsv = m_sub->v();
-    Set(tpx::PropertyPair::TV,t,vsv);
+    Set(tpx::PropertyPair::TV, t, m_sub->v());
     return m_sub->Ps();
 }
 

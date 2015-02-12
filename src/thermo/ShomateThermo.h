@@ -120,8 +120,7 @@ public:
     }
 
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
-        ShomateThermo* st = new ShomateThermo(*this);
-        return (SpeciesThermo*) st;
+        return new ShomateThermo(*this);
     }
 
     //! Install a new species thermodynamic property
@@ -233,8 +232,7 @@ public:
         const std::vector<ShomatePoly> &mlg = m_low[grp-1];
         const ShomatePoly* nlow = &(mlg[pos]);
 
-        doublereal tmid = nlow->maxTemp();
-        if (t < tmid) {
+        if (t < nlow->maxTemp()) {
             nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         } else {
             const std::vector<ShomatePoly> &mhg = m_high[grp-1];
@@ -245,8 +243,6 @@ public:
 
     virtual void update(doublereal t, doublereal* cp_R,
                         doublereal* h_RT, doublereal* s_R) const {
-        int i;
-
         doublereal tt = 1.e-3*t;
         m_t[0] = tt;
         m_t[1] = tt*tt;
@@ -257,7 +253,7 @@ public:
         m_t[6] = 1.0/(GasConstant * t);
 
         std::vector<ShomatePoly>::const_iterator _begin, _end;
-        for (i = 0; i != m_ngroups; i++) {
+        for (int i = 0; i != m_ngroups; i++) {
             if (t > m_tmid[i]) {
                 _begin  = m_high[i].begin();
                 _end    = m_high[i].end();
@@ -339,47 +335,37 @@ public:
     }
 
     virtual doublereal reportOneHf298(const size_t k) const {
-        doublereal h;
-        doublereal t = 298.15;
-
         size_t grp = getValue(m_group_map, k);
         size_t pos = getValue(m_posInGroup_map, k);
-        const std::vector<ShomatePoly> &mlg = m_low[grp-1];
-        const ShomatePoly* nlow = &(mlg[pos]);
+        const ShomatePoly& nlow = m_low[grp-1][pos];
 
-        doublereal tmid = nlow->maxTemp();
-        if (t <= tmid) {
-            h = nlow->reportHf298();
+        if (nlow.maxTemp() > 298.15) {
+            return nlow.reportHf298();
         } else {
-            const std::vector<ShomatePoly> &mhg = m_high[grp-1];
-            const ShomatePoly* nhigh = &(mhg[pos]);
-            h = nhigh->reportHf298();
+            const ShomatePoly& nhigh = m_high[grp-1][pos];
+            return nhigh.reportHf298();
         }
-        return h;
     }
 
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
 
         size_t grp = m_group_map[k];
         size_t pos = m_posInGroup_map[k];
-        std::vector<ShomatePoly> &mlg = m_low[grp-1];
-        ShomatePoly* nlow = &(mlg[pos]);
-        std::vector<ShomatePoly> &mhg = m_high[grp-1];
-        ShomatePoly* nhigh = &(mhg[pos]);
-        doublereal tmid = nlow->maxTemp();
+        ShomatePoly& nlow = m_low[grp-1][pos];
+        ShomatePoly& nhigh = m_high[grp-1][pos];
 
         double hnow = reportOneHf298(k);
         double delH =  Hf298New - hnow;
-        if (298.15 <= tmid) {
-            nlow->modifyOneHf298(k, Hf298New);
-            double h = nhigh->reportHf298(0);
+        if (nlow.maxTemp() > 298.15) {
+            nlow.modifyOneHf298(k, Hf298New);
+            double h = nhigh.reportHf298(0);
             double hnew = h + delH;
-            nhigh->modifyOneHf298(k, hnew);
+            nhigh.modifyOneHf298(k, hnew);
         } else {
-            nhigh->modifyOneHf298(k, Hf298New);
-            double h = nlow->reportHf298(0);
+            nhigh.modifyOneHf298(k, Hf298New);
+            double h = nlow.reportHf298(0);
             double hnew = h + delH;
-            nlow->modifyOneHf298(k, hnew);
+            nlow.modifyOneHf298(k, hnew);
         }
 
     }

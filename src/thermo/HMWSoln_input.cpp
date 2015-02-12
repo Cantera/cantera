@@ -58,8 +58,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLBinarySalt",
                            "Incorrect name for processing this routine: " + xname);
     }
-    string stemp;
-    size_t nParamsFound, i;
+
     vector_fp vParams;
     string iName = BinSalt.attrib("cation");
     if (iName == "") {
@@ -94,7 +93,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
     int counter = m_CounterIJ[n];
     for (size_t iChild = 0; iChild < BinSalt.nChildren(); iChild++) {
         XML_Node& xmlChild = BinSalt.child(iChild);
-        stemp = xmlChild.name();
+        string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
         /*
          * Process the binary salt child elements
@@ -104,7 +103,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
              * Get the string containing all of the values
              */
             getFloatArray(xmlChild, vParams, false, "", "beta0");
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta0 for " + ispName
@@ -128,7 +127,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                                        + "::" + jspName,
                                        "wrong number of params found");
                 }
-                for (i = 0; i < nParamsFound; i++) {
+                for (size_t i = 0; i < nParamsFound; i++) {
                     m_Beta0MX_ij_coeff(i, counter) = vParams[i];
                 }
                 m_Beta0MX_ij[counter] = vParams[0];
@@ -140,7 +139,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
              * Get the string containing all of the values
              */
             getFloatArray(xmlChild, vParams, false, "", "beta1");
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta1 for " + ispName
@@ -164,7 +163,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                                        + "::" + jspName,
                                        "wrong number of params found");
                 }
-                for (i = 0; i < nParamsFound; i++) {
+                for (size_t i = 0; i < nParamsFound; i++) {
                     m_Beta1MX_ij_coeff(i, counter) = vParams[i];
                 }
                 m_Beta1MX_ij[counter] = vParams[0];
@@ -172,7 +171,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         }
         if (nodeName == "beta2") {
             getFloatArray(xmlChild, vParams, false, "", "beta2");
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName
@@ -196,7 +195,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                                        + "::" + jspName,
                                        "wrong number of params found");
                 }
-                for (i = 0; i < nParamsFound; i++) {
+                for (size_t i = 0; i < nParamsFound; i++) {
                     m_Beta2MX_ij_coeff(i, counter) = vParams[i];
                 }
                 m_Beta2MX_ij[counter] = vParams[0];
@@ -208,7 +207,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
              * Get the string containing all of the values
              */
             getFloatArray(xmlChild, vParams, false, "", "Cphi");
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::Cphi for " + ispName
@@ -232,7 +231,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                                        + "::" + jspName,
                                        "wrong number of params found");
                 }
-                for (i = 0; i < nParamsFound; i++) {
+                for (size_t i = 0; i < nParamsFound; i++) {
                     m_CphiMX_ij_coeff(i, counter) = vParams[i];
                 }
                 m_CphiMX_ij[counter] = vParams[0];
@@ -255,7 +254,6 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
     vector_fp vParams;
-    size_t nParamsFound = 0;
     if (xname != "thetaAnion") {
         throw CanteraError("HMWSoln::readXMLThetaAnion",
                            "Incorrect name for processing this routine: " + xname);
@@ -296,7 +294,7 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
         string nodeName = lowercase(stemp);
         if (nodeName == "theta") {
             getFloatArray(xmlChild, vParams, false, "", stemp);
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName
@@ -336,12 +334,10 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
     vector_fp vParams;
-    size_t nParamsFound = 0;
     if (xname != "thetaCation") {
         throw CanteraError("HMWSoln::readXMLThetaCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    string stemp;
     string ispName = BinSalt.attrib("cation1");
     if (ispName == "") {
         throw CanteraError("HMWSoln::readXMLThetaCation", "no cation1 attrib");
@@ -373,11 +369,11 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
     int counter = m_CounterIJ[n];
     for (size_t i = 0; i < BinSalt.nChildren(); i++) {
         XML_Node& xmlChild = BinSalt.child(i);
-        stemp = xmlChild.name();
+        string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
         if (nodeName == "theta") {
             getFloatArray(xmlChild, vParams, false, "", stemp);
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName
@@ -420,9 +416,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLPsiCommonCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    string stemp;
     vector_fp vParams;
-    size_t nParamsFound = 0;
     string kName = BinSalt.attrib("cation");
     if (kName == "") {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation", "no cation attrib");
@@ -468,7 +462,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     int counter = m_CounterIJ[n];
     for (size_t i = 0; i < BinSalt.nChildren(); i++) {
         XML_Node& xmlChild = BinSalt.child(i);
-        stemp = xmlChild.name();
+        string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
         if (nodeName == "theta") {
             stemp = xmlChild.value();
@@ -483,7 +477,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
         }
         if (nodeName == "psi") {
             getFloatArray(xmlChild, vParams, false, "", stemp);
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
 
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
@@ -560,9 +554,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
                            "Incorrect name for processing this routine: " + xname);
     }
-    string stemp;
     vector_fp vParams;
-    size_t nParamsFound = 0;
     string kName = BinSalt.attrib("anion");
     if (kName == "") {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "no anion attrib");
@@ -607,7 +599,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
     int counter = m_CounterIJ[n];
     for (size_t i = 0; i < BinSalt.nChildren(); i++) {
         XML_Node& xmlChild = BinSalt.child(i);
-        stemp = xmlChild.name();
+        string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
         if (nodeName == "theta") {
             stemp = xmlChild.value();
@@ -623,7 +615,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
         if (nodeName == "psi") {
 
             getFloatArray(xmlChild, vParams, false, "", stemp);
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
 
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
@@ -698,7 +690,6 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
     vector_fp vParams;
-    size_t nParamsFound;
     if (xname != "lambdaNeutral") {
         throw CanteraError("HMWSoln::readXMLLanbdaNeutral",
                            "Incorrect name for processing this routine: " + xname);
@@ -736,7 +727,7 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
         if (nodeName == "lambda") {
             size_t nCount = iSpecies*m_kk + jSpecies;
             getFloatArray(xmlChild, vParams, false, "", stemp);
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
@@ -778,7 +769,6 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
 {
     string xname = BinSalt.name();
     vector_fp vParams;
-    size_t nParamsFound;
     if (xname != "MunnnNeutral") {
         throw CanteraError("HMWSoln::readXMLMunnnNeutral",
                            "Incorrect name for processing this routine: " + xname);
@@ -808,7 +798,7 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
         string nodeName = lowercase(stemp);
         if (nodeName == "munnn") {
             getFloatArray(xmlChild, vParams, false, "", "Munnn");
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
                     throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
@@ -850,9 +840,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLZetaCation",
                            "Incorrect name for processing this routine: " + xname);
     }
-    string stemp;
     vector_fp vParams;
-    size_t nParamsFound = 0;
 
     string iName = BinSalt.attrib("neutral");
     if (iName == "") {
@@ -898,11 +886,11 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
 
     for (size_t i = 0; i < BinSalt.nChildren(); i++) {
         XML_Node& xmlChild = BinSalt.child(i);
-        stemp = xmlChild.name();
+        string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
         if (nodeName == "zeta") {
             getFloatArray(xmlChild, vParams, false, "", "zeta");
-            nParamsFound = vParams.size();
+            size_t nParamsFound = vParams.size();
             size_t n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
 
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
@@ -1007,7 +995,6 @@ void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
 
 void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 {
-    string stemp;
     if (id_.size() > 0) {
         string idp = phaseNode.id();
         if (idp != id_) {
@@ -1031,7 +1018,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
     if (thermoNode.hasChild("standardConc")) {
         XML_Node& scNode = thermoNode.child("standardConc");
         m_formGC = 2;
-        stemp = scNode.attrib("model");
+        string stemp = scNode.attrib("model");
         string formString = lowercase(stemp);
         if (formString != "") {
             if (formString == "unity") {
@@ -1072,7 +1059,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
      */
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& scNode = thermoNode.child("activityCoefficients");
-        stemp = scNode.attrib("model");
+        string stemp = scNode.attrib("model");
         string formString = lowercase(stemp);
         if (formString != "") {
             if (formString == "pitzer" || formString == "default") {
@@ -1130,7 +1117,6 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 
 void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    string stemp;
     if (id_.size() > 0) {
         string idp = phaseNode.id();
         if (idp != id_) {
@@ -1154,7 +1140,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     if (thermoNode.hasChild("standardConc")) {
         XML_Node& scNode = thermoNode.child("standardConc");
         m_formGC = 2;
-        stemp = scNode.attrib("model");
+        string stemp = scNode.attrib("model");
         string formString = lowercase(stemp);
         if (formString != "") {
             if (formString == "unity") {
@@ -1180,7 +1166,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
      */
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& scNode = thermoNode.child("activityCoefficients");
-        stemp = scNode.attrib("model");
+        string stemp = scNode.attrib("model");
         string formString = lowercase(stemp);
         if (formString != "") {
             if (formString == "pitzer" || formString == "default") {
@@ -1388,7 +1374,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (acNode.hasChild("A_Debye")) {
             XML_Node& ADebye = acNode.child("A_Debye");
             m_form_A_Debye = A_DEBYE_CONST;
-            stemp = "model";
+            string stemp = "model";
             if (ADebye.hasAttrib(stemp)) {
                 string atemp = ADebye.attrib(stemp);
                 stemp = lowercase(atemp);
@@ -1445,14 +1431,12 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          */
         std::vector<const XML_Node*> xspecies = speciesData();
 
-        string kname, jname;
-        size_t jj = xspecies.size();
         for (size_t k = 0; k < m_kk; k++) {
             size_t jmap = npos;
-            kname = speciesName(k);
-            for (size_t j = 0; j < jj; j++) {
+            string kname = speciesName(k);
+            for (size_t j = 0; j < xspecies.size(); j++) {
                 const XML_Node& sp = *xspecies[j];
-                jname = sp["name"];
+                string jname = sp["name"];
                 if (jname == kname) {
                     jmap = j;
                     break;
@@ -1473,8 +1457,9 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
                 map<string, string> msIs;
                 getMap(sIsNode, msIs);
-                map<string,string>::const_iterator _b = msIs.begin();
-                for (; _b != msIs.end(); ++_b) {
+                for (map<string,string>::const_iterator _b = msIs.begin();
+                     _b != msIs.end();
+                     ++_b) {
                     size_t kk = speciesIndex(_b->first);
                     if (kk != npos) {
                         double val = fpValue(_b->second);
@@ -1492,7 +1477,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (acNodePtr) {
             for (size_t i = 0; i < acNodePtr->nChildren(); i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
-                stemp = xmlACChild.name();
+                string stemp = xmlACChild.name();
                 string nodeName = lowercase(stemp);
                 /*
                  * Process a binary salt field, or any of the other XML fields
@@ -1549,11 +1534,8 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
      *     in each of the species SS databases.
      */
     std::vector<const XML_Node*> xspecies = speciesData();
-    const XML_Node* spPtr = 0;
-    string kname;
     for (size_t k = 0; k < m_kk; k++) {
-        kname = speciesName(k);
-        spPtr = xspecies[k];
+        const XML_Node* spPtr = xspecies[k];
         if (!spPtr) {
             if (spPtr->hasChild("electrolyteSpeciesType")) {
                 string est = getChildValue(*spPtr, "electrolyteSpeciesType");
@@ -1572,8 +1554,9 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
             map<string, string> msEST;
             getMap(ESTNode, msEST);
-            map<string,string>::const_iterator _b = msEST.begin();
-            for (; _b != msEST.end(); ++_b) {
+            for (map<string,string>::const_iterator _b = msEST.begin();
+                 _b != msEST.end();
+                 ++_b) {
                 size_t kk = speciesIndex(_b->first);
                 if (kk != npos) {
                     string est = _b->second;
@@ -1670,8 +1653,7 @@ void  HMWSoln::calcIMSCutoffParams_()
     IMS_efCut_ = 0.0;
     bool converged = false;
     double oldV = 0.0;
-    int its;
-    for (its = 0; its < 100 && !converged; its++) {
+    for (int its = 0; its < 100 && !converged; its++) {
         oldV = IMS_efCut_;
         IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_)  -IMS_efCut_;
         IMS_bfCut_ = IMS_afCut_ / IMS_cCut_ + IMS_slopefCut_ - 1.0;
@@ -1693,7 +1675,7 @@ void  HMWSoln::calcIMSCutoffParams_()
     double f_0 = IMS_afCut_ + IMS_efCut_;
     double f_prime_0 = 1.0 - IMS_afCut_ / IMS_cCut_ + IMS_bfCut_;
     IMS_egCut_ = 0.0;
-    for (its = 0; its < 100 && !converged; its++) {
+    for (int its = 0; its < 100 && !converged; its++) {
         oldV = IMS_egCut_;
         double lng_0 = -log(IMS_gamma_o_min_) -  f_prime_0 / f_0;
         IMS_agCut_ = exp(lng_0) - IMS_egCut_;
@@ -1726,9 +1708,8 @@ void  HMWSoln::calcMCCutoffParams_()
     MC_epCut_ = 0.0;
     bool converged = false;
     double oldV = 0.0;
-    int its;
     double damp = 0.5;
-    for (its = 0; its < 500 && !converged; its++) {
+    for (int its = 0; its < 500 && !converged; its++) {
         oldV = MC_epCut_;
         MC_apCut_ = damp *(MC_X_o_min_ - MC_epCut_) + (1-damp) * MC_apCut_;
         double MC_bpCutNew = MC_apCut_ / MC_cpCut_ + MC_slopepCut_ - 1.0;
