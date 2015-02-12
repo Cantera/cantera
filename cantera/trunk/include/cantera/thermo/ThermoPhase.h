@@ -256,6 +256,7 @@ public:
     /**
      * @returns species vibrational specific heat at
      * constant volume.
+     * @deprecated To be removed after Cantera 2.2.
      */
     /// Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_vib(int, double) const {

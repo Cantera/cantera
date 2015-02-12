@@ -433,6 +433,7 @@ public:
      *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{3}{2} R_s
      * \f]
      * for atoms.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_tr(doublereal) const;
 
@@ -443,6 +444,7 @@ public:
      * \f[
      *   C^{trans}_{v,s} \equiv \frac{\partial e^{trans}_s}{\partial T} = \frac{3}{2} R_s
      * \f]
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_trans() const;
 
@@ -456,6 +458,7 @@ public:
      * \f[
      *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
      * \f]
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_rot(double atomicity) const;
 
@@ -474,6 +477,7 @@ public:
      *   \f[
      *       \sum_i \frac{R_s \theta_{v,s,i}}{e^{\theta_{v,s,i}/T}-1}
      *   \f]
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_vib(int k, doublereal T) const;
 
