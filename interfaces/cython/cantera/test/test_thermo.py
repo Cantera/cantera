@@ -40,6 +40,40 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaises(ValueError):
             self.phase.n_atoms('H', 'CH4')
 
+    def test_elemental_mass_fraction(self):
+        self.phase.Y = 'H2O:0.5, O2:0.5'
+        Zo = self.phase.elemental_mass_fraction('O')
+        Zh = self.phase.elemental_mass_fraction('H')
+        Zar = self.phase.elemental_mass_fraction('Ar')
+
+        mO = self.phase.element_index('O')
+        self.assertEqual(Zo, self.phase.elemental_mass_fraction(mO))
+        self.assertNear(Zo, 0.5 + 0.5 * (15.9994 / 18.01528))
+        self.assertNear(Zh, 0.5 * (2.01588 / 18.01528))
+        self.assertEqual(Zar, 0.0)
+
+        with self.assertRaises(ValueError):
+            self.phase.elemental_mass_fraction('C')
+        with self.assertRaises(ValueError):
+            self.phase.elemental_mass_fraction(5)
+
+    def test_elemental_mole_fraction(self):
+        self.phase.X = 'H2O:0.5, O2:0.5'
+        Zo = self.phase.elemental_mole_fraction('O')
+        Zh = self.phase.elemental_mole_fraction('H')
+        Zar = self.phase.elemental_mole_fraction('Ar')
+
+        mO = self.phase.element_index('O')
+        self.assertEqual(Zo, self.phase.elemental_mole_fraction(mO))
+        self.assertNear(Zo, 0.5/3 + 0.5)
+        self.assertNear(Zh, 0.5*2/3)
+        self.assertEqual(Zar, 0.0)
+
+        with self.assertRaises(ValueError):
+            self.phase.elemental_mole_fraction('C')
+        with self.assertRaises(ValueError):
+            self.phase.elemental_mole_fraction(5)
+
     def test_weights(self):
         atomic_weights = self.phase.atomic_weights
         molecular_weights = self.phase.molecular_weights

@@ -496,6 +496,14 @@ class TestDiffusionFlame(utilities.CanteraTest):
         with self.assertRaises(KeyError): # missing 'stoich'
             self.sim.strain_rate('stoichiometric', fuel='H2', oxidizer='H2O2')
 
+    def test_mixture_fraction(self):
+        self.create_sim(p=ct.one_atm)
+        Z = self.sim.mixture_fraction('H')
+        self.assertNear(Z[0], 1.0)
+        self.assertNear(Z[-1], 0.0)
+        self.assertTrue(all(Z >= 0))
+        self.assertTrue(all(Z <= 1.0))
+
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     referenceFile = '../data/CounterflowPremixedFlame-h2-mix.csv'
