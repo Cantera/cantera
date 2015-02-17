@@ -526,6 +526,41 @@ public:
     //!                     is the number of species in the phase.
     virtual void setConcentrations(const doublereal* const conc);
 
+    //! Elemental mass fraction of element m
+    /*!
+     *  The elemental mass fraction \f$Z_{\mathrm{mass},m}\f$ of element \f$m\f$
+     *  is defined as
+     *  \f[
+     *      Z_{\mathrm{mass},m} = \sum_k \frac{a_{m,k} M_m}{M_k} Y_k
+     *  \f]
+     *  with \f$a_{m,k}\f$ being the number of atoms of element \f$m\f$ in
+     *  species \f$k\f$, \f$M_m\f$ the atomic weight of element \f$m\f$,
+     *  \f$M_k\f$ the molecular weight of species \f$k\f$, and \f$Y_k\f$
+     *  the mass fraction of species \f$k\f$.
+     *
+     *  @param[in] m Index of the element within the phase. If m is outside
+     *               the valid range, an exception will be thrown.
+     *
+     *  @return the elemental mass fraction of element m.
+     */
+    doublereal elementalMassFraction(const size_t m) const;
+
+    //! Elemental mole fraction of element m
+    /*!
+     *  The elemental mole fraction \f$Z_{\mathrm{mole},m}\f$ of element \f$m\f$
+     *  is defined as
+     *  \f[
+     *      Z_{\mathrm{mole},m} = \sum_k \frac{a_{m,k}}{\sum_j a_{j,k}} X_k
+     *  \f]
+     *  with \f$a_{m,k}\f$ being the number of atoms of element \f$m\f$ in
+     *  species \f$k\f$and \f$X_k\f$ the mole fraction of species \f$k\f$.
+     *
+     *  @param[in] m Index of the element within the phase. If m is outside the
+     *               valid range, an exception will be thrown.
+     *  @return the elemental mole fraction of element m.
+     */
+    doublereal elementalMoleFraction(const size_t m) const;
+
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
     //! molecular weight.

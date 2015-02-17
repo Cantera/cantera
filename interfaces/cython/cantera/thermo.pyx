@@ -328,6 +328,45 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
 
+    def elemental_mass_fraction(self, m):
+        r"""
+        Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
+        :math:`m` as defined by:
+
+        .. math:: Z_{\mathrm{mass},m} = \sum_k \frac{a_{m,k} M_m}{M_k} Y_k
+
+        with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
+        species :math:`k`, :math:`M_m` the atomic weight of element :math:`m`,
+        :math:`M_k` the molecular weight of species :math:`k`, and :math:`Y_k`
+        the mass fraction of species :math:`k`.
+
+        :param m:
+            Base element, may be specified by name or by index.
+
+        >>> phase.elemental_mass_fraction('H')
+        1.0
+        """
+        return self.thermo.elementalMassFraction(self.element_index(m))
+
+    def elemental_mole_fraction(self, m):
+        r"""
+        Get the elemental mole fraction :math:`Z_{\mathrm{mole},m}` of element
+        :math:`m` as defined by:
+
+        .. math:: Z_{\mathrm{mole},m} = \sum_k \frac{a_{m,k}}{\sum_j a_{j,k}} X_k
+
+        with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
+        species :math:`k` and :math:`X_k` the mole fraction of species
+        :math:`k`.
+
+        :param m:
+            Base element, may be specified by name or by index.
+
+        >>> phase.elemental_mole_fraction('H')
+        1.0
+        """
+        return self.thermo.elementalMoleFraction(self.element_index(m))
+
     def set_unnormalized_mass_fractions(self, Y):
         """
         Set the mass fractions without normalizing to force sum(Y) == 1.0.
