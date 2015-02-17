@@ -633,6 +633,31 @@ void Phase::setConcentrations(const doublereal* const conc)
     m_stateNum++;
 }
 
+doublereal Phase::elementalMassFraction(const size_t m) const
+{
+    checkElementIndex(m);
+    doublereal Z_m = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        Z_m += nAtoms(k, m) * atomicWeight(m) / molecularWeight(k)
+            * massFraction(k);
+    }
+    return Z_m;
+}
+
+doublereal Phase::elementalMoleFraction(const size_t m) const
+{
+    checkElementIndex(m);
+    doublereal Z_n = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        int nTotalAtoms = 0;
+        for (size_t l = 0; l != m_mm; ++l) {
+            nTotalAtoms += nAtoms(k, l);
+        }
+        Z_n += nAtoms(k, m) / nTotalAtoms * moleFraction(k);
+    }
+    return Z_n;
+}
+
 doublereal Phase::molarDensity() const
 {
     return density()/meanMolecularWeight();

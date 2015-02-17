@@ -158,6 +158,53 @@ class FlameBase(Sim1D):
         """
         return self.profile(self.flame, 'lambda')
 
+    def elemental_mass_fraction(self, m):
+        r"""
+        Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
+        :math:`m` at each grid point, which is defined as:
+
+        .. math:: Z_{\mathrm{mass},m} = \sum_k \frac{a_{m,k} M_m}{M_k} Y_k
+
+        with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
+        species :math:`k`, :math:`M_m` the atomic weight of element :math:`m`,
+        :math:`M_k` the molecular weight of species :math:`k`, and :math:`Y_k`
+        the mass fraction of species :math:`k`.
+
+        :param m:
+            Base element, may be specified by name or by index.
+
+        >>> phase.elemental_mass_fraction('H')
+        [1.0, ..., 0.0]
+        """
+        vals = np.empty(self.flame.n_points)
+        for i in range(self.flame.n_points):
+            self.set_gas_state(i)
+            vals[i] = self.gas.elemental_mass_fraction(m)
+        return vals
+
+    def elemental_mole_fraction(self, m):
+        r"""
+        Get the elemental mole fraction :math:`Z_{\mathrm{mole},m}` of element
+        :math:`m` at each grid point, which is defined as:
+
+        .. math:: Z_{\mathrm{mole},m} = \sum_k \frac{a_{m,k}}{\sum_j a_{j,k}} X_k
+
+        with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
+        species :math:`k` and :math:`X_k` the mole fraction of species
+        :math:`k`.
+
+        :param m:
+            Base element, may be specified by name or by index.
+
+        >>> phase.elemental_mole_fraction('H')
+        [1.0, ..., 0.0]
+        """
+        vals = np.empty(self.flame.n_points)
+        for i in range(self.flame.n_points):
+            self.set_gas_state(i)
+            vals[i] = self.gas.elemental_mole_fraction(m)
+        return vals
+
     def solution(self, component, point=None):
         """
         Get the solution at one point or for the full flame domain (if
