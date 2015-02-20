@@ -98,11 +98,11 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     setChemicalPotential(val);
 
     // Create an XML_Node entry for this species
-    XML_Node* s = new XML_Node("species", 0);
-    s->addAttribute("name", pname);
+    XML_Node s("species", 0);
+    s.addAttribute("name", pname);
     std::string aaS = Ename + ":1";
-    s->addChild("atomArray", aaS);
-    XML_Node& tt = s->addChild("thermo");
+    s.addChild("atomArray", aaS);
+    XML_Node& tt = s.addChild("thermo");
     XML_Node& ss = tt.addChild("Simple");
     ss.addAttribute("Pref", "1 bar");
     ss.addAttribute("Tmax", "5000.");
@@ -112,9 +112,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     std::string sval = fp2str(val);
     ss.addChild("h", sval);
     ss.addChild("s", "0.0");
-    saveSpeciesData(0, s);
-    delete s;
-    s = 0;
+    saveSpeciesData(0, &s);
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP&  right)

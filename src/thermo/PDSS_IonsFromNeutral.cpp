@@ -181,9 +181,9 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
      * Use this object to store information.
      */
 
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
+    XML_Node fxml;
+    fxml.build(fin);
+    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
     if (!fxml_phase) {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile",
                            "ERROR: Can not find phase named " +
@@ -196,7 +196,6 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
     const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
 
     constructPDSSXML(tp, spindex, *s, *fxml_phase, id);
-    delete fxml;
 }
 
 void PDSS_IonsFromNeutral::initThermo()
