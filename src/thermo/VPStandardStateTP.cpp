@@ -245,7 +245,6 @@ void VPStandardStateTP::getStandardVolumes_ref(doublereal* vol) const
 
 void VPStandardStateTP::initThermo()
 {
-    initLengths();
     ThermoPhase::initThermo();
     m_VPSS_ptr->initThermo();
     for (size_t k = 0; k < m_kk; k++) {
@@ -260,17 +259,6 @@ void VPStandardStateTP::setVPSSMgr(VPSSMgr* vp_ptr)
 {
     m_VPSS_ptr = vp_ptr;
 }
-
-/*
- * Initialize the internal lengths.
- *       (this is not a virtual function)
- */
-void VPStandardStateTP::initLengths()
-{
-    m_kk = nSpecies();
-
-}
-
 
 void VPStandardStateTP::setTemperature(const doublereal temp)
 {
@@ -345,10 +333,6 @@ VPStandardStateTP::providePDSS(size_t k) const
 
 void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-    // initialize the lengths in the current object and then call the parent
-    // routine.
-    VPStandardStateTP::initLengths();
-
     for (size_t k = 0; k < m_kk; k++) {
         PDSS* kPDSS = m_PDSS_storage[k];
         AssertTrace(kPDSS != 0);

@@ -778,7 +778,6 @@ void IonsFromNeutralVPSSTP::initThermo()
 
 void  IonsFromNeutralVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     numNeutralMoleculeSpecies_ =  neutralMoleculePhase_->nSpecies();
     moleFractions_.resize(m_kk);
     fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);

@@ -161,7 +161,6 @@ void PseudoBinaryVPSSTP::initThermo()
 
 void  PseudoBinaryVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     moleFractions_.resize(m_kk);
 }
 

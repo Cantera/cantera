@@ -1003,8 +1003,6 @@ double HMWSoln::AionicRadius(int k) const
 
 void HMWSoln::initLengths()
 {
-    m_kk = nSpecies();
-
     /*
      * Resize lengths equal to the number of species in
      * the phase.

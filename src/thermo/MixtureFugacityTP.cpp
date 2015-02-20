@@ -274,7 +274,6 @@ void MixtureFugacityTP::initThermo()
 
 void MixtureFugacityTP::initLengths()
 {
-    m_kk = nSpecies();
     moleFractions_.resize(m_kk, 0.0);
     moleFractions_[0] = 1.0;
     m_h0_RT.resize(m_kk, 0.0);

@@ -347,7 +347,6 @@ void MolarityIonicVPSSTP::initThermo()
 
 void  MolarityIonicVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     moleFractionsTmp_.resize(m_kk);
 }
 

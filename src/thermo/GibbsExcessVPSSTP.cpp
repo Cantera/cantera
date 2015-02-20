@@ -271,7 +271,6 @@ void GibbsExcessVPSSTP::initThermo()
 
 void  GibbsExcessVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     moleFractions_.resize(m_kk);
     lnActCoeff_Scaled_.resize(m_kk);
     dlnActCoeffdT_Scaled_.resize(m_kk);

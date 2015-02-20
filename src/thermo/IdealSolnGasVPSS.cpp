@@ -332,7 +332,6 @@ void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
 
 void IdealSolnGasVPSS::initLengths()
 {
-    m_kk = nSpecies();
     m_pp.resize(m_kk, 0.0);
 }
 
