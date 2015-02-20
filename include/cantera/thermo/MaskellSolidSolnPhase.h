@@ -1,7 +1,7 @@
 /**
  * @file MaskellSolidSolnPhase.h Header file for a solid solution model
  * following Maskell, Shaw, and Tye. Electrochimica Acta 1982
- * 
+ *
  * This class inherits from the Cantera class ThermoPhase and implements a
  * non-ideal solid solution model with incompressible thermodynamics.
  */
@@ -295,19 +295,19 @@ private:
     void _updateThermo() const;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     /**
      * Vector containing the species reference constant pressure
      * heat capacities at T = m_tlast
      */
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //!  Vector containing the species reference Gibbs functions at T = m_tlast
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Vector containing the species reference entropies at T = m_tlast
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
     //! Value of the enthalpy change on mixing due to protons changing from type B to type A configurations.
     doublereal h_mixing;
