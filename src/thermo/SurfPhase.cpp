@@ -102,7 +102,7 @@ doublereal SurfPhase::enthalpy_mole() const
         return 0.0;
     }
     _updateThermo();
-    return mean_X(DATA_PTR(m_h0));
+    return mean_X(m_h0);
 }
 
 doublereal SurfPhase::intEnergy_mole() const
@@ -124,7 +124,7 @@ doublereal SurfPhase::entropy_mole() const
 doublereal SurfPhase::cp_mole() const
 {
     _updateThermo();
-    return mean_X(&m_cp0[0]);
+    return mean_X(m_cp0);
 }
 
 doublereal SurfPhase::cv_mole() const

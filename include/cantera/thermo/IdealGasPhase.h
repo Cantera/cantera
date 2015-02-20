@@ -382,7 +382,7 @@ public:
      * \see SpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
-        return GasConstant * temperature() * mean_X(&enthalpy_RT_ref()[0]);
+        return GasConstant * temperature() * mean_X(enthalpy_RT_ref());
     }
 
     /**

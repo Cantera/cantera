@@ -67,19 +67,18 @@ ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
 
 doublereal LatticePhase::enthalpy_mole() const
 {
-    return GasConstant * temperature() *
-           mean_X(&enthalpy_RT_ref()[0])
-           + (pressure() - m_Pref)/molarDensity();
+    return GasConstant * temperature() * mean_X(enthalpy_RT_ref()) +
+            (pressure() - m_Pref)/molarDensity();
 }
 
 doublereal LatticePhase::entropy_mole() const
 {
-    return GasConstant * (mean_X(&entropy_R_ref()[0]) - sum_xlogx());
+    return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx());
 }
 
 doublereal LatticePhase::cp_mole() const
 {
-    return GasConstant * mean_X(&cp_R_ref()[0]);
+    return GasConstant * mean_X(cp_R_ref());
 }
 
 doublereal LatticePhase::cv_mole() const

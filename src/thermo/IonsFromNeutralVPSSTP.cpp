@@ -263,32 +263,32 @@ int IonsFromNeutralVPSSTP::eosType() const
 doublereal IonsFromNeutralVPSSTP::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_pp));
-    return mean_X(DATA_PTR(m_pp));
+    return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_pp));
-    return mean_X(DATA_PTR(m_pp));
+    return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::gibbs_mole() const
 {
     getChemPotentials(DATA_PTR(m_pp));
-    return mean_X(DATA_PTR(m_pp));
+    return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_pp));
-    return mean_X(DATA_PTR(m_pp));
+    return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::cv_mole() const
 {
     // Need to revisit this, as it is wrong
     getPartialMolarCp(DATA_PTR(m_pp));
-    return mean_X(DATA_PTR(m_pp));
+    return mean_X(m_pp);
 }
 
 /*

@@ -114,27 +114,23 @@ int IdealSolidSolnPhase::eosType() const
 
 doublereal IdealSolidSolnPhase::enthalpy_mole() const
 {
-    const double* eptr = &(enthalpy_RT_ref()[0]);
-    doublereal htp = (GasConstant * temperature() * mean_X(eptr));
+    doublereal htp = GasConstant * temperature() * mean_X(enthalpy_RT_ref());
     return htp + (pressure() - m_Pref)/molarDensity();
 }
 
 doublereal IdealSolidSolnPhase::entropy_mole() const
 {
-    const double* dptr = DATA_PTR(entropy_R_ref());
-    return GasConstant * (mean_X(dptr) - sum_xlogx());
+    return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx());
 }
 
 doublereal IdealSolidSolnPhase::gibbs_mole() const
 {
-    const double* dptr = DATA_PTR(gibbs_RT_ref());
-    return GasConstant * temperature() * (mean_X(dptr) + sum_xlogx());
+    return GasConstant * temperature() * (mean_X(gibbs_RT_ref()) + sum_xlogx());
 }
 
 doublereal IdealSolidSolnPhase::cp_mole() const
 {
-    const double* dptr = DATA_PTR(cp_R_ref());
-    return GasConstant * mean_X(dptr);
+    return GasConstant * mean_X(cp_R_ref());
 }
 
 /********************************************************************

@@ -648,6 +648,9 @@ public:
     //!     @return mole-fraction-weighted mean of Q
     doublereal mean_X(const doublereal* const Q) const;
 
+    //! @copydoc Phase::mean_X(const doublereal* const Q) const
+    doublereal mean_X(const vector_fp& Q) const;
+
     //! Evaluate the mass-fraction-weighted mean of an array Q.
     //! \f[ \sum_k Y_k Q_k \f]
     //!     @param[in] Q  Array of species property values in mass units.
