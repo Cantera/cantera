@@ -680,14 +680,8 @@ protected:
     //! List of the species in this ThermoPhase which are cation species
     std::vector<size_t> cationList_;
 
-    //! Number of cation species
-    int numCationSpecies_;
-
     //! List of the species in this ThermoPhase which are anion species
     std::vector<size_t> anionList_;
-
-    //! Number of anion species
-    int numAnionSpecies_;
 
     //! List of the species in this ThermoPhase which are passed
     //! through to the neutralMoleculePhase ThermoPhase.
@@ -695,10 +689,6 @@ protected:
      *  These have neutral charges.
      */
     std::vector<size_t> passThroughList_;
-
-    //! Number of the species in this ThermoPhase which are passed
-    //! through to the neutralMoleculePhase ThermoPhase
-    size_t numPassThroughSpecies_;
 
 public:
     //! This is a pointer to the neutral Molecule Phase
