@@ -22,13 +22,6 @@ class ThermoPhase;
 
 namespace VCSnonideal
 {
-// Models for the species activity coefficients
-#define VCS_AC_CONSTANT       0
-//#define VCS_AC_DEBYE_HUCKEL   23
-//#define VCS_AC_REGULAR_SOLN   25
-//#define VCS_AC_MARGULES       300
-#define VCS_AC_UNK_CANTERA    -1
-#define VCS_AC_UNK            -2
 
 //! Models for the standard state volume of each species
 #define VCS_SSVOL_IDEALGAS    0
