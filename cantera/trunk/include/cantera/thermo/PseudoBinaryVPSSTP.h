@@ -61,6 +61,8 @@ namespace Cantera
  *  The way that it collects the cation and anion based mole numbers
  *  is via holding two extra ThermoPhase objects. These
  *  can include standard states for salts.
+ *
+ *  @deprecated Incomplete and untested. To be removed after Cantera 2.2.
  */
 class PseudoBinaryVPSSTP : public GibbsExcessVPSSTP
 {
