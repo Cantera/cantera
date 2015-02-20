@@ -338,7 +338,7 @@ void Kinetics::checkReactionBalance(const Reaction& R)
     if (!ok) {
         msg = "The following reaction is unbalanced: " + R.equation() + "\n" +
               "  Element    Reactants    Products\n" + msg;
-        throw CanteraError("checkRxnElementBalance", msg);
+        throw CanteraError("checkReactionBalance", msg);
     }
 }
 
