@@ -694,6 +694,7 @@ doublereal Phase::mean_X(const vector_fp& Q) const
 
 doublereal Phase::mean_Y(const doublereal* const Q) const
 {
+    warn_deprecated("Phase::mean_Y", "To be removed after Cantera 2.2.");
     return dot(m_y.begin(), m_y.end(), Q);
 }
 
@@ -704,6 +705,7 @@ doublereal Phase::sum_xlogx() const
 
 doublereal Phase::sum_xlogQ(doublereal* Q) const
 {
+    warn_deprecated("Phase::sum_xlogQ", "To be removed after Cantera 2.2.");
     return m_mmw * Cantera::sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
 }
 

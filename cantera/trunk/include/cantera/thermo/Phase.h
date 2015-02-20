@@ -655,6 +655,7 @@ public:
     //! \f[ \sum_k Y_k Q_k \f]
     //!     @param[in] Q  Array of species property values in mass units.
     //!     @return The mass-fraction-weighted mean of Q.
+    //! @deprecated Unused. To be removed after Cantera 2.2.
     doublereal mean_Y(const doublereal* const Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
@@ -669,6 +670,7 @@ public:
     //! Evaluate \f$ \sum_k X_k \log Q_k \f$.
     //!     @param Q Vector of length m_kk to take the log average of
     //!     @return The indicated sum.
+    //! @deprecated Unused. To be removed after Cantera 2.2.
     doublereal sum_xlogQ(doublereal* const Q) const;
     //@}
 
