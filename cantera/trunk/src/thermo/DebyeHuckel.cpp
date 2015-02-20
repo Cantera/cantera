@@ -1190,8 +1190,6 @@ double DebyeHuckel::AionicRadius(int k) const
 
 void DebyeHuckel::initLengths()
 {
-    m_kk = nSpecies();
-
     /*
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.

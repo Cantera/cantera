@@ -509,15 +509,6 @@ public:
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;
 
-private:
-    //!  @internal Initialize the internal lengths in this object.
-    /*!
-     * Note this is not a virtual function.
-     */
-    void initLengths();
-
-    //@}
-
 protected:
 
     //! Current value of the pressure - state variable

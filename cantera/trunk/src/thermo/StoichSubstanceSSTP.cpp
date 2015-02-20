@@ -199,7 +199,6 @@ void StoichSubstanceSSTP::initThermo()
     /*
      * Make sure there is one and only one species in this phase.
      */
-    m_kk = nSpecies();
     if (m_kk != 1) {
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");

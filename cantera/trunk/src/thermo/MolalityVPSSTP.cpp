@@ -477,7 +477,6 @@ size_t MolalityVPSSTP::findCLMIndex() const
 //   been identified.
 void  MolalityVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     m_molalities.resize(m_kk);
 }
 

@@ -769,7 +769,6 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
 
 void IdealMolalSoln::initLengths()
 {
-    m_kk = nSpecies();
     /*
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.

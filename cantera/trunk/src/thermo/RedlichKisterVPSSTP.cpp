@@ -306,7 +306,6 @@ void RedlichKisterVPSSTP::initThermo()
 
 void  RedlichKisterVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 

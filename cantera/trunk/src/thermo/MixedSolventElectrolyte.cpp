@@ -351,7 +351,6 @@ void MixedSolventElectrolyte::initThermo()
 
 void  MixedSolventElectrolyte::initLengths()
 {
-    m_kk = nSpecies();
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
