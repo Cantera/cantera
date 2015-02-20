@@ -21,6 +21,7 @@ GeneralSpeciesThermo::GeneralSpeciesThermo() :
 GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
     SpeciesThermo(b),
     m_tpoly(b.m_tpoly),
+    m_speciesLoc(b.m_speciesLoc),
     m_tlow_max(b.m_tlow_max),
     m_thigh_min(b.m_thigh_min),
     m_p0(b.m_p0)
@@ -57,6 +58,7 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     }
 
     m_tpoly = b.m_tpoly;
+    m_speciesLoc = b.m_speciesLoc;
     m_tlow_max = b.m_tlow_max;
     m_thigh_min = b.m_thigh_min;
     m_p0 = b.m_p0;
