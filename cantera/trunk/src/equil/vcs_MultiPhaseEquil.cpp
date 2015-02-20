@@ -1013,8 +1013,6 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
                     ts_ptr->SSStar_Model = VCS_SSSTAR_CONSTANT;
                     ts_ptr->SSStar_Vol_Model  = VCS_SSVOL_CONSTANT;
                 }
-                ts_ptr->Activity_Coeff_Model  = VCS_AC_CONSTANT;
-                ts_ptr->Activity_Coeff_Params = NULL;
             } else {
                 if (vprob->m_printLvl > 2) {
                     plogf("vcs_Cantera_convert: Species Type %d not known \n",
@@ -1033,7 +1031,6 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
              */
             if (gasPhase) {
                 ts_ptr->SSStar_Vol_Model = VCS_SSVOL_IDEALGAS;
-                ts_ptr->SSStar_Vol_Params = NULL;
                 ts_ptr->SSStar_Vol0 = 82.05 * 273.15 / 1.0;
 
             } else {
