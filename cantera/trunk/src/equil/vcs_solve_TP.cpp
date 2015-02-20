@@ -485,9 +485,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
      */
     std::vector<size_t> phasePopPhaseIDs(0);
     size_t iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
-    /*
-     *
-     */
     if (iphasePop != npos) {
         int soldel = vcs_popPhaseRxnStepSizes(iphasePop);
         if (soldel == 3) {
