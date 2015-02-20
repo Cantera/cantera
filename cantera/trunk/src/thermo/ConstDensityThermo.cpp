@@ -55,19 +55,17 @@ doublereal ConstDensityThermo::enthalpy_mole() const
 {
     doublereal p0 = m_spthermo->refPressure();
     return GasConstant * temperature() *
-           mean_X(&enthalpy_RT()[0])
-           + (pressure() - p0)/molarDensity();
+           mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
 }
 
 doublereal ConstDensityThermo::entropy_mole() const
 {
-    return GasConstant * (mean_X(&entropy_R()[0]) -
-                          sum_xlogx());
+    return GasConstant * (mean_X(entropy_R()) - sum_xlogx());
 }
 
 doublereal ConstDensityThermo::cp_mole() const
 {
-    return GasConstant * mean_X(&cp_R()[0]);
+    return GasConstant * mean_X(cp_R());
 }
 
 doublereal ConstDensityThermo::cv_mole() const

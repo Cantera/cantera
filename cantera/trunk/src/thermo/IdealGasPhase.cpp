@@ -69,12 +69,12 @@ ThermoPhase* IdealGasPhase::duplMyselfAsThermoPhase() const
 
 doublereal IdealGasPhase::entropy_mole() const
 {
-    return GasConstant * (mean_X(&entropy_R_ref()[0]) - sum_xlogx() - std::log(pressure() / m_spthermo->refPressure()));
+    return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx() - std::log(pressure() / m_spthermo->refPressure()));
 }
 
 doublereal IdealGasPhase::cp_mole() const
 {
-    return GasConstant * mean_X(&cp_R_ref()[0]);
+    return GasConstant * mean_X(cp_R_ref());
 }
 
 doublereal IdealGasPhase::cv_mole() const

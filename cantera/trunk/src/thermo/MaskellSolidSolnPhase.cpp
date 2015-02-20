@@ -74,7 +74,7 @@ void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 doublereal MaskellSolidSolnPhase::enthalpy_mole() const
 {
     _updateThermo();
-    const doublereal h0 = GasConstant * temperature() * mean_X(&m_h0_RT[0]);
+    const doublereal h0 = GasConstant * temperature() * mean_X(m_h0_RT);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
     return h0 + r * fmval * h_mixing;
@@ -88,7 +88,7 @@ doublereal xlogx(doublereal x)
 doublereal MaskellSolidSolnPhase::entropy_mole() const
 {
     _updateThermo();
-    const doublereal s0 = GasConstant * mean_X(&m_s0_R[0]);
+    const doublereal s0 = GasConstant * mean_X(m_s0_R);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
     const doublereal rfm = r * fmval;

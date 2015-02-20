@@ -687,6 +687,11 @@ doublereal Phase::mean_X(const doublereal* const Q) const
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
 }
 
+doublereal Phase::mean_X(const vector_fp& Q) const
+{
+    return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
+}
+
 doublereal Phase::mean_Y(const doublereal* const Q) const
 {
     return dot(m_y.begin(), m_y.end(), Q);

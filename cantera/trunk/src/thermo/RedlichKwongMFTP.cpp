@@ -179,7 +179,7 @@ int RedlichKwongMFTP::eosType() const
 doublereal RedlichKwongMFTP::enthalpy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal h_ideal = _RT() * mean_X(DATA_PTR(m_h0_RT));
+    doublereal h_ideal = _RT() * mean_X(m_h0_RT);
     doublereal h_nonideal = hresid();
     return h_ideal + h_nonideal;
 }
@@ -187,7 +187,7 @@ doublereal RedlichKwongMFTP::enthalpy_mole() const
 doublereal RedlichKwongMFTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal sr_ideal =  GasConstant * (mean_X(DATA_PTR(m_s0_R))
+    doublereal sr_ideal =  GasConstant * (mean_X(m_s0_R)
                                           - sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
     doublereal sr_nonideal = sresid();
     return sr_ideal + sr_nonideal;
@@ -201,7 +201,7 @@ doublereal RedlichKwongMFTP::cp_mole() const
     doublereal mv = molarVolume();
     doublereal vpb = mv + m_b_current;
     pressureDerivatives();
-    doublereal cpref = GasConstant * mean_X(DATA_PTR(m_cp0_R));
+    doublereal cpref = GasConstant * mean_X(m_cp0_R);
     doublereal dadt = da_dt();
     doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
     doublereal dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv) * fac

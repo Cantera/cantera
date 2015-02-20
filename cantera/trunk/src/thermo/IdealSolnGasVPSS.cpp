@@ -89,24 +89,20 @@ int IdealSolnGasVPSS::eosType() const
 doublereal IdealSolnGasVPSS::enthalpy_mole() const
 {
     updateStandardStateThermo();
-    const vector_fp& enth_RT = m_VPSS_ptr->enthalpy_RT();
-    return (GasConstant * temperature() *
-            mean_X(DATA_PTR(enth_RT)));
+    return GasConstant * temperature() * mean_X(m_VPSS_ptr->enthalpy_RT());
 }
 
 doublereal IdealSolnGasVPSS::entropy_mole() const
 {
     updateStandardStateThermo();
-    const vector_fp& entrop_R = m_VPSS_ptr->entropy_R();
-    return GasConstant * (mean_X(DATA_PTR(entrop_R)) - sum_xlogx());
+    return GasConstant * (mean_X(m_VPSS_ptr->entropy_R()) - sum_xlogx());
 
 }
 
 doublereal IdealSolnGasVPSS::cp_mole() const
 {
     updateStandardStateThermo();
-    const vector_fp& cp_R = m_VPSS_ptr->cp_R();
-    return  GasConstant * (mean_X(DATA_PTR(cp_R)));
+    return  GasConstant * mean_X(m_VPSS_ptr->cp_R());
 }
 
 doublereal IdealSolnGasVPSS::cv_mole() const

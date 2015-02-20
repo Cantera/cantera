@@ -426,19 +426,19 @@ doublereal HMWSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     getMoleFractions(DATA_PTR(m_pp));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal HMWSoln::relative_enthalpy() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
-    double hbar = mean_X(DATA_PTR(m_tmpV));
+    double hbar = mean_X(m_tmpV);
     getEnthalpy_RT(DATA_PTR(m_gamma_tmp));
     double RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
         m_gamma_tmp[k] *= RT;
     }
-    double h0bar = mean_X(DATA_PTR(m_gamma_tmp));
+    double h0bar = mean_X(m_gamma_tmp);
     return hbar - h0bar;
 }
 
@@ -485,19 +485,19 @@ doublereal HMWSoln::relative_molal_enthalpy() const
 doublereal HMWSoln::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal HMWSoln::gibbs_mole() const
 {
     getChemPotentials(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal HMWSoln::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal HMWSoln::cv_mole() const
