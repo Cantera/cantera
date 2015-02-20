@@ -5,23 +5,21 @@
 namespace Cantera
 {
 
-// CO2 low-temperature polynomial from GRI 3.0. Note that this order is
-// different from the order used by CHEMKIN, with the 1/T and log(T)
-// coefficients appearing first.
-static double coeffs[] = {-4.83719697e+04,
-                          9.90105222e+00,
-                          2.35677352e+00,
+// CO2 low-temperature polynomial from GRI 3.0
+static double coeffs[] = {2.35677352e+00,
                           8.98459677e-03,
                           -7.12356269e-06,
                           2.45919022e-09,
                           -1.43699548e-13,
+                          -4.83719697e+04,
+                          9.90105222e+00,
                          };
 
 class NasaPoly1Test : public testing::Test
 {
 public:
     NasaPoly1Test()
-        : poly(0, 200.0, 1000.0, 101325.0, coeffs)
+        : poly(200.0, 1000.0, 101325.0, coeffs)
         , tpow_(6) {
     }
 protected:
