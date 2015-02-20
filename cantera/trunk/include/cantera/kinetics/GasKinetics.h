@@ -10,7 +10,7 @@
 #define CT_GASKINETICS_H
 
 #include "BulkKinetics.h"
-#include "ThirdBodyMgr.h"
+#include "ThirdBodyCalc.h"
 #include "FalloffMgr.h"
 #include "Reaction.h"
 
@@ -80,8 +80,8 @@ protected:
 
     FalloffMgr                          m_falloffn;
 
-    ThirdBodyMgr<Enhanced3BConc>        m_3b_concm;
-    ThirdBodyMgr<Enhanced3BConc>        m_falloff_concm;
+    ThirdBodyCalc m_3b_concm;
+    ThirdBodyCalc m_falloff_concm;
 
     Rate1<Plog> m_plog_rates;
     Rate1<ChebyshevRate> m_cheb_rates;

@@ -15,32 +15,31 @@
 namespace Cantera
 {
 
+//! @deprecated Replaced by ThirdBodyCalc. To be removed after Cantera 2.2.
 template<class _E>
 class ThirdBodyMgr
 {
 
 public:
-
-    ThirdBodyMgr<_E>() : m_n(0) {}
+    ThirdBodyMgr() {
+        warn_deprecated("class ThirdBodyMgr", "To be removed after Cantera 2.2.");
+    }
 
     void install(size_t rxnNumber, const std::map<size_t, doublereal>& enhanced,
                  doublereal dflt=1.0) {
-        m_n++;
         m_reaction_index.push_back(rxnNumber);
-        m_concm.push_back(_E(static_cast<int>(enhanced.size()),
-                             enhanced, dflt));
+        m_concm.push_back(_E(enhanced, dflt));
     }
 
     void update(const vector_fp& conc, doublereal ctot, doublereal* work) {
         typename std::vector<_E>::const_iterator b = m_concm.begin();
-        //doublereal* v = m_values.begin();
         for (; b != m_concm.end(); ++b, ++work) {
             *work = b->update(conc, ctot);
         }
     }
 
     void multiply(doublereal* output, const doublereal* work) {
-        scatter_mult(work, work + m_n,
+        scatter_mult(work, work + m_reaction_index.size(),
                      output, m_reaction_index.begin());
     }
 
@@ -54,8 +53,6 @@ public:
     }
 
 protected:
-
-    int m_n;
     std::vector<size_t> m_reaction_index;
     std::vector<_E>      m_concm;
 };
