@@ -329,7 +329,7 @@ void Kinetics::checkReactionBalance(const Reaction& R)
         const string& elem = iter->first;
         double elemsum = balr[elem] + balp[elem];
         double elemdiff = fabs(balp[elem] - balr[elem]);
-        if (elemsum > 0.0 && elemdiff/elemsum > 1e-5) {
+        if (elemsum > 0.0 && elemdiff/elemsum > 1e-4) {
             ok = false;
             msg += "  " + elem + "           " + fp2str(balr[elem]) +
                    "           " + fp2str(balp[elem]) + "\n";
