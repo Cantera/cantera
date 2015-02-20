@@ -91,16 +91,15 @@ void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
      * Use this object to store information.
      */
 
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
+    XML_Node fxml;
+    fxml.build(fin);
+    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
     if (!fxml_phase) {
         throw CanteraError("PDSS_IdealGas::constructPDSSFile",
                            "ERROR: Can not find phase named " +
                            id + " in file named " + inputFile);
     }
     constructPDSSXML(tp, spindex, *fxml_phase, id);
-    delete fxml;
 }
 
 void PDSS_IdealGas::initThermo()
