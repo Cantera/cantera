@@ -36,6 +36,8 @@ PseudoBinaryVPSSTP::PseudoBinaryVPSSTP() :
     cationPhase_(0),
     anionPhase_(0)
 {
+    warn_deprecated("Class PseudoBinaryVPSSTP",
+                    "To be removed after Cantera 2.2.");
 }
 
 PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP& b) :

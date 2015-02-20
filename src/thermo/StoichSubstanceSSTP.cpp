@@ -262,6 +262,8 @@ void StoichSubstanceSSTP::setParametersFromXML(const XML_Node& eosdata)
 electrodeElectron::electrodeElectron():
     StoichSubstanceSSTP()
 {
+    warn_deprecated("Class electrodeElectron",
+                    "To be removed after Cantera 2.2.");
 }
 
 electrodeElectron::electrodeElectron(const std::string& infile, std::string id_) :

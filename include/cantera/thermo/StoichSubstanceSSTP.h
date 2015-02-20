@@ -481,6 +481,9 @@ public:
 /*!
  *  The class is based on the electron have a chemical potential
  *  equal to one-half of the entropy of the H2 gas at 1 bar.
+ *
+ *  @deprecated Deprecated in favor of class MetalSHEelectrons. To be removed
+ *      after Cantera 2.2.
  */
 class electrodeElectron : public StoichSubstanceSSTP
 {
