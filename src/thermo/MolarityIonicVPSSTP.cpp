@@ -31,9 +31,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
 }
@@ -43,9 +40,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
     initThermoFile(inputFile, id_);
@@ -56,9 +50,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
@@ -68,9 +59,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
     *this = b;
@@ -87,11 +75,8 @@ MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b
     indexSpecialSpecies_        = b.indexSpecialSpecies_;
     PBMoleFractions_            = b.PBMoleFractions_;
     cationList_                 = b.cationList_;
-    numCationSpecies_           = b.numCationSpecies_;
     anionList_                  = b.anionList_;
-    numAnionSpecies_            = b.numAnionSpecies_;
     passThroughList_            = b.passThroughList_;
-    numPassThroughSpecies_      = b.numPassThroughSpecies_;
     neutralPBindexStart         = b.neutralPBindexStart;
     moleFractionsTmp_           = b.moleFractionsTmp_;
 
@@ -270,18 +255,18 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
         if (fabs(sum) > 1.0E-16) {
             moleFractionsTmp_[cationList_[kMax]] -= sum / m_speciesCharge[kMax];
             sum = 0.0;
-            for (size_t k = 0; k < numCationSpecies_; k++) {
+            for (size_t k = 0; k < cationList_.size(); k++) {
                 sum +=  moleFractionsTmp_[k];
             }
-            for (size_t k = 0; k < numCationSpecies_; k++) {
+            for (size_t k = 0; k < cationList_.size(); k++) {
                 moleFractionsTmp_[k]/= sum;
             }
         }
 
-        for (size_t k = 0; k < numCationSpecies_; k++) {
+        for (size_t k = 0; k < cationList_.size(); k++) {
             PBMoleFractions_[k] = moleFractionsTmp_[cationList_[k]];
         }
-        for (size_t k = 0; k <  numPassThroughSpecies_; k++) {
+        for (size_t k = 0; k <  passThroughList_.size(); k++) {
             PBMoleFractions_[neutralPBindexStart + k] = moleFractions_[passThroughList_[k]];
         }
 
@@ -334,7 +319,6 @@ void MolarityIonicVPSSTP::initThermo()
     /*
      *  Go find the list of cations and anions
      */
-    numCationSpecies_ = 0;
     cationList_.clear();
     anionList_.clear();
     passThroughList_.clear();
@@ -342,24 +326,21 @@ void MolarityIonicVPSSTP::initThermo()
         double ch = m_speciesCharge[k];
         if (ch > 0.0) {
             cationList_.push_back(k);
-            numCationSpecies_++;
         } else if (ch < 0.0) {
             anionList_.push_back(k);
-            numAnionSpecies_++;
         } else {
             passThroughList_.push_back(k);
-            numPassThroughSpecies_++;
         }
     }
-    numPBSpecies_ = numCationSpecies_ + numAnionSpecies_ - 1;
+    numPBSpecies_ = cationList_.size() + anionList_.size() - 1;
     neutralPBindexStart = numPBSpecies_;
     PBType_ = PBTYPE_MULTICATIONANION;
-    if (numAnionSpecies_ == 1) {
+    if (anionList_.size() == 1) {
         PBType_ = PBTYPE_SINGLEANION;
-    } else if (numCationSpecies_ == 1) {
+    } else if (cationList_.size() == 1) {
         PBType_ = PBTYPE_SINGLECATION;
     }
-    if (numAnionSpecies_ == 0 && numCationSpecies_ == 0) {
+    if (anionList_.size() == 0 && cationList_.size() == 0) {
         PBType_ = PBTYPE_PASSTHROUGH;
     }
 }

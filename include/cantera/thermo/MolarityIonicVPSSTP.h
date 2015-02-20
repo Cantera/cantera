@@ -342,14 +342,9 @@ protected:
     //! Vector of cation indices in the mixture
     std::vector<size_t> cationList_;
 
-    //! Number of cations in the mixture
-    size_t numCationSpecies_;
-
     std::vector<size_t> anionList_;
-    size_t numAnionSpecies_;
 
     std::vector<size_t> passThroughList_;
-    size_t numPassThroughSpecies_;
     size_t neutralPBindexStart;
 
     mutable std::vector<doublereal> moleFractionsTmp_;
