@@ -157,7 +157,7 @@ steps and can skip them.
 
 - Install `Homebrew <http://brew.sh/>`_
 
-- Run the following commands:
+- Run the following commands::
 
       brew tap homebrew/science
       brew update
