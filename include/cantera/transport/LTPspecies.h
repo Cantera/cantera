@@ -117,7 +117,7 @@ public:
 
     //! Returns the vector of standard state species transport property
     /*!
-     *  The standard state species transport property 
+     *  The standard state species transport property
      *  is returned.  Any temperature and composition dependence will be
      *  adjusted internally according to the information provided by the
      *  subclass object.
@@ -233,7 +233,7 @@ public:
 
     //! Returns the standard state species transport property
     /*!
-     *  The standard species transport property 
+     *  The standard species transport property
      *  is returned.  Any temperature and composition dependence will be
      *  adjusted internally according to the information provided.
      */

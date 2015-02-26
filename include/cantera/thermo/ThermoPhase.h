@@ -1231,17 +1231,16 @@ public:
     virtual doublereal critPressure() const {
         throw NotImplementedError("ThermoPhase::critPressure");
     }
-    
+
     /// Critical volume (m3/kmol).
     virtual doublereal critVolume() const {
         throw NotImplementedError("ThermoPhase::critVolume");
     }
-    
+
     /// Critical compressibility (unitless).
     virtual doublereal critCompressibility() const {
         throw NotImplementedError("ThermoPhase::critCompressibility");
     }
-
 
     /// Critical density (kg/m3).
     virtual doublereal critDensity() const {

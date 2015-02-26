@@ -368,10 +368,10 @@ public:
 
     /// Critical pressure (Pa).
     virtual doublereal critPressure() const;
-    
+
     /// Critical volume (m3/kmol)
     virtual doublereal critVolume() const;
-    
+
     // Critical compressibility (unitless)
     virtual doublereal critCompressibility() const;
 

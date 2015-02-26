@@ -1108,7 +1108,7 @@ XML_Node* findXMLPhase(XML_Node* root,
         idattrib = root->id();
         if (idtarget == idattrib) {
             return root;
-        } 
+        }
     }
 
     const vector<XML_Node*> &vsc = root->children();

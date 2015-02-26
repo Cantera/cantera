@@ -744,7 +744,7 @@ public:
      */
     doublereal calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
                              doublereal& molarVolLiquid);
-    
+
 public:
     //! Calculate the saturation pressure at the current mixture content for the given temperature
     /*!

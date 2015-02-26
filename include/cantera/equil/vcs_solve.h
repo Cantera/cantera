@@ -123,7 +123,7 @@ public:
      * @param printDetails  1 -> Print intermediate results.
      * @param maxit         Maximum number of iterations for the algorithm
      *
-     * @return     
+     * @return
      *     * 0 = Equilibrium Achieved
      *     * 1 = Range space error encountered. The element abundance criteria
      *       are only partially satisfied. Specifically, the first NC= (number

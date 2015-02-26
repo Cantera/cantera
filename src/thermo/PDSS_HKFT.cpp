@@ -26,7 +26,7 @@ namespace Cantera
 {
 /*
  *  Set the default to error exit if there is an input file inconsistency
- */ 
+ */
 int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 
 PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
@@ -488,7 +488,7 @@ void PDSS_HKFT::initThermo()
 
     //! Ok, we have mu. Let's check it against the input value
     // of DH_F to see that we have some internal consistency
- 
+
     doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
 
     doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;

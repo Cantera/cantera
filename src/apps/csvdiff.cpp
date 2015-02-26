@@ -273,7 +273,7 @@ static void check_consistency(FILE* fp, const char *fileName,  const int nTitleL
 	    fprintf(stderr, "check_consistency() error for file %s, Line %d couldn't be read\n",
 		    fileName, i);
 	    exit(-1);
-	}	
+	}
 	if (ncolsFound != (nCol)) {
 	    fprintf(stderr, "check_consistency() error for file %s, Line %d of DataLines didn't have correct commas: %d vs %d\n",
 		    fileName, i, ncolsFound, nCol);
@@ -291,7 +291,6 @@ static void check_consistency(FILE* fp, const char *fileName,  const int nTitleL
 			    fileName, i, j);
 		    fprintf(stderr,"             %s\n", scanLine);
 		    exit(-1);
-		    
 		}
 	    }
 	}
@@ -396,7 +395,7 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
      */
     rewind(fp);
     ColIsFloat.assign(ColIsFloat.size(), 0);
-   
+
     for (i = 0; i < nScanLines; i++) {
         retn = read_line(fp, scanLine, 0);
         int ncolsFound = breakStrCommas(scanLine, strlets, nCol);
@@ -857,7 +856,7 @@ int main(int argc, char* argv[])
 
     ColIsFloat1.resize(200, 0);
     ColIsFloat2.resize(200, 0);
-   
+
     /*
      *   Obtain the size of the problem information: Compare between files.
      */

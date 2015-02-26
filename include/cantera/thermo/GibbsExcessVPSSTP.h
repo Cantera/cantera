@@ -497,12 +497,12 @@ protected:
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
-    //! log of the activity coefficients of the species  
+    //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_;
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
-    //! log of the activity coefficients of the species 
+    //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
 
     //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the

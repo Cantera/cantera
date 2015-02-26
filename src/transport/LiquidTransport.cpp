@@ -223,7 +223,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_nsp2 = m_nsp*m_nsp;
     //
     //  Resize the local storage according to the number of species
-    // 
+    //
     m_mw.resize(m_nsp, 0.0);
     m_viscSpecies.resize(m_nsp, 0.0);
     m_viscTempDep_Ns.resize(m_nsp, 0);

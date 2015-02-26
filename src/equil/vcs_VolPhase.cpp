@@ -906,7 +906,7 @@ void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
         const std::vector<size_t> &creationGlobalRxnNumbers)
 {
     creationMoleNumbers_.assign(n_k, n_k+m_numSpecies);
-    for (size_t k = 0; k < m_numSpecies; k++) { 
+    for (size_t k = 0; k < m_numSpecies; k++) {
         creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
     }
 }

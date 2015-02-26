@@ -788,7 +788,7 @@ public:
     virtual void finalize();
 
     /**
-     * Add a single reaction to the mechanism. This routine 
+     * Add a single reaction to the mechanism. This routine
      * must be called after init() and before finalize(). Derived classes
      * should call the base class method in addition to handling their
      * own specialized behavior.

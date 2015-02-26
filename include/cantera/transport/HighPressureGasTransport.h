@@ -85,9 +85,6 @@ protected:
     virtual doublereal FQ_i(doublereal Q, doublereal Tr, doublereal MW);
 
     virtual doublereal setPcorr(doublereal Pr, doublereal Tr);
-
-public:
-    
 };
 }
 #endif

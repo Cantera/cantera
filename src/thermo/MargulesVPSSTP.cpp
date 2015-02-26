@@ -709,7 +709,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
          *           excessEntropy
          *           excessVolume_Enthalpy
          *           excessVolume_Entropy
-         * Other blocks are currently ignored. 
+         * Other blocks are currently ignored.
          * @TODO determine a policy about ignoring blocks that should or shouldn't be there.
          */
         if (nodeName == "excessenthalpy") {

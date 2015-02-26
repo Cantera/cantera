@@ -127,7 +127,7 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
     return fe;
 }
 
-double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin, 
+double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
                                         double presPA)
 {
     double vol;
