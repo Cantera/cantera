@@ -865,7 +865,7 @@ public:
      *  @param i  index of the reaction
      *  @param f  value of the multiplier.
      */
-    void setMultiplier(size_t i, doublereal f) {
+    virtual void setMultiplier(size_t i, doublereal f) {
         m_perturb[i] = f;
     }
 

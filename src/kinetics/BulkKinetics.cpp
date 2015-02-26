@@ -191,4 +191,9 @@ bool BulkKinetics::ready() const
     return m_finalized;
 }
 
+void BulkKinetics::setMultiplier(size_t i, double f) {
+    Kinetics::setMultiplier(i, f);
+    m_ROP_ok = false;
+}
+
 }
