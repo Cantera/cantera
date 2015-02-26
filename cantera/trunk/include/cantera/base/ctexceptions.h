@@ -226,10 +226,10 @@ public:
  *    @return Returns true if there has been such a condition and it has not been cleared. returns false
  *            if there hasn't been an overflow, underflow or invalid condition.
  */
-extern bool check_FENV_OverUnder_Flow();
+bool check_FENV_OverUnder_Flow();
 
 //! Clear all the flags for floating-point exceptions
-extern void clear_FENV();
+void clear_FENV();
 
 
 //! Provides a line number
