@@ -40,6 +40,9 @@ public:
     virtual void finalize();
     virtual bool ready() const;
 
+    virtual void setMultiplier(size_t i, double f);
+
+
 protected:
     virtual void addElementaryReaction(ReactionData& r);
     virtual void addElementaryReaction(ElementaryReaction& r);
