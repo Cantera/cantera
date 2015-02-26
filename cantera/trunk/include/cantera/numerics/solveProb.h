@@ -142,7 +142,7 @@ public:
     //! Constructor for the object
     solveProb(ResidEval* resid);
 
-    virtual ~solveProb();
+    virtual ~solveProb() {}
 
 private:
 

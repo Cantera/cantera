@@ -23,10 +23,6 @@ vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
 {
 }
 
-vcs_SpeciesProperties::~vcs_SpeciesProperties()
-{
-}
-
 vcs_SpeciesProperties::vcs_SpeciesProperties(const vcs_SpeciesProperties& b) :
     IndexPhase(b.IndexPhase),
     IndexSpeciesPhase(b.IndexSpeciesPhase),

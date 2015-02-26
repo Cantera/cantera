@@ -213,14 +213,6 @@ double MMCollisionInt::cstar_table[39*8] = {
     0.94444, 0.94444,0.94444,0.94444,0.94444,0.94444,0.94444,0.94444
 };
 
-MMCollisionInt::MMCollisionInt()
-{
-}
-
-MMCollisionInt::~MMCollisionInt()
-{
-}
-
 void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
 {
     m_loglevel = log_level;

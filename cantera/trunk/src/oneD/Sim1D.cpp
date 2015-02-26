@@ -15,10 +15,6 @@ using namespace std;
 namespace Cantera
 {
 
-Sim1D::Sim1D()
-{
-}
-
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
     OneDim(domains)
 {

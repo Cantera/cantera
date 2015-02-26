@@ -48,7 +48,7 @@ public:
 
     vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
                           vcs_VolPhase* owning);
-    virtual ~vcs_SpeciesProperties();
+    virtual ~vcs_SpeciesProperties() {}
 
     vcs_SpeciesProperties(const vcs_SpeciesProperties& b);
     vcs_SpeciesProperties& operator=(const vcs_SpeciesProperties& b);

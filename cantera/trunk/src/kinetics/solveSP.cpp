@@ -128,10 +128,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_Jac.resize(dim1, dim1, 0.0);
 }
 
-solveSP::~solveSP()
-{
-}
-
 int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                            doublereal PGas, doublereal reltol, doublereal abstol)
 {

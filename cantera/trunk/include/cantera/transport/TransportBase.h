@@ -173,7 +173,7 @@ public:
      */
     Transport(thermo_t* thermo=0, size_t ndim = 1);
 
-    virtual ~Transport();
+    virtual ~Transport() {}
     Transport(const Transport& right);
     Transport&  operator=(const Transport& right);
 

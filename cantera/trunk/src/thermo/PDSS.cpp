@@ -152,10 +152,6 @@ PDSS& PDSS::operator=(const PDSS& b)
     return *this;
 }
 
-PDSS::~PDSS()
-{
-}
-
 PDSS* PDSS::duplMyselfAsPDSS() const
 {
     return new PDSS(*this);

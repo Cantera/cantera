@@ -10,7 +10,7 @@ using namespace std;
 namespace Cantera
 {
 
-ReactorNet::ReactorNet() : Cantera::FuncEval(),
+ReactorNet::ReactorNet() :
     m_integ(0), m_time(0.0), m_init(false), m_integrator_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),

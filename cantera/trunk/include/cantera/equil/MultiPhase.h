@@ -64,7 +64,7 @@ public:
 
     //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
     //! (i.e. responsibility for destroying) the phase objects.
-    virtual ~MultiPhase();
+    virtual ~MultiPhase() {}
 
     MultiPhase& operator=(const MultiPhase& right);
 

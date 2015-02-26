@@ -27,10 +27,6 @@ namespace Cantera
  * ----  Constructors -------
  */
 
-MineralEQ3::MineralEQ3()
-{
-}
-
 MineralEQ3::MineralEQ3(const std::string& infile, std::string id_)
 {
     XML_Node* root = get_XML_File(infile);

@@ -23,10 +23,6 @@ using namespace std;
 namespace Cantera
 {
 
-GibbsExcessVPSSTP::GibbsExcessVPSSTP()
-{
-}
-
 GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b)
 {
     GibbsExcessVPSSTP::operator=(b);

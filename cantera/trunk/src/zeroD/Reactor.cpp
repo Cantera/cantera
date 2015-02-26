@@ -16,7 +16,7 @@ using namespace std;
 
 namespace Cantera
 {
-Reactor::Reactor() : ReactorBase(),
+Reactor::Reactor() :
     m_kin(0),
     m_vdot(0.0),
     m_Q(0.0),

@@ -19,7 +19,6 @@ DenseMatrix::DenseMatrix() :
 
 DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
     Array2D(n, m, v),
-    m_ipiv(0),
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {

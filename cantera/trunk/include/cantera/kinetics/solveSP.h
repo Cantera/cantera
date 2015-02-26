@@ -154,7 +154,7 @@ public:
     solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc = BULK_ETCH);
 
     //! Destructor. Deletes the integrator.
-    ~solveSP();
+    ~solveSP() {}
 
 private:
     //! Unimplemented private copy constructor

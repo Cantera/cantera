@@ -58,10 +58,6 @@ solveProb::solveProb(ResidEval* resid) :
 
 }
 
-solveProb::~solveProb()
-{
-}
-
 int solveProb::solve(int ifunc, doublereal time_scale,
                      doublereal reltol)
 {

@@ -62,7 +62,7 @@ public:
     ReactionStoichMgr();
 
     /// Destructor.
-    virtual ~ReactionStoichMgr();
+    virtual ~ReactionStoichMgr() {}
 
     ReactionStoichMgr(const ReactionStoichMgr& right);
 

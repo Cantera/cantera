@@ -95,7 +95,7 @@ class MineralEQ3 : public StoichSubstanceSSTP
 {
 public:
     //! Default constructor for the StoichSubstanceSSTP class
-    MineralEQ3();
+    MineralEQ3() {}
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an ASCII input file

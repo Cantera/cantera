@@ -42,10 +42,6 @@ MultiPhase::MultiPhase(const MultiPhase& right) :
     operator=(right);
 }
 
-MultiPhase::~MultiPhase()
-{
-}
-
 MultiPhase& MultiPhase::operator=(const MultiPhase& right)
 {
     if (&right != this) {

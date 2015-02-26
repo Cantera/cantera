@@ -45,10 +45,6 @@ Transport* Transport::duplMyselfAsTransport() const
     return new Transport(*this);
 }
 
-Transport::~Transport()
-{
-}
-
 bool Transport::ready()
 {
     return m_ready;

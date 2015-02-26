@@ -1369,14 +1369,6 @@ void EdgeKinetics::finalize()
     m_finalized = true;
 }
 
-RxnOrders::RxnOrders()
-{
-}
-
-RxnOrders::~RxnOrders()
-{
-}
-
 RxnOrders::RxnOrders(const RxnOrders& right) :
     kinSpeciesIDs_(right.kinSpeciesIDs_),
     kinSpeciesOrders_(right.kinSpeciesOrders_)

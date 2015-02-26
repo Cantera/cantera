@@ -67,8 +67,6 @@ static int get_modified_time(const std::string& path) {
 }
 
 Application::Messages::Messages() :
-    errorMessage(0),
-    errorRoutine(0),
     logwriter(0)
 {
     // install a default logwriter that writes to standard
@@ -171,12 +169,8 @@ void Application::ThreadMessages::removeThreadMessages()
 #endif // THREAD_SAFE_CANTERA
 
 Application::Application() :
-    inputDirs(0),
     stop_on_error(false),
-    options(),
-    xmlfiles(),
-    m_suppress_deprecation_warnings(false),
-    pMessenger()
+    m_suppress_deprecation_warnings(false)
 {
 #if !defined( THREAD_SAFE_CANTERA )
     pMessenger = std::auto_ptr<Messages>(new Messages());

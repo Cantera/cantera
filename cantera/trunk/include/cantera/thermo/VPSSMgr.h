@@ -246,7 +246,7 @@ public:
     VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spth = 0);
 
     //! Destructor
-    virtual ~VPSSMgr();
+    virtual ~VPSSMgr() {}
 
     //! Copy Constructor
     VPSSMgr(const VPSSMgr& right);

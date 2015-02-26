@@ -43,7 +43,7 @@ public:
     ExtraGlobalRxn(Kinetics* k_ptr);
 
     //! Destructor
-    virtual ~ExtraGlobalRxn();
+    virtual ~ExtraGlobalRxn() {}
 
     void setupElemRxnVector(double* RxnVector,
                             int specialSpecies = -1);

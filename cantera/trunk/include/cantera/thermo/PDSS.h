@@ -222,7 +222,7 @@ public:
     PDSS& operator=(const PDSS& b);
 
     //! Destructor for the phase
-    virtual ~PDSS();
+    virtual ~PDSS() {}
 
     //! Duplication routine for objects which inherit from PDSS
     /*!
