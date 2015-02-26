@@ -791,7 +791,6 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-    
 
     //-------------- Kinetics ------------------//
 

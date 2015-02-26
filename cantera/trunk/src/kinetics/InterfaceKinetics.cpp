@@ -411,7 +411,7 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
     for (size_t i = 0; i < m_beta.size(); i++) {
         size_t irxn = m_ctrxn[i];
 
-        //   If we calculate the BV form directly, we don't add the voltage correction to the 
+        //   If we calculate the BV form directly, we don't add the voltage correction to the
         //   forward reaction rate constants.
         if (m_ctrxn_BVform[i] == 0) {
             eamod = m_beta[i] * deltaElectricEnergy_[irxn];

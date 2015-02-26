@@ -2571,7 +2571,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     /*
      *     Use a temporary work array for the mole numbers, aw[]
      */
-    std::copy(m_molNumSpecies_old.begin(), 
+    std::copy(m_molNumSpecies_old.begin(),
               m_molNumSpecies_old.begin() + m_numSpeciesTot, aw);
     /*
      * Take out the Voltage unknowns from consideration
@@ -4168,7 +4168,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         printf(" %-3s", Cantera::int2str(iphase).c_str());
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             printf("    NA       ");
-        } else { 
+        } else {
             printf(" % -12.4e", molNumSpecies[kspec]);
         }
         printf(" % -12.4e", mfValue);

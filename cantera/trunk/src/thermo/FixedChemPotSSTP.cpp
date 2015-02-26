@@ -188,7 +188,7 @@ doublereal FixedChemPotSSTP::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void FixedChemPotSSTP::getUnitsStandardConc(doublereal* uA, int k, 
+void FixedChemPotSSTP::getUnitsStandardConc(doublereal* uA, int k,
                                             int sizeUA) const
 {
     for (int i = 0; i < 6; i++) {

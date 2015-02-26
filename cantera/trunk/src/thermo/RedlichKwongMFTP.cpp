@@ -613,7 +613,7 @@ doublereal RedlichKwongMFTP::critPressure() const
 
     return pc;
 }
-    
+
 doublereal RedlichKwongMFTP::critVolume() const
 {
     double pc, tc, vc;

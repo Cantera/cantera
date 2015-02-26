@@ -24,7 +24,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     /*
      * Loop through all of the species in the phase. We say the phase
      * can be popped, if there is one species in the phase that can be
-     * popped. This does not mean that the phase will be popped or that it 
+     * popped. This does not mean that the phase will be popped or that it
      * leads to a lower Gibbs free energy.
      */
     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
@@ -39,7 +39,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 	    /*
 	     *  Note one case is if the component is a member of the popping phase.
 	     *  This component will be zeroed and the logic here will negate the current
-	     *  species from causing a positive if this component is consumed. 
+	     *  species from causing a positive if this component is consumed.
 	     */
             for (size_t j = 0; j < m_numComponents; ++j) {
                 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {

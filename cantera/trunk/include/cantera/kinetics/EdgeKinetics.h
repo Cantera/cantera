@@ -45,7 +45,6 @@ public:
         return cEdgeKinetics;
     }
 
-    
     virtual void finalize();
 };
 }

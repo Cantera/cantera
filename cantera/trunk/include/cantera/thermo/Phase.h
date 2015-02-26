@@ -74,7 +74,7 @@ namespace Cantera
  * The first two methods of naming may not yield a unique species within
  * complicated assemblies of %Cantera Phases.
  *
- * @todo 
+ * @todo
  * Make the concept of saving state vectors more general, so that it can
  * handle other cases where there are additional internal state variables, such
  * as the voltage, a potential energy, or a strain field.
@@ -84,7 +84,7 @@ namespace Cantera
  * Moreover, ynless we do this, the calculation of jacobians will be altered whenever the treatment of non-conforming mole
  * fractions is changed. Add setState functions corresponding to specifying mole numbers, which is actually what
  * is being done (well one of the options, there are many) when non-conforming mole fractions are input.
- * Note, we realize that most numerical jacobian and some analytical jacobians use non-conforming calculations. 
+ * Note, we realize that most numerical jacobian and some analytical jacobians use non-conforming calculations.
  * These can easily be changed to the set mole number setState functions.
  *
  * @ingroup phases
@@ -121,7 +121,7 @@ public:
      *
      *  @param xmlPhase Reference to the XML node corresponding to the phase
      */
-    void setXMLdata(XML_Node& xmlPhase);   
+    void setXMLdata(XML_Node& xmlPhase);
 
     /*! @name Name and ID
      * Class Phase contains two strings that identify a phase. The ID is the
@@ -802,7 +802,7 @@ public:
     //!  Returns a bool indicating wether the object is ready for use
     /*!
      *  @return returns true if the object is ready for calculation, false otherwise.
-     */ 
+     */
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
@@ -811,12 +811,11 @@ public:
     }
 
 protected:
-   
     //! Cached for saved calculations within each ThermoPhase.
     /*!
      *   For more information on how to use this, see examples within the source code and documentation
      *   for this within ValueCache class itself.
-     */ 
+     */
     mutable ValueCache m_cache;
 
     //! Set the molecular weight of a single species to a given value

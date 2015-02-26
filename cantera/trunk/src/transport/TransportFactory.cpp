@@ -186,7 +186,7 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
         break;
     default:
         //
-        // @TODO make sure we can throw an error here with existing datasets and tests before changing code 
+        // @TODO make sure we can throw an error here with existing datasets and tests before changing code
         //
         lti = new LiquidTranInteraction(tp_ind);
         lti->init(trNode, thermo);

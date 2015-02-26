@@ -92,7 +92,7 @@ public:
     virtual void getMixDiffCoeffsMole(doublereal* const d);
 
     //! Returns the mixture-averaged diffusion coefficients [m^2/s].
-    /*! 
+    /*!
      * These are the coefficients for calculating the diffusive mass fluxes
      * from the species mass fraction gradients, computed according to
      * Eq. 12.178 in "Chemically Reacting Flow":

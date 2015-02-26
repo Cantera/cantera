@@ -120,7 +120,7 @@ public:
     doublereal filmResistivity;
 
     //! Power of the equilibrium constant within the Affinity representation
-    /*!   
+    /*!
      *  Only valid for Affinity representation.
      *  default = 1.0
      */
@@ -198,7 +198,7 @@ public:
     bool isReversibleWithFrac;
 
     //! Forward value of the apparent Electrochemical transfer coefficient
-    doublereal beta; 
+    doublereal beta;
 
     //! Arrhenius parameters for P-log reactions.
     //! The keys are the pressures corresponding to each Arrhenius expression.

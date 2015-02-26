@@ -170,7 +170,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         if (transportModel == "Simple") {
 
 	    compositionDepType_ = tr.compositionDepTypeDefault_;
-          
+
         } else {
 	    throw CanteraError("SimpleTransport::initLiquid()",
 			       "transport model isn't the correct type: " + transportModel);

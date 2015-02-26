@@ -166,7 +166,7 @@ namespace VCSnonideal
  */
 #define VCS_SPECIES_DELETED       -4
 
-//! Species refers to an electron in the metal. 
+//! Species refers to an electron in the metal.
 /*!
  *  The unknown is equal to the electric potential of the phase
  *  in which it exists.
@@ -348,7 +348,7 @@ namespace VCSnonideal
  * Typically, these species are electrons in metals. There is an
  * infinite supply of them. However, their electrical potential
  * is sometimes allowed to vary, for example if the open circuit voltage
- * is sought after. 
+ * is sought after.
  */
 #define VCS_SPECIES_TYPE_INTERFACIALVOLTAGE -5
 //@}

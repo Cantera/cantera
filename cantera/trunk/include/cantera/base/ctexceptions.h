@@ -55,7 +55,7 @@ namespace Cantera
  *  preprocessor symbol is defined, e.g. with the compiler option -DNDEBUG.
  */
 
-//! Enum containing Cantera's behavior for situations where overflow or underflow of real variables 
+//! Enum containing Cantera's behavior for situations where overflow or underflow of real variables
 //! may occur.
 /*!
  * Note this frequently occurs when taking exponentials of delta gibbs energies of reactions

@@ -764,10 +764,10 @@ public:
     void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
              const vector_fp& stoich) {
         if (order.size() != k.size()) {
-           throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");    
+           throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");
         }
         if (stoich.size() != k.size()) {
-           throw CanteraError("StoichManagerN::add()", "size of stoich and species arrays differ");    
+           throw CanteraError("StoichManagerN::add()", "size of stoich and species arrays differ");
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {

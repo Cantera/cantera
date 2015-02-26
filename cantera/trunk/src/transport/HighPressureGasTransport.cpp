@@ -6,7 +6,7 @@
  *      Binary diffusion coefficients use the generalized chart described by
  *      Takahashi, et al. and viscosity calcualtions use the Lucas method.
  *      All methods are described in Reid, Prausnitz, and Polling, "The Properties
- *      of Gases and Liquids, 4th ed., 1987 (viscosity in Ch. 9, Thermal 
+ *      of Gases and Liquids, 4th ed., 1987 (viscosity in Ch. 9, Thermal
  *      conductivity in Ch. 10, and Diffusion coefficients in Ch. 11).
  *
  **/
@@ -125,7 +125,7 @@ double HighPressureGasTransport::thermalConductivity()
     doublereal Lstar_m = H_m*(L_1m + L_2m + L_3m);
 
     return Lprime_m + Lstar_m;
-    
+
 }
 
 void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
@@ -239,12 +239,12 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
             //   zero (this would lead to Pr_ij = Inf):
             doublereal x_i = std::max(Tiny, molefracs[i]);
             doublereal x_j = std::max(Tiny, molefracs[j]);
-            
+
             x_i = x_i/(x_i+x_j);
             x_j = x_j/(x_i+x_j);
             Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
             Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-            
+
             if (Pr_ij < 0.1) {
                 P_corr_ij = 1;
             }else {
@@ -253,21 +253,21 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
                     P_corr_ij = Tiny;
                 }
             }
-                
+
             m_bdiff(i,j) *= P_corr_ij;
         }
     }
     m_bindiff_ok = false;  // m_bdiff is overwritten by the above routine.
-    
+
     // Having corrected m_bdiff for pressure and concentration effects, the
     //    routine now procedes the same as in the low-pressure case:
-    
+
     // evaluate L0000 if the temperature or concentrations have
     // changed since it was last evaluated.
     if (!m_l0000_ok) {
         eval_L0000(DATA_PTR(molefracs));
     }
-    
+
     // invert L00,00
     int ierr = invert(m_Lmatrix, m_nsp);
     if (ierr != 0) {
@@ -276,12 +276,12 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     }
     m_l0000_ok = false;           // matrix is overwritten by inverse
     m_lmatrix_soln_ok = false;
-    
+
     doublereal pres = m_thermo->pressure();
     doublereal prefactor = 16.0 * m_temp
         *m_thermo->meanMolecularWeight()/(25.0*pres);
     doublereal c;
-    
+
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             c = prefactor/m_mw[j];
@@ -289,11 +289,11 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
         }
     }
 }
-    
+
 doublereal HighPressureGasTransport::viscosity()
 {
     // Calculate the high-pressure mixture viscosity, based on the Lucas method.
-    
+
     double Tc_mix = 0.;
     double Pc_mix_n = 0.;
     double Pc_mix_d = 0.;
@@ -312,7 +312,6 @@ doublereal HighPressureGasTransport::viscosity()
 
     x_H = molefracs[0];
     for (size_t i = 0; i < m_nsp; i++) {
-        
         // Calculate pure-species critical constants and add their contribution
         // to the mole-fraction-weighted mixture averages:
         Tc = Tcrit_i(i);
@@ -321,14 +320,14 @@ doublereal HighPressureGasTransport::viscosity()
         Tc_mix += Tc*molefracs[i];
         Pc_mix_n += molefracs[i]*Zc;           //numerator
         Pc_mix_d += molefracs[i]*Vcrit_i(i);   //denominator
-        
+
         // Need to calculate ratio of heaviest to lightest species:
         if (m_mw[i] > MW_H) {
             MW_H = m_mw[i];
             x_H = molefracs[i];
         } else if (m_mw[i] < MW_L) {
             MW_L = m_mw[i];        }
-        
+
         // Calculate reduced dipole moment for polar correction term:
         doublereal mu_ri = 52.46*100000*m_dipole(i,i)*m_dipole(i,i)
             *Pcrit_i(i)/(Tc*Tc);
@@ -339,7 +338,7 @@ doublereal HighPressureGasTransport::viscosity()
         } else { FP_mix_o += molefracs[i]*(1. + 30.55*pow(0.292 - Zc, 1.72)
                                     *fabs(0.96 + 0.1*(Tr - 0.7)));
         }
-        
+
         // Calculate contribution to quantum correction term.
         // SCD Note:  This assumes the species of interest (He, H2, and D2) have
         //   been named in this specific way.  They are perhaps the most obvious
@@ -355,28 +354,27 @@ doublereal HighPressureGasTransport::viscosity()
         } else {
             FQ_mix_o += molefracs[i];
         }
-        
     }
-    
+
     double Tr_mix = tKelvin/Tc_mix;
     double Pc_mix = GasConstant*Tc_mix*Pc_mix_n/Pc_mix_d;
     double Pr_mix = m_thermo->pressure()/Pc_mix;
     double ratio = MW_H/MW_L;
-    
+
     double ksi = pow(GasConstant*Tc_mix*3.6277*pow(10.0,53.0)/(pow(MW_mix,3)
                         *pow(Pc_mix,4)),1.0/6.0);
-    
+
     if (ratio > 9 && x_H > 0.05 && x_H < 0.7) {
         Afac = 1 - 0.01*pow(ratio,0.87);
     } else {
         Afac = 1;
     }
     FQ_mix_o *= Afac;
-    
+
     // Calculate Z1m
     Z1m = (0.807*pow(Tr_mix,0.618) - 0.357*exp(-0.449*Tr_mix)
            + 0.340*exp(-4.058*Tr_mix)+0.018)*FP_mix_o*FQ_mix_o;
-    
+
     // Calculate Z2m:
     if (Tr_mix <= 1.0){
         if (Pr_mix < Pvp_mix/Pc_mix) {
@@ -395,7 +393,7 @@ doublereal HighPressureGasTransport::viscosity()
             doublereal c_fac = 0.4489*exp(3.0578*pow(Tr_mix,-37.7332))/Tr_mix;
             doublereal d_fac = 1.7368*exp(2.2310*pow(Tr_mix,-7.6351))/Tr_mix;
             doublereal f_fac = 0.9425*exp(-0.1853*pow(Tr_mix,0.4489));
-        
+
             Z2m = Z1m*(1 + a_fac*pow(Pr_mix,1.3088)/(b_fac*pow(Pr_mix,f_fac)
                         + pow(1+c_fac*pow(Pr_mix,d_fac),-1)));
         } else {
@@ -406,10 +404,10 @@ doublereal HighPressureGasTransport::viscosity()
         throw CanteraError("HighPressureGasTransport::viscosity",
                            "State is outside the limits of the Lucas model, Tr > 40");
     }
-    
+
     // Calculate Y:
     doublereal Y = Z2m/Z1m;
-    
+
     // Return the viscosity:
     return Z2m*(1 + (FP_mix_o - 1)*pow(Y,-3))*(1 + (FQ_mix_o - 1)
             *(1/Y - 0.007*pow(log(Y),4)))/(ksi*FP_mix_o*FQ_mix_o);
@@ -439,7 +437,7 @@ doublereal HighPressureGasTransport::Pcrit_i(size_t i)
     m_thermo->setMoleFractions(&molefracs[0]);
     return pc;
 }
-    
+
 doublereal HighPressureGasTransport::Vcrit_i(size_t i)
 {
     size_t nsp = m_thermo->nSpecies();
@@ -451,7 +449,7 @@ doublereal HighPressureGasTransport::Vcrit_i(size_t i)
     m_thermo->setMoleFractions(&molefracs[0]);
     return vc;
 }
-    
+
 doublereal HighPressureGasTransport::Zcrit_i(size_t i)
 {
     size_t nsp = m_thermo->nSpecies();
