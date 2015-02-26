@@ -297,8 +297,16 @@ class Reaction(object):
 
         k_indent = ' ' * (kinstr.find('(') + 1)
 
+        options = self.kinetics.options()
         if self.duplicate:
-            kinstr = kinstr[:-1] + ",\n{0}options='duplicate')".format(k_indent)
+            options.append('duplicate')
+        if len(options) == 1:
+            optStr = repr(options[0])
+        else:
+            optStr = repr(options)
+
+        if self.duplicate:
+            kinstr = kinstr[:-1] + ",\n{0}options={1})".format(k_indent, optStr)
 
         if self.fwdOrders:
             order = ' '.join('{0}:{1}'.format(k,v)
@@ -346,6 +354,9 @@ class KineticsModel(object):
 
     def to_cti(self, reactantstr, arrow, productstr):
         raise InputParseError('to_cti is not implemented for objects of class {0}'.format(self.__class__.__name__))
+
+    def options(self):
+        return []
 
     def efficiencyString(self):
         return ' '.join('{0}:{1}'.format(mol, eff)
@@ -426,6 +437,12 @@ class Arrhenius(KineticsModel):
             Ea = "({0}, '{1}')".format(*self.Ea)
 
         return '[{0}, {1}, {2}]'.format(A, self.b, Ea)
+
+    def options(self):
+        if self.A[0] < 0:
+            return ['negative_A']
+        else:
+            return []
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstring = reactantstr + arrow + productstr
