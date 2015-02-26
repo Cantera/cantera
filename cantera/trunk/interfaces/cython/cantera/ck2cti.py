@@ -1403,7 +1403,7 @@ class Parser(object):
                     tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'SPEC'):
+                        if line.strip()[:4].upper() == 'SPEC':
                             self.warn('"ELEMENTS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1424,8 +1424,7 @@ class Parser(object):
                     inHeader = False
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if (contains(line, 'REAC') or contains(line, 'TRAN') or
-                            contains(line, 'THER')):
+                        if line.strip()[:4].upper() in ('REAC', 'TRAN', 'THER'):
                             self.warn('"SPECIES" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1458,7 +1457,7 @@ class Parser(object):
                     entry = []
                     while line is not None and not get_index(line, 'END') == 0:
                         # Grudging support for implicit end of section
-                        if (contains(line, 'REAC') or contains(line, 'TRAN')):
+                        if line.strip()[:4].upper() in ('REAC', 'TRAN'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1526,7 +1525,7 @@ class Parser(object):
                     thermo = []
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'REAC') or contains(line, 'TRAN'):
+                        if line.strip()[:4].upper() in ('REAC', 'TRAN'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1595,7 +1594,7 @@ class Parser(object):
                     line, comment = readline()
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'TRAN'):
+                        if line.strip()[:4].upper() == 'TRAN':
                             self.warn('"REACTIONS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1653,7 +1652,7 @@ class Parser(object):
                     transport_start_line = self.line_number
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if contains(line, 'REAC'):
+                        if line.strip()[:4].upper() == 'REAC':
                             self.warn('"TRANSPORT" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
