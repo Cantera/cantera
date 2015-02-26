@@ -603,15 +603,13 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
          * "undeclared" will skip undeclared third body efficiencies (while
          * retaining the reaction and any other efficiencies).
          */
-        ReactionRules rxnrule;
         if (rxns.hasChild("skip")) {
             const XML_Node& sk = rxns.child("skip");
-            string sskip = sk["species"];
-            if (sskip == "undeclared") {
-                rxnrule.skipUndeclaredSpecies = true;
+            if (sk["species"] == "undeclared") {
+                kin.skipUndeclaredSpecies(true);
             }
             if (sk["third_bodies"] == "undeclared") {
-                rxnrule.skipUndeclaredThirdBodies = true;
+                kin.skipUndeclaredThirdBodies(true);
             }
         }
         /*
