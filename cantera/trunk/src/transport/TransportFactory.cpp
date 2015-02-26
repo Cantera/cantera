@@ -286,6 +286,15 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
+void TransportFactory::initTransport(Transport* tr, thermo_t* thermo,
+                                     int mode, int log_level)
+{
+    warn_deprecated("TransportFactory::initTransport",
+                    "To be removed after Cantera 2.2. This initialization is "
+                    "now handled directly by GasTransport::init");
+    tr->init(thermo);
+}
+
 void TransportFactory::setupLiquidTransport(thermo_t* thermo, int log_level,
         LiquidTransportParams& trParam)
 {

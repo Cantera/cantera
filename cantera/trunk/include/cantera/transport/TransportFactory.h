@@ -107,6 +107,22 @@ public:
     virtual Transport*
     newTransport(thermo_t* thermo, int log_level=0);
 
+    //! Initialize an existing transport manager
+    /*!
+     *  This routine sets up an existing gas-phase transport manager. It
+     *  calculates the collision integrals and calls the initGas() function to
+     *  populate the species-dependent data structure.
+     *
+     *  @param tr        Pointer to the Transport manager
+     *  @param thermo    Pointer to the ThermoPhase object
+     *  @param mode      Chemkin compatible mode or not. This alters the specification of the
+     *                   collision integrals. defaults to no.
+     *  @param log_level Defaults to zero, no logging
+     *  @deprecated To be removed after Cantera 2.2. This initialization is now
+     *      handled directly by GasTransport::init.
+     */
+    virtual void initTransport(Transport* tr, thermo_t* thermo, int mode=0, int log_level=0);
+
     //! Initialize an existing transport manager for liquid phase
     /*!
      *  This routine sets up an existing liquid-phase transport manager. It is
