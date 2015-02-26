@@ -25,7 +25,7 @@ public:
      *  but is not meant to be used in most applications.  Use the next
      *  constructor
      */
-    Sim1D();
+    Sim1D() {}
 
     /**
      * Standard constructor.

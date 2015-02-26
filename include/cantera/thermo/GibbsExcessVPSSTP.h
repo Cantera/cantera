@@ -108,7 +108,7 @@ public:
      * density conservation and therefore element conservation
      * is the more important principle to follow.
      */
-    GibbsExcessVPSSTP();
+    GibbsExcessVPSSTP() {}
 
     //! Copy constructor
     /*!

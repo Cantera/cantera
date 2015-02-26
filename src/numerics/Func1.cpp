@@ -23,10 +23,6 @@ Func1::Func1(const Func1& right) :
 {
 }
 
-Func1::~Func1()
-{
-}
-
 Func1& Func1::operator=(const Func1& right)
 {
     if (&right == this) {

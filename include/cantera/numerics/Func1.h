@@ -43,8 +43,7 @@ class Func1
 public:
     Func1();
 
-    virtual ~Func1();
-
+    virtual ~Func1() {}
 
     Func1(const Func1& right);
 

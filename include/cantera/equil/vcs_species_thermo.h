@@ -93,7 +93,7 @@ public:
     int m_VCS_UnitsFormat;
 
     VCS_SPECIES_THERMO(size_t indexPhase, size_t indexSpeciesPhase);
-    virtual ~VCS_SPECIES_THERMO();
+    virtual ~VCS_SPECIES_THERMO() {}
 
     VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b);
     VCS_SPECIES_THERMO& operator=(const VCS_SPECIES_THERMO& b);

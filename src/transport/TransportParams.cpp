@@ -24,10 +24,6 @@ TransportParams::TransportParams() :
 {
 }
 
-TransportParams::~TransportParams()
-{
-}
-
 GasTransportParams::GasTransportParams() :
     TransportParams(),
     visccoeffs(0),

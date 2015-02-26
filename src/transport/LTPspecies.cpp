@@ -91,10 +91,6 @@ LTPspecies* LTPspecies::duplMyselfAsLTPspecies() const
     return new LTPspecies(*this);
 }
 
-LTPspecies::~LTPspecies()
-{
-}
-
 doublereal LTPspecies::getSpeciesTransProp()
 {
     return 0.0;

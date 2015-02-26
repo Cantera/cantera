@@ -105,7 +105,7 @@ public:
     LTPspecies& operator=(const LTPspecies& right);
 
     //! Destructor
-    virtual ~LTPspecies();
+    virtual ~LTPspecies() {}
 
     //! Duplication routine
     /*!

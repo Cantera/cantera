@@ -42,10 +42,6 @@ VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spthermo) :
     }
 }
 
-VPSSMgr::~VPSSMgr()
-{
-}
-
 VPSSMgr::VPSSMgr(const VPSSMgr& right) :
     m_kk(0),
     m_vptp_ptr(0),

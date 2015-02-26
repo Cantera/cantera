@@ -29,7 +29,7 @@ class ConstDensityThermo : public ThermoPhase
 {
 public:
     //! Constructor.
-    ConstDensityThermo();
+    ConstDensityThermo() {}
 
     //! Copy Constructor
     /*!

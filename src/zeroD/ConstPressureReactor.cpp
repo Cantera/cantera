@@ -13,8 +13,6 @@ using namespace std;
 namespace Cantera
 {
 
-ConstPressureReactor::ConstPressureReactor() : Reactor() {}
-
 void ConstPressureReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
     if (m_thermo == 0) {

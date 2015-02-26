@@ -23,8 +23,8 @@ namespace Cantera
 class MMCollisionInt
 {
 public:
-    MMCollisionInt();
-    virtual ~MMCollisionInt();
+    MMCollisionInt() {}
+    virtual ~MMCollisionInt() {}
 
     //! Initialize the object for calculation
     /*!

@@ -24,10 +24,6 @@ ReactionStoichMgr::ReactionStoichMgr()
     m_dummy.resize(10,1.0);
 }
 
-ReactionStoichMgr::~ReactionStoichMgr()
-{
-}
-
 ReactionStoichMgr::ReactionStoichMgr(const  ReactionStoichMgr& right) :
     m_reactants(right.m_reactants),
     m_revproducts(right.m_revproducts),

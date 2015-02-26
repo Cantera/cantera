@@ -39,7 +39,7 @@ public:
     GeneralMatrix& operator=(const GeneralMatrix& right);
 
     //! Destructor. Does nothing.
-    virtual ~GeneralMatrix();
+    virtual ~GeneralMatrix() {}
 
     //! Duplicator member function
     /*!

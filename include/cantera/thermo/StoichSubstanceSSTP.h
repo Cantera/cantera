@@ -158,7 +158,7 @@ class StoichSubstanceSSTP : public SingleSpeciesTP
 {
 public:
     //! Default constructor for the StoichSubstanceSSTP class
-    StoichSubstanceSSTP();
+    StoichSubstanceSSTP() {}
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an ASCII input file
@@ -521,7 +521,7 @@ public:
     electrodeElectron& operator=(const electrodeElectron& right);
 
     //! Destructor
-    virtual ~electrodeElectron();
+    virtual ~electrodeElectron() {}
 
     void setParametersFromXML(const XML_Node& eosdata);
 

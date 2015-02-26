@@ -28,11 +28,11 @@ class RxnOrders {
 
   public:
    //! constructors
-   RxnOrders();
+   RxnOrders() {}
 
    RxnOrders(const RxnOrders &right);
 
-   ~RxnOrders();
+   ~RxnOrders() {}
 
    RxnOrders& operator=(const RxnOrders &right);
 

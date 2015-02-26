@@ -36,7 +36,7 @@ public:
     RxnMolChange(Cantera::Kinetics* kinPtr, int irxn);
 
     //! Destructor
-    ~RxnMolChange();
+    ~RxnMolChange() {}
 
     //!  Constructor for the object if the object refers to a global reaction
     /*!

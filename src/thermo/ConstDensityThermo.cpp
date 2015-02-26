@@ -15,11 +15,6 @@ using namespace ctml;
 namespace Cantera
 {
 
-ConstDensityThermo::ConstDensityThermo()
-{
-}
-
-
 ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo& right)
 {
     *this = right;

@@ -154,11 +154,5 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, Cantera::ExtraGlobalRxn* e
 
 }
 
-
-RxnMolChange::~RxnMolChange()
-{
-
-}
-
 }
 

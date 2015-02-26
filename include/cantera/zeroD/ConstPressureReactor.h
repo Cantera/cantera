@@ -23,7 +23,7 @@ namespace Cantera
 class ConstPressureReactor : public Reactor
 {
 public:
-    ConstPressureReactor();
+    ConstPressureReactor() {}
 
     virtual int type() const {
         return ConstPressureReactorType;

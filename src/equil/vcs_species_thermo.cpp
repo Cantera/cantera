@@ -43,10 +43,6 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
     SS0_Pref = 1.01325E5;
 }
 
-VCS_SPECIES_THERMO::~VCS_SPECIES_THERMO()
-{
-}
-
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
     IndexPhase(b.IndexPhase),
     IndexSpeciesPhase(b.IndexSpeciesPhase),

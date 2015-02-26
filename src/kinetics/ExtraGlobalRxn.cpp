@@ -107,10 +107,6 @@ ExtraGlobalRxn::ExtraGlobalRxn(Kinetics* k_ptr) :
     m_nKinSpecies = m_kinetics->nTotalSpecies();
 }
 //============================================================================================================
-ExtraGlobalRxn::~ExtraGlobalRxn()
-{
-}
-//============================================================================================================
 void ExtraGlobalRxn::setupElemRxnVector(double* RxnVector,
                                         int specialSpecies)
 {

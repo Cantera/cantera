@@ -37,8 +37,4 @@ GeneralMatrix&  GeneralMatrix::operator=(const GeneralMatrix& y)
     return *this;
 }
 
-GeneralMatrix::~GeneralMatrix()
-{
-}
-
 }

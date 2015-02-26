@@ -93,10 +93,6 @@ RootFind::RootFind(const RootFind& r) :
     *this = r;
 }
 
-RootFind::~RootFind()
-{
-}
-
 RootFind& RootFind::operator=(const RootFind& right)
 {
     if (this == &right) {

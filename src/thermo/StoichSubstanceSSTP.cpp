@@ -24,10 +24,6 @@ namespace Cantera
  * ----  Constructors -------
  */
 
-StoichSubstanceSSTP::StoichSubstanceSSTP()
-{
-}
-
 StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string id_)
 {
     XML_Node* root = get_XML_File(infile);
@@ -313,10 +309,6 @@ electrodeElectron::operator=(const electrodeElectron& right)
         StoichSubstanceSSTP::operator=(right);
     }
     return *this;
-}
-
-electrodeElectron::~electrodeElectron()
-{
 }
 
 void electrodeElectron::setParametersFromXML(const XML_Node& eosdata)

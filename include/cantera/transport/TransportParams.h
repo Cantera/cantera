@@ -21,7 +21,7 @@ class TransportParams
 {
 public:
     TransportParams();
-    virtual ~TransportParams();
+    virtual ~TransportParams() {}
 
     //! Local storage of the number of species
     size_t nsp_;
