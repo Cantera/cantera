@@ -133,11 +133,14 @@ private:
     const SpeciesThermoInterpType* provideSTIT(size_t k) const;
 
 protected:
-    typedef std::map<int, std::vector<shared_ptr<SpeciesThermoInterpType> > > STIT_map;
+    typedef std::pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
+    typedef std::map<int, std::vector<index_STIT> > STIT_map;
     typedef std::map<int, std::vector<double> > tpoly_map;
     /**
-     * This is the main unknown in the object. It contains pointers to
+     * This is the main data structure, which contains the
      * SpeciesThermoInterpType objects, sorted by the parameterization type.
+     * `m_sp[i]` is the vector of [species index, STIT] pairs which use
+     * parameterization `i`.
      */
     STIT_map m_sp;
 
