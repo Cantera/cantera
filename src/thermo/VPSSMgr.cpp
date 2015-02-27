@@ -395,9 +395,8 @@ void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,
                                const XML_Node* phaseNode_ptr)
 {
     SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(s);
-    stit->setIndex(k);
     stit->validate(s["name"]);
-    m_spthermo->install_STIT(stit);
+    m_spthermo->install_STIT(k, stit);
     if (m_p0 < 0.0) {
         m_p0 = m_spthermo->refPressure(k);
     }

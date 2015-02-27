@@ -104,9 +104,8 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     }
 
     SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(speciesNode);
-    stit->setIndex(k);
     stit->validate(speciesNode["name"]);
-    m_spthermo->install_STIT(stit);
+    m_spthermo->install_STIT(k, stit);
 
     PDSS* kPDSS = new PDSS_IdealGas(m_vptp_ptr, k, speciesNode,
                                     *phaseNode_ptr, true);

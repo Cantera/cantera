@@ -584,8 +584,7 @@ void SpeciesThermoFactory::installThermoForSpecies
 {
     SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(speciesNode);
     stit->validate(speciesNode["name"]);
-    stit->setIndex(k);
-    spthermo.install_STIT(stit);
+    spthermo.install_STIT(k, stit);
 }
 
 void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,

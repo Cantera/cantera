@@ -81,7 +81,7 @@ public:
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure);
 
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr);
+    virtual void install_STIT(size_t index, SpeciesThermoInterpType* stit_ptr);
 
     //! Install a PDSS object to handle the reference state thermodynamics
     //! calculation

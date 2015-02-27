@@ -198,10 +198,12 @@ public:
     //! Install a new species thermodynamic property
     //! parameterization for one species.
     /*!
+     * @param index Index of the species being installed
      * @param stit_ptr Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) = 0;
+    virtual void install_STIT(size_t index,
+                              SpeciesThermoInterpType* stit_ptr) = 0;
 
     //! Compute the reference-state properties for all species.
     /*!

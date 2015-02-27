@@ -700,8 +700,8 @@ bool ThermoPhase::addSpecies(const Species& spec)
     if (added) {
         Species& s = m_species[spec.name];
         s.thermo().validate(spec.name);
-        s.thermo().setIndex(m_kk-1);
-        m_spthermo->install_STIT(s.thermo().duplMyselfAsSpeciesThermoInterpType());
+        m_spthermo->install_STIT(m_kk-1,
+                s.thermo().duplMyselfAsSpeciesThermoInterpType());
     }
     return added;
 }

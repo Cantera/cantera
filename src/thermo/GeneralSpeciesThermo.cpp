@@ -107,21 +107,20 @@ void GeneralSpeciesThermo::install(const std::string& name,
      */
     SpeciesThermoInterpType* sp = newSpeciesThermoInterpType(type,
         minTemp_, maxTemp_, refPressure_, c);
-    sp->setIndex(index);
     sp->validate(name);
-    install_STIT(sp);
+    install_STIT(index, sp);
 }
 
-void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
+void GeneralSpeciesThermo::install_STIT(size_t index,
+                                        SpeciesThermoInterpType* stit_ptr)
 {
     if (!stit_ptr) {
         throw CanteraError("GeneralSpeciesThermo::install_STIT",
                            "zero pointer");
     }
-    size_t index = stit_ptr->speciesIndex();
     AssertThrow(m_speciesLoc.find(index) == m_speciesLoc.end(),
                 "Index position isn't null, duplication of assignment: " + int2str(index));
-
+    stit_ptr->setIndex(index);
     int type = stit_ptr->reportType();
     m_speciesLoc[index] = std::make_pair(type, m_sp[type].size());
     m_sp[type].push_back(stit_ptr);
@@ -139,7 +138,7 @@ void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
     STITbyPDSS* stit_ptr = new STITbyPDSS(k, vpssmgr_ptr, PDSS_ptr);
-    install_STIT(stit_ptr);
+    install_STIT(k, stit_ptr);
 }
 
 void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
