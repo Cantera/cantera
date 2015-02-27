@@ -97,6 +97,9 @@ void GeneralSpeciesThermo::install(const std::string& name,
                                    doublereal maxTemp_,
                                    doublereal refPressure_)
 {
+    warn_deprecated("GeneralSpeciesThermo::install",
+            "Use newSpeciesThermoInterpType and "
+            "GeneralSpeciesThermo::install_STIT instead");
     if (minTemp_ <= 0.0) {
         throw CanteraError("GeneralSpeciesThermo::install",
                            "T_min must be positive");

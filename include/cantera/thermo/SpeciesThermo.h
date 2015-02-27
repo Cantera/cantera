@@ -189,6 +189,8 @@ public:
      *                 is valid.
      * @param refPressure standard-state pressure for this
      *                    parameterization.
+     * @deprecated Use newSpeciesThermoInterpType and
+     *     GeneralSpeciesThermo::install_STIT. To be removed after Cantera 2.2.
      */
     virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,

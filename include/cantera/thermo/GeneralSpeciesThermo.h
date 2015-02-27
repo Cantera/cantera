@@ -73,8 +73,8 @@ public:
      * @param refPressure standard-state pressure for this parameterization.
      * @see speciesThermoTypes.h
      *
-     * @todo Create a factory method for SpeciesThermoInterpType.
-     *       That's basically what we are doing here.
+     * @deprecated Use newSpeciesThermoInterpType and
+     *     GeneralSpeciesThermo::install_STIT. To be removed after Cantera 2.2.
      */
     virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,

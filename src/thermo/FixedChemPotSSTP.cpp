@@ -14,8 +14,9 @@
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/thermo/SimpleThermo.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
@@ -91,7 +92,9 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     c[1] = val;
     c[2] = 0.0;
     c[3] = 0.0;
-    m_spthermo->install(pname, 0, SIMPLE, c, 0.1, 1.0E30, OneAtm);
+    SpeciesThermoInterpType* stit =
+            newSpeciesThermoInterpType("const_cp", 0.1, 1e30, OneAtm, c);
+    m_spthermo->install_STIT(0, stit);
     initThermo();
     m_p0 = OneAtm;
     m_tlast = 298.15;
