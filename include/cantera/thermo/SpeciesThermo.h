@@ -10,6 +10,7 @@
 #define CT_SPECIESTHERMO_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
@@ -201,11 +202,11 @@ public:
     //! parameterization for one species.
     /*!
      * @param index Index of the species being installed
-     * @param stit_ptr Pointer to the SpeciesThermoInterpType object
+     * @param stit Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
     virtual void install_STIT(size_t index,
-                              SpeciesThermoInterpType* stit_ptr) = 0;
+                              shared_ptr<SpeciesThermoInterpType> stit) = 0;
 
     //! Compute the reference-state properties for all species.
     /*!

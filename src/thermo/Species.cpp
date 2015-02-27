@@ -11,7 +11,6 @@ namespace Cantera {
 Species::Species()
     : charge(std::numeric_limits<double>::quiet_NaN())
     , size(std::numeric_limits<double>::quiet_NaN())
-    , thermo_(0)
 {
 }
 
@@ -21,13 +20,12 @@ Species::Species(const std::string& name_, const compositionMap& comp_,
     , composition(comp_)
     , charge(charge_)
     , size(size_)
-    , thermo_(therm)
+    , thermo(therm)
 {
 }
 
 Species::~Species()
 {
-    delete thermo_;
 }
 
 Species::Species(const Species& other)
@@ -37,10 +35,8 @@ Species::Species(const Species& other)
     , size(other.size)
     , transport(other.transport)
 {
-    if (other.thermo_) {
-        thermo_ = other.thermo_->duplMyselfAsSpeciesThermoInterpType();
-    } else {
-        thermo_ = 0;
+    if (other.thermo) {
+        thermo.reset(other.thermo->duplMyselfAsSpeciesThermoInterpType());
     }
 }
 
@@ -54,24 +50,10 @@ Species& Species::operator=(const Species& other)
     charge = other.charge;
     size = other.size;
     transport = other.transport;
-    delete thermo_;
-    if (other.thermo_) {
-        thermo_ = other.thermo_->duplMyselfAsSpeciesThermoInterpType();
-    } else {
-        thermo_ = 0;
+    if (other.thermo) {
+        thermo.reset(other.thermo->duplMyselfAsSpeciesThermoInterpType());
     }
     return *this;
-}
-
-
-SpeciesThermoInterpType& Species::thermo()
-{
-    if (thermo_) {
-        return *thermo_;
-    } else {
-        throw CanteraError("Species::thermo",
-                           "No thermo for species " + name);
-    }
 }
 
 }

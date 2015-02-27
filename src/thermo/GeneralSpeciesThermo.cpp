@@ -26,14 +26,14 @@ GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
     m_thigh_min(b.m_thigh_min),
     m_p0(b.m_p0)
 {
-    clear();
+    m_sp.clear();
     // Copy SpeciesThermoInterpTypes from 'b'
     for (STIT_map::const_iterator iter = b.m_sp.begin();
          iter != b.m_sp.end();
          iter++) {
         for (size_t k = 0; k < iter->second.size(); k++) {
-            const SpeciesThermoInterpType* spec = iter->second[k];
-            m_sp[iter->first].push_back(spec->duplMyselfAsSpeciesThermoInterpType());
+            shared_ptr<SpeciesThermoInterpType> spec(iter->second[k]->duplMyselfAsSpeciesThermoInterpType());
+            m_sp[iter->first].push_back(spec);
         }
     }
 }
@@ -46,14 +46,14 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     }
 
     SpeciesThermo::operator=(b);
-    clear();
+    m_sp.clear();
     // Copy SpeciesThermoInterpType objects from 'b'
     for (STIT_map::const_iterator iter = b.m_sp.begin();
          iter != b.m_sp.end();
          iter++) {
         for (size_t k = 0; k < iter->second.size(); k++) {
-            const SpeciesThermoInterpType* spec = iter->second[k];
-            m_sp[iter->first].push_back(spec->duplMyselfAsSpeciesThermoInterpType());
+            shared_ptr<SpeciesThermoInterpType> spec(iter->second[k]->duplMyselfAsSpeciesThermoInterpType());
+            m_sp[iter->first].push_back(spec);
         }
     }
 
@@ -66,27 +66,10 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     return *this;
 }
 
-GeneralSpeciesThermo::~GeneralSpeciesThermo()
-{
-    clear();
-}
-
 SpeciesThermo*
 GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
 {
     return new GeneralSpeciesThermo(*this);
-}
-
-void GeneralSpeciesThermo::clear()
-{
-    for (STIT_map::const_iterator iter = m_sp.begin();
-         iter != m_sp.end();
-         iter++) {
-        for (size_t k = 0; k < iter->second.size(); k++) {
-            delete iter->second[k];
-        }
-    }
-    m_sp.clear();
 }
 
 void GeneralSpeciesThermo::install(const std::string& name,
@@ -108,14 +91,14 @@ void GeneralSpeciesThermo::install(const std::string& name,
     /*
      * Create the necessary object
      */
-    SpeciesThermoInterpType* sp = newSpeciesThermoInterpType(type,
-        minTemp_, maxTemp_, refPressure_, c);
+    shared_ptr<SpeciesThermoInterpType> sp(newSpeciesThermoInterpType(type,
+        minTemp_, maxTemp_, refPressure_, c));
     sp->validate(name);
     install_STIT(index, sp);
 }
 
 void GeneralSpeciesThermo::install_STIT(size_t index,
-                                        SpeciesThermoInterpType* stit_ptr)
+                                        shared_ptr<SpeciesThermoInterpType> stit_ptr)
 {
     if (!stit_ptr) {
         throw CanteraError("GeneralSpeciesThermo::install_STIT",
@@ -140,7 +123,7 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
-    STITbyPDSS* stit_ptr = new STITbyPDSS(k, vpssmgr_ptr, PDSS_ptr);
+    shared_ptr<SpeciesThermoInterpType> stit_ptr(new STITbyPDSS(k, vpssmgr_ptr, PDSS_ptr));
     install_STIT(k, stit_ptr);
 }
 
@@ -159,7 +142,7 @@ void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
     STIT_map::const_iterator iter = m_sp.begin();
     tpoly_map::iterator jter = m_tpoly.begin();
     for (; iter != m_sp.end(); iter++, jter++) {
-        const std::vector<SpeciesThermoInterpType*>& species = iter->second;
+        const std::vector<shared_ptr<SpeciesThermoInterpType> >& species = iter->second;
         double* tpoly = &jter->second[0];
         species[0]->updateTemperaturePoly(t, tpoly);
         for (size_t k = 0; k < species.size(); k++) {
@@ -232,7 +215,7 @@ SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
 {
     try {
         const std::pair<int, size_t>& loc = getValue(m_speciesLoc, k);
-        return getValue(m_sp, loc.first)[loc.second];
+        return getValue(m_sp, loc.first)[loc.second].get();
     } catch (std::out_of_range&) {
         return 0;
     }
@@ -242,7 +225,7 @@ const SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k) const
 {
     try {
         const std::pair<int, size_t>& loc = getValue(m_speciesLoc, k);
-        return getValue(m_sp, loc.first)[loc.second];
+        return getValue(m_sp, loc.first)[loc.second].get();
     } catch (std::out_of_range&) {
         return 0;
     }

@@ -15,6 +15,7 @@
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 
@@ -92,8 +93,8 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     c[1] = val;
     c[2] = 0.0;
     c[3] = 0.0;
-    SpeciesThermoInterpType* stit =
-            newSpeciesThermoInterpType("const_cp", 0.1, 1e30, OneAtm, c);
+    shared_ptr<SpeciesThermoInterpType> stit(
+            newSpeciesThermoInterpType("const_cp", 0.1, 1e30, OneAtm, c));
     m_spthermo->install_STIT(0, stit);
     initThermo();
     m_p0 = OneAtm;

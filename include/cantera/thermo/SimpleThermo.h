@@ -181,7 +181,8 @@ public:
         markInstalled(index);
     }
 
-    virtual void install_STIT(size_t index, SpeciesThermoInterpType* stit_ptr) {
+    virtual void install_STIT(size_t index,
+                              shared_ptr<SpeciesThermoInterpType> stit_ptr) {
         throw CanteraError("install_STIT", "not implemented");
     }
 

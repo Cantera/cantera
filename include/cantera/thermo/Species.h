@@ -35,9 +35,6 @@ public:
     Species& operator=(const Species& other);
     ~Species();
 
-    //! Access the thermodynamic parameterization for the species
-    SpeciesThermoInterpType& thermo();
-
     //! The name of the species
     std::string name;
 
@@ -53,9 +50,8 @@ public:
 
     shared_ptr<TransportData> transport;
 
-protected:
     //! Thermodynamic data for the species
-    SpeciesThermoInterpType* thermo_;
+    shared_ptr<SpeciesThermoInterpType> thermo;
 };
 
 }

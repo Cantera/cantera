@@ -43,9 +43,6 @@ public:
      */
     GeneralSpeciesThermo& operator=(const GeneralSpeciesThermo& b);
 
-    //! Destructor
-    virtual ~GeneralSpeciesThermo();
-
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const ;
 
     //! Install a new species thermodynamic property
@@ -81,7 +78,8 @@ public:
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure);
 
-    virtual void install_STIT(size_t index, SpeciesThermoInterpType* stit_ptr);
+    virtual void install_STIT(size_t index,
+                              shared_ptr<SpeciesThermoInterpType> stit_ptr);
 
     //! Install a PDSS object to handle the reference state thermodynamics
     //! calculation
@@ -134,16 +132,12 @@ private:
     SpeciesThermoInterpType* provideSTIT(size_t k);
     const SpeciesThermoInterpType* provideSTIT(size_t k) const;
 
-    void clear(); //<! Delete owned SpeciesThermoInterpType objects.
-
 protected:
-    typedef std::map<int, std::vector<SpeciesThermoInterpType*> > STIT_map;
+    typedef std::map<int, std::vector<shared_ptr<SpeciesThermoInterpType> > > STIT_map;
     typedef std::map<int, std::vector<double> > tpoly_map;
     /**
      * This is the main unknown in the object. It contains pointers to
      * SpeciesThermoInterpType objects, sorted by the parameterization type.
-     * This object owns the SpeciesThermoInterpType objects, so they are deleted
-     * in the destructor of this object.
      */
     STIT_map m_sp;
 

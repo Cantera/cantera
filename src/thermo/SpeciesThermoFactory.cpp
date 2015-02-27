@@ -582,7 +582,7 @@ void SpeciesThermoFactory::installThermoForSpecies
 (size_t k, const XML_Node& speciesNode, ThermoPhase* th_ptr,
  SpeciesThermo& spthermo, const XML_Node* phaseNode_ptr) const
 {
-    SpeciesThermoInterpType* stit = newSpeciesThermoInterpType(speciesNode);
+    shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(speciesNode));
     stit->validate(speciesNode["name"]);
     spthermo.install_STIT(k, stit);
 }
