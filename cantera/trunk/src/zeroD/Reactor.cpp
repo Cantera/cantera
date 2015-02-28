@@ -67,6 +67,10 @@ void Reactor::getSurfaceInitialConditions(double* y)
 
 void Reactor::initialize(doublereal t0)
 {
+    if (!m_thermo || !m_kin) {
+        throw CanteraError("Reactor::initialize", "Reactor contents not set"
+                " for reactor '" + m_name + "'.");
+    }
     m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
