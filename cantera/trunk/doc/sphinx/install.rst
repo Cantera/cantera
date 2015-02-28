@@ -157,88 +157,121 @@ version of Cantera and builds the Python 2.7 module.
 Homebrew
 ---------
 These instructions have been tested on Mac OS X 10.9 (Mavericks) with Xcode 5.1
-and Mac OS X 10.10 (Yosemite) with Xcode 6.1.
+and Mac OS X 10.10 (Yosemite) with Xcode 6.1. If you've used Homebrew before,
+you can skip any steps which have already been completed.
 
-Prerequisites
-~~~~~~~~~~~~~
+1. **Install Xcode and Homebrew**
 
-If you've used Homebrew before, you may have already completed some of these
-steps and can skip them.
+   - Install Xcode from the App Store
 
-- Install Xcode from the App store
+   - From a Terminal, run::
 
-- From a Terminal, run::
+         sudo xcode-select --install
+         sudo xcodebuild -license
 
-      sudo xcode-select --install
+     and agree to the Xcode license agreement.
 
-  and agree to the Xcode license agreement
+   - Install `Homebrew <http://brew.sh/>`_ by running the following command in a
+     Terminal::
 
-- Install `Homebrew <http://brew.sh/>`_
+         ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
-- Run the following commands::
+2. **Set up the compilation environment**
 
-      brew tap homebrew/science
-      brew update
-      brew install python scons sundials
+   - Run the following commands::
 
-- Put ``/usr/local/bin`` at the front of your path, e.g. add the following to
-  ``~/.bash_profile`` (creating this file if it doesn't already exist)::
+         brew tap homebrew/science
+         brew update
+         brew install python scons sundials
 
-      export PATH=/usr/local/bin:$PATH
+   - Verify that your path is set up to use Homebrew's version of Python by
+     running::
 
-- Run::
+         which python
 
-      source ~/.bash_profile
+     If this command does not print ``/usr/local/bin/python``, add the following
+     to ``~/.bash_profile`` (creating this file if it doesn't already exist; you
+     can use the command line editor ``nano`` to edit this file)::
 
-- If you want to build the Cantera Python 2 module, run::
+         export PATH=/usr/local/bin:$PATH
 
-      pip install cython numpy
+     and then run::
 
-- If you want to build the Cantera Python 3 module, run::
+         source ~/.bash_profile
 
-      brew install python3
-      pip3 install numpy cython
+   - Install Python packages required to compile Cantera by running::
 
-Installing Cantera
-~~~~~~~~~~~~~~~~~~
+         pip install cython numpy
 
-The installation command for Cantera supports several options:
+     Note that these packages are required even if you do not plan on using the
+     Cantera Python 2 module.
 
-- To install Cantera with additional patches that will be included in the next
-  maintenance release, use the flag: ``--devel``
+   - If you want to build the Cantera Python 3 module, run::
 
-- To Install the current development version of Cantera, use the flag:
-  ``--HEAD``
+         brew install python3
+         pip3 install numpy cython
 
-- To install the Matlab toolbox, use the flag
-  ``--with-matlab=/Applications/MATLAB_R2014a.app/`` (with the version modified
-  to match your installed Matlab version)
+3. **Compile and install Cantera**
 
-Install Cantera by adding the desired options to the ``brew install`` command,
-e.g.::
+   * To compile and install Cantera using the default configuration, run::
 
-    brew install cantera --devel --with-matlab=/Applications/MATLAB_R2014a.app/
+         brew install cantera
 
-The Matlab toolbox, if enabled, will be installed in::
+   * The following options are supported:
 
-    /usr/local/lib/cantera/matlab
+     ``--devel``
+         Installs Cantera with additional patches that will be included in the
+         next maintenance release.
 
-To use the Cantera Matlab toolbox, run the following commands in Matlab (each
-time you start Matlab), or add them to a ``startup.m`` file located in
-``/Users/$USER/Documents/MATLAB``, where ``$USER`` is your username::
+     ``--HEAD``
+         Installs the current development version of Cantera.
 
-    addpath(genpath('/usr/local/lib/cantera/matlab'))
-    setenv('PYTHON_CMD', '/usr/local/bin/python')
+     ``--with-matlab=/Applications/MATLAB_R2014a.app/``
+         Installs the Matlab toolbox (with the path modified to match your
+         installed Matlab version)
 
-The Matlab examples will be installed in::
+   * These options are specified as additional arguments to the ``brew install``
+     command, e.g.::
 
-    /usr/local/share/cantera/samples/matlab
+         brew install cantera --devel --with-matlab=/Applications/MATLAB_R2014a.app/
 
-The Python examples will be installed in::
+4. **Test Cantera Installation (Python)**
 
-   /usr/local/lib/pythonX.Y/site-packages/cantera/examples/
+   * The Python examples will be installed in::
 
-where ``X.Y`` is your Python version, e.g. ``2.7``.
+         /usr/local/lib/pythonX.Y/site-packages/cantera/examples/
+
+     where ``X.Y`` is your Python version, e.g. ``2.7``.
+
+   * You may find it convenient to copy the examples to your Desktop::
+
+         cp -r /usr/local/lib/python2.7/site-packages/cantera/examples ~/Desktop/cantera_examples
+
+   * To run an example::
+
+         cd cantera_examples/reactors
+         python reactor1.py
+
+5. **Test Cantera Installation (Matlab)**
+
+   * The Matlab toolbox, if enabled, will be installed in::
+
+         /usr/local/lib/cantera/matlab
+
+   * To use the Cantera Matlab toolbox, run the following commands in Matlab
+     (each time you start Matlab), or add them to a ``startup.m`` file located
+     in ``/Users/$USER/Documents/MATLAB``, where ``$USER`` is your username::
+
+         addpath(genpath('/usr/local/lib/cantera/matlab'))
+         setenv('PYTHON_CMD', '/usr/local/bin/python')
+
+   * The Matlab examples will be installed in::
+
+         /usr/local/share/cantera/samples/matlab
+
+   * You may find it convenient to copy the examples to your user directory::
+
+         cp -r /usr/local/share/cantera/samples/matlab ~/Documents/MATLAB/cantera_examples
 
 MacPorts
 --------
