@@ -4,7 +4,7 @@ multicomponent transport properties and a specified temperature profile.
 """
 
 import cantera as ct
-
+import numpy as np
 
 # read temperature vs. position data from a file.
 # The file is assumed to have one z, T pair per line, separated by a comma.
@@ -50,10 +50,8 @@ tburner = 373.7  # burner temperature
 mdot = 0.04  # kg/m^2/s
 comp = 'CH4:0.65, O2:1, N2:3.76'  # premixed gas composition
 
-# The solution domain is chosen to be 1 cm, and a point very near the
-# downstream boundary is added to help with the zero-gradient boundary
-# condition at this boundary.
-initial_grid = [0.0, 0.0025, 0.005, 0.0075, 0.0099, 0.01]  # m
+# The solution domain is chosen to be 1 cm
+initial_grid = np.linspace(0.0, 0.01, 6) # m
 
 tol_ss = [1.0e-5, 1.0e-9]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-5, 1.0e-4]  # [rtol atol] for time stepping
