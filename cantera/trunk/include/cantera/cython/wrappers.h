@@ -27,6 +27,10 @@ public:
         }
     }
 
+    virtual void writeendl() {
+        PySys_WriteStdout("%s", "\n");
+    }
+
     virtual void error(const std::string& msg) {
         std::string err = "raise Exception('''"+msg+"''')";
         PyRun_SimpleString(err.c_str());
