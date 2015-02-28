@@ -7,13 +7,14 @@ to each reaction rate constant.
 from __future__ import print_function
 
 import cantera as ct
+import numpy as np
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
 reactants = 'CH4:0.45, O2:1.0, N2:3.76'
 
-initial_grid = [0.0, 0.01, 0.02, 0.03]  # m
+initial_grid = np.linspace(0, 0.03, 5)  # m
 tol_ss = [1.0e-9, 1.0e-14]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-5, 1.0e-14]  # [rtol atol] for time stepping
 
