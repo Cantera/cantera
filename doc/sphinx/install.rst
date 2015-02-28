@@ -55,18 +55,36 @@ installation instructions are for Cantera 2.1.1.
      and will include Numpy as well as many other packages useful for scientific
      users.
 
-3. **Install Numpy**
+3. **Install pip**
+
+   - Go to the `pip installation instructions
+     <https://pip.pypa.io/en/latest/installing.html#install-pip>`_ and download
+     `get-pip.py` (You may need to right click the link and select *Save target
+     as...*).
+
+   - From a administrative command prompt, run `get-pip.py` with the copy of
+     Python you plan on use with Cantera, e.g.::
+
+         c:\python33\python.exe "%USERPROFILE%\Downloads\get-pip.py"
+
+4. **Install Numpy**
 
    - Go to the `Unofficial Windows Binaries for Python Extension Packages page
      <http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy>`_.
 
-   - Download the most recent release of the 1.x series for Python *X.Y* that
-     matches your Python architecture. The binaries for Cantera 2.1.1 require
-     Numpy 1.8.0 or newer.
+   - Download the most recent release (distributed as a "wheel" archive) of the
+     1.x series for Python *X.Y* that matches your Python architecture. The
+     binaries for Cantera 2.1.1 require Numpy 1.8.0 or newer, e.g. In the
+     filename, the digits after "cp" indicate the Python version, e.g.
+     ``numpy‑1.8.2+mkl‑cp33‑none‑win_amd64.whl`` is the installer for 64-bit
+     Python 3.3.
 
-   - Run the installer.
+   - From an administrative command prompt, install the downloaded wheel using
+     pip, e.g.::
 
-4. **Remove old versions of Cantera**
+         c:\python33\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp33‑none‑win_amd64.whl"
+
+5. **Remove old versions of Cantera**
 
    - Use The Windows "Add/Remove Programs" interface
 
@@ -74,7 +92,7 @@ installation instructions are for Cantera 2.1.1.
 
    - The Python module will be listed as "Python *X.Y* Cantera ..."
 
-5. **Install Cantera**
+6. **Install Cantera**
 
    - Go to the `Cantera Downloads
      <https://sourceforge.net/projects/cantera/files/cantera/2.1.1/>`_ page.
@@ -89,7 +107,7 @@ installation instructions are for Cantera 2.1.1.
 
    - Run the installer(s).
 
-6. **Configure Matlab** (optional)
+7. **Configure Matlab** (optional)
 
    - Set the environment variable ``PYTHON_CMD``
 
@@ -112,7 +130,7 @@ installation instructions are for Cantera 2.1.1.
 
    - Select *Save*, then *Close*.
 
-7. **Test the installation**
+8. **Test the installation**
 
    - Python::
 
