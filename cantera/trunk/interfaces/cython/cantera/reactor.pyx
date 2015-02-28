@@ -179,7 +179,7 @@ cdef class Reactor(ReactorBase):
         >>> r3 = Reactor(name='adiabatic_reactor', contents=gas)
 
         """
-        super().__init__(contents, **kwargs)
+        super().__init__(contents, name, **kwargs)
 
         if energy == 'off':
             self.energy_enabled = False
