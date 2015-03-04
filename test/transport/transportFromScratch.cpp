@@ -18,16 +18,17 @@ class TransportFromScratch : public testing::Test
 {
 public:
     TransportFromScratch()
-        : sH2(new Species("H2", parseCompString("H:2"),
-                          new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs)))
-        , sO2(new Species("O2", parseCompString("O:2"),
-                          new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs)))
-        , sH2O(new Species("H2O", parseCompString("H:2 O:1"),
-                           new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs)))
+        : sH2(new Species("H2", parseCompString("H:2")))
+        , sO2(new Species("O2", parseCompString("O:2")))
+        , sH2O(new Species("H2O", parseCompString("H:2 O:1")))
         , tH2(new GasTransportData())
         , tO2(new GasTransportData())
         , tH2O(new GasTransportData())
     {
+        sH2->thermo.reset(new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs));
+        sO2->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
+        sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
+
         tH2->setCustomaryUnits("H2", "linear", 2.92, 38.0, 0.0, 0.79, 280.0);
         tO2->setCustomaryUnits("O2", "linear", 3.46, 107.40, 0.0, 1.60, 3.80);
         tH2O->setCustomaryUnits("H2O", "nonlinear", 2.60, 572.4, 1.84, 0.0, 4.00);

@@ -15,12 +15,11 @@ Species::Species()
 }
 
 Species::Species(const std::string& name_, const compositionMap& comp_,
-                 SpeciesThermoInterpType* therm, double charge_, double size_)
+                 double charge_, double size_)
     : name(name_)
     , composition(comp_)
     , charge(charge_)
     , size(size_)
-    , thermo(therm)
 {
 }
 

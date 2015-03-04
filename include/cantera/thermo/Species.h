@@ -23,13 +23,8 @@ public:
     Species();
 
     //! Constructor
-    /*!
-     *  The Species object takes ownership of the SpeciesThermoInterpType
-     *  object, if provided.
-     */
     Species(const std::string& name, const compositionMap& comp,
-            SpeciesThermoInterpType* thermo=0, double charge=0.0,
-            double size=0.0);
+            double charge=0.0, double size=0.0);
 
     Species(const Species& other);
     Species& operator=(const Species& other);

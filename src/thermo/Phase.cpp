@@ -933,7 +933,7 @@ void Phase::addSpecies(const std::string& name_, const doublereal* comp,
             cmap[elementName(i)] = comp[i];
         }
     }
-    shared_ptr<Species> sp(new Species(name_, cmap, 0, charge_, size_));
+    shared_ptr<Species> sp(new Species(name_, cmap, charge_, size_));
     Phase::addSpecies(sp);
 }
 
