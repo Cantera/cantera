@@ -761,7 +761,7 @@ public:
     //! Add a Species to this Phase. Returns `true` if the species was
     //! successfully added, or `false` if the species was ignored.
     //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
-    virtual bool addSpecies(const Species& spec);
+    virtual bool addSpecies(shared_ptr<Species>& spec);
 
     void addSpecies(const std::string& name, const doublereal* comp,
                     doublereal charge = 0.0, doublereal size = 1.0);
@@ -779,7 +779,7 @@ public:
                           doublereal size = 1.0);
 
     //! Return the Species object for the named species.
-    const Species& species(const std::string& name) const;
+    shared_ptr<Species> species(const std::string& name) const;
 
     //! Set behavior when adding a species containing undefined elements to just
     //! skip the species.
@@ -843,7 +843,7 @@ protected:
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
 
-    std::map<std::string, Species> m_species;
+    std::map<std::string, shared_ptr<Species> > m_species;
 
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior;

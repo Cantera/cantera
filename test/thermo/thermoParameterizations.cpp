@@ -35,9 +35,12 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
     SpeciesThermoInterpType* stit_o2 = new ConstCpPoly(200, 5000, 101325, c_o2);
     SpeciesThermoInterpType* stit_h2 = new ConstCpPoly(200, 5000, 101325, c_h2);
     SpeciesThermoInterpType* stit_h2o = new ConstCpPoly(200, 5000, 101325, c_h2o);
-    p.addSpecies(Species("O2", parseCompString("O:2"), stit_o2));
-    p.addSpecies(Species("H2", parseCompString("H:2"), stit_h2));
-    p.addSpecies(Species("H2O", parseCompString("H:2 O:1"), stit_h2o));
+    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2"), stit_o2));
+    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2"), stit_h2));
+    shared_ptr<Species> sH2O(new Species("H2O", parseCompString("H:2 O:1"), stit_h2o));
+    p.addSpecies(sO2);
+    p.addSpecies(sH2);
+    p.addSpecies(sH2O);
     p.initThermo();
     p2.setState_TPX(298.15, 101325, "H2:0.2, O2:0.7, H2O:0.1");
     p.setState_TPX(298.15, 101325, "H2:0.2, O2:0.7, H2O:0.1");
@@ -53,9 +56,11 @@ TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
     // pressure consistency.
     SpeciesThermoInterpType* stit_o2 = new ConstCpPoly(200, 5000, 101325, c_o2);
     SpeciesThermoInterpType* stit_h2 = new ConstCpPoly(200, 5000, 100000, c_h2);
-    p.addSpecies(Species("O2", parseCompString("O:2"), stit_o2));
+    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2"), stit_o2));
+    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2"), stit_h2));
+    p.addSpecies(sO2);
     // Pref does not match
-    ASSERT_THROW(p.addSpecies(Species("H2", parseCompString("H:2"), stit_h2)), CanteraError);
+    ASSERT_THROW(p.addSpecies(sH2), CanteraError);
     delete stit_h2;
 }
 
@@ -66,9 +71,12 @@ TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
     SpeciesThermoInterpType* stit_o2 = new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs);
     SpeciesThermoInterpType* stit_h2 = new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs);
     SpeciesThermoInterpType* stit_h2o = new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs);
-    p.addSpecies(Species("O2", parseCompString("O:2"), stit_o2));
-    p.addSpecies(Species("H2", parseCompString("H:2"), stit_h2));
-    p.addSpecies(Species("H2O", parseCompString("H:2 O:1"), stit_h2o));
+    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2"), stit_o2));
+    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2"), stit_h2));
+    shared_ptr<Species> sH2O(new Species("H2O", parseCompString("H:2 O:1"), stit_h2o));
+    p.addSpecies(sO2);
+    p.addSpecies(sH2);
+    p.addSpecies(sH2O);
     p.initThermo();
     p2.setState_TPX(900, 101325, "H2:0.2, O2:0.7, H2O:0.1");
     p.setState_TPX(900, 101325, "H2:0.2, O2:0.7, H2O:0.1");
@@ -84,8 +92,10 @@ TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
     IdealGasPhase p2("../data/simplephases.cti", "shomate1");
     SpeciesThermoInterpType* stit_co = new ShomatePoly2(200, 6000, 101325, co_shomate_coeffs);
     SpeciesThermoInterpType* stit_co2 = new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs);
-    p.addSpecies(Species("CO", parseCompString("C:1 O:1"), stit_co));
-    p.addSpecies(Species("CO2", parseCompString("C:1 O:2"), stit_co2));
+    shared_ptr<Species> sCO(new Species("CO", parseCompString("C:1 O:1"), stit_co));
+    shared_ptr<Species> sCO2(new Species("CO2", parseCompString("C:1 O:2"), stit_co2));
+    p.addSpecies(sCO);
+    p.addSpecies(sCO2);
     p.initThermo();
     p2.setState_TPX(900, 101325, "CO:0.2, CO2:0.8");
     p.setState_TPX(900, 101325, "CO:0.2, CO2:0.8");

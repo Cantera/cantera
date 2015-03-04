@@ -18,12 +18,12 @@ class TransportFromScratch : public testing::Test
 {
 public:
     TransportFromScratch()
-        : sH2("H2", parseCompString("H:2"),
-              new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs))
-        , sO2("O2", parseCompString("O:2"),
-              new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs))
-        , sH2O("H2O", parseCompString("H:2 O:1"),
-              new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs))
+        : sH2(new Species("H2", parseCompString("H:2"),
+                          new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs)))
+        , sO2(new Species("O2", parseCompString("O:2"),
+                          new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs)))
+        , sH2O(new Species("H2O", parseCompString("H:2 O:1"),
+                           new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs)))
         , tH2(new GasTransportData())
         , tO2(new GasTransportData())
         , tH2O(new GasTransportData())
@@ -32,9 +32,9 @@ public:
         tO2->setCustomaryUnits("O2", "linear", 3.46, 107.40, 0.0, 1.60, 3.80);
         tH2O->setCustomaryUnits("H2O", "nonlinear", 2.60, 572.4, 1.84, 0.0, 4.00);
 
-        sH2.transport = tH2;
-        sO2.transport = tO2;
-        sH2O.transport = tH2O;
+        sH2->transport = tH2;
+        sO2->transport = tO2;
+        sH2O->transport = tH2O;
 
         std::string phase_def = "ideal_gas(name='test', elements='O H',"
             "species='gri30: H2 O2 H2O')";
@@ -54,7 +54,7 @@ public:
         test->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
     }
 
-    Species sH2, sO2, sH2O;
+    shared_ptr<Species> sH2, sO2, sH2O;
     shared_ptr<GasTransportData> tH2, tO2, tH2O;
     shared_ptr<ThermoPhase> ref;
     shared_ptr<ThermoPhase> test;

@@ -464,9 +464,9 @@ void GasTransport::setupMM()
 void GasTransport::getTransportData()
 {
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
-        const Species& s = m_thermo->species(m_thermo->speciesName(k));
+        shared_ptr<Species> s = m_thermo->species(m_thermo->speciesName(k));
         const GasTransportData& sptran =
-            dynamic_cast<GasTransportData&>(*s.transport.get());
+            dynamic_cast<GasTransportData&>(*s->transport.get());
         if (sptran.geometry == "atom") {
             m_crot[k] = 0.0;
         } else if (sptran.geometry == "linear") {

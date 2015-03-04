@@ -621,7 +621,7 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
         vp_ptr->createInstallPDSS(k, s, phaseNode_ptr);
     } else {
         SpeciesThermoInterpType* st = newSpeciesThermoInterpType(s);
-        Species sp(s["name"], comp_map, st, chrg, sz);
+        shared_ptr<Species> sp(new Species(s["name"], comp_map, st, chrg, sz));
 
         // Read gas-phase transport data, if provided
         if (s.hasChild("transport") &&
@@ -646,10 +646,10 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
             getOptionalFloat(tr, "acentric_factor", acentric);
 
             GasTransportData* gastran = new GasTransportData;
-            gastran->setCustomaryUnits(sp.name, geometry, diam, welldepth,
+            gastran->setCustomaryUnits(sp->name, geometry, diam, welldepth,
                                    dipole, polar, rot, acentric);
-            sp.transport.reset(gastran);
-            gastran->validate(sp);
+            sp->transport.reset(gastran);
+            gastran->validate(*sp);
         }
         th.addSpecies(sp);
     }
