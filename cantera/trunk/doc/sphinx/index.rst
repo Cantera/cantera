@@ -32,6 +32,7 @@ Documentation
    cython/index
    matlab/index
    cxx-guide/index
+   glossary
 
    Cantera Development Homepage <http://cantera.googlecode.com>
 
