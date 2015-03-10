@@ -220,6 +220,7 @@ protected:
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  *
+ * @deprecated Duplicate of class Arrhenius. To be removed after Cantera 2.2.
  */
 class ExchangeCurrent
 {
