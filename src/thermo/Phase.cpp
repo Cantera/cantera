@@ -971,6 +971,11 @@ shared_ptr<Species> Phase::species(const std::string& name) const
     return getValue(m_species, name);
 }
 
+shared_ptr<Species> Phase::species(size_t k) const
+{
+    return species(m_speciesNames[k]);
+}
+
 void Phase::ignoreUndefinedElements() {
     m_undefinedElementBehavior = UndefElement::ignore;
 }

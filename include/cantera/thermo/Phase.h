@@ -781,6 +781,9 @@ public:
     //! Return the Species object for the named species.
     shared_ptr<Species> species(const std::string& name) const;
 
+    //! Return the Species object for species whose index is *k*.
+    shared_ptr<Species> species(size_t k) const;
+
     //! Set behavior when adding a species containing undefined elements to just
     //! skip the species.
     void ignoreUndefinedElements();
