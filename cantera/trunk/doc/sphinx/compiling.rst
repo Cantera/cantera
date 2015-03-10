@@ -14,8 +14,8 @@ operating systems:
 
 * Linux
 
-  * Ubuntu 10.04 LTS (Lucid Lynx) or newer
-  * Debian 5.0 (Lenny) or newer
+  * Ubuntu 12.04 LTS (Lucid Lynx) or newer
+  * Debian 6.0 (Squeeze) or newer
 
 * Windows Vista, Windows 7, or Windows 8 (32-bit or 64-bit versions)
 * OS X 10.9 (Mavericks) or OS X 10.10 (Yosemite).
@@ -386,7 +386,7 @@ program.
 
 * GNU compilers (C/C++/Fortran)
 
-  * Known to work with version 4.6; Expected to work with version >= 4.3
+  * Known to work with version 4.8; Expected to work with version >= 4.4
 
 * Clang/LLVM (C/C++)
 
@@ -429,7 +429,7 @@ Other Required Software
 * SCons:
 
   * http://www.scons.org/download.php
-  * Known to work with SCons 2.1.0; Expected to work with versions >= 1.0.0
+  * Known to work with SCons 2.3.0; Expected to work with versions >= 1.0.0
   * Version 2.3.2 or newer is required to use Visual Studio 2013.
 
 * Python:
@@ -443,7 +443,7 @@ Other Required Software
 * Boost
 
   * http://www.boost.org/users/download/
-  * Known to work with version 1.54; Expected to work with versions >= 1.40
+  * Known to work with version 1.54; Expected to work with versions >= 1.41
   * Only the "header-only" portions of Boost are required. Cantera does not
     currently depend on any of the compiled Boost libraries.
   * The compiled Boost.Thread library is required to build a thread-safe version
@@ -467,8 +467,8 @@ Optional Programs
   * Required to build the Python module
   * Known to work with versions 0.19 and 0.20. Expected to work with
     versions >= 0.17.
-  * Tested with Python 2.7 and 3.3. Expected to work with versions 2.6 and 3.1+
-    as well.
+  * Tested with Python 2.7, 3.3, and 3.4. Expected to work with versions 2.6 and
+    3.1+ as well.
 
 * `3to2 <http://pypi.python.org/pypi/3to2>`_
 
@@ -489,8 +489,7 @@ Optional Programs
 * Matlab
 
   * Required to build the Cantera Matlab toolbox.
-  * Known to work with 2009a, 2010a, 2011b, and 2013a. Expected to work with
-    versions >= 2009a.
+  * Known to work with 2009a and 2014b. Expected to work with versions >= 2009a.
 
 * Sundials
 
