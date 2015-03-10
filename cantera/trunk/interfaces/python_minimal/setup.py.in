@@ -6,7 +6,7 @@ setup(name="Cantera (minimal)",
       long_description="",
       author="Raymond Speth",
       author_email="speth@mit.edu",
-      url="http://code.google.com/p/cantera",
+      url="http://www.cantera.org",
       packages = ['cantera'],
       scripts=[@py_ctml_writer@,
                @py_ck2cti@])
