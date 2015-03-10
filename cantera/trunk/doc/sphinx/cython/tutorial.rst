@@ -6,9 +6,8 @@ Tutorial
 Getting Started
 ---------------
 
-Start by creating a new Python script (filename ending with ".py") in the text editor of your choice.
-
-Put the following statement at the top of your script to import the Cantera Python module::
+Start by opening an interactive Python session, e.g. by running `IPython
+<http://ipython.org/>`_. Import the Cantera Python module by running::
 
     >>> import cantera as ct
 
@@ -280,11 +279,11 @@ When setting the state, you can control what properties are held constant by
 passing the special value `None` to the property setter. For example, to
 change the specific volume to 2.1 m^3/kg while holding entropy constant::
 
-    >>> gas.SV = None, 2.1
+    >>> gas1.SV = None, 2.1
 
 Or to set the mass fractions while holding temperature and pressure constant::
 
-    >>> gas.TPX = None, None, 'CH4:1.0, O2:0.5'
+    >>> gas1.TPX = None, None, 'CH4:1.0, O2:0.5'
 
 Working With Mechanism Files
 ----------------------------
@@ -359,7 +358,7 @@ within the Python interpreter as well.
 Suppose you have created a Cantera object and want to know what methods are
 available for it, and get help on using the methods::
 
-    >>> g = Cantera.Solution('gri30.xml')
+    >>> g = ct.Solution('gri30.xml')
 
 To get help on the Python class that this object is an instance of::
 
