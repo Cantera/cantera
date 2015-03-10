@@ -1,3 +1,6 @@
+#ifndef CT_SMART_PTR
+#define CT_SMART_PTR
+
 #include "config.h"
 
 #if defined CT_USE_STD_SHARED_PTR
@@ -30,4 +33,6 @@ namespace Cantera
 
 #else
 #error "No shared_ptr implementation available"
+#endif
+
 #endif
