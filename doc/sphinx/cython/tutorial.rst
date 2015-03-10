@@ -42,58 +42,7 @@ You should see something like this::
                               X                 Y          Chem. Pot. / RT
                         -------------     ------------     ------------
                    H2              1                1         -15.7173
-                    H              0                0
-                    O              0                0
-                   O2              0                0
-                   OH              0                0
-                  H2O              0                0
-                  HO2              0                0
-                 H2O2              0                0
-                    C              0                0
-                   CH              0                0
-                  CH2              0                0
-               CH2(S)              0                0
-                  CH3              0                0
-                  CH4              0                0
-                   CO              0                0
-                  CO2              0                0
-                  HCO              0                0
-                 CH2O              0                0
-                CH2OH              0                0
-                 CH3O              0                0
-                CH3OH              0                0
-                  C2H              0                0
-                 C2H2              0                0
-                 C2H3              0                0
-                 C2H4              0                0
-                 C2H5              0                0
-                 C2H6              0                0
-                 HCCO              0                0
-                CH2CO              0                0
-                HCCOH              0                0
-                    N              0                0
-                   NH              0                0
-                  NH2              0                0
-                  NH3              0                0
-                  NNH              0                0
-                   NO              0                0
-                  NO2              0                0
-                  N2O              0                0
-                  HNO              0                0
-                   CN              0                0
-                  HCN              0                0
-                 H2CN              0                0
-                 HCNN              0                0
-                 HCNO              0                0
-                 HOCN              0                0
-                 HNCO              0                0
-                  NCO              0                0
-                   N2              0                0
-                   AR              0                0
-                 C3H7              0                0
-                 C3H8              0                0
-               CH2CHO              0                0
-               CH3CHO              0                0
+        [  +52 minor]              0                0
 
 What you have just done is to create an object, `gas1` that implements GRI-
 Mech 3.0, the 53-species, 325-reaction natural gas combustion mechanism
@@ -143,7 +92,7 @@ uses SI units). After this statement, calling ``gas1()`` results in::
                               X                 Y          Chem. Pot. / RT
                         -------------     ------------     ------------
                    H2              1                1         -17.9775
-                        (other species not shown)
+        [  +52 minor]              0                0
 
 Notice that the temperature has been changed as requested, but the pressure
 has changed too. The density and composition have not.
@@ -205,59 +154,10 @@ results in::
 
                               X                 Y          Chem. Pot. / RT
                         -------------     ------------     ------------
-                   H2              0                0
-                    H              0                0
-                    O              0                0
                    O2       0.190114         0.220149         -28.7472
-                   OH              0                0
-                  H2O              0                0
-                  HO2              0                0
-                 H2O2              0                0
-                    C              0                0
-                   CH              0                0
-                  CH2              0                0
-               CH2(S)              0                0
-                  CH3              0                0
                   CH4       0.095057        0.0551863          -35.961
-                   CO              0                0
-                  CO2              0                0
-                  HCO              0                0
-                 CH2O              0                0
-                CH2OH              0                0
-                 CH3O              0                0
-                CH3OH              0                0
-                  C2H              0                0
-                 C2H2              0                0
-                 C2H3              0                0
-                 C2H4              0                0
-                 C2H5              0                0
-                 C2H6              0                0
-                 HCCO              0                0
-                CH2CO              0                0
-                HCCOH              0                0
-                    N              0                0
-                   NH              0                0
-                  NH2              0                0
-                  NH3              0                0
-                  NNH              0                0
-                   NO              0                0
-                  NO2              0                0
-                  N2O              0                0
-                  HNO              0                0
-                   CN              0                0
-                  HCN              0                0
-                 H2CN              0                0
-                 HCNN              0                0
-                 HCNO              0                0
-                 HOCN              0                0
-                 HNCO              0                0
-                  NCO              0                0
                    N2       0.714829         0.724665         -25.6789
-                   AR              0                0
-                 C3H7              0                0
-                 C3H8              0                0
-               CH2CHO              0                0
-               CH3CHO              0                0
+        [  +50 minor]              0                0
 
 The composition above was specified using a string. The format is a comma-
 separated list of ``<species name>:<relative mole numbers>`` pairs. The mole
