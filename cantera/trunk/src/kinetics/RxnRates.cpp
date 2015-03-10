@@ -107,6 +107,8 @@ ExchangeCurrent::ExchangeCurrent()
     , m_E(0.0)
     , m_A(0.0)
 {
+    warn_deprecated("class ExchangeCurrent", "Duplicate of class Arrhenius."
+        " To be removed after Cantera 2.2.");
 }
 
 ExchangeCurrent::ExchangeCurrent(const ReactionData& rdata)
@@ -114,6 +116,8 @@ ExchangeCurrent::ExchangeCurrent(const ReactionData& rdata)
     , m_E(rdata.rateCoeffParameters[2])
     , m_A(rdata.rateCoeffParameters[0])
 {
+    warn_deprecated("class ExchangeCurrent", "Duplicate of class Arrhenius."
+        " To be removed after Cantera 2.2.");
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
     } else {
@@ -126,6 +130,8 @@ ExchangeCurrent::ExchangeCurrent(doublereal A, doublereal b, doublereal E)
     , m_E(E)
     , m_A(A)
 {
+    warn_deprecated("class ExchangeCurrent", "Duplicate of class Arrhenius."
+        " To be removed after Cantera 2.2.");
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
     } else {
