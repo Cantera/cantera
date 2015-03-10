@@ -309,13 +309,7 @@ If we import this into Matlab, for example, we get a gas mixture containing the
                                X                 Y          Chem. Pot. / RT
                          -------------     ------------     ------------
                     H2              1                1          -917934
-                     H              0                0
-                     O              0                0
-                    O2              0                0
-                    OH              0                0
-                   H2O              0                0
-                   HO2              0                0
-                  H2O2              0                0
+         [   +7 minor]              0                0
 
     >> eqs = reactionEqn(gas)
 
