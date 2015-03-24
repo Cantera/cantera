@@ -1179,8 +1179,8 @@ class Parser(object):
         # Determine the appropriate units for k(T) and k(T,P) based on the number of reactants
         # This assumes elementary kinetics for all reactions
         rStoich = sum(r[0] for r in reaction.reactants) + (1 if thirdBody else 0)
-        if rStoich > 3 or rStoich < 1:
-            raise InputParseError('Invalid number of reactant species ({0}) for reaction {1}.'.format(rStoich, reaction))
+        if rStoich < 1:
+            raise InputParseError('No reactant species for reaction {1}.'.format(reaction))
 
         length_dim = 3 * (rStoich - 1)
         quantity_dim = rStoich - 1
