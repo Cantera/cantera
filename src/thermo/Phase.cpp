@@ -256,19 +256,17 @@ void Phase::getAtoms(size_t k, double* atomArray) const
 
 size_t Phase::speciesIndex(const std::string& nameStr) const
 {
-    std::string pn;
-    std::string sn = parseSpeciesName(nameStr, pn);
-    if (pn == "" || pn == m_name || pn == m_id) {
-        vector<string>::const_iterator it = m_speciesNames.begin();
-        for (size_t k = 0; k < m_kk; k++) {
-            if (*it == sn) {
-                return k;
-            }
-            ++it;
+    if (nameStr.find(':') != npos) {
+        std::string pn;
+        std::string sn = parseSpeciesName(nameStr, pn);
+        if (pn == "" || pn == m_name || pn == m_id) {
+            return getValue(m_speciesIndices, sn, npos);
+        } else {
+            return npos;
         }
-        return npos;
+    } else {
+        return getValue(m_speciesIndices, nameStr, npos);
     }
-    return npos;
 }
 
 string Phase::speciesName(size_t k) const
@@ -868,6 +866,7 @@ bool Phase::addSpecies(shared_ptr<Species>& spec) {
     }
 
     m_speciesNames.push_back(spec->name);
+    m_speciesIndices[spec->name] = m_kk;
     m_speciesCharge.push_back(spec->charge);
     m_speciesSize.push_back(spec->size);
     size_t ne = nElements();

@@ -894,6 +894,9 @@ private:
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
 
+    //! Map of species names to indices
+    std::map<std::string, size_t> m_speciesIndices;
+
     size_t m_mm; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector_int m_atomicNumbers; //!< element atomic numbers
