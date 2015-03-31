@@ -25,7 +25,13 @@ cdef class Transport(_SolutionBase):
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         if self.transport == NULL:
-            self.transport = newDefaultTransportMgr(self.thermo)
+            if 'transport_model' not in kwargs:
+                self.transport = newDefaultTransportMgr(self.thermo)
+            else:
+                model = kwargs['transport_model']
+                if not model:
+                    model = 'None'
+                self.transport = newTransportMgr(stringify(model), self.thermo)
         super().__init__(*args, **kwargs)
 
     property transport_model:

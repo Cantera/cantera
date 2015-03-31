@@ -1,6 +1,6 @@
 cdef class _SolutionBase:
     def __cinit__(self, infile='', phaseid='', phases=(), origin=None,
-                  source=None):
+                  source=None, **kwargs):
         # Shallow copy of an existing Solution (for slicing support)
         cdef _SolutionBase other
         if origin is not None:

@@ -11,6 +11,9 @@ class Solution(ThermoPhase, Kinetics, Transport):
     `Transport`.  It defines very few methods of its own, and is provided so
     that a single object can be used to compute thermodynamic, kinetic, and
     transport properties of a solution.
+
+    To skip initialization of the Transport object, pass the argument
+    `transport_model=None` to the `Solution` constructor.
     """
 
 class Interface(InterfacePhase, InterfaceKinetics):
