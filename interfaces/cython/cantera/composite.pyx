@@ -1,5 +1,4 @@
 class Solution(ThermoPhase, Kinetics, Transport):
-    __slots__ = ()
     """
     A class for chemically-reacting solutions.
 
@@ -15,9 +14,9 @@ class Solution(ThermoPhase, Kinetics, Transport):
     To skip initialization of the Transport object, pass the argument
     `transport_model=None` to the `Solution` constructor.
     """
+    __slots__ = ()
 
 class Interface(InterfacePhase, InterfaceKinetics):
-    __slots__ = ('_phase_indices',)
     """
     Two-dimensional interfaces.
 
@@ -26,9 +25,9 @@ class Interface(InterfacePhase, InterfaceKinetics):
     own. All of its methods derive from either `InterfacePhase` or
     `InterfaceKinetics`.
     """
+    __slots__ = ('_phase_indices',)
 
 class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
-    __slots__ = ()
     """
     A composite class which models a gas in a stationary, solid, porous medium.
 
@@ -36,3 +35,4 @@ class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
     coefficients. The model does not compute viscosity or thermal conductivity.
 
     """
+    __slots__ = ()
