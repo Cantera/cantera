@@ -122,7 +122,7 @@ Support and Bug Reporting
     - Check to see if you're using the most recent version of Cantera, and
       upgrade if not.
     - Check the `Issue Tracker
-      <https://code.google.com/p/cantera/issues/list>`_ to see if the issue
+      <https://github.com/Cantera/cantera/issues>`_ to see if the issue
       has already been reported.
     - Try to generate a complete, minimal example that demonstrates the
       observed bug.
