@@ -120,25 +120,18 @@ Stable Release
   <https://sourceforge.net/projects/cantera/files/cantera/>`_ and extract the
   contents.
 
-* Option 2: Check out the code using Subversion::
+* Option 2: Check out the code using Git::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.1/ cantera
-
-* Option 3: Check out the code using Git::
-
-    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
+    git clone https://github.com/Cantera/cantera.git
+    cd cantera
     git checkout 2.1
 
 Development Version
 -------------------
 
-* Option 1: Check out the code using Subversion::
+* Check out the code using Git::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera
-
-* Option 2: Check out the code using Git::
-
-    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
+    git clone https://github.com/Cantera/cantera.git
 
 Determine configuration options
 ===============================
