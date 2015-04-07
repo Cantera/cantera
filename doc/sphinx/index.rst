@@ -34,7 +34,7 @@ Documentation
    matlab/index
    cxx-guide/index
 
-   Cantera Development Homepage <http://cantera.googlecode.com>
+   Cantera Development Homepage <https://github.com/Cantera/cantera>
 
 * **C++ Documentation**
 
