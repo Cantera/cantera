@@ -11,33 +11,28 @@
 
 #include "FlowDevice.h"
 #include "ReactorBase.h"
-//#include "PID_Controller.h"
 #include "cantera/numerics/Func1.h"
 
 namespace Cantera
 {
 /**
- * A class for mass flow controllers. The mass flow rate is constant,
- * independent of any other parameters.
+ * A class for mass flow controllers. The mass flow rate is constant or
+ * specified as a function of time..
  */
 class MassFlowController : public FlowDevice
 {
 public:
-
     MassFlowController() : FlowDevice() {
         m_type = MFC_Type;
     }
-
-    virtual ~MassFlowController() {}
 
     virtual bool ready() {
         return FlowDevice::ready() && m_mdot >= 0.0;
     }
 
-    /// If a function of time has been specified for
-    /// mdot, then update the stored mass flow rate.
-    /// Otherwise, mdot is a constant, and does not need
-    /// updating.
+    /// If a function of time has been specified for mdot, then update the
+    /// stored mass flow rate. Otherwise, mdot is a constant, and does not
+    /// need updating.
     virtual void updateMassFlowRate(doublereal time) {
         if (m_func) {
             m_mdot = m_func->eval(time);
@@ -46,25 +41,19 @@ public:
             m_mdot = 0.0;
         }
     }
-
-protected:
-
-private:
 };
 
 /**
- * A class for mass flow controllers. The mass flow rate is constant,
- * independent of any other parameters.
+ * A class for flow controllers where the flow rate is equal to the flow rate
+ * of a "master" mass flow controller plus a correction proportional to the
+ * pressure difference between the inlet and outlet.
  */
 class PressureController : public FlowDevice
 {
 public:
-
     PressureController() : FlowDevice(), m_master(0) {
         m_type = PressureController_Type;
     }
-
-    virtual ~PressureController() {}
 
     virtual bool ready() {
         return FlowDevice::ready() && m_master != 0;
@@ -85,32 +74,26 @@ public:
 
 protected:
     FlowDevice* m_master;
-
-private:
 };
 
-
-/// Valve objects supply a mass flow rate that is a function of the
-/// pressure drop across the valve. The default behavior is a linearly
-/// proportional to the pressure difference. Note that
-/// real valves do not have this behavior, so this class
-/// does not model real, physical valves.
+//! Supply a mass flow rate that is a function of the pressure drop across the valve. 
+/*!
+ * The default behavior is a linearly proportional to the pressure difference.
+ * Note that real valves do not have this behavior, so this class does not
+ * model real, physical valves.
+ */
 class Valve : public FlowDevice
 {
 public:
-
     Valve() : FlowDevice() {
         m_type = Valve_Type;
     }
-
-    virtual ~Valve() {}
 
     virtual bool ready() {
         return FlowDevice::ready() && m_coeffs.size() >= 1;
     }
 
-    /// Compute the currrent mass flow rate, based on
-    /// the pressure difference.
+    /// Compute the currrent mass flow rate, based on the pressure difference.
     virtual void updateMassFlowRate(doublereal time) {
         double delta_P = in().pressure() - out().pressure();
         if (m_func) {
@@ -122,12 +105,7 @@ public:
             m_mdot = 0.0;
         }
     }
-
-protected:
-
-private:
 };
 
 }
 #endif
-

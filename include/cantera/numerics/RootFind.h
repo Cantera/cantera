@@ -1,7 +1,7 @@
 /**
- * @file RootFind.h
- *       Header file for implicit nonlinear solver of a one dimensional function
- *  (see \ref numerics and class \link Cantera::RootFind RootFind\endlink).
+ * @file RootFind.h Header file for implicit nonlinear solver of a one
+ *       dimensional function (see \ref numerics and class \link
+ *       Cantera::RootFind RootFind\endlink).
  */
 
 /*
@@ -17,7 +17,6 @@
  * @defgroup solverGroup Solvers for Equation Systems
  */
 
-#include <vector>
 #include "ResidEval.h"
 
 namespace Cantera
@@ -43,18 +42,11 @@ namespace Cantera
 //!  This means that the rootfinder believes the solution is lower than xmin
 #define ROOTFIND_SOLNLOWERTHANXMIN  -3
 //!  This means that the rootfinder believes the solution is higher than xmax
-/*!
- *
- */
 #define ROOTFIND_SOLNHIGHERTHANXMAX  -4
 //@}
 
-
-
-
 //! Root finder for 1D problems
 /*!
- *
  *   The root finder solves a single nonlinear equation described below.
  *
  *     \f[
@@ -85,12 +77,9 @@ namespace Cantera
  *
  *        Supplying Hints with General Function Behavior Flags
  *
- *
- *
  *    Stopping Criteria
  *
  *        Specification of the Stopping Criteria
- *
  *
  *    Additional constraints
  *
@@ -141,33 +130,20 @@ namespace Cantera
  */
 class RootFind
 {
-
 public:
-
     //! Constructor for the object
     /*!
-     *
      * @param resid  Pointer to the residual function to be used to calculate f(x)
      */
     RootFind(ResidEval* resid);
 
     //! Copy constructor
-    /*!
-     * @param r  object to be copied
-     */
     RootFind(const RootFind& r);
 
-    //! Destructor. Deletes the integrator.
     ~RootFind();
 
     //! Assignment operator
-    /*!
-     *  @param right object to be copied
-     *
-     * @return returns a reference to the current object
-     */
     RootFind& operator=(const RootFind& right);
-
 
 private:
     //! Calculate a deltaX from an input value of x
@@ -216,7 +192,6 @@ private:
     bool theSame(doublereal x2, doublereal x1, doublereal factor = 1.0) const;
 
 public:
-
     //!  Using a line search method, find the root of a 1D function
     /*!
      *  This routine solves the following equation.
@@ -333,7 +308,6 @@ public:
     void printTable();
 
 public:
-
     //!   Pointer to the residual function evaluator
     ResidEval* m_residFunc;
 
@@ -356,7 +330,6 @@ public:
     doublereal m_maxstep;
 
 protected:
-
     //!  Print level
     /*!
      *        0  No printing of any kind
@@ -368,7 +341,6 @@ protected:
     int printLvl;
 
 public:
-
     //! Boolean to turn on the possibility of writing a log file.
     bool writeLogAllowed_;
 
@@ -413,7 +385,6 @@ protected:
     //! Internal variable tracking f(x) of smallest x tried.
     doublereal fx_minTried_;
 
-
     //! Structure containing the iteration history
     struct rfTable {
         //@{
@@ -427,7 +398,6 @@ protected:
         double deltaXConverged;
         double deltaFConverged;
         double delX;
-
 
         std::string reasoning;
 
@@ -453,16 +423,11 @@ protected:
             delX(-1.0E300),
             reasoning("") {
         };
-
-
         //@}
     };
 
     //! Vector of iteration histories
     std::vector<struct rfTable> rfHistory_;
-
-
-
 };
 }
 #endif

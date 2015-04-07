@@ -31,14 +31,14 @@ extern "C" {
             }
             return XmlCabinet::add(x);
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_get_XML_File(const char* file, int debug)
     {
         try {
-            XML_Node* x = get_XML_File(std::string(file), debug);
+            XML_Node* x = get_XML_File(file, debug);
             return XmlCabinet::add(x);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -62,8 +62,8 @@ extern "C" {
             XmlCabinet::del(i);
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_removeChild(int i, int j)
@@ -72,8 +72,8 @@ extern "C" {
             XmlCabinet::item(i).removeChild(&XmlCabinet::item(j));
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_copy(int i)
@@ -81,8 +81,8 @@ extern "C" {
         try {
             return XmlCabinet::newCopy(i);
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_assign(int i, int j)
@@ -90,15 +90,15 @@ extern "C" {
         try {
             return XmlCabinet::assign(i,j);
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_build(int i, const char* file)
     {
         try {
             writelog("WARNING: xml_build called. Use get_XML_File instead.");
-            string path = findInputFile(string(file));
+            string path = findInputFile(file);
             ifstream f(path.c_str());
             if (!f) {
                 throw CanteraError("xml_build",
@@ -115,7 +115,7 @@ extern "C" {
     int xml_preprocess_and_build(int i, const char* file, int debug)
     {
         try {
-            get_CTML_Tree(&XmlCabinet::item(i), string(file), debug);
+            get_CTML_Tree(&XmlCabinet::item(i), file, debug);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -125,14 +125,13 @@ extern "C" {
     int xml_attrib(int i, const char* key, char* value)
     {
         try {
-            string ky = string(key);
             XML_Node& node = XmlCabinet::item(i);
-            if (node.hasAttrib(ky)) {
-                string v = node[ky];
+            if (node.hasAttrib(key)) {
+                string v = node[key];
                 strncpy(value, v.c_str(), 80);
             } else
                 throw CanteraError("xml_attrib","node "
-                                   " has no attribute '"+ky+"'");
+                                   " has no attribute '"+string(key)+"'");
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -142,10 +141,7 @@ extern "C" {
     int xml_addAttrib(int i, const char* key, const char* value)
     {
         try {
-            string ky = string(key);
-            string val = string(value);
-            XML_Node& node = XmlCabinet::item(i);
-            node.addAttribute(ky, val);
+            XmlCabinet::item(i).addAttribute(key, value);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -155,9 +151,7 @@ extern "C" {
     int xml_addComment(int i, const char* comment)
     {
         try {
-            string c = string(comment);
-            XML_Node& node = XmlCabinet::item(i);
-            node.addComment(c);
+            XmlCabinet::item(i).addComment(comment);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -167,8 +161,7 @@ extern "C" {
     int xml_tag(int i, char* tag)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            const string v = node.name();
+            string v = XmlCabinet::item(i).name();
             strncpy(tag, v.c_str(), 80);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -179,8 +172,7 @@ extern "C" {
     int xml_value(int i, char* value)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            const string v = node.value();
+            string v = XmlCabinet::item(i).value();
             strncpy(value, v.c_str(), 80);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -191,8 +183,7 @@ extern "C" {
     int xml_child(int i, const char* loc)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            XML_Node& c = node.child(string(loc));
+            XML_Node& c = XmlCabinet::item(i).child(string(loc));
             return XmlCabinet::add(&c);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -203,8 +194,7 @@ extern "C" {
     int xml_child_bynumber(int i, int m)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            XML_Node& c = node.child(m);
+            XML_Node& c = XmlCabinet::item(i).child(m);
             return XmlCabinet::add(&c);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -215,8 +205,7 @@ extern "C" {
     int xml_findID(int i, const char* id)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            XML_Node* c = node.findID(string(id));
+            XML_Node* c = XmlCabinet::item(i).findID(id);
             if (c) {
                 return XmlCabinet::add(c);
             } else {
@@ -231,8 +220,7 @@ extern "C" {
     int xml_findByName(int i, const char* nm)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            XML_Node* c = node.findByName(string(nm));
+            XML_Node* c = XmlCabinet::item(i).findByName(nm);
             if (c) {
                 return XmlCabinet::add(c);
             } else
@@ -247,18 +235,16 @@ extern "C" {
     int xml_nChildren(int i)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            return (int) node.nChildren();
+            return (int) XmlCabinet::item(i).nChildren();
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
-         }
+            return handleAllExceptions(-1, ERR);
+        }
     }
 
     int xml_addChild(int i, const char* name, const char* value)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            XML_Node& c = node.addChild(string(name),string(value));
+            XML_Node& c = XmlCabinet::item(i).addChild(name, value);
             return XmlCabinet::add(&c);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -269,9 +255,7 @@ extern "C" {
     int xml_addChildNode(int i, int j)
     {
         try {
-            XML_Node& node = XmlCabinet::item(i);
-            XML_Node& chld = XmlCabinet::item(j);
-            XML_Node& c = node.addChild(chld);
+            XML_Node& c = XmlCabinet::item(i).addChild(XmlCabinet::item(j));
             return XmlCabinet::add(&c);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -284,8 +268,7 @@ extern "C" {
         try {
             ofstream f(file);
             if (f) {
-                XML_Node& node = XmlCabinet::item(i);
-                node.write(f);
+                XmlCabinet::item(i).write(f);
             } else {
                 throw CanteraError("xml_write",
                                    "file "+string(file)+" not found.");

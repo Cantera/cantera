@@ -1,3 +1,4 @@
+//! @file lk.h Lee-Kesler equation of state
 #ifndef TPX_LK_H
 #define TPX_LK_H
 
@@ -20,7 +21,6 @@ public:
         m_name = "Lee-Kesler";
         m_formula = "---";
     }
-    ~leekesler() {}
 
     double MolWt();
     double Tcrit();

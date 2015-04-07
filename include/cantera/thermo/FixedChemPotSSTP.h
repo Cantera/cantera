@@ -28,7 +28,6 @@ namespace Cantera
  * density to pressure. This is necessary because the phase is
  * incompressible. It uses a zero volume approximation.
  *
- *
  * <b> Specification of Species Standard %State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
@@ -43,7 +42,6 @@ namespace Cantera
  *  For a zero volume material, the internal energy and the enthalpy are
  *  equal to the chemical potential. The entropy, the heat capacity, and the molar volume
  *  are equal to zero.
- *
  *
  * <b> Specification of Solution Thermodynamic Properties </b>
  *
@@ -75,8 +73,6 @@ namespace Cantera
  * This phase may be instantiated by calling the default ThermoFactory routine
  * for %Cantera. This new %FixedChemPotSSTP object must then have a standalone xml file
  * description an example of which is given below.
- *
- *
  *
  * It may also be created by the following code snippets. The code
  * includes the special member function setChemicalPotential( chempot), which
@@ -112,56 +108,52 @@ namespace Cantera
  * The phase model name for this is called FixedChemPot. It must be supplied
  * as the model attribute of the thermo XML element entry.
  *
+ * @code
+ * <?xml version="1.0"?>
+ * <ctml>
+ *   <validate reactions="yes" species="yes"/>
  *
- * @verbatim
- <?xml version="1.0"?>
- <ctml>
- <validate reactions="yes" species="yes"/>
-
- <!-- phase NaCl(S)    -->
- <phase dim="3" id="LiFixed">
-   <elementArray datasrc="elements.xml">
-     Li
-   </elementArray>
-   <speciesArray datasrc="#species_Li(Fixed)">
-     LiFixed
-   </speciesArray>
-   <thermo model="FixedChemPot">
-     <chemicalPotential units="J/kmol"> -2.3E7  </chemicalPotential>
-   </thermo>
-   <transport model="None"/>
-   <kinetics model="none"/>
- </phase>
-
- <!-- species definitions     -->
- <speciesData id="species_Li(Fixed)">
-
-   <species name="LiFixed">
-     <atomArray> Li:1 </atomArray>
-     <thermo>
-       <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
-         <floatArray size="7">
-           50.72389, 6.672267, -2.517167,
-           10.15934, -0.200675, -427.2115,
-          130.3973
-        </floatArray>
-      </Shomate>
-    </thermo>
-  </species>
-</speciesData>
-</ctml>
-@endverbatim
-*
-*  The model attribute, "FixedChemPot", on the thermo element
-*  identifies the phase as being a FixedChemPotSSTP object.
-*
-* @ingroup thermoprops
-*/
+ *   <!-- phase NaCl(S)    -->
+ *   <phase dim="3" id="LiFixed">
+ *     <elementArray datasrc="elements.xml">
+ *       Li
+ *     </elementArray>
+ *     <speciesArray datasrc="#species_Li(Fixed)">
+ *       LiFixed
+ *     </speciesArray>
+ *     <thermo model="FixedChemPot">
+ *       <chemicalPotential units="J/kmol"> -2.3E7  </chemicalPotential>
+ *     </thermo>
+ *     <transport model="None"/>
+ *     <kinetics model="none"/>
+ *   </phase>
+ *
+ *   <!-- species definitions     -->
+ *   <speciesData id="species_Li(Fixed)">
+ *     <species name="LiFixed">
+ *       <atomArray> Li:1 </atomArray>
+ *       <thermo>
+ *         <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
+ *           <floatArray size="7">
+ *             50.72389, 6.672267, -2.517167,
+ *             10.15934, -0.200675, -427.2115,
+ *             130.3973
+ *           </floatArray>
+ *         </Shomate>
+ *       </thermo>
+ *     </species>
+ *   </speciesData>
+ * </ctml>
+ * @endcode
+ *
+ * The model attribute, "FixedChemPot", on the thermo element
+ * identifies the phase as being a FixedChemPotSSTP object.
+ *
+ * @ingroup thermoprops
+ */
 class FixedChemPotSSTP : public SingleSpeciesTP
 {
-
 public:
-
     //! Default constructor for the FixedChemPotSSTP class
     FixedChemPotSSTP();
 
@@ -172,7 +164,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    FixedChemPotSSTP(std::string infile, std::string id = "");
+    FixedChemPotSSTP(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a FixedChemPotSSTP ThermoPhase object
     //! directly from an XML database
@@ -180,7 +172,7 @@ public:
      *  @param phaseRef XML node pointing to a FixedChemPotSSTP description
      *  @param id       Id of the phase.
      */
-    FixedChemPotSSTP(XML_Node& phaseRef, std::string id = "");
+    FixedChemPotSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -198,16 +190,13 @@ public:
      *  @param Ename String name of the element
      *  @param chemPot  Value of the chemical potential of that element (J/kmol)
      */
-    FixedChemPotSSTP(std::string Ename, doublereal chemPot);
+    FixedChemPotSSTP(const std::string& Ename, doublereal chemPot);
 
     //! Assignment operator
     /*!
      * @param right Object to be copied
      */
     FixedChemPotSSTP& operator=(const FixedChemPotSSTP& right);
-
-    //! Destructor for the routine (virtual)
-    virtual ~FixedChemPotSSTP();
 
     //! Duplication function
     /*!
@@ -220,30 +209,15 @@ public:
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
-    /**
      * Equation of state flag.
      *
      * Returns the value cStoichSubstance, defined in mix_defs.h.
      */
     virtual int eosType() const;
 
-    /**
-     *  @}
-     *  @name Molar Thermodynamic Properties of the Solution
-     *  @{
-     */
-
-    /**
-     * @}
-     * @name Mechanical Equation of State
-     * @{
-     */
-
+    //! @}
+    //! @name Mechanical Equation of State
+    //! @{
 
     //! Report the Pressure. Units: Pa.
     /*!
@@ -363,26 +337,27 @@ public:
      * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
-     * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     * @param uA Output vector containing the units:
+     *
+     *     uA[0] = kmol units - default  = 1
+     *     uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                   dimensions in the Phase class.
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
+     *
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
 
     //@}
-    /// @name  Partial Molar Properties of the Solution
-    ///
-    ///        These properties are handled by the parent class,
-    ///        SingleSpeciesTP
+    /// @name Partial Molar Properties of the Solution
+    /// These properties are handled by the parent class, SingleSpeciesTP
     //@{
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
@@ -468,9 +443,8 @@ public:
     //!  internal Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for each species.
     /*!
-     * @param urt    Output vector of nondimensional reference state
-     *               internal energies of the species.
-     *               Length: m_kk
+     * @param urt    Output vector of nondimensional reference state internal
+     *               energies of the species. Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
 
@@ -503,7 +477,6 @@ public:
      *                Gibbs Free energies.  Length: m_kk.
      */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
-
 
     /*!
      *  Returns the vector of the
@@ -547,18 +520,6 @@ public:
      */
     virtual void getCp_R_ref(doublereal* cprt) const;
 
-
-
-
-    /*
-     * ---- Critical State Properties
-     */
-
-
-    /*
-     * ---- Saturation Properties
-     */
-
     /*
      * @internal Initialize. This method is provided to allow
      * subclasses to perform any initialization required after all
@@ -574,17 +535,15 @@ public:
      */
     virtual void initThermo();
 
-
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters
     /*!
      * @internal
-     *  The number and meaning of these depends on the subclass.
-     *
-     * @param n number of parameters
+     * @param n number of parameters = 1
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
+     * @deprecated Use setChemicalPotential()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -598,6 +557,7 @@ public:
      *  For this phase:
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
+     * @deprecated Use getChemPotentials()
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 
@@ -617,16 +577,15 @@ public:
      *
      * eosdata points to the thermo block, and looks like this:
      *
-     *   @verbatim
-         <phase id="stoichsolid" >
-           <thermo model="FixedChemPot">
-               <chemicalPotential units="J/kmol"> -2.7E7 </chemicalPotential>
-           </thermo>
-     </phase>    @endverbatim
-     *
+     * @code
+     *   <phase id="stoichsolid" >
+     *     <thermo model="FixedChemPot">
+     *       <chemicalPotential units="J/kmol"> -2.7E7 </chemicalPotential>
+     *     </thermo>
+     *   </phase>
+     * @endcode
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
-
 
     //! Function to set the chemical potential directly
     /*!
@@ -635,15 +594,12 @@ public:
     void setChemicalPotential(doublereal chemPot);
 
 protected:
-
     //!  Value of the chemical potential of the bath species
     /*!
      *  units are J/kmol
      */
     doublereal chemPot_;
-
 };
-
 
 }
 

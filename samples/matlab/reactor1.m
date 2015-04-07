@@ -20,14 +20,16 @@ end
 
 nsp = nSpecies(gas);
 
+P = oneatm
 % set the initial conditions
-set(gas,'T',1001.0,'P',oneatm,'X','H2:2,O2:1,N2:4');
+set(gas,'T',1001.0,'P',P,'X','H2:2,O2:1,N2:4');
 
 % create a reactor, and insert the gas
 r = Reactor(gas);
 
 % create a reservoir to represent the environment
 a = IdealGasMix('air.cti');
+set(a,'P',P)
 env = Reservoir(a);
 
 % Define a wall between the reactor and the environment and
@@ -51,7 +53,7 @@ t0 = cputime;
 for n = 1:100
   t = t + dt;
   advance(network, t);
-  tim(n) = time(r);
+  tim(n) = time(network);
   temp(n) = temperature(r);  
   x(n,1:3) = moleFraction(gas,{'OH','H','H2'});
 end

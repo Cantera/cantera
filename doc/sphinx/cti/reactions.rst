@@ -63,8 +63,8 @@ As a shorthand, if the ``rate_coeff`` field is assigned a sequence of three numb
     rate_coeff = [1.0e13, 0, (7.3, 'kcal/mol')] # equivalent to above
 
 The units of the pre-exponential factor *A* can be specified explicitly if
-desired. If not specified, they will be constructed using the *quantity*, length,
-and time units specified in the units directive. Since the units of *A* depend on
+desired. If not specified, they will be constructed using the *quantity*, *length*,
+and *time* units specified in the units directive. Since the units of *A* depend on
 the reaction order, the units of each reactant concentration (different for bulk
 species in solution, surface species, and pure condensed-phase species), and the
 units of the rate of progress (different for homogeneous and heterogeneous
@@ -158,15 +158,15 @@ A three-body reaction is a gas-phase reaction of the form:
 
 .. math::
 
-    {\rm A + B} \rightleftharpoons {\rm AB + M}
+    {\rm A + B + M} \rightleftharpoons {\rm AB + M}
 
-Here M is an unspecified collision partner that carries away excess energy to
-stabilize the AB molecule (forward direction) or supplies energy to break the AB
+Here *M* is an unspecified collision partner that carries away excess energy to
+stabilize the *AB* molecule (forward direction) or supplies energy to break the *AB*
 bond (reverse direction).
 
 Different species may be more or less effective in acting as the collision partner. A species that is much lighter than
-A and B may not be able to transfer much of its kinetic energy, and so would be inefficient as a collision partner. On
-the other hand, a species with a transition from its ground state that is nearly resonant with one in the AB* activated
+*A* and *B* may not be able to transfer much of its kinetic energy, and so would be inefficient as a collision partner. On
+the other hand, a species with a transition from its ground state that is nearly resonant with one in the *AB** activated
 complex may be much more effective at exchanging energy than would otherwise be expected.
 
 These effects can be accounted for by defining a collision efficiency
@@ -269,6 +269,8 @@ al. [#Gilbert1983]_:
 The :class:`Troe` directive requires specifying the first three parameters
 :math:`(A, T_3, T_1)`. The fourth parameter, :math:`T_2`, is optional, defaulting to 0.0.
 
+.. _sec-sri-falloff:
+
 The SRI Falloff Function
 ------------------------
 
@@ -282,12 +284,50 @@ supports the extended 5-parameter form, given by:
 
     F(T, P_r) = d \bigl[a \exp(-b/T) + \exp(-T/c)\bigr]^{1/(1+\log_{10}^2 P_r )} T^e
 
-In keeping with the nomenclature of [Kee et al., 1989], we will refer to this as
+In keeping with the nomenclature of Kee et al. [#Kee1989]_, we will refer to this as
 the "SRI" falloff function. It is implemented by the :class:`SRI` directive.
 
 .. :: NOTE: "definingphases.pdf" contains documentation for the Wang-Frenklach falloff
       function, which has a C++ implementation, but doesn't appear to be implemented
       in the CTI or CTML parsers.
+
+Chemically-Activated Reactions
+==============================
+
+For these reactions, the rate falls off as the pressure increases, due to
+collisional stabilization of a reaction intermediate. Example:
+
+.. math::
+     \mathrm{Si + SiH_4 (+M) \leftrightarrow Si_2H_2 + H_2 (+M)}
+
+which competes with:
+
+.. math::
+    \mathrm{Si + SiH_4 (+M) \leftrightarrow Si_2H_4 (+M)}
+
+Like falloff reactions, chemically-activated reactions are described by
+blending between a "low pressure" and a "high pressure" rate expression. The
+difference is that the forward rate constant is written as being proportional
+to the *low pressure* rate constant:
+
+.. math::
+
+    k_f(T, P_r) = k_0 \left(\frac{1}{1 + P_r}\right) F(T, P_r)
+
+and the optional blending function *F* may described by any of the
+parameterizations allowed for falloff reactions. Chemically-activated
+reactions can be defined using the :class:`chemically_activated_reaction`
+directive.
+
+An example of a reaction specified with this parameterization::
+
+    chemically_activated_reaction('CH3 + OH (+ M) <=> CH2O + H2 (+ M)',
+                                  kLow=[2.823201e+02, 1.46878, (-3270.56495, 'cal/mol')],
+                                  kHigh=[5.880000e-14, 6.721, (-3022.227, 'cal/mol')],
+                                  falloff=Troe(A=1.671, T3=434.782, T1=2934.21, T2=3919.0))
+
+In this example, the units of :math:`k_0` (`kLow`) are m^3/kmol/s and the
+units of :math:`k_\infty` (`kHigh`) are 1/s.
 
 Pressure-Dependent Arrhenius Rate Expressions (P-Log)
 =====================================================
@@ -331,7 +371,7 @@ that pressure.
 Chebyshev Reaction Rate Expressions
 ===================================
 
-Class :class:`chebyshev` represents a phenomenological rate coefficient
+Class :class:`chebyshev_reaction` represents a phenomenological rate coefficient
 :math:`k(T,P)` in terms of a bivariate Chebyshev polynomial. The rate constant
 can be written as:
 
@@ -385,7 +425,7 @@ temperatures and pressure for which they are defined is strongly discouraged.
    Zhiwei Qin. GRI-Mech version 3.0, 1997. see
    http://www.me.berkeley.edu/gri_mech.
 
-.. [#Stewart1989] P. H. Stewart, C. W. Larson, and D. Golden. 
+.. [#Stewart1989] P. H. Stewart, C. W. Larson, and D. Golden.
    *Combustion and Flame*, 75:25, 1989.
 
 .. [#Kee1989] R. J. Kee, F. M. Rupley, and J. A. Miller. Chemkin-II: A Fortran

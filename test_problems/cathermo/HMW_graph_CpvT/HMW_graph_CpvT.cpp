@@ -19,12 +19,7 @@ int main(int argc, char** argv)
     size_t i;
 
     try {
-
-        char iFile[80];
-        strcpy(iFile, "HMW_NaCl.xml");
-        if (argc > 1) {
-            strcpy(iFile, argv[1]);
-        }
+        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.xml";
         double Cp0_R[20], pmCp[20];
 
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
@@ -226,8 +221,8 @@ int main(int argc, char** argv)
             }
 
             if (i != TTable.NPoints+1) {
-                printf("%13g, %13g, %13g, %13g, %13g, %13g, "
-                       "%13g, %13g, %13g, %13g\n",
+                printf("%13.5g, %13.5g, %13.5g, %13.5g, %13.5g, %13.5g, "
+                       "%13.5g, %13.5g, %13.5g, %13.5g\n",
                        T, pres*1.0E-5,  Aphi, AJ/GasConstant, Delta_Cp0s, Delta_Cps,
                        J, phiJ, molarCp , molarCp0);
 #ifdef DEBUG_HKM
@@ -243,16 +238,16 @@ int main(int argc, char** argv)
         printf(" Species     MoleFrac        Molal          Cp0      "
                "    partCp     (partCp - Cp0)\n");
         printf("  H2O(L)");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[0], moll[0], Cp0_H2O , Cp_H2O,  Cp_H2O-Cp0_H2O);
+        printf("%13.5g %13.5g %13.5g %13.5g %13.5g\n", Xmol[0], moll[0], Cp0_H2O , Cp_H2O,  Cp_H2O-Cp0_H2O);
         printf("  Na+   ");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[i1], moll[i1],
+        printf("%13.5g %13.5g %13.5g %13.5g %13.5g\n", Xmol[i1], moll[i1],
                Cp0_Naplus , Cp_Naplus,  Cp_Naplus -Cp0_Naplus);
         printf("  Cl-   ");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[i2], moll[i2],
+        printf("%13.5g %13.5g %13.5g %13.5g %13.5g\n", Xmol[i2], moll[i2],
                Cp0_Clminus , Cp_Clminus,  Cp_Clminus - Cp0_Clminus);
 
         printf(" NaCl(s)");
-        printf("%13g               %13g %13g %13g\n", 1.0,
+        printf("%13.5g               %13.5g %13.5g %13.5g\n", 1.0,
                Cp0_NaCl , Cp_NaCl,  Cp_NaCl - Cp0_NaCl);
 
 

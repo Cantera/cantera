@@ -8,10 +8,6 @@
 #ifndef CT_MULTITRAN_H
 #define CT_MULTITRAN_H
 
-// Define this for better agreement with Chemkin TRANLIB results, even
-// if the results are less correct.
-//#undef CHEMKIN_COMPATIBILITY_MODE
-
 // Cantera includes
 #include "GasTransport.h"
 #include "cantera/numerics/DenseMatrix.h"
@@ -19,68 +15,19 @@
 namespace Cantera
 {
 
-//====================================================================================================================
-//! Transport solve options
-//! @deprecated GMRES option is unimplemented.
-enum TRANSOLVE_TYPE {
-    //!  Solve the dense matrix via a gmres iteration
-    TRANSOLVE_GMRES = 1,
-    //!  Solve the dense matrix via an LU gauss elimination
-    TRANSOLVE_LU
-};
-//====================================================================================================================
 class GasTransportParams;
-//====================================================================================================================
-//!   Class L_Matrix is used to represent the "L" matrix.
+
+//! Class MultiTransport implements multicomponent transport properties for
+//! ideal gas mixtures.
 /*!
- *  This class is used instead of DenseMatrix so that a version of mult can be
- * used that knows about the structure of the L matrix,
- * specifically that the upper-right and lower-left blocks are
- * zero.
- * @ingroup transportProps
- */
-class L_Matrix : public DenseMatrix
-{
-public:
-
-    //! default constructor
-    L_Matrix() {}
-
-    //! destructor
-    virtual ~L_Matrix() {}
-
-    //! Conduct a multiply with the Dense matrix
-    /*!
-     * This method is used by GMRES to multiply the L matrix by a
-     * vector b.  The L matrix has a 3x3 block structure, where each
-     * block is a K x K matrix.  The elements of the upper-right and
-     * lower-left blocks are all zero.  This method is defined so
-     * that the multiplication only involves the seven non-zero
-     * blocks.
-     *
-     *   @param b
-     *   @param prod
-     *   @deprecated GMRES method is not implemented
-     */
-    DEPRECATED(virtual void mult(const doublereal* b, doublereal* prod) const);
-};
-
-
-//====================================================================================================================
-//! Class MultiTransport implements multicomponent transport
-//! properties for ideal gas mixtures.
-/*!
+ * The implementation generally follows the procedure outlined in Kee,
+ * Coltrin, and Glarborg, "Theoretical and Practical Aspects of Chemically
+ * Reacting Flow Modeling," Wiley Interscience.
  *
- *  The implementation generally
- * follows the procedure outlined in Kee, Coltrin, and Glarborg,
- * "Theoretical and Practical Aspects of Chemically Reacting Flow
- * Modeling," Wiley Interscience.
- *
- * @ingroup transportProps
+ * @ingroup tranprops
  */
 class MultiTransport : public GasTransport
 {
-
 protected:
 
     //! default constructor
@@ -90,11 +37,6 @@ protected:
     MultiTransport(thermo_t* thermo=0);
 
 public:
-
-    //! Destructor
-    virtual ~MultiTransport() {}
-
-    // overloaded base class methods
     virtual int model() const {
         if (m_mode == CK_Mode) {
             return CK_Multicomponent;
@@ -160,11 +102,11 @@ public:
                                 const doublereal delta,
                                 doublereal* const fluxes);
 
-    //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the thermodynamic
-    //! state at two nearby points.
+    //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the
+    //! thermodynamic state at two nearby points.
     /*!
-     * The specific diffusional fluxes are calculated with reference to the mass averaged
-     * velocity. This is a one-dimensional vector
+     * The specific diffusional fluxes are calculated with reference to the
+     * mass averaged velocity. This is a one-dimensional vector
      *
      * @param state1 Array of temperature, density, and mass
      *               fractions for state 1.
@@ -178,21 +120,6 @@ public:
                                const doublereal* state2, doublereal delta,
                                doublereal* fluxes);
 
-    //! Set the solution method for inverting the L matrix
-    /*!
-     *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
-     *      @deprecated GMRES option is unimplemented.
-     */
-    DEPRECATED(virtual void setSolutionMethod(TRANSOLVE_TYPE method));
-
-    //! Set the options for the GMRES solution
-    /*!
-     *      @param m    set the mgmres param
-     *      @param eps  Set the eps parameter
-     *      @deprecated GMRES option is unimplemented.
-     */
-    DEPRECATED(virtual void setOptions_GMRES(int m, doublereal eps));
-
     //! Initialize the transport operator with parameters from GasTransportParams object
     /*!
      *  @param tr  input GasTransportParams object
@@ -201,16 +128,7 @@ public:
 
     friend class TransportFactory;
 
-    //! Return a structure containing all of the pertinent parameters
-    //! about a species that was used to construct the Transport properties in this object
-    /*!
-     * @param k        Species index
-     * @deprecated
-     */
-    DEPRECATED(struct GasTransportData getGasTransportData(int k));
-
 protected:
-
     //! Update basic temperature-dependent quantities if the temperature has changed.
     void update_T();
 
@@ -221,12 +139,7 @@ protected:
     //! conductivity and thermal diffusion coefficients.
     void updateThermal_T();
 
-private:
-
     doublereal m_thermal_tlast;
-
-    doublereal m_tmin;
-    doublereal m_tmax;
 
     // property values
     std::vector<std::vector<int> > m_poly;
@@ -247,13 +160,16 @@ private:
     //! Dense matrix for omega22
     DenseMatrix          m_om22;
 
-    vector_fp   m_zrot;
+public:
     vector_fp   m_crot;
     vector_fp   m_cinternal;
+    vector_fp   m_zrot;
     vector_fp   m_eps;
+    vector_fp   m_sigma;
     vector_fp   m_alpha;
-    vector_fp   m_dipoleDiag;
+    DenseMatrix   m_dipole;
 
+protected:
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
     vector_fp  m_frot_298;
@@ -262,18 +178,17 @@ private:
     doublereal m_lambda;
 
     // L matrix quantities
-    L_Matrix  m_Lmatrix;
+    DenseMatrix  m_Lmatrix;
     DenseMatrix m_aa;
     //DenseMatrix m_Lmatrix;
     vector_fp m_a;
     vector_fp m_b;
 
-    bool m_gmres; //!< @deprecated
-    int  m_mgmres; //!< @deprecated
-    doublereal m_eps_gmres; //!< @deprecated
-
     // work space
     vector_fp m_spwork1, m_spwork2, m_spwork3;
+
+    //! Mole fraction vector from last L-matrix evaluation
+    vector_fp m_molefracs_last;
 
     void correctBinDiffCoeffs();
 
@@ -310,9 +225,7 @@ private:
         return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
     }
 
-    void solveLMatrixEquation();
-    DenseMatrix m_epsilon;
-    DenseMatrix m_diam;
+    virtual void solveLMatrixEquation();
     DenseMatrix incl;
     bool m_debug;
 };

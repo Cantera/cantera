@@ -13,8 +13,6 @@
 #include "TortuosityMaxwell.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <string>
-
 namespace Cantera
 {
 
@@ -35,12 +33,6 @@ TortuosityMaxwell::TortuosityMaxwell(const TortuosityMaxwell& right) :
     relativeConductivities_(right.relativeConductivities_)
 {
     *this = right;
-}
-//====================================================================================================================
-// Default destructor for TortuosityMaxwell
-TortuosityMaxwell::~TortuosityMaxwell()
-{
-
 }
 //====================================================================================================================
 // Assignment operator
@@ -66,8 +58,7 @@ TortuosityMaxwell&   TortuosityMaxwell::operator=(const TortuosityMaxwell& right
  */
 TortuosityBase* TortuosityMaxwell::duplMyselfAsTortuosityBase() const
 {
-    TortuosityMaxwell* tb = new TortuosityMaxwell(*this);
-    return dynamic_cast<TortuosityBase*>(tb);
+    return new TortuosityMaxwell(*this);
 }
 //====================================================================================================================
 // The tortuosity factor models the effective increase in the diffusive transport length.
@@ -93,8 +84,7 @@ doublereal TortuosityMaxwell::tortuosityFactor(doublereal porosity)
  */
 doublereal TortuosityMaxwell::McMillanFactor(doublereal porosity)
 {
-    doublereal tmp = 1 + 3 * (1.0 - porosity) * (relativeConductivities_ - 1.0) / (relativeConductivities_ + 2);
-    return tmp;
+    return 1 + 3 * (1.0 - porosity) * (relativeConductivities_ - 1.0) / (relativeConductivities_ + 2);
 }
 //====================================================================================================================
 }

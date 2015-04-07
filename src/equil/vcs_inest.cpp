@@ -14,28 +14,11 @@
 
 #include "cantera/base/clockWC.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 namespace VCSnonideal
 {
 
 static char pprefix[20] = "   --- vcs_inest: ";
 
-// Estimate equilibrium compositions
-/*
- *  Estimates equilibrium compositions.
- *  Algorithm covered in a section of Smith and Missen's Book.
- *
- *  Linear programming module is based on using dbolm.
- *
- *  @param aw   aw[i[  Mole fraction work space        (ne in length)
- *  @param sa   sa[j] = Gramm-Schmidt orthog work space (ne in length)
- *  @param sm   sm[i+j*ne] = QR matrix work space (ne*ne in length)
- *  @param ss   ss[j] = Gramm-Schmidt orthog work space (ne in length)
- *  @param test This is a small negative number.
- */
 void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                           double* const ss, double test)
 {
@@ -62,35 +45,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
      *
      *   Note, both of these programs do this.
      */
-#ifdef ALTLINPROG
     vcs_setMolesLinProg();
-#else
-    std::vector<double> ax(m_numElemConstraints*nspecies, 0.0);
-    std::vector<double> bb(m_numElemConstraints, 0.0);
-    std::vector<double> cc(nspecies, 0.0);
-
-    int neActive = 0;
-    size_t jj = 0;
-    for (size_t j = 0; j < m_numElemConstraints; j++) {
-        if (m_elementActive[j]) {
-            neActive++;
-            bb[jj] = m_elemAbundancesGoal[j];
-            jj++;
-        }
-    }
-    for (kspec = 0; kspec < nspecies; ++kspec) {
-        cc[kspec] = -m_SSfeSpecies[kspec];
-        jj = 0;
-        for (size_t j = 0; j < m_numElemConstraints; ++j) {
-            if (m_elementActive[j]) {
-                ax[jj + kspec * neActive] = m_formulaMatrix[j][kspec];
-                jj++;
-            }
-        }
-    }
-    linprogmax(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(cc), VCS_DATA_PTR(ax),
-               VCS_DATA_PTR(bb), neActive, nspecies, neActive);
-#endif
 
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -386,16 +341,7 @@ finished:
     }
 #endif
 }
-/***************************************************************************/
 
-//   Create an initial estimate of the solution to the thermodynamic
-//   equilibrium problem.
-/*
- *    @return  Return value indicates success:
- *      -    0: successful initial guess
- *      -   -1: Unsuccessful initial guess; the elemental abundances aren't
- *              satisfied.
- */
 int VCS_SOLVE::vcs_inest_TP()
 {
     int retn = 0;

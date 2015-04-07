@@ -1,6 +1,5 @@
 
 #include "cantera/thermo/WaterPropsIAPWS.h"
-#include <new>
 
 #include <cstdio>
 #include <cmath>

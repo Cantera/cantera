@@ -20,25 +20,12 @@
 #include "cantera/base/global.h"
 #include "cantera/base/ctml.h"
 
-#include <string>
 #include <sstream>
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cctype>
 
 namespace Cantera
 {
 
-//================================================================================================
-// Convert a double into a c++ string
-/*
- *  This routine doesn't assume a formatting. You
- *  must supply the formatting
- *
- * @param x double to be converted
- * @param fmt   Format to be used (printf style)
- */
 std::string fp2str(const double x, const std::string& fmt)
 {
     char buf[64];
@@ -49,20 +36,7 @@ std::string fp2str(const double x, const std::string& fmt)
     }
     return std::string(" ");
 }
-std::string fp2str(const double x)
-{
-    char buf[64];
-    int n = SNPRINTF(buf, 64, "%g" , x);
-    if (n > 0) {
-        buf[29] = '\0';
-        return std::string(buf);
-    }
-    return std::string(" ");
-}
-//================================================================================================
-/*
- * Convert an integer number to a std::string using sprintf.
- */
+
 std::string int2str(const int n, const std::string& fmt)
 {
     char buf[30];
@@ -73,33 +47,14 @@ std::string int2str(const int n, const std::string& fmt)
     }
     return std::string(" ");
 }
-//================================================================================================
-//  Convert an int to a string
-/*
- *  @param n          int to be converted
- */
-std::string int2str(const int n)
-{
-    char buf[30];
-    int m = SNPRINTF(buf, 30, "%d", n);
-    if (m > 0) {
-        buf[29] = '\0';
-        return std::string(buf);
-    }
-    return std::string(" ");
-}
-//================================================================================================
-//  Convert an int to a string
-/*
- *  @param n          int to be converted
- */
+
 std::string int2str(const size_t n)
 {
     std::stringstream ss;
     ss << n;
     return ss.str();
 }
-//================================================================================================
+
 std::string lowercase(const std::string& s)
 {
     int n = static_cast<int>(s.size());
@@ -109,14 +64,12 @@ std::string lowercase(const std::string& s)
     }
     return lc;
 }
-//================================================================================================
-//! Return the position of the first printable
-//! character in the string
+
+//! Return the position of the first printable character in the string
 /*!
  *    @param  s    input string
- *    @return      Returns an int representing the first
- *                 printable string. If none returns the
- *                 size of the string.
+ *    @return      Returns an int representing the first printable string. If
+ *                 none returns the size of the string.
  */
 static int firstChar(const std::string& s)
 {
@@ -129,14 +82,12 @@ static int firstChar(const std::string& s)
     }
     return i;
 }
-//================================================================================================
-//! Return the position of the last printable
-//! character in the string
+
+//! Return the position of the last printable character in the string
 /*!
  *    @param  s    input string
- *    @return      Returns an int representing the first
- *                 printable string. If none returns
- *                 -1.
+ *    @return      Returns an int representing the first printable string. If
+ *                 none returns -1.
  */
 static int lastChar(const std::string& s)
 {
@@ -148,30 +99,14 @@ static int lastChar(const std::string& s)
         }
     return i;
 }
-//================================================================================================
-// Strip the leading and trailing white space
-// from a string
-/*
- *  The command isprint() is used to determine printable
- *  characters.
- *
- *    @param   s       Input string
- *    @return  Returns a copy of the string, stripped
- *             of leading and trailing white space
- */
+
 std::string stripws(const std::string& s)
 {
     int ifirst = firstChar(s);
     int ilast = lastChar(s);
     return s.substr(ifirst, ilast - ifirst + 1);
 }
-//================================================================================================
-// Strip non-printing characters wherever they are
-/*
- *   @param s        Input string
- *   @return         Returns a copy of the string,
- *                   stripped of all non-printing characters.
- */
+
 std::string stripnonprint(const std::string& s)
 {
     int i;
@@ -184,70 +119,45 @@ std::string stripnonprint(const std::string& s)
     }
     return ss;
 }
-//================================================================================================
-// Parse a composition string into a map consisting of individual key:composition
-// pairs.
-/*
- *  The composition is a double.
- * Example
- *
- *  Input is
- *
- *    "fire:0   ice:1   snow:2"
- *
- *  Output is
- *             x["fire"] = 0
- *             x["ice"]  = 1
- *             x["snow"] = 2
- *
- *     @param ss   original string consisting of multiple key:composition
- *                 pairs on multiple lines
- *     @param x    Output map consisting of a composition
- *                 map, which is a string to double map
- */
-void parseCompString(const std::string& ss, Cantera::compositionMap& x)
+
+compositionMap parseCompString(const std::string& ss,
+                               const std::vector<std::string>& names)
 {
+    compositionMap x;
+    for (size_t k = 0; k < names.size(); k++) {
+        x[names[k]] = 0.0;
+    }
     std::string s = ss;
-    std::string::size_type icolon, ibegin, iend;
-    std::string name, num, nm;
+    std::string num;
     do {
-        ibegin = s.find_first_not_of(", ;\n\t");
+        size_t ibegin = s.find_first_not_of(", ;\n\t");
         if (ibegin != std::string::npos) {
             s = s.substr(ibegin,s.size());
-            icolon = s.find(':');
-            iend = s.find_first_of(", ;\n\t");
+            size_t icolon = s.find(':');
+            size_t iend = s.find_first_of(", ;\n\t");
             //icomma = s.find(',');
             if (icolon != std::string::npos) {
-                name = s.substr(0, icolon);
+                std::string name = stripws(s.substr(0, icolon));
                 if (iend != std::string::npos) {
-                    num = s.substr(icolon+1, iend-icolon);
+                    num = s.substr(icolon+1, iend-icolon-1);
                     s = s.substr(iend+1, s.size());
                 } else {
                     num = s.substr(icolon+1, s.size());
                     s = "";
                 }
-                nm = stripws(name);
-                if (x.find(nm) == x.end()) {
+                if (x.find(name) == x.end()) {
                     throw CanteraError("parseCompString",
-                                       "unknown species " + nm);
+                                       "unknown species " + name);
                 }
-                x[nm] = atof(num.c_str());
+                x[name] = fpValueCheck(num);
             } else {
                 s = "";
             }
         }
     } while (s != "");
+    return x;
 }
-//================================================================================================
-//   Parse a composition string into individual key:composition
-//   pairs
-/*
- *
- *     @param ss   original string consisting of multiple key:composition
- *                 pairs on multiple lines
- *     @param w    Output vector consisting of single key:composition
- *                 items in each index.
- */
+
 void split(const std::string& ss, std::vector<std::string>& w)
 {
     std::string s = ss;
@@ -268,7 +178,7 @@ void split(const std::string& ss, std::vector<std::string>& w)
         }
     } while (s != "");
 }
-//================================================================================================
+
 int fillArrayFromString(const std::string& str,
                         doublereal* const a, const char delim)
 {
@@ -285,19 +195,12 @@ int fillArrayFromString(const std::string& str,
             num = s;
             s = "";
         }
-        a[count] = atofCheck(num.c_str());
+        a[count] = fpValueCheck(num);
         count++;
     }
     return count;
 }
-//================================================================================================
-// Get the file name without the path or extension
-/*
- *   @param fullPath   Input file name consisting
- *                     of the full file name
- *
- *  @return Returns the basename
- */
+
 std::string getBaseName(const std::string& path)
 {
     std::string file;
@@ -314,44 +217,70 @@ std::string getBaseName(const std::string& path)
     }
     return file;
 }
-//================================================================================================
-int intValue(std::string val)
+
+int intValue(const std::string& val)
 {
     return std::atoi(stripws(val).c_str());
 }
-//================================================================================================
-doublereal fpValue(std::string val)
+
+doublereal fpValue(const std::string& val)
 {
-    return std::atof(stripws(val).c_str());
+    doublereal rval;
+    std::stringstream ss(val);
+    ss.imbue(std::locale("C"));
+    ss >> rval;
+    return rval;
 }
-//================================================================================================
-doublereal fpValueCheck(std::string val)
+
+doublereal fpValueCheck(const std::string& val)
 {
-    return atofCheck(stripws(val).c_str());
+    std::string str = stripws(val);
+    if (str.empty()) {
+        throw CanteraError("fpValueCheck", "string has zero length");
+    }
+    int numDot = 0;
+    int numExp = 0;
+    char ch;
+    int istart = 0;
+    ch = str[0];
+    if (ch == '+' || ch == '-') {
+        istart = 1;
+    }
+    for (size_t i = istart; i < str.size(); i++) {
+        ch = str[i];
+        if (isdigit(ch)) {
+        } else if (ch == '.') {
+            numDot++;
+            if (numDot > 1) {
+                throw CanteraError("fpValueCheck",
+                                   "string has more than one .");
+            }
+        } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
+            numExp++;
+            str[i] = 'E';
+            if (numExp > 1) {
+                throw CanteraError("fpValueCheck",
+                                   "string has more than one exp char");
+            }
+            ch = str[i+1];
+            if (ch == '+' || ch == '-') {
+                i++;
+            }
+        } else {
+            throw CanteraError("fpValueCheck",
+                               "Trouble processing string, " + str);
+        }
+    }
+    return fpValue(str);
 }
-//================================================================================================
-//  Generate a logfile name based on an input file name
-/*
- *   It tries to find the basename. Then, it appends a .log
- *   to it.
- *
- *   @param infile      Input file name
- *
- *  @return Returns a logfile name
- */
+
 std::string logfileName(const std::string& infile)
 {
     std::string logfile = getBaseName(infile);
     logfile += ".log";
     return logfile;
 }
-//================================================================================================
-//    Line wrap a string via a copy operation
-/*
- *   @param s   Input string to be line wrapped
- *   @paramlen  Length at which to wrap. The
- *              default is 70.
- */
+
 std::string wrapString(const std::string& s, const int len)
 {
     int count=0;
@@ -370,21 +299,7 @@ std::string wrapString(const std::string& s, const int len)
     }
     return r;
 }
-//================================================================================================
-// Parse a name string, separating out the phase name from the species name
-/*
- *   Name strings must not contain these internal characters "; \n \t "
- *   Only one colon is allowed, the one separating the phase name from the
- *   species name. Therefore, names may not include a colon.
- *
- *   @param nameStr   (input) Name string containing the phase name and the species
- *                            name separated by a colon. The phase name is optional.
- *                             example:   "silane:SiH4"
- *   @param phaseName (output) Name of the phase, if specified. If not specified,
- *                             a blank string is returned.
- *   @return          (output) Species name is returned. If nameStr is blank
- *                             an empty string is returned.
- */
+
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
     std::string s = stripws(nameStr);
@@ -410,25 +325,10 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
     }
     return s;
 }
-//================================================================================================
-// Routine strips off white space from a c character string
-/*
- *     This routine strips off blanks and tabs (only leading and trailing
- *     characters) in 'str'.  On return, it returns the number of
- *     characters still included in the string (excluding the null character).
- *
- *      Comments are excluded -> All instances of the comment character, '!',
- *                               are replaced by '\0' thereby terminating
- *                               the string
- *
- *     Parameter list:
- *
- * @param  str   On output 'str' contains the same characters as on
- *               input except the leading and trailing white space and
- *               comments have been removed.
- */
+
 int stripLTWScstring(char str[])
 {
+    warn_deprecated("stripLTWScstring");
     int  i = 0, j = 0;
     char ch;
     const char COM_CHAR='\0';
@@ -436,7 +336,7 @@ int stripLTWScstring(char str[])
      *    Quick Returns
      */
     if ((str == 0) || (str[0] == '\0')) {
-        return (0);
+        return 0;
     }
 
     /* Find first non-space character character */
@@ -464,101 +364,9 @@ int stripLTWScstring(char str[])
     }
     j++;
     str[j] = '\0';
-    return (j);
+    return j;
 }
-//================================================================================================
-// Translate a char string into a single double
-/*
- * atofCheck is a wrapper around the C stdlib routine atof().
- * It does quite a bit more error checking than atof() or
- * strtod(), and is quite a bit more restrictive.
- *
- *   First it interprets both E, e, d, and D as exponents.
- *   atof() only interprets e or E as an exponent character.
- *
- *   It only accepts a string as well formed if it consists as a
- *   single token. Multiple words will produce an error message
- *
- *   It will produce an error for NAN and inf entries as well,
- *   in contrast to atof() or strtod().
- *   The user needs to know that a serious numerical issue
- *   has occurred.
- *
- *   It does not accept hexadecimal numbers.
- *
- *  @param dptr  pointer to the input c string
- *  @return      Returns the double
- *
- * On any error, it will throw a CanteraError signal.
- */
-doublereal atofCheck(const char* const dptr)
-{
-    if (!dptr) {
-        throw CanteraError("atofCheck", "null pointer to string");
-    }
-    char* eptr = (char*) malloc(strlen(dptr)+1);
-    strcpy(eptr, dptr);
-    int ll = stripLTWScstring(eptr);
-    if (ll == 0) {
-        throw CanteraError("atofCheck", "string has zero length");
-    }
-    int numDot = 0;
-    int numExp = 0;
-    char ch;
-    int istart = 0;
-    ch = eptr[0];
-    if (ch == '+' || ch == '-') {
-        istart = 1;
-    }
-    for (int i = istart; i < ll; i++) {
-        ch = eptr[i];
-        if (isdigit(ch)) {
-        } else if (ch == '.') {
-            numDot++;
-            if (numDot > 1) {
-                free(eptr);
-                throw CanteraError("atofCheck",
-                                   "string has more than one .");
-            }
-        } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
-            numExp++;
-            eptr[i] = 'E';
-            if (numExp > 1) {
-                free(eptr);
-                throw CanteraError("atofCheck",
-                                   "string has more than one exp char");
-            }
-            ch = eptr[i+1];
-            if (ch == '+' || ch == '-') {
-                i++;
-            }
-        } else {
-            std::string hh(dptr);
-            free(eptr);
-            throw CanteraError("atofCheck",
-                               "Trouble processing string, " + hh);
-        }
-    }
-    doublereal rval = atof(eptr);
-    free(eptr);
-    return rval;
-}
-//================================================================================================
-// Interpret one or two token string as a single double
-/*
- *   This is similar to atof(). However, the second token
- *   is interpreted as an MKS units string and a conversion
- *   factor to MKS is applied.
- *
- *   Example
- *  " 1.0 atm"
- *
- *   results in the number 1.01325e5
- *
- *   @param strSI string to be converted. One or two tokens
- *
- *   @return returns a converted double
- */
+
 doublereal strSItoDbl(const std::string& strSI)
 {
     std::vector<std::string> v;
@@ -571,17 +379,17 @@ doublereal strSItoDbl(const std::string& strSI)
     } else if (n == 2) {
         fp = toSI(v[1]);
     }
-    doublereal val = atofCheck(v[0].c_str());
-    return (val * fp);
+    doublereal val = fpValueCheck(v[0]);
+    return val * fp;
 }
-//================================================================================================
+
 //!  Find the first white space in a string
 /*!
  *   Returns the location of the first white space character in a string
  *
  *   @param   val    Input string to be parsed
- *   @return  In a size_type variable, return the location of the first white space character.
- *             Return npos if none is found
+ *   @return  In a size_type variable, return the location of the first white
+ *             space character. Return npos if none is found
  */
 static std::string::size_type findFirstWS(const std::string& val)
 {
@@ -599,14 +407,14 @@ static std::string::size_type findFirstWS(const std::string& val)
     }
     return ibegin;
 }
-//================================================================================================
+
 //!  Find the first non-white space in a string
 /*!
  *   Returns the location of the first non-white space character in a string
  *
  *   @param   val    Input string to be parsed
- *   @return  In a size_type variable, return the location of the first nonwhite space character.
- *             Return npos if none is found
+ *   @return  In a size_type variable, return the location of the first
+ *             nonwhite space character. Return npos if none is found
  */
 static std::string::size_type findFirstNotOfWS(const std::string& val)
 {
@@ -624,15 +432,7 @@ static std::string::size_type findFirstNotOfWS(const std::string& val)
     }
     return ibegin;
 }
-//================================================================================================
-// This function  separates a string up into tokens
-// according to the location of white space.
-/*
- *    The separate tokens are returned in a string vector, v.
- *
- *  @param oval   String to be broken up
- *  @param v     Output vector of tokens.
- */
+
 void tokenizeString(const std::string& oval,
                     std::vector<std::string>& v)
 {
@@ -656,6 +456,15 @@ void tokenizeString(const std::string& oval,
         }
     }
 }
-//================================================================================================
+
+void copyString(const std::string& source, char* dest, size_t length)
+{
+    const char* c_src = source.c_str();
+    size_t N = std::min(length, source.length()+1);
+    std::copy(c_src, c_src + N, dest);
+    if (length != 0) {
+        dest[length-1] = '\0';
+    }
+}
 
 }

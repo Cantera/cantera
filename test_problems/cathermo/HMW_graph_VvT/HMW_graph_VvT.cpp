@@ -18,12 +18,7 @@ int main(int argc, char** argv)
     size_t i;
 
     try {
-
-        char iFile[80];
-        strcpy(iFile, "HMW_NaCl.xml");
-        if (argc > 1) {
-            strcpy(iFile, argv[1]);
-        }
+        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.xml";
         double V0[20], pmV[20];
 
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
@@ -225,8 +220,8 @@ int main(int argc, char** argv)
             }
 
             if (i != TTable.NPoints+1) {
-                printf("%13g, %13g, %13g, %13g, %13g, %13g, "
-                       "%13.5g, %13g, %13g, %13g\n",
+                printf("%13.4g, %13.4g, %13.4g, %13.4g, %13.4g, %13.4g, "
+                       "%13.5g, %13.4g, %13.4g, %13.4g\n",
                        T, pres*1.0E-5,  Aphi, Av, Delta_V0s*1.0E3, Delta_Vs*1.0E3,
                        Vex*1.0E3, phiV*1.0E3, molarV*1.0E3 , molarV0*1.0E3);
 #ifdef DEBUG_HKM
@@ -242,13 +237,13 @@ int main(int argc, char** argv)
         printf(" Species     MoleFrac        Molal          V0      "
                "    partV     (partV - V0)\n");
         printf("  H2O(L)");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[0], moll[0], V0_H2O*1.E3, V_H2O*1.E3,
+        printf("%13.4g %13.4g %13.4g %13.4g %13.4g\n", Xmol[0], moll[0], V0_H2O*1.E3, V_H2O*1.E3,
                (V_H2O-V0_H2O)*1.E3);
         printf("  Na+   ");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[i1], moll[i1],
+        printf("%13.4g %13.4g %13.4g %13.4g %13.4g\n", Xmol[i1], moll[i1],
                V0_Naplus*1.E3 , V_Naplus*1.E3, (V_Naplus -V0_Naplus)*1.E3);
         printf("  Cl-   ");
-        printf("%13g %13g %13g %13g %13g\n", Xmol[i2], moll[i2],
+        printf("%13.4g %13.4g %13.4g %13.4g %13.4g\n", Xmol[i2], moll[i2],
                V0_Clminus*1.E3, V_Clminus*1.E3, (V_Clminus - V0_Clminus)*1.E3);
 
         printf(" NaCl(s)");
@@ -256,7 +251,7 @@ int main(int argc, char** argv)
         if (fabs(dd) < 1.0E-12) {
             dd = 0.0;
         }
-        printf("%13g               %13g %13g %13g\n", 1.0,
+        printf("%13.4g               %13.4g %13.4g %13.4g\n", 1.0,
                V0_NaCl*1.E3 , V_NaCl*1.E3,  dd);
 
 

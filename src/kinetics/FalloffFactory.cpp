@@ -6,8 +6,7 @@
 #include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-
-#include <cmath>
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -20,55 +19,32 @@ mutex_t FalloffFactory::falloff_mutex;
  * The falloff function defines the value of \f$ F \f$ in the following
  * rate expression
  *
- *  \f[
- *         k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F
- *  \f]
+ *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
  *  where
- *  \f[
- *         P_r = \frac{k_0 [M]}{k_{\infty}}
- *  \f]
+ *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
  *
  * This parameterization is  defined by
- * \f[
- *        F = F_{cent}^{1/(1 + f_1^2)}
- * \f]
+ * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
  * where
- * \f[
- *       F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1)
- * \f]
+ * \f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) \f]
  *
- * \f[
- *       f_1 = (\log_{10} P_r + C) / \left(N - 0.14
- *             (\log_{10} P_r + C)\right)
- * \f]
+ * \f[ f_1 = (\log_{10} P_r + C) / \left(N - 0.14
+ *             (\log_{10} P_r + C)\right) \f]
  *
- * \f[
- *          C = -0.4 - 0.67 \log_{10} F_{cent}
- * \f]
+ * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
  *
- * \f[
- *          N = 0.75 - 1.27 \log_{10} F_{cent}
- * \f]
+ * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
  *
- *  There are a few requirements for the parameters
- *
- *   T_3 is required to greater than or equal to zero. If it is zero,
- *   then the term is set to zero.
- *
- *   T_1 is required to greater than or equal to zero. If it is zero,
- *   then the term is set to zero.
+ *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
+ *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
 class Troe3 : public Falloff
 {
 public:
-
     //! Default constructor.
     Troe3() : m_a(0.0), m_rt3(0.0), m_rt1(0.0) {}
-
-    //! Destructor. Does nothing.
-    virtual ~Troe3() {}
 
     /**
      * Initialize.
@@ -78,21 +54,13 @@ public:
     virtual void init(const vector_fp& c) {
         m_a  = c[0];
 
-        if (c[1] <= 0.0) {
-            if (c[1] == 0.0) {
-                m_rt3 = 1000.;
-            } else {
-                throw CanteraError("Troe3::init()", "T3 parameter is less than zero");
-            }
+        if (c[1] == 0.0) {
+            m_rt3 = 1000.;
         } else {
             m_rt3 = 1.0/c[1];
         }
-        if (c[2] <= 0.0) {
-            if (c[2] == 0.0) {
-                m_rt1 = 1000.;
-            } else {
-                throw CanteraError("Troe3::init()", "T1 parameter is less than zero");
-            }
+        if (c[2] == 0.0) {
+            m_rt1 = 1000.;
         } else {
             m_rt1 = 1.0/c[2];
         }
@@ -113,11 +81,6 @@ public:
         *work = log10(std::max(Fcent, SmallNumber));
     }
 
-    //! Function that returns <I>F</I>
-    /*!
-     *  @param pr   Value of the reduced pressure for this reaction
-     *  @param work Pointer to the previously saved work space
-     */
     virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr,f1,lgf, cc, nn;
         lpr = log10(std::max(pr,SmallNumber));
@@ -128,31 +91,22 @@ public:
         return pow(10.0, lgf);
     }
 
-    //! Utility function that returns the size of the workspace
     virtual size_t workSize() {
         return 1;
     }
 
 protected:
-
-    //! parameter a in the  4-parameter Troe falloff function
-    /*!
-     * This is unitless
-     */
+    //! parameter a in the  4-parameter Troe falloff function. This is
+    //! unitless.
     doublereal m_a;
 
-    //! parameter 1/T_3 in the  4-parameter Troe falloff function
-    /*!
-     * This has units of Kelvin-1
-     */
+    //! parameter 1/T_3 in the  4-parameter Troe falloff function. This has
+    //! units of Kelvin-1
     doublereal m_rt3;
 
-    //! parameter 1/T_1 in the  4-parameter Troe falloff function
-    /*!
-     * This has units of Kelvin-1
-     */
+    //! parameter 1/T_1 in the  4-parameter Troe falloff function. This has
+    //! units of Kelvin-1.
     doublereal m_rt1;
-
 };
 
 //! The 4-parameter Troe falloff parameterization.
@@ -160,45 +114,25 @@ protected:
  * The falloff function defines the value of \f$ F \f$ in the following
  * rate expression
  *
- *  \f[
- *         k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F
- *  \f]
+ *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
  *  where
- *  \f[
- *         P_r = \frac{k_0 [M]}{k_{\infty}}
- *  \f]
+ *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
  *
  * This parameterization is defined by
  *
- * \f[
- *         F = F_{cent}^{1/(1 + f_1^2)}
- * \f]
+ * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
  *    where
- * \f[
- *         F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T_2/T)
- * \f]
+ * \f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T_2/T) \f]
  *
- * \f[
- *        f_1 = (\log_{10} P_r + C) /
- *              \left(N - 0.14 (\log_{10} P_r + C)\right)
- * \f]
+ * \f[ f_1 = (\log_{10} P_r + C) /
+ *              \left(N - 0.14 (\log_{10} P_r + C)\right) \f]
  *
- * \f[
- *         C = -0.4 - 0.67 \log_{10} F_{cent}
- * \f]
+ * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
  *
- * \f[
- *          N = 0.75 - 1.27 \log_{10} F_{cent}
- * \f]
+ * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
  *
- *
- *  There are a few requirements for the parameters
- *
- *   T_3 is required to greater than or equal to zero. If it is zero,
- *   then the term is set to zero.
- *
- *   T_1 is required to greater than or equal to zero. If it is zero,
- *   then the term is set to zero.
+ *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
+ *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
@@ -209,32 +143,20 @@ public:
     Troe4() : m_a(0.0), m_rt3(0.0), m_rt1(0.0),
         m_t2(0.0) {}
 
-    //! Destructor
-    virtual ~Troe4() {}
-
-
     //! Initialization of the object
     /*!
      * @param c Vector of four doubles: The doubles are the parameters,
-     *          a,, T_3, T_1, and T_2 of the SRI parameterization
+     *          a,, T_3, T_1, and T_2 of the Troe parameterization
      */
     virtual void init(const vector_fp& c) {
         m_a  = c[0];
-        if (c[1] <= 0.0) {
-            if (c[1] == 0.0) {
-                m_rt3 = 1000.;
-            } else {
-                throw CanteraError("Troe4::init()", "T3 parameter is less than zero");
-            }
+        if (c[1] == 0.0) {
+            m_rt3 = 1000.;
         } else {
             m_rt3 = 1.0/c[1];
         }
-        if (c[2] <= 0.0) {
-            if (c[2] == 0.0) {
-                m_rt1 = 1000.;
-            } else {
-                throw CanteraError("Troe4::init()", "T1 parameter is less than zero");
-            }
+        if (c[2] == 0.0) {
+            m_rt1 = 1000.;
         } else {
             m_rt1 = 1.0/c[2];
         }
@@ -257,11 +179,6 @@ public:
         *work = log10(std::max(Fcent, SmallNumber));
     }
 
-    //! Function that returns <I>F</I>
-    /*!
-     *  @param pr   Value of the reduced pressure for this reaction
-     *  @param work Pointer to the previously saved work space
-     */
     virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr,f1,lgf, cc, nn;
         lpr = log10(std::max(pr,SmallNumber));
@@ -272,75 +189,51 @@ public:
         return pow(10.0, lgf);
     }
 
-    //! Utility function that returns the size of the workspace
     virtual size_t workSize() {
         return 1;
     }
 
 protected:
-
-    //! parameter a in the  4-parameter Troe falloff function
-    /*!
-     * This is unitless
-     */
+    //! parameter a in the  4-parameter Troe falloff function. This is
+    //! unitless.
     doublereal m_a;
 
-    //! parameter 1/T_3 in the  4-parameter Troe falloff function
-    /*!
-     * This has units of Kelvin-1
-     */
+    //! parameter 1/T_3 in the  4-parameter Troe falloff function. This has
+    //! units of Kelvin-1.
     doublereal m_rt3;
 
-    //! parameter 1/T_1 in the  4-parameter Troe falloff function
-    /*!
-     * This has units of Kelvin-1
-     */
+    //! parameter 1/T_1 in the  4-parameter Troe falloff function. This has
+    //! units of Kelvin-1.
     doublereal m_rt1;
 
-    //! parameter T_2 in the  4-parameter Troe falloff function
-    /*!
-     * This has units of Kelvin
-     */
+    //! parameter T_2 in the  4-parameter Troe falloff function. This has
+    //! units of Kelvin.
     doublereal m_t2;
 };
-
 
 //! The 3-parameter SRI falloff function for <I>F</I>
 /*!
  * The falloff function defines the value of \f$ F \f$ in the following
  * rate expression
  *
- *  \f[
- *         k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F
- *  \f]
+ *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
  *  where
- *  \f[
- *         P_r = \frac{k_0 [M]}{k_{\infty}}
- *  \f]
+ *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
  *
- *  \f[
- *         F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
- *  \f]
+ *  \f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n \f]
  *      where
- *  \f[
- *         n = \frac{1.0}{1.0 + {\log_{10} P_r}^2}
- *  \f]
+ *  \f[ n = \frac{1.0}{1.0 + {\log_{10} P_r}^2} \f]
  *
- *   \f$ c \f$ s required to greater than or equal to zero. If it is zero,
- *   then the corresponding term is set to zero.
+ *  \f$ c \f$ s required to greater than or equal to zero. If it is zero,
+ *  then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
 class SRI3 : public Falloff
 {
-
 public:
-
     //! Constructor
     SRI3() {}
-
-    //! Destructor
-    virtual ~SRI3() {}
 
     //! Initialization of the object
     /*!
@@ -373,87 +266,59 @@ public:
         }
     }
 
-    //! Function that returns <I>F</I>
-    /*!
-     *  @param pr   Value of the reduced pressure for this reaction
-     *  @param work Pointer to the previously saved work space
-     */
     virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr = log10(std::max(pr,SmallNumber));
         doublereal xx = 1.0/(1.0 + lpr*lpr);
-        doublereal ff = pow(*work , xx);
-        return ff;
+        return pow(*work , xx);
     }
 
-    //! Utility function that returns the size of the workspace
     virtual size_t workSize() {
         return 1;
     }
 
 protected:
-
-    //! parameter a in the  3-parameter SRI falloff function
-    /*!
-     * This is unitless
-     */
+    //! parameter a in the  3-parameter SRI falloff function. This is
+    //! unitless.
     doublereal m_a;
 
-    //! parameter b in the  3-parameter SRI falloff function
-    /*!
-     * This has units of Kelvin
-     */
+    //! parameter b in the  3-parameter SRI falloff function. This has units
+    //! of Kelvin.
     doublereal m_b;
 
-    //! parameter c in the  3-parameter SRI falloff function
-    /*!
-     * This has units of Kelvin
-     */
+    //! parameter c in the  3-parameter SRI falloff function. This has units
+    //! of Kelvin.
     doublereal m_c;
 };
-
 
 //! The 5-parameter SRI falloff function.
 /*!
  * The falloff function defines the value of \f$ F \f$ in the following
  * rate expression
  *
- *  \f[
- *         k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F
- *  \f]
+ *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
  *  where
- *  \f[
- *         P_r = \frac{k_0 [M]}{k_{\infty}}
- *  \f]
+ *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
  *
- *  \f[
- *         F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
- *              \;  d \; exp(\frac{-e}{T})
- *  \f]
+ *  \f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
+ *              \;  d \; exp(\frac{-e}{T}) \f]
  *      where
- *  \f[
- *         n = \frac{1.0}{1.0 + {\log_{10} P_r}^2}
- *  \f]
+ *  \f[ n = \frac{1.0}{1.0 + {\log_{10} P_r}^2} \f]
  *
- *   \f$ c \f$ s required to greater than or equal to zero. If it is zero,
- *   then the corresponding term is set to zero.
+ *  \f$ c \f$ s required to greater than or equal to zero. If it is zero, then
+ *  the corresponding term is set to zero.
  *
- *   m_c is required to greater than or equal to zero. If it is zero,
- *   then the corresponding term is set to zero.
+ *  m_c is required to greater than or equal to zero. If it is zero, then the
+ *  corresponding term is set to zero.
  *
- *   m_d is required to be greater than zero.
+ *  m_d is required to be greater than zero.
  *
  * @ingroup falloffGroup
  */
 class SRI5 : public Falloff
 {
-
 public:
-
     //! Constructor
     SRI5() {}
-
-    //! Destructor
-    virtual ~SRI5() {}
 
     //! Initialization of the object
     /*!
@@ -493,116 +358,71 @@ public:
         work[1] = m_d * pow(T,m_e);
     }
 
-    //! Function that returns <I>F</I>
-    /*!
-     *  @param pr   Value of the reduced pressure for this reaction
-     *  @param work Pointer to the previously saved work space
-     */
     virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr = log10(std::max(pr,SmallNumber));
         doublereal xx = 1.0/(1.0 + lpr*lpr);
         return pow(*work, xx) * work[1];
     }
 
-    //! Utility function that returns the size of the workspace
     virtual size_t workSize() {
         return 2;
     }
 
 protected:
-
-    //! parameter a in the  5-parameter SRI falloff function
-    /*!
-     * This is unitless
-     */
+    //! parameter a in the 5-parameter SRI falloff function. This is unitless.
     doublereal m_a;
 
-    //! parameter b in the  5-parameter SRI falloff function
-    /*!
-     * This has units of Kelvin
-     */
+    //! parameter b in the 5-parameter SRI falloff function. This has units of
+    //! Kelvin.
     doublereal m_b;
 
-    //! parameter c in the  5-parameter SRI falloff function
-    /*!
-     * This has units of Kelvin
-     */
+    //! parameter c in the 5-parameter SRI falloff function. This has units of
+    //! Kelvin.
     doublereal m_c;
 
-    //! parameter d in the  5-parameter SRI falloff function
-    /*!
-     * This is unitless
-     */
+    //! parameter d in the 5-parameter SRI falloff function. This is unitless.
     doublereal m_d;
 
-    //! parameter d in the  5-parameter SRI falloff function
-    /*!
-     * This is unitless
-     */
+    //! parameter d in the 5-parameter SRI falloff function. This is unitless.
     doublereal m_e;
-
 };
-
 
 //! Wang-Frenklach falloff function.
 /*!
- *
  * The falloff function defines the value of \f$ F \f$ in the following
  * rate expression
  *
- *  \f[
- *         k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F
- *  \f]
+ *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
  *  where
- *  \f[
- *         P_r = \frac{k_0 [M]}{k_{\infty}}
- *  \f]
+ *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
  *
- *  \f[
- *         F = 10.0^{Flog}
- *  \f]
+ *  \f[ F = 10.0^{Flog} \f]
  *  where
- *  \f[
- *         Flog = \frac{\log_{10} F_{cent}}{\exp{(\frac{\log_{10} P_r - \alpha}{\sigma})^2}}
- *  \f]
+ *  \f[ Flog = \frac{\log_{10} F_{cent}}{\exp{(\frac{\log_{10} P_r - \alpha}{\sigma})^2}} \f]
  *    where
+ *  \f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T/T_2) \f]
  *
- *  \f[
- *       F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T/T_2)
- *  \f]
+ *  \f[ \alpha = \alpha_0 + \alpha_1 T + \alpha_2 T^2 \f]
  *
- *  \f[
- *      \alpha = \alpha_0 + \alpha_1 T + \alpha_2 T^2
- *  \f]
+ *  \f[ \sigma = \sigma_0 + \sigma_1 T + \sigma_2 T^2 \f]
  *
- *  \f[
- *      \sigma = \sigma_0 + \sigma_1 T + \sigma_2 T^2
- *  \f]
- *
- *
- * Reference: Wang, H., and
- *            Frenklach, M., Chem. Phys. Lett. vol. 205, 271 (1993).
- *
+ * Reference: Wang, H., and Frenklach, M., Chem. Phys. Lett. vol. 205, 271 (1993).
  *
  * @ingroup falloffGroup
+ * @deprecated
  */
 class WF93 : public Falloff
 {
-
 public:
-
     //! Default constructor
-    WF93() {}
-
-    //! Destructor
-    virtual ~WF93() {}
+    WF93() {
+        warn_deprecated("class WF93", "To be removed in Cantera 2.2.");
+    }
 
     //! Initialization routine
     /*!
-     *  @param c  Vector of 10 doubles
-     *            with the following ordering:
-     *               a, T_1, T_2, T_3, alpha0, alpha1, alpha2
-     *               sigma0, sigma1, sigma2
+     *  @param c  Vector of 10 doubles with the following ordering: a, T_1,
+     *            T_2, T_3, alpha0, alpha1, alpha2 sigma0, sigma1, sigma2
      */
     virtual void init(const vector_fp& c) {
         m_a = c[0];
@@ -634,11 +454,6 @@ public:
         work[2] = log10(Fcent);
     }
 
-    //! Function that returns <I>F</I>
-    /*!
-     *  @param pr   Value of the reduced pressure for this reaction
-     *  @param work Pointer to the previously saved work space
-     */
     virtual doublereal F(doublereal pr, const doublereal* work) const {
         doublereal lpr = log10(std::max(pr, SmallNumber));
         doublereal x = (lpr - work[0])/work[1];
@@ -646,91 +461,59 @@ public:
         return pow(10.0, flog);
     }
 
-    //! Utility function that returns the size of the workspace
     virtual size_t workSize() {
         return 3;
     }
 
 protected:
-
-    //! Value of the \f$ \alpha_0 \f$ coefficient
-    /*!
-     *  This is the fifth coefficient in the xml list
-     */
+    //! Value of the \f$ \alpha_0 \f$ coefficient. This is the fifth
+    //! coefficient in the xml list.
     doublereal m_alpha0;
 
-    //! Value of the \f$ \alpha_1 \f$ coefficient
-    /*!
-     *  This is the 6th coefficient in the xml list
-     */
+    //! Value of the \f$ \alpha_1 \f$ coefficient. This is the 6th coefficient
+    //! in the xml list.
     doublereal m_alpha1;
 
-    //! Value of the \f$ \alpha_2 \f$ coefficient
-    /*!
-     *  This is the 7th coefficient in the xml list
-     */
+    //! Value of the \f$ \alpha_2 \f$ coefficient. This is the 7th coefficient
+    //! in the xml list.
     doublereal m_alpha2;
 
-    //! Value of the \f$ \sigma_0 \f$ coefficient
-    /*!
-     *  This is the 8th coefficient in the xml list
-     */
+    //! Value of the \f$ \sigma_0 \f$ coefficient. This is the 8th coefficient
+    //! in the xml list.
     doublereal m_sigma0;
 
-    //! Value of the \f$ \sigma_1 \f$ coefficient
-    /*!
-     *  This is the 9th coefficient in the xml list
-     */
+    //! Value of the \f$ \sigma_1 \f$ coefficient. This is the 9th coefficient
+    //! in the xml list.
     doublereal m_sigma1;
 
-    //! Value of the \f$ \sigma_2 \f$ coefficient
-    /*!
-     *  This is the 10th coefficient in the xml list
-     */
+    //! Value of the \f$ \sigma_2 \f$ coefficient. This is the 10th
+    //! coefficient in the xml list.
     doublereal m_sigma2;
 
-    //! Value of the \f$ a \f$ coefficient
-    /*!
-     *  This is the first coefficient in the xml list
-     */
+    //! Value of the \f$ a \f$ coefficient. This is the first coefficient in
+    //! the xml list.
     doublereal m_a;
 
-    //! Value of inverse of the \f$ t1 \f$ coefficient
-    /*!
-     *  This is the second coefficient in the xml list
-     */
+    //! Value of inverse of the \f$ t1 \f$ coefficient. This is the second
+    //! coefficient in the xml list.
     doublereal m_rt1;
 
-    //! Value of the \f$ t2 \f$ coefficient
-    /*!
-     *  This is the third coefficient in the xml list
-     */
+    //! Value of the \f$ t2 \f$ coefficient. This is the third coefficient in
+    //! the xml list.
     doublereal m_t2;
 
-    //! Value of the inverse of the  \f$ t3 \f$ coefficient
-    /*!
-     *  This is the 4th coefficient in the xml list
-     */
+    //! Value of the inverse of the \f$ t3 \f$ coefficient. This is the 4th
+    //! coefficient in the xml list.
     doublereal m_rt3;
-
-private:
-
 };
 
-// Factory routine that returns a new Falloff parameterization object
-/*
- *  @param type  Integer type of the falloff parameterization. These
- *               integers are listed in reaction_defs.h
- *
- *  @param c     Vector of input parameterizations for the Falloff
- *               object. The function is initialized with this vector.
- *
- *  @return  Returns a pointer to a newly malloced Falloff object
- */
 Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
 {
     Falloff* f;
     switch (type) {
+    case SIMPLE_FALLOFF:
+        f = new Falloff();
+        break;
     case TROE3_FALLOFF:
         f = new Troe3();
         break;
@@ -754,4 +537,3 @@ Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
 }
 
 }
-

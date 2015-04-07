@@ -12,12 +12,6 @@
 
 #include "cantera/kinetics.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
-
 using namespace std;
 using namespace Cantera;
 
@@ -39,6 +33,7 @@ int main(int argc, char** argv)
         XML_Node* xc = new XML_Node();
         string path = findInputFile(infile);
         ctml::get_CTML_Tree(xc, path);
+        cout.precision(3);
 
         XML_Node* const xg = xc->findNameID("phase", "gas");
         ThermoPhase* gasTP = newPhase(*xg);

@@ -7,16 +7,6 @@
 #ifndef CT_SIMPLETRAN_H
 #define CT_SIMPLETRAN_H
 
-
-
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-// Cantera includes
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "TransportParams.h"
@@ -31,8 +21,7 @@ class LiquidTransportParams;
 //! Class SimpleTransport implements mixture-averaged transport
 //! properties for liquid phases.
 /*!
- *  The model is based on that
- *  described by Newman, Electrochemical Systems
+ *  The model is based on that described by Newman, Electrochemical Systems
  *
  *  The velocity of species i may be described by the
  *  following equation p. 297 (12.1)
@@ -72,7 +61,6 @@ class LiquidTransportParams;
  *  \f[
  *      \mathbf{v}_i =  \mathbf{v} + \frac{\mathbf{j}_i}{\rho_i}
  *  \f]
- *
  *
  *  \f[
  *     c_i \nabla \mu_i = R T \sum_j \frac{c_i c_j}{c_T D_{ij}}
@@ -128,7 +116,6 @@ class LiquidTransportParams;
  *         \mu = \sum_k {\mu_k X_k}
  *    \f]
  *
- *
  *  <H2> Calculate of the Binary Diffusion Coefficients </H2>
  *
  *  The binary diffusion coefficients are obtained from the pure species diffusion coefficients
@@ -137,9 +124,6 @@ class LiquidTransportParams;
  *    \f[
  *        D_{i,j} = \frac{1}{2} \left( D^0_i(T) +  D^0_j(T) \right)
  *    \f]
- *
- *
- *
  *
  *  <H2> Electrical Mobilities </H2>
  *
@@ -185,7 +169,6 @@ class LiquidTransportParams;
  *         \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j} + \sum_j  F C^T M_j \frac{D_j}{ R T } X_j z_j  \nabla V
  *    \f]
  *
- *
  *  <H2> Species Diffusional Velocities </H2>
  *
  *  Species diffusional velocities are calculated from the species diffusional fluxes, within this object,
@@ -195,18 +178,15 @@ class LiquidTransportParams;
  *         j_k = \rho Y_k V_k^d
  *     \f]
  *
- *
  *         TODO
  *   This object has to be made compatible with different types of reference velocities. Right now, elements
  *   of the formulas are only compatible with the mass-averaged velocity.
  *
  *  @ingroup tranprops
- *
  */
 class SimpleTransport : public Transport
 {
 public:
-
     //! Default constructor.
     /*!
      * This requires call to initLiquid(LiquidTransportParams& tr)
@@ -219,35 +199,9 @@ public:
      */
     SimpleTransport(thermo_t* thermo = 0, int ndim = 1);
 
-    //!Copy Constructor for the %LiquidThermo object.
-    /*!
-     * @param right  %LiquidTransport to be copied
-     */
     SimpleTransport(const SimpleTransport& right);
-
-    //! Assignment operator
-    /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to %LiquidTransport object to be copied
-     *                 into the current one.
-     */
     SimpleTransport& operator=(const  SimpleTransport& right);
-
-    //! Duplication routine for objects which inherit from
-    //! %Transport
-    /*!
-     *  This virtual routine can be used to duplicate %Transport objects
-     *  inherited from %Transport even if the application only has
-     *  a pointer to %Transport to work with.
-     *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
-     */
     virtual Transport* duplMyselfAsTransport() const;
-
-
-    //! virtual destructor
     virtual ~SimpleTransport();
 
     //! Initialize the transport object
@@ -255,16 +209,13 @@ public:
      * Here we change all of the internal dimensions to be sufficient.
      * We get the object ready to do property evaluations.
      *
-     * @param tr  Transport parameters for all of the species
-     *            in the phase.
+     * @param tr  Transport parameters for all of the species in the phase.
      */
     virtual bool initLiquid(LiquidTransportParams& tr);
 
-    //! Return the model id for this transport parameterization
     virtual int model() const {
         return cSimpleTransport;
     }
-
 
     //! Returns the mixture viscosity of the solution
     /*!
@@ -295,8 +246,7 @@ public:
      *
      * units are Pa s  or kg/m/s
      *
-     *  @param visc Return the species viscosities as a vector of
-     *              length m_nsp
+     *  @param visc Return the species viscosities as a vector of length m_nsp
      */
     virtual void getSpeciesViscosities(doublereal* const visc);
 
@@ -314,15 +264,13 @@ public:
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
-
     //! Return the thermal diffusion coefficients
     /*!
-     *  These are all zero for this simple implementaion
+     *  These are all zero for this simple implementation
      *
      *  @param dt thermal diffusion coefficients
      */
     virtual void getThermalDiffCoeffs(doublereal* const dt);
-
 
     //! Returns the mixture thermal conductivity of the solution
     /*!
@@ -336,7 +284,7 @@ public:
      * Solvent-only:
      *    \f[
      *         \lambda = \lambda_0
-
+     *
      *    \f]
      * Mixture-average:
      *    \f[
@@ -347,50 +295,14 @@ public:
      *
      * @see updateCond_T();
      */
-
     virtual doublereal thermalConductivity();
 
-    //! Get the electrical Mobilities (m^2/V/s).
-    /*!
-     *   This function returns the mobilities. In some formulations
-     *   this is equal to the normal mobility multiplied by faraday's constant.
-     *
-     *   Frequently, but not always, the mobility is calculated from the
-     *   diffusion coefficient using the Einstein relation
-     *
-     *     \f[
-     *          \mu^e_k = \frac{F D_k}{R T}
-     *     \f]
-     *
-     * @param mobil_e  Returns the mobilities of
-     *               the species in array \c mobil_e. The array must be
-     *               dimensioned at least as large as the number of species.
-     */
     virtual void getMobilities(doublereal* const mobil_e);
 
-    //! Get the fluid mobilities (s kmol/kg).
-    /*!
-     *   This function returns the fluid mobilities. Usually, you have
-     *   to multiply Faraday's constant into the resulting expression
-     *   to general a species flux expression.
-     *
-     *   Frequently, but not always, the mobility is calculated from the
-     *   diffusion coefficient using the Einstein relation
-     *
-     *     \f[
-     *          \mu^f_k = \frac{D_k}{R T}
-     *     \f]
-     *
-     *
-     * @param mobil_f  Returns the mobilities of
-     *               the species in array \c mobil. The array must be
-     *               dimensioned at least as large as the number of species.
-     */
     virtual void getFluidMobilities(doublereal* const mobil_f);
 
     //! Specify the value of the gradient of the voltage
     /*!
-     *
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
     virtual void set_Grad_V(const doublereal* const grad_V);
@@ -403,7 +315,6 @@ public:
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
-     *
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
     virtual void set_Grad_X(const doublereal* const grad_X);
@@ -470,7 +381,6 @@ public:
                                    int ldf,  const doublereal* grad_Phi,
                                    doublereal* Vdiff);
 
-
     //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
@@ -492,7 +402,6 @@ public:
      *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
      *    \f]
      *
-     *
      * @param ndim     The number of spatial dimensions (1, 2, or 3).
      * @param grad_T   The temperature gradient (ignored in this model).
      * @param ldx      Leading dimension of the grad_X array.
@@ -507,12 +416,10 @@ public:
     //!  Return the species diffusive mass fluxes wrt to
     //!  the mass averaged velocity,
     /*!
-     *
      *  units = kg/m2/s
      *
      * Internally, gradients in the in mole fraction, temperature
      * and electrostatic potential contribute to the diffusive flux
-     *
      *
      * The diffusive mass flux of species \e k is computed from the following
      * formula
@@ -534,7 +441,6 @@ public:
     virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
 
 protected:
-
     //! Handles the effects of changes in the Temperature, internally
     //! within the object.
     /*!
@@ -542,8 +448,6 @@ protected:
      *  The first task is to check whether the temperature has changed
      *  since the last call to update_T().
      *  If it hasn't then an immediate return is carried out.
-     *
-     *     @internal
      *
      * @return  Returns true if the temperature has changed, and false otherwise
      */
@@ -558,8 +462,6 @@ protected:
      *
      *   Note this should be a lightweight function since it's
      *   part of all of the interfaces.
-     *
-     *   @internal
      */
     virtual bool update_C();
 
@@ -577,21 +479,16 @@ protected:
 
     //! Update the concentration parts of the viscosities
     /*!
-     *  Internal routine is run whenever the update_boolean
-     *  is false. This routine will calculate
-     *  internal values for the species viscosities.
-     *
-     * @internal
+     *  Internal routine is run whenever the update_boolean is false. This
+     *  routine will calculate internal values for the species viscosities.
      */
     void updateViscosities_C();
 
     //! Update the binary diffusion coefficients wrt T.
     /*!
-     *   These are evaluated
-     *   from the polynomial fits at unit pressure (1 Pa).
+     *   These are evaluated from the polynomial fits at unit pressure (1 Pa).
      */
     void updateDiff_T();
-
 
 private:
     //! Temperature dependence type
@@ -616,7 +513,6 @@ private:
      *       mixture viscosity
      *       mixture thermal conductivity
      *
-     *
      *   Types of composition dependencies
      *    0 - Solvent values (i.e., species 0) contributes only
      *    1 - linear combination of mole fractions;
@@ -630,18 +526,8 @@ private:
      */
     bool useHydroRadius_;
 
-    //! Boolean indicating whether electro-migration term should be
-    //! added
-    /*!
-     *
-     */
+    //! Boolean indicating whether electro-migration term should be added
     bool doMigration_;
-
-    //! Minimum temperature applicable to the transport property eval
-    doublereal m_tmin;
-
-    //! Maximum temperature applicable to the transport property evaluator
-    doublereal m_tmax;
 
     //! Local Copy of the molecular weights of the species
     /*!
@@ -653,19 +539,13 @@ private:
     std::vector<LTPspecies*>  m_coeffVisc_Ns;
 
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
-    /*!
-     *
-     */
     std::vector<LTPspecies*>  m_coeffLambda_Ns;
-
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
     std::vector<LTPspecies*>  m_coeffDiff_Ns;
 
-
     //! Hydrodynamic radius in LTPspecies form
     std::vector<LTPspecies*>  m_coeffHydroRadius_Ns;
-
 
     //! Internal value of the gradient of the mole fraction vector
     /*!
@@ -686,44 +566,35 @@ private:
 
     //! Internal value of the gradient of the Temperature vector
     /*!
-     *  Generally, if a transport property needs this
-     *  in its evaluation it will look to this place
-     *  to get it.
+     *  Generally, if a transport property needs this in its evaluation it
+     *  will look to this place to get it.
      *
-     *  No internal property is precalculated based on gradients.
-     *  Gradients are assumed to be freshly updated before
-     *  every property call.
+     *  No internal property is precalculated based on gradients. Gradients
+     *  are assumed to be freshly updated before every property call.
      */
     vector_fp m_Grad_T;
 
     //! Internal value of the gradient of the Pressure vector
     /*!
-     *  Generally, if a transport property needs this
-     *  in its evaluation it will look to this place
-     *  to get it.
+     *  Generally, if a transport property needs this in its evaluation it
+     *  will look to this place to get it.
      *
-     *  No internal property is precalculated based on gradients.
-     *  Gradients are assumed to be freshly updated before
-     *  every property call.
+     *  No internal property is precalculated based on gradients. Gradients
+     *  are assumed to be freshly updated before every property call.
      */
     vector_fp m_Grad_P;
 
     //! Internal value of the gradient of the Electric Voltage
     /*!
-     *  Generally, if a transport property needs this
-     *  in its evaluation it will look to this place
-     *  to get it.
+     *  Generally, if a transport property needs this in its evaluation it
+     *  will look to this place to get it.
      *
-     *  No internal property is precalculated based on gradients.
-     *  Gradients are assumed to be freshly updated before
-     *  every property call.
+     *  No internal property is precalculated based on gradients. Gradients
+     *  are assumed to be freshly updated before every property call.
      */
     vector_fp m_Grad_V;
 
-
     // property values
-
-
 
     //! Vector of Species Diffusivities
     /*!
@@ -772,7 +643,6 @@ private:
      */
     vector_fp m_molefracs;
 
-
     //! Local copy of the concentrations of the species in the phase
     /*!
      *  The concentrations are consistent with the m_molefracs
@@ -809,10 +679,8 @@ private:
      */
     doublereal m_temp;
 
-
     //! Current value of the pressure
     doublereal m_press;
-
 
     //! Saved value of the mixture thermal conductivity
     doublereal m_lambda;
@@ -827,8 +695,6 @@ private:
     vector_fp  m_spwork;
 
     vector_fp m_fluxes;
-
-
 
 private:
     //! Boolean indicating that the top-level mixture viscosity is current
@@ -853,7 +719,6 @@ private:
     //! Boolean indicating that mixture conductivity is current
     bool m_cond_mix_ok;
 
-
     //! Number of dimensions
     /*!
      * Either 1, 2, or 3
@@ -871,14 +736,8 @@ private:
      *
      * @param msg   Indicates the member function which is not implemented
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 };
 }
 #endif
-
-
-
-
-
-

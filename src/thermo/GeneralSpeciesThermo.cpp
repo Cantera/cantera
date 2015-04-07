@@ -20,11 +20,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-
-/*
- * Constructors
- */
 GeneralSpeciesThermo::GeneralSpeciesThermo() :
     SpeciesThermo(),
     m_tlow_max(0.0),
@@ -92,36 +87,31 @@ GeneralSpeciesThermo::~GeneralSpeciesThermo()
 SpeciesThermo*
 GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
 {
-    GeneralSpeciesThermo* gsth = new GeneralSpeciesThermo(*this);
-    return (SpeciesThermo*) gsth;
+    return new GeneralSpeciesThermo(*this);
 }
 
-
-/*
- * Install parameterization for a species.
- * @param index    Species index
- * @param type     parameterization type
- * @param c        coefficients. The meaning of these depends on
- *                 the parameterization.
- */
-void GeneralSpeciesThermo::install(std::string name,
+void GeneralSpeciesThermo::install(const std::string& name,
                                    size_t index,
                                    int type,
                                    const doublereal* c,
-                                   doublereal minTemp,
-                                   doublereal maxTemp,
-                                   doublereal refPressure)
+                                   doublereal minTemp_,
+                                   doublereal maxTemp_,
+                                   doublereal refPressure_)
 {
     /*
      * Resize the arrays if necessary, filling the empty
      * slots with the zero pointer.
      */
+
+    if (minTemp_ <= 0.0) {
+        throw CanteraError("Error in GeneralSpeciesThermo.cpp",
+                           " Cannot take 0 tmin as input. \n\n");
+    }
+
     if (index >= m_kk) {
         m_sp.resize(index+1, 0);
         m_kk = index+1;
     }
-    //AssertThrow(m_sp[index] == 0,
-    //            "Index position isn't null, duplication of assignment: " + int2str(index));
 
     //int nfreq = 3;
     /*
@@ -130,33 +120,39 @@ void GeneralSpeciesThermo::install(std::string name,
 
     switch (type) {
     case NASA1:
-        m_sp[index] = new NasaPoly1(index, minTemp, maxTemp,
-                                    refPressure, c);
+        m_sp[index] = new NasaPoly1(index, minTemp_, maxTemp_,
+                                    refPressure_, c);
         break;
     case SHOMATE1:
-        m_sp[index] = new ShomatePoly(index, minTemp, maxTemp,
-                                      refPressure, c);
+        m_sp[index] = new ShomatePoly(index, minTemp_, maxTemp_,
+                                      refPressure_, c);
         break;
     case CONSTANT_CP:
     case SIMPLE:
-        m_sp[index] = new ConstCpPoly(index, minTemp, maxTemp,
-                                      refPressure, c);
+        m_sp[index] = new ConstCpPoly(index, minTemp_, maxTemp_,
+                                      refPressure_, c);
         break;
     case MU0_INTERP:
-        m_sp[index] = new Mu0Poly(index, minTemp, maxTemp,
-                                  refPressure, c);
+        m_sp[index] = new Mu0Poly(index, minTemp_, maxTemp_,
+                                  refPressure_, c);
         break;
     case SHOMATE2:
-        m_sp[index] = new ShomatePoly2(index, minTemp, maxTemp,
-                                       refPressure, c);
+        m_sp[index] = new ShomatePoly2(index, minTemp_, maxTemp_,
+                                       refPressure_, c);
         break;
     case NASA2:
-        m_sp[index] = new NasaPoly2(index, minTemp, maxTemp,
-                                    refPressure, c);
+        m_sp[index] = new NasaPoly2(index, minTemp_, maxTemp_,
+                                    refPressure_, c);
         break;
+
+    case STAT:
+        m_sp[index] = new StatMech(index, minTemp_, maxTemp_,
+                                   refPressure_, c, name);
+        break;
+
     case ADSORBATE:
-        m_sp[index] = new Adsorbate(index, minTemp, maxTemp,
-                                    refPressure, c);
+        m_sp[index] = new Adsorbate(index, minTemp_, maxTemp_,
+                                    refPressure_, c);
         break;
     default:
         throw UnknownSpeciesThermoModel(
@@ -168,16 +164,10 @@ void GeneralSpeciesThermo::install(std::string name,
         cout << "Null m_sp... index = " << index << endl;
         cout << "type = " << type << endl;
     }
-    m_tlow_max = max(minTemp, m_tlow_max);
-    m_thigh_min = min(maxTemp, m_thigh_min);
+    m_tlow_max = max(minTemp_, m_tlow_max);
+    m_thigh_min = min(maxTemp_, m_thigh_min);
 }
 
-// Install a new species thermodynamic property
-// parameterization for one species.
-/*
- * @param stit_ptr Pointer to the SpeciesThermoInterpType object
- *          This will set up the thermo for one species
- */
 void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
 {
     /*
@@ -203,14 +193,9 @@ void GeneralSpeciesThermo::install_STIT(SpeciesThermoInterpType* stit_ptr)
     /*
      * Calculate max and min
      */
-    double minTemp = stit_ptr->minTemp();
-    double maxTemp = stit_ptr->maxTemp();
-
-    m_tlow_max = max(minTemp, m_tlow_max);
-    m_thigh_min = min(maxTemp, m_thigh_min);
+    m_tlow_max = max(stit_ptr->minTemp(), m_tlow_max);
+    m_thigh_min = min(stit_ptr->maxTemp(), m_thigh_min);
 }
-
-
 
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
@@ -219,9 +204,6 @@ void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
     install_STIT(stit_ptr);
 }
 
-/**
- *  Update the properties for one species.
- */
 void GeneralSpeciesThermo::
 update_one(size_t k, doublereal t, doublereal* cp_R,
            doublereal* h_RT, doublereal* s_R) const
@@ -232,10 +214,6 @@ update_one(size_t k, doublereal t, doublereal* cp_R,
     }
 }
 
-
-/**
- *  Update the properties for all species.
- */
 void GeneralSpeciesThermo::
 update(doublereal t, doublereal* cp_R,
        doublereal* h_RT, doublereal* s_R) const
@@ -255,10 +233,6 @@ update(doublereal t, doublereal* cp_R,
     }
 }
 
-/**
- * This utility function reports the type of parameterization
- * used for the species, index.
- */
 int GeneralSpeciesThermo::reportType(size_t index) const
 {
     SpeciesThermoInterpType* sp = m_sp[index];
@@ -268,21 +242,16 @@ int GeneralSpeciesThermo::reportType(size_t index) const
     return -1;
 }
 
-/**
- * This utility function reports back the type of
- * parameterization and all of the parameters for the
- * species, index.
- *  For the NASA object, there are 15 coefficients.
- */
 void GeneralSpeciesThermo::
 reportParams(size_t index, int& type, doublereal* const c,
-             doublereal& minTemp, doublereal& maxTemp, doublereal& refPressure) const
+             doublereal& minTemp_, doublereal& maxTemp_, doublereal& refPressure_) const
 {
+    warn_deprecated("GeneralSpeciesThermo::reportParams");
     SpeciesThermoInterpType* sp = m_sp[index];
     size_t n;
     if (sp) {
-        sp->reportParameters(n, type, minTemp, maxTemp,
-                             refPressure, c);
+        sp->reportParameters(n, type, minTemp_, maxTemp_,
+                             refPressure_, c);
         if (n != index) {
             throw CanteraError("GeneralSpeciesThermo::reportParams",
                                "Internal error encountered");
@@ -292,29 +261,6 @@ reportParams(size_t index, int& type, doublereal* const c,
     }
 }
 
-//! Modify parameters for the standard state
-/*!
- * @param index Species index
- * @param c     Vector of coefficients used to set the
- *              parameters for the standard state.
- */
-void GeneralSpeciesThermo::
-modifyParams(size_t index, doublereal* c)
-{
-    SpeciesThermoInterpType* sp = m_sp[index];
-    if (sp) {
-        sp->modifyParameters(c);
-    }
-}
-
-
-/**
- * Return the lowest temperature at which the thermodynamic
- * parameterization is valid.  If no argument is supplied, the
- * value is the one for which all species parameterizations
- * are valid. Otherwise, if an integer argument is given, the
- * value applies only to the species with that index.
- */
 doublereal GeneralSpeciesThermo::minTemp(size_t k) const
 {
     if (k == npos) {
@@ -354,10 +300,9 @@ doublereal GeneralSpeciesThermo::refPressure(size_t k) const
     return m_p0;
 }
 
-
 SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
 {
-    return (m_sp[k]);
+    return m_sp[k];
 }
 
 #ifdef H298MODIFY_CAPABILITY
@@ -380,8 +325,6 @@ void GeneralSpeciesThermo::modifyOneHf298(const int k, const doublereal Hf298New
     }
 }
 
-
 #endif
-
 
 }

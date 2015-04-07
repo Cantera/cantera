@@ -27,7 +27,6 @@ namespace Cantera
  * density to pressure. This is necessary because the phase is
  * incompressible. It uses a constant volume approximation.
  *
- *
  * <b> Specification of Species Standard %State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
@@ -47,7 +46,7 @@ namespace Cantera
  * The enthalpy function is given by the following relation.
  *
  *       \f[
- *   \raggedright   h^o_k(T,P) =
+ *              h^o_k(T,P) =
  *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right)
  *       \f]
  *
@@ -65,7 +64,6 @@ namespace Cantera
  * The standard state heat capacity and entropy are independent
  * of pressure. The standard state gibbs free energy is obtained
  * from the enthalpy and entropy functions.
- *
  *
  * <b> Specification of Solution Thermodynamic Properties </b>
  *
@@ -121,37 +119,37 @@ namespace Cantera
  * the density of the phase must be specified. An example of an XML file
  * this phase is given below.
  *
- * @verbatim
-   <!-- phase NaCl(S)    -->
-   <phase dim="3" id="NaCl(S)">
-      <elementArray datasrc="elements.xml">
-         Na Cl
-      </elementArray>
-      <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
-      <thermo model="StoichSubstanceSSTP">
-         <density units="g/cm3">2.165</density>
-      </thermo>
-      <transport model="None"/>
-      <kinetics model="none"/>
-   </phase>
-
-   <!-- species definitions     -->
-   <speciesData id="species_NaCl(S)">
-     <!-- species NaCl(S)   -->
-     <species name="NaCl(S)">
-        <atomArray> Na:1 Cl:1 </atomArray>
-        <thermo>
-           <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
-              <floatArray size="7">
-                  50.72389, 6.672267, -2.517167,
-                  10.15934, -0.200675, -427.2115,
-                  130.3973
-              </floatArray>
-           </Shomate>
-        </thermo>
-        <density units="g/cm3">2.165</density>
-      </species>
-   </speciesData>  @endverbatim
+ * @code
+ * <!-- phase NaCl(S)    -->
+ * <phase dim="3" id="NaCl(S)">
+ *    <elementArray datasrc="elements.xml">
+ *       Na Cl
+ *    </elementArray>
+ *    <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
+ *    <thermo model="StoichSubstanceSSTP">
+ *       <density units="g/cm3">2.165</density>
+ *    </thermo>
+ *    <transport model="None"/>
+ *    <kinetics model="none"/>
+ * </phase>
+ *
+ * <!-- species definitions     -->
+ * <speciesData id="species_NaCl(S)">
+ *   <!-- species NaCl(S)   -->
+ *   <species name="NaCl(S)">
+ *      <atomArray> Na:1 Cl:1 </atomArray>
+ *      <thermo>
+ *         <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
+ *            <floatArray size="7">
+ *                50.72389, 6.672267, -2.517167,
+ *                10.15934, -0.200675, -427.2115,
+ *                130.3973
+ *            </floatArray>
+ *         </Shomate>
+ *      </thermo>
+ *      <density units="g/cm3">2.165</density>
+ *    </species>
+ * </speciesData>  @endcode
  *
  *  The model attribute, "StoichSubstanceSSTP", on the thermo element
  *  identifies the phase as being a StoichSubstanceSSTP object.
@@ -160,9 +158,7 @@ namespace Cantera
  */
 class StoichSubstanceSSTP : public SingleSpeciesTP
 {
-
 public:
-
     //! Default constructor for the StoichSubstanceSSTP class
     StoichSubstanceSSTP();
 
@@ -173,7 +169,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    StoichSubstanceSSTP(std::string infile, std::string id = "");
+    StoichSubstanceSSTP(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an XML database
@@ -181,7 +177,7 @@ public:
      *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
      *  @param id       Id of the phase.
      */
-    StoichSubstanceSSTP(XML_Node& phaseRef, std::string id = "");
+    StoichSubstanceSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -195,9 +191,6 @@ public:
      */
     StoichSubstanceSSTP& operator=(const StoichSubstanceSSTP& right);
 
-    //! Destructor for the routine (virtual)
-    virtual ~StoichSubstanceSSTP();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the
@@ -209,30 +202,14 @@ public:
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
-    /**
      * Equation of state flag.
      *
      * Returns the value cStoichSubstance, defined in mix_defs.h.
      */
     virtual int eosType() const;
 
-    /**
-     *  @}
-     *  @name Molar Thermodynamic Properties of the Solution
-     *  @{
-     */
-
-    /**
-     * @}
-     * @name Mechanical Equation of State
-     * @{
-     */
-
+    //! @name Mechanical Equation of State
+    //! @{
 
     //! Report the Pressure. Units: Pa.
     /*!
@@ -353,27 +330,22 @@ public:
      * values if necessary.
      *
      * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     *
+     *     uA[0] = kmol units - default  = 1
+     *     uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                   dimensions in the Phase class.
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
+     *
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
-
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    ///
-    ///        These properties are handled by the parent class,
-    ///        SingleSpeciesTP
-    //@{
-
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
@@ -440,15 +412,7 @@ public:
      *               Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-
-    /*
-     * ---- Critical State Properties
-     */
-
-
-    /*
-     * ---- Saturation Properties
-     */
+    // @}
 
     /*
      * @internal Initialize. This method is provided to allow
@@ -465,8 +429,7 @@ public:
      */
     virtual void initThermo();
 
-
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters
     /*!
@@ -476,6 +439,7 @@ public:
      * @param n number of parameters
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
+     * @deprecated Use setDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -489,6 +453,7 @@ public:
      *  For this phase:
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
+     * @deprecated Use density()
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 
@@ -508,32 +473,26 @@ public:
      *
      * eosdata points to the thermo block, and looks like this:
      *
-     *   @verbatim
-         <phase id="stoichsolid" >
-           <thermo model="StoichSubstance">
-               <density units="g/cm3">3.52</density>
-           </thermo>
-     </phase>    @endverbatim
-     *
+     *   @code
+     *   <phase id="stoichsolid" >
+     *     <thermo model="StoichSubstance">
+     *         <density units="g/cm3">3.52</density>
+     *     </thermo>
+     *   </phase>
+     *   @endcode
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
-
-protected:
-
 };
 
 //!  Class %electrodeElectron represents an electron in a
 //!  metal using the Standard hydrogen reference electrode
 /*!
- *
  *  The class is based on the electron have a chemical potential
  *  equal to one-half of the entropy of the H2 gas at 1 bar.
- *
  */
 class electrodeElectron : public StoichSubstanceSSTP
 {
 public:
-
     //! Default constructor for the electrodeElectron class
     electrodeElectron();
 
@@ -544,7 +503,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    electrodeElectron(std::string infile, std::string id = "");
+    electrodeElectron(const std::string& infile, std::string id = "");
 
     //! Construct and initialize a electrodeElectron ThermoPhase object
     //! directly from an XML database
@@ -552,7 +511,7 @@ public:
      *  @param phaseRef XML node pointing to a electrodeElectron description
      *  @param id       Id of the phase.
      */
-    electrodeElectron(XML_Node& phaseRef, std::string id = "");
+    electrodeElectron(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy constructor
     /*!
@@ -566,13 +525,14 @@ public:
      */
     electrodeElectron& operator=(const electrodeElectron& right);
 
-    //! Destructor for the routine (virtual)
+    //! Destructor
     virtual ~electrodeElectron();
 
     void setParametersFromXML(const XML_Node& eosdata);
 
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    //! @deprecated Use setDensity()
     void setParameters(int n, doublereal* const c);
 };
 

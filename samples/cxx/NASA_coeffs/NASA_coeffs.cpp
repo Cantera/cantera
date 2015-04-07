@@ -1,14 +1,7 @@
 #include "cantera/IdealGasMix.h"    // defines class IdealGasMix
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <map>
-#include <numeric>
-#include <string>
-#include <algorithm>
+#include <cstdio>
 
-using namespace std;
 using namespace Cantera;
 
 // The program is put into a function so that error handling code can
@@ -60,15 +53,6 @@ void demoprog()
             printf(" %10.4E ", c[j]);
         }
         printf("\n      ");
-
-        // modify coefficient A6 of the low-temperature polynomial
-        // Note that since we are not modifying the high-temperature
-        // polynomial, a warning will be printed about a discontinuity
-        // in enthalpy at Tmid.
-        c[LOW_A6] += 1.0e4;
-        sp.modifyParams(n, c);
-
-        sp.reportParams(n, type, c, minTemp, maxTemp, refPressure);
 
         // print the modified NASA coefficients
         printf("\n\n %s (modified):", gas.speciesName(n).c_str());

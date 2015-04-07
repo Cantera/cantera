@@ -1,12 +1,11 @@
-// water
-
+//! @file Water.cpp
 #include "Water.h"
-#include <math.h>
-#include <string.h>
+#include "cantera/base/stringUtils.h"
+
+using namespace Cantera;
 
 namespace tpx
 {
-
 static const double Tmn=273.16;
 static const double Tmx=1600.0;
 static const double M=18.016;
@@ -157,16 +156,16 @@ double water::Pp()
 
 double water::Psat()
 {
-    double log, sum=0,P;
+    double log, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);    // Error("water::Psat",TempError,T);
+        throw TPX_Error("water::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=1; i<=8; i++) {
         sum += F[i-1]*pow(aww*(T-Tp),double(i-1));    // DGG mod
     }
     log = (Tc/T-1)*sum;
-    P=exp(log)*Pc;
-    return P;
+    return exp(log)*Pc;
 }
 
 /*
@@ -189,13 +188,13 @@ double water::ldens()
     double sum=0;
     int i;
     if ((T < Tmn) || (T >= Tc)) {
-        set_Err(TempError);    // Error("water::ldens",TempError,T);
+        throw TPX_Error("water::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (i=0; i<8; i++) {
         sum+=D[i]*pow(1.0 - T/Tc, double(i+1)/3.0);
     }
-    double density = Roc*(1+sum);
-    return density;
+    return Roc*(1+sum);
 }
 
 double water::Tcrit()
@@ -232,5 +231,3 @@ double water::MolWt()
 }
 
 }
-
-

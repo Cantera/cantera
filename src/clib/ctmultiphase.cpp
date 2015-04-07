@@ -89,7 +89,7 @@ extern "C" {
     size_t mix_elementIndex(int i, char* name)
     {
         try {
-            return mixCabinet::item(i).elementIndex(string(name));
+            return mixCabinet::item(i).elementIndex(name);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -154,7 +154,8 @@ extern "C" {
             MultiPhase& mix = mixCabinet::item(i);
             mix.checkPhaseIndex(n);
             if (v < 0.0) {
-                return -1;
+                throw CanteraError("setPhaseMoles",
+                                   "Mole number must be non-negative.");
             }
             mix.setPhaseMoles(n, v);
             return 0;
@@ -179,7 +180,7 @@ extern "C" {
     int mix_setMolesByName(int i, char* n)
     {
         try {
-            mixCabinet::item(i).setMolesByName(string(n));
+            mixCabinet::item(i).setMolesByName(n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -190,7 +191,8 @@ extern "C" {
     {
         try {
             if (t < 0.0) {
-                return -1;
+                throw CanteraError("setTemperature",
+                                   "Temperature must be positive.");
             }
             mixCabinet::item(i).setTemperature(t);
             return 0;
@@ -250,7 +252,8 @@ extern "C" {
     {
         try {
             if (p < 0.0) {
-                return -1;
+                throw CanteraError("setPressure",
+                                   "Pressure must be positive.");
             }
             mixCabinet::item(i).setPressure(p);
             return 0;
@@ -310,7 +313,7 @@ extern "C" {
                                        rtol, maxsteps, maxiter, loglevel);
             return (double) retn;
         } catch (...) {
-            return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(ERR, ERR);
         }
     }
 

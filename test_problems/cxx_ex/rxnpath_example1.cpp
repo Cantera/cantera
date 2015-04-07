@@ -11,8 +11,6 @@
 #include "cantera/reactionpaths.h"
 #include "cantera/IdealGasMix.h"
 
-// #include <iostream>
-
 using namespace Cantera;
 using std::cout;
 using std::endl;

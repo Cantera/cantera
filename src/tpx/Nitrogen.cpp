@@ -1,14 +1,11 @@
-// Nitrogen
-
+//! @file Nitrogen.cpp
 #include "Nitrogen.h"
-#include <math.h>
-#include <iostream>
-using namespace std;
+#include "cantera/base/stringUtils.h"
+
+using namespace Cantera;
 
 namespace tpx
 {
-
-
 static const double M  = 28.01348,
                     Tmn = 63.15,
                     Tmx = 2000.0,
@@ -22,7 +19,6 @@ static const double M  = 28.01348,
                     beta = 3353.40610,
                     u0 = 150877.551,
                     s0 = 214.9352518;
-
 
 static const double Ann[] = {
     1.75889959256970e-1,  1.38197604384933e1,  -3.14918412133921e2,
@@ -57,8 +53,6 @@ static const double Gnn[] = {
     5.18347156760489e-6, -1.05922170493616e-9, 2.98389393363817e2
 };
 
-
-//equation P4
 double nitrogen::C(int i, double rt, double rt2)
 {
     switch (i) {
@@ -169,7 +163,6 @@ double nitrogen::up()
     return sum;
 }
 
-
 double nitrogen::sp()
 {
     double rt = 1.0/T;
@@ -203,13 +196,13 @@ double nitrogen::Pp()
     return P;
 }
 
-//equation s4
 double nitrogen::Psat()
 {
     double lnp;
     int i;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("nitrogen::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (i=0, lnp=0; i<=7; i++) {
         if (i==3) {
@@ -222,12 +215,12 @@ double nitrogen::Psat()
     return exp(lnp);
 }
 
-//equation D2
 double nitrogen::ldens()
 {
     double xx=1-T/Tc, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("nitrogen::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=0; i<=5; i++) {
         sum+=Dnn[i]*pow(xx,double(i)/3.0);

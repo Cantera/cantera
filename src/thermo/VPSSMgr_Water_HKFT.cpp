@@ -34,12 +34,6 @@ VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(VPStandardStateTP* vp_ptr,
     m_useTmpStandardStateStorage = true;
 }
 
-
-VPSSMgr_Water_HKFT::~VPSSMgr_Water_HKFT()
-{
-    //  m_waterSS is owned by VPStandardState
-}
-
 VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo),
     m_waterSS(0),
@@ -66,8 +60,7 @@ VPSSMgr_Water_HKFT::operator=(const VPSSMgr_Water_HKFT& b)
 VPSSMgr*
 VPSSMgr_Water_HKFT::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_Water_HKFT* vpm = new VPSSMgr_Water_HKFT(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_Water_HKFT(*this);
 }
 
 void
@@ -214,7 +207,7 @@ void VPSSMgr_Water_HKFT::initThermo()
 
 
 void
-VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 
@@ -274,9 +267,7 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                "wrong SS mode: " + model);
         }
         //VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
-        if (m_waterSS) {
-            delete m_waterSS;
-        }
+        delete m_waterSS;
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
 
         GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
@@ -308,6 +299,18 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     return kPDSS;
 }
 
+void
+VPSSMgr_Water_HKFT::initAllPtrs(VPStandardStateTP* vp_ptr,
+                                    SpeciesThermo* sp_ptr)
+{
+    VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
+    m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));
+    if (!m_waterSS) {
+        throw CanteraError("VPSSMgr_Water_ConstVol::initAllPtrs",
+                           "bad dynamic cast");
+    }
+}
+
 PDSS_enumType VPSSMgr_Water_HKFT::reportPDSSType(int k) const
 {
     return cPDSS_UNDEF;
@@ -318,5 +321,3 @@ VPSSMgr_enumType VPSSMgr_Water_HKFT::reportVPSSMgrType() const
     return cVPSSMGR_WATER_HKFT;
 }
 }
-
-

@@ -22,7 +22,6 @@ using namespace std;
 
 namespace Cantera
 {
-
 class SpeciesThermo;
 
 VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spthermo) :
@@ -64,11 +63,6 @@ VPSSMgr::VPSSMgr(const VPSSMgr& right) :
     *this = right;
 }
 
-//====================================================================================================================
-/*
- *  Assigment operator
- *    We use a shallow copy strategy here. Note, this will have to be fixed up later.
- */
 VPSSMgr&
 VPSSMgr::operator=(const VPSSMgr& right)
 {
@@ -122,13 +116,12 @@ VPSSMgr::operator=(const VPSSMgr& right)
 
     return *this;
 }
-//====================================================================================================================
+
 VPSSMgr* VPSSMgr::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr* vp = new VPSSMgr(*this);
-    return vp;
+    return new VPSSMgr(*this);
 }
-//====================================================================================================================
+
 void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
                           SpeciesThermo* sp_ptr)
 {
@@ -151,7 +144,7 @@ void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
     }
 
 }
-//====================================================================================================================
+
 // Standard States
 
 void
@@ -225,6 +218,15 @@ VPSSMgr::getStandardVolumes(doublereal* vol) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_Vss.begin(), m_Vss.end(), vol);
+    } else {
+        err("getStandardVolumes");
+    }
+}
+const vector_fp&
+VPSSMgr::getStandardVolumes() const
+{
+    if (m_useTmpStandardStateStorage) {
+        return m_Vss;
     } else {
         err("getStandardVolumes");
     }
@@ -375,9 +377,7 @@ VPSSMgr::initLengths()
     m_sss_R.resize(m_kk, 0.0);
     m_Vss.resize(m_kk, 0.0);
 
-
-    // Storage used by the PDSS objects to store their
-    // answers.
+    // Storage used by the PDSS objects to store their answers.
     mPDSS_h0_RT.resize(m_kk, 0.0);
     mPDSS_cp0_R.resize(m_kk, 0.0);
     mPDSS_g0_RT.resize(m_kk, 0.0);
@@ -390,7 +390,7 @@ VPSSMgr::initLengths()
     mPDSS_Vss.resize(m_kk, 0.0);
 }
 
-void VPSSMgr::initThermoXML(XML_Node& phaseNode, std::string id)
+void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     const PDSS* kPDSS = m_vptp_ptr->providePDSS(0);
     m_p0 = kPDSS->refPressure();
@@ -455,7 +455,6 @@ PDSS* VPSSMgr::createInstallPDSS(size_t k, const XML_Node& s,
     return (PDSS*) 0;
 }
 
-
 /*****************************************************************/
 doublereal VPSSMgr::minTemp(size_t k) const
 {
@@ -499,10 +498,8 @@ VPSSMgr_enumType VPSSMgr::reportVPSSMgrType() const
 
 /*****************************************************************/
 
-void VPSSMgr::err(std::string msg) const
+void VPSSMgr::err(const std::string& msg) const
 {
     throw CanteraError("VPSSMgr::" + msg, "unimplemented");
 }
 }
-
-

@@ -12,9 +12,8 @@ using namespace std;
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(string name) : m_nsp(0),
+ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_thermo(0),
-    m_time(0.0),
     m_vol(1.0),
     m_vol0(1.0),
     m_init(false),
@@ -24,18 +23,11 @@ ReactorBase::ReactorBase(string name) : m_nsp(0),
     m_enthalpy(0.0),
     m_intEnergy(0.0),
     m_pressure(0.0),
-    m_nwalls(0)
+    m_nwalls(0),
+    m_net(0)
 {
     m_name = name;
 }
-
-//     void ReactorBase::resetState() {
-//         m_thermo->saveState(m_state);
-//         m_enthalpy = m_thermo->enthalpy_mass();
-//         m_intEnergy = m_thermo->intEnergy_mass();
-//         m_pressure = m_thermo->pressure();
-//         m_init = false;
-//     }
 
 void ReactorBase::setThermoMgr(thermo_t& thermo)
 {
@@ -75,6 +67,21 @@ void ReactorBase::addWall(Wall& w, int lr)
 Wall& ReactorBase::wall(size_t n)
 {
     return *m_wall[n];
+}
+
+ReactorNet& ReactorBase::network()
+{
+    if (m_net) {
+        return *m_net;
+    } else {
+        throw CanteraError("ReactorBase::network",
+                           "Reactor is not part of a ReactorNet");
+    }
+}
+
+void ReactorBase::setNetwork(ReactorNet* net)
+{
+    m_net = net;
 }
 
 doublereal ReactorBase::residenceTime()

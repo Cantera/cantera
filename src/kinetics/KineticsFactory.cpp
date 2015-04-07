@@ -24,29 +24,6 @@ static int ntypes = 6;
 static string _types[] = {"none", "GasKinetics", "GRI30", "Interface", "Edge", "AqueousKinetics"};
 static int _itypes[]   = {0, cGasKinetics, cGRI30, cInterfaceKinetics, cEdgeKinetics, cAqueousKinetics};
 
-/**
- * Return a new kinetics manager that implements a reaction
- * mechanism specified in a CTML file. In other words, the
- * kinetics manager, given the rate constants and formulation of the
- * reactions that make up a kinetics mechanism, is responsible for
- * calculating the rates of progress of the reactions and for
- * calculating the source terms for species.
- *
- * Input
- * ------
- *  phaseData = This is an XML_Node that contains the xml data
- *              describing the phase. Of particular note to this
- *              routine is the child xml element called "kinetics".
- *              The element has one attribute called "model",
- *              with a string value. The value of this string
- *              is used to decide which kinetics manager is used
- *              to calculate the reacton mechanism.
- *
- * Return
- * ---------
- *  Pointer to the new kinetics manager.
- */
-
 Kinetics* KineticsFactory::
 newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th)
 {
@@ -114,11 +91,7 @@ newKinetics(XML_Node& phaseData, vector<ThermoPhase*> th)
     return k;
 }
 
-
-/**
- * Return a new, empty kinetics manager.
- */
-Kinetics* KineticsFactory::newKinetics(string model)
+Kinetics* KineticsFactory::newKinetics(const string& model)
 {
 
     int ikin = -1;
@@ -151,4 +124,3 @@ Kinetics* KineticsFactory::newKinetics(string model)
 }
 
 }
-

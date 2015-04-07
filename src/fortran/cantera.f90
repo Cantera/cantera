@@ -149,6 +149,14 @@ MODULE CANTERA
      MODULE PROCEDURE ctrans_getMixDiffCoeffs
   END INTERFACE getMixDiffCoeffs
 
+  INTERFACE getMixDiffCoeffsMole
+     MODULE PROCEDURE ctrans_getMixDiffCoeffsMole
+  END INTERFACE getMixDiffCoeffsMole
+
+  INTERFACE getMixDiffCoeffsMass
+     MODULE PROCEDURE ctrans_getMixDiffCoeffsMass
+  END INTERFACE getMixDiffCoeffsMass
+
   INTERFACE getMoleFractions
      MODULE PROCEDURE ctthermo_getMoleFractions
   END INTERFACE getMoleFractions
@@ -386,6 +394,10 @@ MODULE CANTERA
   INTERFACE temperature
      MODULE PROCEDURE ctthermo_temperature
   END INTERFACE temperature
+
+  INTERFACE electricalConductivity
+     MODULE PROCEDURE ctrans_electricalConductivity
+  END INTERFACE electricalConductivity
 
   INTERFACE thermalConductivity
      MODULE PROCEDURE ctrans_thermalConductivity

@@ -4,9 +4,7 @@
 #ifndef CT_CABINET_H
 #define CT_CABINET_H
 
-#include <vector>
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/config.h"
 #include "cantera/base/ctexceptions.h"
 #include "clib_defs.h"
 
@@ -163,6 +161,19 @@ public:
         } else {
             throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(n));
         }
+    }
+
+    /**
+     * Return a reference to object n, cast to a reference of the specified type.
+     */
+    template <class T>
+    static T& get(size_t n) {
+        T* x = dynamic_cast<T*>(&item(n));
+        if (x == 0) {
+            throw Cantera::CanteraError("Cabinet::get",
+                                        "Item is not of the correct type.");
+        }
+        return *x;
     }
 
     /**

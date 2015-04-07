@@ -10,7 +10,6 @@
 #define CT_CTEXCEPTIONS_H
 
 #include <exception>
-#include <iostream>
 #include <string>
 
 namespace Cantera
@@ -33,7 +32,7 @@ namespace Cantera
  *  Below is an example of how to catch errors that throw the CanteraError class.
  *  In general, all Cantera C++ programs will have this basic structure.
  *
- *  \include edemo.cpp
+ *  \include demo1a.cpp
  *
  *  The function showErrors() will print out the fatal error
  *  condition to standard output.
@@ -52,9 +51,8 @@ namespace Cantera
  *
  *  Their first argument is a boolean. If the boolean is not true, a
  *  CanteraError is thrown, with descriptive information indicating
- *  where the error occurred. These functions may be eliminated from
- *  the source code, if the -DNDEBUG option is specified to the
- *  compiler.
+ *  where the error occurred. The Assert* checks are skipped if the NDEBUG
+ *  preprocessor symbol is defined, e.g. with the compiler option -DNDEBUG.
  */
 
 
@@ -79,7 +77,7 @@ public:
      *             generated.
      * @param msg  Descriptive string describing the type of error message.
      */
-    CanteraError(std::string procedure, std::string msg);
+    CanteraError(const std::string& procedure, const std::string& msg);
 
     //! Destructor for base class does nothing
     virtual ~CanteraError() throw() {};
@@ -94,14 +92,16 @@ public:
     virtual std::string getMessage() const;
 
     //! Method overridden by derived classes to indicate their type
-    virtual std::string getClass() const { return "CanteraError"; }
+    virtual std::string getClass() const {
+        return "CanteraError";
+    }
 
 protected:
     //! Protected default constructor discourages throwing errors containing no information.
     CanteraError() : saved_(false) {};
 
     //! Constructor used by derived classes that override getMessage()
-    CanteraError(std::string procedure);
+    explicit CanteraError(const std::string& procedure);
 
     //! The name of the procedure where the exception occurred
     std::string procedure_;
@@ -133,11 +133,13 @@ public:
      * @param sz   This is the length supplied to Cantera.
      * @param reqd This is the required length needed by Cantera
      */
-    ArraySizeError(std::string procedure, size_t sz, size_t reqd) :
+    ArraySizeError(const std::string& procedure, size_t sz, size_t reqd) :
         CanteraError(procedure), sz_(sz), reqd_(reqd) {}
 
     virtual std::string getMessage() const;
-    virtual std::string getClass() const { return "ArraySizeError"; }
+    virtual std::string getClass() const {
+        return "ArraySizeError";
+    }
 
 private:
     size_t sz_, reqd_;
@@ -157,47 +159,24 @@ public:
      *
      * @param func String name for the function within which the error was
      *             generated.
+     * @param arrayName name of the corresponding array
      * @param m   This is the value of the out-of-bounds index.
      * @param mmax This is the maximum allowed value of the index. The
      *             minimum allowed value is assumed to be 0.
      */
-    IndexError(std::string func, std::string arrayName, size_t m, size_t mmax) :
+    IndexError(const std::string& func, const std::string& arrayName, size_t m, size_t mmax) :
         CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
 
     virtual ~IndexError() throw() {};
     virtual std::string getMessage() const;
-    virtual std::string getClass() const { return "IndexError"; }
+    virtual std::string getClass() const {
+        return "IndexError";
+    }
 
 private:
     std::string arrayName_;
     size_t m_, mmax_;
 };
-
-
-//! Print a warning when a deprecated method is called.
-/*!
- * These methods are slated to go away in future releases of Cantera.
- * The developer should work towards eliminating the use of these
- * methods in the near future.
- *
- * @param classnm Class the method belongs to
- * @param oldnm Name of the deprecated method
- * @param newnm Name of the method users should use instead
- *
- * @ingroup errorhandling
- */
-void deprecatedMethod(std::string classnm, std::string oldnm, std::string newnm);
-
-//! Throw an error condition for a procedure that has been removed.
-/*!
- *
- * @param func String name for the function within which the error was
- *             generated.
- * @param version Version of Cantera that first removed this function.
- *
- * @ingroup errorhandling
- */
-void removeAtVersion(std::string func, std::string version);
 
 //! Provides a line number
 #define XSTR_TRACE_LINE(s) STR_TRACE_LINE(s)
@@ -268,8 +247,11 @@ void removeAtVersion(std::string func, std::string version);
 #  define AssertThrowMsg(expr, procedure, message)  ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
 #endif
 
+#endif
 
-
+//! Throw an exception if the specified exception is not a finite number.
+#ifndef AssertFinite
+#  define AssertFinite(expr, procedure, message) AssertThrowMsg(expr < BigNumber && expr > -BigNumber, procedure, message)
 #endif
 
 }

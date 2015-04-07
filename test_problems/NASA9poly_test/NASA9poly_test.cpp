@@ -6,9 +6,8 @@
 #include "cantera/IdealGasMix.h"
 #include "cantera/transport/TransportFactory.h"
 
-#include <iostream>
-#include <vector>
 #include <memory>
+#include <cstdio>
 
 using namespace Cantera;
 

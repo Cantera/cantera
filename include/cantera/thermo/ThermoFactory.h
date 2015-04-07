@@ -42,12 +42,11 @@ public:
      * @param proc Function name where the error occurred.
      * @param thermoModel Sting name of ThermoPhase which didn't match
      */
-    UnknownThermoPhaseModel(std::string proc, std::string thermoModel) :
+    UnknownThermoPhaseModel(const std::string& proc,
+                            const std::string& thermoModel) :
         CanteraError(proc, "Specified ThermoPhase model "
                      + thermoModel +
                      " does not match any known type.") {}
-    //! destructor
-    virtual ~UnknownThermoPhaseModel() throw() {}
 };
 
 
@@ -79,14 +78,6 @@ public:
         }
     }
 
-    //! Destructor doesn't do anything.
-    /*!
-     * We do not delete statically created single instance of this
-     * class here, because it would create an infinite loop if
-     * destructor is called for that single instance.
-     */
-    virtual ~ThermoFactory() { }
-
     //! Create a new thermodynamic property manager.
     /*!
      * @param model  String to look up the model against
@@ -97,7 +88,7 @@ public:
      *   Throws an exception UnknownThermoPhaseModel if the string
      *   wasn't matched.
      */
-    virtual ThermoPhase* newThermoPhase(std::string model);
+    virtual ThermoPhase* newThermoPhase(const std::string& model);
 
 private:
     //! static member of a single instance
@@ -121,7 +112,7 @@ private:
  *   Throws an exception UnknownThermoPhaseModel if the string
  *   wasn't matched.
  */
-inline ThermoPhase* newThermoPhase(std::string model,
+inline ThermoPhase* newThermoPhase(const std::string& model,
                                    ThermoFactory* f=0)
 {
     if (f == 0) {
@@ -140,22 +131,19 @@ inline ThermoPhase* newThermoPhase(std::string model,
  */
 std::string eosTypeString(int ieos, int length = 100);
 
-
+//! Create a new ThermoPhase object and initializes it according to the XML
+//! tree.
 /*!
- *  This routine first looks up the
- * identity of the model for the solution thermodynamics in the
- * model attribute of the thermo child of the xml phase
- * node. Then, it does a string lookup using Cantera's internal ThermoPhase Factory routines
- * on the model to figure out
- * what ThermoPhase derived class should be assigned. It creates a new
- * instance of that class, and then calls importPhase() to
- * populate that class with the correct parameters from the XML
- * tree.
+ * This routine first looks up the identity of the model for the solution
+ * thermodynamics in the model attribute of the thermo child of the xml phase
+ * node. Then, it does a string lookup using Cantera's internal ThermoPhase
+ * Factory routines on the model to figure out what ThermoPhase derived class
+ * should be assigned. It creates a new instance of that class, and then calls
+ * importPhase() to populate that class with the correct parameters from the
+ * XML tree.
  *
  * @param phase XML_Node reference pointing to the phase XML element.
- *
- * @return
- *    Returns a pointer to the completed and initialized ThermoPhase object.
+ * @return  A pointer to the completed and initialized ThermoPhase object.
  *
  * @ingroup inputfiles
  */
@@ -175,7 +163,7 @@ ThermoPhase* newPhase(XML_Node& phase);
  * @return
  *   Returns an initialized ThermoPhase object.
  */
-ThermoPhase* newPhase(std::string infile, std::string id);
+ThermoPhase* newPhase(const std::string& infile, std::string id);
 
 //! Import a phase information into an empty thermophase object
 /*!
@@ -304,7 +292,7 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
  *
  *
  */
-const XML_Node* speciesXML_Node(std::string kname,
+const XML_Node* speciesXML_Node(const std::string& kname,
                                 const XML_Node* phaseSpeciesData);
 
 //@}

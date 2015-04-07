@@ -38,6 +38,10 @@ class ImportTest(unittest.TestCase):
         gas = ct.GRI30()
         self.check(gas, 'gri30', 300, 101325, 53, 5)
 
+    def test_checkReactionBalance(self):
+        self.assertRaises(Exception,
+                          lambda: ct.IdealGasMix('../data/h2o2_unbalancedReaction.xml'))
+
 
 class BasicTest(unittest.TestCase):
     @classmethod

@@ -16,7 +16,7 @@ fi
 #################################################################
 #
 CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
-CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+CANTERA_BIN=${CANTERA_BIN:=../../../bin/}
 
 #################################################################
 
@@ -25,7 +25,7 @@ retnStat=$?
 if [ $retnStat != "0" ]
 then
   temp_success="0"
-  echo "$prog returned with bad status, $retnStat, check output"
+  echo "$prog exited with bad status, $retnStat, check output"
 fi
 
 $CANTERA_BIN/exp3to2.sh output.txt > outputa.txt
@@ -34,11 +34,11 @@ retnStat=$?
 if [ $retnStat = "0" ]
 then
   echo "successful diff comparison on $prog test"
-  return 0
+  exit 0
 else
   echo "unsuccessful diff comparison on $prog test"
   echo "FAILED" > csvCode.txt
   temp_success="0"
-  return 1
+  exit 1
 fi
 

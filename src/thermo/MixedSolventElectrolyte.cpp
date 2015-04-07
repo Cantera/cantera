@@ -1,10 +1,9 @@
 /**
- *  @file MargulesVPSSTP.cpp
+ *  @file MixedSolventElectrolyte.cpp
  *   Definitions for ThermoPhase object for phases which
  *   employ excess gibbs free energy formulations related to Margules
  *   expansions (see \ref thermoprops
  *    and class \link Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
- *
  */
 /*
  * Copyright (2009) Sandia Corporation. Under the terms of
@@ -23,12 +22,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-static  const double xxSmall = 1.0E-150;
-/*
- * Default constructor.
- *
- */
 MixedSolventElectrolyte::MixedSolventElectrolyte() :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
@@ -37,52 +30,32 @@ MixedSolventElectrolyte::MixedSolventElectrolyte() :
 {
 }
 
-/*
- * Working constructors
- *
- *  The two constructors below are the normal way
- *  the phase initializes itself. They are shells that call
- *  the routine initThermo(), with a reference to the
- *  XML database to get the info for the phase.
-
- */
-MixedSolventElectrolyte::MixedSolventElectrolyte(std::string inputFile, std::string id) :
+MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
+        const std::string& id_) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot, std::string id) :
+MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
+        const std::string& id_) :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-    constructPhaseXML(phaseRoot, id);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
-
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b) :
     MolarityIonicVPSSTP()
 {
     MixedSolventElectrolyte::operator=(b);
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 MixedSolventElectrolyte& MixedSolventElectrolyte::
 operator=(const MixedSolventElectrolyte& b)
 {
@@ -113,44 +86,19 @@ operator=(const MixedSolventElectrolyte& b)
     return *this;
 }
 
-/**
- *
- * ~MixedSolventElectrolyte():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
-MixedSolventElectrolyte::~MixedSolventElectrolyte()
-{
-}
-
-/*
- * This routine duplicates the current object and returns
- * a pointer to ThermoPhase.
- */
 ThermoPhase*
 MixedSolventElectrolyte::duplMyselfAsThermoPhase() const
 {
-    MixedSolventElectrolyte* mtp = new MixedSolventElectrolyte(*this);
-    return (ThermoPhase*) mtp;
+    return new MixedSolventElectrolyte(*this);
 }
 
-// Special constructor for a hard-coded problem
-/*
- *
- *   LiKCl treating the PseudoBinary layer as passthrough.
- *   -> test to predict the eutectic and liquidus correctly.
- *
- */
 MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)  :
     MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
 {
-
-
-    constructPhaseFile("LiKCl_liquid.xml", "");
+    initThermoFile("LiKCl_liquid.xml", "");
 
 
     numBinaryInteractions_ = 1;
@@ -201,153 +149,19 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)  :
     m_pSpecies_A_ij[0] = iKCl;
 }
 
-
 /*
  *  -------------- Utilities -------------------------------
  */
 
-
-// Equation of state type flag.
-/*
- * The ThermoPhase base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Known constants defined for this purpose are
- * listed in mix_defs.h. The MixedSolventElectrolyte class also returns
- * zero, as it is a non-complete class.
- */
 int MixedSolventElectrolyte::eosType() const
 {
     return 0;
 }
 
 /*
- *   Import, construct, and initialize a phase
- *   specification from an XML tree into the current object.
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void MixedSolventElectrolyte::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if ((int) inputFile.size() == 0) {
-        throw CanteraError("MixedSolventElectrolyte:constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("MixedSolventElectrolyte:constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("MixedSolventElectrolyte:constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-/*
- *   Import, construct, and initialize a HMWSoln phase
- *   specification from an XML tree into the current object.
- *
- *   Most of the work is carried out by the cantera base
- *   routine, importPhase(). That routine imports all of the
- *   species and element data, including the standard states
- *   of the species.
- *
- *   Then, In this routine, we read the information
- *   particular to the specification of the activity
- *   coefficient model for the Pitzer parameterization.
- *
- *   We also read information about the molar volumes of the
- *   standard states if present in the XML file.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void MixedSolventElectrolyte::constructPhaseXML(XML_Node& phaseNode, std::string id)
-{
-    string stemp;
-    if ((int) id.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError("MixedSolventElectrolyte::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
-    }
-
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("MixedSolventElectrolyte::constructPhaseXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    /*
-     * Make sure that the thermo model is Margules
-     */
-    stemp = thermoNode.attrib("model");
-    string formString = lowercase(stemp);
-    if (formString != "margules") {
-        throw CanteraError("MixedSolventElectrolyte::constructPhaseXML",
-                           "model name isn't Margules: " + formString);
-
-    }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("MixedSolventElectrolyte::constructPhaseXML","importPhase failed ");
-    }
-
-}
-//====================================================================================================================
-/*
- * ------------ Molar Thermodynamic Properties ----------------------
- */
-//====================================================================================================================
-/*
  * - Activities, Standard States, Activity Concentrations -----------
  */
-//====================================================================================================================
-// Get the array of non-dimensional molar-based activity coefficients at
-// the current solution temperature, pressure, and solution concentration.
-/*
- * @param ac Output vector of activity coefficients. Length: m_kk.
- */
+
 void MixedSolventElectrolyte::getActivityCoefficients(doublereal* ac) const
 {
     /*
@@ -362,12 +176,10 @@ void MixedSolventElectrolyte::getActivityCoefficients(doublereal* ac) const
         ac[k] = exp(lnActCoeff_Scaled_[k]);
     }
 }
-//====================================================================================================================
+
 /*
  * ------------ Partial Molar Properties of the Solution ------------
  */
-
-
 
 void MixedSolventElectrolyte::getElectrochemPotentials(doublereal* mu) const
 {
@@ -377,7 +189,6 @@ void MixedSolventElectrolyte::getElectrochemPotentials(doublereal* mu) const
         mu[k] += ve*charge(k);
     }
 }
-
 
 void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
 {
@@ -398,12 +209,11 @@ void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
      */
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], SmallNumber);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
 
-/// Molar enthalpy. Units: J/kmol.
 doublereal MixedSolventElectrolyte::enthalpy_mole() const
 {
     size_t kk = nSpecies();
@@ -416,7 +226,6 @@ doublereal MixedSolventElectrolyte::enthalpy_mole() const
     return h;
 }
 
-/// Molar entropy. Units: J/kmol.
 doublereal MixedSolventElectrolyte::entropy_mole() const
 {
     size_t kk = nSpecies();
@@ -429,7 +238,6 @@ doublereal MixedSolventElectrolyte::entropy_mole() const
     return s;
 }
 
-/// Molar heat capacity at constant pressure. Units: J/kmol/K.
 doublereal MixedSolventElectrolyte::cp_mole() const
 {
     size_t kk = nSpecies();
@@ -442,26 +250,11 @@ doublereal MixedSolventElectrolyte::cp_mole() const
     return cp;
 }
 
-/// Molar heat capacity at constant volume. Units: J/kmol/K.
 doublereal MixedSolventElectrolyte::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
 
-// Returns an array of partial molar enthalpies for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * molality-based activity coefficient wrt temperature
- *
- *  \f[
- * \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
 void MixedSolventElectrolyte::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     /*
@@ -488,20 +281,6 @@ void MixedSolventElectrolyte::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-// Returns an array of partial molar heat capacities for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * activity coefficient wrt temperature
- *
- *  \f[
- * ??????????? \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
 void MixedSolventElectrolyte::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
@@ -527,20 +306,6 @@ void MixedSolventElectrolyte::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-// Returns an array of partial molar entropies for the species
-// in the mixture.
-/*
- * Units (J/kmol)
- *
- * For this phase, the partial molar enthalpies are equal to the
- * standard state enthalpies modified by the derivative of the
- * activity coefficient wrt temperature
- *
- *  \f[
- * \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
- *
- */
 void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
 {
     double xx;
@@ -557,7 +322,7 @@ void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], xxSmall);
+        xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
@@ -568,20 +333,6 @@ void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
-
-// Return an array of partial molar volumes for the
-// species in the mixture. Units: m^3/kmol.
-/*
- *  Frequently, for this class of thermodynamics representations,
- *  the excess Volume due to mixing is zero. Here, we set it as
- *  a default. It may be overridden in derived classes.
- *
- *  @param vbar   Output vector of species partial molar volumes.
- *                Length = m_kk. units are m^3/kmol.
- */
 void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
 {
     int delAK, delBK;
@@ -617,80 +368,51 @@ void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal MixedSolventElectrolyte::err(std::string msg) const
+doublereal MixedSolventElectrolyte::err(const std::string& msg) const
 {
     throw CanteraError("MixedSolventElectrolyte","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
 }
 
-
-/*
- * @internal Initialize. This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 void MixedSolventElectrolyte::initThermo()
 {
     initLengths();
     MolarityIonicVPSSTP::initThermo();
 }
 
-
-//   Initialize lengths of local variables after all species have
-//   been identified.
 void  MixedSolventElectrolyte::initLengths()
 {
     m_kk = nSpecies();
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
-/*
- * initThermoXML()                (virtual from ThermoPhase)
- *   Import and initialize a ThermoPhase object
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, std::string id)
+void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string subname = "MixedSolventElectrolyte::initThermoXML";
     string stemp;
 
+    if ((int) id_.size() > 0) {
+        string idp = phaseNode.id();
+        if (idp != id_) {
+            throw CanteraError(subname, "phasenode and Id are incompatible");
+        }
+    }
+
     /*
      * Check on the thermo field. Must have:
-     * <thermo model="IdealSolidSolution" />
+     * <thermo model="MixedSolventElectrolyte" />
      */
-
+    if (!phaseNode.hasChild("thermo")) {
+        throw CanteraError(subname, "no thermo XML node");
+    }
     XML_Node& thermoNode = phaseNode.child("thermo");
     string mStringa = thermoNode.attrib("model");
     string mString = lowercase(mStringa);
-    if (mString != "margules") {
-        throw CanteraError(subname.c_str(),
-                           "Unknown thermo model: " + mStringa);
+    if (mString != "mixedsolventelectrolyte") {
+        throw CanteraError(subname, "Unknown thermo model: " + mStringa);
     }
 
-
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
     /*
      * Go get all of the coefficients and factors in the
      * activityCoefficients XML block
@@ -699,8 +421,8 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, std::string id)
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         acNodePtr = &acNode;
-        string mStringa = acNode.attrib("model");
-        string mString = lowercase(mStringa);
+        mStringa = acNode.attrib("model");
+        mString = lowercase(mStringa);
         if (mString != "margules") {
             throw CanteraError(subname.c_str(),
                                "Unknown activity coefficient model: " + mStringa);
@@ -725,19 +447,11 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, std::string id)
     /*
      * Go down the chain
      */
-    MolarityIonicVPSSTP::initThermoXML(phaseNode, id);
+    MolarityIonicVPSSTP::initThermoXML(phaseNode, id_);
 
 
 }
-//===================================================================================================================
 
-// Update the activity coefficients
-/*
- * This function will be called to update the internally stored
- * natural logarithm of the activity coefficients
- *
- *   he = X_A X_B(B + C X_B)
- */
 void MixedSolventElectrolyte::s_update_lnActCoeff() const
 {
     int delAK, delBK;
@@ -764,14 +478,7 @@ void MixedSolventElectrolyte::s_update_lnActCoeff() const
         }
     }
 }
-//===================================================================================================================
-// Update the derivative of the log of the activity coefficients wrt T
-/*
- * This function will be called to update the internally stored
- * natural logarithm of the activity coefficients
- *
- *   he = X_A X_B(B + C X_B)
- */
+
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
 {
     int delAK, delBK;
@@ -801,7 +508,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
         }
     }
 }
-//====================================================================================================================
+
 void MixedSolventElectrolyte::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
@@ -809,7 +516,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
         dlnActCoeffdT[k] = dlnActCoeffdT_Scaled_[k];
     }
 }
-//====================================================================================================================
+
 void MixedSolventElectrolyte::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
@@ -817,19 +524,7 @@ void MixedSolventElectrolyte::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) co
         d2lnActCoeffdT2[k] = d2lnActCoeffdT2_Scaled_[k];
     }
 }
-//====================================================================================================================
 
-// Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
-// a line in parameter space or along a line in physical space
-/*
- *
- * @param dTds           Input of temperature change along the path
- * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
- *                       Along the path length it must be the case that the mole fractions sum to one.
- * @param dlnActCoeffds  Output vector of the directional derivatives of the
- *                       log Activity Coefficients along the path. length = m_kk
- *  units are 1/units(s). if s is a physical coordinate then the units are 1/m.
- */
 void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
         doublereal* dlnActCoeffds) const
 {
@@ -871,15 +566,7 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
         }
     }
 }
-//====================================================================================================================
-// Update the derivative of the log of the activity coefficients wrt dlnN
-/*
- * This function will be called to update the internally stored gradients of the
- * logarithm of the activity coefficients.  These are used in the determination
- * of the diffusion coefficients.
- *
- *   he = X_A X_B(B + C X_B)
- */
+
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
 {
     int delAK, delBK;
@@ -935,14 +622,6 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
     }
 }
 
-//====================================================================================================================
-// Update the derivative of the log of the activity coefficients wrt dlnN
-/*
- * This function will be called to update the internally stored gradients of the
- * logarithm of the activity coefficients.  These are used in the determination
- * of the diffusion coefficients.
- *
- */
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 {
     doublereal delAK, delBK;
@@ -1008,7 +687,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
         }
     }
 }
-//====================================================================================================================
+
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
 {
     doublereal XA, XB, g0 , g1;
@@ -1033,7 +712,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
     }
 }
 
-//====================================================================================================================
+
 void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dlnN_diag();
@@ -1041,7 +720,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdln
         dlnActCoeffdlnN_diag[k] = dlnActCoeffdlnN_diag_[k];
     }
 }
-//====================================================================================================================
+
 void MixedSolventElectrolyte::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
@@ -1049,7 +728,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdln
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
 }
-//====================================================================================================================
+
 void MixedSolventElectrolyte::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
@@ -1060,7 +739,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnN(const size_t ld, doublereal* dl
         }
     }
 }
-//====================================================================================================================
+
 void MixedSolventElectrolyte::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
@@ -1081,15 +760,7 @@ void MixedSolventElectrolyte::resizeNumInteractions(const size_t num)
     m_pSpecies_B_ij.resize(num, npos);
 
 }
-//====================================================================================================================
 
-/*
- * Process an XML node called "binaryNeutralSpeciesParameters"
- * This node contains all of the parameters necessary to describe
- * the Margules Interaction for a single binary interaction
- * This function reads the XML file and writes the coefficients
- * it finds to an internal data structures.
- */
 void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     string xname = xmLBinarySpecies.name();
@@ -1097,7 +768,6 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    double* charge = DATA_PTR(m_speciesCharge);
     string stemp;
     size_t nParamsFound;
     vector_fp vParams;
@@ -1118,7 +788,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string ispName = speciesName(iSpecies);
-    if (charge[iSpecies] != 0) {
+    if (charge(iSpecies) != 0) {
         throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies", "speciesA charge problem");
     }
     size_t jSpecies = speciesIndex(jName);
@@ -1126,7 +796,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string jspName = speciesName(jSpecies);
-    if (charge[jSpecies] != 0) {
+    if (charge(jSpecies) != 0) {
         throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies", "speciesB charge problem");
     }
 
@@ -1206,11 +876,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             m_VSE_b_ij[iSpot] = vParams[0];
             m_VSE_c_ij[iSpot] = vParams[1];
         }
-
-
     }
-
 }
 
 }
-

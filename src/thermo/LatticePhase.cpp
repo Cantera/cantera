@@ -15,17 +15,10 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
-#include <fstream>
-
 namespace Cantera
 {
 
-// Base Empty constructor
 LatticePhase::LatticePhase() :
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(0.0),
@@ -34,14 +27,7 @@ LatticePhase::LatticePhase() :
 {
 }
 
-// Copy Constructor
-/*
- * @param right Object to be copied
- */
 LatticePhase::LatticePhase(const LatticePhase& right) :
-    m_mm(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_tlast(0.0),
@@ -51,17 +37,10 @@ LatticePhase::LatticePhase(const LatticePhase& right) :
     *this = operator=(right);
 }
 
-// Assignment operator
-/*
- * @param right Object to be copied
- */
 LatticePhase& LatticePhase::operator=(const LatticePhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_mm         = right.m_mm;
-        m_tmin       = right.m_tmin;
-        m_tmax       = right.m_tmax;
         m_Pref       = right.m_Pref;
         m_Pcurrent     = right.m_Pcurrent;
         m_tlast      = right.m_tlast;
@@ -76,121 +55,22 @@ LatticePhase& LatticePhase::operator=(const LatticePhase& right)
     return *this;
 }
 
-// Destructor
-LatticePhase::~LatticePhase()
+LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
 {
+    initThermoFile(inputFile, id_);
 }
 
-
-// Full constructor for a lattice phase
-/*
- * @param inputFile String name of the input file
- * @param id        string id of the phase name
- */
-LatticePhase::LatticePhase(std::string inputFile, std::string id)
+LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id_)
 {
-    constructPhaseFile(inputFile, id);
+    importPhase(*findXMLPhase(&phaseRef, id_), this);
 }
 
-// Full constructor for a water phase
-/*
- * @param phaseRef  XML node referencing the lattice phase.
- * @param id        string id of the phase name
- */
-LatticePhase::LatticePhase(XML_Node& phaseRef, std::string id)
-{
-    constructPhaseXML(phaseRef, id);
-}
-
-
-// Duplication function
-/*
- * This virtual function is used to create a duplicate of the
- * current phase. It's used to duplicate the phase when given
- * a ThermoPhase pointer to the phase.
- *
- * @return It returns a ThermoPhase pointer.
- */
 ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
 {
-    LatticePhase* igp = new LatticePhase(*this);
-    return (ThermoPhase*) igp;
+    return new LatticePhase(*this);
 }
 
-/*
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void LatticePhase::constructPhaseXML(XML_Node& phaseNode, std::string idTarget)
-{
-    std::string idattrib = phaseNode.id();
-    if (idTarget != idattrib) {
-        throw CanteraError("LatticePhase::constructPhaseXML","ids don't match");
-    }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states.
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("LatticePhase::constructPhaseXML","importPhase failed ");
-    }
-}
-
-/*
- * constructPhaseFile
- *
- *
- * This routine is a precursor to constructPhaseXML(XML_Node*)
- * routine, which does most of the work.
- *
- * @param inputFile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void LatticePhase::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("LatticePhase::constructPhaseFile",
-                           "input file is null");
-    }
-    std::string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("LatticePhase::constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("LatticePhase::constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-
-doublereal LatticePhase::
-enthalpy_mole() const
+doublereal LatticePhase::enthalpy_mole() const
 {
     doublereal p0 = m_spthermo->refPressure();
     return GasConstant * temperature() *
@@ -211,22 +91,22 @@ doublereal LatticePhase::entropy_mole() const
     return GasConstant * (mean_X(&entropy_R_ref()[0]) -
                           sum_xlogx());
 }
-//====================================================================================================================
+
 doublereal LatticePhase::gibbs_mole() const
 {
     return enthalpy_mole() - temperature() * entropy_mole();
 }
-//====================================================================================================================
+
 doublereal LatticePhase::cp_mole() const
 {
     return GasConstant * mean_X(&cp_R_ref()[0]);
 }
-//====================================================================================================================
+
 doublereal LatticePhase::cv_mole() const
 {
     return cp_mole();
 }
-//====================================================================================================================
+
 doublereal LatticePhase::calcDensity()
 {
     setMolarDensity(m_site_density);
@@ -245,65 +125,65 @@ doublereal LatticePhase::calcDensity()
     //  Phase::setDensity(dens);
     return dens;
 }
-//====================================================================================================================
+
 void LatticePhase::setPressure(doublereal p)
 {
     m_Pcurrent = p;
     calcDensity();
 }
-//====================================================================================================================
+
 void LatticePhase::setMoleFractions(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
     calcDensity();
 }
-//====================================================================================================================
+
 void LatticePhase::setMoleFractions_NoNorm(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
     calcDensity();
 }
-//====================================================================================================================
+
 void LatticePhase::setMassFractions(const doublereal* const y)
 {
     Phase::setMassFractions(y);
     calcDensity();
 }
-//====================================================================================================================
+
 void LatticePhase::setMassFractions_NoNorm(const doublereal* const y)
 {
     Phase::setMassFractions_NoNorm(y);
     calcDensity();
 }
-//====================================================================================================================
+
 void LatticePhase::setConcentrations(const doublereal* const c)
 {
     Phase::setConcentrations(c);
     calcDensity();
 }
-//====================================================================================================================
+
 void LatticePhase::getActivityConcentrations(doublereal* c) const
 {
     getMoleFractions(c);
 }
-//====================================================================================================================
+
 void LatticePhase::getActivityCoefficients(doublereal* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
 }
-//====================================================================================================================
+
 doublereal LatticePhase::standardConcentration(size_t k) const
 {
     return 1.0;
 }
-//====================================================================================================================
+
 doublereal LatticePhase::logStandardConc(size_t k) const
 {
     return 0.0;
 }
-//====================================================================================================================
+
 void LatticePhase::getChemPotentials(doublereal* mu) const
 {
     doublereal delta_p = m_Pcurrent - m_Pref;
@@ -317,14 +197,14 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
     }
 
 }
-//====================================================================================================================
+
 void LatticePhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
     doublereal rt = GasConstant * temperature();
     scale(_h.begin(), _h.end(), hbar, rt);
 }
-//====================================================================================================================
+
 void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     const vector_fp& _s = entropy_R_ref();
@@ -335,7 +215,7 @@ void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
         sbar[k] = r * (_s[k] - log(xx));
     }
 }
-//====================================================================================================================
+
 void LatticePhase::getPartialMolarCp(doublereal* cpbar) const
 {
     getCp_R(cpbar);
@@ -343,18 +223,18 @@ void LatticePhase::getPartialMolarCp(doublereal* cpbar) const
         cpbar[k] *= GasConstant;
     }
 }
-//====================================================================================================================
+
 void LatticePhase::getPartialMolarVolumes(doublereal* vbar) const
 {
     getStandardVolumes(vbar);
 }
-//====================================================================================================================
+
 void LatticePhase::getStandardChemPotentials(doublereal* mu0) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), mu0, _RT());
 }
-//====================================================================================================================
+
 void LatticePhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
@@ -364,7 +244,7 @@ void LatticePhase::getPureGibbs(doublereal* gpure) const
         gpure[k] = RT * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
 }
-//====================================================================================================================
+
 void LatticePhase::getEnthalpy_RT(doublereal* hrt) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
@@ -373,13 +253,13 @@ void LatticePhase::getEnthalpy_RT(doublereal* hrt) const
         hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
     }
 }
-//====================================================================================================================
+
 void LatticePhase::getEntropy_R(doublereal* sr) const
 {
     const vector_fp& _s = entropy_R_ref();
     std::copy(_s.begin(), _s.end(), sr);
 }
-//====================================================================================================================
+
 void LatticePhase::getGibbs_RT(doublereal* grt) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
@@ -389,7 +269,7 @@ void LatticePhase::getGibbs_RT(doublereal* grt) const
         grt[k] = gibbsrt[k] + delta_prt * m_speciesMolarVolume[k];
     }
 }
-//====================================================================================================================
+
 void LatticePhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
@@ -397,42 +277,30 @@ void LatticePhase::getGibbs_ref(doublereal* g) const
         g[k] *= GasConstant * temperature();
     }
 }
-//===================================================================================================================
 
 void LatticePhase::getCp_R(doublereal* cpr) const
 {
     const vector_fp& _cpr = cp_R_ref();
     std::copy(_cpr.begin(), _cpr.end(), cpr);
 }
-//===================================================================================================================
+
 void LatticePhase::getStandardVolumes(doublereal* vbar) const
 {
     copy(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), vbar);
 }
-//=======================================================================================================
-// Returns the vector of nondimensional Enthalpies of the reference state at the current temperature
-//  of the solution and the reference pressure for the phase.
-/*
- * @return       Output vector of nondimensional reference state Enthalpies of the species.
- *               Length: m_kk
- */
+
 const vector_fp& LatticePhase::enthalpy_RT_ref() const
 {
     _updateThermo();
     return m_h0_RT;
 }
-//=======================================================================================================
-// Returns a reference to the dimensionless reference state Gibbs free energy vector.
-/*
- * This function is part of the layer that checks/recalculates the reference
- * state thermo functions.
- */
+
 const vector_fp& LatticePhase::gibbs_RT_ref() const
 {
     _updateThermo();
     return m_g0_RT;
 }
-//====================================================================================================================
+
 void LatticePhase::getGibbs_RT_ref(doublereal* grt) const
 {
     _updateThermo();
@@ -440,57 +308,22 @@ void LatticePhase::getGibbs_RT_ref(doublereal* grt) const
         grt[k] = m_g0_RT[k];
     }
 }
-//=======================================================================================================
-// Returns a reference to the dimensionless reference state Entropy vector.
-/*
- * This function is part of the layer that checks/recalculates the reference
- * state thermo functions.
- */
+
 const vector_fp& LatticePhase::entropy_R_ref() const
 {
     _updateThermo();
     return m_s0_R;
 }
-//=======================================================================================================
-// Returns a reference to the dimensionless reference state Heat Capacity vector.
-/*
- * This function is part of the layer that checks/recalculates the reference
- * state thermo functions.
- */
+
 const vector_fp& LatticePhase::cp_R_ref() const
 {
     _updateThermo();
     return m_cp0_R;
 }
-//====================================================================================================================
-// Initialize the ThermoPhase object after all species have been set up
-/*
- * @internal Initialize.
- *
- * This method performs any initialization required after all
- * species have been added. For example, it is used to
- * resize internal work arrays that must have an entry for
- * each species.
- * This method is called from ThermoPhase::initThermoXML(),
- * which is called from importPhase(),
- * just prior to returning from the function, importPhase().
- *
- * @see importCTML.cpp
- */
+
 void LatticePhase::initThermo()
 {
-    m_kk = nSpecies();
-    m_mm = nElements();
-    doublereal tmin = m_spthermo->minTemp();
-    doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
     m_Pref = refPressure();
-
     size_t leng = m_kk;
     m_h0_RT.resize(leng);
     m_g0_RT.resize(leng);
@@ -500,9 +333,15 @@ void LatticePhase::initThermo()
 
     ThermoPhase::initThermo();
 }
-//====================================================================================================================
-void LatticePhase::initThermoXML(XML_Node& phaseNode, std::string id)
+
+void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
+    std::string idattrib = phaseNode.id();
+    if (!id_.empty() && id_ != idattrib) {
+        throw CanteraError("LatticePhase::initThermoXML",
+                           "ids don't match");
+    }
+
     std::string subname = "LatticePhase::initThermoXML";
     /*
      * Check on the thermo field. Must have:
@@ -545,14 +384,9 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, std::string id)
      * Call the base initThermo, which handles setting the initial
      * state.
      */
-    ThermoPhase::initThermoXML(phaseNode, id);
+    ThermoPhase::initThermoXML(phaseNode, id_);
 }
-//=====================================================================================================
-// Update the species reference state thermodynamic functions
-/*
- * The polynomials for the standard state functions are only
- * reevaluated if the temperature has changed.
- */
+
 void LatticePhase::_updateThermo() const
 {
     doublereal tnow = temperature();
@@ -565,26 +399,27 @@ void LatticePhase::_updateThermo() const
         m_tlast = tnow;
     }
 }
-//=====================================================================================================
+
 void LatticePhase::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("LatticePhase::setParameters");
     m_site_density = c[0];
     setMolarDensity(m_site_density);
 }
-//=====================================================================================================
+
 void LatticePhase::getParameters(int& n, doublereal* const c) const
 {
+    warn_deprecated("LatticePhase::getParameters");
     double d = molarDensity();
     c[0] = d;
     n = 1;
 }
-//=====================================================================================================
+
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model", "Lattice");
     m_site_density = ctml::getFloat(eosdata, "site_density", "toSI");
     m_vacancy = ctml::getChildValue(eosdata, "vacancy_species");
 }
-//=====================================================================================================
+
 }
-//=======================================================================================================

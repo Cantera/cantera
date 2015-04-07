@@ -31,11 +31,12 @@ def clean():
     if not sourcedirs:
         return
 
-    command = ['lcov', '--zerocounters']
+    dirflags = []
     for d in sourcedirs:
-        command.append('-d')
-        command.append(d)
-    subprocess.call(command)
+        dirflags.append('-d')
+        dirflags.append(d)
+    subprocess.call(['lcov', '--zerocounters'] + dirflags)
+    subprocess.call(['lcov', '-c', '-i', '-b', '.'] + dirflags + ['-o', 'coverage-base.info'])
 
 
 def test():
@@ -57,12 +58,27 @@ def collect():
 
     command = ['lcov', '-c',
                '-b', '.',
-               '-o', 'coverage.info']
+               '-o', 'coverage-raw.info']
     for d in sourcedirs:
         command.append('-d')
         command.append(d)
     subprocess.call(command)
 
+    # Add the baseline
+    subprocess.call(['lcov',
+                    '-a', 'coverage-raw.info',
+                    '-a', 'coverage-base.info',
+                    '-o', 'coverage-tmp.info'])
+
+    # Filter to remove non-Cantera code
+    subprocess.call(['lcov',
+                     '-o', 'coverage.info',
+                     '-e', 'coverage-tmp.info',
+                     os.getcwd() + '/include/*',
+                     os.getcwd() + '/src/*'])
+    os.remove('coverage-raw.info')
+    os.remove('coverage-base.info')
+    os.remove('coverage-tmp.info')
 
 def genhtml():
     """

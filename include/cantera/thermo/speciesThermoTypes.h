@@ -1,6 +1,5 @@
 /**
- *  @file speciesThermoTypes.h
- *       Contains const definitions for types of species
+ *  @file speciesThermoTypes.h Contains const definitions for types of species
  *       reference-state thermodynamics managers (see \ref spthermo)
  */
 // Copyright 2001  California Institute of Technology
@@ -8,10 +7,6 @@
 
 #ifndef SPECIES_THERMO_TYPES_H
 #define SPECIES_THERMO_TYPES_H
-
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
-#include "cantera/base/stringUtils.h"
 
 //! Constant Cp
 #define CONSTANT_CP 1
@@ -63,6 +58,10 @@
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
 #define NASA9MULTITEMP  513
 
+//! Properties derived from theoretical considerations
+//! This is implemented in the class statmech in StatMech.h
+#define STAT  111
+
 //! Surface Adsorbate Model for a species on a surface.
 //! This is implemented in the class Adsorbate.
 #define ADSORBATE 1024
@@ -71,46 +70,6 @@
 //! standard state object. Basically, the reference state pressure isn't special.
 //! A general object is called with the pressure set at the reference state.
 #define PDSS_TYPE 37
-
-namespace Cantera
-{
-
-//! Error for unknown thermo parameterization
-struct UnknownThermoParam {
-    //! Constructor
-    /*!
-     * @param thermotype  Integer specifying the thermo parameterization
-     *
-     * @deprecated This class is unused?
-     */
-    DEPRECATED(UnknownThermoParam(int thermotype)) {
-        writelog(std::string("\n ### ERROR ### \n") +
-                 "Unknown species thermo parameterization ("
-                 + int2str(thermotype) + ")\n\n");
-    }
-};
-
-
-//! holds parameterization-dependent index information
-/*!
- * These are all integers.
- * @deprecated This struct is unused.
- */
-struct ThermoIndexData {
-    DEPRECATED(ThermoIndexData()) {}
-    //! param
-    int param;
-    //! number of coefficients
-    int nCoefficients;
-    //! coefficient for Tmin
-    int Tmin_coeff;
-    //! coefficient for Tmax
-    int Tmax_coeff;
-    //! reference pressure coefficient
-    int Pref_coeff;
-};
-
-}
 
 #endif
 

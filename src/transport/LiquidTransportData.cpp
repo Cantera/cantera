@@ -6,13 +6,8 @@
 #include "cantera/transport/LiquidTransportData.h"
 using namespace std;
 
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(x)  if (x) { delete (x); x = 0; }
-#endif
 namespace Cantera
 {
-
-//====================================================================================================================
 LiquidTransportData::LiquidTransportData() :
     speciesName("-"),
     hydroRadius(0),
@@ -26,8 +21,7 @@ LiquidTransportData::LiquidTransportData() :
 {
 
 }
-//====================================================================================================================
-// Copy constructor
+
 LiquidTransportData::LiquidTransportData(const LiquidTransportData& right) :
     speciesName("-"),
     hydroRadius(0),
@@ -41,8 +35,7 @@ LiquidTransportData::LiquidTransportData(const LiquidTransportData& right) :
 {
     *this = right; //use assignment operator to do other work
 }
-//====================================================================================================================
-// Assignment operator
+
 LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& right)
 {
     if (&right != this) {
@@ -84,29 +77,27 @@ LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& r
     }
     return *this;
 }
-//====================================================================================================================
+
 LiquidTransportData::~LiquidTransportData()
 {
-
-    SAFE_DELETE(hydroRadius);
-    SAFE_DELETE(viscosity);
-    SAFE_DELETE(ionConductivity);
+    delete hydroRadius;
+    delete viscosity;
+    delete ionConductivity;
 
     for (size_t k = 0; k < mobilityRatio.size(); k++) {
         if (mobilityRatio[k]) {
-            SAFE_DELETE(mobilityRatio[k]);
+            delete mobilityRatio[k];
         }
     }
     for (size_t k = 0; k < selfDiffusion.size(); k++) {
         if (selfDiffusion[k]) {
-            SAFE_DELETE(selfDiffusion[k]);
+            delete selfDiffusion[k];
         }
     }
 
-    SAFE_DELETE(thermalCond);
-    SAFE_DELETE(electCond);
-    SAFE_DELETE(speciesDiffusivity);
-
+    delete thermalCond;
+    delete electCond;
+    delete speciesDiffusivity;
 }
-//====================================================================================================================
+
 }

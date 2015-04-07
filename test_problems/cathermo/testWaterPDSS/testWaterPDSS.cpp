@@ -119,7 +119,7 @@ int main()
             delg0 = (g - h298l)/temp;
             Cp0 = w->cp_mole();
             s = w->entropy_mole();
-            printf("%10g %10g %12g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
                    -delg0*1.0E-3, delh0*1.0E-6);
@@ -144,7 +144,7 @@ int main()
             // not implemented
             //w.getPartialMolarVolumes(&vbar);
 
-            printf("%10g %10g %12g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5, d, vbar);
 
         }

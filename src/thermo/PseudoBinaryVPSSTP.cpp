@@ -19,18 +19,12 @@
 #include "cantera/thermo/PseudoBinaryVPSSTP.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
 #include <cstdio>
 
 using namespace std;
 
 namespace Cantera
 {
-
-/*
- * Default constructor.
- *
- */
 PseudoBinaryVPSSTP::PseudoBinaryVPSSTP() :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
@@ -45,12 +39,6 @@ PseudoBinaryVPSSTP::PseudoBinaryVPSSTP() :
 {
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP& b) :
     GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
@@ -66,12 +54,6 @@ PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP& b) :
     *this = operator=(b);
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 PseudoBinaryVPSSTP& PseudoBinaryVPSSTP::
 operator=(const PseudoBinaryVPSSTP& b)
 {
@@ -97,57 +79,16 @@ operator=(const PseudoBinaryVPSSTP& b)
     return *this;
 }
 
-/**
- *
- * ~PseudoBinaryVPSSTP():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
-PseudoBinaryVPSSTP::~PseudoBinaryVPSSTP()
-{
-}
-
-/*
- * This routine duplicates the current object and returns
- * a pointer to ThermoPhase.
- */
 ThermoPhase*
 PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const
 {
-    PseudoBinaryVPSSTP* mtp = new PseudoBinaryVPSSTP(*this);
-    return (ThermoPhase*) mtp;
+    return new PseudoBinaryVPSSTP(*this);
 }
 
-/*
- *  -------------- Utilities -------------------------------
- */
-
-
-// Equation of state type flag.
-/*
- * The ThermoPhase base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Known constants defined for this purpose are
- * listed in mix_defs.h. The PseudoBinaryVPSSTP class also returns
- * zero, as it is a non-complete class.
- */
 int PseudoBinaryVPSSTP::eosType() const
 {
     return 0;
 }
-
-
-
-/*
- * ------------ Molar Thermodynamic Properties ----------------------
- */
-
-
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
-
 
 doublereal PseudoBinaryVPSSTP::standardConcentration(size_t k) const
 {
@@ -160,8 +101,6 @@ doublereal PseudoBinaryVPSSTP::logStandardConc(size_t k) const
     err("logStandardConc");
     return -1.0;
 }
-
-
 
 void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
@@ -232,76 +171,32 @@ void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
-
-
-doublereal PseudoBinaryVPSSTP::err(std::string msg) const
+doublereal PseudoBinaryVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("PseudoBinaryVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
 }
 
-
-/*
- * @internal Initialize. This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 void PseudoBinaryVPSSTP::initThermo()
 {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
 }
 
-
-//   Initialize lengths of local variables after all species have
-//   been identified.
 void  PseudoBinaryVPSSTP::initLengths()
 {
     m_kk = nSpecies();
     moleFractions_.resize(m_kk);
 }
 
-/*
- * initThermoXML()                (virtual from ThermoPhase)
- *   Import and initialize a ThermoPhase object
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-
-
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
+    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
-/**
-  * Format a summary of the mixture state for output.
-  */
 std::string PseudoBinaryVPSSTP::report(bool show_thermo) const
 {
-
-
     char p[800];
     string s = "";
     try {
@@ -362,19 +257,17 @@ std::string PseudoBinaryVPSSTP::report(bool show_thermo) const
                 sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
                         cv_mass(), cv_mole());
                 s += p;
-            } catch (CanteraError& err) {
-                err.save();
+            } catch (CanteraError& e) {
+                e.save();
                 sprintf(p, " heat capacity c_v    <not implemented>       \n");
                 s += p;
             }
         }
 
-    } catch (CanteraError& err) {
-        err.save();
+    } catch (CanteraError& e) {
+        e.save();
     }
     return s;
 }
 
-
 }
-

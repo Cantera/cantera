@@ -10,7 +10,6 @@
 #include "cantera/base/ct_defs.h"
 
 #include <iostream>
-#include <string>
 
 namespace Cantera
 {
@@ -89,7 +88,7 @@ public:
     virtual doublereal isProportional(TimesConstant1& other);
     virtual doublereal isProportional(Func1& other);
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
 
     //! accessor function for the stored constant
@@ -147,8 +146,6 @@ public:
         m_c = omega;
     }
 
-    virtual ~Sin1() {}
-
     Sin1(const Sin1& b) :
         Func1(b) {
     }
@@ -166,7 +163,7 @@ public:
         return (Func1&) *nfunc;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int ID() const {
         return SinFuncType;
@@ -187,7 +184,7 @@ public:
         Func1() {
         m_c = omega;
     }
-    virtual ~Cos1() {}
+
     Cos1(const Cos1& b) :
         Func1(b) {
     }
@@ -204,7 +201,7 @@ public:
         Cos1* nfunc = new Cos1(*this);
         return (Func1&) *nfunc;
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return CosFuncType;
     }
@@ -224,8 +221,7 @@ public:
         Func1() {
         m_c = A;
     }
-    virtual ~Exp1() {
-    }
+
     Exp1(const Exp1& b) :
         Func1(b) {
     }
@@ -236,7 +232,7 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return ExpFuncType;
     }
@@ -261,7 +257,7 @@ public:
         Func1() {
         m_c = n;
     }
-    virtual ~Pow1() {}
+
     Pow1(const Pow1& b) :
         Func1(b) {
     }
@@ -272,7 +268,7 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return PowFuncType;
     }
@@ -298,8 +294,6 @@ public:
         Func1() {
         m_c = A;
     }
-    virtual ~Const1() {
-    }
 
     Const1(const Const1& b) :
         Func1(b) {
@@ -313,7 +307,7 @@ public:
         return *this;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return ConstFuncType;
     }
@@ -380,21 +374,19 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newSumFunction(f1d, f2d);
-        return dup;
+        return newSumFunction(f1d, f2d);
     }
 
     virtual Func1& derivative() const {
         Func1& d1 = m_f1->derivative();
         Func1& d2 = m_f2->derivative();
-        Func1& d = newSumFunction(d1, d2);
-        return d;
+        return newSumFunction(d1, d2);
     }
     virtual int order() const {
         return 0;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 };
 
 
@@ -445,18 +437,16 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newDiffFunction(f1d, f2d);
-        return dup;
+        return newDiffFunction(f1d, f2d);
     }
     virtual Func1& derivative() const {
-        Func1& d = newDiffFunction(m_f1->derivative(), m_f2->derivative());
-        return d;
+        return newDiffFunction(m_f1->derivative(), m_f2->derivative());
     }
     virtual int order() const {
         return 0;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
 };
 
@@ -505,11 +495,10 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newProdFunction(f1d, f2d);
-        return dup;
+        return newProdFunction(f1d, f2d);
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual doublereal eval(doublereal t) const {
         return m_f1->eval(t) * m_f2->eval(t);
@@ -518,8 +507,7 @@ public:
     virtual Func1& derivative() const {
         Func1& a1 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
         Func1& a2 = newProdFunction(m_f2->duplicate(), m_f1->derivative());
-        Func1& s = newSumFunction(a1, a2);
-        return s;
+        return newSumFunction(a1, a2);
     }
     virtual int order() const {
         return 1;
@@ -596,7 +584,7 @@ public:
         return *d;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 0;
@@ -651,10 +639,9 @@ public:
         return m_f1->eval(t) + m_c;
     }
     virtual Func1& derivative() const {
-        Func1& f1d = m_f1->derivative();
-        return f1d;
+        return m_f1->derivative();
     }
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 0;
@@ -712,8 +699,7 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newRatioFunction(f1d, f2d);
-        return dup;
+        return newRatioFunction(f1d, f2d);
     }
 
     virtual Func1& derivative() const {
@@ -721,11 +707,10 @@ public:
         Func1& a2 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
         Func1& s = newDiffFunction(a1, a2);
         Func1& p = newProdFunction(m_f2->duplicate(), m_f2->duplicate());
-        Func1& r = newRatioFunction(s, p);
-        return r;
+        return newRatioFunction(s, p);
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 1;
@@ -782,8 +767,7 @@ public:
     virtual Func1& duplicate() const {
         Func1& f1d = m_f1->duplicate();
         Func1& f2d = m_f2->duplicate();
-        Func1& dup = newCompositeFunction(f1d, f2d);
-        return dup;
+        return newCompositeFunction(f1d, f2d);
     }
 
     virtual Func1& derivative() const {
@@ -795,7 +779,7 @@ public:
         return *p;
     }
 
-    virtual std::string write(std::string arg) const;
+    virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
         return 2;
@@ -828,8 +812,6 @@ public:
         m_t0 = t0;
         m_tau = fwhm/(2.0*std::sqrt(std::log(2.0)));
     }
-
-    virtual ~Gaussian() {}
 
     Gaussian(const Gaussian& b) :
         Func1(b) {
@@ -875,9 +857,6 @@ public:
         m_n = n+1;
         m_cpoly.resize(n+1);
         std::copy(c, c+m_n, m_cpoly.begin());
-    }
-
-    virtual ~Poly1() {
     }
 
     Poly1(const Poly1& b) :
@@ -939,8 +918,6 @@ public:
         std::copy(a, a+n, m_ccos.begin());
         std::copy(b, b+n, m_csin.begin());
     }
-
-    virtual ~Fourier1() {}
 
     Fourier1(const Fourier1& b) :
         Func1(b) {
@@ -1006,9 +983,6 @@ public:
             m_E[i] = c[loc+2];
         }
     }
-    virtual ~Arrhenius1() {
-    }
-
 
     Arrhenius1(const Arrhenius1& b) :
         Func1() {

@@ -8,37 +8,25 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <cassert>
-
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_species_thermo.h"
-#include "vcs_Exception.h"
+#include "cantera/equil/vcs_species_thermo.h"
 
+#include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 
-using namespace std;
+#include <cstdio>
 
-#ifndef MAX
-#define MAX(x,y) (( (x) > (y) ) ? (x) : (y))
-#endif
+using namespace std;
+using namespace Cantera;
 
 namespace VCSnonideal
 {
 
-
-/***************************************************************************/
 /************ Prototypes for static functions ******************************/
-
-
 static void print_space(size_t num);
-
-
 
 #ifdef DEBUG_MODE
 #  ifdef DEBUG_NOT
@@ -47,7 +35,6 @@ static int  prnfm(void);
 #  endif
 #endif
 /*****************************************************************************/
-
 
 #ifdef DEBUG_MODE
 void VCS_SOLVE::checkDelta1(double* const dsLocal,
@@ -61,7 +48,7 @@ void VCS_SOLVE::checkDelta1(double* const dsLocal,
         }
     }
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        double denom = MAX(m_totalMolNum, 1.0E-4);
+        double denom = max(m_totalMolNum, 1.0E-4);
         if (!vcs_doubleEqual(dchange[iphase]/denom, delTPhMoles[iphase]/denom)) {
             plogf("checkDelta1: we have found a problem\n");
             exit(EXIT_FAILURE);
@@ -69,36 +56,7 @@ void VCS_SOLVE::checkDelta1(double* const dsLocal,
     }
 }
 #endif
-/*****************************************************************************/
 
-// Main routine that solves for equilibrium at constant T and P
-// using a variant of the VCS method
-/*
- * This is the main routine  taht solves for equilibrium at constant T and P
- * using a variant of the VCS method. Nonideal phases can be accommodated
- * as well.
- *
- * Any number of single-species phases and  multi-species phases
- * can be handled by the present version.
- *
- *     Input
- * ------------
- *   @param print_lvl     1 -> Print results to standard output
- *                        0 -> don't report on anything
- *
- *   @param printDetails  1 -> Print intermediate results.
- *
- *   @param maxit         Maximum number of iterations for the algorithm
- *
- *   @return     0 = Equilibrium Achieved
- *               1 = Range space error encountered. The element abundance criteria are
- *                   only partially satisfied. Specifically, the first NC= (number of
- *                   components) conditions are satisfied. However, the full NE
- *                   (number of elements) conditions are not satisfied. The equilibrirum
- *                   condition is returned.
- *              -1 = Maximum number of iterations is exceeded. Convergence was not
- *                   found.
- */
 int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 {
     int retn = VCS_SUCCESS, soldel, solveFail;
@@ -359,7 +317,7 @@ L_MAINLOOP_ALL_SPECIES:
     ;
     if (iti == 0) {
         /*
-         *          Evaluate the minor non-componenent species chemical
+         *          Evaluate the minor non-component species chemical
          *          potentials and delta G for their formation reactions
          *          We have already evaluated the major non-components
          */
@@ -476,8 +434,7 @@ L_MAINLOOP_ALL_SPECIES:
      *         converged. -> we have run out of iterations!
      */
     if (m_VCount->Its > maxit) {
-        solveFail = -1;
-        goto L_RETURN_BLOCK;
+        return -1;
     }
 
     /* ********************************************************************** */
@@ -810,7 +767,7 @@ L_MAINLOOP_ALL_SPECIES:
                      *      Set the initial step size, dx, equal to the value produced
                      *      by the routine, vcs_RxnStepSize().
                      *
-                     *          Note the multiplition logic is to make sure that
+                     *          Note the multiplication logic is to make sure that
                      *          dg[] didn't change sign due to w[] changing in the
                      *          middle of the iteration. (it can if a single species
                      *          phase goes out of existence).
@@ -2030,51 +1987,7 @@ L_RETURN_BLOCK_B:
      */
     return solveFail;
 }
-/*********************************************************************************/
 
-//  Minor species alternative calculation
-/*
- *    This is based upon the following approximation:
- *    The mole fraction changes due to these reactions don't affect
- *    the mole numbers of the component species. Therefore the following
- *    approximation is valid for a small component of an ideal phase:
- *
- *       0 = m_deltaGRxn_old(I) + log(molNum_new(I)/molNum_old(I))
- *
- *       m_deltaGRxn_old contains the contribution from
- *
- *        m_feSpecies_old(I) =
- *              m_SSfeSpecies(I) +
- *              log(ActCoeff[i] * molNum_old(I) / m_tPhaseMoles_old(iph))
- *    Thus,
- *
- *        molNum_new(I)= molNum_old(I) * EXP(-m_deltaGRxn_old(I))
- *
- *    Most of this section is mainly restricting the update to reasonable
- *    values.
- *    We restrict the update a factor of 1.0E10 up and 1.0E-10 down
- *    because we run into trouble with the addition operator due to roundoff
- *    if we go larger than ~1.0E15. Roundoff will then sometimes produce
- *    zero mole fractions.
- *
- *    Note: This routine was generalized to incorporate
- *          nonideal phases and phases on the molality basis
- *
- *    Input:
- *     ------
- *     @param kspec   The current species and corresponding formation
- *                    reaction number.
- *     @param irxn    The current species and corresponding formation
- *                    reaction number.
- *
- *    Output:
- *    ---------
- *     @param do_delete:  BOOLEAN which if true on return, then we branch
- *                        to the section that deletes a species from the
- *                        current set of active species.
- *
- *     @param dx          The change in mole number
- */
 double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
 #ifdef DEBUG_MODE
                                      , char* ANOTE
@@ -2105,8 +2018,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
             if (w_kspec < VCS_DELETE_MINORSPECIES_CUTOFF) {
                 goto L_ZERO_SPECIES;
             }
-            dx = molNum_kspec_new - w_kspec;
-            return dx;
+            return molNum_kspec_new - w_kspec;
         } else {
             if (fabs(dg_irxn) <= m_tolmin2) {
                 molNum_kspec_new = w_kspec;
@@ -2117,7 +2029,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
         /*
          * get the diagonal of the activity coefficient jacobian
          */
-        s = m_dLnActCoeffdMolNum[kspec][kspec];
+        s = m_np_dLnActCoeffdMolNum[kspec][kspec] / (m_tPhaseMoles_old[iph]);
         // s *= (m_tPhaseMoles_old[iph]);
         /*
          *   We fit it to a power law approximation of the activity coefficient
@@ -2171,8 +2083,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
         if ((molNum_kspec_new) < VCS_DELETE_MINORSPECIES_CUTOFF) {
             goto L_ZERO_SPECIES;
         }
-        dx = molNum_kspec_new - w_kspec;
-        return dx;
+        return molNum_kspec_new - w_kspec;
         /*
          *
          *  Alternate return based for cases where we need to delete the species
@@ -2182,8 +2093,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
 L_ZERO_SPECIES:
         ;
         *do_delete = true;
-        dx = - w_kspec;
-        return dx;
+        return - w_kspec;
     } else {
         /*
          * Voltage calculation
@@ -2196,21 +2106,7 @@ L_ZERO_SPECIES:
     }
     return dx;
 }
-/*****************************************************************************/
 
-//  Change the concentration of a species by delta moles.
-/*
- *  Make sure to conserve elements and keep track of the total kmoles in all phases.
- *
- *
- *  @param kspec The species index
- *  @param delta_ptr   pointer to the delta for the species. This may change during
- *                     the calculation
- *
- *  @return
- *      1: succeeded without change of dx
- *      0: Had to adjust dx, perhaps to zero, in order to do the delta.
- */
 int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
 {
     size_t irxn = kspec - m_numComponents;
@@ -2274,21 +2170,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
     }
     return retn;
 }
-/*****************************************************************************/
 
-//  Zero out the concentration of a species.
-/*
- *     Zero out the concentration of a species. Make sure to conserve
- *  elements and keep track of the total moles in all phases.
- *       w[]
- *       m_tPhaseMoles_old[]
- *
- *  @param kspec  Species index
- *
- *  @return:
- *      1: succeeded
- *      0: failed.
- */
 int VCS_SOLVE::vcs_zero_species(const size_t kspec)
 {
     int retn = 1;
@@ -2313,22 +2195,7 @@ int VCS_SOLVE::vcs_zero_species(const size_t kspec)
     }
     return retn;
 }
-/**************************************************************************/
 
-// Change a single species from active to inactive status
-/*
- *   Rearrange data when species is added or removed. The kspec species is
- *   moved to the back of the active species vector. The back of the species
- *   vector is indicated by the value of  m_numSpeciesRdc, the current
- *   number of active species in the mechanism.
- *
- * @param kspec   Species Index
- * @return
- *     Returns 0 unless.
- *     The return is 1 when the current number of
- *     noncomponent species is equal to zero. A recheck of deleted species
- *     is carried out in the main code.
- */
 int VCS_SOLVE::vcs_delete_species(const size_t kspec)
 {
     const size_t klast = m_numSpeciesRdc - 1;
@@ -2406,25 +2273,7 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
      */
     return (m_numRxnRdc == 0);
 }
-/***************************************************************************/
 
-/*
- *
- *  reinsert_deleted():
- *
- * irxn = id of the noncomponent species formation reaction for the
- *        species to be added in.
- *
- * We make decisions on the initial mole number, and major-minor status
- * here. We also fix up the total moles in a phase.
- *
- * The algorithm proceeds to implement these decisions in the previous
- * position of the species. Then, vcs_switch_pos is called to move the
- * species into the last active species slot, incrementing the number
- * of active species at the same time.
- *
- * This routine is responsible for the global data manipulation only.
- */
 void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 {
     size_t k;
@@ -2489,22 +2338,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
         vcs_switch_pos(true, (m_numSpeciesRdc - 1), kspec);
     }
 }
-/****************************************************************************/
 
-// This routine handles the bookkeepking involved with the
-//  deletion of multiphase phases from the problem.
-/*
- *   When they are deleted, all of their species become active
- *   species, even though their mole numbers are set to zero.
- *   This routine does not make the decision to eliminate multiphases.
- *
- *   Note, species in phases with zero mole numbers are still
- *   considered active. Whether the phase pops back into
- *   existence or not is checked as part of the main iteration
- *   loop.
- *
- * @param iph Phase to be deleted
- */
 bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
 {
     size_t kspec, irxn;
@@ -2670,25 +2504,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
 
     return successful;
 }
-/**********************************************************************************/
 
-//    Recheck deleted species in multispecies phases.
-/*
- *   We are checking the equation:
- *
- *         sum_u = sum_j_comp [ sigma_i_j * u_j ]
- *               = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old)
- *
- *   by first evaluating:
- *
- *          DG_i_O = u_i_O - sum_u.
- *
- *   Then, if TL is zero, the phase pops into existence if DG_i_O < 0.
- *   Also, if the phase exists, then we check to see if the species
- *   can have a mole number larger than  VCS_DELETE_SPECIES_CUTOFF
- *   (default value = 1.0E-32).
- *
- */
 int VCS_SOLVE::vcs_recheck_deleted()
 {
     int npb;
@@ -2775,48 +2591,7 @@ int VCS_SOLVE::vcs_recheck_deleted()
     }
     return npb;
 }
-/***********************************************************************************/
 
-// Recheck deletion condition for multispecies phases.
-/*
- *   We assume here that DG_i_0 has been calculated for deleted species correctly
- *
- *
- *   m_feSpecies(I) = m_SSfeSpecies(I)
- *                  + ln(ActCoeff[I])
- *                  - ln(Mnaught * m_units)
- *                  + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
- *
- *         sum_u = sum_j_comp [ sigma_i_j * u_j ]
- *               = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old)
- *
- *   DG_i_0 =  m_feSpecies(I) - sum_m{ a_i_m  DG_m }
- *
- *
- *   by first evaluating:
- *
- *          DG_i_O = u_i_O - sum_u.
- *
- *   Then, the phase pops into existence iff
- *
- *      phaseDG = 1.0 - sum_i{exp(-DG_i_O)}  < 0.0
- *
- *  This formula works for both single species phases and for multispecies
- *  phases. It's an overkill for single species phases.
- *
- *  @param iphase Phase index number
- *
- * @return   Returns true if the phase is currently deleted
- *           but should be reinstated. Returns false otherwise.
- *
- *  NOTE: this routine is currently not used in the code, and
- *       contains some basic changes that are incompatible.
- *
- * assumptions:
- *       1) Vphase Existence is up to date
- *       2) Vphase->IndSpecies is up to date
- *       3) m_deltaGRxn_old[irxn] is up to date
- */
 bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
 {
 
@@ -2856,13 +2631,7 @@ bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
     }
     return false;
 }
-//====================================================================================================================
-//  Provide an estimate for the deleted species in phases that are not zeroed out
-/*
- *  Try to add back in all deleted species. An estimate of the kmol numbers
- *  are obtained and the species is added back into the equation system,
- *  into the old state vector.
- */
+
 size_t VCS_SOLVE::vcs_add_all_deleted()
 {
     size_t iph, kspec, retn;
@@ -2901,9 +2670,6 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
                 double maxDG = std::min(m_deltaGRxn_new[irxn], 690.0);
                 double dx = m_tPhaseMoles_old[iph] * exp(- maxDG);
                 m_molNumSpecies_new[kspec] = dx;
-                if (m_molNumSpecies_new[kspec] > 2 *VCS_DELETE_MINORSPECIES_CUTOFF) {
-                    m_molNumSpecies_new[kspec] = 2 * VCS_DELETE_MINORSPECIES_CUTOFF;
-                }
             }
         }
     }
@@ -2975,28 +2741,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
     }
     return retn;
 }
-/***********************************************************************************/
 
-//  This routine optimizes the minimization of the total gibbs free
-//  energy by making sure the slope of the Gibbs free energy stays negative
-/*
- *  The slope of the following functional is equivalent to the slope of the total
- *  Gibbs free energy of the system:
- *
- *                 d_Gibbs/ds = sum_k( m_deltaGRxn * m_deltaMolNumSpecies[k] )
- *
- *  along the current direction m_deltaMolNumSpecies[], by choosing a value, al: (0<al<1)
- *  such that the a parabola approximation to Gibbs(al) fit to the
- *  end points al = 0 and al = 1 is minimizied.
- *      s1 = slope of Gibbs function at al = 0, which is the previous
- *           solution = d(Gibbs)/d(al).
- *      s2 = slope of Gibbs function at al = 1, which is the current
- *           solution = d(Gibbs)/d(al).
- *  Only if there has been an inflection point (i.e., s1 < 0 and s2 > 0),
- *  does this code section kick in. It finds the point on the parabola
- *  where the slope is equal to zero.
- *
- */
 bool VCS_SOLVE::vcs_globStepDamp()
 {
     double s1, s2, al;
@@ -3139,79 +2884,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
 #endif
     return true;
 }
-/****************************************************************************************/
 
-
-//  Choose the optimum species basis for the calculations
-/*
- * Choose the optimum component species basis for the calculations.
- *  This is done by choosing the species with the largest mole fraction
- * not currently a linear combination of the previous components.
- * Then, calculate the stoichiometric coefficient matrix for that
- * basis.
- *
- * Rearranges the solution data to put the component data at the
- * front of the species list.
- *
- * Then, calculates M_STOICHCOEFFRXNMATRIX(J,I) the formation reactions
- * for all noncomponent species in the mechanism.
- * Also calculates DNG(I) and DNL(I), the net mole change for each
- * formation reaction.
- * Also, initializes IR(I) to the default state.
- *
- * Input
- * ---------
- * @param doJustCompoents   If true, the m_stoichCoeffRxnMatrix[][] and
- *                          m_deltaMolNumPhase[]  are not calculated.
- *
- * @param aw         Vector of mole fractions which will be used to construct an
- *                   optimal basis from.
- *
- * @param  sa        Gramm-Schmidt orthog work space (nc in length) sa[j]
- * @param  ss        Gramm-Schmidt orthog work space (nc in length) ss[j]
- * @param  sm        QR matrix work space (nc*ne in length)         sm[i+j*ne]
- * @param test       This is a small negative number dependent upon whether
- *                   an estimate is supplied or not.
- *
- * Output
- * ---------
- * @param usedZeroedSpecies = If true, then a species with a zero concentration
- *                            was used as a component. The problem may be
- *                            converged. Or, the problem may have a range space
- *                            error and may not have a proper solution.
- *
- *  Internal Variables calculated by this routine:
- *  -----------------------------------------------
- *
- *      m_numComponents
- *                 Number of component species
- *
- *      component species
- *                 This routine calculates the m_numComponent species. It switches
- *                 their positions in the species vector so that they occupy
- *                 the first m_numComponent spots in the species vector.
- *
- *      m_stoichCoeffRxnMatrix[irxn][jcomp]
- *                 Stoichiometric coefficient matrix for the reaction mechanism
- *                 expressed in Reduced Canonical Form.
- *                 j refers to the component number, and irxn
- *                 refers to the irxn_th non-component species.
- *
- *      m_deltaMolNumPhase[irxn]
- *                Change in the number of total number of moles of species in all phases
- *                due to the noncomponent formation reaction, irxn.
- *
- *      m_deltaMolNumPhase[irxn][iphase]
- *                Change in the number of moles in phase, iphase, due to the
- *                noncomponent formation reaction, irxn.
- *
- *      m_phaseParticipation[irxn]
- *                This is 1 if the phase, iphase,  participates in the
- *                formation reaction, irxn, and zero otherwise.
- *
- * @return        Returns VCS_SUCCESS if everything went ok. Returns
- *                VCS_FAILED_CONVERGENCE if there is a problem.
- */
 int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
                           double ss[], double test, bool* const usedZeroedSpecies)
 {
@@ -3486,9 +3159,18 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
 #ifdef DEBUG_MODE
             if (m_debug_print_lvl >= 2) {
                 plogf("   ---   %-12.12s", (m_speciesName[k]).c_str());
-                plogf("(%9.2g) replaces %-12.12s", m_molNumSpecies_old[k],
-                      m_speciesName[jr].c_str());
-                plogf("(%9.2g) as component %3d\n", m_molNumSpecies_old[jr], jr);
+                if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                   plogf("(Volts = %9.2g)", m_molNumSpecies_old[k]);
+                } else {
+                   plogf("(%9.2g)", m_molNumSpecies_old[k]);
+                }
+                plogf(" replaces %-12.12s", m_speciesName[jr].c_str());
+                if (m_speciesUnknownType[jr] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                   plogf("(Volts = %9.2g)", m_molNumSpecies_old[jr]);
+                } else {
+                   plogf("(%9.2g)", m_molNumSpecies_old[jr]);
+                }
+                plogf(" as component %3d\n", jr);
             }
 #endif
             vcs_switch_pos(false, jr, k);
@@ -3498,7 +3180,11 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
         else {
             if (m_debug_print_lvl >= 2) {
                 plogf("   ---   %-12.12s", m_speciesName[k].c_str());
-                plogf("(%9.2g) remains            ", m_molNumSpecies_old[k]);
+                if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                    plogf("(Volts = %9.2g) remains            ", m_molNumSpecies_old[k]);
+                } else {
+                    plogf("(%9.2g) remains            ", m_molNumSpecies_old[k]);
+                }
                 plogf("              as component %3d\n", jr);
             }
         }
@@ -3534,7 +3220,7 @@ L_END_LOOP:
      * However, this might not be the case. For example, assume
      * that the first element in m_formulaMatrix[] is argon. Assume that
      * no species in the matrix problem actually includes argon.
-     * Then, the first row in sm[], below will be indentically
+     * Then, the first row in sm[], below will be identically
      * zero. bleh.
      *    What needs to be done is to perform a rearrangement
      * of the ELEMENTS -> i.e. rearrange, m_formulaMatrix, sp,
@@ -3544,7 +3230,7 @@ L_END_LOOP:
      * project, but very doable.
      *    An alternative would be to turn the matrix problem
      * below into an ne x nc problem, and do QR elimination instead
-     * of Gauss-Jordon elimination.
+     * of Gauss-Jordan elimination.
      *    Note the rearrangement of elements need only be done once
      * in the problem. It's actually very similar to the top of
      * this program with ne being the species and nc being the
@@ -3562,7 +3248,7 @@ L_END_LOOP:
         }
     }
     /*
-     *     Use Gauss-Jordon block elimination to calculate
+     *     Use Gauss-Jordan block elimination to calculate
      *     the reaction matrix, m_stoichCoeffRxnMatrix[][].
      */
 
@@ -3653,7 +3339,11 @@ L_END_LOOP:
         }
         plogf("\n   ---          Components Moles:");
         for (j = 0; j < ncTrial; j++) {
-            plogf(" % -10.3E", m_molNumSpecies_old[j]);
+            if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf(" % -10.3E", 0.0);
+            } else {
+                plogf(" % -10.3E", m_molNumSpecies_old[j]);
+            }
         }
         plogf("\n   ---   NonComponent|   Moles  |");
         for (j = 0; j < ncTrial; j++) {
@@ -3664,7 +3354,11 @@ L_END_LOOP:
         for (i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
             plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
-            plogf("|% -10.3E|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            if (m_speciesUnknownType[m_indexRxnToSpecies[i]] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("|% -10.3E|", 0.0);
+            } else {
+                plogf("|% -10.3E|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            }
             for (j = 0; j < ncTrial; j++) {
                 plogf("    %+7.3f", m_stoichCoeffRxnMatrix[i][j]);
             }
@@ -3770,41 +3464,36 @@ L_CLEANUP:
     (m_VCount->Basis_Opts)++;
     return VCS_SUCCESS;
 }
-/***************************************************************************************/
 
-//  Choose a species to test for the next component
-/*
- *  We make the choice based on testing (molNum[i] * spSize[i]) for its maximum value.
- *  Preference for single species phases is also made.
- *
- *  The factors of 1.01 and 1.001 are placed in this routine for a purpose.
- *  The purpose is to ensure that roundoff errors don't influence major decisions.
- *  This means that the optimized and non-optimized versions of the code remain
- *  close to each other.
- *
- *  ( we try to avoid the logic:   a = b
- *                                 if (a > b) { do this }
- *                                 else       { do something else }
- *    because roundoff error makes a difference in the inequality evaluation)
- *
- *  Mole numbers are frequently equal to each other in equilibrium problems
- *  due to constraints. Swaps are only done if there are a 1% difference in the
- *  mole numbers. Of course this logic isn't fullproof.
- *
- * @param molNum  Mole number vector
- * @param j       index into molNum[] that indicates where the search will start from
- *                Previous successful components are swapped into the fronto of
- *                molNum[].
- * @param n       Length of molNum[]
- */
 size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
                                   const size_t n)
 {
+    /*
+     * The factors of 1.01 and 1.001 are placed in this routine for a purpose.
+     * The purpose is to ensure that roundoff errors don't influence major
+     * decisions. This means that the optimized and non-optimized versions of
+     * the code remain close to each other.
+     *
+     * (we try to avoid the logic:   a = b
+     *                               if (a > b) { do this }
+     *                               else       { do something else }
+     * because roundoff error makes a difference in the inequality evaluation)
+     *
+     * Mole numbers are frequently equal to each other in equilibrium problems
+     * due to constraints. Swaps are only done if there are a 1% difference in
+     * the mole numbers. Of course this logic isn't foolproof.
+     */
     size_t largest = j;
     double big = molNum[j] * m_spSize[j] * 1.01;
-    AssertThrowVCS(m_spSize[j] > 0.0, "spsize is nonpos");
+    if (m_spSize[j] <= 0.0) {
+        throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
+                           "spSize is nonpositive");
+    }
     for (size_t i = j + 1; i < n; ++i) {
-        AssertThrowVCS(m_spSize[i] > 0.0, "spsize is nonpos");
+        if (m_spSize[i] <= 0.0) {
+            throw CanteraError("VCS_SOLVE::vcs_basisOptMax",
+                               "spSize is nonpositive");
+        }
         bool doSwap = false;
         if (m_SSPhase[j]) {
             doSwap = (molNum[i] * m_spSize[i]) > (big);
@@ -3830,16 +3519,7 @@ size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
     }
     return largest;
 }
-/**********************************************************************************/
 
-// Evaluate the species category for the indicated species
-/*
- *  All evaluations are done using the "old" version of the solution.
- *
- *  @param kspec   Species to be evaluated
- *
- *  @return Returns the calculated species type
- */
 int VCS_SOLVE::vcs_species_type(const size_t kspec) const
 {
 
@@ -4038,103 +3718,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
     }
     return VCS_SPECIES_MINOR;
 }
-/*****************************************************************************/
 
-//! We calculate the dimensionless chemical potentials of all species
-//! in a single phase.
-/*!
- *
- * We calculate the dimensionless chemical potentials of all species
- * in a single phase.
- *
- * Note, for multispecies phases which are currently zeroed out,
- * the chemical potential is filled out with the standard chemical
- * potential.
- *
- * For species in multispecies phases whose concentration is zero,
- * we need to set the mole fraction to a very low value.
- * Its chemical potential
- * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
- * to keep numbers positive.
- *
- * Formula:
- * ---------------
- *
- *     Ideal Mixtures:
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
- *                         + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
- *
- *
- *              ( This is equivalent to the adding the log of the
- *                mole fraction onto the standard chemical
- *                potential. )
- *
- *     Non-Ideal Mixtures:
- *        ActivityConvention = 0:
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I)
- *                         + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
- *                         + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
- *
- *              ( This is equivalent to the adding the log of the
- *                mole fraction multiplied by the activity coefficient
- *                onto the standard chemical potential. )
- *
- *        ActivityConvention = 1: -> molality activity formulation
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I)
- *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
- *                           - ln(Mnaught * m_units)
- *                           + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
- *
- *                  note:   m_SSfeSpecies(I) is the molality based standard state.
- *                          However, ActCoeff[I] is the molar based activity coefficient
- *                          We have used the formulas;
- *
- *                     ActCoeff_M[I] =  ActCoeff[I] / Xmol[N]
- *                              where Xmol[N] is the mole fraction of the solvent
- *                               ActCoeff_M[I] is the molality based act coeff.
- *
- *                  note:  This is equivalent to the "normal" molality formulation:
- *
- *                       m_feSpecies(I) = m_SSfeSpecies(I)
- *                                      + ln(ActCoeff_M[I] * m(I))
- *                                      + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
- *                                       where m[I] is the molality of the ith solute
- *
- *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
- *
- *
- *     note:   z(I)/tPhMoles_ptr[iph] = Xmol[i] is the mole fraction
- *                                     of i in the phase.
- *
- *  NOTE:
- *  As per the discussion in vcs_dfe(), for small species where the mole
- *  fraction is small:
- *
- *           z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
- *
- *   The chemical potential is calculated as:
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I)
- *                         + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
- *
- * Input
- * --------
- *   @param iph        Phase to be calculated
- *   @param molNum     molNum[i] is the number of moles of species i
- *                            (VCS species order)
- *   @param do_deleted  Do species that are deleted (default = false)
- *
- * Output
- * -----------
- *   @param ac        Activity coefficients for species in phase
- *                     (VCS species order)
- *   @param mu_i      Dimensionless chemical potentials for phase species
- *                      (VCS species order)
- *
- */
 void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc,
                                  const size_t iph, const double* const molNum,
                                  double* const ac, double* const mu_i,
@@ -4200,148 +3784,19 @@ void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc,
         }
     }
 }
-/*********************************************************************************/
 
-// Calculate the dimensionless chemical potentials of all species or
-// of certain groups of species, at a fixed temperature and pressure.
-/*
- * We calculate the dimensionless chemical potentials of all species
- * or certain groups of species here, at a fixed temperature and pressure,
- * for the input mole vector z[] in the parameter list.
- * Nondimensionalization is achieved by division by RT.
- *
- * Note, for multispecies phases which are currently zeroed out,
- * the chemical potential is filled out with the standard chemical
- * potential.
- *
- * For species in multispecies phases whose concentration is zero,
- * we need to set the mole fraction to a very low value.
- * Its chemical potential
- * is then calculated using the VCS_DELETE_MINORSPECIES_CUTOFF concentration
- * to keep numbers positive.
- *
- *
- * Formula:
- * ---------------
- *
- *     Ideal Mixtures:
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
- *                            + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
- *
- *              ( This is equivalent to the adding the log of the
- *                mole fraction onto the standard chemical
- *                potential. )
- *
- *     Non-Ideal Mixtures:  -> molar activity formulation
- *        ActivityConvention = 0:
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I)
- *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
- *                            + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
- *
- *              ( This is equivalent to the adding the log of the
- *                mole fraction multiplied by the activity coefficient
- *                onto the standard chemical potential. )
- *
- *                 note:   z(I)/tPhMoles_ptr[iph] = Xmol[i] is the mole fraction
- *                                                  of i in the phase.
- *
- *        ActivityConvention = 1: -> molality activity formulation
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I)
- *                           + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
- *                           - ln(Mnaught * m_units)
- *                            + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
- *
- *                  note:   m_SSfeSpecies(I) is the molality based standard state.
- *                          However, ActCoeff[I] is the molar based activity coefficient
- *                          We have used the formulas;
- *
- *                                ActCoeff_M[I] =  ActCoeff[I] / Xmol[N]
- *                                      where Xmol[N] is the mole fraction of the solvent
- *                                            ActCoeff_M[I] is the molality based act coeff.
- *
- *                  note:   This is equivalent to the "normal" molality formulation below:
- *
- *                              m_feSpecies(I) = m_SSfeSpecies(I)
- *                                             + ln(ActCoeff_M[I] * m(I))
- *                                             + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
- *                                       where m[I] is the molality of the ith solute
- *
- *
- *                                m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
- *
- *
- *  Handling of Small Species:
- * ------------------------------
- *  As per the discussion above, for small species where the mole
- *  fraction
- *
- *           z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
- *
- *   The chemical potential is calculated as:
- *
- *         m_feSpecies(I) = m_SSfeSpecies(I) + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
- *
- *   Handling of "Species" Representing Interfacial Voltages
- *  ---------------------------------------------------------
- *
- *      These species have species types of  VCS_SPECIES_TYPE_INTERFACIALVOLTAGE
- *      The chemical potentials for these "species" refer to electrons in
- *      metal electrodes. They have the following formula
- *
- *          m_feSpecies(I) = m_SSfeSpecies(I) - F z[I] / RT
- *
- *      F is Faraday's constant.
- *      R = gas constant
- *      T = temperature
- *      V = potential of the interface = phi_electrode - phi_solution
- *
- *      For these species, the solution vector unknown, z[I], is V, the phase voltage,
- *      in volts.
- *
- * Input
- * --------
- * @param ll     Determine which group of species gets updated
- *     ll =  0: Calculate for all species
- *        <  0: calculate for components and for major non-components
- *           1: calculate for components and for minor non-components
- *
- * @param lbot    Restricts the calculation of the chemical potential
- *                to the species between LBOT <= i < LTOP. Usually
- *                 LBOT and LTOP will be equal to 0 and MR, respectively.
- * @param ltop    Top value of the loops
- *
- * @param molNum   molNum[i]   : Number of moles of species i
- *                   -> This can either be the old solution vector
- *                      or the new solution vector depending upon the
- *                      stateCalc value
- *
- * @param stateCalc   Determines whether z is old or new or tmp:
- *            VCS_STATECALC_NEW: Use the tentative values for the total number of
- *                               moles in the phases, i.e., use TG1 instead of TG etc.
- *            VCS_STATECALC_OLD: Use the base values of the total number of
- *                               moles in each system.
- *
- *  Also needed:
- *    m_SSfeSpecies[kspec] : standard state chemical potentials. These are the
- *                           chemical potentials of the standard states at
- *                           the same T and P as the solution.
- *     tg     : Total Number of moles in the phase.
- */
 void VCS_SOLVE::vcs_dfe(const int stateCalc,
                         const int ll, const size_t lbot, const size_t ltop)
 {
     size_t l1, l2, iph, kspec, irxn;
     size_t iphase;
-    double* tPhMoles_ptr;
-    double* actCoeff_ptr;
-    double* tlogMoles;
+    double* tPhMoles_ptr=0;
+    double* actCoeff_ptr=0;
+    double* tlogMoles=0;
     vcs_VolPhase* Vphase;
 
-    double* feSpecies;
-    double* molNum;
+    double* feSpecies=0;
+    double* molNum=0;
     if (stateCalc == VCS_STATECALC_OLD) {
         feSpecies = VCS_DATA_PTR(m_feSpecies_old);
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
@@ -4603,13 +4058,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
 
 
 }
-//====================================================================================================================
-// Print out a table of chemical potentials
-/*
- *    @param vcsState Determines where to get the mole numbers from.
- *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
- *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
- */
+
 void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 {
     double mfValue = 1.0;
@@ -4685,10 +4134,8 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
     printf("   ");
     vcs_print_line("-", 132);
 }
-/*****************************************************************************/
 
 #ifdef DEBUG_MODE
-//! Print out and check the elemental abundance vector
 void VCS_SOLVE::prneav() const
 {
     size_t j;
@@ -4728,14 +4175,7 @@ void VCS_SOLVE::prneav() const
     plogendl();
 }
 #endif
-/*****************************************************************************/
 
-// Calculate the norm of a deltaGibbs free energy vector
-/*
- *   Positive DG for species which don't exist are ignored.
- *
- * @param dgLocal  Vector of local delta G's.
- */
 double VCS_SOLVE::l2normdg(double dgLocal[]) const
 {
     double tmp;
@@ -4752,15 +4192,9 @@ double VCS_SOLVE::l2normdg(double dgLocal[]) const
             }
         }
     }
-    return (std::sqrt(tmp / m_numRxnRdc));
+    return std::sqrt(tmp / m_numRxnRdc);
 }
-/*****************************************************************************/
 
-//  Calculates the total number of moles of species in all phases.
-/*
- *  Calculates the total number of moles in all phases.
- *  Reconciles Phase existence flags with total moles in each phase.
- */
 double VCS_SOLVE::vcs_tmoles()
 {
     double sum;
@@ -4814,15 +4248,7 @@ void VCS_SOLVE::check_tmoles() const
     }
 }
 #endif
-/*****************************************************************************/
 
-//  This routine uploads the state of the system into all of the
-//  vcs_VolPhase objects in the current problem.
-/*
- *  @param vcsState Determines where to get the mole numbers from.
- *                -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
- *                -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
- */
 void VCS_SOLVE::vcs_updateVP(const int vcsState)
 {
     vcs_VolPhase* Vphase;
@@ -4847,59 +4273,8 @@ void VCS_SOLVE::vcs_updateVP(const int vcsState)
     }
 }
 
-//  This routine evaluates the species type for all species
-/*
- *        kspec
- *                              1 -> Major species  VCS_SPECIES_MAJOR
- *                              0 -> Minor species  VCS_SPECIES_MINOR
- *                             -1 -> The species lies in a multicomponent phase
- *                                   that exists. Its concentration is currently
- *                                   very low, necessitating a different method
- *                                   of calculation.
- *                                   -  VCS_SPECIES_ZEROEDPHASE
- *                             -2 -> The species lies in a multicomponent phase
- *                                   which currently doesn't exist.
- *                                   Its concentration is currently zero.
- *                                   -  VCS_SPECIES_ZEROEDMS
- *                             -3 -> Species lies in a single-species phase which
- *                                   is currently zereod out.
- *                                   - VCS_SPECIES_ZEREODSS
- *                             -4 -> Species has such a small mole fraction it is
- *                                   deleted even though its phase may possibly exist.
- *                                   The species is believed to have such a small
- *                                   mole fraction that it best to throw the
- *                                   calculation of it out.  It will be added back in
- *                                   at the end of the calculation.
- *                                   - VCS_SPECIES_DELETED
- *                             -5 ->  Species refers to an electron in the metal
- *                                    The unknown is equal to the interfacial voltage
- *                                    drop across the interface on the SHE (standard
- *                                    hydroogen electrode) scale (volts).
- *                                     - VCS_SPECIES_INTERFACIALVOLTAGE
- *                             -6 ->  Species lies in a multicomponent phase that
- *                                    is zeroed atm  and will stay deleted due to a
- *                                    choice from a higher level.
- *                                    These species will formally always have zero
- *                                    mole numbers in the solution vector.
- *                                      - VCS_SPECIES_ZEROEDPHASE
- *                             -7 ->  The species lies in a multicomponent phase which
- *                                    currently does exist.  Its concentration is currently
- *                                    identically zero, though the phase exists. Note, this
- *                                    is a temporary condition that exists at the start
- *                                    of an equilibrium problem.
- *                                    The species is soon "birthed" or "deleted".
- *                                    - VCS_SPECIES_ACTIVEBUTZERO
- *                             -8 ->  The species lies in a multicomponent phase which
- *                                     currently does exist.  Its concentration is currently
- *                                    identically zero, though the phase exists. This is
- *                                    a permanent condition due to stoich constraints
- *                                    - VCS_SPECIES_STOICHZERO
- *
- */
 bool VCS_SOLVE::vcs_evaluate_speciesType()
 {
-    bool allMinorZeroedSpecies;
-
     m_numRxnMinorZeroed = 0;
 #ifdef DEBUG_MODE
     if (m_debug_print_lvl >= 2) {
@@ -4976,24 +4351,9 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
     }
 #endif
 
-    allMinorZeroedSpecies = (m_numRxnMinorZeroed >= m_numRxnRdc);
-
-    return allMinorZeroedSpecies;
+    return (m_numRxnMinorZeroed >= m_numRxnRdc);
 }
-/*****************************************************************************/
 
-//    Switch rows and columns of a sqare matrix
-/*
- *  Switches the row and column of a matrix.
- *  So that after
- *
- *     J[k1][j] = J_old[k2][j]  and J[j][k1] = J_old[j][k2]
- *     J[k2][j] = J_old[k1][j]  and J[j][k2] = J_old[j][k1]
- *
- *  @param Jac         Double pointer to the jacobiam
- *  @param k1          first row/column value to be switched
- *  @param k2          second row/column value to be switched
- */
 void VCS_SOLVE::vcs_switch2D(double* const* const Jac,
                              const size_t k1, const size_t k2) const
 {
@@ -5008,7 +4368,6 @@ void VCS_SOLVE::vcs_switch2D(double* const* const Jac,
         std::swap(Jac[i][k1], Jac[i][k2]);
     }
 }
-/*****************************************************************************/
 
 static void print_space(size_t num)
 {
@@ -5017,37 +4376,7 @@ static void print_space(size_t num)
         plogf(" ");
     }
 }
-/********************************************************************************/
 
-// This subroutine calculates reaction free energy changes for
-// all noncomponent formation reactions.
-/*
- *  Formation reactions are
- *  reactions which create each noncomponent species from the component
- *  species. m_stoichCoeffRxnMatrix[irxn][jcomp]  are the stoichiometric
- *  coefficients for these  reactions. A stoichiometric coefficient of
- *  one is assumed for species irxn in this reaction.
- *
- *  INPUT
- *  @param l
- *    L < 0   :  Calculate reactions corresponding to
- *               major noncomponent and zeroed species only
- *    L = 0   :  Do all noncomponent reactions, i, between
- *               0 <= i < irxnl
- *    L > 0   :  Calculate reactions corresponding to
- *               minor noncomponent and zeroed species only
- *
- *    @param doDeleted   Do deleted species
- *    @param stateCalc   Calculate deltaG corresponding to either old or new
- *                       free energies
- *
- *    Note we special case one important issue.
- *    If the component has zero moles, then we do not
- *    allow deltaG < 0.0 for formation reactions which
- *    would lead to the loss of more of that same component.
- *    This dG < 0.0 condition feeds back into the algorithm in several
- *    places, and leads to a infinite loop in at least one case.
- */
 void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                            const int vcsState, const bool alterZeroedPhases)
 {
@@ -5093,7 +4422,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
     }
 #endif
     /* ************************************************* */
-    /* **** MAJORS and ZEREOD SPECIES ONLY ************* */
+    /* **** MAJORS and ZEROED SPECIES ONLY ************* */
     /* ************************************************* */
     if (l < 0) {
         for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
@@ -5258,7 +4587,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
     }
 #endif
 }
-//====================================================================================================================
+
 void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 {
     size_t j;
@@ -5294,7 +4623,11 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
             plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
-            plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            if (m_speciesUnknownType[m_indexRxnToSpecies[i]] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("|   NA     |");
+            } else {
+                plogf("|%10.3g|", m_molNumSpecies_old[m_indexRxnToSpecies[i]]);
+            }
             for (j = 0; j < m_numComponents; j++) {
                 plogf("     %6.2f", m_stoichCoeffRxnMatrix[i][j]);
             }
@@ -5315,7 +4648,10 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
 
-        size_t irxn = kspec -  m_numComponents;
+        size_t irxn = npos;
+        if (kspec >= m_numComponents) {
+	    irxn = kspec - m_numComponents;
+	}
 
         double mfValue = 1.0;
         size_t iphase = m_phaseID[kspec];
@@ -5349,7 +4685,11 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
         printf(" %-3s", Cantera::int2str(iphase).c_str());
-        printf(" % -12.4e", molNumSpecies[kspec]);
+        if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            printf("    NA       ");
+        } else { 
+            printf(" % -12.4e", molNumSpecies[kspec]);
+        }
         printf(" % -12.4e", mfValue);
         printf(" % -12.4e", feSpecies[kspec] * RT);
         printf(" % -12.4e", feFull * RT);
@@ -5381,22 +4721,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
     vcs_print_line("-", 132);
 
 }
-//====================================================================================================================
-//    Calculate deltag of formation for all species in a single phase.
-/*
- *     Calculate deltag of formation for all species in a single
- *     phase. It is assumed that the fe[] is up to date for all species.
- *     Howevever, if the phase is currently zereoed out, a subproblem
- *     is calculated to solve for AC[i] and pseudo-X[i] for that
- *     phase.
- *
- *   @param iphase       phase index of the phase to be calculated
- *   @param doDeleted    boolean indicating whether to do deleted species or not
- *   @param stateCalc    integer describing which set of free energies
- *                       to use and where to stick the results.
- *
- *    NOTE: this is currently not used used anywhere. It may be in the future?
- */
+
 void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                                  const int stateCalc, const bool alterZeroedPhases)
 {
@@ -5404,9 +4729,9 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
     size_t  irxn, kspec, kcomp;
     double* dtmp_ptr;
 
-    double* feSpecies;
-    double* deltaGRxn;
-    double* actCoeffSpecies;
+    double* feSpecies=0;
+    double* deltaGRxn=0;
+    double* actCoeffSpecies=0;
     if (stateCalc == VCS_STATECALC_NEW) {
         feSpecies = VCS_DATA_PTR(m_feSpecies_new);
         deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_new);
@@ -5550,22 +4875,7 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
         }
     }
 }
-/****************************************************************************/
 
-//  Swaps the indices for all of the global data for two species, k1
-//  and k2.
-/*
- *  @param  ifunc:  If true, switch the species data and the noncomponent reaction
- *                  data. This must be called for a non-component species only.
- *                  If false, switch the species data only. Typically, we use this
- *                  option when determining the component species and at the
- *                  end of the calculation, when we want to return unscrambled
- *                  results. All rxn data will be out-of-date.
- *
- *  @param k1        First species index
- *
- *  @param k2        Second species index
- */
 void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k2)
 {
     size_t i1, i2, iph, kp1, kp2;
@@ -5628,7 +4938,7 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
         std::swap(m_formulaMatrix[j][k1], m_formulaMatrix[j][k2]);
     }
     if (m_useActCoeffJac) {
-        vcs_switch2D(m_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
+        vcs_switch2D(m_np_dLnActCoeffdMolNum.baseDataAddr(), k1, k2);
     }
     std::swap(m_speciesStatus[k1], m_speciesStatus[k2]);
     /*
@@ -5670,32 +4980,7 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
          */
     }
 }
-/*******************************************************************************/
 
-
-//     Birth guess returns the number of moles of a species
-//     that is coming back to life.
-/*
- *     Birth guess returns the number of moles of a species
- *     that is coming back to life.
- *     Note, this routine is not applicable if the whole phase is coming
- *     back to life, not just one species in that phase.
- *
- *  Do a minor alt calculation. But, cap the mole numbers at
- *  1.0E-15.
- *  For SS phases use VCS_DELETE_SPECIES_CUTOFF * 100.
- *
- *  The routine makes sure the guess doesn't reduce the concentration
- *  of a component by more than 1/3. Note this may mean that
- *  the vlaue coming back from this routine is zero or a
- *  very small number.
- *
- *
- * @param kspec   Species number that is coming back to life
- *
- * @return      Returns the number of kmol that the species should
- *              have.
- */
 double VCS_SOLVE::vcs_birthGuess(const int kspec)
 {
     size_t irxn = kspec - m_numComponents;
@@ -5767,7 +5052,6 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
     }
     return dx;
 }
-/*******************************************************************************/
 
 void VCS_SOLVE::vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc)
 {
@@ -5784,7 +5068,6 @@ void VCS_SOLVE::vcs_setFlagsVolPhases(const bool upToDate, const int stateCalc)
         }
     }
 }
-/*******************************************************************************/
 
 void VCS_SOLVE::vcs_setFlagsVolPhase(const size_t iph, const bool upToDate,
                                      const int stateCalc)
@@ -5796,16 +5079,7 @@ void VCS_SOLVE::vcs_setFlagsVolPhase(const size_t iph, const bool upToDate,
         Vphase->setMolesCurrent(stateCalc);
     }
 }
-/*******************************************************************************/
 
-// Update all underlying vcs_VolPhase objects
-/*
- *  Update the mole numbers and the phase voltages of all phases in the
- *  vcs problem
- *
- *  @param stateCalc Location of the update (either VCS_STATECALC_NEW or
- *         VCS_STATECALC_OLD).
- */
 void VCS_SOLVE::vcs_updateMolNumVolPhases(const int stateCalc)
 {
     vcs_VolPhase* Vphase;
@@ -5814,6 +5088,5 @@ void VCS_SOLVE::vcs_updateMolNumVolPhases(const int stateCalc)
         Vphase->updateFromVCS_MoleNumbers(stateCalc);
     }
 }
-/*******************************************************************************/
 
 }

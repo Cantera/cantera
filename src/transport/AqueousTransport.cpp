@@ -15,25 +15,14 @@
 
 #include "cantera/base/stringUtils.h"
 
-#include <iostream>
 #include <cstdio>
 
 using namespace std;
 
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
-
 namespace Cantera
 {
 
-
-//====================================================================================================================
 AqueousTransport::AqueousTransport() :
-    m_tmin(-1.0),
-    m_tmax(100000.),
     m_iStateMF(-1),
     m_temp(-1.0),
     m_logt(0.0),
@@ -57,19 +46,11 @@ AqueousTransport::AqueousTransport() :
 {
 }
 
-//====================================================================================================================
-// Initialize the object
-/*
- *  This is where we dimension everything.
- */
 bool AqueousTransport::initLiquid(LiquidTransportParams& tr)
 {
-
     // constant substance attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
-    m_tmin  = m_thermo->minTemp();
-    m_tmax  = m_thermo->maxTemp();
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
@@ -125,21 +106,7 @@ bool AqueousTransport::initLiquid(LiquidTransportParams& tr)
 
     return true;
 }
-//====================================================================================================================
-/*
- * The viscosity is computed using the Wilke mixture rule.
- * \f[
- * \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
- * \f]
- * Here \f$ \mu_k \f$ is the viscosity of pure species \e k,
- * and
- * \f[
- * \Phi_{k,j} = \frac{\left[1
- * + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
- * {\sqrt{8}\sqrt{1 + M_k/M_j}}
- * \f]
- * @see updateViscosity_T();
- */
+
 doublereal AqueousTransport::viscosity()
 {
 
@@ -163,20 +130,13 @@ doublereal AqueousTransport::viscosity()
     }
     return m_viscmix;
 }
-//====================================================================================================================
-// Returns the pure species viscosities
-/*
- *
- * Controlling update boolean = m_viscwt_ok
- *
- *  @param visc     Vector of species viscosities
- */
+
 void AqueousTransport::getSpeciesViscosities(doublereal* const visc)
 {
     updateViscosity_T();
     copy(m_visc.begin(), m_visc.end(), visc);
 }
-//====================================================================================================================
+
 void AqueousTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
     update_T();
@@ -194,23 +154,7 @@ void AqueousTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
             d[ld*j + i] = rp * m_bdiff(i,j);
         }
 }
-//====================================================================================================================
-//       Get the electrical Mobilities (m^2/V/s).
-/*
- *   This function returns the mobilities. In some formulations
- *   this is equal to the normal mobility multiplied by faraday's constant.
- *
- *   Frequently, but not always, the mobility is calculated from the
- *   diffusion coefficient using the Einstein relation
- *
- *     \f[
- *          \mu^e_k = \frac{F D_k}{R T}
- *     \f]
- *
- * @param mobil_e  Returns the mobilities of
- *               the species in array \c mobil_e. The array must be
- *               dimensioned at least as large as the number of species.
- */
+
 void AqueousTransport::getMobilities(doublereal* const mobil)
 {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -219,7 +163,7 @@ void AqueousTransport::getMobilities(doublereal* const mobil)
         mobil[k] = c1 * m_spwork[k];
     }
 }
-//====================================================================================================================
+
 void AqueousTransport::getFluidMobilities(doublereal* const mobil)
 {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
@@ -228,21 +172,21 @@ void AqueousTransport::getFluidMobilities(doublereal* const mobil)
         mobil[k] = c1 * m_spwork[k];
     }
 }
-//====================================================================================================================
+
 void AqueousTransport::set_Grad_V(const doublereal* const grad_V)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_V[a] = grad_V[a];
     }
 }
-//====================================================================================================================
+
 void AqueousTransport::set_Grad_T(const doublereal* const grad_T)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
     }
 }
-//====================================================================================================================
+
 void AqueousTransport::set_Grad_X(const doublereal* const grad_X)
 {
     size_t itop = m_nDim * m_nsp;
@@ -250,14 +194,7 @@ void AqueousTransport::set_Grad_X(const doublereal* const grad_X)
         m_Grad_X[i] = grad_X[i];
     }
 }
-//====================================================================================================================
-/*
- * The thermal conductivity is computed from the following mixture rule:
- * \[
- * \lambda = 0.5 \left( \sum_k X_k \lambda_k
- * + \frac{1}{\sum_k X_k/\lambda_k}\right)
- * \]
- */
+
 doublereal AqueousTransport::thermalConductivity()
 {
     update_T();
@@ -276,54 +213,14 @@ doublereal AqueousTransport::thermalConductivity()
     }
     return m_lambda;
 }
-//====================================================================================================================
-// Return a vector of Thermal diffusion coefficients [kg/m/sec].
-/*
- * The thermal diffusion coefficient \f$ D^T_k \f$ is defined
- * so that the diffusive mass flux of species <I>k<\I> induced by the
- * local temperature gradient is given by the following formula
- *
- *    \f[
- *         M_k J_k = -D^T_k \nabla \ln T.
- *    \f]
- *
- *   The thermal diffusion coefficient can be either positive or negative.
- *
- *  In this method we set it to zero.
- *
- * @param dt On return, dt will contain the species thermal
- *           diffusion coefficients.  Dimension dt at least as large as
- *           the number of species. Units are kg/m/s.
- */
+
 void AqueousTransport::getThermalDiffCoeffs(doublereal* const dt)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         dt[k] = 0.0;
     }
 }
-//====================================================================================================================
-// Get the species diffusive mass fluxes wrt to the specified solution averaged velocity,
-// given the gradients in mole fraction and temperature
-/*
- *  Units for the returned fluxes are kg m-2 s-1.
- *
- *  Usually the specified solution average velocity is the mass averaged velocity.
- *  This is changed in some subclasses, however.
- *
- *  @param ndim       Number of dimensions in the flux expressions
- *  @param grad_T     Gradient of the temperature
- *                       (length = ndim)
- *  @param ldx        Leading dimension of the grad_X array
- *                       (usually equal to m_nsp but not always)
- *  @param grad_X     Gradients of the mole fraction
- *                    Flat vector with the m_nsp in the inner loop.
- *                       length = ldx * ndim
- *  @param ldf        Leading dimension of the fluxes array
- *                     (usually equal to m_nsp but not always)
- *  @param fluxes     Output of the diffusive mass fluxes
- *                    Flat vector with the m_nsp in the inner loop.
- *                        length = ldx * ndim
- */
+
 void AqueousTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                         size_t ldx, const doublereal* const grad_X,
                                         size_t ldf, doublereal* const fluxes)
@@ -332,34 +229,7 @@ void AqueousTransport::getSpeciesFluxes(size_t ndim, const doublereal* const gra
     set_Grad_X(grad_X);
     getSpeciesFluxesExt(ldf, fluxes);
 }
-//====================================================================================================================
-//  Return the species diffusive mass fluxes wrt to the specified averaged velocity,
-/*
- *   This method acts similarly to getSpeciesFluxesES() but
- *   requires all gradients to be preset using methods set_Grad_X(), set_Grad_V(), set_Grad_T().
- *   See the documentation of getSpeciesFluxesES() for details.
- *
- *  units = kg/m2/s
- *
- * Internally, gradients in the in mole fraction, temperature
- * and electrostatic potential contribute to the diffusive flux
- *
- * The diffusive mass flux of species \e k is computed from the following formula
- *
- *    \f[
- *         j_k = - \rho M_k D_k \nabla X_k - Y_k V_c
- *    \f]
- *
- *    where V_c is the correction velocity
- *
- *    \f[
- *         V_c =  - \sum_j {\rho M_j D_j \nabla X_j}
- *    \f]
- *
- *  @param ldf     Stride of the fluxes array. Must be equal to or greater than the number of species.
- *  @param fluxes  Output of the diffusive fluxes. Flat vector with the m_nsp in the inner loop.
- *                   length = ldx * ndim
- */
+
 void AqueousTransport::getSpeciesFluxesExt(size_t ldf, doublereal* const fluxes)
 {
     update_T();
@@ -385,18 +255,9 @@ void AqueousTransport::getSpeciesFluxesExt(size_t ldf, doublereal* const fluxes)
         }
     }
 }
-//====================================================================================================================
-/**
- * Mixture-averaged diffusion coefficients [m^2/s].
- *
- * For the single species case or the pure fluid case
- * the routine returns the self-diffusion coefficient.
- * This is need to avoid a Nan result in the formula
- * below.
- */
+
 void AqueousTransport::getMixDiffCoeffs(doublereal* const d)
 {
-
     update_T();
     update_C();
 
@@ -431,18 +292,6 @@ void AqueousTransport::getMixDiffCoeffs(doublereal* const d)
     }
 }
 
-//====================================================================================================================
-// Handles the effects of changes in the Temperature, internally
-// within the object.
-/*
- *  This is called whenever a transport property is
- *  requested.
- *  The first task is to check whether the temperature has changed
- *  since the last call to update_T().
- *  If it hasn't then an immediate return is carried out.
- *
- *     @internal
- */
 void AqueousTransport::update_T()
 {
     doublereal t = m_thermo->temperature();
@@ -484,12 +333,7 @@ void AqueousTransport::update_T()
     // For now, for a concentration redo also
     m_iStateMF   = -1;
 }
-//====================================================================================================================
-/**
- *  @internal This is called the first time any transport property
- *  is requested from Mixture after the concentrations
- *  have changed.
- */
+
 void AqueousTransport::update_C()
 {
 
@@ -516,17 +360,13 @@ void AqueousTransport::update_C()
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
     // add an offset to avoid a pure species condition or
-    // negative mole fractions. MIN_X is 1.0E-20, a value
+    // negative mole fractions. *Tiny* is 1.0E-20, a value
     // which is below the additive machine precision of mole fractions.
     for (size_t k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = std::max(MIN_X, m_molefracs[k]);
+        m_molefracs[k] = std::max(Tiny, m_molefracs[k]);
     }
 }
-//====================================================================================================================
-/*
- * Update the temperature-dependent parts of the mixture-averaged
- * thermal conductivity.
- */
+
 void AqueousTransport::updateCond_T()
 {
     if (m_mode == CK_Mode) {
@@ -541,14 +381,9 @@ void AqueousTransport::updateCond_T()
     m_spcond_ok = true;
     m_condmix_ok = false;
 }
-//====================================================================================================================
-/*
- * Update the binary diffusion coefficients. These are evaluated
- * from the polynomial fits at unit pressure (1 Pa).
- */
+
 void AqueousTransport::updateDiff_T()
 {
-
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {
@@ -573,10 +408,7 @@ void AqueousTransport::updateDiff_T()
     m_bindiff_ok = true;
     m_diffmix_ok = false;
 }
-//====================================================================================================================
-/*
- * Update the pure-species viscosities.
- */
+
 void AqueousTransport::updateSpeciesViscosities()
 {
     if (m_mode == CK_Mode) {
@@ -593,13 +425,7 @@ void AqueousTransport::updateSpeciesViscosities()
     }
     m_spvisc_ok = true;
 }
-//====================================================================================================================
-/*
- * Update the temperature-dependent viscosity terms.
- * Updates the array of pure species viscosities, and the
- * weighting functions in the viscosity mixture rule.
- * The flag m_visc_ok is set to true.
- */
+
 void AqueousTransport::updateViscosity_T()
 {
     doublereal vratiokj, wratiojk, factor1;
@@ -624,25 +450,14 @@ void AqueousTransport::updateViscosity_T()
     }
     m_viscwt_ok = true;
 }
-//====================================================================================================================
-/*
- * This function returns a Transport data object for a given species.
- *
- */
+
 LiquidTransportData AqueousTransport::getLiquidTransportData(int kSpecies)
 {
     LiquidTransportData td;
     td.speciesName = m_thermo->speciesName(kSpecies);
-
-
     return td;
 }
-//====================================================================================================================
-/*
- *
- *    Solve for the diffusional velocities in the Stefan-Maxwell equations
- *
- */
+
 void AqueousTransport::stefan_maxwell_solve()
 {
     size_t VIM = 2;
@@ -762,9 +577,6 @@ void AqueousTransport::stefan_maxwell_solve()
         throw CanteraError("routine", "not done");
         break;
     }
-
+}
 
 }
-//====================================================================================================================
-}
-//======================================================================================================================

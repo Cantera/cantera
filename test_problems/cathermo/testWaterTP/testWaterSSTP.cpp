@@ -2,7 +2,6 @@
 #include "cantera/thermo/WaterSSTP.h"
 
 #include <cstdio>
-#include <cmath>
 
 using namespace std;
 using namespace Cantera;
@@ -23,22 +22,7 @@ int main()
 #endif
     double pres;
     try {
-        WaterSSTP* w = new WaterSSTP("waterTPphase.xml","");
-        delete w;
-
-        char iFile[80], file_ID[80];
-        strcpy(iFile, "waterTPphase.xml");
-        sprintf(file_ID,"%s#water", iFile);
-        XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
-        w = new WaterSSTP(*xm);
-        delete w;
-
-        strcpy(iFile, "waterTPphase.xml");
-        sprintf(file_ID,"%s#water", iFile);
-        xm = get_XML_NameID("phase", file_ID, 0);
-        w = new WaterSSTP();
-        importPhase(*xm, w);
-
+        WaterSSTP* w = new WaterSSTP("waterTPphase.xml", "water");
 
         /*
          * Print out the triple point conditions
@@ -95,7 +79,7 @@ int main()
             }
             s = w->entropy_mole();
             s -= GasConstant * log(oneBar/presLow);
-            printf("%10g %10g %13g %13g %13g\n", temp, Cp0*1.0E-3, s*1.0E-3,
+            printf("%10g %10g %13.4f %13.4f %13.4f\n", temp, Cp0*1.0E-3, s*1.0E-3,
                    -delg0*1.0E-3, delh0*1.0E-6);
         }
         printf("\n\n");
@@ -136,7 +120,7 @@ int main()
             delg0 = (g - h298l)/temp;
             Cp0 = w->cp_mole();
             s = w->entropy_mole();
-            printf("%10g %10g %12g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
                    -delg0*1.0E-3, delh0*1.0E-6);
@@ -161,7 +145,7 @@ int main()
             // not implemented
             //w.getPartialMolarVolumes(&vbar);
 
-            printf("%10g %10g %12g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5, d, vbar);
 
         }
@@ -188,7 +172,7 @@ int main()
             w->getPartialMolarCp(&Cp0);
             w->getPartialMolarEntropies(&s);
             w->getPartialMolarVolumes(&vol);
-            printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
                    -delg0*1.0E-3, delh0*1.0E-6, vol);
@@ -218,7 +202,7 @@ int main()
             w->getEntropy_R(&s);
             s *= GasConstant;
             w->getStandardVolumes(&vol);
-            printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
                    -delg0*1.0E-3, delh0*1.0E-6, vol);
@@ -248,7 +232,7 @@ int main()
             w->getEntropy_R_ref(&s);
             s *= GasConstant;
             w->getStandardVolumes_ref(&vol);
-            printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
                    -delg0*1.0E-3, delh0*1.0E-6, vol);
@@ -275,7 +259,7 @@ int main()
             w->getEntropy_R(&s);
             s *= GasConstant;
             w->getStandardVolumes(&vol);
-            printf("%10g %10g %12g %13g %13g %13g %13g %13g\n", temp, press*1.0E-5,
+            printf("%10g %10g %12g %13.4f %13.4f %13.4f %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5,
                    Cp0*1.0E-3, s*1.0E-3,
                    -delg0*1.0E-3, delh0*1.0E-6, vol);

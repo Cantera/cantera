@@ -9,8 +9,6 @@
 #include "ct_defs.h"
 
 #include <iostream>
-#include <string>
-#include <cstdlib>
 
 namespace Cantera
 {
@@ -86,12 +84,6 @@ public:
     virtual void error(const std::string& msg) {
         std::cerr << msg << std::endl;
         exit(EXIT_FAILURE);
-    }
-
-    /// Return an integer specifying the application environment.
-    /// @deprecated
-    DEPRECATED(virtual int env()) {
-        return 0;
     }
 };
 

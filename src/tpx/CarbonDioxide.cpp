@@ -1,15 +1,14 @@
-/* FILE: CarbonDioxide.cpp
- * DESCRIPTION:
- *  representation of substance Carbon Dioxide
- *  values and functions are from
- *  "Thermodynamic Properties in SI" bu W.C. Reynolds
- * AUTHOR: me@rebeccahhunt.com: GCEP, Stanford University
+/**
+ * @file CarbonDioxide.cpp representation of substance Carbon Dioxide.
  *
+ * Values and functions are from "Thermodynamic Properties in SI" by W.C.
+ * Reynolds AUTHOR: me@rebeccahhunt.com: GCEP, Stanford University
  */
 
 #include "CarbonDioxide.h"
-#include <math.h>
-#include <string.h>
+#include "cantera/base/stringUtils.h"
+
+using namespace Cantera;
 
 namespace tpx
 {
@@ -30,9 +29,7 @@ static const double Tp=250;            // [K] ??
 static const double Pc=7.38350E6;    // [Pa] critical pressure
 static const double M=44.01;        // [kg/kmol] molar density
 
-/*
- * array Acarbdi is used by the function named Pp
- */
+// array Acarbdi is used by the function named Pp
 static const double Acarbdi[]= {
     2.2488558E-1,
     -1.3717965E2,
@@ -55,10 +52,7 @@ static const double Acarbdi[]= {
     1.1898141E4
 };
 
-
-/*
- * array F is used by the function named Psat
- */
+// array F is used by the function named Psat
 static const double F[]= {
     -6.5412610,
     -2.7914636E-1,
@@ -70,10 +64,7 @@ static const double F[]= {
     -7.0510251E3
 };
 
-
-/*
- * array D is used by the function ldens
- */
+// array D is used by the function ldens
 static const double D[]= {
     4.6400009E2,
     6.7938129E2,
@@ -83,10 +74,7 @@ static const double D[]= {
     -1.3437098E3
 };
 
-
-/*
- * array G is used by the function sp
- */
+// array G is used by the function sp
 static const double G[]= {
     8.726361E3,
     1.840040E2,
@@ -96,14 +84,6 @@ static const double G[]= {
     -1.255290E-10,
 };
 
-/*
- * C returns a multiplier in each term of the sum
- * in P-3, used in conjunction with C in the function Pp
- * j is used to represent which of the values in the summation to calculate
- * j=0 is the second additive in the formula in reynolds
- * j=1 is the third...
- * (this part does not include the multiplier rho^n)
- */
 double CarbonDioxide::C(int j,double Tinverse, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
@@ -136,12 +116,8 @@ double CarbonDioxide::C(int j,double Tinverse, double T2inverse, double T3invers
     }
 }
 
-/* cprime
- * derivative of C(i)
- */
 inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
 {
-
     switch (j) {
     case 0 :
         return    Acarbdi[0]     +
@@ -172,10 +148,6 @@ inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, d
     }
 }
 
-/*
- * I = integral from o-rho { 1/(rho^2) * H(i, rho) d rho }
- * ( see section 2 of Reynolds TPSI )
- */
 inline double CarbonDioxide::I(int j, double ergho, double Gamma)
 {
     switch (j) {
@@ -199,14 +171,6 @@ inline double CarbonDioxide::I(int j, double ergho, double Gamma)
     }
 }
 
-
-/* H returns a multiplier in each term of the sum
- * in P-3
- * this is used in conjunction with C in the function Pp
- * this represents the product rho^n
- * i=0 is the second additive in the formula in reynolds
- * i=1 is the third ...
- */
 double CarbonDioxide::H(int i, double egrho)
 {
     if (i < 5) {
@@ -220,15 +184,8 @@ double CarbonDioxide::H(int i, double egrho)
     }
 }
 
-/*
- * internal energy
- *  see Reynolds eqn (15) section 2
- *  u = (the integral from T to To of co(T)dT) +
- *         sum from i to N ([C(i) - T*Cprime(i)] + uo
- */
 double CarbonDioxide::up()
 {
-
     double Tinverse = 1.0/T;
     double T2inverse = pow(T, -2);
     double T3inverse = pow(T, -3);
@@ -244,7 +201,6 @@ double CarbonDioxide::up()
         sum += G[i]*(pow(T,i) - pow(To,i))/double(i);
     }
 
-
     for (i=0; i<=6; i++) {
         sum += I(i,egrho, Gamma) *
                (C(i, Tinverse, T2inverse, T3inverse, T4inverse) - T*Cprime(i,T2inverse, T3inverse, T4inverse));
@@ -252,13 +208,7 @@ double CarbonDioxide::up()
 
     sum += u0;
     return sum + m_energy_offset;
-
 }
-
-/*
-*  entropy
- *  see Reynolds eqn (16) section 2
-*/
 
 double CarbonDioxide::sp()
 {
@@ -287,12 +237,6 @@ double CarbonDioxide::sp()
     return sum + m_entropy_offset;
 }
 
-
-/*
- * Equation P-3 in Reynolds
- * P - rho - T
- * returns P (pressure)
- */
 double CarbonDioxide::Pp()
 {
     double Tinverse = pow(T,-1);
@@ -310,18 +254,12 @@ double CarbonDioxide::Pp()
     return P;
 }
 
-
-/*
- * Equation S-2 in Reynolds
- * Pressure at Saturation
- */
 double CarbonDioxide::Psat()
 {
-
     double log, sum=0,P;
     if ((T < Tmn) || (T > Tc)) {
-        std::cout << " error in Psat " << TempError << std::endl;
-        set_Err(TempError); // Error("CarbonDioxide::Psat",TempError,T);
+        throw TPX_Error("CarbonDixoide::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=1; i<=8; i++) {
         sum += F[i-1] * pow((T/Tp -1),double(i-1));
@@ -335,16 +273,12 @@ double CarbonDioxide::Psat()
 
 }
 
-/*
- * Equation D2 in Reynolds
- * liquid density, of rho_f
- */
 double CarbonDioxide::ldens()
 {
     double xx=1-(T/Tc), sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        std::cout << " error in ldens " << TempError << std::endl;
-        set_Err(TempError);
+        throw TPX_Error("CarbonDixoide::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=1; i<=6; i++) {
         sum+=D[i-1]*pow(xx,double(i-1)/3.0);
@@ -353,11 +287,9 @@ double CarbonDioxide::ldens()
     return sum;
 }
 
-/*
- * the following functions allow users
- * to get the properties of CarbonDioxide
- * that are not dependent on the state
- */
+// The following functions allow users to get the properties of CarbonDioxide
+// that are not dependent on the state
+
 double CarbonDioxide::Tcrit()
 {
     return Tc;
@@ -392,6 +324,3 @@ double CarbonDioxide::MolWt()
 }
 
 }
-
-
-

@@ -12,24 +12,10 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"
-#include "vcs_Exception.h"
-
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
+#include "cantera/base/ctexceptions.h"
 
 namespace VCSnonideal
 {
-
-//  Returns the multiplier for electric charge terms
-/*
- *   This is basically equal to F/RT
- *
- * @param mu_units integer representing the dimensional units system
- * @param TKelvin  double  Temperature in Kelvin
- *
- * @return Returns the value of F/RT
- */
 double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
 {
     double Farad;
@@ -40,13 +26,14 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
     case VCS_UNITS_KJMOL:
     case VCS_UNITS_KCALMOL:
-        Farad = 1.602E-19 * 6.022136736e26/ (TKelvin * 8.314472E3);
+        Farad = Cantera::ElectronCharge * Cantera::Avogadro /
+                (TKelvin * Cantera::GasConstant);
         break;
     case VCS_UNITS_UNITLESS:
-        Farad = 1.602E-19 * 6.022136736e26;
+        Farad = Cantera::ElectronCharge * Cantera::Avogadro;
         break;
     case VCS_UNITS_KELVIN:
-        Farad = 1.602E-19 * 6.022136736e26/ (TKelvin);
+        Farad = Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
         break;
     default:
         plogf("vcs_nondim_Farad error: unknown units: %d\n", mu_units);
@@ -56,15 +43,6 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     return Farad;
 }
 
-//  Returns the multiplier for the nondimensionalization of the equations
-/*
- *   This is basically equal to RT
- *
- * @param mu_units integer representing the dimensional units system
- * @param TKelvin  double  Temperature in Kelvin
- *
- * @return Returns the value of RT
- */
 double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
 {
     double rt;
@@ -73,19 +51,19 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     }
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        rt = TKelvin * 8.314472E-3 / 4.184;
+        rt = TKelvin * Cantera::GasConst_cal_mol_K * 1e-3;
         break;
     case VCS_UNITS_UNITLESS:
         rt = 1.0;
         break;
     case VCS_UNITS_KJMOL:
-        rt = TKelvin * 0.008314472;
+        rt = TKelvin * Cantera::GasConstant * 1e-6;
         break;
     case VCS_UNITS_KELVIN:
         rt = TKelvin;
         break;
     case VCS_UNITS_MKS:
-        rt = TKelvin * 8.314472E3;
+        rt = TKelvin * Cantera::GasConstant;
         break;
     default:
         plogf("vcs_nondimMult_TP error: unknown units: %d\n", mu_units);
@@ -95,22 +73,6 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     return rt;
 }
 
-// Nondimensionalize the problem data
-/*
- *   Nondimensionalize the free energies using the divisor, R * T
- *
- *  Essentially the internal data can either be in dimensional form
- *  or in nondimensional form. This routine switches the data from
- *  dimensional form into nondimensional form.
- *
- *  What we do is to divide by RT.
- *
- *  @todo Add a scale factor based on the total mole numbers.
- *        The algorithm contains hard coded numbers based on the
- *        total mole number. If we ever were faced with a problem
- *        with significantly different total kmol numbers than one
- *        the algorithm would have problems.
- */
 void VCS_SOLVE::vcs_nondim_TP()
 {
     double tf;
@@ -158,8 +120,9 @@ void VCS_SOLVE::vcs_nondim_TP()
             plogf(" VCS_SOLVE::vcs_nondim_TP ERROR: Total input moles , %g,  is outside the range handled by vcs. exit",
                   tmole_orig);
             plogendl();
-            throw vcsError("VCS_SOLVE::vcs_nondim_TP", " Total input moles ," + Cantera::fp2str(tmole_orig) +
-                           "is outside the range handled by vcs.\n");
+            throw Cantera::CanteraError("VCS_SOLVE::vcs_nondim_TP",
+                                        " Total input moles ," + Cantera::fp2str(tmole_orig) +
+                                        "is outside the range handled by vcs.\n");
         }
 
         // Determine the scale of the problem
@@ -201,16 +164,6 @@ void VCS_SOLVE::vcs_nondim_TP()
     }
 }
 
-// Redimensionalize the problem data
-/*
- *  Redimensionalize the free energies using the multiplier R * T
- *
- *  Essentially the internal data can either be in dimensional form
- *  or in nondimensional form. This routine switches the data from
- *  nondimensional form into dimensional form.
- *
- *  What we do is to multiply by RT.
- */
 void VCS_SOLVE::vcs_redim_TP(void)
 {
     double tf;
@@ -258,11 +211,6 @@ void VCS_SOLVE::vcs_redim_TP(void)
     }
 }
 
-// Computes the current elemental abundances vector
-/*
- *   Computes the elemental abundances vector, m_elemAbundances[], and stores it
- *   back into the global structure
- */
 void VCS_SOLVE::vcs_printChemPotUnits(int unitsFormat) const
 {
     switch (unitsFormat) {
@@ -288,4 +236,3 @@ void VCS_SOLVE::vcs_printChemPotUnits(int unitsFormat) const
 }
 
 }
-

@@ -13,12 +13,10 @@
 #include "TortuosityBase.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <string>
-
 namespace Cantera
 {
 //====================================================================================================================
-static void err(const std::string r)
+static void err(const std::string& r)
 {
     throw Cantera::CanteraError("TortuosityBase", "Error calling base class " + r);
 }
@@ -62,8 +60,7 @@ TortuosityBase&   TortuosityBase::operator=(const TortuosityBase& right)
  */
 TortuosityBase* TortuosityBase::duplMyselfAsTortuosityBase() const
 {
-    TortuosityBase* tb = new TortuosityBase(*this);
-    return tb;
+    return new TortuosityBase(*this);
 }
 //====================================================================================================================
 // The tortuosity factor models the effective increase in the diffusive transport length.

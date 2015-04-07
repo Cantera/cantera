@@ -1,3 +1,4 @@
+//! @file Water.h
 #ifndef TPX_WATER_H
 #define TPX_WATER_H
 
@@ -5,7 +6,8 @@
 
 namespace tpx
 {
-
+//! Pure species representation of water. Values and functions are from
+//! "Thermodynamic Properties in SI" by W.C. Reynolds
 class water : public Substance
 {
 public:
@@ -13,7 +15,6 @@ public:
         m_name = "water";
         m_formula = "H2O";
     }
-    ~water() {}
 
     double MolWt();
     double Tcrit();
@@ -40,4 +41,3 @@ private:
 
 }
 #endif // ! WATER_H
-

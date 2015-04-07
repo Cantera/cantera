@@ -7,7 +7,8 @@ env.Append(FFLAGS='-g',
            CPPPATH=@tmpl_cantera_incdirs@,
            LIBS=@tmpl_cantera_libs@,
            LIBPATH=@tmpl_cantera_libdirs@,
-           LINKFLAGS=@tmpl_cantera_linkflags@)
+           LINKFLAGS=@tmpl_cantera_linkflags@,
+           FRAMEWORKS=@tmpl_cantera_frameworks@)
 
 ctlib = env.Object('demo_ftnlib.cpp')
 

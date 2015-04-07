@@ -23,7 +23,6 @@ Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
     m_type = cConnectorType;
 }
 
-
 void Bdry1D::
 _init(size_t n)
 {
@@ -73,18 +72,12 @@ _init(size_t n)
     }
 }
 
-
-
-
 //----------------------------------------------------------
-//
 //   Inlet1D methods
-//
 //----------------------------------------------------------
-
 
 void Inlet1D::
-setMoleFractions(string xin)
+setMoleFractions(const std::string& xin)
 {
     m_xstr = xin;
     if (m_flow) {
@@ -121,18 +114,14 @@ componentName(size_t n) const
 void Inlet1D::
 init()
 {
-
     _init(2);
 
-    // set bounds (mdot, T)
-    const doublereal lower[2] = {-1.0e5, 200.0};
-    const doublereal upper[2] = {1.0e5, 1.e5};
-    setBounds(2, lower, 2, upper);
+    setBounds(0, -1e5, 1e5); // mdot
+    setBounds(1, 200.0, 1e5); // T
 
     // set tolerances
-    vector_fp rtol(2, 1e-4);
-    vector_fp atol(2, 1.e-5);
-    setTolerances(2, DATA_PTR(rtol), 2, DATA_PTR(atol));
+    setSteadyTolerances(1e-4, 1e-5);
+    setTransientTolerances(1e-4, 1e-5);
 
     // if a flow domain is present on the left, then this must be
     // a right inlet. Note that an inlet object can only be a
@@ -157,7 +146,6 @@ init()
         m_yin[0] = 1.0;
     }
 }
-
 
 void Inlet1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -234,35 +222,44 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
             rb[4+k] += x[0]*(m_yin[k]);
         }
     }
-
-
 }
 
-void Inlet1D::
+XML_Node& Inlet1D::
 save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
-    XML_Node& inlt = o.addChild("domain");
-    inlt.addAttribute("id",id());
-    inlt.addAttribute("points",1);
+    XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","inlet");
-    inlt.addAttribute("components", double(nComponents()));
     for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k], "", "",lowerBound(k), upperBound(k));
+        ctml::addFloat(inlt, componentName(k), s[k]);
     }
+    for (size_t k=0; k < m_nsp; k++) {
+        ctml::addFloat(inlt, "massFraction", m_yin[k], "",
+                       m_flow->phase().speciesName(k));
+    }
+    return inlt;
 }
 
 void Inlet1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
-    //map<string, double> x;
-    //getFloats(dom, x);
-    soln[0] = ctml::getFloat(dom, "mdot", "massflowrate"); // x["mdot"];
-    soln[1] = ctml::getFloat(dom, "temperature", "temperature"); // x["temperature"];
+    Domain1D::restore(dom, soln, loglevel);
+    soln[0] = m_mdot = ctml::getFloat(dom, "mdot", "massflowrate");
+    soln[1] = m_temp = ctml::getFloat(dom, "temperature", "temperature");
+
+    m_yin.assign(m_nsp, 0.0);
+
+    for (size_t i = 0; i < dom.nChildren(); i++) {
+        const XML_Node& node = dom.child(i);
+        if (node.name() == "massFraction") {
+            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
+            if (k != npos) {
+                m_yin[k] = node.fp_value();
+            }
+        }
+    }
     resize(2,1);
 }
-
-
 
 //--------------------------------------------------
 //      Empty1D
@@ -282,15 +279,11 @@ string Empty1D::componentName(size_t n) const
 void Empty1D::
 init()   //_init(1);
 {
-    // set bounds (T)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Empty1D::
@@ -311,23 +304,20 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     diag[0] = 0;
 }
 
-void Empty1D::
+XML_Node& Empty1D::
 save(XML_Node& o, const doublereal* const soln)
 {
-    XML_Node& symm = o.addChild("domain");
-    symm.addAttribute("id",id());
-    symm.addAttribute("points",1);
+    XML_Node& symm = Domain1D::save(o, soln);
     symm.addAttribute("type","empty");
-    symm.addAttribute("components", double(nComponents()));
+    return symm;
 }
 
 void Empty1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
+    Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
 }
-
-
 
 //--------------------------------------------------
 //      Symm1D
@@ -348,15 +338,11 @@ void Symm1D::
 init()
 {
     _init(1);
-    // set bounds (T)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Symm1D::
@@ -401,23 +387,20 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-
-void Symm1D::
+XML_Node& Symm1D::
 save(XML_Node& o, const doublereal* const soln)
 {
-    XML_Node& symm = o.addChild("domain");
-    symm.addAttribute("id",id());
-    symm.addAttribute("points",1);
+    XML_Node& symm = Domain1D::save(o, soln);
     symm.addAttribute("type","symmetry");
-    symm.addAttribute("components", double(nComponents()));
+    return symm;
 }
 
 void Symm1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
+    Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
 }
-
 
 //--------------------------------------------------
 //      Outlet1D
@@ -438,15 +421,11 @@ void Outlet1D::
 init()
 {
     _init(1);
-    // set bounds (T)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
     if (m_flow_right) {
         m_flow_right->setViscosityFlag(false);
     }
@@ -454,7 +433,6 @@ init()
         m_flow_left->setViscosityFlag(false);
     }
 }
-
 
 void Outlet1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -511,33 +489,27 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-
-void Outlet1D::
+XML_Node& Outlet1D::
 save(XML_Node& o, const doublereal* const soln)
 {
-    XML_Node& outlt = o.addChild("domain");
-    outlt.addAttribute("id",id());
-    outlt.addAttribute("points",1);
+    XML_Node& outlt = Domain1D::save(o, soln);
     outlt.addAttribute("type","outlet");
-    outlt.addAttribute("components", double(nComponents()));
+    return outlt;
 }
 
 void Outlet1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
+    Domain1D::restore(dom, soln, loglevel);
     resize(1,1);
 }
-
-
-
 
 //--------------------------------------------------
 //      OutletRes1D
 //--------------------------------------------------
 
-
 void OutletRes1D::
-setMoleFractions(string xres)
+setMoleFractions(const std::string& xres)
 {
     m_xstr = xres;
     if (m_flow) {
@@ -573,14 +545,11 @@ init()
 {
     _init(1);
     // set bounds (dummy)
-    const doublereal lower = -1.0;
-    const doublereal upper = 1.0;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, -1.0, 1.0);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 
     if (m_flow_left) {
         m_flow = m_flow_left;
@@ -598,7 +567,6 @@ init()
         m_yres[0] = 1.0;
     }
 }
-
 
 void OutletRes1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -660,31 +628,42 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-
-void OutletRes1D::
+XML_Node& OutletRes1D::
 save(XML_Node& o, const doublereal* const soln)
 {
-    XML_Node& outlt = o.addChild("domain");
-    outlt.addAttribute("id",id());
-    outlt.addAttribute("points",1);
+    XML_Node& outlt = Domain1D::save(o, soln);
     outlt.addAttribute("type","outletres");
-    outlt.addAttribute("components", double(nComponents()));
+    ctml::addFloat(outlt, "temperature", m_temp, "K");
+    for (size_t k=0; k < m_nsp; k++) {
+        ctml::addFloat(outlt, "massFraction", m_yres[k], "",
+                       m_flow->phase().speciesName(k));
+    }
+    return outlt;
 }
 
 void OutletRes1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
+    Domain1D::restore(dom, soln, loglevel);
+    m_temp = ctml::getFloat(dom, "temperature");
+
+    m_yres.assign(m_nsp, 0.0);
+    for (size_t i = 0; i < dom.nChildren(); i++) {
+        const XML_Node& node = dom.child(i);
+        if (node.name() == "massFraction") {
+            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
+            if (k != npos) {
+                m_yres[k] = node.fp_value();
+            }
+        }
+    }
+
     resize(1,1);
 }
 
-
 //-----------------------------------------------------------
-//
 //  Surf1D
-//
 //-----------------------------------------------------------
-
-
 
 string Surf1D::componentName(size_t n) const
 {
@@ -702,16 +681,12 @@ init()
 {
     _init(1);
     // set bounds (T)
-    const doublereal lower = 200.0;
-    const doublereal upper = 1.e5;
-    setBounds(1, &lower, 1, &upper);
+    setBounds(0, 200.0, 1e5);
 
     // set tolerances
-    const doublereal rtol = 1e-4;
-    const doublereal atol = 1.e-4;
-    setTolerances(1, &rtol, 1, &atol);
+    setSteadyTolerances(1e-4, 1e-4);
+    setTransientTolerances(1e-4, 1e-4);
 }
-
 
 void Surf1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -745,40 +720,30 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-void Surf1D::
+XML_Node& Surf1D::
 save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
     //XML_Node& inlt = o.addChild("inlet");
-    XML_Node& inlt = o.addChild("domain");
-    inlt.addAttribute("id",id());
-    inlt.addAttribute("points",1);
+    XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","surface");
-    inlt.addAttribute("components", double(nComponents()));
     for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
+        ctml::addFloat(inlt, componentName(k), s[k]);
     }
+    return inlt;
 }
 
 void Surf1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
-    map<string, double> x;
-    ctml::getFloats(dom, x);
-    soln[0] = x["temperature"];
+    Domain1D::restore(dom, soln, loglevel);
+    soln[0] = m_temp = ctml::getFloat(dom, "temperature", "temperature");
     resize(1,1);
 }
 
-
-
-
 //-----------------------------------------------------------
-//
 //  ReactingSurf1D
-//
 //-----------------------------------------------------------
-
-
 
 string ReactingSurf1D::componentName(size_t n) const
 {
@@ -800,24 +765,15 @@ init()
     m_fixed_cov[0] = 1.0;
     m_work.resize(m_kin->nTotalSpecies(), 0.0);
 
-    // set bounds
-    vector_fp lower(m_nv), upper(m_nv);
-    lower[0] = 200.0;
-    upper[0] = 1.e5;
+    setBounds(0, 200.0, 1e5);
     for (size_t n = 0; n < m_nsp; n++) {
-        lower[n+1] = -1.0e-5;
-        upper[n+1] = 2.0;
+        setBounds(n+1, -1.0e-5, 2.0);
     }
-    setBounds(m_nv, DATA_PTR(lower), m_nv, DATA_PTR(upper));
-    vector_fp rtol(m_nv), atol(m_nv);
-    for (size_t n = 0; n < m_nv; n++) {
-        rtol[n] = 1.0e-5;
-        atol[n] = 1.0e-9;
-    }
-    atol[0] = 1.0e-4;
-    setTolerances(m_nv, DATA_PTR(rtol), m_nv, DATA_PTR(atol));
+    setSteadyTolerances(1.0e-5, 1.0e-9);
+    setTransientTolerances(1.0e-5, 1.0e-9);
+    setSteadyTolerances(1.0e-5, 1.0e-4, 0);
+    setTransientTolerances(1.0e-5, 1.0e-4, 0);
 }
-
 
 void ReactingSurf1D::
 eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -908,28 +864,38 @@ eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 }
 
-void ReactingSurf1D::
+XML_Node& ReactingSurf1D::
 save(XML_Node& o, const doublereal* const soln)
 {
     const doublereal* s = soln + loc();
-    //XML_Node& inlt = o.addChild("inlet");
-    XML_Node& inlt = o.addChild("domain");
-    inlt.addAttribute("id",id());
-    inlt.addAttribute("points",1);
-    inlt.addAttribute("type","surface");
-    inlt.addAttribute("components", double(nComponents()));
-    for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k], "", "",0.0, 1.0);
+    XML_Node& dom = Domain1D::save(o, soln);
+    dom.addAttribute("type","surface");
+    ctml::addFloat(dom, "temperature", s[0], "K");
+    for (size_t k=0; k < m_nsp; k++) {
+        ctml::addFloat(dom, "coverage", s[k+1], "",
+                       m_sphase->speciesName(k));
     }
+    return dom;
 }
 
 void ReactingSurf1D::
-restore(const XML_Node& dom, doublereal* soln)
+restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
-    map<string, double> x;
-    ctml::getFloats(dom, x);
-    soln[0] = x["temperature"];
-    resize(1,1);
-}
-}
+    Domain1D::restore(dom, soln, loglevel);
+    soln[0] = m_temp = ctml::getFloat(dom, "temperature");
 
+    m_fixed_cov.assign(m_nsp, 0.0);
+    for (size_t i = 0; i < dom.nChildren(); i++) {
+        const XML_Node& node = dom.child(i);
+        if (node.name() == "coverage") {
+            size_t k = m_sphase->speciesIndex(node.attrib("type"));
+            if (k != npos) {
+                m_fixed_cov[k] = soln[k+1] = node.fp_value();
+            }
+        }
+    }
+    m_sphase->setCoverages(&m_fixed_cov[0]);
+
+    resize(m_nsp+1,1);
+}
+}

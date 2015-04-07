@@ -1,7 +1,8 @@
 /**
  * @file WaterPropsIAPWSphi.cpp
- *  Definitions for Lowest level of the classes which support a real water model
- *  (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and class  #WaterPropsIAPWSphi).
+ * Definitions for Lowest level of the classes which support a real water
+ * model (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and
+ * class \link Cantera::WaterPropsIAPWSphi WaterPropsIAPWSphi \endlink).
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
@@ -12,6 +13,9 @@
 
 #include <cstdio>
 #include <cmath>
+
+namespace Cantera
+{
 
 using std::printf;
 using std::sqrt;
@@ -239,6 +243,7 @@ static const int tiR[55] = {
     1,
     4   // 54
 };
+
 static const doublereal  ni[57] = {
     +0.0,
     +0.12533547935523E-1, //  1
@@ -298,7 +303,6 @@ static const doublereal  ni[57] = {
     -0.14874640856724E0,  // 55
     +0.31806110878444E0   // 56
 };
-
 
 static const doublereal  alphai[3] = {
     +20.,
@@ -360,9 +364,6 @@ static const doublereal  Bbetai[2] = {
 };
 // \endcond
 
-/*
- * Constructor for the object.
- */
 WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
     TAUsave(-1.0),
     TAUsqrt(-1.0),
@@ -376,11 +377,6 @@ WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
     }
 }
 
-/*
- * intCheck() calculates all of the functions at a one point and
- * prints out the result. It's used for conducting the internal
- * check.
- */
 void WaterPropsIAPWSphi::intCheck(doublereal  tau, doublereal  delta)
 {
     tdpolycalc(tau, delta);
@@ -425,10 +421,6 @@ void WaterPropsIAPWSphi::check2()
     intCheck(tau, delta);
 }
 
-/*
- * Calculate the polynomials in tau and delta, and store them in static
- * storage.
- */
 void WaterPropsIAPWSphi::tdpolycalc(doublereal  tau, doublereal  delta)
 {
     if ((tau != TAUsave) || 1) {
@@ -448,10 +440,6 @@ void WaterPropsIAPWSphi::tdpolycalc(doublereal  tau, doublereal  delta)
     }
 }
 
-/*
- * Calculate Eqn. 6.5 for phi0, the ideal gas part of the
- * dimensionless Helmholtz free energy.
- */
 doublereal  WaterPropsIAPWSphi::phi0() const
 {
     doublereal  tau = TAUsave;
@@ -466,13 +454,6 @@ doublereal  WaterPropsIAPWSphi::phi0() const
     return retn;
 }
 
-/*
- * Calculate Eqn. 6.6 for phiR, the residual part of the
- * dimensionless Helmholtz free energy.
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phiR() const
 {
     doublereal  tau = TAUsave;
@@ -529,27 +510,14 @@ doublereal  WaterPropsIAPWSphi::phiR() const
     return val;
 }
 
-/*
- * Calculate the Phi function, which is basically the helmholtz free energy
- * Eqn. (6.4)
- */
 doublereal  WaterPropsIAPWSphi::phi(doublereal  tau, doublereal  delta)
 {
     tdpolycalc(tau, delta);
     doublereal  nau = phi0();
     doublereal  res = phiR();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
-
-/*
- * Calculate d_phiR_d(delta), the first derivative of phiR
- * wrt delta
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phiR_d() const
 {
     doublereal  tau = TAUsave;
@@ -620,55 +588,27 @@ doublereal  WaterPropsIAPWSphi::phiR_d() const
     return val;
 }
 
-/*
- * Calculate d_phi0_d(delta), the first derivative of phi0
- * wrt delta
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phi0_d() const
 {
     doublereal  delta = DELTAsave;
-    return (1.0/delta);
+    return 1.0/delta;
 }
 
-/*
- * Calculate the dPhidDelta function, which is basically the derivative
- * of helmholtz free energy wrt delta
- * Eqn. (6.4)
- */
 doublereal  WaterPropsIAPWSphi::phi_d(doublereal  tau, doublereal  delta)
 {
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_d();
     doublereal  res = phiR_d();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
-/*
- * Calculate the dimensionless pressure at tau and delta;
- *
- *       p/(rhoRT) = delta * phi_d()
- *
- * note: this is done so much, we have a separate routine.
- */
 doublereal  WaterPropsIAPWSphi::pressureM_rhoRT(doublereal  tau, doublereal  delta)
 {
     tdpolycalc(tau, delta);
     doublereal  res = phiR_d();
-    doublereal  retn = 1.0 + delta * res;
-    return retn;
+    return 1.0 + delta * res;
 }
 
-/*
- * Calculate d2_phiR_dd(delta), the second derivative of phiR
- * wrt delta
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phiR_dd() const
 {
     doublereal  tau = TAUsave;
@@ -769,31 +709,18 @@ doublereal  WaterPropsIAPWSphi::phiR_dd() const
     return val;
 }
 
-/*
- * Calculate d2_phi0_dd(delta), the second derivative of phi0
- * wrt delta
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phi0_dd() const
 {
     doublereal  delta = DELTAsave;
-    return (-1.0/(delta*delta));
+    return -1.0/(delta*delta);
 }
 
-/*
- * Calculate the d2_PhidDelta2 function, which is the second derivative
- * of helmholtz free energy wrt delta
- * Eqn. (6.4)
- */
 doublereal  WaterPropsIAPWSphi::phi_dd(doublereal  tau, doublereal  delta)
 {
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_dd();
     doublereal  res = phiR_dd();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
 doublereal  WaterPropsIAPWSphi::dimdpdrho(doublereal  tau, doublereal  delta)
@@ -801,8 +728,7 @@ doublereal  WaterPropsIAPWSphi::dimdpdrho(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  res1 = phiR_d();
     doublereal  res2 = phiR_dd();
-    doublereal  retn = 1.0 + delta * (2.0*res1 + delta*res2);
-    return retn;
+    return 1.0 + delta * (2.0*res1 + delta*res2);
 }
 
 doublereal  WaterPropsIAPWSphi::dimdpdT(doublereal  tau, doublereal  delta)
@@ -810,13 +736,9 @@ doublereal  WaterPropsIAPWSphi::dimdpdT(doublereal  tau, doublereal  delta)
     tdpolycalc(tau, delta);
     doublereal  res1 = phiR_d();
     doublereal  res2 = phiR_dt();
-    doublereal  retn = (1.0 + delta * res1) - tau * delta * (res2);
-    return retn;
+    return (1.0 + delta * res1) - tau * delta * (res2);
 }
 
-/*
- * Calculate d_phi0/d(tau)
- */
 doublereal  WaterPropsIAPWSphi::phi0_t() const
 {
     doublereal  tau = TAUsave;
@@ -829,13 +751,6 @@ doublereal  WaterPropsIAPWSphi::phi0_t() const
     return retn;
 }
 
-/*
- * Calculate Eqn. 6.6 for dphiRdtau, the derivative residual part of the
- * dimensionless Helmholtz free energy wrt temperature
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phiR_t() const
 {
     doublereal  tau = TAUsave;
@@ -901,23 +816,14 @@ doublereal  WaterPropsIAPWSphi::phiR_t() const
     return val;
 }
 
-/*
- * Calculate the dPhidtau function, which is basically the derivative
- * of helmholtz free energy wrt tau
- * Eqn. (6.4)
- */
 doublereal  WaterPropsIAPWSphi::phi_t(doublereal  tau, doublereal  delta)
 {
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_t();
     doublereal  res = phiR_t();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
-/*
- * Calculate d2_phi0/dtau2
- */
 doublereal  WaterPropsIAPWSphi::phi0_tt() const
 {
     doublereal  tau = TAUsave;
@@ -931,13 +837,6 @@ doublereal  WaterPropsIAPWSphi::phi0_tt() const
     return retn;
 }
 
-/*
- * Calculate Eqn. 6.6 for dphiRdtau, the second derivative residual part of the
- * dimensionless Helmholtz free energy wrt temperature
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phiR_tt() const
 {
     doublereal  tau = TAUsave;
@@ -1014,35 +913,19 @@ doublereal  WaterPropsIAPWSphi::phiR_tt() const
     return val;
 }
 
-/*
- * Calculate the d2Phidtau2 function, which is basically the second derivative
- * of helmholtz free energy wrt tau
- * Eqn. (6.4)
- */
 doublereal  WaterPropsIAPWSphi::phi_tt(doublereal  tau, doublereal  delta)
 {
     tdpolycalc(tau, delta);
     doublereal  nau = phi0_tt();
     doublereal  res = phiR_tt();
-    doublereal  retn = nau + res;
-    return retn;
+    return nau + res;
 }
 
-/**
- * Calculate d2_phi0/dtauddelta
- */
 doublereal  WaterPropsIAPWSphi::phi0_dt() const
 {
     return 0.0;
 }
 
-/*
- * Calculate d2_phiR_d(delta)d(tau), the mixed derivative of phi
- * wrt delta and tau.
- *
- *  tau = dimensionless temperature
- *  delta = dimensionless pressure
- */
 doublereal  WaterPropsIAPWSphi::phiR_dt() const
 {
     doublereal  tau = TAUsave;
@@ -1129,13 +1012,6 @@ doublereal  WaterPropsIAPWSphi::phiR_dt() const
     return val;
 }
 
-/*
- * This program computes the reduced density, given the reduced pressure
- * and the reduced temperature, tau. It takes an initial guess, deltaGuess.
- * DeltaGuess is important as this is a multivalued function below the
- * critical point.
- *
- */
 doublereal  WaterPropsIAPWSphi::dfind(doublereal  p_red, doublereal  tau, doublereal  deltaGuess)
 {
     doublereal  dd = deltaGuess;
@@ -1227,20 +1103,13 @@ doublereal  WaterPropsIAPWSphi::dfind(doublereal  p_red, doublereal  tau, double
     return dd;
 }
 
-/**
- * Calculate the dimensionless gibbs free energy g/RT.
- */
 doublereal  WaterPropsIAPWSphi::gibbs_RT() const
 {
     doublereal  delta = DELTAsave;
     doublereal  rd = phiR_d();
-    doublereal  g = 1.0 + phi0() + phiR() + delta * rd;
-    return g;
+    return 1.0 + phi0() + phiR() + delta * rd;
 }
 
-/**
- * Calculate the dimensionless enthalpy h/RT.
- */
 doublereal  WaterPropsIAPWSphi::enthalpy_RT() const
 {
     doublereal  delta = DELTAsave;
@@ -1248,13 +1117,9 @@ doublereal  WaterPropsIAPWSphi::enthalpy_RT() const
     doublereal  rd = phiR_d();
     doublereal  nt = phi0_t();
     doublereal  rt = phiR_t();
-    doublereal  hRT = 1.0 + tau * (nt + rt) + delta * rd;
-    return hRT;
+    return 1.0 + tau * (nt + rt) + delta * rd;
 }
 
-/*
- * Calculate the dimensionless entropy s/R.
- */
 doublereal  WaterPropsIAPWSphi::entropy_R() const
 {
     doublereal  tau   = TAUsave;
@@ -1262,37 +1127,25 @@ doublereal  WaterPropsIAPWSphi::entropy_R() const
     doublereal  rt = phiR_t();
     doublereal  p0 = phi0();
     doublereal  pR = phiR();
-    doublereal  sR = tau * (nt + rt) - p0 - pR;
-    return sR;
+    return tau * (nt + rt) - p0 - pR;
 }
 
-/*
- * Calculate the dimensionless internal energy, u/RT.
- */
 doublereal  WaterPropsIAPWSphi::intEnergy_RT() const
 {
     doublereal  tau   = TAUsave;
     doublereal  nt = phi0_t();
     doublereal  rt = phiR_t();
-    doublereal  uR = tau * (nt + rt);
-    return uR;
+    return tau * (nt + rt);
 }
 
-/*
- * Calculate the dimensionless constant volume Heat Capacity, Cv/R
- */
 doublereal  WaterPropsIAPWSphi::cv_R() const
 {
     doublereal  tau   = TAUsave;
     doublereal  ntt = phi0_tt();
     doublereal  rtt = phiR_tt();
-    doublereal  cvR = - tau * tau * (ntt + rtt);
-    return cvR;
+    return - tau * tau * (ntt + rtt);
 }
 
-/*
- * Calculate the dimensionless constant pressure Heat Capacity, Cp/R
- */
 doublereal  WaterPropsIAPWSphi::cp_R() const
 {
     doublereal  tau   = TAUsave;
@@ -1308,3 +1161,4 @@ doublereal  WaterPropsIAPWSphi::cp_R() const
     return cpR;
 }
 
+} // namespace Cantera

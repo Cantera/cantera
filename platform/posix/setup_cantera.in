@@ -26,10 +26,12 @@ if [ "@matlab_toolbox@" = "y" ]; then
     export MATLABPATH
 fi
 
-if [ -z $PYTHONPATH ]; then
-    PYTHONPATH=@python_module_loc@
-else
-    PYTHONPATH=@python_module_loc@:$PYTHONPATH
+if [ "@python_module_loc_sc@" != "" ]; then
+    if [ -z $PYTHONPATH ]; then
+        PYTHONPATH=@python_module_loc@
+    else
+        PYTHONPATH=@python_module_loc@:$PYTHONPATH
+    fi
 fi
 
 if [ "@python_array_home@" != "" ]; then

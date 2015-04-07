@@ -2,11 +2,11 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([cantera], [2.0.0], [nick@ices.utexas.edu])
+AC_INIT([cantera], [2.1.0], [nick@ices.utexas.edu])
 AC_CONFIG_HEADER(config.h)
 AC_CONFIG_AUX_DIR([build-aux])
 #AX_ENABLE_BUILDDIR
-AM_INIT_AUTOMAKE(-Wall -Werror)
+AM_INIT_AUTOMAKE(-Wall -Werror -Wshadow)
 
 # snarf and provide versioning numbers
 AX_SPLIT_VERSION
@@ -27,7 +27,7 @@ AC_SUBST([PACKAGE_DESCRIPTION])
 PACKAGE_URL="http://code.google.com/p/cantera/"
 AC_SUBST([PACKAGE_URL])
 
-# add trailing underscore(s)
+# add various Defines
 AC_DEFINE([LAPACK_FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
 LAPACK_FTN_TRAILING_UNDERSCORE=1
 AC_DEFINE([FTN_TRAILING_UNDERSCORE],1,[Define to add underscore after fortran functions])
@@ -36,6 +36,21 @@ AC_DEFINE([LAPACK_NAMES_LOWERCASE],1,[Define to make lapack functions lowercase]
 LAPACK_NAMES_LOWERCASE=1
 AC_DEFINE([LAPACK_FTN_STRING_LEN_AT_END],1,[Define to add string to end of lapack functions])
 LAPACK_FTN_STRING_LEN_AT_END=1
+AC_DEFINE([INCL_PURE_FLUIDS],1,[Define to include pure fluids])
+INCL_PURE_FLUIDS=1
+AC_DEFINE([WITH_PURE_FLUIDS],1,[Define to include pure fluids])
+WITH_PURE_FLUIDS=1
+AC_DEFINE([WITH_LATTICE_SOLID],1,[Define to include Lattice Solids])
+WITH_LATTICE_SOLID=1
+AC_DEFINE([WITH_METAL],1,[Define to include metals])
+WITH_METAL=1
+AC_DEFINE([WITH_STOICH_SUBSTANCE],1,[Define to include stoichiometric substances])
+WITH_STOICH_SUBSTANCE=1
+AC_DEFINE([WITH_IDEAL_SOLUTIONS],1,[Define to include ideal solutions])
+WITH_IDEAL_SOLUTIONS=1
+
+AC_DEFINE_UNQUOTED([CANTERA_DATA], ["$prefix/data"],
+            [Default data directory])
 
 AC_CHECK_TYPES([uint8_t, uint16_t, uint32_t, int32_t, uint64_t, int64_t])
 AH_BOTTOM([
@@ -45,11 +60,12 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 #define STRING_LEN_AT_END
 #define STORE_MOLE_FRACTIONS
-
-#define HAS_SSTREAM 1
-
-#define CANTERA_DATA "/usr/local/cantera/data"
-
+                                                                                                                                                            
+#ifdef DEBUG_MODE
+#define DEBUG_MODE_ENABLED 1
+#else
+#define DEBUG_MODE_ENABLED 0
+#endif
 ])
 
 # ------------------------------
@@ -65,8 +81,8 @@ AC_PROG_LIBTOOL
 AM_SANITY_CHECK
 
 # ----------------
-# Doxygen support
-# ----------------
+# Doxygen support 
+# ---------------- 
 
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
@@ -77,10 +93,19 @@ DX_RTF_FEATURE(OFF)
 DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(ON)
 DX_PS_FEATURE(OFF)
-DX_INIT_DOXYGEN(cantera, doxygen/cantera.dox, docs)
+DX_INIT_DOXYGEN(cantera, doc/doxygen/cantera.dox, docs) 
 
 # Generate Output Files
 AC_OUTPUT(Makefile                                                         \
+		   ext/Makefile                                            \
+		   ext/libexecstream/Makefile                              \
+                   ext/f2c_math/Makefile                                   \
+		   ext/f2c_libs/Makefile                                   \
+		   ext/f2c_libs/arithchk/Makefile                          \
+		   ext/f2c_blas/Makefile                                   \
+		   ext/f2c_lapack/Makefile                                 \
+		   ext/cvode/Makefile                                      \
+		   ext/cvode/source/Makefile                               \
                    test_problems/Makefile                                  \
                    test_problems/mixGasTransport/Makefile                  \
                    test_problems/ChemEquil_gri_matrix/Makefile             \
@@ -124,34 +149,25 @@ AC_OUTPUT(Makefile                                                         \
                    test_problems/cathermo/VPissp/Makefile                  \
                    test_problems/cathermo/wtWater/Makefile                 \
                    test_problems/PecosTransport/Makefile                   \
-		   doxygen/Makefile                                        \
-		   ext/Makefile                                    \
-		   src/tpx/Makefile                                \
-		   ext/cvode/Makefile                              \
-		   ext/cvode/source/Makefile                       \
-		   ext/f2c_blas/Makefile                           \
-   		   ext/f2c_lapack/Makefile                         \
-                   ext/f2c_libs/Makefile                           \
-		   ext/f2c_math/Makefile                           \
-		   src/fortran/Makefile                            \
-                   src/Makefile                                    \
-                   src/base/Makefile                               \
-                   src/converters/Makefile                         \
-		   src/kinetics/Makefile                           \
-                   src/numerics/Makefile src/oneD/Makefile \
-                   src/thermo/Makefile                             \
-		   src/transport/Makefile                          \
-                   src/spectra/Makefile src/zeroD/Makefile \
-                   src/equil/Makefile                              \
-		   cantera.pc)
+                   test_problems/statmech/Makefile                         \
+		   doc/Makefile                                            \
+		   doc/doxygen/Makefile                                    \
+		   src/Makefile                                            \
+                   src/fortran/Makefile                                    \
+                   src/base/Makefile                                       \
+		   src/kinetics/Makefile                                   \
+                   src/numerics/Makefile src/oneD/Makefile                 \
+                   src/thermo/Makefile                                     \
+		   src/transport/Makefile                                  \
+                   src/spectra/Makefile src/zeroD/Makefile                 \
+                   src/equil/Makefile                                      \
+                   src/tpx/Makefile                                        \
+		   cantera.pc)                                   
 
 # skipped tests
-#                   test_problems/ck2cti/Makefile
-#                   test_problems/nasa9_reader/Makefile
-#                   test_problems/rankine_democxx/Makefile
-#                   test_problems/VCSnonideal/NaCl_equil/Makefile
-
+#                   test_problems/rankine_democxx/Makefile                  
+#                   test_problems/VCSnonideal/NaCl_equil/Makefile           
 
 # FINAL SUMMARY
-AX_SUMMARIZE_CONFIG
+AX_SUMMARIZE_CONFIG 
 

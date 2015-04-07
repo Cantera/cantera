@@ -6,8 +6,6 @@
 #include "cantera/oneD/MultiJac.h"
 
 #include <fstream>
-#include <cstdlib>
-#include <cstdio>
 
 using namespace std;
 
@@ -20,20 +18,18 @@ static void sim1D_drawline()
     s += '\n';
     writelog(s.c_str());
 }
-//====================================================================================================================
+
 Sim1D::Sim1D() :
     OneDim()
 {
     //writelog("Sim1D default constructor\n");
 }
-//====================================================================================================================
+
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
     OneDim(domains)
 {
-
-    // resize the internal solution vector and the wprk array,
-    // and perform domain-specific initialization of the
-    // solution vector.
+    // resize the internal solution vector and the work array, and perform
+    // domain-specific initialization of the solution vector.
 
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
@@ -49,13 +45,10 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_steps.push_back(2);
     m_steps.push_back(5);
     m_steps.push_back(10);
-
 }
-//====================================================================================================================
 
-void Sim1D::setInitialGuess(string component, vector_fp& locs, vector_fp& vals)
+void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vector_fp& vals)
 {
-
     for (size_t dom=0; dom<m_nd; dom++) {
         Domain1D& d = domain(dom);
         size_t ncomp = d.nComponents();
@@ -67,65 +60,33 @@ void Sim1D::setInitialGuess(string component, vector_fp& locs, vector_fp& vals)
     }
 }
 
-
-/**
- * Set a single value in the solution vector.
- * @param dom domain number, beginning with 0 for the leftmost domain.
- * @param comp component number
- * @param localPoint grid point within the domain, beginning with 0 for
- * the leftmost grid point in the domain.
- * @param value the value.
- */
 void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
+    AssertThrowMsg(iloc < m_x.size(), "Sim1D::setValue",
+                   "Index out of bounds:" + int2str(iloc) + " > " +
+                   int2str(m_x.size()));
     m_x[iloc] = value;
 }
 
-
-/**
- * @param dom domain number, beginning with 0 for the leftmost domain.
- * @param comp component number
- * @param localPoint grid point within the domain, beginning with 0 for
- * the leftmost grid point in the domain.
- */
 doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-#ifdef DEBUG_MODE
-    int j = static_cast<int>(iloc);
-    if (j < 0) {
-        throw CanteraError("Sim1D::value", "out of bounds: " + int2str(j));
-    }
-    if (j >= (int) m_x.size()) {
-        throw CanteraError("Sim1D::value", "exceeded top of bounds: " + int2str(j) +
-                           " >= " + int2str(m_x.size()));
-    }
-#endif
+    AssertThrowMsg(iloc < m_x.size(), "Sim1D::value",
+                   "Index out of bounds:" + int2str(iloc) + " > " +
+                   int2str(m_x.size()));
     return m_x[iloc];
 }
 
 doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
+    AssertThrowMsg(iloc < m_x.size(), "Sim1D::workValue",
+                   "Index out of bounds:" + int2str(iloc) + " > " +
+                   int2str(m_x.size()));
     return m_xnew[iloc];
 }
 
-
-/**
- * @param dom domain number, beginning with 0 for the leftmost domain.
- * @param comp component number
- * @param pos A vector of relative positions, beginning with 0.0 at the
- * left of the domain, and ending with 1.0 at the right of the domain.
- * @param values A vector of values corresponding to the relative position
- * locations.
- *
- * Note that the vector pos and values can have lengths
- * different than the number of grid points, but their lengths
- * must be equal. The values at the grid points will be
- * linearly interpolated based on the (pos, values)
- * specification.
- */
 void Sim1D::setProfile(size_t dom, size_t comp,
                        const vector_fp& pos, const vector_fp& values)
 {
@@ -142,19 +103,24 @@ void Sim1D::setProfile(size_t dom, size_t comp,
     }
 }
 
-
-void Sim1D::save(string fname, string id, string desc)
+void Sim1D::save(const std::string& fname, const std::string& id,
+                 const std::string& desc, int loglevel)
 {
-    OneDim::save(fname, id, desc, DATA_PTR(m_x));
+    OneDim::save(fname, id, desc, DATA_PTR(m_x), loglevel);
 }
 
-/**
- * Initialize the solution with a previously-saved solution.
- */
-void Sim1D::restore(string fname, string id)
+void Sim1D::saveResidual(const std::string& fname, const std::string& id,
+                         const std::string& desc, int loglevel)
+{
+    vector_fp res(m_x.size(), -999);
+    OneDim::eval(npos, &m_x[0], &res[0], 0.0);
+    OneDim::save(fname, id, desc, &res[0], loglevel);
+}
+
+void Sim1D::restore(const std::string& fname, const std::string& id,
+                    int loglevel)
 {
     ifstream s(fname.c_str());
-    //char buf[100];
     if (!s)
         throw CanteraError("Sim1D::restore",
                            "could not open input file "+fname);
@@ -169,31 +135,29 @@ void Sim1D::restore(string fname, string id)
     }
 
     vector<XML_Node*> xd;
-    size_t sz = 0, np, m;
-    for (m = 0; m < m_nd; m++) {
-        XML_Node* d = f->findID(domain(m).id());
-        if (!d) {
-            writelog("No data for domain "+domain(m).id());
-            xd.push_back(0);
-            sz += domain(m).nComponents();
-        } else {
-            const XML_Node& node = *d;
-            xd.push_back(d);
-            np = intValue(node["points"]);
-            sz += np*domain(m).nComponents();
+    f->getChildren("domain", xd);
+    if (xd.size() != m_nd) {
+        throw CanteraError("Sim1D::restore", "Solution does not contain the "
+                           " correct number of domains. Found " +
+                           int2str(xd.size()) + "expected " +
+                           int2str(m_nd) + ".\n");
+    }
+    size_t sz = 0;
+    for (size_t m = 0; m < m_nd; m++) {
+        if (loglevel > 0 && xd[m]->attrib("id") != domain(m).id()) {
+            writelog("Warning: domain names do not match: '" +
+                     (*xd[m])["id"] + + "' and '" + domain(m).id() + "'\n");
         }
+        sz += domain(m).nComponents() * intValue((*xd[m])["points"]);
     }
     m_x.resize(sz);
     m_xnew.resize(sz);
-    for (m = 0; m < m_nd; m++) {
-        if (xd[m]) {
-            domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc());
-        }
+    for (size_t m = 0; m < m_nd; m++) {
+        domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc(), loglevel);
     }
     resize();
     finalize();
 }
-
 
 void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
 {
@@ -203,7 +167,6 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
         setValue(dom, comp, n, v);
     }
 }
-
 
 void Sim1D::showSolution(ostream& s)
 {
@@ -239,7 +202,6 @@ void Sim1D::finalize()
     }
 }
 
-
 void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
 {
     m_tstep = stepsize;
@@ -248,7 +210,6 @@ void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
         m_steps[i] = tsteps[i];
     }
 }
-
 
 int Sim1D::newtonSolve(int loglevel)
 {
@@ -260,10 +221,9 @@ int Sim1D::newtonSolve(int loglevel)
         return -1;
     } else {
         throw CanteraError("Sim1D::newtonSolve",
-            "ERROR: OneDim::solve returned m = " + int2str(m) + "\n");
+                           "ERROR: OneDim::solve returned m = " + int2str(m) + "\n");
     }
 }
-
 
 void Sim1D::solve(int loglevel, bool refine_grid)
 {
@@ -278,11 +238,12 @@ void Sim1D::solve(int loglevel, bool refine_grid)
         nsteps = m_steps[istep];
 
         bool ok = false;
+        if (loglevel > 0) {
+            writelog("\n");
+            sim1D_drawline();
+        }
         while (!ok) {
-            if (loglevel > 0) {
-                sim1D_drawline();
-                writelog("\nAttempt Newton solution of steady-state problem...");
-            }
+            writelog("Attempt Newton solution of steady-state problem...", loglevel);
             int status = newtonSolve(loglevel-1);
 
             if (status == 0) {
@@ -295,20 +256,40 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                             writelog(", ");
                         }
                     }
-                    writelog("]");
-                    writelog(" point grid(s).\n\n");
+                    writelog("] point grid(s).\n");
+                }
+                if (loglevel > 6) {
+                    save("debug_sim1d.xml", "debug",
+                         "After successful Newton solve");
+                }
+                if (loglevel > 7) {
+                    saveResidual("debug_sim1d.xml", "residual",
+                                 "After successful Newton solve");
                 }
                 ok = true;
                 soln_number++;
             } else {
                 char buf[100];
-                if (loglevel > 0) {
-                    writelog("    failure. \n\n");
-                    sim1D_drawline();
-                    writelog("Take "+int2str(nsteps)+" timesteps   ");
+                writelog("    failure. \n", loglevel);
+                if (loglevel > 6) {
+                    save("debug_sim1d.xml", "debug",
+                         "After unsuccessful Newton solve");
                 }
+                if (loglevel > 7) {
+                    saveResidual("debug_sim1d.xml", "residual",
+                                 "After unsuccessful Newton solve");
+                }
+                writelog("Take "+int2str(nsteps)+" timesteps   ", loglevel);
                 dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
                               loglevel-1);
+                if (loglevel > 6) {
+                    save("debug_sim1d.xml", "debug", "After timestepping");
+                }
+                if (loglevel > 7) {
+                    saveResidual("debug_sim1d.xml", "residual",
+                                 "After timestepping");
+                }
+
                 if (loglevel == 1) {
                     sprintf(buf, " %10.4g %10.4g \n", dt,
                             log10(ssnorm(DATA_PTR(m_x), DATA_PTR(m_xnew))));
@@ -325,29 +306,39 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
             }
         }
+        if (loglevel > 0) {
+            sim1D_drawline();
+            writelog("\n");
+        }
         if (loglevel > 2) {
             showSolution();
         }
 
         if (refine_grid) {
             new_points = refine(loglevel);
+            if (new_points) {
+                // If the grid has changed, preemptively reduce the timestep
+                // to avoid multiple successive failed time steps.
+                dt = m_tstep;
+            }
+            if (new_points && loglevel > 6) {
+                save("debug_sim1d.xml", "debug", "After regridding");
+            }
+            if (new_points && loglevel > 7) {
+                saveResidual("debug_sim1d.xml", "residual",
+                             "After regridding");
+            }
             if (new_points < 0) {
                 writelog("Maximum number of grid points reached.");
                 new_points = 0;
             }
         } else {
-            if (loglevel > 0) {
-                writelog("grid refinement disabled.\n");
-            }
+            writelog("grid refinement disabled.\n", loglevel);
             new_points = 0;
         }
     }
 }
 
-
-/**
- * Refine the grid in all domains.
- */
 int Sim1D::refine(int loglevel)
 {
     int ianalyze, np = 0;
@@ -407,8 +398,7 @@ int Sim1D::refine(int loglevel)
                     }
                 }
             } else {
-                writelog(string("refine: discarding point at ")+fp2str(d.grid(m))+"\n");
-                ; // throw CanteraError("refine","keepPoint is false at m = "+int2str(m));
+                writelog("refine: discarding point at "+fp2str(d.grid(m))+"\n", loglevel);
             }
         }
         dsize.push_back(znew.size() - nstart);
@@ -442,10 +432,6 @@ int Sim1D::refine(int loglevel)
     return np;
 }
 
-
-/**
- * Add node for fixed temperature point of freely propagating flame
- */
 int Sim1D::setFixedTemperature(doublereal t)
 {
     int np = 0;
@@ -468,17 +454,14 @@ int Sim1D::setFixedTemperature(doublereal t)
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         for (m = 0; m < npnow-1; m++) {
-            //cout << "T["<<m<<"]="<<value(n,2,m)<<endl;
             if (value(n,2,m) == t) {
                 zfixed = d.grid(m);
                 //set d.zfixed, d.ztemp
                 d.m_zfixed = zfixed;
                 d.m_tfixed = t;
-                cout << "T already fixed at " << d.grid(m) << endl;
                 addnewpt = false;
                 break;
             } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
-                cout << "T in between "<<value(n,2,m)<<" and "<<value(n,2,m+1)<<endl;
                 z1 = d.grid(m);
                 m1 = m;
                 z2 = d.grid(m+1);
@@ -486,7 +469,6 @@ int Sim1D::setFixedTemperature(doublereal t)
                 t2 = value(n,2,m+1);
 
                 zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
-                //cout << zfixed<<endl;
                 //set d.zfixed, d.ztemp;
                 d.m_zfixed = zfixed;
                 d.m_tfixed = t;
@@ -559,11 +541,6 @@ void Sim1D::setAdiabaticFlame(void)
     }
 }
 
-/**
- * Set grid refinement criteria. If dom >= 0, then the settings
- * apply only to the specified domain.  If dom < 0, the settings
- * are applied to each domain.  @see Refiner::setCriteria.
- */
 void Sim1D::setRefineCriteria(int dom, doublereal ratio,
                               doublereal slope, doublereal curve, doublereal prune)
 {
@@ -574,6 +551,19 @@ void Sim1D::setRefineCriteria(int dom, doublereal ratio,
         for (size_t n = 0; n < m_nd; n++) {
             Refiner& r = domain(n).refiner();
             r.setCriteria(ratio, slope, curve, prune);
+        }
+    }
+}
+
+void Sim1D::setGridMin(int dom, double gridmin)
+{
+    if (dom >= 0) {
+        Refiner& r = domain(dom).refiner();
+        r.setGridMin(gridmin);
+    } else {
+        for (size_t n = 0; n < m_nd; n++) {
+            Refiner& r = domain(n).refiner();
+            r.setGridMin(gridmin);
         }
     }
 }

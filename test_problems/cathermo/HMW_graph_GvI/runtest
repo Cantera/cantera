@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+#
+temp_success="0"
+/bin/rm  -f output.txt outputa.txt
+
+##########################################################################
+prog=HMW_graph_GvI
+if test ! -x $prog ; then
+   echo $prog ' does not exist'
+   exit 1
+fi
+##########################################################################
+/bin/rm -f test.out test.diff   output.txt
+/bin/rm -f test.out test.diff T298.csv T523.csv
+
+#################################################################
+#
+CANTERA_DATA=${CANTERA_DATA:=../../../data/inputs}; export CANTERA_DATA
+CANTERA_BIN=${CANTERA_BIN:=../../../bin}
+
+#################################################################
+
+./$prog  > output.txt
+retnStat=$?
+if [ $retnStat != "0" ]
+then
+  temp_success="1"
+  echo "$prog returned with bad status, $retnStat, check output"
+  exit 1
+fi
+diff T298.csv T298_blessed.csv > test.diff
+zres=$?
+diff T523.csv T523_blessed.csv > test2.diff
+zres2=$?
+if test "$zres" = "0" ; then
+  if test "$zres2" = "0" ; then
+   hhh="1" 
+  else
+    temp_success="1"
+  fi
+else
+  echo 'test 1 failed'
+  temp_success="1"
+fi
+if [ $temp_success = "0" ]
+then
+  echo "successful diff comparison on $prog test"
+  exit 0
+else
+  echo "unsuccessful diff comparison on $prog test"
+  echo "FAILED" > csvCode.txt
+  exit 1
+fi
+
+

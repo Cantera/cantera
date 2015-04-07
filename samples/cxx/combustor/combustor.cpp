@@ -10,6 +10,8 @@
 #include "cantera/zerodim.h"
 #include "cantera/IdealGasMix.h"
 
+#include <fstream>
+
 using namespace Cantera;
 
 void runexample()

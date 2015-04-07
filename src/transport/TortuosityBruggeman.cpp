@@ -13,8 +13,6 @@
 #include "TortuosityBruggeman.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <string>
-
 namespace Cantera
 {
 
@@ -35,12 +33,6 @@ TortuosityBruggeman::TortuosityBruggeman(const TortuosityBruggeman& right) :
     expBrug_(right.expBrug_)
 {
     *this = right;
-}
-//====================================================================================================================
-// Default destructor for TortuosityBruggeman
-TortuosityBruggeman::~TortuosityBruggeman()
-{
-
 }
 //====================================================================================================================
 // Assignment operator
@@ -66,8 +58,7 @@ TortuosityBruggeman&   TortuosityBruggeman::operator=(const TortuosityBruggeman&
  */
 TortuosityBase* TortuosityBruggeman::duplMyselfAsTortuosityBase() const
 {
-    TortuosityBruggeman* tb = new TortuosityBruggeman(*this);
-    return dynamic_cast<TortuosityBase*>(tb);
+    return new TortuosityBruggeman(*this);
 }
 //====================================================================================================================
 // The tortuosity factor models the effective increase in the diffusive transport length.

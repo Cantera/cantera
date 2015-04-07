@@ -15,6 +15,15 @@ from importFromFile import *
 import os as _os
 import sys as _sys
 
+__version__ = _cantera.ct_get_version()
+
+import warnings
+warnings.warn(
+    "\nThis version of the Cantera Python module is deprecated and will not be\n"
+    "available in Cantera 2.2 or later. For details on the new module, see\n"
+    "http://cantera.github.io/dev-docs/sphinx/html/cython/index.html\n",
+    stacklevel=2)
+
 if not os.getenv('PYTHON_CMD'):
     # Setting PYTHON_CMD here avoids issues with .cti -> .xml conversions
     # in cases where the python interpreter isn't in the system path.
@@ -67,6 +76,21 @@ def reset():
     """Release all cached Cantera data. Equivalent to
     starting a fresh session."""
     _cantera.ct_appdelete()
+
+def fix_docs(cls):
+    """
+    Inherit method docstrings from parent class if none is specified on the
+    child. Usable as a decorator in Python >= 2.6.
+    """
+    for name, func in vars(cls).items():
+        if not func.__doc__:
+            for parent in cls.__bases__:
+                parfunc = getattr(parent, name)
+                if parfunc and getattr(parfunc, '__doc__', None):
+                    func.__doc__ = parfunc.__doc__
+                    break
+    return cls
+
 
 # workaround for case problems in CVS repository file Mixture.py. On some
 # systems it appears as mixture.py, and on others as Mixture.py

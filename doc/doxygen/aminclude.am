@@ -3,9 +3,10 @@
 # dependencies here.
 #-----------------------------------
 
-PECOS_extra_dependencies = doxygen/cantera.page \
-			   doxygen/txt_common/about.page \
-			   doxygen/txt_common/acknowledgment.page
+PECOS_extra_dependencies = doc/doxygen/cantera.page \
+			   doc/doxygen/txt_common/about.page \
+			   doc/doxygen/txt_common/gpl.page \
+			   doc/doxygen/txt_common/acknowledgment.page
 
 ## --------------------------------- ##
 ## Format-independent Doxygen rules. ##

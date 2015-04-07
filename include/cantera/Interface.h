@@ -5,13 +5,11 @@
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
 
-#include <string>
 #include "thermo.h"
 #include "kinetics.h"
 
 namespace Cantera
 {
-
 //! An interface between multiple bulk phases.
 /*!
  * This class is defined mostly for convenience. It inherits both from
@@ -29,22 +27,14 @@ public:
     /*!
      *   Construct an Interface instance from a specification in an input file.
      *
-     *   @param infile.          Cantera input file in CTI or CTML format.
+     *   @param infile           Cantera input file in CTI or CTML format.
      *   @param id               Identification string to distinguish between
      *                           multiple definitions within one input file.
      *   @param otherPhases      Neighboring phases that may participate in the
      *                           reactions on this interface. Don't include the
      *                           surface phase
-     *
-     * @deprecated
-     *   While it's convenient to have the surface phase and the interfacial reaction
-     *   together, this class doesn't satisfy the primary issue, which is one
-     *   of instantiation of all the ThermoPhase classes that accompany a
-     *   surface reaction. This is accomplished by the PhaseList class along with
-     *   the ReactingSurface class. These classes will be migrated into Cantera
-     *   soon.
      */
-    Interface(std::string infile, std::string id,
+    Interface(const std::string& infile, std::string id,
               std::vector<Cantera::ThermoPhase*> otherPhases) :
         m_ok(false),
         m_r(0) {
@@ -89,10 +79,6 @@ public:
         return *this;
     }
 
-    //! Destructor. Does nothing.
-    virtual ~Interface() {
-    }
-
     //! Not operator
     bool operator!() {
         return !m_ok;
@@ -107,27 +93,25 @@ public:
     }
 
 protected:
-
     //! Flag indicating that the object has been instantiated
     bool m_ok;
 
     //! XML_Node pointer to the XML File object that contains the Surface and the Interfacial Reaction object
     //! description
     Cantera::XML_Node* m_r;
-
 };
-
 
 //! Import an instance of class Interface from a specification in an input file.
 /*!
  *  This is the preferred method to create an Interface instance.
  */
-Interface* importInterface(std::string infile, std::string id, std::vector<Cantera::ThermoPhase*> phases)
+inline Interface* importInterface(const std::string& infile,
+                                  const std::string& id,
+                                  std::vector<Cantera::ThermoPhase*> phases)
 {
     return new Interface(infile, id, phases);
 }
 
 }
-
 
 #endif

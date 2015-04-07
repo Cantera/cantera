@@ -5,9 +5,6 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/spectra/rotor.h"
 
-using namespace std;
-using namespace Cantera;
-
 namespace Cantera
 {
 
@@ -94,7 +91,7 @@ doublereal Rotor::relPopulation(int J, doublereal T)
  */
 doublereal Rotor::frequency(int J_lower, int J_upper)
 {
-    return (energy_w(J_upper) - energy_w(J_lower));
+    return energy_w(J_upper) - energy_w(J_lower);
 }
 
 /**
@@ -110,7 +107,3 @@ doublereal Rotor::intensity(int J_lower, int J_upper, doublereal T)
 }
 
 }
-
-
-
-

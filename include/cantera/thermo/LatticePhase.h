@@ -24,17 +24,16 @@ namespace Cantera
 //!  A simple thermodynamic model for a bulk phase,
 //!  assuming a lattice of solid atoms
 /*!
- *  The bulk consists of a matrix of equivalent sites whose molar density
- *  does not vary with temperature or pressure. The thermodynamics
- *  obeys the ideal solution laws. The phase and the pure species phases which
+ * The bulk consists of a matrix of equivalent sites whose molar density
+ * does not vary with temperature or pressure. The thermodynamics
+ * obeys the ideal solution laws. The phase and the pure species phases which
  * comprise the standard states of the species are assumed to have
  * zero volume expansivity and zero isothermal compressibility.
  *
  * The density of matrix sites is given by the variable \f$ C_o \f$,
  * which has SI units of kmol m-3.
  *
- *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  It is assumed that the reference state thermodynamics may be
  *  obtained by a pointer to a populated species thermodynamic property
@@ -48,7 +47,7 @@ namespace Cantera
  * which has a weak dependence on the system pressure, \f$P\f$.
  *
  *       \f[
- *   \raggedright   h^o_k(T,P) =
+ *           h^o_k(T,P) =
  *                  h^{ref}_k(T) +  \left( \frac{P - P_{ref}}{C_o} \right)
  *       \f]
  *
@@ -72,7 +71,6 @@ namespace Cantera
  *       \f[
  *            V^o_k(T,P) = \frac{1.0}{C_o}
  *       \f]
- *
  *
  * <HR>
  * <H2> Specification of Solution Thermodynamic Properties </H2>
@@ -179,23 +177,22 @@ namespace Cantera
  *            \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
  *       \f]
  *
- *   The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
- *   to activity concentrations. When this is done:
+ * The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
+ * to activity concentrations. When this is done:
  *
- *   \f[
- *         \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
- *             \exp(\frac{\mu^{o}_l - \mu^{o}_j - \mu^{o}_k}{R T} )
- *   \f]
+ * \f[
+ *     \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
+ *         \exp(\frac{\mu^{o}_l - \mu^{o}_j - \mu^{o}_k}{R T} )
+ * \f]
  *
  *
- *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
- *    using the second and third part of the above expression as a definition for the concentration
- *    equilibrium constant.
+ * %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ * using the second and third part of the above expression as a definition for the concentration
+ * equilibrium constant.
  *
  * <HR>
  * <H2> Instantiation of the Class </H2>
  * <HR>
- *
  *
  * The constructor for this phase is located in the default ThermoFactory
  * for %Cantera. A new %LatticePhase object may be created by the following code snippet:
@@ -224,34 +221,31 @@ namespace Cantera
  *   An example of an XML Element named phase setting up a LatticePhase object named "O_lattice_SiO2"
  *   is given below.
  *
- * @verbatim
-   <!--     phase O_lattice_SiO2      -->
-   <phase dim="3" id="O_lattice_SiO2">
-      <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
-      <speciesArray datasrc="#species_data">
-              O_O  Vac_O
-      </speciesArray>
-      <reactionArray datasrc="#reaction_data"/>
-      <thermo model="Lattice">
-  <site_density> 73.159 </site_density>
-  <vacancy_species>  Vac_O </vacancy_species>
-</thermo>
-      <kinetics model="BulkKinetics"/>
-      <transport model="None"/>
-    </phase>
-    @endverbatim
+ * @code
+ * <!--     phase O_lattice_SiO2      -->
+ *   <phase dim="3" id="O_lattice_SiO2">
+ *     <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
+ *     <speciesArray datasrc="#species_data">
+ *       O_O  Vac_O
+ *     </speciesArray>
+ *     <reactionArray datasrc="#reaction_data"/>
+ *     <thermo model="Lattice">
+ *       <site_density> 73.159 </site_density>
+ *       <vacancy_species>  Vac_O </vacancy_species>
+ *     </thermo>
+ *     <kinetics model="BulkKinetics"/>
+ *     <transport model="None"/>
+ *  </phase>
+ *  @endcode
  *
  *   The model attribute "Lattice" of the thermo XML element identifies the phase as
  *   being of the type handled by the LatticePhase object.
  *
  * @ingroup thermoprops
- *
  */
 class LatticePhase : public ThermoPhase
 {
-
 public:
-
     //! Base Empty constructor
     LatticePhase();
 
@@ -272,60 +266,30 @@ public:
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    LatticePhase(std::string inputFile, std::string id = "");
+    LatticePhase(const std::string& inputFile, const std::string& id = "");
 
     //! Full constructor for a water phase
     /*!
      * @param phaseRef  XML node referencing the lattice phase.
      * @param id        string id of the phase name
      */
-    LatticePhase(XML_Node& phaseRef, std::string id = "");
-
-    //! Destructor
-    virtual ~LatticePhase();
+    LatticePhase(XML_Node& phaseRef, const std::string& id = "");
 
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the
      * current phase. It's used to duplicate the phase when given
      * a ThermoPhase pointer to the phase.
-     *
-     * @return It returns a ThermoPhase pointer.
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    //! Import and initialize a %LatticePhase phase specification from an XML tree into the current object.
-    /*!
-     * @param phaseNode  XML file containing the description of the phase
-     *
-     * @param idTarget   Optional parameter identifying the name of the
-     *                   phase. If none is given, the first XML  phase element is used.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string idTarget);
-
-    //! Initialization of a %LatticePhase phase using an xml file
-    /*!
-     *
-     * This routine is a precursor to constructPhaseXML(XML_Node*)
-     * routine, which does most of the work.
-     *
-     * @param inputFile XML file containing the description of the phase
-     *
-     * @param id        Optional parameter identifying the name of the
-     *                  phase. If none is given, the first XML
-     *                  phase element will be used.
-     */
-    void constructPhaseFile(std::string inputFile, std::string id);
 
     //! Equation of state flag. Returns the value cLattice
     virtual int eosType() const {
         return cLattice;
     }
 
-    /**
-     * @name Molar Thermodynamic Properties of the Solution ------------------------
-     * @{
-     */
+    //! @name Molar Thermodynamic Properties of the Solution
+    //! @{
 
     //! Return the Molar Enthalpy. Units: J/kmol.
     /*!
@@ -428,8 +392,7 @@ public:
     virtual doublereal cv_mole() const;
 
     //@}
-    /// @name Mechanical Equation of State Properties ------------------------------------
-    //@{
+    /// @name Mechanical Equation of State Properties
     /**
      *   In this equation of state implementation, the density is a
      *   function only of the mole fractions. Therefore, it can't be
@@ -439,7 +402,6 @@ public:
      *   thrown.
      */
     //@{
-
 
     //! Pressure. Units: Pa.
     /*!
@@ -478,9 +440,6 @@ public:
      * species molar volumes. We have additionally specified
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a
-     *       member of the ThermoPhase base class.
      */
     doublereal calcDensity();
 
@@ -519,11 +478,9 @@ public:
      */
     virtual void setConcentrations(const doublereal* const c);
 
-
     //@}
     /// @name Activities, Standard States,  and Activity Concentrations
     /**
-     *
      * The activity \f$a_k\f$ of a species in solution is
      * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
      * + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
@@ -587,7 +544,6 @@ public:
 
     //@}
     /// @name  Partial Molar Properties of the Solution
-    ///
     //@{
 
     //! Get the species chemical potentials. Units: J/kmol.
@@ -601,11 +557,9 @@ public:
      */
     virtual void getChemPotentials(doublereal* mu) const;
 
-
     //@}
-    /// @name  Partial Molar Properties of the Solution -----------------------------
+    /// @name  Partial Molar Properties of the Solution
     //@{
-
 
     /**
      * Returns an array of partial molar enthalpies for the species
@@ -665,7 +619,6 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-
     //! Get the array of chemical potentials at unit activity for the
     //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
@@ -686,7 +639,6 @@ public:
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
-
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
@@ -791,7 +743,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
@@ -867,7 +819,6 @@ public:
      */
     virtual void initThermo();
 
-
     //! Import and initialize a ThermoPhase object using an XML tree.
     /*!
      *   Here we read extra information about the XML description
@@ -892,7 +843,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters from the argument list
     /*!
@@ -902,6 +853,7 @@ public:
      * @param n number of parameters. Must be one
      * @param c array of \a n coefficients
      *           c[0] = The bulk  lattice density (kmol m-3)
+     * @deprecated Use setMolarDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -915,6 +867,7 @@ public:
      *  For this phase:
      *       -  n = 1
      *       -  c[0] = molar density of phase [ kmol/m^3 ]
+     * @deprecated Use molarDensity()
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 
@@ -935,42 +888,21 @@ public:
      *
      * eosdata points to the thermo block, and looks like this:
      *
-     *   @verbatim
-         <phase id="O_lattice_SiO2" >
-           <thermo model="Lattice">
-               <site_density units="kmol/m^3"> 73.159 </site_density>
-           <vacancy_species> "O_vacancy"  </vacancy_species>
-           </thermo>
-         </phase>    @endverbatim
-     *
+     * @code
+     * <phase id="O_lattice_SiO2" >
+     *   <thermo model="Lattice">
+     *     <site_density units="kmol/m^3"> 73.159 </site_density>
+     *     <vacancy_species> "O_vacancy"  </vacancy_species>
+     *   </thermo>
+     * </phase>
+     * @endcode
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
-
     //@}
 
 protected:
-
-
-    //! Number of elements
-    size_t m_mm;
-
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
-
     //! Reference state pressure
     doublereal m_Pref;
-
 
     //! The current pressure
     /*!
@@ -996,8 +928,7 @@ protected:
     //! Temporary storage for the reference state entropies at the current temperature
     mutable vector_fp m_s0_R;
 
-
-    //! String name for the species which represents a vacency
+    //! String name for the species which represents a vacancy
     //! in the lattice
     /*!
      *  This string is currently unused
@@ -1018,10 +949,7 @@ protected:
      */
     doublereal m_site_density;
 
-    // doublereal m_molar_lattice_volume;
-
 private:
-
     //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only

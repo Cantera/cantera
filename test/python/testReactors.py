@@ -21,7 +21,7 @@ class CombustorTestImplementation(object):
 
     referenceFile = '../data/CombustorTest-integrateWithAdvance.csv'
     def setUp(self):
-        self.gas = ct.importPhase('../../data/inputs/h2o2.cti')
+        self.gas = ct.importPhase('h2o2.cti')
 
         # create a reservoir for the fuel inlet, and set to pure methane.
         self.gas.set(T=300.0, P=ct.OneAtm, X='H2:1.0')
@@ -120,17 +120,17 @@ class WallTestImplementation(object):
     referenceFile = '../data/WallTest-integrateWithAdvance.csv'
     def setUp(self):
         # reservoir to represent the environment
-        self.gas0 = ct.importPhase('../../data/inputs/air.cti')
+        self.gas0 = ct.importPhase('air.cti')
         self.gas0.set(T=300, P=ct.OneAtm)
         self.env = reactors.Reservoir(self.gas0)
 
         # reactor to represent the side filled with Argon
-        self.gas1 = ct.importPhase('../../data/inputs/air.cti')
+        self.gas1 = ct.importPhase('air.cti')
         self.gas1.set(T=1000.0, P=30*ct.OneAtm, X='AR:1.0')
         self.r1 = reactors.Reactor(self.gas1)
 
         # reactor to represent the combustible mixture
-        self.gas2 = ct.importPhase('../../data/inputs/h2o2.cti')
+        self.gas2 = ct.importPhase('h2o2.cti')
         self.gas2.set(T=500.0, P=1.5*ct.OneAtm, X='H2:0.5, O2:1.0, AR:10.0')
         self.r2 = reactors.Reactor(self.gas2)
 

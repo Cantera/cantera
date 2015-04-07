@@ -1,7 +1,6 @@
+//! @file PureFluid.h
 #ifndef CXX_PUREFLUID
 #define CXX_PUREFLUID
-
-#include <string>
 
 #include "thermo/PureFluidPhase.h"
 #include "kinetics.h"
@@ -17,7 +16,7 @@ public:
 
     PureFluid() : m_ok(false), m_r(0) {}
 
-    PureFluid(std::string infile, std::string id="") : m_ok(false), m_r(0) {
+    PureFluid(const std::string& infile, std::string id="") : m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);
         if (id == "-") {
@@ -29,11 +28,9 @@ public:
     }
 
 
-    PureFluid(XML_Node& root, std::string id) : m_ok(false), m_r(0) {
+    PureFluid(XML_Node& root, const std::string& id) : m_ok(false), m_r(0) {
         m_ok = buildSolutionFromXML(root, id, "phase", this, 0);
     }
-
-    virtual ~PureFluid() {}
 
     bool operator!() {
         return !m_ok;

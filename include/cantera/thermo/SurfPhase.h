@@ -76,7 +76,7 @@ namespace Cantera
  *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)
  *       \f]
  *
- * <b> Application within %Kinetics Managers </b>
+ * <b> %Application within %Kinetics Managers </b>
  *
  * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
  * the actual concentration, \f$ C^s_k \f$, and is given by the following
@@ -93,7 +93,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for Cantera. A new SurfPhase may be created by the following code snippet:
+ * for %Cantera. A new SurfPhase may be created by the following code snippet:
  *
  * @code
  *    XML_Node *xc = get_XML_File("diamond.xml");
@@ -115,7 +115,7 @@ namespace Cantera
  *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
  *   is given below.
  *
- *  @verbatim
+ * @code
  * <phase dim="2" id="diamond_100">
  *    <elementArray datasrc="elements.xml">H C</elementArray>
  *    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B </speciesArray>
@@ -133,8 +133,7 @@ namespace Cantera
  *         gas_phase diamond_bulk
  *    </phaseArray>
  * </phase>
- *
- *  @endverbatim
+ * @endcode
  *
  * The model attribute, "Surface", on the thermo element identifies the phase as being
  * a SurfPhase object.
@@ -143,9 +142,7 @@ namespace Cantera
  */
 class SurfPhase : public ThermoPhase
 {
-
 public:
-
     //! Constructor.
     /*!
      *  @param n0 Site Density of the Surface Phase
@@ -160,7 +157,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    SurfPhase(std::string infile, std::string id);
+    SurfPhase(const std::string& infile, std::string id);
 
     //! Construct and initialize a SurfPhase ThermoPhase object
     //! directly from an XML database
@@ -190,9 +187,6 @@ public:
      */
     SurfPhase& operator=(const SurfPhase& right);
 
-    //! Destructor.
-    virtual ~SurfPhase();
-
     //! Duplicator from the %ThermoPhase parent class
     /*
      * Given a pointer to a %ThermoPhase object, this function will
@@ -202,8 +196,6 @@ public:
      * @return returns a pointer to a %ThermoPhase
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    //----- reimplemented methods of class ThermoPhase ------
 
     //! Equation of state type flag.
     /*!
@@ -263,8 +255,6 @@ public:
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
-
-
     //! Return an array of partial molar heat capacities for the
     //! species in the mixture.  Units: J/kmol/K
     /*!
@@ -293,8 +283,6 @@ public:
      *             Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
-
-
 
     //! Return a vector of activity concentrations for each species
     /*!
@@ -357,12 +345,12 @@ public:
      * @param n number of parameters. Must be one
      * @param c array of \a n coefficients
      *           c[0] = The site density (kmol m-2)
+     * @deprecated use setSiteDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 
     //! Set the Equation-of-State parameters by reading an XML Node Input
     /*!
-     *
      * The Equation-of-State data consists of one item, the site density.
      *
      * @param thermoData   Reference to an XML_Node named thermo
@@ -375,14 +363,13 @@ public:
      * site density in any convenient form. Internally it is changed
      * into MKS form.
      *
-     * @verbatim
+     * @code
      *    <thermo model="Surface">
      *       <site_density units="mol/cm2"> 3e-09 </site_density>
      *    </thermo>
-     * @endverbatim
+     * @endcode
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
-
 
     //! Initialize the SurfPhase object after all species have been set up
     /*!
@@ -403,7 +390,6 @@ public:
      */
     virtual void initThermo();
 
-
     //! Set the initial state of the Surface Phase from an XML_Node
     /*!
      *  State variables that can be set by this routine are
@@ -413,12 +399,12 @@ public:
      *
      * An example of the XML code block is given below.
      *
-     * @verbatim
+     * @code
      *   <state>
      *      <temperature units="K">1200.0</temperature>
      *      <coverages>c6H*:0.1, c6HH:0.9</coverages>
      *   </state>
-     * @endverbatim
+     * @endcode
      */
     virtual void setStateFromXML(const XML_Node& state);
 
@@ -428,25 +414,6 @@ public:
      */
     doublereal siteDensity() {
         return m_n0;
-    }
-
-    //! Sets the potential energy of species k.
-    /*!
-     *
-     * @param k    Species index
-     * @param pe   Value of the potential energy (J kmol-1)
-     */
-    void setPotentialEnergy(int k, doublereal pe);
-
-    //! Return the potential energy of species k.
-    /*!
-     * Returns the potential energy of species, k,
-     * J kmol-1
-     *
-     * @param k  Species index
-     */
-    doublereal potentialEnergy(int k) {
-        return m_pe[k];
     }
 
     //! Set the site density of the surface phase (kmol m-2)
@@ -555,7 +522,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
@@ -570,19 +537,15 @@ public:
      */
     virtual void getEntropy_R_ref(doublereal* er) const;
 
-    //!  Returns the vector of nondimensional
-    //!  constant pressure heat capacities of the reference state
-    //!  at the current temperature of the solution
-    //!  and reference pressure for each species.
+    //! Returns the vector of nondimensional constant pressure heat capacities
+    //! of the reference state at the current temperature of the solution and
+    //! reference pressure for each species.
     /*!
      * @param cprt   Output vector of nondimensional reference state
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
     virtual void getCp_R_ref(doublereal* cprt) const;
-
-
-    //------- new methods defined in this class ----------
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -616,12 +579,11 @@ public:
      */
     void setCoveragesNoNorm(const doublereal* theta);
 
-
     //! Set the coverages from a string of colon-separated  name:value pairs.
     /*!
      *  @param cov  String containing colon-separated  name:value pairs
      */
-    void setCoveragesByName(std::string cov);
+    void setCoveragesByName(const std::string& cov);
 
     //! Return a vector of surface coverages
     /*!
@@ -633,26 +595,11 @@ public:
     void getCoverages(doublereal* theta) const;
 
 protected:
-
     //! Surface site density (kmol m-2)
     doublereal m_n0;
 
     //! log of the surface site density
     doublereal m_logn0;
-
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
 
     //! Current value of the pressure (Pa)
     doublereal m_press;
@@ -675,17 +622,6 @@ protected:
     //! Temporary work array
     mutable vector_fp      m_work;
 
-    //! Potential energy of each species in the surface phase
-    /*!
-     * @todo Fix potential energy
-     * Note, the potential energy terms seem to be orphaned at the moment.
-     * They are not connected to the Gibbs free energy calculation in
-     * this object
-     *
-     * @deprecated
-     */
-    mutable vector_fp      m_pe;
-
     //! vector storing the log of the size of each species.
     /*!
      * The size of each species is defined as the number of surface
@@ -694,7 +630,6 @@ protected:
     mutable vector_fp      m_logsize;
 
 private:
-
     //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only
@@ -705,13 +640,7 @@ private:
      *               default = false.
      */
     void _updateThermo(bool force=false) const;
-
 };
 }
 
 #endif
-
-
-
-
-

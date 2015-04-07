@@ -1,23 +1,13 @@
 /**
- *  @file WaterTransport.h
- *   Header file defining class LiquidTransport
+ *  @file WaterTransport.h Header file defining class WaterTransport
  */
 #ifndef CT_WATERTRAN_H
 #define CT_WATERTRAN_H
 
-
-
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-// Cantera includes
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "LiquidTransportParams.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
 
 namespace Cantera
 {
@@ -37,13 +27,10 @@ class WaterProps;
 class PDSS_Water;
 
 //! Transport Parameters for pure water
-/*!
- *
- */
+//! @ingroup tranprops
 class WaterTransport : public Transport
 {
 public:
-
     //! default constructor
     /*!
      *  @param thermo   ThermoPhase object that represents the phase.
@@ -54,37 +41,10 @@ public:
      */
     WaterTransport(thermo_t* thermo = 0, int ndim = 1);
 
-    //!Copy Constructor for the %LiquidThermo object.
-    /*!
-     * @param right  ThermoPhase to be copied
-     */
     WaterTransport(const WaterTransport& right);
-
-    //! Assignment operator
-    /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to %ThermoPhase object to be copied into the
-     *                 current one.
-     */
     WaterTransport&  operator=(const  WaterTransport& right);
-
-    //! Duplication routine for objects which inherit from
-    //! %Transport
-    /*!
-     *  This virtual routine can be used to duplicate %Transport objects
-     *  inherited from %Transport even if the application only has
-     *  a pointer to %Transport to work with.
-     *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
-     */
     virtual Transport* duplMyselfAsTransport() const;
 
-    //! virtual destructor
-    virtual ~WaterTransport();
-
-    //! Return the model id for this transport parameterization
     virtual int model() const {
         return cWaterTransport;
     }
@@ -107,18 +67,9 @@ public:
      */
     virtual doublereal viscosity();
 
-
-    //! The bulk viscosity in Pa-s.
-    /*!
-     *  The bulk viscosity is only
-     * non-zero in rare cases. Most transport managers either
-     * overload this method to return zero, or do not implement
-     * it, in which case an exception is thrown if called.
-     */
     virtual doublereal bulkViscosity() {
         return 0.0;
     }
-
 
     //! Returns the thermal conductivity of water at the current conditions
     //! (W/m/K)
@@ -136,7 +87,6 @@ public:
      *  Pressures above 500 MPa and temperature above 900 C are suspect.
      */
     virtual doublereal thermalConductivity();
-
 
 private:
 
@@ -161,19 +111,11 @@ private:
      */
     WaterProps* m_waterProps;
 
-
     //! Pressure dependent standard state object for water
     /*!
      *  We assume that species 0 is water, with a PDSS_Water object.
      */
     PDSS_Water* m_waterPDSS;
-
 };
 }
 #endif
-
-
-
-
-
-

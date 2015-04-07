@@ -25,7 +25,6 @@ if localenv['OS'] == 'Windows':
         linkflags.append('/MACHINE:' + machtype)
     elif localenv['CC'] == 'gcc':
         linkflags.append('-Wl,--export-all-symbols')
-        linkflags.extend(['-static-libgcc', '-static-libstdc++'])
 
 elif localenv['OS'] == 'Darwin':
     linklibs = list(env['cantera_libs'])
@@ -53,8 +52,8 @@ elif os.name == 'posix':
     linkflags.extend(['-Wl,--no-undefined',
                       '-Wl,--version-script,src/matlab/mexFunction.map'])
 
-localenv.Append(CPPPATH=['#include', '#src', matlab_include],
-                CPPDEFINES=['MATLAB_MEX_FILE'],
+localenv.Prepend(CPPPATH=['#include', '#src', matlab_include])
+localenv.Append(CPPDEFINES=['MATLAB_MEX_FILE'],
                 LIBPATH=[matlab_libs],
                 LINKFLAGS=linkflags)
 
@@ -78,8 +77,17 @@ env['matlab_extension'] = ctmethods
 ### Install the Matlab toolbox ###
 
 # 'ctpath.m'
-target = build(localenv.SubstFile('#interfaces/matlab/ctpath.m',
-                                  '#interfaces/matlab/ctpath.m.in'))
+globalenv = env
+def copy_var(target, source, env):
+    if env['python_prefix'] == 'USER':
+        env['python_module_loc_sc'] = ''
+    else:
+        env['python_module_loc_sc'] = globalenv['python_module_loc']
+
+target = localenv.SubstFile('#interfaces/matlab/ctpath.m',
+                            '#interfaces/matlab/ctpath.m.in')
+localenv.AddPreAction(target, copy_var)
+localenv.Depends(target, env['install_python2_action'])
 install('$inst_matlab_dir', target)
 
 # 'cantera_demos.m'

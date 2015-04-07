@@ -1,7 +1,6 @@
+//! @file GRI30.h
 #ifndef CXX_GRI30H
 #define CXX_GRI30H
-
-#include <string>
 
 #include "thermo/IdealGasPhase.h"
 #include "kinetics/GRI_30_Kinetics.h"
@@ -19,6 +18,7 @@ namespace Cantera
  * class GRI_30_Kinetics, which is the kinetics manager with
  * hard-wired replacements for some of the generic kinetics
  * methods like "getNetReactionRates."
+ * @deprecated
  */
 class GRI30 :
     public IdealGasPhase,
@@ -32,8 +32,6 @@ public:
         if (!m_ok) throw CanteraError("GRI30",
                                           "buildSolutionFromXML returned false");
     }
-
-    virtual ~GRI30() {}
 
     bool operator!() {
         return !m_ok;

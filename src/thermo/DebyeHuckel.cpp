@@ -20,9 +20,7 @@
 
 #include "cantera/base/stringUtils.h"
 
-#include <cstring>
-#include <cstdlib>
-#include <fstream>
+#include <cstdio>
 
 using namespace std;
 using namespace ctml;
@@ -30,9 +28,6 @@ using namespace ctml;
 namespace Cantera
 {
 
-/*
- * Default constructor
- */
 DebyeHuckel::DebyeHuckel() :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
@@ -55,15 +50,8 @@ DebyeHuckel::DebyeHuckel() :
     m_npActCoeff[2] = 1.545E-3;
 }
 
-/*
- * Working constructors
- *
- *  The two constructors below are the normal way
- *  the phase initializes itself. They are shells that call
- *  the routine initThermo(), with a reference to the
- *  XML database to get the info for the phase.
- */
-DebyeHuckel::DebyeHuckel(std::string inputFile, std::string id) :
+DebyeHuckel::DebyeHuckel(const std::string& inputFile,
+                         const std::string& id_) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -82,10 +70,10 @@ DebyeHuckel::DebyeHuckel(std::string inputFile, std::string id) :
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, std::string id) :
+DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
@@ -104,15 +92,9 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, std::string id) :
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
     m_npActCoeff[2] = 1.545E-3;
-    constructPhaseXML(phaseRoot, id);
+    importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
     MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
@@ -135,12 +117,6 @@ DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
     *this = b;
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 DebyeHuckel& DebyeHuckel::
 operator=(const DebyeHuckel& b)
 {
@@ -176,8 +152,6 @@ operator=(const DebyeHuckel& b)
             m_waterProps = new WaterProps(m_waterSS);
         }
 
-        m_expg0_RT            = b.m_expg0_RT;
-        m_pe                  = b.m_pe;
         m_pp                  = b.m_pp;
         m_tmpV                = b.m_tmpV;
         m_speciesCharge_Stoich= b.m_speciesCharge_Stoich;
@@ -188,13 +162,6 @@ operator=(const DebyeHuckel& b)
     return *this;
 }
 
-
-/*
- * ~DebyeHuckel():   (virtual)
- *
- *   Destructor for DebyeHuckel. Release objects that
- * it owns.
- */
 DebyeHuckel::~DebyeHuckel()
 {
     if (m_waterProps) {
@@ -203,25 +170,11 @@ DebyeHuckel::~DebyeHuckel()
     }
 }
 
-/*
- *  duplMyselfAsThermoPhase():
- *
- *  This routine operates at the ThermoPhase level to
- *  duplicate the current object. It uses the copy constructor
- *  defined above.
- */
 ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const
 {
-    DebyeHuckel* mtp = new DebyeHuckel(*this);
-    return (ThermoPhase*) mtp;
+    return new DebyeHuckel(*this);
 }
 
-/*
- * Equation of state type flag. The base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Constants defined for this purpose are
- * listed in mix_defs.h.
- */
 int DebyeHuckel::eosType() const
 {
     int res;
@@ -245,62 +198,39 @@ int DebyeHuckel::eosType() const
 //
 // -------- Molar Thermodynamic Properties of the Solution ---------------
 //
-/*
- * Molar enthalpy of the solution. Units: J/kmol.
- */
 doublereal DebyeHuckel::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-/*
- * Molar internal energy of the solution. Units: J/kmol.
- *
- * This is calculated from the soln enthalpy and then
- * subtracting pV.
- */
 doublereal DebyeHuckel::intEnergy_mole() const
 {
+    // This is calculated from the soln enthalpy and then subtracting pV.
     double hh = enthalpy_mole();
     double pres = pressure();
     double molarV = 1.0/molarDensity();
-    double uu = hh - pres * molarV;
-    return uu;
+    return hh - pres * molarV;
 }
 
-/*
- *  Molar soln entropy at constant pressure. Units: J/kmol/K.
- *
- *  This is calculated from the partial molar entropies.
- */
 doublereal DebyeHuckel::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-// Molar Gibbs function. Units: J/kmol.
 doublereal DebyeHuckel::gibbs_mole() const
 {
     getChemPotentials(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-/*
- * Molar heat capacity at constant pressure. Units: J/kmol/K.
- *
- * Returns the solution heat capacition at constant pressure.
- * This is calculated from the partial molar heat capacities.
- */
 doublereal DebyeHuckel::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
-/// Molar heat capacity at constant volume. Units: J/kmol/K.
 doublereal DebyeHuckel::cv_mole() const
 {
     //getPartialMolarCv(m_tmpV.begin());
@@ -313,11 +243,6 @@ doublereal DebyeHuckel::cv_mole() const
 // ------- Mechanical Equation of State Properties ------------------------
 //
 
-/*
- * Pressure. Units: Pa.
- * For this incompressible system, we return the internally stored
- * independent value of the pressure.
- */
 doublereal DebyeHuckel::pressure() const
 {
     return m_Pcurrent;
@@ -350,27 +275,6 @@ void DebyeHuckel::setState_TP(doublereal t, doublereal p)
     calcDensity();
 }
 
-/*
- * Calculate the density of the mixture using the partial
- * molar volumes and mole fractions as input
- *
- * The formula for this is
- *
- * \f[
- * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
- * \f]
- *
- * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
- * the molecular weights, and \f$V_k\f$ are the pure species
- * molar volumes.
- *
- * Note, the basis behind this formula is that in an ideal
- * solution the partial molar volumes are equal to the pure
- * species molar volumes. We have additionally specified
- * in this class that the pure species molar volumes are
- * independent of temperature and pressure.
- *
- */
 void DebyeHuckel::calcDensity()
 {
     if (m_waterSS) {
@@ -394,17 +298,6 @@ void DebyeHuckel::calcDensity()
     Phase::setDensity(dd);
 }
 
-
-/*
- * The isothermal compressibility. Units: 1/Pa.
- * The isothermal compressibility is defined as
- * \f[
- * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
- * \f]
- *
- *  It's equal to zero for this model, since the molar volume
- *  doesn't change with pressure or temperature.
- */
 doublereal DebyeHuckel::isothermalCompressibility() const
 {
     throw CanteraError("DebyeHuckel::isothermalCompressibility",
@@ -412,17 +305,6 @@ doublereal DebyeHuckel::isothermalCompressibility() const
     return 0.0;
 }
 
-/*
- * The thermal expansion coefficient. Units: 1/K.
- * The thermal expansion coefficient is defined as
- *
- * \f[
- * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
- * \f]
- *
- *  It's equal to zero for this model, since the molar volume
- *  doesn't change with pressure or temperature.
- */
 doublereal DebyeHuckel::thermalExpansionCoeff() const
 {
     throw CanteraError("DebyeHuckel::thermalExpansionCoeff",
@@ -430,22 +312,6 @@ doublereal DebyeHuckel::thermalExpansionCoeff() const
     return 0.0;
 }
 
-/*
- * Overwritten setDensity() function is necessary because the
- * density is not an independent variable.
- *
- * This function will now throw an error condition
- *
- * @internal May have to adjust the strategy here to make
- * the eos for these materials slightly compressible, in order
- * to create a condition where the density is a function of
- * the pressure.
- *
- * This function will now throw an error condition.
- *
- *  NOTE: This is an overwritten function from the State.h
- *        class
- */
 void DebyeHuckel::setDensity(doublereal rho)
 {
     double dens = density();
@@ -455,15 +321,6 @@ void DebyeHuckel::setDensity(doublereal rho)
     }
 }
 
-/*
- * Overwritten setMolarDensity() function is necessary because the
- * density is not an independent variable.
- *
- * This function will now throw an error condition.
- *
- *  NOTE: This is a virtual function, overwritten function from the State.h
- *        class
- */
 void DebyeHuckel::setMolarDensity(const doublereal conc)
 {
     double concI = molarDensity();
@@ -473,34 +330,15 @@ void DebyeHuckel::setMolarDensity(const doublereal conc)
     }
 }
 
-/*
- * Overwritten setTemperature(double) from State.h. This
- * function sets the temperature, and makes sure that
- * the value propagates to underlying objects.
- */
 void DebyeHuckel::setTemperature(const doublereal temp)
 {
     setState_TP(temp, m_Pcurrent);
 }
 
-
 //
 // ------- Activities and Activity Concentrations
 //
 
-/*
- * This method returns an array of generalized concentrations
- * \f$ C_k\f$ that are defined such that
- * \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$
- * is a standard concentration
- * defined below.  These generalized concentrations are used
- * by kinetics manager classes to compute the forward and
- * reverse rates of elementary reactions.
- *
- * @param c Array of generalized concentrations. The
- *           units depend upon the implementation of the
- *           reaction rate expressions within the phase.
- */
 void DebyeHuckel::getActivityConcentrations(doublereal* c) const
 {
     double c_solvent = standardConcentration();
@@ -510,61 +348,18 @@ void DebyeHuckel::getActivityConcentrations(doublereal* c) const
     }
 }
 
-/*
- * The standard concentration \f$ C^0_k \f$ used to normalize
- * the generalized concentration. In many cases, this quantity
- * will be the same for all species in a phase - for example,
- * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
- * reason, this method returns a single value, instead of an
- * array.  However, for phases in which the standard
- * concentration is species-specific (e.g. surface species of
- * different sizes), this method may be called with an
- * optional parameter indicating the species.
- *
- * For the time being we will use the concentration of pure
- * solvent for the the standard concentration of all species.
- * This has the effect of making reaction rates
- * based on the molality of species proportional to the
- * molality of the species.
- */
 doublereal DebyeHuckel::standardConcentration(size_t k) const
 {
     double mvSolvent = m_speciesSize[m_indexSolvent];
     return 1.0 / mvSolvent;
 }
 
-/*
- * Returns the natural logarithm of the standard
- * concentration of the kth species
- */
 doublereal DebyeHuckel::logStandardConc(size_t k) const
 {
     double c_solvent = standardConcentration(k);
     return log(c_solvent);
 }
 
-/*
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- * On return uA contains the powers of the units (MKS assumed)
- * of the standard concentrations and generalized concentrations
- * for the kth species.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- */
 void DebyeHuckel::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
@@ -589,14 +384,6 @@ void DebyeHuckel::getUnitsStandardConc(double* uA, int k, int sizeUA) const
     }
 }
 
-
-/*
- * Get the array of non-dimensional activities at
- * the current solution temperature, pressure, and
- * solution concentration.
- * (note solvent activity coefficient is on the molar scale).
- *
- */
 void DebyeHuckel::getActivities(doublereal* ac) const
 {
     _updateStandardStateThermo();
@@ -615,17 +402,6 @@ void DebyeHuckel::getActivities(doublereal* ac) const
         exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
 }
 
-/*
- * getMolalityActivityCoefficients()             (virtual, const)
- *
- * Get the array of non-dimensional Molality based
- * activity coefficients at
- * the current solution temperature, pressure, and
- * solution concentration.
- * (note solvent activity coefficient is on the molar scale).
- *
- *  Note, most of the work is done in an internal private routine
- */
 void DebyeHuckel::
 getMolalityActivityCoefficients(doublereal* acMolality) const
 {
@@ -641,25 +417,9 @@ getMolalityActivityCoefficients(doublereal* acMolality) const
 //
 // ------ Partial Molar Properties of the Solution -----------------
 //
-/*
- * Get the species chemical potentials. Units: J/kmol.
- *
- * This function returns a vector of chemical potentials of the
- * species in solution.
- *
- * \f[
- *    \mu_k = \mu^{o}_k(T,P) + R T ln(m_k)
- * \f]
- *
- * \f[
- *    \mu_solvent = \mu^{o}_solvent(T,P) +
- *            R T ((X_solvent - 1.0) / X_solvent)
- * \f]
- */
 void DebyeHuckel::getChemPotentials(doublereal* mu) const
 {
     double xx;
-    const double xxSmall = 1.0E-150;
     /*
      * First get the standard chemical potentials in
      * molar form.
@@ -676,28 +436,15 @@ void DebyeHuckel::getChemPotentials(doublereal* mu) const
     double xmolSolvent = moleFraction(m_indexSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         if (m_indexSolvent != k) {
-            xx = std::max(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
         }
     }
-    xx = std::max(xmolSolvent, xxSmall);
+    xx = std::max(xmolSolvent, SmallNumber);
     mu[m_indexSolvent] +=
         RT * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
 }
 
-
-/*
- * Returns an array of partial molar enthalpies for the species
- * in the mixture.
- * Units (J/kmol)
- *
- * We calculate this quantity partially from the relation and
- * partially by calling the standard state enthalpy function.
- *
- *     hbar_i = - T**2 * d(chemPot_i/T)/dT
- *
- * We calculate
- */
 void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     /*
@@ -732,35 +479,6 @@ void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-/*
- *
- * getPartialMolarEntropies()        (virtual, const)
- *
- * Returns an array of partial molar entropies of the species in the
- * solution. Units: J/kmol.
- *
- * Maxwell's equations provide an insight in how to calculate this
- * (p.215 Smith and Van Ness)
- *
- *      d(chemPot_i)/dT = -sbar_i
- *
- * For this phase, the partial molar entropies are equal to the
- * SS species entropies plus the ideal solution contribution.following
- * contribution:
- *  \f[
- * \bar s_k(T,P) =  \hat s^0_k(T) - R log(M0 * molality[k])
- * \f]
- * \f[
- * \bar s_solvent(T,P) =  \hat s^0_solvent(T)
- *             - R ((xmolSolvent - 1.0) / xmolSolvent)
- * \f]
- *
- * The reference-state pure-species entropies,\f$ \hat s^0_k(T) \f$,
- * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
- * species thermodynamic
- * property manager. They are polynomial functions of temperature.
- * @see SpeciesThermo
- */
 void DebyeHuckel::
 getPartialMolarEntropies(doublereal* sbar) const
 {
@@ -810,25 +528,6 @@ getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-/*
- * getPartialMolarVolumes()                (virtual, const)
- *
- * returns an array of partial molar volumes of the species
- * in the solution. Units: m^3 kmol-1.
- *
- * For this solution, the partial molar volumes are normally
- *  equal to theconstant species molar volumes, except
- * when the activity coefficients depend on pressure.
- *
- * The general relation is
- *
- *       vbar_i = d(chemPot_i)/dP at const T, n
- *
- *              = V0_i + d(Gex)/dP)_T,M
- *
- *              = V0_i + RT d(lnActCoeffi)dP _T,M
- *
- */
 void DebyeHuckel::getPartialMolarVolumes(doublereal* vbar) const
 {
     getStandardVolumes(vbar);
@@ -844,15 +543,6 @@ void DebyeHuckel::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-/*
- * Partial molar heat capacity of the solution:
- *   The kth partial molar heat capacity is  equal to
- *   the temperature derivative of the partial molar
- *   enthalpy of the kth species in the solution at constant
- *   P and composition (p. 220 Smith and Van Ness).
- *
- *     Cp = -T d2(chemPot_i)/dT2
- */
 void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
@@ -889,77 +579,21 @@ void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-
-
-
 /*
  *  -------------- Utilities -------------------------------
  */
 
-/*
- *  Initialization routine for a DebyeHuckel phase.
- *
- * This is a virtual routine. This routine will call initThermo()
- * for the parent class as well.
- */
 void DebyeHuckel::initThermo()
 {
     MolalityVPSSTP::initThermo();
     initLengths();
 }
 
-/*
- * constructPhaseFile
- *
- * Initialization of a Debye-Huckel phase using an
- * xml file.
- *
- * This routine is a precursor to initThermo(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void DebyeHuckel::constructPhaseFile(std::string inputFile, std::string id)
-{
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("DebyeHuckel::initThermo",
-                           "input file is null");
-    }
-    std::string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("DebyeHuckel::initThermo","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("DebyeHuckel::initThermo",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
 //! Utility function to assign an integer value from a string for the ElectrolyteSpeciesType field.
 /*!
  *  @param estString  input string that will be interpreted
  */
-static int interp_est(std::string estString)
+static int interp_est(const std::string& estString)
 {
     const char* cc = estString.c_str();
     string lc = lowercase(estString);
@@ -984,37 +618,13 @@ static int interp_est(std::string estString)
     return rval;
 }
 
-/*
- *   Import and initialize a DebyeHuckel phase
- *   specification in an XML tree into the current object.
- *   Here we read an XML description of the phase.
- *   We import descriptions of the elements that make up the
- *   species in a phase.
- *   We import information about the species, including their
- *   reference state thermodynamic polynomials. We then freeze
- *   the state of the species.
- *
- *   Then, we read the species molar volumes from the xml
- *   tree to finish the initialization.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
+void DebyeHuckel::
+initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         std::string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError("DebyeHuckel::constructPhaseXML",
+        if (idp != id_) {
+            throw CanteraError("DebyeHuckel::initThermoXML",
                                "phasenode and Id are incompatible");
         }
     }
@@ -1023,51 +633,10 @@ void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
      * Find the Thermo XML node
      */
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("DebyeHuckel::constructPhaseXML",
+        throw CanteraError("DebyeHuckel::initThermoXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-
-    /*
-     * Possibly change the form of the standard concentrations
-     */
-    if (thermoNode.hasChild("standardConc")) {
-        XML_Node& scNode = thermoNode.child("standardConc");
-        m_formGC = 2;
-        std::string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (formString == "unity") {
-                m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
-            } else if (formString == "molar_volume") {
-                m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
-            } else if (formString == "solvent_volume") {
-                m_formGC = 2;
-            } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
-    }
-    /*
-     * Get the Name of the Solvent:
-     *      <solvent> solventName </solvent>
-     */
-    std::string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-        XML_Node& scNode = thermoNode.child("solvent");
-        vector<std::string> nameSolventa;
-        getStringArray(scNode, nameSolventa);
-        int nsp = static_cast<int>(nameSolventa.size());
-        if (nsp != 1) {
-            throw CanteraError("DebyeHuckel::constructPhaseXML",
-                               "badly formed solvent XML node");
-        }
-        solventName = nameSolventa[0];
-    }
 
     /*
      * Determine the form of the Debye-Huckel model,
@@ -1089,7 +658,7 @@ void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
             } else if (formString == "Pitzer_with_Beta_ij") {
                 m_formDH = DHFORM_PITZER_BETAIJ;
             } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
+                throw CanteraError("DebyeHuckel::initThermoXML",
                                    "Unknown standardConc model: " + formString);
             }
         }
@@ -1101,48 +670,7 @@ void DebyeHuckel::constructPhaseXML(XML_Node& phaseNode, std::string id)
         m_formDH = DHFORM_DILUTE_LIMIT;
     }
 
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("DebyeHuckel::constructPhaseXML",
-                           "importPhase failed ");
-    }
-}
-
-/*
- * Process the XML file after species are set up.
- *
- *  This gets called from importPhase(). It processes the XML file
- *  after the species are set up. This is the main routine for
- *  reading in activity coefficient parameters.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void DebyeHuckel::
-initThermoXML(XML_Node& phaseNode, std::string id)
-{
     std::string stemp;
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("HMWSoln::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
 
     /*
      * Possibly change the form of the standard concentrations
@@ -1163,13 +691,11 @@ initThermoXML(XML_Node& phaseNode, std::string id)
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
+                throw CanteraError("DebyeHuckel::initThermoXML",
                                    "Unknown standardConc model: " + formString);
             }
         }
     }
-
-
 
     /*
      * Reconcile the solvent name and index.
@@ -1207,38 +733,6 @@ initThermoXML(XML_Node& phaseNode, std::string id)
         throw CanteraError("DebyeHuckel::initThermoXML",
                            "Solvent " + solventName +
                            " should be first species");
-    }
-
-    /*
-     * Determine the form of the Debye-Huckel model,
-     * m_formDH.  We will use this information to size arrays below.
-     */
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& scNode = thermoNode.child("activityCoefficients");
-        m_formDH = DHFORM_DILUTE_LIMIT;
-        std::string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (formString == "Dilute_limit") {
-                m_formDH = DHFORM_DILUTE_LIMIT;
-            } else if (formString == "Bdot_with_variable_a") {
-                m_formDH = DHFORM_BDOT_AK  ;
-            } else if (formString == "Bdot_with_common_a") {
-                m_formDH = DHFORM_BDOT_ACOMMON;
-            } else if (formString == "Beta_ij") {
-                m_formDH = DHFORM_BETAIJ;
-            } else if (formString == "Pitzer_with_Beta_ij") {
-                m_formDH = DHFORM_PITZER_BETAIJ;
-            } else {
-                throw CanteraError("DebyeHuckel::constructPhaseXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
-    } else {
-        /*
-         * If there is no XML node named "activityCoefficients", assume
-         * that we are doing the extreme dilute limit assumption
-         */
-        m_formDH = DHFORM_DILUTE_LIMIT;
     }
 
     /*
@@ -1364,9 +858,7 @@ initThermoXML(XML_Node& phaseNode, std::string id)
          * the internal eos water calculator.
          */
         if (m_form_A_Debye == A_DEBYE_WATER) {
-            if (m_waterProps) {
-                delete m_waterProps;
-            }
+            delete m_waterProps;
             m_waterProps = new WaterProps(m_waterSS);
         }
 
@@ -1433,7 +925,6 @@ initThermoXML(XML_Node& phaseNode, std::string id)
         if (acNode.hasChild("ionicRadius")) {
             XML_Node& irNode = acNode.child("ionicRadius");
 
-            std::string Aunits = "";
             double Afactor = 1.0;
             if (irNode.hasAttrib("units")) {
                 std::string Aunits = irNode.attrib("units");
@@ -1563,7 +1054,7 @@ initThermoXML(XML_Node& phaseNode, std::string id)
      * Fill in the vector specifying the electrolyte species
      * type
      *
-     *   First fill in default values. Everthing is either
+     *   First fill in default values. Everything is either
      *   a charge species, a nonpolar neutral, or the solvent.
      */
     for (size_t k = 0; k < m_kk; k++) {
@@ -1633,60 +1124,20 @@ initThermoXML(XML_Node& phaseNode, std::string id)
 
 }
 
-/*
- * @internal
- * Set equation of state parameters. The number and meaning of
- * these depends on the subclass.
- * @param n number of parameters
- * @param c array of \i n coefficients
- *
- */
 void DebyeHuckel::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("DebyeHuckel::setParameters");
 }
 
 void DebyeHuckel::getParameters(int& n, doublereal* const c) const
 {
+    warn_deprecated("DebyeHuckel::getParameters");
 }
 
-/*
- * Set equation of state parameter values from XML
- * entries. This method is called by function importPhase in
- * file importCTML.cpp when processing a phase definition in
- * an input file. It should be overloaded in subclasses to set
- * any parameters that are specific to that particular phase
- * model.
- *
- * @param eosdata An XML_Node object corresponding to
- * the "thermo" entry for this phase in the input file.
- *
- * HKM -> Right now, the parameters are set elsewhere (initThermoXML)
- *        It just didn't seem to fit.
- */
 void DebyeHuckel::setParametersFromXML(const XML_Node& eosdata)
 {
 }
 
-/*
- * Report the molar volume of species k
- *
- * units - \f$ m^3 kmol^-1 \f$
- */
-// double DebyeHuckel::speciesMolarVolume(int k) const {
-// return m_speciesSize[k];
-//}
-
-
-/*
- * A_Debye_TP()                              (virtual)
- *
- *   Returns the A_Debye parameter as a function of temperature
- *  and pressure.
- *
- *  The default is to assume that it is constant, given
- *  in the initialization process and stored in the
- *  member double, m_A_Debye
- */
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1714,16 +1165,6 @@ double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
     return A;
 }
 
-/*
- * dA_DebyedT_TP()                              (virtual)
- *
- *  Returns the derivative of the A_Debye parameter with
- *  respect to temperature as a function of temperature
- *  and pressure.
- *
- * units = A_Debye has units of sqrt(gmol kg-1).
- *         Temp has units of Kelvin.
- */
 double DebyeHuckel::dA_DebyedT_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1749,16 +1190,6 @@ double DebyeHuckel::dA_DebyedT_TP(double tempArg, double presArg) const
     return dAdT;
 }
 
-/*
- * d2A_DebyedT2_TP()                              (virtual)
- *
- *  Returns the 2nd derivative of the A_Debye parameter with
- *  respect to temperature as a function of temperature
- *  and pressure.
- *
- * units = A_Debye has units of sqrt(gmol kg-1).
- *         Temp has units of Kelvin.
- */
 double DebyeHuckel::d2A_DebyedT2_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1784,16 +1215,6 @@ double DebyeHuckel::d2A_DebyedT2_TP(double tempArg, double presArg) const
     return d2AdT2;
 }
 
-/*
- * dA_DebyedP_TP()                              (virtual)
- *
- *  Returns the derivative of the A_Debye parameter with
- *  respect to pressure, as a function of temperature
- *  and pressure.
- *
- * units = A_Debye has units of sqrt(gmol kg-1).
- *         Pressure has units of pascals.
- */
 double DebyeHuckel::dA_DebyedP_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1820,12 +1241,9 @@ double DebyeHuckel::dA_DebyedP_TP(double tempArg, double presArg) const
 }
 
 /*
- * ----------- Critical State Properties --------------------------
- */
-
-/*
  * ---------- Other Property Functions
  */
+
 double DebyeHuckel::AionicRadius(int k) const
 {
     return m_Aionic[k];
@@ -1835,24 +1253,13 @@ double DebyeHuckel::AionicRadius(int k) const
  * ------------ Private and Restricted Functions ------------------
  */
 
-/*
- * Bail out of functions with an error exit if they are not
- * implemented.
- */
-doublereal DebyeHuckel::err(std::string msg) const
+doublereal DebyeHuckel::err(const std::string& msg) const
 {
     throw CanteraError("DebyeHuckel",
                        "Unfinished func called: " + msg);
     return 0.0;
 }
 
-
-/*
- * initLengths():
- *
- * This internal function adjusts the lengths of arrays based on
- * the number of species
- */
 void DebyeHuckel::initLengths()
 {
     m_kk = nSpecies();
@@ -1869,8 +1276,6 @@ void DebyeHuckel::initLengths()
     m_d2lnActCoeffMolaldT2.resize(m_kk, 0.0);
     m_dlnActCoeffMolaldP.resize(m_kk, 0.0);
     m_B_Dot.resize(m_kk, 0.0);
-    m_expg0_RT.resize(m_kk, 0.0);
-    m_pe.resize(m_kk, 0.0);
     m_pp.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
     if (m_formDH == DHFORM_BETAIJ ||
@@ -1879,13 +1284,6 @@ void DebyeHuckel::initLengths()
     }
 }
 
-/*
- * nonpolarActCoeff()                    (private)
- *
- *   Static function that implements the non-polar species
- *   salt-out modifications.
- *   Returns the calculated activity coefficients.
- */
 double DebyeHuckel::_nonpolarActCoeff(double IionicMolality) const
 {
     double I2 = IionicMolality * IionicMolality;
@@ -1896,16 +1294,7 @@ double DebyeHuckel::_nonpolarActCoeff(double IionicMolality) const
     return pow(10.0 , l10actCoeff);
 }
 
-
-/**
- *  _osmoticCoeffHelgesonFixedForm()
- *
- *      Formula for the osmotic coefficient that occurs in
- *      the GWB. It is originally from Helgeson for a variable
- *      NaCl brine. It's to be used with extreme caution.
- */
-double DebyeHuckel::
-_osmoticCoeffHelgesonFixedForm() const
+double DebyeHuckel::_osmoticCoeffHelgesonFixedForm() const
 {
     const double a0 = 1.454;
     const double b0 = 0.02236;
@@ -1924,17 +1313,7 @@ _osmoticCoeffHelgesonFixedForm() const
     return oc;
 }
 
-
-/*
- *  _activityWaterHelgesonFixedForm()
- *
- *      Formula for the log of the activity of the water
- *      solvent that occurs in
- *      the GWB. It is originally from Helgeson for a variable
- *      NaCl brine. It's to be used with extreme caution.
- */
-double DebyeHuckel::
-_lnactivityWaterHelgesonFixedForm() const
+double DebyeHuckel::_lnactivityWaterHelgesonFixedForm() const
 {
     /*
      * Update the internally stored vector of molalities
@@ -1950,23 +1329,9 @@ _lnactivityWaterHelgesonFixedForm() const
     if (sum > 2.0 * m_maxIionicStrength) {
         sum = 2.0 *  m_maxIionicStrength;
     };
-    double lac = - m_Mnaught * sum * oc;
-    return lac;
+    return - m_Mnaught * sum * oc;
 }
 
-/*
- * s_update_lnMolalityActCoeff():
- *
- *   Using internally stored values, this function calculates
- *   the activity coefficients for all species.
- *
- *   The ln(activity_solvent) is first calculated for the
- *   solvent. Then the molar based activity coefficient
- *   is calculated and returned.
- *
- *   ( Note this is the main routine for implementing the
- *     activity coefficient formulation.)
- */
 void DebyeHuckel::s_update_lnMolalityActCoeff() const
 {
     double z_k, zs_k1, zs_k2;
@@ -2018,7 +1383,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
      * Debye-Huckel parameter A_Debye
      * This parameter appears on the top of the activity
      * coefficient expression.
-     * It depends on T (and P), as it depends explicity
+     * It depends on T (and P), as it depends explicitly
      * on the temperature. Also, the dielectric constant
      * is usually a fairly strong function of T, also.
      */
@@ -2225,18 +1590,6 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         lnActivitySolvent - log(xmolSolvent);
 }
 
-/*
- * s_update_dMolalityActCoeff_dT()         (private, const )
- *
- *   Using internally stored values, this function calculates
- *   the temperature derivative of the logarithm of the
- *   activity coefficient for all species in the mechanism.
- *
- *   We assume that the activity coefficients are current.
- *
- *   solvent activity coefficient is on the molality
- *   scale. Its derivative is too.
- */
 void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
 {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
@@ -2364,19 +1717,6 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
 
 }
 
-/*
- * s_update_d2lnMolalityActCoeff_dT2()         (private, const )
- *
- *   Using internally stored values, this function calculates
- *   the temperature 2nd derivative of the logarithm of the
- *   activity coefficient
- *   for all species in the mechanism.
- *
- *   We assume that the activity coefficients are current.
- *
- *   solvent activity coefficient is on the molality
- *   scale. Its derivatives are too.
- */
 void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
 {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
@@ -2499,19 +1839,6 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
     }
 }
 
-/*
- * s_update_dlnMolalityActCoeff_dP()         (private, const )
- *
- *   Using internally stored values, this function calculates
- *   the pressure derivative of the logarithm of the
- *   activity coefficient for all species in the mechanism.
- *
- *   We assume that the activity coefficients, molalities,
- *   and A_Debye are current.
- *
- *   solvent activity coefficient is on the molality
- *   scale. Its derivatives are too.
- */
 void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
 {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
@@ -2637,26 +1964,5 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
         break;
     }
 }
-
-/*
- * Updates the standard state thermodynamic functions at the current T and P of the solution.
- *
- * @internal
- *
- * This function gets called for every call to functions in this
- * class. It checks to see whether the temperature or pressure has changed and
- * thus the ss thermodynamics functions for all of the species
- * must be recalculated.
- */
-//  void DebyeHuckel::_updateStandardStateThermo() const {
-// doublereal tnow = temperature();
-// doublereal pnow = m_Pcurrent;
-// if (m_waterSS) {
-//   m_waterSS->setTempPressure(tnow, pnow);
-// }
-// m_VPSS_ptr->setState_TP(tnow, pnow);
-// VPStandardStateTP::updateStandardStateThermo();
-
-//}
 
 }

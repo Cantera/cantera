@@ -1,7 +1,6 @@
+//! @file IncompressibleSolid.h
 #ifndef CXX_INCOMPRESSIBLE
 #define CXX_INCOMPRESSIBLE
-
-#include <string>
 
 #include "thermo/ConstDensityThermo.h"
 #include "kinetics/importKinetics.h"
@@ -12,7 +11,7 @@ namespace Cantera
 class IncompressibleSolid : public ConstDensityThermo
 {
 public:
-    IncompressibleSolid(std::string infile,
+    IncompressibleSolid(const std::string& infile,
                         std::string id="") : m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);
@@ -23,8 +22,6 @@ public:
         if (!m_ok) throw CanteraError("IncompressibleSolid",
                                           "buildSolutionFromXML returned false");
     }
-
-    virtual ~IncompressibleSolid() {}
 
     bool operator!() {
         return !m_ok;

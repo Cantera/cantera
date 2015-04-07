@@ -155,12 +155,7 @@ extern "C" {
     int func_write(int i, size_t lennm, const char* arg, char* nm)
     {
         try {
-            std::string a = std::string(arg);
-            std::string w = FuncCabinet::item(i).write(a);
-            size_t ws = w.size();
-            size_t lout = (lennm > ws ? ws : lennm);
-            std::copy(w.c_str(), w.c_str() + lout, nm);
-            nm[lout] = '\0';
+            copyString(FuncCabinet::item(i).write(arg), nm, lennm);
             return 0;
         } catch (...) {
             return Cantera::handleAllExceptions(-1, ERR);

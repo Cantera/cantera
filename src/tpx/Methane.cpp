@@ -1,13 +1,12 @@
-// Methane
-
+//! @file Methane.cpp
 #include "Methane.h"
-#include <math.h>
-#include <iostream>
+#include "cantera/base/stringUtils.h"
+
 using namespace std;
+using namespace Cantera;
 
 namespace tpx
 {
-
 static const double
 M = 16.04996,
 Tmn = 90.68,
@@ -47,8 +46,6 @@ static const double Fmeth[]=
 
 static const double Gmeth[]=
 {  1.34740610e3, 1.35512060e2, -2.93910458e1, 2.12774600, 2.44656600e3  };
-
-// double rt, rt2, rt3, egrho;
 
 double methane::C(int i, double rt, double rt2)
 {
@@ -187,28 +184,27 @@ double methane::Pp()
     return P;
 }
 
-//equation s3
 double methane::Psat()
 {
     double x = (1.0 - Tt/T)/(1.0 - Tt/Tc);
     double result;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("methane::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     result = Fmeth[0]*x + Fmeth[1]*x*x + Fmeth[2]*x*x*x +
              Fmeth[3]*x*pow(1-x, alpha);
     return exp(result)*Pt;
 }
 
-
-//equation D3
 double methane::ldens()
 {
     double result;
     double sum;
     double w;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("methane::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     w = (Tc - T)/(Tc - Tt);
     sum = Dmeth[0]*(1.0 - pow(w, 2.0/3.0)) + Dmeth[1]*(1.0 - pow(w, 4.0/3.0))

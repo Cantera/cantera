@@ -1,7 +1,9 @@
+SUBDIRS = arithchk
+
 cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           due.c exit_.c getenv_.c hl_le.c i_dim.c  \
                           inquire.c lread.c pow_ii.c r_acos.c      \
-                          r_dim.c r_nint.c r_tan.c signbit.c       \
+                          r_dim.c r_nint.c r_tan.c                 \
                           uninit.c z_abs.c close.c                 \
                           d_cnjg.c d_imag.c d_sign.c ef1asc_.c     \
                           f77_aloc.c h_abs.c hl_lt.c i_dnnt.c      \
@@ -34,7 +36,7 @@ cc_sources              = abort_.c c_log.c d_atn2.c dfe.c d_prod.c \
                           i_nint.c l_lt.c pow_hh.c r_abs.c rdfmt.c \
                           r_mod.c r_sqrt.c signal_.c uio.c xwsne.c 
 
-h_sources               = f2c.h sysdep1.h fio.h fmt.h fp.h lio.h rawio.h
+h_sources               = 
 
 AM_CPPFLAGS             = -I.
 AM_CXXFLAGS             = $(AM_CPPFLAGS)
@@ -48,18 +50,17 @@ library_include_HEADERS = $(h_sources)
 # Cantera Converters C/C++ library
 #-----------------------
 
-# header file accumulation
-all:
-	@echo copying headers $<
-	cp -p sysdep1.h0 sysdep1.h
-	cp -p signal1.h0 signal1.h
-	cp -p $(h_sources) $(top_builddir)/include/
-
 __top_builddir__build_lib_libctf2c_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libctf2c_la_SOURCES      = $(cc_sources) $(h_sources)
 
 __top_builddir__build_lib_libctf2c_include_HEADERS = $(h_sources)
 __top_builddir__build_lib_libctf2c_includedir = $(prefix)/include
 
+
+# header file accumulation
+all:
+	@echo copying headers $<
+	cp -p sysdep1.h0 sysdep1.h
+	cp -p signal1.h0 signal1.h
 
 CLEANFILES = *.o

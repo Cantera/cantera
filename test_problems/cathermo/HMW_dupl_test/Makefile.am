@@ -1,12 +1,12 @@
-cc_sources = HMW_dupl_test.cpp sortAlgorithms.cpp
+cc_sources = HMW_dupl_test.cpp
 
-INC                  = -I$(top_builddir)/build/include/
+INC                  = -I$(top_builddir)/include/ -I$(top_builddir)/test_problems/shared
 AM_CPPFLAGS          = $(INC)
 AM_CXXFLAGS          = $(AM_CPPFLAGS)
 
-LINK                 = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
-LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
-LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
+LINK                 = -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
+LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lctbase -lcvode 
+LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++ -lexecstream -pthread
 AM_LDFLAGS           = -L$(top_builddir)/build/lib/ 
 LIBS                 =  $(LINK)
 

@@ -16,14 +16,11 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/ctexceptions.h"
 
-
 #include "cantera/numerics/Integrator.h"
 #include "cantera/numerics/ResidJacEval.h"
 
 #include "cantera/numerics/GeneralMatrix.h"
 #include "cantera/numerics/NonlinearSolver.h"
-
-#include "cantera/base/mdp_allo.h"
 
 #define OPT_SIZE 10
 
@@ -47,43 +44,60 @@ enum BEulerMethodType {
 class BEulerErr : public CanteraError
 {
 public:
-    BEulerErr(std::string msg);
+    /**
+     * Exception thrown when a BEuler error is encountered. We just call the
+     * Cantera Error handler in the initialization list.
+     */
+    explicit BEulerErr(const std::string& msg);
 };
 
 
 #define BEULER_JAC_ANAL 2
 #define BEULER_JAC_NUM  1
 
-/**
+/*!
  *  Wrapper class for 'beuler' integrator
  *  We derive the class from the class Integrator
  */
 class BEulerInt : public Integrator
 {
-
 public:
-
-    //! The default constructor doesn't take an argument.
+    /*!
+     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Jacobian function, Newton iteration.
+     */
     BEulerInt();
-    //! Destructor
+
     virtual ~BEulerInt();
+
     virtual void setTolerances(double reltol, size_t n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
     virtual void setProblemType(int probtype);
+
+    //! Find the initial conditions for y and ydot.
     virtual void initializeRJE(double t0, ResidJacEval& func);
     virtual void reinitializeRJE(double t0, ResidJacEval& func);
     virtual double integrateRJE(double tout, double tinit = 0.0);
+
+    // This routine advances the calculations one step using a predictor
+    // corrector approach. We use an implicit algorithm here.
     virtual doublereal step(double tout);
+
+    //! Set the solution weights. This is a very important routine as it affects
+    //! quite a few operations involving convergence.
     virtual void setSolnWeights();
+
     virtual double& solution(size_t k) {
         return m_y_n[k];
     }
     double* solution() {
-        return m_y_n;
+        return &m_y_n[0];
     }
     int nEquations() const {
         return m_neq;
     }
+
+    //! Return the total number of function evaluations
     virtual int nEvals() const;
     virtual void setMethodBEMT(BEulerMethodType t);
     virtual void setIterator(IterType t);
@@ -101,68 +115,201 @@ public:
                                        double damp,
                                        int num_entries);
 
+    //! This routine controls when the solution is printed
+    /*!
+     * @param printSolnStepInterval If greater than 0, then the soln is
+     *                     printed every printSolnStepInterval steps.
+     * @param printSolnNumberToTout The solution is printed at regular
+     *                  invervals a total of "printSolnNumberToTout" times.
+     * @param printSolnFirstSteps The solution is printed out the first
+     *                   "printSolnFirstSteps" steps. After these steps the
+     *                   other parameters determine the printing. default = 0
+     * @param dumpJacobians Dump jacobians to disk.
+     */
     virtual void setPrintSolnOptions(int printSolnStepInterval,
                                      int printSolnNumberToTout,
                                      int printSolnFirstSteps = 0,
                                      bool dumpJacobians = false);
+
+    //! Set the options for the nonlinear method
+    /*!
+     *  Defaults are set in the .h file. These are the defaults:
+     *     min_newt_its = 0
+     *     matrixConditioning = false
+     *     colScaling = false
+     *     rowScaling = true
+     */
     void setNonLinOptions(int min_newt_its = 0,
                           bool matrixConditioning = false,
                           bool colScaling = false,
                           bool rowScaling = true);
     virtual void setPrintFlag(int print_flag);
+
+    //! Set the column scaling vector at the current time
     virtual void setColumnScales();
+
     /**
-     * calculate the solution error norm
+     * Calculate the solution error norm. if printLargest is true, then a table
+     * of the largest values is printed to standard output.
      */
     virtual double soln_error_norm(const double* const,
                                    bool printLargest = false);
     virtual void setInitialTimeStep(double delta_t);
 
-    void beuler_jac(GeneralMatrix&, double* const,
+    /*!
+     *  Function called by to evaluate the Jacobian matrix and the current
+     *  residual at the current time step.
+     *  @param J = Jacobian matrix to be filled in
+     *  @param f = Right hand side. This routine returns the current
+     *             value of the rhs (output), so that it does
+     *             not have to be computed again.
+     */
+    void beuler_jac(GeneralMatrix& J, double* const f,
                     double, double, double* const, double* const, int);
 
-
 protected:
-
     //!  Internal routine that sets up the fixed length storage based on
     //!  the size of the problem to solve.
     void internalMalloc();
-    /**
-     * Internal function to calculate the predicted solution
-     * at a time step.
+
+    /*!
+     * Function to calculate the predicted solution vector, m_y_pred_n for the
+     * (n+1)th time step.  This routine can be used by a first order - forward
+     * Euler / backward Euler predictor / corrector method or for a second order
+     * Adams-Bashforth / Trapezoidal Rule predictor / corrector method.  See
+     * Nachos documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL -
+     * 83282 for more information.
+     *
+     * on input:
+     *
+     *     N          - number of unknowns
+     *     order      - indicates order of method
+     *                  = 1 -> first order forward Euler/backward Euler
+     *                         predictor/corrector
+     *                  = 2 -> second order Adams-Bashforth/Trapezoidal Rule
+     *                         predictor/corrector
+     *
+     *    delta_t_n   - magnitude of time step at time n     (i.e., = t_n+1 - t_n)
+     *    delta_t_nm1 - magnitude of time step at time n - 1 (i.e., = t_n - t_n-1)
+     *    y_n[]       - solution vector at time n
+     *    y_dot_n[]   - acceleration vector from the predictor at time n
+     *    y_dot_nm1[] - acceleration vector from the predictor at time n - 1
+     *
+     * on output:
+     *
+     *    m_y_pred_n[]    - predicted solution vector at time n + 1
      */
     void calc_y_pred(int);
-    /**
-     * Internal function to calculate the time derivative at the
-     * new step
+
+    /*!
+     * Function to calculate the acceleration vector ydot for the first or
+     * second order predictor/corrector time integrator.  This routine can be
+     * called by a first order - forward Euler / backward Euler predictor /
+     * corrector or for a second order Adams - Bashforth / Trapezoidal Rule
+     * predictor / corrector.  See Nachos documentation Sand86-1816 and Gresho,
+     * Lee, Sani LLNL report UCRL - 83282 for more information.
+     *
+     *    on input:
+     *
+     *       N          - number of local unknowns on the processor
+     *                    This is equal to internal plus border unknowns.
+     *       order      - indicates order of method
+     *                    = 1 -> first order forward Euler/backward Euler
+     *                           predictor/corrector
+     *                    = 2 -> second order Adams-Bashforth/Trapezoidal Rule
+     *                           predictor/corrector
+     *
+     *      delta_t_n   - Magnitude of the current time step at time n
+     *                    (i.e., = t_n - t_n-1)
+     *      y_curr[]    - Current Solution vector at time n
+     *      y_nm1[]     - Solution vector at time n-1
+     *      ydot_nm1[] - Acceleration vector at time n-1
+     *
+     *   on output:
+     *
+     *      ydot_curr[]   - Current acceleration vector at time n
+     *
+     * Note we use the current attribute to denote the possibility that
+     * y_curr[] may not be equal to m_y_n[] during the nonlinear solve
+     * because we may be using a look-ahead scheme.
      */
     void calc_ydot(int, double*, double*);
-    /**
-     * Internal function to calculate the time step truncation
-     * error for a predictor corrector time step
+
+    /*!
+     * Calculates the time step truncation error estimate from a very simple
+     * formula based on Gresho et al.  This routine can be called for a first
+     * order - forward Euler/backward Euler predictor/ corrector and for a
+     * second order Adams- Bashforth/Trapezoidal Rule predictor/corrector. See
+     * Nachos documentation Sand86-1816 and Gresho, Lee, LLNL report UCRL -
+     * 83282 for more information.
+     *
+     *    on input:
+     *
+     *      abs_error   - Generic absolute error tolerance
+     *      rel_error   - Generic realtive error tolerance
+     *      x_coor[]    - Solution vector from the implicit corrector
+     *      x_pred_n[]    - Solution vector from the explicit predictor
+     *
+     *   on output:
+     *
+     *      delta_t_n   - Magnitude of next time step at time t_n+1
+     *      delta_t_nm1 - Magnitude of previous time step at time t_n
      */
     double time_error_norm();
-    /**
-     * Internal function to calculate the time step for the
-     * next step based on the time-truncation error on the
-     * current time step
+
+    /*!
+     * Time step control function for the selection of the time step size based on
+     * a desired accuracy of time integration and on an estimate of the relative
+     * error of the time integration process. This routine can be called for a
+     * first order - forward Euler/backward Euler predictor/ corrector and for a
+     * second order Adams- Bashforth/Trapezoidal Rule predictor/corrector. See
+     * Nachos documentation Sand86-1816 and Gresho, Lee, Sani LLNL report UCRL -
+     * 83282 for more information.
+     *
+     *    on input:
+     *
+     *       order      - indicates order of method
+     *                    = 1 -> first order forward Euler/backward Euler
+     *                           predictor/corrector
+     *                    = 2 -> second order forward Adams-Bashforth/Trapezoidal
+     *                          rule predictor/corrector
+     *
+     *      delta_t_n   - Magnitude of time step at time t_n
+     *      delta_t_nm1 - Magnitude of time step at time t_n-1
+     *      rel_error   - Generic realtive error tolerance
+     *      time_error_factor   - Estimated value of the time step truncation error
+     *                           factor. This value is a ratio of the computed
+     *                           error norms. The premultiplying constants
+     *                           and the power are not yet applied to normalize the
+     *                           predictor/corrector ratio. (see output value)
+     *
+     *   on output:
+     *
+     *      return - delta_t for the next time step
+     *               If delta_t is negative, then the current time step is
+     *               rejected because the time-step truncation error is
+     *               too large.  The return value will contain the negative
+     *               of the recommended next time step.
+     *
+     *      time_error_factor  - This output value is normalized so that
+     *                           values greater than one indicate the current time
+     *                           integration error is greater than the user
+     *                           specified magnitude.
      */
     double time_step_control(int m_order, double time_error_factor);
 
     //! Solve a nonlinear system
     /*!
-     *
      * Find the solution to F(X, xprime) = 0 by damped Newton iteration.  On
      * entry, y_comm[] contains an initial estimate of the solution and
      * ydot_comm[] contains an estimate of the derivative.
      *   On  successful return, y_comm[] contains the converged solution
      * and ydot_comm[] contains the derivative
      *
-     *
      * @param y_comm[] Contains the input solution. On output y_comm[] contains
      *                 the converged solution
-     * @param ydot_comm  Contains the input derivative solution. On output y_comm[] contains
-     *                 the converged derivative solution
+     * @param ydot_comm  Contains the input derivative solution. On output
+     *                 y_comm[] contains the converged derivative solution
      * @param CJ       Inverse of the time step
      * @param time_curr  Current value of the time
      * @param jac      Jacobian
@@ -181,8 +328,10 @@ protected:
                                 int loglevel);
 
     /**
-     * Compute the undamped Newton step.  The residual function is
-     * evaluated at x, but the Jacobian is not recomputed.
+     * Compute the undamped Newton step. The residual function is
+     * evaluated at the current time, t_n, at the current values of the
+     * solution vector, m_y_n, and the solution time derivative, m_ydot_n,
+     * but the Jacobian is not recomputed.
      */
     void doNewtonSolve(double, double*, double*, double*,
                        GeneralMatrix&, int);
@@ -208,10 +357,8 @@ protected:
      *               couldn't possibly be representative if the
      *               variable is changed by a lot. (true for
      *               nonlinear systems, false for linear systems)
-     *  Maximum increase in variable in any one newton iteration:
-     *   factor of 2
-     *  Maximum decrease in variable in any one newton iteration:
-     *   factor of 5
+     *  Maximum increase in variable in any one newton iteration: factor of 2
+     *  Maximum decrease in variable in any one newton iteration: factor of 5
      *
      *   @param y       Current value of the solution
      *   @param step0   Current raw step change in y[]
@@ -222,26 +369,25 @@ protected:
      */
     double boundStep(const double* const y, const double* const step0, int loglevel);
 
-    /*
-    * Damp step
+    /*!
+     * On entry, step0 must contain an undamped Newton step for the
+     * solution x0. This method attempts to find a damping coefficient
+     * such that the next undamped step would have a norm smaller than
+     * that of step0. If successful, the new solution after taking the
+     * damped step is returned in y1, and the undamped step at y1 is
+     * returned in step1.
     */
     int dampStep(double, const double*, const double*,
                  const double*, double*, double*,
                  double*, double&, GeneralMatrix&, int&, bool, int&);
 
-    /*
-     * Compute Residual Weights
-     */
+    //! Compute Residual Weights
     void computeResidWts(GeneralMatrix& jac);
 
-    /*
-     * Filter a new step
-     */
+    //! Filter a new step
     double filterNewStep(double, double*, double*);
 
-    /*
-     * get the next time to print out
-     */
+    //! Get the next time to print out
     double getPrintTime(double time_current);
 
     /********************** Member data ***************************/
@@ -286,10 +432,10 @@ protected:
      *  value of atol. If m_itol = 0, the all atols are equal.
      */
     int m_itol;
-    /**
-     *  Relative time truncation error tolerances
-     */
+
+    //! Relative time truncation error tolerances
     double m_reltol;
+
     /**
      *  Absolute time truncation error tolerances, when uniform
      *  for all variables.
@@ -299,46 +445,36 @@ protected:
      *  Vector of absolute time truncation error tolerance
      *  when not uniform for all variables.
      */
-    double* m_abstol;
-    /**
-     * Error Weights. This is a surprisingly important quantity.
-     */
-    double* m_ewt;
+    vector_fp m_abstol;
+
+    //! Error Weights. This is a surprisingly important quantity.
+    vector_fp m_ewt;
 
     //! Maximum step size
     double m_hmax;
-    /**
-     * Maximum integration order
-     */
+
+    //! Maximum integration order
     int m_maxord;
-    /**
-     * Current integration order
-     */
+
+    //! Current integration order
     int m_order;
-    /**
-     * Time step number
-     */
+
+    //! Time step number
     int m_time_step_num;
     int m_time_step_attempts;
-    /**
-     * Max time steps allowed
-     */
+
+    //! Max time steps allowed
     int m_max_time_step_attempts;
     /**
-     * Number of initial time steps to take where the
-     * time truncation error tolerances are not checked. Instead
-     * the delta T is uniform
+     * Number of initial time steps to take where the time truncation error
+     * tolerances are not checked. Instead the delta T is uniform
      */
     int m_numInitialConstantDeltaTSteps;
-    /**
-     * Failure Counter -> keeps track of the number
-     * of consequetive failures
-     */
+
+    //! Failure Counter -> keeps track of the number of consecutive failures
     int m_failure_counter;
-    /**
-     * Minimum Number of Newton Iterations per nonlinear step
-     * default = 0
-     */
+
+    //! Minimum Number of Newton Iterations per nonlinear step. default = 0
     int m_min_newt_its;
     /************************
      *  PRINTING OPTIONS
@@ -357,45 +493,33 @@ protected:
      */
     int m_printSolnNumberToTout;
 
-    /**
-     * Number of initial steps that the solution is
-     * printed out.
-     *     default = 0
-     */
+    //! Number of initial steps that the solution is printed out. default = 0
     int m_printSolnFirstSteps;
 
-    /**
-     * Dump Jacobians to disk
-     *     default false
-     */
+    //! Dump Jacobians to disk. default false
     bool m_dumpJacobians;
 
     /*********************
      * INTERNAL SOLUTION VALUES
      *********************/
-    /**
-     * Number of equations in the ode integrator
-     */
+
+    //! Number of equations in the ode integrator
     int m_neq;
-    double* m_y_n;
-    double* m_y_nm1;
-    double* m_y_pred_n;
-    double* m_ydot_n;
-    double* m_ydot_nm1;
+    vector_fp m_y_n;
+    vector_fp m_y_nm1;
+    vector_fp m_y_pred_n;
+    vector_fp m_ydot_n;
+    vector_fp m_ydot_nm1;
     /************************
      * TIME VARIABLES
      ************************/
-    /**
-     * Initial time at the start of the integration
-     */
+
+    //! Initial time at the start of the integration
     double m_t0;
-    /**
-     * Final time
-     */
+
+    //! Final time
     double m_time_final;
-    /**
-     *
-     */
+
     double time_n;
     double time_nm1;
     double time_nm2;
@@ -403,24 +527,20 @@ protected:
     double delta_t_nm1;
     double delta_t_nm2;
     double delta_t_np1;
-    /**
-     *  Maximum permissible time step
-     */
+
+    //! Maximum permissible time step
     double delta_t_max;
 
-
-    double* m_resid;
-    double* m_residWts;
-    double* m_wksp;
+    vector_fp m_resid;
+    vector_fp m_residWts;
+    vector_fp m_wksp;
     ResidJacEval* m_func;
-    double* m_rowScales;
-    double* m_colScales;
+    vector_fp m_rowScales;
+    vector_fp m_colScales;
 
-    /**
-     * Pointer to the jacobian representing the
-     * time dependent problem
-     */
+    //! Pointer to the jacobian representing the time dependent problem
     GeneralMatrix* tdjac_ptr;
+
     /**
      * Determines the level of printing for each time
      * step.
@@ -434,34 +554,28 @@ protected:
     /***************************************************************************
      * COUNTERS OF VARIOUS KINDS
      ***************************************************************************/
-    /**
-     * Number of function evaluations
-     */
+
+    //! Number of function evaluations
     int m_nfe;
+
     /**
      * Number of Jacobian Evaluations and
      * factorization steps (they are the same)
      */
     int m_nJacEval;
-    /**
-     * Number of total newton iterations
-     */
+
+    //! Number of total newton iterations
     int m_numTotalNewtIts;
-    /**
-     * Total number of linear iterations
-     */
+
+    //! Total number of linear iterations
     int m_numTotalLinearSolves;
-    /**
-     * Total number of convergence failures.
-     */
+
+    //! Total number of convergence failures.
     int m_numTotalConvFails;
-    /**
-     * Total Number of time truncation error failures
-     */
+
+    //! Total Number of time truncation error failures
     int m_numTotalTruncFails;
-    /*
-     *
-     */
+
     int num_failures;
 };
 

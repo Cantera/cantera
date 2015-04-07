@@ -7,6 +7,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include <iostream>
 
 #ifdef _WIN32
 // Windows (MSVC or MinGW)
@@ -33,7 +34,8 @@
 # define DERR -999.999
 #endif
 
-namespace Cantera {
+namespace Cantera
+{
 
 //! Exception handler used at language interface boundaries.
 /*!
@@ -56,12 +58,12 @@ T handleAllExceptions(T ctErrorCode, T otherErrorCode)
         return ctErrorCode;
     } catch (std::exception& err) {
         std::cerr << "Cantera: caught an instance of "
-            << err.what() << std::endl;
+                  << err.what() << std::endl;
         setError("handleAllExceptions", err.what());
         return otherErrorCode;
     } catch (...) {
         std::cerr << "Cantera: caught an instance of "
-            "an unknown exception type" << std::endl;
+                  "an unknown exception type" << std::endl;
         setError("handleAllExceptions", "unknown exception");
         return otherErrorCode;
     }

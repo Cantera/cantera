@@ -1,4 +1,4 @@
-/*
+/**
  * @file: RootFind.cpp  root finder for 1D problems
  */
 
@@ -9,7 +9,6 @@
  * See file License.txt for licensing information.
  */
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/RootFind.h"
 
 // turn on debugging for now
@@ -18,17 +17,8 @@
 #endif
 
 #include "cantera/base/global.h"
-#ifdef DEBUG_MODE
-#include "cantera/base/mdp_allo.h"
-#endif
+#include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
-/* Standard include files */
-
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
-#include <vector>
 
 using namespace std;
 namespace Cantera
@@ -42,9 +32,6 @@ namespace Cantera
 #define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
 #endif
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 #ifdef DEBUG_MODE
 //!  Print out a form for the current function evaluation
 /*!
@@ -66,8 +53,6 @@ static void print_funcEval(FILE* fp, doublereal xval, doublereal fval, int its)
 }
 #endif
 
-//================================================================================================
-// Main constructor
 RootFind::RootFind(ResidEval* resid) :
     m_residFunc(resid),
     m_funcTargetValue(0.0),
@@ -90,9 +75,8 @@ RootFind::RootFind(ResidEval* resid) :
     x_minTried_(1.0E300),
     fx_minTried_(0.0)
 {
-
 }
-//================================================================================================
+
 RootFind::RootFind(const RootFind& r) :
     m_residFunc(r.m_residFunc),
     m_funcTargetValue(0.0),
@@ -117,12 +101,11 @@ RootFind::RootFind(const RootFind& r) :
 {
     *this = r;
 }
-//================================================================================================
-// Empty destructor
+
 RootFind::~RootFind()
 {
 }
-//====================================================================================================================
+
 RootFind& RootFind::operator=(const RootFind& right)
 {
     if (this == &right) {
@@ -151,14 +134,7 @@ RootFind& RootFind::operator=(const RootFind& right)
 
     return *this;
 }
-//================================================================================================
-// Calculate a deltaX from an input value of x
-/*
- *  This routine ensure that the deltaX will be greater or equal to DeltaXNorm_
- *  or 1.0E-14 x
- *
- * @param x1  input value of x
- */
+
 doublereal RootFind::delXNonzero(doublereal x1) const
 {
     doublereal deltaX = 1.0E-14 * fabs(x1);
@@ -168,14 +144,7 @@ doublereal RootFind::delXNonzero(doublereal x1) const
     }
     return deltaX;
 }
-//================================================================================================
-// Calculate a deltaX from an input value of x
-/*
- *  This routine ensure that the deltaX will be greater or equal to DeltaXNorm_
- *  or 1.0E-14 x or deltaXConverged_.
- *
- * @param x1  input value of x
- */
+
 doublereal RootFind::delXMeaningful(doublereal x1) const
 {
     doublereal del = delXNonzero(x1);
@@ -184,16 +153,7 @@ doublereal RootFind::delXMeaningful(doublereal x1) const
     }
     return del;
 }
-//================================================================================================
-// Calculate a controlled, nonzero delta between two numbers
-/*
- *  The delta is designed to be greater than or equal to delXNonzero(x) defined above
- *  with the same sign as the original delta. Therefore if you subtract it from either
- *  of the two original numbers, you get a different number.
- *
- *  @param x1   first number
- *  @param x2   second number
- */
+
 double RootFind::deltaXControlled(doublereal x2, doublereal x1) const
 {
     doublereal sgnn = 1.0;
@@ -208,18 +168,7 @@ double RootFind::deltaXControlled(doublereal x2, doublereal x1) const
     }
     return deltaX;
 }
-//====================================================================================================================
-// Function to decide whether two real numbers are the same or not
-/*
- *  A comparison is made between the two numbers to decide whether they
- *  are close to one another. This is defined as being within factor * delXMeaningful() of each other.
- *
- * @param x2  First number
- * @param x1  second number
- * @param factor  Multiplicative factor for delta X. defaults to 1
- *
- * @return Returns a boolean indicating whether the two numbers are the same or not.
- */
+
 bool RootFind::theSame(doublereal x2, doublereal x1, doublereal factor) const
 {
     doublereal x = fabs(x2) + fabs(x1);
@@ -231,26 +180,13 @@ bool RootFind::theSame(doublereal x2, doublereal x1, doublereal factor) const
     }
     return false;
 }
-//====================================================================================================================
-/*
- * The following calculation is a line search method to find the root of a function
- *
- *
- *   xbest   Returns the x that satisfies the function
- *           On input, xbest should contain the best estimate
- *
- *   return:
- *    0  Found function
- */
+
 int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& funcTargetValue, doublereal* xbest)
 {
-
     /*
      *   We store the function target and then actually calculate a modified functional
      *
      *       func = eval(x1) -  m_funcTargetValue = 0
-     *
-     *
      */
     m_funcTargetValue = funcTargetValue;
 
@@ -1178,16 +1114,16 @@ done:
 
     return retn;
 }
-//====================================================================================================================
+
 doublereal RootFind::func(doublereal x)
 {
     doublereal r;
 #ifdef DEBUG_MODE
-    mdp::checkFinite(x);
+    checkFinite(x);
 #endif
     m_residFunc->evalSS(0.0, &x, &r);
 #ifdef DEBUG_MODE
-    mdp::checkFinite(r);
+    checkFinite(r);
 #endif
     doublereal ff = r  - m_funcTargetValue;
     if (x >= x_maxTried_) {
@@ -1200,15 +1136,7 @@ doublereal RootFind::func(doublereal x)
     }
     return ff;
 }
-//====================================================================================================================
-// Set the tolerance parameters for the rootfinder
-/*
- *  These tolerance parameters are used on the function value to determine convergence
- *
- *
- * @param rtol  Relative tolerance. The default is 10^-5
- * @param atol  absolute tolerance. The default is 10^-11
- */
+
 void RootFind::setTol(doublereal rtolf, doublereal atolf, doublereal rtolx, doublereal atolx)
 {
     m_atolf = atolf;
@@ -1224,38 +1152,12 @@ void RootFind::setTol(doublereal rtolf, doublereal atolf, doublereal rtolx, doub
         m_atolx = atolx;
     }
 }
-//====================================================================================================================
-// Set the print level from the rootfinder
-/*
- *
- *   0 -> absolutely nothing is printed for a single time step.
- *   1 -> One line summary per solve_nonlinear call
- *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration
- *   3 -> Table is included -> More printing per nonlinear iteration (default) that occurs during the table
- *   4 -> Summaries of the nonlinear solve iteration as they are occurring -> table no longer printed
- *   5 -> Algorithm information on the nonlinear iterates are printed out
- *   6 -> Additional info on the nonlinear iterates are printed out
- *   7 -> Additional info on the linear solve is printed out.
- *   8 -> Info on a per iterate of the linear solve is printed out.
- *
- *  @param printLvl  integer value
- */
+
 void RootFind::setPrintLvl(int printlvl)
 {
     printLvl = printlvl;
 }
-//====================================================================================================================
-// Set the function behavior flag
-/*
- *  If this is true, the function is generally an increasing function of x.
- *  In particular, if the algorithm is seeking a higher value of f, it will look
- *  in the positive x direction.
- *
- *  This type of function is needed because this algorithm must deal with regions of f(x) where
- *  f is not changing with x.
- *
- *  @param value   boolean value
- */
+
 void RootFind::setFuncIsGenerallyIncreasing(bool value)
 {
     if (value) {
@@ -1263,18 +1165,7 @@ void RootFind::setFuncIsGenerallyIncreasing(bool value)
     }
     FuncIsGenerallyIncreasing_ = value;
 }
-//====================================================================================================================
-// Set the function behavior flag
-/*
- *  If this is true, the function is generally a decreasing function of x.
- *  In particular, if the algorithm is seeking a higher value of f, it will look
- *  in the negative x direction.
- *
- *  This type of function is needed because this algorithm must deal with regions of f(x) where
- *  f is not changing with x.
- *
- *  @param value   boolean value
- */
+
 void RootFind::setFuncIsGenerallyDecreasing(bool value)
 {
     if (value) {
@@ -1282,33 +1173,19 @@ void RootFind::setFuncIsGenerallyDecreasing(bool value)
     }
     FuncIsGenerallyDecreasing_ = value;
 }
-//====================================================================================================================
-// Set the nominal value of deltaX
-/*
- *  This sets the value of deltaXNorm_
- *
- *  @param deltaXNorm
- */
+
 void RootFind::setDeltaX(doublereal deltaXNorm)
 {
     DeltaXnorm_ = deltaXNorm;
     specifiedDeltaXnorm_ = 1;
 }
-//====================================================================================================================
-// Set the maximum value of deltaX
-/*
- *  This sets the value of deltaXMax_
- *
- *  @param deltaX
- */
+
 void RootFind::setDeltaXMax(doublereal deltaX)
 {
     DeltaXMax_ = deltaX;
     specifiedDeltaXMax_ = 1;
 }
-//====================================================================================================================
 
-//====================================================================================================================
 void RootFind::printTable()
 {
     printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
@@ -1324,6 +1201,5 @@ void RootFind::printTable()
     }
     printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
 }
-//====================================================================================================================
 
 }

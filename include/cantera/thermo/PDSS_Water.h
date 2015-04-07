@@ -16,9 +16,6 @@
 #include "PDSS.h"
 #include "VPStandardStateTP.h"
 
-
-
-
 namespace Cantera
 {
 class WaterPropsIAPWS;
@@ -27,7 +24,6 @@ class WaterProps;
 //!  Class for the liquid water pressure dependent
 //!  standard state
 /*!
- *
  * Notes:
  *   Base state for thermodynamic properties:
  *
@@ -38,7 +34,7 @@ class WaterProps;
  *   Delta_Hfo_gas(298.15) = -241.826 kJ/gmol
  *   So_gas(298.15, 1bar)  = 188.835 J/gmolK
  *
- *           (http://webbook.nist.gov)
+ *   (http://webbook.nist.gov)
  *
  *   The "o" here refers to a hypothetical ideal gas state. The way
  *   we achieve this in practice is to evaluate at a very low pressure
@@ -57,13 +53,9 @@ class WaterProps;
  */
 class PDSS_Water : public PDSS
 {
-
 public:
-
-    /**
-     * @name  Constructors
-     * @{
-     */
+    //! @name  Constructors
+    //! @{
 
     //! Bare constructor
     /*!
@@ -106,7 +98,7 @@ public:
      *                   file is used.
      */
     PDSS_Water(VPStandardStateTP* tp, int spindex,
-               std::string inputFile, std::string id = "");
+               const std::string& inputFile, const std::string& id = "");
 
     //! Constructor that initializes the object by examining the input file
     //! of the variable pressure ThermoPhase object
@@ -135,99 +127,24 @@ public:
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 
-    /**
-     * @}
-     * @name  Utilities
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties of the Species Standard State in the Solution
+    //! @{
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Species Standard State
-     *        in the Solution
-     * @{
-     */
+    // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    //! Return the molar enthalpy in units of J kmol-1
-    /*!
-     * Returns the species standard state enthalpy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state enthalpy in  J kmol-1
-     */
     virtual doublereal enthalpy_mole() const;
-
-    //! Return the molar internal Energy in units of J kmol-1
-    /*!
-     * Returns the species standard state internal Energy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state internal Energy in  J kmol-1
-     */
     virtual doublereal intEnergy_mole() const;
-
-    //! Return the molar entropy in units of J kmol-1 K-1
-    /*!
-     * Returns the species standard state entropy in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state entropy in J kmol-1 K-1
-     */
     virtual doublereal entropy_mole() const;
-
-    //! Return the molar gibbs free energy in units of J kmol-1
-    /*!
-     * Returns the species standard state gibbs free energy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state gibbs free energy in  J kmol-1
-     */
     virtual doublereal gibbs_mole() const;
-
-    //! Return the molar const pressure heat capacity in units of J kmol-1 K-1
-    /*!
-     * Returns the species standard state Cp in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state Cp in J kmol-1 K-1
-     */
     virtual doublereal cp_mole() const;
-
-    //! Return the molar const volume heat capacity in units of J kmol-1 K-1
-    /*!
-     * Returns the species standard state Cv in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state Cv in J kmol-1 K-1
-     */
     virtual doublereal cv_mole() const;
-
-    //! Return the molar volume at standard state
-    /*!
-     * Returns the species standard state molar volume at the
-     * current temperature and pressure
-     *
-     * @return returns the standard state molar volume divided by R
-     *             units are m**3 kmol-1.
-     */
     virtual doublereal molarVolume() const;
-
-    //! Return the standard state density at standard state
-    /*!
-     * Returns the species standard state density at the
-     * current temperature and pressure
-     *
-     * @return returns the standard state density
-     *             units are kg m-3
-     */
     virtual doublereal density() const;
 
-    /**
-     * @}
-     * @name Properties of the Reference State of the Species
-     *       in the Solution
-     * @{
-     */
+    //! @}
+    //! @name Properties of the Reference State of the Species in the Solution
+    //! @{
 
     //! Returns a reference pressure value that can be safely calculated by the
     //! underlying real equation of state for water
@@ -239,92 +156,20 @@ public:
      */
     doublereal pref_safe(doublereal temp) const;
 
-
-    //! Return the molar gibbs free energy divided by RT at reference pressure
-    /*!
-     * Returns the species reference state gibbs free energy divided by RT at the
-     * current temperature.
-     *
-     * @return returns the reference state gibbs free energy divided by RT
-     */
     virtual doublereal gibbs_RT_ref() const;
-
-    //! Return the molar enthalpy divided by RT at reference pressure
-    /*!
-     * Returns the species reference state enthalpy divided by RT at the
-     * current temperature.
-     *
-     * @return returns the reference state enthalpy divided by RT
-     */
     virtual doublereal enthalpy_RT_ref() const;
-
-    //! Return the molar entropy divided by R at reference pressure
-    /*!
-     * Returns the species reference state entropy divided by R at the
-     * current temperature.
-     *
-     * @return returns the reference state entropy divided by R
-     */
     virtual doublereal entropy_R_ref() const;
-
-    //! Return the molar heat capacity divided by R at reference pressure
-    /*!
-     * Returns the species reference state heat capacity divided by R at the
-     * current temperature.
-     *
-     * @return returns the reference state heat capacity divided by R
-     */
     virtual doublereal cp_R_ref() const;
-
-    //! Return the molar volume at reference pressure
-    /*!
-     * Returns the species reference state molar volume at the
-     * current temperature.
-     *
-     * @return returns the reference state molar volume divided by R
-     *             units are m**3 kmol-1.
-     */
     virtual doublereal molarVolume_ref() const;
-    \
 
-    /**
-     * @}
-     *  @name Mechanical Equation of State Properties
-     * @{
-     */
+    //! @}
+    //! @name Mechanical Equation of State Properties
+    //! @{
 
-
-    //! Report the current pressure used in the object
-    /*!
-     * @return Returns the pressure (Pascal)
-     */
     virtual doublereal pressure() const;
-
-    //! Set the pressure internally
-    /*!
-     *  @param pres  Value of the pressure (Pascals)
-     */
     virtual void setPressure(doublereal pres);
-
-    //! Set the internal temperature
-    /*!
-     * @param temp Temperature (Kelvin)
-     */
     virtual void setTemperature(doublereal temp);
-
-    //! Set the temperature and pressure in the object
-    /*!
-     *  @param temp   Temperature (Kelvin)
-     *  @param pres   Pressure    (Pascal)
-     */
     virtual void setState_TP(doublereal temp, doublereal pres);
-
-
-    //! Set the temperature and density in the object
-    /*!
-     *  @param temp   Temperature (Kelvin)
-     *  @param rho    Density (kg/m3)
-     */
     virtual void setState_TR(doublereal temp, doublereal rho);
 
     //! Set the density of the water phase
@@ -336,14 +181,6 @@ public:
      */
     void setDensity(doublereal dens);
 
-
-    //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-    /*!
-     * The thermal expansion coefficient is defined as
-     * \f[
-     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
-     */
     virtual doublereal thermalExpansionCoeff() const;
 
     //! Return the derivative of the volumetric thermal expansion coefficient. Units: 1/K2.
@@ -368,25 +205,13 @@ public:
      */
     virtual doublereal isothermalCompressibility() const;
 
-    /**
-     * @}
-     *  @name  Miscellaneous properties of the standard state
-     * @{
-     */
+    //! @}
+    //! @name Miscellaneous properties of the standard state
+    //! @{
 
-    //! critical temperature
     virtual doublereal critTemperature() const;
-
-    //! critical pressure
     virtual doublereal critPressure() const;
-
-    //! critical density
     virtual doublereal critDensity() const;
-
-    //! Return the saturation pressure at a given temperature
-    /*!
-     *  @param t  Temperature (Kelvin)
-     */
     virtual doublereal satPressure(doublereal t);
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
@@ -399,16 +224,11 @@ public:
         return m_waterProps;
     }
 
-    /**
-     * @}
-     * @name Initialization of the Object
-     * @{
-     */
+    //! @}
+    //! @name Initialization of the Object
+    //! @{
 
     //! Internal routine that initializes the underlying water model
-    /*!
-     *  This routine is not virtual
-     */
     void constructSet();
 
     //! Initialization of a PDSS object using an
@@ -422,15 +242,14 @@ public:
      *
      * @param spindex     Species index within the phase
      *
-     * @param inputFile   XML file containing the description of the
-     *                    phase
+     * @param inputFile   XML file containing the description of the phase
      *
      * @param id          Optional parameter identifying the name of the
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, int spindex,
-                           std::string inputFile, std::string id);
+                           const std::string& inputFile, const std::string& id);
 
     //!Initialization of a PDSS object using an xml tree
     /*!
@@ -438,11 +257,11 @@ public:
      * object.
      *
      *   basic logic:
-     *       initThermo()                 (cascade)
-     *       getStuff from species Part of XML file
-     *       initThermoXML(phaseNode)      (cascade)
+     *     - initThermo()                 (cascade)
+     *     - getStuff from species Part of XML file
+     *     - initThermoXML(phaseNode)      (cascade)
      *
-     * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
      *
      * @param spindex    Species index within the phase
@@ -455,42 +274,13 @@ public:
      *                   phase element will be used.
      */
     void constructPDSSXML(VPStandardStateTP* vptp_ptr, int spindex,
-                          const XML_Node& phaseNode, std::string id);
+                          const XML_Node& phaseNode, const std::string& id);
 
-    //! Initialization routine for all of the shallow pointers
-    /*!
-     *  This is a cascading call, where each level should call the
-     *  the parent level.
-     *
-     *  The initThermo() routines get called before the initThermoXML() routines
-     *  from the constructPDSSXML() routine.
-     *
-     *
-     *  Calls initPtrs();
-     */
     virtual void initThermo();
-
-    //! Initialization routine for the PDSS object based on the phaseNode
-    /*!
-     *  This is a cascading call, where each level should call the
-     *  the parent level.
-     *
-     * @param phaseNode  Reference to the phase Information for the phase
-     *                   that owns this species.
-     *
-     * @param id         Optional parameter identifying the name of the
-     *                   phase. If none is given, the first XML
-     *                   phase element will be used.
-     */
-    virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
-
+    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
     //@}
 
-protected:
-
-
 private:
-
     //! Pointer to the WaterPropsIAPWS object, which does the actual calculations
     //! for the real equation of state
     /*!
@@ -517,11 +307,13 @@ private:
 
     //! state of the fluid
     /*!
-     *    0  WATER_GAS       0
-     *    1  WATER_LIQUID    1
-     *    2  WATER_SUPERCRIT 2
-     *    3  WATER_UNSTABLELIQUID  3
+     *  @code
+     *    0  WATER_GAS
+     *    1  WATER_LIQUID
+     *    2  WATER_SUPERCRIT
+     *    3  WATER_UNSTABLELIQUID
      *    4  WATER_UNSTABLEGAS
+     *  @endcode
      */
     int m_iState;
 

@@ -26,10 +26,6 @@ using namespace std;
 namespace Cantera
 {
 
-/*
- * Default constructor.
- *
- */
 GibbsExcessVPSSTP::GibbsExcessVPSSTP() :
     VPStandardStateTP(),
     moleFractions_(0),
@@ -43,12 +39,6 @@ GibbsExcessVPSSTP::GibbsExcessVPSSTP() :
 {
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b) :
     VPStandardStateTP(),
     moleFractions_(0),
@@ -63,12 +53,6 @@ GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b) :
     GibbsExcessVPSSTP::operator=(b);
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 GibbsExcessVPSSTP& GibbsExcessVPSSTP::
 operator=(const GibbsExcessVPSSTP& b)
 {
@@ -90,31 +74,11 @@ operator=(const GibbsExcessVPSSTP& b)
     return *this;
 }
 
-/*
- *
- * ~GibbsExcessVPSSTP():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
-GibbsExcessVPSSTP::~GibbsExcessVPSSTP()
-{
-}
-
-/*
- * This routine duplicates the current object and returns
- * a pointer to ThermoPhase.
- */
 ThermoPhase*
 GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 {
-    GibbsExcessVPSSTP* mtp = new GibbsExcessVPSSTP(*this);
-    return (ThermoPhase*) mtp;
+    return new GibbsExcessVPSSTP(*this);
 }
-
-/*
- *  -------------- Utilities -------------------------------
- */
 
 void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y)
 {
@@ -140,44 +104,21 @@ void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
-
 void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
 {
     Phase::setConcentrations(c);
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
-
-// Equation of state type flag.
-/*
- * The ThermoPhase base class returns
- * zero. Subclasses should define this to return a unique
- * non-zero value. Known constants defined for this purpose are
- * listed in mix_defs.h. The GibbsExcessVPSSTP class also returns
- * zero, as it is a non-complete class.
- */
 int GibbsExcessVPSSTP::eosType() const
 {
     return 0;
 }
 
-
-
 /*
- * ------------ Molar Thermodynamic Properties ----------------------
- */
-
-/*
- *
  * ------------ Mechanical Properties ------------------------------
- *
  */
 
-/*
- * Set the pressure at constant temperature. Units: Pa.
- * This method sets a constant within the object.
- * The mass density is not a function of pressure.
- */
 void GibbsExcessVPSSTP::setPressure(doublereal p)
 {
     setState_TP(temperature(), p);
@@ -185,10 +126,9 @@ void GibbsExcessVPSSTP::setPressure(doublereal p)
 
 void GibbsExcessVPSSTP::calcDensity()
 {
-    doublereal* vbar = NULL;
-    vbar = new doublereal[m_kk];
+    vector_fp vbar = getPartialMolarVolumes();
     //    double *vbar = &m_pp[0];
-    getPartialMolarVolumes(vbar);
+    //    getPartialMolarVolumes(&vbar[0]);
 
     doublereal vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
@@ -196,7 +136,6 @@ void GibbsExcessVPSSTP::calcDensity()
     }
     doublereal dd = meanMolecularWeight() / vtotal;
     Phase::setDensity(dd);
-    delete [] vbar;
 }
 
 void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
@@ -218,16 +157,14 @@ void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
     calcDensity();
 }
 
-
-
 /*
  * - Activities, Standard States, Activity Concentrations -----------
  */
+
 void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const
 {
     getActivities(c);
 }
-
 
 doublereal GibbsExcessVPSSTP::standardConcentration(size_t k) const
 {
@@ -248,12 +185,6 @@ void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
     }
 }
 
-//====================================================================================================================
-//  Get the array of non-dimensional molar-based activity coefficients at
-//  the current solution temperature, pressure, and solution concentration.
-/*
- * @param ac Output vector of activity coefficients. Length: m_kk.
- */
 void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
 {
 
@@ -270,7 +201,6 @@ void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
         }
     }
 }
-//====================================================================================================================
 
 void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
@@ -285,16 +215,6 @@ void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
  * ------------ Partial Molar Properties of the Solution ------------
  */
 
-// Return an array of partial molar volumes for the
-// species in the mixture. Units: m^3/kmol.
-/*
- *  Frequently, for this class of thermodynamics representations,
- *  the excess Volume due to mixing is zero. Here, we set it as
- *  a default. It may be overridden in derived classes.
- *
- *  @param vbar   Output vector of species partial molar volumes.
- *                Length = m_kk. units are m^3/kmol.
- */
 void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     /*
@@ -303,16 +223,17 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     getStandardVolumes(vbar);
 }
 
+const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumes() const
+{
+    return getStandardVolumes();
+}
 
-
-doublereal GibbsExcessVPSSTP::err(std::string msg) const
+doublereal GibbsExcessVPSSTP::err(const std::string& msg) const
 {
     throw CanteraError("GibbsExcessVPSSTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
 }
-
-
 
 double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
 {
@@ -324,28 +245,6 @@ double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
     return norm;
 }
 
-/*
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- * On return uA contains the powers of the units (MKS assumed)
- * of the standard concentrations and generalized concentrations
- * for the kth species.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- */
 void GibbsExcessVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
@@ -370,20 +269,6 @@ void GibbsExcessVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) cons
     }
 }
 
-
-/*
- * @internal Initialize. This method is provided to allow
- * subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called just prior to returning
- * from function importPhase.
- *
- * @see importCTML.cpp
- */
 void GibbsExcessVPSSTP::initThermo()
 {
     initLengths();
@@ -391,9 +276,6 @@ void GibbsExcessVPSSTP::initThermo()
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
-
-//   Initialize lengths of local variables after all species have
-//   been identified.
 void  GibbsExcessVPSSTP::initLengths()
 {
     m_kk = nSpecies();
@@ -407,6 +289,4 @@ void  GibbsExcessVPSSTP::initLengths()
     m_pp.resize(m_kk);
 }
 
-
 }
-

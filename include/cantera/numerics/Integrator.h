@@ -52,9 +52,7 @@ enum IterType {
  */
 class Integrator
 {
-
 public:
-
     //! Default Constructor
     Integrator() {
     }
@@ -86,7 +84,7 @@ public:
         warn("setTolerances");
     }
 
-    //!  Set the sensitvity error tolerances
+    //!  Set the sensitivity error tolerances
     /*!
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
@@ -184,6 +182,11 @@ public:
         warn("setMinStepSize");
     }
 
+    //! Set the maximum permissible number of error test failures
+    virtual void setMaxErrTestFails(int n) {
+        warn("setMaxErrTestFails");
+    }
+
     virtual void setMaxSteps(int nmax) {
         warn("setMaxStep");
     }
@@ -205,7 +208,7 @@ public:
 private:
 
     doublereal m_dummy;
-    void warn(std::string msg) const {
+    void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"Integrator called. Nothing done.\n");
     }
@@ -213,10 +216,7 @@ private:
 };
 
 // defined in ODE_integrators.cpp
-Integrator* newIntegrator(std::string itype);
-
-// defined in ODE_integrators.cpp
-void deleteIntegrator(Integrator* cv);
+Integrator* newIntegrator(const std::string& itype);
 
 }    // namespace
 

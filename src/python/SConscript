@@ -3,19 +3,16 @@ import distutils.sysconfig
 
 Import('env', 'build', 'install')
 
-localenv = env.Clone()
-
 gcv = distutils.sysconfig.get_config_var
 
+####################################
+### Old Python Module: Raw C API ###
+####################################
+
+localenv = env.Clone()
+
 localenv.Append(CPPPATH=[gcv('INCLUDEPY'), env['python_array_include']],
-                CPPFLAGS=((gcv('BASECFLAGS') or '').split() +
-                          (gcv('OPT') or '').split()))
-
-if '-Wstrict-prototypes' in localenv['CPPFLAGS']:
-    localenv['CPPFLAGS'].remove('-Wstrict-prototypes')
-
-if '-g' in localenv['CPPFLAGS'] and not env['debug']:
-    localenv['CPPFLAGS'].remove('-g')
+                LIBPATH=(gcv('LIBDIR') or ''))
 
 if localenv['OS'] == 'Windows':
     localenv.Append(LIBPATH=pjoin(gcv('prefix'), 'libs'))
@@ -24,13 +21,12 @@ for var in ('VS80COMNTOOLS', 'VS90COMNTOOLS', 'VS100COMNTOOLS'):
     if var in os.environ:
         localenv['ENV'][var] = os.environ[var]
 
-localenv['spam_source'] = repr(File('#src/python/spam.c').abspath)
 make_setup = localenv.SubstFile('#interfaces/python/setup.py',
                                 '#interfaces/python/setup.py.in')
 
 extraArgs = ''
 if localenv['python_package'] == 'full':
-    localenv.Append(CPPPATH=['#src', '#include'])
+    localenv.Prepend(CPPPATH=['#src', '#include'])
 
     cantera_libname = 'cantera_shared' if os.name=='nt' else 'cantera'
     #pylinklibs = [cantera_libname, 'cvode', 'ctmath', 'ctlapack', 'ctblas', 'ctf2c', 'execstream']
@@ -80,7 +76,10 @@ localenv.AddPostAction(make_setup,
                                                                    extraArgs))
 
 # Install the Python module
-if localenv['python_prefix']:
+if localenv['python_prefix'] == 'USER':
+    # Install to the platform-specific user site-packages directory
+    extra = '--user'
+elif localenv['python_prefix']:
     # A specific location for the Cantera python module has been specified
     extra = '--prefix="%s"' % localenv['python_prefix']
 else:
@@ -88,15 +87,30 @@ else:
     extra = ''
 
 if localenv['PYTHON_INSTALLER'] == 'direct':
-    install(localenv.Command, 'dummy', pymodule,
-                                'cd %s && $python_cmd setup.py install %s' % (moddir,extra))
+    mod_inst = install(localenv.Command, 'dummy', pymodule,
+                       'cd %s && $python_cmd setup.py install %s' % (moddir,extra) +
+                       ' --record ../../build/python-installed-files.txt')
+    global_env = env
+    def find_module_dir(target, source, env):
+        check = pjoin('Cantera','__init__.py')
+        for filename in open('build/python-installed-files.txt').readlines():
+            filename = filename.strip()
+            if filename.endswith(check):
+                filename = filename.replace(check,'')
+                global_env['python_module_loc'] = os.path.normpath(filename)
+                break
+    localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
+    env['install_python2_action'] = mod_inst
+
 elif localenv['PYTHON_INSTALLER'] == 'debian':
     install(localenv.Command, 'dummy', pymodule,
-                                'cd %s && $python_cmd setup.py install %s --install-layout=deb --no-compile' % (moddir,extra))
+            'cd %s && $python_cmd setup.py install %s --install-layout=deb --no-compile' % (moddir,extra))
+    env['python_module_loc'] = '<unspecified>'
 elif localenv['PYTHON_INSTALLER'] == 'binary':
     install(localenv.Command, 'dummy', pymodule,
             'cd %s && $python_cmd setup.py bdist_msi --dist-dir=../..' % moddir +
             ' --target-version=' + distutils.sysconfig.get_python_version())
+    env['python_module_loc'] = '<unspecified>'
 
 if localenv['python_package'] == 'full':
     install(localenv.RecursiveInstall, pjoin('$inst_sampledir', 'python'),

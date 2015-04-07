@@ -22,39 +22,17 @@ namespace Cantera
 //!   Overloads the virtual methods of class ThermoPhase to implement the
 //!   incompressible equation of state.
 /**
- *
- *
- * <b> Specification of Species Standard State Properties </b>
- *
- *
  * <b> Specification of Solution Thermodynamic Properties </b>
  *
- *     The density is assumed to be constant, no matter what the concentration of the solution.
- *
- *
- * <b> Application within %Kinetics Managers </b>
- *
- *
- * <b> XML Example </b>
- *
- *   An example of an XML Element named phase setting up a SurfPhase object named diamond_100
- *   is given below.
+ * The density is assumed to be constant, no matter what the concentration of the solution.
  *
  * @ingroup thermoprops
  */
 class ConstDensityThermo : public ThermoPhase
 {
-
 public:
-
     //! Constructor.
-    /*!
-     *
-     */
     ConstDensityThermo();
-
-    //! Destructor
-    virtual ~ConstDensityThermo() {}
 
     //! Copy Constructor
     /*!
@@ -68,32 +46,22 @@ public:
      */
     ConstDensityThermo& operator=(const ConstDensityThermo& right);
 
-
-    //! Duplication routine for objects which inherit from
-    //! %SpeciesThermo
+    //! Duplication routine for objects which inherit from %ThermoPhase
     /*!
-     *  This virtual routine can be used to duplicate %SpeciesThermo  objects
-     *  inherited from %SpeciesThermo even if the application only has
-     *  a pointer to %SpeciesThermo to work with.
-     *  ->commented out because we first need to add copy constructors
-     *   and assignment operators to all of the derived classes.
+     *  This virtual routine can be used to duplicate objects
+     *  derived from %ThermoPhase even if the application only has
+     *  a pointer to %ThermoPhase to work with.
      */
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! overloaded methods of class ThermoPhase
+    //! Returns a constant corresponding to this class's equation of state
     virtual int eosType() const;
-
-    //! Return the Molar Enthalpy. Units: J/kmol.
-    /*!
-     *
-     */
 
     /// Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
 
     /// Molar internal energy. Units: J/kmol.
     virtual doublereal intEnergy_mole() const;
-
 
     /// Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const;
@@ -108,26 +76,11 @@ public:
     virtual doublereal cv_mole() const;
 
     //! Return the thermodynamic pressure (Pa).
-    /*!
-     *  This method must be overloaded in derived classes. Since the
-     *  mass density, temperature, and mass fractions are stored,
-     *  this method should use these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
-     *  Y_K) \f$.
-     */
     virtual doublereal pressure() const;
 
     //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
-     *   This method must be reimplemented in derived classes, where it
-     *   may involve the solution of a nonlinear equation. Within %Cantera,
-     *   the independent variable is the density. Therefore, this function
-     *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition iare held constant during this process.
-     *
-     *  This base class function will print an error, if not overwritten.
-     *
      *  @param p input Pressure (Pa)
      */
     virtual void setPressure(doublereal p);
@@ -263,9 +216,6 @@ public:
         std::copy(_cpr.begin(), _cpr.end(), cpr);
     }
 
-
-    // new methods defined here
-
     //!  Returns a reference to the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -280,17 +230,6 @@ public:
     const vector_fp& gibbs_RT() const {
         _updateThermo();
         return m_g0_RT;
-    }
-
-    //!  Returns a reference to the vector of exponentials of the nondimensional
-    //!  Gibbs Free Energies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for the species.
-    const vector_fp& expGibbs_RT() const {
-        _updateThermo();
-        for (size_t k = 0; k != m_kk; k++) {
-            m_expg0_RT[k] = std::exp(m_g0_RT[k]);
-        }
-        return m_expg0_RT;
     }
 
     //!  Returns a reference to the vector of nondimensional
@@ -308,23 +247,6 @@ public:
     const vector_fp& cp_R() const {
         _updateThermo();
         return m_cp0_R;
-    }
-
-    //! Set the potential energy of species k
-    /*!
-     * @param k species index
-     * @param pe Potential energy (J kmol-1).
-     */
-    virtual void setPotentialEnergy(int k, doublereal pe) {
-        m_pe[k] = pe;
-    }
-
-    //! Returns the potential energy of species k
-    /*!
-     * @param k species index
-     */
-    virtual doublereal potentialEnergy(int k) const {
-        return m_pe[k];
     }
 
     //! Initialize the ThermoPhase object after all species have been set up
@@ -360,7 +282,6 @@ public:
      */
     virtual void setToEquilState(const doublereal* lambda_RT);
 
-
     //! Set the equation of state parameters
     /*!
      * @internal
@@ -368,8 +289,10 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Use setDensity()
      */
     virtual void setParameters(int n, doublereal* const c) {
+        warn_deprecated("ConstDensityThermo::setParamters");
         setDensity(c[0]);
     }
 
@@ -380,8 +303,10 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Use density()
      */
     virtual void getParameters(int& n, doublereal* const c) const {
+        warn_deprecated("ConstDensityThermo::getParameters");
         double d = density();
         c[0] = d;
         n = 1;
@@ -403,32 +328,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:
-
-    //! number of elements
-    size_t m_mm;
-
-
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
-
-    //! Reference state pressure
-    /*!
-     *  Value of the reference state pressure in Pascals.
-     *  All species must have the same reference state pressure.
-     */
-    doublereal m_p0;
-
     //! last value of the temperature processed by reference state
     mutable doublereal     m_tlast;
 
@@ -444,18 +343,6 @@ protected:
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp      m_s0_R;
 
-    //! currently unsed
-    /*!
-     * @deprecated
-     */
-    mutable vector_fp      m_expg0_RT;
-
-    //! Currently unused
-    /*
-     * @deprecated
-     */
-    mutable vector_fp      m_pe;
-
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp      m_pp;
 
@@ -463,7 +350,6 @@ protected:
     doublereal m_press;
 
 private:
-
     //! Function to update the reference state thermo functions
     void _updateThermo() const;
 };

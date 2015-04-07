@@ -5,8 +5,6 @@
 #include <string>
 #include "cantera/base/logger.h"
 
-static std::string ss = "print \"\"\" ";
-
 namespace Cantera
 {
 
@@ -15,32 +13,22 @@ namespace Cantera
 class Py_Logger : public Logger
 {
 public:
-    Py_Logger() {}
+    Py_Logger() {
+        PyRun_SimpleString("import sys");
+    }
     virtual ~Py_Logger() {}
 
     virtual void write(const std::string& s) {
-        char ch = s[0];
-        int n = 0;
-        while (ch != '\0') {
-            if (ch =='\n') {
-                ss += "\"\"\"";
-                PyRun_SimpleString((char*)ss.c_str());
-                ss = "print \"\"\"";
-            } else {
-                ss += ch;
-            }
-            n++;
-            ch = s[n];
-        }
+        std::string ss = "sys.stdout.write(\"\"\"";
+        ss += s;
+        ss += "\"\"\")";
+        PyRun_SimpleString(ss.c_str());
+        PyRun_SimpleString("sys.stdout.flush()");
     }
 
     virtual void error(const std::string& msg) {
-        std::string err = "raise \""+msg+"\"";
-        PyRun_SimpleString((char*)err.c_str());
-    }
-
-    DEPRECATED(virtual int env()) {
-        return 2;
+        std::string err = "raise Exception(\"\"\""+msg+"\"\"\")";
+        PyRun_SimpleString(err.c_str());
     }
 };
 }

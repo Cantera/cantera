@@ -18,6 +18,8 @@
 #include "OneDim.h"
 #include "cantera/base/ctml.h"
 
+#include <cstdio>
+
 namespace Cantera
 {
 
@@ -34,16 +36,13 @@ const int RightInlet = -1;
  *
  * The public methods are all virtual, and the base class
  * implementations throw exceptions.
+ * @ingroup onedim
  */
 class Bdry1D : public Domain1D
 {
 public:
-
     Bdry1D();
 
-    virtual ~Bdry1D() {}
-
-    /// Initialize.
     virtual void init() {
         _init(1);
     }
@@ -58,8 +57,12 @@ public:
         return m_temp;
     }
 
+    virtual size_t nSpecies() {
+        return 0;
+    }
+
     /// Set the mole fractions by specifying a std::string.
-    virtual void setMoleFractions(std::string xin) {
+    virtual void setMoleFractions(const std::string& xin) {
         err("setMoleFractions");
     }
 
@@ -91,7 +94,6 @@ public:
     virtual void setupGrid(size_t n, const doublereal* z) {}
 
 protected:
-
     void _init(size_t n);
 
     StFlow* m_flow_left, *m_flow_right;
@@ -105,7 +107,7 @@ protected:
     doublereal m_temp, m_mdot;
 
 private:
-    void err(std::string method) {
+    void err(const std::string& method) {
         throw CanteraError("Bdry1D::"+method,
                            "attempt to call base class method "+method);
     }
@@ -114,22 +116,15 @@ private:
 
 /**
  * An inlet.
+ * @ingroup onedim
  */
 class Inlet1D : public Bdry1D
 {
-
 public:
-
-    /**
-     * Constructor. Create a new Inlet1D instance. If invoked
-     * without parameters, a left inlet (facing right) is
-     * constructed).
-     */
     Inlet1D() : Bdry1D(), m_V0(0.0), m_nsp(0), m_flow(0) {
         m_type = cInletType;
         m_xstr = "";
     }
-    virtual ~Inlet1D() {}
 
     /// set spreading rate
     virtual void setSpreadRate(doublereal V0) {
@@ -141,7 +136,6 @@ public:
     virtual double spreadRate() {
         return m_V0;
     }
-
 
     virtual void showSolution(const doublereal* x) {
         char buf[80];
@@ -169,7 +163,11 @@ public:
 
     virtual void _finalize(const doublereal* x) {}
 
-    virtual void setMoleFractions(std::string xin);
+    virtual size_t nSpecies() {
+        return m_nsp;
+    }
+
+    virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yin[k];
@@ -178,11 +176,10 @@ public:
     virtual void init();
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
-    virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
 protected:
-
     int m_ilr;
     doublereal m_V0;
     size_t m_nsp;
@@ -191,19 +188,16 @@ protected:
     StFlow* m_flow;
 };
 
-
 /**
  * A terminator that does nothing.
+ * @ingroup onedim
  */
 class Empty1D : public Domain1D
 {
-
 public:
-
     Empty1D() : Domain1D() {
         m_type = cEmptyType;
     }
-    virtual ~Empty1D() {}
 
     virtual std::string componentName(size_t n) const;
     virtual void showSolution(const doublereal* x) {}
@@ -213,30 +207,26 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {}
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = 0.0;
     }
-
-protected:
-
 };
 
 /**
  * A symmetry plane. The axial velocity u = 0, and all other
  * components have zero axial gradients.
+ * @ingroup onedim
  */
 class Symm1D : public Bdry1D
 {
-
 public:
 
     Symm1D() : Bdry1D() {
         m_type = cSymmType;
     }
-    virtual ~Symm1D() {}
 
     virtual std::string componentName(size_t n) const;
 
@@ -245,31 +235,26 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {
         ; //m_temp = x[0];
     }
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
     }
-
-protected:
-
 };
 
 
 /**
+ *  An outlet.
  */
 class Outlet1D : public Bdry1D
 {
-
 public:
-
     Outlet1D() : Bdry1D() {
         m_type = cOutletType;
     }
-    virtual ~Outlet1D() {}
 
     virtual std::string componentName(size_t n) const;
 
@@ -278,36 +263,28 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
     virtual void _finalize(const doublereal* x) {
         ; //m_temp = x[0];
     }
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
     }
-protected:
-
 };
-
 
 
 /**
  * An outlet with specified composition.
+ * @ingroup onedim
  */
 class OutletRes1D : public Bdry1D
 {
-
 public:
-
-    /**
-     * Constructor.
-     */
     OutletRes1D() : Bdry1D(), m_nsp(0), m_flow(0) {
         m_type = cOutletResType;
         m_xstr = "";
     }
-    virtual ~OutletRes1D() {}
 
     virtual void showSolution(const doublereal* x) {}
 
@@ -319,7 +296,11 @@ public:
         ;
     }
 
-    virtual void setMoleFractions(std::string xin);
+    virtual size_t nSpecies() {
+        return m_nsp;
+    }
+
+    virtual void setMoleFractions(const std::string& xin);
     virtual void setMoleFractions(doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yres[k];
@@ -328,17 +309,15 @@ public:
     virtual void init();
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
-    virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
 protected:
-
     size_t m_nsp;
     vector_fp m_yres;
     std::string m_xstr;
     StFlow* m_flow;
 };
-
 
 /**
  * A non-reacting surface. The axial velocity is zero
@@ -348,13 +327,10 @@ protected:
  */
 class Surf1D : public Bdry1D
 {
-
 public:
-
     Surf1D() : Bdry1D() {
         m_type = cSurfType;
     }
-    virtual ~Surf1D() {}
 
     virtual std::string componentName(size_t n) const;
 
@@ -363,8 +339,8 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
@@ -385,21 +361,15 @@ public:
         writelog(buf);
         writelog("\n");
     }
-
-protected:
-
 };
-
 
 /**
  * A reacting surface.
- *
+ * @ingroup onedim
  */
 class ReactingSurf1D : public Bdry1D
 {
-
 public:
-
     ReactingSurf1D() : Bdry1D(),
         m_kin(0), m_surfindex(0), m_nsp(0) {
         m_type = cSurfType;
@@ -417,8 +387,6 @@ public:
         m_enabled = docov;
     }
 
-    virtual ~ReactingSurf1D() {}
-
     virtual std::string componentName(size_t n) const;
 
     virtual void init();
@@ -426,8 +394,8 @@ public:
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
 
-    virtual void save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
@@ -453,7 +421,6 @@ public:
     }
 
 protected:
-
     InterfaceKinetics* m_kin;
     SurfPhase* m_sphase;
     size_t m_surfindex, m_nsp;

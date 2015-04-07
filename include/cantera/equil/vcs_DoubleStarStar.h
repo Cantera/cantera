@@ -16,22 +16,17 @@ using std::size_t;
 //!  A class for 2D double arrays stored in column-major
 //!  (Fortran-compatible) form.
 /*!
- *  In this form, the data entry for an n row, m col
- *  matrix is
- *       index = i + (n-1) * j
- *  where
- *     Matrix[j][i]
- *         i = row
- *         j = column
- *   The way this is instantiated is via the constructor:
- *         DoubleStarStar Dmatrix(mcol, mrow);
+ *  In this form, the data entry for an `n` row, `m` colum matrix is index =
+ *  `i + (n-1) * j` where `Matrix[j][i]` references the element in row `i`,
+ *  column `j`.
  *
- *   The way this is referenced is via the notation:
- *        Dmatrix[icol][irow]
+ * The way this is instantiated is via the constructor,
+ * DoubleStarStar Dmatrix(mcol, mrow)`.
+ *
+ * The way this is referenced is via the notation: `Dmatrix[icol][irow]`.
  */
 class DoubleStarStar
 {
-
 public:
 
     //! Default constructor. Create an empty array.
@@ -39,30 +34,22 @@ public:
 
     //! Constructor.
     /*!
-     *  Create an \c nrow by \c mcol double array, and initialize
-     *  all elements to \c v.
+     *  Create an `nrow` by `mcol` double array, and initialize all elements
+     *  to `v`.
      *
      * @param mcol  Number of columns
      * @param nrow  Number of rows
+     * @param v     value used to initialize elements
      */
     DoubleStarStar(size_t mcol, size_t nrow, double v = 0.0);
 
-    //! copy constructor
-    /*!
-     * @param y object to be copied
-     */
     DoubleStarStar(const DoubleStarStar& y);
-
-    /// assignment operator
-    /*!
-     * @param y object to be copied
-     */
     DoubleStarStar& operator=(const DoubleStarStar& y);
 
-    //! Resize the array, and fill the new entries with 'v'
+    //! Resize the array, and fill the new entries with `v`
     /*!
-     * @param mrow  This is the number of columns in the new matrix
-     * @param ncol  This is the number of rows
+     * @param mcol  This is the number of columns in the new matrix
+     * @param nrow  This is the number of rows
      * @param v     Default fill value -> defaults to zero.
      */
     void resize(size_t mcol, size_t nrow, double v = 0.0);
@@ -83,19 +70,19 @@ public:
      */
     const double* operator[](size_t jcol) const;
 
-    //! Returns a double ** pointer to the base address
+    //! Returns a `double**` pointer to the base address
     /*!
-     *  This is the second way to get to the data
-     *  This returns a double ** which can later be used in
-     *  Dmatrix[icol][irow] notation to get to the data
+     *  This is the second way to get to the data. This returns a `double**`
+     *  which can later be used in `Dmatrix[icol][irow]` notation to get to
+     *  the data.
      */
     double* const* baseDataAddr();
 
-    //! Returns a const double ** pointer to the base address
+    //! Returns a `const double**` pointer to the base address
     /*!
-     *  This is the second way to get to the data
-     *  This returns a double ** which can later be used in
-     *  Dmatrix[icol][irow] notation to get to the data
+     *  This is the second way to get to the data This returns a double **
+     *  which can later be used in `Dmatrix[icol][irow]` notation to get to
+     *  the data.
      */
     double const* const* constBaseDataAddr() const;
 
@@ -125,5 +112,3 @@ private:
 }
 
 #endif
-
-

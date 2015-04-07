@@ -16,16 +16,16 @@
 #
 # This will produce CTML file 'infile.xml'
 
-import string
+from __future__ import print_function
 
-class CTI_Error:
+class CTI_Error(Exception):
     """Exception raised if an error is encountered while
     parsing the input file.
     @ingroup pygroup"""
     def __init__(self, msg):
-        print '\n\n***** Error parsing input file *****\n\n'
-        print msg
-        print
+        print('\n\n***** Error parsing input file *****\n\n')
+        print(msg)
+        print()
 
 
 
@@ -49,10 +49,11 @@ indent = ['',
 
 #-----------------------------------------------------
 
-class XMLnode:
-
+class XMLnode(object):
     """This is a minimal class to allow easy creation of an XML tree
     from Python. It can write XML, but cannot read it."""
+
+    __slots__ = ('_name', '_value', '_attribs', '_children', '_childmap')
 
     def __init__(self, name="--", value = ""):
 
@@ -64,10 +65,10 @@ class XMLnode:
 
         # convert 'value' to a string if it is not already, and
         # strip leading whitespace
-        if type(value) != types.StringType:
-            self._value = string.lstrip(repr(value))
+        if not isinstance(value, str):
+            self._value = repr(value).lstrip()
         else:
-            self._value = string.lstrip(value)
+            self._value = value.lstrip()
 
         self._attribs = {}    # dictionary of attributes
         self._children = []   # list of child nodes
@@ -126,59 +127,71 @@ class XMLnode:
 
     def write(self, filename):
         """Write out the XML tree to a file."""
-        f = open(filename, 'w')
-        f.write('<?xml version="1.0"?>\n')
-        self._write(f, 0)
-        f.write('\n')
+        s = ['<?xml version="1.0"?>\n']
+        self._write(s, 0)
+        s.append('\n')
+        with open(filename, 'w') as f:
+            f.write(''.join(s))
 
-    def _write(self, f, level = 0):
+    def write_comment(self, s, level):
+        s.append('\n'+indent[level]+'<!--')
+        value = self._value
+        if value:
+            if value[0] != ' ':
+                value = ' '+value
+            if value[-1] != ' ':
+                value = value+' '
+        s.append(value+'-->')
 
-        """Internal method used to write the XML representation of
-        each node."""
-        if self._name == "": return
+    def write_attribs(self, s):
+        for a in self._attribs:
+            s.append(' '+a+'="'+self._attribs[a]+'"')
 
+    def write_value(self, s, level):
         indnt = indent[level]
+        vv = self._value.lstrip()
+        ieol = vv.find('\n')
+        if ieol >= 0:
+            while True:
+                ieol = vv.find('\n')
+                if ieol >= 0:
+                    s.extend(('\n  ', indnt, vv[:ieol]))
+                    vv = vv[ieol+1:].lstrip()
+                else:
+                    s.extend(('\n  ',indnt,vv))
+                    break
+        else:
+            s.append(self._value)
+
+    def _write(self, s, level = 0):
+        """Internal method used to write the XML representation of each node."""
+        if not self.name:
+            return
 
         # handle comments
         if self._name == '_comment_':
-            f.write('\n'+indnt+'<!--')
-            if len(self._value) > 0:
-                if self._value[0] != ' ':
-                    self._value = ' '+self._value
-                if self._value[-1] != ' ':
-                    self._value = self._value+' '
-            f.write(self._value+'-->')
+            self.write_comment(s, level)
             return
 
+        indnt = indent[level]
+
         # write the opening tag and attributes
-        f.write(indnt + '<' + self._name)
-        for a in self._attribs.keys():
-            f.write(' '+a+'="'+self._attribs[a]+'"')
-        if (self._value == "" and self.nChildren() == 0):
-            f.write('/>')
+        s.extend((indnt, '<', self._name))
+        self.write_attribs(s)
+
+        if not self._value and not self._children:
+            s.append('/>')
         else:
-            f.write('>')
-            if self._value != "":
-                vv = string.lstrip(self._value)
-                ieol = vv.find('\n')
-                if ieol >= 0:
-                    while 1 > 0:
-                        ieol = vv.find('\n')
-                        if ieol >= 0:
-                            f.write('\n  '+indnt+vv[:ieol])
-                            vv = string.lstrip(vv[ieol+1:])
-                        else:
-                            f.write('\n  '+indnt+vv)
-                            break
-                else:
-                    f.write(self._value)
+            s.append('>')
+            if self._value:
+                self.write_value(s, level)
 
             for c in self._children:
-                f.write('\n')
-                c._write(f, level + 2)
-            if (self.nChildren() > 0):
-                f.write('\n'+indnt)
-            f.write('</'+self._name+'>')
+                s.append('\n')
+                c._write(s, level + 2)
+            if self._children:
+                s.extend(('\n', indnt))
+            s.extend(('</', self._name, '>'))
 
 #--------------------------------------------------
 
@@ -186,11 +199,11 @@ class XMLnode:
 OneAtm = 1.01325e5
 OneBar = 1.0e5
 # Conversion from eV to J/kmol (electronCharge * Navrog)
-eV = 96.4853E6
+eV = 9.64853364595687e7
 # Electron Mass in kg
-ElectronMass = 9.10938188e-31
+ElectronMass = 9.10938291e-31
 
-import types, math, copy
+import math, copy
 
 # default units
 _ulen = 'm'
@@ -203,7 +216,7 @@ _upres = 'Pa'
 
 # used to convert reaction pre-exponentials
 _length = {'cm':0.01, 'm':1.0, 'mm':0.001}
-_moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.023e26}
+_moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.02214129e26}
 _time = {'s':1.0, 'min':60.0, 'hr':3600.0}
 
 # default std state pressure
@@ -239,7 +252,7 @@ def validate(species = 'yes', reactions = 'yes'):
 
 def isnum(a):
     """True if a is an integer or floating-point number."""
-    if type(a) == types.IntType or type(a) == types.FloatType:
+    if isinstance(a, (int, float)):
         return 1
     else:
         return 0
@@ -297,7 +310,7 @@ def ufmt(base, n):
     if n > 0: return '-'+base+str(n)
     if n < 0: return '/'+base+str(-n)
 
-def write():
+def write(outName=None):
     """write the CTML file."""
     x = XMLnode("ctml")
     v = x.addChild("validate")
@@ -319,10 +332,12 @@ def write():
     for rx in _reactions:
         rx.build(r)
 
-    if _name != 'noname':
+    if outName is not None:
+        x.write(outName)
+    elif _name != 'noname':
         x.write(_name+'.xml')
     else:
-        print x
+        print(x)
 
     if _valexport:
         f = open(_valexport,'w')
@@ -358,7 +373,7 @@ def addFloat(x, nm, val, fmt='', defunits=''):
 
 
 def getAtomicComp(atoms):
-    if type(atoms) == types.DictType: return atoms
+    if isinstance(atoms, dict): return atoms
     a = atoms.replace(',',' ')
     toks = a.split()
     d = {}
@@ -376,6 +391,10 @@ def getReactionSpecies(s):
     >>> getReactionSpecies(s)
     >>> {'CH3':1, 'H':3.7, 'O2':5.2}
     """
+
+    # Normalize formatting of falloff third bodies so that there is always a
+    # space following the '+', e.g. '(+M)' -> '(+ M)'
+    s = s.replace(' (+', ' (+ ')
 
     # get rid of the '+' signs separating species. Only plus signs
     # surrounded by spaces are replaced, so that plus signs may be
@@ -413,7 +432,7 @@ def getReactionSpecies(s):
     return d
 
 
-class element:
+class element(object):
     """ An atomic element or isotope. """
     def __init__(self, symbol = '',
                  atomic_mass = 0.01,
@@ -437,7 +456,7 @@ class element:
         e["atomicNumber"] = repr(self._num)
 
 
-class species_set:
+class species_set(object):
     def __init__(self, name = '', species = []):
         self._s = species
         self._name = name
@@ -454,7 +473,7 @@ class species_set:
             #    raise 'wrong object type in species_set: '+s.__class__
 
 
-class species:
+class species(object):
     """A constituent of a phase or interface."""
 
     def __init__(self,
@@ -474,6 +493,8 @@ class species:
             The atomic composition, specified by a string containing
             space-delimited <element>:<atoms> pairs. The number of atoms may be
             either an integer or a floating-point number.
+        :param note:
+            A user-defined comment. Not evaluated by Cantera itself.
         :param thermo:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
@@ -537,7 +558,7 @@ class species:
                 else:
                     s += '0,'
             f.write(s)
-            if type(self._thermo) == types.InstanceType:
+            if isinstance(self._thermo, thermo):
                 self._thermo.export(f, fmt)
             else:
                 nt = len(self._thermo)
@@ -563,7 +584,7 @@ class species:
             s.addChild("size",self._size)
         if self._thermo:
             t = s.addChild("thermo")
-            if type(self._thermo) == types.InstanceType:
+            if isinstance(self._thermo, thermo):
                 self._thermo.build(t)
             else:
                 nt = len(self._thermo)
@@ -571,14 +592,14 @@ class species:
                     self._thermo[n].build(t)
         if self._transport:
             t = s.addChild("transport")
-            if type(self._transport) == types.InstanceType:
+            if isinstance(self._transport, transport):
                 self._transport.build(t)
             else:
                 nt = len(self._transport)
                 for n in range(nt):
                     self._transport[n].build(t)
 
-class thermo:
+class thermo(object):
     """Base class for species standard-state thermodynamic properties."""
     def _build(self, p):
         return p.addChild("thermo")
@@ -725,6 +746,53 @@ class NASA9(thermo):
         u["name"] = "coeffs"
 
 
+class activityCoefficients(object):
+    pass
+
+
+class pureFluidParameters(activityCoefficients):
+    """
+    """
+
+    def __init__(self, species = None, a_coeff = [], b_coeff = 0):
+        """
+        """
+        self._species = species
+        self._acoeff = a_coeff
+        self._bcoeff = b_coeff
+
+    def build(self,a):
+        f= a.addChild("pureFluidParameters")
+        f['species'] = self._species
+        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        ac = f.addChild("a_coeff",s)
+        ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
+        ac["model"] = "linear_a"
+        s = '%0.2f \n' % self._bcoeff
+        bc = f.addChild("b_coeff",s)
+        bc["units"] = _ulen+'3/'+_umol
+
+
+class crossFluidParameters(activityCoefficients):
+    def __init__(self, species = None, a_coeff = [], b_coeff = []):
+        self._species1, self._species2 = species.split(' ')
+        self._acoeff = a_coeff
+        self._bcoeff = b_coeff
+
+    def build(self,a):
+        f= a.addChild("crossFluidParameters")
+        f["species2"] = self._species2
+        f["species1"] = self._species1
+        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        ac = f.addChild("a_coeff",s)
+        ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
+        ac["model"] = "linear_a"
+        if self._bcoeff:
+            s = '%0.2f \n' % self._bcoeff
+            bc = f.addChild("b_coeff",s)
+            bc["units"] = _ulen+'3/'+_umol
+
+
 class Shomate(thermo):
     """Shomate polynomial parameterization."""
 
@@ -831,8 +899,10 @@ class const_cp(thermo):
         addFloat(c,'s0',self._c[2], defunits = energy_units+'/K')
         addFloat(c,'cp0',self._c[3], defunits = energy_units+'/K')
 
+class transport(object):
+    pass
 
-class gas_transport:
+class gas_transport(transport):
     """
     Species-specific Transport coefficients for ideal gas transport models.
     """
@@ -874,8 +944,10 @@ class gas_transport:
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
 
+class rate_expression(object):
+    pass
 
-class Arrhenius:
+class Arrhenius(rate_expression):
     def __init__(self,
                  A = 0.0,
                  n = 0.0,
@@ -897,7 +969,7 @@ class Arrhenius:
         self._type = rate_type
 
         if coverage:
-            if type(coverage[0]) == types.StringType:
+            if isinstance(coverage[0], str):
                 self._cov = [coverage]
             else:
                 self._cov = coverage
@@ -965,7 +1037,7 @@ def getPairs(s):
         m[key] = float(val)
     return m
 
-class reaction:
+class reaction(object):
     """
     A homogeneous chemical reaction with pressure-independent rate coefficient
     and mass-action kinetics.
@@ -994,7 +1066,7 @@ class reaction:
         self._e = equation
         self._order = order
 
-        if type(options) == types.StringType:
+        if isinstance(options, str):
             self._options = [options]
         else:
             self._options = options
@@ -1039,28 +1111,17 @@ class reaction:
         if self._id:
             id = self._id
         else:
-            if self._num < 10:
-                nstr = '000'+str(self._num)
-            elif self._num < 100:
-                nstr = '00'+str(self._num)
-            elif self._num < 1000:
-                nstr = '0'+str(self._num)
-            else:
-                nstr = str(self._num)
-            id = nstr
-
+            id = '%04i' % self._num
 
         self.mdim = 0
         self.ldim = 0
-        rstr = ''
 
         rxnph = []
-        for s in self._r.keys():
+        for s in self._r:
             ns = self._rxnorder[s]
             nm = -999
             nl = -999
 
-            rstr += s+':'+str(self._r[s])+' '
             mindim = 4
             for ph in _phases:
                 if ph.has_species(s):
@@ -1088,20 +1149,17 @@ class reaction:
         else:
             r['reversible'] = 'no'
 
-        noptions = len(self._options)
-        for nss in range(noptions):
-            s = self._options[nss]
+        for s in self._options:
             if s == 'duplicate':
                 r['duplicate'] = 'yes'
             elif s == 'negative_A':
                 r['negative_A'] = 'yes'
 
-        ee = self._e.replace('<','[')
-        ee = ee.replace('>',']')
+        ee = self._e.replace('<','[').replace('>',']')
         r.addChild('equation',ee)
 
         if self._order:
-            for osp in self._rxnorder.keys():
+            for osp in self._rxnorder:
                 o = r.addChild('order',self._rxnorder[osp])
                 o['species'] = osp
 
@@ -1155,7 +1213,7 @@ class reaction:
                 electro['beta'] = repr(self._beta)
 
         for kf in self._kf:
-            if type(kf) == types.InstanceType:
+            if isinstance(kf, rate_expression):
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], n = kf[1], E = kf[2])
@@ -1167,15 +1225,17 @@ class reaction:
                 self.mdim += 1
                 self.ldim -= 3
                 nm = 'k0'
+            elif self._type == 'chemAct':
+                # set values for high-pressure rate coeff if this is a
+                # chemically activated reaction
+                self.mdim -= 1
+                self.ldim += 3
+                nm = 'kHigh'
 
-        rstr = rstr[:-1]
+        rstr = ' '.join('%s:%s' % item for item in self._r.items())
+        pstr = ' '.join('%s:%s' % item for item in self._p.items())
         r.addChild('reactants',rstr)
-        pstr = ''
-        for s in self._p.keys():
-            ns = self._p[s]
-            pstr += s+':'+repr(ns)+' '
-        pstr = pstr[:-1]
-        r.addChild('products',pstr)
+        r.addChild('products', pstr)
         return r
 
 #-------------------
@@ -1217,10 +1277,10 @@ class three_body_reaction(reaction):
         self._eff = efficiencies
 
         # clean up reactant and product lists
-        for r in self._r.keys():
+        for r in list(self._r.keys()):
             if r == 'M' or r == 'm':
                 del self._r[r]
-        for p in self._p.keys():
+        for p in list(self._p.keys()):
             if p == 'M' or p == 'm':
                 del self._p[p]
 
@@ -1234,10 +1294,44 @@ class three_body_reaction(reaction):
             eff['default'] = repr(self._effm)
 
 
-#---------------
+class pdep_reaction(reaction):
+    """ Base class for falloff_reaction and chemically_activated_reaction """
+
+    def clean_up_reactants_products(self):
+        del self._r['(+']
+        del self._p['(+']
+        if 'M)' in self._r:
+            del self._r['M)']
+            del self._p['M)']
+        elif 'm)' in self._r:
+            del self._r['m)']
+            del self._p['m)']
+        else:
+            for r in list(self._r.keys()):
+                if r[-1] == ')' and r.find('(') < 0:
+                    species = r[:-1]
+                    if self._eff:
+                        raise CTI_Error('(+ '+species+') and '+self._eff+' cannot both be specified')
+                    self._eff = species+':1.0'
+                    self._effm = 0.0
+
+                    del self._r[r]
+                    del self._p[r]
+
+    def build(self, p):
+        r = reaction.build(self, p)
+        if r == 0: return
+        kfnode = r.child('rateCoeff')
+
+        if self._eff and self._effm >= 0.0:
+            eff = kfnode.addChild('efficiencies',self._eff)
+            eff['default'] = repr(self._effm)
+
+        if self._falloff:
+            self._falloff.build(kfnode)
 
 
-class falloff_reaction(reaction):
+class falloff_reaction(pdep_reaction):
     """ A gas-phase falloff reaction. """
     def __init__(self, equation, kf0, kf,
                  efficiencies='', falloff=None, id='', options=[]):
@@ -1276,39 +1370,49 @@ class falloff_reaction(reaction):
         self._effm = 1.0
         self._eff = efficiencies
 
-        # clean up reactant and product lists
-        del self._r['(+']
-        del self._p['(+']
-        if 'M)' in self._r:
-            del self._r['M)']
-            del self._p['M)']
-        if 'm)' in self._r:
-            del self._r['m)']
-            del self._p['m)']
-        else:
-            for r in self._r.keys():
-                if r[-1] == ')' and r.find('(') < 0:
-                    if self._eff:
-                        raise CTI_Error('(+ '+mspecies+') and '+self._eff+' cannot both be specified')
-                    self._eff = r[-1]+':1.0'
-                    self._effm = 0.0
-
-                    del self._r[r]
-                    del self._p[r]
+        self.clean_up_reactants_products()
 
 
-    def build(self, p):
-        r = reaction.build(self, p)
-        if r == 0: return
-        kfnode = r.child('rateCoeff')
+class chemically_activated_reaction(pdep_reaction):
+    """ A gas-phase, chemically activated reaction. """
 
-        if self._eff and self._effm >= 0.0:
-            eff = kfnode.addChild('efficiencies',self._eff)
-            eff['default'] = repr(self._effm)
+    def __init__(self, equation, kLow, kHigh,
+                 efficiencies='', falloff=None, id='', options=[]):
+        """
+        :param equation:
+            A string specifying the chemical equation.
+        :param kLow:
+            The rate coefficient for the forward direction in the low-pressure
+            limit. If a sequence of three numbers is given, these will be
+            interpreted as [A, n,E] in the modified Arrhenius function.
+        :param kHigh:
+            The rate coefficient for the forward direction in the high-pressure
+            limit. If a sequence of three numbers is given, these will be
+            interpreted as [A, n,E] in the modified Arrhenius function.
+        :param efficiencies:
+            A string specifying the third-body collision efficiencies. The
+            efficiency for unspecified species is set to 1.0.
+        :param falloff:
+            An embedded entry specifying a falloff function. If omitted, a
+            unity falloff function (Lindemann form) will be used.
+        :param id:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            reaction in the file.
+        :param options:
+            Processing options, as described in :ref:`sec-phase-options`.
+        """
+        reaction.__init__(self, equation, (kLow, kHigh), id, '', options)
+        self._type = 'chemAct'
+        # use a Lindemann falloff function by default
+        self._falloff = falloff
+        if self._falloff == None:
+            self._falloff = Lindemann()
 
-        if self._falloff:
-            self._falloff.build(kfnode)
+        self._effm = 1.0
+        self._eff = efficiencies
 
+        self.clean_up_reactants_products()
 
 class pdep_arrhenius(reaction):
     """
@@ -1318,7 +1422,7 @@ class pdep_arrhenius(reaction):
     :param equation:
         A string specifying the chemical equation.
     :param args:
-        Each additiona argument is a sequence of four elements specifying the
+        Each additional argument is a sequence of four elements specifying the
         pressure and the Arrhenius parameters at that pressure.
     """
     def __init__(self, equation='', *args, **kwargs):
@@ -1371,8 +1475,9 @@ class chebyshev_reaction(reaction):
         self.coeffs = coeffs
 
         # clean up reactant and product lists
-        del self._r['(+']
-        del self._p['(+']
+        if '(+' in self._r:
+            del self._r['(+']
+            del self._p['(+']
         if 'M)' in self._r:
             del self._r['M)']
             del self._p['M)']
@@ -1448,7 +1553,7 @@ class edge_reaction(reaction):
 #--------------
 
 
-class state:
+class state(object):
     """
     An embedded entry that specifies the thermodynamic state of a phase
     or interface.
@@ -1497,7 +1602,7 @@ class state:
         if self._m: st.addChild('soluteMolalities', self._m)
 
 
-class phase:
+class phase(object):
     """Base class for phases of matter."""
 
     def __init__(self,
@@ -1505,6 +1610,7 @@ class phase:
                  dim = 3,
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  initial_state = None,
                  options = []):
@@ -1517,6 +1623,8 @@ class phase:
         :param species:
             The species. A string or sequence of strings in the format
             described in :ref:`sec-defining-species`.
+        :param note:
+            A user-defined comment. Not evaluated by Cantera itself.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
@@ -1539,8 +1647,9 @@ class phase:
         self._el = elements
         self._sp = []
         self._rx = []
+        self._comment = note
 
-        if type(options) == types.StringType:
+        if isinstance(options, str):
             self._options = [options]
         else:
             self._options = options
@@ -1554,7 +1663,7 @@ class phase:
         #--------------------------------
 
         # if a single string is entered, make it a list
-        if type(species) == types.StringType:
+        if isinstance(species, str):
             self._species = [species]
         else:
             self._species = species
@@ -1632,7 +1741,7 @@ class phase:
 
     def buildrxns(self, p):
 
-        if type(self._rxns) == types.StringType:
+        if isinstance(self._rxns, str):
             self._rxns = [self._rxns]
 
         # for each reaction string, check whether or not the reactions
@@ -1702,6 +1811,14 @@ class phase:
         #self._eos.build(ph)
         if self._initial:
             self._initial.build(ph)
+
+        if self._comment:
+            ph.addChild('note',self._comment)
+
+        thermo = ph.addChild('thermo')
+        if 'allow_discontinuous_thermo' in self._options:
+            thermo['allow_discontinuities'] = 'true'
+
         return ph
 
 
@@ -1711,6 +1828,7 @@ class ideal_gas(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  kinetics = 'GasKinetics',
                  transport = 'None',
@@ -1729,15 +1847,15 @@ class ideal_gas(phase):
             ``'multi'``, or ``'mix'``. Default: ``'none'``.
         """
 
-        phase.__init__(self, name, 3, elements, species, reactions,
+        phase.__init__(self, name, 3, elements, species, note, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
         self._tr = transport
         if self.debug:
-            print 'Read ideal_gas entry '+self._name
+            print('Read ideal_gas entry '+self._name)
             try:
-                print 'in file '+__name__
+                print('in file '+__name__)
             except:
                 pass
 
@@ -1745,8 +1863,7 @@ class ideal_gas(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
-        e['model'] = 'IdealGas'
+        ph.child('thermo')['model'] = 'IdealGas'
         k = ph.addChild("kinetics")
         k['model'] = self._kin
         t = ph.addChild('transport')
@@ -1767,7 +1884,8 @@ class stoichiometric_solid(phase):
                  name = '',
                  elements = '',
                  species = '',
-                 density = -1.0,
+                 note = '',
+                 density = None,
                  transport = 'None',
                  initial_state = None,
                  options = []):
@@ -1775,11 +1893,11 @@ class stoichiometric_solid(phase):
         See :class:`.phase` for descriptions of the parameters.
         """
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 1
-        if self._dens < 0.0:
+        if self._dens is None:
             raise CTI_Error('density must be specified.')
         self._tr = transport
 
@@ -1790,7 +1908,7 @@ class stoichiometric_solid(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child('thermo')
         e['model'] = 'StoichSubstance'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
@@ -1809,6 +1927,7 @@ class stoichiometric_liquid(stoichiometric_solid):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = -1.0,
                  transport = 'None',
                  initial_state = None,
@@ -1817,7 +1936,7 @@ class stoichiometric_liquid(stoichiometric_solid):
         See :class:`.phase` for descriptions of the parameters.
         """
         stoichiometric_solid.__init__(self, name, elements,
-                                      species, density, transport,
+                                      species, note, density, transport,
                                       initial_state, options)
 
 
@@ -1827,12 +1946,13 @@ class metal(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = -1.0,
                  transport = 'None',
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 0
@@ -1843,7 +1963,7 @@ class metal(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Metal'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
@@ -1858,6 +1978,7 @@ class semiconductor(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  density = -1.0,
                  bandgap = 1.0 * eV,
                  effectiveMass_e = 1.0 * ElectronMass,
@@ -1866,7 +1987,7 @@ class semiconductor(phase):
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 0
@@ -1880,7 +2001,7 @@ class semiconductor(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Semiconductor'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         addFloat(e, 'effectiveMass_e', self._emass, defunits = _umass)
@@ -1899,16 +2020,17 @@ class incompressible_solid(phase):
                  name = '',
                  elements = '',
                  species = '',
-                 density = -1.0,
+                 note = '',
+                 density = None,
                  transport = 'None',
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._dens = density
         self._pure = 0
-        if self._dens < 0.0:
+        if self._dens is None:
             raise CTI_Error('density must be specified.')
         self._tr = transport
 
@@ -1917,7 +2039,7 @@ class incompressible_solid(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Incompressible'
         addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
         if self._tr:
@@ -1928,16 +2050,18 @@ class incompressible_solid(phase):
 
 
 class lattice(phase):
-    def __init__(self, name = '',
+    def __init__(self, 
+                 name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  transport = 'None',
                  initial_state = None,
                  options = [],
-                 site_density = -1.0,
+                 site_density = None,
                  vacancy_species = ''):
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                         initial_state, options)
         self._tr = transport
         self._n = site_density
@@ -1947,7 +2071,7 @@ class lattice(phase):
             raise CTI_Error('sublattice name must be specified')
         if species == '':
             raise CTI_Error('sublattice species must be specified')
-        if site_density < 0.0:
+        if site_density is None:
             raise CTI_Error('sublattice '+name
                             +' site density must be specified')
 
@@ -1955,7 +2079,7 @@ class lattice(phase):
         #if visible == 0:
         #    return
         ph = phase.build(self, p)
-        e = ph.addChild('thermo')
+        e = ph.child('thermo')
         e['model'] = 'Lattice'
         addFloat(e, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
         if self._vac:
@@ -1972,6 +2096,7 @@ class lattice_solid(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  lattices = [],
                  transport = 'None',
                  initial_state = None,
@@ -1984,7 +2109,7 @@ class lattice_solid(phase):
             for el in e:
                 if not el in elist:
                     elist.append(el)
-        elements = string.join(elist)
+        elements = ' '.join(elist)
 
         # find species
         slist = []
@@ -1996,9 +2121,9 @@ class lattice_solid(phase):
             for sp in s:
                 if not sp in slist:
                     slist.append(sp)
-        species = string.join(slist)
+        species = ' '.join(slist)
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._lattices = lattices
         if lattices == []:
@@ -2011,7 +2136,7 @@ class lattice_solid(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'LatticeSolid'
 
         if self._lattices:
@@ -2038,11 +2163,12 @@ class liquid_vapor(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  substance_flag = 0,
                  initial_state = None,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._subflag = substance_flag
         self._pure = 1
@@ -2053,12 +2179,53 @@ class liquid_vapor(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'PureFluid'
         e['fluid_type'] = repr(self._subflag)
         k = ph.addChild("kinetics")
         k['model'] = 'none'
 
+class RedlichKwongMFTP(phase):
+    """A multi-component fluid model for non-ideal gas fluids.
+        """
+
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 note = '',
+                 initial_state = None,
+                 activity_coefficients = None,
+                 transport = 'None',
+                 options = []):
+
+        phase.__init__(self,name, 3, elements, species, note, 'none',
+                       initial_state,options)
+        self._pure = 0
+        self._tr = transport
+        self._activityCoefficients = activity_coefficients
+
+    def conc_dim(self):
+        return (0,0)
+
+    def build(self, p):
+        ph = phase.build(self,p)
+        e = ph.child("thermo")
+        e['model'] = 'RedlichKwongMFTP'
+        if self._activityCoefficients:
+            a = e.addChild("activityCoefficients")
+            if isinstance(self._activityCoefficients, activityCoefficients):
+                self._activityCoefficients.build(a)
+            else:
+                na = len(self._activityCoefficients)
+                for n in range(na):
+                    self._activityCoefficients[n].build(a)
+
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
 
 
 class redlich_kwong(phase):
@@ -2072,13 +2239,14 @@ class redlich_kwong(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  substance_flag = 7,
                  initial_state = None,
                  Tcrit = 1.0,
                  Pcrit = 1.0,
                  options = []):
 
-        phase.__init__(self, name, 3, elements, species, 'none',
+        phase.__init__(self, name, 3, elements, species, note, 'none',
                        initial_state, options)
         self._subflag = 7
         self._pure = 1
@@ -2090,7 +2258,7 @@ class redlich_kwong(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'PureFluid'
         e['fluid_type'] = repr(self._subflag)
         addFloat(e, 'Tc', self._tc, defunits = "K")
@@ -2107,6 +2275,7 @@ class ideal_interface(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  site_density = 0.0,
                  phases = [],
@@ -2129,7 +2298,7 @@ class ideal_interface(phase):
             at this interface.
         """
         self._type = 'surface'
-        phase.__init__(self, name, 2, elements, species, reactions,
+        phase.__init__(self, name, 2, elements, species, note, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
@@ -2139,7 +2308,7 @@ class ideal_interface(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Surface'
         addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen+'2')
         k = ph.addChild("kinetics")
@@ -2159,6 +2328,7 @@ class edge(phase):
                  name = '',
                  elements = '',
                  species = '',
+                 note = '',
                  reactions = 'none',
                  site_density = 0.0,
                  phases = [],
@@ -2168,7 +2338,7 @@ class edge(phase):
                  options = []):
 
         self._type = 'edge'
-        phase.__init__(self, name, 1, elements, species, reactions,
+        phase.__init__(self, name, 1, elements, species, note, reactions,
                        initial_state, options)
         self._pure = 0
         self._kin = kinetics
@@ -2178,7 +2348,7 @@ class edge(phase):
 
     def build(self, p):
         ph = phase.build(self, p)
-        e = ph.addChild("thermo")
+        e = ph.child("thermo")
         e['model'] = 'Edge'
         addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen)
         k = ph.addChild("kinetics")
@@ -2295,6 +2465,7 @@ class edge(phase):
 ##                  name = '',
 ##                  elements = '',
 ##                  species = '',
+##                  note = '',
 ##                  transport = 'None',
 ##                  initial_state = None,
 ##                  solvent = '',
@@ -2302,7 +2473,7 @@ class edge(phase):
 ##                  activity_coefficients = None,
 ##                  options = []):
 
-##         phase.__init__(self, name, 3, elements, species, 'none',
+##         phase.__init__(self, name, 3, elements, species, note, 'none',
 ##                        initial_state, options)
 ##         self._pure = 0
 ##         self._solvent = solvent
@@ -2313,7 +2484,7 @@ class edge(phase):
 
 ##     def build(self, p):
 ##         ph = phase.build(self, p)
-##         e = ph.addChild("thermo")
+##         e = ph.child("thermo")
 ##         sc = e.addChild("standardConc")
 ##         sc['model'] = self._stdconc
 ##         e['model'] = 'HMW'
@@ -2331,7 +2502,7 @@ class edge(phase):
 
 # falloff parameterizations
 
-class Troe:
+class Troe(object):
     """The Troe falloff function."""
     def __init__(self, A = 0.0, T3 = 0.0, T1 = 0.0, T2 = -999.9):
         """
@@ -2351,7 +2522,7 @@ class Troe:
         f['type'] = 'Troe'
 
 
-class SRI:
+class SRI(object):
     """ The SRI falloff function."""
     def __init__(self, A = 0.0, B = 0.0, C = 0.0, D = -999.9, E=-999.9):
         """
@@ -2371,7 +2542,7 @@ class SRI:
         f['type'] = 'SRI'
 
 
-class Lindemann:
+class Lindemann(object):
     """The Lindemann falloff function."""
     def __init__(self):
         """ This falloff function takes no parameters."""
@@ -2384,50 +2555,54 @@ class Lindemann:
 #get_atomic_wts()
 validate()
 
-def convert(filename):
+def convert(filename, outName=None):
     import os, sys
     base = os.path.basename(filename)
     root, _ = os.path.splitext(base)
     dataset(root)
     try:
-        execfile(filename)
+        with open(filename, 'rU') as f:
+            code = compile(f.read(), filename, 'exec')
+            exec(code)
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
-        text = open(filename).readlines()
-        print '%s in "%s" on line %i:\n' % (err.__class__.__name__,
+        text = open(filename, 'rU').readlines()
+        print('%s in "%s" on line %i:\n' % (err.__class__.__name__,
                                             err.filename,
-                                            err.lineno)
-        print '|  Line |'
+                                            err.lineno))
+        print('|  Line |')
         for i in range(max(err.lineno-6, 0),
                        min(err.lineno+3, len(text))):
-            print '| % 5i |' % (i+1), text[i].rstrip()
+            print('| % 5i |' % (i+1), text[i].rstrip())
             if i == err.lineno-1:
-                print ' '* (err.offset+9) + '^'
-        print
+                print(' '* (err.offset+9) + '^')
+        print()
         sys.exit(3)
     except TypeError as err:
         import traceback
 
-        text = open(filename).readlines()
+        text = open(filename, 'rU').readlines()
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
 
-        print '%s on line %i of %s:' % (err.__class__.__name__, lineno, filename)
-        print err
-        print '\n| Line |'
+        print('%s on line %i of %s:' % (err.__class__.__name__, lineno, filename))
+        print(err)
+        print('\n| Line |')
 
         for i in range(max(lineno-6, 0),
                        min(lineno+3, len(text))):
             if i == lineno-1:
-                print '> % 4i >' % (i+1), text[i].rstrip()
+                print('> % 4i >' % (i+1), text[i].rstrip())
             else:
-                print '| % 4i |' % (i+1), text[i].rstrip()
+                print('| % 4i |' % (i+1), text[i].rstrip())
 
         sys.exit(4)
 
-    write()
+    write(outName)
 
 if __name__ == "__main__":
     import sys
-    convert(sys.argv[1])
+    if len(sys.argv) not in (2,3):
+        raise ValueError('Incorrect number of command line arguments.')
+    convert(*sys.argv[1:])

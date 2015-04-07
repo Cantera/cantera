@@ -11,76 +11,23 @@
 #include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_species_thermo.h"
-#include "vcs_SpeciesProperties.h"
+#include "cantera/equil/vcs_species_thermo.h"
+#include "cantera/equil/vcs_SpeciesProperties.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/equil.h"
 
-#include "cantera/base/ct_defs.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/equil/ChemEquil.h"
 
-#include <string>
-#include <vector>
-
 using namespace std;
 
 namespace Cantera
 {
-
-/*
- *  Set a single-phase chemical solution to chemical equilibrium.
- *  This is a convenience function that uses one or the other of
- *  the two chemical equilibrium solvers.
- *
- *  @param s The object to set to an equilibrium state
- *
- *  @param XY An integer specifying the two properties to be held
- *            constant.
- *
- *  @param estimateEquil integer indicating whether the solver
- *                   should estimate its own initial condition.
- *                   If 0, the initial mole fraction vector
- *                   in the %ThermoPhase object is used as the
- *                   initial condition.
- *                   If 1, the initial mole fraction vector
- *                   is used if the element abundances are
- *                   satisfied.
- *                   if -1, the initial mole fraction vector
- *                   is thrown out, and an estimate is
- *                   formulated.
- *
- *  @param printLvl Determines the amount of printing that
- *                  gets sent to stdout from the vcs package
- *                  (Note, you may have to compile with debug
- *                   flags to get some printing).
- *
- *  @param solver The equilibrium solver to use. If solver = 0,
- *                the ChemEquil solver will be used, and if
- *                solver = 1, the vcs_MultiPhaseEquil solver will
- *                be used (slower than ChemEquil,
- *                but more stable). If solver < 0 (default, then
- *                ChemEquil will be tried first, and if it fails
- *                vcs_MultiPhaseEquil will be tried.
- *
- *  @param maxsteps The maximum number of steps to take to find
- *                  the solution.
- *
- *  @param maxiter For the MultiPhaseEquil solver only, this is
- *                 the maximum number of outer temperature or
- *                 pressure iterations to take when T and/or P is
- *                 not held fixed.
- *
- *  @param loglevel Controls amount of diagnostic output. loglevel
- *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
- */
 int vcs_equilibrate(thermo_t& s, const char* XY,
                     int estimateEquil,  int printLvl,
                     int solver,
@@ -194,53 +141,6 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
     return retn;
 }
 
-//  Set a multi-phase chemical solution to chemical equilibrium.
-/*
- *  This function uses the vcs_MultiPhaseEquil interface to the
- *  vcs solver.
- *  The function uses the element abundance vector that is
- *  currently consistent with the composition within the phases
- *  themselves. Two other thermodynamic quantities, determined by the
- *  XY string,  are held constant during the equilibration.
- *
- *  @param s The object to set to an equilibrium state
- *
- *  @param XY A character string specifying the two properties to
- *            be held constant
- *
- *  @param estimateEquil integer indicating whether the solver
- *                   should estimate its own initial condition.
- *                   If 0, the initial mole fraction vector
- *                   in the %ThermoPhase object is used as the
- *                   initial condition.
- *                   If 1, the initial mole fraction vector
- *                   is used if the element abundances are
- *                   satisfied.
- *                   if -1, the initial mole fraction vector
- *                   is thrown out, and an estimate is
- *                   formulated.
- *
- *  @param printLvl Determines the amount of printing that
- *                  gets sent to stdout from the vcs package
- *                  (Note, you may have to compile with debug
- *                   flags to get some printing).
- *
- *  @param maxsteps The maximum number of steps to take to find
- *                  the solution.
- *
- *  @param maxiter For the MultiPhaseEquil solver only, this is
- *                 the maximum number of outer temperature or
- *                 pressure iterations to take when T and/or P is
- *                 not held fixed.
- *
- *  @param loglevel Controls amount of diagnostic output. loglevel
- *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
- *
- *  @ingroup equilfunctions
- */
 int vcs_equilibrate(MultiPhase& s, const char* XY,
                     int estimateEquil, int printLvl, int solver,
                     doublereal tol, int maxsteps, int maxiter,
@@ -250,56 +150,8 @@ int vcs_equilibrate(MultiPhase& s, const char* XY,
     int retn = vcs_equilibrate_1(s, ixy, estimateEquil, printLvl, solver,
                                  tol, maxsteps, maxiter, loglevel);
     return retn;
-};
+}
 
-
-//  Set a multi-phase chemical solution to chemical equilibrium.
-/*
- *  This function uses the vcs_MultiPhaseEquil interface to the
- *  vcs solver.
- *  The function uses the element abundance vector that is
- *  currently consistent with the composition within the phases
- *  themselves. Two other thermodynamic quantities, determined by the
- *  XY string,  are held constant during the equilibration.
- *
- *  @param s The object to set to an equilibrium state
- *
- *  @param XY An integer specifying the two properties to be held
- *            constant.
- *
- *  @param estimateEquil integer indicating whether the solver
- *                   should estimate its own initial condition.
- *                   If 0, the initial mole fraction vector
- *                   in the %ThermoPhase object is used as the
- *                   initial condition.
- *                   If 1, the initial mole fraction vector
- *                   is used if the element abundances are
- *                   satisfied.
- *                   if -1, the initial mole fraction vector
- *                   is thrown out, and an estimate is
- *                   formulated.
- *
- *  @param printLvl Determines the amount of printing that
- *                  gets sent to stdout from the vcs package
- *                  (Note, you may have to compile with debug
- *                   flags to get some printing).
- *
- *  @param maxsteps The maximum number of steps to take to find
- *                  the solution.
- *
- *  @param maxiter For the MultiPhaseEquil solver only, this is
- *                 the maximum number of outer temperature or
- *                 pressure iterations to take when T and/or P is
- *                 not held fixed.
- *
- *  @param loglevel Controls amount of diagnostic output. loglevel
- *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
- *
- *  @ingroup equilfunctions
- */
 int vcs_equilibrate_1(MultiPhase& s, int ixy,
                       int estimateEquil, int printLvl, int solver,
                       doublereal tol, int maxsteps, int maxiter, int loglevel)
@@ -379,28 +231,6 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
     return retn;
 }
 
-//====================================================================================================================
-// Determine the phase stability of a single phase given the current conditions
-// in a MultiPhase object
-/*
- *
- *  @param s         The MultiPhase object to be set to an equilibrium state
- *  @param iphase    Phase index within the multiphase object to be
- *                   tested for stability.
- *  @param funcStab  Function value that tests equilibrium. > 0 indicates stable
- *                   < 0 indicates unstable
- *
- *  @param printLvl   Determines the amount of printing that
- *                  gets sent to stdout from the vcs package
- *                  (Note, you may have to compile with debug
- *                   flags to get some printing).
- *
- *  @param loglevel Controls amount of diagnostic output. loglevel
- *                  = 0 suppresses diagnostics, and increasingly-verbose
- *                  messages are written as loglevel increases. The
- *                  messages are written to a file in HTML format for viewing
- *                  in a web browser. @see HTML_logs
- */
 int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
                                  double& funcStab, int printLvl, int loglevel)
 {
@@ -442,5 +272,5 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
     }
     return iStab;
 }
-//====================================================================================================================
+
 }

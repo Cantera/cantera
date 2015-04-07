@@ -15,20 +15,16 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ct_thread.h"
 
-#include <string>
-
 namespace Cantera
 {
 
 //! Unit conversion utility
 /*!
- *
  * @ingroup inputfiles
  */
 class Unit
 {
 public:
-
     //! Initialize the static Unit class.
     static Unit* units() {
         ScopedLock lock(units_mutex);
@@ -56,13 +52,13 @@ public:
     /**
      * Return the multiplier required to convert an activation
      * energy to SI units.
-     * @param units activation energy units
+     * @param units_ activation energy units
      */
-    doublereal actEnergyToSI(std::string units) {
-        if (m_act_u.find(units) != m_act_u.end()) {
-            return m_act_u[units];
+    doublereal actEnergyToSI(const std::string& units_) {
+        if (m_act_u.find(units_) != m_act_u.end()) {
+            return m_act_u[units_];
         } else {
-            return toSI(units);
+            return toSI(units_);
         }
     }
 
@@ -73,18 +69,18 @@ public:
      *  <string, doublereal>called  m_u[] and m_act_u for activity
      * coefficients. These maps are initialized with likely values.
      *
-     * @param units String containing the units description
+     * @param units_ String containing the units description
      */
-    doublereal toSI(std::string units) {
+    doublereal toSI(const std::string& units_) {
 
         // if dimensionless, return 1.0
-        if (units == "") {
+        if (units_ == "") {
             return 1.0;
         }
 
         doublereal f = 1.0, fctr;
         int tsize;
-        std::string u = units, tok, tsub;
+        std::string u = units_, tok, tsub;
         std::string::size_type k;
         char action = '-';
 
@@ -146,7 +142,6 @@ public:
     }
 
 private:
-
     /// pointer to the single instance of Unit
     static Unit* s_u;
 
@@ -268,4 +263,3 @@ private:
 }
 
 #endif
-

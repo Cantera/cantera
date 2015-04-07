@@ -1,11 +1,12 @@
 /**
- * Provides class Nucleus
+ * @file Nuclei.h Provides class Nucleus
  */
 
 #ifndef CT_NUCL_H
 #define CT_NUCL_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -15,14 +16,17 @@ namespace Cantera
  * information, and are designed only to handle nuclear statistics
  * effects on spectra.
  * @ingroup spectroscopy
+ * @deprecated incomplete / abandoned
  */
 class Nucleus
 {
 public:
-    Nucleus(std::string symbol,
+    Nucleus(const std::string& symbol,
             int nP, int nN, doublereal spin) : m_np(nP),
         m_nn(nN), m_spin(spin),
-        m_sym(symbol) {}
+        m_sym(symbol) {
+            warn_deprecated("class Nucleus");
+        }
     virtual ~Nucleus() {}
     int nProtons() {
         return m_np;

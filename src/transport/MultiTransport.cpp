@@ -7,29 +7,16 @@
  *  See file License.txt for licensing information
  */
 
-#include "cantera/thermo/ThermoPhase.h"
-
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/numerics/ctlapack.h"
-
-#include "cantera/numerics/DenseMatrix.h"
-#include "cantera/base/utilities.h"
 #include "cantera/base/utilities.h"
 #include "L_matrix.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/thermo/IdealGasPhase.h"
-
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
-#include <iostream>
 using namespace std;
-
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
 
 namespace Cantera
 {
@@ -37,10 +24,7 @@ namespace Cantera
 ///////////////////// helper functions /////////////////////////
 
 /**
- *  @internal
- *
- *  The Parker temperature correction to the rotational collision
- *  number.
+ *  The Parker temperature correction to the rotational collision number.
  *
  *  @param tr Reduced temperature \f$ \epsilon/kT \f$
  *  @param sqtr square root of tr.
@@ -53,33 +37,6 @@ inline doublereal Frot(doublereal tr, doublereal sqtr)
     return 1.0 + c1*sqtr + c2*tr + c3*sqtr*tr;
 }
 
-
-/**
- * This method is used by GMRES to multiply the L matrix by a
- * vector b.  The L matrix has a 3x3 block structure, where each
- * block is a K x K matrix.  The elements of the upper-right and
- * lower-left blocks are all zero.  This method is defined so
- * that the multiplication only involves the seven non-zero
- * blocks.
- */
-void L_Matrix::mult(const doublereal* b, doublereal* prod) const
-{
-    integer n = static_cast<int>(nRows())/3;
-    integer n2 = 2*n;
-    integer n3 = 3*n;
-    ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n2, 1.0,
-             DATA_PTR(data()), static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
-    ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n3, 1.0,
-             DATA_PTR(data()) + n, static_cast<int>(nRows()),
-             b, 1, 0.0, prod+n, 1);
-    ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose, n, n, 1.0,
-             DATA_PTR(data()) + n*n3 + n2, static_cast<int>(nRows()),
-             b + n, 1, 0.0, prod+n2, 1);
-    for (int i = 0; i < n; i++) {
-        prod[i + n2] += b[i + n2] * value(i + n2, i + n2);
-    }
-}
-
 //////////////////// class MultiTransport methods //////////////
 
 MultiTransport::MultiTransport(thermo_t* thermo)
@@ -87,7 +44,6 @@ MultiTransport::MultiTransport(thermo_t* thermo)
 {
 }
 
-//====================================================================================================================
 bool MultiTransport::initGas(GasTransportParams& tr)
 {
     GasTransport::initGas(tr);
@@ -100,20 +56,18 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_om22_poly  = tr.omega22_poly;
     m_zrot       = tr.zrot;
     m_crot       = tr.crot;
-    m_epsilon    = tr.epsilon;
-    m_diam       = tr.diam;
     m_eps        = tr.eps;
+    m_sigma      = tr.sigma;
     m_alpha      = tr.alpha;
-    m_dipoleDiag.resize(m_nsp);
-    for (size_t i = 0; i < m_nsp; i++) {
-        m_dipoleDiag[i] = tr.dipole(i,i);
-    }
+    m_dipole     = tr.dipole;
+    m_zrot       = tr.zrot;
 
     // the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp);
     m_a.resize(3*m_nsp, 1.0);
     m_b.resize(3*m_nsp, 0.0);
     m_aa.resize(m_nsp, m_nsp, 0.0);
+    m_molefracs_last.resize(m_nsp, -1.0);
 
     m_frot_298.resize(m_nsp);
     m_rotrelax.resize(m_nsp);
@@ -131,13 +85,6 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     m_lmatrix_soln_ok = false;
 
     m_thermal_tlast = 0.0;
-
-    // use LU decomposition by default
-    m_gmres = false;
-
-    // default GMRES parameters
-    m_mgmres = 100;
-    m_eps_gmres = 1.e-4;
 
     // some work space
     m_spwork1.resize(m_nsp);
@@ -168,13 +115,6 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     return true;
 }
 
-//====================================================================================================================
-
-/****************** thermal conductivity **********************/
-
-/**
- * @internal
- */
 doublereal MultiTransport::thermalConductivity()
 {
     solveLMatrixEquation();
@@ -184,13 +124,7 @@ doublereal MultiTransport::thermalConductivity()
     }
     return -4.0*sum;
 }
-//====================================================================================================================
-// Return the thermal diffusion coefficients for the species
-/*
- *
- *  @param dt thermal diffusion coefficients
- *             (length = m_nsp)
- */
+
 void MultiTransport::getThermalDiffCoeffs(doublereal* const dt)
 {
     solveLMatrixEquation();
@@ -199,16 +133,15 @@ void MultiTransport::getThermalDiffCoeffs(doublereal* const dt)
         dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
     }
 }
-//====================================================================================================================
 
-/**
- * @internal
- */
 void MultiTransport::solveLMatrixEquation()
 {
     // if T has changed, update the temperature-dependent properties.
     updateThermal_T();
     update_C();
+    if (m_lmatrix_soln_ok) {
+        return;
+    }
 
     // Copy the mole fractions twice into the last two blocks of
     // the right-hand-side vector m_b. The first block of m_b was
@@ -232,9 +165,6 @@ void MultiTransport::solveLMatrixEquation()
     // all *monatomic* species are excluded. Since monatomic
     // radicals can have non-zero internal heat capacities due to
     // electronic excitation, they should be retained.
-    //
-    // But if CHEMKIN_COMPATIBILITY_MODE is defined, then all
-    // monatomic species are excluded.
 
     for (size_t k = 0; k < m_nsp; k++) {
         if (!hasInternalModes(k)) {
@@ -245,6 +175,7 @@ void MultiTransport::solveLMatrixEquation()
     // evaluate the submatrices of the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp, 0.0);
 
+    //! Evaluate the upper-left block of the L matrix.
     eval_L0000(DATA_PTR(m_molefracs));
     eval_L0010(DATA_PTR(m_molefracs));
     eval_L0001();
@@ -276,32 +207,11 @@ void MultiTransport::solveLMatrixEquation()
                            "error in solving L matrix.");
     }
     m_lmatrix_soln_ok = true;
-    m_l0000_ok = false;
+    m_molefracs_last = m_molefracs;
     // L matrix is overwritten with LU decomposition
-    //}
-    m_lmatrix_soln_ok = true;
+    m_l0000_ok = false;
 }
 
-//====================================================================================================================
-//  Get the species diffusive mass fluxes wrt to  the mass averaged velocity,
-//  given the gradients in mole fraction and temperature
-/*
- *  Units for the returned fluxes are kg m-2 s-1.
- *
- *  @param ndim     Number of dimensions in the flux expressions
- *  @param grad_T   Gradient of the temperature
- *                   (length = ndim)
- * @param ldx       Leading dimension of the grad_X array
- *                   (usually equal to m_nsp but not always)
- * @param grad_X    Gradients of the mole fraction
- *                  Flat vector with the m_nsp in the inner loop.
- *                   length = ldx * ndim
- * @param ldf       Leading dimension of the fluxes array
- *                   (usually equal to m_nsp but not always)
- * @param fluxes    Output of the diffusive mass fluxes
- *                  Flat vector with the m_nsp in the inner loop.
- *                   length = ldx * ndim
- */
 void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                       size_t ldx, const doublereal* const grad_X,
                                       size_t ldf, doublereal* const fluxes)
@@ -415,21 +325,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
         }
     }
 }
-//====================================================================================================================
-// Get the mass diffusional fluxes [kg/m^2/s] of the species, given the thermodynamic
-// state at two nearby points.
-/*
- * The specific diffusional fluxes are calculated with reference to the mass averaged
- * velocity. This is a one-dimensional vector
- *
- * @param state1 Array of temperature, density, and mass
- *               fractions for state 1.
- * @param state2 Array of temperature, density, and mass
- *               fractions for state 2.
- * @param delta  Distance from state 1 to state 2 (m).
- * @param fluxes Output mass fluxes of the species.
- *               (length = m_nsp)
- */
+
 void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* state2, doublereal delta,
                                    doublereal* fluxes)
 {
@@ -535,7 +431,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
         }
     }
 }
-//====================================================================================================================
+
 void MultiTransport::getMolarFluxes(const doublereal* const state1,
                                     const doublereal* const state2,
                                     const doublereal delta,
@@ -546,30 +442,7 @@ void MultiTransport::getMolarFluxes(const doublereal* const state1,
         fluxes[k] /= m_mw[k];
     }
 }
-//====================================================================================================================
-// Set the solution method for inverting the L matrix
-/*
- *      @param method enum TRANSOLVE_TYPE Either use direct or TRANSOLVE_GMRES
- */
-void MultiTransport::setSolutionMethod(TRANSOLVE_TYPE method)
-{
-    if (method == TRANSOLVE_GMRES) {
-        m_gmres = true;
-    } else {
-        m_gmres = false;
-    }
-}
-//====================================================================================================================
-void MultiTransport::setOptions_GMRES(int m, doublereal eps)
-{
-    if (m > 0) {
-        m_mgmres = m;
-    }
-    if (eps > 0.0) {
-        m_eps_gmres = eps;
-    }
-}
-//====================================================================================================================
+
 void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 {
     doublereal p = pressure_ig();
@@ -579,7 +452,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 
     // update the binary diffusion coefficients
     update_T();
-    updateDiff_T();
+    updateThermal_T();
 
     // evaluate L0000 if the temperature or concentrations have
     // changed since it was last evaluated.
@@ -594,6 +467,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
                            string(" invert returned ierr = ")+int2str(ierr));
     }
     m_l0000_ok = false;           // matrix is overwritten by inverse
+    m_lmatrix_soln_ok = false;
 
     //doublereal pres = m_thermo->pressure();
     doublereal prefactor = 16.0 * m_temp
@@ -608,8 +482,6 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
         }
     }
 }
-//====================================================================================================================
-
 
 void MultiTransport::update_T()
 {
@@ -628,25 +500,20 @@ void MultiTransport::update_T()
 
 void MultiTransport::update_C()
 {
-    // signal that concentration-dependent quantities will need to
-    // be recomputed before use, and update the local mole
-    // fraction array.
-    m_l0000_ok = false;
-    m_lmatrix_soln_ok = false;
+    // Update the local mole fraction array
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
-    // add an offset to avoid a pure species condition
-    // (check - this may be unnecessary)
     for (size_t k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = std::max(MIN_X, m_molefracs[k]);
+        // add an offset to avoid a pure species condition
+        m_molefracs[k] = std::max(Tiny, m_molefracs[k]);
+        if (m_molefracs[k] != m_molefracs_last[k]) {
+            // If any mole fractions have changed, signal that concentration-
+            // dependent quantities will need to be recomputed before use.
+            m_l0000_ok = false;
+            m_lmatrix_soln_ok = false;
+        }
     }
 }
-
-/*************************************************************************
- *
- *    methods to update temperature-dependent properties
- *
- *************************************************************************/
 
 void MultiTransport::updateThermal_T()
 {
@@ -655,7 +522,6 @@ void MultiTransport::updateThermal_T()
     }
     // we need species viscosities and binary diffusion coefficients
     updateSpeciesViscosities();
-    update_T();
     updateDiff_T();
 
     // evaluate polynomial fits for A*, B*, C*
@@ -717,29 +583,4 @@ void MultiTransport::updateThermal_T()
     m_thermal_tlast = m_thermo->temperature();
 }
 
-//====================================================================================================================
-/*
- * This function returns a Transport data object for a given species.
- *
- */
-struct GasTransportData MultiTransport::
-getGasTransportData(int kSpecies) {
-    struct GasTransportData td;
-    td.speciesName = m_thermo->speciesName(kSpecies);
-
-    td.geometry = 2;
-    if (m_crot[kSpecies] == 0.0) {
-        td.geometry = 0;
-    } else if (m_crot[kSpecies] == 1.0) {
-        td.geometry = 1;
-    }
-    td.wellDepth = m_eps[kSpecies] / Boltzmann;
-    td.dipoleMoment = m_dipoleDiag[kSpecies] * 1.0E25 / SqrtTen;
-    td.diameter = m_diam(kSpecies, kSpecies) * 1.0E10;
-    td.polarizability = m_alpha[kSpecies] * 1.0E30;
-    td.rotRelaxNumber = m_zrot[kSpecies];
-
-    return td;
-}
-//====================================================================================================================
 }

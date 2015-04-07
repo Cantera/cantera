@@ -94,14 +94,6 @@ class ReactorBase:
             _cantera.reactor_setThermoMgr(self.__reactor_id, contents._phase_id)
             _cantera.reactor_setKineticsMgr(self.__reactor_id, contents.ckin)
 
-
-    def setInitialTime(self, T0):
-        """Deprecated.
-        Set the initial time. Restarts integration from this time
-        using the current state as the initial condition. Default: 0.0 s"""
-        raise "use method setInitialTime of class ReactorNet"
-        #_cantera.reactor_setInitialTime(self.__reactor_id, T0)
-
     def _setInitialVolume(self, V0):
         """Set the initial reactor volume. """
         _cantera.reactor_setInitialVolume(self.__reactor_id, V0)
@@ -134,11 +126,6 @@ class ReactorBase:
         if non-rigid walls are installed on the reactor."""
         return _cantera.reactor_volume(self.__reactor_id)
 
-    def time(self):
-        """Deprecated. The current time [s]."""
-        raise "use method time of class ReactorNet"
-        #return _cantera.reactor_time(self.__reactor_id)
-
     def mass(self):
         """The total mass of fluid in the reactor [kg]."""
         return _cantera.reactor_mass(self.__reactor_id)
@@ -154,22 +141,6 @@ class ReactorBase:
     def pressure(self):
         """The pressure in the reactor [Pa]."""
         return _cantera.reactor_pressure(self.__reactor_id)
-
-    def advance(self, time):
-        """Deprecated.
-        Advance the state of the reactor in time from the current
-        time to time *time*. Note: this method is deprecated. See
-        :class:`.ReactorNet`."""
-        raise "use method advance of class ReactorNet"
-        #return _cantera.reactor_advance(self.__reactor_id, time)
-
-    def step(self, time):
-        """Deprecated.
-        Take one internal time step from the current time toward
-        time *time*. Note: this method is deprecated. See class
-        :class:`.ReactorNet`."""
-        raise "use method step of class ReactorNet"
-        #return _cantera.reactor_step(self.__reactor_id, time)
 
     def massFraction(self, s):
         """The mass fraction of species *s*, specified either by name or
@@ -398,6 +369,23 @@ class Reactor(ReactorBase):
                              verbose = verbose, type = 2)
 
 
+class IdealGasReactor(ReactorBase):
+    """
+    Similar to :class:`.Reactor`, but with a set of governing equations
+    optimized specifically for ideal gas mixtures.
+    """
+    def __init__(self, contents = None, name = '',
+                 volume = 1.0, energy = 'on',
+                 verbose = 0):
+        global _reactorcount
+        if name == '':
+            name = 'IdealGasReactor_'+`_reactorcount`
+        _reactorcount += 1
+        ReactorBase.__init__(self, contents = contents, name = name,
+                             volume = volume, energy = energy,
+                             verbose = verbose, type = 5)
+
+
 class FlowReactor(ReactorBase):
     def __init__(self, contents = None, name = '',
                  volume = 1.0, energy = 'on',
@@ -432,7 +420,7 @@ class FlowReactor(ReactorBase):
             self.setMassFlowRate(mdot)
 
     def setMassFlowRate(self, mdot):
-        _cantera.flowReactor_setMassFlowRate(self.__reactor_id, mdot)
+        _cantera.flowReactor_setMassFlowRate(self.reactor_id(), mdot)
 
 
 class ConstPressureReactor(ReactorBase):
@@ -465,6 +453,23 @@ class ConstPressureReactor(ReactorBase):
         ReactorBase.__init__(self, contents = contents, name = name,
                              volume = volume, energy = energy,
                              verbose = verbose, type = 4)
+
+
+class IdealGasConstPressureReactor(ReactorBase):
+    """
+    Similar to :class:`.ConstPressureReactor`, but with a set of governing
+    equations optimized specifically for ideal gas mixtures.
+    """
+    def __init__(self, contents = None, name = '',
+                 volume = 1.0, energy = 'on',
+                 verbose = 0):
+        global _reactorcount
+        if name == '':
+            name = 'IdealGasConstPRessureReactor_'+`_reactorcount`
+        _reactorcount += 1
+        ReactorBase.__init__(self, contents = contents, name = name,
+                             volume = volume, energy = energy,
+                             verbose = verbose, type = 6)
 
 
 class Reservoir(ReactorBase):
@@ -972,7 +977,7 @@ class Wall:
         """
         if qfunc:
             self._qfunc = qfunc # hold on to a reference so it doesn't get deleted
-            n = self.qfunc.func_id()
+            n = qfunc.func_id()
         else:
             n = 0
         return _cantera.wall_setHeatFlux(self.__wall_id, n)

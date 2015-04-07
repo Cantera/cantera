@@ -1,24 +1,22 @@
-#include "subs.h"
+//! @file utils.cpp
 #include "cantera/tpx/utils.h"
+#include "cantera/base/stringUtils.h"
 
-using std::string;
+#include "CarbonDioxide.h"
+#include "Heptane.h"
+#include "HFC134a.h"
+#include "Hydrogen.h"
+#include "Methane.h"
+#include "Nitrogen.h"
+#include "Oxygen.h"
+#include "Water.h"
+#include "RedlichKwong.h"
 
 namespace tpx
 {
-
-static string lowercase(string s)
+Substance* GetSubstanceByName(std::string name)
 {
-    size_t i, n = s.size();
-    string lc(s);
-    for (i = 0; i < n; i++) {
-        lc[i] = (char) tolower(s[i]);
-    }
-    return lc;
-}
-
-Substance* GetSubstanceByName(string name)
-{
-    string lcname = lowercase(name);
+    std::string lcname = Cantera::lowercase(name);
     if (lcname == "water") {
         return new water;
     } else if (lcname == "nitrogen") {
@@ -68,4 +66,3 @@ Substance* GetSub(int isub)
 }
 
 }
-

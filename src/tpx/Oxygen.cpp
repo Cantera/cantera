@@ -1,11 +1,11 @@
-// Oxygen
-
+//! @file Oxygen.cpp
 #include "Oxygen.h"
-#include <math.h>
+#include "cantera/base/stringUtils.h"
+
+using namespace Cantera;
 
 namespace tpx
 {
-
 static const double
 M = 31.9994,
 Tmn = 54.34,
@@ -49,8 +49,6 @@ static const double Goxy[] = {
     6.55236176900400e2, -1.13131252131570e-2,
     3.4981070244228e-6, 4.21065222886885e-9, 2.67997030050139e2
 };
-
-//equation P4
 
 double oxygen::C(int i, double rt, double rt2)
 {
@@ -192,13 +190,13 @@ double oxygen::Pp()
     return P;
 }
 
-//equation s4
 double oxygen::Psat()
 {
     double lnp;
     int i;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("oxygen::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (i=0, lnp=0; i<=7; i++) {
         if (i==3) {
@@ -211,12 +209,12 @@ double oxygen::Psat()
     return exp(lnp);
 }
 
-//equation D2
 double oxygen::ldens()
 {
     double xx=1-T/Tc, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("oxygen::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=0; i<=5; i++) {
         sum+=Doxy[i]*pow(xx,double(i)/3.0);

@@ -143,59 +143,46 @@ public:
     /// Destructor.
     virtual ~Kinetics();
 
-    //!Copy Constructor for the %Kinetics object.
-    /*!
-     * Currently, this is not fully implemented. If called it will
-     * throw an exception.
-     */
+    //!Copy Constructor for the Kinetics object.
     Kinetics(const Kinetics&);
 
     //! Assignment operator
     /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to %Kinetics object to be copied into the
+     * @param right    Reference to Kinetics object to be copied into the
      *                 current one.
      */
     Kinetics& operator=(const Kinetics& right);
 
-
     //! Duplication routine for objects which inherit from Kinetics
     /*!
-     *  This virtual routine can be used to duplicate %Kinetics objects
-     *  inherited from %Kinetics even if the application only has
-     *  a pointer to %Kinetics to work with.
+     *  This function can be used to duplicate objects derived from Kinetics
+     *  even if the application only has a pointer to Kinetics to work with.
      *
-     *  These routines are basically wrappers around the derived copy  constructor.
+     *  These routines are basically wrappers around the derived copy
+     *  constructor.
      *
-     * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
-     *                  m_thermo vector within this object
+     * @param  tpVector Vector of pointers to ThermoPhase objects. this is the
+     *                  #m_thermo vector within this object
      */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
-    //! Reassign the shallow pointers within the %FKinetics object
+    //! Reassign the pointers within the Kinetics object
     /*!
-     *  This type or routine is absolute necessary because the Kinetics object doesn't
-     *  own the ThermoPhase objects. After a duplication, we need to point to different
-     *  ThermoPhase objects.
+     *  This type or routine is necessary because the Kinetics object doesn't
+     *  own the ThermoPhase objects. After a duplication, we need to point to
+     *  different ThermoPhase objects.
      *
      *  We check that the ThermoPhase objects are aligned in the same order and have
-     *  the following identical properties to the ones that they are replacing.
-     *   id()
-     *   eosType()
-     *   nSpecies()
+     *  the following identical properties to the ones that they are replacing:
      *
-     *  @param tpVector Vector of shallow pointers to ThermoPhase objects. this is the
-     *         m_thermo vector within this object
+     *  - ThermoPhase::id()
+     *  - ThermoPhase::eosType()
+     *  - ThermoPhase::nSpecies()
+     *
+     *  @param tpVector Vector of pointers to ThermoPhase objects. this is the
+     *         #m_thermo vector within this object
      */
     virtual void assignShallowPointers(const std::vector<thermo_t*> & tpVector);
-
-    //! Identifies the subclass of the Kinetics manager type.
-    /*!
-     * These are listed in mix_defs.h.
-     * @deprecated use type() instead
-     */
-    DEPRECATED(virtual int ID() const);
 
     //!  Identifies the kinetics manager type.
     /*!
@@ -227,12 +214,9 @@ public:
     //! Throws an exception if kk is less than nSpecies(). Used before calls
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t mm) const;
+
     //@}
-
-
-    /**
-     * @name Information/Lookup Functions about Phases and Species
-     */
+    //! @name Information/Lookup Functions about Phases and Species
     //@{
 
     /**
@@ -263,7 +247,7 @@ public:
      * If a -1 is returned, then the phase is not defined in
      * the Kinetics object.
      */
-    size_t phaseIndex(std::string ph) {
+    size_t phaseIndex(const std::string& ph) {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
             return npos;
         } else {
@@ -272,37 +256,32 @@ public:
     }
 
     /**
-     * This returns the integer index of the phase which has
-     * ThermoPhase type cSurf. For heterogeneous mechanisms, this
-     * identifies the one surface phase. For homogeneous
-     * mechanisms, this returns -1.
+     * This returns the integer index of the phase which has ThermoPhase type
+     * cSurf. For heterogeneous mechanisms, this identifies the one surface
+     * phase. For homogeneous mechanisms, this returns -1.
      */
     size_t surfacePhaseIndex() {
         return m_surfphase;
     }
 
     /**
-     * Phase where the reactions occur. For heterogeneous
-     * mechanisms, one of the phases in the list of phases
-     * represents the 2D interface or 1D edge at which the
-     * reactions take place. This method returns the index of the
-     * phase with the smallest spatial dimension (1, 2, or 3)
-     * among the list of phases.  If there is more than one, the
-     * index of the first one is returned. For homogeneous
-     * mechanisms, the value 0 is returned.
+     * Phase where the reactions occur. For heterogeneous mechanisms, one of
+     * the phases in the list of phases represents the 2D interface or 1D edge
+     * at which the reactions take place. This method returns the index of the
+     * phase with the smallest spatial dimension (1, 2, or 3) among the list
+     * of phases.  If there is more than one, the index of the first one is
+     * returned. For homogeneous mechanisms, the value 0 is returned.
      */
     size_t reactionPhaseIndex() {
         return m_rxnphase;
     }
 
-
     /**
-     * This method returns a reference to the nth ThermoPhase
-     * object defined in this kinetics mechanism.  It is typically
-     * used so that member functions of the ThermoPhase object may
-     * be called. For homogeneous mechanisms, there is only one
-     * object, and this method can be called without an argument
-     * to access it.
+     * This method returns a reference to the nth ThermoPhase object defined
+     * in this kinetics mechanism.  It is typically used so that member
+     * functions of the ThermoPhase object may be called. For homogeneous
+     * mechanisms, there is only one object, and this method can be called
+     * without an argument to access it.
      *
      * @param n Index of the ThermoPhase being sought.
      */
@@ -314,35 +293,9 @@ public:
     }
 
     /**
-     * This method returns a reference to the nth ThermoPhase
-     * defined in this kinetics mechanism.
-     * It is typically used so that member functions of the
-     * ThermoPhase may be called. @deprecated This method is redundant.
-     *
-     * @param n Index of the ThermoPhase being sought.
-     */
-    DEPRECATED(thermo_t& phase(size_t n=0)) {
-        deprecatedMethod("Kinetics","phase","thermo");
-        return *m_thermo[n];
-    }
-    /**
-     * This method returns a reference to the nth ThermoPhase
-     * defined in this kinetics mechanism.
-     * It is typically used so that member functions of the
-     * ThermoPhase may be called. @deprecated This method is redundant.
-     *
-     * @param n Index of the ThermoPhase being sought.
-     */
-    DEPRECATED(const thermo_t& phase(size_t n=0) const) {
-        deprecatedMethod("Kinetics","phase","thermo");
-        return *m_thermo[n];
-    }
-
-    /**
-     * The total number of species in all phases participating in
-     * the kinetics mechanism. This is useful to dimension arrays
-     * for use in calls to methods that return the species
-     * production rates, for example.
+     * The total number of species in all phases participating in the kinetics
+     * mechanism. This is useful to dimension arrays for use in calls to
+     * methods that return the species production rates, for example.
      */
     size_t nTotalSpecies() const {
         size_t n=0, np;
@@ -352,19 +305,6 @@ public:
         }
         return n;
     }
-
-    /**
-     * Returns the starting index of the species in the nth phase
-     * associated with the reaction mechanism.
-     *
-     * @param n Return the index of first species in the nth phase
-     *          associated with the reaction mechanism.
-     */
-    size_t start(size_t n) {
-        deprecatedMethod("Kinetics","start","kineticsSpeciesIndex(0,n)");
-        return m_start[n];
-    }
-
 
     /**
      * The location of species k of phase n in species arrays.
@@ -392,15 +332,12 @@ public:
         return m_start[n] + k;
     }
 
-
-    //! Return the std::string name of the kth species in the kinetics
-    //! manager.
+    //! Return the name of the kth species in the kinetics manager.
     /*!
-     *  k is an integer from 0 to ktot - 1, where ktot is
-     * the number of species in the kinetics manager, which is the
-     * sum of the number of species in all phases participating in
-     * the kinetics manager.  If k is out of bounds, the std::string
-     * "<unknown>" is returned.
+     *  k is an integer from 0 to ktot - 1, where ktot is the number of
+     * species in the kinetics manager, which is the sum of the number of
+     * species in all phases participating in the kinetics manager.  If k is
+     * out of bounds, the string "<unknown>" is returned.
      *
      * @param k species index
      */
@@ -435,14 +372,13 @@ public:
                                 const std::string& ph) const;
 
     /**
-     * This function looks up the std::string name of a species and
-     * returns a reference to the ThermoPhase object of the
-     * phase where the species resides.
-     * Will throw an error if the species std::string doesn't match.
+     * This function looks up the name of a species and returns a
+     * reference to the ThermoPhase object of the phase where the species
+     * resides. Will throw an error if the species doesn't match.
      *
      * @param nm   String containing the name of the species.
      */
-    thermo_t& speciesPhase(std::string nm);
+    thermo_t& speciesPhase(const std::string& nm);
 
     /**
      * This function takes as an argument the kineticsSpecies index
@@ -456,23 +392,17 @@ public:
     }
 
     /**
-     * This function takes as an argument the kineticsSpecies index
-     * (i.e., the list index in the list of species in the kinetics
-     * manager) and returns the index of the phase owning the
-     * species.
+     * This function takes as an argument the kineticsSpecies index (i.e., the
+     * list index in the list of species in the kinetics manager) and returns
+     * the index of the phase owning the species.
      *
      * @param k          Species index
      */
     size_t speciesPhaseIndex(size_t k);
 
-    //@}
-
-
-
-    /**
-     * @name Reaction Rates Of Progress
-     */
-    //@{
+    //! @}
+    //! @name Reaction Rates Of Progress
+    //! @{
 
     //!  Return the forward rates of progress of the reactions
     /*!
@@ -489,9 +419,8 @@ public:
 
     //!  Return the Reverse rates of progress of the reactions
     /*!
-     * Return the reverse rates of
-     * progress in array revROP, which must be dimensioned at
-     * least as large as the total number of reactions.
+     * Return the reverse rates of progress in array revROP, which must be
+     * dimensioned at least as large as the total number of reactions.
      *
      * @param revROP  Output vector containing reverse rates
      *                of progress of the reactions. Length: m_ii.
@@ -501,10 +430,9 @@ public:
     }
 
     /**
-     * Net rates of progress.  Return the net (forward - reverse)
-     * rates of progress in array netROP, which must be
-     * dimensioned at least as large as the total number of
-     * reactions.
+     * Net rates of progress.  Return the net (forward - reverse) rates of
+     * progress in array netROP, which must be dimensioned at least as large
+     * as the total number of reactions.
      *
      * @param netROP  Output vector of the net ROP. Length: m_ii.
      */
@@ -512,14 +440,11 @@ public:
         err("getNetRatesOfProgress");
     }
 
-
-
     //! Return a vector of Equilibrium constants.
     /*!
-     *  Return the equilibrium constants of
-     *  the reactions in concentration units in array kc, which
-     *  must be dimensioned at least as large as the total number
-     *  of reactions.
+     *  Return the equilibrium constants of the reactions in concentration
+     *  units in array kc, which must be dimensioned at least as large as the
+     *  total number of reactions.
      *
      * @param kc   Output vector containing the equilibrium constants.
      *             Length: m_ii.
@@ -555,50 +480,45 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaG  Output vector of  deltaG's for reactions
-     *                Length: m_ii.
+     * @param deltaG  Output vector of  deltaG's for reactions Length: m_ii.
      */
     virtual void getDeltaGibbs(doublereal* deltaG) {
         err("getDeltaGibbs");
     }
 
-    //! Return the vector of values for the reaction electrochemical free energy change.
+    //! Return the vector of values for the reaction electrochemical free
+    //! energy change.
     /*!
-     * These values depend upon the concentration of the solution and
-     * the voltage of the phases
+     * These values depend upon the concentration of the solution and the
+     * voltage of the phases
      *
      *  units = J kmol-1
      *
-     * @param deltaM  Output vector of  deltaM's for reactions
-     *                Length: m_ii.
+     * @param deltaM  Output vector of  deltaM's for reactions Length: m_ii.
      */
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
         err("getDeltaElectrochemPotentials");
     }
 
     /**
-     * Return the vector of values for the reactions change in
-     * enthalpy.  These values depend upon the concentration of
-     * the solution.
+     * Return the vector of values for the reactions change in enthalpy.
+     * These values depend upon the concentration of the solution.
      *
      *  units = J kmol-1
      *
-     * @param deltaH  Output vector of deltaH's for reactions
-     *                Length: m_ii.
+     * @param deltaH  Output vector of deltaH's for reactions Length: m_ii.
      */
     virtual void getDeltaEnthalpy(doublereal* deltaH) {
         err("getDeltaEnthalpy");
     }
 
     /**
-     * Return the vector of values for the reactions change in
-     * entropy.  These values depend upon the concentration of the
-     * solution.
+     * Return the vector of values for the reactions change in entropy.  These
+     * values depend upon the concentration of the solution.
      *
      *  units = J kmol-1 Kelvin-1
      *
-     * @param deltaS  Output vector of deltaS's for reactions
-     *                Length: m_ii.
+     * @param deltaS  Output vector of deltaS's for reactions Length: m_ii.
      */
     virtual void getDeltaEntropy(doublereal* deltaS) {
         err("getDeltaEntropy");
@@ -611,8 +531,7 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaG  Output vector of ss deltaG's for reactions
-     *                Length: m_ii.
+     * @param deltaG  Output vector of ss deltaG's for reactions Length: m_ii.
      */
     virtual void getDeltaSSGibbs(doublereal* deltaG) {
         err("getDeltaSSGibbs");
@@ -625,8 +544,7 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaH  Output vector of ss deltaH's for reactions
-     *                Length: m_ii.
+     * @param deltaH  Output vector of ss deltaH's for reactions Length: m_ii.
      */
     virtual void getDeltaSSEnthalpy(doublereal* deltaH) {
         err("getDeltaSSEnthalpy");
@@ -639,41 +557,33 @@ public:
      *
      *  units = J kmol-1 Kelvin-1
      *
-     * @param deltaS  Output vector of ss deltaS's for reactions
-     *                Length: m_ii.
+     * @param deltaS  Output vector of ss deltaS's for reactions Length: m_ii.
      */
     virtual void getDeltaSSEntropy(doublereal* deltaS) {
         err("getDeltaSSEntropy");
     }
 
-
-    //@}
-    /**
-     * @name Species Production Rates
-     */
-    //@{
+    //! @}
+    //! @name Species Production Rates
+    //! @{
 
     /**
-     * Species creation rates [kmol/m^3/s or kmol/m^2/s]. Return the
-     * species creation rates in array cdot, which must be
-     * dimensioned at least as large as the total number of
-     * species in all phases. @see nTotalSpecies.
+     * Species creation rates [kmol/m^3/s or kmol/m^2/s]. Return the species
+     * creation rates in array cdot, which must be dimensioned at least as
+     * large as the total number of species in all phases. @see nTotalSpecies.
      *
-     * @param cdot   Output vector of creation rates.
-     *               Length: m_kk.
+     * @param cdot   Output vector of creation rates. Length: m_kk.
      */
     virtual void getCreationRates(doublereal* cdot) {
         err("getCreationRates");
     }
 
     /**
-     * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return
-     * the species destruction rates in array ddot, which must be
-     * dimensioned at least as large as the total number of
-     * species. @see nTotalSpecies.
+     * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the
+     * species destruction rates in array ddot, which must be dimensioned at
+     * least as large as the total number of species. @see nTotalSpecies.
      *
-     * @param ddot   Output vector of destruction rates.
-     *               Length: m_kk.
+     * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
     virtual void getDestructionRates(doublereal* ddot) {
         err("getDestructionRates");
@@ -685,24 +595,18 @@ public:
      * in array wdot, which must be dimensioned at least as large
      * as the total number of species. @see nTotalSpecies.
      *
-     * @param wdot   Output vector of net production rates.
-     *               Length: m_kk.
+     * @param wdot   Output vector of net production rates. Length: m_kk.
      */
     virtual void getNetProductionRates(doublereal* wdot) {
         err("getNetProductionRates");
     }
 
-    //@}
-
-
-    /**
-     * @name Reaction Mechanism Informational Query Routines
-     */
-    //@{
+    //! @}
+    //! @name Reaction Mechanism Informational Query Routines
+    //! @{
 
     /**
-     * Stoichiometric coefficient of species k as a reactant in
-     * reaction i.
+     * Stoichiometric coefficient of species k as a reactant in reaction i.
      *
      * @param k   kinetic species index
      * @param i   reaction index
@@ -713,8 +617,7 @@ public:
     }
 
     /**
-     * Stoichiometric coefficient of species k as a product in
-     * reaction i.
+     * Stoichiometric coefficient of species k as a product in reaction i.
      *
      * @param k   kinetic species index
      * @param i   reaction index
@@ -754,8 +657,8 @@ public:
 
     //! Get the vector of activity concentrations used in the kinetics object
     /*!
-     *  @param conc  (output) Vector of activity concentrations. Length is
-     *               equal to the number of species in the kinetics object
+     *  @param[out] conc  Vector of activity concentrations. Length is equal
+     *               to the number of species in the kinetics object
      */
     virtual void getActivityConcentrations(doublereal* const conc) {
         err("getActivityConcentrations");
@@ -806,7 +709,7 @@ public:
     }
 
     /**
-     * Return a std::string representing the reaction.
+     * Return a string representing the reaction.
      *
      * @param i   reaction index
      */
@@ -818,12 +721,10 @@ public:
     /**
      * Return the forward rate constants
      *
-     * length is the number of reactions. units depends
-     * on many issues. @todo DGG: recommend changing name to
-     * getFwdRateCoefficients.
+     * length is the number of reactions. units depends on many issues.
      *
-     * @param kfwd    Output vector containing the forward reaction rate constants.
-     *                Length: m_ii.
+     * @param kfwd    Output vector containing the forward reaction rate
+     *                constants. Length: m_ii.
      */
     virtual void getFwdRateConstants(doublereal* kfwd) {
         err("getFwdRateConstants");
@@ -832,11 +733,9 @@ public:
     /**
      * Return the reverse rate constants.
      *
-     * length is the number of reactions. units depends
-     * on many issues. Note, this routine will return rate constants
-     * for irreversible reactions if the default for
-     * doIrreversible is overridden. @todo DGG: recommend changing name to
-     * getRevRateCoefficients.
+     * length is the number of reactions. units depends on many issues. Note,
+     * this routine will return rate constants for irreversible reactions if
+     * the default for doIrreversible is overridden.
      *
      * @param krev   Output vector of reverse rate constants.
      * @param doIrreversible boolean indicating whether irreversible reactions
@@ -847,66 +746,57 @@ public:
         err("getFwdRateConstants");
     }
 
-
     /**
      * Return the activation energies in Kelvin.
      *
      * length is the number of reactions
      *
-     * @param E     Ouptut vector of activation energies.
-     *              Length: m_ii.
+     * @param E     Ouptut vector of activation energies. Length: m_ii.
+     * @deprecated To be removed in Cantera 2.2.
      */
     virtual void getActivationEnergies(doublereal* E) {
         err("getActivationEnergies");
     }
 
-
-    //@}
-    /**
-     * @name Reaction Mechanism Construction
-     */
-    //@{
+    //! @}
+    //! @name Reaction Mechanism Construction
+    //! @{
 
     //!  Add a phase to the kinetics manager object.
     /*!
-     * This must be done before the function init() is called or
-     * before any reactions are input.
-     * The following fields are updated:
-     *  m_start -> vector of integers, containing the
-     *             starting position of the species for
-     *             each phase in the kinetics mechanism.
-     *  m_surfphase -> index of the surface phase.
-     *  m_thermo -> vector of pointers to ThermoPhase phases
-     *              that participate in the kinetics
-     *              mechanism.
-     *  m_phaseindex -> map containing the std::string id of each
-     *              ThermoPhase phase as a key and the
-     *              index of the phase within the kinetics
-     *              manager object as the value.
+     * This must be done before the function init() is called or before any
+     * reactions are input. The following fields are updated:
+     *
+     *  - #m_start -> vector of integers, containing the starting position of
+     *    the species for each phase in the kinetics mechanism.
+     *  - #m_surfphase -> index of the surface phase.
+     *  - #m_thermo -> vector of pointers to ThermoPhase phases that
+     *    participate in the kinetics mechanism.
+     *  - #m_phaseindex -> map containing the std::string id of each
+     *    ThermoPhase phase as a key and the index of the phase within the
+     *    kinetics manager object as the value.
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
     virtual void addPhase(thermo_t& thermo);
 
     /**
-     * Prepare the class for the addition of reactions. This
-     * method is called by function importKinetics after all
-     * phases have been added but before any reactions have
-     * been. The base class method does nothing, but derived
-     * classes may use this to perform any initialization
-     * (allocating arrays, etc.) that requires knowing the phases
-     * and species, but before any reactions are added.
+     * Prepare the class for the addition of reactions. This method is called
+     * by importKinetics() after all phases have been added but before any
+     * reactions have been. The base class method does nothing, but derived
+     * classes may use this to perform any initialization (allocating arrays,
+     * etc.) that requires knowing the phases and species, but before any
+     * reactions are added.
      */
     virtual void init() {}
 
     /**
-     * Finish adding reactions and prepare for use. This method is
-     * called by function importKinetics after all reactions have
-     * been entered into the mechanism and before the mechanism is
-     * used to calculate reaction rates. The base class method
-     * does nothing, but derived classes may use this to perform
-     * any initialization (allocating arrays, etc.) that must be
-     * done after the reactions are entered.
+     * Finish adding reactions and prepare for use. This method is called by
+     * importKinetics() after all reactions have been entered into the
+     * mechanism and before the mechanism is used to calculate reaction rates.
+     * The base class method does nothing, but derived classes may use this to
+     * perform any initialization (allocating arrays, etc.) that must be done
+     * after the reactions are entered.
      */
     virtual void finalize();
 
@@ -931,18 +821,15 @@ public:
         return m_dummygroups;
     }
 
-
     //@}
-    /**
-     * @name Altering Reaction Rates
-     *
-     * These methods alter reaction rates. They are designed
-     * primarily for carrying out sensitivity analysis, but may be
-     * used for any purpose requiring dynamic alteration of rate
-     * constants.  For each reaction, a real-valued multiplier may
-     * be defined that multiplies the reaction rate
-     * coefficient. The multiplier may be set to zero to
-     * completely remove a reaction from the mechanism.
+    //! @name Altering Reaction Rates
+    /*!
+     * These methods alter reaction rates. They are designed primarily for
+     * carrying out sensitivity analysis, but may be used for any purpose
+     * requiring dynamic alteration of rate constants.  For each reaction, a
+     * real-valued multiplier may be defined that multiplies the reaction rate
+     * coefficient. The multiplier may be set to zero to completely remove a
+     * reaction from the mechanism.
      */
     //@{
 
@@ -982,20 +869,20 @@ public:
         return false;
     }
 
-
-    /**
-     * Extract from array \c data the portion pertaining to phase \c phase.
-     *
-     * @param data       data
-     * @param phase      phase
-     * @param phase_data phase_data
+    /*!
+     * Takes as input an array of properties for all species in the mechanism
+     * and copies those values belonging to a particular phase to the output
+     * array.
+     * @param data Input data array.
+     * @param phase Pointer to one of the phase objects participating in this
+     *     reaction mechanism
+     * @param phase_data Output array where the values for the the specified
+     *     phase are to be written.
      */
     void selectPhase(const doublereal* data, const thermo_t* phase,
                      doublereal* phase_data);
 
 protected:
-
-
     //! Number of reactions in the mechanism
     size_t m_ii;
 
@@ -1005,7 +892,6 @@ protected:
 
     /// Vector of perturbation factors for each reaction's rate of
     /// progress vector. It is initialized to one.
-    ///
     vector_fp m_perturb;
 
     /**
@@ -1034,7 +920,8 @@ protected:
      */
     std::vector<std::vector<size_t> > m_products;
 
-    //! m_thermo is a vector of pointers to ThermoPhase objects that are involved with this kinetics operator
+    //! m_thermo is a vector of pointers to ThermoPhase objects that are
+    //! involved with this kinetics operator
     /*!
      * For homogeneous kinetics applications, this vector
      * will only have one entry. For interfacial reactions, this
@@ -1045,9 +932,8 @@ protected:
      * the source term vector, originating from the reaction
      * mechanism.
      *
-     * Note that this kinetics object doesn't own these ThermoPhase
-     * objects and is not responsible for creating or deleting
-     * them.
+     * Note that this kinetics object doesn't own these ThermoPhase objects
+     * and is not responsible for creating or deleting them.
      */
     std::vector<thermo_t*> m_thermo;
 
@@ -1069,16 +955,12 @@ protected:
     std::map<std::string, size_t> m_phaseindex;
 
     //! Index in the list of phases of the one surface phase.
-    /*!
-     *
-     */
     size_t m_surfphase;
 
     //! Phase Index where reactions are assumed to be taking place
     /*!
-     *  We calculate this by assuming that the phase with the lowest dimensionality is the phase where reactions
-     *  are taking place
-     * @deprecated
+     *  We calculate this by assuming that the phase with the lowest
+     *  dimensionality is the phase where reactions are taking place.
      */
     size_t m_rxnphase;
 
@@ -1086,18 +968,15 @@ protected:
     size_t m_mindim;
 
 private:
-
     //! Vector of group lists
     std::vector<grouplist_t> m_dummygroups;
 
-
-    //! Private function of the class Kinetics, indicating that a function
-    //!  inherited from the base class hasn't had a definition assigned to it
+    //! Function indicating that a function inherited from the base class
+    //! hasn't had a definition assigned to it
     /*!
      * @param m String message
      */
-    void err(std::string m) const;
-
+    void err(const std::string& m) const;
 };
 
 }

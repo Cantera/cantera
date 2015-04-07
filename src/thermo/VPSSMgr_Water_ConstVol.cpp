@@ -23,7 +23,6 @@ using namespace std;
 
 namespace Cantera
 {
-
 VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
         SpeciesThermo* spth) :
     VPSSMgr(vp_ptr, spth),
@@ -33,11 +32,6 @@ VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
     m_useTmpStandardStateStorage = true;
 }
 
-
-VPSSMgr_Water_ConstVol::~VPSSMgr_Water_ConstVol()
-{
-}
-
 VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {
@@ -45,7 +39,6 @@ VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& rig
     m_useTmpStandardStateStorage = true;
     *this = right;
 }
-
 
 VPSSMgr_Water_ConstVol&
 VPSSMgr_Water_ConstVol::operator=(const VPSSMgr_Water_ConstVol& b)
@@ -60,8 +53,7 @@ VPSSMgr_Water_ConstVol::operator=(const VPSSMgr_Water_ConstVol& b)
 VPSSMgr*
 VPSSMgr_Water_ConstVol::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_Water_ConstVol* vpm = new VPSSMgr_Water_ConstVol(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_Water_ConstVol(*this);
 }
 
 void
@@ -75,7 +67,6 @@ VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr,
                            "bad dynamic cast");
     }
 }
-
 
 void
 VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
@@ -183,11 +174,8 @@ void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const
     m_waterSS->setState_TP(m_tlast, m_plast);
 }
 
-
-
 void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
 {
-
     doublereal RT = GasConstant * m_tlast;
     doublereal del_pRT = (m_plast - OneAtm) / (RT);
 
@@ -209,14 +197,13 @@ void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
     m_Vss[0]    = (m_vptp_ptr->molecularWeight(0) / m_waterSS->density());
 }
 
-
 void VPSSMgr_Water_ConstVol::initThermo()
 {
     VPSSMgr::initThermo();
 }
 
 void
-VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 
@@ -261,7 +248,6 @@ PDSS*
 VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         const XML_Node* const phaseNode_ptr)
 {
-
     PDSS* kPDSS = 0;
     // Will have to do something for water
     // -> make sure it's species 0
@@ -278,9 +264,7 @@ VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
             throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies",
                                "wrong SS mode: " + model);
         }
-        if (m_waterSS) {
-            delete m_waterSS;
-        }
+        delete m_waterSS;
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
         GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
         if (!genSpthermo) {
@@ -325,5 +309,3 @@ VPSSMgr_enumType VPSSMgr_Water_ConstVol::reportVPSSMgrType() const
     return cVPSSMGR_WATER_CONSTVOL;
 }
 }
-
-

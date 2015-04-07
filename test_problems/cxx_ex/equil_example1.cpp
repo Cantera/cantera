@@ -28,8 +28,8 @@ void makeEquilDataLabels(const G& gas, V& names)
 }
 
 template<class G, class A>
-void plotEquilSoln(std::string fname, std::string fmt, std::string title,
-                   const G& gas, const A& soln)
+void plotEquilSoln(const std::string& fname, const std::string& fmt,
+                   const std::string& title, const G& gas, const A& soln)
 {
     std::vector<std::string> names;
     makeEquilDataLabels(gas, names);

@@ -10,14 +10,6 @@
 #ifndef CT_MIXTRAN_H
 #define CT_MIXTRAN_H
 
-// STL includes
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
-// Cantera includes
 #include "GasTransport.h"
 #include "cantera/numerics/DenseMatrix.h"
 
@@ -28,9 +20,8 @@ class GasTransportParams;
 
 //! Class MixTransport implements mixture-averaged transport properties for ideal gas mixtures.
 /*!
- *    The model is based on that described by Kee, Coltrin, and Glarborg, "Theoretical and
- *    Practical Aspects of Chemically Reacting Flow Modeling."
- *
+ * The model is based on that described by Kee, Coltrin, and Glarborg,
+ * "Theoretical and Practical Aspects of Chemically Reacting Flow Modeling."
  *
  * The viscosity is computed using the Wilke mixture rule (kg /m /s)
  *
@@ -46,7 +37,6 @@ class GasTransportParams;
  *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
  *    \f]
  *
- *
  * The thermal conductivity is computed from the following mixture rule:
  *   \f[
  *          \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
@@ -61,12 +51,10 @@ class GasTransportParams;
  *  The flux of energy has units of energy (kg m2 /s2) per second per area.
  *
  *  The units of lambda are W / m K which is equivalent to kg m / s^3 K.
- *
- *
+ *  @ingroup tranprops
  */
 class MixTransport : public GasTransport
 {
-
 protected:
 
     //! Default constructor.
@@ -74,35 +62,9 @@ protected:
 
 public:
 
-    //!Copy Constructor for the %MixTransport object.
-    /*!
-     * @param right  %LiquidTransport to be copied
-     */
     MixTransport(const MixTransport& right);
-
-    //! Assignment operator
-    /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to %LiquidTransport object to be copied
-     *                 into the current one.
-     */
     MixTransport& operator=(const  MixTransport& right);
-
-    //! Duplication routine for objects which inherit from
-    //! %Transport
-    /*!
-     *  This virtual routine can be used to duplicate %Transport objects
-     *  inherited from %Transport even if the application only has
-     *  a pointer to %Transport to work with.
-     *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
-     */
     virtual Transport* duplMyselfAsTransport() const;
-
-    //! Destructor
-    virtual ~MixTransport() {}
 
     //! Return the model id for transport
     /*!
@@ -161,17 +123,15 @@ public:
 
     //! Update the internal parameters whenever the temperature has changed
     /*!
-     *  @internal
-     *      This is called whenever a transport property is requested if the temperature has changed
-     *      since the last call to update_T().
+     *  This is called whenever a transport property is requested if
+     *  the temperature has changed since the last call to update_T().
      */
     virtual void update_T();
 
     //! Update the internal parameters whenever the concentrations have changed
     /*!
-     *  @internal
-     *      This is called whenever a transport property is requested if the concentrations have changed
-     *      since the last call to update_C().
+     *  This is called whenever a transport property is requested if the
+     *  concentrations have changed since the last call to update_C().
      */
     virtual void update_C();
 
@@ -179,7 +139,6 @@ public:
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
-     *
      *
      * The diffusive mass flux of species \e k is computed from
      * \f[
@@ -216,16 +175,6 @@ public:
 
     friend class TransportFactory;
 
-    //! Return a structure containing all of the pertinent parameters about a species that was
-    //! used to construct the Transport properties in this object.
-    /*!
-     * @param kspec Species number to obtain the properties from.
-     *
-     * @return GasTransportData  returned structure.
-     * @deprecated
-     */
-    DEPRECATED(struct GasTransportData getGasTransportData(int kspec) const);
-
 private:
 
     //! Calculate the pressure from the ideal gas law
@@ -236,14 +185,12 @@ private:
 
     //! Update the temperature dependent parts of the species thermal conductivities
     /*!
-     * These are evaluated from the polynomial fits of the temperature and are assumed to be
-     * independent of pressure
+     * These are evaluated from the polynomial fits of the temperature and are
+     * assumed to be independent of pressure
      */
     void updateCond_T();
 
-    // --------- Member Data -------------
 private:
-
     //! Polynomial fits to the thermal conductivity of each species
     /*!
      *  m_condcoeffs[k] is vector of polynomial coefficients for species k
@@ -253,9 +200,8 @@ private:
 
     //! vector of species thermal conductivities (W/m /K)
     /*!
-     *  These are used in wilke's rule to calculate the viscosity of the solution
-     *  units = W /m /K = kg m /s^3 /K.
-     *  length = m_kk
+     *  These are used in wilke's rule to calculate the viscosity of the
+     *  solution. units = W /m /K = kg m /s^3 /K. length = m_kk.
      */
     vector_fp m_cond;
 
@@ -270,69 +216,14 @@ private:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok;
-
-    //! Lennard-Jones well-depth of the species in the current phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     * length is the number of species in the phase
-     * Units are Joules (Note this is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
-     */
+public:
     vector_fp m_eps;
-
-    //! hard-sphere diameter for (i,j) collision
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     *  diam(i,j) = 0.5*(tr.sigma[i] + tr.sigma[j]);
-     *  Units are m (note, no kmol -> this is a per molecule amount)
-     *
-     *  Length nsp * nsp. This is a symmetric matrix.
-     */
-    DenseMatrix m_diam;
-
-    //! The effective dipole moment for (i,j) collisions
-    /*!
-     *  tr.dipoleMoment has units of Debye's. A Debye is 10-18 cm3/2 erg1/2
-     *
-     *  Not used in this routine -> just a passthrough
-     *
-     *    tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
-     *    tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
-     *  Units are  in Debye  (note, no kmol -> this is a per molecule amount)
-     *
-     *  Length nsp. We store only the diagonal component here.
-     */
-    vector_fp m_dipoleDiag;
-
-    //! Polarizability of each species in the phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     *  Length = nsp
-     *  Units = m^3
-     */
+    vector_fp m_sigma;
     vector_fp m_alpha;
-
-    //! Dimensionless rotational heat capacity of the species in the current phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear species respectively
-     *  length is the number of species in the phase
-     *  units are dimensionless  (Cr / R)
-     */
-    vector_fp m_crot;
-
-    //! Rotational relaxation number for the species in the current phase
-    /*!
-     *  Not used in this routine -> just a passthrough
-     *
-     * length is the number of species in the phase
-     * units are dimensionless
-     */
+    DenseMatrix m_dipole;
     vector_fp m_zrot;
-
+    vector_fp m_crot;
+private:
     //! Debug flag - turns on more printing
     bool m_debug;
 };

@@ -1,3 +1,4 @@
+//! @file Func1.cpp
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
@@ -148,7 +149,7 @@ void Func1::setParent(Func1* p)
 
 /*****************************************************************************/
 
-string Sin1::write(string arg) const
+string Sin1::write(const string& arg) const
 {
     string c  = "";
     if (m_c != 1.0) {
@@ -172,7 +173,7 @@ Func1& Cos1::derivative() const
     return *r;
 }
 
-std::string Cos1::write(std::string arg) const
+std::string Cos1::write(const std::string& arg) const
 {
     string c  = "";
     if (m_c != 1.0) {
@@ -193,7 +194,7 @@ Func1& Exp1::derivative() const
     }
 }
 
-std::string Exp1::write(std::string arg) const
+std::string Exp1::write(const std::string& arg) const
 {
     string c  = "";
     if (m_c != 1.0) {
@@ -218,7 +219,7 @@ Func1& Pow1::derivative() const
     return *r;
 }
 
-string Func1::write(std::string arg) const
+string Func1::write(const std::string& arg) const
 {
     return "<unknown " + int2str(ID()) + ">("+arg+")";
 }
@@ -226,7 +227,7 @@ string Func1::write(std::string arg) const
 
 
 
-string Pow1::write(string arg) const
+string Pow1::write(const std::string& arg) const
 {
     //cout << "Pow1" << endl;
     string c  = "";
@@ -245,22 +246,20 @@ string Pow1::write(string arg) const
 }
 
 
-string Const1::write(string arg) const
+string Const1::write(const std::string& arg) const
 {
     //cout << "Const1" << endl;
-    string c  = "";
-    c = fp2str(m_c);
-    return c;
+    return fp2str(m_c);
 }
 
-string Ratio1::write(string arg) const
+string Ratio1::write(const std::string& arg) const
 {
     //cout << "Ratio1" << endl;
     return "\\frac{" + m_f1->write(arg) + "}{"
            + m_f2->write(arg) + "}";
 }
 
-string Product1::write(string arg) const
+string Product1::write(const std::string& arg) const
 {
     //cout << "Product1" << endl;
     string s = m_f1->write(arg);
@@ -274,7 +273,7 @@ string Product1::write(string arg) const
     return s + " " + s2;
 }
 
-string Sum1::write(string arg) const
+string Sum1::write(const std::string& arg) const
 {
     //cout << "Sum1" << endl;
     string s1 = m_f1->write(arg);
@@ -286,7 +285,7 @@ string Sum1::write(string arg) const
     }
 }
 
-string Diff1::write(string arg) const
+string Diff1::write(const std::string& arg) const
 {
     //cout << "Diff1" << endl;
     string s1 = m_f1->write(arg);
@@ -298,14 +297,14 @@ string Diff1::write(string arg) const
     }
 }
 
-string Composite1::write(string arg) const
+string Composite1::write(const std::string& arg) const
 {
     //cout << "Composite1" << endl;
     string g = m_f2->write(arg);
     return m_f1->write(g);
 }
 
-string TimesConstant1::write(string arg) const
+string TimesConstant1::write(const std::string& arg) const
 {
     //cout << "TimesConstant1" << endl;
     string s = m_f1->write(arg);
@@ -325,7 +324,7 @@ string TimesConstant1::write(string arg) const
     return fp2str(m_c) + s;
 }
 
-string PlusConstant1::write(string arg) const
+string PlusConstant1::write(const std::string& arg) const
 {
     //cout << "PlusConstant1" << endl;
     if (m_c == 0.0) {

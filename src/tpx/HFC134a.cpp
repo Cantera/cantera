@@ -1,7 +1,9 @@
-// HFC134a
+//! @file HFC134a.cpp
 
 #include "HFC134a.h"
-#include <math.h>
+#include "cantera/base/stringUtils.h"
+
+using namespace Cantera;
 
 namespace tpx
 {
@@ -153,7 +155,8 @@ double HFC134a::Pp()
 double HFC134a::Psat()
 {
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("HFC134a::Psat",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     double x1 = T/Tc;
     double x2 = 1.0 - x1;
@@ -178,7 +181,8 @@ double HFC134a::Psat()
 double HFC134a::ldens()
 {
     if ((T < Tmn) || (T > Tc)) {
-        set_Err(TempError);
+        throw TPX_Error("HFC134a::ldens",
+                        "Temperature out of range. T = " + fp2str(T));
     }
     double x1 = T/Tc;
     double x2 = 1.0 - x1;

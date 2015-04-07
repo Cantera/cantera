@@ -27,15 +27,15 @@ namespace Cantera
  */
 
 /**
- * Base class for falloff function calculators. Each instance of a
- * subclass of Falloff computes one falloff function.
+ * Base class for falloff function calculators. Each instance of a subclass of
+ * Falloff computes one falloff function. This base class implements the
+ * trivial falloff function F = 1.0.
  *
  * @ingroup falloffGroup
  */
 class Falloff
 {
 public:
-
     //! Default constructor is empty
     Falloff() {}
 
@@ -43,14 +43,12 @@ public:
     virtual ~Falloff() {}
 
     /**
-     * Initialize. Must be called before any other method is
-     * invoked.
+     * Initialize. Must be called before any other method is invoked.
      *
-     * @param c Vector of coefficients of the parameterization.
-     * The number and meaning of these coefficients is
-     * subclass-dependent.
+     * @param c Vector of coefficients of the parameterization. The number and
+     *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void init(const vector_fp& c) =0;
+    virtual void init(const vector_fp& c) {}
 
     /**
      * Update the temperature-dependent portions of the falloff
@@ -81,18 +79,15 @@ public:
      *
      * @return Returns the value of the falloff function \f$ F \f$ defined above
      */
-    virtual doublereal F(doublereal pr, const doublereal* work) const =0;
+    virtual doublereal F(doublereal pr, const doublereal* work) const {
+        return 1.0;
+    }
 
-    /**
-     * The size of the work array required.
-     */
-    virtual size_t workSize() =0;
-
-protected:
-private:
+    //! The size of the work array required.
+    virtual size_t workSize() {
+        return 0;
+    }
 };
-
-
 
 /**
  * Factory class to construct falloff function calculators.
@@ -107,12 +102,10 @@ private:
 class FalloffFactory : public FactoryBase
 {
 public:
-
     /**
-     * Return a pointer to the factory. On the first call, a new
-     * instance is created. Since there is no need to instantiate
-     * more than one factory, on all subsequent calls, a pointer
-     * to the existing factory is returned.
+     * Return a pointer to the factory. On the first call, a new instance is
+     * created. Since there is no need to instantiate more than one factory,
+     * on all subsequent calls, a pointer to the existing factory is returned.
      */
     static FalloffFactory* factory() {
         ScopedLock lock(falloff_mutex) ;
@@ -130,27 +123,14 @@ public:
         }
     }
 
-    /**
-     * Destructor doesn't do anything. We do not delete statically
-     * created single instance of this class here, because it would
-     * create an infinite loop if destructor is called for that
-     * single instance. Instead, to delete single instance, we
-     * call delete[] from FalloffMng's destructor.
-     */
-    virtual ~FalloffFactory() {
-    }
-
-
     //! Return a pointer to a new falloff function calculator.
     /*!
-     *
-     * @param type Integer flag specifying the type of falloff function.
-     *              The standard types are defined in file reaction_defs.h. A factory
-     *              class derived from FalloffFactory may define other types as well.
-     *
+     * @param type Integer flag specifying the type of falloff function. The
+     *              standard types are defined in file reaction_defs.h. A
+     *              factory class derived from FalloffFactory may define other
+     *              types as well.
      * @param c    input vector of doubles which populates the falloff
      *             parameterization.
-     *
      * @return    Returns a pointer to a new Falloff class.
      */
     virtual Falloff* newFalloff(int type, const vector_fp& c);
@@ -168,5 +148,3 @@ private:
 
 }
 #endif
-
-

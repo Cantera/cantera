@@ -10,12 +10,7 @@
 // make things simpler.
 
 #include "cantera/kinetics.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;
@@ -46,6 +41,7 @@ int main(int argc, char** argv)
         XML_Node* const xg = xc->findNameID("phase", "gas");
         ThermoPhase* gasTP = newPhase(*xg);
         size_t nsp = gasTP->nSpecies();
+        cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
         vector<ThermoPhase*> phaseList;
@@ -151,10 +147,10 @@ int main(int argc, char** argv)
         printf("Kc[0] = %g\n", kc[0]);
         printf("Kc[1] = %g\n", kc[1]);
 
-        delete(iKin_ptr);
+        delete iKin_ptr;
         iKin_ptr = 0;
-        delete(gasTP);
-        delete(xc);
+        delete gasTP;
+        delete xc;
         appdelete();
 
 

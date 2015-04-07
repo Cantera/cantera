@@ -6,12 +6,8 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_GASKINETICS_H
 #define CT_GASKINETICS_H
-
-#include <fstream>
-#include <map>
 
 #include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
@@ -22,11 +18,6 @@
 #include "ThirdBodyMgr.h"
 #include "FalloffMgr.h"
 #include "RateCoeffMgr.h"
-
-#include <cmath>
-#include <cstdlib>
-
-void get_wdot(const doublereal* rop, doublereal* wdot);
 
 namespace Cantera
 {
@@ -43,13 +34,9 @@ class ReactionData;
  */
 class GasKinetics : public Kinetics
 {
-
 public:
-
-    /**
-     * @name Constructors and General Information
-     */
-    //@{
+    //! @name Constructors and General Information
+    //! @{
 
     //! Constructor.
     /*!
@@ -57,57 +44,14 @@ public:
      */
     GasKinetics(thermo_t* thermo = 0);
 
-
-    //!Copy Constructor for the %GasKinetics object.
-    /*!
-     * Currently, this is not fully implemented. If called it will
-     * throw an exception.
-     *
-     * @param right  object to be copied
-     */
+    //! Copy Constructor
     GasKinetics(const GasKinetics& right);
 
-    //! Destructor.
-    virtual ~GasKinetics();
-
     //! Assignment operator
-    /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to %GasKinetics object to be copied into the
-     *                 current one.
-     */
     GasKinetics& operator=(const GasKinetics& right);
 
-    //! Duplication routine for objects which inherit from Kinetics
-    /*!
-     *  This virtual routine can be used to duplicate %Kinetics objects
-     *  inherited from %Kinetics even if the application only has
-     *  a pointer to %Kinetics to work with.
-     *
-     *  These routines are basically wrappers around the derived copy  constructor.
-     *
-     * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
-     *                  m_thermo vector within this object
-     */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
-
-    //! Identifies the subclass of the Kinetics manager type.
-    /*!
-     * These are listed in mix_defs.h.
-     * @deprecated use type() instead
-     */
-    DEPRECATED(virtual int ID() const) {
-        return cGasKinetics;
-    }
-
-    //!  Identifies the kinetics manager type.
-    /*!
-     *   Each class derived from Kinetics should overload this method to
-     *   return a unique integer. Standard values are defined in file
-     *   mix_defs.h.
-     */
     virtual int type() const {
         return cGasKinetics;
     }
@@ -120,165 +64,46 @@ public:
         return m_prxn[k][i];
     }
 
-    //@}
-    /**
-     * @name Reaction Rates Of Progress
-     */
-    //@{
-    /**
-     * Forward rates of progress.
-     * Return the forward rates of progress in array fwdROP, which
-     * must be dimensioned at least as large as the total number
-     * of reactions.
-     */
+    //! @}
+    //! @name Reaction Rates Of Progress
+    //! @{
+
     virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
         updateROP();
         std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
     }
 
-    /**
-     * Reverse rates of progress.
-     * Return the reverse rates of progress in array revROP, which
-     * must be dimensioned at least as large as the total number
-     * of reactions.
-     */
     virtual void getRevRatesOfProgress(doublereal* revROP) {
         updateROP();
         std::copy(m_ropr.begin(), m_ropr.end(), revROP);
     }
 
-    /**
-     * Net rates of progress.  Return the net (forward - reverse)
-     * rates of progress in array netROP, which must be
-     * dimensioned at least as large as the total number of
-     * reactions.
-     */
     virtual void getNetRatesOfProgress(doublereal* netROP) {
         updateROP();
         std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
     }
 
-
-    /**
-     * Equilibrium constants. Return the equilibrium constants of
-     * the reactions in concentration units in array kc, which
-     * must be dimensioned at least as large as the total number
-     * of reactions.
-     */
     virtual void getEquilibriumConstants(doublereal* kc);
-
-    /**
-     * Return the array of values for the reaction gibbs free energy
-     * change.
-     * These values depend on the species concentrations.
-     *
-     *  units = J kmol-1
-     */
     virtual void getDeltaGibbs(doublereal* deltaG);
-
-    /**
-     * Return the array of values for the reaction enthalpy change.
-     * These values depend upon the species concentrations.
-     *
-     *  units = J kmol-1
-     */
     virtual void getDeltaEnthalpy(doublereal* deltaH);
-
-    /**
-     * Return the array of values for the reactions change in
-     * entropy.
-     * These values depend upon the concentration
-     * of the solution.
-     *
-     *  units = J kmol-1 Kelvin-1
-     */
     virtual void getDeltaEntropy(doublereal* deltaS);
 
-    /**
-     * Return the array of values for the reaction
-     * standard state Gibbs free energy change.
-     * These values do not depend on the species
-     * concentrations.
-     *
-     *  units = J kmol-1
-     */
     virtual void getDeltaSSGibbs(doublereal* deltaG);
-
-    /**
-     * Return the array of values for the change in the
-     * standard state enthalpies of reaction.
-     * These values do not depend upon the concentration
-     * of the solution.
-     *
-     *  units = J kmol-1
-     */
     virtual void getDeltaSSEnthalpy(doublereal* deltaH);
-
-    /**
-     * Return the array of values for the change in the
-     * standard state entropies for each reaction.
-     * These values do not depend upon the concentration
-     * of the solution.
-     *
-     *  units = J kmol-1 Kelvin-1
-     */
     virtual void getDeltaSSEntropy(doublereal* deltaS);
 
-    //@}
-    /**
-     * @name Species Production Rates
-     */
-    //@{
+    //! @}
+    //! @name Species Production Rates
+    //! @{
 
-    //! Return the species net production rates
-    /*!
-     * Species net production rates [kmol/m^3/s]. Return the species
-     * net production rates (creation - destruction) in array
-     * wdot, which must be dimensioned at least as large as the
-     * total number of species.
-     *
-     *  @param net  Array of species production rates.
-     *             units kmol m-3 s-1
-     */
     virtual void getNetProductionRates(doublereal* net);
-
-    //! Return the species creation rates
-    /*!
-     * Species creation rates [kmol/m^3]. Return the species
-     * creation rates in array cdot, which must be
-     * dimensioned at least as large as the total number of
-     * species.
-     *
-     *  @param cdot  Array of species creation rates.
-     *              units kmol m-3 s-1
-     */
     virtual void getCreationRates(doublereal* cdot);
-
-    //! Return a vector of the species destruction rates
-    /*!
-     * Species destruction rates [kmol/m^3]. Return the species
-     * destruction rates in array ddot, which must be
-     * dimensioned at least as large as the total number of
-     * species.
-     *
-     *
-     *  @param ddot  Array of species destruction rates.
-     *               units kmol m-3 s-1
-     *
-     */
     virtual void getDestructionRates(doublereal* ddot);
 
-    //@}
-    /**
-     * @name Reaction Mechanism Informational Query Routines
-     */
-    //@{
+    //! @}
+    //! @name Reaction Mechanism Informational Query Routines
+    //! @{
 
-    /**
-     * Flag specifying the type of reaction. The legal values and
-     * their meaning are specific to the particular kinetics
-     * manager.
-     */
     virtual int reactionType(size_t i) const {
         return m_index[i].first;
     }
@@ -287,11 +112,6 @@ public:
         return m_rxneqn[i];
     }
 
-    /**
-     * True if reaction i has been declared to be reversible. If
-     * isReversible(i) is false, then the reverse rate of progress
-     * for reaction i is always zero.
-     */
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) {
@@ -301,44 +121,21 @@ public:
         }
     }
 
-    /**
-     * Return the forward rate constants
-     *
-     * length is the number of reactions. units depends
-     * on many issues.
-     */
     virtual void getFwdRateConstants(doublereal* kfwd);
 
-    /**
-     * Return the reverse rate constants.
-     *
-     * length is the number of reactions. units depends
-     * on many issues. Note, this routine will return rate constants
-     * for irreversible reactions if the default for
-     * doIrreversible is overridden.
-     */
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
 
-    //@}
-    /**
-     * @name Reaction Mechanism Setup Routines
-     */
-    //@{
-
+    //! @}
+    //! @name Reaction Mechanism Setup Routines
+    //! @{
     virtual void init();
-
-    ///  Add a reaction to the mechanism.
     virtual void addReaction(ReactionData& r);
-
     virtual void finalize();
     virtual bool ready() const;
-
-    virtual void update_T();
-    virtual void update_C();
+    //@}
 
     void updateROP();
-
 
     const std::vector<grouplist_t>& reactantGroups(size_t i) {
         return m_rgroups[i];
@@ -347,19 +144,17 @@ public:
         return m_pgroups[i];
     }
 
-
-    void _update_rates_T();
+    //! Update temperature-dependent portions of reaction rates and falloff
+    //! functions.
+    virtual void update_rates_T();
 
     //! Update properties that depend on concentrations.
     //! Currently the enhanced collision partner concentrations are updated
     //! here, as well as the pressure-dependent portion of P-log and Chebyshev
     //! reactions.
-    void _update_rates_C();
-
-    //@}
+    virtual void update_rates_C();
 
 protected:
-
     size_t m_nfall;
 
     std::vector<size_t> m_fallindx;
@@ -419,6 +214,7 @@ protected:
     bool m_ROP_ok;
 
     doublereal m_temp;
+    doublereal m_pres; //!< Last pressure at which rates were evaluated
     vector_fp m_rfn;
     vector_fp falloff_work;
     vector_fp concm_3b_values;
@@ -430,9 +226,7 @@ protected:
     void processFalloffReactions();
     vector_fp m_grt;
 
-
 private:
-
     size_t reactionNumber() {
         return m_ii;
     }
@@ -448,10 +242,12 @@ private:
 
     void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
                        const std::vector<grouplist_t>& p);
+
+    //! Update the equilibrium constants in molar units.
     void updateKc();
 
-    void registerReaction(size_t rxnNumber, int type, size_t loc) {
-        m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
+    void registerReaction(size_t rxnNumber, int type_, size_t loc) {
+        m_index[rxnNumber] = std::pair<int, size_t>(type_, loc);
     }
     bool m_finalized;
 };

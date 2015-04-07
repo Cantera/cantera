@@ -7,9 +7,6 @@
 #ifndef CT_TRANSPORTPARAMS_H
 #define CT_TRANSPORTPARAMS_H
 
-#include <vector>
-
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "TransportBase.h"
 
@@ -18,8 +15,6 @@ namespace Cantera
 
 class XML_Writer;
 
-
-//====================================================================================================================
 //! Error class to indicate an unimplemented method
 /*!
  * This class is used by transport objects
@@ -27,27 +22,21 @@ class XML_Writer;
 class NotImplemented : public CanteraError
 {
 public:
-
     //! Constructor for error class
     /*!
      *  @param method Single string indicating a method that is not implemented
      */
-    NotImplemented(std::string method);
+    NotImplemented(const std::string& method);
 };
-//====================================================================================================================
+
 //! Base structure to hold transport model parameters.
 /*!
  * This structure is used by TransportFactory.
  */
 class TransportParams
 {
-
 public:
-
-    //! Default Constructor
     TransportParams();
-
-    //! Destructor
     virtual ~TransportParams();
 
     //! Local storage of the number of species
@@ -84,7 +73,6 @@ public:
     int log_level;
 };
 
-//====================================================================================================================
 //! This structure  holds transport model parameters relevant to transport in ideal
 //! gases with a kinetic theory of gases derived transport model.
 /*!
@@ -92,14 +80,8 @@ public:
  */
 class GasTransportParams : public TransportParams
 {
-
 public:
-
-    //! Constructor
     GasTransportParams();
-
-    //! Destructor
-    virtual ~GasTransportParams();
 
     // polynomial fits
 
@@ -208,7 +190,6 @@ public:
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.
      *  Unique values of delta get their own spot in the array. The values of delta are stored in
      *  the fitlist vector.
-     *
      */
     vector_fp fitlist;
 
@@ -275,8 +256,7 @@ public:
      */
     DenseMatrix delta;
 };
-//====================================================================================================================
+
 } // End of namespace Cantera
-//======================================================================================================================
 
 #endif //CT_TRANSPORTPARAMS_H

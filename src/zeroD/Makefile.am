@@ -1,4 +1,14 @@
-h_sources  = 
+h_sources  = $(top_builddir)/include/cantera/zeroD/Reactor.h \
+             $(top_builddir)/include/cantera/zeroD/ReactorBase.h \
+             $(top_builddir)/include/cantera/zeroD/FlowDevice.h \
+             $(top_builddir)/include/cantera/zeroD/Wall.h \
+             $(top_builddir)/include/cantera/zeroD/ReactorNet.h \
+             $(top_builddir)/include/cantera/zeroD/flowControllers.h \
+             $(top_builddir)/include/cantera/zeroD/Reservoir.h \
+             $(top_builddir)/include/cantera/zeroD/FlowReactor.h \
+             $(top_builddir)/include/cantera/zeroD/ConstPressureReactor.h \
+             $(top_builddir)/include/cantera/zeroD/ReactorFactory.h
+
 cc_sources = Reactor.cpp ReactorBase.cpp FlowDevice.cpp Wall.cpp \
              ReactorNet.cpp FlowReactor.cpp ConstPressureReactor.cpp \
              ReactorFactory.cpp

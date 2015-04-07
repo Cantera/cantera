@@ -43,6 +43,9 @@ void transportmethods(int nlhs, mxArray* plhs[],
             break;
         case 2:
             vv = trans_thermalConductivity(n);
+	    break;
+        case 3:
+            vv = trans_electricalConductivity(n);
             break;
         default:
             mexErrMsgTxt("unknown Transport method");

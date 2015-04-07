@@ -15,10 +15,6 @@
 //  working correctly
 
 #include "cantera/thermo/IdealMolalSoln.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
 #include <cstdio>
 
 using namespace std;
@@ -81,6 +77,9 @@ int main(int argc, char** argv)
         printf("            Name         mu_i       H_i_SS   "
                "    S_i_SS      Cp_i_SS     Vol_i_SS\n");
         for (size_t i = 0; i < n; i++) {
+            if (ims.moleFraction(i) < 1e-15) {
+                continue;
+            }
             string sn = ims.speciesName(i);
             printf(" %15s %12.5g %12.5g %12.5g %12.5g %12.5g\n", sn.c_str(), muiSS[i],
                    HiSS[i], SiSS[i], CpiSS[i], VoliSS[i]);
@@ -99,6 +98,9 @@ int main(int argc, char** argv)
         printf("            Name         mu_i       H_i_PM   "
                "    S_i_PM      Cp_i_PM     Vol_i_PM\n");
         for (size_t i = 0; i < n; i++) {
+            if (ims.moleFraction(i) < 1e-15) {
+                continue;
+            }
             string sn = ims.speciesName(i);
             printf(" %15s %12.5g %12.5g %12.5g %12.5g %12.5g\n", sn.c_str(), mui[i],
                    HiPM[i], SiPM[i], CpiPM[i], VoliPM[i]);

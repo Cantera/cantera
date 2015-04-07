@@ -7,8 +7,6 @@
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 
-#include <math.h>
-#include <iostream>
 #include <cstdio>
 
 using namespace std;
@@ -16,18 +14,16 @@ using namespace std;
 namespace Cantera
 {
 
-const doublereal TINY = 1.0e-20;
-
 #if defined(WITH_HTML_LOGS)
-/// Used to print reaction equations. Given a stoichiometric
-/// coefficient 'nu' and a chemical symbol 'sym', return a string
-/// for this species in the reaction.
-/// @param first  if this is false, then a " + " string will be
-/// added to the beginning of the string.
-/// @param nu  Stoichiometric coefficient. May be positive or negative. The
-/// absolute value will be used in the string.
-/// @param sym Species chemical symbol.
-///
+
+//! Used to print reaction equations. Given a stoichiometric coefficient 'nu'
+//! and a chemical symbol 'sym', return a string for this species in the
+//! reaction.
+//! @param first  if this is false, then a " + " string will be added to the
+//!     beginning of the string.
+//! @param nu  Stoichiometric coefficient. May be positive or negative. The
+//!     absolute value will be used in the string.
+//! @param sym Species chemical symbol.
 static string coeffString(bool first, doublereal nu, string sym)
 {
     if (nu == 0.0) {
@@ -45,12 +41,6 @@ static string coeffString(bool first, doublereal nu, string sym)
 }
 #endif
 
-/// Constructor. Construct a multiphase equilibrium manager for a
-/// multiphase mixture.
-/// @param mix Pointer to a multiphase mixture object.
-/// @param start If true, the initial composition will be
-/// determined by a linear Gibbs minimization, otherwise the
-/// initial mixture composition will be used.
 MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_mix(mix)
 {
     // the multi-phase mixture
@@ -63,7 +53,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     m_press = mix->pressure();
     m_temp = mix->temperature();
 
-    index_t m, k;
+    size_t m, k;
     m_force = true;
     m_nel = 0;
     m_nsp = 0;
@@ -120,7 +110,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // unphysical results above this temperature, leading
     // (incorrectly) to Gibbs free energies at high temperature
     // lower than for liquid water.
-    index_t ip;
+    size_t ip;
     for (k = 0; k < m_nsp_mix; k++) {
         ip = m_mix->speciesPhaseIndex(k);
         if (!m_mix->solutionSpecies(k) &&
@@ -157,7 +147,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     m_dxi.resize(nFree());
 
     // initialize the mole numbers to the mixture composition
-    index_t ik;
+    size_t ik;
     for (ik = 0; ik < m_nsp; ik++) {
         m_moles[ik] = m_mix->speciesMoles(m_species[ik]);
     }
@@ -211,7 +201,6 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // numbers for the included species.
 }
 
-
 doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err,
                                         int maxsteps, int loglevel)
 {
@@ -259,40 +248,26 @@ doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err,
 void MultiPhaseEquil::updateMixMoles()
 {
     fill(m_work3.begin(), m_work3.end(), 0.0);
-    index_t k;
+    size_t k;
     for (k = 0; k < m_nsp; k++) {
         m_work3[m_species[k]] = m_moles[k];
     }
     m_mix->setMoles(DATA_PTR(m_work3));
 }
 
-/// Clean up the composition. The solution algorithm can leave
-/// some species in stoichiometric condensed phases with very
-/// small negative mole numbers. This method simply sets these to
-/// zero.
 void MultiPhaseEquil::finish()
 {
     fill(m_work3.begin(), m_work3.end(), 0.0);
-    index_t k;
+    size_t k;
     for (k = 0; k < m_nsp; k++) {
         m_work3[m_species[k]] = (m_moles[k] > 0.0 ? m_moles[k] : 0.0);
     }
     m_mix->setMoles(DATA_PTR(m_work3));
 }
 
-
-/// Estimate the initial mole numbers. This is done by running
-/// each reaction as far forward or backward as possible, subject
-/// to the constraint that all mole numbers remain
-/// non-negative. Reactions for which \f$ \Delta \mu^0 \f$ are
-/// positive are run in reverse, and ones for which it is negative
-/// are run in the forward direction. The end result is equivalent
-/// to solving the linear programming problem of minimizing the
-/// linear Gibbs function subject to the element and
-/// non-negativity constraints.
 int MultiPhaseEquil::setInitialMoles(int loglevel)
 {
-    index_t ik, j;
+    size_t ik, j;
 
     double not_mu = 1.0e12;
     if (loglevel > 0) {
@@ -374,31 +349,9 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
     return 0;
 }
 
-
-///  This method finds a set of component species and a complete
-///  set of formation reactions for the non-components in terms of
-///  the components. Note that in most cases, many different
-///  component sets are possible, and therefore neither the
-///  components returned by this method nor the formation
-///  reactions are unique. The algorithm used here is described in
-///  Smith and Missen, Chemical Reaction Equilibrium Analysis.
-///
-///  The component species are taken to be the first M species
-///  in array 'species' that have linearly-independent compositions.
-///
-///  @param order On entry, vector \a order should contain species
-///  index numbers in the order of decreasing desirability as a
-///  component. For example, if it is desired to choose the
-///  components from among the major species, this array might
-///  list species index numbers in decreasing order of mole
-///  fraction. If array 'species' does not have length =
-///  nSpecies(), then the species will be considered as candidates
-///  to be components in declaration order, beginning with the
-///  first phase added.
-///
 void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
 {
-    index_t m, k, j;
+    size_t m, k, j;
 
     // if the input species array has the wrong size, ignore it
     // and consider the species for components in declaration order.
@@ -412,8 +365,8 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
         }
     }
 
-    index_t nRows = m_nel;
-    index_t nColumns = m_nsp;
+    size_t nRows = m_nel;
+    size_t nColumns = m_nsp;
     doublereal fctr;
 
     // set up the atomic composition matrix
@@ -428,18 +381,18 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
         // Check for rows that are zero
         bool isZeroRow = true;
         for (k = m; k < nColumns; k++) {
-            if (fabs(m_A(m,k)) > sqrt(TINY)) {
+            if (fabs(m_A(m,k)) > sqrt(Tiny)) {
                 isZeroRow = false;
                 break;
             }
         }
         if (isZeroRow) {
             // Find the last non-zero row
-            index_t n = nRows - 1;
+            size_t n = nRows - 1;
             bool foundSwapCandidate = false;
             for (; n > m; n--) {
                 for (k = m; k < nColumns; k++) {
-                    if (fabs(m_A(n,k)) > sqrt(TINY)) {
+                    if (fabs(m_A(n,k)) > sqrt(Tiny)) {
                         foundSwapCandidate = true;
                         break;
                     }
@@ -472,7 +425,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
             // possible. We'll choose the species with greatest
             // mole fraction that satisfies these criteria.
             doublereal maxmoles = -999.0;
-            index_t kmax = 0;
+            size_t kmax = 0;
             for (k = m+1; k < nColumns; k++) {
                 if (m_A(m,k) != 0.0) {
                     if (fabs(m_moles[m_order[k]]) > maxmoles) {
@@ -547,15 +500,10 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
     }
 }
 
-
-
-
-/// Re-arrange a vector of species properties in sorted form
-/// (components first) into unsorted, sequential form.
 void MultiPhaseEquil::unsort(vector_fp& x)
 {
     copy(x.begin(), x.end(), m_work2.begin());
-    index_t k;
+    size_t k;
     for (k = 0; k < m_nsp; k++) {
         x[m_order[k]] = m_work2[k];
     }
@@ -564,7 +512,7 @@ void MultiPhaseEquil::unsort(vector_fp& x)
 #if defined(WITH_HTML_LOGS)
 void MultiPhaseEquil::printInfo(int loglevel)
 {
-    index_t m, ik, k;
+    size_t m, ik, k;
     if (loglevel > 0) {
         beginLogGroup("info");
         beginLogGroup("components");
@@ -603,11 +551,10 @@ void MultiPhaseEquil::printInfo(int loglevel)
     }
 }
 
-/// Return a string specifying the jth reaction.
-string MultiPhaseEquil::reactionString(index_t j)
+string MultiPhaseEquil::reactionString(size_t j)
 {
     string sr = "", sp = "";
-    index_t i, k;
+    size_t i, k;
     bool rstrt = true;
     bool pstrt = true;
     doublereal nu;
@@ -630,7 +577,7 @@ string MultiPhaseEquil::reactionString(index_t j)
 void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
                            int loglevel)
 {
-    index_t k, ik;
+    size_t k, ik;
     if (loglevel > 0) {
         beginLogGroup("MultiPhaseEquil::step");
     }
@@ -666,9 +613,6 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
     }
 }
 
-
-/// Take one step in composition, given the gradient of G at the
-/// starting point, and a vector of reaction steps dxi.
 doublereal MultiPhaseEquil::
 stepComposition(int loglevel)
 {
@@ -677,7 +621,7 @@ stepComposition(int loglevel)
     }
 
     m_iter++;
-    index_t ik, k = 0;
+    size_t ik, k = 0;
     doublereal grad0 = computeReactionSteps(m_dxi);
 
     // compute the mole fraction changes.
@@ -713,7 +657,7 @@ stepComposition(int loglevel)
                 if (m_moles[k] < MAJOR_THRESHOLD) {
                     m_force = true;
                 }
-                omax = m_moles[k]*FCTR/(fabs(m_work[k]) + TINY);
+                omax = m_moles[k]*FCTR/(fabs(m_work[k]) + Tiny);
                 if (m_work[k] < 0.0 && omax < omegamax) {
                     omegamax = omax;
                     if (omegamax < 1.0e-5) {
@@ -776,16 +720,11 @@ stepComposition(int loglevel)
     return omega;
 }
 
-
-/// Compute the change in extent of reaction for each reaction.
-
 doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
 {
-
-    index_t j, k, ik, kc, ip;
+    size_t j, k, ik, kc, ip;
     doublereal stoich, nmoles, csum, term1, fctr, rfctr;
     vector_fp nu;
-    const doublereal TINY = 1.0e-20;
     doublereal grad = 0.0;
 
     dxi.resize(nFree());
@@ -827,13 +766,13 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
             for (k = 0; k < m_nel; k++) {
                 kc = m_order[k];
                 stoich = nu[kc];
-                nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + TINY;
+                nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + Tiny;
                 csum += stoich*stoich*m_dsoln[kc]/nmoles;
             }
 
             // noncomponent term
             kc = m_order[j + m_nel];
-            nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + TINY;
+            nmoles = fabs(m_mix->speciesMoles(m_species[kc])) + Tiny;
             term1 = m_dsoln[kc]/nmoles;
 
             // sum over solution phases
@@ -850,11 +789,11 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
                             psum += stoich * stoich;
                         }
                     }
-                    sum -= psum / (fabs(m_mix->phaseMoles(ip)) + TINY);
+                    sum -= psum / (fabs(m_mix->phaseMoles(ip)) + Tiny);
                 }
             }
             rfctr = term1 + csum + sum;
-            if (fabs(rfctr) < TINY) {
+            if (fabs(rfctr) < Tiny) {
                 fctr = 1.0;
             } else {
                 fctr = 1.0/(term1 + csum + sum);
@@ -862,7 +801,7 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
         }
         dxi[j] = -fctr*dg_rt;
 
-        index_t m;
+        size_t m;
         for (m = 0; m < m_nel; m++) {
             if (m_moles[m_order[m]] <= 0.0 && (m_N(m, j)*dxi[j] < 0.0)) {
                 dxi[j] = 0.0;
@@ -940,7 +879,7 @@ doublereal MultiPhaseEquil::error()
     return maxerr;
 }
 
-double MultiPhaseEquil::phaseMoles(index_t iph) const
+double MultiPhaseEquil::phaseMoles(size_t iph) const
 {
     return m_mix->phaseMoles(iph);
 }
@@ -1100,8 +1039,5 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     }
     fclose(FP);
 }
-
-
-
 
 }

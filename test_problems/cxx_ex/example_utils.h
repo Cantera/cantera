@@ -47,11 +47,33 @@ void makeDataLabels(const G& gas, V& names)
 }
 
 template<class G, class A>
-void plotSoln(std::string fname, std::string fmt, std::string title,
-              const G& gas, const A& soln)
+void plotSoln(const std::string& fname, const std::string& fmt,
+              const std::string& title, const G& gas, const A& soln)
 {
     std::vector<std::string> names;
     makeDataLabels(gas, names);
+    writePlotFile(fname, fmt, title, names, soln);
+}
+
+template<class G, class V>
+void makeTransportDataLabels(const G& gas, V& names)
+{
+    size_t nsp = gas.nSpecies();
+    names.resize(nsp + 3);
+    names[0]  = "Temperature (K)";
+    names[1]  = "Viscosity ()";
+    names[2]  = "Thermal Conductivity (W/m-K)";
+    for (size_t k = 0; k < nsp; k++) {
+        names[3+k] = gas.speciesName(k);
+    }
+}
+
+template<class G, class A>
+void plotTransportSoln(const std::string& fname, const std::string& fmt,
+                       const std::string& title, const G& gas, const A& soln)
+{
+    std::vector<std::string> names;
+    makeTransportDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
 }
 

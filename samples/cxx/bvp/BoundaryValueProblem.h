@@ -1,12 +1,10 @@
 /// @file BoundaryValueProblem.h
 /// Simplified interface to the capabilities provided by Cantera to
 /// solve boundary value problems.
-/// @todo This example cannot currently be compiled
 
 #ifndef BVP_H
 #define BVP_H
 
-#include "cantera/Cantera.h"
 #include "cantera/onedim.h"
 
 /// Namespace for the boundary value problem package.
@@ -33,7 +31,7 @@ public:
     double rtol;   ///< relative error tolerance
     double atol;   ///< absolute error tolerance
     bool refine;   ///< make this component active for grid refinement
-    string name;   ///< component name
+    std::string name;   ///< component name
 
     /**
      * Constructor. Sets default values.
@@ -41,23 +39,6 @@ public:
     Component() : lower(0.0), upper(1.0), rtol(1.0e-9), atol(1.0e-12),
         refine(true), name("") {}
 };
-
-
-/**
- * Exception thrown for illegal parameter values when setting up
- * the problem.
- */
-class BVP_Error
-{
-public:
-    /**
-     * Constructor. Write an error message.
-     */
-    BVP_Error(string msg) {
-        writelog("BVP Error: "+msg+"\n");
-    }
-};
-
 
 /**
  * Base class for boundary value problems. This class is designed
@@ -87,7 +68,7 @@ public:
         m_left(0), m_right(0), m_sim(0) {
 
         // Create the initial uniform grid
-        vector_fp z(np);
+        Cantera::vector_fp z(np);
         int iz;
         for (iz = 0; iz < np; iz++) {
             z[iz] = zmin + iz*(zmax - zmin)/(np-1);
@@ -137,7 +118,8 @@ public:
             start();
         }
         if (n < 0 || n >= m_nv) {
-            throw BVP_Error("Illegal solution component number");
+            throw Cantera::CanteraError("BoundaryValueProblem::setComponent",
+                                        "Illegal solution component number");
         }
         // set the upper and lower bounds for this component
         setBounds(n, c.lower, c.upper);
@@ -148,7 +130,7 @@ public:
         m_refiner->setActive(n, c.refine);
         // set a default name if one has not been entered
         if (c.name == "") {
-            c.name = "Component "+int2str(n);
+            c.name = "Component "+Cantera::int2str(n);
         }
         setComponentName(n, c.name);
     }
@@ -173,9 +155,9 @@ public:
      * @param ztitle Title for 'z' column.
      * @param dotitles If true, begin with a row of column titles.
      */
-    void writeCSV(string filename = "output.csv",
-                  bool dotitles = true, string ztitle = "z") const {
-        ofstream f(filename.c_str());
+    void writeCSV(std::string filename = "output.csv",
+                  bool dotitles = true, std::string ztitle = "z") const {
+        std::ofstream f(filename.c_str());
         int np = nPoints();
         int nc = nComponents();
         int n, m;
@@ -184,14 +166,14 @@ public:
             for (m = 0; m < nc; m++) {
                 f << componentName(m) << ", ";
             }
-            f << endl;
+            f << std::endl;
         }
         for (n = 0; n < np; n++) {
             f << z(n) << ", ";
             for (m = 0; m < nc; m++) {
                 f << m_sim->value(1, m, n) << ", ";
             }
-            f << endl;
+            f << std::endl;
         }
     }
 
@@ -201,7 +183,7 @@ public:
      * grid points. Overload in derived classes to specify other
      * choices for initial values.
      */
-    virtual doublereal initialValue(int n, int j) {
+    virtual doublereal initialValue(size_t n, size_t j) {
         return 0.0;
     }
 
@@ -248,16 +230,16 @@ protected:
     void start() {
 
         // Add dummy terminator domains on either side of this one.
-        m_left = new Empty1D;
-        m_right = new Empty1D;
-        vector<Domain1D*> domains;
+        m_left = new Cantera::Empty1D;
+        m_right = new Cantera::Empty1D;
+        std::vector<Cantera::Domain1D*> domains;
         domains.push_back(m_left);
         domains.push_back(this);
         domains.push_back(m_right);
 
         // create the Sim1D instance that will control the
         // solution process
-        m_sim = new Sim1D(domains);
+        m_sim = new Cantera::Sim1D(domains);
 
         // set default grid refinement parameters
         m_sim->setRefineCriteria(1, max_grid_ratio, max_delta,

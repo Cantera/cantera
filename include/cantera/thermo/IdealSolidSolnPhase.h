@@ -1,12 +1,10 @@
 /**
- * @file IdealSolidSolnPhase.h
- *      Header file for an ideal solid solution model
+ * @file IdealSolidSolnPhase.h Header file for an ideal solid solution model
  *      with incompressible thermodynamics (see \ref thermoprops and
  *      \link Cantera::IdealSolidSolnPhase IdealSolidSolnPhase\endlink).
  *
- *      This class inherits from the Cantera class ThermoPhase
- *      and implements an ideal solid solution model with incompressible
- *      thermodynamics.
+ * This class inherits from the Cantera class ThermoPhase and implements an
+ * ideal solid solution model with incompressible thermodynamics.
  */
 /*
  * Copyright 2006 Sandia Corporation. Under the terms of Contract
@@ -21,7 +19,6 @@
 #include "ThermoPhase.h"
 #include "ThermoFactory.h"
 #include "SpeciesThermo.h"
-
 
 namespace Cantera
 {
@@ -45,17 +42,10 @@ const int cIdealSolidSolnPhase2 = 5012;
  * The class derives from class ThermoPhase,
  * and overloads the virtual methods defined there with ones that
  * use expressions appropriate for ideal solution mixtures.
- * File name for the XML datafile containing information
- *               for this phase
+ *
  * The generalized concentrations can have three different forms
- * depending on the value of the member attribute m_formGC, which
+ * depending on the value of the member attribute #m_formGC, which
  * is supplied in the constructor and in the XML file.
- *                          <TABLE>
- *  <TR><TD> m_formGC </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
- *  <TR><TD> 0        </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
- *  <TR><TD> 1        </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
- *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
- *                         </TABLE>
  * The value and form of the generalized concentration will affect
  * reaction rate constants involving species in this phase.
  *
@@ -63,108 +53,70 @@ const int cIdealSolidSolnPhase2 = 5012;
  */
 class IdealSolidSolnPhase : public ThermoPhase
 {
-
 public:
-
     /**
      * Constructor for IdealSolidSolnPhase.
      * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute m_formGC, which
+     * depending on the value of the member attribute #m_formGC, which
      * is supplied in the constructor or read from the xml data file.
-     *                          <TABLE>
-     *  <TR><TD> m_formGC </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0        </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
-     *  <TR><TD> 1        </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
-     *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
-     *                         </TABLE>
      *
-     * @param formCG This parameter initializes the m_formGC variable. The default
-     *               is a value of 0.
+     * @param formCG This parameter initializes the #m_formGC variable.
      */
     IdealSolidSolnPhase(int formCG=0);
-
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an ASCII input file
     /*!
-     *
      * This constructor will also fully initialize the object.
      * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute m_formGC, which
+     * depending on the value of the member attribute #m_formGC, which
      * is supplied in the constructor or read from the xml data file.
-     *
-     *                          <TABLE>
-     *  <TR><TD> m_formGC </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0        </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
-     *  <TR><TD> 1        </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
-     *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
-     *                         </TABLE>
      *
      * @param infile File name for the XML datafile containing information
      *               for this phase
      * @param id     The name of this phase. This is used to look up
      *               the phase in the XML datafile.
-     * @param formCG This parameter initializes the m_formGC variable. The default
-     *               is a value of 0.
+     * @param formCG This parameter initializes the #m_formGC variable.
      */
-    IdealSolidSolnPhase(std::string infile, std::string id="", int formCG=0);
+    IdealSolidSolnPhase(const std::string& infile, const std::string& id="", int formCG=0);
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an XML database
     /*!
      * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute m_formGC, which
+     * depending on the value of the member attribute #m_formGC, which
      * is supplied in the constructor and/or read from the data file.
-     *
-     *                          <TABLE>
-     *  <TR><TD> m_formGC </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0        </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
-     *  <TR><TD> 1        </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
-     *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
-     *                         </TABLE>
      *
      * @param root   XML tree containing a description of the phase.
      *               The tree must be positioned at the XML element
      *               named phase with id, "id", on input to this routine.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the XML datafile.
-     * @param formCG This parameter initializes the m_formGC variable. The default
-     *               is a value of 0.
+     * @param formCG This parameter initializes the #m_formGC variable.
      */
-    IdealSolidSolnPhase(XML_Node& root, std::string id="", int formCG=0);
+    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=0);
 
-    /*!
-     * Copy Constructor
-     */
+    //! Copy Constructor
     IdealSolidSolnPhase(const IdealSolidSolnPhase&);
 
-    /*!
-     * Assignment operator
-     */
+    //! Assignment operator
     IdealSolidSolnPhase& operator=(const IdealSolidSolnPhase&);
 
     /*!
      * Base Class Duplication Function
-     *  -> given a pointer to ThermoPhase, this function can
-     *     duplicate the object. (note has to be a separate function
-     *     not the copy constructor, because it has to be
-     *     a virtual function)
+     *
+     * Given a pointer to ThermoPhase, this function can duplicate the object.
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! Destructor
-    virtual ~IdealSolidSolnPhase() {}
-
     /**
      * Equation of state flag. Returns a value depending upon the value of
-     * m_formGC, which is defined at instantiation.
+     * #m_formGC, which is defined at instantiation.
      */
     virtual int eosType() const;
 
-    /**
-     * @name Molar Thermodynamic Properties of the Solution ------------------------
-     * @{
-     */
+    //! @name Molar Thermodynamic Properties of the Solution
+    //! @{
 
     /**
      * Molar enthalpy of the solution. Units: J/kmol.
@@ -257,7 +209,7 @@ public:
     }
 
     //@}
-    /** @name Mechanical Equation of State Properties ------------------------------------
+    /** @name Mechanical Equation of State Properties
      *
      *   In this equation of state implementation, the density is a
      *   function only of the mole fractions. Therefore, it can't be
@@ -305,9 +257,6 @@ public:
      * species molar volumes. We have additionally specified
      * in this class that the pure species molar volumes are
      * independent of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a
-     *       member of the ThermoPhase base class.
      */
     void calcDensity();
 
@@ -322,11 +271,6 @@ public:
      * to create a condition where the density is a function of
      * the pressure.
      *
-     * This function will now throw an error condition.
-     *
-     *  NOTE: This is a virtual function that overwrites the State.h
-     *        class
-     *
      * @param rho  Input density
      */
     virtual void setDensity(const doublereal rho);
@@ -336,9 +280,6 @@ public:
      * density is not an independent variable.
      *
      * This function will now throw an error condition.
-     *
-     *  NOTE: This is virtual function that overwrites the State.h
-     *        class
      *
      * @param rho   Input Density
      */
@@ -379,11 +320,10 @@ public:
      */
     virtual void setConcentrations(const doublereal* const c);
 
-
     //@}
 
     /**
-     * @name Chemical Potentials and Activities -----------------------------------------
+     * @name Chemical Potentials and Activities
      *
      * The activity \f$a_k\f$ of a species in solution is
      * related to the chemical potential by
@@ -424,7 +364,7 @@ public:
      * concentration divided by the standard concentration is also
      * equal to the activity of species.
      *
-     * For this implentation the activity is defined to be the
+     * For this implementation the activity is defined to be the
      * mole fraction of the species. The generalized concentration
      * is defined to be equal to the mole fraction divided by
      * the partial molar volume. The generalized concentrations
@@ -443,14 +383,7 @@ public:
      * standard concentration to be independent of the mole fractions.
      *
      * In this implementation the form of the generalized concentrations
-     * depend upon the member attribute, m_formGC:
-     *
-     *                          <TABLE>
-     *  <TR><TD> m_formGC </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0        </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
-     *  <TR><TD> 1        </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
-     *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
-     *                         </TABLE>
+     * depend upon the member attribute, #m_formGC.
      *
      * HKM Note: We have absorbed the pressure dependence of the pure species
      *        state into the thermodynamics functions. Therefore the
@@ -464,14 +397,12 @@ public:
     virtual void getActivityConcentrations(doublereal* c) const;
 
     /**
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the generalized concentration.
-     * In many cases, this quantity
-     * will be the same for all species in a phase.
-     * However, for this case, we will return a distinct concentration
-     * for each species. This is the inverse of the species molar
-     * volume. Units for the standard concentration are
-     * kmol m<SUP>-3</SUP>.
+     * The standard concentration \f$ C^0_k \f$ used to normalize the
+     * generalized concentration. In many cases, this quantity will be the
+     * same for all species in a phase. However, for this case, we will return
+     * a distinct concentration for each species. This is the inverse of the
+     * species molar volume. Units for the standard concentration are kmol
+     * m<SUP>-3</SUP>.
      *
      * @param k Species number: this is a require parameter,
      * a change from the ThermoPhase base class, where it was
@@ -511,14 +442,16 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     * @param uA Output vector containing the units:
+     *
+     *     uA[0] = kmol units - default  = 1
+     *     uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                   dimensions in the Phase class.
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
+     *
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
@@ -527,10 +460,10 @@ public:
      *  kmol/m3 holds for standard concentration units. For
      *  cIdealSolidSolnPhase0 type, the standard concentration is
      *  unitless.
+     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
-
 
     //! Get the array of species activity coefficients
     /*!
@@ -572,9 +505,8 @@ public:
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
     //@}
-    /// @name  Partial Molar Properties of the Solution -----------------------------
+    /// @name  Partial Molar Properties of the Solution
     //@{
-
 
     //! Returns an array of partial molar enthalpies for the species in the mixture.
     /*!
@@ -637,9 +569,8 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution -------------------------------------
+    /// @name  Properties of the Standard State of the Species in the Solution
     //@{
-
 
     /**
      *  Get the standard state chemical potentials of the species.
@@ -660,7 +591,6 @@ public:
         getPureGibbs(mu0);
     }
 
-
     //! Get the array of nondimensional Enthalpy functions for the standard state species
     //! at the current <I>T</I> and <I>P</I> of the solution.
     /*!
@@ -678,7 +608,6 @@ public:
      *            standard state enthalpy of species k.
      */
     void getEnthalpy_RT(doublereal* hrt) const;
-
 
     //! Get the nondimensional Entropies for the species
     //! standard states at the current T and P of the solution.
@@ -727,21 +656,18 @@ public:
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-
     //! Returns the vector of nondimensional
     //!  internal Energies of the standard state at the current
     //! temperature and pressure of the solution for each species.
     /*!
-     *
      * @param urt  Output vector of standard state nondimensional internal energies.
      *             Length: m_kk.
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
     /**
-     * Get the nondimensional heat capacity at constant pressure
-     * function for the species
-     * standard states at the current T and P of the solution.
+     * Get the nondimensional heat capacity at constant pressure function for
+     * the species standard states at the current T and P of the solution.
      * \f[
      *  Cp^0_k(T,P) = Cp^{ref}_k(T)
      * \f]
@@ -757,8 +683,7 @@ public:
 
     /**
      * Get the molar volumes of each species in their standard
-     * states at the current
-     * <I>T</I> and <I>P</I> of the solution.
+     * states at the current <I>T</I> and <I>P</I> of the solution.
      * units = m^3 / kmol
      *
      * @param vol  Output vector of standard state volumes.
@@ -766,11 +691,9 @@ public:
      */
     virtual void getStandardVolumes(doublereal* vol) const;
 
-
     //@}
-    /// @name Thermodynamic Values for the Species Reference States ------
+    /// @name Thermodynamic Values for the Species Reference States
     //@{
-
 
     /**
      *  Returns the vector of nondimensional
@@ -862,15 +785,6 @@ public:
      *  to see if a recalculation of the reference thermodynamics
      *  functions needs to be done.
      */
-    const vector_fp& expGibbs_RT_ref() const;
-
-    /**
-     *  Returns a reference to the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature.
-     *  Real reason for its existence is that it also checks
-     *  to see if a recalculation of the reference thermodynamics
-     *  functions needs to be done.
-     */
     const vector_fp& entropy_R_ref() const;
 
     /**
@@ -893,54 +807,10 @@ public:
     virtual doublereal potentialEnergy(int k) const {
         return m_pe[k];
     }
+
     //@}
-    /// @name Utility Functions -----------------------------------------------
+    /// @name Utility Functions
     //@{
-
-
-
-    /**
-     * Initialization of an IdealSolidSolnPhase phase using an
-     * xml file
-     *
-     * This routine is a precursor to constructPhaseXML(XML_Node*)
-     * routine, which does most of the work.
-     *
-     * @param infile XML file containing the description of the
-     *        phase
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseFile(std::string infile, std::string id="");
-
-    /**
-     *   Import and initialize an IdealSolidSolnPhase phase
-     *   specification in an XML tree into the current object.
-     *   Here we read an XML description of the phase.
-     *   We import descriptions of the elements that make up the
-     *   species in a phase.
-     *   We import information about the species, including their
-     *   reference state thermodynamic polynomials. We then freeze
-     *   the state of the species.
-     *   This routine calls importPhase() to do most of its work.
-     *   Then, importPhase() calls initThermoXML() to finish
-     *   off the work.
-     *
-
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string id="");
 
     /**
      *  Initialization of an IdealSolidSolnPhase phase:
@@ -950,33 +820,24 @@ public:
     virtual void initThermo();
 
     /**
-      * @internal
-      *   Import and initialize a ThermoPhase object
-      *   using an XML tree.
-      *   Here we read extra information about the XML description
-      *   of a phase. Regular information about elements and species
-      *   and their reference state thermodynamic information
-      *   have already been read at this point.
-      *   For example, we do not need to call this function for
-      *   ideal gas equations of state.
-      *   This function is called from importPhase()
-      *   after the elements and the
-      *   species are initialized with default ideal solution
-      *   level data.
+      * @internal Import and initialize a ThermoPhase object using an XML
+      *   tree. Here we read extra information about the XML description of a
+      *   phase. Regular information about elements and species and their
+      *   reference state thermodynamic information have already been read at
+      *   this point. For example, we do not need to call this function for
+      *   ideal gas equations of state. This function is called from
+      *   importPhase() after the elements and the species are initialized
+      *   with default ideal solution level data.
       *
-      * @param phaseNode This object must be the phase node of a
-      *             complete XML tree
-      *             description of the phase, including all of the
-      *             species data. In other words while "phase" must
-      *             point to an XML phase object, it must have
-      *             sibling nodes "speciesData" that describe
-      *             the species in the phase.
-      * @param id   ID of the phase. If nonnull, a check is done
-      *             to see if phaseNode is pointing to the phase
-      *             with the correct id.
+      * @param phaseNode This object must be the phase node of a complete XML
+      *             tree description of the phase, including all of the
+      *             species data. In other words while "phase" must point to
+      *             an XML phase object, it must have sibling nodes
+      *             "speciesData" that describe the species in the phase.
+      * @param id   ID of the phase. If nonnull, a check is done to see if
+      *             phaseNode is pointing to the phase with the correct id.
       */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
-
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     /**
      * Set mixture to an equilibrium state consistent with specified
@@ -984,10 +845,8 @@ public:
      *
      * @param lambda_RT vector of non-dimensional element potentials
      * \f$ \lambda_m/RT \f$.
-     *
      */
     virtual void setToEquilState(const doublereal* lambda_RT);
-
 
     /**
      * Report the molar volume of species k
@@ -1011,31 +870,21 @@ public:
     //@}
 
 protected:
-
     /**
-     *  Format for the generalized concentrations
-     *  0 = C_k = X_k.      (default)
-     *  1 = C_k = X_k / V_k
-     *  2 = C_k = X_k / V_N
+     *  Format for the generalized concentrations.
+     *
+     *  <TABLE>
+     *  <TR><TD> m_formGC    </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
+     *  <TR><TD> 0 (default) </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
+     *  <TR><TD> 1           </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
+     *  <TR><TD> 2           </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
+     *  </TABLE>
+     *
+     *  The value and form of the generalized concentration will affect
+     *  reaction rate constants involving species in this phase.
      */
     int m_formGC;
-    /**
-     * m_mm = Number of distinct elements defined in species in this
-     *        phase
-     */
-    size_t m_mm;
 
-    /**
-     * Maximum temperature that this phase can accurately describe
-     * the thermodynamics.
-     */
-    doublereal m_tmin;
-
-    /**
-     * Minimum temperature that this phase can accurately describe
-     * the thermodynamics.
-     */
-    doublereal m_tmax;
     /**
      * Value of the reference pressure for all species in this phase.
      * The T dependent polynomials are evaluated at the reference
@@ -1065,9 +914,7 @@ protected:
      */
     mutable doublereal   m_tlast;
 
-    /**
-     * Vector containing the species reference enthalpies at T = m_tlast
-     */
+    //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp      m_h0_RT;
 
     /**
@@ -1076,16 +923,10 @@ protected:
      */
     mutable vector_fp      m_cp0_R;
 
-    /**
-     * Vector containing the species reference Gibbs functions
-     * at T = m_tlast
-     */
+    //!  Vector containing the species reference Gibbs functions at T = m_tlast
     mutable vector_fp      m_g0_RT;
 
-    /**
-     * Vector containing the species reference entropies
-     * at T = m_tlast
-     */
+    //! Vector containing the species reference entropies at T = m_tlast
     mutable vector_fp      m_s0_R;
 
     /**
@@ -1094,18 +935,14 @@ protected:
      */
     mutable vector_fp      m_expg0_RT;
 
-    /**
-     * Vector of potential energies for the species.
-     */
+    //! Vector of potential energies for the species.
     mutable vector_fp      m_pe;
 
-    /**
-     * Temporary array used in equilibrium calculations
-     */
+    //! Temporary array used in equilibrium calculations
     mutable vector_fp      m_pp;
 
 private:
-    /// @name Utility Functions ------------------------------------------
+    /// @name Utility Functions
     //@{
     /**
      * This function gets called for every call to functions in this
@@ -1117,9 +954,7 @@ private:
      */
     void _updateThermo() const;
 
-    /**
-     * This internal function adjusts the lengths of arrays
-     */
+    //! This internal function adjusts the lengths of arrays
     void initLengths();
 
     //@}
@@ -1127,8 +962,3 @@ private:
 }
 
 #endif
-
-
-
-
-

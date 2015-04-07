@@ -27,7 +27,6 @@ libs = [('base', ['cpp'], baseSetup),
         ('thermo', ['cpp'], defaultSetup),
         ('tpx', ['cpp'], defaultSetup),
         ('equil', ['cpp','c'], equilSetup),
-        ('converters', ['cpp'], defaultSetup),
         ('numerics', ['cpp'], numericsSetup),
         ('kinetics', ['cpp'], defaultSetup),
         ('transport', ['cpp'], defaultSetup),
@@ -39,8 +38,9 @@ libs = [('base', ['cpp'], baseSetup),
 
 for subdir, extensions, setup in libs:
     localenv = env.Clone()
-    localenv.Append(CPPPATH=Dir('#include'))
-    localenv.Append(CPPPATH=Dir('#src')) # todo: remove when not needed
+    localenv.Prepend(CPPPATH=Dir('#include'))
+    localenv.Prepend(CPPPATH=Dir('#src')) # todo: remove when not needed
+    localenv.Append(CCFLAGS=env['warning_flags'])
     source = setup(localenv, subdir, extensions)
     objects = localenv.SharedObject(source)
     localenv.Depends(objects, localenv['config_h_target'])
@@ -55,14 +55,18 @@ localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 env['cantera_staticlib'] = lib
 
-# OS X requires the shared libraries at link time
-if (localenv['use_sundials'] == 'y' and
-    localenv['OS'] in ('Darwin', 'Windows')):
-    localenv.Append(LIBS=localenv['sundials_libs'],
-                    LIBPATH=localenv['sundials_libdir'])
-
-if localenv['toolchain'] == 'mingw':
-    localenv.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
+# Windows and OS X require shared libraries at link time
+if localenv['OS'] in ('Darwin', 'Windows', 'Cygwin'):
+    localenv.Append(LIBS=localenv['FORTRANSYSLIBS'])
+    if (localenv['use_sundials'] == 'y'):
+        localenv.Append(LIBS=localenv['sundials_libs'],
+                        LIBPATH=localenv['sundials_libdir'])
+    if localenv['blas_lapack_libs']:
+        localenv.Append(LIBS=localenv['blas_lapack_libs'],
+                        LIBPATH=localenv['blas_lapack_dir'])
+    if localenv['boost_libs']:
+        localenv.Append(LIBS=localenv['boost_libs'],
+                        LIBPATH=localenv['boost_lib_dir'])
 
 # Build the Cantera shared library using the correct name
 if localenv['layout'] != 'debian':

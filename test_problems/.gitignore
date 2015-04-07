@@ -2,7 +2,7 @@
 *_output.txt
 *_output.csv
 *_output.out
-ck2cti.log
+*.exe
 ChemEquil_gri_matrix/gri_matrix
 ChemEquil_gri_pairs/gri_pairs
 ChemEquil_ionizedGas/ionizedGasEquil
@@ -12,6 +12,8 @@ CpJump/CpJump
 NASA9poly_test/NASA9poly_test
 VCSnonideal/NaCl_equil/nacl_equil
 VCSnonideal/NaCl_equil/vcs_equilibrate_res.csv
+VCSnonideal/LatticeSolid_LiSi/latticeSolid_LiSi
+VCSnonideal/LatticeSolid_LiSi/vcs_equilibrate_res.csv
 VPsilane_test/VPsilane_test
 cathermo/DH_graph_1/DH_graph_1
 cathermo/HMW_dupl_test/HMW_dupl_test
@@ -39,8 +41,6 @@ cathermo/testIAPWSTripP/testIAPWSTripP
 cathermo/testWaterPDSS/testWaterPDSS
 cathermo/testWaterTP/testWaterSSTP
 cathermo/wtWater/wtWater
-ck2cti_test/gri30.cti
-ck2cti_test/soot.cti
 cxx_ex/cxx_examples
 cxx_ex/eq1.csv
 cxx_ex/eq1.dat
@@ -59,7 +59,9 @@ diamondSurf/runDiamond
 fracCoeff/fracCoeff
 mixGasTransport/mixGasTransport
 multiGasTransport/multiGasTransport
-nasa9_reader/sample.cti
+simpleTransport/simpleTransport
+dustyGasTransport/dustyGasTransport
+PecosTransport/pecosTransport
 negATest/negATest
 negATest/noxNeg.xml
 printUtilUnitTest/pUtest
@@ -79,3 +81,4 @@ surfSolverTest/results2.txt
 surfSolverTest/surfaceSolver
 surfSolverTest/surfaceSolver2
 surfkin/surfdemo
+stoichSolidKinetics/stoichSolidKinetics

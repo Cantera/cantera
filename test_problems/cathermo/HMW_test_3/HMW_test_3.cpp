@@ -5,8 +5,6 @@
 using namespace std;
 using namespace Cantera;
 
-int CHECK_DEBUG_MODE = 0;
-
 void pAtable(HMWSoln* HMW)
 {
     size_t nsp = HMW->nSpecies();
@@ -24,7 +22,7 @@ void pAtable(HMWSoln* HMW)
            "   MoleFract      Molality\n");
     for (size_t k = 0; k < nsp; k++) {
         sName = HMW->speciesName(k);
-        printf("%16s %13g %13g %13g %13g\n",
+        printf("%16s %13.4f %13.4f %13.4f %13.4f\n",
                sName.c_str(), activities[k], acMol[k], mf[k], moll[k]);
     }
 
@@ -44,9 +42,9 @@ int main(int argc, char** argv)
         size_t nsp = HMW->nSpecies();
 
         double a1 = HMW->AionicRadius(1);
-        printf("a1 = %g\n", a1);
+        printf("a1 = %.4f\n", a1);
         double a2 = HMW->AionicRadius(2);
-        printf("a2 = %g\n", a2);
+        printf("a2 = %.4f\n", a2);
         double mu0[100];
         double moll[100];
         string sName;
@@ -65,20 +63,7 @@ int main(int argc, char** argv)
 
         HMW->setState_TPM(Temp, OneAtm, moll);
 
-#ifdef DEBUG_MODE
-        CHECK_DEBUG_MODE = 1;
-#endif
-        if (CHECK_DEBUG_MODE == 1) {
-            HMW->m_debugCalc = 1;
-            if (HMW->debugPrinting()) {
-                FILE* ff = fopen("CheckDebug.txt", "w");
-                fprintf(ff,"%1d\n", 1);
-                fclose(ff);
-            }
-            HMW->m_debugCalc = 1;
-        }
-
-        printf("       Temperature = %g K\n", Temp);
+        printf("       Temperature = %.4f K\n", Temp);
         HMW->printCoeffs();
         pAtable(HMW);
 
@@ -104,11 +89,11 @@ int main(int argc, char** argv)
         i1 = HMW->speciesIndex("Na+");
         i2 = HMW->speciesIndex("Cl-");
         deltaG = -432.6304 - mu0[i1] - mu0[i2];
-        printf(" NaCl(S): Na+ + Cl- -> NaCl(S): %14.7g kJ/gmol \n",
+        printf(" NaCl(S): Na+ + Cl- -> NaCl(S): %14.5g kJ/gmol \n",
                deltaG);
-        printf("                                : %14.7g (dimensionless) \n",
+        printf("                                : %14.5g (dimensionless) \n",
                deltaG/RT);
-        printf("                                : %14.7g (dimensionless/ln10) \n",
+        printf("                                : %14.5g (dimensionless/ln10) \n",
                deltaG/(RT * log(10.0)));
 
         i1 = HMW->speciesIndex("H+");
@@ -119,11 +104,11 @@ int main(int argc, char** argv)
             exit(-1);
         }
         deltaG = mu0[j1] + mu0[i1] - mu0[i2];
-        printf(" OH-: H2O(L) - H+ -> OH-: %14.7g kJ/gmol \n",
+        printf(" OH-: H2O(L) - H+ -> OH-: %14.5g kJ/gmol \n",
                deltaG);
-        printf("                                : %14.7g (dimensionless) \n",
+        printf("                                : %14.5g (dimensionless) \n",
                deltaG/RT);
-        printf("                                : %14.7g (dimensionless/ln10) \n",
+        printf("                                : %14.5g (dimensionless/ln10) \n",
                deltaG/(RT * log(10.0)));
 
 

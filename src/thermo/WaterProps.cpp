@@ -13,32 +13,23 @@
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cmath>
-
 namespace Cantera
 {
-
-
-/*
- * default constructor -> object owns its own water evaluator
- */
 WaterProps::WaterProps():
     m_waterIAPWS(0),
     m_own_sub(false)
 {
+    // object owns its own water evaluator
     m_waterIAPWS = new WaterPropsIAPWS();
     m_own_sub = true;
 }
 
-/*
- * constructor -> object in slave mode, It doesn't own its
- *      own water evaluator.
- */
 WaterProps::WaterProps(PDSS_Water* wptr)  :
     m_waterIAPWS(0),
     m_own_sub(false)
 {
     if (wptr) {
+        // object in slave mode; it doesn't own its own water evaluator.
         m_waterIAPWS = wptr->getWater();
         m_own_sub = false;
     } else {
@@ -60,9 +51,6 @@ WaterProps::WaterProps(WaterPropsIAPWS* waterIAPWS)  :
     }
 }
 
-/**
- * Copy constructor
- */
 WaterProps::WaterProps(const WaterProps& b)  :
     m_waterIAPWS(0),
     m_own_sub(false)
@@ -70,9 +58,6 @@ WaterProps::WaterProps(const WaterProps& b)  :
     *this = b;
 }
 
-/**
- * Destructor
- */
 WaterProps::~WaterProps()
 {
     if (m_own_sub) {
@@ -80,9 +65,6 @@ WaterProps::~WaterProps()
     }
 }
 
-/**
- * Assignment operator
- */
 WaterProps& WaterProps::operator=(const WaterProps& b)
 {
     if (&b == this) {
@@ -106,27 +88,6 @@ WaterProps& WaterProps::operator=(const WaterProps& b)
     return *this;
 }
 
-// Simple calculation of water density at atmospheric pressure.
-// Valid up to boiling point.
-/*
- * This formulation has no dependence on the pressure and shouldn't
- * be used where accuracy is needed.
- *
- * @param T temperature in kelvin
- * @param P Pressure in pascal
- * @param ifunc changes what's returned
- *
- * @return value returned depends on ifunc value:
- * ifunc = 0 Returns the density in kg/m^3
- * ifunc = 1 returns the derivative of the density wrt T.
- * ifunc = 2 returns the 2nd derivative of the density wrt T
- * ifunc = 3 returns the derivative of the density wrt P.
- *
- * Verification:
- *   Agrees with the CRC values (6-10) for up to 4 sig digits.
- *
- * units = returns density in kg m-3.
- */
 doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
 {
     doublereal Tc = T - 273.15;
@@ -150,14 +111,11 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
     if (rho < rhomin) {
         rho = rhomin;
         if (ifunc == 1) {
-            doublereal drhodT = - rhomin / T;
-            return drhodT;
+            return - rhomin / T;
         } else if (ifunc == 3) {
-            doublereal drhodP = rhomin / P;
-            return drhodP;
+            return rhomin / P;
         } else if (ifunc == 2) {
-            doublereal d2rhodT2 = 2.0 * rhomin / (T * T);
-            return d2rhodT2;
+            return 2.0 * rhomin / (T * T);
         }
     }
 
@@ -182,37 +140,6 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
     return rho;
 }
 
-//  Bradley-Pitzer equation for the dielectric constant
-//  of water as a function of temperature and pressure.
-/*!
- *  Returns the dimensionless relative dielectric constant
- *  and its derivatives.
- *
- *  ifunc = 0 value
- *  ifunc = 1 Temperature deriviative
- *  ifunc = 2 second temperature derivative
- *  ifunc = 3 return pressure first derivative
- *
- * Range of validity 0 to 350C, 0 to 1 kbar pressure
- *
- * @param T temperature (kelvin)
- * @param P_pascal pressure in pascal
- * @param ifunc changes what's returned from the function
- *
- * @return Depends on the value of ifunc:
- * ifunc = 0 return value
- * ifunc = 1 return temperature derivative
- * ifunc = 2 return second temperature derivative
- * ifunc = 3 return pressure first derivative
- *
- *  Validation:
- *   Numerical experiments indicate that this function agrees with
- *   the Archer and Wang data in the CRC p. 6-10 to all 4 significant
- *   digits shown (0 to 100C).
- *
- *   value at 25C, relEps = 78.38
- *
- */
 doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
                                   int ifunc)
 {
@@ -247,8 +174,7 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
 
         doublereal dltmpdT = (dBdT/tmpBpar - dBdT/tmpB1000);
         if (ifunc == 1) {
-            doublereal depsReldT = deps1000dT + dCdT * ltmp + C * dltmpdT;
-            return depsReldT;
+            return deps1000dT + dCdT * ltmp + C * dltmpdT;
         }
         doublereal T3     = T2 * T;
         doublereal d2CdT2 = - 2.0 * dCdT / tmpC;
@@ -267,61 +193,15 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
     }
     if (ifunc == 3) {
         doublereal dltmpdP   = 1.0E-5 / tmpBpar;
-        doublereal depsReldP = C * dltmpdP;
-        return depsReldP;
+        return C * dltmpdP;
     }
 
     return epsRel;
 }
 
-/*
- * ADebye calculates the value of A_Debye as a function
- * of temperature and pressure according to relations
- * that take into account the temperature and pressure
- * dependence of the water density and dieletric constant.
- *
- * A_Debye -> this expression appears on the top of the
- *            ln actCoeff term in the general Debye-Huckel
- *            expression
- *            It depends on temperature. And, therefore,
- *            most be recalculated whenever T or P changes.
- *
- *            A_Debye = (1/(8 Pi)) sqrt(2 Na dw / 1000)
- *                          (e e/(epsilon R T))^3/2
- *
- *            Units = sqrt(kg/gmol) ~ sqrt(1/I)
- *
- *            Nominal value = 1.172576 sqrt(kg/gmol)
- *                  based on:
- *                    epsilon/epsilon_0 = 78.54
- *                           (water at 25C)
- *                    epsilon_0 = 8.854187817E-12 C2 N-1 m-2
- *                    e = 1.60217653E-19 C
- *                    F = 9.6485309E7 C kmol-1
- *                    R = 8.314472E3 kg m2 s-2 kmol-1 K-1
- *                    T = 298.15 K
- *                    B_Debye = 3.28640E9 sqrt(kg/gmol)/m
- *                    Na = 6.0221415E26
- *
- * ifunc = 0 return value
- * ifunc = 1 return temperature derivative
- * ifunc = 2 return temperature second derivative
- * ifunc = 3 return pressure first derivative
- *
- *  Verification:
- *    With the epsRelWater value from the BP relation,
- *    and the water density from the WaterDens function,
- *    The A_Debye computed with this function agrees with
- *    the Pitzer table p. 99 to 4 significant digits at 25C.
- *    and 20C. (Aphi = ADebye/3)
- *
- * (statically defined within the object)
- */
+
 doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 {
-    const doublereal e =  1.60217653E-19;
-    const doublereal epsilon0 =  8.854187817E-12;
-    const doublereal R = 8.314472E3;
     doublereal psat = satPressure(T);
     doublereal P;
     if (psat > P_input) {
@@ -334,12 +214,12 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
     doublereal epsRelWater = relEpsilon(T, P, 0);
     //printf("releps calc = %g, compare to 78.38\n", epsRelWater);
     //doublereal B_Debye = 3.28640E9;
-    const doublereal Na = 6.0221415E26;
 
-    doublereal epsilon = epsilon0 * epsRelWater;
+    doublereal epsilon = epsilon_0 * epsRelWater;
     doublereal dw = density_IAPWS(T, P);
-    doublereal tmp = sqrt(2.0 * Na * dw / 1000.);
-    doublereal tmp2 = e * e * Na / (epsilon * R * T);
+    doublereal tmp = sqrt(2.0 * Avogadro * dw / 1000.);
+    doublereal tmp2 = ElectronCharge * ElectronCharge * Avogadro /
+                      (epsilon * GasConstant * T);
     doublereal tmp3 = tmp2 * sqrt(tmp2);
     doublereal A_Debye = tmp * tmp3 / (8.0 * Pi);
 
@@ -444,33 +324,17 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 
 doublereal WaterProps::satPressure(doublereal T)
 {
-    doublereal pres = m_waterIAPWS->psat(T);
-    return pres;
+    return m_waterIAPWS->psat(T);
 }
 
-// Returns the density of water
-/*
- * This function sets the internal temperature and pressure
- * of the underlying object at the same time.
- *
- * @param T Temperature (kelvin)
- * @param P pressure (pascal)
- */
 doublereal WaterProps::density_IAPWS(doublereal temp, doublereal press)
 {
-    doublereal dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
-    return dens;
+    return m_waterIAPWS->density(temp, press, WATER_LIQUID);
 }
 
-// Returns the density of water
-/*
- *  This function uses the internal state of the
- *  underlying water object
- */
 doublereal WaterProps::density_IAPWS() const
 {
-    doublereal dens = m_waterIAPWS->density();
-    return dens;
+    return m_waterIAPWS->density();
 }
 
 doublereal WaterProps::coeffThermalExp_IAPWS(doublereal temp, doublereal press)
@@ -480,8 +344,7 @@ doublereal WaterProps::coeffThermalExp_IAPWS(doublereal temp, doublereal press)
         throw CanteraError("WaterProps::coeffThermalExp_IAPWS",
                            "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
     }
-    doublereal cte = m_waterIAPWS->coeffThermExp();
-    return cte;
+    return m_waterIAPWS->coeffThermExp();
 }
 
 doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublereal press)
@@ -491,13 +354,8 @@ doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublere
         throw CanteraError("WaterProps::isothermalCompressibility_IAPWS",
                            "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
     }
-    doublereal kappa = m_waterIAPWS->isothermalCompressibility();
-    return kappa;
+    return m_waterIAPWS->isothermalCompressibility();
 }
-
-
-
-
 
 // Parameters for the viscosityWater() function
 
@@ -522,25 +380,8 @@ const doublereal presStar = 22.115E6;  // Pa
 const doublereal muStar = 55.071E-6;   //Pa s
 // \endcond
 
-// Returns the viscosity of water at the current conditions
-// (kg/m/s)
-/*
- *  This function calculates the value of the viscosity of pure
- *  water at the current T and P.
- *
- *  The formulas used are from the paper
- *
- *     J. V. Sengers, J. T. R. Watson, "Improved International
- *     Formulations for the Viscosity and Thermal Conductivity of
- *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
- *
- *  The formulation is accurate for all temperatures and pressures,
- *  for steam and for water, even near the critical point.
- *  Pressures above 500 MPa and temperature above 900 C are suspect.
- */
 doublereal WaterProps::viscosityWater() const
 {
-
     doublereal temp = m_waterIAPWS->temperature();
     doublereal dens = m_waterIAPWS->density();
 
@@ -603,21 +444,6 @@ doublereal WaterProps::viscosityWater() const
     return mubar * muStar;
 }
 
-//! Returns the thermal conductivity of water at the current conditions
-//! (W/m/K)
-/*!
- *  This function calculates the value of the thermal conductivity of
- *  water at the current T and P.
- *
- *  The formulas used are from the paper
- *     J. V. Sengers, J. T. R. Watson, "Improved International
- *     Formulations for the Viscosity and Thermal Conductivity of
- *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
- *
- *  The formulation is accurate for all temperatures and pressures,
- *  for steam and for water, even near the critical point.
- *  Pressures above 500 MPa and temperature above 900 C are suspect.
- */
 doublereal WaterProps::thermalConductivityWater() const
 {
     static const doublereal Tstar = 647.27;
@@ -710,9 +536,7 @@ doublereal WaterProps::thermalConductivityWater() const
     doublereal  lambda2bar = 0.0013848 / (mu0bar * mu1bar) * t2r2 * dpdT_const_rho * dpdT_const_rho *
                              xsipow * sqrt(rhobar) * exp(-18.66*temp2 - rho4);
 
-    doublereal lambda = (lambda0bar * lambda1bar + lambda2bar) * lambdastar;
-    return lambda;
+    return (lambda0bar * lambda1bar + lambda2bar) * lambdastar;
 }
-
 
 }

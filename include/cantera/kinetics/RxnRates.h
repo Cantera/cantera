@@ -14,6 +14,8 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 
+#include <iostream>
+
 namespace Cantera
 {
 
@@ -49,7 +51,7 @@ public:
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
     }
 
@@ -98,7 +100,7 @@ public:
      * factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * exp(m_b*logT - m_E*recipT);
+        return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
 
@@ -125,78 +127,20 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
-//! @deprecated This class is not used.
-class ArrheniusSum
-{
-
-public:
-
-    static int type() {
-        return ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE;
-    }
-    ArrheniusSum() : m_nterms(0) {}
-
-    void addArrheniusTerm(doublereal A, doublereal b, doublereal E) {
-        if (A > 0.0) {
-            m_terms.push_back(Arrhenius(A, b, E));
-            m_sign.push_back(1);
-        } else if (A < 0.0) {
-            m_terms.push_back(Arrhenius(-A, b, E));
-            m_sign.push_back(-1);
-        }
-        m_nterms++;
-    }
-
-    void update_C(const doublereal* c) {}
-
-    /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        int n;
-        doublereal f, fsum = 0.0;
-        for (n = 0; n < m_nterms; n++) {
-            f = m_terms[n].updateRC(logT, recipT);
-            fsum += m_sign[n]*f;
-        }
-        return log(fsum);
-    }
-
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
-     */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
-        int n;
-        doublereal f, fsum = 0.0;
-        for (n = 0; n < m_nterms; n++) {
-            f = m_terms[n].updateRC(logT, recipT);
-            fsum += m_sign[n]*f;
-        }
-        return fsum;
-    }
-
-    void writeUpdateRHS(std::ostream& s) const {
-        ;
-    }
-
-    static bool alwaysComputeRate() {
-        return false;
-    }
-
-protected:
-    std::vector<Arrhenius> m_terms;
-    vector_int m_sign;
-    int m_nterms;
-};
-
 
 /**
  * An Arrhenius rate with coverage-dependent terms.
+ *
+ * The rate expression is given by:
+ * \f[
+ *     k_f = A T^b \exp \left(
+ *             \sum a_k \theta_k
+ *             - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
+ *             + \sum m_k \log \theta_k
+ *             \right)
+ *   \f]
+ * where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
+ * surface coverage of species \f$k, \theta_k \f$.
  */
 class SurfaceArrhenius
 {
@@ -226,15 +170,14 @@ public:
         m_ecov(0.0),
         m_mcov(0.0),
         m_ncov(0),
-        m_nmcov(0)
-    {
+        m_nmcov(0) {
         if (m_A <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
 
-        const vector_fp& data = rdata.auxRateCoeffParameters;
+        const vector_fp& data = rdata.rateCoeffParameters;
         if (data.size() >= 7) {
             for (size_t n = 3; n < data.size()-3; n += 4) {
                 addCoverageDependence(size_t(data[n]), data[n+1],
@@ -272,7 +215,7 @@ public:
             // changed n to k, dgg 1/22/04
             th = std::max(theta[k], Tiny);
             //                th = fmaxx(theta[n], Tiny);
-            m_mcov += m_mc[n]*log(th);
+            m_mcov += m_mc[n]*std::log(th);
         }
     }
 
@@ -295,7 +238,7 @@ public:
      * factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * exp(m_acov + m_b*logT - (m_E + m_ecov)*recipT + m_mcov);
+        return m_A * std::exp(m_acov + m_b*logT - (m_E + m_ecov)*recipT + m_mcov);
     }
 
     doublereal activationEnergy_R() const {
@@ -313,52 +256,6 @@ protected:
     vector_fp m_ac, m_ec, m_mc;
     size_t m_ncov, m_nmcov;
 };
-
-
-#ifdef INCL_TST
-
-class TST
-{
-
-public:
-    static int type() {
-        return TSTRATE;
-    }
-    TST() {}
-    TST(const vector_fp& c) {
-        m_b.resize(10);
-        copy(c.begin(), c.begin() + 10, m_b.begin());
-        m_k = int(c[10]);
-    }
-
-    void update_C(const vector_fp& c) {
-        doublereal ck = c[m_k];
-        delta_s0 = m_b[0] + m_b[1]*ck + m_b[2]*ck*ck;
-        delta_e0 = m_b[5] + m_b[6]*ck + m_b[7]*ck*ck;
-    }
-
-    doublereal update(doublereal logT, doublereal recipT) const {
-        doublereal delta_s = delta_s0*(1.0 + m_b[3]*logT + m_b[4]*recipT);
-        doublereal delta_E = delta_e0*(1.0 + m_b[8]*logT + m_b[9]*recipT);
-        return logBoltz_Planck + logT + delta_s -  delta_E*recipT;
-    }
-
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
-        doublereal lres = update(logT, recipT);
-        return exp(lres);
-    }
-
-    void writeUpdateRHS(std::ostream& s) const {}
-
-protected:
-    doublereal delta_s0, delta_e0;
-    int m_k;
-    vector_fp m_b;
-};
-
-#endif
-
-
 
 
 //! Arrhenius reaction rate type depends only on temperature
@@ -394,7 +291,7 @@ public:
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
     }
 
@@ -411,7 +308,7 @@ public:
         if (m_A  <= 0.0) {
             m_logA = -1.0E300;
         } else {
-            m_logA = log(m_A);
+            m_logA = std::log(m_A);
         }
     }
 
@@ -443,7 +340,7 @@ public:
      * factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * exp(m_b*logT - m_E*recipT);
+        return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
     void writeUpdateRHS(std::ostream& s) const {
@@ -474,8 +371,7 @@ class Plog
 {
 public:
     //! return the rate coefficient type.
-    static int type()
-    {
+    static int type() {
         return PLOG_REACTION_RATECOEFF_TYPE;
     }
 
@@ -486,17 +382,16 @@ public:
     explicit Plog(const ReactionData& rdata) :
         logP1_(1000),
         logP2_(-1000),
-        maxRates_(1)
-    {
+        maxRates_(1) {
         typedef std::multimap<double, vector_fp>::const_iterator iter_t;
 
         size_t j = 0;
         size_t rateCount = 0;
         // Insert intermediate pressures
         for (iter_t iter = rdata.plogParameters.begin();
-             iter != rdata.plogParameters.end();
-             iter++) {
-            double logp = log(iter->first);
+                iter != rdata.plogParameters.end();
+                iter++) {
+            double logp = std::log(iter->first);
             if (pressures_.empty() || pressures_.rbegin()->first != logp) {
                 // starting a new group
                 pressures_[logp] = std::make_pair(j, j+1);
@@ -517,10 +412,10 @@ public:
         // For pressures with only one Arrhenius expression, it is more
         // efficient to work with log(A)
         for (pressureIter iter = pressures_.begin();
-             iter != pressures_.end();
-             iter++) {
+                iter != pressures_.end();
+                iter++) {
             if (iter->second.first == iter->second.second - 1) {
-                A_[iter->second.first] = log(A_[iter->second.first]);
+                A_[iter->second.first] = std::log(A_[iter->second.first]);
             }
         }
 
@@ -535,12 +430,15 @@ public:
         n2_.resize(maxRates_);
         Ea1_.resize(maxRates_);
         Ea2_.resize(maxRates_);
+
+        if (rdata.validate) {
+            validate(rdata);
+        }
     }
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
-    void update_C(const doublereal* c)
-    {
+    void update_C(const doublereal* c) {
         logP_ = c[0];
         if (logP_ > logP1_ && logP_ < logP2_) {
             return;
@@ -578,27 +476,26 @@ public:
     /**
      * Update the value of the logarithm of the rate constant.
      */
-    doublereal update(doublereal logT, doublereal recipT) const
-    {
+    doublereal update(doublereal logT, doublereal recipT) const {
         double log_k1, log_k2;
         if (m1_ == 1) {
             log_k1 = A1_[0] + n1_[0] * logT - Ea1_[0] * recipT;
         } else {
-            double k = 0.0;
+            double k = 1e-300; // non-zero to make log(k) finite
             for (size_t m = 0; m < m1_; m++) {
-                k += A1_[m] * exp(n1_[m] * logT - Ea1_[m] * recipT);
+                k += A1_[m] * std::exp(n1_[m] * logT - Ea1_[m] * recipT);
             }
-            log_k1 = log(k);
+            log_k1 = std::log(k);
         }
 
         if (m2_ == 1) {
             log_k2 = A2_[0] + n2_[0] * logT - Ea2_[0] * recipT;
         } else {
-            double k = 0.0;
+            double k = 1e-300; // non-zero to make log(k) finite
             for (size_t m = 0; m < m2_; m++) {
-                k += A2_[m] * exp(n2_[m] * logT - Ea2_[m] * recipT);
+                k += A2_[m] * std::exp(n2_[m] * logT - Ea2_[m] * recipT);
             }
-            log_k2 = log(k);
+            log_k2 = std::log(k);
         }
 
         return log_k1 + (log_k2 - log_k1) * (logP_ - logP1_) * rDeltaP_;
@@ -610,7 +507,7 @@ public:
      * This function returns the actual value of the rate constant.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return exp(update(logT, recipT));
+        return std::exp(update(logT, recipT));
     }
 
     doublereal activationEnergy_R() const {
@@ -619,6 +516,32 @@ public:
 
     static bool alwaysComputeRate() {
         return false;
+    }
+
+    //! Check to make sure that the rate expression is finite over a range of
+    //! temperatures at each interpolation pressure. This is potentially an
+    //! issue when one of the Arrhenius expressions at a particular pressure
+    //! has a negative pre-exponential factor.
+    void validate(const ReactionData& rdata) {
+        double T[] = {1.0, 10.0, 100.0, 1000.0, 10000.0};
+        for (pressureIter iter = pressures_.begin();
+                iter->first < 1000;
+                iter++) {
+            update_C(&iter->first);
+            for (size_t i=0; i < 5; i++) {
+                double k = updateRC(log(T[i]), 1.0/T[i]);
+                if (!(k >= 0)) {
+                    // k is NaN. Increment the iterator so that the error
+                    // message will correctly indicate that the problematic rate
+                    // expression is at the higher of the adjacent pressures.
+                    throw CanteraError("Plog::validate",
+                                       "Invalid rate coefficient for reaction #" +
+                                       int2str(rdata.number) + ":\n" + rdata.equation + "\n" +
+                                       "at P = " + fp2str(std::exp((++iter)->first)) +
+                                       ", T = " + fp2str(T[i]));
+                }
+            }
+        }
     }
 
 protected:
@@ -651,8 +574,7 @@ class ChebyshevRate
 {
 public:
     //! return the rate coefficient type.
-    static int type()
-    {
+    static int type() {
         return CHEBYSHEV_REACTION_RATECOEFF_TYPE;
     }
 
@@ -664,10 +586,9 @@ public:
         nP_(rdata.chebDegreeP),
         nT_(rdata.chebDegreeT),
         chebCoeffs_(rdata.chebCoeffs),
-        dotProd_(rdata.chebDegreeT)
-    {
-        double logPmin = log10(rdata.chebPmin);
-        double logPmax = log10(rdata.chebPmax);
+        dotProd_(rdata.chebDegreeT) {
+        double logPmin = std::log10(rdata.chebPmin);
+        double logPmax = std::log10(rdata.chebPmax);
         double TminInv = 1.0 / rdata.chebTmin;
         double TmaxInv = 1.0 / rdata.chebTmax;
 
@@ -679,8 +600,7 @@ public:
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
-    void update_C(const doublereal* c)
-    {
+    void update_C(const doublereal* c) {
         double Pr = (2 * c[0] + PrNum_) * PrDen_;
         double Cnm1 = 1;
         double Cn = Pr;
@@ -701,8 +621,7 @@ public:
     /**
      * Update the value of the base-10 logarithm of the rate constant.
      */
-    doublereal update(doublereal logT, doublereal recipT) const
-    {
+    doublereal update(doublereal logT, doublereal recipT) const {
         double Tr = (2 * recipT + TrNum_) * TrDen_;
         double Cnm1 = 1;
         double Cn = Tr;
@@ -723,7 +642,7 @@ public:
      * This function returns the actual value of the rate constant.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return pow(10, update(logT, recipT));
+        return std::pow(10, update(logT, recipT));
     }
 
     doublereal activationEnergy_R() const {
@@ -744,33 +663,6 @@ protected:
     vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
 };
 
-//     class LandauTeller {
-
-//     public:
-//         static int type(){ return LANDAUTELLER; }
-//         LandauTeller(){}
-//         LandauTeller( const vector_fp& c ) : m_c(c) { m_c[0] = log(c[0]); }
-
-//         doublereal update(doublereal logT, doublereal recipT) const {
-//             return m_c[0] + m_c[1]*tt[1] - m_c[2]*tt[2]
-//                 + m_c[3]*tt[3] + m_c[4]*tt[4];
-//         }
-
-//         //void writeUpdateRHS(ostream& s) const {
-//         //     s << exp(m_logA);
-//         //    s << " * exp(";
-//         //    if (m_b != 0.0) s << m_b << " * tlog";
-//         //    if (m_E != 0.0) s << " - " << m_E << " * rt";
-//         //    if (m_E != 0.0) s << " - " << m_E << " * rt";
-//         //        s << ");" << endl;
-//         //    }
-//         //}
-
-//     protected:
-//         doublereal m_logA, m_b, m_E;
-//     };
-
-//}
 }
 
 #endif

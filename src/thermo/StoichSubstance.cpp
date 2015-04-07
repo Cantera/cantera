@@ -13,31 +13,14 @@
 
 namespace Cantera
 {
-
-// Default empty constructor
 StoichSubstance::StoichSubstance() :
-    m_kk(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
 {
 }
 
-// Copy Constructor
-/*
- * Copy constructor for the object. Constructed
- * object will be a clone of this object, but will
- * also own all of its data.
- * This is a wrapper around the assignment operator
- *
- * @param right Object to be copied.
- */
 StoichSubstance::StoichSubstance(const StoichSubstance& right) :
-    m_kk(0),
-    m_tmin(0.0),
-    m_tmax(0.0),
     m_press(OneAtm),
     m_p0(OneAtm),
     m_tlast(-1.0)
@@ -45,22 +28,11 @@ StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     *this = operator=(right);
 }
 
-// Assignment operator
-/*
- * Assignment operator for the object. Constructed
- * object will be a clone of this object, but will
- * also own all of its data.
- *
- * @param right Object to be copied.
- */
 StoichSubstance& StoichSubstance::
 operator=(const StoichSubstance& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_kk      = right.m_kk;
-        m_tmin    = right.m_tmin;
-        m_tmax    = right.m_tmax;
         m_press   = right.m_press;
         m_p0      = right.m_p0;
         m_tlast   = right.m_tlast;
@@ -71,29 +43,14 @@ operator=(const StoichSubstance& right)
     return *this;
 }
 
-// Duplicator from the %ThermoPhase parent class
-/*
- * Given a pointer to a %ThermoPhase object, this function will
- * duplicate the %ThermoPhase object and all underlying structures.
- * This is basically a wrapper around the copy constructor.
- *
- * @return returns a pointer to a %ThermoPhase
- */
 ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
 {
-    ThermoPhase* igp = new StoichSubstance(*this);
-    return (ThermoPhase*) igp;
-}
-
-// Destructor
-StoichSubstance::~StoichSubstance()
-{
+    return new StoichSubstance(*this);
 }
 
 doublereal StoichSubstance::enthalpy_mole() const
 {
-    double hh = intEnergy_mole() + m_press / molarDensity();
-    return hh;
+    return intEnergy_mole() + m_press / molarDensity();
 }
 
 doublereal StoichSubstance::intEnergy_mole() const
@@ -127,19 +84,12 @@ doublereal StoichSubstance::cv_mole() const
 
 void StoichSubstance::initThermo()
 {
-    m_kk = nSpecies();
     if (m_kk > 1) {
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");
     }
     doublereal tmin = m_spthermo->minTemp();
     doublereal tmax = m_spthermo->maxTemp();
-    if (tmin > 0.0) {
-        m_tmin = tmin;
-    }
-    if (tmax > 0.0) {
-        m_tmax = tmax;
-    }
     m_p0 = refPressure();
 
     m_h0_RT.resize(m_kk);
@@ -296,12 +246,14 @@ void StoichSubstance::getCp_R_ref(doublereal* cprt) const
 
 void StoichSubstance::setParameters(int n, double* const c)
 {
+    warn_deprecated("StoichSubstance::setParameters");
     double rho = c[0];
     setDensity(rho);
 }
 
 void StoichSubstance::getParameters(int& n, double* const c) const
 {
+    warn_deprecated("StoichSubstance::getParameters");
     double rho = density();
     c[0] = rho;
 }
@@ -314,7 +266,3 @@ void StoichSubstance::setParametersFromXML(const XML_Node& eosdata)
 }
 
 }
-
-
-
-

@@ -15,10 +15,6 @@
 //  working correctly
 //
 
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 
 #include <cstdio>

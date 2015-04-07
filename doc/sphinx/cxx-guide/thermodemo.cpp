@@ -2,7 +2,7 @@
 
 using namespace Cantera;
 
-void thermo_demo(std::string file, std::string phase)
+void thermo_demo(const std::string& file, const std::string& phase)
 {
     ThermoPhase* gas = newPhase(file, phase);
     gas->setState_TPX(1500.0, 2.0*OneAtm, "O2:1.0, H2:3.0, AR:1.0");
@@ -26,7 +26,7 @@ void thermo_demo(std::string file, std::string phase)
     gas->getChemPotentials(&mu[0]);
     int n;
     for (n = 0; n < numSpecies; n++) {
-      std::cout << gas->speciesName(n) << " " << mu[n] << std::endl;
+        std::cout << gas->speciesName(n) << " " << mu[n] << std::endl;
     }
 }
 

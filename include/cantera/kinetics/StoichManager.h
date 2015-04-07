@@ -18,76 +18,65 @@ namespace Cantera
  * Note: these classes are designed for internal use in class
  * ReactionStoichManager.
  *
- * The classes defined here implement simple operations that are
- * used by class ReactionStoichManager to compute things like
- * rates of progress, species production rates, etc. In general, a
- * reaction mechanism may involve many species and many reactions,
- * but any given reaction typically only involves a few species as
- * reactants, and a few as products. Therefore, the matrix of
- * stoichiometric coefficients is very sparse. Not only is it
- * sparse, but the non-zero matrix elements often have the value
- * 1, and in many cases no more than three coefficients are
- * non-zero for the reactants and/or the products.
+ * The classes defined here implement simple operations that are used by class
+ * ReactionStoichManager to compute things like rates of progress, species
+ * production rates, etc. In general, a reaction mechanism may involve many
+ * species and many reactions, but any given reaction typically only involves
+ * a few species as reactants, and a few as products. Therefore, the matrix of
+ * stoichiometric coefficients is very sparse. Not only is it sparse, but the
+ * non-zero matrix elements often have the value 1, and in many cases no more
+ * than three coefficients are non-zero for the reactants and/or the products.
  *
- * For the present purposes, we will consider each direction of a
- * reversible reaction to be a separate reaction. We often need to
- * compute quantities that can formally be written as a matrix
- * product of a stoichiometric coefficient matrix and a vector of
- * reaction rates. For example, the species creation rates are
- * given by
+ * For the present purposes, we will consider each direction of a reversible
+ * reaction to be a separate reaction. We often need to compute quantities
+ * that can formally be written as a matrix product of a stoichiometric
+ * coefficient matrix and a vector of reaction rates. For example, the species
+ * creation rates are given by
  *
  * \f[
  *  \dot C_k = \sum_k \nu^{(p)}_{k,i} R_i
  * \f]
  *
  * where \f$ \nu^{(p)_{k,i}} \f$ is the product-side stoichiometric
- * coefficient of species \a k in reaction \a i.
- * This could be done be straightforward matrix multiplication,
- * but would be inefficient, since most of the matrix elements
- * of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do better by
- * using sparse-matrix algorithms to compute this product.
+ * coefficient of species \a k in reaction \a i. This could be done be
+ * straightforward matrix multiplication, but would be inefficient, since most
+ * of the matrix elements of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do
+ * better by using sparse-matrix algorithms to compute this product.
  *
  * If the reactions are general ones, with non-integral stoichiometric
- * coefficients, this is about as good as we can do. But we are
- * particularly concerned here with the performance for very large
- * reaction mechanisms, which are usually composed of elementary
- * reactions, which have integral stoichiometric
- * coefficients. Furthermore, very few elementary reactions involve more
- * than 3 product or reactant molecules. This means that instead of
-
-
- But we can do even better if we take account of the special structure
- of this matrix for elementary reactions.
-
- involve three or fewer product molecules (or reactant molecules).
-
- * To take advantage of this structure, reactions are divided into
- * four groups.
- These classes are
- * designed to take advantage of this sparse structure when
- * computing quantities that can be written as matrix multiplies
-
+ * coefficients, this is about as good as we can do. But we are particularly
+ * concerned here with the performance for very large reaction mechanisms,
+ * which are usually composed of elementary reactions, which have integral
+ * stoichiometric coefficients. Furthermore, very few elementary reactions
+ * involve more than 3 product or reactant molecules.
+ *
+ * But we can do even better if we take account of the special structure of
+ * this matrix for elementary reactions involving three or fewer product
+ * molecules (or reactant molecules).
+ *
+ * To take advantage of this structure, reactions are divided into four
+ * groups. These classes are designed to take advantage of this sparse
+ * structure when computing quantities that can be written as matrix
+ * multiplies.
+ *
  * They are designed to explicitly unroll loops over species or reactions for
- * Operations on reactions that require knowing the reaction
- * stoichiometry.
- * This module consists of class StoichManager, and
- * classes C1, C2, and C3.  Classes C1, C2, and C3 handle operations
- * involving one, two, or three species, respectively, in a
- * reaction. Instances are instantiated with a reaction number, and n
- * species numbers (n = 1 for C1, etc.).  All three classes have the
- * same interface.
+ * Operations on reactions that require knowing the reaction stoichiometry.
  *
- * These classes are designed for use by StoichManager, and the
- * operations implemented are those needed to efficiently compute
- * quantities such as rates of progress, species production rates,
- * reaction thermochemistry, etc. The compiler will inline these
- * methods into the body of the corresponding StoichManager method,
- * and so there is no performance penalty (unless inlining is turned
- * off).
+ * This module consists of class StoichManager, and classes C1, C2, and C3.
+ * Classes C1, C2, and C3 handle operations involving one, two, or three
+ * species, respectively, in a reaction. Instances are instantiated with a
+ * reaction number, and n species numbers (n = 1 for C1, etc.).  All three
+ * classes have the same interface.
  *
- * To describe the methods, consider class C3 and suppose an instance
- * is created with reaction number irxn and species numbers k0, k1,
- * and k2.
+ * These classes are designed for use by StoichManager, and the operations
+ * implemented are those needed to efficiently compute quantities such as
+ * rates of progress, species production rates, reaction thermochemistry, etc.
+ * The compiler will inline these methods into the body of the corresponding
+ * StoichManager method, and so there is no performance penalty (unless
+ * inlining is turned off).
+ *
+ * To describe the methods, consider class C3 and suppose an instance is
+ * created with reaction number irxn and species numbers k0, k1, and k2.
  *
  *  - multiply(in, out) : out[irxn] is multiplied by
  *    in[k0] * in[k1] * in[k2]
@@ -107,32 +96,27 @@ namespace Cantera
  *  - decrementSpecies(in, out)  : out[k0], out[k1], and out[k2]
  *    are all decremented by in[irxn]
  *
- * The function multiply() is usually used when evaluating the
- * forward and reverse rates of progress of reactions.
- * The rate constants are usually loaded into out[]. Then
- * multiply() is called to add in the dependence of the
- * species concentrations to yield a forward and reverse rop.
+ * The function multiply() is usually used when evaluating the forward and
+ * reverse rates of progress of reactions. The rate constants are usually
+ * loaded into out[]. Then multiply() is called to add in the dependence of
+ * the species concentrations to yield a forward and reverse rop.
  *
- * The function incrementSpecies() and its cousin decrementSpecies()
- * is used to translate from rates of progress to species production
- * rates. The vector in[] is preloaded with the rates of progress of
- * all reactions. Then incrementSpecies() is called to
- * increment the species production vector, out[], with the rates
- * of progress.
+ * The function incrementSpecies() and its cousin decrementSpecies() is used
+ * to translate from rates of progress to species production rates. The vector
+ * in[] is preloaded with the rates of progress of all reactions. Then
+ * incrementSpecies() is called to increment the species production vector,
+ * out[], with the rates of progress.
  *
- * The functions incrementReaction() and decrementReaction() are
- * used to find the standard state equilibrium constant for
- * a reaction. Here, output[] is a vector of length
- * number of reactions, usually the standard gibbs free energies
- * of reaction, while input, usually the standard state
- * gibbs free energies of species, is a vector of length number of
- * species.
+ * The functions incrementReaction() and decrementReaction() are used to find
+ * the standard state equilibrium constant for a reaction. Here, output[] is a
+ * vector of length number of reactions, usually the standard gibbs free
+ * energies of reaction, while input, usually the standard state gibbs free
+ * energies of species, is a vector of length number of species.
  *
- * Note the stoichiometric coefficient for a species in a reaction
- * is handled by always assuming it is equal to one and then
- * treating reactants and products for a reaction separately.
- * Bimolecular reactions involving the identical species are
- * treated as involving separate species.
+ * Note the stoichiometric coefficient for a species in a reaction is handled
+ * by always assuming it is equal to one and then treating reactants and
+ * products for a reaction separately. Bimolecular reactions involving the
+ * identical species are treated as involving separate species.
  *
  * @internal This class should be upgraded to include cases where
  * real stoichiometric coefficients are used. Shouldn't be that
@@ -150,22 +134,20 @@ static doublereal ppow(doublereal x, doublereal order)
     }
 }
 
-inline static std::string fmt(std::string r, size_t n)
+inline static std::string fmt(const std::string& r, size_t n)
 {
     return r + "[" + int2str(n) + "]";
 }
 
-
 /**
  * Handles one species in a reaction.
+ * See @ref Stoichiometry
  * @ingroup Stoichiometry
  * @internal
  */
 class C1
 {
-
 public:
-
     C1(size_t rxn = 0, size_t ic0 = 0) :
         m_rxn(rxn),
         m_ic0(ic0) {
@@ -220,21 +202,21 @@ public:
         return 1;
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0);
     }
 
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0);
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0);
     }
 
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " + "+fmt(r, m_rxn);
     }
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " - "+fmt(r, m_rxn);
     }
 
@@ -245,10 +227,9 @@ private:
     size_t m_ic0;
 };
 
-
-
 /**
  * Handles two species in a single reaction.
+ * See @ref Stoichiometry
  * @ingroup Stoichiometry
  */
 class C2
@@ -311,44 +292,38 @@ public:
         return 2;
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1);
     }
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1);
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1);
     }
 
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
     }
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
     }
 
 private:
-
-    /**
-     * Reaction index -> index into the ROP vector
-     */
+    //! Reaction index -> index into the ROP vector
     size_t m_rxn;
 
-    /**
-     * Species index -> index into the species vector for the
-     * two species.
-     */
+    //! Species index -> index into the species vector for the two species.
     size_t m_ic0, m_ic1;
 };
 
-
 /**
  * Handles three species in a reaction.
+ * See @ref Stoichiometry
  * @ingroup Stoichiometry
  */
 class C3
@@ -416,22 +391,22 @@ public:
         return 3;
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1) + " * " + fmt(r, m_ic2);
     }
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1)+" + "+fmt(r, m_ic2);
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1)+" - "+fmt(r, m_ic2);
     }
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
         out[m_ic2] += s;
     }
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
@@ -444,22 +419,21 @@ private:
     size_t m_ic2;
 };
 
-
 /**
  * Handles any number of species in a reaction, including fractional
  * stoichiometric coefficients, and arbitrary reaction orders.
+ * See @ref Stoichiometry
  * @ingroup Stoichiometry
  */
 class C_AnyN
 {
 public:
-
     C_AnyN() :
         m_n(0),
         m_rxn(npos) {
     }
 
-    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order, const vector_fp& stoich) :
+    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order_, const vector_fp& stoich_) :
         m_n(0),
         m_rxn(rxn) {
         m_n = ic.size();
@@ -468,8 +442,8 @@ public:
         m_stoich.resize(m_n);
         for (size_t n = 0; n < m_n; n++) {
             m_ic[n] = ic[n];
-            m_order[n] = order[n];
-            m_stoich[n] = stoich[n];
+            m_order[n] = order_[n];
+            m_stoich[n] = stoich_[n];
         }
     }
 
@@ -548,7 +522,7 @@ public:
             -= m_stoich[n]*input[m_ic[n]];
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = "";
         for (size_t n = 0; n < m_n; n++) {
             if (m_order[n] == 1.0) {
@@ -561,24 +535,24 @@ public:
             }
         }
     }
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " + "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " - "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
             out[m_ic[n]] += " + "+fp2str(m_stoich[n]) + "*" + s;
         }
     }
 
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
             out[m_ic[n]] += " - "+fp2str(m_stoich[n]) + "*" + s;
@@ -586,7 +560,6 @@ public:
     }
 
 private:
-
     //! Length of the m_ic vector
     /*!
      *   This is the number of species which have non-zero entries in either the
@@ -610,7 +583,6 @@ private:
     vector_fp m_order;
     vector_fp m_stoich;
 };
-
 
 template<class InputIter, class Vec1, class Vec2>
 inline static void _multiply(InputIter begin, InputIter end,
@@ -659,8 +631,8 @@ inline static void _decrementReactions(InputIter begin,
 
 
 template<class InputIter>
-inline static void _writeIncrementSpecies(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeIncrementSpecies(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeIncrementSpecies(r, out);
@@ -668,8 +640,8 @@ inline static void _writeIncrementSpecies(InputIter begin, InputIter end, std::s
 }
 
 template<class InputIter>
-inline static void _writeDecrementSpecies(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeDecrementSpecies(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeDecrementSpecies(r, out);
@@ -677,8 +649,8 @@ inline static void _writeDecrementSpecies(InputIter begin, InputIter end, std::s
 }
 
 template<class InputIter>
-inline static void _writeIncrementReaction(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeIncrementReaction(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeIncrementReaction(r, out);
@@ -686,8 +658,8 @@ inline static void _writeIncrementReaction(InputIter begin, InputIter end, std::
 }
 
 template<class InputIter>
-inline static void _writeDecrementReaction(InputIter begin, InputIter end, std::string r,
-        std::map<size_t, std::string>& out)
+inline static void _writeDecrementReaction(InputIter begin, InputIter end,
+        const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeDecrementReaction(r, out);
@@ -695,8 +667,8 @@ inline static void _writeDecrementReaction(InputIter begin, InputIter end, std::
 }
 
 template<class InputIter>
-inline static void _writeMultiply(InputIter begin, InputIter end, std::string r,
-                                  std::map<size_t, std::string>& out)
+inline static void _writeMultiply(InputIter begin, InputIter end,
+                                  const std::string& r, std::map<size_t, std::string>& out)
 {
     for (; begin != end; ++begin) {
         begin->writeMultiply(r, out);
@@ -740,12 +712,12 @@ inline static void _writeMultiply(InputIter begin, InputIter end, std::string r,
  * S_k = R_{i1} + \dots + R_{iM}
  * \f]
  * where M is the number of molecules, and $\f i(m) \f$ is the
+ * See @ref Stoichiometry
  * @ingroup Stoichiometry
  */
 class StoichManagerN
 {
 public:
-
     /**
      * Constructor for the StoichManagerN class.
      *
@@ -769,8 +741,6 @@ public:
         m_cn_list(right.m_cn_list),
         m_n(right.m_n),
         m_loc(right.m_loc) {
-
-
     }
 
     StoichManagerN& operator=(const StoichManagerN& right) {
@@ -804,7 +774,6 @@ public:
         add(rxn, k, order, stoich);
     }
 
-
     //! Add a single reaction to the list of reactions that this
     //! stoichiometric manager object handles.
     /*!
@@ -827,8 +796,9 @@ public:
         m_n[rxn] = k.size();
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
-            if (stoich[n] != 1.0) {
+            if (stoich[n] != 1.0 || order[n] != 1.0) {
                 frac = true;
+                break;
             }
         }
         if (frac) {
@@ -890,35 +860,35 @@ public:
         _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void writeIncrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeIncrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeIncrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeDecrementSpecies(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeDecrementSpecies(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeDecrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeIncrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeIncrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeIncrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeDecrementReaction(std::string r, std::map<size_t, std::string>& out) {
+    void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeDecrementReaction(m_c3_list.begin(), m_c3_list.end(), r, out);
         _writeDecrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
-    void writeMultiply(std::string r, std::map<size_t, std::string>& out) {
+    void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         _writeMultiply(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeMultiply(m_c2_list.begin(), m_c2_list.end(), r, out);
         _writeMultiply(m_c3_list.begin(), m_c3_list.end(), r, out);
@@ -931,12 +901,12 @@ private:
     std::vector<C3>     m_c3_list;
     std::vector<C_AnyN> m_cn_list;
     /**
-     * Std::Mapping with the Reaction Number as key and the Number of species
+     * Map with the Reaction Number as key and the Number of species
      * as the value.
      */
     std::map<size_t, size_t>  m_n;
     /**
-     * Std::Mapping with the Reaction Number as key and the placement in the
+     * Map with the Reaction Number as key and the placement in the
      * vector of reactions list( i.e., m_c1_list[]) as key
      */
     std::map<size_t, size_t>  m_loc;

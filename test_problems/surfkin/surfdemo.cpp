@@ -3,7 +3,6 @@
  *  site fractions.
  */
 
-#include <iostream>
 #include "cantera/IdealGasMix.h"
 #include "cantera/Interface.h"
 
@@ -24,6 +23,7 @@ int main()
         vector_fp cov;
         cov.push_back(0.8);
         cov.push_back(0.2);
+        cout.precision(4);
         surf.setCoverages(DATA_PTR(cov));
         vector_fp wdot(gas.nSpecies() + surf.nSpecies());
         surf.getNetProductionRates(DATA_PTR(wdot));

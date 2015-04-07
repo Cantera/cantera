@@ -1,3 +1,4 @@
+//! @file RedlichKwong.h
 #ifndef TPX_RK_H
 #define TPX_RK_H
 
@@ -6,7 +7,6 @@
 
 namespace tpx
 {
-
 const double GasConstant = 8314.3;
 
 class RedlichKwong : public Substance
@@ -36,9 +36,6 @@ public:
     double b() {
         return m_b;
     }
-
-    // destructor
-    ~RedlichKwong() {}
 
     double MolWt() {
         return m_mw;

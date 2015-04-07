@@ -40,7 +40,7 @@ public:
      *  @param routine  Name of calling routine
      *  @param msg      Informative message
      */
-    CELapackError(std::string routine, std::string msg) :
+    CELapackError(const std::string& routine, const std::string& msg) :
         CanteraError(routine + " LAPACK ERROR", msg) {
     }
 
@@ -69,9 +69,7 @@ public:
  */
 class DenseMatrix : public Array2D
 {
-
 public:
-
     //! Default Constructor
     DenseMatrix();
 
@@ -97,9 +95,6 @@ public:
      */
     DenseMatrix& operator=(const DenseMatrix& y);
 
-    //! Destructor. Does nothing.
-    virtual ~DenseMatrix();
-
     //! Resize the matrix
     /*!
      *  Resize the matrix to n rows by m cols.
@@ -110,14 +105,6 @@ public:
      */
     void resize(size_t n, size_t m, doublereal v = 0.0);
 
-    //! Return a vector of const pointers to the columns
-    /*!
-     *  Note the value of the pointers are protected by their being const.
-     *  However, the value of the matrix is open to being changed.
-     *
-     *   @return returns a vector of pointers to the top of the columns
-     *           of the matrices.
-     */
     virtual doublereal*   const* colPts();
 
     //! Return a const vector of const pointers to the columns
@@ -130,19 +117,19 @@ public:
      */
     const doublereal* const* const_colPts() const;
 
-    //! Multiply A*b and write result to \c prod.
-    /*!
-     *
-     *  @param    b     input      vector b with length N
-     *  @param    prod  output     output vector prod length = M
-     */
     virtual void mult(const double* b, double* prod) const;
+
+    //! Multiply A*B and write result to \c prod.
+    /*!
+     *  @param    b     input      DenseMatrix B of size NxN
+     *  @param    prod  output     output DenseMatrix prod size NxN
+     */
+    virtual void mult(const DenseMatrix& b, DenseMatrix& prod) const;
 
     //! Left-multiply the matrix by transpose(b), and write the result to prod.
     /*!
      *   @param b    left multiply by this vector. The length must be equal to n
      *               the number of rows in the matrix.
-     *
      *   @param prod  Resulting vector. This is of length m, the number of columns
      *                in the matrix
      */
@@ -163,7 +150,6 @@ public:
     }
 
 protected:
-
     //! Vector of pivots. Length is equal to the max of m and n.
     vector_int     m_ipiv;
 
@@ -171,7 +157,6 @@ protected:
     std::vector<doublereal*> m_colPts;
 
 public:
-
     //! Error Handling Flag
     /*!
      *  The default is to set this to 0. In this case, if a factorization is requested and can't be achieved,
@@ -189,15 +174,12 @@ public:
      */
     int m_printLevel;
 
-
     //  Listing of friend functions which are defined below
 
     friend int solve(DenseMatrix& A, double* b);
     friend int solve(DenseMatrix& A, DenseMatrix& b);
     friend int invert(DenseMatrix& A, int nn);
 };
-
-//==================================================================================================================
 
 
 //! Solve Ax = b. Array b is overwritten on exit with x.
@@ -260,6 +242,3 @@ int invert(DenseMatrix& A, size_t nn=npos);
 }
 
 #endif
-
-
-

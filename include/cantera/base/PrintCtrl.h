@@ -44,14 +44,12 @@ namespace Cantera
  *  cropping functions are also available as a "double"
  *  conversion utility.
  *
- *
  * @ingroup globalUtilFuncs
- *
+ * @deprecated To be removed in Cantera 2.2.
  */
 class PrintCtrl
 {
 public:
-
     //! enum for cropping control
     enum CROP_TYPE {
         //! Turn off cropping always
@@ -86,8 +84,7 @@ public:
      *
      * @param coutProxy  This is a reference to the ostream
      *                   to use for all IO from ths object.
-     * @param Ndec value of Ndec. Defaults to -1000, i.e.,
-     *             no decade cropping
+     * @param Ndec value of Ndec. Defaults to -1000, i.e., no decade cropping
      * @param ctlocal    The default is to turn on cropping all the time.
      */
     PrintCtrl(std::ostream& coutProxy = std::cout, int Ndec = -1000,
@@ -102,10 +99,9 @@ public:
      * fit into the maximum space.
      *
      *  @param d  double to be printed
-     *  @param sigDigits Number of significant digits
-     *          (-1 = default, means to use the default
-     *           number for the object, which is initially
-     *           set to 13.
+     *  @param sigDigits Number of significant digits (-1 = default, means to
+     *          use the default number for the object, which is initially set
+     *          to 13.
      *  @param wMin Minimum number of spaces to print out
      *  @param wMax Maximum number of spaces to print out
      */
@@ -123,10 +119,9 @@ public:
      * fit into the maximum space.
      *
      *  @param d  double to be printed
-     *  @param sigDigits Number of significant digits
-     *          (-1 = default, means to use the default
-     *           number for the object, which is initially
-     *           set to 13.
+     *  @param sigDigits Number of significant digits (-1 = default, means to
+     *          use the default number for the object, which is initially set
+     *          to 13.
      *  @param wMin Minimum number of spaces to print out
      *  @param wMax Maximum number of spaces to print out
      */
@@ -150,10 +145,9 @@ public:
 
     //! Crop a double at a certain decade level
     /*!
-     *  This routine will crop a floating point number at a certain
-     *  decade lvl. In other words everything below a power of 10^Ndec
-     *  will be deleted.
-     *  Note, it does rounding up of the last digit.
+     *  This routine will crop a floating point number at a certain decade
+     *  lvl. In other words everything below a power of 10^Ndec will be
+     *  deleted. Note, it does rounding up of the last digit.
      *
      *   @param d Double to be cropped
      *   @param nDecades Number of significant digits
@@ -171,16 +165,13 @@ public:
     //! Set the default value of N decade
     /*!
      * @param nDecades new value of Ndec
-     *
      * @return returns the old value of Ndec
      */
     int setNdec(int nDecades);
 
-
     //! Set the default significant digits to output
     /*!
      * @param sigDigits new value of the sig digits
-     *
      * @return returns the old value of Ndec
      */
     int setSigDigits(int sigDigits);
@@ -188,7 +179,6 @@ public:
     //! Set the default minimum width
     /*!
      * @param wMin Default minimum width
-     *
      * @return returns the old default
      */
     int setWmin(int wMin);
@@ -196,7 +186,6 @@ public:
     //! Set the default maximum width
     /*!
      * @param wMax Default maximum width
-     *
      * @return returns the old default
      */
     int setWmax(int wMax);
@@ -207,9 +196,7 @@ public:
      */
     void setCropCntrl(CROP_TYPE  ctlocal);
 
-
 private:
-
     //! private function to figure out cropping logic
     /*!
      *  @return Returns the decision as to whether to crop or not
@@ -255,4 +242,3 @@ private:
 }
 
 #endif
-

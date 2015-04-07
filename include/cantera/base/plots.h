@@ -1,25 +1,19 @@
 /**
- *  @file plots.h
- *       Contains declarations for utility functions for
- *   outputing to plotting programs.
+ *  @file plots.h Contains declarations for utility functions for outputing to
+ *       plotting programs.
  */
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_PLOTS_H
 #define CT_PLOTS_H
 
-
 #include "cantera/base/Array.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <vector>
-#include <string>
 #include <fstream>
 
 namespace Cantera
 {
-
-
 //!    Write a Plotting file
 /*!
  * @param fname      Output file name
@@ -33,7 +27,6 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
                    const std::string& plotTitle, const std::vector<std::string> &names,
                    const Array2D& data);
 
-
 //!    Write a Tecplot data file.
 /*!
  * @param s        output stream
@@ -45,7 +38,6 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
 void outputTEC(std::ostream& s, const std::string& title,
                const std::vector<std::string>& names,
                const Array2D& data);
-
 
 //! Write an Excel spreadsheet in 'csv' form.
 /*!

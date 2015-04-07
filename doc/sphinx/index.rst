@@ -23,9 +23,12 @@ Documentation
 .. toctree::
    :maxdepth: 2
 
+   faq
    Compiliation Instructions <compiling>
    language-interfaces
    cti/index
+   reactors
+   cython/index
    python/index
    matlab/index
    cxx-guide/index

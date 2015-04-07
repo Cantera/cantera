@@ -3,7 +3,7 @@
 CANTERA
 *******
 
-Version 2.0.0 (development)
+Version 2.1.1 (stable)
 
 License Information
 ===================
@@ -18,23 +18,25 @@ Web Resources
 
 1. The Cantera Google Code site:
    http://cantera.googlecode.com/
-   This site contains the Cantera source code, downloads of binary releases,
-   and the issue tracker for bugs and enhancement requests.
+   This site contains the Cantera source code, and the issue tracker for bugs
+   and enhancement requests.
 
-2. Cantera Documentation:
+2. The Cantera SourceForge site:
+   http://sourceforge.net/projects/cantera
+   Distribution of Cantera releases and binary installers. It also contains the
+   project CVS history.
+
+3. Cantera Documentation:
    http://cantera.github.com/docs/sphinx/html/index.html
-   This site contains documentation for the current development version of
-   Cantera.
+   This site contains documentation for the current stable version of Cantera.
 
-3. The Cantera User's Group:
+   http://cantera.github.com/dev-docs/sphinx/html/index.html
+   This site contains documentation for the development version of Cantera.
+
+4. The Cantera User's Group:
    http://groups.google.com/group/cantera-users
    This site has a message board for discussions amongst Cantera users.
 
-4. The Cantera Developers Group:
+5. The Cantera Developers Group:
    http://groups.google.com/group/cantera-dev
    Limited access site where developers can discuss development ideas.
-
-5. Old Cantera source code site.
-   http://sourceforge.net/projects/cantera
-   Distribution of the Cantera source code previously done using SourceForge.
-   It still contains the project CVS history.

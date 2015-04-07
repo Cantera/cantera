@@ -34,15 +34,6 @@ VPStandardStateTP::VPStandardStateTP() :
 {
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor.
- *
- *  The copy constructor just calls the assignment operator
- *  to do the heavy lifting.
- */
 VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
     ThermoPhase(),
     m_Pcurrent(OneAtm),
@@ -54,12 +45,6 @@ VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
     VPStandardStateTP::operator=(b);
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 VPStandardStateTP&
 VPStandardStateTP::operator=(const VPStandardStateTP& b)
 {
@@ -82,7 +67,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
          */
         if (m_PDSS_storage.size() > 0) {
             for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
-                delete(m_PDSS_storage[k]);
+                delete m_PDSS_storage[k];
             }
         }
         m_PDSS_storage.resize(m_kk);
@@ -126,71 +111,31 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
     return *this;
 }
 //====================================================================================================================
-/*
- * ~VPStandardStateTP():   (virtual)
- *
- */
 VPStandardStateTP::~VPStandardStateTP()
 {
     for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
-        delete(m_PDSS_storage[k]);
+        delete m_PDSS_storage[k];
     }
     delete m_VPSS_ptr;
 }
 
-/*
- * Duplication function.
- *  This calls the copy constructor for this object.
- */
 ThermoPhase* VPStandardStateTP::duplMyselfAsThermoPhase() const
 {
-    VPStandardStateTP* vptp = new VPStandardStateTP(*this);
-    return (ThermoPhase*) vptp;
+    return new VPStandardStateTP(*this);
 }
 
-// This method returns the convention used in specification
-// of the standard state, of which there are currently two,
-// temperature based, and variable pressure based.
-/*
- * Currently, there are two standard state conventions:
- *  - Temperature-based activities
- *   cSS_CONVENTION_TEMPERATURE 0
- *      - default
- *
- *  -  Variable Pressure and Temperature -based activities
- *   cSS_CONVENTION_VPSS 1
- */
 int VPStandardStateTP::standardStateConvention() const
 {
     return cSS_CONVENTION_VPSS;
 }
 
-
-/*
- * ------------Molar Thermodynamic Properties -------------------------
- */
-
-
-doublereal VPStandardStateTP::err(std::string msg) const
+doublereal VPStandardStateTP::err(const std::string& msg) const
 {
     throw CanteraError("VPStandardStateTP","Base class method "
                        +msg+" called. Equation of state type: "+int2str(eosType()));
     return 0;
 }
 
-/*
- * ---- Partial Molar Properties of the Solution -----------------
- */
-
-/*
- * Get the array of non-dimensional species chemical potentials
- * These are partial molar Gibbs free energies.
- * \f$ \mu_k / \hat R T \f$.
- * Units: unitless
- *
- * We close the loop on this function, here, calling
- * getChemPotentials() and then dividing by RT.
- */
 void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
@@ -221,15 +166,7 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
 
 //================================================================================================
 #ifdef H298MODIFY_CAPABILITY
-// Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
-/*
- *   The 298K heat of formation is defined as the enthalpy change to create the standard state
- *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
- *
- *   @param  k           Species k
- *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
- */
-void VPStandardStateTP::modifyOneHf298SS(const int k, const doublereal Hf298New)
+void VPStandardStateTP::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ss += 0.0001234;
@@ -273,42 +210,28 @@ void VPStandardStateTP::getStandardVolumes(doublereal* vol) const
     updateStandardStateThermo();
     m_VPSS_ptr->getStandardVolumes(vol);
 }
+const vector_fp& VPStandardStateTP::getStandardVolumes() const
+{
+    updateStandardStateThermo();
+    return m_VPSS_ptr->getStandardVolumes();
+}
 
 /*
  * ----- Thermodynamic Values for the Species Reference States ----
  */
 
-/*
- *  Returns the vector of nondimensional enthalpies of the
- *  reference state at the current temperature of the solution and
- *  the reference pressure for the species.
- */
 void VPStandardStateTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     updateStandardStateThermo();
     m_VPSS_ptr->getEnthalpy_RT_ref(hrt);
 }
 
-/*
- *  Returns the vector of nondimensional
- *  enthalpies of the reference state at the current temperature
- *  of the solution and the reference pressure for the species.
- */
 void VPStandardStateTP::getGibbs_RT_ref(doublereal* grt) const
 {
     updateStandardStateThermo();
     m_VPSS_ptr->getGibbs_RT_ref(grt);
 }
 
-/*
- *  Returns the vector of the
- *  gibbs function of the reference state at the current temperature
- *  of the solution and the reference pressure for the species.
- *  units = J/kmol
- *
- *  This is filled in here so that derived classes don't have to
- *  take care of it.
- */
 void VPStandardStateTP::getGibbs_ref(doublereal* g) const
 {
     updateStandardStateThermo();
@@ -321,45 +244,24 @@ const vector_fp& VPStandardStateTP::Gibbs_RT_ref() const
     return m_VPSS_ptr->Gibbs_RT_ref();
 }
 
-/*
- *  Returns the vector of nondimensional
- *  entropies of the reference state at the current temperature
- *  of the solution and the reference pressure for the species.
- */
 void VPStandardStateTP::getEntropy_R_ref(doublereal* er) const
 {
     updateStandardStateThermo();
     m_VPSS_ptr->getEntropy_R_ref(er);
 }
 
-/*
- *  Returns the vector of nondimensional
- *  constant pressure heat capacities of the reference state
- *  at the current temperature of the solution
- *  and reference pressure for the species.
- */
 void VPStandardStateTP::getCp_R_ref(doublereal* cpr) const
 {
     updateStandardStateThermo();
     m_VPSS_ptr->getCp_R_ref(cpr);
 }
 
-/*
- *  Get the molar volumes of the species reference states at the current
- *  <I>T</I> and <I>P_ref</I> of the solution.
- *
- * units = m^3 / kmol
- */
 void VPStandardStateTP::getStandardVolumes_ref(doublereal* vol) const
 {
     updateStandardStateThermo();
     m_VPSS_ptr->getStandardVolumes_ref(vol);
 }
 
-/*
- * Perform initializations after all species have been
- * added.
- */
 void VPStandardStateTP::initThermo()
 {
     initLengths();
@@ -443,9 +345,7 @@ VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1,0);
     }
-    if (m_PDSS_storage[k] != 0) {
-        delete m_PDSS_storage[k] ;
-    }
+    delete m_PDSS_storage[k];
     m_PDSS_storage[k] = m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr);
 }
 
@@ -461,25 +361,10 @@ VPStandardStateTP::providePDSS(size_t k) const
     return m_PDSS_storage[k];
 }
 
-/*
- *   Import and initialize a ThermoPhase object
- *
- * param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- *
- * This routine initializes the lengths in the current object and
- * then calls the parent routine.
- */
-void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, std::string id)
+void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
+    // initialize the lengths in the current object and then call the parent
+    // routine.
     VPStandardStateTP::initLengths();
 
     //m_VPSS_ptr->initThermo();
@@ -500,20 +385,6 @@ VPSSMgr* VPStandardStateTP::provideVPSSMgr()
     return m_VPSS_ptr;
 }
 
-/*
- * void _updateStandardStateThermo()            (protected, virtual, const)
- *
- * If m_useTmpStandardStateStorage is true,
- * This function must be called for every call to functions in this
- * class that need standard state properties.
- * Child classes may require that it be called even if  m_useTmpStandardStateStorage
- * is not true.
- * It checks to see whether the temperature has changed and
- * thus the ss thermodynamics functions for all of the species
- * must be recalculated.
- *
- * This
- */
 void VPStandardStateTP::_updateStandardStateThermo() const
 {
     double Tnow = temperature();
@@ -532,5 +403,3 @@ void VPStandardStateTP::updateStandardStateThermo() const
     }
 }
 }
-
-

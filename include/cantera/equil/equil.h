@@ -1,43 +1,32 @@
+/**
+ * @file equil.h
+ * This file contains the definition of some high level general equilibration
+ * routines.
+ */
+
 //  Copyright 2001  California Institute of Technology
 
-/**
- *  @file equil.h
- *   This file contains the definition of some high level general equilibration
- *   routines and the text for the module \ref equilfunctions.
- *
- *   It also contains the Module doxygen text for the Equilibration Solver
- *   capability within %Cantera. see \ref equilfunctions
- */
 #ifndef CT_KERNEL_EQUIL_H
 #define CT_KERNEL_EQUIL_H
 
-//#include "ChemEquil.h"
 #include "MultiPhase.h"
 #include "vcs_defs.h"
 
 namespace Cantera
 {
-
 /*!
  * @defgroup equilfunctions Equilibrium Solver Capability
  *
  * Cantera has several different equilibrium routines.
  */
-//@{
-//@}
-
-
-//-----------------------------------------------------------
-//              convenience functions
-//-----------------------------------------------------------
 
 //! Equilibrate a ThermoPhase object
 /*!
- *  Set a single-phase chemical solution to chemical equilibrium.
- *  This is a convenience function that uses one or the other of
- *  the two chemical equilibrium solvers. The XY parameter indicates what two
- *  thermodynamic quantities, other than element composition, are to be held
- *  constant during the equilibration process.
+ *  Set a single-phase chemical solution to chemical equilibrium. This is a
+ *  convenience function that uses one or the other of the two chemical
+ *  equilibrium solvers. The XY parameter indicates what two thermodynamic
+ *  quantities, other than element composition, are to be held constant during
+ *  the equilibration process.
  *
  *  @param s         ThermoPhase object that will be equilibrated.
  *  @param XY        String representation of what two properties
@@ -59,13 +48,9 @@ namespace Cantera
  *                   a file in HTML format for viewing in a web browser.
  *                   @see HTML_logs
  *
- * @return
- * Return variable is equal to the number of subroutine attempts
- * it took to equilibrate the system.
+ * @return The number of iterations it took to equilibrate the system.
  *
- *
- *      @ingroup equilfunctions
- *      @ingroup equil
+ * @ingroup equilfunctions
  */
 int equilibrate(thermo_t& s, const char* XY,
                 int solver = -1, doublereal rtol = 1.0e-9, int maxsteps = VCS_MAXSTEPS,
@@ -77,10 +62,9 @@ int equilibrate(thermo_t& s, const char* XY,
  *  thermodynamic quantities, other than element composition, are to be held
  *  constant during the equilibration process.
  *
- * This is the top-level driver for multiphase equilibrium. It
- * doesn't do much more than call the equilibrate method of class
- * MultiPhase, except that it adds some messages to the logfile,
- * if loglevel is set > 0.
+ *  This is the top-level driver for multiphase equilibrium. It doesn't do
+ *  much more than call the equilibrate method of class MultiPhase, except
+ *  that it adds some messages to the logfile, if loglevel is set > 0.
  *
  *  @param s       MultiPhase object that will be equilibrated.
  *  @param XY      String representation of what is being held constant
@@ -89,12 +73,9 @@ int equilibrate(thermo_t& s, const char* XY,
  *  @param maxiter  Maximum iterations
  *  @param loglevel loglevel
  *
- * @return
- * Return variable is equal to the number of subroutine attempts
- * it took to equilibrate the system.
+ *  @return The number of iterations it took to equilibrate the system.
  *
- *      @ingroup equilfunctions
- *      @ingroup equil
+ *  @ingroup equilfunctions
  */
 doublereal equilibrate(MultiPhase& s, const char* XY,
                        doublereal rtol = 1.0e-9, int maxsteps = 5000, int maxiter = 100,

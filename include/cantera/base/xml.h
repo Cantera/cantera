@@ -10,29 +10,21 @@
 #define CT_XML_H
 
 #include "ctexceptions.h"
-#include "ct_defs.h"
 #include "global.h"
-
-#include <string>
-#include <vector>
-#include <iostream>
 
 //@{
 #define XML_INDENT 4
 //@}
+
 namespace Cantera
 {
-
-
 //!  Class XML_Reader reads an XML file into an XML_Node object.
 /*!
- *
  *   Class XML_Reader is designed for internal use.
  */
 class XML_Reader
 {
 public:
-
     //! Sole Constructor for the XML_Reader class
     /*!
      *   @param input   Reference to the istream object containing
@@ -48,32 +40,6 @@ public:
      * @param ch   Character to be returned.
      */
     void getchr(char& ch);
-
-    //! Returns string 'aline' stripped of leading and trailing white
-    //! space.
-    /*!
-     *  White space is defined by the ISO C function isspace(), and
-     *  includes tabs, spaces, \\n. \\r, \\v, and \\f.
-     *
-     * @param aline  Input line to be stripped
-     *
-     * @return Returns a string stripped of leading and trailing white
-     *         space.
-     *
-     * @deprecated Use stripws (in stringUtils.h)
-     */
-    DEPRECATED(std::string strip(const std::string& aline) const);
-
-    //! Looks for a substring within 'aline' enclosed in double
-    //! quotes, and returns this substring (without the quotes) if
-    //! found.  If not, an empty string is returned.
-    /*!
-     *
-     *  @param aline This is the input string to be searched
-     *
-     *  @deprecated why is this a class method?
-     */
-    DEPRECATED(std::string inquotes(const std::string& aline) const);
 
     //!  Searches a string for the first occurrence of a valid
     //!  quoted string.
@@ -95,25 +61,19 @@ public:
     //! parseTag parses XML tags, i.e., the XML elements that are
     //! in between angle brackets.
     /*!
-     *    @param tag                  Tag to be parsed - input
-     *
-     *    @param name                 Output string containing name
-     *                                of the XML
-     *    @param attribs              map of attribute name and
-     *                                attribute value - output
+     *    @param tag            Tag to be parsed - input
+     *    @param name           Output string containing name of the XML
+     *    @param[out] attribs   map of attribute name and attribute value
      */
-    void parseTag(std::string tag, std::string& name,
+    void parseTag(const std::string& tag, std::string& name,
                   std::map<std::string, std::string>& attribs) const;
 
     //! Reads an XML tag into a string
     /*!
      *   This function advances the input streams pointer
      *
-     *    @param attribs         map of attribute name and
-     *                           attribute value - output
-     *
-     *    @return                Output string containing name
-     *                           of the XML
+     *    @param attribs   map of attribute name and attribute value - output
+     *    @return          Output string containing name of the XML
      */
     std::string readTag(std::map<std::string, std::string>& attribs);
 
@@ -124,70 +84,33 @@ public:
     std::string readValue();
 
 protected:
-
     //! Input stream containing the XML file
     std::istream& m_s;
 
 public:
-
     //! Line count
     int m_line;
 };
 
-
-//////////////////////////  XML_Node  /////////////////////////////////
-
 //! Class XML_Node is a tree-based representation of the contents of an XML file
 /*!
- *   Class XML_Node is a tree-based representation of the contents of an XML file.
- *
- *  There are routines for adding to the tree.
- *
- *  There are routines for querying and searching the tree.
- *
- *  Additionally, there are routines for writing the tree out to an output file.
- *
+ * There are routines for adding to the tree, querying and searching the tree,
+ * and for writing the tree out to an output file.
  */
 class XML_Node
 {
 public:
-    //! Default constructor for XML_Node, representing a tree structure
+    //! Constructor for XML_Node, representing a tree structure
     /*!
-     *  Constructor for an XML_Node, which is a node in a tree-like structure
-     *  representing an XML file.
-     *
-     *  @param cnm  Name of the node.
-     *              The default name of the node is "--"
-     */
-    XML_Node(const char* cnm = 0);
-
-
-    //! Default constructor for XML_Node, representing a tree structure
-    /*!
-     *  Constructor for an XML_Node, which is a node in a tree-like structure
-     *  representing an XML file.
-     *
      *  @param nm  Name of the node.
-     *             The default name of the node is "--"
      *
      *  @param parent   Pointer to the parent for this node in the tree.
      *                  A value of 0 indicates this is the top of the tree.
      */
-    XML_Node(const std::string nm, XML_Node* const parent);
+    explicit XML_Node(const std::string& nm="--", XML_Node* const parent=0);
 
-    //! Copy constructor
-    /*!
-     * @param right   Object to be copied
-     */
     XML_Node(const XML_Node& right);
-
-    //! Assignment operator for XML trees
-    /*!
-     *  @param right    XML tree to copy
-     */
     XML_Node& operator=(const XML_Node& right);
-
-    //! Destructor for the object
     virtual ~XML_Node();
 
     //! Add a child node to the current node containing a comment
@@ -222,7 +145,6 @@ public:
      */
     XML_Node& addChild(const XML_Node& node);
 
-
     //! Add a child node to the current node with a specified name
     /*!
      * This will add an XML_Node as a child to the current node.
@@ -245,11 +167,12 @@ public:
      */
     XML_Node& addChild(const char* cstring);
 
-    //!    Add a child node to the current xml node, and at the
-    //!    same time add a value to the child
+    //! Add a child node to the current xml node, and at the
+    //! same time add a value to the child
     /*!
-     *    Resulting XML string:
-     *      \<name\> value \</name\>
+     *  Resulting XML string:
+     *
+     *      <name> value </name>
      *
      *   @param   name       Name of the child XML_Node object
      *   @param   value      Value of the XML_Node - string
@@ -257,14 +180,15 @@ public:
      */
     XML_Node& addChild(const std::string& name, const std::string& value);
 
-    //!    Add a child node to the current xml node, and at the
-    //!    same time add a formatted value to the child
+    //! Add a child node to the current xml node, and at the
+    //! same time add a formatted value to the child
     /*!
      *  This version supplies a formatting string (printf format)
      *  to the output of the value.
      *
-     *    Resulting XML string:
-     *      \<name\> value \</name\>
+     *  Resulting XML string:
+     *
+     *      <name> value </name>
      *
      *   @param   name       Name of the child XML_Node object
      *   @param   value      Value of the XML_Node - double.
@@ -273,7 +197,7 @@ public:
      *   @return  Returns a reference to the created child XML_Node object
      */
     XML_Node& addChild(const std::string& name, const doublereal value,
-                       const std::string fmt="%g");
+                       const std::string& fmt="%g");
 
     //! Remove a child from this node's list of children
     /*!
@@ -301,7 +225,7 @@ public:
      * @param fmt  Format of the printf string conversion of the double.
      *             Default is "%g". Must be less than 63 chars
      */
-    void addValue(const doublereal val, const std::string fmt="%g");
+    void addValue(const doublereal val, const std::string& fmt="%g");
 
     //! Return the value of an XML node as a string
     /*!
@@ -315,20 +239,20 @@ public:
      */
     std::string operator()() const;
 
-    //!  Return the value of an XML child node as a string
+    //! Return the value of an XML child node as a string
     /*!
      *  @param cname  Name of the child node to the current
      *                node, for which you want the value
      */
     std::string value(const std::string& cname) const;
 
-    //!  The Overloaded parenthesis operator with one augment
-    //!  returns the value of an XML child node as a string
+    //! The Overloaded parenthesis operator with one augment
+    //! returns the value of an XML child node as a string
     /*!
      *  @param cname  Name of the child node to the current
      *                node, for which you want the value
      */
-    std::string operator()(std::string cname) const;
+    std::string operator()(const std::string& cname) const;
 
     //! Return the value of an XML node as a single double
     /*!
@@ -365,10 +289,10 @@ public:
      *                Default is "%g".
      */
     void addAttribute(const std::string& attrib, const doublereal value,
-                      const std::string fmt="%g");
+                      const std::string& fmt="%g");
 
     //! The operator[] is overloaded to provide a lookup capability
-    //!  on attributes for the current XML element.
+    //! on attributes for the current XML element.
     /*!
      * For example
      *     xmlNode["id"]
@@ -386,16 +310,15 @@ public:
 
     //! Function returns the value of an attribute
     /*!
-     * This function searches the attributes vector for the parameter
-     * std::string attribute. If a match is found, the attribute value
-     * is returned as a string. If no match is found, the empty string
-     * is returned.
+     * This function searches the attributes vector for the attribute named
+     * 'attr'. If a match is found, the attribute value is returned as a
+     * string. If no match is found, the empty string is returned.
      *
-     * @param attr  Std::String containing the attribute to be searched for.
+     * @param attr  String containing the attribute to be searched for.
      *
-     * @return Returns  If a match is found, the attribute value
-     *                  is returned as a string. If no match is found, the empty string
-     *                  is returned.
+     * @return Returns  If a match is found, the attribute value is returned
+     *                  as a string. If no match is found, the empty string is
+     *                  returned.
      */
     std::string attrib(const std::string& attr) const;
 
@@ -407,7 +330,6 @@ public:
     void clear();
 
 private:
-
     //! Returns a changeable value of the attributes map for the current node
     /*!
      *  Note this is a simple accessor routine. And, it is a private function.
@@ -416,10 +338,8 @@ private:
     std::map<std::string,std::string>& attribs();
 
 public:
-
     //! Returns an unchangeable value of the attributes map for the current node
     /*!
-     *
      * @return  Returns an unchangeable reference to the attributes map
      */
     const std::map<std::string,std::string>& attribsConst() const;
@@ -453,7 +373,7 @@ public:
      *
      * @return Returns true if the child node exists, false otherwise.
      */
-    bool hasChild(const std::string ch) const;
+    bool hasChild(const std::string& ch) const;
 
     //! Tests whether the current node has an attribute with a particular name
     /*!
@@ -461,7 +381,7 @@ public:
      *
      * @return Returns true if the attribute exists, false otherwise.
      */
-    bool hasAttrib(std::string a) const;
+    bool hasAttrib(const std::string& a) const;
 
     //! Returns the name of the XML node
     /*!
@@ -473,10 +393,10 @@ public:
 
     //! Sets the name of the XML node
     /*!
-     * @param name The name of the XML node
+     * @param name_ The name of the XML node
      */
-    void setName(std::string name) {
-        m_name = name;
+    void setName(const std::string& name_) {
+        m_name = name_;
     }
 
     //! Return the id attribute, if present
@@ -510,9 +430,9 @@ public:
     //!  Boolean function indicating whether a comment
     bool isComment() const;
 
-    //!    Require that the current xml node have an attribute named
-    //!    by the first argument, a, and that this attribute have the
-    //!    the string value listed in the second argument, v.
+    //! Require that the current xml node have an attribute named by the first
+    //! argument, a, and that this attribute have the the string value listed
+    //! in the second argument, v.
     /*!
      *   @param a  attribute name
      *   @param v  required value of the attribute
@@ -527,9 +447,8 @@ public:
      * If exact matches are found for both fields, the pointer
      * to the matching XML Node is returned.
      *
-     * The ID attribute may be defaulted by setting it to "".
-     * In this case the pointer to the first xml element matching the name
-     * only is returned.
+     * The ID attribute may be defaulted by setting it to "". In this case the
+     * pointer to the first xml element matching the name only is returned.
      *
      *  @param nameTarget  Name of the XML Node that is being searched for
      *  @param idTarget    "id" attribute of the XML Node that the routine
@@ -562,7 +481,6 @@ public:
      *                     attribute of the form index = "3"
      *
      *  @return   Returns the pointer to the XML node that fits the criteria
-     *
      */
     XML_Node* findNameIDIndex(const std::string& nameTarget,
                               const std::string& idTarget, const int index) const;
@@ -589,14 +507,12 @@ public:
      */
     XML_Node* findID(const std::string& id, const int depth=100) const;
 
-
     //! This routine carries out a recursive search for an XML node based
     //! on an attribute of each XML node
     /*!
-     * If exact match is found with respect to the attribute name and
-     * value of the attribute, the pointer
-     * to the matching XML Node is returned. If not, 0 is returned.
-     *
+     * If exact match is found with respect to the attribute name and value of
+     * the attribute, the pointer to the matching XML Node is returned. If
+     * not, 0 is returned.
      *
      *  @param attr     Attribute of the XML Node that the routine
      *                  looks for
@@ -605,7 +521,6 @@ public:
      *                  immediate children are searched.
      *
      *  @return         Returns the pointer to the XML node that fits the criteria
-     *
      */
     XML_Node* findByAttr(const std::string& attr, const std::string& val,
                          int depth = 100000) const;
@@ -665,17 +580,14 @@ public:
      */
     void writeHeader(std::ostream& s);
 
-
     //! Write an XML subtree to an output stream.
     /*!
-     * This is a
-     * wrapper around the static routine write_int(). All this
-     * does is add an endl on to the output stream. write_int() is
-     * fine, but the last endl wasn't being written.
-     * It also checks for the special name "--". If found and we
-     * are at the root of the xml tree, then the block
-     * is skipped and the children are processed. "--" is used
-     * to denote the top of the tree.
+     * This is a wrapper around the static routine write_int(). All this does
+     * is add an endl on to the output stream. write_int() is fine, but the
+     * last endl wasn't being written. It also checks for the special name
+     * "`--`". If found and we are at the root of the xml tree, then the block
+     * is skipped and the children are processed. "`--`" is used to denote the
+     * top of the tree.
      *
      *  @param s       ostream to write to
      *  @param level   Indentation level to work from
@@ -716,7 +628,6 @@ public:
      *  destination XML_Node tree.
      *
      *  @param node_dest  This is the XML node to receive the information
-     *
      */
     void copyUnion(XML_Node* const node_dest) const;
 
@@ -738,30 +649,26 @@ public:
     void unlock();
 
 private:
-
-
     //! Write an XML subtree to an output stream.
     /*!
      * This is the main recursive routine. It doesn't put a final endl
      * on. This is fixed up in the public method. A method to only write out a limited
      * amount of the xml tree has been added.
      *
-     *
      *  @param s       ostream to write to
      *  @param level   Indentation level to work from
-     *  @param numRecurvivesAllowed Number of recursive calls allowed
+     *  @param numRecursivesAllowed Number of recursive calls allowed
      */
     void write_int(std::ostream& s, int level = 0, int numRecursivesAllowed = 60000) const;
 
 protected:
-
     //! XML node name of the node.
     /*!
      *  For example, if we were in the XML_Node where
-     *  @verbatim
-     *       <phase dim="3" id="gas">
-     *       </phase>
-     *  @endverbatim
+     *
+     *      <phase dim="3" id="gas">
+     *      </phase>
+     *
      *  Then, this string would be equal to "phase". "dim" and "id"
      *  are attributes of the XML_Node.
      */
@@ -772,9 +679,9 @@ protected:
      *  This is the string contents of the XML node. For
      *  example. The xml node named eps:
      *
-     *      \<eps\>
+     *      <eps>
      *         valueString
-     *      \</eps\>
+     *      </eps>
      *
      *  has a m_value string containing "valueString".
      */
@@ -783,7 +690,7 @@ protected:
     //! Map containing an index between the node name and the
     //! pointer to the node
     /*!
-     * m_childindex[node.name()] = XML_Node *pointer
+     *  m_childindex[node.name()] = XML_Node *pointer
      *
      *  This object helps to speed up searches.
      */
@@ -791,7 +698,7 @@ protected:
 
     //! Storage of attributes for a node
     /*!
-     *       m_attribs[attribName] = attribValue
+     *  m_attribs[attribName] = attribValue
      */
     std::map<std::string, std::string> m_attribs;
 
@@ -845,4 +752,3 @@ XML_Node* findXMLPhase(XML_Node* root, const std::string& phaseName);
 }
 
 #endif
-

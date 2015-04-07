@@ -6,7 +6,7 @@ cc_sources = examples.cpp kinetics_example1.cpp kinetics_example2.cpp \
 	     rxnpath_example1.cpp 
 
 LINK                 = -lctcxx -luser -loneD -lzeroD -lequil -lkinetics -ltransport -lthermo 
-LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lconverters -lctbase -lcvode 
+LINK                += -lctnumerics -lctmath -ltpx -lctspectra -lctbase -lcvode 
 LINK                += -lctlapack -lctblas -lctf2c -lm -lstdc++
 
 LIBS                 = -L$(top_builddir)/build/lib/ $(LINK)

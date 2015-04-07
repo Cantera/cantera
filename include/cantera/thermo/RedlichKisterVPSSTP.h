@@ -33,7 +33,6 @@ namespace Cantera
 //!  RedlichKisterVPSSTP is a derived class of GibbsExcessVPSSTP that employs
 //!  the Redlich-Kister approximation for the excess gibbs free energy
 /*!
- *
  *  %RedlichKisterVPSSTP derives from class GibbsExcessVPSSTP which is derived
  *  from VPStandardStateTP, and overloads the virtual methods defined there with ones that
  *  use expressions appropriate for the Redlich Kister Excess gibbs free energy approximation.
@@ -82,13 +81,13 @@ namespace Cantera
  *          G^E = \sum_{i} G^E_{i}
  *      \f]
  *
- *    where
+ *  where
  *
  *      \f[
  *         G^E_{i} =   n X_{Ai} X_{Bi} \sum_m \left( A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  *      \f]
  *
- *    and where we can break down the gibbs free energy contributions into enthalpy and entropy contributions
+ *  and where we can break down the gibbs free energy contributions into enthalpy and entropy contributions
  *
  *      \f[
  *         H^E_i = n X_{Ai} X_{Bi} \sum_m \left( H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
@@ -117,8 +116,6 @@ namespace Cantera
  *           R T \ln( \gamma_k )=  \sum_i \delta_{Ai,k} (1 - X_{Ai}) X_{Bi} \sum_m \left( A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  *                                + \sum_i \delta_{Ai,k} X_{Ai} X_{Bi} \sum_m \left(  A^{i}_0 +  A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^{m-1} (1 - X_{Ai} + X_{Bi}) \right)
  *      \f]
- * where
- *
  *
  * This object inherits from the class VPStandardStateTP. Therefore, the specification and
  * calculation of all standard state and reference state values are handled at that level. Various functional
@@ -215,41 +212,41 @@ namespace Cantera
  *  We can switch over to expressing the equilibrium constant in terms of the reference
  *  state chemical potentials
  *
- *   \f[
- *       K_a^{o,1} = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{P}
- *   \f]
+ *  \f[
+ *      K_a^{o,1} = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{P}
+ *  \f]
  *
- *   The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
- *   to activity concentrations. When this is done:
+ *  The concentration equilibrium constant, \f$ K_c \f$, may be obtained by changing over
+ *  to activity concentrations. When this is done:
  *
- *   \f[
+ *  \f[
  *         \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
  *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
- *   \f]
+ *  \f]
  *
- *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
- *    using the second and third part of the above expression as a definition for the concentration
- *    equilibrium constant.
+ *  %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *  using the second and third part of the above expression as a definition for the concentration
+ *  equilibrium constant.
  *
- *    For completeness, the pressure equilibrium constant may be obtained as well
+ *  For completeness, the pressure equilibrium constant may be obtained as well
  *
- *   \f[
+ *  \f[
  *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
- *   \f]
+ *  \f]
  *
- *   \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't
- *   necessarily the simplest form of the equilibrium constant for other types of phases; \f$ K_c \f$ is
- *   used instead because it is completely general.
+ *  \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't
+ *  necessarily the simplest form of the equilibrium constant for other types of phases; \f$ K_c \f$ is
+ *  used instead because it is completely general.
  *
- *   The reverse rate of progress may be written down as
- *   \f[
+ *  The reverse rate of progress may be written down as
+ *  \f[
  *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
- *   \f]
+ *  \f]
  *
  *  where we can use the concept of microscopic reversibility to
  *  write the reverse rate constant in terms of the
  *  forward reate constant and the concentration equilibrium
- *   constant, \f$ K_c \f$.
+ *  constant, \f$ K_c \f$.
  *
  *    \f[
  *       k^{-1} =  k^1 K^1_c
@@ -257,65 +254,12 @@ namespace Cantera
  *
  *  \f$k^{-1} \f$ has units of s-1.
  *
- *
- * <HR>
- * <H2> Instantiation of the Class </H2>
- * <HR>
- *
- *
- * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %IdealGasPhase may be created by the following code
- * snippet:
- *
- * @code
- *    XML_Node *xc = get_XML_File("silane.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "silane");
- *    ThermoPhase *silane_tp = newPhase(*xs);
- *    IdealGasPhase *silaneGas = dynamic_cast <IdealGasPhase *>(silane_tp);
- * @endcode
- *
- * or by the following constructor:
- *
- * @code
- *    XML_Node *xc = get_XML_File("silane.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "silane");
- *    IdealGasPhase *silaneGas = new IdealGasPhase(*xs);
- * @endcode
- *
- * <HR>
- * <H2> XML Example </H2>
- * <HR>
- *   An example of an XML Element named phase setting up a IdealGasPhase
- *   object named silane is given below.
- *
- *
- * @verbatim
- <!--     phase silane      -->
- <phase dim="3" id="silane">
- <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
- <speciesArray datasrc="#species_data">
- H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
- H2SISIH2  SI3H8  SI2  SI3
- </speciesArray>
- <reactionArray datasrc="#reaction_data"/>
- <thermo model="IdealGas"/>
- <kinetics model="GasKinetics"/>
- <transport model="None"/>
- </phase>
- @endverbatim
- *
- *   The model attribute "IdealGas" of the thermo XML element identifies the phase as
- *   being of the type handled by the IdealGasPhase object.
- *
  *    @ingroup thermoprops
  *
-
-*/
+ */
 class RedlichKisterVPSSTP : public GibbsExcessVPSSTP
 {
-
 public:
-
     //! Constructor
     /*!
      * This doesn't do much more than initialize constants with
@@ -326,17 +270,13 @@ public:
     //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
     //! directly from an xml input file
     /*!
-     * Working constructors
-     *
-     *  The two constructors below are the normal way the phase initializes itself. They are shells that call
-     *  the routine initThermo(), with a reference to the XML database to get the info for the phase.
      *
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    RedlichKisterVPSSTP(std::string inputFile, std::string id = "");
+    RedlichKisterVPSSTP(const std::string& inputFile, const std::string& id = "");
 
     //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
     //! directly from an XML database
@@ -345,37 +285,28 @@ public:
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
      */
-    RedlichKisterVPSSTP(XML_Node& phaseRef, std::string id = "");
-
+    RedlichKisterVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Special constructor for a hard-coded problem
     /*!
-     *
-     *  @param testProb Hard-coded value. Only the value of 1 is
-     *                  used. It's for
-     *                  a LiKCl system
-     *                  -> test to predict the eutectic and liquidus correctly.
+     *  @param testProb Hard-coded value. Only the value of 1 is used. It's
+     *                  for a LiKCl system -> test to predict the eutectic and
+     *                  liquidus correctly.
+     *  @deprecated To be refactored into a standalone test
      */
     RedlichKisterVPSSTP(int testProb);
 
     //! Copy constructor
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working copy constructor
-     *
      * @param b class to be copied
      */
     RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b);
 
     //! Assignment operator
     /*!
-     *
      * @param b class to be copied.
      */
     RedlichKisterVPSSTP& operator=(const RedlichKisterVPSSTP& b);
-
-    //! Destructor
-    virtual ~RedlichKisterVPSSTP();
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
@@ -385,96 +316,33 @@ public:
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @name  Utilities
+    //! @{
 
     //! Equation of state type flag.
     /*!
      * The ThermoPhase base class returns
      * zero. Subclasses should define this to return a unique
      * non-zero value. Known constants defined for this purpose are
-     * listed in mix_defs.h. The MolalityVPSSTP class also returns
-     * zero, as it is a non-complete class.
+     * listed in mix_defs.h.
      */
     virtual int eosType() const;
 
-    //! Initialization of a phase using an xml file
-    /*!
-     * This routine is a precursor to
-     * routine, which does most of the work.
-     *
-     * @param inputFile XML file containing the description of the
-     *        phase
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseFile(std::string inputFile, std::string id);
+    //! @}
+    //! @name  Molar Thermodynamic Properties
+    //! @{
 
-    //!   Import and initialize a phase
-    //!   specification in an XML tree into the current object.
-    /*!
-     *   Here we read an XML description of the phase.
-     *   We import descriptions of the elements that make up the
-     *   species in a phase.
-     *   We import information about the species, including their
-     *   reference state thermodynamic polynomials. We then freeze
-     *   the state of the species.
-     *
-     *   Then, we read the species molar volumes from the xml
-     *   tree to finish the initialization.
-     *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     *
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string id);
+    /// Molar enthalpy. Units: J/kmol.
+    virtual doublereal enthalpy_mole() const;
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
+    /// Molar entropy. Units: J/kmol.
+    virtual doublereal entropy_mole() const;
 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
+    virtual doublereal cp_mole() const;
 
-    /**
-     * @}
-     * @name Utilities for Solvent ID and Molality
-     * @{
-     */
-
-
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    virtual doublereal cv_mole() const;
 
     /**
      * @}
@@ -493,7 +361,7 @@ public:
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getLnActivityCoefficients(doublereal* ac) const;
+    virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -509,18 +377,6 @@ public:
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
-
-    /// Molar enthalpy. Units: J/kmol.
-    virtual doublereal enthalpy_mole() const;
-
-    /// Molar entropy. Units: J/kmol.
-    virtual doublereal entropy_mole() const;
-
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
-    virtual doublereal cp_mole() const;
-
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
-    virtual doublereal cv_mole() const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
@@ -582,7 +438,6 @@ public:
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
@@ -617,7 +472,6 @@ public:
      *
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of the
      *                         log Activity Coefficients. length = m_kk
-     *
      */
     virtual void getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const;
 
@@ -630,67 +484,16 @@ public:
      *
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
-     *
      */
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
-
-
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
-
-
-
-    //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Routines that implement the Chemical equilibrium capability
-     * for a single phase, based on the element-potential method.
-     * @{
-     */
-
-
-
-    //@}
-
-
-
+    /// @}
+    /// @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
     /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
-
 
     /*!
      * @internal Initialize. This method is provided to allow
@@ -707,7 +510,6 @@ public:
      */
     virtual void initThermo();
 
-
     /**
      *   Import and initialize a ThermoPhase object
      *
@@ -722,13 +524,11 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    void initThermoXML(XML_Node& phaseNode, std::string id);
+    void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    /**
-     * @}
-     * @name  Derivatives of Thermodynamic Variables needed for Applications
-     * @{
-     */
+    //! @}
+    //! @name  Derivatives of Thermodynamic Variables needed for Applications
+    //! @{
 
     //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
     //! a line in parameter space or along a line in physical space
@@ -777,7 +577,6 @@ public:
      */
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
 
-
     //! Get the array of derivatives of the ln activity coefficients with respect to the ln species mole numbers
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
@@ -801,7 +600,6 @@ public:
     //@}
 
 private:
-
     //! Process an XML node called "binaryNeutralSpeciesParameters"
     /*!
      * This node contains all of the parameters necessary to describe
@@ -820,7 +618,6 @@ private:
      *  @param num Number of binary Redlich-Kister interaction terms
      */
     void resizeNumInteractions(const size_t num);
-
 
     //! Initialize lengths of local variables after all species have
     //! been identified.
@@ -869,10 +666,9 @@ private:
      *
      * @param msg  Message to be printed
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 protected:
-
     //! number of binary interaction expressions
     size_t numBinaryInteractions_;
 
@@ -890,15 +686,12 @@ protected:
      */
     std::vector<size_t> m_pSpecies_B_ij;
 
-
     //! Vector of the length of the polynomial for the interaction.
     std::vector<size_t> m_N_ij;
-
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess gibbs free energy expression
     mutable std::vector< vector_fp> m_HE_m_ij;
-
 
     //! Entropy term for the binary mole fraction interaction of the
     //! excess gibbs free energy expression
@@ -916,20 +709,10 @@ protected:
      */
     int formTempModel_;
 
-
     //! Two dimensional array of derivatives of activity coefficients wrt mole fractions
     mutable Array2D dlnActCoeff_dX_;
-
-
 };
-
-
 
 }
 
 #endif
-
-
-
-
-

@@ -1,4 +1,4 @@
-
+//! @file Nitrogen.h
 #ifndef TPX_NITROGEN_H
 #define TPX_NITROGEN_H
 
@@ -7,6 +7,8 @@
 namespace tpx
 {
 
+//! Pure species representation of nitrogen. Values and functions are
+//! from "Thermodynamic Properties in SI" by W.C. Reynolds
 class nitrogen : public Substance
 {
 public:
@@ -14,7 +16,6 @@ public:
         m_name = "nitrogen";
         m_formula = "N2";
     }
-    virtual ~nitrogen() {}
 
     double MolWt();
     double Tcrit();
@@ -28,11 +29,15 @@ public:
     double Pp();
     double up();
     double sp();
+
+    //! Saturation pressure. Equation S4 from Reynolds TPSI.
     double Psat();
 
 private:
-
+    //! Liquid density. Equation D2 from Reynolds TPSI.
     double ldens();
+
+    //! Equation P4 from Reynolds TPSI.
     double C(int i, double rt, double rt2);
     double Cprime(int i, double rt, double rt2, double rt3);
     double I(int i, double egrho);

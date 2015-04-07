@@ -21,6 +21,7 @@ using namespace Cantera;
 
 int kinetics_example2(int job)
 {
+    suppress_deprecation_warnings();
     try {
         std::cout << "Ignition simulation using class GRI30." << std::endl;
 
@@ -64,6 +65,7 @@ int kinetics_example2(int job)
         // and add the reactor to it
         ReactorNet* sim_ptr = new ReactorNet();
         ReactorNet& sim = *sim_ptr;
+        sim.setVerbose(false);
         sim.addReactor(&r);
 
         double tm;

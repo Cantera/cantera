@@ -32,7 +32,6 @@ namespace Cantera
  *  lattice phase and the molar densities of the sublattice and the molar density within the LatticeSolidPhase
  *  have the same values.
  *
- *
  *  The mole fraction vector is redefined witin the the LatticeSolidPhase object. Each of the mole
  *  fractions sum to one on each of the sublattices.  The routine getMoleFraction() and setMoleFraction()
  *  have been redefined to use this convention.
@@ -65,14 +64,12 @@ namespace Cantera
  *  solid. \f$  \theta_i \f$ is a fixed weighting factor for the ith lattice representing the lattice
  *  stoichiometric coefficient. For this object the  \f$  \theta_i \f$ values are fixed.
  *
- *
  *  Let's take FeS2 as an example, which may be thought of as a combination of two lattices: Fe and S lattice.
  *  The Fe sublattice has a molar density of 1 gmol cm-3. The S sublattice has a molar density of 2 gmol cm-3.
  *  We then define the LatticeSolidPhase object as having a nominal composition of FeS2, and having a
  *  molar density of 1 gmol cm-3.  All quantities pertaining to the FeS2 compound will be have weights
  *  associated with the sublattices. The Fe sublattice will have a weight of 1.0 associated with it. The
  *  S sublattice will have a weight of 2.0 associated with it.
- *
  *
  * <HR>
  * <H3> Specification of Solution Density Properties </H3>
@@ -108,9 +105,7 @@ namespace Cantera
  */
 class LatticeSolidPhase : public ThermoPhase
 {
-
 public:
-
     //! Base empty constructor
     LatticeSolidPhase();
 
@@ -141,7 +136,7 @@ public:
 
     //! Equation of state type flag.
     /*!
-     *  Redefine this to return cLatticeSolid, listed in mix_defs.h.
+     *  Returns cLatticeSolid, listed in mix_defs.h.
      */
     virtual int eosType() const {
         return cLatticeSolid;
@@ -175,7 +170,6 @@ public:
      */
     virtual doublereal maxTemp(size_t k = npos) const;
 
-
     //! Returns the reference pressure in Pa. This function is a wrapper
     //! that calls the species thermo refPressure function.
     virtual doublereal refPressure() const ;
@@ -204,7 +198,6 @@ public:
      *  units J/kmol
      */
     virtual doublereal enthalpy_mole() const;
-
 
     //! Return the Molar Internal Energy. Units: J/kmol.
     /*!
@@ -309,8 +302,6 @@ public:
      * \f]
      *
      * where \f$ \rho_n \f$  is the density of the nth sublattice
-     *
-     *  Note this is a nonvirtual function.
      */
     doublereal calcDensity();
 
@@ -370,7 +361,6 @@ public:
         return err("not implemented");
     }
 
-
     //! Set the mass fractions to the specified values, and then
     //! normalize them so that they sum to 1.0.
     /*!
@@ -385,7 +375,6 @@ public:
     virtual void setMassFractions(const doublereal* const y) {
         err("not implemented");
     }
-
 
     //! Set the mass fractions to the specified values without normalizing.
     /*!
@@ -451,7 +440,6 @@ public:
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
-
 
     //! Returns an array of partial molar enthalpies for the species in the mixture.
     /*!
@@ -520,7 +508,6 @@ public:
      * \f$. The values are evaluated at the current
      * temperature and pressure of the solution.
      *
-     *
      *  This returns the underlying lattice standard chemical potentials, as the units are kmol-1 of
      *  the sublattice species.
      *
@@ -555,7 +542,7 @@ public:
      */
     virtual doublereal logStandardConc(size_t k=0) const;
     //@}
-    /// @name Thermodynamic Values for the Species Reference States --------------------
+    /// @name Thermodynamic Values for the Species Reference States
     //@{
 
     //! Returns the vector of nondimensional enthalpies of the reference state at the current
@@ -571,7 +558,6 @@ public:
      */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-
     //!  Returns the vector of the  gibbs function of the reference state at the current
     //! temperatureof the solution and the reference pressure for the species.
     /*!
@@ -585,7 +571,6 @@ public:
      *              length = m_kk
      */
     virtual void  getGibbs_ref(doublereal* g) const;
-
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -617,10 +602,8 @@ public:
      */
     virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
 
-
     //! Set equation of state parameter values from XML entries.
     /*!
-     *
      * This method is called by function importPhase() in
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
@@ -633,26 +616,13 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
-
     //! Set the Lattice mole fractions using a string
     /*!
-     *
      *  @param n     Integer value of the lattice whose mole fractions are being set
-     *  @param x     string comtaining Name:value pairs that will specify the mole fractions
+     *  @param x     string containing Name:value pairs that will specify the mole fractions
      *               of species on a particular lattice
      */
-    void setLatticeMoleFractionsByName(int n, std::string x);
-
-    //! Return a changeable reference to the calculation manager
-    //! for species reference-state thermodynamic properties
-    /*!
-     *  This routine returns the calculation manager for the sublattice
-     *
-     * @param k   Speices id. The default is -1, meaning return the default
-     *
-     * @internal
-     */
-    virtual SpeciesThermo& speciesThermo(int k = -1);
+    void setLatticeMoleFractionsByName(int n, const std::string& x);
 
 #ifdef H298MODIFY_CAPABILITY
 
@@ -664,7 +634,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New);
+    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New);
 #endif
 
 private:
@@ -674,13 +644,9 @@ private:
      *
      *  @return nothing
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 protected:
-
-    //! Number of elements
-    size_t m_mm;
-
     //! Last temperature at which the reference thermo was calculated
     mutable doublereal  m_tlast;
 
@@ -712,7 +678,6 @@ protected:
     std::vector<size_t> lkstart_;
 
 private:
-
     //! Update the reference thermodynamic functions
     void _updateThermo() const;
 };

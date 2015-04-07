@@ -88,7 +88,7 @@ extern "C" {
     //--------------- Phase ---------------------//
 
     status_t phase_getname_(const integer* n, char* nm,
-                                       ftnlen lennm)
+                            ftnlen lennm)
     {
         try {
             std::string pnm = _fph(n)->name();
@@ -108,7 +108,7 @@ extern "C" {
         try {
             return _fph(n)->nElements();
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -225,7 +225,7 @@ extern "C" {
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-            return 0;
+        return 0;
     }
 
     doublereal phase_massfraction_(const integer* n, integer* k)
@@ -256,12 +256,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap xx;
-            int nsp = p->nSpecies();
-            for (int nn = 0; nn < nsp; nn++) {
-                xx[p->speciesName(nn)] = -1;
-            }
-            parseCompString(f2string(x, lx), xx);
+            compositionMap xx = parseCompString(f2string(x, lx), p->speciesNames());
             p->setMoleFractionsByName(xx);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -288,12 +283,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap yy;
-            int nsp = p->nSpecies();
-            for (int nn = 0; nn < nsp; nn++) {
-                yy[p->speciesName(nn)] = -1;
-            }
-            parseCompString(f2string(y, leny), yy);
+            compositionMap yy = parseCompString(f2string(y, leny), p->speciesNames());
             p->setMassFractionsByName(yy);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -649,8 +639,8 @@ extern "C" {
     //-------------- Kinetics ------------------//
 
     integer newkineticsfromxml_(integer* mxml, integer* iphase,
-                                           const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
-                                           const integer* neighbor4)
+                                const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
+                                const integer* neighbor4)
     {
         try {
             XML_Node* x = _xml(mxml);
@@ -670,8 +660,7 @@ extern "C" {
             }
             Kinetics* kin = newKineticsMgr(*x, phases);
             if (kin) {
-                int k = KineticsCabinet::add(kin);
-                return k;
+                return KineticsCabinet::add(kin);
             } else {
                 return 0;
             }
@@ -693,14 +682,14 @@ extern "C" {
     integer kin_start_(const integer* n, integer* p)
     {
         try {
-            return _fkin(n)->start(*p)+1;
+            return _fkin(n)->kineticsSpeciesIndex(0, *p)+1;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
     integer kin_speciesindex_(const integer* n, const char* nm, const char* ph,
-                                         ftnlen lennm, ftnlen lenph)
+                              ftnlen lennm, ftnlen lenph)
     {
         try {
             return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm),
@@ -936,6 +925,15 @@ extern "C" {
         }
     }
 
+    doublereal trans_electricalconductivity_(const integer* n)
+    {
+        try {
+            return _ftrans(n)->electricalConductivity();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     doublereal trans_thermalconductivity_(const integer* n)
     {
         try {
@@ -959,6 +957,26 @@ extern "C" {
     {
         try {
             _ftrans(n)->getMixDiffCoeffs(d);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    status_t trans_getmixdiffcoeffsmass_(const integer* n, doublereal* d)
+    {
+        try {
+            _ftrans(n)->getMixDiffCoeffsMass(d);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    status_t trans_getmixdiffcoeffsmole_(const integer* n, doublereal* d)
+    {
+        try {
+            _ftrans(n)->getMixDiffCoeffsMole(d);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -998,7 +1016,7 @@ extern "C" {
     //-------------------- Functions ---------------------------
 
     status_t ctphase_report_(const integer* nth,
-                                        char* buf, integer* show_thermo, ftnlen buflen)
+                             char* buf, integer* show_thermo, ftnlen buflen)
     {
         try {
             bool stherm = (*show_thermo != 0);
@@ -1045,7 +1063,7 @@ extern "C" {
 
 
     status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
-            integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
+                                    integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
     {
         try {
             XML_Node* root = 0;

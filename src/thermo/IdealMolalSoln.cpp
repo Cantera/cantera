@@ -20,20 +20,11 @@
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/ThermoFactory.h"
 
-#include <cmath>
-#include <fstream>
-
 using namespace ctml;
 
 namespace Cantera
 {
 
-//!  Small value to be used in cutoff expressions with logs
-static double xxSmall = 1.0E-150;
-
-/*
- * Default constructor
- */
 IdealMolalSoln::IdealMolalSoln() :
     MolalityVPSSTP(),
     m_formGC(2),
@@ -41,13 +32,13 @@ IdealMolalSoln::IdealMolalSoln() :
     IMS_X_o_cutoff_(0.20),
     IMS_gamma_o_min_(0.00001),
     IMS_gamma_k_min_(10.0),
-    IMS_cCut_(.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
+    IMS_cCut_(.05),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
@@ -55,12 +46,6 @@ IdealMolalSoln::IdealMolalSoln() :
 {
 }
 
-/*
- * Copy Constructor:
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working copy constructor
- */
 IdealMolalSoln::IdealMolalSoln(const IdealMolalSoln& b) :
     MolalityVPSSTP(b)
 {
@@ -71,12 +56,6 @@ IdealMolalSoln::IdealMolalSoln(const IdealMolalSoln& b) :
     *this = b;
 }
 
-/*
- * operator=()
- *
- *  Note this stuff will not work until the underlying phase
- *  has a working assignment operator
- */
 IdealMolalSoln& IdealMolalSoln::
 operator=(const IdealMolalSoln& b)
 {
@@ -99,8 +78,6 @@ operator=(const IdealMolalSoln& b)
         IMS_egCut_            = b.IMS_egCut_;
         IMS_agCut_            = b.IMS_agCut_;
         IMS_bgCut_            = b.IMS_bgCut_;
-        m_expg0_RT            = b.m_expg0_RT;
-        m_pe                  = b.m_pe;
         m_pp                  = b.m_pp;
         m_tmpV                = b.m_tmpV;
         IMS_lnActCoeffMolal_  = b.IMS_lnActCoeffMolal_;
@@ -108,172 +85,87 @@ operator=(const IdealMolalSoln& b)
     return *this;
 }
 
-IdealMolalSoln::IdealMolalSoln(std::string inputFile, std::string id) :
+IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
+                               const std::string& id_) :
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
     IMS_gamma_o_min_(0.00001),
     IMS_gamma_k_min_(10.0),
-    IMS_cCut_(.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
+    IMS_cCut_(.05),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0)
 {
-    constructPhaseFile(inputFile, id);
+    initThermoFile(inputFile, id_);
 }
 
-IdealMolalSoln::IdealMolalSoln(XML_Node& root, std::string id) :
+IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :
     MolalityVPSSTP(),
     m_formGC(2),
     IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
     IMS_gamma_o_min_(0.00001),
     IMS_gamma_k_min_(10.0),
-    IMS_cCut_(.05),
     IMS_slopefCut_(0.6),
+    IMS_slopegCut_(0.0),
+    IMS_cCut_(.05),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
     IMS_afCut_(0.0),
     IMS_bfCut_(0.0),
-    IMS_slopegCut_(0.0),
     IMS_dgCut_(0.0),
     IMS_egCut_(0.0),
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0)
 {
-    constructPhaseXML(root, id);
+    importPhase(*findXMLPhase(&root, id_), this);
 }
 
-/*
- *
- * ~IdealMolalSoln():   (virtual)
- *
- * Destructor: does nothing:
- *
- */
-IdealMolalSoln::~IdealMolalSoln()
-{
-}
-
-/**
- *
- */
 ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const
 {
-    IdealMolalSoln* mtp = new IdealMolalSoln(*this);
-    return (ThermoPhase*) mtp;
+    return new IdealMolalSoln(*this);
 }
 
-//
-// -------- Molar Thermodynamic Properties of the Solution ---------------
-//
-/*
- * Molar enthalpy of the solution: Units: J/kmol.
- *
- * Returns the amount of enthalpy per mole of solution.
- * For an ideal molal solution,
- * \f[
- * \bar{h}(T, P, X_k) = \sum_k X_k \bar{h}_k(T)
- * \f]
- * The formula is written in terms of the partial molar enthalpies.
- * \f$ \bar{h}_k(T, p, m_k) \f$.
- * See the partial molar enthalpy function, getPartialMolarEnthalpies(),
- * for details.
- *
- * Units: J/kmol
- */
 doublereal IdealMolalSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     getMoleFractions(DATA_PTR(m_pp));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
-/*
- * Molar internal energy of the solution: Units: J/kmol.
- *
- * Returns the amount of internal energy per mole of solution.
- * For an ideal molal solution,
- * \f[
- * \bar{u}(T, P, X_k) = \sum_k X_k \bar{u}_k(T)
- * \f]
- * The formula is written in terms of the partial molar internal energy.
- * \f$ \bar{u}_k(T, p, m_k) \f$.
- */
 doublereal IdealMolalSoln::intEnergy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-/*
- * Molar entropy of the solution: Units J/kmol/K.
- *
- * Returns the amount of entropy per mole of solution.
- * For an ideal molal solution,
- * \f[
- * \bar{s}(T, P, X_k) = \sum_k X_k \bar{s}_k(T)
- * \f]
- * The formula is written in terms of the partial molar entropies.
- * \f$ \bar{s}_k(T, p, m_k) \f$.
- * See the partial molar entropies function, getPartialMolarEntropies(),
- * for details.
- *
- * Units: J/kmol/K.
- */
 doublereal IdealMolalSoln::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-/*
- * Molar Gibbs function for the solution: Units J/kmol.
- *
- * Returns the gibbs free energy of the solution per mole
- * of the solution.
- *
- * \f[
- * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
- * \f]
- *
- * Units: J/kmol
- */
 doublereal IdealMolalSoln::gibbs_mole() const
 {
     getChemPotentials(DATA_PTR(m_tmpV));
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-/*
- * Molar heat capacity at constant pressure: Units: J/kmol/K.
- *  * \f[
- * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)
- * \f]
- *
- * Units: J/kmol/K
- */
 doublereal IdealMolalSoln::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    double val = mean_X(DATA_PTR(m_tmpV));
-    return val;
+    return mean_X(DATA_PTR(m_tmpV));
 }
 
-/*
- * Molar heat capacity at constant volume: Units: J/kmol/K.
- * NOT IMPLEMENTED.
- * Units: J/kmol/K
- */
 doublereal IdealMolalSoln::cv_mole() const
 {
     return err("not implemented");
@@ -283,13 +175,6 @@ doublereal IdealMolalSoln::cv_mole() const
 // ------- Mechanical Equation of State Properties ------------------------
 //
 
-
-
-/*
- * Set the pressure at constant temperature. Units: Pa.
- * This method sets a constant within the object.
- * The mass density is not a function of pressure.
- */
 void IdealMolalSoln::setPressure(doublereal p)
 {
     setState_TP(temperature(), p);
@@ -309,53 +194,16 @@ void IdealMolalSoln::calcDensity()
     Phase::setDensity(dd);
 }
 
-/*
- * The isothermal compressibility. Units: 1/Pa.
- * The isothermal compressibility is defined as
- * \f[
- * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
- * \f]
- *
- *  It's equal to zero for this model, since the molar volume
- *  doesn't change with pressure or temperature.
- */
 doublereal IdealMolalSoln::isothermalCompressibility() const
 {
     return 0.0;
 }
 
-/*
- * The thermal expansion coefficient. Units: 1/K.
- * The thermal expansion coefficient is defined as
- *
- * \f[
- * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
- * \f]
- *
- *  It's equal to zero for this model, since the molar volume
- *  doesn't change with pressure or temperature.
- */
 doublereal IdealMolalSoln::thermalExpansionCoeff() const
 {
     return 0.0;
 }
 
-/*
- * Overwritten setDensity() function is necessary because the
- * density is not an independent variable.
- *
- * This function will now throw an error condition
- *
- * @internal May have to adjust the strategy here to make
- * the eos for these materials slightly compressible, in order
- * to create a condition where the density is a function of
- * the pressure.
- *
- * This function will now throw an error condition.
- *
- *  NOTE: This is an overwritten function from the State.h
- *        class
- */
 void IdealMolalSoln::setDensity(const doublereal rho)
 {
     double dens = density();
@@ -365,15 +213,6 @@ void IdealMolalSoln::setDensity(const doublereal rho)
     }
 }
 
-/*
- * Overwritten setMolarDensity() function is necessary because the
- * density is not an independent variable.
- *
- * This function will now throw an error condition.
- *
- *  NOTE: This is a virtual function, overwritten function from the State.h
- *        class
- */
 void IdealMolalSoln::setMolarDensity(const doublereal conc)
 {
     double concI = Phase::molarDensity();
@@ -396,19 +235,6 @@ void IdealMolalSoln::setState_TP(doublereal temp, doublereal pres)
 // ------- Activities and Activity Concentrations
 //
 
-/*
- * This method returns an array of activity concentrations \f$ C^a_k\f$.
- * \f$ C^a_k\f$ are defined such that
- * \f$ a_k = C^a_k / C^s_k, \f$ where \f$ C^s_k \f$
- * is a standard concentration
- * defined below.  These activity concentrations are used
- * by kinetics manager classes to compute the forward and
- * reverse rates of elementary reactions.
- *
- * @param c Array of activity concentrations. The
- *           units depend upon the implementation of the
- *           reaction rate expressions within the phase.
- */
 void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
 {
     if (m_formGC != 1) {
@@ -426,18 +252,6 @@ void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
     }
 }
 
-/*
- * The standard concentration \f$ C^s_k \f$ used to normalize
- * the activity concentration. In many cases, this quantity
- * will be the same for all species in a phase - for example,
- * for an ideal gas \f$ C^s_k = P/\hat R T \f$. For this
- * reason, this method returns a single value, instead of an
- * array.  However, for phases in which the standard
- * concentration is species-specific (e.g. surface species of
- * different sizes), this method may be called with an
- * optional parameter indicating the species.
- *
- */
 doublereal IdealMolalSoln::standardConcentration(size_t k) const
 {
     double c0 = 1.0, mvSolvent;
@@ -455,38 +269,12 @@ doublereal IdealMolalSoln::standardConcentration(size_t k) const
     return c0;
 }
 
-/*
- * Returns the natural logarithm of the standard
- * concentration of the kth species
- */
 doublereal IdealMolalSoln::logStandardConc(size_t k) const
 {
     double c0 = standardConcentration(k);
     return log(c0);
 }
 
-/*
- * Returns the units of the standard and general concentrations
- * Note they have the same units, as their divisor is
- * defined to be equal to the activity of the kth species
- * in the solution, which is unitless.
- *
- * This routine is used in print out applications where the
- * units are needed. Usually, MKS units are assumed throughout
- * the program and in the XML input files.
- *
- * On return uA contains the powers of the units (MKS assumed)
- * of the standard concentrations and generalized concentrations
- * for the kth species.
- *
- *  uA[0] = kmol units - default  = 1
- *  uA[1] = m    units - default  = -nDim(), the number of spatial
- *                                dimensions in the Phase class.
- *  uA[2] = kg   units - default  = 0;
- *  uA[3] = Pa(pressure) units - default = 0;
- *  uA[4] = Temperature units - default = 0;
- *  uA[5] = time units - default = 0
- */
 void IdealMolalSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     int eos = eosType();
@@ -518,14 +306,6 @@ void IdealMolalSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
     }
 }
 
-/*
- * Get the array of non-dimensional molality-based
- * activities at the current solution temperature,
- * pressure, and solution concentration.
- *
- *  The max against xmolSolventMIN is to limit the activity
- *  coefficient to be finite as the solvent mf goes to zero.
- */
 void IdealMolalSoln::getActivities(doublereal* ac) const
 {
     _updateStandardStateThermo();
@@ -539,6 +319,8 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
             ac[k] = m_molalities[k];
         }
         double xmolSolvent = moleFraction(m_indexSolvent);
+        // Limit the activity coefficient to be finite as the solvent mole
+        // fraction goes to zero.
         xmolSolvent = std::max(m_xmolSolventMIN, xmolSolvent);
         ac[m_indexSolvent] =
             exp((xmolSolvent - 1.0)/xmolSolvent);
@@ -558,17 +340,6 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
     }
 }
 
-/*
- * Get the array of non-dimensional Molality based
- * activity coefficients at
- * the current solution temperature, pressure, and
- * solution concentration.
- * See Denbigh
- * (note solvent activity coefficient is on the molar scale).
- *
- *  The max against xmolSolventMIN is to limit the activity
- *  coefficient to be finite as the solvent mf goes to zero.
- */
 void IdealMolalSoln::
 getMolalityActivityCoefficients(doublereal* acMolality) const
 {
@@ -577,6 +348,8 @@ getMolalityActivityCoefficients(doublereal* acMolality) const
             acMolality[k] = 1.0;
         }
         double xmolSolvent = moleFraction(m_indexSolvent);
+        // Limit the activity coefficient to be finite as the solvent mole
+        // fraction goes to zero.
         xmolSolvent = std::max(m_xmolSolventMIN, xmolSolvent);
         acMolality[m_indexSolvent] =
             exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
@@ -593,31 +366,9 @@ getMolalityActivityCoefficients(doublereal* acMolality) const
 // ------ Partial Molar Properties of the Solution -----------------
 //
 
-/*
- * Get the species chemical potentials: Units: J/kmol.
- *
- * This function returns a vector of chemical potentials of the
- * species in solution.
- *
- * \f[
- *    \mu_k = \mu^{o}_k(T,P) + R T \ln(\frac{m_k}{m^\Delta})
- * \f]
- * \f[
- *    \mu_w = \mu^{o}_w(T,P) +
- *            R T ((X_w - 1.0) / X_w)
- * \f]
- *
- * \f$ w \f$ refers to the solvent species.
- * \f$ X_w \f$ is the mole fraction of the solvent.
- * \f$ m_k \f$ is the molality of the kth solute.
- * \f$ m^\Delta is 1 gmol solute per kg solvent. \f$
- *
- * Units: J/kmol.
- */
 void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 {
     double xx;
-    //const double xxSmall = 1.0E-150;
 
     // Assertion is made for speed
     AssertThrow(m_indexSolvent == 0, "solvent not the first species");
@@ -643,7 +394,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
 
         for (size_t k = 1; k < m_kk; k++) {
-            xx = std::max(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * log(xx);
         }
         /*
@@ -651,7 +402,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
          *  -> see my notes
          */
 
-        xx = std::max(xmolSolvent, xxSmall);
+        xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
             (RT * (xmolSolvent - 1.0) / xx);
     } else {
@@ -663,21 +414,16 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 
 
         for (size_t k = 1; k < m_kk; k++) {
-            xx = std::max(m_molalities[k], xxSmall);
+            xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * (log(xx) + IMS_lnActCoeffMolal_[k]);
         }
-        xx = std::max(xmolSolvent, xxSmall);
+        xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
             RT * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
     }
 
 }
 
-/*
- * Returns an array of partial molar enthalpies for the species
- * in the mixture: Units (J/kmol).
- *
- */
 void IdealMolalSoln::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
@@ -687,43 +433,15 @@ void IdealMolalSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-/*
- * Returns an array of partial molar entropies of the species in the
- * solution: Units: J/kmol.
- *
- * Maxwell's equations provide an insight in how to calculate this
- * (p.215 Smith and Van Ness)
- * \f[
- *      \frac{d(\mu_k)}{dT} = -\bar{s}_i
- * \f]
- * For this phase, the partial molar entropies are equal to the
- * standard state species entropies plus the ideal molal solution contribution.
- *
- * \f[
- *   \bar{s}_k(T,P) =  s^0_k(T) - R log( m_k )
- * \f]
- * \f[
- *   \bar{s}_w(T,P) =  s^0_w(T) - R ((X_w - 1.0) / X_w)
- * \f]
- *
- * The subscript, w, refers to the solvent species. \f$ X_w \f$ is
- * the mole fraction of solvent.
- * The reference-state pure-species entropies,\f$ s^0_k(T) \f$,
- * at the reference pressure, \f$ P_{ref} \f$, are computed by the
- * species thermodynamic
- * property manager. They are polynomial functions of temperature.
- * @see SpeciesThermo
- */
 void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R(sbar);
     doublereal R = GasConstant;
-    doublereal mm;
     calcMolalities();
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 0; k < m_kk; k++) {
             if (k != m_indexSolvent) {
-                mm = std::max(SmallNumber, m_molalities[k]);
+                doublereal mm = std::max(SmallNumber, m_molalities[k]);
                 sbar[k] -= R * log(mm);
             }
         }
@@ -753,36 +471,11 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-/*
- * Returns an array of partial molar volumes of the species
- * in the solution: Units: m^3 kmol-1.
- *
- * For this solution, the partial molar volumes are equal to the
- * constant species molar volumes.
- *
- * Units: m^3 kmol-1.
- */
 void IdealMolalSoln::getPartialMolarVolumes(doublereal* vbar) const
 {
     getStandardVolumes(vbar);
 }
 
-/*
- * Partial molar heat capacity of the solution: Units: J/kmol/K.
- *
- *   The kth partial molar heat capacity is equal to
- *   the temperature derivative of the partial molar
- *   enthalpy of the kth species in the solution at constant
- *   P and composition (p. 220 Smith and Van Ness).
- *  \f[
- *  \bar{Cp}_k(T,P) =  {Cp}^0_k(T)
- * \f]
- *
- *   For this solution, this is equal to the reference state
- *   heat capacities.
- *
- *  Units: J/kmol/K
- */
 void IdealMolalSoln::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
@@ -797,165 +490,33 @@ void IdealMolalSoln::getPartialMolarCp(doublereal* cpbar) const
 }
 
 /*
- * -------- Properties of the Standard State of the Species
- *           in the Solution ------------------
- */
-
-
-
-/*
- * ------ Thermodynamic Values for the Species Reference States ---
- */
-
-// -> This is handled by VPStandardStatesTP
-
-/*
  *  -------------- Utilities -------------------------------
  */
 
-/*
- *  Initialization routine for an IdealMolalSoln phase.
- *
- * This is a virtual routine. This routine will call initThermo()
- * for the parent class as well.
- */
 void IdealMolalSoln::initThermo()
 {
     initLengths();
     MolalityVPSSTP::initThermo();
 }
 
-/*
- * Initialization of an IdealMolalSoln phase using an
- * xml file
- *
- * This routine is a precursor to constructPhaseFile(XML_Node*)
- * routine, which does most of the work.
- *
- * @param inputFile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
-void IdealMolalSoln::constructPhaseFile(std::string inputFile,
-                                        std::string id)
+void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-
-    if (inputFile.size() == 0) {
-        throw CanteraError("IdealMolalSoln::constructPhaseFile",
-                           "input file is null");
-    }
-    std::string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("IdealMolalSoln::constructPhaseFile",
-                           "could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node& phaseNode_XML = xml();
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("IdealMolalSoln::constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    fxml_phase->copy(&phaseNode_XML);
-    constructPhaseXML(*fxml_phase, id);
-    delete fxml;
-}
-
-/*
- *   Import and initialize an IdealMolalSoln phase
- *   specification in an XML tree into the current object.
- *   Here we read an XML description of the phase.
- *   We import descriptions of the elements that make up the
- *   species in a phase.
- *   We import information about the species, including their
- *   reference state thermodynamic polynomials. We then freeze
- *   the state of the species.
- *
- *   Then, we read the species molar volumes from the xml
- *   tree to finish the initialization.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void IdealMolalSoln::constructPhaseXML(XML_Node& phaseNode,
-                                       std::string id)
-{
-    if (id.size() > 0) {
-        std::string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError("IdealMolalSoln::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
-    }
-
     /*
      * Find the Thermo XML node
      */
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IdealMolalSoln::constructPhaseXML",
+        throw CanteraError("IdealMolalSoln::initThermoXML",
                            "no thermo XML node");
     }
-
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. Then, it will call
-     * initThermoXML() below.
-     */
-    bool m_ok = importPhase(phaseNode, this);
-    if (!m_ok) {
-        throw CanteraError("IdealMolalSoln::constructPhaseXML","importPhase failed ");
-    }
-}
-
-/*
- *   Import and initialize an IdealMolalSoln phase
- *   specification in an XML tree into the current object.
- *
- *   This routine is called from importPhase() to finish
- *   up the initialization of the thermo object. It reads in the
- *   species molar volumes.
- *
- * @param phaseNode This object must be the phase node of a
- *             complete XML tree
- *             description of the phase, including all of the
- *             species data. In other words while "phase" must
- *             point to an XML phase object, it must have
- *             sibling nodes "speciesData" that describe
- *             the species in the phase.
- * @param id   ID of the phase. If nonnull, a check is done
- *             to see if phaseNode is pointing to the phase
- *             with the correct id.
- */
-void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, std::string id)
-{
 
     /*
      * Initialize the whole thermo object, using a virtual function.
      */
     initThermo();
 
-    if (id.size() > 0) {
+    if (id_.size() > 0) {
         std::string idp = phaseNode.id();
-        if (idp != id) {
+        if (idp != id_) {
             throw CanteraError("IdealMolalSoln::initThermo",
                                "phasenode and Id are incompatible");
         }
@@ -1096,7 +657,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, std::string id)
         calcIMSCutoffParams_();
     }
 
-    MolalityVPSSTP::initThermoXML(phaseNode, id);
+    MolalityVPSSTP::initThermoXML(phaseNode, id_);
 
 
     setMoleFSolventMin(1.0E-5);
@@ -1110,43 +671,19 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, std::string id)
 
 }
 
-/*
- * @internal
- * Set equation of state parameters. The number and meaning of
- * these depends on the subclass.
- * @param n number of parameters
- * @param c array of \i n coefficients
- *
- */
 void IdealMolalSoln::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("IdealMolalSoln::setParameters");
 }
 
 void IdealMolalSoln::getParameters(int& n, doublereal* const c) const
 {
+    warn_deprecated("IdealMolalSoln::getParameters");
 }
 
-/*
- * Set equation of state parameter values from XML
- * entries. This method is called by function importPhase in
- * file importCTML.cpp when processing a phase definition in
- * an input file. It should be overloaded in subclasses to set
- * any parameters that are specific to that particular phase
- * model.
- *
- * @param eosdata An XML_Node object corresponding to
- * the "thermo" entry for this phase in the input file.
- *
- * HKM -> Right now, the parameters are set elsewhere (initThermo)
- *        It just didn't seem to fit.
- */
 void IdealMolalSoln::setParametersFromXML(const XML_Node& eosdata)
 {
 }
-
-/*
- * ----------- Critical State Properties --------------------------
- */
 
 /*
  * ------------ Private and Restricted Functions ------------------
@@ -1156,25 +693,13 @@ void IdealMolalSoln::setParametersFromXML(const XML_Node& eosdata)
  * Bail out of functions with an error exit if they are not
  * implemented.
  */
-doublereal IdealMolalSoln::err(std::string msg) const
+doublereal IdealMolalSoln::err(const std::string& msg) const
 {
     throw CanteraError("IdealMolalSoln",
                        "Unfinished func called: " + msg);
     return 0.0;
 }
 
-
-
-// This function will be called to update the internally stored
-// natural logarithm of the molality activity coefficients
-/*
- * Normally they are all one. However, sometimes they are not,
- * due to stability schemes
- *
- *    gamma_k_molar =  gamma_k_molal / Xmol_solvent
- *
- *    gamma_o_molar = gamma_o_molal
- */
 void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
 {
     double tmp;
@@ -1287,11 +812,6 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
     return;
 }
 
-/*
- * This internal function adjusts the lengths of arrays.
- *
- * This function is not virtual nor is it inherited
- */
 void IdealMolalSoln::initLengths()
 {
     m_kk = nSpecies();
@@ -1299,14 +819,11 @@ void IdealMolalSoln::initLengths()
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.
      */
-    m_expg0_RT.resize(m_kk);
-    m_pe.resize(m_kk, 0.0);
     m_pp.resize(m_kk);
     m_speciesMolarVolume.resize(m_kk);
     m_tmpV.resize(m_kk);
     IMS_lnActCoeffMolal_.resize(m_kk);
 }
-
 
 void  IdealMolalSoln::calcIMSCutoffParams_()
 {
@@ -1359,4 +876,3 @@ void  IdealMolalSoln::calcIMSCutoffParams_()
 }
 
 }
-

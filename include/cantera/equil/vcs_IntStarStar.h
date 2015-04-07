@@ -1,7 +1,5 @@
 /**
- *  @file  IntStarStar.h
- *
- *  Header file for class IntStarStar
+ *  @file  vcs_IntStarStar.h  Header file for class IntStarStar
  */
 #ifndef VCS_INTSTARSTAR_H
 #define VCS_INTSTARSTAR_H
@@ -15,19 +13,13 @@ using std::size_t;
 //!  A class for 2D int arrays stored in column-major
 //!  (Fortran-compatible) form.
 /*!
- *  In this form, the data entry for an n row, m col
- *  matrix is
- *       index = i + (n-1) * j
- *  where
- *     Matrix[j][i]
- *         i = row
- *         j = column
+ *  In this form, the data entry for an `n` row, `m` colum matrix is index =
+ *  `i + (n-1) * j` where `Matrix[j][i]` references the element in row `i`,
+ *  column `j`.
  */
 class IntStarStar
 {
-
 public:
-
     //! Default constructor. Create an empty array.
     IntStarStar();
 
@@ -38,19 +30,11 @@ public:
      *
      * @param mcol  Number of columns
      * @param nrow  Number of rows
+     * @param v     value used to initialize elements
      */
     IntStarStar(size_t mcol, size_t nrow, int v = 0);
 
-    //! Copy constructor
-    /*!
-     *  @param y  Object to be copied
-     */ 
     IntStarStar(const IntStarStar& y);
-
-    //! Assignment operator
-    /*!
-     *  @param y  Object to be copied
-     */ 
     IntStarStar& operator=(const IntStarStar& y);
 
     //! Resize the array, and fill the new entries with 'v'
@@ -69,15 +53,14 @@ public:
 
     //! Pointer to the top of the column
     /*!
-     *  @param j Pointer to the top of the jth column
+     *  @param jcol Pointer to the top of the jth column
      */
     const int* operator[](size_t jcol) const;
 
-    //! Returns a int ** pointer to the base address
+    //! Returns a `int**` pointer to the base address
     /*!
-     *  This is the second way to get to the data
-     *  This returns a int ** which can later be used in
-     *  Imatrix[icol][irow] notation to get to the data
+     *  This is the second way to get to the data This returns a `int**` which
+     *  can later be used in `Imatrix[icol][irow]` notation to get to the data
      */
     int* const* baseDataAddr();
 
@@ -88,16 +71,17 @@ public:
     size_t nColumns() const;
 
 private:
-    //! Storage area for the matrix, layed out in Fortran style, row-inner, column outer format
+    //! Storage area for the matrix, layed out in Fortran style, row-inner,
+    //! column outer format
     /*!
      * Length = m_nrows * m_ncols
-     */ 
+     */
     std::vector<int> m_data;
 
     //! Vector of column addresses
     /*!
      * Length = number of columns = m_ncols
-     */ 
+     */
     std::vector<int*> m_colAddr;
 
     //! number of rows
@@ -110,4 +94,3 @@ private:
 }
 
 #endif
-

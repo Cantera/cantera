@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <new>
+#include <algorithm>
 #include <stdarg.h>
 
 #include "mdp_allo.h"
@@ -32,13 +33,6 @@ int MDP_MP_myproc = 0;
 int MDP_ALLO_errorOption = 3;
 
 #define MDP_ALLOC_INTERFACE_ERROR 230346
-#ifndef MAX
-#  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-#ifndef MIN
-#  define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
-#endif
-
 
 /****************************************************************************/
 /****************************************************************************/
@@ -989,8 +983,8 @@ void mdp_realloc_dbl_2(double** *array_hdl, int ndim1, int ndim2,
     if (ndim2 <= 0) {
         ndim2 = 1;
     }
-    ndim1Old = MAX(ndim1Old, 0);
-    ndim2Old = MAX(ndim2Old, 0);
+    ndim1Old = std::max(ndim1Old, 0);
+    ndim2Old = std::max(ndim2Old, 0);
     /*
      * One way to do it, if old information isn't needed. In this algorithm
      * the arrays are never malloced at the same time.
@@ -1014,8 +1008,8 @@ void mdp_realloc_dbl_2(double** *array_hdl, int ndim1, int ndim2,
             /*
              * Now, let's initialize the arrays
              */
-            int ndim1Min = MIN(ndim1, ndim1Old);
-            int ndim2Min = MIN(ndim2, ndim2Old);
+            int ndim1Min = std::min(ndim1, ndim1Old);
+            int ndim2Min = std::min(ndim2, ndim2Old);
             double** array_new = *array_hdl;
             /*
              * When the second dimensions are equal, we can copy blocks
@@ -1150,7 +1144,7 @@ void mdp_realloc_VecFixedStrings(char** *array_hdl, int numStrings,
     }
     array = (char**) mdp_array_alloc(2, numStrings, lenString, sizeof(char));
     if (array != NULL) {
-        int len = MIN(numStrings, numOldStrings);
+        int len = std::min(numStrings, numOldStrings);
         ao = *array_hdl;
         if (ao) {
             for (i = 0; i < len; i++) {
@@ -1414,7 +1408,7 @@ void mdp_realloc_ptr_1(void** *array_hdl, int numLen, int numOldLen)
     size_t bytenum = sizeof(void*) * numLen;
     void** array = (void**) smalloc(bytenum);
     if (array != NULL) {
-        int len = MIN(numLen, numOldLen);
+        int len = std::min(numLen, numOldLen);
         if (*array_hdl) {
             void** ao = *array_hdl;
             for (int i = 0; i < len; i++) {

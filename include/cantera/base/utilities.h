@@ -1,7 +1,7 @@
 /**
  *  @file utilities.h
  *  Various templated functions that carry out common vector
- *  operations (see \ref globalUtilFuncs).
+ *  operations (see \ref utils).
  */
 
 // Copyright 2001  California Institute of Technology
@@ -20,6 +20,8 @@
 
 #include <algorithm>
 
+namespace Cantera
+{
 //! Unary operator to multiply the argument by a constant.
 /*!
  *  The form of this operator is designed for use by std::transform.
@@ -50,9 +52,6 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
     T m_c;
 };
 
-
-namespace Cantera
-{
 //!  Templated Inner product of two vectors of length 4.
 /*!
  * If either \a x
@@ -668,19 +667,24 @@ template<class D>
 void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &toVec)
 {
     size_t is = toVec.size();
-    for (size_t i = 0; i < is; is++) {
-        if (toVec[i]) {
-            delete(toVec[i]);
-        }
+    for (size_t i = 0; i < is; i++) {
+        delete toVec[i];
     }
     is = fromVec.size();
     toVec.resize(is);
-    for (size_t i = 0; i < is; is++) {
-        toVec[i] = new D(*(fromVec[i]));
+    for (size_t i = 0; i < is; i++) {
+        if (fromVec[i]) {
+            toVec[i] = new D(*(fromVec[i]));
+        } else {
+            toVec[i] = 0;
+        }
     }
 }
 
 //@}
+
+//! Check to see that a number is finite (not NaN, +Inf or -Inf)
+void checkFinite(const double tmp);
 }
 
 #endif

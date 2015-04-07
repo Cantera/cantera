@@ -18,10 +18,10 @@
 #include "cantera/base/ctml.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "converters/ck2ct.h"
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
+#include "cantera/thermo/MixtureFugacityTP.h"
 
 using namespace std;
 using namespace Cantera;
@@ -38,16 +38,6 @@ typedef Cabinet<XML_Node, false> XmlCabinet;
 template<> ThermoCabinet* ThermoCabinet::__storage = 0;
 template<> KineticsCabinet* KineticsCabinet::__storage = 0;
 template<> TransportCabinet* TransportCabinet::__storage = 0;
-
-static PureFluidPhase* purefluid(int n)
-{
-    PureFluidPhase* p = dynamic_cast<PureFluidPhase*>(&ThermoCabinet::item(n));
-    if (p) {
-        return p;
-    } else {
-        throw CanteraError("purefluid","object is not a PureFluidPhase object");
-    }
-}
 
 /**
  * Exported functions.
@@ -159,8 +149,7 @@ extern "C" {
     size_t phase_elementIndex(int n, char* nm)
     {
         try {
-            string elnm = string(nm);
-            return ThermoCabinet::item(n).elementIndex(elnm);
+            return ThermoCabinet::item(n).elementIndex(nm);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -169,8 +158,7 @@ extern "C" {
     size_t phase_speciesIndex(int n, char* nm)
     {
         try {
-            string spnm = string(nm);
-            return ThermoCabinet::item(n).speciesIndex(spnm);
+            return ThermoCabinet::item(n).speciesIndex(nm);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -238,12 +226,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap xx;
-            size_t nsp = p.nSpecies();
-            for (size_t n = 0; n < nsp; n++) {
-                xx[p.speciesName(n)] = -1;
-            }
-            parseCompString(string(x), xx);
+            compositionMap xx = parseCompString(x, p.speciesNames());
             p.setMoleFractionsByName(xx);
             return 0;
         } catch (...) {
@@ -252,7 +235,7 @@ extern "C" {
     }
 
     int phase_setMassFractions(int n, size_t leny,
-                                          double* y, int norm)
+                               double* y, int norm)
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
@@ -272,12 +255,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap yy;
-            size_t nsp = p.nSpecies();
-            for (size_t n = 0; n < nsp; n++) {
-                yy[p.speciesName(n)] = -1;
-            }
-            parseCompString(string(y), yy);
+            compositionMap yy = parseCompString(y, p.speciesNames());
             p.setMassFractionsByName(yy);
             return 0;
         } catch (...) {
@@ -302,7 +280,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            p.checkElementArraySize(lenm);
+            p.checkSpeciesArraySize(lenm);
             const vector_fp& wt = p.molecularWeights();
             copy(wt.begin(), wt.end(), mw);
             return 0;
@@ -314,10 +292,7 @@ extern "C" {
     int phase_getName(int n, size_t lennm, char* nm)
     {
         try {
-            string name = ThermoCabinet::item(n).name();
-            size_t lout = min(lennm, name.size());
-            copy(name.c_str(), name.c_str() + lout, nm);
-            nm[lout] = '\0';
+            copyString(ThermoCabinet::item(n).name(), nm, lennm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -327,8 +302,7 @@ extern "C" {
     int phase_setName(int n, const char* nm)
     {
         try {
-            string name = string(nm);
-            ThermoCabinet::item(n).setName(name);
+            ThermoCabinet::item(n).setName(nm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -338,10 +312,7 @@ extern "C" {
     int phase_getSpeciesName(int n, size_t k, size_t lennm, char* nm)
     {
         try {
-            string spnm = ThermoCabinet::item(n).speciesName(k);
-            size_t lout = min(lennm, spnm.size());
-            copy(spnm.c_str(), spnm.c_str() + lout, nm);
-            nm[lout] = '\0';
+            copyString(ThermoCabinet::item(n).speciesName(k), nm, lennm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -351,10 +322,7 @@ extern "C" {
     int phase_getElementName(int n, size_t m, size_t lennm, char* nm)
     {
         try {
-            string elnm = ThermoCabinet::item(n).elementName(m);
-            size_t lout = min(lennm, elnm.size());
-            copy(elnm.c_str(), elnm.c_str() + lout, nm);
-            nm[lout] = '\0';
+            copyString(ThermoCabinet::item(n).elementName(m), nm, lennm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -374,7 +342,7 @@ extern "C" {
     int phase_addElement(int n, char* name, doublereal weight)
     {
         try {
-            ThermoCabinet::item(n).addElement(string(name),weight);
+            ThermoCabinet::item(n).addElement(name, weight);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -628,7 +596,7 @@ extern "C" {
     }
 
     int th_equil(int n, char* XY, int solver,
-                            double rtol, int maxsteps, int maxiter, int loglevel)
+                 double rtol, int maxsteps, int maxiter, int loglevel)
     {
         try {
             equilibrate(ThermoCabinet::item(n), XY, solver, rtol, maxsteps,
@@ -638,7 +606,7 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
+    
     doublereal th_refPressure(int n)
     {
         try {
@@ -730,7 +698,7 @@ extern "C" {
     double th_critTemperature(int n)
     {
         try {
-            return purefluid(n)->critTemperature();
+            return ThermoCabinet::item(n).critTemperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -739,7 +707,7 @@ extern "C" {
     double th_critPressure(int n)
     {
         try {
-            return purefluid(n)->critPressure();
+            return ThermoCabinet::item(n).critPressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -748,7 +716,7 @@ extern "C" {
     double th_critDensity(int n)
     {
         try {
-            return purefluid(n)->critDensity();
+            return ThermoCabinet::item(n).critDensity();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -757,7 +725,7 @@ extern "C" {
     double th_vaporFraction(int n)
     {
         try {
-            return purefluid(n)->vaporFraction();
+            return ThermoCabinet::get<PureFluidPhase>(n).vaporFraction();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -766,7 +734,7 @@ extern "C" {
     double th_satTemperature(int n, double p)
     {
         try {
-            return purefluid(n)->satTemperature(p);
+            return ThermoCabinet::item(n).satTemperature(p);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -775,7 +743,7 @@ extern "C" {
     double th_satPressure(int n, double t)
     {
         try {
-            return purefluid(n)->satPressure(t);
+            return ThermoCabinet::item(n).satPressure(t);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -784,7 +752,7 @@ extern "C" {
     int th_setState_Psat(int n, double p, double x)
     {
         try {
-            purefluid(n)->setState_Psat(p, x);
+            ThermoCabinet::get<PureFluidPhase>(n).setState_Psat(p, x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -794,18 +762,19 @@ extern "C" {
     int th_setState_Tsat(int n, double t, double x)
     {
         try {
-            purefluid(n)->setState_Tsat(t, x);
+            ThermoCabinet::get<PureFluidPhase>(n).setState_Tsat(t, x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
+    
 
     //-------------- Kinetics ------------------//
 
     size_t newKineticsFromXML(int mxml, int iphase,
-                                         int neighbor1, int neighbor2, int neighbor3,
-                                         int neighbor4)
+                              int neighbor1, int neighbor2, int neighbor3,
+                              int neighbor4)
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
@@ -835,13 +804,12 @@ extern "C" {
     }
 
     int installRxnArrays(int pxml, int ikin,
-                                    char* default_phase)
+                         char* default_phase)
     {
         try {
             XML_Node& p = XmlCabinet::item(pxml);
             Kinetics& k = KineticsCabinet::item(ikin);
-            string defphase = string(default_phase);
-            installReactionArrays(p, k, defphase);
+            installReactionArrays(p, k, default_phase);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -870,8 +838,7 @@ extern "C" {
     size_t kin_speciesIndex(int n, const char* nm, const char* ph)
     {
         try {
-            return KineticsCabinet::item(n).kineticsSpeciesIndex(string(nm),
-                                                                 string(ph));
+            return KineticsCabinet::item(n).kineticsSpeciesIndex(nm, ph);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -909,7 +876,7 @@ extern "C" {
     size_t kin_phaseIndex(int n, char* ph)
     {
         try {
-            return KineticsCabinet::item(n).phaseIndex(string(ph));
+            return KineticsCabinet::item(n).phaseIndex(ph);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -1022,12 +989,8 @@ extern "C" {
     {
         try {
             Kinetics& k = KineticsCabinet::item(n);
-            bool doirrev = false;
-            if (doIrreversible != 0) {
-                doirrev = true;
-            }
             k.checkReactionArraySize(len);
-            k.getRevRateConstants(krev, doirrev);
+            k.getRevRateConstants(krev, doIrreversible != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1079,18 +1042,6 @@ extern "C" {
         }
     }
 
-    int kin_getDeltaEntropy(int n, size_t len, double* deltaS)
-    {
-        try {
-            Kinetics& k = KineticsCabinet::item(n);
-            k.checkReactionArraySize(len);
-            k.getDeltaEntropy(deltaS);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int kin_getCreationRates(int n, size_t len, double* cdot)
     {
         try {
@@ -1133,14 +1084,12 @@ extern "C" {
             // @todo This function only works for single phase kinetics
             Kinetics& k = KineticsCabinet::item(n);
             ThermoPhase& p = k.thermo();
-            const vector_fp& mw = p.molecularWeights();
-            size_t nsp = mw.size();
-            double rrho = 1.0/p.density();
+            size_t nsp = p.nSpecies();
             k.checkSpeciesArraySize(len);
             k.checkSpeciesArraySize(nsp);
             k.getNetProductionRates(ydot);
-            multiply_each(ydot, ydot + nsp, mw.begin());
-            scale(ydot, ydot + nsp, ydot, rrho);
+            multiply_each(ydot, ydot + nsp, p.molecularWeights().begin());
+            scale(ydot, ydot + nsp, ydot, 1.0/p.density());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1186,10 +1135,7 @@ extern "C" {
         try {
             Kinetics& k = KineticsCabinet::item(n);
             k.checkReactionIndex(i);
-            string r = k.reactionString(i);
-            int lout = min(len, (int)r.size());
-            copy(r.c_str(), r.c_str() + lout, buf);
-            buf[lout] = '\0';
+            copyString(k.reactionString(i), buf, len);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1215,13 +1161,7 @@ extern "C" {
     int kin_advanceCoverages(int n, double tstep)
     {
         try {
-            Kinetics& k = KineticsCabinet::item(n);
-            if (k.type() == cInterfaceKinetics) {
-                dynamic_cast<InterfaceKinetics*>(&k)->advanceCoverages(tstep);
-            } else {
-                throw CanteraError("kin_advanceCoverages",
-                                   "wrong kinetics manager type");
-            }
+            KineticsCabinet::get<InterfaceKinetics>(n).advanceCoverages(tstep);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1233,9 +1173,8 @@ extern "C" {
     size_t newTransport(char* model, int ith, int loglevel)
     {
         try {
-            string mstr = string(model);
-            ThermoPhase& t = ThermoCabinet::item(ith);
-            Transport* tr = newTransportMgr(mstr, &t, loglevel);
+            Transport* tr = newTransportMgr(model, &ThermoCabinet::item(ith),
+                                            loglevel);
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1246,6 +1185,15 @@ extern "C" {
     {
         try {
             return TransportCabinet::item(n).viscosity();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    double trans_electricalConductivity(int n)
+    {
+        try {
+            return TransportCabinet::item(n).electricalConductivity();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1321,7 +1269,7 @@ extern "C" {
     }
 
     int trans_getMolarFluxes(int n, const double* state1,
-                                        const double* state2, double delta, double* fluxes)
+                             const double* state2, double delta, double* fluxes)
     {
         try {
             TransportCabinet::item(n).getMolarFluxes(state1, state2, delta, fluxes);
@@ -1332,7 +1280,7 @@ extern "C" {
     }
 
     int trans_getMassFluxes(int n, const double* state1,
-                                       const double* state2, double delta, double* fluxes)
+                            const double* state2, double delta, double* fluxes)
     {
         try {
             TransportCabinet::item(n).getMassFluxes(state1, state2, delta, fluxes);
@@ -1349,7 +1297,6 @@ extern "C" {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(nth);
             XML_Node& node = XmlCabinet::item(nxml);
-            string idstr = string(id);
             importPhase(node, &thrm);
             return 0;
         } catch (...) {
@@ -1366,7 +1313,6 @@ extern "C" {
             }
             XML_Node& node = XmlCabinet::item(nxml);
             Kinetics& k = KineticsCabinet::item(nkin);
-            string idstr = string(id);
             importKinetics(node, phases, &k);
             return 0;
         } catch (...) {
@@ -1383,8 +1329,7 @@ extern "C" {
             if (int(s.size()) > ibuf - 1) {
                 return -(static_cast<int>(s.size()) + 1);
             }
-            copy(s.begin(), s.end(), buf);
-            buf[s.size() - 1] = '\0';
+            copyString(s, buf, ibuf);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1405,7 +1350,7 @@ extern "C" {
     int write_HTML_log(const char* file)
     {
         try {
-            write_logfile(string(file));
+            write_logfile(file);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1415,13 +1360,8 @@ extern "C" {
     int getCanteraError(int buflen, char* buf)
     {
         try {
-            string e;
-            e = lastErrorMessage();
-            if (buflen > 0) {
-                int n = min(static_cast<int>(e.size()), buflen-1);
-                copy(e.begin(), e.begin() + n, buf);
-                buf[min(n, buflen-1)] = '\0';
-            }
+            string e = lastErrorMessage();
+            copyString(e, buf, buflen);
             return int(e.size());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1441,7 +1381,7 @@ extern "C" {
     int addCanteraDirectory(size_t buflen, char* buf)
     {
         try {
-            addDirectory(string(buf));
+            addDirectory(buf);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1523,7 +1463,7 @@ extern "C" {
     }
 
     int buildSolutionFromXML(char* src, int ixml, char* id,
-                                        int ith, int ikin)
+                             int ith, int ikin)
     {
         try {
             XML_Node* root = 0;
@@ -1533,12 +1473,11 @@ extern "C" {
 
             ThermoPhase& t = ThermoCabinet::item(ith);
             Kinetics& kin = KineticsCabinet::item(ikin);
-            XML_Node* x, *r=0;
+            XML_Node* r = 0;
             if (root) {
                 r = &root->root();
             }
-            x = get_XML_Node(string(src), r);
-            //x = find_XML(string(src), r, string(id), "", "phase");
+            XML_Node* x = get_XML_Node(src, r);
             if (!x) {
                 return false;
             }
@@ -1564,9 +1503,8 @@ extern "C" {
                   char* id_tag, int debug, int validate)
     {
         try {
-            bool dbg = (debug != 0);
-            bool val = (validate != 0);
-            return pip::convert_ck(in_file, db_file, tr_file, id_tag, dbg, val);
+            ctml::ck2cti(in_file, db_file, tr_file, id_tag);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1575,7 +1513,7 @@ extern "C" {
     int writelogfile(char* logfile)
     {
         try {
-            write_logfile(string(logfile));
+            write_logfile(logfile);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

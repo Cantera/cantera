@@ -25,18 +25,26 @@ CANTERA_VERSION=@cantera_version@
 #     #include "cantera/thermo.h"
 #     #include "cantera/kernel/HMWSoln.h"
 
-CANTERA_CORE_INCLUDES=-I@ct_incroot@
+CANTERA_INSTALL_ROOT=@ct_installroot@
+
+CANTERA_CORE_INCLUDES=-I$(CANTERA_INSTALL_ROOT)/include
+
+CANTERA_EXTRA_INCLUDES=@mak_extra_includes@
 
 # Required Cantera libraries
-CANTERA_CORE_LIBS=@mak_threadflags@ -L@ct_libdir@ -lcantera -lctmath -lexecstream
+CANTERA_CORE_LIBS=@mak_threadflags@ -L$(CANTERA_INSTALL_ROOT)/lib @mak_corelibs@
 
-CANTERA_CORE_LIBS_DEP = @ct_libdir@/libcantera.a
+CANTERA_CORE_LIBS_DEP = $(CANTERA_INSTALL_ROOT)/lib/libcantera.a
 
-CANTERA_CORE_FTN=-L@ct_libdir@ -lcantera_fortran -lcantera
+CANTERA_EXTRA_LIBDIRS=@mak_extra_libdirs@
 
-CANTERA_FORTRAN_MODS=@ct_incroot@/cantera
+CANTERA_CORE_FTN=-L@ct_libdir@ -lcantera_fortran @mak_corelibs@
+
+CANTERA_FORTRAN_MODS=$(CANTERA_INSTALL_ROOT)/include/cantera
 
 CANTERA_FORTRAN_SYSLIBS=@mak_fort_threadflags@ -lstdc++
+
+CANTERA_SYSLIBS=@mak_syslibs@
 
 ###############################################################################
 #            BOOST
@@ -59,39 +67,33 @@ CANTERA_SUNDIALS_LIBS=@mak_sundials_libdir@ @mak_sundials_libs@
 CANTERA_have_blas_lapack_dir=@mak_have_blas_lapack_dir@
 
 ifeq ($(CANTERA_have_blas_lapack_dir), 1)
-CANTERA_BLAS_LAPACK_LIBS=-L@blas_lapack_dir@
+CANTERA_BLAS_LAPACK_LIBS=-L@blas_lapack_dir@ @mak_blas_lapack_libs@
 else
 CANTERA_BLAS_LAPACK_LIBS=@mak_blas_lapack_libs@
 endif
 
 ###############################################################################
-#       F2C USAGE 
+#       F2C USAGE
 ###############################################################################
 
-CANTERA_mak_have_f2c_lib=@mak_have_f2c_lib@
-
-ifeq ($(CANTERA_mak_have_f2c_lib), 1)
-  CANTERA_F2C_LIBS= -lctf2c
-else
-  CANTERA_F2C_LIBS= 
-endif
-
+CANTERA_F2C_LIBS= @mak_f2c_lib@
 
 ###############################################################################
 #      COMBINATIONS OF INCLUDES AND LIBS
 ###############################################################################
 
 CANTERA_INCLUDES=$(CANTERA_CORE_INCLUDES) $(CANTERA_SUNDIALS_INCLUDE) \
-                 $(CANTERA_BOOST_INCLUDES)
+                 $(CANTERA_BOOST_INCLUDES) $(CANTERA_EXTRA_INCLUDES)
 
 CANTERA_TOTAL_INCLUDES = $(CANTERA_INCLUDES)
 
 # Add this into the compilation environment to identify the version number
 CANTERA_DEFINES = -DCANTERA_VERSION=@cantera_version@
 
-CANTERA_LIBS=$(CANTERA_CORE_LIBS) $(CANTERA_SUNDIALS_LIBS) \
+CANTERA_LIBS=$(CANTERA_CORE_LIBS) \
+             $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
              $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
-	     $(CANTERA_F2C_LIBS)
+             $(CANTERA_F2C_LIBS) $(CANTERA_SYSLIBS)
 
 CANTERA_TOTAL_LIBS=$(CANTERA_LIBS)
 
@@ -100,9 +102,10 @@ CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
                         $(CANTERA_BLAS_LAPACK_LIBS_DEP)
 
 
-CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) $(CANTERA_SUNDIALS_LIBS) \
-                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
-                     $(CANTERA_FORTRAN_SYSLIBS)
+CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) \
+                     $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
+                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_F2C_LIBS) \
+                     $(CANTERA_BOOST_LIBS) $(CANTERA_FORTRAN_SYSLIBS)
 
 ###############################################################################
 #  END

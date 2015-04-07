@@ -10,6 +10,7 @@
 #include "cantera/numerics/FuncEval.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ct_defs.h"
+#include "../../ext/cvode/include/nvector.h"
 
 namespace Cantera
 {
@@ -20,9 +21,8 @@ namespace Cantera
 class CVodeErr : public CanteraError
 {
 public:
-    CVodeErr(std::string msg) : CanteraError("CVodeInt", msg) {}
+    explicit CVodeErr(const std::string& msg) : CanteraError("CVodeInt", msg) {}
 };
-
 
 /**
  *  Wrapper class for 'cvode' integrator from LLNL.
@@ -30,13 +30,14 @@ public:
  *
  * @see FuncEval.h. Classes that use CVodeInt:
  * ImplicitChem, ImplicitSurfChem, Reactor
- *
  */
 class CVodeInt : public Integrator
 {
-
 public:
-
+    /*!
+     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Jacobian function, Newton iteration.
+     */
     CVodeInt();
     virtual ~CVodeInt();
     virtual void setTolerances(double reltol, size_t n, double* abstol);
@@ -60,13 +61,13 @@ public:
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
+    virtual void setMaxErrTestFails(int nmax) {}
 
 private:
-
     int m_neq;
     void* m_cvode_mem;
     double m_t0;
-    void* m_y, *m_abstol;
+    N_Vector m_y, m_abstol;
     int m_type;
     int m_itol;
     int m_method;

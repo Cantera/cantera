@@ -6,35 +6,23 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
-
 #include "ConstCpPoly.h"
-
-#include <cmath>
 
 namespace Cantera
 {
-
 ConstCpPoly::ConstCpPoly()
     :  m_t0(0.0),
        m_cp0_R(0.0),
        m_h0_R(0.0),
        m_s0_R(0.0),
-       m_logt0(0.0),
-       m_lowT(0.0),
-       m_highT(0.0),
-       m_Pref(0.0),
-       m_index(0)
+       m_logt0(0.0)
 {
 }
 
 ConstCpPoly::ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
                          doublereal pref,
                          const doublereal* coeffs) :
-    m_lowT(tlow),
-    m_highT(thigh),
-    m_Pref(pref),
-    m_index(n)
+    SpeciesThermoInterpType(n, tlow, thigh, pref)
 {
     m_t0 = coeffs[0];
     m_h0_R = coeffs[1]  / GasConstant;
@@ -44,15 +32,12 @@ ConstCpPoly::ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
 }
 
 ConstCpPoly::ConstCpPoly(const ConstCpPoly& b) :
+    SpeciesThermoInterpType(b),
     m_t0(b.m_t0),
     m_cp0_R(b.m_cp0_R),
     m_h0_R(b.m_h0_R),
     m_s0_R(b.m_s0_R),
-    m_logt0(b.m_logt0),
-    m_lowT(b.m_lowT),
-    m_highT(b.m_highT),
-    m_Pref(b.m_Pref),
-    m_index(b.m_index)
+    m_logt0(b.m_logt0)
 {
 }
 
@@ -64,34 +49,15 @@ ConstCpPoly& ConstCpPoly::operator=(const ConstCpPoly& b)
         m_h0_R  = b.m_h0_R;
         m_s0_R  = b.m_s0_R;
         m_logt0 = b.m_logt0;
-        m_lowT  = b.m_lowT;
-        m_highT = b.m_highT;
-        m_Pref  = b.m_Pref;
-        m_index = b.m_index;
+        SpeciesThermoInterpType::operator=(b);
     }
     return *this;
 }
 
-ConstCpPoly::~ConstCpPoly() {}
-
 SpeciesThermoInterpType*
 ConstCpPoly::duplMyselfAsSpeciesThermoInterpType() const
 {
-    ConstCpPoly* newCCP = new ConstCpPoly(*this);
-    return (SpeciesThermoInterpType*) newCCP;
-}
-
-doublereal ConstCpPoly::minTemp() const
-{
-    return m_lowT;
-}
-doublereal ConstCpPoly::maxTemp() const
-{
-    return m_highT;
-}
-doublereal ConstCpPoly::refPressure() const
-{
-    return m_Pref;
+    return new ConstCpPoly(*this);
 }
 
 void ConstCpPoly::updateProperties(const doublereal* tt,
@@ -156,7 +122,7 @@ doublereal ConstCpPoly::reportHf298(doublereal* const h298) const
     return h;
 }
 
-void ConstCpPoly::modifyOneHf298(const int k, const doublereal Hf298New)
+void ConstCpPoly::modifyOneHf298(const size_t& k, const doublereal Hf298New)
 {
     if (k != m_index) {
         return;
@@ -169,5 +135,3 @@ void ConstCpPoly::modifyOneHf298(const int k, const doublereal Hf298New)
 #endif
 
 }
-
-

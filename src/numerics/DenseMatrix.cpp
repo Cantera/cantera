@@ -13,8 +13,7 @@
 
 namespace Cantera
 {
-//====================================================================================================================
-// Default Constructor
+
 DenseMatrix::DenseMatrix() :
     Array2D(0,0,0.0),
     m_ipiv(0),
@@ -22,11 +21,7 @@ DenseMatrix::DenseMatrix() :
     m_printLevel(0)
 {
 }
-//====================================================================================================================
-/*
- * Constructor. Create an \c n by \c m matrix, and initialize
- * all elements to \c v.
- */
+
 DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
     Array2D(n, m, v),
     m_ipiv(0),
@@ -41,11 +36,7 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
         }
     }
 }
-//====================================================================================================================
-// Copy constructor
-/*
- *   @param y Object to be copied
- */
+
 DenseMatrix::DenseMatrix(const DenseMatrix& y) :
     Array2D(y),
     m_ipiv(0),
@@ -60,8 +51,7 @@ DenseMatrix::DenseMatrix(const DenseMatrix& y) :
         }
     }
 }
-//====================================================================================================================
-// assignment
+
 DenseMatrix& DenseMatrix::operator=(const DenseMatrix& y)
 {
     if (&y == this) {
@@ -77,12 +67,7 @@ DenseMatrix& DenseMatrix::operator=(const DenseMatrix& y)
     m_printLevel = y.m_printLevel;
     return *this;
 }
-//====================================================================================================================
-// Destructor. Does nothing.
-DenseMatrix::~DenseMatrix()
-{
-}
-//====================================================================================================================
+
 void DenseMatrix::resize(size_t n, size_t m, doublereal v)
 {
     Array2D::resize(n,m,v);
@@ -94,17 +79,17 @@ void DenseMatrix::resize(size_t n, size_t m, doublereal v)
         }
     }
 }
-//====================================================================================================================
+
 doublereal*   const* DenseMatrix::colPts()
 {
     return &(m_colPts[0]);
 }
-//====================================================================================================================
+
 const doublereal*   const* DenseMatrix::const_colPts() const
 {
     return &(m_colPts[0]);
 }
-//====================================================================================================================
+
 void DenseMatrix::mult(const double* b, double* prod) const
 {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose,
@@ -112,7 +97,21 @@ void DenseMatrix::mult(const double* b, double* prod) const
              static_cast<int>(nRows()), 1.0, ptrColumn(0), //begin(),
              static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
 }
-//====================================================================================================================
+
+void DenseMatrix::mult(const DenseMatrix& B, DenseMatrix& prod) const
+{
+    if (m_ncols != B.nColumns() || m_nrows != B.nRows() || m_ncols != m_nrows || m_ncols != prod.nColumns() || m_nrows != prod.nColumns()) {
+        throw CanteraError("mult(const DenseMatrix &B, DenseMatrix &prod)",
+                           "Cannot multiply matrices that are not square and/or not the same size.");
+    }
+    const doublereal* const* bcols = B.const_colPts();
+    doublereal* const* prodcols = prod.colPts();
+    for (size_t col=0; col < m_ncols; ++col) {
+        // Loop over ncols multiplying A*column of B and storing in corresponding prod column
+        mult(bcols[col], prodcols[col]);
+    }
+}
+
 void DenseMatrix::leftMult(const double* const b, double* const prod) const
 {
     size_t nc = nColumns();
@@ -126,12 +125,12 @@ void DenseMatrix::leftMult(const double* const b, double* const prod) const
         prod[n] = sum;
     }
 }
-//====================================================================================================================
+
 vector_int& DenseMatrix::ipiv()
 {
     return m_ipiv;
 }
-//====================================================================================================================
+
 int solve(DenseMatrix& A, double* b)
 {
     int info = 0;
@@ -177,7 +176,7 @@ int solve(DenseMatrix& A, double* b)
     }
     return info;
 }
-//====================================================================================================================
+
 int solve(DenseMatrix& A, DenseMatrix& b)
 {
     int info = 0;
@@ -230,21 +229,21 @@ int solve(DenseMatrix& A, DenseMatrix& b)
 
     return info;
 }
-//====================================================================================================================
+
 void multiply(const DenseMatrix& A, const double* const b, double* const prod)
 {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose,
              static_cast<int>(A.nRows()), static_cast<int>(A.nColumns()), 1.0,
              A.ptrColumn(0), static_cast<int>(A.nRows()), b, 1, 0.0, prod, 1);
 }
-//====================================================================================================================
+
 void increment(const DenseMatrix& A, const double* b, double* prod)
 {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose,
              static_cast<int>(A.nRows()), static_cast<int>(A.nRows()), 1.0,
              A.ptrColumn(0), static_cast<int>(A.nRows()), b, 1, 1.0, prod, 1);
 }
-//====================================================================================================================
+
 int invert(DenseMatrix& A, size_t nn)
 {
     integer n = static_cast<int>(nn != npos ? nn : A.nRows());
@@ -275,6 +274,5 @@ int invert(DenseMatrix& A, size_t nn)
     }
     return info;
 }
-//====================================================================================================================
-}
 
+}

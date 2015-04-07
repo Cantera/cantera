@@ -3,7 +3,7 @@
  *   Header for intermediate ThermoPhase object for phases which
  *   employ gibbs excess free energy based formulations
  *  (see \ref thermoprops
- * and class \link Cantera::gibbsExcessVPSSTP gibbsExcessVPSSTP\endlink).
+ * and class \link Cantera::PseudoBinaryVPSSTP PseudoBinaryVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
@@ -23,7 +23,6 @@
 
 namespace Cantera
 {
-
 /**
  * @ingroup thermoprops
  */
@@ -34,20 +33,20 @@ namespace Cantera
  *  variable pressure standard state methods for calculating
  *  thermodynamic properties that are further based on
  *  expressing the Excess Gibbs free energy as a function of
- *  the mole fractions (or pseudo mole fractions) of consitituents.
+ *  the mole fractions (or pseudo mole fractions) of constituents.
  *  This category is the workhorse for describing molten salts,
  *  solid-phase mixtures of semiconductors, and mixtures of miscible
  *  and semi-miscible compounds.
  *
  * It includes
- *   . regular solutions
- *   . Margueles expansions
- *   . NTRL equation
- *   . Wilson's equation
- *   . UNIQUAC equation of state.
+ *   - regular solutions
+ *   - Margules expansions
+ *   - NTRL equation
+ *   - Wilson's equation
+ *   - UNIQUAC equation of state.
  *
- *  This class adds additional functions onto the %ThermoPhase interface
- *  that handles the calculation of the excess Gibbs free energy. The %ThermoPhase
+ *  This class adds additional functions onto the ThermoPhase interface
+ *  that handles the calculation of the excess Gibbs free energy. The ThermoPhase
  *  class includes a member function, ThermoPhase::activityConvention()
  *  that indicates which convention the activities are based on. The
  *  default is to assume activities are based on the molar convention.
@@ -62,15 +61,11 @@ namespace Cantera
  *  The way that it collects the cation and anion based mole numbers
  *  is via holding two extra ThermoPhase objects. These
  *  can include standard states for salts.
- *
- *
  */
 class PseudoBinaryVPSSTP : public GibbsExcessVPSSTP
 {
-
 public:
-
-    /// Constructors
+    /// Constructor
     /*!
      * This doesn't do much more than initialize constants with
      * default values for water at 25C. Water molecular weight
@@ -83,22 +78,15 @@ public:
 
     //! Copy constructor
     /*!
-     *  Note this stuff will not work until the underlying phase
-     *  has a working copy constructor
-     *
      * @param b class to be copied
      */
     PseudoBinaryVPSSTP(const  PseudoBinaryVPSSTP& b);
 
     /// Assignment operator
     /*!
-     *
      * @param b class to be copied.
      */
     PseudoBinaryVPSSTP& operator=(const PseudoBinaryVPSSTP& b);
-
-    /// Destructor.
-    virtual ~PseudoBinaryVPSSTP();
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
@@ -108,57 +96,17 @@ public:
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @name  Utilities
+    //! @{
 
     //! Equation of state type flag.
     /*!
      * The ThermoPhase base class returns
      * zero. Subclasses should define this to return a unique
      * non-zero value. Known constants defined for this purpose are
-     * listed in mix_defs.h. The MolalityVPSSTP class also returns
-     * zero, as it is a non-complete class.
+     * listed in mix_defs.h.
      */
     virtual int eosType() const;
-
-
-
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
-
-
-    /**
-     * @}
-     * @name Utilities for Solvent ID and Molality
-     * @{
-     */
-
-
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
 
     /**
      * @}
@@ -171,9 +119,6 @@ public:
      * on temperature and pressure.
      * @{
      */
-
-
-
 
     /**
      * The standard concentration \f$ C^0_k \f$ used to normalize
@@ -197,14 +142,9 @@ public:
      * @param k  species index
      */
     virtual doublereal logStandardConc(size_t k=0) const;
-
-
-
-
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
-
 
     /**
      * Get the species electrochemical potentials.
@@ -218,68 +158,18 @@ public:
      *               Length: m_kk.
      */
     void getElectrochemPotentials(doublereal* mu) const;
-
-
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
 
     //! Calculate pseudo binary mole fractions
-    /*!
-     *
-     */
     virtual void calcPseudoBinaryMoleFractions() const;
 
-
     //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Routines that implement the Chemical equilibrium capability
-     * for a single phase, based on the element-potential method.
-     * @{
-     */
-
-
-
-    //@}
-
-
-
+    /// @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
     /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
-
 
     /*!
      * @internal Initialize. This method is provided to allow
@@ -296,7 +186,6 @@ public:
      */
     virtual void initThermo();
 
-
     /**
      *   Import and initialize a ThermoPhase object
      *
@@ -311,8 +200,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    void initThermoXML(XML_Node& phaseNode, std::string id);
-
+    void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! returns a summary of the state of the phase as a string
     /*!
@@ -321,27 +209,20 @@ public:
      */
     virtual std::string report(bool show_thermo = true) const;
 
-
 private:
-
-
     //! Initialize lengths of local variables after all species have
     //! been identified.
     void initLengths();
 
-
-
-private:
     //! Error function
     /*!
      *  Print an error string and exit
      *
      * @param msg  Message to be printed
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 protected:
-
     int PBType_;
 
     //! Number of pseudo binary species
@@ -367,10 +248,6 @@ protected:
     ThermoPhase* anionPhase_;
 
     mutable std::vector<doublereal> moleFractionsTmp_;
-
-private:
-
-
 };
 
 #define  PBTYPE_PASSTHROUGH        0
@@ -383,8 +260,3 @@ private:
 }
 
 #endif
-
-
-
-
-

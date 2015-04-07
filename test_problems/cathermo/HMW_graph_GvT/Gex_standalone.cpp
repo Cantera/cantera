@@ -1,60 +1,45 @@
-
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
 using namespace std;
 
-
-double Beta0(double temp, int ifunc)
+double Beta0(double temp)
 {
     double q1 = 0.0765;
     double q2 = -777.03;
     double q3 = -4.4706;
     double q4 = 0.008946;
     double q5 = -3.3158E-6;
-    double retn;
     double tref = 298.15;
-    if (ifunc == 0) {
-        retn = q1 + q2 * (1.0/temp - 1.0/tref)
-               + q3 * (log(temp/tref)) + q4 * (temp - tref)
-               + q5 * (temp * temp - tref * tref);
-    }
-    return retn;
+    return q1 + q2 * (1.0/temp - 1.0/tref)
+           + q3 * (log(temp/tref)) + q4 * (temp - tref)
+           + q5 * (temp * temp - tref * tref);
 }
 
-double Beta1(double temp, int ifunc)
+double Beta1(double temp)
 {
     double q6 = 0.2664;
     double q9 = 6.1608E-5;
     double q10 = 1.0715E-6;
-    double retn;
     double tref = 298.15;
-    if (ifunc == 0) {
-        retn = q6  + q9 * (temp - tref)
-               + q10 * (temp * temp - tref * tref);
-    }
-    return retn;
+    return q6  + q9 * (temp - tref)
+           + q10 * (temp * temp - tref * tref);
 }
 
-double Cphi(double temp, int ifunc)
+double Cphi(double temp)
 {
     double q11 = 0.00127;
     double q12 = 33.317;
     double q13 = 0.09421;
     double q14 = -4.655E-5;
-    double retn;
     double tref = 298.15;
-    if (ifunc == 0) {
-        retn = q11 + q12 * (1.0/temp - 1.0/tref)
-               + q13 * (log(temp/tref)) + q14 * (temp - tref);
-    }
-    return retn;
+    return q11 + q12 * (1.0/temp - 1.0/tref)
+           + q13 * (log(temp/tref)) + q14 * (temp - tref);
 }
 
-double calc(double temp, double Iionic)
+void calc(double temp, double Iionic)
 {
-
     double Aphi = 0.0;
     if (temp == 323.15) {
         Aphi = 0.4102995331359;
@@ -67,13 +52,13 @@ double calc(double temp, double Iionic)
 
     printf("   Aphi = %g\n", Aphi);
 
-    double beta0 = Beta0(temp, 0);
+    double beta0 = Beta0(temp);
     printf("   beta0 = %g\n", beta0);
 
-    double beta1 = Beta1(temp, 0);
+    double beta1 = Beta1(temp);
     printf("   beta1 = %g\n", beta1);
 
-    double cphi = Cphi(temp, 0);
+    double cphi = Cphi(temp);
     printf("   Cphi = %g\n", cphi);
 
     double vm = 1.0;
@@ -94,7 +79,6 @@ double calc(double temp, double Iionic)
 
     double os = osm1 + 1.0;
     double a2 = alpha * alpha;
-
 
     printf("osmotic coeff = %20.13g\n", os);
 
@@ -138,20 +122,18 @@ double calc(double temp, double Iionic)
     double tmp = diff / (RT);
     double actCoefWater = exp(tmp) / xo;
     printf("actCoefWater = %g\n", actCoefWater);
-    return gex;
 }
 
 int main()
 {
-
     printf("standalone test of Gibbs excess free energy:\n");
     printf("T = 50C\n");
     double Iionic = 6.146;
     printf("Ionic Strength = %g\n", Iionic);
 
-    double res = calc(273.15 + 50., Iionic);
+    calc(273.15 + 50., Iionic);
     printf("T = 200C\n");
 
-    res = calc(273.15 + 200., Iionic);
+    calc(273.15 + 200., Iionic);
     return 0;
 }

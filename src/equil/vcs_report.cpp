@@ -1,23 +1,16 @@
-
+//! @file vcs_report.cpp
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
 
-
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 namespace VCSnonideal
 {
-
-/*****************************************************************************/
 static void print_space(int num)
 {
     for (int j = 0; j < num; j++) {
@@ -25,7 +18,7 @@ static void print_space(int num)
     }
 }
 
-static void print_line(std::string schar, size_t num)
+static void print_line(const std::string& schar, size_t num)
 {
     for (size_t j = 0; j < num; j++) {
         plogf("%s", schar.c_str());
@@ -33,17 +26,6 @@ static void print_line(std::string schar, size_t num)
     plogf("\n");
 }
 
-/*****************************************************************************/
-
-/**************************************************************************
- *
- *  vcs_report:
- *
- *     Print out a report on the state of the equilibrium problem to
- *     standard output.
- *     This prints out the current contents of the VCS_SOLVE class, V.
- *     The "old" solution vector is printed out.
- ***************************************************************************/
 int VCS_SOLVE::vcs_report(int iconv)
 {
     bool printActualMoles = true, inertYes = false;
@@ -409,19 +391,9 @@ int VCS_SOLVE::vcs_report(int iconv)
      *   Return a successful completion flag
      */
     return VCS_SUCCESS;
-} /* vcs_report() ************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+}
 
 void VCS_SOLVE::vcs_TCounters_report(int timing_print_lvl)
-
-/**************************************************************************
- *
- * vcs_TCounters_report:
- *
- *   Print out the total Its and time counters to standard output
- ***************************************************************************/
 {
     plogf("\nTCounters:   Num_Calls   Total_Its       Total_Time (seconds)\n");
     if (timing_print_lvl > 0) {
@@ -447,8 +419,4 @@ void VCS_SOLVE::vcs_TCounters_report(int timing_print_lvl)
     }
 }
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
 }
-

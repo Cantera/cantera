@@ -36,16 +36,11 @@ public:
     }
 
     /**
-         * Destructor doesn't do anything.
-         */
-    virtual ~ReactorFactory() {}
-
-    /**
      * Create a new reactor.
      * @param n the type to be created.
      */
     virtual ReactorBase* newReactor(int n);
-    virtual ReactorBase* newReactor(std::string reactorType);
+    virtual ReactorBase* newReactor(const std::string& reactorType);
 
 private:
     static ReactorFactory* s_factory;
@@ -53,7 +48,7 @@ private:
     ReactorFactory() {}
 };
 
-inline ReactorBase* newReactor(std::string model,
+inline ReactorBase* newReactor(const std::string& model,
                                ReactorFactory* f=0)
 {
     if (f == 0) {

@@ -6,8 +6,6 @@
 
 //  Copyright 2001 California Institute of Technology
 
-#include <vector>
-
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/numerics/DenseMatrix.h"
 
@@ -19,21 +17,15 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/equil/MultiPhase.h"
 
-#ifdef DEBUG_MODE
-#include "cantera/base/PrintCtrl.h"
-#endif
-
 using namespace std;
 
 #include <cstdio>
-#include <cstdlib>
 
 int Cantera::ChemEquil_print_lvl = 0;
 
 namespace Cantera
 {
 
-/// map property strings to integers
 int _equilflag(const char* xy)
 {
     string flag = string(xy);
@@ -57,25 +49,12 @@ int _equilflag(const char* xy)
     return -1;
 }
 
-
-//-----------------------------------------------------------
-//                 construction / destruction
-//-----------------------------------------------------------
-
-
-///  Default Constructor.
 ChemEquil::ChemEquil() : m_skip(npos), m_elementTotalSum(1.0),
     m_p0(OneAtm), m_eloc(npos),
     m_elemFracCutoff(1.0E-100),
     m_doResPerturb(false)
 {}
 
-//! Constructor combined with the initialization function
-/*!
- *  This constructor initializes the ChemEquil object with everything it
- *  needs to start solving equilibrium problems.
- *   @param s ThermoPhase object that will be used in the equilibrium calls.
- */
 ChemEquil::ChemEquil(thermo_t& s) :
     m_skip(npos),
     m_elementTotalSum(1.0),
@@ -90,10 +69,6 @@ ChemEquil::~ChemEquil()
 {
 }
 
-/**
- *  Prepare for equilibrium calculations.
- *  @param s object representing the solution phase.
- */
 void ChemEquil::initialize(thermo_t& s)
 {
     // store a pointer to s and some of its properties locally.
@@ -169,16 +144,6 @@ void ChemEquil::initialize(thermo_t& s)
     }
 }
 
-
-/**
- * Set mixture to an equilibrium state consistent with specified
- * element potentials and temperature.
- *
- * @param lambda_RT vector of non-dimensional element potentials
- * \f[ \lambda_m/RT \f].
- * @param t temperature in K.
- *
- */
 void ChemEquil::setToEquilState(thermo_t& s,
                                 const vector_fp& lambda_RT, doublereal t)
 {
@@ -199,10 +164,6 @@ void ChemEquil::setToEquilState(thermo_t& s,
     update(s);
 }
 
-
-/**
- *  update internally stored state information.
- */
 void ChemEquil::update(const thermo_t& s)
 {
 
@@ -233,8 +194,6 @@ void ChemEquil::update(const thermo_t& s)
     }
 }
 
-/// Estimate the initial mole numbers. This version borrows from the
-/// MultiPhaseEquil solver.
 int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
                                int loglevel)
 {
@@ -272,14 +231,12 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
 
 #ifdef DEBUG_MODE
         if (ChemEquil_print_lvl > 0) {
-            PrintCtrl pc(std::cout, -28, PrintCtrl::CT_OFF_GLOBALOBEY);
             writelog("setInitialMoles:   Estimated Mole Fractions\n");
             writelogf("  Temperature = %g\n", s.temperature());
             writelogf("  Pressure = %g\n", s.pressure());
             for (size_t k = 0; k < m_kk; k++) {
                 string nnn = s.speciesName(k);
                 double mf = s.moleFraction(k);
-                mf = pc.cropAbs10(mf, -28);
                 writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf);
             }
             writelog("      Element_Name   ElementGoal  ElementMF\n");
@@ -302,10 +259,6 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
     return iok;
 }
 
-
-/**
- * Generate a starting estimate for the element potentials.
- */
 int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         vector_fp& elMolesGoal, int loglevel)
 {
@@ -365,7 +318,6 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0) {
-        PrintCtrl pc(std::cout, -28, PrintCtrl::CT_OFF_GLOBALOBEY);
         for (size_t m = 0; m < m_nComponents; m++) {
             int isp = m_component[m];
             string nnn = s.speciesName(isp);
@@ -378,9 +330,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         writelog("  id       Name     MF     mu/RT \n");
         for (size_t n = 0; n < s.nSpecies(); n++) {
             string nnn = s.speciesName(n);
-            double mf = pc.cropAbs10(xMF_est[n], -28);
             writelogf("%10d %15s %10.5g %10.5g\n",
-                      n, nnn.c_str(), mf, mu_RT[n]);
+                      n, nnn.c_str(), xMF_est[n], mu_RT[n]);
         }
     }
 #endif
@@ -440,15 +391,6 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     return info;
 }
 
-
-/**
- * Equilibrate a phase, holding the elemental composition fixed
- * at the initial value found within the ThermoPhase object.
- *
- *   The value of 2 specified properties are obtained by querying the
- *   ThermoPhase object. The properties must be already contained
- *   within the current thermodynamic state of the system.
- */
 int ChemEquil::equilibrate(thermo_t& s, const char* XY,
                            bool useThermoPhaseElementPotentials, int loglevel)
 {
@@ -461,22 +403,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XY,
                        loglevel-1);
 }
 
-
-/**
- *   Compute the equilibrium composition for 2 specified
- *   properties and the specified element moles.
- *
- *   elMoles = specified vector of element abundances.
- *
- *   The 2 specified properties are obtained by querying the
- *   ThermoPhase object. The properties must be already contained
- *   within the current thermodynamic state of the system.
- *
- *   Return variable:
- *     Successful returns are indicated by a return value of 0.
- *     Unsuccessful returns are indicated by a return value of -1 for
- *     lack of convergence or -3 for a singular jacobian.
- */
 int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
                            vector_fp& elMolesGoal,
                            bool useThermoPhaseElementPotentials,
@@ -827,7 +753,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 next:
 
     iter++;
-    if (iter > 1) {
+    if (iter > 1 && loglevel > 0) {
         endLogGroup("Iteration "+int2str(iter-1));    // iteration
     }
     if (loglevel > 0) {
@@ -871,9 +797,6 @@ next:
     }
 #endif
 
-
-    // compute grad f = F*J
-    jac.leftMult(DATA_PTR(res_trial), DATA_PTR(grad));
     copy(x.begin(), x.end(), oldx.begin());
     oldf = f;
     scale(res_trial.begin(), res_trial.end(), res_trial.begin(), -1.0);
@@ -1053,20 +976,6 @@ converge:
     goto next;
 }
 
-
-/*
- * dampStep: Come up with an acceptable step size. The original implementation
- *           employed a line search technique that enforced a reduction in the
- *           norm of the residual at every successful step. Unfortunately,
- *           this method created false convergence errors near the end of
- *           a significant number of steps, usually special conditions where
- *           there were stoichiometric constraints.
- *
- *  This new method just does a delta damping approach, based on limiting
- *  the jump in the dimensionless element potentials. Mole fractions are
- *  limited to a factor of 2 jump in the values from this method.
- *  Near convergence, the delta damping gets out of the way.
- */
 int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
                         double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
                         double& f, vector_fp& elmols, double xval, double yval)
@@ -1113,10 +1022,6 @@ int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
     return 1;
 }
 
-
-/**
- *  Evaluates the residual vector F, of length mm
- */
 void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
                               const vector_fp& elmFracGoal, vector_fp& resid,
                               doublereal xval, doublereal yval, int loglevel)
@@ -1156,12 +1061,10 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
-        PrintCtrl pc(std::cout, -14, PrintCtrl::CT_OFF_GLOBALOBEY);
         writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
         for (int n = 0; n < m_mm; n++) {
-            double rrr = pc.cropAbs10(resid[n], -14);
             writelogf("               % -14.7E % -14.7E    % -10.5E\n",
-                      elmFracGoal[n], elmFrac[n], rrr);
+                      elmFracGoal[n], elmFrac[n], resid[n]);
         }
     }
 #endif
@@ -1180,17 +1083,12 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
 
 #ifdef DEBUG_MODE
     if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
-        PrintCtrl pc(std::cout, -14, PrintCtrl::CT_OFF_GLOBALOBEY);
         writelog("               Goal           Xvalue          Resid\n");
         writelogf("      XX   :   % -14.7E % -14.7E    % -10.5E\n", xval, xx, resid[m_mm]);
-        double rrr = pc.cropAbs10(resid[m_skip], -14);
-        writelogf("      YY(%1d):   % -14.7E % -14.7E    % -10.5E\n", m_skip, yval, yy, rrr);
+        writelogf("      YY(%1d):   % -14.7E % -14.7E    % -10.5E\n", m_skip, yval, yy, resid[m_skip]);
     }
 #endif
 }
-
-
-//-------------------- Jacobian evaluation ---------------------------
 
 void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
                               const vector_fp& elmols, DenseMatrix& jac,
@@ -1239,14 +1137,6 @@ void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
     }
 }
 
-/**
- * Given a vector of dimensionless element abundances,
- * this routine calculates the moles of the elements and
- * the moles of the species.
- *   Input
- *  --------
- * x[m] = current dimensionless element potentials..
- */
 double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double& n_t,
                              const vector_fp& Xmol_i_calc,
                              vector_fp& eMolesCalc, vector_fp& n_i_calc,
@@ -1287,42 +1177,6 @@ double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double& n_t,
     return n_t_calc;
 }
 
-/**
- *  Do a calculation of the element potentials using
- *  the Brinkley method, p. 129 Smith and Missen.
- *
- * We have found that the previous estimate may not be good
- * enough to avoid drastic numerical issues associated with
- * the use of a numerically generated jacobian used in the
- * main algorithm.
- *
- * The Brinkley algorithm, here, assumes a constant T, P system
- * and uses a linearized analytical Jacobian that turns out
- * to be very stable even given bad initial guesses.
- *
- * The pressure and temperature to be used are in the
- * ThermoPhase object input into the routine.
- *
- * The initial guess for the element potentials
- * used by this routine is taken from the
- * input vector, x.
- *
- * elMoles is the input element abundance vector to be matched.
- *
- * Nonideal phases are handled in principle. This is done by
- * calculating the activity coefficients and adding them
- * into the formula in the correct position. However,
- * these are treated as a rhs contribution only. Therefore,
- * convergence might be a problem. This has not been tested.
- * Also molality based unit systems aren't handled.
- *
- * On return, int return value contains the success code:
- *    0 - successful
- *    1 - unsuccessful, max num iterations exceeded
- *   -3 - unsuccessful, singular jacobian
- *
- * NOTE: update for activity coefficients.
- */
 int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                                    vector_fp& elMoles)
 {
@@ -1568,7 +1422,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
          * its stability properties, i.e., it heads in the right direction,
          * albeit with lousy convergence rates.
          *
-         * NOTE: This probably should be extended to a full blown Gauss-Jordon
+         * NOTE: This probably should be extended to a full blown Gauss-Jordan
          *       factorization scheme in the future. For Example
          *       the scheme below would fail for the set: HCl  NH4Cl, NH3.
          *       Hopefully, it's caught by the equal rows logic below.
@@ -1579,9 +1433,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
 
         nCutoff = 1.0E-9 * n_t_calc;
 #ifdef DEBUG_MODE
-        if (ChemEquil_print_lvl > 0) {
-            writelog(" Lump Sum Elements Calculation: \n");
-        }
+        writelog(" Lump Sum Elements Calculation: \n", ChemEquil_print_lvl);
 #endif
         for (m = 0; m < m_mm; m++) {
             size_t kMSp = npos;
@@ -1831,9 +1683,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             err.save();
             addLogEntry("estimateEP_Brinkley:Jacobian is singular.");
 #ifdef DEBUG_MODE
-            if (ChemEquil_print_lvl > 0) {
-                writelog("Matrix is SINGULAR.ERROR\n");
-            }
+            writelog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
 #endif
             s.restoreState(state);
             throw CanteraError("equilibrate:estimateEP_Brinkley()",
@@ -2002,4 +1852,3 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
 }
 
 } // namespace
-

@@ -1,3 +1,4 @@
+//! @file HFC134a.h
 #ifndef TPX_HFC134_H
 #define TPX_HFC134_H
 
@@ -20,7 +21,6 @@ public:
         m_name = "HFC-134a";
         m_formula = "C2F4H2";
     }
-    ~HFC134a() {}
 
     double MolWt();
     double Tcrit();

@@ -13,6 +13,8 @@
 #include "cantera/numerics/DenseMatrix.h"
 #include "Cabinet.h"
 
+#include <fstream>
+
 using namespace std;
 using namespace Cantera;
 
@@ -24,26 +26,6 @@ template<> DomainCabinet* DomainCabinet::__storage = 0;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
-
-static StFlow* _stflow(int i)
-{
-    Domain1D* d = &DomainCabinet::item(i);
-    if (d->domainType() == cFlowType) {
-        return dynamic_cast<StFlow*>(d);
-    } else {
-        throw CanteraError("_stflow","wrong domain type");
-    }
-    return 0;
-}
-
-static Bdry1D* _bdry(int i)
-{
-    Domain1D* d = &DomainCabinet::item(i);
-    if (! d->isConnector()) {
-        throw CanteraError("_bdry","wrong domain type: " +int2str(d->domainType()));
-    }
-    return dynamic_cast<Bdry1D*>(d);
-}
 
 extern "C" {
 
@@ -109,9 +91,7 @@ extern "C" {
             Domain1D& dom = DomainCabinet::item(i);
             dom.checkComponentIndex(n);
             string nm = dom.componentName(n);
-            size_t lout = std::min<size_t>(sz, nm.size());
-            copy(nm.c_str(), nm.c_str() + lout, buf);
-            buf[lout] = '\0';
+            copyString(nm, buf, sz);
             return static_cast<int>(nm.size());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -121,7 +101,7 @@ extern "C" {
     size_t domain_componentIndex(int i, char* name)
     {
         try {
-            return DomainCabinet::item(i).componentIndex(string(name));
+            return DomainCabinet::item(i).componentIndex(name);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -173,7 +153,7 @@ extern "C" {
     }
 
     int domain_setTolerances(int i, int n, double rtol,
-                                        double atol, int itime)
+                             double atol, int itime)
     {
         try {
             Domain1D& dom = DomainCabinet::item(i);
@@ -220,8 +200,7 @@ extern "C" {
     int domain_setID(int i, char* id)
     {
         try {
-            string s = string(id);
-            DomainCabinet::item(i).setID(s);
+            DomainCabinet::item(i).setID(id);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -232,8 +211,7 @@ extern "C" {
     int domain_setDesc(int i, char* desc)
     {
         try {
-            string s = string(desc);
-            DomainCabinet::item(i).setDesc(s);
+            DomainCabinet::item(i).setDesc(desc);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -244,8 +222,7 @@ extern "C" {
     int inlet_new()
     {
         try {
-            Inlet1D* i = new Inlet1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Inlet1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -254,8 +231,7 @@ extern "C" {
     int surf_new()
     {
         try {
-            Surf1D* i = new Surf1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Surf1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -264,8 +240,7 @@ extern "C" {
     int reactingsurf_new()
     {
         try {
-            Domain1D* i = new ReactingSurf1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new ReactingSurf1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -274,8 +249,7 @@ extern "C" {
     int symm_new()
     {
         try {
-            Symm1D* i = new Symm1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Symm1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -284,8 +258,7 @@ extern "C" {
     int outlet_new()
     {
         try {
-            Outlet1D* i = new Outlet1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new Outlet1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -294,8 +267,7 @@ extern "C" {
     int outletres_new()
     {
         try {
-            OutletRes1D* i = new OutletRes1D();
-            return DomainCabinet::add(i);
+            return DomainCabinet::add(new OutletRes1D());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -304,7 +276,7 @@ extern "C" {
     int bdry_setMdot(int i, double mdot)
     {
         try {
-            _bdry(i)->setMdot(mdot);
+            DomainCabinet::get<Bdry1D>(i).setMdot(mdot);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -314,7 +286,7 @@ extern "C" {
     int bdry_setTemperature(int i, double t)
     {
         try {
-            _bdry(i)->setTemperature(t);
+            DomainCabinet::get<Bdry1D>(i).setTemperature(t);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -324,7 +296,7 @@ extern "C" {
     int bdry_setMoleFractions(int i, char* x)
     {
         try {
-            _bdry(i)->setMoleFractions(string(x));
+            DomainCabinet::get<Bdry1D>(i).setMoleFractions(x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -334,7 +306,7 @@ extern "C" {
     double bdry_temperature(int i)
     {
         try {
-            return _bdry(i)->temperature();
+            return DomainCabinet::get<Bdry1D>(i).temperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -343,7 +315,7 @@ extern "C" {
     double bdry_massFraction(int i, int k)
     {
         try {
-            return _bdry(i)->massFraction(k);
+            return DomainCabinet::get<Bdry1D>(i).massFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -352,7 +324,7 @@ extern "C" {
     double bdry_mdot(int i)
     {
         try {
-            return _bdry(i)->mdot();
+            return DomainCabinet::get<Bdry1D>(i).mdot();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -361,10 +333,8 @@ extern "C" {
     int reactingsurf_setkineticsmgr(int i, int j)
     {
         try {
-            ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
-            InterfaceKinetics* k =
-                dynamic_cast<InterfaceKinetics*>(&Cabinet<Kinetics>::item(j));
-            srf->setKineticsMgr(k);
+            InterfaceKinetics& k = Cabinet<Kinetics>::get<InterfaceKinetics>(j);
+            DomainCabinet::get<ReactingSurf1D>(i).setKineticsMgr(&k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -374,8 +344,7 @@ extern "C" {
     int reactingsurf_enableCoverageEqs(int i, int onoff)
     {
         try {
-            ReactingSurf1D* srf = (ReactingSurf1D*)_bdry(i);
-            srf->enableCoverageEquations(onoff != 0);
+            DomainCabinet::get<ReactingSurf1D>(i).enableCoverageEquations(onoff != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -385,8 +354,7 @@ extern "C" {
     int inlet_setSpreadRate(int i, double v)
     {
         try {
-            Inlet1D* inlt = (Inlet1D*)_bdry(i);
-            inlt->setSpreadRate(v);
+            DomainCabinet::get<Inlet1D>(i).setSpreadRate(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -398,14 +366,14 @@ extern "C" {
     int stflow_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            IdealGasPhase* ph = dynamic_cast<IdealGasPhase*>(&ThermoCabinet::item(iph));
+            IdealGasPhase& ph = ThermoCabinet::get<IdealGasPhase>(iph);
             if (itype == 1) {
-                AxiStagnFlow* x = new AxiStagnFlow(ph, ph->nSpecies(), 2);
+                AxiStagnFlow* x = new AxiStagnFlow(&ph, ph.nSpecies(), 2);
                 x->setKinetics(KineticsCabinet::item(ikin));
                 x->setTransport(TransportCabinet::item(itr));
                 return DomainCabinet::add(x);
             } else if (itype == 2) {
-                FreeFlame* x = new FreeFlame(ph, ph->nSpecies(), 2);
+                FreeFlame* x = new FreeFlame(&ph, ph.nSpecies(), 2);
                 x->setKinetics(KineticsCabinet::item(ikin));
                 x->setTransport(TransportCabinet::item(itr));
                 return DomainCabinet::add(x);
@@ -421,11 +389,8 @@ extern "C" {
     int stflow_setTransport(int i, int itr, int iSoret)
     {
         try {
-            bool withSoret = false;
-            if (iSoret > 0) {
-                withSoret = true;
-            }
-            _stflow(i)->setTransport(TransportCabinet::item(itr), withSoret);
+            bool withSoret = (iSoret > 0);
+            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr), withSoret);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -435,11 +400,8 @@ extern "C" {
     int stflow_enableSoret(int i, int iSoret)
     {
         try {
-            bool withSoret = false;
-            if (iSoret > 0) {
-                withSoret = true;
-            }
-            _stflow(i)->enableSoret(withSoret);
+            bool withSoret = (iSoret > 0);
+            DomainCabinet::get<StFlow>(i).enableSoret(withSoret);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -449,15 +411,24 @@ extern "C" {
     int stflow_setPressure(int i, double p)
     {
         try {
-            _stflow(i)->setPressure(p);
+            DomainCabinet::get<StFlow>(i).setPressure(p);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
+    double stflow_pressure(int i)
+    {
+        try {
+            return DomainCabinet::get<StFlow>(i).pressure();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     int stflow_setFixedTempProfile(int i, size_t n, double* pos,
-            size_t m, double* temp)
+                                   size_t m, double* temp)
     {
         try {
             vector_fp vpos(n), vtemp(n);
@@ -465,7 +436,7 @@ extern "C" {
                 vpos[j] = pos[j];
                 vtemp[j] = temp[j];
             }
-            _stflow(i)->setFixedTempProfile(vpos, vtemp);
+            DomainCabinet::get<StFlow>(i).setFixedTempProfile(vpos, vtemp);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -477,9 +448,9 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                _stflow(i)->solveSpecies(npos);
+                DomainCabinet::get<StFlow>(i).solveSpecies(npos);
             } else {
-                _stflow(i)->fixSpecies(npos);
+                DomainCabinet::get<StFlow>(i).fixSpecies(npos);
             }
             return 0;
         } catch (...) {
@@ -492,9 +463,9 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                _stflow(i)->solveEnergyEqn(npos);
+                DomainCabinet::get<StFlow>(i).solveEnergyEqn(npos);
             } else {
-                _stflow(i)->fixTemperature(npos);
+                DomainCabinet::get<StFlow>(i).fixTemperature(npos);
             }
             return 0;
         } catch (...) {
@@ -512,8 +483,7 @@ extern "C" {
             for (size_t n = 0; n < nd; n++) {
                 d.push_back(&DomainCabinet::item(domains[n]));
             }
-            Sim1D* s = new Sim1D(d);
-            return SimCabinet::add(s);
+            return SimCabinet::add(new Sim1D(d));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -650,13 +620,20 @@ extern "C" {
         }
     }
 
+    int sim1D_setGridMin(int i, int dom, double gridmin)
+    {
+        try {
+            SimCabinet::item(i).setGridMin(dom, gridmin);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int sim1D_save(int i, char* fname, char* id, char* desc)
     {
         try {
-            string sname = string(fname);
-            string sid = string(id);
-            string sdesc = string(desc);
-            SimCabinet::item(i).save(sname, sid, sdesc);
+            SimCabinet::item(i).save(fname, id, desc);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -666,9 +643,7 @@ extern "C" {
     int sim1D_restore(int i, char* fname, char* id)
     {
         try {
-            string sname = string(fname);
-            string sid = string(id);
-            SimCabinet::item(i).restore(sname, sid);
+            SimCabinet::item(i).restore(fname, id);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -688,7 +663,7 @@ extern "C" {
     int sim1D_domainIndex(int i, char* name)
     {
         try {
-            return (int) SimCabinet::item(i).domainIndex(string(name));
+            return (int) SimCabinet::item(i).domainIndex(name);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

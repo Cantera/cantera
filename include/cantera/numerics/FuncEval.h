@@ -1,6 +1,5 @@
 /**
  *  @file FuncEval.h
- *
  */
 
 // Copyright 2001  California Institute of Technology
@@ -12,8 +11,6 @@
 
 namespace Cantera
 {
-
-
 /**
  *  Virtual base class for ODE right-hand-side function evaluators.
  *  Classes derived from FuncEval evaluate the right-hand-side function
@@ -25,19 +22,16 @@ namespace Cantera
  */
 class FuncEval
 {
-
 public:
-
     FuncEval() {}
     virtual ~FuncEval() {}
 
     /**
-     * Evaluate the right-hand-side function. Called by the
-     * integrator.
-     * @param t time. (input)
-     * @param y solution vector. (input)
-     * @param ydot rate of change of solution vector. (output)
-     * @param p parameter vector
+     * Evaluate the right-hand-side function. Called by the integrator.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] p sensitivity parameter vector, length nparams()
      */
     virtual void eval(double t, double* y, double* ydot, double* p)=0;
 
@@ -47,20 +41,13 @@ public:
      */
     virtual void getInitialConditions(double t0, size_t leny, double* y)=0;
 
-    /**
-     * Number of equations.
-     */
+    //! Number of equations.
     virtual size_t neq()=0;
 
-    //! Number of parameters.
+    //! Number of sensitivity parameters.
     virtual size_t nparams() {
         return 0;
     }
-
-protected:
-
-private:
-
 };
 
 }

@@ -2,10 +2,14 @@ from buildutils import *
 
 Import('env','build','install')
 localenv = env.Clone()
-localenv.Append(CPPPATH=['#include', '#src', 'shared'])
+localenv.Prepend(CPPPATH=['#include', '#src', 'shared'])
+localenv.Append(CCFLAGS=env['warning_flags'])
 
 os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'interfaces', 'python')
-os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'data', 'inputs')
+os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
+
+PASSED_FILES = {}
+
 
 class Test(object):
     _validArgs = set(['arguments', 'options', 'artifacts', 'comparisons',
@@ -34,6 +38,7 @@ class Test(object):
 
         self.testName = testName
         self.passedFile = '.passed-%s' % testName
+        PASSED_FILES[self.testName] = pjoin(self.subdir, self.passedFile)
 
         testResults.tests[self.testName] = self
         run = self.run(localenv)
@@ -221,26 +226,14 @@ CompileAndTest('ChemEquil_ionizedGas',
                comparisons=[('table_blessed.csv', 'table.csv')])
 CompileAndTest('ChemEquil_red1',
                'ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
-Test('ck2cti-gri30',
-     'ck2cti_test', '#build/bin/ck2cti$PROGSUFFIX', None,
-     options='-i gri30.inp -id gri30 -tr gri30_tran.dat',
-     comparisons=[('gri30a_blessed.cti','gri30.cti')],
-     ignoreLines=['#'],
-     artifacts=['ck2cti.log'])
-Test('ck2cti-soot',
-     'ck2cti_test', '#build/bin/ck2cti$PROGSUFFIX', None,
-     options='-i soot.inp -id soot -t therm_soot.dat',
-     comparisons=[('soot_blessed.cti', 'soot.cti')],
-     ignoreLines=['#'],
-     artifacts=['ck2cti.log'])
-CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
+#CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
                comparisons=[('eq1_blessed.csv', 'eq1.csv'),
                             ('kin1_blessed.csv', 'kin1.csv'),
                             ('kin2_blessed.csv', 'kin2.csv'),
                             ('tr1_blessed.csv', 'tr1.csv'),
                             ('tr2_blessed.csv', 'tr2.csv')],
-               tolerance=2e-3,
+               tolerance=3e-3,
                threshold=1e-7,
                artifacts=['eq1.dat', 'kin1.dat', 'kin2.dat', 'kin3.csv',
                           'kin3.dat', 'tr1.dat', 'tr2.dat'])
@@ -254,18 +247,14 @@ Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
 Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
      options='diamond.cti', artifacts=diamond_name,
      comparisons=[('diamond_blessed.xml', 'diamond.xml')])
-
+CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
+               'output_blessed.txt')
 CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
 CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport',
                'multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
 CompileAndTest('NASA9poly', 'NASA9poly_test', 'NASA9poly_test', 'output_blessed.txt')
-Test('nasa9_reader', 'nasa9_reader', '#build/bin/ck2cti$PROGSUFFIX', None,
-     options='-i sample.inp -id sample -t sampleData.inp',
-     comparisons=[('sample_blessed.cti', 'sample.cti')],
-     ignoreLines=['#'],
-     artifacts=['ck2cti.log'])
 
 negA = localenv.Program('negATest/negATest',
                            mglob(env, 'negATest', 'cpp'),
@@ -277,12 +266,17 @@ Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
      options='noxNeg.cti', artifacts=negA_name,
      comparisons=[('noxNeg_blessed.xml', 'noxNeg.xml')])
 
+CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_blessed.txt')
 CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
                artifacts=['liquidvapor.xml'])
 CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
 # spectroscopy is incomplete
+CompileAndTest('simpleTransport', 'simpleTransport', 'simpleTransport',
+               'output_blessed.txt')
+CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
+               'stoichSolidKinetics', 'output_blessed.txt')
 CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                arguments='haca2.xml',
@@ -294,10 +288,13 @@ CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
                comparisons=[('results2_blessed.txt', 'results2.txt')],
                artifacts=['results2.txt', 'diamond.xml'],
                extensions=['^surfaceSolver2.cpp'])
-CompileAndTest('VCSnonideal', pjoin('VCSnonideal', 'NaCl_equil'),
+CompileAndTest('VCS-NaCl', pjoin('VCSnonideal', 'NaCl_equil'),
                'nacl_equil', 'good_out.txt',
                options='-d 3',
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
+CompileAndTest('VCS-LiSi', pjoin('VCSnonideal', 'LatticeSolid_LiSi'),
+               'latticeSolid_LiSi', 'output_blessed.txt',
+               artifacts=['vcs_equilibrate_res.csv'])
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
 
 # Python Tests
@@ -308,18 +305,26 @@ if localenv['python_package'] == 'full':
          comparisons=[('diamond_blessed.csv', 'diamond.csv')],
          artifacts=['diamond.xml'], dependencies=testDeps)
     Test('python-frac', 'python', '$python_cmd', 'frac_blessed.out',
-         arguments='frac.py', artifacts=['frac.xml'], dependencies=testDeps)
+         arguments='frac.py', artifacts=['frac.xml'], dependencies=testDeps,
+         options='-Wignore')
     Test('python-tut1', pjoin('python','tut1'), '$python_cmd',
          'output_blessed.txt', arguments='tut1.py', artifacts=['gri30.xml'],
-         dependencies=testDeps)
+         dependencies=testDeps, options='-Wignore')
     Test('python-tut2', pjoin('python','tut2'), '$python_cmd',
-         'output_blessed.txt', arguments='tut2.py',
+         'output_blessed.txt', arguments='tut2.py', options='-Wignore',
          dependencies=testDeps, artifacts=['gri30.xml', 'diamond.xml'])
     # Skipping Python Tutorial 3 (documentation only)
     Test('python-tut4', pjoin('python','tut4'), '$python_cmd',
          'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'],
-         dependencies=testDeps)
+         dependencies=testDeps, options='-Wignore')
 
 finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
 localenv.Depends(finish_tests, 'test-run')
 Alias('test', finish_tests)
+
+# Force explicitly-named tests to run even if SCons thinks they're up to date
+for command in COMMAND_LINE_TARGETS:
+    if command.startswith('test-'):
+        name = command[5:]
+        if name in PASSED_FILES and os.path.exists(PASSED_FILES[name]):
+            os.remove(PASSED_FILES[name])

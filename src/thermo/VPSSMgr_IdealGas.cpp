@@ -32,10 +32,6 @@ VPSSMgr_IdealGas::VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spt
     m_useTmpStandardStateStorage = true;
 }
 
-VPSSMgr_IdealGas::~VPSSMgr_IdealGas()
-{
-}
-
 VPSSMgr_IdealGas::VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {
@@ -43,7 +39,6 @@ VPSSMgr_IdealGas::VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right) :
     m_useTmpStandardStateStorage = true;
     *this = right;
 }
-
 
 VPSSMgr_IdealGas& VPSSMgr_IdealGas::operator=(const VPSSMgr_IdealGas& b)
 {
@@ -56,10 +51,8 @@ VPSSMgr_IdealGas& VPSSMgr_IdealGas::operator=(const VPSSMgr_IdealGas& b)
 
 VPSSMgr* VPSSMgr_IdealGas::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_IdealGas* vpm = new VPSSMgr_IdealGas(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_IdealGas(*this);
 }
-
 
 void VPSSMgr_IdealGas::getIntEnergy_RT(doublereal* urt) const
 {
@@ -90,7 +83,7 @@ void VPSSMgr_IdealGas::_updateStandardStateThermo()
 }
 
 void
-VPSSMgr_IdealGas::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_IdealGas::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 }
@@ -123,12 +116,10 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     return kPDSS;
 }
 
-
 PDSS_enumType VPSSMgr_IdealGas::reportPDSSType(int k) const
 {
     return cPDSS_IDEALGAS;
 }
-
 
 VPSSMgr_enumType VPSSMgr_IdealGas::reportVPSSMgrType() const
 {

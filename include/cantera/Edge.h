@@ -1,9 +1,8 @@
+//! @file Edge.h
 #ifndef CXX_EDGE
 #define CXX_EDGE
 
-#include <string>
-
-#include "thermo/EdgePhase.h"
+#include "thermo.h"
 #include "kinetics/EdgeKinetics.h"
 #include "kinetics/importKinetics.h"
 
@@ -14,7 +13,7 @@ class Edge :
     public EdgePhase, public EdgeKinetics
 {
 public:
-    Edge(std::string infile, std::string id, std::vector<ThermoPhase*> phases)
+    Edge(const std::string& infile, std::string id, std::vector<ThermoPhase*> phases)
         : m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);
@@ -32,9 +31,6 @@ public:
         importKinetics(*x, phases, this);
         m_ok = true;
     }
-
-
-    virtual ~Edge() {}
 
     bool operator!() {
         return !m_ok;

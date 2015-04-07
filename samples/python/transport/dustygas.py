@@ -1,7 +1,7 @@
 """
  Dusty Gas transport model.
 
- The Dusty Gas model is a mulicomponent transport model for gas
+ The Dusty Gas model is a multicomponent transport model for gas
  transport through the pores of a stationary porous medium. This
  example shows how to create a transport manager that implements the
  Dusty Gas model and use it to compute the multicomponent diffusion

@@ -1,14 +1,9 @@
 /**
- * @file BasisOptimize.cpp
- *     Functions which calculation optimized basis of the
+ * @file BasisOptimize.cpp Functions which calculation optimized basis of the
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/equil/MultiPhase.h"
-
-#include <cstring>
 
 using namespace Cantera;
 using namespace std;
@@ -19,10 +14,10 @@ namespace Cantera
 int BasisOptimize_print_lvl = 0;
 }
 
-//!    Print a string within a given space limit. This routine limits the amount of the string that will be printed to a
-//!   maximum of "space" characters.
+//! Print a string within a given space limit.
 /*!
- *
+ *  This routine limits the amount of the string that will be printed to a
+ *  maximum of "space" characters.
  *    @param       str        String -> must be null terminated.
  *    @param       space      space limit for the printing.
  *    @param       alignment  0 centered
@@ -32,98 +27,46 @@ int BasisOptimize_print_lvl = 0;
 static void print_stringTrunc(const char* str, int space, int alignment);
 #endif
 
-
-//! Finds the location of the maximum component in a double vector INPUT
+//! Finds the location of the maximum component in a vector *x*
 /*!
- *  @param   x            Vector to search
- *  @param   j            j <= i < n     : i is the range of indices to search in X(*)
- *  @param   n            Length of the vector
+ *  @param x  Vector to search
+ *  @param j  j <= i < n : i is the range of indices to search in *x*
+ *  @param n  Length of the vector
  *
- *    @return             index of the greatest value on X(*) searched
+ *  @return  index of the greatest value on *x* searched
  */
 static size_t amax(double* x, size_t j, size_t n);
 
-//!  Invert an nxn matrix and solve m rhs's
+//! Invert an nxn matrix and solve m rhs's
 /*!
+ * Solve  C X + B = 0
  *
- *    Solve         C X + B = 0;
+ * This routine uses Gauss elimination and is optimized for the solution of
+ * lots of rhs's. A crude form of row pivoting is used here.
  *
- * This routine uses Gauss elimination and is optimized for the solution
- * of lots of rhs's.
- * A crude form of row pivoting is used here.
+ * @param  c      C is the matrix to be inverted
+ * @param  idem   first dimension in the calling routine.
+ *                 idem >= n must be true
+ * @param  n      number of rows and columns in the matrix
+ * @param  b      rhs of the matrix problem
+ * @param  m      number of rhs to be solved for
  *
- *  @param  c      C is the matrix to be inverted
- *  @param  idem   first dimension in the calling routine
- *                  idem >= n must be true
- *  @param  n      number of rows and columns in the matrix
- *  @param  b      rhs of the matrix problem
- *  @param  m      number of rhs to be solved for
+ * - c[i+j*idem] = c_i_j = Matrix to be inverted
+ * - b[i+j*idem] = b_i_j = vectors of rhs's. Each column is a new rhs.
  *
- * c[i+j*idem] = c_i_j = Matrix to be inverted: i = row number
- *                                              j = column number
- * b[i+j*idem] = b_i_j = vectors of rhs's:      i = row number
- *                                              j = column number
- *            (each column is a new rhs)
+ * Where j = column number and i = row number.
  *
- *   @return Retuns the value
- *      1 : Matrix is singular
- *      0 : solution is OK
+ * @return Retuns 1 if the matrix is singular, or 0 if the solution is OK
  *
- *      The solution is returned in the matrix b.
+ * The solution is returned in the matrix b.
  */
 static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
 
-/*
- * Choose the optimum basis for the calculations. This is done by
- * choosing the species with the largest mole fraction
- * not currently a linear combination of the previous components.
- * Then, calculate the stoichiometric coefficient matrix for that
- * basis.
- *
- * Calculates the identity of the component species in the mechanism.
- * Rearranges the solution data to put the component data at the
- * front of the species list.
- *
- * Then, calculates SC(J,I) the formation reactions for all noncomponent
- * species in the mechanism.
- *
- * Input
- * ---------
- * mphase          Pointer to the multiphase object. Contains the
- *                 species mole fractions, which are used to pick the
- *                 current optimal species component basis.
- * orderVectorElement
- *                 Order vector for the elements. The element rows
- *                 in the formula matrix are
- *                 rearranged according to this vector.
- * orderVectorSpecies
- *                 Order vector for the species. The species are
- *                 rearranged according to this formula. The first
- *                 nCompoments of this vector contain the calculated
- *                 species components on exit.
- * doFormRxn       If true, the routine calculates the formation
- *                 reaction matrix based on the calculated
- *                 component species. If false, this step is skipped.
- *
- * Output
- * ---------
- * usedZeroedSpecies = If true, then a species with a zero concentration
- *                     was used as a component. The problem may be
- *                     converged.
- * formRxnMatrix
- *
- * Return
- * --------------
- * returns the number of components.
- *
- *
- */
 size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                               MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
                               std::vector<size_t>& orderVectorElements,
                               vector_fp& formRxnMatrix)
 {
-
     size_t  j, jj, k=0, kk, l, i, jl, ml;
     bool lindep;
     std::string ename;
@@ -272,7 +215,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
             if (molNum[kk] == USEDBEFORE) {
                 nComponents = jr;
                 nNonComponents = nspecies - nComponents;
-                goto L_END_LOOP;
+                break;
             }
             /*
              *  Assign a small negative number to the component that we have
@@ -354,9 +297,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
 #endif
             std::swap(orderVectorSpecies[jr], orderVectorSpecies[k]);
         }
-        /* - entry point from up above */
-L_END_LOOP:
-        ;
+
         /*
          *      If we haven't found enough components, go back
          *      and find some more. (nc -1 is used below, because
@@ -388,7 +329,7 @@ L_END_LOOP:
      * However, this might not be the case. For example, assume
      * that the first element in FormulaMatrix[] is argon. Assume that
      * no species in the matrix problem actually includes argon.
-     * Then, the first row in sm[], below will be indentically
+     * Then, the first row in sm[], below will be identically
      * zero. bleh.
      *    What needs to be done is to perform a rearrangement
      * of the ELEMENTS -> i.e. rearrange, FormulaMatrix, sp, and gai, such
@@ -397,7 +338,7 @@ L_END_LOOP:
      * project, but very doable.
      *    An alternative would be to turn the matrix problem
      * below into an ne x nc problem, and do QR elimination instead
-     * of Gauss-Jordon elimination.
+     * of Gauss-Jordan elimination.
      *    Note the rearrangement of elements need only be done once
      * in the problem. It's actually very similar to the top of
      * this program with ne being the species and nc being the
@@ -420,7 +361,7 @@ L_END_LOOP:
         }
     }
     /*
-     *     Use Gauss-Jordon block elimination to calculate
+     *     Use Gauss-Jordan block elimination to calculate
      *     the reaction matrix
      */
     int ierr = mlequ(DATA_PTR(sm), ne, nComponents, DATA_PTR(formRxnMatrix), nNonComponents);
@@ -549,34 +490,6 @@ static size_t amax(double* x, size_t j, size_t n)
     return largest;
 }
 
-/*
- * vcs_mlequ:
- *
- *  Invert an nxn matrix and solve m rhs's
- *
- *    Solve         C X + B = 0;
- *
- * This routine uses Gauss elimination and is optimized for the solution
- * of lots of rhs's.
- * A crude form of row pivoting is used here.
- *
- *
- * c[i+j*idem] = c_i_j = Matrix to be inverted: i = row number
- *                                              j = column number
- * b[i+j*idem] = b_i_j = vectors of rhs's:      i = row number
- *                                              j = column number
- *            (each column is a new rhs)
- * n = number of rows and columns in the matrix
- * m = number of rhs to be solved for
- * idem = first dimension in the calling routine
- *        idem >= n must be true
- *
- * Return Value
- *      1 : Matrix is singular
- *      0 : solution is OK
- *
- *      The solution is returned in the matrix b.
- */
 static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
 {
     size_t i, j, k, l;
@@ -593,17 +506,21 @@ static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
             /*
             *   Do a simple form of row pivoting to find a non-zero pivot
             */
+            bool foundPivot = false;
             for (k = i + 1; k < n; ++k) {
                 if (c[k + i * idem] != 0.0) {
-                    goto FOUND_PIVOT;
+                    foundPivot = true;
+                    break;
                 }
             }
+
+            if (!foundPivot) {
 #ifdef DEBUG_MODE
-            writelogf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i);
+                writelogf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i);
 #endif
-            return 1;
-FOUND_PIVOT:
-            ;
+                return 1;
+            }
+
             for (j = 0; j < n; ++j) {
                 c[i + j * idem] += c[k + j * idem];
             }
@@ -635,50 +552,13 @@ FOUND_PIVOT:
         }
     }
     return 0;
-} /* mlequ() *************************************************************/
+}
 
-
-/*
- *
- * ElemRearrange:
- *
- *    This subroutine handles the rearrangement of the constraint
- *    equations represented by the Formula Matrix. Rearrangement is only
- *    necessary when the number of components is less than the number of
- *    elements. For this case, some constraints can never be satisfied
- *    exactly, because the range space represented by the Formula
- *    Matrix of the components can't span the extra space. These
- *    constraints, which are out of the range space of the component
- *    Formula matrix entries, are migrated to the back of the Formula
- *    matrix.
- *
- *    A prototypical example is an extra element column in
- *    FormulaMatrix[],
- *    which is identically zero. For example, let's say that argon is
- *    has an element column in FormulaMatrix[], but no species in the
- *    mechanism
- *    actually contains argon. Then, nc < ne. Unless the entry for
- *    desired element abundance vector for Ar is zero, then this
- *    element abundance constraint can never be satisfied. The
- *    constraint vector is not in the range space of the formula
- *    matrix.
- *    Also, without perturbation
- *    of FormulaMatrix[], BasisOptimize[] would produce a zero pivot
- *    because the matrix
- *    would be singular (unless the argon element column was already the
- *    last column of  FormulaMatrix[].
- *       This routine borrows heavily from BasisOptimize algorithm. It
- *    finds nc constraints which span the range space of the Component
- *    Formula matrix, and assigns them as the first nc components in the
- *    formula matrix. This guarantees that BasisOptimize has a
- *    nonsingular matrix to invert.
- */
 size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                               MultiPhase* mphase,
                               std::vector<size_t>& orderVectorSpecies,
                               std::vector<size_t>& orderVectorElements)
 {
-
     size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
 
     bool lindep = false;
@@ -890,5 +770,4 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
          */
     } while (jr < (nComponents-1));
     return nComponents;
-} /* vcs_elem_rearrange() ****************************************************/
-
+}

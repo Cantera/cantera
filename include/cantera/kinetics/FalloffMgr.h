@@ -20,28 +20,18 @@ namespace Cantera
 class FalloffMgr
 {
 public:
-
-    /**
-     * Constructor.
-     * @param f If supplied, this factory will be used to construct
-     * falloff function calculators. If omitted, the standard factory
-     * will be used.
-     */
+    //! Constructor.
     FalloffMgr(/*FalloffFactory* f = 0*/) :
-        m_n(0), m_n0(0), m_worksize(0) {
+        m_worksize(0) {
         //if (f == 0)
         m_factory = FalloffFactory::factory();   // RFB:TODO This raw pointer should be encapsulated
         // because accessing a 'Singleton Factory'
         //else m_factory = f;
     }
 
-    /**
-     * Destructor. Deletes all installed falloff function
-     * calculators.
-     */
+    //! Destructor. Deletes all installed falloff function calculators.
     virtual ~FalloffMgr() {
-        int i;
-        for (i = 0; i < m_n; i++) {
+        for (size_t i = 0; i < m_falloff.size(); i++) {
             delete m_falloff[i];
         }
         //if (m_factory) {
@@ -50,32 +40,25 @@ public:
         //}
     }
 
-    /**
-     * Install a new falloff function calculator.  @param rxn
-     * Index of the falloff reaction. This will be used to determine
-     * which array entry is modified in method pr_to_falloff.
-     *
-     * @param type of falloff function to install.
+    //! Install a new falloff function calculator.
+    /*
+     * @param rxn Index of the falloff reaction. This will be used to
+     *     determine which array entry is modified in method pr_to_falloff.
+     * @param falloffType of falloff function to install.
+     * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
      * @param c vector of coefficients for the falloff function.
      */
-    void install(size_t rxn, int type,
+    void install(size_t rxn, int falloffType, int reactionType,
                  const vector_fp& c) {
-        if (type != SIMPLE_FALLOFF) {
-            m_rxn.push_back(rxn);
-            Falloff* f = m_factory->newFalloff(type,c);
-            m_offset.push_back(m_worksize);
-            m_worksize += f->workSize();
-            m_falloff.push_back(f);
-            m_n++;
-        } else {
-            m_rxn0.push_back(rxn);
-            m_n0++;
-        }
+        m_rxn.push_back(rxn);
+        Falloff* f = m_factory->newFalloff(falloffType,c);
+        m_offset.push_back(m_worksize);
+        m_worksize += f->workSize();
+        m_falloff.push_back(f);
+        m_reactionType.push_back(reactionType);
     }
 
-    /**
-     * Size of the work array required to store intermediate results.
-     */
+    //! Size of the work array required to store intermediate results.
     size_t workSize() {
         return m_worksize;
     }
@@ -87,10 +70,8 @@ public:
      * @param work Work array. Must be dimensioned at least workSize().
      */
     void updateTemp(doublereal t, doublereal* work) {
-        int i;
-        for (i = 0; i < m_n; i++) {
-            m_falloff[i]->updateTemp(t,
-                                     work + m_offset[i]);
+        for (size_t i = 0; i < m_rxn.size(); i++) {
+            m_falloff[i]->updateTemp(t, work + m_offset[i]);
         }
     }
 
@@ -99,28 +80,31 @@ public:
      * replace each entry by the value of the falloff function.
      */
     void pr_to_falloff(doublereal* values, const doublereal* work) {
-        doublereal pr;
-        int i;
-        for (i = 0; i < m_n0; i++) {
-            values[m_rxn0[i]] /= (1.0 + values[m_rxn0[i]]);
-        }
-        for (i = 0; i < m_n; i++) {
-            pr = values[m_rxn[i]];
-            values[m_rxn[i]] *=
-                m_falloff[i]->F(pr, work + m_offset[i]) /(1.0 + pr);
+        for (size_t i = 0; i < m_rxn.size(); i++) {
+            double pr = values[m_rxn[i]];
+            if (m_reactionType[i] == FALLOFF_RXN) {
+                // Pr / (1 + Pr) * F
+                values[m_rxn[i]] *=
+                    m_falloff[i]->F(pr, work + m_offset[i]) /(1.0 + pr);
+            } else {
+                // 1 / (1 + Pr) * F
+                values[m_rxn[i]] =
+                    m_falloff[i]->F(pr, work + m_offset[i]) /(1.0 + pr);
+            }
         }
     }
 
 protected:
-    std::vector<size_t> m_rxn, m_rxn0;
+    std::vector<size_t> m_rxn;
     std::vector<Falloff*> m_falloff;
     FalloffFactory* m_factory;
     vector_int m_loc;
-    int m_n, m_n0;
     std::vector<vector_fp::difference_type> m_offset;
     size_t m_worksize;
+
+    //! Distinguish between falloff and chemically activated reactions
+    vector_int m_reactionType;
 };
 }
 
 #endif
-

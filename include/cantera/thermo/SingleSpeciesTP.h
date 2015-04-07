@@ -22,8 +22,8 @@ namespace Cantera
 /**
  * @ingroup thermoprops
  *
- *  The %SingleSpeciesTP class is a filter class for %ThermoPhase.
- *  What it does is to simplify the construction of %ThermoPhase
+ *  The SingleSpeciesTP class is a filter class for ThermoPhase.
+ *  What it does is to simplify the construction of ThermoPhase
  *  objects by assuming that the phase consists of one and
  *  only one type of species. In other words, it's a stoichiometric
  *  phase. However, no assumptions are made concerning the
@@ -68,9 +68,7 @@ namespace Cantera
  */
 class SingleSpeciesTP : public ThermoPhase
 {
-
 public:
-
     //! Base empty constructor.
     SingleSpeciesTP();
 
@@ -86,9 +84,6 @@ public:
      */
     SingleSpeciesTP& operator=(const SingleSpeciesTP& right);
 
-    //! Destructor
-    virtual ~SingleSpeciesTP();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the
@@ -100,12 +95,6 @@ public:
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
-     *
-     * @name  Information Methods
-     * @{
-     */
-
-    /**
      * Returns the equation of state type flag.
      * This is a modified base class.
      * Therefore, if not overridden in derivied classes,
@@ -114,8 +103,7 @@ public:
     virtual int eosType() const;
 
     /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution
+     *  @name  Molar Thermodynamic Properties of the Solution
      *
      *  These functions are resolved at this level, by reference
      *  to the partial molar functions and standard state
@@ -168,35 +156,6 @@ public:
 
     /**
      * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Electric Potential
-     *
-     * The phase may be at some non-zero electrical
-     * potential. These methods set or get the value of the
-     * electric potential.
-     */
-    //@{
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
-
-
-
-    /**
-     * @}
      * @name Activities, Standard State, and Activity Concentrations
      *
      * The activity \f$a_k\f$ of a species in solution is
@@ -244,11 +203,6 @@ public:
     ///  to supply entries for these functions.
     //@{
 
-    /*
-     * These functions are all resolved here to point to the
-     * standard state functions for species 0
-     */
-
     //!  Get the array of non-dimensional species chemical potentials
     //! These are partial molar Gibbs free energies.
     /*!
@@ -290,21 +244,14 @@ public:
     /*!
      * These are the phase enthalpies.  \f$ h_k \f$.
      *
-     * This function is resolved here by calling the standard state
-     * thermo function.
-     *
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: 1. units are J/kmol.
      */
     void getPartialMolarEnthalpies(doublereal* hbar) const;
 
-
     //! Get the species partial molar internal energies. Units: J/kmol.
     /*!
      * These are the phase internal energies.  \f$ u_k \f$.
-     *
-     * This  member function is resolved here. A single species phase obtains its
-     * thermo from the standard state function.
      *
      *  @param ubar On return, Contains the internal energy of the single species
      *              and the phase. Units are J / kmol . Length = 1
@@ -315,9 +262,6 @@ public:
     /*!
      * This is the phase entropy.  \f$ s(T,P) = s_o(T,P) \f$.
      *
-     * This member function is resolved here. A single species phase obtains its
-     * thermo from the standard state function.
-     *
      *  @param sbar On return, Contains the entropy of the single species
      *              and the phase. Units are J / kmol / K . Length = 1
      */
@@ -327,9 +271,6 @@ public:
     /*!
      * This is the phase heat capacity.  \f$ Cp(T,P) = Cp_o(T,P) \f$.
      *
-     * This member function is resolved here. A single species phase obtains its
-     * thermo from the standard state function.
-     *
      *  @param cpbar On return, Contains the heat capacity of the single species
      *              and the phase. Units are J / kmol / K . Length = 1
      */
@@ -338,9 +279,6 @@ public:
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
      * This is the phase molar volume.  \f$ V(T,P) = V_o(T,P) \f$.
-     *
-     * This member function is resolved here. A single species phase obtains its
-     * thermo from the standard state function.
      *
      *  @param vbar On return, Contains the molar volume of the single species
      *              and the phase. Units are m^3 / kmol. Length = 1
@@ -355,12 +293,9 @@ public:
     /// are not resolved at the SingleSpeciesTP level.
     //@{
 
-
     /**
      * Get the dimensional Gibbs functions for the standard
      * state of the species at the current T and P.
-     *
-     * This function is resolved here by referencing getGibbs_RT().
      *
      * @param gpure returns a vector of size 1, containing the Gibbs function
      *              Units: J/kmol.
@@ -379,7 +314,6 @@ public:
      *             and phase (m^3/kmol). Vector of length 1
      */
     void getStandardVolumes(doublereal* vbar) const;
-
 
     //@}
     /// @name Thermodynamic Values for the Species Reference State
@@ -402,7 +336,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
@@ -433,7 +367,6 @@ public:
      *                Gibbs Free energies.  Length: m_kk.
      */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
-
 
     /*!
      *  Returns the vector of the
@@ -480,8 +413,7 @@ public:
     /**
      * @name Setting the State
      *
-     * These methods set all or part of the thermodynamic
-     * state.
+     * These methods set all or part of the thermodynamic state.
      * @{
      */
 
@@ -556,7 +488,6 @@ public:
      *             the composition map are assumed to have zero mass fraction
      */
     void setState_TPY(doublereal t, doublereal p, const std::string& y);
-
 
     //! Set the pressure (Pa) and mole fractions.
     /*!
@@ -636,11 +567,16 @@ public:
      * these depends on the subclass.
      * @param n number of parameters
      * @param c array of  n coefficients
-     *
+     * @deprecated Unimplemented
      */
-    virtual void setParameters(int n, doublereal* const c) {}
+    virtual void setParameters(int n, doublereal* const c) {
+        warn_deprecated("SingleSpeciesTP::setParameters");
+    }
 
-    virtual void getParameters(int& n, doublereal* const c) const {}
+    //! @deprecated Unimplemented
+    virtual void getParameters(int& n, doublereal* const c) const {
+        warn_deprecated("SingleSpeciesTP::getParameters");
+    }
 
     /**
      * Set equation of state parameter values from XML
@@ -655,16 +591,7 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
 
-    //---------------------------------------------------------
-    /// @name Critical state properties.
-    /// These methods are only implemented by some subclasses.
-
-    //@{
-
-
-
     //@}
-
     /// @name Saturation properties.
     /// These methods are only implemented by subclasses that
     /// implement full liquid-vapor equations of state.
@@ -674,7 +601,7 @@ public:
         return -1.0;
     }
 
-    virtual doublereal satPressure(doublereal t) const {
+    virtual doublereal satPressure(doublereal t) {
         err("satPressure");
         return -1.0;
     }
@@ -693,7 +620,6 @@ public:
     }
 
     //@}
-
 
     /**
      * @internal Initialize.
@@ -715,14 +641,7 @@ public:
      */
     virtual void initThermo();
 
-
 protected:
-
-    //! Lower value of the temperature for which reference thermo is valid
-    doublereal m_tmin;
-    //! Upper value of the temperature for which reference thermo is valid
-    doublereal m_tmax;
-
     //! The current pressure of the solution (Pa)
     /*!
      * It gets initialized to 1 atm.
@@ -756,16 +675,16 @@ protected:
 
 private:
 
-    //! Error return for unhandled cases
+    //! Error return for unhandled cases.
     /*!
+     * It's used when this class doesn't have an answer for the question given
+     * to it, because the derived class isn't overriding a function.
+     *
      * @param msg   String message
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 };
 
 }
 
 #endif
-
-
-

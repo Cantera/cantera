@@ -14,8 +14,6 @@
 using namespace ctml;
 using namespace std;
 
-#include <cstdlib>
-
 namespace Cantera
 {
 
@@ -167,7 +165,7 @@ doublereal Elements::LookupWtElements(const std::string& ename)
     string s3 = ename.substr(0,3);
     for (int i = 0; i < num; i++) {
         if (s3 == aWTable[i].name) {
-            return (aWTable[i].atomicWeight);
+            return aWTable[i].atomicWeight;
         }
     }
     throw CanteraError("LookupWtElements", "element not found");
@@ -180,7 +178,7 @@ doublereal LookupWtElements(const std::string& ename)
     string s3 = ename.substr(0,3);
     for (int i = 0; i < num; i++) {
         if (s3 == aWTable[i].name) {
-            return (aWTable[i].atomicWeight);
+            return aWTable[i].atomicWeight;
         }
     }
     throw CanteraError("LookupWtElements", "element not found");
@@ -218,6 +216,7 @@ Elements::Elements() :
     m_elem_type(0),
     numSubscribers(0)
 {
+    warn_deprecated("class Elements");
 }
 
 /*
@@ -283,7 +282,7 @@ void Elements::freezeElements()
  * returned.
  *
  */
-int Elements::elementIndex(std::string name) const
+int Elements::elementIndex(const std::string& name) const
 {
     for (int i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == name) {
@@ -313,7 +312,7 @@ doublereal Elements::entropyElement298(int m) const
                    "Elements::entropy298",
                    "Entropy at 298 K of element is unknown");
     AssertTrace(m >= 0 && m < m_mm);
-    return (m_entropy298[m]);
+    return m_entropy298[m];
 }
 //====================================================================================================================
 //! Return the element constraint type
@@ -392,7 +391,7 @@ addElement(const std::string& symbol, doublereal weight)
 void Elements::
 addElement(const XML_Node& e)
 {
-    doublereal weight = atof(e["atomicWt"].c_str());
+    doublereal weight = fpValue(e["atomicWt"]);
     string symbol = e["name"];
     addElement(symbol, weight);
 }
@@ -412,7 +411,7 @@ addElement(const XML_Node& e)
  */
 void Elements::
 addUniqueElement(const std::string& symbol,
-                 doublereal weight, int atomicNumber, doublereal entropy298,
+                 doublereal weight, int atomicNumber_, doublereal entropy298,
                  int elem_type)
 {
     if (weight == -12345.0) {
@@ -442,7 +441,7 @@ addUniqueElement(const std::string& symbol,
         }
         m_atomicWeights.push_back(weight);
         m_elementNames.push_back(symbol);
-        m_atomicNumbers.push_back(atomicNumber);
+        m_atomicNumbers.push_back(atomicNumber_);
         m_entropy298.push_back(entropy298);
         if (symbol == "E") {
             m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
@@ -467,7 +466,7 @@ addUniqueElement(const XML_Node& e)
 {
     doublereal weight = 0.0;
     if (e.hasAttrib("atomicWt")) {
-        weight = atof(stripws(e["atomicWt"]).c_str());
+        weight = fpValue(stripws(e["atomicWt"]));
     }
     int anum = 0;
     if (e.hasAttrib("atomicNumber")) {
@@ -478,7 +477,7 @@ addUniqueElement(const XML_Node& e)
     if (e.hasChild("entropy298")) {
         XML_Node& e298Node = e.child("entropy298");
         if (e298Node.hasAttrib("value")) {
-            entropy298 = atofCheck(stripws(e298Node["value"]).c_str());
+            entropy298 = fpValueCheck(stripws(e298Node["value"]));
         }
     }
     if (weight != 0.0) {
@@ -516,7 +515,7 @@ void Elements::clear()
  */
 bool Elements::ready() const
 {
-    return (m_elementsFrozen);
+    return m_elementsFrozen;
 }
 
 

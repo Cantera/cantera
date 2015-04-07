@@ -17,6 +17,7 @@ using namespace std;
 #include "cantera/thermo/Mu0Poly.h"
 #include "Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
+#include "cantera/thermo/StatMech.h"
 
 #include "cantera/thermo/AdsorbateThermo.h"
 #include "cantera/thermo/SpeciesThermoMgr.h"
@@ -26,8 +27,6 @@ using namespace std;
 
 #include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
-
-#include <cmath>
 
 using namespace ctml;
 
@@ -119,12 +118,6 @@ SpeciesThermoFactory* SpeciesThermoFactory::factory()
     return s_factory;
 }
 
-// Delete static instance of this class
-/*
- * If it is necessary to explicitly delete the factory before
- * the process terminates (for example, when checking for
- * memory leaks) then this method can be called to delete it.
- */
 void SpeciesThermoFactory::deleteFactory()
 {
     ScopedLock lock(species_thermo_mutex);
@@ -134,21 +127,6 @@ void SpeciesThermoFactory::deleteFactory()
     }
 }
 
-// Destructor
-/*
- * Doesn't do anything. We do not delete statically
- * created single instance of this class here, because it would
- * create an infinite loop if destructor is called for that
- * single instance.
- */
-SpeciesThermoFactory::~SpeciesThermoFactory()
-{
-}
-
-/*
- * Return a species thermo manager to handle the parameterizations
- * specified in a CTML phase specification.
- */
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const
 {
     int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
@@ -160,28 +138,6 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & s
     }
     if (iother) {
         //writelog("returning new GeneralSpeciesThermo");
-        return new GeneralSpeciesThermo();
-    }
-    return newSpeciesThermo(NASA*inasa
-                            + SHOMATE*ishomate + SIMPLE*isimple);
-}
-
-
-/*
- * @todo is this used?
- */
-SpeciesThermo* SpeciesThermoFactory::
-newSpeciesThermoOpt(std::vector<XML_Node*> & spDataNodeList) const
-{
-    int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
-    try {
-        getSpeciesThermoTypes(spDataNodeList, inasa, ishomate, isimple, iother);
-    } catch (UnknownSpeciesThermoModel) {
-        iother = 1;
-        popError();
-    }
-
-    if (iother) {
         return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa
@@ -236,68 +192,17 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(std::string& stype)
     return (SpeciesThermo*) 0;
 }
 
-/*
- * Check the continuity of properties at the midpoint
- * temperature.
- */
-void NasaThermo::checkContinuity(std::string name, double tmid, const doublereal* clow,
-                                 doublereal* chigh)
-{
-    // heat capacity
-    doublereal cplow = poly4(tmid, clow);
-    doublereal cphigh = poly4(tmid, chigh);
-    doublereal delta = cplow - cphigh;
-    if (fabs(delta/(fabs(cplow)+1.0E-4)) > 0.001) {
-        writelog("\n\n**** WARNING ****\nFor species "+name+
-                 ", discontinuity in cp/R detected at Tmid = "
-                 +fp2str(tmid)+"\n");
-        writelog("\tValue computed using low-temperature polynomial:  "
-                 +fp2str(cplow)+".\n");
-        writelog("\tValue computed using high-temperature polynomial: "
-                 +fp2str(cphigh)+".\n");
-    }
-
-    // enthalpy
-    doublereal hrtlow = enthalpy_RT(tmid, clow);
-    doublereal hrthigh = enthalpy_RT(tmid, chigh);
-    delta = hrtlow - hrthigh;
-    if (fabs(delta/(fabs(hrtlow)+cplow*tmid)) > 0.001) {
-        writelog("\n\n**** WARNING ****\nFor species "+name+
-                 ", discontinuity in h/RT detected at Tmid = "
-                 +fp2str(tmid)+"\n");
-        writelog("\tValue computed using low-temperature polynomial:  "
-                 +fp2str(hrtlow)+".\n");
-        writelog("\tValue computed using high-temperature polynomial: "
-                 +fp2str(hrthigh)+".\n");
-    }
-
-    // entropy
-    doublereal srlow = entropy_R(tmid, clow);
-    doublereal srhigh = entropy_R(tmid, chigh);
-    delta = srlow - srhigh;
-    if (fabs(delta/(fabs(srlow)+cplow)) > 0.001) {
-        writelog("\n\n**** WARNING ****\nFor species "+name+
-                 ", discontinuity in s/R detected at Tmid = "
-                 +fp2str(tmid)+"\n");
-        writelog("\tValue computed using low-temperature polynomial:  "
-                 +fp2str(srlow)+".\n");
-        writelog("\tValue computed using high-temperature polynomial: "
-                 +fp2str(srhigh)+".\n");
-    }
-}
-
-
 //!  Install a NASA polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
 /*!
  * This is called by method installThermoForSpecies if a NASA block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
  */
-static void installNasaThermoFromXML(std::string speciesName,
+static void installNasaThermoFromXML(const std::string& speciesName,
                                      SpeciesThermo& sp, size_t k,
                                      const XML_Node* f0ptr, const XML_Node* f1ptr)
 {
@@ -387,7 +292,7 @@ static doublereal LookupGe(const std::string& elemName, ThermoPhase* th_ptr)
     doublereal geValue = th_ptr->entropyElement298(iE);
     if (geValue == ENTROPY298_UNKNOWN) {
         throw CanteraError("PDSS_HKFT::LookupGe",
-                           "element " + elemName + " doesn not have a supplied entropy298");
+                           "element " + elemName + " does not have a supplied entropy298");
     }
     geValue *= (-298.15);
     return geValue;
@@ -429,11 +334,11 @@ static doublereal convertDGFormation(size_t k, ThermoPhase* th_ptr)
  *
  *  @param speciesName        String name of the species
  *  @param th_ptr             Pointer to the %ThermoPhase object
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param MinEQ3node         Ptr to the first XML_Node for the first MinEQ3 parameterization
  */
-static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
+static void installMinEQ3asShomateThermoFromXML(const std::string& speciesName,
         ThermoPhase* th_ptr,
         SpeciesThermo& sp, size_t k,
         const XML_Node* MinEQ3node)
@@ -462,7 +367,7 @@ static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
     doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
     doublereal DHjmol = deltaH_formation_pr_tr * 1.0E3 * 4.184;
 
-    // If the discrepency is greater than 100 cal gmol-1, print
+    // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > 10.* 1.0E6 * 4.184) {
         throw CanteraError("installMinEQ3asShomateThermoFromXML()",
@@ -515,12 +420,12 @@ static void installMinEQ3asShomateThermoFromXML(std::string speciesName,
  * This is called by method installThermoForSpecies if a Shomate block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param f0ptr              Ptr to the first XML_Node for the first NASA polynomial
  *  @param f1ptr              Ptr to the first XML_Node for the first NASA polynomial
  */
-static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& sp, size_t k,
+static void installShomateThermoFromXML(const std::string& speciesName, SpeciesThermo& sp, size_t k,
                                         const XML_Node* f0ptr, const XML_Node* f1ptr)
 {
     doublereal tmin0, tmax0, tmin1, tmax1, tmin, tmid, tmax;
@@ -557,6 +462,11 @@ static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& 
         if (dualRange) {
             getFloatArray(f1ptr->child("floatArray"), c1, false);
         } else {
+            if(c0.size() != 7)
+            {
+              throw CanteraError("installShomateThermoFromXML",
+                                 "Shomate thermo requires 7 coefficients in float array.");
+            }
             c1.resize(7,0.0);
             copy(c0.begin(), c0.begin()+7, c1.begin());
         }
@@ -570,6 +480,11 @@ static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& 
         throw CanteraError("installShomateThermoFromXML",
                            "non-continuous temperature ranges.");
     }
+    if(c0.size() != 7 || c1.size() != 7)
+    {
+      throw CanteraError("installShomateThermoFromXML",
+                         "Shomate thermo requires 7 coefficients in float array.");
+    }
     vector_fp c(15);
     c[0] = tmid;
     copy(c0.begin(), c0.begin()+7, c.begin() + 1);
@@ -582,11 +497,11 @@ static void installShomateThermoFromXML(std::string speciesName, SpeciesThermo& 
  * This is called by method installThermoForSpecies if a SimpleThermo block is found
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param f                  XML_Node for the SimpleThermo block
  */
-static void installSimpleThermoFromXML(std::string speciesName,
+static void installSimpleThermoFromXML(const std::string& speciesName,
                                        SpeciesThermo& sp, size_t k,
                                        const XML_Node& f)
 {
@@ -612,11 +527,11 @@ static void installSimpleThermoFromXML(std::string speciesName,
  * This is called by method installThermoForSpecies if a NASA9 block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
  *  @param tp                 Vector of XML Nodes that make up the parameterization
  */
-static void installNasa9ThermoFromXML(std::string speciesName,
+static void installNasa9ThermoFromXML(const std::string& speciesName,
                                       SpeciesThermo& sp, size_t k,
                                       const std::vector<XML_Node*>& tp)
 {
@@ -666,23 +581,68 @@ static void installNasa9ThermoFromXML(std::string speciesName,
     }
 }
 
+/**
+ * Install a stat mech based property solver
+ * for species k into a SpeciesThermo instance.
+ */
+static void installStatMechThermoFromXML(const std::string& speciesName,
+        SpeciesThermo& sp, int k,
+        const std::vector<XML_Node*>& tp)
+{
+    const XML_Node* fptr = tp[0];
+    int nRegTmp = tp.size();
+    vector_fp cPoly;
+    std::vector<StatMech*> regionPtrs;
+    doublereal tmin, tmax = 0.0, pref = OneAtm;
+
+    // Loop over all of the possible temperature regions
+    for (int i = 0; i < nRegTmp; i++) {
+        fptr = tp[i];
+        if (fptr) {
+            if (fptr->name() == "StatMech") {
+                if (fptr->hasChild("floatArray")) {
+
+                    tmin = fpValue((*fptr)["Tmin"]);
+                    tmax = fpValue((*fptr)["Tmax"]);
+                    if ((*fptr).hasAttrib("P0")) {
+                        pref = fpValue((*fptr)["P0"]);
+                    }
+                    if ((*fptr).hasAttrib("Pref")) {
+                        pref = fpValue((*fptr)["Pref"]);
+                    }
+
+                    getFloatArray(fptr->child("floatArray"), cPoly, false);
+                    if (cPoly.size() != 0) {
+                        throw CanteraError("installStatMechThermoFromXML",
+                                           "Expected no coeff: this is not a polynomial representation");
+                    }
+                }
+            }
+        }
+    }
+    // set properties
+    tmin = 0.1;
+    vector_fp coeffs(1);
+    coeffs[0] = 0.0;
+    (&sp)->install(speciesName, k, STAT, &coeffs[0], tmin, tmax, pref);
+}
 
 //! Install a Adsorbate polynomial thermodynamic property parameterization for species k into a SpeciesThermo instance.
 /*!
  * This is called by method installThermoForSpecies if a Adsorbate block is found in the XML input.
  *
  *  @param speciesName        String name of the species
- *  @param sp                 SpeciesThermo object that will receive the nasa polynomial object
+ *  @param sp                 SpeciesThermo object that will receive the NASA polynomial object
  *  @param k                  Species index within the phase
- *  @param tp                 Vector of XML Nodes that make up the parameterization
+ *  @param f                  XML Node that contains the parameterization
  */
-static void installAdsorbateThermoFromXML(std::string speciesName,
-        SpeciesThermo& sp, int k,
+static void installAdsorbateThermoFromXML(const std::string& speciesName,
+        SpeciesThermo& sp, size_t k,
         const XML_Node& f)
 {
     vector_fp freqs;
     doublereal tmin, tmax, pref = OneAtm;
-    int nfreq = 0;
+    size_t nfreq = 0;
     tmin = fpValue(f["Tmin"]);
     tmax = fpValue(f["Tmax"]);
     if (f.hasAttrib("P0")) {
@@ -699,29 +659,16 @@ static void installAdsorbateThermoFromXML(std::string speciesName,
         getFloatArray(f.child("floatArray"), freqs, false);
         nfreq = freqs.size();
     }
-    for (int n = 0; n < nfreq; n++) {
+    for (size_t n = 0; n < nfreq; n++) {
         freqs[n] *= 3.0e10;
     }
     vector_fp coeffs(nfreq + 2);
-    coeffs[0] = nfreq;
+    coeffs[0] = static_cast<double>(nfreq);
     coeffs[1] = getFloat(f, "binding_energy", "toSI");
     copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
     (&sp)->install(speciesName, k, ADSORBATE, &coeffs[0], tmin, tmax, pref);
 }
 
-//================================================================================================
-// Install a species thermodynamic property parameterization
-// for the reference state for one species into a species thermo manager.
-/*
- * @param k             Species number
- * @param speciesNode   Reference to the XML node specifying the species standard
- *                      state information
- * @param th_ptr        Pointer to the %ThermoPhase object for the species
- * @param spthermo      Species reference state thermo manager
- * @param phaseNode_ptr Optional pointer to the XML phase
- *                      information for the phase in which the species
- *                      resides
- */
 void SpeciesThermoFactory::installThermoForSpecies
 (size_t k, const XML_Node& speciesNode, ThermoPhase* th_ptr,
  SpeciesThermo& spthermo, const XML_Node* phaseNode_ptr) const
@@ -737,7 +684,7 @@ void SpeciesThermoFactory::installThermoForSpecies
     const XML_Node& thermo = speciesNode.child("thermo");
 
     // Get the children of the thermo XML node. In the next bit of code we take out the comments that
-    // may have been childrent of the thermo XML node by doing a selective copy.
+    // may have been children of the thermo XML node by doing a selective copy.
     // These shouldn't interfere with the algorithm at any point.
     const std::vector<XML_Node*>& tpWC = thermo.children();
     std::vector<XML_Node*> tp;
@@ -769,11 +716,11 @@ void SpeciesThermoFactory::installThermoForSpecies
                 installMu0ThermoFromXML(speciesNode["name"], spthermo, k, f);
             } else if (f->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
-            }
-            else if (f->name() == "adsorbate") {
+            } else if (f->name() == "StatMech") {
+                installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
+            } else if (f->name() == "adsorbate") {
                 installAdsorbateThermoFromXML(speciesNode["name"], spthermo, k, *f);
-            }
-            else {
+            } else {
                 throw UnknownSpeciesThermoModel("installThermoForSpecies",
                                                 speciesNode["name"], f->name());
             }
@@ -784,6 +731,8 @@ void SpeciesThermoFactory::installThermoForSpecies
                 installNasaThermoFromXML(speciesNode["name"], spthermo, k, f0, f1);
             } else if (f0->name() == "Shomate" && f1->name() == "Shomate") {
                 installShomateThermoFromXML(speciesNode["name"], spthermo, k, f0, f1);
+            } else if (f0->name() == "StatMech") {
+                installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
             } else if (f0->name() == "NASA9" && f1->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
             } else {
@@ -794,6 +743,8 @@ void SpeciesThermoFactory::installThermoForSpecies
             const XML_Node* f0 = tp[0];
             if (f0->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
+            } else if (f0->name() == "StatMech") {
+                installStatMechThermoFromXML(speciesNode["name"], spthermo, k, tp);
             } else {
                 throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"],
                                                 "multiple");
@@ -804,27 +755,7 @@ void SpeciesThermoFactory::installThermoForSpecies
         }
     }
 }
-//================================================================================================
-// Install a species thermodynamic property parameterization
-// for the standard state for one species into a species thermo manager, VPSSMgr
-/*
- * This is a wrapper around the createInstallVPSS() function in the
- * VPStandardStateTP object.
- *
- * This serves to install the species into vpss_ptr, create a PDSS file. We also
- * read the xml database to extract the constants for these steps.
- *
- * @param k             species number
- * @param speciesNode   Reference to the XML node specifying the species standard
- *                      state information
- * @param vp_ptr        variable pressure ThermoPhase object
- * @param vpss_ptr      Pointer to the Manager for calculating variable pressure
- *                      substances.
- * @param spthermo_ptr  Species reference state thermo manager
- * @param phaseNode_ptr Optional Pointer to the XML phase
- *                      information for the phase in which the species
- *                      resides
- */
+
 void SpeciesThermoFactory::
 installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
                           VPStandardStateTP* vp_ptr,
@@ -844,82 +775,30 @@ installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
     vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
 }
 
-// Create a new species thermo manager instance, by specifying
-// the type and (optionally) a pointer to the factory to use to create it.
-/*
- * This utility program  will look through species nodes. It will discover what
- * each species needs for its species property managers. Then,
- * it will malloc and return the proper species property manager to use.
- *
- *  These functions allow using a different factory class that
- *  derives from SpeciesThermoFactory.
- *
- * @param type         Species thermo type.
- * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                     Defaults to NULL.
- */
 SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
-    SpeciesThermo* sptherm = f->newSpeciesThermo(type);
-    return sptherm;
+    return f->newSpeciesThermo(type);
 }
 
-// Create a new species thermo manager instance, by specifying
-//the type and (optionally) a pointer to the factory to use to create it.
-/*
- * This utility program is a basic factory operation for spawning a
- * new species reference-state thermo manager
- *
- *  These functions allows for using a different factory class that
- *  derives from SpeciesThermoFactory. However, no applications of this
- *  have been done yet.
- *
- * @param stype       String specifying the species thermo type
- * @param f           Pointer to a SpeciesThermoFactory. optional parameter.
- *                    Defaults to NULL.
- */
 SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
                                    SpeciesThermoFactory* f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
-    SpeciesThermo* sptherm = f->newSpeciesThermoManager(stype);
-    return sptherm;
+    return f->newSpeciesThermoManager(stype);
 }
 
-// Function to return SpeciesThermo manager
-/*
- * This utility program  will look through species nodes. It will discover what
- * each species needs for its species property managers. Then,
- * it will malloc and return the proper species property manager to use.
- *
- *  These functions allow using a different factory class that
- *  derives from SpeciesThermoFactory.
- *
- * @param spData_nodes Vector of XML_Nodes, each of which is a speciesData XML Node.
- *                     Each %speciesData node contains a list of XML species elements
- *                      e.g., \<speciesData id="Species_Data"\>
- * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
- *                     Defaults to NULL.
- * @param opt          Boolean defaults to false.
- */
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes,
-                                   SpeciesThermoFactory* f, bool opt)
+                                   SpeciesThermoFactory* f)
 {
     if (f == 0) {
         f = SpeciesThermoFactory::factory();
     }
-    SpeciesThermo* sptherm;
-    if (opt) {
-        sptherm = f->newSpeciesThermoOpt(spData_nodes);
-    } else {
-        sptherm = f->newSpeciesThermo(spData_nodes);
-    }
-    return sptherm;
+    return f->newSpeciesThermo(spData_nodes);
 }
 
 }

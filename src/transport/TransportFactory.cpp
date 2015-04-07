@@ -8,6 +8,7 @@
 
 // known transport models
 #include "cantera/transport/MultiTransport.h"
+#include "cantera/transport/PecosTransport.h"
 #include "cantera/transport/MixTransport.h"
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/DustyGasTransport.h"
@@ -18,22 +19,21 @@
 
 #include "cantera/numerics/polyfit.h"
 #include "MMCollisionInt.h"
+
 #include "cantera/base/xml.h"
 #include "cantera/base/XML_Writer.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/transport/LiquidTransportParams.h"
 #include "cantera/transport/LiquidTranInteraction.h"
+#include "cantera/transport/SolidTransportData.h"
 #include "cantera/base/global.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cstdio>
-#include <cstring>
 #include <fstream>
 
 using namespace std;
-
 
 //! polynomial degree used for fitting collision integrals
 //! except in CK mode, where the degree is 6.
@@ -48,8 +48,6 @@ const doublereal TwoOverPi       = 2.0/Pi;
 const doublereal FiveThirds      = 5.0/3.0;
 //@ \endcond
 
-
-//====================================================================================================================
 TransportFactory* TransportFactory::s_factory = 0;
 
 // declaration of static storage for the mutex
@@ -57,7 +55,6 @@ mutex_t TransportFactory::transport_mutex;
 
 ////////////////////////// exceptions /////////////////////////
 
-//====================================================================================================================
 //! Exception thrown if an error is encountered while reading the transport database
 class TransportDBError : public CanteraError
 {
@@ -67,14 +64,12 @@ public:
      *  @param linenum  inputs the line number
      *  @param msg      String message to be sent to the user
      */
-    TransportDBError(int linenum, std::string msg) :
+    TransportDBError(int linenum, const std::string& msg) :
         CanteraError("getTransportData", "error reading transport data: "  + msg + "\n") {
     }
 };
-//====================================================================================================================
 
 //////////////////// class TransportFactory methods //////////////
-
 
 void TransportFactory::getBinDiffCorrection(doublereal t,
         const GasTransportParams& tr, MMCollisionInt& integrals,
@@ -140,24 +135,10 @@ void TransportFactory::getBinDiffCorrection(doublereal t,
           (p2*xk*xk + p1*xj*xj + p12*xk*xj)/
           (q2*xk*xk + q1*xj*xj + q12*xk*xj);
 }
-//=============================================================================================================================
-// Corrections for polar-nonpolar binary diffusion coefficients
-/*
- * Calculate corrections to the well depth parameter and the
- * diameter for use in computing the binary diffusion coefficient
- * of polar-nonpolar pairs. For more information about this
- * correction, see Dixon-Lewis, Proc. Royal Society (1968).
- *
- *  @param i          Species one - this is a bimolecular correction routine
- *  @param j          species two - this is a bimolecular correction routine
- *  @param tr         Database of species properties read in from the input xml file.
- *  @param f_eps      Multiplicative correction factor to be applied to epsilon(i,j)
- *  @param f_sigma    Multiplicative correction factor to be applied to diam(i,j)
- */
+
 void TransportFactory::makePolarCorrections(size_t i, size_t j,
         const GasTransportParams& tr, doublereal& f_eps, doublereal& f_sigma)
 {
-
     // no correction if both are nonpolar, or both are polar
     if (tr.polar[i] == tr.polar[j]) {
         f_eps = 1.0;
@@ -181,14 +162,7 @@ void TransportFactory::makePolarCorrections(size_t i, size_t j,
     f_sigma = pow(xi, -1.0/6.0);
     f_eps = xi*xi;
 }
-//=============================================================================================================================
-/*
-  TransportFactory(): default constructor
 
-  The default constructor for this class sets up
-  m_models[], a mapping between the string name
-  for a transport model and the integer name.
-*/
 TransportFactory::TransportFactory() :
     m_verbose(false)
 {
@@ -202,8 +176,14 @@ TransportFactory::TransportFactory() :
     m_models["Aqueous"] = cAqueousTransport;
     m_models["Simple"] = cSimpleTransport;
     m_models["User"] = cUserTransport;
+    m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
     //m_models["Radiative"] = cRadiative;
+    for (map<string, int>::iterator iter = m_models.begin();
+            iter != m_models.end();
+            iter++) {
+        m_modelNames[iter->second] = iter->first;
+    }
 
     m_tranPropMap["viscosity"] = TP_VISCOSITY;
     m_tranPropMap["ionConductivity"] = TP_IONCONDUCTIVITY;
@@ -213,6 +193,8 @@ TransportFactory::TransportFactory() :
     m_tranPropMap["speciesDiffusivity"] = TP_DIFFUSIVITY;
     m_tranPropMap["hydrodynamicRadius"] = TP_HYDRORADIUS;
     m_tranPropMap["electricalConductivity"] = TP_ELECTCOND;
+    m_tranPropMap["defectDiffusivity"] = TP_DEFECTDIFF;
+    m_tranPropMap["defectActivity"] = TP_DEFECTCONC;
 
     m_LTRmodelMap[""] = LTP_TD_CONSTANT;
     m_LTRmodelMap["constant"] = LTP_TD_CONSTANT;
@@ -231,8 +213,6 @@ TransportFactory::TransportFactory() :
     m_LTImodelMap["moleFractionsExpT"] = LTI_MODEL_MOLEFRACS_EXPT;
 }
 
-
-// This static function deletes the statically allocated instance.
 void TransportFactory::deleteFactory()
 {
     ScopedLock transportLock(transport_mutex);
@@ -242,13 +222,18 @@ void TransportFactory::deleteFactory()
     }
 }
 
-/*
-  make one of several transport models, and return a base class
-  pointer to it.  This method operates at the level of a
-  single transport property as a function of temperature
-  and possibly composition.
-*/
-LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, std::string& name,
+std::string TransportFactory::modelName(int model)
+{
+    TransportFactory& f = *factory();
+    map<int, string>::iterator iter = f.m_modelNames.find(model);
+    if (iter != f.m_modelNames.end()) {
+        return iter->second;
+    } else {
+        return "";
+    }
+}
+
+LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, const std::string& name,
                                      TransportPropertyType tp_ind, thermo_t* thermo)
 {
     LTPspecies* ltps = 0;
@@ -273,13 +258,6 @@ LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, std::string& name,
     return ltps;
 }
 
-/*
-  make one of several transport models, and return a base class
-  pointer to it.  This method operates at the level of a
-  single mixture transport property.  Individual species
-  transport properties are addressed by the LTPspecies
-  returned by newLTP
-*/
 LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
         TransportPropertyType tp_ind,
         LiquidTransportParams& trParam)
@@ -333,12 +311,8 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
     return lti;
 }
 
-/*
-  make one of several transport models, and return a base class
-  pointer to it.
-*/
-Transport* TransportFactory::newTransport(std::string transportModel,
-        thermo_t* phase, int log_level)
+Transport* TransportFactory::newTransport(const std::string& transportModel,
+        thermo_t* phase, int log_level, int ndim)
 {
 
     if (transportModel == "") {
@@ -371,8 +345,15 @@ Transport* TransportFactory::newTransport(std::string transportModel,
         tr = new MixTransport;
         initTransport(tr, phase, CK_Mode, log_level);
         break;
+        // adding pecos transport model 2/13/12
+    case cPecosTransport:
+        tr = new PecosTransport;
+        initTransport(tr, phase, 0, log_level);
+        break;
     case cSolidTransport:
+
         tr = new SolidTransport;
+        initSolidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
         break;
     case cDustyGasTransport:
@@ -388,7 +369,7 @@ Transport* TransportFactory::newTransport(std::string transportModel,
         tr->setThermo(*phase);
         break;
     case cLiquidTransport:
-        tr = new LiquidTransport;
+        tr = new LiquidTransport(phase, ndim);
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
         break;
@@ -404,10 +385,6 @@ Transport* TransportFactory::newTransport(std::string transportModel,
     return tr;
 }
 
-/*
-  make one of several transport models, and return a base class
-  pointer to it.
-*/
 Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
 {
     XML_Node& phaseNode=phase->xml();
@@ -427,22 +404,6 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
-//====================================================================================================================
-// Prepare to build a new kinetic-theory-based transport manager for low-density gases
-/*
- *  This class fills up the GastransportParams structure for the current phase
- *
- *  Uses polynomial fits to Monchick & Mason collision integrals. store then in tr
- *
- *  @param flog                 Reference to the ostream for writing log info
- *  @param transport_database   Reference to a vector of pointers containing the
- *                              transport database for each species
- *  @param thermo               Pointer to the %ThermoPhase object
- *  @param mode                 Mode -> Either it's CK_Mode, chemkin compatibility mode, or it is not
- *                              We usually run with chemkin compatibility mode turned off.
- *  @param log_level            log level
- *  @param tr                   GasTransportParams structure to be filled up with information
- */
 void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_Node*> &transport_database,
                                thermo_t* thermo, int mode, int log_level, GasTransportParams& tr)
 {
@@ -567,15 +528,6 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
 #endif
 }
 
-//====================================================================================================================
-// Prepare to build a new transport manager for liquids assuming that
-// viscosity transport data is provided in Arrhenius form.
-/*
- *  @param flog                 Reference to the ostream for writing log info
- *  @param thermo               Pointer to the %ThermoPhase object
- *  @param log_level            log level
- *  @param trParam              LiquidTransportParams structure to be filled up with information
- */
 void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo, int log_level,
         LiquidTransportParams& trParam)
 {
@@ -619,27 +571,51 @@ void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo
         XML_Node& transportNode = phase_database->child("transport");
         getLiquidInteractionsTransportData(transportNode, log, trParam.thermo->speciesNames(), trParam);
     }
+
 }
-//====================================================================================================================
-// Initialize an existing transport manager
-/*
- *  This routine sets up an existing gas-phase transport manager.
- *  It calculates the collision integrals and calls the initGas() function to
- *  populate the species-dependent data structure.
- *
- *  @param tr       Pointer to the Transport manager
- *  @param thermo   Pointer to the ThermoPhase object
- *  @param mode     Chemkin compatible mode or not. This alters the specification of the
- *                  collision integrals. defaults to no.
- *  @param log_level Defaults to zero, no logging
- *
- *                     In DEBUG_MODE, this routine will create the file transport_log.xml
- *                     and write informative information to it.
- */
+
+void TransportFactory::setupSolidTransport(std::ostream& flog, thermo_t* thermo, int log_level,
+        SolidTransportData& trParam)
+{
+    const XML_Node* phase_database = &thermo->xml();
+
+    // constant mixture attributes
+    trParam.thermo = thermo;
+    trParam.nsp_ = trParam.thermo->nSpecies();
+    int nsp = trParam.nsp_;
+
+    trParam.tmin = thermo->minTemp();
+    trParam.tmax = thermo->maxTemp();
+    trParam.log_level = log_level;
+
+    // Get the molecular weights and load them into trParam
+    trParam.mw.resize(nsp);
+    copy(trParam.thermo->molecularWeights().begin(),
+         trParam.thermo->molecularWeights().end(), trParam.mw.begin());
+
+    // Resize all other vectors in trParam
+    //trParam.LTData.resize(nsp);
+
+    XML_Node root, log;
+
+    // Note that getSolidSpeciesTransportData just populates the pure species transport data.
+    //    const std::vector<const XML_Node*> & species_database = thermo->speciesData();
+    //    getSolidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);
+
+    // getSolidTransportData() populates the
+    // phase transport models like electronic conductivity
+    // thermal conductivity, interstitial diffusion
+    if (phase_database->hasChild("transport")) {
+        XML_Node& transportNode = phase_database->child("transport");
+        getSolidTransportData(transportNode, log, thermo->name(), trParam);
+    }
+}
+
 void TransportFactory::initTransport(Transport* tran,
                                      thermo_t* thermo, int mode, int log_level)
 {
     ScopedLock transportLock(transport_mutex);
+
     const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
 
     GasTransportParams trParam;
@@ -669,16 +645,11 @@ void TransportFactory::initTransport(Transport* tran,
 #endif
     return;
 }
-//====================================================================================================================
 
-/* Similar to initTransport except uses LiquidTransportParams
-   class and calls setupLiquidTransport().
-*/
 void  TransportFactory::initLiquidTransport(Transport* tran,
         thermo_t* thermo,
         int log_level)
 {
-
     LiquidTransportParams trParam;
 #ifdef DEBUG_MODE
     ofstream flog("transport_log.xml");
@@ -701,12 +672,45 @@ void  TransportFactory::initLiquidTransport(Transport* tran,
     flog.close();
 #endif
     return;
+}
 
+void  TransportFactory::initSolidTransport(Transport* tran,
+        thermo_t* thermo,
+        int log_level)
+{
+    SolidTransportData trParam;
+
+    //setup output
+#ifdef DEBUG_MODE
+    ofstream flog("transport_log.xml");
+    trParam.xml = new XML_Writer(flog);
+    if (m_verbose) {
+        trParam.xml->XML_open(flog, "transport");
+    }
+#else
+    // create the object, but don't associate it with a file
+    std::ostream& flog(std::cout);
+#endif
+
+    //real work next two statements
+    setupSolidTransport(flog, thermo, log_level, trParam);
+    // do model-specific initialization
+    tran->initSolid(trParam);
+
+
+#ifdef DEBUG_MODE
+    if (m_verbose) {
+        trParam.xml->XML_close(flog, "transport");
+    }
+    // finished with log file
+    flog.close();
+#endif
+    return;
 }
 
 void TransportFactory::fitCollisionIntegrals(ostream& logfile,
-                                             GasTransportParams& tr,
-                                             MMCollisionInt& integrals)
+        GasTransportParams& tr,
+        MMCollisionInt& integrals)
 {
     vector_fp::iterator dptr;
     doublereal dstar;
@@ -771,149 +775,91 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
     }
 #endif
 }
-//====================================================================================================================
 
-
-
-/*********************************************************
- *
- *                Read Transport Database
- *
- *********************************************************/
-
-/*
-  Read transport property data from a file for a list of species.
-  Given the name of a file containing transport property
-  parameters and a list of species names, this method returns an
-  instance of TransportParams containing the transport data for
-  these species read from the file.
-*/
 void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,
                                         XML_Node& log, const std::vector<std::string> &names, GasTransportParams& tr)
 {
-    std::string name;
-    int geom;
-    std::map<std::string, GasTransportData> datatable;
-    doublereal welldepth, diam, dipole, polar, rot;
-
-    size_t nsp = xspecies.size();
-
-    // read all entries in database into 'datatable' and check for
-    // errors. Note that this procedure validates all entries, not
-    // only those for the species listed in 'names'.
-
-    std::string val, type;
-    map<std::string, int> gindx;
-    gindx["atom"] = 100;
-    gindx["linear"] = 101;
-    gindx["nonlinear"] = 102;
-    int linenum = 0;
-    for (size_t i = 0; i < nsp; i++) {
-        const XML_Node& sp = *xspecies[i];
-        name = sp["name"];
-        // std::cout << "Processing node for " << name << std::endl;
-
-        // put in a try block so that species with no 'transport'
-        // child are skipped, instead of throwing an exception.
-        try {
-            XML_Node& tr = sp.child("transport");
-            ctml::getString(tr, "geometry", val, type);
-            geom = gindx[val] - 100;
-            map<std::string, doublereal> fv;
-
-            welldepth = ctml::getFloat(tr, "LJ_welldepth");
-            diam = ctml::getFloat(tr, "LJ_diameter");
-            dipole = ctml::getFloat(tr, "dipoleMoment");
-            polar = ctml::getFloat(tr, "polarizability");
-            rot = ctml::getFloat(tr, "rotRelax");
-
-            GasTransportData data;
-            data.speciesName = name;
-            data.geometry = geom;
-            if (welldepth >= 0.0) {
-                data.wellDepth = welldepth;
-            } else throw TransportDBError(linenum,
-                                              "negative well depth");
-
-            if (diam > 0.0) {
-                data.diameter = diam;
-            } else throw TransportDBError(linenum,
-                                              "negative or zero diameter");
-
-            if (dipole >= 0.0) {
-                data.dipoleMoment = dipole;
-            } else throw TransportDBError(linenum,
-                                              "negative dipole moment");
-
-            if (polar >= 0.0) {
-                data.polarizability = polar;
-            } else throw TransportDBError(linenum,
-                                              "negative polarizability");
-
-            if (rot >= 0.0) {
-                data.rotRelaxNumber = rot;
-            } else throw TransportDBError(linenum,
-                                              "negative rotation relaxation number");
-
-            datatable[name] = data;
-        } catch (CanteraError& err) {
-            err.save();
-        }
+    std::map<std::string, size_t> speciesIndices;
+    for (size_t i = 0; i < names.size(); i++) {
+        speciesIndices[names[i]] = i;
     }
 
-    for (size_t i = 0; i < tr.nsp_; i++) {
+    for (size_t i = 0; i < xspecies.size(); i++) {
+        const XML_Node& sp = *xspecies[i];
 
-        GasTransportData& trdat = datatable[names[i]];
-
-        // 'datatable' returns a default TransportData object if
-        // the species name is not one in the transport database.
-        // This can be detected by examining 'geometry'.
-        if (trdat.geometry < 0) {
-            throw TransportDBError(0,"no transport data found for species "
-                                   + names[i]);
+        // Find the index for this species in 'names'
+        std::map<std::string, size_t>::const_iterator iter =
+            speciesIndices.find(sp["name"]);
+        size_t j;
+        if (iter != speciesIndices.end()) {
+            j = iter->second;
+        } else {
+            // Don't need transport data for this species
+            continue;
         }
+
+        XML_Node& node = sp.child("transport");
 
         // parameters are converted to SI units before storing
 
-        // rotational heat capacity / R
-        switch (trdat.geometry) {
-        case 0:
-            tr.crot[i] = 0.0;     // monatomic
-            break;
-        case 1:
-            tr.crot[i] = 1.0;     // linear
-            break;
-        default:
-            tr.crot[i] = 1.5;     // nonlinear
-        }
-
-
-        tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
-
-        if (trdat.dipoleMoment > 0.0) {
-            tr.polar[i] = true;
+        // Molecular geometry; rotational heat capacity / R
+        XML_Node* geomNode = ctml::getByTitle(node, "geometry");
+        std::string geom = (geomNode) ? geomNode->value() : "";
+        if (geom == "atom") {
+            tr.crot[j] = 0.0;
+        } else if (geom == "linear") {
+            tr.crot[j] = 1.0;
+        } else if (geom == "nonlinear") {
+            tr.crot[j] = 1.5;
         } else {
-            tr.polar[i] = false;
+            throw TransportDBError(i, "invalid geometry");
         }
 
-        // A^3 -> m^3
-        tr.alpha[i] = 1.e-30 * trdat.polarizability;
+        // Well-depth parameter in Kelvin (converted to Joules)
+        double welldepth = ctml::getFloat(node, "LJ_welldepth");
+        if (welldepth >= 0.0) {
+            tr.eps[j] = Boltzmann * welldepth;
+        } else {
+            throw TransportDBError(i, "negative well depth");
+        }
 
-        tr.sigma[i] = 1.e-10 * trdat.diameter;
+        // Lennard-Jones diameter of the molecule, given in Angstroms.
+        double diam = ctml::getFloat(node, "LJ_diameter");
+        if (diam > 0.0) {
+            tr.sigma[j] = 1.e-10 * diam; // A -> m
+        } else {
+            throw TransportDBError(i, "negative or zero diameter");
+        }
 
-        tr.eps[i] = Boltzmann * trdat.wellDepth;
-        tr.zrot[i]  = std::max(1.0, trdat.rotRelaxNumber);
+        // Dipole moment of the molecule.
+        // Given in Debye (a debye is 10-18 cm3/2 erg1/2)
+        double dipole = ctml::getFloat(node, "dipoleMoment");
+        if (dipole >= 0.0) {
+            tr.dipole(j,j) = 1.e-25 * SqrtTen * dipole;
+            tr.polar[j] = (dipole > 0.0);
+        } else {
+            throw TransportDBError(i, "negative dipole moment");
+        }
 
+        // Polarizability of the molecule, given in cubic Angstroms.
+        double polar = ctml::getFloat(node, "polarizability");
+        if (polar >= 0.0) {
+            tr.alpha[j] = 1.e-30 * polar; // A^3 -> m^3
+        } else {
+            throw TransportDBError(i, "negative polarizability");
+        }
+
+        // Rotational relaxation number. (Number of collisions it takes to
+        // equilibrate the rotational dofs with the temperature)
+        double rot = ctml::getFloat(node, "rotRelax");
+        if (rot >= 0.0) {
+            tr.zrot[j]  = std::max(1.0, rot);
+        } else {
+            throw TransportDBError(i, "negative rotation relaxation number");
+        }
     }
 }
 
-/*
-  Read transport property data from a file for a list of species.
-  Given the name of a file containing transport property
-  parameters and a list of species names, this method returns an
-  instance of TransportParams containing the transport data for
-  these species read from the file.
-*/
 void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &xspecies,
         XML_Node& log,
         const std::vector<std::string> &names,
@@ -1074,6 +1020,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
             trParam.selfDiffusion.resize(nsp,0);
             ThermoPhase* temp_thermo = trParam.thermo;
 
+
             if (tranTypeNode.hasChild("compositionDependence")) {
                 //compDepNode contains the interaction model
                 XML_Node& compDepNode = tranTypeNode.child("compositionDependence");
@@ -1166,14 +1113,65 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
     return;
 }
 
-/*********************************************************
- *
- *                Polynomial fitting
- *
- *********************************************************/
+void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
+        XML_Node& log,
+        const std::string phaseName,
+        SolidTransportData& trParam)
+{
+    try {
+
+        int num = transportNode.nChildren();
+        for (int iChild = 0; iChild < num; iChild++) {
+            //tranTypeNode is a type of transport property like viscosity
+            XML_Node& tranTypeNode = transportNode.child(iChild);
+            std::string nodeName = tranTypeNode.name();
+
+            ThermoPhase* temp_thermo = trParam.thermo;
+
+            //tranTypeNode contains the interaction model
+            //	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
+            switch (m_tranPropMap[nodeName]) {
+            case TP_IONCONDUCTIVITY:
+                trParam.ionConductivity = newLTP(tranTypeNode, phaseName,
+                                                 m_tranPropMap[nodeName],
+                                                 temp_thermo);
+                break;
+            case TP_THERMALCOND:
+                trParam.thermalConductivity = newLTP(tranTypeNode, phaseName,
+                                                     m_tranPropMap[nodeName],
+                                                     temp_thermo);
+                break;
+            case TP_DEFECTDIFF:
+                trParam.defectDiffusivity = newLTP(tranTypeNode, phaseName,
+                                                   m_tranPropMap[nodeName],
+                                                   temp_thermo);
+                break;
+            case TP_DEFECTCONC:
+                trParam.defectActivity = newLTP(tranTypeNode, phaseName,
+                                                m_tranPropMap[nodeName],
+                                                temp_thermo);
+                break;
+            case TP_ELECTCOND:
+                trParam.electConductivity = newLTP(tranTypeNode, phaseName,
+                                                   m_tranPropMap[nodeName],
+                                                   temp_thermo);
+                break;
+            default:
+                throw CanteraError("getSolidTransportData","unknown transport property: " + nodeName);
+
+            }
+        }
+    } catch (CanteraError) {
+        showErrors(std::cout);
+    }
+    //catch(CanteraError) {
+    //  ;
+    //}
+    return;
+}
 
 void TransportFactory::fitProperties(GasTransportParams& tr,
-        MMCollisionInt& integrals, std::ostream& logfile)
+                                     MMCollisionInt& integrals, std::ostream& logfile)
 {
     doublereal tstar;
     int ndeg = 0;
@@ -1478,22 +1476,13 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
     }
 #endif
 }
-//====================================================================================================================
-//  Create a new transport manager instance.
-/*
- *  @param transportModel  String identifying the transport model to be instantiated, defaults to the empty string
- *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
- *  @param loglevel        int containing the Loglevel, defaults to zero
- *  @param f               ptr to the TransportFactory object if it's been malloced.
- *
- * @ingroup transportProps
- */
-Transport* newTransportMgr(std::string transportModel, thermo_t* thermo, int loglevel, TransportFactory* f)
+
+Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f, int ndim)
 {
     if (f == 0) {
         f = TransportFactory::factory();
     }
-    Transport* ptr = f->newTransport(transportModel, thermo, loglevel);
+    Transport* ptr = f->newTransport(transportModel, thermo, loglevel, ndim);
     /*
      * Note: We delete the static s_factory instance here, instead of in
      *       appdelete() in misc.cpp, to avoid linking problems involving
@@ -1502,15 +1491,7 @@ Transport* newTransportMgr(std::string transportModel, thermo_t* thermo, int log
      */
     return ptr;
 }
-//====================================================================================================================
-//  Create a new transport manager instance.
-/*
- *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
- *  @param loglevel        int containing the Loglevel, defaults to zero
- *  @param f               ptr to the TransportFactory object if it's been malloced.
- *
- * @ingroup transportProps
- */
+
 Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFactory* f)
 {
     if (f == 0) {
@@ -1525,6 +1506,4 @@ Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFacto
      */
     return ptr;
 }
-//====================================================================================================================
 }
-

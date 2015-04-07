@@ -22,10 +22,6 @@ using namespace std;
 
 namespace Cantera
 {
-/**
- * Basic list of constructors and duplicators
- */
-
 PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
     volumeModel_(cSSVOLUME_CONSTANT),
@@ -37,9 +33,8 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex) :
     TCoeff_[2] = 0.0;
 }
 
-
 PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp,
-                       size_t spindex, std::string inputFile, std::string id) :
+                       size_t spindex, const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
@@ -61,7 +56,6 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex,
     constructPDSSXML(tp, spindex, speciesNode,  phaseRoot, spInstalled) ;
 }
 
-
 PDSS_SSVol::PDSS_SSVol(const PDSS_SSVol& b) :
     PDSS(b),
     volumeModel_(cSSVOLUME_CONSTANT),
@@ -74,9 +68,6 @@ PDSS_SSVol::PDSS_SSVol(const PDSS_SSVol& b) :
     *this = b;
 }
 
-/*
- * Assignment operator
- */
 PDSS_SSVol& PDSS_SSVol::operator=(const PDSS_SSVol& b)
 {
     if (&b == this) {
@@ -89,33 +80,11 @@ PDSS_SSVol& PDSS_SSVol::operator=(const PDSS_SSVol& b)
     return *this;
 }
 
-PDSS_SSVol::~PDSS_SSVol()
-{
-}
-
-//! Duplicator
 PDSS* PDSS_SSVol::duplMyselfAsPDSS() const
 {
-    PDSS_SSVol* idg = new PDSS_SSVol(*this);
-    return (PDSS*) idg;
+    return new PDSS_SSVol(*this);
 }
 
-/*
- * constructPDSSXML:
- *
- * Initialization of a PDSS_SSVol object using an
- * xml file.
- *
- * This routine is a precursor to initThermo(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
 void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                   const XML_Node& speciesNode,
                                   const XML_Node& phaseNode, bool spInstalled)
@@ -156,30 +125,11 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                            "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
     std::string id = "";
-
 }
 
-
-/*
- * constructPDSSFile():
- *
- * Initialization of a PDSS_SSVol object using an
- * xml file.
- *
- * This routine is a precursor to initThermo(XML_Node*)
- * routine, which does most of the work.
- *
- * @param infile XML file containing the description of the
- *        phase
- *
- * @param id  Optional parameter identifying the name of the
- *            phase. If none is given, the first XML
- *            phase element will be used.
- */
 void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                   std::string inputFile, std::string id)
+                                   const std::string& inputFile, const std::string& id)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_SSVol::initThermo",
                            "input file is null");
@@ -214,7 +164,7 @@ void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     delete fxml;
 }
 
-void PDSS_SSVol::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS_SSVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
     m_minTemp = m_spthermo->minTemp(m_spindex);
@@ -237,14 +187,13 @@ PDSS_SSVol::enthalpy_mole() const
 {
     doublereal val = enthalpy_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 doublereal
 PDSS_SSVol::enthalpy_RT() const
 {
-    doublereal val = m_hss_RT_ptr[m_spindex];
-    return (val);
+    return m_hss_RT_ptr[m_spindex];
 }
 
 doublereal
@@ -253,107 +202,92 @@ PDSS_SSVol::intEnergy_mole() const
     doublereal pVRT = (m_pres * m_Vss_ptr[m_spindex]) / (GasConstant * m_temp);
     doublereal val = m_h0_RT_ptr[m_spindex] - pVRT;
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
-
 
 doublereal
 PDSS_SSVol::entropy_mole() const
 {
     doublereal val = entropy_R();
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 
 doublereal
 PDSS_SSVol::entropy_R() const
 {
-    doublereal val = m_sss_R_ptr[m_spindex];
-    return (val);
+    return m_sss_R_ptr[m_spindex];
 }
 
-/**
- * Calculate the Gibbs free energy in mks units of
- * J kmol-1 K-1.
- */
 doublereal
 PDSS_SSVol::gibbs_mole() const
 {
     doublereal val = gibbs_RT();
     doublereal RT = GasConstant * m_temp;
-    return (val * RT);
+    return val * RT;
 }
 
 doublereal
 PDSS_SSVol::gibbs_RT() const
 {
-    doublereal val = m_gss_RT_ptr[m_spindex];
-    return (val);
+    return m_gss_RT_ptr[m_spindex];
 }
 
 doublereal
 PDSS_SSVol::cp_mole() const
 {
     doublereal val = m_cpss_R_ptr[m_spindex];
-    return (val * GasConstant);
+    return val * GasConstant;
 }
 
 doublereal
 PDSS_SSVol::cp_R() const
 {
-    doublereal val = m_cpss_R_ptr[m_spindex];
-    return (val);
+    return m_cpss_R_ptr[m_spindex];
 }
 
 doublereal
 PDSS_SSVol::cv_mole() const
 {
-    doublereal val = (cp_mole() -  m_V0_ptr[m_spindex]);
-    return (val);
+    return (cp_mole() -  m_V0_ptr[m_spindex]);
 }
 
 doublereal
 PDSS_SSVol::molarVolume() const
 {
-    doublereal val = m_Vss_ptr[m_spindex];
-    return (val);
+    return m_Vss_ptr[m_spindex];
 }
 
 doublereal
 PDSS_SSVol::density() const
 {
     doublereal val = m_Vss_ptr[m_spindex];
-    return (m_mw/val);
+    return m_mw/val;
 }
 
 doublereal
 PDSS_SSVol::gibbs_RT_ref() const
 {
-    doublereal val = m_g0_RT_ptr[m_spindex];
-    return (val);
+    return m_g0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::enthalpy_RT_ref() const
 {
-    doublereal val = m_h0_RT_ptr[m_spindex];
-    return (val);
+    return m_h0_RT_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::entropy_R_ref() const
 {
-    doublereal val = m_s0_R_ptr[m_spindex];
-    return (val);
+    return m_s0_R_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::cp_R_ref() const
 {
-    doublereal val = m_cp0_R_ptr[m_spindex];
-    return (val);
+    return m_cp0_R_ptr[m_spindex];
 }
 
 doublereal PDSS_SSVol::molarVolume_ref() const
 {
-    doublereal val = m_V0_ptr[m_spindex];
-    return (val);
+    return m_V0_ptr[m_spindex];
 }
 
 void PDSS_SSVol::calcMolarVolume() const
@@ -377,29 +311,23 @@ void PDSS_SSVol::calcMolarVolume() const
     }
 }
 
-
-/// critical temperature
 doublereal PDSS_SSVol::critTemperature() const
 {
     throw CanteraError("PDSS_SSVol::critTemperature()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
-/// critical pressure
 doublereal PDSS_SSVol::critPressure() const
 {
     throw CanteraError("PDSS_SSVol::critPressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
-/// critical density
 doublereal PDSS_SSVol::critDensity() const
 {
     throw CanteraError("PDSS_SSVol::critDensity()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
-
-
 
 void PDSS_SSVol::setPressure(doublereal p)
 {
@@ -442,13 +370,11 @@ void PDSS_SSVol::setTemperature(doublereal temp)
     }
 }
 
-
 void PDSS_SSVol::setState_TP(doublereal temp, doublereal pres)
 {
     m_pres = pres;
     setTemperature(temp);
 }
-
 
 void PDSS_SSVol::setState_TR(doublereal temp, doublereal rho)
 {
@@ -460,10 +386,9 @@ void PDSS_SSVol::setState_TR(doublereal temp, doublereal rho)
     setTemperature(temp);
 }
 
-/// saturation pressure
 doublereal PDSS_SSVol::satPressure(doublereal t)
 {
-    return (1.0E-200);
+    return 1.0E-200;
 }
 
 }

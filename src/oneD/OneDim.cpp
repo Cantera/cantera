@@ -1,7 +1,9 @@
+//! @file OneDim.cpp
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/OneDim.h"
 
+#include "cantera/numerics/Func1.h"
 #include "cantera/base/ctml.h"
 
 #include <fstream>
@@ -12,9 +14,6 @@ using namespace std;
 namespace Cantera
 {
 
-/**
- * Default constructor. Create an empty object.
- */
 OneDim::OneDim()
     : m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
       m_jac(0), m_newt(0),
@@ -22,18 +21,13 @@ OneDim::OneDim()
       m_nd(0), m_bw(0), m_size(0),
       m_init(false),
       m_ss_jac_age(10), m_ts_jac_age(20),
-      m_nevals(0), m_evaltime(0.0)
+      m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
     //writelog("OneDim default constructor\n");
     m_newt = new MultiNewton(1);
     //m_solve_time = 0.0;
 }
 
-
-/**
- * Construct a OneDim container for the domains pointed at by the
- * input vector of pointers.
-*/
 OneDim::OneDim(vector<Domain1D*> domains) :
     m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
     m_jac(0), m_newt(0),
@@ -41,7 +35,7 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_nd(0), m_bw(0), m_size(0),
     m_init(false),
     m_ss_jac_age(10), m_ts_jac_age(20),
-    m_nevals(0), m_evaltime(0.0)
+    m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
     //writelog("OneDim constructor\n");
 
@@ -56,8 +50,7 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     resize();
 }
 
-
-size_t OneDim::domainIndex(string name)
+size_t OneDim::domainIndex(const std::string& name)
 {
     for (size_t n = 0; n < m_nd; n++) {
         if (domain(n).id() == name) {
@@ -68,13 +61,8 @@ size_t OneDim::domainIndex(string name)
     return npos;
 }
 
-
-/**
- * Domains are added left-to-right.
- */
 void OneDim::addDomain(Domain1D* d)
 {
-
     // if 'd' is not the first domain, link it to the last domain
     // added (the rightmost one)
     int n = static_cast<int>(m_dom.size());
@@ -97,7 +85,6 @@ void OneDim::addDomain(Domain1D* d)
     resize();
 }
 
-
 OneDim::~OneDim()
 {
     delete m_jac;
@@ -113,7 +100,6 @@ MultiNewton& OneDim::newton()
     return *m_newt;
 }
 
-//==============================================================================================================
 void OneDim::writeStats(int printTime)
 {
     saveStats();
@@ -133,20 +119,7 @@ void OneDim::writeStats(int printTime)
         writelog(buf);
     }
 }
-//==============================================================================================================
 
-/**
- * Save statistics on function and Jacobiab evaulation, and reset
- * the counters. Statistics are saved only if the number of
- * Jacobian evaluations is greater than zero. The statistics saved
- * are
- *
- *    - number of grid points
- *    - number of Jacobian evaluations
- *    - CPU time spent evaluating Jacobians
- *    - number of non-Jacobian function evaluations
- *    - CPU time spent evaluating functions
- */
 void OneDim::saveStats()
 {
     if (m_jac) {
@@ -163,10 +136,6 @@ void OneDim::saveStats()
     }
 }
 
-
-/**
- * Call after one or more grids has been refined.
- */
 void OneDim::resize()
 {
     m_bw = 0;
@@ -231,7 +200,6 @@ void OneDim::resize()
     }
 }
 
-
 int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
 {
     if (!m_jac_ok) {
@@ -240,8 +208,7 @@ int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
         m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
         m_jac_ok = true;
     }
-    int m = m_newt->solve(x, xnew, *this, *m_jac, loglevel);
-    return m;
+    return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
 }
 
 void OneDim::evalSSJacobian(doublereal* x, doublereal* xnew)
@@ -254,15 +221,6 @@ void OneDim::evalSSJacobian(doublereal* x, doublereal* xnew)
     m_rdt = rdt_save;
 }
 
-/**
- * Return a pointer to the domain that contains component i of the
- * global solution vector. The domains are scanned right-to-left,
- * and the first one with starting location less or equal to i is
- * returned.
- *
- * 8/26/02 changed '<' to '<='  DGG
- *
- */
 Domain1D* OneDim::pointDomain(size_t i)
 {
     Domain1D* d = right();
@@ -275,14 +233,12 @@ Domain1D* OneDim::pointDomain(size_t i)
     return 0;
 }
 
-
-/**
- * Evaluate the multi-domain residual function, and return the
- * result in array r.
- */
 void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
 {
     clock_t t0 = clock();
+    if (m_interrupt) {
+        m_interrupt->eval(m_nevals);
+    }
     fill(r, r + m_size, 0.0);
     fill(m_mask.begin(), m_mask.end(), 0);
     if (rdt < 0.0) {
@@ -309,11 +265,6 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
     }
 }
 
-
-/**
- * The 'infinity' (maximum magnitude) norm of the steady-state
- * residual. Used only for diagnostic output.
- */
 doublereal OneDim::ssnorm(doublereal* x, doublereal* r)
 {
     eval(npos, x, r, 0.0, 0);
@@ -324,10 +275,6 @@ doublereal OneDim::ssnorm(doublereal* x, doublereal* r)
     return ss;
 }
 
-
-/**
- * Prepare for time stepping with timestep dt.
- */
 void OneDim::initTimeInteg(doublereal dt, doublereal* x)
 {
     doublereal rdt_old = m_rdt;
@@ -348,12 +295,6 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
     }
 }
 
-
-/**
- * Prepare to solve the steady-state problem.  Set the reciprocal
- * of the time step to zero, and, if it was previously non-zero,
- * signal that a new Jacobian will be needed.
- */
 void OneDim::setSteadyMode()
 {
     m_rdt = 0.0;
@@ -367,11 +308,6 @@ void OneDim::setSteadyMode()
     }
 }
 
-/**
- * Initialize all domains. On the first call, this methods calls
- * the init method of each domain, proceeding from left to right.
- * Subsequent calls do nothing.
- */
 void OneDim::init()
 {
     if (!m_init) {
@@ -384,10 +320,6 @@ void OneDim::init()
     m_init = true;
 }
 
-
-/**
- * Signal that the current Jacobian is no longer valid.
- */
 void Domain1D::needJacUpdate()
 {
     if (m_container) {
@@ -396,26 +328,14 @@ void Domain1D::needJacUpdate()
     }
 }
 
-
-/**
- * Take time steps using Backward Euler.
- *
- *  nsteps   -- number of steps
- *  dt       -- initial step size
- *  loglevel -- controls amount of printed diagnostics
- */
 doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
                             doublereal* r, int loglevel)
 {
-
     // set the Jacobian age parameter to the transient value
     newton().setOptions(m_ts_jac_age);
 
-    if (loglevel > 0) {
-        //writelog("Begin time stepping.\n\n");
-        writelog("\n\n step    size (s)    log10(ss) \n");
-        writelog("===============================\n");
-    }
+    writelog("\n\n step    size (s)    log10(ss) \n", loglevel);
+    writelog("===============================\n", loglevel);
 
     int n = 0, m;
     doublereal ss;
@@ -437,9 +357,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         // the current solution in x.
         if (m >= 0) {
             n += 1;
-            if (loglevel > 0) {
-                writelog("\n");
-            }
+            writelog("\n", loglevel);
             copy(r, r + m_size, x);
             if (m == 100) {
                 dt *= 1.5;
@@ -453,9 +371,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         // No solution could be found with this time step.
         // Decrease the stepsize and try again.
         else {
-            if (loglevel > 0) {
-                writelog("...failure.\n");
-            }
+            writelog("...failure.\n", loglevel);
             dt *= m_tfactor;
             if (dt < m_tmin)
                 throw CanteraError("OneDim::timeStep",
@@ -472,10 +388,10 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
     return dt;
 }
 
-
-void OneDim::save(string fname, string id, string desc, doublereal* sol)
+void OneDim::save(const std::string& fname, std::string id,
+                  const std::string& desc, doublereal* sol,
+                  int loglevel)
 {
-
     struct tm* newtime;
     time_t aclock;
     ::time(&aclock);                /* Get time in seconds */
@@ -518,9 +434,8 @@ void OneDim::save(string fname, string id, string desc, doublereal* sol)
     }
     ct->write(s);
     s.close();
-    writelog("Solution saved to file "+fname+" as solution "+id+".\n");
+    writelog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
 }
-
 
 void Domain1D::setGrid(size_t n, const doublereal* z)
 {

@@ -1,8 +1,7 @@
 /**
- * @file equilibrate.cpp
- * Driver routines for the chemical equilibrium solvers.
- *
+ * @file equilibrate.cpp Driver routines for the chemical equilibrium solvers.
  */
+
 #include "cantera/equil/equil.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhaseEquil.h"
@@ -12,15 +11,6 @@
 namespace Cantera
 {
 
-/*
- * Set a multiphase mixture to a state of chemical equilibrium.
- * This is the top-level driver for multiphase equilibrium. It
- * doesn't do much more than call the equilibrate method of class
- * MultiPhase, except that it adds some messages to the logfile,
- * if loglevel is set > 0.
- *
- * @ingroup equil
- */
 doublereal equilibrate(MultiPhase& s, const char* XY,
                        doublereal tol, int maxsteps, int maxiter,
                        int loglevel)
@@ -66,37 +56,6 @@ doublereal equilibrate(MultiPhase& s, const char* XY,
     return 0.0;
 }
 
-/*
- *  Set a single-phase chemical solution to chemical equilibrium.
- *  This is a convenience function that uses one or the other of
- *  the two chemical equilibrium solvers.
- *
- *  @param s The object to set to an equilibrium state
- *
- *  @param XY An integer specifying the two properties to be held
- *  constant.
- *
- *  @param solver The equilibrium solver to use. If solver = 0,
- *  the ChemEquil solver will be used, and if solver = 1, the
- *  MultiPhaseEquil solver will be used (slower than ChemEquil,
- *  but more stable). If solver < 0 (default, then ChemEquil will
- *  be tried first, and if it fails MultiPhaseEquil will be tried.
- *
- *  @param maxsteps The maximum number of steps to take to find
- *  the solution.
- *
- *  @param maxiter For the MultiPhaseEquil solver only, this is
- *  the maximum number of outer temperature or pressure iterations
- *  to take when T and/or P is not held fixed.
- *
- *  @param loglevel Controls amount of diagnostic output. loglevel
- *  = 0 suppresses diagnostics, and increasingly-verbose messages
- *  are written as loglevel increases. The messages are written to
- *  a file in HTML format for viewing in a web browser.
- *  @see HTML_logs
- *
- *  @ingroup equil
- */
 int equilibrate(thermo_t& s, const char* XY, int solver,
                 doublereal rtol, int maxsteps, int maxiter, int loglevel)
 {

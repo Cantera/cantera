@@ -20,12 +20,10 @@
  *        one another.
  */
 
-#include <stdio.h>
-#include <cstdlib>
-#include <string.h>
 #include <math.h>
 #include <float.h>
-#include <limits.h>
+#include <algorithm>
+#include <cstdlib>
 #include "cantera/base/config.h"
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -41,13 +39,6 @@ using namespace std;
 #include "mdp_allo.h"
 //#include "cantera/base/mdp_allo.h"
 #include "tok_input_util.h"
-#ifndef MAX
-#  define MAX(x,y)    (( (x) > (y) ) ? (x) : (y))
-#endif
-#ifndef MIN
-#  define MIN(x,y)    (( (x) < (y) ) ? (x) : (y))
-#endif
-
 
 int Debug_Flag = true;
 double grtol = 1.0E-3;
@@ -178,7 +169,7 @@ static double calc_rdiff(double d1, double d2, double rtol, double atol)
     double rhs, lhs;
     rhs = fabs(d1-d2);
     lhs = atol + rtol * 0.5 * (fabs(d1) + fabs(d2));
-    return (rhs/lhs);
+    return rhs/lhs;
 }
 
 /*****************************************************************************/
@@ -189,8 +180,7 @@ static double calc_rdiff(double d1, double d2, double rtol, double atol)
  *    characters.
  *
  *    Argument:
- *      str => original string. On exit, this string will have beent
- *             altered.
+ *      str => original string. On exit, this string will have been altered.
  *      strlets -> Vector of pointers to char *.  The vector has a size
  *                 larger than or equal to maxPieces.
  *      maxPieces -> largest number of pieces to divide the string into.
@@ -243,7 +233,7 @@ static int breakStrCommas(char* str, char** strlets, int maxPieces)
  *    nTitleLines = Number of title lines
  *    nColTitleLines = Number of column title lines
  *    nCol        = Number of columns -> basically equal to the
- *                  number of variabless
+ *                  number of variables
  *    nDataRows   = Number of rows of data in the file
  *
  */
@@ -536,7 +526,7 @@ static double get_atol(const double* values, const int nvals,
     }
     sum /= nvals;
     retn = sqrt(sum);
-    return ((retn + 1.0) * atol);
+    return (retn + 1.0) * atol;
 }
 
 /*****************************************************************************/
@@ -651,7 +641,7 @@ int main(int argc, char* argv[])
     int*    ColIsFloat1 = NULL, *ColIsFloat2 = NULL;
     double* curVarValues1 = NULL, *curVarValues2 = NULL;
     char** curStringValues1 = NULL, **curStringValues2 = NULL;
-    int    i, j, ndiff, jmax, i1, i2, k;
+    int    i, j, ndiff, jmax=0, i1, i2, k;
     bool found;
     double max_diff, rel_diff;
     int    testPassed = RT_PASSED;
@@ -797,8 +787,8 @@ int main(int argc, char* argv[])
      * Right now, if the number of data rows differ, we will punt.
      * Maybe later we can do something more significant
      */
-    int nDataRowsMIN = MIN(nDataRows1, nDataRows2);
-    int nDataRowsMAX = MAX(nDataRows1, nDataRows2);
+    int nDataRowsMIN = min(nDataRows1, nDataRows2);
+    int nDataRowsMAX = max(nDataRows1, nDataRows2);
     if (nDataRows1 != nDataRows2) {
         printf("Number of Data rows in file1, %d, is different than file2, %d\n",
                nDataRows1, nDataRows2);
@@ -812,7 +802,7 @@ int main(int argc, char* argv[])
     read_title(fp2, &title2, nTitleLines2);
 
     if (nTitleLines1 > 0 || nTitleLines2 > 0) {
-        int n = MIN(nTitleLines1, nTitleLines2);
+        int n = min(nTitleLines1, nTitleLines2);
         for (i = 0; i < n; i++) {
             if (strcmp(title1[i], title2[i]) != 0) {
                 printf("Title Line %d differ:\n\t\"%s\"\n\t\"%s\"\n", i, title1[i], title2[i]);
@@ -865,7 +855,7 @@ int main(int argc, char* argv[])
      * Do a Comparison of the names to find the maximum number
      * of matches.
      */
-    nColMAX = MAX(nCol1, nCol2);
+    nColMAX = max(nCol1, nCol2);
 
     compColList = mdp_alloc_int_2(nColMAX, 2, -1);
     nColcomparisons = 0;
@@ -946,7 +936,7 @@ int main(int argc, char* argv[])
             curVarValues1 = NVValues1[i1];
             curVarValues2 = NVValues2[i2];
             atol_j =             get_atol(curVarValues1, nDataRows1, gatol);
-            atol_j = MIN(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
+            atol_j = min(atol_j, get_atol(curVarValues2, nDataRows2, gatol));
             for (j = 0; j < nDataRowsMIN; j++) {
 
                 slope1 = 0.0;
@@ -1033,7 +1023,7 @@ int main(int argc, char* argv[])
 
     }
 
-    return(testPassed);
+    return testPassed;
 
 } /************END of main() *************************************************/
 /*****************************************************************************/

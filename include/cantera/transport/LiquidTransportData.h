@@ -5,13 +5,6 @@
 #ifndef CT_LIQUIDTRANSPORTDATA_H
 #define CT_LIQUIDTRANSPORTDATA_H
 
-
-// STL includes
-#include <vector>
-#include <string>
-
-// Cantera includes
-#include "cantera/base/ct_defs.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
 #include "LTPspecies.h"
@@ -24,12 +17,11 @@ namespace Cantera
 /*!
  * A LiquidTransportData object is created for each species.
  *
- * This class is mainly used to collect transport properties
- * from the parse phase in the TransportFactory and transfer
- * them to the Transport class.  Transport properties are
- * expressed by subclasses of LTPspecies.
- * One may need to be careful about deleting pointers to LTPspecies
- * objects created in the TransportFactory.
+ * This class is mainly used to collect transport properties from the parse
+ * phase in the TransportFactory and transfer them to the Transport class.
+ * Transport properties are expressed by subclasses of LTPspecies. One may
+ * need to be careful about deleting pointers to LTPspecies objects created in
+ * the TransportFactory.
  *
  *  All of the pointers in this class are shallow pointers. Therefore, this
  *  is a passthrough class, which keeps track of pointer ownership by zeroing
@@ -37,19 +29,10 @@ namespace Cantera
  */
 class LiquidTransportData
 {
-
 public:
-
-    //! Default constructor
     LiquidTransportData();
-
-    //! Copy constructor
     LiquidTransportData(const LiquidTransportData& right);
-
-    //! Assignment operator
     LiquidTransportData& operator=(const LiquidTransportData& right);
-
-    //! Destructor
     ~LiquidTransportData();
 
     //! A LiquidTransportData object is instantiated for each species.
@@ -107,4 +90,3 @@ public:
 
 }
 #endif
-

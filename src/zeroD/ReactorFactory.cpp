@@ -9,6 +9,8 @@
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/zeroD/ConstPressureReactor.h"
+#include "cantera/zeroD/IdealGasReactor.h"
+#include "cantera/zeroD/IdealGasConstPressureReactor.h"
 
 using namespace std;
 namespace Cantera
@@ -17,20 +19,22 @@ namespace Cantera
 ReactorFactory* ReactorFactory::s_factory = 0;
 mutex_t ReactorFactory::reactor_mutex;
 
-static int ntypes = 4;
+static int ntypes = 6;
 static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",
-                          "FlowReactor"
+                          "FlowReactor", "IdealGasReactor",
+                          "IdealGasConstPressureReactor"
                          };
 
 // these constants are defined in ReactorBase.h
-static int _itypes[]   = {ReservoirType, ReactorType, FlowReactorType,
-                          ConstPressureReactorType
+static int _itypes[]   = {ReservoirType, ReactorType, ConstPressureReactorType,
+                          FlowReactorType, IdealGasReactorType,
+                          IdealGasConstPressureReactorType
                          };
 
 /**
  * This method returns a new instance of a subclass of ThermoPhase
  */
-ReactorBase* ReactorFactory::newReactor(string reactorType)
+ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
 
     int ir=-1;
@@ -56,6 +60,10 @@ ReactorBase* ReactorFactory::newReactor(int ir)
         return new FlowReactor();
     case ConstPressureReactorType:
         return new ConstPressureReactor();
+    case IdealGasReactorType:
+        return new IdealGasReactor();
+    case IdealGasConstPressureReactorType:
+        return new IdealGasConstPressureReactor();
     default:
         throw Cantera::CanteraError("ReactorFactory::newReactor",
                                     "unknown reactor type!");

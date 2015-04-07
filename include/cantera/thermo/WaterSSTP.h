@@ -52,7 +52,7 @@ class WaterProps;
  *   - Delta_Hfo_idealgas(298.15) = -241.826 kJ/gmol
  *   - So_idealgas(298.15, 1bar)  =  188.835  J/gmolK
  *
- *         ref ->  (http://webbook.nist.gov)
+ *   (From http://webbook.nist.gov)
  *
  *   The "o" here refers to a hypothetical ideal gas state. The way
  *   we achieve this in practice is to evaluate at a very low pressure
@@ -85,20 +85,14 @@ class WaterProps;
  * or
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "waterSSTPphase.xml");
- *    sprintf(file_ID,"%s#water", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
  *    WaterSSTP *w = new WaterSSTP(*xm);
  * @endcode
  *
  * or by the following call to importPhase():
  *
  * @code
- *    char iFile[80], file_ID[80];
- *    strcpy(iFile, "waterSSTPphase.xml");
- *    sprintf(file_ID,"%s#water", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
  *    WaterSSTP water;
  *    importPhase(*xm, &water);
  * @endcode
@@ -110,30 +104,27 @@ class WaterProps;
  *   An example of an XML Element named phase setting up a WaterSSTP object with
  *   id "water"   is given below.
  *
- * @verbatim
-    <!-- phase water     -->
-    <phase dim="3" id="water">
-         <elementArray datasrc="elements.xml">O  H </elementArray>
-         <speciesArray datasrc="#species_data">H2O</speciesArray>
-         <state>
-           <temperature units="K">300.0</temperature>
-           <pressure units="Pa">101325.0</pressure>
-         </state>
-         <thermo model="PureLiquidWater"/>
-         <kinetics model="none"/>
-     </phase>
- @endverbatim
+ * @code
+ * <!-- phase water     -->
+ * <phase dim="3" id="water">
+ *   <elementArray datasrc="elements.xml">O  H </elementArray>
+ *   <speciesArray datasrc="#species_data">H2O</speciesArray>
+ *   <state>
+ *     <temperature units="K">300.0</temperature>
+ *     <pressure units="Pa">101325.0</pressure>
+ *   </state>
+ *   <thermo model="PureLiquidWater"/>
+ *   <kinetics model="none"/>
+ * </phase>
+ * @endcode
  *
  *  Note the model "PureLiquidWater" indicates the usage of the WaterSSTP object.
  *
  * @ingroup thermoprops
- *
  */
 class WaterSSTP : public SingleSpeciesTP
 {
-
 public:
-
     //! Base constructor
     WaterSSTP();
 
@@ -148,14 +139,14 @@ public:
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    WaterSSTP(std::string inputFile, std::string id = "");
+    explicit WaterSSTP(const std::string& inputFile, const std::string& id = "");
 
     //! Full constructor for a water phase
     /*!
      * @param phaseRef  XML node referencing the water phase.
      * @param id        string id of the phase name
      */
-    WaterSSTP(XML_Node& phaseRef, std::string id = "");
+    explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Destructor
     virtual ~WaterSSTP();
@@ -163,25 +154,17 @@ public:
     //! Duplicator from a ThermoPhase object
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
     virtual int eosType() const {
         return -1;
     }
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution --------------
-     * @{
-     */
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
     virtual doublereal cv_mole() const;
 
     //@}
-    /// @name Mechanical Equation of State Properties ---------------------
+    /// @name Mechanical Equation of State Properties
     //@{
 
     virtual doublereal pressure() const;
@@ -218,28 +201,9 @@ public:
      */
     virtual doublereal dthermalExpansionCoeffdT() const;
 
-    /**
-     * @}
-     * @name Potential Energy
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Activities, Standard States,  and Activity Concentrations
-     * @{
-     */
-
-    //@}
-    /// @name  Partial Molar Properties of the Solution -----------------
-    //@{
-
-
-    //@}
-    /// @name  Properties of the Standard State of the Species
-    //          in the Solution --
-    //@{
-
+    //! @}
+    //! @name Properties of the Standard State of the Species in the Solution
+    //! @{
 
     //!  Get the gibbs function for the species
     //!  standard states at the current T and P of the solution.
@@ -262,13 +226,11 @@ public:
     //! Get the array of nondimensional Enthalpy functions for the standard state species
     //! at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     *
      * @param hrt Vector of length m_kk, which on return
      *            will contain the nondimensional
      *            standard state enthalpy of species <I>k</I>
      */
     void getEnthalpy_RT(doublereal* hrt) const;
-
 
     //! Get the nondimensional Entropies for the species
     //! standard states at the current T and P of the solution.
@@ -282,7 +244,6 @@ public:
     //!   Get the nondimensional heat capacity at constant pressure
     //!   function for the species standard states at the current T and P of the solution.
     /*!
-     *
      * @param cpr Vector of length m_kk, which on return
      *           will contain the nondimensional
      *           constant pressure heat capacity for species <I>k</I>
@@ -293,7 +254,6 @@ public:
     //!  internal Energies of the standard state at the current
     //! temperature and pressure of the solution for each species.
     /*!
-     *
      * @param urt  Output vector of standard state nondimensional internal energies.
      *             Length: m_kk.
      */
@@ -305,7 +265,6 @@ public:
      *  All functions in this group need to be overrided, because
      *  the  m_spthermo SpeciesThermo function is not adequate for
      *  the real equation of state.
-     *
      */
     //@{
 
@@ -328,12 +287,10 @@ public:
       */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-
     /*!
-     *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *  units = J/kmol
+     *  Returns the vector of the gibbs function of the reference state at the
+     *  current temperature of the solution and the reference pressure for the
+     *  species. units = J/kmol
      *
      * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
@@ -371,6 +328,7 @@ public:
      *                Length: m_kk.
      */
     virtual void getStandardVolumes_ref(doublereal* vol) const;
+    //! @}
 
     /// critical temperature
     virtual doublereal critTemperature() const;
@@ -381,16 +339,11 @@ public:
     /// critical density
     virtual doublereal critDensity() const;
 
-    /// saturation temperature
-    //virtual doublereal satTemperature(doublereal p) const;
-
-
-
     /// saturation pressure
     /*!
      * @param t Temperature (kelvin)
      */
-    virtual doublereal satPressure(doublereal t) const;
+    virtual doublereal satPressure(doublereal t);
 
     //! Return the fraction of vapor at the current conditions
     /*!
@@ -417,35 +370,6 @@ public:
      * @param dens value of the density in kg m-3
      */
     virtual void setDensity(const doublereal dens);
-
-
-    //! Initialization of a pure water phase using an
-    //! xml file.
-    /*!
-     * This routine is a precursor to constructPhaseXML(XML_Node*)
-     * routine, which does most of the work.
-     *
-     * @param inputFile String name of the file.
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseFile(std::string inputFile, std::string id);
-
-
-    //! Initialization of a pure water phase using an  xml file.
-    /*!
-     * This calls importPhase() to do the work.
-     *
-     * @param phaseNode XML file containing the description of the
-     *                  phase
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string id);
 
     //!Import and initialize a ThermoPhase object  using an XML tree.
     /*!
@@ -477,7 +401,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -500,7 +424,6 @@ public:
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     *
      * This method is called by function importPhase() in
      * file importCTML.cpp when processing a phase definition in
      * an input file. It should be overloaded in subclasses to set
@@ -523,9 +446,7 @@ public:
         return m_waterProps;
     }
 
-
 protected:
-
     /**
      * @internal
      *        This internal routine must be overwritten because
@@ -580,6 +501,3 @@ private:
 }
 
 #endif
-
-
-

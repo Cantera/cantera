@@ -2,8 +2,7 @@
  *  @file ThermoPhase.h
  * Header file for class ThermoPhase, the base class for phases with
  * thermodynamic properties, and the text for the Module thermoprops
- * (see \ref thermoprops and class \link Cantera::ThermoPhase
- * ThermoPhase\endlink).
+ * (see \ref thermoprops and class \link Cantera::ThermoPhase ThermoPhase\endlink).
  */
 
 //  Copyright 2002 California Institute of Technology
@@ -43,7 +42,7 @@ class XML_Node;
 
 //!   Base class for a phase with thermodynamic properties.
 /*!
- * Class %ThermoPhase is the base class for the family of classes
+ * Class ThermoPhase is the base class for the family of classes
  * that represent phases of matter of any type. It defines a
  * common public interface, and implements a few methods. Most of
  * the methods, however, are declared virtual and are meant to be
@@ -52,9 +51,8 @@ class XML_Node;
  * through pointers of type ThermoPhase* that point to objects of
  * subclasses of ThermoPhase.
  *
- * Class %ThermoPhase extends class Phase by adding methods to compute
- * thermodynamic
- * properties in addition to the ones (temperature, density,
+ * Class ThermoPhase extends class Phase by adding methods to compute
+ * thermodynamic properties in addition to the ones (temperature, density,
  * composition) that class Phase provides. The distinction is that
  * the methods declared in ThermoPhase require knowing the
  * particular equation of state of the phase of interest, while
@@ -140,11 +138,8 @@ public:
     */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Information Methods
-     * @{
-     */
+    //! @name  Information Methods
+    //! @{
 
     //! Equation of state type flag.
     /*!
@@ -164,7 +159,6 @@ public:
     virtual doublereal refPressure() const {
         return m_spthermo->refPressure();
     }
-
 
     //! Minimum temperature for which the thermodynamic data for the species
     //! or phase are valid.
@@ -193,7 +187,7 @@ public:
      *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
      */
     doublereal Hf298SS(const int k) const {
-        return (m_spthermo->reportOneHf298(k));
+        return m_spthermo->reportOneHf298(k);
     }
 
     //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
@@ -204,7 +198,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
     }
 
@@ -262,11 +256,9 @@ public:
         return m_chargeNeutralityNecessary;
     }
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
     /// Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const {
@@ -298,12 +290,18 @@ public:
         return err("cv_mole");
     }
 
-
     /**
-     * @}
-     * @name Mechanical Properties
-     * @{
+     * @returns species vibrational specific heat at
+     * constant volume.
      */
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    virtual doublereal cv_vib(int, double) const {
+        return err("cv_vib");
+    }
+
+    //! @}
+    //! @name Mechanical Properties
+    //! @{
 
     //! Return the thermodynamic pressure (Pa).
     /*!
@@ -360,11 +358,6 @@ public:
     virtual doublereal thermalExpansionCoeff() const {
         err("thermalExpansionCoeff()");
         return -1.0;
-    }
-
-    /// @deprecated
-    virtual void updateDensity() {
-        deprecatedMethod("ThermoPhase","updateDensity","");
     }
 
     /**
@@ -517,6 +510,10 @@ public:
      * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
+     * On return uA contains the powers of the units (MKS assumed)
+     * of the standard concentrations and generalized concentrations
+     * for the kth species.
+     *
      * @param uA Output vector containing the units
      *  uA[0] = kmol units - default  = 1
      *  uA[1] = m    units - default  = -nDim(), the number of spatial
@@ -528,6 +525,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -926,10 +924,8 @@ public:
     //
 
     //@}
-    /**
-     * @name Specific Properties
-     * @{
-     */
+    //! @name Specific Properties
+    //@{
 
     /**
      * Specific enthalpy. Units: J/kg.
@@ -1012,7 +1008,7 @@ public:
      * @param x    Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
-    void setState_TPX(doublereal t, doublereal p, compositionMap& x);
+    virtual void setState_TPX(doublereal t, doublereal p, compositionMap& x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -1024,7 +1020,7 @@ public:
      * @param x    String containing a composition map of the mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
-    void setState_TPX(doublereal t, doublereal p, const std::string& x);
+    virtual void setState_TPX(doublereal t, doublereal p, const std::string& x);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase.
     /*!
@@ -1036,7 +1032,7 @@ public:
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
      */
-    void setState_TPY(doublereal t, doublereal p, const doublereal* y);
+    virtual void setState_TPY(doublereal t, doublereal p, const doublereal* y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
@@ -1048,7 +1044,7 @@ public:
      * @param y    Composition map of mass fractions. Species not in
      *             the composition map are assumed to have zero mass fraction
      */
-    void setState_TPY(doublereal t, doublereal p, compositionMap& y);
+    virtual void setState_TPY(doublereal t, doublereal p, compositionMap& y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
     /*!
@@ -1060,7 +1056,7 @@ public:
      * @param y    String containing a composition map of the mass fractions. Species not in
      *             the composition map are assumed to have zero mass fraction
      */
-    void setState_TPY(doublereal t, doublereal p, const std::string& y);
+    virtual void setState_TPY(doublereal t, doublereal p, const std::string& y);
 
     //! Set the temperature (K) and pressure (Pa)
     /*!
@@ -1069,7 +1065,7 @@ public:
      * @param t    Temperature (K)
      * @param p    Pressure (Pa)
      */
-    void setState_TP(doublereal t, doublereal p);
+    virtual void setState_TP(doublereal t, doublereal p);
 
     //! Set the pressure (Pa) and mole fractions.
     /*!
@@ -1080,7 +1076,7 @@ public:
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
-    void setState_PX(doublereal p, doublereal* x);
+    virtual void setState_PX(doublereal p, doublereal* x);
 
     //! Set the internally stored pressure (Pa) and mass fractions.
     /*!
@@ -1092,14 +1088,15 @@ public:
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
      */
-    void setState_PY(doublereal p, doublereal* y);
+    virtual void setState_PY(doublereal p, doublereal* y);
 
     //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
      * @param h     Specific enthalpy (J/kg)
      * @param p     Pressure (Pa)
-     * @param tol   Optional parameter setting the tolerance of the
-     *              calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Important for some applications where numerical Jacobians
+     *              are being calculated.Defaults to 1.0E-4
      */
     virtual void setState_HP(doublereal h, doublereal p, doublereal tol = 1.e-4);
 
@@ -1110,8 +1107,9 @@ public:
      *
      * @param u    specific internal energy (J/kg)
      * @param v    specific volume (m^3/kg).
-     * @param tol  Optional parameter setting the tolerance of the
-     *             calculation. Defaults to 1.0E-4
+     * @param tol  Optional parameter setting the tolerance of the calculation.
+     *             Important for some applications where numerical Jacobians
+     *             are being calculated.Defaults to 1.0E-4
      */
     virtual void setState_UV(doublereal u, doublereal v, doublereal tol = 1.e-4);
 
@@ -1121,8 +1119,9 @@ private:
     /*!
      * @param h     Specific enthalpy or internal energy (J/kg)
      * @param p     Pressure (Pa) or specific volume (m^3/kg)
-     * @param tol   Optional parameter setting the tolerance of the
-     *              calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      * @param doUV  True if solving for UV, false for HP.
      */
     void setState_HPorUV(doublereal h, doublereal p,
@@ -1137,8 +1136,9 @@ public:
      *
      * @param s    specific entropy (J/kg/K)
      * @param p    specific pressure (Pa).
-     * @param tol  Optional parameter setting the tolerance of the
-     *             calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      */
     virtual void setState_SP(doublereal s, doublereal p, doublereal tol = 1.e-4);
 
@@ -1149,8 +1149,9 @@ public:
      *
      * @param s    specific entropy (J/kg/K)
      * @param v    specific volume (m^3/kg).
-     * @param tol  Optional parameter setting the tolerance of the
-     *             calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      */
     virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
 
@@ -1160,13 +1161,17 @@ private:
     /*!
      * @param s     Specific entropy (J/kg)
      * @param p     Pressure (Pa) or specific volume (m^3/kg)
-     * @param tol   Optional parameter setting the tolerance of the
-     *              calculation. Defaults to 1.0E-4
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
      * @param doSV  True if solving for SV, false for SP.
      */
     void setState_SPorSV(doublereal s, doublereal p,
                          doublereal tol = 1.e-4, bool doSV = false);
 
+    //! Helper function used by setState_HPorUV and setState_SPorSV.
+    //! Sets the temperature and (if set_p is true) the pressure.
+    void setState_conditional_TP(doublereal t, doublereal p, bool set_p);
 public:
 
     //@}
@@ -1273,7 +1278,7 @@ public:
     /*!
      * @param t Temperature (Kelvin)
      */
-    virtual doublereal satPressure(doublereal t) const {
+    virtual doublereal satPressure(doublereal t) {
         err("satPressure");
         return -1.0;
     }
@@ -1351,7 +1356,7 @@ public:
     //! for species reference-state thermodynamic properties
     /*!
      *
-     * @param k   Speices id. The default is -1, meaning return the default
+     * @param k   Species id. The default is -1, meaning return the default
      *
      * @internal
      */
@@ -1378,8 +1383,8 @@ public:
      *            phase. If none is given, the first XML
      *            phase element encountered will be used.
      */
-    virtual void initThermoFile(std::string inputFile, std::string id);
-
+    virtual void initThermoFile(const std::string& inputFile,
+                                const std::string& id);
 
     //!Import and initialize a ThermoPhase object  using an XML tree.
     /*!
@@ -1411,7 +1416,7 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -1447,8 +1452,11 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Use methods specific to the derived class
      */
-    virtual void setParameters(int n, doublereal* const c) {}
+    virtual void setParameters(int n, doublereal* const c) {
+        warn_deprecated("ThermoPhase::setParameters");
+    }
 
 
     //! Get the equation of state parameters in a vector
@@ -1458,8 +1466,11 @@ public:
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
+     * @deprecated Use methods specific to the derived class
      */
-    virtual void getParameters(int& n, doublereal* const c) const {}
+    virtual void getParameters(int& n, doublereal* const c) const {
+        warn_deprecated("ThermoPhase::getParameters");
+    }
 
 
     //! Set equation of state parameter values from XML entries.
@@ -1491,11 +1502,9 @@ public:
      */
     virtual void setStateFromXML(const XML_Node& state);
 
-    /**
-     * @}
-     * @name  Derivatives of Thermodynamic Variables needed for Applications
-     * @{
-     */
+    //! @}
+    //! @name  Derivatives of Thermodynamic Variables needed for Applications
+    //! @{
 
     //! Get the change in activity coefficients wrt changes in state (temp, mole fraction, etc) along
     //! a line in parameter space or along a line in physical space
@@ -1578,11 +1587,9 @@ public:
 
     virtual void getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN);
 
-    /**
-     * @}
-     * @name Printing
-     * @{
-     */
+    //! @}
+    //! @name Printing
+    //! @{
 
     //! returns a summary of the state of the phase as a string
     /*!
@@ -1591,7 +1598,9 @@ public:
      */
     virtual std::string report(bool show_thermo = true) const;
 
-    //! returns a summary of the state of the phase to a comma separated file
+    //! returns a summary of the state of the phase to a comma separated file.
+    //! To customize the data included in the report, derived classes should
+    //! override the getCsvReportData method.
     /*!
      * @param csvFile     ofstream file to print comma separated data for
      *                    the phase
@@ -1601,6 +1610,11 @@ public:
     //@}
 
 protected:
+
+    //! Fills `names` and `data` with the column names and species thermo
+    //! properties to be included in the output of the reportCSV method.
+    virtual void getCsvReportData(std::vector<std::string>& names,
+                                  std::vector<vector_fp>& data) const;
 
     //! Pointer to the calculation manager for species
     //! reference-state thermodynamic properties
@@ -1627,7 +1641,7 @@ protected:
     doublereal m_phi;
 
     /// Vector of element potentials.
-    ///    -> length equal to number of elements
+    /// Length equal to number of elements.
     vector_fp m_lambdaRRT;
 
     //! Boolean indicating whether there is a valid set of saved element potentials
@@ -1662,23 +1676,12 @@ private:
     /*!
      * @param msg String containing the message.
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 };
 
 //! typedef for the ThermoPhase class
 typedef ThermoPhase thermo_t;
-
-//! Format a summary of the mixture state for output.
-/*!
- * @param th  ThermoPhase object to create a report about
- * @param show_thermo Boolean indicating whether the thermo functions
- *                    of the phase should be written out
- *
- * @return  Returns a string containing the report
- * @deprecated use "th.report(show_thermo)" instead
- */
-DEPRECATED(std::string report(const ThermoPhase& th, const bool show_thermo = true));
 
 }
 

@@ -28,7 +28,6 @@ namespace Cantera
  * @ingroup thermoprops
  */
 
-
 //!  MargulesVPSSTP is a derived class of GibbsExcessVPSSTP that employs
 //!  the Margules approximation for the excess gibbs free energy
 /*!
@@ -91,7 +90,7 @@ namespace Cantera
  *         S^E_i = n X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
  *      \f]
  *
- *  where n is the total moles in the solution.
+ * where n is the total moles in the solution.
  *
  * The activity of a species defined in the phase is given by an excess
  * Gibbs free energy formulation.
@@ -100,7 +99,7 @@ namespace Cantera
  *            a_k = \gamma_k  X_k
  *       \f]
  *
- *      where
+ * where
  *
  *      \f[
  *           R T \ln( \gamma_k )= \frac{d(n G^E)}{d(n_k)}\Bigg|_{n_i}
@@ -188,7 +187,6 @@ namespace Cantera
  *      C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
  *   \f]
  *
- *
  *  \f$ C_j^a \f$ is the activity concentration of species j, and
  *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C^s \f$
  *  is the standard concentration. \f$ a_j \f$ is
@@ -224,11 +222,11 @@ namespace Cantera
  *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
  *   \f]
  *
- *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
- *    using the second and third part of the above expression as a definition for the concentration
- *    equilibrium constant.
+ *  %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *  using the second and third part of the above expression as a definition for the concentration
+ *  equilibrium constant.
  *
- *    For completeness, the pressure equilibrium constant may be obtained as well
+ *  For completeness, the pressure equilibrium constant may be obtained as well
  *
  *   \f[
  *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
@@ -254,65 +252,12 @@ namespace Cantera
  *
  *  \f$k^{-1} \f$ has units of s-1.
  *
- *
- * <HR>
- * <H2> Instantiation of the Class </H2>
- * <HR>
- *
- *
- * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %IdealGasPhase may be created by the following code
- * snippet:
- *
- * @code
- *    XML_Node *xc = get_XML_File("silane.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "silane");
- *    ThermoPhase *silane_tp = newPhase(*xs);
- *    IdealGasPhase *silaneGas = dynamic_cast <IdealGasPhase *>(silane_tp);
- * @endcode
- *
- * or by the following constructor:
- *
- * @code
- *    XML_Node *xc = get_XML_File("silane.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "silane");
- *    IdealGasPhase *silaneGas = new IdealGasPhase(*xs);
- * @endcode
- *
- * <HR>
- * <H2> XML Example </H2>
- * <HR>
- *   An example of an XML Element named phase setting up a IdealGasPhase
- *   object named silane is given below.
- *
- *
- * @verbatim
- <!--     phase silane      -->
- <phase dim="3" id="silane">
- <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
- <speciesArray datasrc="#species_data">
- H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
- H2SISIH2  SI3H8  SI2  SI3
- </speciesArray>
- <reactionArray datasrc="#reaction_data"/>
- <thermo model="IdealGas"/>
- <kinetics model="GasKinetics"/>
- <transport model="None"/>
- </phase>
- @endverbatim
- *
- *   The model attribute "IdealGas" of the thermo XML element identifies the phase as
- *   being of the type handled by the IdealGasPhase object.
- *
- *    @ingroup thermoprops
- *
-
-*/
+ * @ingroup thermoprops
+ */
 class MargulesVPSSTP : public GibbsExcessVPSSTP
 {
 
 public:
-
     //! Constructor
     /*!
      * This doesn't do much more than initialize constants with
@@ -339,7 +284,7 @@ public:
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    MargulesVPSSTP(std::string inputFile, std::string id = "");
+    MargulesVPSSTP(const std::string& inputFile, const std::string& id = "");
 
     //! Construct and initialize a MargulesVPSSTP ThermoPhase object
     //! directly from an XML database
@@ -348,16 +293,14 @@ public:
      *  @param id     id attribute containing the name of the phase.
      *                (default is the empty string)
      */
-    MargulesVPSSTP(XML_Node& phaseRef, std::string id = "");
-
+    MargulesVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     //! Special constructor for a hard-coded problem
     /*!
-     *
-     *  @param testProb Hard-coded value. Only the value of 1 is
-     *                  used. It's for
-     *                  a LiKCl system
-     *                  -> test to predict the eutectic and liquidus correctly.
+     *  @param testProb Hard-coded value. Only the value of 1 is used. It's
+     *                  for a LiKCl system test to predict the eutectic and
+     *                  liquidus correctly.
+     *  @deprecated To be refactored into a standalone test
      */
     MargulesVPSSTP(int testProb);
 
@@ -372,13 +315,9 @@ public:
 
     //! Assignment operator
     /*!
-     *
      * @param b class to be copied.
      */
     MargulesVPSSTP& operator=(const MargulesVPSSTP& b);
-
-    //! Destructor
-    virtual ~MargulesVPSSTP();
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
@@ -388,12 +327,8 @@ public:
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    /**
-     *
-     * @name  Utilities
-     * @{
-     */
-
+    //! @name  Utilities
+    //! @{
 
     //! Equation of state type flag.
     /*!
@@ -405,79 +340,21 @@ public:
      */
     virtual int eosType() const;
 
-    //! Initialization of a phase using an xml file
-    /*!
-     * This routine is a precursor to
-     * routine, which does most of the work.
-     *
-     * @param inputFile XML file containing the description of the
-     *        phase
-     *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element will be used.
-     */
-    void constructPhaseFile(std::string inputFile, std::string id);
+    //! @}
+    //! @name  Molar Thermodynamic Properties
+    //! @{
 
-    //!   Import and initialize a phase
-    //!   specification in an XML tree into the current object.
-    /*!
-     *   Here we read an XML description of the phase.
-     *   We import descriptions of the elements that make up the
-     *   species in a phase.
-     *   We import information about the species, including their
-     *   reference state thermodynamic polynomials. We then freeze
-     *   the state of the species.
-     *
-     *   Then, we read the species molar volumes from the xml
-     *   tree to finish the initialization.
-     *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     *
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string id);
+    /// Molar enthalpy. Units: J/kmol.
+    virtual doublereal enthalpy_mole() const;
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties
-     * @{
-     */
+    /// Molar entropy. Units: J/kmol.
+    virtual doublereal entropy_mole() const;
 
+    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
+    virtual doublereal cp_mole() const;
 
-    /**
-     * @}
-     * @name Utilities for Solvent ID and Molality
-     * @{
-     */
-
-
-
-
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
-
-    /**
-     * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
+    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    virtual doublereal cv_mole() const;
 
     /**
      * @}
@@ -491,14 +368,12 @@ public:
      * @{
      */
 
-
     //! Get the array of non-dimensional molar-based ln activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * @param ac Output vector of ln activity coefficients. Length: m_kk.
+     * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
-
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -514,18 +389,6 @@ public:
      *            potentials. Length: m_kk. Units: J/kmol
      */
     virtual void getChemPotentials(doublereal* mu) const;
-
-    /// Molar enthalpy. Units: J/kmol.
-    virtual doublereal enthalpy_mole() const;
-
-    /// Molar entropy. Units: J/kmol.
-    virtual doublereal entropy_mole() const;
-
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
-    virtual doublereal cp_mole() const;
-
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
-    virtual doublereal cv_mole() const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
@@ -639,63 +502,14 @@ public:
      */
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
-
-
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
-
-
-
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
-
-
-    ///////////////////////////////////////////////////////
-    //
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
-    //
-    //////////////////////////////////////////////////////
-
-    /**
-     * @name Specific Properties
-     * @{
-     */
-
-
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic
-     * state.
-     * @{
-     */
-
-
-
-    //@}
-
-    /**
-     * @name Chemical Equilibrium
-     * Routines that implement the Chemical equilibrium capability
-     * for a single phase, based on the element-potential method.
-     * @{
-     */
-
-
-
-    //@}
-
-
-
+    /// @}
+    /// @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
     /// To see how they are used, see files importCTML.cpp and
     /// ThermoFactory.cpp.
-
+    /// @{
 
     /*!
      * @internal Initialize. This method is provided to allow
@@ -712,7 +526,6 @@ public:
      */
     virtual void initThermo();
 
-
     /**
      *   Import and initialize a ThermoPhase object
      *
@@ -727,13 +540,11 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    void initThermoXML(XML_Node& phaseNode, std::string id);
+    void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    /**
-     * @}
-     * @name  Derivatives of Thermodynamic Variables needed for Applications
-     * @{
-     */
+    //! @}
+    //! @name  Derivatives of Thermodynamic Variables needed for Applications
+    //! @{
 
     //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
     //! a line in parameter space or along a line in physical space
@@ -782,7 +593,6 @@ public:
      */
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
 
-
     //! Get the array of derivatives of the ln activity coefficients with respect to the ln species mole numbers
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
@@ -806,7 +616,6 @@ public:
     //@}
 
 private:
-
     //! Process an XML node called "binaryNeutralSpeciesParameters"
     /*!
      * This node contains all of the parameters necessary to describe
@@ -825,7 +634,6 @@ private:
      *  @param num Number of binary Margules interaction terms
      */
     void resizeNumInteractions(const size_t num);
-
 
     //! Initialize lengths of local variables after all species have
     //! been identified.
@@ -872,7 +680,6 @@ private:
      */
     void s_update_dlnActCoeff_dlnN() const;
 
-
 private:
     //! Error function
     /*!
@@ -880,11 +687,9 @@ private:
      *
      * @param msg  Message to be printed
      */
-    doublereal err(std::string msg) const;
+    doublereal err(const std::string& msg) const;
 
 protected:
-
-
     //! number of binary interaction expressions
     size_t numBinaryInteractions_;
 
@@ -936,8 +741,6 @@ protected:
     //! excess gibbs free energy expression
     mutable vector_fp m_VSE_d_ij;
 
-
-
     //! vector of species indices representing species A in the interaction
     /*!
      *  Each Margules excess Gibbs free energy term involves two species, A and B.
@@ -963,17 +766,8 @@ protected:
      *  Currently there is only one form -> constant wrt temperature.
      */
     int formTempModel_;
-
-
 };
-
-
 
 }
 
 #endif
-
-
-
-
-

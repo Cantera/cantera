@@ -4,10 +4,8 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_AQUEOUSTRAN_H
 #define CT_AQUEOUSTRAN_H
-
 
 // Cantera includes
 #include "TransportBase.h"
@@ -15,25 +13,15 @@
 #include "TransportParams.h"
 #include "LiquidTransportParams.h"
 
-
-#include <vector>
-#include <string>
-#include <map>
-#include <numeric>
-#include <algorithm>
-
 namespace Cantera
 {
 
-
 class LiquidTransportParams;
-
 
 //! Class AqueousTransport implements mixture-averaged transport
 //! properties for brine phases.
 /*!
- *  The model is based on that
- *  described by Newman, Electrochemical Systems
+ *  The model is based on that described by Newman, Electrochemical Systems
  *
  *  The velocity of species i may be described by the
  *  following equation p. 297 (12.1)
@@ -74,7 +62,6 @@ class LiquidTransportParams;
  *      \mathbf{v}_i =  \mathbf{v} + \frac{\mathbf{j}_i}{\rho_i}
  *  \f]
  *
- *
  *  \f[
  *     c_i \nabla \mu_i = R T \sum_j \frac{c_i c_j}{c_T D_{ij}}
  *         (\frac{\mathbf{j}_j}{\rho_j} - \frac{\mathbf{j}_i}{\rho_i})
@@ -105,9 +92,8 @@ class LiquidTransportParams;
  *         (\frac{x_i \mathbf{j}_j}{M_j} - \frac{x_j \mathbf{j}_i}{M_i})
  *  \f]
  *
- * With this formulation we may solve for the diffusion velocities,
- * without having to worry about what the mass averaged velocity
- * is.
+ * With this formulation we may solve for the diffusion velocities, without
+ * having to worry about what the mass averaged velocity is.
  *
  *  <H2> Viscosity Calculation  </H2>
  *
@@ -115,22 +101,13 @@ class LiquidTransportParams;
  *  In the first part, the viscosity of the pure species are calculated
  *  In the second part, a mixing rule is applied, based on the
  *  Wilkes correlation, to yield the mixture viscosity.
- *
- *
- *
+ * @ingroup tranprops
  */
 class AqueousTransport : public Transport
 {
-
 public:
-
-    //! default constructor
     AqueousTransport();
 
-    //! virtual destructor
-    virtual ~AqueousTransport() {}
-
-    //! Return the model id for this transport parameterization
     virtual int model() const {
         return cAqueousTransport;
     }
@@ -156,7 +133,6 @@ public:
 
     //! Returns the pure species viscosities
     /*!
-     *
      * Controlling update boolean = m_viscwt_ok
      *
      *  @param visc     Vector of species viscosities
@@ -195,75 +171,35 @@ public:
      */
     virtual doublereal thermalConductivity();
 
-    //! Returns the binary diffusion coefficients
-    /*!
-     *   @param ld
-     *   @param d
-     */
     virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
+     * For the single species case or the pure fluid case the routine returns
+     * the self-diffusion coefficient. This is need to avoid a NaN result.
      *  @param d vector of mixture diffusion coefficients
      *          units = m2 s-1. length = number of species
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
-    //! Get the Electrical mobilities (m^2/V/s).
-    /*!
-     *   This function returns the electrical mobilities. In some formulations
-     *   this is equal to the normal mobility multiplied by faraday's constant.
-     *
-     *   Frequently, but not always, the mobility is calculated from the
-     *   diffusion coefficient using the Einstein relation
-     *
-     *     \f[
-     *          \mu^e_k = \frac{F D_k}{R T}
-     *     \f]
-     *
-     * @param mobil_e  Returns the mobilities of
-     *               the species in array \c mobil_e. The array must be
-     *               dimensioned at least as large as the number of species.
-     */
     virtual void getMobilities(doublereal* const mobil_e);
 
-    //! Get the fluid mobilities (s kmol/kg).
-    /*!
-     *   This function returns the fluid mobilities. Usually, you have
-     *   to multiply Faraday's constant into the resulting expression
-     *   to general a species flux expression.
-     *
-     *   Frequently, but not always, the mobility is calculated from the
-     *   diffusion coefficient using the Einstein relation
-     *
-     *     \f[
-     *          \mu^f_k = \frac{D_k}{R T}
-     *     \f]
-     *
-     * @param mobil_f  Returns the mobilities of
-     *               the species in array \c mobil_f. The array must be
-     *               dimensioned at least as large as the number of species.
-     */
     virtual void getFluidMobilities(doublereal* const mobil_f);
-
 
     //! Specify the value of the gradient of the voltage
     /*!
-     *
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
     virtual void set_Grad_V(const doublereal* const grad_V);
 
     //! Specify the value of the gradient of the temperature
     /*!
-     *
      * @param grad_T Gradient of the temperature (length num dimensions);
      */
     virtual void set_Grad_T(const doublereal* const grad_T);
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
-     *
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
     virtual void set_Grad_X(const doublereal* const grad_X);
@@ -271,49 +207,20 @@ public:
     //! Handles the effects of changes in the Temperature, internally
     //! within the object.
     /*!
-     *  This is called whenever a transport property is
-     *  requested.
-     *  The first task is to check whether the temperature has changed
-     *  since the last call to update_T().
-     *  If it hasn't then an immediate return is carried out.
-     *
-     *     @internal
+     *  This is called whenever a transport property is requested. The first
+     *  task is to check whether the temperature has changed since the last
+     *  call to update_T(). If it hasn't then an immediate return is carried
+     *  out.
      */
     virtual void update_T();
 
     //! Handles the effects of changes in the mixture concentration
     /*!
-     *  This is called the first time any transport property
-     *  is requested from Mixture after the concentrations
-     *  have changed.
-     *
-     *     @internal
+     *  This is called the first time any transport property is requested from
+     *  Mixture after the concentrations have changed.
      */
     virtual void update_C();
 
-
-    //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity,
-    //! given the gradients in mole fraction and temperature
-    /*!
-     *  Units for the returned fluxes are kg m-2 s-1.
-     *
-     *  Usually the specified solution average velocity is the mass averaged velocity.
-     *  This is changed in some subclasses, however.
-     *
-     *  @param ndim       Number of dimensions in the flux expressions
-     *  @param grad_T     Gradient of the temperature
-     *                       (length = ndim)
-     *  @param ldx        Leading dimension of the grad_X array
-     *                       (usually equal to m_nsp but not always)
-     *  @param grad_X     Gradients of the mole fraction
-     *                    Flat vector with the m_nsp in the inner loop.
-     *                       length = ldx * ndim
-     *  @param ldf        Leading dimension of the fluxes array
-     *                     (usually equal to m_nsp but not always)
-     *  @param fluxes     Output of the diffusive mass fluxes
-     *                    Flat vector with the m_nsp in the inner loop.
-     *                        length = ldx * ndim
-     */
     virtual void getSpeciesFluxes(size_t ndim,  const doublereal* const grad_T,
                                   size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
@@ -347,14 +254,12 @@ public:
      */
     virtual void getSpeciesFluxesExt(size_t ldf, doublereal* const fluxes);
 
-
     //! Initialize the transport object
     /*!
      * Here we change all of the internal dimensions to be sufficient.
      * We get the object ready to do property evaluations.
      *
-     * @param tr  Transport parameters for all of the species
-     *            in the phase.
+     * @param tr  Transport parameters for all of the species in the phase.
      */
     virtual bool initLiquid(LiquidTransportParams& tr);
 
@@ -369,17 +274,10 @@ public:
      */
     class LiquidTransportData getLiquidTransportData(int k);
 
-
-    //! Solve the stefan_maxell equations for the diffusive fluxes.
+    //! Solve the Stefan-Maxwell equations for the diffusive fluxes.
     void stefan_maxwell_solve();
 
 private:
-    //! Minimum temperature applicable to the transport property eval
-    doublereal m_tmin;
-
-    //! Maximum temperature applicable to the transport property evaluator
-    doublereal m_tmax;
-
     //! Local Copy of the molecular weights of the species
     /*!
      *  Length is Equal to the number of species in the mechanism.
@@ -405,7 +303,6 @@ private:
      */
     std::vector<vector_fp>            m_diffcoeffs;
 
-
     //! Internal value of the gradient of the mole fraction vector
     /*!
      *  m_nsp is the number of species in the fluid
@@ -419,25 +316,21 @@ private:
 
     //! Internal value of the gradient of the Temperature vector
     /*!
-     *  Generally, if a transport property needs this
-     *  in its evaluation it will look to this place
-     *  to get it.
+     *  Generally, if a transport property needs this in its evaluation it
+     *  will look to this place to get it.
      *
-     *  No internal property is precalculated based on gradients.
-     *  Gradients are assumed to be freshly updated before
-     *  every property call.
+     *  No internal property is precalculated based on gradients. Gradients
+     *  are assumed to be freshly updated before every property call.
      */
     vector_fp m_Grad_T;
 
     //! Internal value of the gradient of the Electric Voltage
     /*!
-     *  Generally, if a transport property needs this
-     *  in its evaluation it will look to this place
-     *  to get it.
+     *  Generally, if a transport property needs this in its evaluation it
+     *  will look to this place to get it.
      *
-     *  No internal property is precalculated based on gradients.
-     *  Gradients are assumed to be freshly updated before
-     *  every property call.
+     *  No internal property is precalculated based on gradients. Gradients
+     *  are assumed to be freshly updated before every property call.
      */
     vector_fp m_Grad_V;
 
@@ -601,11 +494,11 @@ private:
     //! work space of size m_nsp
     vector_fp  m_spwork;
 
-    //!  Update the temperature-dependent viscosity terms.
-    //!  Updates the array of pure species viscosities, and the
-    //!  weighting functions in the viscosity mixture rule.
+    //! Update the temperature-dependent viscosity terms.
     /*!
-     * The flag m_visc_ok is set to true.
+     *  Updates the array of pure species viscosities, and the weighting
+     *  functions in the viscosity mixture rule. The flag m_visc_ok is set to
+     *  true.
      */
     void updateViscosity_T();
 
@@ -618,15 +511,12 @@ private:
      *  Internal routine is run whenever the update_boolean
      *  m_spvisc_ok is false. This routine will calculate
      *  internal values for the species viscosities.
-     *
-     * @internal
      */
     void updateSpeciesViscosities();
 
     //! Update the binary diffusion coefficients wrt T.
     /*!
-     *   These are evaluated
-     *   from the polynomial fits at unit pressure (1 Pa).
+     *   These are evaluated from the polynomial fits at unit pressure (1 Pa).
      */
     void updateDiff_T();
 
@@ -679,9 +569,3 @@ private:
 };
 }
 #endif
-
-
-
-
-
-

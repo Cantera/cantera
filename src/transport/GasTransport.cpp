@@ -1,7 +1,9 @@
+//! @file GasTransport.cpp
 #include "cantera/transport/GasTransport.h"
 #include "cantera/transport/TransportParams.h"
 
-namespace Cantera {
+namespace Cantera
+{
 
 GasTransport::GasTransport(ThermoPhase* thermo) :
     Transport(thermo),
@@ -135,7 +137,8 @@ bool GasTransport::initGas(GasTransportParams& tr)
     return true;
 }
 
-void GasTransport::update_T(void) {
+void GasTransport::update_T(void)
+{
     double T = m_thermo->temperature();
     if (T == m_temp) {
         return;
@@ -212,6 +215,7 @@ void GasTransport::updateViscosity_T()
 
 void GasTransport::updateSpeciesViscosities()
 {
+    update_T();
     if (m_mode == CK_Mode) {
         for (size_t k = 0; k < m_nsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
@@ -229,6 +233,7 @@ void GasTransport::updateSpeciesViscosities()
 
 void GasTransport::updateDiff_T()
 {
+    update_T();
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {

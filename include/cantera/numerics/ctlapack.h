@@ -19,6 +19,7 @@
 #define _DGETRF_  dgetrf
 #define _DGETRS_  dgetrs
 #define _DGETRI_  dgetri
+#define _DGELSS_  dgelss
 #define _DGBCON_  dgbcon
 #define _DGBSV_   dgbsv
 #define _DGBTRF_  dgbtrf
@@ -39,6 +40,7 @@
 #define _DGETRF_  dgetrf_
 #define _DGETRS_  dgetrs_
 #define _DGETRI_  dgetri_
+#define _DGELSS_  dgelss_
 #define _DGBCON_  dgbcon_
 #define _DGBSV_   dgbsv_
 #define _DGBTRF_  dgbtrf_
@@ -106,6 +108,11 @@ extern "C" {
 
     int _DGETRI_(const integer* n, doublereal* a, const integer* lda,
                  integer* ipiv, doublereal* work, integer* lwork, integer* info);
+
+    int _DGELSS_(const integer* m, const integer* n, const integer* nrhs,
+                 doublereal* a, const integer* lda, doublereal* b,
+                 const integer* ldb, doublereal* s, const doublereal* rcond,
+                 integer* rank, doublereal* work, integer* lwork, integer* info);
 
     int _DGBSV_(integer* n, integer* kl, integer* ku, integer* nrhs,
                 doublereal* a, integer* lda, integer* ipiv, doublereal* b,
@@ -249,6 +256,27 @@ inline void ct_dgbsv(int n, int kl, int ku, int nrhs,
     _DGBSV_(&f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv,
             b, &f_ldb, &f_info);
     info = f_info;
+}
+
+inline void ct_dgelss(size_t m, size_t n, size_t nrhs, doublereal* a,
+                      size_t lda, doublereal* b, size_t ldb, doublereal* s,
+                      doublereal rcond, size_t& rank, doublereal* work,
+                      int& lwork, int& info)
+{
+    integer f_m = static_cast<integer>(m);
+    integer f_n = static_cast<integer>(n);
+    integer f_nrhs = static_cast<integer>(nrhs);
+    integer f_lda = static_cast<integer>(lda);
+    integer f_ldb = static_cast<integer>(ldb);
+    integer f_lwork = static_cast<integer>(lwork);
+    integer f_rank, f_info;
+
+    _DGELSS_(&f_m, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, s, &rcond, &f_rank,
+            work, &f_lwork, &f_info);
+
+    info = static_cast<int>(f_info);
+    rank = static_cast<size_t>(f_rank);
+    lwork = static_cast<int>(f_lwork);
 }
 
 inline void ct_dgbtrf(size_t m, size_t n, size_t kl, size_t ku,
@@ -441,11 +469,7 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  con
     return rcond;
 }
 //====================================================================================================================
-//!
-/*!
- *  @param work   Must be dimensioned equal to greater than 3N
- *  @param iwork  Must be dimensioned equal to or greater than N
- */
+
 inline void ct_dpotrf(ctlapack::upperlower_t uplot, size_t n, doublereal* a, size_t lda, int& info)
 {
     char uplo = upper_lower[uplot];

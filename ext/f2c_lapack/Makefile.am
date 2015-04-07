@@ -5,7 +5,9 @@ cc_sources = dbdsqr.c dgbtrf.c dgbtf2.c dgbtrs.c dgbsv.c dgebd2.c dgebrd.c  \
              dlascl.c dlaset.c dlasq1.c dlasq2.c dlasq3.c dlasq4.c dlasq5.c \
              dlasq6.c dlasr.c dlasrt.c dlassq.c dlasv2.c dlaswp.c dorg2r.c  \
              dorgbr.c dorgl2.c dorglq.c dorgqr.c dorm2r.c dormbr.c dorml2.c \
-             dormlq.c dormqr.c drscl.c dtrtri.c dtrti2.c ieeeck.c ilaenv.c 
+             dormlq.c dormqr.c drscl.c dtrtri.c dtrti2.c ieeeck.c ilaenv.c  \
+	     dpotrs.c dtrtrs.c dgbcon.c dgecon.c dlatrs.c dlatbs.c dlacon.c \
+             dtrcon.c dlantr.c dpotrf.c dpotf2.c
 
 h_sources               = blaswrap.h
 

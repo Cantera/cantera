@@ -13,22 +13,10 @@
 
 #include "cantera/numerics/ctlapack.h"
 
-#include <iostream>
 using namespace std;
-
-/**
- * Mole fractions below MIN_X will be set to MIN_X when computing
- * transport properties.
- */
-#define MIN_X 1.e-20
-
 
 namespace Cantera
 {
-
-//////////////////// class LiquidTransport methods //////////////
-
-
 Transport::Transport(thermo_t* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
@@ -63,10 +51,8 @@ Transport& Transport::operator=(const Transport& right)
 
 Transport* Transport::duplMyselfAsTransport() const
 {
-    Transport* tr = new Transport(*this);
-    return tr;
+    return new Transport(*this);
 }
-
 
 Transport::~Transport()
 {
@@ -77,9 +63,6 @@ bool Transport::ready()
     return m_ready;
 }
 
-// Set the number of dimensions to be expected in flux expressions
-/* Internal memory will be set with this value
- */
 void Transport::setNDim(const int ndim)
 {
     m_nDim = ndim;
@@ -99,29 +82,39 @@ void Transport::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-/* Set transport model parameters. This method may be
- * overloaded in subclasses to set model-specific parameters.
- */
 void Transport::setParameters(const int type, const int k,
                               const doublereal* const p)
 {
     err("setParameters");
 }
 
-
 void Transport::setThermo(thermo_t& thermo)
 {
     if (!ready()) {
         m_thermo = &thermo;
         m_nsp = m_thermo->nSpecies();
-    } else
-        throw CanteraError("Transport::setThermo",
-                           "the phase object cannot be changed after "
-                           "the transport manager has been constructed.");
+    } else  {
+        int newNum = thermo.nSpecies();
+        int oldNum = m_thermo->nSpecies();
+        if (newNum != oldNum) {
+            throw CanteraError("Transport::setThermo",
+                               "base object cannot be changed after "
+                               "the transport manager has been constructed because num species isn't the same.");
+        }
+        for (int i = 0; i < newNum; i++) {
+            std::string newS0 = thermo.speciesName(i);
+            std::string oldS0 = m_thermo->speciesName(i);
+            if (newNum != oldNum) {
+                throw CanteraError("Transport::setThermo",
+                                   "base object cannot be changed after "
+                                   "the transport manager has been constructed because species names are not the same");
+            }
+        }
+        m_thermo = &thermo;
+    }
 }
 
-
-doublereal Transport::err(std::string msg) const
+doublereal Transport::err(const std::string& msg) const
 {
 
     throw CanteraError("Transport Base Class",
@@ -132,7 +125,6 @@ doublereal Transport::err(std::string msg) const
     return 0.0;
 }
 
-
 void Transport::finalize()
 {
     if (!ready()) {
@@ -142,12 +134,10 @@ void Transport::finalize()
                            "finalize has already been called.");
 }
 
-//====================================================================================================================
 void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                  size_t ldx, const doublereal* const grad_X,
                                  size_t ldf, doublereal* const fluxes)
 {
     err("getSpeciesFluxes");
 }
-//====================================================================================================================
 }

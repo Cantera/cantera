@@ -9,8 +9,13 @@ import difflib
 import time
 import types
 import shutil
+import itertools
 
 import SCons.Errors
+import SCons
+import SCons.Node.FS
+from distutils.version import LooseVersion
+import distutils.sysconfig
 
 class DefineDict(object):
     """
@@ -72,20 +77,26 @@ class TestResults(object):
         self.failed = {}
 
     def printReport(self, target, source, env):
-        total = len(self.passed) + len(self.failed)
+        if self.failed:
+            failures = ('Failed tests:' +
+                        ''.join('\n    - ' + n for n in self.failed) +
+                        '\n')
+        else:
+            failures = ''
         print """
 *****************************
 ***    Testing Summary    ***
 *****************************
 
 Tests passed: %(passed)s
-Tests failed: %(failed)s
 Up-to-date tests skipped: %(skipped)s
-
+Tests failed: %(failed)s
+%(failures)s
 *****************************""" % dict(
             passed=len(self.passed),
             failed=len(self.failed),
-            skipped=len(self.tests))
+            skipped=len(self.tests),
+            failures=failures)
 
         if self.failed:
             raise SCons.Errors.BuildError(self, 'One or more tests failed.')
@@ -190,6 +201,9 @@ def compareTextFiles(env, file1, file2):
     if not diff:
         return 0
 
+    atol = env['test_csv_threshold']
+    rtol = env['test_csv_tolerance']
+
     # Replace nearly-equal floating point numbers with exactly equivalent
     # representations to avoid confusing difflib
     reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.{0,1}\d*[eE]{0,1}[+-]{0,1}\d*)')
@@ -220,13 +234,17 @@ def compareTextFiles(env, file1, file2):
             delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
             num1 = float(floats1[j][1])
             num2 = float(floats2[j][1])
-            if not num1 - 1.1*delta < num2 < num1 + 1.1*delta:
+            abserr = abs(num1-num2)
+            relerr = abserr / (0.5 * abs(num1 + num2) + atol)
+            if abserr > (1.1*delta + atol) and relerr > rtol:
+                print 'Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr)
                 allMatch = False
                 break
 
         # All the values are sufficiently close, so replace the string
         # so that the diff of this line will succeed
-        text2[i] = line1
+        if allMatch:
+            text2[i] = line1
 
     # Try the comparison again
     diff = list(difflib.unified_diff(text1, text2))
@@ -246,15 +264,22 @@ def getPrecision(x):
     the number represented by the string 'x'.
     """
     x = x.lower()
+    # Patterns to consider:
+    # 123
+    # 123.45
+    # 123.45e6
+    # 123e4
+    if 'e' in x:
+        x, exponent = x.split('e')
+        exponent = int(exponent)
+    else:
+        exponent = 0
+
     decimalPt = x.find('.')
     if decimalPt == -1:
-        decimalPt = 0
+        decimalPt = len(x) - 1
 
-    if x.find('e') != -1:
-        precision = decimalPt - x.find('e') + 1
-        precision += int(x[x.find('e')+1:])
-    else:
-        precision = decimalPt - len(x) + 1
+    precision = decimalPt + exponent - len(x) + 1
 
     return 10**precision
 
@@ -304,14 +329,27 @@ def compareCsvFiles(env, file1, file2):
         print e
         return 1
 
-    relerror = (np.abs(data2-data1) /
-                (np.maximum(np.abs(data2), np.abs(data1)) +
-                 env['test_csv_threshold']))
-    maxerror = np.nanmax(relerror.flat)
+    try:
+        relerror = (np.abs(data2-data1) /
+                    (np.maximum(np.abs(data2), np.abs(data1)) +
+                     env['test_csv_threshold']))
+        maxerror = np.nanmax(relerror.flat)
+    except ValueError as e:
+        print e
+        return 1
+
     tol = env['test_csv_tolerance']
     if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
-        print ("Files differ. %i / %i elements above specified tolerance" %
-               (np.sum(relerror > tol), relerror.size))
+        print ("Files differ. %i / %i elements above specified tolerance (%f)" %
+               (np.sum(relerror > tol), relerror.size, tol))
+        print '  row   col   reference     test          rel. error'
+        print '  ----  ----  ------------  ------------  ----------'
+        for i,j in itertools.product(*map(range, relerror.shape)):
+            if relerror[i,j] > tol:
+                row = i + headerRows + 1
+                col = j + 1
+                print ('  % 4i  % 4i  % 12f  % 12f  % 10f' %
+                       (row, col, data1[i,j], data2[i,j], relerror[i,j]))
         return 1
     else:
         return 0
@@ -368,6 +406,13 @@ def psplit(s):
     path.reverse()
     return path
 
+
+def subdirs(path):
+    """ Get the subdirectories of a specified directory """
+    for subdir in os.listdir(path):
+        dirpath = pjoin(path, subdir)
+        if os.path.isdir(dirpath):
+            yield subdir
 
 def stripDrive(s):
     """
@@ -540,3 +585,28 @@ def getSpawn(env):
         return rv
 
     return ourSpawn
+
+def getCommandOutput(cmd, *args):
+    """
+    Run a command with arguments and return its output.
+    Substitute for subprocess.check_output which is only available
+    in Python >= 2.7
+    """
+    environ = dict(os.environ)
+    if 'PYTHONHOME' in environ:
+        # Can cause problems when trying to run a different Python interpreter
+        del environ['PYTHONHOME']
+    proc = subprocess.Popen([cmd] + list(args),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            env=environ)
+    data, err = proc.communicate()
+    if proc.returncode:
+        raise OSError(err)
+
+    return data.strip()
+
+# Monkey patch for SCons Cygwin bug
+# See http://scons.tigris.org/issues/show_bug.cgi?id=2664
+if 'cygwin' in platform.system().lower():
+    SCons.Node.FS._my_normcase = lambda x: x

@@ -9,18 +9,16 @@
  *  This parameterization has one NASA temperature region.
  */
 
-
 #ifndef CT_NASAPOLY1_H
 #define CT_NASAPOLY1_H
 // Copyright 2001  California Institute of Technology
 
-
 #include "cantera/base/global.h"
 #include "SpeciesThermoInterpType.h"
+#include <iostream>
 
 namespace Cantera
 {
-
 /**
  * The NASA polynomial parameterization for one temperature range.
  * This parameterization expresses the heat capacity as a
@@ -49,14 +47,10 @@ namespace Cantera
  */
 class NasaPoly1 : public SpeciesThermoInterpType
 {
-
 public:
-
     //! Empty constructor
     NasaPoly1()
-        : m_lowT(0.0), m_highT(0.0),
-          m_Pref(0.0), m_index(0), m_coeff(7, 0.0) {}
-
+        : m_coeff(7, 0.0) {}
 
     //! constructor used in templated instantiations
     /*!
@@ -69,10 +63,7 @@ public:
      */
     NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
-        m_lowT(tlow),
-        m_highT(thigh),
-        m_Pref(pref),
-        m_index(n),
+        SpeciesThermoInterpType(n, tlow, thigh, pref),
         m_coeff(vector_fp(7)) {
         std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
@@ -82,11 +73,9 @@ public:
      * @param b object to be copied
      */
     NasaPoly1(const NasaPoly1& b) :
-        m_lowT(b.m_lowT),
-        m_highT(b.m_highT),
-        m_Pref(b.m_Pref),
-        m_index(b.m_index),
-        m_coeff(vector_fp(7)) {
+        SpeciesThermoInterpType(b),
+        m_coeff(vector_fp(7))
+    {
         std::copy(b.m_coeff.begin(),
                   b.m_coeff.begin() + 7,
                   m_coeff.begin());
@@ -98,10 +87,7 @@ public:
      */
     NasaPoly1& operator=(const NasaPoly1& b) {
         if (&b != this) {
-            m_lowT   = b.m_lowT;
-            m_highT  = b.m_highT;
-            m_Pref   = b.m_Pref;
-            m_index  = b.m_index;
+            SpeciesThermoInterpType::operator=(b);
             std::copy(b.m_coeff.begin(),
                       b.m_coeff.begin() + 7,
                       m_coeff.begin());
@@ -109,49 +95,22 @@ public:
         return *this;
     }
 
-    //! Destructor
-    virtual ~NasaPoly1() {}
-
-    //! duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         NasaPoly1* np = new NasaPoly1(*this);
         return (SpeciesThermoInterpType*) np;
     }
 
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
-    virtual doublereal minTemp() const     {
-        return m_lowT;
-    }
-
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
-    virtual doublereal maxTemp() const     {
-        return m_highT;
-    }
-
-    //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const {
-        return m_Pref;
-    }
-
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const {
         return NASA1;
     }
 
-    //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
-        return m_index;
-    }
-
     //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * This method is called with a pointer to an array containing the
+     * functions of temperature needed by this  parameterization, and three
+     * pointers to arrays where the computed property values should be
+     * written. This method updates only one value in each array.
      *
      * Temperature Polynomial:
      *  tt[0] = t;
@@ -162,16 +121,12 @@ public:
      *  tt[5] = std::log(t);
      *
      * @param tt      vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
-
         doublereal ct0 = m_coeff[2];          // a0
         doublereal ct1 = m_coeff[3]*tt[0];    // a1 * T
         doublereal ct2 = m_coeff[4]*tt[1];    // a2 * T^2
@@ -194,23 +149,6 @@ public:
         //    fp2str(h)+"\n");
     }
 
-
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const {
@@ -224,24 +162,12 @@ public:
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
+    //! @deprecated
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
+        warn_deprecated("NasaPoly1::reportParameters");
         n = m_index;
         type = NASA1;
         tlow = m_lowT;
@@ -254,12 +180,14 @@ public:
         }
     }
 
-         //! Modify parameters for the standard state
-         /*!
-          * @param coeffs   Vector of coefficients used to set the
-          *                 parameters for the standard state.
-          */
+    //! Modify parameters for the standard state
+    /*!
+     * @param coeffs   Vector of coefficients used to set the
+     *                 parameters for the standard state.
+     * @deprecated
+     */
     virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("NasaPoly1::modifyParameters");
         m_coeff[0] = coeffs[5];
         m_coeff[1] = coeffs[6];
         for (int i = 0; i < 5; i++) {
@@ -294,7 +222,7 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New) {
         if (k != m_index) {
             return;
         }
@@ -306,19 +234,9 @@ public:
 #endif
 
 protected:
-    //! lowest valid temperature
-    doublereal m_lowT;
-    //! highest valid temperature
-    doublereal m_highT;
-    //! standard-state pressure
-    doublereal m_Pref;
-    //! species index
-    size_t m_index;
     //! array of polynomial coefficients
     vector_fp m_coeff;
-
 };
 
 }
 #endif
-

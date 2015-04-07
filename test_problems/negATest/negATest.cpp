@@ -1,6 +1,6 @@
 #include "cantera/kinetics.h"
 
-#include <string>
+#include <cstdio>
 
 using namespace Cantera;
 using namespace std;
@@ -13,7 +13,7 @@ int main(int argc, char** argv)
     try {
         if (argc != 2) {
             cout << "Error: no input file specified.\n"
-                "Choose either 'noxNeg.cti' or 'noxNegTest.xml" << endl;
+                 "Choose either 'noxNeg.cti' or 'noxNeg_blessed.xml" << endl;
             exit(-1);
         }
         std::string infile(argv[1]);
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 
         for (i = 0; i < nsp; i++) {
             string sSt = gasTP->speciesName(i);
-            printf("rop [ %d:%s ] = %g \n", (int) i, sSt.c_str(), src[i]);
+            printf("rop [ %.4d:%s ] = %.5g \n", (int) i, sSt.c_str(), src[i]);
         }
 
         size_t nReactions = iKin_ptr->nReactions();

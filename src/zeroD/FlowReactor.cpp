@@ -1,7 +1,5 @@
 /**
-*  @file FlowReactor.cpp
-*
-*  A zero-dimensional reactor
+*  @file FlowReactor.cpp A steady-state plug flow reactor
 */
 
 // Copyright 2001  California Institute of Technology
@@ -13,11 +11,14 @@ using namespace std;
 namespace Cantera
 {
 
-FlowReactor::FlowReactor() : Reactor(), m_fctr(1.0e10),
-    m_speed0(0.0) {}
+FlowReactor::FlowReactor() :
+    Reactor(),
+    m_dist(0.0),
+    m_fctr(1.0e10),
+    m_speed0(0.0)
+{
+}
 
-// overloaded method of FuncEval. Called by the integrator to
-// get the initial conditions.
 void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
     m_init = true;
@@ -25,7 +26,6 @@ void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
         writelog("Error: reactor is empty.\n");
         return;
     }
-    m_time = t0;
     m_thermo->restoreState(m_state);
 
     m_thermo->getMassFractions(y+2);
@@ -36,9 +36,6 @@ void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
     y[1] = m_speed0;
 }
 
-/*
- *  Must be called before calling method 'advance'
- */
 void FlowReactor::initialize(doublereal t0)
 {
     m_thermo->restoreState(m_state);
@@ -72,14 +69,9 @@ void FlowReactor::updateState(doublereal* y)
     m_thermo->saveState(m_state);
 }
 
-
-/*
- * Called by the integrator to evaluate ydot given y at time 'time'.
- */
 void FlowReactor::evalEqs(doublereal time, doublereal* y,
                           doublereal* ydot, doublereal* params)
 {
-    m_time = time;
     m_thermo->restoreState(m_state);
 
     double mult;
@@ -122,12 +114,9 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
             m_kin->setMultiplier(m_pnum[n], mult/params[n]);
         }
     }
-
-
 }
 
-
-size_t FlowReactor::componentIndex(string nm) const
+size_t FlowReactor::componentIndex(const string& nm) const
 {
     if (nm == "X") {
         return 0;

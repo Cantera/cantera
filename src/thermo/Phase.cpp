@@ -21,7 +21,7 @@ Phase::Phase() :
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_name(""),
-    m_temp(0.0),
+    m_temp(0.001),
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
@@ -38,7 +38,7 @@ Phase::Phase(const Phase& right) :
     m_xml(0),
     m_id("<phase>"),
     m_name(""),
-    m_temp(0.0),
+    m_temp(0.001),
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
@@ -103,22 +103,11 @@ Phase& Phase::operator=(const Phase& right)
     return *this;
 }
 
-// Destructor.
 Phase::~Phase()
 {
     if (m_xml) {
         delete m_xml;
         m_xml = 0;
-    }
-}
-
-inline void Phase::stateMFChangeCalc(bool forcerChange)
-{
-    // Right now we assume that the mole fractions have changed every time
-    // the function is called
-    m_stateNum++;
-    if (m_stateNum > 1000000) {
-        m_stateNum = -10000000;
     }
 }
 
@@ -132,9 +121,9 @@ std::string Phase::id() const
     return m_id;
 }
 
-void Phase::setID(std::string id)
+void Phase::setID(const std::string& id_)
 {
-    m_id = id;
+    m_id = id_;
 }
 
 std::string Phase::name() const
@@ -142,7 +131,7 @@ std::string Phase::name() const
     return m_name;
 }
 
-void Phase::setName(std::string nm)
+void Phase::setName(const std::string& nm)
 {
     m_name = nm;
 }
@@ -172,10 +161,10 @@ string Phase::elementName(size_t m) const
     return m_elementNames[m];
 }
 
-size_t Phase::elementIndex(std::string name) const
+size_t Phase::elementIndex(const std::string& elementName) const
 {
     for (size_t i = 0; i < m_mm; i++) {
-        if (m_elementNames[i] == name) {
+        if (m_elementNames[i] == elementName) {
             return i;
         }
     }
@@ -198,7 +187,7 @@ doublereal Phase::entropyElement298(size_t m) const
                    "Elements::entropy298",
                    "Entropy at 298 K of element is unknown");
     AssertTrace(m < m_mm);
-    return (m_entropy298[m]);
+    return m_entropy298[m];
 }
 
 const vector_fp& Phase::atomicWeights() const
@@ -237,7 +226,7 @@ void Phase::getAtoms(size_t k, double* atomArray) const
     }
 }
 
-size_t Phase::speciesIndex(std::string nameStr) const
+size_t Phase::speciesIndex(const std::string& nameStr) const
 {
     std::string pn;
     std::string sn = parseSpeciesName(nameStr, pn);
@@ -282,7 +271,7 @@ void Phase::checkSpeciesArraySize(size_t kk) const
 std::string Phase::speciesSPName(int k) const
 {
     std::string sn = speciesName(k);
-    return(m_name + ":" + sn);
+    return m_name + ":" + sn;
 }
 
 void Phase::saveState(vector_fp& state) const
@@ -332,19 +321,24 @@ void Phase::setMoleFractions(const doublereal* const x)
      * Set m_ym_ to the normalized mole fractions divided by the normalized mean molecular weight:
      *         m_ym_k = X_k / (sum_k X_k M_k)
      */
-    transform(m_y.begin(), m_y.end(), m_ym.begin(), timesConstant<double>(1.0/sum));
+    // transform(m_y.begin(), m_y.end(), m_ym.begin(), timesConstant<double>(1.0/sum));
+    const doublereal invSum = 1.0/sum;
+    for (size_t k=0; k < m_kk; k++) {
+        m_ym[k] = m_y[k]*invSum;
+    }
     /*
      * Now set m_y to the normalized mass fractions
      *          m_y =  X_k M_k / (sum_k X_k M_k)
      */
-    transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(), m_y.begin(), multiplies<double>());
+    // transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(), m_y.begin(), multiplies<double>());
+    for (size_t k=0; k < m_kk; k++) {
+        m_y[k] = m_ym[k] * m_molwts[k];
+    }
     /*
      * Calculate the normalized molecular weight
      */
     m_mmw = sum/norm;
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMoleFractions_NoNorm(const doublereal* const x)
@@ -354,9 +348,7 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
     transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(rmmw));
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMoleFractionsByName(compositionMap& xMap)
@@ -375,13 +367,8 @@ void Phase::setMoleFractionsByName(compositionMap& xMap)
 
 void Phase::setMoleFractionsByName(const std::string& x)
 {
-    size_t kk = nSpecies();
-    compositionMap xx;
-    for (size_t k = 0; k < kk; k++) {
-        xx[speciesName(k)] = -1.0;
-    }
-    parseCompString(x, xx);
-    setMoleFractionsByName(xx);
+    compositionMap c = parseCompString(x, speciesNames());
+    setMoleFractionsByName(c);
 }
 
 void Phase::setMassFractions(const doublereal* const y)
@@ -395,9 +382,7 @@ void Phase::setMassFractions(const doublereal* const y)
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
               m_ym.begin(), multiplies<double>());
     m_mmw = 1.0 / accumulate(m_ym.begin(), m_ym.end(), 0.0);
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMassFractions_NoNorm(const doublereal* const y)
@@ -408,9 +393,7 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
               multiplies<double>());
     sum = accumulate(m_ym.begin(), m_ym.end(), 0.0);
     m_mmw = 1.0/sum;
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 void Phase::setMassFractionsByName(compositionMap& yMap)
@@ -429,13 +412,8 @@ void Phase::setMassFractionsByName(compositionMap& yMap)
 
 void Phase::setMassFractionsByName(const std::string& y)
 {
-    size_t kk = nSpecies();
-    compositionMap yy;
-    for (size_t k = 0; k < kk; k++) {
-        yy[speciesName(k)] = -1.0;
-    }
-    parseCompString(y, yy);
-    setMassFractionsByName(yy);
+    compositionMap c = parseCompString(y, speciesNames());
+    setMassFractionsByName(c);
 }
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
@@ -518,12 +496,6 @@ void Phase::getMolecularWeights(vector_fp& weights) const
     copy(mw.begin(), mw.end(), weights.begin());
 }
 
-void Phase::getMolecularWeights(int iwt, doublereal* weights) const
-{
-    const vector_fp& mw = molecularWeights();
-    copy(mw.begin(), mw.end(), weights);
-}
-
 void Phase::getMolecularWeights(doublereal* weights) const
 {
     const vector_fp& mw = molecularWeights();
@@ -555,7 +527,7 @@ doublereal Phase::moleFraction(size_t k) const
     return m_ym[k] * m_mmw;
 }
 
-doublereal Phase::moleFraction(std::string nameSpec) const
+doublereal Phase::moleFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -576,7 +548,7 @@ doublereal Phase::massFraction(size_t k) const
     return m_y[k];
 }
 
-doublereal Phase::massFraction(std::string nameSpec) const
+doublereal Phase::massFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -619,9 +591,7 @@ void Phase::setConcentrations(const doublereal* const conc)
         m_ym[k] = m_y[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k]; // m_y is now the mass fraction
     }
-
-    // Call a routine to determine whether state has changed.
-    stateMFChangeCalc();
+    m_stateNum++;
 }
 
 doublereal Phase::molarDensity() const
@@ -629,19 +599,14 @@ doublereal Phase::molarDensity() const
     return density()/meanMolecularWeight();
 }
 
-void Phase::setMolarDensity(const doublereal molarDensity)
+void Phase::setMolarDensity(const doublereal molar_density)
 {
-    m_dens = molarDensity*meanMolecularWeight();
+    m_dens = molar_density*meanMolecularWeight();
 }
 
 doublereal Phase::molarVolume() const
 {
     return 1.0/molarDensity();
-}
-
-doublereal Phase::charge(size_t k) const
-{
-    return m_speciesCharge[k];
 }
 
 doublereal Phase::chargeDensity() const
@@ -700,13 +665,13 @@ void Phase::addElement(const std::string& symbol, doublereal weight)
 
 void Phase::addElement(const XML_Node& e)
 {
-    doublereal weight = atof(e["atomicWt"].c_str());
+    doublereal weight = fpValue(e["atomicWt"]);
     string symbol = e["name"];
     addElement(symbol, weight);
 }
 
 void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
-                             int atomicNumber, doublereal entropy298,
+                             int atomic_number, doublereal entropy298,
                              int elem_type)
 {
     if (weight == -12345.0) {
@@ -736,7 +701,7 @@ void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
         }
         m_atomicWeights.push_back(weight);
         m_elementNames.push_back(symbol);
-        m_atomicNumbers.push_back(atomicNumber);
+        m_atomicNumbers.push_back(atomic_number);
         m_entropy298.push_back(entropy298);
         if (symbol == "E") {
             m_elem_type.push_back(CT_ELEM_TYPE_ELECTRONCHARGE);
@@ -747,7 +712,7 @@ void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
     } else {
         if (m_atomicWeights[i] != weight) {
             throw CanteraError("AddUniqueElement",
-                "Duplicate Elements (" + symbol + ") have different weights");
+                               "Duplicate Elements (" + symbol + ") have different weights");
         }
     }
 }
@@ -756,7 +721,7 @@ void Phase::addUniqueElement(const XML_Node& e)
 {
     doublereal weight = 0.0;
     if (e.hasAttrib("atomicWt")) {
-        weight = atof(stripws(e["atomicWt"]).c_str());
+        weight = fpValue(stripws(e["atomicWt"]));
     }
     int anum = 0;
     if (e.hasAttrib("atomicNumber")) {
@@ -767,7 +732,7 @@ void Phase::addUniqueElement(const XML_Node& e)
     if (e.hasChild("entropy298")) {
         XML_Node& e298Node = e.child("entropy298");
         if (e298Node.hasAttrib("value")) {
-            entropy298 = atofCheck(stripws(e298Node["value"]).c_str());
+            entropy298 = fpValueCheck(stripws(e298Node["value"]));
         }
     }
     if (weight != 0.0) {
@@ -782,7 +747,7 @@ void Phase::addElementsFromXML(const XML_Node& phase)
     // get the declared element names
     if (! phase.hasChild("elementArray")) {
         throw CanteraError("Elements::addElementsFromXML",
-            "phase xml node doesn't have \"elementArray\" XML Node");
+                           "phase xml node doesn't have \"elementArray\" XML Node");
     }
     XML_Node& elements = phase.child("elementArray");
     vector<string> enames;
@@ -868,13 +833,13 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
     return ii;
 }
 
-void Phase::addSpecies(const std::string& name, const doublereal* comp,
-                       doublereal charge, doublereal size)
+void Phase::addSpecies(const std::string& name_, const doublereal* comp,
+                       doublereal charge_, doublereal size_)
 {
     freezeElements();
-    m_speciesNames.push_back(name);
-    m_speciesCharge.push_back(charge);
-    m_speciesSize.push_back(size);
+    m_speciesNames.push_back(name_);
+    m_speciesCharge.push_back(charge_);
+    m_speciesSize.push_back(size_);
     size_t ne = nElements();
     // Create a changeable copy of the element composition. We now change
     // the charge potentially
@@ -884,19 +849,19 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
     }
     double wt = 0.0;
     const vector_fp& aw = atomicWeights();
-    if (charge != 0.0) {
+    if (charge_ != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
             doublereal ecomp = compNew[eindex];
-            if (fabs(charge + ecomp) > 0.001) {
+            if (fabs(charge_ + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",
-                        "Input charge and element E compositions differ "
-                        "for species " + name);
+                                       "Input charge and element E compositions differ "
+                                       "for species " + name_);
                 } else {
                     // Just fix up the element E composition based on the input
                     // species charge
-                    compNew[eindex] = -charge;
+                    compNew[eindex] = -charge_;
                 }
             }
         } else {
@@ -905,7 +870,7 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
             ne = nElements();
             eindex = elementIndex("E");
             compNew.resize(ne);
-            compNew[ne - 1] = - charge;
+            compNew[ne - 1] = - charge_;
         }
     }
     for (size_t m = 0; m < ne; m++) {
@@ -916,37 +881,33 @@ void Phase::addSpecies(const std::string& name, const doublereal* comp,
     m_kk++;
 }
 
-void Phase::addUniqueSpecies(const std::string& name, const doublereal* comp,
-                             doublereal charge, doublereal size)
+void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
+                             doublereal charge_, doublereal size_)
 {
-    vector<string>::const_iterator it = m_speciesNames.begin();
     for (size_t k = 0; k < m_kk; k++) {
-        if (*it == name) {
-            // We have found a match. At this point we could do some
-            // compatibility checks. However, let's just return for the moment
-            // without specifying any error.
+        if (m_speciesNames[k] == name_) {
+            // We have found a match. Do some compatibility checks.
             for (size_t i = 0; i < m_mm; i++) {
-                if (comp[i] != m_speciesComp[m_kk * m_mm + i]) {
+                if (comp[i] != m_speciesComp[k * m_mm + i]) {
                     throw CanteraError("addUniqueSpecies",
                                        "Duplicate species have different "
-                                       "compositions: " + *it);
+                                       "compositions: " + name_);
                 }
             }
-            if (charge != m_speciesCharge[m_kk]) {
+            if (charge_ != m_speciesCharge[k]) {
                 throw CanteraError("addUniqueSpecies",
                                    "Duplicate species have different "
-                                   "charges: " + *it);
+                                   "charges: " + name_);
             }
-            if (size != m_speciesSize[m_kk]) {
+            if (size_ != m_speciesSize[k]) {
                 throw CanteraError("addUniqueSpecies",
                                    "Duplicate species have different "
-                                   "sizes: " + *it);
+                                   "sizes: " + name_);
             }
             return;
         }
-        ++it;
     }
-    addSpecies(name, comp, charge, size);
+    addSpecies(name_, comp, charge_, size_);
 }
 
 void Phase::freezeSpecies()

@@ -40,10 +40,6 @@ VPSSMgr_General::VPSSMgr_General(VPStandardStateTP* vp_ptr,
     m_useTmpRefStateStorage = true;
 }
 
-VPSSMgr_General::~VPSSMgr_General()
-{
-}
-
 VPSSMgr_General::VPSSMgr_General(const VPSSMgr_General& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {
@@ -51,7 +47,7 @@ VPSSMgr_General::VPSSMgr_General(const VPSSMgr_General& right) :
     m_useTmpRefStateStorage = true;
     *this = right;
 }
-//====================================================================================================================
+
 VPSSMgr_General& VPSSMgr_General::operator=(const VPSSMgr_General& b)
 {
     if (&b == this) {
@@ -73,19 +69,9 @@ VPSSMgr_General& VPSSMgr_General::operator=(const VPSSMgr_General& b)
 
 VPSSMgr* VPSSMgr_General::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_General* vpm = new VPSSMgr_General(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_General(*this);
 }
-//====================================================================================================================
-// Initialize the internal shallow pointers in this object
-/*
- * There are a bunch of internal shallow pointers that point to the owning
- * VPStandardStateTP and SpeciesThermo objects. This function reinitializes
- * them. This function is called like an onion.
- *
- *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
- *  @param sp_ptr   Pointer to the SpeciesThermo standard state
- */
+
 void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
@@ -98,7 +84,7 @@ void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_p
         m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
     }
 }
-//====================================================================================================================
+
 void VPSSMgr_General::_updateRefStateThermo() const
 {
     if (m_useTmpRefStateStorage) {
@@ -127,22 +113,11 @@ void VPSSMgr_General::_updateStandardStateThermo()
     }
 }
 
-
 void VPSSMgr_General::initThermo()
 {
     initLengths();
 }
 
-/*!
- *  Returns the vector of the
- *  gibbs function of the reference state at the current temperature
- *  of the solution and the reference pressure for the species.
- *  units = J/kmol
- *
- * @param g   Output vector contain the Gibbs free energies
- *            of the reference state of the species
- *            length = m_kk, units = J/kmol.
- */
 void VPSSMgr_General::getGibbs_ref(doublereal* g) const
 {
     doublereal _rt = GasConstant * m_tlast;
@@ -161,7 +136,7 @@ void VPSSMgr_General::getGibbs_ref(doublereal* g) const
 }
 
 void
-VPSSMgr_General::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_General::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 }
@@ -270,11 +245,8 @@ PDSS_enumType VPSSMgr_General::reportPDSSType(int k) const
     return  kPDSS->reportPDSSType();
 }
 
-
 VPSSMgr_enumType  VPSSMgr_General::reportVPSSMgrType() const
 {
     return cVPSSMGR_GENERAL;
 }
 }
-
-

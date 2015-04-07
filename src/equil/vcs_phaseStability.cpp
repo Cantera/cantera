@@ -1,19 +1,14 @@
 /**
  * @file vcs_phaseStability.cpp
  *  Implementation class for functions associated with determining the stability of a phase
- *   (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
+ *   (see Class \link VCSnonideal::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
-#include "vcs_species_thermo.h"
+#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_Exception.h"
 
 #include <cstdio>
-#include <cstdlib>
-#include <cmath>
-#include <vector>
-#include <cstring>
 #include <algorithm>
 
 using namespace std;
@@ -21,25 +16,8 @@ using namespace std;
 namespace VCSnonideal
 {
 
-//====================================================================================================================
-// Utility function that evaluates whether a phase can be popped into existence
-/*
- * A phase can be popped iff the stoichiometric coefficients for the
- * component species, whose concentrations will be lowered during the
- * process, are positive by at least a small degree.
- *
- * If one of the phase species is a zeroed component, then the phase can
- * be popped if the component increases in mole number as the phase moles
- * are increased.
- *
- * @param iphasePop  id of the phase, which is currently zeroed,
- *
- * @return Returns true if the phase can come into existence
- *         and false otherwise.
- */
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
-
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
 
 #ifdef DEBUG_MODE
@@ -134,16 +112,6 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     return false;
 }
 
-//====================================================================================================================
-// Determine the list of problems that need to be checked to see if there are any phases pops
-/*
- *  This routine evaluates and fills in the following quantities
- *              phasePopProblemLists_
- *
- *  Need to work in species that are zeroed by element constraints
- *
- *  @return    Returns the number of problems that must be checked.
- */
 int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
     int nfound = 0;
@@ -193,7 +161,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     }
     /*
      *   This is a vector over each zeroed phase
-     *   For zeroed phases, it lists the components, which are currently zereoed,
+     *   For zeroed phases, it lists the components, which are currently zeroed,
      *     which have a species with a negative stoichiometric value wrt one or more species in the phase.
      *     Cut out components which have a pos stoichiometric value with another species in the phase.
      */
@@ -271,13 +239,6 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     return nfound;
 }
 
-
-//====================================================================================================================
-// Decision as to whether a phase pops back into existence
-/*
- * @return returns the phase id of the phases that pops back into
- *         existence. Returns npos if there are no phases
- */
 size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
@@ -408,29 +369,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 #endif
     return iphasePop;
 }
-//====================================================================================================================
-// Calculates the deltas of the reactions due to phases popping
-// into existence
-/*
- * @param iphasePop  Phase id of the phase that will come into existence
- *
- * Output
- * -------
- * m_deltaMolNumSpecies(irxn) : reaction adjustments, where irxn refers
- *                              to the irxn'th species
- *                              formation reaction. This  adjustment
- *                              is for species
- *                               irxn + M, where M is the number
- *                              of components.
- *
- * @return  Returns an int representing the status of the step
- *            -  0 : normal return
- *            -  1 : A single species phase species has been zeroed out
- *                   in this routine. The species is a noncomponent
- *            -  2 : Same as one but, the zeroed species is a component.
- *            -  3 : Nothing was done because the phase couldn't be birthed
- *                   because a needed component is zero.
- */
+
 int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 {
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
@@ -627,27 +566,30 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     return 0;
 }
 
-
 double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 {
-
     /*
      * We will use the _new state calc here
      */
     size_t kspec, irxn, k, i, kc, kc_spec;
     vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+    const size_t nsp = Vphase->nSpecies();
     doublereal deltaGRxn;
+    int minNumberIterations = 3;
+    if (nsp <= 1) {
+	minNumberIterations = 1;
+    }
 
     // We will do a full newton calculation later, but for now, ...
     bool doSuccessiveSubstitution = true;
     double funcPhaseStability;
-    vector<doublereal> X_est(Vphase->nSpecies(), 0.0);
-    vector<doublereal> delFrac(Vphase->nSpecies(), 0.0);
-    vector<doublereal> E_phi(Vphase->nSpecies(), 0.0);
-    vector<doublereal> fracDelta_new(Vphase->nSpecies(), 0.0);
-    vector<doublereal> fracDelta_old(Vphase->nSpecies(), 0.0);
-    vector<doublereal> fracDelta_raw(Vphase->nSpecies(), 0.0);
-    vector<size_t> creationGlobalRxnNumbers(Vphase->nSpecies(), npos);
+    vector<doublereal> X_est(nsp, 0.0);
+    vector<doublereal> delFrac(nsp, 0.0);
+    vector<doublereal> E_phi(nsp, 0.0);
+    vector<doublereal> fracDelta_new(nsp, 0.0);
+    vector<doublereal> fracDelta_old(nsp, 0.0);
+    vector<doublereal> fracDelta_raw(nsp, 0.0);
+    vector<size_t> creationGlobalRxnNumbers(nsp, npos);
     vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
 
     vector<doublereal> m_feSpecies_Deficient(m_numComponents, 0.0);
@@ -669,7 +611,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
     std::vector<size_t> componentList;
 
-    for (k = 0; k < Vphase->nSpecies(); k++) {
+    for (k = 0; k < nsp; k++) {
         kspec = Vphase->spGlobalIndexVCS(k);
         if (kspec < m_numComponents) {
             componentList.push_back(k);
@@ -697,7 +639,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
         }
 #endif
 
-        for (k = 0; k < Vphase->nSpecies(); k++) {
+        for (k = 0; k < nsp; k++) {
             if (fracDelta_new[k] < 1.0E-13) {
                 fracDelta_new[k] = 1.0E-13;
             }
@@ -716,7 +658,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 kc = componentList[i];
                 kc_spec = Vphase->spGlobalIndexVCS(kc);
                 fracDelta_old[kc] = 0.0;
-                for (k = 0; k <  Vphase->nSpecies(); k++) {
+                for (k = 0; k <  nsp; k++) {
                     kspec = Vphase->spGlobalIndexVCS(k);
                     if (kspec >= m_numComponents) {
                         irxn = kspec - m_numComponents;
@@ -727,7 +669,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
             // Now, calculate the predicted mole fractions, X_est[k]
             double sumFrac = 0.0;
-            for (k = 0; k < Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 sumFrac += fracDelta_old[k];
             }
             // Necessary because this can be identically zero. -> we need to fix this algorithm!
@@ -735,7 +677,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 sumFrac = 1.0;
             }
             double sum_Xcomp = 0.0;
-            for (k = 0; k < Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 X_est[k] = fracDelta_old[k] / sumFrac;
                 kc_spec = Vphase->spGlobalIndexVCS(k);
                 if (kc_spec < m_numComponents) {
@@ -797,7 +739,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
              */
             sum = 0.0;
             funcPhaseStability = sum_Xcomp - 1.0;
-            for (k = 0; k <  Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 kspec = Vphase->spGlobalIndexVCS(k);
                 if (kspec >= m_numComponents) {
                     irxn = kspec - m_numComponents;
@@ -819,7 +761,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             /*
              * Calculate the raw estimate of the new fracs
              */
-            for (k = 0; k <  Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 kspec = Vphase->spGlobalIndexVCS(k);
                 double b =  E_phi[k] / sum * (1.0 - sum_Xcomp);
                 if (kspec >= m_numComponents) {
@@ -835,7 +777,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 kc = componentList[i];
                 kc_spec = Vphase->spGlobalIndexVCS(kc);
                 fracDelta_raw[kc] = 0.0;
-                for (k = 0; k <  Vphase->nSpecies(); k++) {
+                for (k = 0; k < nsp; k++) {
                     kspec = Vphase->spGlobalIndexVCS(k);
                     if (kspec >= m_numComponents) {
                         irxn = kspec - m_numComponents;
@@ -850,14 +792,14 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
              * Now possibly dampen the estimate.
              */
             doublereal sumADel = 0.0;
-            for (k = 0; k <  Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 delFrac[k] = fracDelta_raw[k] - fracDelta_old[k];
                 sumADel += fabs(delFrac[k]);
             }
             normUpdate = vcs_l2norm(delFrac);
 
             dirProd = 0.0;
-            for (k = 0; k <  Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 dirProd += fracDelta_old[k] * delFrac[k];
             }
             bool crossedSign = false;
@@ -884,10 +826,10 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 }
             }
 
-            for (k = 0; k < Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 if (fabs(damp * delFrac[k]) > 0.3*fabs(fracDelta_old[k])) {
                     damp = std::max(0.3*fabs(fracDelta_old[k]) / fabs(delFrac[k]),
-                               1.0E-8/fabs(delFrac[k]));
+                                    1.0E-8/fabs(delFrac[k]));
                 }
                 if (delFrac[k] < 0.0) {
                     if (2.0 * damp * (-delFrac[k]) > fracDelta_old[k]) {
@@ -904,7 +846,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 damp = 0.000001;
             }
 
-            for (k = 0; k <  Vphase->nSpecies(); k++) {
+            for (k = 0; k < nsp; k++) {
                 fracDelta_new[k] = fracDelta_old[k] + damp * (delFrac[k]);
             }
 
@@ -915,15 +857,24 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             }
 #endif
 
-            if (normUpdate < 1.0E-5) {
+            if (normUpdate < 1.0E-5 * damp) {
                 converged = true;
+		if (its < minNumberIterations) {
+		    converged = false;
+		}
             }
 
         }
 
         if (converged) {
-            Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est),
-                                          VCS_STATECALC_PHASESTABILITY);
+	    /*
+	     *  Save the final optimized stated back into the VolPhase object for later use
+	     */
+            Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), VCS_STATECALC_PHASESTABILITY);
+	    /*
+	     * Save fracDelta for later use to initialize the problem better
+	     *  @TODO  creationGlobalRxnNumbers needs to be calculated here and storred.
+	     */
             Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
         }
 
@@ -948,4 +899,3 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 }
 
 }
-

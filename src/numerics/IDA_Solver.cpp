@@ -1,14 +1,11 @@
 /**
  *  @file IDA_Solver.cpp
- *
  */
 
 // Copyright 2006  California Institute of Technology
 
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"
-
-#include <iostream>
 
 #if SUNDIALS_VERSION >= 24
 #include "sundials/sundials_types.h"
@@ -26,12 +23,6 @@ typedef int sd_size_t;
 #else
 typedef long int sd_size_t;
 #endif
-
-
-inline static N_Vector nv(void* x)
-{
-    return reinterpret_cast<N_Vector>(x);
-}
 
 namespace Cantera
 {
@@ -58,7 +49,6 @@ public:
 };
 }
 
-//======================================================================================================================
 extern "C" {
     //!  Function called by IDA to evaluate the residual, given y and ydot.
     /*!
@@ -96,8 +86,6 @@ extern "C" {
 
     //! Function called by by IDA to evaluate the Jacobian, given y and ydot.
     /*!
-     *
-     *
      * typedef int (*IDADlsDenseJacFn)(sd_size_t N, realtype t, realtype c_j,
      *                             N_Vector y, N_Vector yp, N_Vector r,
      *                             DlsMat Jac, void *user_data,
@@ -125,18 +113,11 @@ extern "C" {
         f->evalJacobianDP(t, delta_t, c_j,  ydata, ydotdata, colPts, rdata);
         return 0;
     }
-
-
 }
 
 namespace Cantera
 {
 
-//====================================================================================================================
-/*
- *  Constructor. Default settings: dense jacobian, no user-supplied
- *  Jacobian function, Newton iteration.
- */
 IDA_Solver::IDA_Solver(ResidJacEval& f) :
     DAE_Solver(f),
     m_ida_mem(0),
@@ -172,66 +153,65 @@ IDA_Solver::IDA_Solver(ResidJacEval& f) :
     m_mlower(0)
 {
 }
-//====================================================================================================================
+
 IDA_Solver::~IDA_Solver()
 {
     if (m_ida_mem) {
         IDAFree(&m_ida_mem);
     }
     if (m_y) {
-        N_VDestroy_Serial(nv(m_y));
+        N_VDestroy_Serial(m_y);
     }
     if (m_ydot) {
-        N_VDestroy_Serial(nv(m_ydot));
+        N_VDestroy_Serial(m_ydot);
     }
     if (m_abstol) {
-        N_VDestroy_Serial(nv(m_abstol));
+        N_VDestroy_Serial(m_abstol);
     }
     if (m_constraints) {
-        N_VDestroy_Serial(nv(m_constraints));
+        N_VDestroy_Serial(m_constraints);
     }
     delete m_fdata;
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::solution(int k) const
 {
-    return NV_Ith_S(nv(m_y),k);
+    return NV_Ith_S(m_y,k);
 }
-//====================================================================================================================
+
 const doublereal* IDA_Solver::solutionVector() const
 {
-    return NV_DATA_S(nv(m_y));
+    return NV_DATA_S(m_y);
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::derivative(int k) const
 {
-    return NV_Ith_S(nv(m_ydot),k);
+    return NV_Ith_S(m_ydot,k);
 }
-//====================================================================================================================
+
 const doublereal* IDA_Solver::derivativeVector() const
 {
-    return NV_DATA_S(nv(m_ydot));
+    return NV_DATA_S(m_ydot);
 }
-//====================================================================================================================
 
 void IDA_Solver::setTolerances(double reltol, double* abstol)
 {
     m_itol = IDA_SV;
     if (!m_abstol) {
-        m_abstol = reinterpret_cast<void*>(N_VNew_Serial(m_neq));
+        m_abstol = N_VNew_Serial(m_neq);
     }
     for (int i = 0; i < m_neq; i++) {
-        NV_Ith_S(nv(m_abstol), i) = abstol[i];
+        NV_Ith_S(m_abstol, i) = abstol[i];
     }
     m_reltol = reltol;
     if (m_ida_mem) {
-        int flag = IDASVtolerances(m_ida_mem, m_reltol, nv(m_abstol));
+        int flag = IDASVtolerances(m_ida_mem, m_reltol, m_abstol);
         if (flag != IDA_SUCCESS) {
             throw IDA_Err("Memory allocation failed.");
         }
     }
 }
-//====================================================================================================================
+
 void IDA_Solver::setTolerances(doublereal reltol, doublereal abstol)
 {
     m_itol = IDA_SS;
@@ -244,51 +224,51 @@ void IDA_Solver::setTolerances(doublereal reltol, doublereal abstol)
         }
     }
 }
-//====================================================================================================================
+
 void IDA_Solver::setLinearSolverType(int solverType)
 {
     m_type = solverType;
 }
-//====================================================================================================================
+
 void IDA_Solver::setDenseLinearSolver()
 {
     setLinearSolverType(0);
 }
-//====================================================================================================================
+
 void IDA_Solver::setBandedLinearSolver(int m_upper, int m_lower)
 {
     m_type = 2;
     m_upper = m_mupper;
     m_mlower = m_lower;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxOrder(int n)
 {
     m_maxord = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxNumSteps(int n)
 {
     m_maxsteps = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::setInitialStepSize(doublereal h0)
 {
     m_h0 = h0;
 }
-//====================================================================================================================
+
 void IDA_Solver::setStopTime(doublereal tstop)
 {
     m_tstop = tstop;
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::getCurrentStepFromIDA()
 {
     doublereal hcur;
     IDAGetCurrentStep(m_ida_mem, &hcur);
     return hcur;
 }
-//====================================================================================================================
+
 void IDA_Solver::setJacobianType(int formJac)
 {
     m_formJac = formJac;
@@ -301,22 +281,22 @@ void IDA_Solver::setJacobianType(int formJac)
         }
     }
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxErrTestFailures(int maxErrTestFails)
 {
     m_maxErrTestFails = maxErrTestFails;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxNonlinIterations(int n)
 {
     m_maxNonlinIters = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::setMaxNonlinConvFailures(int n)
 {
     m_maxNonlinConvFails = n;
 }
-//====================================================================================================================
+
 void IDA_Solver::inclAlgebraicInErrorTest(bool yesno)
 {
     if (yesno) {
@@ -326,39 +306,37 @@ void IDA_Solver::inclAlgebraicInErrorTest(bool yesno)
     }
 }
 
-//====================================================================================================================
 void IDA_Solver::init(doublereal t0)
 {
-
     m_t0 = t0;
     m_told = t0;
     m_told_old = t0;
     m_tcurrent = t0;
     if (m_y) {
-        N_VDestroy_Serial(nv(m_y));
+        N_VDestroy_Serial(m_y);
     }
     if (m_ydot) {
-        N_VDestroy_Serial(nv(m_ydot));
+        N_VDestroy_Serial(m_ydot);
     }
     if (m_id) {
-        N_VDestroy_Serial(nv(m_id));
+        N_VDestroy_Serial(m_id);
     }
     if (m_constraints) {
-        N_VDestroy_Serial(nv(m_constraints));
+        N_VDestroy_Serial(m_constraints);
     }
 
-    m_y = reinterpret_cast<void*>(N_VNew_Serial(m_neq));
-    m_ydot = reinterpret_cast<void*>(N_VNew_Serial(m_neq));
-    m_constraints = reinterpret_cast<void*>(N_VNew_Serial(m_neq));
+    m_y = N_VNew_Serial(m_neq);
+    m_ydot = N_VNew_Serial(m_neq);
+    m_constraints = N_VNew_Serial(m_neq);
 
     for (int i=0; i<m_neq; i++) {
-        NV_Ith_S(nv(m_y), i) = 0.0;
-        NV_Ith_S(nv(m_ydot), i) = 0.0;
-        NV_Ith_S(nv(m_constraints), i) = 0.0;
+        NV_Ith_S(m_y, i) = 0.0;
+        NV_Ith_S(m_ydot, i) = 0.0;
+        NV_Ith_S(m_constraints, i) = 0.0;
     }
 
     // get the initial conditions
-    m_resid.getInitialConditions(m_t0, NV_DATA_S(nv(m_y)), NV_DATA_S(nv(m_ydot)));
+    m_resid.getInitialConditions(m_t0, NV_DATA_S(m_y), NV_DATA_S(m_ydot));
 
     if (m_ida_mem) {
         IDAFree(&m_ida_mem);
@@ -374,8 +352,8 @@ void IDA_Solver::init(doublereal t0)
     if (m_itol == IDA_SV) {
 #if SUNDIALS_VERSION <= 23
         // vector atol
-        flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot),
-                         m_itol, m_reltol, nv(m_abstol));
+        flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, m_y, m_ydot,
+                         m_itol, m_reltol, m_abstol);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
                 throw IDA_Err("Memory allocation failed.");
@@ -387,7 +365,7 @@ void IDA_Solver::init(doublereal t0)
         }
 
 #elif SUNDIALS_VERSION >= 24
-        flag = IDAInit(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot));
+        flag = IDAInit(m_ida_mem, ida_resid, m_t0, m_y, m_ydot);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
                 throw IDA_Err("Memory allocation failed.");
@@ -397,7 +375,7 @@ void IDA_Solver::init(doublereal t0)
                 throw IDA_Err("IDAMalloc failed.");
             }
         }
-        flag = IDASVtolerances(m_ida_mem, m_reltol, nv(m_abstol));
+        flag = IDASVtolerances(m_ida_mem, m_reltol, m_abstol);
         if (flag != IDA_SUCCESS) {
             throw IDA_Err("Memory allocation failed.");
         }
@@ -405,7 +383,7 @@ void IDA_Solver::init(doublereal t0)
     } else {
 #if SUNDIALS_VERSION <= 23
         // scalar atol
-        flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot),
+        flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, m_y, m_ydot,
                          m_itol, m_reltol, &m_abstols);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
@@ -418,7 +396,7 @@ void IDA_Solver::init(doublereal t0)
         }
 
 #elif SUNDIALS_VERSION >= 24
-        flag = IDAInit(m_ida_mem, ida_resid, m_t0, nv(m_y), nv(m_ydot));
+        flag = IDAInit(m_ida_mem, ida_resid, m_t0, m_y, m_ydot);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
                 throw IDA_Err("Memory allocation failed.");
@@ -524,18 +502,8 @@ void IDA_Solver::init(doublereal t0)
             throw IDA_Err("IDASetSuppressAlg failed.");
         }
     }
-
-
-
 }
-//====================================================================================================================
-// Calculate consistent value of the starting solution given the starting solution derivatives
-/*
- * This method may be called if the initial conditions do not
- * satisfy the residual equation F = 0. Given the derivatives
- * of all variables, this method computes the initial y
- * values.
- */
+
 void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doublereal tout)
 {
     int icopt = IDA_Y_INIT;
@@ -554,36 +522,21 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doubl
     }
 
 
-    flag = IDAGetConsistentIC(m_ida_mem, nv(m_y), nv(m_ydot));
+    flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
     }
-    doublereal* yy = NV_DATA_S(nv(m_y));
-    doublereal* yyp = NV_DATA_S(nv(m_ydot));
+    doublereal* yy = NV_DATA_S(m_y);
+    doublereal* yyp = NV_DATA_S(m_ydot);
 
     for (int i = 0; i < m_neq; i++) {
         y[i]  = yy[i];
         yp[i] = yyp[i];
     }
 }
-//====================================================================================================================
-/*
- * This method may be called if the initial conditions do not
- * satisfy the residual equation F = 0. Given the initial
- * values of all differential variables, it computes the
- * initial values of all algebraic variables and the initial
- * derivatives of all differential variables.
- *
- *  @param y      Calculated value of the solution vector after the procedure ends
- *  @param yp     Calculated value of the solution derivative after the procedure
- *  @param        The first value of t at which a soluton will be
- *                requested (from IDASolve).  (This is needed here to
- *                determine the direction of integration and rough scale
- *                in the independent variable t.
- */
+
 void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, doublereal tout)
 {
-
     int icopt = IDA_YA_YDP_INIT;
     doublereal tout1 = tout;
     if (tout == 0.0) {
@@ -600,19 +553,19 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
     }
 
 
-    flag = IDAGetConsistentIC(m_ida_mem, nv(m_y), nv(m_ydot));
+    flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
     }
-    doublereal* yy = NV_DATA_S(nv(m_y));
-    doublereal* yyp = NV_DATA_S(nv(m_ydot));
+    doublereal* yy = NV_DATA_S(m_y);
+    doublereal* yyp = NV_DATA_S(m_ydot);
 
     for (int i = 0; i < m_neq; i++) {
         y[i]  = yy[i];
         yp[i] = yyp[i];
     }
 }
-//====================================================================================================================
+
 int IDA_Solver::solve(double tout)
 {
     double tretn;
@@ -627,7 +580,7 @@ int IDA_Solver::solve(double tout)
         }
         m_told_old = m_told;
         m_told = m_tcurrent;
-        flag = IDASolve(m_ida_mem, tout, &tretn, nv(m_y), nv(m_ydot), IDA_ONE_STEP);
+        flag = IDASolve(m_ida_mem, tout, &tretn, m_y, m_ydot, IDA_ONE_STEP);
         if (flag < 0) {
             throw IDA_Err(" IDA error encountered.");
         } else   if (flag == IDA_TSTOP_RETURN) {
@@ -646,7 +599,7 @@ int IDA_Solver::solve(double tout)
     }
     return flag;
 }
-//====================================================================================================================
+
 double IDA_Solver::step(double tout)
 {
     double t;
@@ -656,7 +609,7 @@ double IDA_Solver::step(double tout)
     }
     m_told_old = m_told;
     m_told = m_tcurrent;
-    flag = IDASolve(m_ida_mem, tout, &t, nv(m_y), nv(m_ydot), IDA_ONE_STEP);
+    flag = IDASolve(m_ida_mem, tout, &t, m_y, m_ydot, IDA_ONE_STEP);
     if (flag < 0) {
         throw IDA_Err(" IDA error encountered.");
     } else   if (flag == IDA_TSTOP_RETURN) {
@@ -670,7 +623,7 @@ double IDA_Solver::step(double tout)
     m_deltat = m_tcurrent - m_told;
     return t;
 }
-//====================================================================================================================
+
 doublereal IDA_Solver::getOutputParameter(int flag) const
 {
     long int lenrw, leniw;
@@ -682,7 +635,6 @@ doublereal IDA_Solver::getOutputParameter(int flag) const
     }
     return 0.0;
 }
-//====================================================================================================================
 
 }
 #endif

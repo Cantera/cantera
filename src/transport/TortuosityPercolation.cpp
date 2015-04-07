@@ -13,8 +13,6 @@
 #include "TortuosityPercolation.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <string>
-
 namespace Cantera
 {
 
@@ -38,12 +36,6 @@ TortuosityPercolation::TortuosityPercolation(const TortuosityPercolation& right)
     conductivityExponent_(right.conductivityExponent_)
 {
     *this = right;
-}
-//====================================================================================================================
-// Default destructor for TortuosityPercolation
-TortuosityPercolation::~TortuosityPercolation()
-{
-
 }
 //====================================================================================================================
 // Assignment operator
@@ -70,8 +62,7 @@ TortuosityPercolation& TortuosityPercolation::operator=(const TortuosityPercolat
  */
 TortuosityBase* TortuosityPercolation::duplMyselfAsTortuosityBase() const
 {
-    TortuosityPercolation* tb = new TortuosityPercolation(*this);
-    return dynamic_cast<TortuosityBase*>(tb);
+    return new TortuosityPercolation(*this);
 }
 //====================================================================================================================
 // The tortuosity factor models the effective increase in the diffusive transport length.

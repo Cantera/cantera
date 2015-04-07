@@ -384,7 +384,6 @@ class AxisymmetricFlow(Domain1D):
         itr = gas.transport_hndl()
         self._hndl = _cantera.stflow_new(iph, ikin, itr, type)
         if id: self.setID(id)
-        self._p = -1.0
         self.setPressure(gas.pressure())
         self.solveEnergyEqn()
 
@@ -392,7 +391,6 @@ class AxisymmetricFlow(Domain1D):
         """Set the pressure [Pa]. The pressure is a constant, since
         the governing equations are those for the low-Mach-number limit."""
         _cantera.stflow_setPressure(self._hndl, p)
-        self._p = p
 
     def setTransportModel(self, transp, withSoret = 0):
         """Set the transport model. The argument must be a transport
@@ -408,7 +406,7 @@ class AxisymmetricFlow(Domain1D):
 
     def pressure(self):
         """Pressure [Pa]."""
-        return self._p
+        return _cantera.stflow_pressure(self._hndl)
 
     def setFixedTempProfile(self, pos, temp):
         """Set the fixed temperature profile.  This profile is used
@@ -546,6 +544,8 @@ class Stack:
         >>> s.showSolution()
         >>> s.showSolution('soln.txt')
         """
+        if not self._initialized:
+            self.init()
         _cantera.sim1D_showSolution(self._hndl, fname)
 
     def setTimeStep(self, stepsize, nsteps):
@@ -614,6 +614,18 @@ class Stack:
         idom = domain.index()
         return _cantera.sim1D_setRefineCriteria(self._hndl,
                                                 idom, ratio, slope, curve, prune)
+
+    def setGridMin(self, domain, gridmin):
+        """
+        Set the minimum allowable grid spacing in a domain.
+
+        :param domain:
+            domain object
+        :param gridmin:
+            The minimum allowable grid spacing [m] for this domain
+        """
+        idom = domain.index()
+        return _cantera.sim1D_setGridMin(self._hndl, idom, gridmin)
 
     def save(self, file = 'soln.xml', id = 'solution', desc = 'none'):
         """Save the solution in XML format.

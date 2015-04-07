@@ -17,7 +17,6 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cstdlib>
 #include <fstream>
 
 using namespace std;
@@ -25,10 +24,6 @@ using namespace ctml;
 
 namespace Cantera
 {
-
-/*
- * Basic list of constructors and duplicators
- */
 PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
@@ -58,8 +53,8 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     m_presR_bar = OneAtm * 1.0E-5;
 }
 
-
-PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex, std::string inputFile, std::string id) :
+PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
+                     const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
@@ -154,9 +149,6 @@ PDSS_HKFT::PDSS_HKFT(const PDSS_HKFT& b) :
     *this = b;
 }
 
-/*
- * Assignment operator
- */
 PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
 {
     if (&b == this) {
@@ -171,9 +163,7 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
     m_waterSS        = 0;
     m_densWaterSS               = b.m_densWaterSS;
     //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
-    if (m_waterProps) {
-        delete m_waterProps;
-    }
+    delete m_waterProps;
     m_waterProps                = 0;
     m_born_coeff_j              = b.m_born_coeff_j;
     m_r_e_j                     = b.m_r_e_j;
@@ -201,24 +191,16 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
     return *this;
 }
 
-/*
- * Destructor for the PDSS_HKFT class
- */
 PDSS_HKFT::~PDSS_HKFT()
 {
     delete m_waterProps;
 }
 
-// Duplicator
 PDSS* PDSS_HKFT::duplMyselfAsPDSS() const
 {
-    PDSS_HKFT* idg = new PDSS_HKFT(*this);
-    return (PDSS*) idg;
+    return new PDSS_HKFT(*this);
 }
 
-/*
- * Return the molar enthalpy in units of J kmol-1
- */
 doublereal PDSS_HKFT::enthalpy_mole() const
 {
     // Ok we may change this evaluation method in the future.
@@ -249,49 +231,31 @@ doublereal PDSS_HKFT::enthalpy_mole2() const
 {
     doublereal delH = deltaH();
     double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * 1.0E3 * 4.184;
-    double res = delH + enthTRPR;
-    return res;
+    return delH + enthTRPR;
 }
 #endif
 
-/*
- * Calculate the internal energy in mks units of
- * J kmol-1
- */
 doublereal PDSS_HKFT::intEnergy_mole() const
 {
     doublereal hh = enthalpy_RT();
     doublereal mv = molarVolume();
-    return (hh - mv * m_pres);
+    return hh - mv * m_pres;
 }
 
-/*
- * Calculate the entropy in mks units of
- * J kmol-1 K-1
- */
 doublereal PDSS_HKFT::entropy_mole() const
 {
     doublereal delS = deltaS();
-    return (m_Entrop_tr_pr * 1.0E3 * 4.184 + delS);
+    return m_Entrop_tr_pr * 1.0E3 * 4.184 + delS;
 }
 
-/*
- * Calculate the Gibbs free energy in mks units of
- * J kmol-1
- */
 doublereal PDSS_HKFT::gibbs_mole() const
 {
     doublereal delG = deltaG();
-    return (m_Mu0_tr_pr + delG);
+    return m_Mu0_tr_pr + delG;
 }
 
-/*
- * Calculate the constant pressure heat capacity
- * in mks units of J kmol-1 K-1
- */
 doublereal PDSS_HKFT::cp_mole() const
 {
-
     doublereal pbar = m_pres * 1.0E-5;
     doublereal c1term = m_c1;
 
@@ -385,20 +349,15 @@ doublereal PDSS_HKFT::cp_mole() const
     return Cp;
 }
 
-/*
- * Calculate the constant volume heat capacity
- * in mks units of J kmol-1 K-1
- */
 doublereal
 PDSS_HKFT::cv_mole() const
 {
     throw CanteraError("PDSS_HKFT::cv_mole()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
 doublereal  PDSS_HKFT::molarVolume() const
 {
-
     // Initially do all calculations in (cal/gmol/Pa)
 
     doublereal a1term = m_a1 * 1.0E-5;
@@ -448,15 +407,14 @@ doublereal  PDSS_HKFT::molarVolume() const
     doublereal molVol_calgmolPascal = a1term + a2term +  a3term + a4term + wterm + qterm;
 
     // Convert to m**3 / kmol from (cal/gmol/Pa)
-    doublereal molVol = molVol_calgmolPascal * 4.184 * 1.0E3;
-    return molVol;
+    return molVol_calgmolPascal * 4.184 * 1.0E3;
 }
 
 doublereal
 PDSS_HKFT::density() const
 {
     doublereal val = molarVolume();
-    return (m_mw/val);
+    return m_mw/val;
 }
 
 doublereal
@@ -509,11 +467,6 @@ PDSS_HKFT::molarVolume_ref() const
     return ee;
 }
 
-/*
- * Calculate the pressure (Pascals), given the temperature and density
- *  Temperature: kelvin
- *  rho: density in kg m-3
- */
 doublereal
 PDSS_HKFT::pressure() const
 {
@@ -542,28 +495,24 @@ void PDSS_HKFT::setState_TP(doublereal temp, doublereal pres)
     setPressure(pres);
 }
 
-// critical temperature
 doublereal
 PDSS_HKFT::critTemperature() const
 {
     throw CanteraError("PDSS_HKFT::critTemperature()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
-// critical pressure
 doublereal PDSS_HKFT::critPressure() const
 {
     throw CanteraError("PDSS_HKFT::critPressure()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
 
-// critical density
 doublereal PDSS_HKFT::critDensity() const
 {
     throw CanteraError("PDSS_HKFT::critDensity()", "unimplemented");
-    return (0.0);
+    return 0.0;
 }
-
 
 void PDSS_HKFT::initThermo()
 {
@@ -598,7 +547,7 @@ void PDSS_HKFT::initThermo()
 
     doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
 
-    // If the discrepency is greater than 100 cal gmol-1, print
+    // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
         throw CanteraError(" PDSS_HKFT::initThermo()",
@@ -630,8 +579,7 @@ void PDSS_HKFT::initThermo()
     }
 }
 
-
-void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, std::string& id)
+void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     PDSS::initThermoXML(phaseNode, id);
 }
@@ -639,12 +587,9 @@ void PDSS_HKFT::initThermoXML(const XML_Node& phaseNode, std::string& id)
 void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                             SpeciesThermo* spthermo_ptr)
 {
-
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr,  spthermo_ptr);
     m_waterSS = (PDSS_Water*) m_tp->providePDSS(0);
-    if (m_waterProps) {
-        delete m_waterProps;
-    }
+    delete m_waterProps;
     m_waterProps = new WaterProps(m_waterSS);
 }
 
@@ -686,12 +631,12 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
 
     std::string minTstring = (*hh)["Tmin"];
     if (minTstring != "") {
-        m_minTemp = atofCheck(minTstring.c_str());
+        m_minTemp = fpValueCheck(minTstring);
     }
 
     std::string maxTstring = (*hh)["Tmax"];
     if (maxTstring != "") {
-        m_maxTemp = atofCheck(maxTstring.c_str());
+        m_maxTemp = fpValueCheck(maxTstring);
     }
 
     if (hh->hasChild("DG0_f_Pr_Tr")) {
@@ -809,9 +754,9 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
 }
 
 void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                  std::string inputFile, std::string id)
+                                  const std::string& inputFile,
+                                  const std::string& id)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_HKFT::initThermo",
                            "input file is null");
@@ -849,7 +794,6 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
 #ifdef DEBUG_MODE
 doublereal PDSS_HKFT::deltaH() const
 {
-
     doublereal pbar = m_pres * 1.0E-5;
 
     doublereal c1term = m_c1 * (m_temp - 298.15);
@@ -906,14 +850,12 @@ doublereal PDSS_HKFT::deltaH() const
                                 + yterm + yrterm + wterm + wrterm + otterm + otrterm;
 
     // Convert to Joules / kmol
-    doublereal deltaH = deltaH_calgmol * 1.0E3 * 4.184;
-    return deltaH;
+    return deltaH_calgmol * 1.0E3 * 4.184;
 }
 #endif
 
 doublereal PDSS_HKFT::deltaG() const
 {
-
     doublereal pbar = m_pres * 1.0E-5;
     //doublereal m_presR_bar = OneAtm * 1.0E-5;
 
@@ -955,14 +897,11 @@ doublereal PDSS_HKFT::deltaG() const
     doublereal deltaG_calgmol = sterm + c1term + a1term + a2term + c2term + a3term + a4term + wterm + wrterm + yterm;
 
     // Convert to Joules / kmol
-    doublereal deltaG = deltaG_calgmol * 1.0E3 * 4.184;
-    return deltaG;
+    return deltaG_calgmol * 1.0E3 * 4.184;
 }
-
 
 doublereal PDSS_HKFT::deltaS() const
 {
-
     doublereal pbar = m_pres * 1.0E-5;
 
     doublereal c1term = m_c1 * log(m_temp/298.15);
@@ -1015,22 +954,15 @@ doublereal PDSS_HKFT::deltaS() const
     doublereal deltaS_calgmol = c1term + c2term + a3term + a4term + wterm + wrterm  + otterm + otrterm;
 
     // Convert to Joules / kmol
-    doublereal deltaS = deltaS_calgmol * 1.0E3 * 4.184;
-    return deltaS;
+    return deltaS_calgmol * 1.0E3 * 4.184;
 }
 
-
-// Internal formula for the calculation of a_g()
-/*
- * The output of this is in units of Angstroms
- */
 doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
 {
     static doublereal ag_coeff[3] = { -2.037662,  5.747000E-3,  -6.557892E-6};
     if (ifunc == 0) {
         doublereal t2 = temp * temp;
-        doublereal val = ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * t2;
-        return val;
+        return ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * t2;
     } else if (ifunc == 1) {
         return  ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
     }
@@ -1040,18 +972,12 @@ doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
     return ag_coeff[2] * 2.0;
 }
 
-
-// Internal formula for the calculation of b_g()
-/*
- * the output of this is unitless
- */
 doublereal PDSS_HKFT::bg(const doublereal temp, const int ifunc) const
 {
     static doublereal bg_coeff[3] = { 6.107361, -1.074377E-2,  1.268348E-5};
     if (ifunc == 0) {
         doublereal t2 = temp * temp;
-        doublereal val = bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * t2;
-        return val;
+        return bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * t2;
     }   else if (ifunc == 1) {
         return bg_coeff[1] + bg_coeff[2] * 2.0 * temp;
     }
@@ -1061,10 +987,8 @@ doublereal PDSS_HKFT::bg(const doublereal temp, const int ifunc) const
     return bg_coeff[2] * 2.0;
 }
 
-
 doublereal PDSS_HKFT::f(const doublereal temp, const doublereal pres, const int ifunc) const
 {
-
     static doublereal af_coeff[3] = { 3.666666E1, -0.1504956E-9, 0.5107997E-13};
     doublereal TC = temp - 273.15;
     doublereal presBar = pres / 1.0E5;
@@ -1105,7 +1029,6 @@ doublereal PDSS_HKFT::f(const doublereal temp, const doublereal pres, const int 
     }
     return 0.0;
 }
-
 
 doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int ifunc) const
 {
@@ -1160,15 +1083,12 @@ doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int 
     } else if (ifunc == 3) {
         doublereal beta   = m_waterSS->isothermalCompressibility();
 
-        doublereal dgdp = - bfunc * gval * dens * beta / (1.0 - dens);
-
-        return dgdp;
+        return - bfunc * gval * dens * beta / (1.0 - dens);
     } else {
         throw CanteraError("HKFT_PDSS::g", "unimplemented");
     }
     return 0.0;
 }
-
 
 doublereal PDSS_HKFT::gstar(const doublereal temp, const doublereal pres, const int ifunc) const
 {
@@ -1195,20 +1115,6 @@ doublereal PDSS_HKFT::gstar(const doublereal temp, const doublereal pres, const 
     return res;
 }
 
-//!  Static function to look up Element Free Energies
-/*!
- *
- *   This static function looks up the argument string in the
- *   database above and returns the associated Gibbs Free energies.
- *
- *  @param  elemName  String. Only the first 3 characters are significant
- *
- *  @return
- *    Return value contains the Gibbs free energy for that element
- *
- *  @exception CanteraError
- *    If a match is not found, a CanteraError is thrown as well
- */
 doublereal PDSS_HKFT::LookupGe(const std::string& elemName)
 {
     size_t iE = m_tp->elementIndex(elemName);
@@ -1218,7 +1124,7 @@ doublereal PDSS_HKFT::LookupGe(const std::string& elemName)
     doublereal geValue = m_tp->entropyElement298(iE);
     if (geValue == ENTROPY298_UNKNOWN) {
         throw CanteraError("PDSS_HKFT::LookupGe",
-                           "element " + elemName + " doesn not have a supplied entropy298");
+                           "element " + elemName + " does not have a supplied entropy298");
     }
     geValue *= (-298.15);
     return geValue;
@@ -1255,31 +1161,16 @@ void PDSS_HKFT::convertDGFormation()
     m_Mu0_tr_pr = dg + totalSum;
 }
 
-// This utility function reports back the type of
-// parameterization and all of the parameters for the
-// species, index.
-/*
- *
- * @param index     Species index
- * @param type      Integer type of the standard type
- * @param c         Vector of coefficients used to set the
- *                  parameters for the standard state.
- * @param minTemp   output - Minimum temperature
- * @param maxTemp   output - Maximum temperature
- * @param refPressure output - reference pressure (Pa).
- *
- */
 void PDSS_HKFT::reportParams(size_t& kindex, int& type,
                              doublereal* const c,
-                             doublereal& minTemp,
-                             doublereal& maxTemp,
-                             doublereal& refPressure) const
+                             doublereal& minTemp_,
+                             doublereal& maxTemp_,
+                             doublereal& refPressure_) const
 {
-
+    warn_deprecated("PDSS_HKFT::reportParams");
     // Fill in the first part
-    PDSS::reportParams(kindex, type, c, minTemp, maxTemp,
-                       refPressure);
-
+    PDSS::reportParams(kindex, type, c, minTemp_, maxTemp_,
+                       refPressure_);
 
     c[0] = m_deltaG_formation_tr_pr;
     c[1] = m_deltaH_formation_tr_pr;
@@ -1292,9 +1183,6 @@ void PDSS_HKFT::reportParams(size_t& kindex, int& type,
     c[8] =  m_c1;
     c[9] =  m_c2;
     c[10] = m_omega_pr_tr;
-
 }
-
-
 
 }

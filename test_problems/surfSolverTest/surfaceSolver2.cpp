@@ -14,12 +14,7 @@
 //  using Placid.
 //
 
-#include <iostream>
-#include <string>
-#include <vector>
-
 #define MSSIZE 200
-using namespace std;
 
 #ifdef DEBUG_HKM
 int iDebug_HKM = 0;
@@ -35,9 +30,12 @@ static void printUsage()
 
 #include "cantera/Interface.h"
 #include "cantera/kinetics.h"
-#include "kinetics/ImplicitSurfChem.h"
-#include "kinetics/solveSP.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/kinetics/solveSP.h"
+#include <cstdio>
+#include <fstream>
 
+using namespace std;
 using namespace Cantera;
 
 void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)

@@ -19,13 +19,7 @@
 
 #include "cantera/transport.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/transport/TransportFactory.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <string>
-#include <iomanip>
+#include <cstdio>
 
 using namespace std;
 using namespace Cantera;
@@ -171,7 +165,7 @@ int main(int argc, char** argv)
             g.setState_TPX(T1, pres, DATA_PTR(Xset));
             double visc = tran->viscosity();
             double cond = tran->thermalConductivity();
-            printf("    %13g %13.5g %13.5g\n", T1, visc, cond);
+            printf("    %13.4g %13.4g %13.4g\n", T1, visc, cond);
         }
 
         g.setState_TPX(T1, pres, DATA_PTR(Xset));
@@ -182,7 +176,7 @@ int main(int argc, char** argv)
         tranMix->getBinaryDiffCoeffs(nsp, Bdiff.ptrColumn(0));
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf(" H2 -   %15s %13.5g %13.5g\n", sss.c_str(), Bdiff(0,k), Bdiff(k,0));
+            printf(" H2 -   %15s %13.4g %13.4g\n", sss.c_str(), Bdiff(0,k), Bdiff(k,0));
         }
 
 
@@ -192,7 +186,7 @@ int main(int argc, char** argv)
         printf(" Dump of the species mobilities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf("    %15s %13.5g\n", sss.c_str(), specMob[k]);
+            printf("    %15s %13.4g\n", sss.c_str(), specMob[k]);
         }
 
         Array2D fluxes(nsp, 2, 0.0);
@@ -206,7 +200,7 @@ int main(int argc, char** argv)
         double max2 = 0.0;
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
-            printf("    %15s %13.5g %13.5g\n", sss.c_str(), fluxes(k,0), fluxes(k,1));
+            printf("    %15s %13.4g %13.4g\n", sss.c_str(), fluxes(k,0), fluxes(k,1));
             sum1 += fluxes(k,0);
             if (fabs(fluxes(k,0)) > max1) {
                 max1 = fabs(fluxes(k,0));
@@ -220,12 +214,12 @@ int main(int argc, char** argv)
         // Make sure roundoff error doesn't interfere with the printout.
         // these should be zero.
         if (fabs(sum1) * 1.0E14 > max1) {
-            printf("sum in x direction = %13.5g\n", sum1);
+            printf("sum in x direction = %13.4g\n", sum1);
         } else {
             printf("sum in x direction = 0\n");
         }
         if (fabs(sum2) * 1.0E14 > max2) {
-            printf("sum in y direction = %13.5g\n", sum1);
+            printf("sum in y direction = %13.4g\n", sum1);
         } else {
             printf("sum in y direction = 0\n");
         }

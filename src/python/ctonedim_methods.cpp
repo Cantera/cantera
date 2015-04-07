@@ -631,6 +631,22 @@ py_stflow_setPressure(PyObject* self, PyObject* args)
     return Py_BuildValue("i",_val);
 }
 
+static PyObject*
+py_stflow_pressure(PyObject* self, PyObject* args)
+{
+    double _val;
+    int i;
+    int n;
+    if (!PyArg_ParseTuple(args, "i:stflow_pressure", &i)) {
+        return NULL;
+    }
+
+    _val = stflow_pressure(i);
+    if (_val == DERR) {
+        return reportCanteraError();
+    }
+    return Py_BuildValue("d",_val);
+}
 
 static PyObject*
 py_stflow_setFixedTempProfile(PyObject* self, PyObject* args)
@@ -957,6 +973,23 @@ py_sim1D_setRefineCriteria(PyObject* self, PyObject* args)
     return Py_BuildValue("i",_val);
 }
 
+static PyObject*
+py_sim1D_setGridMin(PyObject* self, PyObject* args)
+{
+    int _val;
+    int i;
+    int dom;
+    double gridmin;
+    if (!PyArg_ParseTuple(args, "iid:sim1D_setGridMin", &i, &dom, &gridmin)) {
+        return NULL;
+    }
+
+    _val = sim1D_setGridMin(i,dom,gridmin);
+    if (int(_val) == -1) {
+        return reportCanteraError();
+    }
+    return Py_BuildValue("i",_val);
+}
 
 static PyObject*
 py_sim1D_getInitialSoln(PyObject* self, PyObject* args)

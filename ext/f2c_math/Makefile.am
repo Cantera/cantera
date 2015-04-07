@@ -46,6 +46,9 @@ __top_builddir__build_lib_libctmath_includedir = $(prefix)/include
 CLEANFILES = *.o
 
 # header file accumulation
-#all:
-#	@echo copying headers $<
-#	cp -p *.h $(top_builddir)/build/include/
+all:
+	@echo copying headers $<
+	cp -p ../f2c_libs/sysdep1.h0 ../f2c_libs/sysdep1.h
+	cp -p ../f2c_libs/signal1.h0 ../f2c_libs/signal1.h
+	@echo installing config.h 
+	cp -p ../../config.h ../../include/cantera/base/

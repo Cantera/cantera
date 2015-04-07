@@ -1,7 +1,6 @@
+//! @file Metal.h
 #ifndef CXX_METAL
 #define CXX_METAL
-
-#include <string>
 
 #include "thermo/MetalPhase.h"
 #include "kinetics/importKinetics.h"
@@ -12,7 +11,7 @@ namespace Cantera
 class Metal : public MetalPhase
 {
 public:
-    Metal(std::string infile, std::string id="") : m_ok(false), m_r(0) {
+    Metal(const std::string& infile, std::string id="") : m_ok(false), m_r(0) {
 
         m_r = get_XML_File(infile);
         if (id == "-") {
@@ -22,8 +21,6 @@ public:
         if (!m_ok) throw CanteraError("Metal",
                                           "buildSolutionFromXML returned false");
     }
-
-    virtual ~Metal() {}
 
     bool operator!() {
         return !m_ok;

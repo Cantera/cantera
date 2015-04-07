@@ -7,7 +7,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_BANDMATRIX_H
 #define CT_BANDMATRIX_H
 
@@ -63,9 +62,6 @@ public:
      */
     BandMatrix(const BandMatrix& y);
 
-    //! Destructor. Does nothing.
-    virtual ~BandMatrix();
-
     //! assignment operator
     /*!
      * @param y  reference to the matrix to be copied
@@ -89,23 +85,7 @@ public:
      */
     void bfill(doublereal v = 0.0);
 
-    //! Index into the (i,j) element
-    /*!
-     *  @param i  row
-     *  @param j  column
-     *
-     *  Returns a changeable reference to the matrix entry
-     */
     doublereal& operator()(size_t i, size_t j);
-
-
-    //! Constant index into the (i,j) element
-    /*!
-     *  @param i  row
-     *  @param j  column
-     *
-     *  Returns an unchangeable reference to the matrix entry
-     */
     doublereal operator()(size_t i, size_t j) const;
 
     //! Return a changeable reference to element (i,j).
@@ -119,7 +99,6 @@ public:
      *  @return Returns a reference to the value of the matrix entry
      */
     doublereal& value(size_t i, size_t j);
-
 
     //! Return the value of element (i,j).
     /*!
@@ -152,13 +131,10 @@ public:
      */
     doublereal _value(size_t i, size_t j) const;
 
-    //! Returns the number of rows
     virtual size_t nRows() const;
 
     //! Return the size and structure of the matrix
     /*!
-     * This is inherited from GeneralMatrix
-     *
      * @param iStruct OUTPUT Pointer to a vector of ints that describe the structure of the matrix.
      *    istruct[0] = kl
      *    istruct[1] = ku
@@ -180,28 +156,13 @@ public:
     size_t ldim() const;
 
     //! Return a reference to the pivot vector
-    /*!
-     *  @return return a reference to the pivot vector
-     */
     vector_int& ipiv();
 
-    //! Multiply A*b and write result to prod.
-    /*!
-     *  @param b    Vector to do the rh multiplication
-     *  @param prod OUTPUT vector to receive the result
-     */
     virtual void mult(const doublereal* b, doublereal* prod) const;
-
-    //! Multiply b*A and write result to prod.
-    /*!
-     *  @param b    Vector to do the lh multiplication
-     *  @param prod OUTPUT vector to receive the result
-     */
     virtual void leftMult(const doublereal* const b, doublereal* const prod) const;
 
     //! Perform an LU decomposition, the LAPACK routine DGBTRF is used.
     /*!
-     *
      * The factorization is saved in ludata.
      *
      * @return Return a success flag.
@@ -209,7 +170,6 @@ public:
      *         ~0  Some error occurred, see the LAPACK documentation
      */
     int factor();
-
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -232,7 +192,6 @@ public:
      *         ~0  Some error occurred, see the LAPACK documentation
      */
     int solve(doublereal* b);
-
 
     //! Returns an iterator for the start of the band storage data
     /*!
@@ -258,9 +217,6 @@ public:
      */
     vector_fp::const_iterator end() const;
 
-    /**
-     * Zero the matrix
-     */
     virtual void zero();
 
     //! Factors the A matrix using the QR algorithm, overwriting A
@@ -309,7 +265,6 @@ public:
     //! Returns the one norm of the matrix
     virtual doublereal oneNorm() const;
 
-    //! Duplicate this object as a GeneralMatrix pointer
     virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const;
 
     //! Report whether the current matrix has been factored.
@@ -319,11 +274,11 @@ public:
     /*!
      *  The LAPACK bandstructure has column values which are contiguous in memory:
      *
-     *          On entry, the matrix A in band storage, in rows KL+1 to
-     *          2*KL+KU+1; rows 1 to KL of the array need not be set.
-     *          The j-th column of A is stored in the j-th column of the
-     *          array AB as follows:
-     *          AB(KL + KU + 1 + i - j,j) = A(i,j) for max(1, j - KU) <= i <= min(m, j + KL)
+     *  On entry, the matrix A in band storage, in rows KL+1 to
+     *  2*KL+KU+1; rows 1 to KL of the array need not be set.
+     *  The j-th column of A is stored in the j-th column of the
+     *  array AB as follows:
+     *  AB(KL + KU + 1 + i - j,j) = A(i,j) for max(1, j - KU) <= i <= min(m, j + KL)
      *
      *  This routine returns the position of AB(1,j) (fortran-1 indexing) in the above format
      *
@@ -331,7 +286,6 @@ public:
      *
      *     double *colP_j = matrix.ptrColumn(j);
      *     double a_i_j = colP_j[kl + ku + i - j];
-     *
      *
      *  @param j   Value of the column
      *
@@ -355,7 +309,6 @@ public:
      *  @param y Array to be copied
      */
     virtual void copyData(const GeneralMatrix& y);
-
 
     //! Clear the factored flag
     virtual void clearFactorFlag();
@@ -423,9 +376,7 @@ private:
     /*!
      * @param msg String containing the message.
      */
-    void err(std::string msg) const;
-
-
+    void err(const std::string& msg) const;
 };
 
 //! Utility routine to print out the matrix

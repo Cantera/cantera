@@ -12,32 +12,26 @@
 #include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "vcs_species_thermo.h"
-#include "vcs_SpeciesProperties.h"
+#include "cantera/equil/vcs_species_thermo.h"
 
 #include "cantera/equil/vcs_solve.h"
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/base/clockWC.h"
-#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/equil/ChemEquil.h"
+#include "cantera/equil/vcs_SpeciesProperties.h"
 
-#include <string>
-#include <vector>
 #include <cstdio>
 
 using namespace Cantera;
 using namespace std;
-//using namespace VCSnonideal;
 
 namespace VCSnonideal
 {
-//====================================================================================================================
-
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vprob(0),
     m_mix(0),
@@ -45,7 +39,7 @@ vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vsolvePtr(0)
 {
 }
-//====================================================================================================================
+
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl) :
     m_vprob(0),
     m_mix(0),
@@ -80,13 +74,12 @@ vcs_MultiPhaseEquil::~vcs_MultiPhaseEquil()
         m_vsolvePtr = 0;
     }
 }
-//====================================================================================================================
+
 int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
                                         int estimateEquil,
                                         int printLvl, doublereal err,
                                         int maxsteps, int loglevel)
 {
-
     addLogEntry("problem type","fixed T, V");
     //            doublereal dt = 1.0e3;
     doublereal Vtarget = m_mix->volume();
@@ -202,7 +195,6 @@ done:
     return iSuccess;
 }
 
-//====================================================================================================================
 int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                                         int XY, double Tlow, double Thigh,
                                         int estimateEquil,
@@ -293,7 +285,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 Tnew = sqrt(Tlow*Thigh);
                 dT = Tnew - Tnow;
                 if (dT < -200.) {
-                    dT = 200;
+                    dT = -200;
                 }
                 if (dT > 200.) {
                     dT = 200.;
@@ -361,7 +353,7 @@ done:
     ;
     return iSuccess;
 }
-//====================================================================================================================
+
 int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                                         double Tlow, double Thigh,
                                         int estimateEquil,
@@ -518,11 +510,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     throw CanteraError("MultiPhase::equilibrate_SP",
                        "No convergence for T");
 }
-//====================================================================================================================
 
-/*
- * Equilibrate the solution using the current element abundances
- */
 int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
                                      int printLvl, doublereal err,
                                      int maxsteps, int loglevel)
@@ -570,16 +558,11 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
     }
     return iSuccess;
 }
-//====================================================================================================================
-/*
- * Equilibrate the solution using the current element abundances
- */
+
 int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
                                         int printLvl, doublereal err,
                                         int maxsteps, int loglevel)
 {
-    // Debugging level
-
     int maxit = maxsteps;
     clockWC tickTock;
 
@@ -655,7 +638,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
      * Transfer the information back to the MultiPhase object.
      * Note we don't just call setMoles, because some multispecies
      * solution phases may be zeroed out, and that would cause a problem
-     * for that routine. Also, the mole fractions of such zereod out
+     * for that routine. Also, the mole fractions of such zeroed out
      * phases actually contain information about likely reemergent
      * states.
      */
@@ -731,18 +714,10 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
             }
         }
     }
-    if (loglevel > 0) {
-        endLogGroup();
-    }
+    endLogGroup();
     return iSuccess;
 }
 
-
-//====================================================================================================================
-/**************************************************************************
- *
- *
- */
 void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 {
     size_t k;
@@ -912,10 +887,8 @@ static void print_char(const char letter, const int num)
         plogf("%c", letter);
     }
 }
-//====================================================================================================================
+
 /*
- *
- *
  * HKM -> Work on transferring the current value of the voltages into the
  *        equilibrium problem.
  */
@@ -1022,8 +995,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             VolPhase->m_eqnState = VCS_EOS_CONSTANT;
             break;
         case cSurf:
-            plogf("cSurf not handled yet\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCSnonideal", "cSurf not handled yet.");
         case cStoichSubstance:
             VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
             break;
@@ -1033,8 +1005,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             }
             break;
         case cEdge:
-            plogf("cEdge not handled yet\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCSnonideal", "cEdge not handled yet.");
         case cIdealSolidSolnPhase0:
         case cIdealSolidSolnPhase1:
         case cIdealSolidSolnPhase2:
@@ -1100,24 +1071,32 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
              */
             string stmp = mphase->speciesName(kT);
             vprob->SpName[kT] = stmp;
-
             /*
-             *   Set the initial estimate of the number of kmoles of the species
-             *   and the mole fraction vector. translate from
-             *   kmol to gmol.
+             * Transfer the type of unknown
              */
-            vprob->w[kT] = mphase->speciesMoles(kT);
-            tMoles += vprob->w[kT];
-            vprob->mf[kT] = mphase->moleFraction(kT);
+            vprob->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
+
+            if (vprob->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
+                /*
+                 *   Set the initial number of kmoles of the species
+                 *   and the mole fraction vector
+                 */
+                vprob->w[kT] = mphase->speciesMoles(kT);
+                tMoles += vprob->w[kT];
+                vprob->mf[kT] = mphase->moleFraction(kT);
+             } else if (vprob->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                vprob->w[kT] = tPhase->electricPotential();
+                vprob->mf[kT] = mphase->moleFraction(kT);
+             } else {
+               throw CanteraError(" vcs_Cantera_to_vprob() ERROR",
+                                  "Unknown species type: " + int2str(vprob->SpeciesUnknownType[kT]));
+             }
+
 
             /*
              * transfer chemical potential vector
              */
             vprob->m_gibbsSpecies[kT] = muPhase[k];
-            /*
-             * Transfer the type of unknown
-             */
-            vprob->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
             /*
              * Transfer the species information from the
              * volPhase structure to the VPROB structure
@@ -1164,12 +1143,12 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
              */
             SpeciesThermo& sp = tPhase->speciesThermo();
 
-            int spType;
-            double c[150];
-            double minTemp, maxTemp, refPressure;
-            sp.reportParams(k, spType, c, minTemp, maxTemp, refPressure);
+            int spType = sp.reportType(k);
 
             if (spType == SIMPLE) {
+                double c[4];
+                double minTemp, maxTemp, refPressure;
+                sp.reportParams(k, spType, c, minTemp, maxTemp, refPressure);
                 ts_ptr->SS0_Model  = VCS_SS0_CONSTANT;
                 ts_ptr->SS0_T0  = c[0];
                 ts_ptr->SS0_H0  = c[1];
@@ -1281,7 +1260,11 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
             plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            plogf("             %-10.5g\n",  vprob->w[i]);
+            if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("     Volts = %-10.5g\n",  vprob->w[i]);
+            } else {
+                plogf("             %-10.5g\n",  vprob->w[i]);
+            }
         }
 
         /*
@@ -1317,11 +1300,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
 
     return VCS_SUCCESS;
 }
-//====================================================================================================================
-// Transfer the current state of mphase into the VCS_PROB object
-/*
- * The basic problem has already been set up.
- */
+
 int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
                              VCSnonideal::VCS_PROB* vprob)
 {
@@ -1414,7 +1393,11 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
             plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            plogf("             %-10.5g\n",  vprob->w[i]);
+            if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("     Volts = %-10.5g\n",  vprob->w[i]);
+            } else {
+                plogf("             %-10.5g\n",  vprob->w[i]);
+            }
         }
 
         /*
@@ -1450,9 +1433,8 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
 
     return VCS_SUCCESS;
 }
-//====================================================================================================================
-// This routine hasn't been checked yet
-void vcs_MultiPhaseEquil::getStoichVector(index_t rxn, Cantera::vector_fp& nu)
+
+void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
 {
     size_t nsp = m_vsolvePtr->m_numSpeciesTot;
     nu.resize(nsp, 0.0);
@@ -1493,7 +1475,6 @@ size_t vcs_MultiPhaseEquil::numElemConstraints() const
     return nec;
 }
 
-
 size_t vcs_MultiPhaseEquil::component(size_t m) const
 {
     size_t nc = numComponents();
@@ -1504,28 +1485,8 @@ size_t vcs_MultiPhaseEquil::component(size_t m) const
     }
 }
 
-//====================================================================================================================
-// Determine the phase stability of a phase at the current conditions
-/*
- * Equilibration of the solution is not done before the determination is made.
- *
- *  @param iph       Phase number to determine the equilibrium. If the phase
- *                   has a non-zero mole number....
- *
- *  @param funcStab  Value of the phase pop function
- *
- *  @param printLvl  Determines the amount of printing that
- *                   gets sent to stdout from the vcs package
- *                   (Note, you may have to compile with debug
- *                    flags to get some printing).
- *
- *  @param loglevel Determines the amount of printing to the HTML
- *                  output file.
- */
 int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int printLvl, int loglevel)
 {
-
-
     clockWC tickTock;
     size_t nsp = m_mix->nSpecies();
     size_t nel = m_mix->nElements();
@@ -1585,7 +1546,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
      * Transfer the information back to the MultiPhase object.
      * Note we don't just call setMoles, because some multispecies
      * solution phases may be zeroed out, and that would cause a problem
-     * for that routine. Also, the mole fractions of such zereod out
+     * for that routine. Also, the mole fractions of such zeroed out
      * phases actually contain information about likely reemergent
      * states.
      */
@@ -1655,11 +1616,9 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
             }
         }
     }
-    if (loglevel > 0) {
-        endLogGroup();
-    }
+    endLogGroup("vcs_MultiPhaseEquil::determine_PhaseStability");
+
     return iStable;
 }
-//====================================================================================================================
 
 }

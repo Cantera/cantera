@@ -26,7 +26,6 @@ class StagnationFlow(Stack):
         self.surfchem = surfchem
         self.inlet.set(temperature = gas.temperature())
         self.surface = Surface(id = 'surface', surface_mech = surfchem)
-        self.pressure = gas.pressure()
         self.flow = AxisymmetricFlow('flow',gas = gas)
         self.flow.setupGrid(grid)
         Stack.__init__(self, [self.inlet, self.flow, self.surface])
@@ -44,7 +43,7 @@ class StagnationFlow(Stack):
         yin = zeros(nsp, 'd')
         for k in range(nsp):
             yin[k] = self.inlet.massFraction(k)
-        gas.setState_TPY(self.inlet.temperature(), self.pressure, yin)
+        gas.setState_TPY(self.inlet.temperature(), self.flow.pressure(), yin)
         u0 = self.inlet.mdot()/gas.density()
         t0 = self.inlet.temperature()
         V0 = 0.0
@@ -76,51 +75,20 @@ class StagnationFlow(Stack):
 
 
     def solve(self, loglevel = 1, refine_grid = 1):
-        """Solve the flame.
-
-        :param loglevel:
-            integer flag controlling the amount of diagnostic output.
-            Zero suppresses all output, and 5 produces very verbose output.
-            Default: 1
-        :param refine_grid:
-            if non-zero, enable grid refinement.
-        """
-
         if not self._initialized: self.init()
         Stack.solve(self, loglevel = loglevel, refine_grid = refine_grid)
 
 
     def setRefineCriteria(self, ratio = 10.0, slope = 0.8,
                           curve = 0.8, prune = 0.0):
-        """
-        Set the criteria used to refine the flame.
-
-        :param ratio:
-            additional points will be added if the ratio of the spacing
-            on either side of a grid point exceeds this value
-        :param slope:
-            maximum difference in value between two adjacent points, scaled by
-            the maximum difference in the profile (0.0 < slope < 1.0). Adds
-            points in regions of high slope.
-        :param curve:
-            maximum difference in slope between two adjacent intervals, scaled
-            by the maximum difference in the profile (0.0 < curve < 1.0). Adds
-            points in regions of high curvature.
-        :param prune:
-            if the slope or curve criteria are satisfied to the level of
-            'prune', the grid point is assumed not to be needed and is removed.
-            Set prune significantly smaller than 'slope' and 'curve'. Set to
-            zero to disable pruning the grid.
-
-        >>> f.setRefineCriteria(ratio = 5.0, slope = 0.2, curve = 0.3,
-        ...                     prune = 0.03)
-        """
         Stack.setRefineCriteria(self, domain = self.flow,
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
+    def setGridMin(self, gridmin):
+        Stack.setGridMin(self, self.flow, gridmin)
+
     def setProfile(self, component, locs, vals):
-        """Set a profile in the flame"""
         self._initialized = 1
         Stack.setProfile(self, self.flow, component, locs, vals)
 
@@ -178,4 +146,6 @@ class StagnationFlow(Stack):
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
-        self.gas.setState_TPY(self.T(j), self.pressure, y)
+        self.gas.setState_TPY(self.T(j), self.flow.pressure(), y)
+
+fix_docs(StagnationFlow)

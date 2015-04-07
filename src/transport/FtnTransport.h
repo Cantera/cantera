@@ -61,6 +61,7 @@ namespace Cantera
 /**
  * A class that calls external Fortran functions to evaluate
  * transport properties.
+ * @deprecated Broken and unused
  */
 class FtnTransport : public Transport
 {
@@ -68,6 +69,7 @@ class FtnTransport : public Transport
 public:
 
     FtnTransport(int model, thermo_t* thermo) : Transport(thermo) {
+        warn_deprecated("FtnTransport", "This class will be removed in Cantera 2.2.");
         m_model = model;
         m_x.resize(m_thermo->nSpecies(), 0.0);
         updateTPX();

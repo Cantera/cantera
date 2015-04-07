@@ -15,29 +15,6 @@ using namespace Cantera;
 using std::cout;
 using std::endl;
 
-template<class G, class V>
-void makeTransportDataLabels(const G& gas, V& names)
-{
-    size_t nsp = gas.nSpecies();
-    names.resize(nsp + 3);
-    names[0]  = "Temperature (K)";
-    names[1]  = "Viscosity ()";
-    names[2]  = "Thermal Conductivity (W/m-K)";
-    for (size_t k = 0; k < nsp; k++) {
-        names[3+k] = gas.speciesName(k);
-    }
-}
-
-template<class G, class A>
-void plotTransportSoln(std::string fname, std::string fmt, std::string title,
-                       const G& gas, const A& soln)
-{
-    std::vector<std::string> names;
-    makeTransportDataLabels(gas, names);
-    writePlotFile(fname, fmt, title, names, soln);
-}
-
-
 int transport_example2(int job)
 {
     try {

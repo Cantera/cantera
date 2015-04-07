@@ -47,44 +47,27 @@ enum ResidEval_Type_Enum {
  *  A class for full (non-sparse dense matrices with Fortran-compatible  data storage.
  *  The class adds support for identifying what types of calls are made to the residual
  *  evaluator by adding the  ResidEval_Type_Enum  class.
- *
- *
  */
 class ResidJacEval : public ResidEval
 {
-
 public:
-
     //!Default constructor
     /*!
      *  @param atol   Initial value of the global tolerance (defaults to 1.0E-13)
      */
     ResidJacEval(doublereal atol = 1.0e-13);
 
-    //!Copy Constructor for the %ResidJacEval object
-    /*!
-     * @param right   Item to be copied
-     */
+    //!Copy Constructor
     ResidJacEval(const ResidJacEval& right);
 
-    /// Destructor. Does nothing.
-    virtual ~ResidJacEval();
-
     //! Assignment operator
-    /*!
-     *  This is NOT a virtual function.
-     *
-     * @param right    Reference to %ResidJacEval object to be copied into the
-     *                 current one.
-     */
     ResidJacEval& operator=(const ResidJacEval& right);
 
-    //! Duplication routine for objects which inherit from
-    //! residJacEval
+    //! Duplication routine for objects derived from residJacEval
     /*!
-     *  This virtual routine can be used to duplicate %ResidJacEval objects
-     *  inherited from %ResidJacEval even if the application only has
-     *  a pointer to %ResidJacEval to work with.
+     *  This virtual routine can be used to duplicate objects which inherit
+     *  from ResidJacEval even if the application only has a pointer to
+     *  ResidJacEval to work with.
      *
      *  These routines are basically wrappers around the derived copy
      *  constructor.
@@ -119,33 +102,10 @@ public:
                             const int id_x = -1,
                             const doublereal delta_x = 0.0);
 
-
-    /**
-     * Evaluate the residual function. Called by the
-     * integrator.
-     * @param t time. (input)
-     * @param y solution vector. (input)
-     * @param ydot rate of change of solution vector. (input)
-     * @param r residual vector (output)
-     */
     virtual int eval(const doublereal t, const doublereal* const y,
                      const doublereal* const ydot,
                      doublereal* const r);
 
-
-
-    //! Fill in the initial conditions
-    /*!
-     * Values for both the solution and the value of ydot may be provided.
-     *
-     * @param t0            Time                    (input)
-     * @param y             Solution vector (output)
-     * @param ydot          Rate of change of solution vector. (output)
-     *
-     * @return Returns a flag to indicate that operation is successful.
-     *            1  Means a successful operation
-     *           -0 or neg value Means an unsuccessful operation
-     */
     virtual int  getInitialConditions(const doublereal t0, doublereal* const y, doublereal* const ydot);
 
     //! Filter the solution predictions
@@ -254,7 +214,6 @@ public:
 
     //! This function may be used to create output at various points in the execution of an application.
     /*!
-     *
      *  @param ifunc     identity of the call
      *                          0  Initial call
      *                          1  Called at the end of every successful time step
@@ -327,7 +286,6 @@ public:
                              const doublereal* const y, const doublereal* const ydot,
                              GeneralMatrix& J, doublereal* const resid);
 
-
     //! Calculate an analytical jacobian and the residual at the current time and values.
     /*!
      *  Only called if the jacFormation method is set to analytical
@@ -352,7 +310,6 @@ public:
                                doublereal* const resid);
 
 protected:
-
     //! constant value of atol
     doublereal m_atol;
 
@@ -362,4 +319,3 @@ protected:
 }
 
 #endif
-

@@ -1,3 +1,4 @@
+//! @file global.cpp
 #include "cantera/base/global.h"
 
 #include "cantera/base/ctexceptions.h"
@@ -11,7 +12,16 @@
 
 using namespace std;
 
-namespace Cantera {
+namespace Cantera
+{
+
+//! Definition of whether the DEBUG_MODE environment is turned on within Cantera.
+#if DEBUG_MODE_ENABLED == 1
+const int g_DEBUG_MODE = 1;
+#else
+const int g_DEBUG_MODE = 0;
+#endif
+
 
 //! Return a pointer to the application object
 static Application* app()
@@ -31,11 +41,6 @@ void setLogger(Logger* logwriter)
 }
 
 void writelog(const std::string& msg)
-{
-    app()->writelog(msg);
-}
-
-void writelog(const char* msg)
 {
     app()->writelog(msg);
 }
@@ -68,46 +73,51 @@ void error(const std::string& msg)
     app()->logerror(msg);
 }
 
-int userInterface()
+void warn_deprecated(const std::string& method, const std::string& extra)
 {
-    return app()->getUserEnv();
+    app()->warn_deprecated(method, extra);
+}
+
+void suppress_deprecation_warnings()
+{
+    app()->suppress_deprecation_warnings();
 }
 
 // **************** HTML Logging ****************
 
 #ifdef WITH_HTML_LOGS
 
-void beginLogGroup(std::string title, int loglevel)
+void beginLogGroup(const std::string& title, int loglevel)
 {
     app()->beginLogGroup(title, loglevel) ;
 }
 
-void addLogEntry(std::string tag, std::string value)
+void addLogEntry(const std::string& tag, const std::string& value)
 {
     app()->addLogEntry(tag, value) ;
 }
 
-void addLogEntry(std::string tag, doublereal value)
+void addLogEntry(const std::string& tag, doublereal value)
 {
     app()->addLogEntry(tag, value) ;
 }
 
-void addLogEntry(std::string tag, int value)
+void addLogEntry(const std::string& tag, int value)
 {
     app()->addLogEntry(tag, value) ;
 }
 
-void addLogEntry(std::string msg)
+void addLogEntry(const std::string& msg)
 {
     app()->addLogEntry(msg) ;
 }
 
-void endLogGroup(std::string title)
+void endLogGroup(const std::string& title)
 {
     app()->endLogGroup(title) ;
 }
 
-void write_logfile(std::string file)
+void write_logfile(const std::string& file)
 {
     app()->write_logfile(file) ;
 }
@@ -131,14 +141,14 @@ void thread_complete()
     app()->thread_complete() ;
 }
 
-XML_Node* get_XML_File(std::string file, int debug)
+XML_Node* get_XML_File(const std::string& file, int debug)
 {
     XML_Node* xtmp = app()->get_XML_File(file, debug) ;
     //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(xtmp) + "\n");
     return xtmp;
 }
 
-void close_XML_File(std::string file)
+void close_XML_File(const std::string& file)
 {
     app()->close_XML_File(file) ;
 }
@@ -168,22 +178,22 @@ void showErrors()
     app()->logErrors() ;
 }
 
-void setError(std::string r, std::string msg)
+void setError(const std::string& r, const std::string& msg)
 {
     app()->addError(r, msg) ;
 }
 
-void addDirectory(std::string dir)
+void addDirectory(const std::string& dir)
 {
     app()->addDataDirectory(dir) ;
 }
 
-std::string findInputFile(std::string name)
+std::string findInputFile(const std::string& name)
 {
     return app()->findInputFile(name) ;
 }
 
-doublereal toSI(std::string unit)
+doublereal toSI(const std::string& unit)
 {
     doublereal f = Unit::units()->toSI(unit);
     if (f) {
@@ -194,7 +204,7 @@ doublereal toSI(std::string unit)
     return 1.0;
 }
 
-doublereal actEnergyToSI(std::string unit)
+doublereal actEnergyToSI(const std::string& unit)
 {
     doublereal f = Unit::units()->actEnergyToSI(unit);
     if (f) {

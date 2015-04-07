@@ -1,7 +1,7 @@
 /**
- *  @file LatticeSolidPhase.h
+ *  @file LatticeSolidPhase.cpp
  *  Definitions for a simple thermodynamics model of a bulk solid phase
- *  derived from %ThermoPhase,
+ *  derived from ThermoPhase,
  *  assuming an ideal solution model based on a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
  */
@@ -15,17 +15,11 @@
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 
-#include <string>
-
 using namespace std;
-//======================================================================================================================
+
 namespace Cantera
 {
-
-//====================================================================================================================
-// Base empty constructor
 LatticeSolidPhase::LatticeSolidPhase() :
-    m_mm(0),
     m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
@@ -36,13 +30,8 @@ LatticeSolidPhase::LatticeSolidPhase() :
     tmpV_(0)
 {
 }
-//====================================================================================================================
-// Copy Constructor
-/*
- * @param right Object to be copied
- */
+
 LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
-    m_mm(0),
     m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
@@ -54,17 +43,12 @@ LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
 {
     *this = operator=(right);
 }
-//====================================================================================================================
-// Assignment operator
-/*
- * @param right Object to be copied
- */
+
 LatticeSolidPhase&
 LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_mm = right.m_mm;
         m_tlast = right.m_tlast;
         m_press = right.m_press;
         m_molar_density = right.m_molar_density;
@@ -76,8 +60,7 @@ LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
     }
     return *this;
 }
-//====================================================================================================================
-// Destructor
+
 LatticeSolidPhase::~LatticeSolidPhase()
 {
     // We own the sublattices. So we have to delete the sublattices
@@ -86,41 +69,18 @@ LatticeSolidPhase::~LatticeSolidPhase()
         m_lattice[n] = 0;
     }
 }
-//====================================================================================================================
-// Duplication function
-/*
- * This virtual function is used to create a duplicate of the
- * current phase. It's used to duplicate the phase when given
- * a ThermoPhase pointer to the phase.
- *
- * @return It returns a %ThermoPhase pointer.
- */
+
 ThermoPhase* LatticeSolidPhase::duplMyselfAsThermoPhase() const
 {
-    LatticeSolidPhase* igp = new LatticeSolidPhase(*this);
-    return (ThermoPhase*) igp;
+    return new LatticeSolidPhase(*this);
 }
 
-//====================================================================================================================
-//  Minimum temperature for which the thermodynamic data for the species
-//  or phase are valid.
-/*
- * If no argument is supplied, the
- * value returned will be the lowest temperature at which the
- * data for \e all species are valid. Otherwise, the value
- * will be only for species \a k. This function is a wrapper
- * that calls the species thermo minTemp function.
- *
- * @param k index of the species. Default is -1, which will return the max of the min value
- *          over all species.
- */
 doublereal LatticeSolidPhase::minTemp(size_t k) const
 {
     if (k != npos) {
         for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
-                double ml = (m_lattice[n])->minTemp(k-lkstart_[n]);
-                return ml;
+                return (m_lattice[n])->minTemp(k-lkstart_[n]);
             }
         }
     }
@@ -131,26 +91,13 @@ doublereal LatticeSolidPhase::minTemp(size_t k) const
     }
     return mm;
 }
-//====================================================================================================================
-//  Maximum temperature for which the thermodynamic data for the species
-//  or phase are valid.
-/*
- * If no argument is supplied, the
- * value returned will be the lowest temperature at which the
- * data for \e all species are valid. Otherwise, the value
- * will be only for species \a k. This function is a wrapper
- * that calls the species thermo minTemp function.
- *
- * @param k index of the species. Default is -1, which will return the max of the min value
- *          over all species.
- */
+
 doublereal LatticeSolidPhase::maxTemp(size_t k) const
 {
     if (k != npos) {
         for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
-                double ml = (m_lattice[n])->maxTemp(k - lkstart_[n]);
-                return ml;
+                return (m_lattice[n])->maxTemp(k - lkstart_[n]);
             }
         }
     }
@@ -161,18 +108,13 @@ doublereal LatticeSolidPhase::maxTemp(size_t k) const
     }
     return mm;
 }
-//====================================================================================================================
-/*
- * Returns the reference pressure in Pa. This function is a wrapper
- * that calls the species thermo refPressure function.
- */
+
 doublereal LatticeSolidPhase::refPressure() const
 {
     return m_lattice[0]->refPressure();
 }
-//====================================================================================================================
-doublereal LatticeSolidPhase::
-enthalpy_mole() const
+
+doublereal LatticeSolidPhase::enthalpy_mole() const
 {
     _updateThermo();
     doublereal sum = 0.0;
@@ -181,7 +123,7 @@ enthalpy_mole() const
     }
     return sum;
 }
-//====================================================================================================================
+
 doublereal LatticeSolidPhase::intEnergy_mole() const
 {
     _updateThermo();
@@ -191,7 +133,7 @@ doublereal LatticeSolidPhase::intEnergy_mole() const
     }
     return sum;
 }
-//====================================================================================================================
+
 doublereal LatticeSolidPhase::entropy_mole() const
 {
     _updateThermo();
@@ -201,7 +143,7 @@ doublereal LatticeSolidPhase::entropy_mole() const
     }
     return sum;
 }
-//====================================================================================================================
+
 doublereal LatticeSolidPhase::gibbs_mole() const
 {
     _updateThermo();
@@ -211,7 +153,7 @@ doublereal LatticeSolidPhase::gibbs_mole() const
     }
     return sum;
 }
-//====================================================================================================================
+
 doublereal LatticeSolidPhase::cp_mole() const
 {
     _updateThermo();
@@ -221,7 +163,7 @@ doublereal LatticeSolidPhase::cp_mole() const
     }
     return sum;
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const
 {
     _updateThermo();
@@ -231,30 +173,24 @@ void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const
         strt += m_lattice[n]->nSpecies();
     }
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getActivityCoefficients(doublereal* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
 }
-//====================================================================================================================
+
 doublereal LatticeSolidPhase::standardConcentration(size_t k) const
 {
     return 1.0;
 }
-//====================================================================================================================
+
 doublereal LatticeSolidPhase::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
-//====================================================================================================================
-// Set the pressure at constant temperature. Units: Pa.
-/*
- *
- * @param p Pressure (units - Pa)
- */
 void  LatticeSolidPhase::setPressure(doublereal p)
 {
     m_press = p;
@@ -263,19 +199,7 @@ void  LatticeSolidPhase::setPressure(doublereal p)
     }
     calcDensity();
 }
-//====================================================================================================================
-// Calculate the density of the solid mixture
-/*
- * The formula for this is
- *
- * \f[
- *      \rho = \sum_n{ \rho_n \theta_n }
- * \f]
- *
- * where \f$ \rho_n \f$  is the density of the nth sublattice
- *
- *  Note this is a nonvirtual function.
- */
+
 doublereal  LatticeSolidPhase::calcDensity()
 {
     double sum = 0.0;
@@ -285,20 +209,7 @@ doublereal  LatticeSolidPhase::calcDensity()
     Phase::setDensity(sum);
     return sum;
 }
-//====================================================================================================================
-// Set the mole fractions to the specified values, and then
-// normalize them so that they sum to 1.0 for each of the subphases
-/*
- *  On input, the mole fraction vector is assumed to sum to one for each of the sublattices. The sublattices
- *  are updated with this mole fraction vector. The mole fractions are also stored within this object, after
- *  they are normalized to one by dividing by the number of sublattices.
- *
- *    @param x  Input vector of mole fractions. There is no restriction
- *           on the sum of the mole fraction vector. Internally,
- *           this object will pass portions of this vector to the sublattices which assume that the portions
- *           individually sum to one.
- *           Length is m_kk.
- */
+
 void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
 {
     size_t nsp, strt = 0;
@@ -313,14 +224,7 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
     Phase::setMoleFractions(DATA_PTR(m_x));
     calcDensity();
 }
-//====================================================================================================================
-// Get the species mole fraction vector.
-/*
- * On output the mole fraction vector will sum to one for each of the subphases which make up this phase.
- *
- * @param x On return, x contains the mole fractions. Must have a
- *          length greater than or equal to the number of species.
- */
+
 void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
 {
     size_t nsp, strt = 0;
@@ -352,18 +256,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
         strt += nsp;
     }
 }
-//====================================================================================================================
-// Get the species chemical potentials. Units: J/kmol.
-/*
- * This function returns a vector of chemical potentials of the
- * species in solution at the current temperature, pressure
- * and mole fraction of the solution.
- *
- * This returns the underlying lattice chemical potentials
- *
- * @param mu  Output vector of species chemical
- *            potentials. Length: m_kk. Units: J/kmol
- */
+
 void LatticeSolidPhase::getChemPotentials(doublereal* mu) const
 {
     _updateThermo();
@@ -374,7 +267,7 @@ void LatticeSolidPhase::getChemPotentials(doublereal* mu) const
         strt += nlsp;
     }
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     _updateThermo();
@@ -385,7 +278,7 @@ void LatticeSolidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
         strt += nlsp;
     }
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     _updateThermo();
@@ -396,7 +289,7 @@ void LatticeSolidPhase::getPartialMolarEntropies(doublereal* sbar) const
         strt += nlsp;
     }
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getPartialMolarCp(doublereal* cpbar) const
 {
     _updateThermo();
@@ -407,7 +300,7 @@ void LatticeSolidPhase::getPartialMolarCp(doublereal* cpbar) const
         strt += nlsp;
     }
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getPartialMolarVolumes(doublereal* vbar) const
 {
     _updateThermo();
@@ -418,20 +311,7 @@ void LatticeSolidPhase::getPartialMolarVolumes(doublereal* vbar) const
         strt += nlsp;
     }
 }
-//====================================================================================================================
-// Get the array of standard state chemical potentials at unit activity for the species
-// at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-/*
- * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
- * \f$. The values are evaluated at the current
- * temperature and pressure of the solution.
- *
- *  This returns the underlying lattice standard chemical potentials, as the units are kmol-1 of
- *  the sublattice species.
- *
- * @param mu0    Output vector of chemical potentials.
- *                Length: m_kk. Units: J/kmol
- */
+
 void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const
 {
     _updateThermo();
@@ -441,7 +321,7 @@ void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const
         strt += m_lattice[n]->nSpecies();
     }
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getGibbs_RT_ref(doublereal* grt) const
 {
     _updateThermo();
@@ -449,7 +329,7 @@ void LatticeSolidPhase::getGibbs_RT_ref(doublereal* grt) const
         m_lattice[n]->getGibbs_RT_ref(grt + lkstart_[n]);
     }
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
@@ -457,13 +337,7 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
         g[k] *= GasConstant * temperature();
     }
 }
-//====================================================================================================================
-// Add in species from Slave phases
-/*
- *  This hook is used for  cSS_CONVENTION_SLAVE phases
- *
- *  @param  phaseNode    XML_Node for the current phase
- */
+
 void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
     size_t kk = 0;
@@ -527,40 +401,22 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             econ += int2str(n);
             econ += "_" + id();
             size_t m = addUniqueElementAfterFreeze(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
-            m_mm = nElements();
+            size_t mm = nElements();
             LatticePhase* lp0 = m_lattice[0];
             size_t nsp0 =  lp0->nSpecies();
             for (size_t k = 0; k < nsp0; k++) {
-                m_speciesComp[k * m_mm + m] = -theta_[0];
+                m_speciesComp[k * mm + m] = -theta_[0];
             }
             for (size_t k = 0; k < nsp; k++) {
                 size_t ks = kstart + k;
-                m_speciesComp[ks * m_mm + m] = theta_[n];
+                m_speciesComp[ks * mm + m] = theta_[n];
             }
         }
     }
 }
 
-//====================================================================================================================
-// Initialize the ThermoPhase object after all species have been set up
-/*
- * @internal Initialize.
- *
- * This method is provided to allow subclasses to perform any initialization required after all
- * species have been added. For example, it might be used to
- * resize internal work arrays that must have an entry for
- * each species.  The base class implementation does nothing,
- * and subclasses that do not require initialization do not
- * need to overload this method.  When importing a CTML phase
- * description, this method is called from ThermoPhase::initThermoXML(),
- * which is called from importPhase(), just prior to returning from function importPhase().
- *
- * @see importCTML.cpp
- */
 void LatticeSolidPhase::initThermo()
 {
-    m_kk = nSpecies();
-    m_mm = nElements();
     initLengths();
     size_t nsp, loc = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
@@ -575,11 +431,7 @@ void LatticeSolidPhase::initThermo()
     setMoleFractions(DATA_PTR(m_x));
     ThermoPhase::initThermo();
 }
-//====================================================================================================================
-// Initialize vectors that depend on the number of species and sublattices
-/*
- *
- */
+
 void LatticeSolidPhase::initLengths()
 {
     theta_.resize(m_nlattice,0);
@@ -587,7 +439,7 @@ void LatticeSolidPhase::initLengths()
     m_x.resize(m_kk, 0.0);
     tmpV_.resize(m_kk, 0.0);
 }
-//====================================================================================================================
+
 void LatticeSolidPhase::_updateThermo() const
 {
     doublereal tnow = temperature();
@@ -607,8 +459,8 @@ void LatticeSolidPhase::_updateThermo() const
         m_tlast = tnow;
     }
 }
-//====================================================================================================================
-void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, std::string x)
+
+void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string& x)
 {
     m_lattice[nn]->setMoleFractionsByName(x);
     size_t loc = 0;
@@ -623,15 +475,7 @@ void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, std::string x)
     }
     setMoleFractions(DATA_PTR(m_x));
 }
-//====================================================================================================================
 
-
-//====================================================================================================================
-// Set the parameters from the XML file
-/*!
- *  Currently, this is the spot that we read in all of the sublattice phases.
- *  The SetParametersFromXML() call is carried out at
- */
 void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","LatticeSolid");
@@ -667,48 +511,13 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
     }
 
 }
-//====================================================================================================================
-// Return a changeable reference to the calculation manager
-// for species reference-state thermodynamic properties
-/*
- *
- * @param k   Speices id. The default is -1, meaning return the default
- *
- * @internal
- */
-SpeciesThermo& LatticeSolidPhase::speciesThermo(int k)
-{
-    return *m_spthermo;
-    /*
-    int kk;
-    if (k >= 0) {
-      for (int n = 0; n < m_nlattice; n++) {
-    if (lkstart_[n+1] < k) {
-      kk = k - lkstart_[n];
-      return m_lattice[n]->speciesThermo(kk);
-    }
-      }
-    }
-    return m_lattice[0]->speciesThermo(-1);
-    */
-}
-//====================================================================================================================
 
 #ifdef H298MODIFY_CAPABILITY
-
-//! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
-/*!
- *   The 298K heat of formation is defined as the enthalpy change to create the standard state
- *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
- *
- *   @param  k           Species k
- *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
- */
-void LatticeSolidPhase::modifyOneHf298SS(const int k, const doublereal Hf298New)
+void LatticeSolidPhase::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
 {
-    for (int n = 0; n < m_nlattice; n++) {
+    for (size_t n = 0; n < m_nlattice; n++) {
         if (lkstart_[n+1] < k) {
-            int kk = k-lkstart_[n];
+            size_t kk = k-lkstart_[n];
             SpeciesThermo& l_spthermo =  m_lattice[n]->speciesThermo();
             l_spthermo.modifyOneHf298(kk, Hf298New);
         }
@@ -717,13 +526,11 @@ void LatticeSolidPhase::modifyOneHf298SS(const int k, const doublereal Hf298New)
     _updateThermo();
 }
 #endif
-//====================================================================================================================
 
-doublereal LatticeSolidPhase::err(std::string msg) const
+doublereal LatticeSolidPhase::err(const std::string& msg) const
 {
     throw CanteraError("LatticeSolidPhase","Unimplemented " + msg);
     return 0.0;
 }
 
 } // End namespace Cantera
-//======================================================================================================================

@@ -8,9 +8,6 @@
 #ifndef CT_DAE_Solver_H
 #define CT_DAE_Solver_H
 
-#include <vector>
-
-#include "cantera/base/ct_defs.h"
 #include "ResidJacEval.h"
 #include "cantera/base/global.h"
 
@@ -146,6 +143,8 @@ public:
         warn("inclAlgebraicInErrorTest");
     }
 
+    //! Calculate consistent value of the starting solution given the starting
+    //! solution derivatives
     /**
      * This method may be called if the initial conditions do not
      * satisfy the residual equation F = 0. Given the derivatives
@@ -157,12 +156,20 @@ public:
         warn("correctInitial_Y_given_Yp");
     }
 
+    //! Calculate consistent value of the algebraic constraints and
+    //! derivatives at the start of the problem
     /**
      * This method may be called if the initial conditions do not
      * satisfy the residual equation F = 0. Given the initial
      * values of all differential variables, it computes the
      * initial values of all algebraic variables and the initial
      * derivatives of all differential variables.
+     *  @param y      Calculated value of the solution vector after the procedure ends
+     *  @param yp     Calculated value of the solution derivative after the procedure
+     *  @param tout   The first value of t at which a soluton will be
+     *                requested (from IDASolve).  (This is needed here to
+     *                determine the direction of integration and rough scale
+     *                in the independent variable t.
      */
     virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp,
             doublereal tout) {
@@ -244,7 +251,7 @@ protected:
 
 
 private:
-    void warn(std::string msg) const {
+    void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"DAE_Solver called. Nothing done.\n");
     }
@@ -260,7 +267,7 @@ private:
  *
  *     @return       Returns a point to the instantiated DAE_Solver object
  */
-DAE_Solver* newDAE_Solver(std::string itype, ResidJacEval& f);
+DAE_Solver* newDAE_Solver(const std::string& itype, ResidJacEval& f);
 
 #endif
 

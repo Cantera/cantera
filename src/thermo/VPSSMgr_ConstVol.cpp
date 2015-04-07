@@ -30,11 +30,6 @@ VPSSMgr_ConstVol::VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spt
     m_useTmpStandardStateStorage = true;
 }
 
-
-VPSSMgr_ConstVol::~VPSSMgr_ConstVol()
-{
-}
-
 VPSSMgr_ConstVol::VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right) :
     VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
 {
@@ -55,14 +50,10 @@ VPSSMgr_ConstVol& VPSSMgr_ConstVol::operator=(const VPSSMgr_ConstVol& b)
 
 VPSSMgr* VPSSMgr_ConstVol::duplMyselfAsVPSSMgr() const
 {
-    VPSSMgr_ConstVol* vpm = new VPSSMgr_ConstVol(*this);
-    return (VPSSMgr*) vpm;
+    return new VPSSMgr_ConstVol(*this);
 }
 
 /*
- * Get the nondimensional Entropies for the species
- * standard states at the current T and P of the solution.
- *
  * Note, this is equal to the reference state entropies
  * due to the zero volume expansivity:
  * i.e., (dS/dp)_T = (dV/dT)_P = 0.0
@@ -81,15 +72,6 @@ void VPSSMgr_ConstVol::_updateStandardStateThermo()
     }
 }
 
-/*
- *  Returns the vector of nondimensional
- *  Gibbs free energies of the reference state at the current temperature
- *  of the solution and the reference pressure for the species.
- *
- * @param grt Output vector contains the nondimensional Gibbs free energies
- *            of the reference state of the species
- *            length = m_kk, units = dimensionless.
- */
 void VPSSMgr_ConstVol::getGibbs_RT_ref(doublereal* grt) const
 {
     if (m_useTmpRefStateStorage) {
@@ -100,15 +82,6 @@ void VPSSMgr_ConstVol::getGibbs_RT_ref(doublereal* grt) const
     }
 }
 
-
-//  Get the molar volumes of the species reference states at the current
-//  <I>T</I> and <I>P_ref</I> of the solution.
-/*
- * units = m^3 / kmol
- *
- * @param vol     Output vector containing the standard state volumes.
- *                Length: m_kk.
- */
 void VPSSMgr_ConstVol::getStandardVolumes_ref(doublereal* vol) const
 {
     if (m_useTmpStandardStateStorage) {
@@ -125,7 +98,7 @@ void VPSSMgr_ConstVol::initThermo()
 }
 
 void
-VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, std::string id)
+VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 
@@ -153,11 +126,6 @@ VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, std::string id)
         m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
     }
 }
-
-//  void
-// VPSSMgr_ConstVol::installSpecies(int k, const XML_Node& speciesNode,
-//                                  const XML_Node *phaseNode_ptr) {
-//}
 
 PDSS*
 VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
@@ -198,4 +166,3 @@ VPSSMgr_enumType VPSSMgr_ConstVol::reportVPSSMgrType() const
     return  cVPSSMGR_CONSTVOL;
 }
 }
-

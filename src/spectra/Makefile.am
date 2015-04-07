@@ -1,4 +1,8 @@
-h_sources  = 
+
+h_sources  = $(top_builddir)/include/cantera/spectra/LineBroadener.h \
+             $(top_builddir)/include/cantera/spectra/rotor.h
+#             $(top_builddir)/include/cantera/spectra/spectralUtilities.h
+
 cc_sources = LineBroadener.cpp rotor.cpp spectralUtilities.cpp
 
 AM_CPPFLAGS             = -I$(top_builddir)/include
@@ -13,3 +17,6 @@ library_includedir      = $(includedir)
 
 __top_builddir__build_lib_libctspectra_la_LDFLAGS      = $(all_libraries) -release $(GENERIC_RELEASE)
 __top_builddir__build_lib_libctspectra_la_SOURCES      = $(cc_sources) $(h_sources)
+
+__top_builddir__build_lib_libctspectra_include_HEADERS = $(h_sources)
+__top_builddir__build_lib_libctspectra_includedir = $(prefix)/include/cantera/spectra

@@ -126,6 +126,10 @@ class Transport:
         "Viscosity [Pa-s]."""
         return _cantera.tran_viscosity(self.__tr_id)
 
+    def electricalConductivity(self):
+        """electrical conductivity. [S/m]."""
+        return _cantera.tran_electricalConductivity(self.__tr_id)
+
     def thermalConductivity(self):
         """Thermal conductivity. [W/m/K]."""
         return _cantera.tran_thermalConductivity(self.__tr_id)

@@ -27,37 +27,13 @@ class WaterProps;
 //! Class for pressure dependent standard states corresponding to
 //!  ionic solutes in electrolyte water.
 /*!
- *
- * Virtual base class for calculation of the
- * pressure dependent standard state for a single species
- *
- * Class %PDSS is the base class
- * for a family of classes that compute properties of a set of
- * species in their standard states at a range of temperatures
- * and pressures. The independent variables for this object
- * are temperature and pressure.
- * The class may have a reference to a SpeciesThermo object
- * which handles the calculation of the reference state temperature
- * behavior of a subset of species.
- *
- * This class is analogous to the SpeciesThermoInterpType
- * class, except that the standard state inherently incorporates
- * the pressure dependence.
- *
- * The class operates on a setState temperature and pressure basis.
- * It only recalculates the standard state when the setState functions
- * for temperature and pressure are called
- *
  * @ingroup pdssthermo
  */
 class PDSS_HKFT : public PDSS
 {
-
 public:
-    /**
-      * @name  Constructors
-      * @{
-      */
+    //! @name  Constructors
+    //! @{
 
     //! Constructor that initializes the object by examining the XML entries
     //! from the ThermoPhase object
@@ -94,7 +70,7 @@ public:
      *                   file is used.
      */
     PDSS_HKFT(VPStandardStateTP* vptp_ptr, size_t spindex,
-              std::string inputFile, std::string id = "");
+              const std::string& inputFile, const std::string& id = "");
 
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
@@ -114,35 +90,14 @@ public:
     //! Destructor for the phase
     virtual ~PDSS_HKFT();
 
-    //! Duplicator
     virtual PDSS* duplMyselfAsPDSS() const;
 
-    /**
-     * @}
-     * @name  Utilities
-     * @{
-     */
+    //! @}
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //! @{
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Species Standard State
-     *        in the Solution
-     * @{
-     */
+    // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Solution --------------
-     * @{
-     */
-
-    //! Return the molar enthalpy in units of J kmol-1
-    /*!
-     * Returns the species standard state enthalpy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state enthalpy in  J kmol-1
-     */
     virtual doublereal enthalpy_mole() const;
 
 #ifdef DEBUG_MODE
@@ -154,254 +109,90 @@ public:
      *  Note this is just an extra routine to check the arithmetic
      *
      * @return returns the species standard state enthalpy in  J kmol-1
+     * @deprecated
      */
     doublereal enthalpy_mole2() const;
 #endif
 
-    //! Return the standard state molar enthalpy divided by RT
-    /*!
-     * Returns the species standard state enthalpy divided by RT at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state enthalpy in unitless form
-     */
     virtual doublereal enthalpy_RT() const;
-
-    //! Return the molar internal Energy in units of J kmol-1
-    /*!
-     * Returns the species standard state internal Energy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state internal Energy in  J kmol-1
-     */
     virtual doublereal intEnergy_mole() const;
-
-    //! Return the molar entropy in units of J kmol-1 K-1
-    /*!
-     * Returns the species standard state entropy in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state entropy in J kmol-1 K-1
-     */
     virtual doublereal entropy_mole() const;
-
-    //! Return the molar gibbs free energy in units of J kmol-1
-    /*!
-     * Returns the species standard state gibbs free energy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state gibbs free energy in  J kmol-1
-     */
     virtual doublereal gibbs_mole() const;
-
-    //! Return the molar const pressure heat capacity in units of J kmol-1 K-1
-    /*!
-     * Returns the species standard state Cp in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state Cp in J kmol-1 K-1
-     */
     virtual doublereal cp_mole() const;
-
-    //! Return the molar const volume heat capacity in units of J kmol-1 K-1
-    /*!
-     * Returns the species standard state Cv in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state Cv in J kmol-1 K-1
-     */
     virtual doublereal cv_mole() const;
-
-    //! Return the molar volume at standard state
-    /*!
-     * Returns the species standard state molar volume at the
-     * current temperature and pressure
-     *
-     * @return returns the standard state molar volume divided by R
-     *             units are m**3 kmol-1.
-     */
     virtual doublereal molarVolume() const;
-
-    //! Return the standard state density at standard state
-    /*!
-     * Returns the species standard state density at the
-     * current temperature and pressure
-     *
-     * @return returns the standard state density
-     *             units are kg m-3
-     */
     virtual doublereal density() const;
 
-    /**
-     * @}
-     * @name Properties of the Reference State of the Species
-     *       in the Solution
-     * @{
-     */
+    //! @}
+    //! @name Properties of the Reference State of the Species in the Solution
+    //! @{
 
-
-    //! Return the reference pressure for this phase.
     doublereal refPressure() const {
         return m_p0;
     }
 
-    //! Return the molar gibbs free energy divided by RT at reference pressure
-    /*!
-     * Returns the species reference state gibbs free energy divided by RT at the
-     * current temperature.
-     *
-     * @return returns the reference state gibbs free energy divided by RT
-     */
     virtual doublereal gibbs_RT_ref() const;
-
-    //! Return the molar enthalpy divided by RT at reference pressure
-    /*!
-     * Returns the species reference state enthalpy divided by RT at the
-     * current temperature.
-     *
-     * @return returns the reference state enthalpy divided by RT
-     */
     virtual doublereal enthalpy_RT_ref() const;
-
-    //! Return the molar entropy divided by R at reference pressure
-    /*!
-     * Returns the species reference state entropy divided by R at the
-     * current temperature.
-     *
-     * @return returns the reference state entropy divided by R
-     */
     virtual doublereal entropy_R_ref() const;
-
-    //! Return the molar heat capacity divided by R at reference pressure
-    /*!
-     * Returns the species reference state heat capacity divided by R at the
-     * current temperature.
-     *
-     * @return returns the reference state heat capacity divided by R
-     */
     virtual doublereal cp_R_ref() const;
-
-    //! Return the molar volume at reference pressure
-    /*!
-     * Returns the species reference state molar volume at the
-     * current temperature.
-     *
-     * @return returns the reference state molar volume divided by R
-     *             units are m**3 kmol-1.
-     */
     virtual doublereal molarVolume_ref() const;
 
-    /**
-     * @}
-     *  @name Mechanical Equation of State Properties
-     * @{
-     */
+    //! @}
+    //! @name Mechanical Equation of State Properties
+    //! @{
 
-    //! Returns the pressure (Pa)
     virtual doublereal pressure() const;
-
-    //! Sets the pressure in the object
-    /*!
-     * Currently, this sets the pressure in the PDSS object.
-     * It is indeterminant what happens to the owning VPStandardStateTP
-     * object and to the VPSSMgr object.
-     *
-     * @param   pres   Pressure to be set (Pascal)
-     */
     virtual void setPressure(doublereal pres);
-
-    //! Set the internal temperature
-    /*!
-     * @param temp Temperature (Kelvin)
-     */
     virtual void setTemperature(doublereal temp);
-
-    //! Return the current stored temperature
     doublereal temperature() const;
-
-    //! Set the internal temperature and pressure
-    /*!
-     * @param  temp     Temperature (Kelvin)
-     * @param  pres     pressure (Pascals)
-     */
     virtual void setState_TP(doublereal temp, doublereal pres);
 
-    /**
-     * @}
-     *  @name  Miscellaneous properties of the standard state
-     * @{
-     */
+    //! @}
+    //! @name Miscellaneous properties of the standard state
+    //! @{
 
-    /// critical temperature
     virtual doublereal critTemperature() const;
-
-    /// critical pressure
     virtual doublereal critPressure() const;
-
-    /// critical density
     virtual doublereal critDensity() const;
 
-    /**
-     * @}
-     *  @name  Initialization of the Object
-     * @{
-     */
+    //! @}
+    //! @name Initialization of the Object
+    //! @{
 
-    //! Initialization routine for all of the shallow pointers
-    /*!
-     *  This is a cascading call, where each level should call the
-     *  the parent level.
-     *
-     *  The initThermo() routines get called before the initThermoXML() routines
-     *  from the constructPDSSXML() routine.
-     *
-     *
-     *  Calls initPtrs();
-     */
     virtual void initThermo();
 
-    //! Initialization of a PDSS object using an
-    //! input XML file.
+    //! Initialization of a PDSS object using an input XML file.
     /*!
-     *
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
      * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
      *                    This object must have already been malloced.
-     *
      * @param spindex     Species index within the phase
-     *
      * @param inputFile   XML file containing the description of the
      *                    phase
-     *
      * @param id          Optional parameter identifying the name of the
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
      */
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
-                           std::string inputFile, std::string id);
+                           const std::string& inputFile, const std::string& id);
 
     //!  Initialization of a PDSS object using an xml tree
     /*!
-     * This routine is a driver for the initialization of the
-     * object.
+     * This routine is a driver for the initialization of the object.
      *
      *   basic logic:
-     *       initThermo()                 (cascade)
-     *       getStuff from species Part of XML file
-     *       initThermoXML(phaseNode)      (cascade)
+     *     - initThermo()                 (cascade)
+     *     - getStuff from species Part of XML file
+     *     - initThermoXML(phaseNode)      (cascade)
      *
      * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
      *                   This object must have already been malloced.
-     *
      * @param spindex    Species index within the phase
-     *
      * @param speciesNode XML Node containing the species information
-     *
      * @param phaseNode  Reference to the phase Information for the phase
      *                   that owns this species.
-     *
      * @param spInstalled  Boolean indicating whether the species is
      *                     already installed.
      */
@@ -409,43 +200,13 @@ public:
                           const XML_Node& speciesNode,
                           const XML_Node& phaseNode, bool spInstalled);
 
-    //! Initialization routine for the PDSS object based on the phaseNode
-    /*!
-     *  This is a cascading call, where each level should call the
-     *  the parent level.
-     *
-     * @param phaseNode  Reference to the phase Information for the phase
-     *                   that owns this species.
-     *
-     * @param id         Optional parameter identifying the name of the
-     *                   phase. If none is given, the first XML
-     *                   phase element will be used.
-     */
-    virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
-
-    //! Initialize or Reinitialize all shallow pointers in the object
-    /*!
-     *  This command is called to reinitialize all shallow pointers in the
-     *  object. It's needed for the duplicator capability
-     *
-     * @param vptp_ptr       Pointer to the Variable pressure %ThermoPhase object
-     *                       This object must have already been malloced.
-     *
-     * @param vpssmgr_ptr    Pointer to the variable pressure standard state
-     *                       calculator for this phase
-     *
-     * @param spthermo_ptr   Pointer to the optional SpeciesThermo object
-     *                       that will handle the calculation of the reference
-     *                       state thermodynamic coefficients.
-     */
+    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              SpeciesThermo* spthermo_ptr);
 
-    //! This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
+    //! This utility function reports back the type of parameterization and
+    //! all of the parameters for the species, index.
     /*!
-     *
      * The following parameters are reported
      *
      * -   c[0] = m_deltaG_formation_tr_pr;
@@ -468,7 +229,7 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     *
+     * @deprecated
      */
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
@@ -476,14 +237,11 @@ public:
 
     //@}
 
-
 private:
-
     //! Main routine that actually calculates the gibbs free energy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is eEqn. 59 in Johnson et al. (1992).
-     *
      */
     doublereal deltaG() const;
 
@@ -500,6 +258,7 @@ private:
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is an extra routine that was added to check the arithmetic
+     *  @deprecated
      */
     doublereal deltaH() const;
 #endif
@@ -563,7 +322,6 @@ private:
 
     //! Evaluate the Gstar value appearing in the HKFT formulation
     /*!
-     *
      * @param temp      Temperature kelvin
      * @param pres      Pressure (pascal)
      * @param ifunc     parameters specifying the desired information
@@ -577,26 +335,23 @@ private:
 
     //!  Function to look up Element Free Energies
     /*!
+     * This function looks up the argument string in the element database and
+     * returns the associated 298 K Gibbs Free energy of the element in its
+     * stable state.
      *
-     *   This static function looks up the argument string in the
-     *   element database  and returns the associated 298 K Gibbs Free energy
-     *   of the element in its stable state
+     * @param  elemName  String. Only the first 3 characters are significant
      *
-     *  @param  elemName  String. Only the first 3 characters are significant
+     * @return value contains the Gibbs free energy for that element
      *
-     *  @return
-     *    Return value contains the Gibbs free energy for that element
-     *
-     *  @exception CanteraError
+     * @exception CanteraError
      *    If a match is not found, a CanteraError is thrown as well
      */
     doublereal LookupGe(const std::string& elemName);
 
     //! Translate a Gibbs free energy of formation value to a NIST-based Chemical potential
     /*!
-     *  Internally, this function is used to translate the input value,
-     *  m_deltaG_formation_tr_pr,
-     *  to the internally stored value,  m_Mu0_tr_pr.
+     * Internally, this function is used to translate the input value,
+     * m_deltaG_formation_tr_pr, to the internally stored value,  m_Mu0_tr_pr.
      */
     void convertDGFormation();
 
@@ -691,12 +446,8 @@ private:
 
     //! Charge of the ion
     doublereal m_charge_j;
-
 };
 
 }
 
 #endif
-
-
-

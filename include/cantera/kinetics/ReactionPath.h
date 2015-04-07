@@ -17,10 +17,7 @@
 
 namespace Cantera
 {
-
 enum flow_t   { NetFlow, OneWayFlow };
-
-Group parseGroupString(std::string str, std::vector<std::string>& esyms);
 
 // forward references
 class Path;
@@ -44,9 +41,6 @@ public:
     doublereal  value;            ///<  May be used to set node appearance
     bool        visible;          ///<  Visible on graph;
 
-
-    // public methods
-
     /**
      *  @name References.
      * Return a reference to a path object connecting this node
@@ -60,7 +54,6 @@ public:
         return m_paths[n];
     }
     //@}
-
 
     /// Total number of paths to or from this node
     int nPaths() const {
@@ -82,7 +75,6 @@ public:
 
     void printPaths();
 
-
 protected:
     doublereal m_in;
     doublereal m_out;
@@ -90,12 +82,9 @@ protected:
 };
 
 
-
 class Path
 {
-
 public:
-
     typedef std::map<size_t, doublereal> rxn_path_map;
 
     /**
@@ -107,7 +96,13 @@ public:
     /// Destructor
     virtual ~Path() {}
 
-    void addReaction(size_t rxnNumber, doublereal value, std::string label = "");
+    /**
+     * Add a reaction to the path. Increment the flow from this
+     * reaction, the total flow, and the flow associated with this
+     * label.
+     */
+    void addReaction(size_t rxnNumber, doublereal value,
+                     const std::string& label = "");
 
     /// Upstream node.
     const SpeciesNode* begin() const {
@@ -151,10 +146,13 @@ public:
         return m_rxn;
     }
 
+    /**
+     * Write the label for a path connecting two species, indicating
+     * the percent of the total flow due to each reaction.
+     */
     void writeLabel(std::ostream& s, doublereal threshold = 0.005);
 
 protected:
-
     std::map<std::string, doublereal> m_label;
     SpeciesNode* m_a, *m_b;
     rxn_path_map m_rxn;
@@ -167,11 +165,12 @@ protected:
  */
 class ReactionPathDiagram
 {
-
 public:
-
     ReactionPathDiagram();
 
+    /**
+     * Destructor. Deletes all nodes and paths in the diagram.
+     */
     virtual ~ReactionPathDiagram();
 
     /// The largest one-way flow value in any path
@@ -195,7 +194,23 @@ public:
     }
 
     void writeData(std::ostream& s);
+
+    /**
+     *  Export the reaction path diagram. This method writes to stream
+     *  \c s the commands for the 'dot' program in the \c GraphViz
+     *  package from AT&T. (GraphViz may be downloaded from
+     *  www.graphviz.org.)
+     *
+     *  To generate a postscript reaction path diagram from the
+     *  output of this method saved in file paths.dot, for example, give
+     *  the command:
+     *  \code
+     *  dot -Tps paths.dot > paths.ps
+     *  \endcode
+     *  To generate a GIF image, replace -Tps with -Tgif
+     */
     void exportToDot(std::ostream& s);
+
     void add(ReactionPathDiagram& d);
     SpeciesNode* node(size_t k) {
         return m_nodes[k];
@@ -213,7 +228,7 @@ public:
         return m_nodes.size();
     }
 
-    void addNode(size_t k, std::string nm, doublereal x = 0.0);
+    void addNode(size_t k, const std::string& nm, doublereal x = 0.0);
 
     void displayOnly(size_t k=npos) {
         m_local = k;
@@ -222,10 +237,10 @@ public:
     void linkNodes(size_t k1, size_t k2, size_t rxn, doublereal value,
                    std::string legend = "");
 
-    void include(std::string aaname) {
+    void include(const std::string& aaname) {
         m_include.push_back(aaname);
     }
-    void exclude(std::string aaname) {
+    void exclude(const std::string& aaname) {
         m_exclude.push_back(aaname);
     }
     void include(std::vector<std::string>& names) {
@@ -247,7 +262,7 @@ public:
     std::vector<size_t> species();
     vector_int reactions();
     void findMajorPaths(doublereal threshold, size_t lda, doublereal* a);
-    void setFont(std::string font) {
+    void setFont(const std::string& font) {
         m_font = font;
     }
     // public attributes
@@ -269,7 +284,6 @@ public:
     doublereal arrow_hue;
 
 protected:
-
     doublereal                    m_flxmax;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
     std::map<size_t, SpeciesNode*> m_nodes;
@@ -282,19 +296,19 @@ protected:
 };
 
 
-
 class ReactionPathBuilder
 {
-
 public:
     ReactionPathBuilder() {}
     virtual ~ReactionPathBuilder() {}
 
     int init(std::ostream& logfile, Kinetics& s);
 
-    int build(Kinetics& s, std::string element, std::ostream& output,
+    int build(Kinetics& s, const std::string& element, std::ostream& output,
               ReactionPathDiagram& r, bool quiet=false);
 
+    //! Analyze a reaction to determine which reactants lead to which
+    //! products.
     int findGroups(std::ostream& logfile, Kinetics& s);
 
     void writeGroup(std::ostream& out, const Group& g);

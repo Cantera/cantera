@@ -13,50 +13,9 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cmath>
-
 namespace VCSnonideal
 {
 
-// Rearrange the constraint equations represented by the Formula
-// Matrix so that the operational ones are in the front
-/*
- *
- *       This subroutine handles the rearrangement of the constraint
- *    equations represented by the Formula Matrix. Rearrangement is only
- *    necessary when the number of components is less than the number of
- *    elements. For this case, some constraints can never be satisfied
- *    exactly, because the range space represented by the Formula
- *    Matrix of the components can't span the extra space. These
- *    constraints, which are out of the range space of the component
- *    Formula matrix entries, are migrated to the back of the Formula
- *    matrix.
- *
- *       A prototypical example is an extra element column in
- *    FormulaMatrix[],
- *    which is identically zero. For example, let's say that argon is
- *    has an element column in FormulaMatrix[], but no species in the
- *     mechanism
- *    actually contains argon. Then, nc < ne. Also, without perturbation
- *    of FormulaMatrix[] vcs_basopt[] would produce a zero pivot
- *    because the matrix
- *    would be singular (unless the argon element column was already the
- *    last column of  FormulaMatrix[].
- *       This routine borrows heavily from vcs_basopt's algorithm. It
- *    finds nc constraints which span the range space of the Component
- *    Formula matrix, and assigns them as the first nc components in the
- *    formula matrix. This guarantees that vcs_basopt[] has a
- *    nonsingular matrix to invert.
- *
- * Other Variables
- *  aw[i] = Mole fraction work space        (ne in length)
- *  sa[j] = Gramm-Schmidt orthog work space (ne in length)
- *  ss[j] = Gramm-Schmidt orthog work space (ne in length)
- *  sm[i+j*ne] = QR matrix work space (ne*ne in length)
- *
- */
 int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                                   double* const sm, double* const ss)
 {
@@ -217,15 +176,6 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
     return VCS_SUCCESS;
 }
 
-//  Swaps the indices for all of the global data for two elements, ipos
-//  and jpos.
-/*
- *  This function knows all of the element information with VCS_SOLVE, and
- *  can therefore switch element positions
- *
- *  @param ipos  first global element index
- *  @param jpos  second global element index
- */
 void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
 {
     if (ipos == jpos) {
@@ -268,4 +218,3 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     std::swap(m_elementName[ipos], m_elementName[jpos]);
 }
 }
-

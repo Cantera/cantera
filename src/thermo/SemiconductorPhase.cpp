@@ -1,4 +1,4 @@
-
+//! @file SemiconductorPhase.cpp
 #include "cantera/thermo/SemiconductorPhase.h"
 
 using namespace std;
@@ -16,7 +16,7 @@ static doublereal JoyceDixon(doublereal r)
 
 
 SemiconductorPhase::SemiconductorPhase(std::string infile,
-                                       std::string id) {}
+                                       std::string id_) {}
 
 
 //    doublereal SemiconductorPhase::ionizedDonorConcentration() {

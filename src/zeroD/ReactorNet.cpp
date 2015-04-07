@@ -1,3 +1,4 @@
+//! @file ReactorNet.cpp
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -6,7 +7,6 @@
 #include <cstdio>
 
 using namespace std;
-using namespace Cantera;
 
 namespace Cantera
 {
@@ -15,7 +15,7 @@ ReactorNet::ReactorNet() : Cantera::FuncEval(), m_nr(0), m_nreactors(0),
     m_integ(0), m_time(0.0), m_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),
-    m_maxstep(-1.0),
+    m_maxstep(-1.0), m_maxErrTestFails(0),
     m_verbose(false), m_ntotpar(0)
 {
 #ifdef DEBUG_MODE
@@ -41,31 +41,39 @@ ReactorNet::~ReactorNet()
     }
     m_r.clear();
     m_reactors.clear();
-    deleteIntegrator(m_integ);
+    delete m_integ;
 }
 
-void ReactorNet::initialize(doublereal t0)
+void ReactorNet::initialize()
 {
     size_t n, nv;
     char buf[100];
     m_nv = 0;
     m_reactors.clear();
     m_nreactors = 0;
-    if (m_verbose) {
-        writelog("Initializing reactor network.\n");
-    }
+    writelog("Initializing reactor network.\n", m_verbose);
     if (m_nr == 0)
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
+    size_t sensParamNumber = 0;
     for (n = 0; n < m_nr; n++) {
         if (m_r[n]->type() >= ReactorType) {
-            m_r[n]->initialize(t0);
+            m_r[n]->initialize(m_time);
             Reactor* r = (Reactor*)m_r[n];
             m_reactors.push_back(r);
             nv = r->neq();
             m_size.push_back(nv);
             m_nparams.push_back(r->nSensParams());
-            m_ntotpar += r->nSensParams();
+            std::vector<std::pair<void*, int> > sens_objs = r->getSensitivityOrder();
+            for (size_t i = 0; i < sens_objs.size(); i++) {
+                std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
+                for (std::map<size_t, size_t>::iterator iter = s.begin();
+                        iter != s.end();
+                        ++iter) {
+                    m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
+                    m_sensIndex[iter->second] = sensParamNumber++;
+                }
+            }
             m_nv += nv;
             m_nreactors++;
 
@@ -126,13 +134,14 @@ void ReactorNet::initialize(doublereal t0)
     m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
+    m_integ->setMaxErrTestFails(m_maxErrTestFails);
     if (m_verbose) {
         sprintf(buf, "Number of equations: %s\n", int2str(neq()).c_str());
         writelog(buf);
         sprintf(buf, "Maximum time step:   %14.6g\n", m_maxstep);
         writelog(buf);
     }
-    m_integ->initialize(t0, *this);
+    m_integ->initialize(m_time, *this);
     m_init = true;
 }
 
@@ -162,40 +171,19 @@ double ReactorNet::step(doublereal time)
     return m_time;
 }
 
-
 void ReactorNet::addReactor(ReactorBase* r, bool iown)
 {
+    r->setNetwork(this);
     if (r->type() >= ReactorType) {
         m_r.push_back(r);
         m_iown.push_back(iown);
         m_nr++;
-        if (m_verbose) {
-            writelog("Adding reactor "+r->name()+"\n");
-        }
+        writelog("Adding reactor "+r->name()+"\n", m_verbose);
     } else {
-        if (m_verbose) {
-            writelog("Not adding reactor "+r->name()+
-                     ", since type = "+int2str(r->type())+"\n");
-        }
+        writelog("Not adding reactor "+r->name()+
+                 ", since type = "+int2str(r->type())+"\n", m_verbose);
     }
 }
-
-//     void ReactorNet::addSensitivityParam(int n, int stype, int i) {
-//         m_reactors[n]->addSensitivityParam(int stype, int i);
-//         m_sensreactor.push_back(n);
-//         m_nSenseParams++;
-//     }
-
-//     void ReactorNet::setParameters(int np, double* p) {
-//         int n, nr;
-//         for (n = 0; n < np; n++) {
-//             if (n < m_nSenseParams) {
-//                 nr = m_sensreactor[n];
-//                 m_reactors[nr]->setParameter(n, p[n]);
-//             }
-//         }
-//     }
-
 
 void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
@@ -203,23 +191,15 @@ void ReactorNet::eval(doublereal t, doublereal* y,
     size_t n;
     size_t start = 0;
     size_t pstart = 0;
-    // use a try... catch block, since exceptions are not passed
-    // through CVODE, since it is C code
-    try {
-        updateState(y);
-        for (n = 0; n < m_nreactors; n++) {
-            m_reactors[n]->evalEqs(t, y + start,
-                                   ydot + start, p + pstart);
-            start += m_size[n];
-            pstart += m_nparams[n];
-        }
-    } catch (CanteraError& err) {
-        std::cerr << err.what() << std::endl;
-        error("Terminating execution.");
+
+    updateState(y);
+    for (n = 0; n < m_nreactors; n++) {
+        m_reactors[n]->evalEqs(t, y + start,
+                               ydot + start, p + pstart);
+        start += m_size[n];
+        pstart += m_nparams[n];
     }
 }
-
-
 
 void ReactorNet::evalJacobian(doublereal t, doublereal* y,
                               doublereal* ydot, doublereal* p, Array2D* j)
@@ -274,14 +254,31 @@ void ReactorNet::getInitialConditions(doublereal t0,
     }
 }
 
-size_t ReactorNet::globalComponentIndex(string species, size_t reactor)
+size_t ReactorNet::globalComponentIndex(const string& species, size_t reactor)
 {
+    if (!m_init) {
+        initialize();
+    }
     size_t start = 0;
     size_t n;
     for (n = 0; n < reactor; n++) {
         start += m_size[n];
     }
     return start + m_reactors[n]->componentIndex(species);
+}
+
+void ReactorNet::registerSensitivityReaction(void* reactor,
+        size_t reactionIndex, const std::string& name, int leftright)
+{
+    std::pair<void*, int> R = std::make_pair(reactor, leftright);
+    if (m_sensOrder.count(R) &&
+            m_sensOrder[R].count(reactionIndex)) {
+        throw CanteraError("ReactorNet::registerSensitivityReaction",
+                           "Attempted to register duplicate sensitivity reaction");
+    }
+    m_paramNames.push_back(name);
+    m_sensOrder[R][reactionIndex] = m_ntotpar;
+    m_ntotpar++;
 }
 
 }

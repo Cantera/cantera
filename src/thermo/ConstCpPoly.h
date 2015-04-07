@@ -42,14 +42,11 @@ namespace Cantera
  * this class does.
  *
  * @see SimpleThermo
- *
  * @ingroup spthermo
  */
 class ConstCpPoly: public SpeciesThermoInterpType
 {
-
 public:
-
     //! empty constructor
     ConstCpPoly();
 
@@ -66,7 +63,6 @@ public:
      *           -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
      *           -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
      *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
-     *
      */
     ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
                 doublereal pref,
@@ -78,31 +74,11 @@ public:
     //! Assignment operator
     ConstCpPoly& operator=(const ConstCpPoly&);
 
-    //! Destructor
-    virtual ~ConstCpPoly();
-
-    //! Duplicator
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
-    //! Returns the minimum temperature that the thermo
-    //! parameterization is valid
-    doublereal minTemp() const;
 
-    //! Returns the maximum temperature that the thermo
-    //! parameterization is valid
-    doublereal maxTemp() const;
-
-    //! Returns the reference pressure (Pa)
-    doublereal refPressure() const;
-
-    //! Returns an integer representing the type of parameterization
     virtual int reportType() const {
         return CONSTANT_CP;
-    }
-
-    //! Returns an integer representing the species index
-    virtual size_t speciesIndex() const {
-        return m_index;
     }
 
     //! Update the properties for this species, given a temperature polynomial
@@ -116,50 +92,17 @@ public:
      *  - m_t[0] = tt;
      *
      * @param tt      Vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
+     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
+     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
+     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     void updateProperties(const doublereal* tt,
                           doublereal* cp_R, doublereal* h_RT,
                           doublereal* s_R) const;
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities.
-     *                (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies.
-     *                (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies.
-     *                (length m_kk).
-     */
     void updatePropertiesTemp(const doublereal temp,
                               doublereal* cp_R, doublereal* h_RT,
                               doublereal* s_R) const;
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
-    /*!
-     * All parameters are output variables
-     *
-     * @param n         Species index
-     * @param type      Integer type of the standard type
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     */
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
@@ -172,11 +115,8 @@ public:
     virtual void modifyParameters(doublereal* coeffs);
 
 #ifdef H298MODIFY_CAPABILITY
-
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;
-
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New);
-
+    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New);
 #endif
 
 protected:
@@ -190,17 +130,6 @@ protected:
     doublereal m_s0_R;
     //! log of the t0 value
     doublereal m_logt0;
-    //! Minimum temperature for which the parameterization is valid (Kelvin)
-    doublereal m_lowT;
-    //! Maximum temperature for which the parameterization is valid (Kelvin)
-    doublereal m_highT;
-    //! Reference pressure (Pa)
-    doublereal m_Pref;
-    //! Species Index
-    size_t m_index;
-
-private:
-
 };
 
 }

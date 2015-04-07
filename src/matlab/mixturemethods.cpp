@@ -142,7 +142,7 @@ void mixturemethods(int nlhs, mxArray* plhs[],
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = r;
-        if (r == Undef) {
+        if (r == DERR || r == Undef || r == -1) {
             reportError();
         }
         return;

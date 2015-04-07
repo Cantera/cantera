@@ -34,8 +34,6 @@ public:
      * Install a rate coefficient calculator.
      * @param rxnNumber the reaction number
      * @param rdata rate coefficient specification for the reaction
-     * @param useAux flag to indicate that auxiliary rate information from
-     *        rdata should be used.
      */
     size_t install(size_t rxnNumber, const ReactionData& rdata) {
         /*
@@ -53,16 +51,6 @@ public:
     }
 
     /**
-     * Return a reference to the nth rate coefficient calculator.
-     * Note that this is not the same as the calculator for
-     * reaction n, since reactions with constant rate coefficients
-     * do not have a calculator.
-     */
-    const R& rateCoeff(int loc) const {
-        return m_rates[loc];
-    }
-
-    /**
      * Update the concentration-dependent parts of the rate
      * coefficient, if any. Used by class SurfaceArrhenius to
      * compute coverage-dependent * modifications to the Arrhenius
@@ -73,11 +61,8 @@ public:
      * the call to update_C.
      */
     void update_C(const doublereal* c) {
-        typename std::vector<R>::iterator b = m_rates.begin();
-        typename std::vector<R>::iterator e = m_rates.end();
-        int i = 0;
-        for (; b != e; ++b, ++i) {
-            b->update_C(c);
+        for (size_t i = 0; i != m_rates.size(); i++) {
+            m_rates[i].update_C(c);
         }
     }
 
@@ -90,18 +75,10 @@ public:
      * preloaded with the constant rate coefficients.
      */
     void update(doublereal T, doublereal logT, doublereal* values) {
-        typename std::vector<R>::const_iterator b = m_rates.begin();
-        typename std::vector<R>::const_iterator e = m_rates.end();
         doublereal recipT = 1.0/T;
-        int i = 0;
-        for (; b != e; ++b, ++i) {
-            // values[m_rxn[i]] = exp(b->update(logT, recipT));
-            values[m_rxn[i]] = b->updateRC(logT, recipT);
+        for (size_t i = 0; i != m_rates.size(); i++) {
+            values[m_rxn[i]] = m_rates[i].updateRC(logT, recipT);
         }
-    }
-
-    void writeUpdate(std::ostream& output1, std::string key) {
-        output1 << key;
     }
 
     size_t nReactions() const {
@@ -111,45 +88,6 @@ public:
 protected:
     std::vector<R>             m_rates;
     std::vector<size_t>           m_rxn;
-    vector_fp              m_const; //!< @deprecated not used
-};
-
-
-
-/**
- * This rate coefficient manager supports two parameterizations of
- * any type.
- */
-template<class R1, class R2>
-class Rate2
-{
-public:
-
-    Rate2() {}
-    virtual ~Rate2() {}
-
-    int install(size_t rxnNumber, int rateType, size_t m,
-                const doublereal* c) {
-        if (rateType == R1::type()) {
-            return m_r1.install(rxnNumber, rateType, m, c);
-        } else if (rateType == R2::type()) {
-            return m_r2.install(rxnNumber, rateType, m, c);
-        } else
-            throw CanteraError("Rate2::install",
-                               "unknown rate coefficient type");
-        return -1;
-    }
-
-    void update(doublereal T, doublereal logT,
-                doublereal* values) {
-        m_r1.update(T, logT, values);
-        m_r2.update(T, logT, values);
-    }
-
-protected:
-
-    Rate1<R1> m_r1;
-    Rate1<R2> m_r2;
 };
 
 }

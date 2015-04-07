@@ -12,9 +12,11 @@ class WxsGenerator(object):
         if self.x64:
             self.CANTERA_UUID = uuid.UUID('F707EB9E-3723-11E1-A99F-525400631BAF')
             self.pfilesName = 'ProgramFiles64Folder'
+            self.productName = 'Cantera 2.1 (64-bit)'
         else:
             self.CANTERA_UUID = uuid.UUID('1B36CAF0-279D-11E1-8979-001FBC085391')
             self.pfilesName = 'ProgramFilesFolder'
+            self.productName = 'Cantera 2.1 (32-bit)'
 
     def Directory(self, parent, Id, Name):
         return et.SubElement(parent, 'Directory',
@@ -47,16 +49,19 @@ class WxsGenerator(object):
         #self.prefix: path to the parent directory
         directories = {}
 
+        # replace characters that are not valid in IDs
+        clean = lambda s: s.replace('/', '_').replace('@', 'a').replace('-','_')
+
         directories[directory] = self.Directory(parent, directory, directory)
         for path, dirs, files in os.walk('/'.join((self.prefix, directory))):
             path = path.replace(self.prefix + '/', '', 1).replace('\\', '/')
             for d in dirs:
                 dpath = '/'.join((path, d))
-                ID = dpath.replace('/', '_').replace('@', 'a')
+                ID = clean(dpath)
                 directories[dpath] = self.Directory(directories[path], ID, d)
 
             for f in files:
-                ID = '_'.join((path, f)).replace('/', '_').replace('@', 'a')
+                ID = clean('_'.join((path, f)))
                 self.FileComponent(directories[path], ID, ID, f,
                               '/'.join((self.prefix, path, f)))
                 et.SubElement(feature, 'ComponentRef', dict(Id=ID))
@@ -66,19 +71,19 @@ class WxsGenerator(object):
     def make_wxs(self, outFile):
         wix = et.Element("Wix", {'xmlns': 'http://schemas.microsoft.com/wix/2006/wi'})
         product = et.SubElement(wix, "Product",
-                                dict(Name='Cantera 2.0',
+                                dict(Name=self.productName,
                                      Id=str(self.CANTERA_UUID),
                                      UpgradeCode='2340BEE1-279D-11E1-A4AA-001FBC085391',
                                      Language='1033',
                                      Codepage='1252',
-                                     Version='2.0.0',
+                                     Version='2.1.1',
                                      Manufacturer='Cantera Developers'))
 
         fields = {'Platform': 'x64'} if self.x64 else {}
         package = et.SubElement(product, "Package",
                                 dict(Id='*',
                                      Keywords='Installer',
-                                     Description="Cantera 2.0 Installer",
+                                     Description="Cantera 2.1 Installer",
                                      InstallerVersion='310',
                                      Languages='1033',
                                      Compressed='yes',
@@ -140,7 +145,7 @@ class WxsGenerator(object):
 
         # Registry entries
         reg_key = self.addRegistryKey(core, product, Id='CanteraRegRoot', Root='HKLM',
-                                      Key='Software\\Cantera\\Cantera 2.0',
+                                      Key='Software\\Cantera\\Cantera 2.1',
                                       Action='createAndRemoveOnUninstall')
         et.SubElement(reg_key, 'RegistryValue', dict(Type='string',
                                                      Name='InstallDir',

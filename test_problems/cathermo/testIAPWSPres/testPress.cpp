@@ -1,6 +1,5 @@
 
 #include "cantera/thermo/WaterPropsIAPWS.h"
-#include <new>
 
 #include <cstdio>
 #include <cmath>
@@ -16,8 +15,7 @@ double numdpdt(WaterPropsIAPWS* water, double T, double pres)
     double Td = T + 0.001;
     water->setState_TR(Td, rho);
     double presd = water->pressure();
-    double dpdt = (presd - presB) / 0.001;
-    return dpdt;
+    return (presd - presB) / 0.001;
 }
 
 int main()
@@ -46,18 +44,10 @@ int main()
     printf("dens (liquid) = %g kg m-3\n", dens);
 
     u = water->intEnergy();
-    if (fabs(u) < 5.0E-7) {
-        printf("intEng (liquid) ~= 0.0 J/kmol (less than fabs(5.0E-7))\n");
-    } else {
-        printf("intEng (liquid) = %g J/kmol\n", u);
-    }
+    printf("intEng (liquid) = %.6f J/kmol\n", u);
 
     s = water->entropy();
-    if (fabs(s) < 1.0E-9) {
-        printf("S (liquid) ~= 0.0 J/kmolK (less than fabs(1.0E-9))\n");
-    } else {
-        printf("S (liquid) = %g J/kmolK\n", s);
-    }
+    printf("S (liquid) = %.6f J/kmolK\n", s);
 
     h = water->enthalpy();
     printf("h (liquid) = %g J/kmol\n", h);

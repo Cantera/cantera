@@ -16,10 +16,8 @@
 
 class WaterPropsIAPWS;
 
-
 namespace Cantera
 {
-
 /**
  * @defgroup pdssthermo Species Standard-State Thermodynamic Properties
  *
@@ -66,18 +64,15 @@ namespace Cantera
  *   species in a phase at its standard states, for a range of temperatures
  *   and pressures.
  *
- *   Phases which use the %VPSSMGr class must have their respective
- *   %ThermoPhase objects actually be derivatives of the VPStandardState
+ *   Phases which use the VPSSMGr class must have their respective
+ *   ThermoPhase objects actually be derivatives of the VPStandardState
  *   class. These classes assume that there exists a standard state
  *   for each species in the phase, where the Thermodynamic functions are specified
  *   as a function of temperature and pressure.  Standard state objects for each
  *   species in the phase are all derived from the PDSS virtual base class.
  *
- *
- *
  *  The following classes inherit from PDSS. Each of these classes
  *  handles just one species.
- *
  *
  *   - PDSS_IdealGas
  *      - standardState model = "IdealGas"
@@ -86,7 +81,6 @@ namespace Cantera
  *        uses a SimpleThermo object to handle the calculation of the
  *        reference state. This object adds the pressure dependencies
  *        to the thermo functions.
- *      .
  *
  *   - PDSS_ConstVol
  *      - standardState model = "ConstVol"
@@ -95,7 +89,6 @@ namespace Cantera
  *        The manager uses a SimpleThermo object to handle the
  *        calculation of the reference state. This object adds the
  *        pressure dependencies to these thermo functions.
- *      .
  *
  *   - PDSS_SSVol
  *      - standardState model = "constant_incompressible" || model == "constant"
@@ -110,63 +103,53 @@ namespace Cantera
  *        calculation of the reference state. This object then adds the
  *        pressure dependencies and the volume terms to these thermo functions
  *        to complete the representation.
- *      .
  *
  *   - PDSS_Water
  *      - standardState model = "Water"
  *      - This model assumes that
  *        Species 0 is assumed to be water, and a real equation
  *        of state is used to model the T, P behavior.
- *        Note, the model asssumes that the species is liquid water,
+ *        Note, the model assumes that the species is liquid water,
  *        and not steam.
- *      .
  *
  *   - PDSS_HKFT
  *      - standardState model = "HKFT"
  *      - This model assumes that the species follows the
  *        HKFT pressure dependent equation of state
- *      .
- *   .
  *
  *  The choice of which VPSSMGr object to be used is either implicitly made by
  *  Cantera by querying the XML data file for compatibility or it may
  *  be explicitly requested in the XML file.
  *
  *  Normally the PDSS object is not called directly. Instead the VPSSMgr
- *  object manages the calls to the PDSS object for the entire set of
- *  species that comprise a phase. Additionally, sometimes the VPSSMgr
- *  object will not call the PDSS object at all to calculate
- *  thermodynamic properties, instead relying on its own
- *  determination/knowledge for how to calculate thermo quantities
- *  quickly given what it knows about the PDSS objects under
- *  its control.
+ *  object manages the calls to the PDSS object for the entire set of species
+ *  that comprise a phase. Additionally, sometimes the VPSSMgr object will not
+ *  call the PDSS object at all to calculate thermodynamic properties, instead
+ *  relying on its own determination/knowledge for how to calculate thermo
+ *  quantities quickly given what it knows about the PDSS objects under its
+ *  control.
  *
- *  The PDSS objects may or may not utilize the SpeciesThermo
- *  reference state manager class to calculate the reference
- *  state thermodynamics functions in its own calculation. There
- *  are some classes, such as PDSS_IdealGas and PDSS+_ConstVol,
- *  which utilize the SpeciesThermo object because the
- *  calculation is very similar to the reference state
- *  calculation, while there are other classes, PDSS_Water and
- *  PDSS_HKFT, which don't utilize the reference state calculation
- *  at all, because it wouldn't make sense to. For example,
- *  using the PDSS_Water module, there isn't anything special
- *  about the reference pressure of 1 bar, so the reference state
- *  calculation would represent a duplication of work.
- *  Additionally, when evaluating thermodynamic properties
- *  at higher pressures and temperatures, near the critical point,
- *  evaluation of the thermodynamics at a pressure of 1 bar may
- *  lead to situations where the liquid is unstable, i.e., beyond
- *  the spinodal curve leading to potentially wrong evaluation
- *  results.
+ *  The PDSS objects may or may not utilize the SpeciesThermo reference state
+ *  manager class to calculate the reference state thermodynamics functions in
+ *  its own calculation. There are some classes, such as PDSS_IdealGas and
+ *  PDSS+_ConstVol, which utilize the SpeciesThermo object because the
+ *  calculation is very similar to the reference state calculation, while
+ *  there are other classes, PDSS_Water and PDSS_HKFT, which don't utilize the
+ *  reference state calculation at all, because it wouldn't make sense to. For
+ *  example, using the PDSS_Water module, there isn't anything special about
+ *  the reference pressure of 1 bar, so the reference state calculation would
+ *  represent a duplication of work. Additionally, when evaluating
+ *  thermodynamic properties at higher pressures and temperatures, near the
+ *  critical point, evaluation of the thermodynamics at a pressure of 1 bar
+ *  may lead to situations where the liquid is unstable, i.e., beyond the
+ *  spinodal curve leading to potentially wrong evaluation results.
  *
- *  For cases where the PDSS object doesn't use the SpeciesThermo
- *  object, a dummy SpeciesThermoInterpType object is actually
- *  installed into the SpeciesThermo object for that species.
- *  This dummy SpeciesThermoInterpType object is called a
- *  STITbyPDSS object. This object satisfies calls to
- *  SpeciesThermo member functions by actually calling the
- *  PDSS object at the reference pressure.
+ *  For cases where the PDSS object doesn't use the SpeciesThermo object, a
+ *  dummy SpeciesThermoInterpType object is actually installed into the
+ *  SpeciesThermo object for that species. This dummy SpeciesThermoInterpType
+ *  object is called a STITbyPDSS object. This object satisfies calls to
+ *  SpeciesThermo member functions by actually calling the PDSS object at the
+ *  reference pressure.
  *
  * @ingroup thermoprops
  */
@@ -182,18 +165,15 @@ class VPSSMgr;
  * Virtual base class for calculation of the
  * pressure dependent standard state for a single species
  *
- * Class %PDSS is the base class
- * for a family of classes that compute properties of a set of
- * species in their standard states at a range of temperatures
- * and pressures. The independent variables for this object
- * are temperature and pressure.
- * The class may have a reference to a SpeciesThermo object
- * which handles the calculation of the reference state temperature
+ * Class %PDSS is the base class for a family of classes that compute
+ * properties of a set of species in their standard states at a range of
+ * temperatures and pressures. The independent variables for this object are
+ * temperature and pressure. The class may have a reference to a SpeciesThermo
+ * object which handles the calculation of the reference state temperature
  * behavior of a subset of species.
  *
- * This class is analogous to the SpeciesThermoInterpType
- * class, except that the standard state inherently incorporates
- * the pressure dependence.
+ * This class is analogous to the SpeciesThermoInterpType class, except that
+ * the standard state inherently incorporates the pressure dependence.
  *
  * The class operates on a setState temperature and pressure basis.
  * It only recalculates the standard state when the setState functions
@@ -201,28 +181,22 @@ class VPSSMgr;
  *
  * <H3> Thread Safety </H3>
  *
- *   These classes are designed such that they are not thread safe when
- *   called by themselves. The reason for this is that they sometimes use
- *   shared SpeciesThermo resources where they set the states. This condition
- *   may be remedied in the future if we get serious about employing
- *   multithreaded capabilities by adding mutex locks to the
- *   SpeciesThermo resources.
+ * These classes are designed such that they are not thread safe when called
+ * by themselves. The reason for this is that they sometimes use shared
+ * SpeciesThermo resources where they set the states. This condition may be
+ * remedied in the future if we get serious about employing multithreaded
+ * capabilities by adding mutex locks to the SpeciesThermo resources.
  *
- *   However, in many other respects they can be thread safe. They use
- *   separate memory and hold intermediate data.
+ * However, in many other respects they can be thread safe. They use separate
+ * memory and hold intermediate data.
  *
  * @ingroup pdssthermo
  */
 class PDSS
 {
-
 public:
-
-    /**
-     * @name  Constructors
-     * @{
-     */
-
+    //! @name Constructors
+    //! @{
 
     //! Empty Constructor
     PDSS();
@@ -249,156 +223,121 @@ public:
      */
     PDSS& operator=(const PDSS& b);
 
-
     //! Destructor for the phase
     virtual ~PDSS();
 
     //! Duplication routine for objects which inherit from %PDSS
     /*!
-     *  This virtual routine can be used to duplicate %PDSS  objects
-     *  inherited from %PDSS even if the application only has
-     *  a pointer to %PDSS to work with.
+     * This function can be used to duplicate objects derived from PDSS even
+     * if the application only has a pointer to PDSS to work with.
      *
-     * @return returns a pointer to the base %PDSS object type
+     * @return A pointer to the base %PDSS object type
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 
-    /**
-     * @}
-     * @name  Utilities
-     * @{
-     */
+    //! @}
+    //! @name  Utilities
+    //! @{
 
     //! Returns the type of the standard state parameterization
     /*!
-     * @return Returns the integer # of the parameterization
+     * @return The integer # of the parameterization
      */
     PDSS_enumType reportPDSSType() const;
 
 private:
-
     //! Set an error within this object for an unhandled capability
     /*!
      * @param msg    Message string for this error
      */
-    void err(std::string msg) const;
+    void err(const std::string& msg) const;
 
 public:
-
-    /**
-     * @}
-     * @name  Molar Thermodynamic Properties of the Species Standard State
-     *        in the Solution
-     * @{
-     */
+     //! @}
+     //! @name Molar Thermodynamic Properties of the Species Standard State in the Solution
+     //! @{
 
     //! Return the molar enthalpy in units of J kmol-1
     /*!
-     * Returns the species standard state enthalpy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state enthalpy in  J kmol-1
+     * @return the species standard state enthalpy in J kmol-1 at the current
+     *     temperature and pressure.
      */
     virtual doublereal enthalpy_mole() const;
 
     //! Return the standard state molar enthalpy divided by RT
     /*!
-     * Returns the species standard state enthalpy divided by RT at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state enthalpy in unitless form
+     * @return The dimensionless species standard state enthalpy divided at
+     *     the current temperature and pressure.
      */
     virtual doublereal enthalpy_RT() const;
 
     //! Return the molar internal Energy in units of J kmol-1
     /*!
-     * Returns the species standard state internal Energy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state internal Energy in  J kmol-1
+     * @return The species standard state internal Energy in J kmol-1 at the
+     *     current temperature and pressure.
      */
     virtual doublereal intEnergy_mole() const;
 
     //! Return the molar entropy in units of J kmol-1 K-1
     /*!
-     * Returns the species standard state entropy in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state entropy in J kmol-1 K-1
+     * @return The species standard state entropy in J kmol-1 K-1 at the
+     *     current temperature and pressure.
      */
     virtual doublereal entropy_mole() const;
 
     //! Return the standard state entropy divided by RT
     /*!
-     * Returns the species standard state entropy divided by RT at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state entropy divided by RT
+     * @return The species standard state entropy divided by RT at the current
+     *     temperature and pressure.
      */
     virtual doublereal entropy_R() const;
 
-    //! Return the molar gibbs free energy in units of J kmol-1
+    //! Return the molar Gibbs free energy in units of J kmol-1
     /*!
-     * Returns the species standard state gibbs free energy in J kmol-1 at the
+     * @return The species standard state Gibbs free energy in J kmol-1 at the
      * current temperature and pressure.
-     *
-     * @return returns the species standard state gibbs free energy in  J kmol-1
      */
     virtual doublereal gibbs_mole() const;
 
-    //! Return the molar gibbs free energy divided by RT
+    //! Return the molar Gibbs free energy divided by RT
     /*!
-     * Returns the species standard state gibbs free energy divided by RT at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state gibbs free energy divided by RT
+     * @return The species standard state Gibbs free energy divided by RT at
+     *     the current temperature and pressure.
      */
     virtual doublereal gibbs_RT() const;
 
     //! Return the molar const pressure heat capacity in units of J kmol-1 K-1
     /*!
-     * Returns the species standard state Cp in J kmol-1 K-1 at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state Cp in J kmol-1 K-1
+     * @return The species standard state Cp in J kmol-1 K-1 at the current
+     *     temperature and pressure.
      */
     virtual doublereal cp_mole() const;
 
     //! Return the molar const pressure heat capacity divided by RT
     /*!
-     * Returns the species standard state Cp divided by RT at the
-     * current temperature and pressure.
-     *
-     * @return returns the species standard state Cp divided by RT
+     * @return The species standard state Cp divided by RT at the current
+     *     temperature and pressure.
      */
     virtual doublereal cp_R() const;
 
     //! Return the molar const volume heat capacity in units of J kmol-1 K-1
     /*!
-     * Returns the species standard state Cv in J kmol-1 K-1 at the
+     * @return The species standard state Cv in J kmol-1 K-1 at the
      * current temperature and pressure.
-     *
-     * @return returns the species standard state Cv in J kmol-1 K-1
      */
     virtual doublereal cv_mole() const;
 
     //! Return the molar volume at standard state
     /*!
-     * Returns the species standard state molar volume at the
-     * current temperature and pressure
-     *
-     * @return returns the standard state molar volume divided by R
-     *             units are m**3 kmol-1.
+     * @return The standard state molar volume at the current temperature and
+     *     pressure. Units are m**3 kmol-1.
      */
     virtual doublereal molarVolume() const;
 
     //! Return the standard state density at standard state
     /*!
-     * Returns the species standard state density at the
-     * current temperature and pressure
-     *
-     * @return returns the standard state density
-     *             units are kg m-3
+     * @return The standard state density at the current temperature and
+     *     pressure. units are kg m-3
      */
     virtual doublereal density() const;
 
@@ -418,12 +357,9 @@ public:
     //! between the current pressure and the reference pressure, p0.
     virtual doublereal cpDelp_mole() const;
 
-    /**
-     * @}
-     * @name Properties of the Reference State of the Species
-     *       in the Solution
-     * @{
-     */
+    //! @}
+    //! @name Properties of the Reference State of the Species in the Solution
+    //! @{
 
     //! Return the reference pressure for this phase.
     doublereal refPressure() const {
@@ -435,7 +371,6 @@ public:
         return m_minTemp;
     }
 
-
     //! return the minimum temperature
     doublereal maxTemp() const {
         return m_maxTemp;
@@ -443,55 +378,41 @@ public:
 
     //! Return the molar gibbs free energy divided by RT at reference pressure
     /*!
-     * Returns the species reference state gibbs free energy divided by RT at the
-     * current temperature.
-     *
-     * @return returns the reference state gibbs free energy divided by RT
+     * @return The reference state gibbs free energy at the current
+     *     temperature, divided by RT.
      */
     virtual doublereal gibbs_RT_ref() const;
 
     //! Return the molar enthalpy divided by RT at reference pressure
     /*!
-     * Returns the species reference state enthalpy divided by RT at the
-     * current temperature.
-     *
-     * @return returns the reference state enthalpy divided by RT
+     * @return The species reference state enthalpy at the current
+     *     temperature, divided by RT.
      */
     virtual doublereal enthalpy_RT_ref() const;
 
     //! Return the molar entropy divided by R at reference pressure
     /*!
-     * Returns the species reference state entropy divided by R at the
-     * current temperature.
-     *
-     * @return returns the reference state entropy divided by R
+     * @return The species reference state entropy at the current
+     *     temperature, divided by R.
      */
     virtual doublereal entropy_R_ref() const;
 
     //! Return the molar heat capacity divided by R at reference pressure
     /*!
-     * Returns the species reference state heat capacity divided by R at the
+     * @return The species reference state heat capacity divided by R at the
      * current temperature.
-     *
-     * @return returns the reference state heat capacity divided by R
      */
     virtual doublereal cp_R_ref() const;
 
     //! Return the molar volume at reference pressure
     /*!
-     * Returns the species reference state molar volume at the
-     * current temperature.
-     *
-     * @return returns the reference state molar volume divided by R
-     *             units are m**3 kmol-1.
+     * @return The reference state molar volume. units are m**3 kmol-1.
      */
     virtual doublereal molarVolume_ref() const;
 
-    /**
-     * @}
-     *  @name Mechanical Equation of State Properties
-     * @{
-     */
+    //! @}
+    //!  @name Mechanical Equation of State Properties
+    //! @{
 
     //! Returns the pressure (Pa)
     virtual doublereal pressure() const;
@@ -516,7 +437,7 @@ public:
     virtual doublereal thermalExpansionCoeff() const;
 
     //@}
-    /// @name  Partial Molar Properties of the Solution -----------------
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
     //! Set the internal temperature
@@ -542,11 +463,9 @@ public:
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
 
-    /**
-     * @}
-     *  @name  Miscellaneous properties of the standard state
-     * @{
-     */
+    //! @}
+    //! @name  Miscellaneous properties of the standard state
+    //! @{
 
     //! critical temperature
     virtual doublereal critTemperature() const;
@@ -573,12 +492,9 @@ public:
      */
     void setMolecularWeight(doublereal mw);
 
-    /**
-     * @}
-     *  @name  Initialization of the Object
-     * @{
-     */
-
+    //! @}
+    //! @name Initialization of the Object
+    //! @{
 
     //! Initialization routine for all of the shallow pointers
     /*!
@@ -587,7 +503,6 @@ public:
      *
      *  The initThermo() routines get called before the initThermoXML() routines
      *  from the constructPDSSXML() routine.
-     *
      *
      *  Calls initPtrs();
      */
@@ -605,14 +520,11 @@ public:
      *                   phase. If none is given, the first XML
      *                   phase element will be used.
      */
-    virtual void initThermoXML(const XML_Node& phaseNode, std::string& id);
+    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
 
-
-    //! This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
+    //! This utility function reports back the type of parameterization and
+    //! all of the parameters for the species, index.
     /*!
-     *
      * @param kindex     Species index
      * @param type      Integer type of the standard type
      * @param c         Vector of coefficients used to set the
@@ -620,12 +532,11 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     *
+     * @deprecated
      */
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const;
-
 
 private:
     //! Initialize all of the internal shallow pointers that can be initialized
@@ -640,7 +551,7 @@ public:
      *  This command is called to reinitialize all shallow pointers in the
      *  object. It's needed for the duplicator capability
      *
-     * @param vptp_ptr       Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr       Pointer to the Variable pressure ThermoPhase object
      *                       This object must have already been malloced.
      *
      * @param vpssmgr_ptr    Pointer to the variable pressure standard state
@@ -652,11 +563,9 @@ public:
      */
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              SpeciesThermo* spthermo_ptr);
-
     //@}
 
 protected:
-
     //! Enumerated type describing the type of the PDSS object
     PDSS_enumType m_pdssType;
 
@@ -675,7 +584,7 @@ protected:
     //! Maximum temperature
     doublereal m_maxTemp;
 
-    //! Thermophase which this species belongs to.
+    //! ThermoPhase which this species belongs to.
     /*!
      * Note, in some
      * applications (i.e., mostly testing applications, this may be a null
@@ -692,45 +601,41 @@ protected:
     doublereal m_mw;
 
     /**
-     * Species index in the thermophase corresponding to this species.
+     * Species index in the ThermoPhase corresponding to this species.
      */
     size_t m_spindex;
 
     //! Pointer to the species thermodynamic property manager.
     /*!
-     * This is a copy of the pointer in the ThermoPhase object.
-     * Note, this object doesn't own the pointer.
-     * If the SpeciesThermo ThermoPhase object doesn't know
-     * or doesn't control the calculation, this will be
-     * set to zero.
+     * This is a copy of the pointer in the ThermoPhase object. Note, this
+     * object doesn't own the pointer. If the SpeciesThermo ThermoPhase object
+     * doesn't know or doesn't control the calculation, this will be set to
+     * zero.
      */
     SpeciesThermo* m_spthermo;
 
     //!  Reference state enthalpy divided by RT.
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr. This object owns a shallow pointer.
-     *  Calculated at the current value of T and m_p0
+     * Storage for the thermo properties is provided by VPSSMgr. This object
+     * owns a shallow pointer. Calculated at the current value of T and m_p0
      */
     doublereal* m_h0_RT_ptr;
 
     //!  Reference state heat capacity divided by R.
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and m_p0
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and m_p0
      */
     doublereal* m_cp0_R_ptr;
 
     //!  Reference state entropy divided by R.
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and m_p0
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and m_p0
      */
     doublereal* m_s0_R_ptr;
 
-    //!  Reference state gibbs free energy divided by RT.
+    //!  Reference state Gibbs free energy divided by RT.
     /*!
      *  Calculated at the current value of T and m_p0
      */
@@ -738,52 +643,45 @@ protected:
 
     //!  Reference state molar volume (m3 kg-1)
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and m_p0
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and m_p0
      */
     doublereal* m_V0_ptr;
 
     //!  Standard state enthalpy divided by RT.
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and P
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and P.
      */
     doublereal* m_hss_RT_ptr;
 
     //!  Standard state heat capacity divided by R.
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and P
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and P.
      */
     doublereal* m_cpss_R_ptr;
 
     //!  Standard state entropy divided by R.
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and P
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and P.
      */
     doublereal* m_sss_R_ptr;
 
-    //!  Standard state gibbs free energy divided by RT.
+    //!  Standard state Gibbs free energy divided by RT.
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and P
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and P.
      */
     doublereal* m_gss_RT_ptr;
 
     //!  Standard State molar volume (m3 kg-1)
     /*!
-     *  Storage for the thermo properties is provided by
-     *  VPSSMgr.
-     *  Calculated at the current value of T and P
+     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
+     *  at the current value of T and P.
      */
     doublereal* m_Vss_ptr;
-
 };
 
 }

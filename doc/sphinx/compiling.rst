@@ -1,3 +1,5 @@
+.. _sec-compiling:
+
 *************************
 Cantera Compilation Guide
 *************************
@@ -35,7 +37,11 @@ Linux
 
 * Building the python module also requires::
 
-      python-dev python-numpy python-numpy-dev
+      cython python-dev python-numpy python-numpy-dev
+
+* The minimum compatible Cython version is 0.17. If your distribution does not
+  contain a suitable version, you may be able to install a more recent version
+  using `easy_install` or `pip`.
 
 * Building the Fortran interface also requires gfortran or another supported
   Fortran compiler.
@@ -47,12 +53,17 @@ Windows
 
 There are a number of requirements for the versions of software to install
 depending on which interfaces (Python, Matlab) you want to build and what
-architecture (32-bit or 64-bit) you want to use.
+architecture (32-bit or 64-bit) you want to use. See :ref:`sec-dependencies` for
+the full list of dependencies.
 
 * If you want to build the Python module, you must use the same version of the
-  Microsoft compiler as was used to compile Python. For current versions of
-  Python (2.6 and 2.7) this means that you must use Visual Studio 2008 or the
-  equivalent version of the Windows SDK (see link below).
+  Microsoft compiler as was used to compile Python. For Python 2.6 and Python
+  2.7, this means that you must use Visual Studio 2008 or the equivalent
+  version of the Windows SDK (see link below). For Python 3.3, you should use
+  Visual Studio 2010, or the corresponding version of the Windows SDK.
+* Note that the the "Express" editions of Visual Studio do not include a
+  64-bit compiler, so if you want to build 64-bit Cantera, you will also need
+  to install the Windows SDK.
 * The build process will produce a Python module compatible with the version of
   Python used for the compilation. To generate different modules for other
   versions of Python, you will need to install those versions of Python and
@@ -70,7 +81,7 @@ architecture (32-bit or 64-bit) you want to use.
 
 * It is generally helpful to have SCons and Python in your PATH. This can
   usually be accomplished by adding the top-level Python directory
-  (e.g. C:\Python27) to your PATH. This is accessible from::
+  (e.g. ``C:\Python27``) to your PATH. This is accessible from::
 
       Control Panel > System and Security > System > Advanced System Settings > Environment Variables
 
@@ -97,11 +108,29 @@ OS X
 
      python setup.py install --user
 
+  to install to a location in your home directory.
+
 Downloading the Cantera source code
 ===================================
 
-Linux / OS X
-------------
+Stable Release
+--------------
+
+* Option 1: Download the most recent source tarball from `SourceForge
+  <https://sourceforge.net/projects/cantera/files/cantera/>`_ and extract the
+  contents.
+
+* Option 2: Check out the code using Subversion::
+
+    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.1/ cantera
+
+* Option 3: Check out the code using Git::
+
+    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
+    git checkout 2.1
+
+Development Version
+-------------------
 
 * Option 1: Check out the code using Subversion::
 
@@ -109,14 +138,7 @@ Linux / OS X
 
 * Option 2: Check out the code using Git::
 
-    git svn clone --std-layout http://cantera.googlecode.com/svn/cantera cantera
-
-Windows
--------
-
-Use your Subversion client to check out the code from::
-
-    http://cantera.googlecode.com/svn/cantera/trunk/
+    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
 
 Determine configuration options
 ===============================
@@ -144,13 +166,54 @@ General
   The above paths are typical defaults on Linux, Windows, and OS X,
   respectively.
 * SCons saves configuration options specified on the command line in the file
-  \b cantera.conf in the root directory of the source tree, so generally it is
+  **cantera.conf** in the root directory of the source tree, so generally it is
   not necessary to respecify configuration options when rebuilding Cantera. To
   unset a previously set configuration option, either remove the corresponding
   line from cantera.conf or use the syntax::
 
     option_name=
 
+Python Module
+-------------
+
+Cantera 2.1 introduces a new Python module implemented using Cython. This new
+module provides support for both Python 2.x and Python 3.x. It also features a
+redesigned API that simplifies many operations and aims to provide a more
+"Pythonic" interface to Cantera.
+
+Building the new Python module requires the Cython package for Python.
+
+For compatibility, the legacy Python module is still available, though it will not
+receive feature updates, and will be removed in a future Cantera release. Users
+are encouraged to switch to the new Python module when possible.
+
+The Cython module is compatible with the following Python versions: 2.6, 2.7,
+3.1, 3.2, and 3.3. Support for Python 2.6 and Python 3.1 requires the ``scipy``
+and ``unittest2`` packages to be installed as well (see :ref:`sec-dependencies`)
+to provide certain features that are included in the standard
+library in more recent versions.
+
+Building for Python 2
+.....................
+
+By default, SCons will attempt to build the new Python module. To build the
+legacy Python module instead, use the SCons option ``python_package=full``.
+
+Building for Python 3
+.....................
+
+If SCons detects a Python 3 interpreter installed in a default location
+(i.e. ``python3`` is on the path), it will try to build the new Python module
+for Python 3. The following SCons options control how the Python 3 module is
+built::
+
+    python3_package=[y|n]
+    python3_cmd=/path/to/python3/interpreter
+    python3_array_home=/path/to/numpy
+    python3_prefix=/path/to/cantera/module
+
+Note that even when building the Python 3 Cantera module, you should still use
+Python 2 with SCons, as SCons does not currently support Python 3.
 
 Windows (MSVC)
 --------------
@@ -203,6 +266,9 @@ OS X
     Clang by specifying::
 
       CC=clang CXX=clang++
+
+* The Accelerate framework provides optimized versions of BLAS and LAPACK, so
+  the ``blas_lapack_libs`` option should generally be left unspecified.
 
 Intel Compilers
 ---------------
@@ -286,6 +352,8 @@ MinGW Compilation problems
       #include_next <float.h>
       #endif
 
+.. _sec-dependencies:
+
 Software used by Cantera
 ========================
 
@@ -315,10 +383,21 @@ program.
 
 * Microsoft compilers (C/C++)
 
-  * Windows SDK: http://www.microsoft.com/download/en/details.aspx?id=3138
-    This is equivalent to Visual Studio 2008. It is a free download.
   * Known to work with version 9.0 (Visual Studio 2008) and version 10.0
-    (Visual Studio 2010).
+    (Visual Studio 2010). Expected to work with version 11.0 (Visual Studio
+    2012).
+  * If you are building the Python module, you must use the same version and
+    architecture (32- or 64-bit) as your copy of Python was compiled with:
+    Visual Studio 2008 for Python 2.6, 2.7, and 3.2, or Visual Studio 2010 for
+    Python 3.3.
+  * The "Express" editions of Visual Studio 2008 and 2010 do not include a
+    64-bit compiler. To compile Cantera with 64-bit support, you must install
+    the corresponding version of the Windows SDK, available as a free
+    download.
+  * Windows SDK, equivalent to Visual Studio 2008:
+    http://www.microsoft.com/download/en/details.aspx?id=3138
+  * Windows SDK, equivalent to Visual Studio 2010:
+    http://www.microsoft.com/en-us/download/details.aspx?id=8279
 
 * MinGW (C/C++/Fortran)
 
@@ -344,7 +423,9 @@ Other Required Software
 
   * http://python.org/download/
   * Known to work with 2.6 and 2.7; Expected to work with versions >= 2.5
-  * Does not yet work with 3.x
+  * The Cython module supports Python 2.x and 3.x. However, SCons requires
+    Python 2.x, so compilation of the Cython module requires two Python
+    installations.
 
 * Boost
 
@@ -360,8 +441,31 @@ Optional Programs
 
   * Required to build the Cantera Python module.
   * http://sourceforge.net/projects/numpy/
-  * Known to work with versions 1.3 and 1.5; Expected to work with version >= 1.1
+  * Known to work with versions 1.3 and 1.6; Expected to work with version >= 1.1
   * Test suite requires version >= 1.3
+
+* `Cython <http://cython.org/>`_
+
+  * Required to build the Python module
+  * Known to work with versions 0.17 and 0.18. Expected to work with
+    versions >= 0.17.
+  * Supports Python 2.7 and 3.2. Expected to work with versions >= 3.2.
+
+* `3to2 <http://pypi.python.org/pypi/3to2>`_
+
+  * Used to convert Cython examples to Python 2 syntax.
+  * Known to work with version 1.0
+
+* `Scipy <http://scipy.org/install.html>`_
+
+  * Required in order to use the new Python module with Python 2.6 or 3.1.
+
+* Unittest2
+
+  * Required in order to run the test suite for the new Python module with
+    Python 2.6 or Python 3.1.
+  * https://pypi.python.org/pypi/unittest2 (Python 2.6)
+  * https://pypi.python.org/pypi/unittest2py3k (Python 3.1)
 
 * Matlab
 
@@ -372,32 +476,47 @@ Optional Programs
 * Sundials
 
   * Required to enable some features such as sensitivity analysis.
+  * Strongly recommended if using reactor network or 1D simulation capabilities.
   * https://computation.llnl.gov/casc/sundials/download/download.html
-  * Known to work with version 2.4; Support for versions 2.3 and 2.2 is deprecated.
-  * Does not yet work with version 2.5.
+  * Known to work with versions 2.4 and 2.5; Support for versions 2.3
+    and 2.2 is deprecated.
   * To use Sundials with Cantera, you may need to compile it with the
     ``-fPIC`` flag. You can specify this flag when configuring Sundials::
 
           configure --with-cflags=-fPIC
 
 * `Windows Installer XML (WiX) toolset <http://wix.sourceforge.net/>`_
+  .. note:: If you are compiling Sundials 2.5.0 on Windows using CMake, you need
+            to edit the ``CMakeLists.txt`` file first and change the lines::
 
-  * Required to build MSI installers on Windows
+              SET(PACKAGE_STRING "SUNDIALS 2.4.0")
+              SET(PACKAGE_VERSION "2.4.0")
+
+            to read::
+
+              SET(PACKAGE_STRING "SUNDIALS 2.5.0")
+              SET(PACKAGE_VERSION "2.5.0")
+
+            instead, so that Cantera can correctly identify the version of
+            Sundials.
+
+
+  * Required to build MSI installers on Windows.
   * Known to work with version 3.5.
 
 * `Distribute <http://pypi.python.org/pypi/distribute>`_ (Python)
 
   * Provides the ``easy_install`` command which can be used to install most of
-    the other Python modules
+    the other Python modules.
 
 * Packages required for building Sphinx documentation
 
   * `Sphinx <http://sphinx.pocoo.org/>`_ (install with ``easy_install -U Sphinx``)
   * `Pygments <http://pygments.org/>`_ (install with ``easy_install -U pygments``)
   * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``easy_install -U pyparsing``)
+  * `doxylink <http://pypi.python.org/pypi/sphinxcontrib-doxylink/>`_ (install with ``easy_install sphinxcontrib-doxylink``)
 
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 
   * Required for building the C++ API Documentation
-
-.. \see \ref cxx-ctnew
+  * Version 1.8 or newer is recommended.

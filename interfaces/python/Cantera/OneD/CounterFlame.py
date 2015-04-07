@@ -46,7 +46,6 @@ class CounterFlame(Stack):
         self.gas = gas
         self.fuel_inlet.set(temperature = gas.temperature())
         self.oxidizer_inlet.set(temperature = gas.temperature())
-        self.pressure = gas.pressure()
         self.flame = AxisymmetricFlow('flame',gas = gas)
         self.flame.setupGrid(grid)
         Stack.__init__(self, [self.fuel_inlet, self.flame,
@@ -86,6 +85,7 @@ class CounterFlame(Stack):
         y0ox = self.oxidizer_inlet.massFraction(iox)
         phi = s*y0f/y0ox
         zst = 1.0/(1.0 + phi)
+        pressure = self.flame.pressure()
 
         yin_f = zeros(nsp, 'd')
         yin_o = zeros(nsp, 'd')
@@ -95,20 +95,20 @@ class CounterFlame(Stack):
             yin_o[k] = self.oxidizer_inlet.massFraction(k)
             yst[k] = zst*yin_f[k] + (1.0 - zst)*yin_o[k]
 
-        gas.setState_TPY(self.fuel_inlet.temperature(), self.pressure, yin_f)
+        gas.setState_TPY(self.fuel_inlet.temperature(), pressure, yin_f)
         mdotf = self.fuel_inlet.mdot()
         u0f = mdotf/gas.density()
         t0f = self.fuel_inlet.temperature()
 
         gas.setState_TPY(self.oxidizer_inlet.temperature(),
-                         self.pressure, yin_o)
+                         pressure, yin_o)
         mdoto = self.oxidizer_inlet.mdot()
         u0o = mdoto/gas.density()
         t0o = self.oxidizer_inlet.temperature()
 
         # get adiabatic flame temperature and composition
         tbar = 0.5*(t0o + t0f)
-        gas.setState_TPY(tbar, self.pressure, yst)
+        gas.setState_TPY(tbar, pressure, yst)
         gas.equilibrate('HP')
         teq = gas.temperature()
         yeq = gas.massFractions()
@@ -152,50 +152,20 @@ class CounterFlame(Stack):
 
 
     def solve(self, loglevel = 1, refine_grid = 1):
-        """Solve the flame.
-
-        :param loglevel:
-            integer flag controlling the amount of diagnostic output. Zero
-            suppresses all output, and 5 produces very verbose output. Default: 1
-        :param refine_grid:
-            if non-zero, enable grid refinement.
-        """
-
         if not self._initialized: self.init()
         Stack.solve(self, loglevel = loglevel, refine_grid = refine_grid)
 
 
     def setRefineCriteria(self, ratio = 10.0, slope = 0.8, curve = 0.8,
                           prune = 0.0):
-        """
-        Set the criteria used to refine the flame.
-
-        :param ratio:
-            additional points will be added if the ratio of the spacing
-            on either side of a grid point exceeds this value
-        :param slope:
-            maximum difference in value between two adjacent points,
-            scaled by the maximum difference in the profile
-            (0.0 < slope < 1.0). Adds points in regions of high slope.
-        :param curve:
-            maximum difference in slope between two adjacent intervals, scaled
-            by the maximum difference in the profile (0.0 < curve < 1.0). Adds
-            points in regions of high curvature.
-        :param prune:
-            if the slope or curve criteria are satisfied to the level of
-            'prune', the grid point is assumed not to be needed and is removed.
-            Set prune significantly smaller than 'slope' and 'curve'. Set to
-            zero to disable pruning the grid.
-
-        >>> f.setRefineCriteria(ratio = 5.0, slope = 0.2, curve = 0.3,
-        ...                     prune = 0.03)
-        """
         Stack.setRefineCriteria(self, domain = self.flame,
                                 ratio = ratio, slope = slope, curve = curve,
                                 prune = prune)
 
+    def setGridMin(self, gridmin):
+        Stack.setGridMin(self, self.flame, gridmin)
+
     def setProfile(self, component, locs, vals):
-        """Set a profile in the flame"""
         self._initialized = 1
         Stack.setProfile(self, self.flame, component, locs, vals)
 
@@ -244,4 +214,6 @@ class CounterFlame(Stack):
         for n in range(nsp):
             nm = self.gas.speciesName(n)
             y[n] = self.solution(nm, j)
-        self.gas.setState_TPY(self.T(j), self.pressure, y)
+        self.gas.setState_TPY(self.T(j), self.flame.pressure(), y)
+
+fix_docs(CounterFlame)

@@ -21,12 +21,6 @@ namespace Cantera
 {
 
 class XML_Node;
-class PDSS;
-
-/*!
-  * @name CONSTANTS - Models for the Standard State of IdealSolnPhase's
-  */
-//@{
 
 /**
  * @ingroup thermoprops
@@ -34,55 +28,44 @@ class PDSS;
  *  This class can handle either an ideal solution or an ideal gas approximation
  *  of a phase.
  *
- *
  *  @nosubgrouping
  */
 class RedlichKwongMFTP : public MixtureFugacityTP
 {
-
 public:
+    //! @name Constructors and Duplicators
+    //! @{
 
-    /*!
-     *
-     * @name Constructors and Duplicators for %RedlichKwongMFTP
-     *
-     */
     //! Base constructor.
     RedlichKwongMFTP();
 
-    //! Construct and initialize a RedlichKwongMFTP ThermoPhase object
-    //! directly from an ASCII input file
+    //! Construct and initialize a RedlichKwongMFTP object directly from an
+    //! ASCII input file
     /*!
-     * Working constructors
-     *
-     *  The two constructors below are the normal way  the phase initializes itself. They are shells that call
-     *  the routine initThermo(), with a reference to the
-     *  XML database to get the info for the phase.
-     *
-     * @param inputFile Name of the input file containing the phase XML data
+     * @param infile    Name of the input file containing the phase XML data
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the empty string.
      */
-    RedlichKwongMFTP(std::string infile, std::string id="");
+    RedlichKwongMFTP(const std::string& infile, std::string id="");
 
-    //! Construct and initialize a RedlichKwongMFTP ThermoPhase object
-    //! directly from an XML database
+    //! Construct and initialize a RedlichKwongMFTP object directly from an
+    //! XML database
     /*!
      *  @param phaseRef XML phase node containing the description of the phase
      *  @param id       id attribute containing the name of the phase.  (default is the empty string)
      */
-    RedlichKwongMFTP(XML_Node& phaseRef, std::string id = "");
+    RedlichKwongMFTP(XML_Node& phaseRef, const std::string& id = "");
 
     //!  This is a special constructor, used to replicate test problems
     //!  during the initial verification of the object
     /*!
-     *
      *  test problems:
      *    1:     Pure CO2 problem
      *           input file = CO2_RedlickKwongMFTP.xml
      *
      * @param testProb Hard -coded test problem to instantiate.
      *                 Current valid values are 1.
+     * @deprecated To be refactored into a standalone test
      */
     RedlichKwongMFTP(int testProb);
 
@@ -104,10 +87,6 @@ public:
      */
     RedlichKwongMFTP& operator=(const RedlichKwongMFTP& right);
 
-    //! Destructor.
-    virtual ~RedlichKwongMFTP();
-
-
     //! Duplicator from the ThermoPhase parent class
     /*!
      * Given a pointer to a ThermoPhase object, this function will
@@ -118,12 +97,6 @@ public:
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //@}
-
-    /**
-     * @name  Utilities (RedlichKwongMFTP)
-     */
-    //@{
     /**
      * Equation of state type flag. The base class returns
      * zero. Subclasses should define this to return a unique
@@ -132,7 +105,8 @@ public:
      */
     virtual int eosType() const;
 
-    //@}
+    //! @name Molar Thermodynamic properties
+    //! @{
 
     /// Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const;
@@ -152,11 +126,9 @@ public:
     /// Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_mole() const;
 
-    /**
-     * @}
-     * @name Mechanical Properties
-     * @{
-     */
+    //! @}
+    //! @name Mechanical Properties
+    //! @{
 
     //! Return the thermodynamic pressure (Pa).
     /*!
@@ -167,7 +139,6 @@ public:
      * \f[
      *    P = \frac{RT}{v-b_{mix}} - \frac{a_{mix}}{T^{0.5} v \left( v + b_{mix} \right) }
      * \f]
-     *
      */
     virtual doublereal pressure() const;
 
@@ -179,6 +150,7 @@ public:
      * \f]
      */
     virtual doublereal isothermalCompressibility() const;
+    // @}
 
 protected:
     /**
@@ -200,9 +172,6 @@ protected:
      * species standard state molar volumes.
      * The species molar volumes may be functions
      * of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a
-     *       member of the ThermoPhase base class.
      */
     virtual void calcDensity();
 
@@ -212,8 +181,6 @@ protected:
      * Overwritten setTemperature(double) from State.h. This
      * function sets the temperature, and makes sure that
      * the value propagates to underlying objects
-     *
-     * @todo Make Phase::setTemperature a virtual function
      *
      * @param temp Temperature in kelvin
      */
@@ -234,8 +201,7 @@ protected:
      * by a constraint equation as part of a larger set of
      * equations.
      *
-     * @param y  Input vector of mass fractions.
-     *           Length is m_kk.
+     * @param y  Input vector of mass fractions. Length is m_kk.
      */
     virtual void setMassFractions_NoNorm(const doublereal* const y);
 
@@ -253,11 +219,9 @@ protected:
      * condition is being handled by some other means, for example
      * by a constraint equation as part of a larger set ofequations.
      *
-     * @param x  Input vector of mole fractions.
-     *           Length is m_kk.
+     * @param x  Input vector of mole fractions. Length is m_kk.
      */
     virtual void setMoleFractions_NoNorm(const doublereal* const x);
-
 
     //! Set the concentrations to the specified values within the phase.
     /*!
@@ -270,9 +234,7 @@ protected:
      */
     virtual void setConcentrations(const doublereal* const c);
 
-
 public:
-
     //! This method returns an array of generalized concentrations
     /*!
      * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -330,17 +292,20 @@ public:
      * Inherited classes are responsible for overriding the default
      * values if necessary.
      *
-     * @param uA Output vector containing the units
-     *  uA[0] = kmol units - default  = 1
-     *  uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                dimensions in the Phase class.
-     *  uA[2] = kg   units - default  = 0;
-     *  uA[3] = Pa(pressure) units - default = 0;
-     *  uA[4] = Temperature units - default = 0;
-     *  uA[5] = time units - default = 0
+     * @param uA Output vector containing the units:
+     *
+     *     uA[0] = kmol units - default  = 1
+     *     uA[1] = m    units - default  = -nDim(), the number of spatial
+     *                                   dimensions in the Phase class.
+     *     uA[2] = kg   units - default  = 0;
+     *     uA[3] = Pa(pressure) units - default = 0;
+     *     uA[4] = Temperature units - default = 0;
+     *     uA[5] = time units - default = 0
+     *
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0, int sizeUA = 6) const;
 
@@ -355,8 +320,7 @@ public:
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-
-    /// @name  Partial Molar Properties of the Solution  (RedlichKwongMFTP)
+    /// @name  Partial Molar Properties of the Solution
     //@{
 
     //! Get the array of non-dimensional species chemical potentials.
@@ -422,35 +386,9 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //@}
-
-    /*!
-     * @name  Properties of the Standard State of the Species in the Solution
-     *
-     *  Properties of the standard states are delegated to the VPSSMgr object.
-     *  The values are cached within this object, and are not recalculated unless
-     *  the temperature or pressure changes.
-     */
-    //@{
-
-    //@}
-
-    /// @name Thermodynamic Values for the Species Reference States (RedlichKwongMFTP)
-    /*!
-     *  Properties of the reference states are delegated to the VPSSMgr object.
-     *  The values are cached within this object, and are not recalculated unless
-     *  the temperature or pressure changes.
-     */
-    //@{
-
-    //@}
-
-
-
-    //---------------------------------------------------------
     /// @name Critical State Properties.
     /// These methods are only implemented by some subclasses, and may
     /// be moved out of ThermoPhase at a later date.
-
     //@{
 
     /// Critical temperature (K).
@@ -461,14 +399,11 @@ public:
 
     /// Critical density (kg/m3).
     virtual doublereal critDensity() const;
-    //@}
-
-
-
 
 public:
 
-    //! @name Initialization Methods - For Internal use (VPStandardState)
+    //@}
+    //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
@@ -478,9 +413,7 @@ public:
      */
     //@{
 
-
-    //! Set equation of state parameter values from XML
-    //! entries.
+    //! Set equation of state parameter values from XML entries.
     /*!
      *  This method is called by function importPhase in
      *  file importCTML.cpp when processing a phase definition in
@@ -508,7 +441,6 @@ public:
      * @see importCTML.cpp
      */
     virtual void initThermo();
-
 
     //!This method is used by the ChemEquil equilibrium solver.
     /*!
@@ -551,41 +483,34 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void initThermoXML(XML_Node& phaseNode, std::string id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 private:
     //! Read the pure species RedlichKwong input parameters
     /*!
      *  @param pureFluidParam   XML_Node for the pure fluid parameters
      */
-    void readXMLPureFluid(XML_Node& PureFluidParam);
-
+    void readXMLPureFluid(XML_Node& pureFluidParam);
 
     //! Apply mixing rules for a coefficients
     void applyStandardMixingRules();
-
 
     //! Read the cross species RedlichKwong input parameters
     /*!
      *  @param pureFluidParam   XML_Node for the cross fluid parameters
      */
-    void readXMLCrossFluid(XML_Node& PureFluidParam);
+    void readXMLCrossFluid(XML_Node& pureFluidParam);
 
-
-
-    //==============================================================================
 private:
     //!  @internal Initialize the internal lengths in this object.
     /*!
-     * Note this is not a virtual function and only handles
-     * this object
+     * Note this is not a virtual function and only handles this object
      */
     void initLengths();
-
-    //==============================================================================
-    //         Special functions inherited from MixtureFugacityTP
+    // @}
 
 protected:
+    // Special functions inherited from MixtureFugacityTP
 
     //! Calculate the deviation terms for the total entropy of the mixture from the
     //! ideal gas mixture
@@ -642,12 +567,11 @@ public:
      *
      *
      *  @return   We return the density of the fluid at the requested phase. If we have not found any
-     *            acceptable density we return a -1. If we have found an accectable density at a
+     *            acceptable density we return a -1. If we have found an acceptable density at a
      *            different phase, we return a -2.
      */
     virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phase, doublereal rhoguess);
 
-public:
     //! Return the value of the density at the liquid spinodal point (on the liquid side)
     //! for the current temperature.
     /*!
@@ -655,15 +579,12 @@ public:
      */
     virtual doublereal densSpinodalLiquid() const;
 
-
     //! Return the value of the density at the gas spinodal point (on the gas side)
     //! for the current temperature.
     /*!
      * @return returns the density with units of kg m-3
      */
     virtual doublereal densSpinodalGas() const;
-
-
 
     //! Calculate the pressure given the temperature and the molar volume
     /*!
@@ -675,7 +596,6 @@ public:
      * @return  Returns the pressure.
      */
     virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
-
 
     //! Calculate the pressure and the pressure derivative given the temperature and the molar volume
     /*!
@@ -690,16 +610,13 @@ public:
      */
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
 
-
     //! Calculate dpdV and dpdT at the current conditions
     /*!
      *  These are stored internally.
      */
     void pressureDerivatives() const;
 
-
     virtual void updateMixingExpressions();
-
 
     //! Update the a and b parameters
     /*!
@@ -708,10 +625,8 @@ public:
      */
     void updateAB();
 
-
     //!  Calculate the a and the b parameters given the temperature
     /*!
-     *
      *  This function doesn't change the internal state of the object, so it is a const
      *  function.  It does use the stored mole fractions in the object.
      *
@@ -722,28 +637,31 @@ public:
      */
     void calculateAB(doublereal temp, doublereal& aCalc, doublereal& bCalc) const;
 
-
-    //=========================================================================================
-    //         Special functions not inherited from MixtureFugacityTP
+    // Special functions not inherited from MixtureFugacityTP
 
     doublereal da_dt() const;
 
     void calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
                                 doublereal& pc, doublereal& tc, doublereal& vc) const;
 
-
-
+    //! Solve the cubic equation of state
+    /*!
+     * The R-K equation of state may be solved via the following formula:
+     *
+     *     V**3 - V**2(RT/P)  - V(RTb/P - a/(P T**.5) + b*b) - (a b / (P T**.5)) = 0
+     *
+     * Returns the number of solutions found. If it only finds the liquid
+     * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
+     * returns 0, then there is an error.
+     */
     int NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
                      doublereal Vroot[3]) const;
 
-    //@}
-    //==============================================================================
 protected:
-
     //! boolean indicating whether standard mixing rules are applied
     /*!
      *  - 1 = Yes, there are standard cross terms in the a coefficient matrices.
-     *  - 0 = No, there are nonstaandard cross terms in the a coefficient matrices.
+     *  - 0 = No, there are nonstandard cross terms in the a coefficient matrices.
      */
     int m_standardMixingRules;
 
@@ -753,7 +671,6 @@ protected:
      *  - 1 = The a_ij parameter is a linear function of the temperature
      */
     int m_formTempParam;
-
 
     //! Value of b in the equation of state
     /*!
@@ -767,12 +684,10 @@ protected:
      */
     doublereal m_a_current;
 
-
     vector_fp a_vec_Curr_;
     vector_fp b_vec_Curr_;
 
     Array2D  a_coeff_vec;
-
 
     vector_fp m_pc_Species;
     vector_fp m_tc_Species;
@@ -781,8 +696,6 @@ protected:
     int NSolns_;
 
     doublereal Vroot_[3];
-
-
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
@@ -794,8 +707,6 @@ protected:
 
     // Partial molar volumes of the species
     mutable vector_fp m_partialMolarVolumes;
-
-
 
     //! The derivative of the pressure wrt the volume
     /*!
@@ -830,8 +741,6 @@ public:
 
     //! Omega constant for the critical molar volume
     static const doublereal omega_vc;
-
-
 };
 }
 

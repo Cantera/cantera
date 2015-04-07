@@ -6,11 +6,9 @@
  */
 
 //  Copyright 2001 California Institute of Technology
-
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
 
-//#include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "SpeciesThermo.h"
@@ -18,7 +16,6 @@
 
 namespace Cantera
 {
-
 
 //!  Class %IdealGasPhase represents low-density gases that obey the
 //!  ideal gas equation of state.
@@ -100,11 +97,11 @@ namespace Cantera
  *  The molar volume of a species is given by the ideal gas law
  *
  *       \f[
- *            V^o_k(T,P) = \frac{R T}{P} \mbox{\quad where}
+ *            V^o_k(T,P) = \frac{R T}{P}
  *       \f]
  *
- *  R = 8314.47215 Joules kmol<SUP>-1</SUP> K<SUP>-1</SUP>, from the 1999 CODATA convention.
- *  For a complete list of physical constants used within %Cantera, see \ref physConstants .
+ *  where R is the molar gas constant. For a complete list of physical constants
+ *  used within %Cantera, see \ref physConstants .
  *
  * <HR>
  * <H2> Specification of Solution Thermodynamic Properties </H2>
@@ -186,7 +183,7 @@ namespace Cantera
  *   \f]
  *  where
  *   \f[
- *      C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
+ *      C_j^a = C^s a_j \quad \mbox{and} \quad C_k^a = C^s a_k
  *   \f]
  *
  *  \f$ C_j^a \f$ is the activity concentration of species j, and
@@ -231,7 +228,8 @@ namespace Cantera
  *    For completeness, the pressure equilibrium constant may be obtained as well
  *
  *   \f[
- *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
+ *         \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 =
+               \exp\left(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} \right)
  *   \f]
  *
  *   \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases. However, it isn't
@@ -258,7 +256,6 @@ namespace Cantera
  * <H2> Instantiation of the Class </H2>
  * <HR>
  *
- *
  * The constructor for this phase is located in the default ThermoFactory
  * for %Cantera. A new %IdealGasPhase may be created by the following code
  * snippet:
@@ -284,20 +281,20 @@ namespace Cantera
  *   An example of an XML Element named phase setting up a IdealGasPhase
  *   object named silane is given below.
  *
- * @verbatim
-   <!--     phase silane      -->
-   <phase dim="3" id="silane">
-      <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
-      <speciesArray datasrc="#species_data">
-              H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
-                     H2SISIH2  SI3H8  SI2  SI3
-      </speciesArray>
-      <reactionArray datasrc="#reaction_data"/>
-      <thermo model="IdealGas"/>
-      <kinetics model="GasKinetics"/>
-      <transport model="None"/>
-    </phase>
-    @endverbatim
+ * @code
+ * <!--     phase silane      -->
+ * <phase dim="3" id="silane">
+ *   <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
+ *   <speciesArray datasrc="#species_data">
+ *     H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
+ *     H2SISIH2  SI3H8  SI2  SI3
+ *   </speciesArray>
+ *   <reactionArray datasrc="#reaction_data"/>
+ *   <thermo model="IdealGas"/>
+ *   <kinetics model="GasKinetics"/>
+ *   <transport model="None"/>
+ * </phase>
+ * @endcode
  *
  *   The model attribute "IdealGas" of the thermo XML element identifies the phase as
  *   being of the type handled by the IdealGasPhase object.
@@ -305,13 +302,30 @@ namespace Cantera
  *    @ingroup thermoprops
  *
  */
-class IdealGasPhase : public ThermoPhase
+class IdealGasPhase: public ThermoPhase
 {
-
 public:
-
     //! Default empty Constructor
     IdealGasPhase();
+
+    //! Construct and initialize an IdealGasPhase ThermoPhase object
+    //! directly from an ASCII input file
+    /*!
+     * @param inputFile Name of the input file containing the phase XML data
+     *                  to set up the object
+     * @param id        ID of the phase in the input file. Defaults to the
+     *                  empty string.
+     */
+    IdealGasPhase(const std::string& inputFile, const std::string& id = "");
+
+    //! Construct and initialize an IdealGasPhase ThermoPhase object
+    //! directly from an XML database
+    /*!
+     *  @param phaseRef XML phase node containing the description of the phase
+     *  @param id     id attribute containing the name of the phase.
+     *                (default is the empty string)
+     */
+    IdealGasPhase(XML_Node& phaseRef, const std::string& id = "");
 
     //! Copy Constructor
     /*!
@@ -324,7 +338,6 @@ public:
      */
     IdealGasPhase(const IdealGasPhase& right);
 
-
     //! Assignment operator
     /*!
      * Assignment operator for the object. Constructed
@@ -333,15 +346,12 @@ public:
      *
      * @param right Object to be copied.
      */
-    IdealGasPhase& operator=(const  IdealGasPhase& right);
+    IdealGasPhase& operator=(const IdealGasPhase& right);
 
-    //! Destructor
-    virtual ~IdealGasPhase() {}
-
-    //! Duplicator from the %ThermoPhase parent class
+    //! Duplicator from the ThermoPhase parent class
     /*!
-     * Given a pointer to a %ThermoPhase object, this function will
-     * duplicate the %ThermoPhase object and all underlying structures.
+     * Given a pointer to a ThermoPhase object, this function will
+     * duplicate the ThermoPhase object and all underlying structures.
      * This is basically a wrapper around the inherited copy constructor.
      *
      * @return returns a pointer to a %ThermoPhase object, containing
@@ -357,11 +367,8 @@ public:
         return cIdealGas;
     }
 
-    /**
-     * @name Molar Thermodynamic Properties of the Solution ------------------------------
-     * @{
-     */
-
+    //! @name Molar Thermodynamic Properties of the Solution
+    //! @{
 
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
@@ -377,8 +384,7 @@ public:
      * \see SpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
-        return GasConstant * temperature() *
-               mean_X(&enthalpy_RT_ref()[0]);
+        return GasConstant * temperature() * mean_X(&enthalpy_RT_ref()[0]);
     }
 
     /**
@@ -433,12 +439,68 @@ public:
      */
     virtual doublereal cv_mole() const;
 
-    //@}
+    /**
+     * @returns species translational/rotational specific heat at
+     * constant volume.  Inferred from the species gas
+     * constant and number of translational/rotational
+     * degrees of freedom.  The translational/rotational
+     * modes are assumed to be fully populated, and are
+     * given by
+     * \f[
+     *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{5}{2} R_s
+     * \f]
+     * for diatomic molecules and
+     * \f[
+     *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{3}{2} R_s
+     * \f]
+     * for atoms.
+     */
+    virtual doublereal cv_tr(doublereal) const;
 
     /**
-     * @name Mechanical Equation of State ------------------------------------------------
-     * @{
+     * @returns species translational specific heat at constant volume.
+     * Since the translational modes are assumed to be fully populated
+     * this is simply
+     * \f[
+     *   C^{trans}_{v,s} \equiv \frac{\partial e^{trans}_s}{\partial T} = \frac{3}{2} R_s
+     * \f]
      */
+    virtual doublereal cv_trans() const;
+
+    /**
+     * @returns species rotational specific heat at constant volume.
+     * By convention, we lump the translational/rotational components
+     * \f[
+     *   C^{tr}_{v,s} \equiv C^{trans}_{v,s} + C^{rot}_{v,s}
+     * \f]
+     * so then
+     * \f[
+     *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
+     * \f]
+     */
+    virtual doublereal cv_rot(double atomicity) const;
+
+    /**
+     * @returns species vibrational specific heat at
+     * constant volume,
+     * \f[
+     *     C^{vib}_{v,s} = \frac{\partial e^{vib}_{v,s} }{\partial T}
+     * \f]
+     * where the species vibration energy \f$ e^{vib}_{v,s} \f$ is
+     * - atom:
+     *   0
+     * - Diatomic:
+     *   \f[ \frac{R_s \theta_{v,s}}{e^{\theta_{v,s}/T}-1} \f]
+     * - General Molecule:
+     *   \f[
+     *       \sum_i \frac{R_s \theta_{v,s,i}}{e^{\theta_{v,s,i}/T}-1}
+     *   \f]
+     */
+    virtual doublereal cv_vib(int k, doublereal T) const;
+
+    //! @}
+    //! @name Mechanical Equation of State
+    //! @{
 
     /**
      * Pressure. Units: Pa.
@@ -448,7 +510,6 @@ public:
     virtual doublereal pressure() const {
         return GasConstant * molarDensity() * temperature();
     }
-
 
     //! Set the pressure at constant temperature and composition.
     /*!
@@ -461,8 +522,7 @@ public:
      * @param p Pressure (Pa)
      */
     virtual void setPressure(doublereal p) {
-        setDensity(p * meanMolecularWeight()
-                   /(GasConstant * temperature()));
+        setDensity(p * meanMolecularWeight() / (GasConstant * temperature()));
     }
 
     //! Returns  the isothermal compressibility. Units: 1/Pa.
@@ -471,10 +531,10 @@ public:
      * \f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
      * \f]
-     *  For ideal gases it's equal to the negative of the inverse of the pressure
+     *  For ideal gases it's equal to the inverse of the pressure
      */
     virtual doublereal isothermalCompressibility() const {
-        return -1.0/pressure();
+        return 1.0 / pressure();
     }
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
@@ -486,14 +546,13 @@ public:
      * For ideal gases, it's equal to the inverse of the temperature.
      */
     virtual doublereal thermalExpansionCoeff() const {
-        return 1.0/temperature();
+        return 1.0 / temperature();
     }
 
     //@}
 
     /**
-     * @name Chemical Potentials and Activities ------------------------------------------
-     *
+     * @name Chemical Potentials and Activities
      *
      * The activity \f$a_k\f$ of a species in solution is
      * related to the chemical potential by
@@ -552,14 +611,14 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual doublereal standardConcentration(size_t k = 0) const;
 
     //! Returns the natural logarithm of the standard
     //! concentration of the kth species
     /*!
      * @param k    index of the species. (defaults to zero)
      */
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual doublereal logStandardConc(size_t k = 0) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -570,11 +629,9 @@ public:
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-
     //@}
-    /// @name Partial Molar Properties of the Solution ----------------------------------
+    /// @name Partial Molar Properties of the Solution
     //@{
-
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -623,7 +680,7 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //@}
-    /// @name  Properties of the Standard State of the Species in the Solution ----------
+    /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
     //! Get the array of chemical potentials at unit activity for the
@@ -699,9 +756,8 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //@}
-    /// @name Thermodynamic Values for the Species Reference States ---------------------
+    /// @name Thermodynamic Values for the Species Reference States
     //@{
-
 
     //!  Returns the vector of nondimensional
     //!  enthalpies of the reference state at the current temperature
@@ -714,7 +770,7 @@ public:
 
 #ifdef H298MODIFY_CAPABILITY
 
-    virtual void modifyOneHf298SS(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
         m_tlast += 0.0001234;
     }
@@ -767,7 +823,7 @@ public:
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void  getCp_R_ref(doublereal* cprt) const;
+    virtual void getCp_R_ref(doublereal* cprt) const;
 
     //!  Get the molar volumes of the species standard states at the current
     //!  <I>T</I> and <I>P_ref</I> of the solution.
@@ -801,19 +857,6 @@ public:
     const vector_fp& gibbs_RT_ref() const {
         _updateThermo();
         return m_g0_RT;
-    }
-
-    //! Returns a reference to the exponent of the dimensionless reference state Gibbs Free energy vector.
-    /*!
-     * This function is part of the layer that checks/recalculates the reference
-     * state thermo functions.
-     */
-    const vector_fp& expGibbs_RT_ref() const {
-        _updateThermo();
-        for (size_t k = 0; k != m_kk; k++) {
-            m_expg0_RT[k] = std::exp(m_g0_RT[k]);
-        }
-        return m_expg0_RT;
     }
 
     //! Returns a reference to the dimensionless reference state Entropy vector.
@@ -854,11 +897,9 @@ public:
      */
     virtual void initThermo();
 
-    //!This method is used by the ChemEquil equilibrium solver.
+    //! Method used by the ChemEquil equilibrium solver.
     /*!
      * @internal
-     * @name Chemical Equilibrium
-     * @{
      *
      * Set mixture to an equilibrium state consistent with specified
      * element potentials and temperature.
@@ -874,30 +915,7 @@ public:
      */
     virtual void setToEquilState(const doublereal* lambda_RT);
 
-    //@}
-
 protected:
-
-    //! Number of Elements in the phase
-    /*!
-     * This member is defined here, from a call to the Elements ojbect, for speed.
-     */
-    size_t m_mm;
-
-    //! Minimum temperature for valid species standard state thermo props
-    /*!
-     * This is the minimum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmin;
-
-    //! Maximum temperature for valid species standard state thermo props
-    /*!
-     * This is the maximum temperature at which all species have valid standard
-     * state thermo props defined.
-     */
-    doublereal m_tmax;
-
     //! Reference state pressure
     /*!
      *  Value of the reference state pressure in Pascals.
@@ -906,48 +924,42 @@ protected:
     doublereal m_p0;
 
     //! last value of the temperature processed by reference state
-    mutable doublereal    m_tlast;
+    mutable doublereal m_tlast;
 
-    //! Temporary storage for log of p/rt
-    mutable doublereal    m_logc0;
+    //! Temporary storage for log of p/RT
+    mutable doublereal m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //! Temporary storage for dimensionless reference state gibbs energies
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
-    //! currently unsed
-    /*!
-     * @deprecated
-     */
-    mutable vector_fp      m_expg0_RT;
-
-    //! Currently unused
-    /*
-     * @deprecated
-     */
-    mutable vector_fp      m_pe;
+    mutable vector_fp m_expg0_RT;
 
     //! Temporary array containing internally calculated partial pressures
-    mutable vector_fp      m_pp;
+    mutable vector_fp m_pp;
 
 private:
-
     //! Update the species reference state thermodynamic functions
     /*!
-     * The polynomials for the standard state functions are only
-     * reevaluated if the temperature has changed.
-     *
+     *  This method is called each time a thermodynamic property is requested,
+     *  to check whether the internal species properties within the object
+     *  need to be updated. Currently, this updates the species thermo
+     *  polynomial values for the current value of the temperature. A check is
+     *  made to see if the temperature has changed since the last evaluation.
+     *  This object does not contain any persistent data that depends on the
+     *  concentration, that needs to be updated. The state object modifies its
+     *  concentration dependent information at the time the setMoleFractions()
+     *  (or equivalent) call is made.
      */
     void _updateThermo() const;
-
 };
 }
 

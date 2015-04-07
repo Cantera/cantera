@@ -14,18 +14,17 @@
 #include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/thermo/IdealGasPhase.h"
 
-#include <iostream>
 using namespace std;
 
 
 namespace Cantera
 {
 
-/**
- * Construct an empty reaction mechanism.
- */
 GRI_30_Kinetics::
-GRI_30_Kinetics(thermo_t* th) : GasKinetics(th) {}
+GRI_30_Kinetics(thermo_t* th) : GasKinetics(th) {
+    warn_deprecated("class GRI_30_Kinetics",
+                    "To be removed in Cantera 2.2.");
+}
 
 void GRI_30_Kinetics::
 gri30_update_rates_T()
@@ -40,28 +39,24 @@ gri30_update_rates_T()
     m_temp = T;
     gri30_updateKc();
     m_ROP_ok = false;
-    //}
-};
-
-
-/**
- * Update the equilibrium constants in molar units.
- * @todo This formulation assumes an ideal gas.
- */
-void GRI_30_Kinetics::gri30_updateKc()
-{
-    const doublereal* a =
-        &((IdealGasPhase*)m_thermo[0])->expGibbs_RT_ref()[0];
-    doublereal exp_c_ref = exp(m_logc_ref);
-    update_kc(a, exp_c_ref, &m_rkcn[0]);
 }
 
+void GRI_30_Kinetics::gri30_updateKc()
+{
+    vector_fp a(m_kk);
+    m_thermo[0]->getGibbs_RT_ref(&a[0]);
+    for (size_t k = 0; k < m_kk; k++) {
+        a[k] = exp(a[k]);
+    }
+    doublereal exp_c_ref = exp(m_logc_ref);
+    update_kc(&a[0], exp_c_ref, &m_rkcn[0]);
+}
 
 void GRI_30_Kinetics::gri30_updateROP()
 {
 
     gri30_update_rates_T();
-    _update_rates_C();
+    update_rates_C();
 
     if (m_ROP_ok) {
         return;
@@ -79,7 +74,6 @@ void GRI_30_Kinetics::gri30_updateROP()
     eval_ropnet(&m_conc[0], &ropf[0], &rkc[0], &ropnet[0]);
     m_ROP_ok = true;
 }
-
 
 void GRI_30_Kinetics::update_rates(doublereal t, doublereal tlog, doublereal* rf)
 {
@@ -286,7 +280,6 @@ void GRI_30_Kinetics::update_rates(doublereal t, doublereal tlog, doublereal* rf
     rf[322] =  exp(17.0542 + 0.255 * tlog - -474.585 * rt);
     rf[324] =  exp(23.6818 + -0.32 * tlog);
 }
-
 
 void GRI_30_Kinetics::update_kc(const doublereal* a, doublereal  exp_c0, doublereal* rkc)
 {
@@ -601,7 +594,6 @@ void GRI_30_Kinetics::update_kc(const doublereal* a, doublereal  exp_c0, doubler
     rkc[324] = a[25]*a[25]/(a[12]*a[49]);
 }
 
-
 void GRI_30_Kinetics::get_wdot(const doublereal* rop, doublereal* wdot)
 {
     wdot[0] =  - rop[2] + rop[7] + rop[38] + rop[39] + rop[40] + rop[41] + rop[44] + rop[46] + rop[48] + rop[50] + rop[52] + rop[54] + rop[57] + rop[59] + rop[64] + rop[67] + rop[68] + rop[72] + rop[74] + rop[76] + rop[77] + rop[79] - rop[82] - rop[83] - rop[125] - rop[135] + rop[136] - rop[145] - rop[171] + rop[173] + rop[190] + rop[196] + rop[201] + rop[208] + rop[213] - rop[220] + rop[265] + rop[275] + rop[276] + rop[283] + rop[287] - rop[288] + rop[292] + rop[298] + rop[299] + rop[308] + rop[313];
@@ -658,7 +650,6 @@ void GRI_30_Kinetics::get_wdot(const doublereal* rop, doublereal* wdot)
     wdot[51] =  + rop[284] + rop[293] + rop[295] + rop[298] + rop[303] - rop[304] - rop[305] - rop[306] - rop[307] - rop[308] - rop[309] - rop[310];
     wdot[52] =  + rop[285] - rop[295] - rop[296] - rop[297] - rop[298] - rop[299] - rop[300] - rop[301] - rop[302];
 }
-
 
 void GRI_30_Kinetics::eval_ropnet(const doublereal* c, const doublereal* rf, const doublereal* rkc, doublereal* r)
 {
@@ -990,11 +981,3 @@ void GRI_30_Kinetics::eval_ropnet(const doublereal* c, const doublereal* rf, con
 }
 
 }
-
-
-
-
-
-
-
-

@@ -37,7 +37,7 @@ class ElementsFrozen : public CanteraError
 public:
     //! Constructor for class
     //! @param func Function where the error occurred.
-    ElementsFrozen(std::string func)
+    ElementsFrozen(const std::string& func)
         : CanteraError(func, "Elements cannot be added after species.") {}
 };
 
@@ -106,8 +106,8 @@ public:
     //!     @param right Reference to the class to be used in the copy
     Phase(const Phase& right);
 
-     //! Assignment operator
-     //!     @param right Reference to the class to be used in the copy
+    //! Assignment operator
+    //!     @param right Reference to the class to be used in the copy
     Phase& operator=(const Phase& right);
 
     //! Returns a reference to the XML_Node stored for the phase.
@@ -138,14 +138,14 @@ public:
 
     //! Set the string id for the phase.
     //!     @param id String id of the phase
-    void setID(std::string id);
+    void setID(const std::string& id);
 
     //! Return the name of the phase.
     std::string name() const;
 
     //! Sets the string name for the phase.
     //!     @param nm String name of the phase
-    void setName(std::string nm);
+    void setName(const std::string& nm);
     //!@} end group Name and ID
 
     //! @name Element and Species Information
@@ -159,7 +159,7 @@ public:
     //! assigned to each element in the order it was added. Returns \ref npos
     //! if the specified element is not found.
     //!     @param name Name of the element
-    size_t elementIndex(std::string name) const;
+    size_t elementIndex(const std::string& name) const;
 
     //! Return a read-only reference to the vector of element names.
     const std::vector<std::string>& elementNames() const;
@@ -179,16 +179,16 @@ public:
     //! Return the element constraint type
     //! Possible types include:
     //!
-    //! CT_ELEM_TYPE_TURNEDOFF        -1
-    //! CT_ELEM_TYPE_ABSPOS            0
-    //! CT_ELEM_TYPE_ELECTRONCHARGE    1
-    //! CT_ELEM_TYPE_CHARGENEUTRALITY  2
-    //! CT_ELEM_TYPE_LATTICERATIO      3
-    //! CT_ELEM_TYPE_KINETICFROZEN     4
-    //! CT_ELEM_TYPE_SURFACECONSTRAINT 5
-    //! CT_ELEM_TYPE_OTHERCONSTRAINT   6
+    //!     CT_ELEM_TYPE_TURNEDOFF        -1
+    //!     CT_ELEM_TYPE_ABSPOS            0
+    //!     CT_ELEM_TYPE_ELECTRONCHARGE    1
+    //!     CT_ELEM_TYPE_CHARGENEUTRALITY  2
+    //!     CT_ELEM_TYPE_LATTICERATIO      3
+    //!     CT_ELEM_TYPE_KINETICFROZEN     4
+    //!     CT_ELEM_TYPE_SURFACECONSTRAINT 5
+    //!     CT_ELEM_TYPE_OTHERCONSTRAINT   6
     //!
-    //! The default is CT_ELEM_TYPE_ABSPOS.
+    //! The default is `CT_ELEM_TYPE_ABSPOS`.
     //!     @param m  Element index
     //!     @return Returns the element type
     int elementType(size_t m) const;
@@ -233,7 +233,7 @@ public:
     //!            phaseName:speciesName
     //!     @return The index of the species. If the name is not found,
     //!             the value \ref npos is returned.
-    size_t speciesIndex(std::string name) const;
+    size_t speciesIndex(const std::string& name) const;
 
     //! Name of the species with index k
     //!     @param k index of the species
@@ -295,8 +295,8 @@ public:
     //!@{
 
     //! Set the species mole fractions by name.
-    //!     @param xMap map from species names to mole fraction values.
     //! Species not listed by name in \c xMap are set to zero.
+    //!     @param xMap map from species names to mole fraction values.
     void setMoleFractionsByName(compositionMap& xMap);
 
     //! Set the mole fractions of a group of species by name. Species which
@@ -305,8 +305,8 @@ public:
     void setMoleFractionsByName(const std::string& x);
 
     //! Set the species mass fractions by name.
-    //!     @param yMap map from species names to mass fraction values.
     //! Species not listed by name in \c yMap are set to zero.
+    //!     @param yMap map from species names to mass fraction values.
     void setMassFractionsByName(compositionMap& yMap);
 
     //! Set the species mass fractions by name.
@@ -380,24 +380,9 @@ public:
     //!     @return    Returns the molecular weight of species \c k.
     doublereal molecularWeight(size_t k) const;
 
-    //! Return the Molar mass of species \c k
-    //! Alternate name for molecular weight.
-    //!     @param k  index for species
-    //!     @return   Return the molar mass of species k kg/kmol.
-    //! @deprecated use molecularWeight instead
-    doublereal molarMass(size_t k) const {
-        return molecularWeight(k);
-    }
-
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
     void getMolecularWeights(vector_fp& weights) const;
-
-    //! Copy the vector of molecular weights into array weights.
-    //!     @param iwt      Unused.
-    //!     @param weights  Output array of molecular weights (kg/kmol)
-    //! @deprecated
-    DEPRECATED(void getMolecularWeights(int iwt, doublereal* weights) const);
 
     //! Copy the vector of molecular weights into array weights.
     //!     @param weights  Output array of molecular weights (kg/kmol)
@@ -429,7 +414,7 @@ public:
     //! Return the mole fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
-    doublereal moleFraction(std::string name) const;
+    doublereal moleFraction(const std::string& name) const;
 
     //! Return the mass fraction of a single species
     //!     @param  k species index
@@ -439,7 +424,7 @@ public:
     //! Return the mass fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mass Fraction of the species
-    doublereal massFraction(std::string name) const;
+    doublereal massFraction(const std::string& name) const;
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
@@ -472,8 +457,9 @@ public:
 
     //! Set the mass fractions to the specified values and normalize them.
     //!     @param[in] y Array of unnormalized mass fraction values. Length
-    //! must be greater than or equal to the number of species. The Ptate
-    //! object will normalize this vector before storing its contents.
+    //!                  must be greater than or equal to the number of
+    //!                  species. The Phase object will normalize this vector
+    //!                  before storing its contents.
     virtual void setMassFractions(const doublereal* const y);
 
     //! Set the mass fractions to the specified values without normalizing.
@@ -485,7 +471,7 @@ public:
 
     //! Get the species concentrations (kmol/m^3).
     //!     @param[out] c Array of species concentrations Length must be
-    //! greater than or equal to the number of species.
+    //!                   greater than or equal to the number of species.
     void getConcentrations(doublereal* const c) const;
 
     //! Concentration of species k.
@@ -499,9 +485,10 @@ public:
     //! Therefore, we have possibly changed the pressure of the phase by
     //! calling this routine.
     //!     @param[in] conc Array of concentrations in dimensional units. For
-    //! bulk phases c[k] is the concentration of the kth species in kmol/m3.
-    //! For surface phases, c[k] is the concentration in kmol/m2. The length of
-    //!  the vector is the numberof species in the phase.
+    //!                     bulk phases c[k] is the concentration of the kth
+    //!                     species in kmol/m3. For surface phases, c[k] is the
+    //!                     concentration in kmol/m2. The length of the vector
+    //!                     is the number of species in the phase.
     virtual void setConcentrations(const doublereal* const conc);
 
     //! Returns a const pointer to the start of the moleFraction/MW array.
@@ -513,9 +500,10 @@ public:
 
     //! Dimensionless electrical charge of a single molecule of species k
     //! The charge is normalized by the the magnitude of the electron charge
-    //! ( \f$ e = 1.602\times 10^{-19}\f$ Coulombs).
     //!     @param k species index
-    doublereal charge(size_t k) const;
+    doublereal charge(size_t k) const {
+        return m_speciesCharge[k];
+    }
 
     //! Charge density [C/m^3].
     doublereal chargeDensity() const;
@@ -557,9 +545,12 @@ public:
 
     //! Set the internally stored density (kg/m^3) of the phase
     //! Note the density of a phase is an independent variable.
-    //!     @param[in] density density (kg/m^3).
-    virtual void setDensity(const doublereal density) {
-        m_dens = density;
+    //!     @param[in] density_ density (kg/m^3).
+    virtual void setDensity(const doublereal density_) {
+        if (density_ <= 0.0) {
+            throw CanteraError("Phase::setDensity()", "density must be positive");
+        }
+        m_dens = density_;
     }
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
@@ -569,6 +560,10 @@ public:
     //! Set the internally stored temperature of the phase (K).
     //!     @param temp Temperature in Kelvin
     virtual void setTemperature(const doublereal temp) {
+        if (temp <= 0) {
+            throw CanteraError("Phase::setTemperature",
+                               "temperature must be positive");
+        }
         m_temp = temp;
     }
     //@}
@@ -699,16 +694,9 @@ public:
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
-    DEPRECATED(int stateMFNumber() const) {
+    int stateMFNumber() const {
         return m_stateNum;
     }
-
-    //! Every time the mole fractions have changed, this routine will increment
-    //! the stateMFNumber
-    //!     @param forceChange If this is true then the stateMFNumber always
-    //! changes. This defaults to false.
-    //!     @deprecated
-    DEPRECATED(void stateMFChangeCalc(bool forceChange = false));
 
 protected:
     //! @internal Initialize.
@@ -741,8 +729,8 @@ protected:
     vector_fp m_speciesSize;
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
-private:
 
+private:
     XML_Node* m_xml; //!< XML node containing the XML info for this phase
 
     //! ID of the phase. This is the value of the ID attribute of the XML
@@ -775,7 +763,6 @@ private:
 
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
-    //! @deprecated
     int m_stateNum;
 
     //! Boolean indicating whether the number of species has been frozen.

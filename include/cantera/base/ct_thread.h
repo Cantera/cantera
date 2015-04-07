@@ -14,7 +14,8 @@
 
 #endif
 
-namespace Cantera {
+namespace Cantera
+{
 
 #ifdef THREAD_SAFE_CANTERA
 
@@ -40,9 +41,15 @@ typedef boost::mutex mutex_t;
 typedef boost::mutex::scoped_lock ScopedLock;
 
 #else
-
 typedef int mutex_t;
-typedef int ScopedLock;
+
+class ScopedLock
+{
+public:
+    explicit ScopedLock(const int m) : m_(m) {}
+private:
+    int m_;
+};
 
 #endif // THREAD_SAFE_CANTERA
 

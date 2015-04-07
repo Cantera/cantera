@@ -24,7 +24,6 @@
 #include "clib/ct.h"
 #include "clib/ctxml.h"
 #include "clib/ctsurf.h"
-#include "clib/ctbdry.h"
 #include "clib/ctrpath.h"
 #include "clib/ctreactor.h"
 #include "clib/ctfunc.h"
@@ -47,7 +46,6 @@ static PyObject* ErrorObject;
 #include "ctxml_methods.cpp"
 #include "ctfuncs.cpp"
 #include "ctsurf_methods.cpp"
-//#include "ctbndry_methods.cpp"
 #include "ctrpath_methods.cpp"
 #include "ctreactor_methods.cpp"
 #include "ctfunc_methods.cpp"
@@ -62,7 +60,7 @@ pyct_appdelete(PyObject* self, PyObject* args)
 
 #include "methods.h"
 #include "pylogger.h"
-//#include "cantera/base/global.h"
+
 extern "C" {
 
     /* Initialization function for the module */

@@ -1,5 +1,5 @@
 /**
- *  @file TransportParams.h
+ *  @file TransportParams.cpp
  *  Class that holds the data that is read in from the xml file, and which is used for
  *  processing of the transport object
  *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
@@ -14,14 +14,14 @@ using namespace std;
 
 namespace Cantera
 {
-//====================================================================================================================
-NotImplemented::NotImplemented(std::string method) :
+
+NotImplemented::NotImplemented(const std::string& method) :
     CanteraError("Transport",
                  "\n\n**** Method " + method + " not implemented. ****\n"
                  "(Did you forget to specify a transport model?)\n\n")
 {
 }
-//====================================================================================================================
+
 TransportParams::TransportParams() :
     nsp_(0),
     thermo(0),
@@ -34,16 +34,14 @@ TransportParams::TransportParams() :
     log_level(-1)
 {
 }
-//====================================================================================================================
-// Destructor
+
 TransportParams::~TransportParams()
 {
 #ifdef DEBUG_MODE
     delete xml;
 #endif
 }
-//====================================================================================================================
-// Constructor
+
 GasTransportParams::GasTransportParams() :
     TransportParams(),
     visccoeffs(0),
@@ -68,12 +66,5 @@ GasTransportParams::GasTransportParams() :
     delta(0, 0)
 {
 }
-//====================================================================================================================
-GasTransportParams:: ~GasTransportParams()
-{
-}
 
-
-//====================================================================================================================
 } // End of namespace Cantera
-//======================================================================================================================

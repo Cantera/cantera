@@ -8,28 +8,20 @@
 // Cantera includes
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "kinetics/ImplicitSurfChem.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
 #include "Cabinet.h"
 
 using namespace std;
 using namespace Cantera;
 
-inline SurfPhase& _surfphase(int n)
-{
-    return dynamic_cast<SurfPhase&>(Cabinet<ThermoPhase>::item(n));
-}
-
-inline InterfaceKinetics& _surfkin(int n)
-{
-    return dynamic_cast<InterfaceKinetics&>(Cabinet<Kinetics>::item(n));
-}
+typedef Cabinet<ThermoPhase> ThermoCabinet;
 
 extern "C" {
 
     int surf_setsitedensity(int i, double s0)
     {
         try {
-            _surfphase(i).setSiteDensity(s0);
+            ThermoCabinet::get<SurfPhase>(i).setSiteDensity(s0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -39,7 +31,7 @@ extern "C" {
     double surf_sitedensity(int i)
     {
         try {
-            return _surfphase(i).siteDensity();
+            return ThermoCabinet::get<SurfPhase>(i).siteDensity();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -48,7 +40,7 @@ extern "C" {
     int surf_setcoverages(int i, double* c)
     {
         try {
-            _surfphase(i).setCoverages(c);
+            ThermoCabinet::get<SurfPhase>(i).setCoverages(c);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -58,40 +50,40 @@ extern "C" {
     int surf_setcoveragesbyname(int i, char* c)
     {
         try {
-            _surfphase(i).setCoveragesByName(string(c));
+            ThermoCabinet::get<SurfPhase>(i).setCoveragesByName(c);
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
     int surf_getcoverages(int i, double* c)
     {
         try {
-        _surfphase(i).getCoverages(c);
-        return 0;
+            ThermoCabinet::get<SurfPhase>(i).getCoverages(c);
+            return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
     int surf_setconcentrations(int i, double* c)
     {
         try {
-            _surfphase(i).setConcentrations(c);
+            ThermoCabinet::get<SurfPhase>(i).setConcentrations(c);
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
     int surf_getconcentrations(int i, double* c)
     {
         try {
-            _surfphase(i).getConcentrations(c);
+            ThermoCabinet::get<SurfPhase>(i).getConcentrations(c);
             return 0;
         } catch (...) {
-             return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 }

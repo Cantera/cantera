@@ -1,18 +1,15 @@
-
+//! @file Wall.cpp
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNet.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 
-using namespace std;
-using namespace Cantera;
-
 namespace Cantera
 {
-
 Wall::Wall() : m_left(0), m_right(0),
-    m_area(0.0), m_k(0.0), m_rrth(0.0), m_emiss(0.0),
+    m_area(1.0), m_k(0.0), m_rrth(0.0), m_emiss(0.0),
     m_vf(0), m_qf(0)
 {
     for (int n = 0; n < 2; n++) {
@@ -35,10 +32,12 @@ bool Wall::install(ReactorBase& rleft, ReactorBase& rright)
     return true;
 }
 
-/** Specify the kinetics managers for the surface mechanisms on
- * the left side and right side of the wall. Enter 0 if there is
- * no reaction mechanism.
- */
+void Wall::initialize()
+{
+    std::sort(m_pleft.begin(), m_pleft.end());
+    std::sort(m_pright.begin(), m_pright.end());
+}
+
 void Wall::setKinetics(Kinetics* left, Kinetics* right)
 {
     m_chem[0] = left;
@@ -69,14 +68,6 @@ void Wall::setKinetics(Kinetics* left, Kinetics* right)
     }
 }
 
-/**
- * The volume rate of change is given by
- * \f[ \dot V = K A (P_{left} - P_{right}) + F(t) \f]
- * where \f$ F(t) \f$ is a specified function of time.
- *
- * This method is used by class Reactor to compute the
- * rate of volume change of the reactor.
- */
 doublereal Wall::vdot(doublereal t)
 {
     double rate1 = m_k * m_area *
@@ -87,12 +78,6 @@ doublereal Wall::vdot(doublereal t)
     return rate1;
 }
 
-/**
- * The heat flux is given by
- * \f[ Q = h A (T_{left} - T_{right}) + A G(t) \f]
- * where h is the heat transfer coefficient, and
- * \f$ G(t) \f$ is a specified function of time.
- */
 doublereal Wall::Q(doublereal t)
 {
     double q1 = (m_area * m_rrth) *
@@ -141,13 +126,15 @@ void Wall::addSensitivityReaction(int leftright, size_t rxn)
         throw CanteraError("Wall::addSensitivityReaction",
                            "Reaction number out of range ("+int2str(rxn)+")");
     if (leftright == 0) {
+        m_left->network().registerSensitivityReaction(this, rxn,
+                m_chem[0]->reactionString(rxn), leftright);
         m_pleft.push_back(rxn);
         m_leftmult_save.push_back(1.0);
-        m_pname_left.push_back(m_chem[0]->reactionString(rxn));
     } else {
+        m_right->network().registerSensitivityReaction(this, rxn,
+                m_chem[1]->reactionString(rxn), leftright);
         m_pright.push_back(rxn);
         m_rightmult_save.push_back(1.0);
-        m_pname_right.push_back(m_chem[1]->reactionString(rxn));
     }
 }
 

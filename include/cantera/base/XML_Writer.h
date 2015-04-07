@@ -4,6 +4,8 @@
 // Note: this class is only used by TransportFactory, and is likely to
 // go away a a future date.
 
+#include <iostream>
+
 namespace Cantera
 {
 
@@ -12,8 +14,8 @@ namespace Cantera
 class XML_Writer
 {
 public:
-    XML_Writer(std::ostream& output) :
-        m_s(output), _indent("   "), _level(0) {}
+    XML_Writer(std::ostream& output_) :
+        m_s(output_), _indent("   "), _level(0) {}
     virtual ~XML_Writer() {}
     std::ostream& m_s;
 
@@ -24,7 +26,7 @@ public:
         return m_s;
     }
 
-    inline std::string XML_filter(std::string name) {
+    inline std::string XML_filter(const std::string& name) {
         int ns = static_cast<int>(name.size());
         std::string nm(name);
         for (int m = 0; m < ns; m++)
@@ -56,7 +58,7 @@ public:
         s << "<!--" << comment << "-->" << std::endl;
     }
 
-    inline void XML_open(std::ostream& s, const std::string& tag, const std::string p = "") {
+    inline void XML_open(std::ostream& s, const std::string& tag, const std::string& p = "") {
         for (int n = 0; n < _level; n++) {
             s << _indent;
         }
