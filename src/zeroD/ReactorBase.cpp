@@ -6,7 +6,7 @@
 
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/FlowDevice.h"
-#include "cantera/zeroD/Wall.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 using namespace std;
 namespace Cantera
@@ -15,15 +15,10 @@ namespace Cantera
 ReactorBase::ReactorBase(const string& name) : m_nsp(0),
     m_thermo(0),
     m_vol(1.0),
-    m_vol0(1.0),
     m_init(false),
-    m_nInlets(0),
-    m_nOutlets(0),
-    m_open(false),
     m_enthalpy(0.0),
     m_intEnergy(0.0),
     m_pressure(0.0),
-    m_nwalls(0),
     m_net(0)
 {
     m_name = name;
@@ -39,18 +34,25 @@ void ReactorBase::setThermoMgr(thermo_t& thermo)
     m_pressure = m_thermo->pressure();
 }
 
+void ReactorBase::syncState()
+{
+    m_thermo->saveState(m_state);
+    m_enthalpy = m_thermo->enthalpy_mass();
+    m_intEnergy = m_thermo->intEnergy_mass();
+    m_pressure = m_thermo->pressure();
+    if (m_net) {
+        m_net->setNeedsReinit();
+    }
+}
+
 void ReactorBase::addInlet(FlowDevice& inlet)
 {
     m_inlet.push_back(&inlet);
-    m_open = true;
-    m_nInlets++;
 }
 
 void ReactorBase::addOutlet(FlowDevice& outlet)
 {
     m_outlet.push_back(&outlet);
-    m_open = true;
-    m_nOutlets++;
 }
 
 void ReactorBase::addWall(Wall& w, int lr)
@@ -61,7 +63,6 @@ void ReactorBase::addWall(Wall& w, int lr)
     } else {
         m_lr.push_back(1);
     }
-    m_nwalls++;
 }
 
 Wall& ReactorBase::wall(size_t n)
@@ -86,9 +87,8 @@ void ReactorBase::setNetwork(ReactorNet* net)
 
 doublereal ReactorBase::residenceTime()
 {
-    int nout = static_cast<int>(m_outlet.size());
     doublereal mout = 0.0;
-    for (int i = 0; i < nout; i++) {
+    for (size_t i = 0; i < m_outlet.size(); i++) {
         mout += m_outlet[i]->massFlowRate();
     }
     return mass()/mout;

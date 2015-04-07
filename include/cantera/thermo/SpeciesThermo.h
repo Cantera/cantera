@@ -156,7 +156,7 @@ class SpeciesThermo
 public:
 
     //! Constructor
-    SpeciesThermo() : m_allow_discontinuities(false) {}
+    SpeciesThermo() {}
 
     //! Destructor
     virtual ~SpeciesThermo() {}
@@ -302,7 +302,6 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     * @deprecated
      */
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
@@ -310,7 +309,6 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const =0;
 
-#ifdef H298MODIFY_CAPABILITY
     //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
     /*!
      *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
@@ -319,7 +317,7 @@ public:
      *   @param k    species index
      *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
      */
-    virtual doublereal reportOneHf298(int k) const = 0;
+    virtual doublereal reportOneHf298(const size_t k) const = 0;
 
     //!  Modify the value of the 298 K Heat of Formation of the standard state of
     //!  one species in the phase (J kmol-1)
@@ -331,10 +329,8 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar.
      *                       units = J/kmol.
      */
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) = 0;
-#endif
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) = 0;
 
-    bool m_allow_discontinuities;
 };
 //@}
 }

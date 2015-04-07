@@ -476,16 +476,13 @@ public:
      * description, this method is called from ThermoPhase::initThermoXML(),
      * which is called from importPhase(),
      * just prior to returning from function importPhase().
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     * This method is called by function importPhase() in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
+     * This method is called by function importPhase() when processing a phase
+     * definition in an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
      * initialized with elements and/or species.
@@ -499,8 +496,10 @@ public:
     /*!
      * @param show_thermo If true, extra information is printed out
      *                    about the thermodynamic state of the system.
+     * @param threshold   Unused in this subclass
      */
-    virtual std::string report(bool show_thermo = true) const;
+    virtual std::string report(bool show_thermo=true,
+                               doublereal threshold=1e-14) const;
 
 protected:
 

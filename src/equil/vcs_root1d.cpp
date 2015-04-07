@@ -9,15 +9,17 @@
  */
 
 #include "cantera/equil/vcs_internal.h"
+#include "cantera/numerics/ctlapack.h"
 
 #include <cstdio>
+
+using namespace Cantera;
 
 namespace VCSnonideal
 {
 
 #define TOL_CONV 1.0E-5
 
-#ifdef DEBUG_MODE
 static void print_funcEval(FILE* fp, double xval, double fval, int its)
 {
     fprintf(fp,"\n");
@@ -29,7 +31,6 @@ static void print_funcEval(FILE* fp, double xval, double fval, int its)
     fprintf(fp,"...............................................................\n");
     fprintf(fp,"\n");
 }
-#endif
 
 int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
                    VCS_FUNC_PTR func, void* fptrPassthrough,
@@ -41,10 +42,14 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
     const char* strw = "vcs_root1d WARNING: ";
     bool converged = false;
     int err = 0;
+
 #ifdef DEBUG_MODE
     char fileName[80];
-    FILE* fp = 0;
+#else
+    char* fileName;
 #endif
+    FILE* fp = 0;
+
     double x1, x2, xnew, f1, f2, fnew, slope;
     size_t its = 0;
     int posStraddle = 0;
@@ -59,19 +64,15 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
     double c[9], f[3], xn1, xn2, x0 = 0.0, f0 = 0.0, root, theta, xquad;
 
     callNum++;
-#ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3) {
         sprintf(fileName, "rootfd_%d.log", callNum);
         fp = fopen(fileName, "w");
         fprintf(fp, " Iter   TP_its  xval   Func_val  |  Reasoning\n");
         fprintf(fp, "-----------------------------------------------------"
                 "-------------------------------\n");
-    }
-#else
-    if (printLvl >= 3) {
+    } else if (printLvl >= 3) {
         plogf("WARNING: vcsUtil_root1d: printlvl >= 3, but debug mode not turned on\n");
     }
-#endif
     if (xmax <= xmin) {
         plogf("%sxmin and xmax are bad: %g %g\n", stre, xmin, xmax);
         return VCS_PUB_BAD;
@@ -81,12 +82,10 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
         x1 = (xmin + xmax) / 2.0;
     }
     f1 = func(x1, FuncTargVal, varID, fptrPassthrough, &err);
-#ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3) {
         print_funcEval(fp, x1, f1, its);
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E\n", -2, 0, x1, f1);
     }
-#endif
     if (f1 == 0.0) {
         *xbest = x1;
         return VCS_SUCCESS;
@@ -102,12 +101,10 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
         x2 = x1 - (xmax - xmin) / 100.;
     }
     f2 = func(x2, FuncTargVal, varID, fptrPassthrough, &err);
-#ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3) {
         print_funcEval(fp, x2, f2, its);
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, 0, x2, f2);
     }
-#endif
 
     if (FuncTargVal != 0.0) {
         fnorm = fabs(FuncTargVal) + 1.0E-13;
@@ -136,6 +133,8 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
             posStraddle = false;
         }
     }
+    int ipiv[3];
+    int info;
 
     do {
         /*
@@ -150,11 +149,9 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
         } else {
             xnew = x2 - f2 / slope;
         }
-#ifdef DEBUG_MODE
-        if (printLvl >= 3) {
+        if (DEBUG_MODE_ENABLED && printLvl >= 3) {
             fprintf(fp, " | xlin = %-9.4g", xnew);
         }
-#endif
 
         /*
         *  Do a quadratic fit -> Note this algorithm seems
@@ -171,13 +168,15 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
             c[6] = SQUARE(x0);
             c[7] = SQUARE(x1);
             c[8] = SQUARE(x2);
-            f[0] = - f0;
-            f[1] = - f1;
-            f[2] = - f2;
-            retn = vcsUtil_mlequ(c, 3, 3, f, 1);
-            if (retn == 1) {
+            f[0] = f0;
+            f[1] = f1;
+            f[2] = f2;
+
+            ct_dgetrf(3, 3, c, 3, ipiv, info);
+            if (info) {
                 goto QUAD_BAIL;
             }
+            ct_dgetrs(ctlapack::NoTranspose, 3, 1, c, 3, ipiv, f, 3, info);
             root = f[1]* f[1] - 4.0 * f[0] * f[2];
             if (root >= 0.0) {
                 xn1 = (- f[1] + sqrt(root)) / (2.0 * f[2]);
@@ -190,13 +189,11 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
                 theta = fabs(xquad - xnew) / fabs(xnew - x2);
                 theta = std::min(1.0, theta);
                 xnew = theta * xnew + (1.0 - theta) * xquad;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                     if (theta != 1.0) {
                         fprintf(fp, " | xquad = %-9.4g", xnew);
                     }
                 }
-#endif
             } else {
                 /*
                 *   Pick out situations where the convergence may be
@@ -205,11 +202,9 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
                 if ((DSIGN(xnew - x2) == DSIGN(x2 - x1)) &&
                         (DSIGN(x2   - x1) == DSIGN(x1 - x0))) {
                     xnew += xnew - x2;
-#ifdef DEBUG_MODE
-                    if (printLvl >= 3) {
+                    if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                         fprintf(fp, " | xquada = %-9.4g", xnew);
                     }
-#endif
                 }
             }
         }
@@ -231,19 +226,15 @@ QUAD_BAIL:
             slope = fabs(x2 - x1) / 10.;
             if (fabs(xnew - x1) < slope) {
                 xnew = x1 + DSIGN(xnew-x1) * slope;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                     fprintf(fp, " | x10%% = %-9.4g", xnew);
                 }
-#endif
             }
             if (fabs(xnew - x2) < slope) {
                 xnew = x2 + DSIGN(xnew-x2) * slope;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                     fprintf(fp, " | x10%% = %-9.4g", xnew);
                 }
-#endif
             }
         } else {
             /*
@@ -253,30 +244,24 @@ QUAD_BAIL:
             slope = 2.0 * fabs(x2 - x1);
             if (fabs(slope) < fabs(xnew - x2)) {
                 xnew = x2 + DSIGN(xnew-x2) * slope;
-#ifdef DEBUG_MODE
-                if (printLvl >= 3) {
+                if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                     fprintf(fp, " | xlimitsize = %-9.4g", xnew);
                 }
-#endif
             }
         }
 
 
         if (xnew > xmax) {
             xnew = x2 + (xmax - x2) / 2.0;
-#ifdef DEBUG_MODE
-            if (printLvl >= 3) {
+            if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                 fprintf(fp, " | xlimitmax = %-9.4g", xnew);
             }
-#endif
         }
         if (xnew < xmin) {
             xnew = x2 + (x2 - xmin) / 2.0;
-#ifdef DEBUG_MODE
-            if (printLvl >= 3) {
+            if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                 fprintf(fp, " | xlimitmin = %-9.4g", xnew);
             }
-#endif
         }
         if (foundStraddle) {
 #ifdef DEBUG_MODE
@@ -315,23 +300,19 @@ QUAD_BAIL:
                     }
                 }
             }
-#ifdef DEBUG_MODE
-            if (printLvl >= 3) {
+            if (DEBUG_MODE_ENABLED && printLvl >= 3) {
                 if (slope != xnew) {
                     fprintf(fp, " | xstraddle = %-9.4g", xnew);
                 }
             }
-#endif
         }
 
         fnew = func(xnew, FuncTargVal, varID, fptrPassthrough, &err);
-#ifdef DEBUG_MODE
-        if (printLvl >= 3) {
+        if (DEBUG_MODE_ENABLED && printLvl >= 3) {
             fprintf(fp,"\n");
             print_funcEval(fp, xnew, fnew, its);
-            fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, 0, xnew, fnew);
+            fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", (int) its, 0, xnew, fnew);
         }
-#endif
 
         if (foundStraddle) {
             if (posStraddle) {
@@ -390,28 +371,22 @@ QUAD_BAIL:
         if (printLvl >= 1) {
             plogf("vcs_root1d success: convergence achieved\n");
         }
-#ifdef DEBUG_MODE
-        if (printLvl >= 3) {
-            fprintf(fp, " | vcs_root1d success in %d its, fnorm = %g\n", its, fnorm);
+        if (DEBUG_MODE_ENABLED && printLvl >= 3) {
+            fprintf(fp, " | vcs_root1d success in %d its, fnorm = %g\n", (int) its, fnorm);
         }
-#endif
     } else {
         retn = VCS_FAILED_CONVERGENCE;
         if (printLvl >= 1) {
             plogf("vcs_root1d ERROR: maximum iterations exceeded without convergence\n");
         }
-#ifdef DEBUG_MODE
-        if (printLvl >= 3) {
+        if (DEBUG_MODE_ENABLED && printLvl >= 3) {
             fprintf(fp, "\nvcs_root1d failure in %lu its\n", its);
         }
-#endif
     }
     *xbest = x2;
-#ifdef DEBUG_MODE
-    if (printLvl >= 3) {
+    if (DEBUG_MODE_ENABLED && printLvl >= 3) {
         fclose(fp);
     }
-#endif
     return retn;
 }
 

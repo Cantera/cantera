@@ -64,8 +64,7 @@ public:
     NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
         SpeciesThermoInterpType(n, tlow, thigh, pref),
-        m_coeff(vector_fp(7)) {
-        std::copy(coeffs, coeffs + 7, m_coeff.begin());
+        m_coeff(coeffs, coeffs + 7) {
     }
 
     //! copy constructor
@@ -74,11 +73,8 @@ public:
      */
     NasaPoly1(const NasaPoly1& b) :
         SpeciesThermoInterpType(b),
-        m_coeff(vector_fp(7))
+        m_coeff(b.m_coeff)
     {
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 7,
-                  m_coeff.begin());
     }
 
     //! assignment operator
@@ -88,9 +84,7 @@ public:
     NasaPoly1& operator=(const NasaPoly1& b) {
         if (&b != this) {
             SpeciesThermoInterpType::operator=(b);
-            std::copy(b.m_coeff.begin(),
-                      b.m_coeff.begin() + 7,
-                      m_coeff.begin());
+            m_coeff = b.m_coeff;
         }
         return *this;
     }
@@ -162,12 +156,10 @@ public:
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    //! @deprecated
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
-        warn_deprecated("NasaPoly1::reportParameters");
         n = m_index;
         type = NASA1;
         tlow = m_lowT;
@@ -184,18 +176,14 @@ public:
     /*!
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
-     * @deprecated
      */
     virtual void modifyParameters(doublereal* coeffs) {
-        warn_deprecated("NasaPoly1::modifyParameters");
         m_coeff[0] = coeffs[5];
         m_coeff[1] = coeffs[6];
         for (int i = 0; i < 5; i++) {
             m_coeff[i+2] = coeffs[i];
         }
     }
-
-#ifdef H298MODIFY_CAPABILITY
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
         double tt[6];
@@ -222,7 +210,7 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         if (k != m_index) {
             return;
         }
@@ -230,8 +218,6 @@ public:
         double delH = Hf298New - hcurr;
         m_coeff[0] += (delH) / GasConstant;
     }
-
-#endif
 
 protected:
     //! array of polynomial coefficients

@@ -22,7 +22,6 @@ namespace Cantera
 SquareMatrix::SquareMatrix() :
     DenseMatrix(),
     GeneralMatrix(0),
-    m_factored(0),
     a1norm_(0.0),
     useQR_(0)
 {
@@ -31,7 +30,6 @@ SquareMatrix::SquareMatrix() :
 SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
     DenseMatrix(n, n, v),
     GeneralMatrix(0),
-    m_factored(0),
     a1norm_(0.0),
     useQR_(0)
 
@@ -41,7 +39,6 @@ SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
 SquareMatrix::SquareMatrix(const SquareMatrix& y) :
     DenseMatrix(y),
     GeneralMatrix(0),
-    m_factored(y.m_factored),
     a1norm_(y.a1norm_),
     useQR_(y.useQR_)
 {
@@ -54,13 +51,12 @@ SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y)
     }
     DenseMatrix::operator=(y);
     GeneralMatrix::operator=(y);
-    m_factored = y.m_factored;
     a1norm_ = y.a1norm_;
     useQR_ = y.useQR_;
     return *this;
 }
 
-int SquareMatrix::solve(doublereal* b)
+int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
 {
     if (useQR_) {
         return solveQR(b);
@@ -75,12 +71,15 @@ int SquareMatrix::solve(doublereal* b)
             return retn;
         }
     }
+    if (ldb == 0) {
+        ldb = nColumns();
+    }
     /*
      * Solve the factored system
      */
     ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(nRows()),
-              1, &(*(begin())), static_cast<int>(nRows()),
-              DATA_PTR(ipiv()), b, static_cast<int>(nColumns()), info);
+              nrhs, &(*(begin())), static_cast<int>(nRows()),
+              DATA_PTR(ipiv()), b, ldb, info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::solve(): DGETRS returned INFO = %d\n", info);
@@ -145,11 +144,6 @@ int SquareMatrix::factor()
         }
     }
     return info;
-}
-
-void SquareMatrix::clearFactorFlag()
-{
-    m_factored = 0;
 }
 
 void SquareMatrix::setFactorFlag()
@@ -252,9 +246,6 @@ doublereal SquareMatrix::rcond(doublereal anorm)
         throw CELapackError("SquareMatrix::rcond()", "matrix isn't factored correctly");
     }
 
-    //  doublereal anorm = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
-
-
     int rinfo = 0;
     rcond = ct_dgecon('1', m_nrows, &(*(begin())), m_nrows, anorm, DATA_PTR(work),
                       DATA_PTR(iwork_), rinfo);
@@ -312,11 +303,6 @@ int SquareMatrix::factorAlgorithm() const
     return (int) useQR_;
 }
 
-bool SquareMatrix::factored() const
-{
-    return (m_factored != 0);
-}
-
 doublereal* SquareMatrix::ptrColumn(size_t j)
 {
     return Array2D::ptrColumn(j);
@@ -365,9 +351,7 @@ size_t SquareMatrix::checkRows(doublereal& valueSmall) const
     for (size_t i = 0; i < m_nrows; i++) {
         double valueS = 0.0;
         for (size_t j = 0; j < m_nrows; j++) {
-            if (fabs(value(i,j)) > valueS) {
-                valueS = fabs(value(i,j));
-            }
+            valueS = std::max(fabs(value(i,j)), valueS);
         }
         if (valueS < valueSmall) {
             iSmall = i;
@@ -384,9 +368,7 @@ size_t SquareMatrix::checkColumns(doublereal& valueSmall) const
     for (size_t j = 0; j < m_nrows; j++) {
         double valueS = 0.0;
         for (size_t i = 0; i < m_nrows; i++) {
-            if (fabs(value(i,j)) > valueS) {
-                valueS = fabs(value(i,j));
-            }
+            valueS = std::max(fabs(value(i,j)), valueS);
         }
         if (valueS < valueSmall) {
             jSmall = j;

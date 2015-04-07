@@ -76,15 +76,6 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
 {
     m_thermo = tr.thermo;
     tr.thermo = 0;
-    //m_nsp   = m_thermo->nSpecies();
-    //m_tmin  = m_thermo->minTemp();
-    //m_tmax  = m_thermo->maxTemp();
-
-    // make a local copy of the molecular weights
-    //m_mw.resize(m_nsp, 0.0);
-    //copy(m_thermo->molecularWeights().begin(),
-    //     m_thermo->molecularWeights().end(), m_mw.begin());
-
     m_ionConductivity =  tr.ionConductivity;
     tr.ionConductivity = 0;
     m_electConductivity =  tr.electConductivity;
@@ -142,9 +133,8 @@ doublereal SolidTransport::electricalConductivity()
         return m_electConductivity->getSpeciesTransProp();
     } else {
         getMobilities(&m_work[0]);
-        int nsp = m_thermo->nSpecies();
         doublereal sum = 0.0;
-        for (int k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
             sum += m_thermo->charge(k) * m_thermo->moleFraction(k) * m_work[k];
         }
         return sum * m_thermo->molarDensity();

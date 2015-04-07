@@ -142,8 +142,7 @@ doublereal MineralEQ3::thermalExpansionCoeff() const
  * ---- Chemical Potentials and Activities ----
  */
 
-void MineralEQ3::
-getActivityConcentrations(doublereal* c) const
+void MineralEQ3::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;
 }
@@ -158,8 +157,7 @@ doublereal MineralEQ3::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void MineralEQ3::
-getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
+void MineralEQ3::getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < 6; i++) {
         uA[i] = 0;
@@ -170,8 +168,7 @@ getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
  * Properties of the Standard State of the Species in the Solution
  */
 
-void MineralEQ3::
-getStandardChemPotentials(doublereal* mu0) const
+void MineralEQ3::getStandardChemPotentials(doublereal* mu0) const
 {
     getGibbs_RT(mu0);
     mu0[0] *= GasConstant * temperature();
@@ -234,14 +231,12 @@ void MineralEQ3::initThermo()
 
 void MineralEQ3::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("MineralEQ3::setParameters");
     doublereal rho = c[0];
     setDensity(rho);
 }
 
 void MineralEQ3::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("MineralEQ3::getParameters");
     doublereal rho = density();
     n = 1;
     c[0] = rho;
@@ -350,12 +345,6 @@ void MineralEQ3::convertDGFormation()
             totalSum += na * ge;
         }
     }
-    // Add in the charge
-    // if (m_charge_j != 0.0) {
-    // ename = "H";
-    // ge = LookupGe(ename);
-    // totalSum -= m_charge_j * ge;
-    //}
     // Ok, now do the calculation. Convert to joules kmol-1
     doublereal dg = m_deltaG_formation_pr_tr * 4.184 * 1.0E3;
     //! Store the result into an internal variable.

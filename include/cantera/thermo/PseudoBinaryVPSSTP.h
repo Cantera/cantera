@@ -96,20 +96,7 @@ public:
      */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! @name  Utilities
-    //! @{
-
-    //! Equation of state type flag.
-    /*!
-     * The ThermoPhase base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Known constants defined for this purpose are
-     * listed in mix_defs.h.
-     */
-    virtual int eosType() const;
-
     /**
-     * @}
      * @name Activities, Standard States, and Activity Concentrations
      *
      * The activity \f$a_k\f$ of a species in solution is
@@ -135,13 +122,6 @@ public:
      */
     virtual doublereal standardConcentration(size_t k=0) const;
 
-    /**
-     * Returns the natural logarithm of the standard
-     * concentration of the kth species
-     *
-     * @param k  species index
-     */
-    virtual doublereal logStandardConc(size_t k=0) const;
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
@@ -168,8 +148,7 @@ public:
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and
-    /// ThermoFactory.cpp.
+    /// To see how they are used, see importPhase().
 
     /*!
      * @internal Initialize. This method is provided to allow
@@ -180,9 +159,7 @@ public:
      * and subclasses that do not require initialization do not
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
-     * from function importPhase.
-     *
-     * @see importCTML.cpp
+     * from function importPhase().
      */
     virtual void initThermo();
 
@@ -207,20 +184,13 @@ public:
      * @param show_thermo If true, extra information is printed out
      *                    about the thermodynamic state of the system.
      */
-    virtual std::string report(bool show_thermo = true) const;
+    virtual std::string report(bool show_thermo=true,
+                               doublereal threshold=1e-14) const;
 
 private:
     //! Initialize lengths of local variables after all species have
     //! been identified.
     void initLengths();
-
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
 
 protected:
     int PBType_;
@@ -254,8 +224,6 @@ protected:
 #define  PBTYPE_SINGLEANION        1
 #define  PBTYPE_SINGLECATION       2
 #define  PBTYPE_MULTICATIONANION   3
-
-
 
 }
 

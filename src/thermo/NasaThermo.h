@@ -138,7 +138,6 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     * @deprecated
      */
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
@@ -146,10 +145,8 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const;
 
-#ifdef H298MODIFY_CAPABILITY
-    virtual doublereal reportOneHf298(const int k) const;
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New);
-#endif
+    virtual doublereal reportOneHf298(const size_t k) const;
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
 
     //! Initialized to the type of parameterization
     /*!

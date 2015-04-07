@@ -26,10 +26,6 @@
 using namespace std;
 using namespace Cantera;
 
-#ifdef _WIN32
-#include "windows.h"
-#endif
-
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
@@ -226,8 +222,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap xx = parseCompString(x, p.speciesNames());
-            p.setMoleFractionsByName(xx);
+            p.setMoleFractionsByName(x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -255,8 +250,7 @@ extern "C" {
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
-            compositionMap yy = parseCompString(y, p.speciesNames());
-            p.setMassFractionsByName(yy);
+            p.setMassFractionsByName(y);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -693,6 +687,24 @@ extern "C" {
         }
     }
 
+    doublereal th_thermalExpansionCoeff(int n)
+    {
+        try {
+            return ThermoCabinet::item(n).thermalExpansionCoeff();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    doublereal th_isothermalCompressibility(int n)
+    {
+        try {
+            return ThermoCabinet::item(n).isothermalCompressibility();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     //-------------- pure fluids ---------------//
 
     double th_critTemperature(int n)
@@ -991,18 +1003,6 @@ extern "C" {
             Kinetics& k = KineticsCabinet::item(n);
             k.checkReactionArraySize(len);
             k.getRevRateConstants(krev, doIrreversible != 0);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int kin_getActivationEnergies(int n, size_t len, double* E)
-    {
-        try {
-            Kinetics& k = KineticsCabinet::item(n);
-            k.checkReactionArraySize(len);
-            k.getActivationEnergies(E);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1336,21 +1336,11 @@ extern "C" {
         }
     }
 
-    int write_phase(int nth, int show_thermo)
+    int write_phase(int nth, int show_thermo, double threshold)
     {
         try {
             bool stherm = (show_thermo != 0);
-            writelog(ThermoCabinet::item(nth).report(stherm)+"\n");
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int write_HTML_log(const char* file)
-    {
-        try {
-            write_logfile(file);
+            writelog(ThermoCabinet::item(nth).report(stherm, threshold)+"\n");
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1404,7 +1394,6 @@ extern "C" {
         try {
             string s;
             writelog("function readlog is deprecated!");
-            //getlog(s);
             int nlog = static_cast<int>(s.size());
             if (n < 0) {
                 return nlog;
@@ -1413,7 +1402,6 @@ extern "C" {
             copy(s.begin(), s.begin() + nn,
                  buf);
             buf[min(nlog, n-1)] = '\0';
-            //clearlog();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1509,15 +1497,4 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
-    int writelogfile(char* logfile)
-    {
-        try {
-            write_logfile(logfile);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
 }

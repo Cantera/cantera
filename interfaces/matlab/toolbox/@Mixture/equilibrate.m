@@ -33,21 +33,8 @@ function r = equilibrate(self, XY, err, maxsteps, maxiter, ...
 %       iterations.  This is only relevant if a property pair other
 %       than (T,P) is specified. Default: 200.
 %
-%       loglevel - Controls the amount of diagnostic output. If
-%       loglevel = 0, no diagnostic output is written. For values > 0,
-%       more detailed information is written to the log file as
-%       loglevel increases. The default is loglevel = 0.
-%
-%       The logfile is written in HTML format, and may be viewed with
-%       any web browser. The default log file name is
-%       "equilibrium_log.html", but if this file exists, the log
-%       information will be written to "equilibrium_log{n}.html",
-%       where {n} is an integer chosen so that the log file does not
-%       already exist. Therefore, if 'equilibrate' is called multiple
-%       times, multiple log files will be written, with names
-%       "equilibrate_log.html", "equilibrate_log1.html",
-%       "equilibrate_log2.html", and so on. Existing log files will
-%       not be overwritten.
+%       loglevel -- set to a value > 0 to write diagnostic output.
+%       Larger values generate more detailed information.
 %
 %          >> equilibrate(mix, 'TP')
 %          >> equilibrate('TP', 1.0e-6, 500)

@@ -98,12 +98,6 @@ public:
     virtual doublereal entropy_mole() const;
 
     /**
-     * Molar gibbs Function. Units: J/kmol. This is determined
-     * from the molar enthalpy and entropy functions.
-     */
-    virtual doublereal gibbs_mole() const;
-
-    /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
      * For an incompressible substance, \f$ \hat c_p = \hat c_v\f$.
      */
@@ -189,7 +183,6 @@ public:
      *     uA[3] = Pa(pressure) units - default = 0;
      *     uA[4] = Temperature units - default = 0;
      *     uA[5] = time units - default = 0
-     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -230,6 +223,21 @@ public:
      * solution. Units: J/kmol/K.
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
+
+    //! Get the species partial molar enthalpies. Units: J/kmol.
+    /*!
+     * @param ubar    Output vector of species partial molar internal energies.
+     *                Length = m_kk. units are J/kmol.
+     */
+    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
+
+    //! Get the partial molar heat capacities Units: J/kmol/K
+    /*!
+     * @param cpbar   Output vector of species partial molar heat capacities
+     *                at constant pressure.
+     *                Length = m_kk. units are J/kmol/K.
+     */
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
 
     /**
      * returns an array of partial molar volumes of the species
@@ -298,13 +306,6 @@ public:
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
-#ifdef H298MODIFY_CAPABILITY
-
-    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
-        m_tlast += 0.0001234;
-    }
-#endif
     /**
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
@@ -355,10 +356,8 @@ public:
 
     virtual void initThermo();
 
-    //! @deprecated Use setDensity()
     virtual void setParameters(int n, double* const c);
 
-    //! @deprecated Use density()
     virtual void getParameters(int& n, double* const c) const;
 
     virtual void setParametersFromXML(const XML_Node& eosdata);
@@ -367,7 +366,6 @@ protected:
     doublereal m_press;
     doublereal m_p0;
 
-    mutable doublereal     m_tlast;
     mutable vector_fp      m_h0_RT;
     mutable vector_fp      m_cp0_R;
     mutable vector_fp      m_s0_R;

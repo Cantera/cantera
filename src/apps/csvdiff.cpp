@@ -30,6 +30,8 @@
 #else
 #include <string>
 #endif
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 #if defined(__CYGWIN__)
@@ -212,9 +214,92 @@ static int breakStrCommas(char* str, char** strlets, int maxPieces)
     return numbreaks + 1;
 }
 
-/*****************************************************************************/
-/*****************************************************************************/
-/*****************************************************************************/
+/**************************************************************************************************************************/
+/**************************************************************************************************************************/
+/*
+ *  Here, we ensure consistency of the file
+ *    ntitleLines of any content
+ *    nColTitleLines of nCol columns. Each are separated by column.
+ *    nDataRows of nCol columns. Each are separated by columns
+ *        Each column is identified as either a text or double. Each double entry must be able to be read
+ *        as a double.
+ */
+static void check_consistency(FILE* fp, const char *fileName,  const int nTitleLines, const int nColTitleLines,
+			      const int nCol, const int nDataRows, const std::vector<int>& ColIsFloat)
+{
+    int retn, ncolsFound;
+    bool rerr;
+    TOKEN fieldToken;
+    char* scanLine = mdp_alloc_char_1(MAX_INPUT_STR_LN+1, '\0');
+    char** strlets = (char**) mdp_alloc_ptr_1(nCol+200);
+    /*
+     * Rewind the file
+     */
+    rewind(fp);
+
+    for (int i = 0; i < nTitleLines; i++) {
+        retn = read_line(fp, scanLine, 0);
+	if (retn == -1) {
+	    fprintf(stderr, "check_consistency() error for file %s, Line %d couldn't be read\n",
+		    fileName, i);
+	    exit(-1);
+	}
+    }
+    if (nColTitleLines == 0) {
+	if (nTitleLines > 0) {
+	    fprintf(stderr, "check_consistency() error for file %s, number column title lines are zero but number title lines are greater than 0",
+		    fileName);
+	    exit(-1);
+	}
+    }
+    for (int i = 0; i < nColTitleLines; i++) {
+        retn = read_line(fp, scanLine, 0);
+	if (retn == -1) {
+	    fprintf(stderr, "check_consistency() error for file %s, Line %d couldn't be read\n",
+		    fileName, i);
+	    exit(-1);
+	}
+	ncolsFound = breakStrCommas(scanLine, strlets, nCol);
+        if (ncolsFound != (nCol)) {
+	    fprintf(stderr, "check_consistency() error for file %s, Line %d of "
+		    "ColTitleLines didn't have correct commas: %d vs %d\n", fileName, i, ncolsFound, nCol);
+	    fprintf(stderr, "             %s\n", scanLine);
+	}
+    }
+    for (int i = 0; i < nDataRows; i++) {
+	retn = read_line(fp, scanLine, 0);
+	ncolsFound = breakStrCommas(scanLine, strlets, nCol);
+	if (retn == -1) {
+	    fprintf(stderr, "check_consistency() error for file %s, Line %d couldn't be read\n",
+		    fileName, i);
+	    exit(-1);
+	}	
+	if (ncolsFound != (nCol)) {
+	    fprintf(stderr, "check_consistency() error for file %s, Line %d of DataLines didn't have correct commas: %d vs %d\n",
+		    fileName, i, ncolsFound, nCol);
+	    fprintf(stderr,"             %s\n", scanLine);
+	    exit(-1);
+	}
+	for (int j = 0; j < ncolsFound; j++) {
+	    char* fieldStr = strlets[j];
+	    fillTokStruct(&fieldToken, fieldStr);
+	    if (ColIsFloat[j] > 0) {
+		(void) tok_to_double(&fieldToken, DBL_MAX, -DBL_MAX, 0.0, &rerr);
+		if (rerr) {
+		    fprintf(stderr, "check_consistency() error for file %s, Line %d of DataLines, col %d, "
+			    "couldn't be converted to a double\n",
+			    fileName, i, j);
+		    fprintf(stderr,"             %s\n", scanLine);
+		    exit(-1);
+		    
+		}
+	    }
+	}
+    }
+    mdp_safe_free((void**) &strlets);
+    mdp_safe_free((void**) &scanLine);
+}
+/**************************************************************************************************************************/
 #define LT_NULLLINE  0
 #define LT_TITLELINE 1
 #define LT_COLTITLE  2
@@ -239,7 +324,7 @@ static int breakStrCommas(char* str, char** strlets, int maxPieces)
  */
 
 static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
-                      int& nCol, int& nDataRows, int** ColIsFloat_ptr)
+                      int& nCol, int& nDataRows, std::vector<int>& ColIsFloat)
 {
     int nScanLinesMAX = 100;
     int nScanLines = nScanLinesMAX;
@@ -248,7 +333,6 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
     TOKEN fieldToken;
     char* scanLine = mdp_alloc_char_1(MAX_INPUT_STR_LN+1, '\0');
     int* numCommas = mdp_alloc_int_1(nScanLinesMAX, -1);
-    int* ColIsFloat = *ColIsFloat_ptr;
 
     /*
      * Rewind the file
@@ -290,6 +374,8 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
             if (maxCommas < numCommas[i]) {
                 maxCommas = numCommas[i];
             }
+        } else {
+            maxCommas = numCommas[0];
         }
     }
     /*
@@ -301,10 +387,16 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
     }
     char** strlets = (char**) mdp_alloc_ptr_1(maxCommas+1);
 
+    if (ColIsFloat.size() < maxCommas+1) {
+	ColIsFloat.resize(maxCommas+1);
+    }
+
     /*
      * Figure out if each column is a text or float
      */
     rewind(fp);
+    ColIsFloat.assign(ColIsFloat.size(), 0);
+   
     for (i = 0; i < nScanLines; i++) {
         retn = read_line(fp, scanLine, 0);
         int ncolsFound = breakStrCommas(scanLine, strlets, nCol);
@@ -316,19 +408,43 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
                     break;
                 }
                 bool rerr = false;
-                (void) tok_to_double(&fieldToken, DBL_MAX,
-                                     -DBL_MAX, 0.0, &rerr);
+                (void) tok_to_double(&fieldToken, DBL_MAX, -DBL_MAX, 0.0, &rerr);
                 if (!rerr) {
-                    ColIsFloat[j] = true;
+                    ColIsFloat[j]++;
                 }
             }
-
         }
+    }
+    std::vector<int>::iterator it;
+    it = std::max_element(ColIsFloat.begin(), ColIsFloat.end());
+    int maxFloats = *it;
+    it = std::min_element(ColIsFloat.begin(), ColIsFloat.end());
+    int minFloats = *it;
+    // if maxFloats == 0, we're done. No column is float
+    if (maxFloats > 0) {
+	for (j = 0; j < maxCommas + 1; j++) {
+	    if (ColIsFloat[j] != maxFloats) {
+		if (ColIsFloat[j] == minFloats) {
+		    // hook for debugger
+		    if (ColIsFloat[j] > 0) {
+			ColIsFloat[j] = 0;
+		    }
+		} else {
+		    printf("WARNING: type of column %d couldn't be uniquely determined, assuming text\n", j);
+		    ColIsFloat[j] = 0;
+		}
+	    }
+	}
     }
 
 
-
     int doingLineType = LT_TITLELINE;
+    if (nScanLines == 2) {
+        nTitleLines = 0;
+        doingLineType = LT_COLTITLE;
+    }
+
+
     rewind(fp);
     for (i = 0; i < nScanLines; i++) {
         retn = read_line(fp, scanLine, 0);
@@ -361,9 +477,8 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
                     goodDataLine = false;
                     break;
                 }
-                if ((ColIsFloat[j]) == 1) {
-                    (void) tok_to_double(&fieldToken, DBL_MAX,
-                                         -DBL_MAX, 0.0, &rerr);
+                if ((ColIsFloat[j]) > 0) {
+                    (void) tok_to_double(&fieldToken, DBL_MAX, -DBL_MAX, 0.0, &rerr);
                     if (rerr) {
                         goodDataLine = false;
                         break;
@@ -411,7 +526,7 @@ static void get_sizes(FILE* fp, int& nTitleLines, int& nColTitleLines,
                     goodDataLine = false;
                     break;
                 }
-                if (ColIsFloat[j] == 1) {
+                if (ColIsFloat[j] > 0) {
                     (void) tok_to_double(&fieldToken, DBL_MAX,
                                          -DBL_MAX, 0.0, &rerr);
                     if (rerr) {
@@ -535,7 +650,7 @@ static double get_atol(const double* values, const int nvals,
 
 static void
 read_values(FILE* fp, double** NVValues, char** *NSValues, int nCol, int nDataRows,
-            int* ColIsFloat)
+            std::vector<int>& ColIsFloat)
 {
     char** strlets = (char**) mdp_alloc_ptr_1(nCol+1);
     char* scanLine = mdp_alloc_char_1(Max_Input_Str_Ln + 1, '\0');
@@ -638,7 +753,8 @@ int main(int argc, char* argv[])
     char**   ColNames1 = NULL, **ColNames2 = NULL;
     double** NVValues1 = NULL, **NVValues2 = NULL;
     char**   *NSValues1 = NULL, *** NSValues2 = NULL;
-    int*    ColIsFloat1 = NULL, *ColIsFloat2 = NULL;
+    std::vector<int> ColIsFloat1;
+    std::vector<int> ColIsFloat2;
     double* curVarValues1 = NULL, *curVarValues2 = NULL;
     char** curStringValues1 = NULL, **curStringValues2 = NULL;
     int    i, j, ndiff, jmax=0, i1, i2, k;
@@ -739,13 +855,14 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    ColIsFloat1 = mdp_alloc_int_1(200, 0);
-    ColIsFloat2 = mdp_alloc_int_1(200, 0);
+    ColIsFloat1.resize(200, 0);
+    ColIsFloat2.resize(200, 0);
+   
     /*
      *   Obtain the size of the problem information: Compare between files.
      */
 
-    get_sizes(fp1, nTitleLines1, nColTitleLines1, nCol1, nDataRows1, &ColIsFloat1);
+    get_sizes(fp1, nTitleLines1, nColTitleLines1, nCol1, nDataRows1, ColIsFloat1);
     if (nCol1 == 0) {
         printf("Number of columns in file %s is zero\n", fileName1);
         testPassed = RT_FAILED_OTHER;
@@ -757,7 +874,10 @@ int main(int argc, char* argv[])
         exit(RT_FAILED_OTHER);
     }
 
-    get_sizes(fp2, nTitleLines2, nColTitleLines2, nCol2, nDataRows2, &ColIsFloat2);
+
+    check_consistency(fp1, fileName1,  nTitleLines1, nColTitleLines1, nCol1, nDataRows1, ColIsFloat1);
+
+    get_sizes(fp2, nTitleLines2, nColTitleLines2, nCol2, nDataRows2, ColIsFloat2);
     if (nCol2 == 0) {
         printf("Number of columns in file %s is zero\n", fileName2);
         testPassed = RT_FAILED_OTHER;
@@ -782,6 +902,8 @@ int main(int argc, char* argv[])
     } else if (Debug_Flag) {
         printf("Number of column title lines in each file = %d\n", nColTitleLines1);
     }
+
+    check_consistency(fp2, fileName2, nTitleLines2, nColTitleLines2, nCol2, nDataRows2, ColIsFloat2);
 
     /*
      * Right now, if the number of data rows differ, we will punt.

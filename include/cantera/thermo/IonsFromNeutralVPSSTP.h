@@ -218,14 +218,6 @@ public:
      */
     virtual doublereal enthalpy_mole() const;
 
-    /**
-     * Molar internal energy. J/kmol.
-     *
-     * This is calculated from the soln enthalpy and then
-     * subtracting pV.
-     */
-    virtual doublereal intEnergy_mole() const;
-
     //! Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const;
 
@@ -546,9 +538,7 @@ public:
      * and subclasses that do not require initialization do not
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
-     * from function importPhase.
-     *
-     * @see importCTML.cpp
+     * from function importPhase().
      */
     virtual void initThermo();
 
@@ -623,18 +613,7 @@ private:
      */
     void s_update_dlnActCoeff_dlnN() const;
 
-
-private:
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
 protected:
-
     //! Ion solution type
     /*!
      *  There is either mixing on the anion, cation, or both lattices.

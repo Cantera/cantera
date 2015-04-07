@@ -14,38 +14,8 @@ using namespace std;
 namespace Cantera
 {
 
-#if defined(WITH_HTML_LOGS)
-
-//! Used to print reaction equations. Given a stoichiometric coefficient 'nu'
-//! and a chemical symbol 'sym', return a string for this species in the
-//! reaction.
-//! @param first  if this is false, then a " + " string will be added to the
-//!     beginning of the string.
-//! @param nu  Stoichiometric coefficient. May be positive or negative. The
-//!     absolute value will be used in the string.
-//! @param sym Species chemical symbol.
-static string coeffString(bool first, doublereal nu, string sym)
-{
-    if (nu == 0.0) {
-        return "";
-    }
-    string strt = " + ";
-    if (first) {
-        strt = "";
-    }
-    if (nu == 1.0 || nu == -1.0) {
-        return strt + sym;
-    }
-    string s = fp2str(fabs(nu));
-    return strt + s + " " + sym;
-}
-#endif
-
 MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_mix(mix)
 {
-    // the multi-phase mixture
-    //        m_mix = mix;
-
     // store some mixture parameters locally
     m_nel_mix = mix->nElements();
     m_nsp_mix = mix->nSpecies();
@@ -206,40 +176,17 @@ doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err,
 {
     int i;
     m_iter = 0;
-    string iterstr;
-    if (loglevel > 0) {
-        beginLogGroup("MultiPhaseEquil::equilibrate", loglevel);
-    }
 
     for (i = 0; i < maxsteps; i++) {
-        if (loglevel > 0) {
-            iterstr = "iteration "+int2str(i);
-            beginLogGroup(iterstr);
-        }
         stepComposition(loglevel-1);
-        if (loglevel > 0) {
-            addLogEntry("error",fp2str(error()));
-            endLogGroup(iterstr);
-        }
         if (error() < err) {
             break;
         }
     }
     if (i >= maxsteps) {
-        if (loglevel > 0) {
-            addLogEntry("Error","no convergence in "+int2str(maxsteps)
-                        +" iterations");
-            endLogGroup("MultiPhaseEquil::equilibrate");
-        }
         throw CanteraError("MultiPhaseEquil::equilibrate",
                            "no convergence in " + int2str(maxsteps) +
                            " iterations. Error = " + fp2str(error()));
-    }
-    if (loglevel > 0) {
-        addLogEntry("iterations",int2str(iterations()));
-        addLogEntry("error tolerance",fp2str(err));
-        addLogEntry("error",fp2str(error()));
-        endLogGroup("MultiPhaseEquil::equilibrate");
     }
     finish();
     return error();
@@ -270,9 +217,6 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
     size_t ik, j;
 
     double not_mu = 1.0e12;
-    if (loglevel > 0) {
-        beginLogGroup("MultiPhaseEquil::setInitialMoles");
-    }
 
     m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
     doublereal dg_rt;
@@ -288,9 +232,6 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
         // choose a set of components based on the current
         // composition
         computeN();
-        if (loglevel > 0) {
-            addLogEntry("iteration",iter);
-        }
         redo = false;
         iter++;
         if (iter > 4) {
@@ -321,14 +262,9 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
                     // if a component has nearly zero moles, redo
                     // with a new set of components
                     if (!redo && delta_xi < 1.0e-10 && ik < m_nel) {
-                        if (loglevel > 0) {
-                            addLogEntry("component too small",speciesName(ik));
-                        }
                         redo = true;
                     }
-                    if (delta_xi < dxi_min) {
-                        dxi_min = delta_xi;
-                    }
+                    dxi_min = std::min(dxi_min, delta_xi);
                 }
             }
             // step the composition by dxi_min
@@ -338,13 +274,6 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
         }
         // set the moles of the phase objects to match
         updateMixMoles();
-    }
-    for (ik = 0; ik < m_nsp; ik++)
-        if (moles(ik) != 0.0) {
-            addLogEntry(speciesName(ik), moles(ik));
-        }
-    if (loglevel > 0) {
-        endLogGroup("MultiPhaseEquil::setInitialMoles");
     }
     return 0;
 }
@@ -509,78 +438,10 @@ void MultiPhaseEquil::unsort(vector_fp& x)
     }
 }
 
-#if defined(WITH_HTML_LOGS)
-void MultiPhaseEquil::printInfo(int loglevel)
-{
-    size_t m, ik, k;
-    if (loglevel > 0) {
-        beginLogGroup("info");
-        beginLogGroup("components");
-    }
-    for (m = 0; m < m_nel; m++) {
-        ik = m_order[m];
-        k = m_species[ik];
-        if (loglevel > 0) {
-            addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
-        }
-    }
-    if (loglevel > 0) {
-        endLogGroup("components");
-        beginLogGroup("non-components");
-    }
-    for (m = m_nel; m < m_nsp; m++) {
-        ik = m_order[m];
-        k = m_species[ik];
-        if (loglevel > 0) {
-            addLogEntry(m_mix->speciesName(k), fp2str(m_moles[ik]));
-        }
-    }
-    if (loglevel > 0) {
-        endLogGroup("non-components");
-        addLogEntry("Error",fp2str(error()));
-        beginLogGroup("Delta G / RT");
-    }
-    for (k = 0; k < nFree(); k++) {
-        if (loglevel > 0) {
-            addLogEntry(reactionString(k), fp2str(m_deltaG_RT[k]));
-        }
-    }
-    if (loglevel > 0) {
-        endLogGroup("Delta G / RT");
-        endLogGroup("info");
-    }
-}
-
-string MultiPhaseEquil::reactionString(size_t j)
-{
-    string sr = "", sp = "";
-    size_t i, k;
-    bool rstrt = true;
-    bool pstrt = true;
-    doublereal nu;
-    for (i = 0; i < m_nsp; i++) {
-        nu = m_N(i, j);
-        k = m_species[m_order[i]];
-        if (nu < 0.0) {
-            sr += coeffString(rstrt, nu, m_mix->speciesName(k));
-            rstrt = false;
-        }
-        if (nu > 0.0) {
-            sp += coeffString(pstrt, nu, m_mix->speciesName(k));
-            pstrt = false;
-        }
-    }
-    return sr + " <=> " + sp;
-}
-#endif
-
 void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
                            int loglevel)
 {
     size_t k, ik;
-    if (loglevel > 0) {
-        beginLogGroup("MultiPhaseEquil::step");
-    }
     if (omega < 0.0) {
         throw CanteraError("step","negative omega");
     }
@@ -588,12 +449,6 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
     for (ik = 0; ik < m_nel; ik++) {
         k = m_order[ik];
         m_lastmoles[k] = m_moles[k];
-        if (loglevel > 0) {
-            addLogEntry("component "+m_mix->speciesName(m_species[k])+" moles",
-                        m_moles[k]);
-            addLogEntry("component "+m_mix->speciesName(m_species[k])+" step",
-                        omega*deltaN[k]);
-        }
         m_moles[k] += omega * deltaN[k];
     }
 
@@ -608,18 +463,10 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
         }
     }
     updateMixMoles();
-    if (loglevel > 0) {
-        endLogGroup("MultiPhaseEquil::step");
-    }
 }
 
-doublereal MultiPhaseEquil::
-stepComposition(int loglevel)
+doublereal MultiPhaseEquil::stepComposition(int loglevel)
 {
-    if (loglevel > 0) {
-        beginLogGroup("MultiPhaseEquil::stepComposition");
-    }
-
     m_iter++;
     size_t ik, k = 0;
     doublereal grad0 = computeReactionSteps(m_dxi);
@@ -672,25 +519,17 @@ stepComposition(int loglevel)
             if (m_work[k] < 0.0 && m_moles[k] > 0.0) {
                 omax = -m_moles[k]/m_work[k];
                 if (omax < omegamax) {
-                    omegamax = omax; //*1.000001;
+                    omegamax = omax;
                     if (omegamax < 1.0e-5) {
                         m_force = true;
                     }
                 }
-            }
-            if (m_moles[k] < -Tiny) {
-                if (loglevel > 0)
-                    addLogEntry("Negative moles for "
-                                +m_mix->speciesName(m_species[k]), fp2str(m_moles[k]));
             }
             m_majorsp[k] = true;
         }
     }
 
     // now take a step with this scaled omega
-    if (loglevel > 0) {
-        addLogEntry("Stepping by ", fp2str(omegamax));
-    }
     step(omegamax, m_work);
     // compute the gradient of G at this new position in the
     // current direction. If it is positive, then we have overshot
@@ -708,15 +547,9 @@ stepComposition(int loglevel)
         for (k = 0; k < m_nsp; k++) {
             m_moles[k] = m_lastmoles[k];
         }
-        if (loglevel > 0) {
-            addLogEntry("Stepped over minimum. Take smaller step ", fp2str(omega));
-        }
         step(omega, m_work);
     }
     printInfo(loglevel);
-    if (loglevel > 0) {
-        endLogGroup("MultiPhaseEquil::stepComposition");
-    }
     return omega;
 }
 
@@ -784,8 +617,7 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
                     for (k = 0; k < m_nsp; k++) {
                         kc = m_species[k];
                         if (m_mix->speciesPhaseIndex(kc) == ip) {
-                            // bug fixed 7/12/06 DGG
-                            stoich = nu[k]; // nu[kc];
+                            stoich = nu[k];
                             psum += stoich * stoich;
                         }
                     }
@@ -872,9 +704,7 @@ doublereal MultiPhaseEquil::error()
         } else {
             err = fabs(m_deltaG_RT[j]);
         }
-        if (err > maxerr) {
-            maxerr = err;
-        }
+        maxerr = std::max(maxerr, err);
     }
     return maxerr;
 }
@@ -896,8 +726,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
-        printf("Failure to open file\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("MultiPhaseEquil::reportCSV", "Failure to open file");
     }
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
@@ -920,7 +749,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         VolPM.resize(nSpecies, 0.0);
         tref.getMoleFractions(&mf[istart]);
         tref.getPartialMolarVolumes(DATA_PTR(VolPM));
-        //vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
 
         double TMolesPhase = phaseMoles(iphase);
         double VolPhaseVolumes = 0.0;
@@ -935,8 +763,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fprintf(FP,"Temperature  = %11.5g kelvin\n", Temp);
     fprintf(FP,"Pressure     = %11.5g Pascal\n", pres);
     fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
-    //    fprintf(FP,"Number Basis optimizations = %d\n", m_vprob->m_NumBasisOptimizations);
-    // fprintf(FP,"Number VCS iterations = %d\n", m_vprob->m_Iterations);
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         istart =    m_mix->speciesIndex(0, iphase);
@@ -945,9 +771,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         ThermoPhase* tp = &tref;
         tp->getMoleFractions(&mf[istart]);
         string phaseName = tref.name();
-        //      vcs_VolPhase *volP = m_vprob->VPhaseList[iphase];
         double TMolesPhase = phaseMoles(iphase);
-        //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
         nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);
         ac.resize(nSpecies, 0.0);
@@ -1021,21 +845,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         VolPM[k],  VolPhaseVolumes);
             }
         }
-#ifdef DEBUG_MODE
-        /*
-         * Check consistency: These should be equal
-         */
-        tp->getChemPotentials(&(fe[istart]));
-        for (k = 0; k < nSpecies; k++) {
-            //if (!vcs_doubleEqual(fe[istart+k], mu[k])) {
-            //  fprintf(FP,"ERROR: incompatibility!\n");
-            //  fclose(FP);
-            //  printf("ERROR: incompatibility!\n");
-            //  exit(EXIT_FAILURE);
-            // }
-        }
-#endif
-
     }
     fclose(FP);
 }

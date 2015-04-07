@@ -7,7 +7,7 @@ function prandtl1(g)
 %
 help prandtl1
 
-if nargin == 1 & isa(g,'solution')
+if nargin == 1
    gas = g;
 else
    gas = GRI30('Mix');

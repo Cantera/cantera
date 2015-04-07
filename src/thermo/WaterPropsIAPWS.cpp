@@ -37,7 +37,7 @@ static const doublereal M_water = 18.015268;
 static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
 
 // Base constructor
-WaterPropsIAPWS:: WaterPropsIAPWS() :
+WaterPropsIAPWS::WaterPropsIAPWS() :
     m_phi(0),
     tau(-1.0),
     delta(-1.0),
@@ -288,12 +288,12 @@ doublereal WaterPropsIAPWS::dpdrho() const
     return retn * Rgas * temperature / M_water;
 }
 
-doublereal WaterPropsIAPWS:: coeffPresExp() const
+doublereal WaterPropsIAPWS::coeffPresExp() const
 {
     return m_phi->dimdpdT(tau, delta);
 }
 
-doublereal WaterPropsIAPWS:: coeffThermExp() const
+doublereal WaterPropsIAPWS::coeffThermExp() const
 {
     doublereal kappa = isothermalCompressibility();
     doublereal beta = coeffPresExp();
@@ -308,9 +308,8 @@ doublereal WaterPropsIAPWS::Gibbs() const
     return gRT * Rgas * temperature;
 }
 
-void  WaterPropsIAPWS::
-corr(doublereal temperature, doublereal pressure, doublereal& densLiq,
-     doublereal& densGas, doublereal& delGRT)
+void  WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
+    doublereal& densLiq, doublereal& densGas, doublereal& delGRT)
 {
 
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
@@ -334,9 +333,8 @@ corr(doublereal temperature, doublereal pressure, doublereal& densLiq,
     delGRT = gibbsLiqRT - gibbsGasRT;
 }
 
-void WaterPropsIAPWS::
-corr1(doublereal temperature, doublereal pressure, doublereal& densLiq,
-      doublereal& densGas, doublereal& pcorr)
+void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
+    doublereal& densLiq, doublereal& densGas, doublereal& pcorr)
 {
 
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
@@ -413,7 +411,6 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
         } else {
             doublereal T = T_c / tau;
             doublereal rho = delta * Rho_c;
-            //doublereal psatTable = psat_est(T);
             doublereal rhoMidAtm = 0.5 * (OneAtm * M_water / (Rgas * 373.15) + 1.0E3);
             doublereal rhoMid = Rho_c + (T - T_c) * (Rho_c - rhoMidAtm) / (T_c - 373.15);
             int iStateGuess = WATER_LIQUID;
@@ -426,8 +423,6 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
             } else {
                 // When we are here we are between the spinodal curves
                 doublereal rhoDel = rho * 1.000001;
-
-                //setState_TR(T, rhoDel);
                 doublereal deltaSave = delta;
                 doublereal deltaDel = rhoDel / Rho_c;
                 delta = deltaDel;
@@ -440,7 +435,6 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
                 } else {
                     iState = WATER_UNSTABLEGAS;
                 }
-                //setState_TR(T, rho);
                 delta = deltaSave;
 
                 m_phi->tdpolycalc(tau, delta);
@@ -491,7 +485,6 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
             slope = std::max(slope, dpdrho_new *5.0/ dens_new);
         } else {
             slope = -dpdrho_new;
-            //slope = MIN(slope, dpdrho_new *5.0 / dens_new);
             // shouldn't be here for liquid spinodal
         }
         doublereal delta_rho =  - dpdrho_new / slope;
@@ -581,10 +574,8 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
         doublereal slope = (dpdrho_new - dpdrho_old)/(dens_new - dens_old);
         if (slope >= 0.0) {
             slope = dpdrho_new;
-            //slope = MAX(slope, dpdrho_new *5.0/ dens_new);
             // shouldn't be here for gas spinodal
         } else {
-            //slope = -dpdrho_new;
             slope = std::min(slope, dpdrho_new *5.0 / dens_new);
 
         }

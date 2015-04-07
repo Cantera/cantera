@@ -55,11 +55,26 @@ std::string int2str(const size_t n)
     return ss.str();
 }
 
+std::string vec2str(const vector_fp& v, const std::string& fmt,
+                    const std::string& sep)
+{
+    char buf[64];
+    std::stringstream o;
+    for (size_t i = 0; i < v.size(); i++) {
+        SNPRINTF(buf, 63, fmt.c_str(), v[i]);
+        o << v[i];
+        if (i != v.size() - 1) {
+            o << sep;
+        }
+    }
+    return o.str();
+}
+
+
 std::string lowercase(const std::string& s)
 {
-    int n = static_cast<int>(s.size());
     std::string lc(s);
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < s.size(); i++) {
         lc[i] = (char) tolower(s[i]);
     }
     return lc;
@@ -109,10 +124,8 @@ std::string stripws(const std::string& s)
 
 std::string stripnonprint(const std::string& s)
 {
-    int i;
-    int n = static_cast<int>(s.size());
     std::string ss = "";
-    for (i = 0; i < n; i++) {
+    for (size_t i = 0; i < s.size(); i++) {
         if (isprint(s[i])) {
             ss += s[i];
         }
@@ -135,7 +148,6 @@ compositionMap parseCompString(const std::string& ss,
             s = s.substr(ibegin,s.size());
             size_t icolon = s.find(':');
             size_t iend = s.find_first_of(", ;\n\t");
-            //icomma = s.find(',');
             if (icolon != std::string::npos) {
                 std::string name = stripws(s.substr(0, icolon));
                 if (iend != std::string::npos) {
@@ -203,6 +215,7 @@ int fillArrayFromString(const std::string& str,
 
 std::string getBaseName(const std::string& path)
 {
+    warn_deprecated("getBaseName", "To be removed after Cantera 2.2.");
     std::string file;
     size_t idot = path.find_last_of('.');
     size_t islash = path.find_last_of('/');
@@ -231,7 +244,7 @@ doublereal fpValue(const std::string& val)
     ss >> rval;
     return rval;
 }
-
+//========================================================================================================================
 doublereal fpValueCheck(const std::string& val)
 {
     std::string str = stripws(val);
@@ -255,6 +268,10 @@ doublereal fpValueCheck(const std::string& val)
                 throw CanteraError("fpValueCheck",
                                    "string has more than one .");
             }
+            if (numExp > 0) {
+                throw CanteraError("fpValueCheck",
+                                   "string has decimal point in exponent");
+            }
         } else if (ch == 'e' || ch == 'E' || ch == 'd' || ch == 'D') {
             numExp++;
             str[i] = 'E';
@@ -273,14 +290,15 @@ doublereal fpValueCheck(const std::string& val)
     }
     return fpValue(str);
 }
-
+//=====================================================================================================================
 std::string logfileName(const std::string& infile)
 {
+    warn_deprecated("logfileName", "To be removed after Cantera 2.2.");
     std::string logfile = getBaseName(infile);
     logfile += ".log";
     return logfile;
 }
-
+//====================================================================================================================
 std::string wrapString(const std::string& s, const int len)
 {
     int count=0;
@@ -299,7 +317,7 @@ std::string wrapString(const std::string& s, const int len)
     }
     return r;
 }
-
+//======================================================================================================================
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
     std::string s = stripws(nameStr);
@@ -324,47 +342,6 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
         }
     }
     return s;
-}
-
-int stripLTWScstring(char str[])
-{
-    warn_deprecated("stripLTWScstring");
-    int  i = 0, j = 0;
-    char ch;
-    const char COM_CHAR='\0';
-    /*
-     *    Quick Returns
-     */
-    if ((str == 0) || (str[0] == '\0')) {
-        return 0;
-    }
-
-    /* Find first non-space character character */
-    while (((ch = str[i]) != '\0') && isspace(ch)) {
-        i++;
-    }
-
-    /*
-     * Move real part of str to the front by copying the string
-     *   - Comments are handled here, by terminating the copy at the
-     *     first comment indicator, and inserting the null character at
-     *     that point.
-     */
-
-    while ((ch = str[j+i]) != '\0' &&
-            (ch != COM_CHAR)) {
-        str[j] = ch;
-        j++;
-    }
-    str[j] = '\0';
-    j--;
-    /* Remove trailing white space by inserting a null character */
-    while ((j != -1) && isspace(str[j])) {
-        j--;
-    }
-    j++;
-    str[j] = '\0';
-    return j;
 }
 
 doublereal strSItoDbl(const std::string& strSI)

@@ -19,9 +19,6 @@ namespace VCSnonideal
 {
 void VCS_SOLVE::vcs_SSPhase()
 {
-    size_t iph;
-    vcs_VolPhase* Vphase;
-
     std::vector<int> numPhSpecies(m_numPhases, 0);
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
@@ -32,8 +29,8 @@ void VCS_SOLVE::vcs_SSPhase()
      *           has been earmarked as a multispecies phase.
      *           Treat that species as a single-species phase
      */
-    for (iph = 0; iph < m_numPhases; iph++) {
-        Vphase = m_VolPhaseList[iph];
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         Vphase->m_singleSpecies = false;
         if (TPhInertMoles[iph] > 0.0) {
             Vphase->setExistence(2);
@@ -52,8 +49,8 @@ void VCS_SOLVE::vcs_SSPhase()
      *                 single species phase or not.
      */
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-        iph = m_phaseID[kspec];
-        Vphase = m_VolPhaseList[iph];
+        size_t iph = m_phaseID[kspec];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         if (Vphase->m_singleSpecies) {
             m_SSPhase[kspec] = true;
         } else {
@@ -64,13 +61,7 @@ void VCS_SOLVE::vcs_SSPhase()
 
 int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
 {
-    size_t kspec, i;
     int retn = VCS_SUCCESS;
-    double pres, test;
-    double* aw, *sa, *sm, *ss;
-    bool modifiedSoln = false;
-    bool conv;
-
     m_debug_print_lvl = printLvl;
 
     /*
@@ -90,11 +81,11 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     }
     m_numRxnRdc = m_numRxnTot;
     m_numSpeciesRdc = m_numSpeciesTot;
-    for (i = 0; i < m_numRxnRdc; ++i) {
+    for (size_t i = 0; i < m_numRxnRdc; ++i) {
         m_indexRxnToSpecies[i] = m_numElemConstraints + i;
     }
 
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         size_t pID = m_phaseID[kspec];
         size_t spPhIndex = m_speciesLocalPhaseIndex[kspec];
         vcs_VolPhase* vPhase =  m_VolPhaseList[pID];
@@ -130,23 +121,20 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
      *
      *       For voltage unknowns, set these to zero for the moment.
      */
-    test = -1.0e-10;
+    double test = -1.0e-10;
+    bool modifiedSoln = false;
     if (m_doEstimateEquil < 0) {
         double sum  = 0.0;
-        for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+        for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
             if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
                 sum += fabs(m_molNumSpecies_old[kspec]);
             }
         }
         if (fabs(sum) < 1.0E-6) {
             modifiedSoln = true;
-            if (m_pressurePA <= 0.0) {
-                pres = 1.01325E5;
-            } else {
-                pres = m_pressurePA;
-            }
+            double pres = (m_pressurePA <= 0.0) ? 1.01325E5 : m_pressurePA;
             retn = vcs_evalSS_TP(0, 0, m_temperature, pres);
-            for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+            for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
                 if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
                     m_molNumSpecies_old[kspec] = - m_SSfeSpecies[kspec];
                 } else {
@@ -163,14 +151,15 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
      *     reaction matrix.
      */
     std::vector<double> awSpace(m_numSpeciesTot + (m_numElemConstraints + 2)*(m_numElemConstraints), 0.0);
-    aw = VCS_DATA_PTR(awSpace);
+    double* aw = VCS_DATA_PTR(awSpace);
     if (aw == NULL) {
         plogf("vcs_prep_oneTime: failed to get memory: global bailout\n");
         return VCS_NOMEMORY;
     }
-    sa = aw + m_numSpeciesTot;
-    sm = sa + m_numElemConstraints;
-    ss = sm + (m_numElemConstraints)*(m_numElemConstraints);
+    double* sa = aw + m_numSpeciesTot;
+    double* sm = sa + m_numElemConstraints;
+    double* ss = sm + (m_numElemConstraints)*(m_numElemConstraints);
+    bool conv;
     retn = vcs_basopt(true, aw, sa, sm, ss, test, &conv);
     if (retn != VCS_SUCCESS) {
         plogf("vcs_prep_oneTime:");
@@ -182,7 +171,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
 
     if (m_numSpeciesTot >= m_numComponents) {
         m_numRxnTot = m_numRxnRdc = m_numSpeciesTot - m_numComponents;
-        for (i = 0; i < m_numRxnRdc; ++i) {
+        for (size_t i = 0; i < m_numRxnRdc; ++i) {
             m_indexRxnToSpecies[i] = m_numComponents + i;
         }
     } else {
@@ -209,7 +198,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     // If we mucked up the solution unknowns because they were all
     // zero to start with, set them back to zero here
     if (modifiedSoln) {
-        for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+        for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
             m_molNumSpecies_old[kspec] = 0.0;
         }
     }
@@ -221,13 +210,13 @@ int VCS_SOLVE::vcs_prep()
     /*
      *        Initialize various arrays in the data to zero
      */
-    vcs_vdzero(m_feSpecies_old, m_numSpeciesTot);
-    vcs_vdzero(m_feSpecies_new, m_numSpeciesTot);
-    vcs_vdzero(m_molNumSpecies_new, m_numSpeciesTot);
-    vcs_dzero(&(m_deltaMolNumPhase[0][0]), m_numSpeciesTot * m_numPhases);
-    vcs_izero(&(m_phaseParticipation[0][0]), m_numSpeciesTot * m_numPhases);
-    vcs_dzero(VCS_DATA_PTR(m_deltaPhaseMoles), m_numPhases);
-    vcs_dzero(VCS_DATA_PTR(m_tPhaseMoles_new), m_numPhases);
+    m_feSpecies_old.assign(m_feSpecies_old.size(), 0.0);
+    m_feSpecies_new.assign(m_feSpecies_new.size(), 0.0);
+    m_molNumSpecies_new.assign(m_molNumSpecies_new.size(), 0.0);
+    m_deltaMolNumPhase.zero();
+    m_phaseParticipation.zero();
+    m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
+    m_tPhaseMoles_new.assign(m_tPhaseMoles_new.size(), 0.0);
     /*
      *   Calculate the total number of moles in all phases.
      */

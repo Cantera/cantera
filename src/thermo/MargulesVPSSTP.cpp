@@ -53,8 +53,7 @@ MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b) :
     MargulesVPSSTP::operator=(b);
 }
 
-MargulesVPSSTP& MargulesVPSSTP::
-operator=(const MargulesVPSSTP& b)
+MargulesVPSSTP& MargulesVPSSTP::operator=(const MargulesVPSSTP& b)
 {
     if (&b == this) {
         return *this;
@@ -145,15 +144,6 @@ MargulesVPSSTP::MargulesVPSSTP(int testProb)  :
                            "Unable to find KCl(L)");
     }
     m_pSpecies_A_ij[0] = iKCl;
-}
-
-/*
- *  -------------- Utilities -------------------------------
- */
-
-int MargulesVPSSTP::eosType() const
-{
-    return 0;
 }
 
 /*
@@ -331,7 +321,7 @@ void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
 
-    size_t iA, iB, delAK, delBK;
+    size_t iA, iB;
     double XA, XB, g0 , g1;
     double T = temperature();
 
@@ -340,10 +330,6 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
      */
     getStandardVolumes(vbar);
 
-    for (size_t iK = 0; iK < m_kk; iK++) {
-        delAK = 0;
-        delBK = 0;
-    }
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
         iA =  m_pSpecies_A_ij[i];
         iB =  m_pSpecies_B_ij[i];
@@ -356,18 +342,10 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 
         for (size_t iK = 0; iK < m_kk; iK++) {
             vbar[iK] += all;
-            // vbar[iK] += XA*XB*temp1+((delAK-XA)*XB+XA*(delBK-XB))*temp1+XB*XA*(delBK-XB)*g1;
         }
         vbar[iA] += XB * temp1;
         vbar[iB] += XA * temp1 + XA*XB*g1;
     }
-}
-
-doublereal MargulesVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("MargulesVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
 }
 
 void MargulesVPSSTP::initThermo()
@@ -504,7 +482,6 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
         const doublereal mult = 2.0 * invT;
         const doublereal dT2all = mult * all;
         for (iK = 0; iK < m_kk; iK++) {
-            // double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
             dlnActCoeffdT_Scaled_[iK] += all;
             d2lnActCoeffdT2_Scaled_[iK] -= dT2all;
         }
@@ -538,8 +515,6 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
     double XA, XB, g0 , g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
-
-    //fvo_zero_dbl_1(dlnActCoeff, m_kk);
     s_update_dlnActCoeff_dT();
 
     for (iK = 0; iK < m_kk; iK++) {
@@ -559,8 +534,6 @@ void  MargulesVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* 
         const doublereal g2XAdXB = 2*g1*XA*dXB;
         const doublereal all = (-XB * dXA - XA *dXB) * g02g1XB - XB *g2XAdXB;
         for (iK = 0; iK < m_kk; iK++) {
-            // dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
-            //                      + dlnActCoeffdT_Scaled_[iK]*dTds;
             dlnActCoeffds[iK] += all + dlnActCoeffdT_Scaled_[iK]*dTds;
         }
         dlnActCoeffds[iA] += dXB * g02g1XB;
@@ -602,24 +575,8 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
             g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
             dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
-
-            // double gfac = g0 + g1 * XB;
-            // double gggg = (delBK - XB) * g1;
-
-
-            // dlnActCoeffdlnN_diag_[iK] += gfac * delAK * ( - XB + delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += gfac * delBK * ( - XA + delAK);
-
-            // dlnActCoeffdlnN_diag_[iK] += gfac * (2.0 * XA * XB - delAK * XB - XA * delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += gggg * ( - 2.0 * XA * XB + delAK * XB + XA * delBK);
-
-            // dlnActCoeffdlnN_diag_[iK] += - g1 * XA * XB * (- XB + delBK);
         }
-        dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK];//-XK;
+        dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK];
     }
 }
 
@@ -669,22 +626,6 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 
                 dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
                 dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
-
-                // double gfac = g0 + g1 * XB;
-                // double gggg = (delBK - XB) * g1;
-
-
-                // dlnActCoeffdlnN_(iK, iM) += gfac * delAK * ( - XB + delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += gfac * delBK * ( - XA + delAM);
-
-                // dlnActCoeffdlnN_(iK, iM) += gfac * (2.0 * XA * XB - delAM * XB - XA * delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += (delAK * XB + XA * delBK - XA * XB) * g1 * (-XB + delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += gggg * ( - 2.0 * XA * XB + delAM * XB + XA * delBM);
-
-                // dlnActCoeffdlnN_(iK, iM) += - g1 * XA * XB * (- XB + delBM);
             }
             dlnActCoeffdlnN_(iK,iM) = XM*dlnActCoeffdlnN_(iK,iM);
         }
@@ -738,7 +679,7 @@ void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeff
         }
     }
 }
-
+//=====================================================================================================================
 void MargulesVPSSTP::resizeNumInteractions(const size_t num)
 {
     numBinaryInteractions_ = num;
@@ -758,7 +699,7 @@ void MargulesVPSSTP::resizeNumInteractions(const size_t num)
     m_pSpecies_A_ij.resize(num, npos);
     m_pSpecies_B_ij.resize(num, npos);
 }
-
+//=====================================================================================================================
 void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     string xname = xmLBinarySpecies.name();
@@ -769,46 +710,60 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     string stemp;
     size_t nParamsFound;
     vector_fp vParams;
-    string iName = xmLBinarySpecies.attrib("speciesA");
-    if (iName == "") {
+    string aName = xmLBinarySpecies.attrib("speciesA");
+    if (aName == "") {
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesA attrib");
     }
-    string jName = xmLBinarySpecies.attrib("speciesB");
-    if (jName == "") {
+    string bName = xmLBinarySpecies.attrib("speciesB");
+    if (bName == "") {
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
     }
     /*
      * Find the index of the species in the current phase. It's not
-     * an error to not find the species
+     * an error to not find the species. What this means is that the A-B interaction referred to in this
+     * block will be ignored.
      */
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
+    size_t aSpecies = speciesIndex(aName);
+    if (aSpecies == npos) {
         return;
     }
-    string ispName = speciesName(iSpecies);
-    if (charge(iSpecies) != 0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
+    string aspName = speciesName(aSpecies);
+    //
+    //   @TODO Figure out what the original reason is for putting an error condition for charged species
+    //         Seems OK to me.
+    //
+    double chargeA = charge(aSpecies);
+    if (chargeA != 0.0) {
+        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA has a charge: " + fp2str(chargeA));
     }
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
+    size_t bSpecies = speciesIndex(bName);
+    if (bSpecies == npos) {
         return;
     }
-    string jspName = speciesName(jSpecies);
-    if (charge(jSpecies) != 0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
+    string bspName = speciesName(bSpecies);
+    double chargeB = charge(bSpecies);
+    if (chargeB != 0.0) {
+        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesB has a charge: " + fp2str(chargeB));
     }
 
     resizeNumInteractions(numBinaryInteractions_ + 1);
     size_t iSpot = numBinaryInteractions_ - 1;
-    m_pSpecies_A_ij[iSpot] = iSpecies;
-    m_pSpecies_B_ij[iSpot] = jSpecies;
+    m_pSpecies_A_ij[iSpot] = aSpecies;
+    m_pSpecies_B_ij[iSpot] = bSpecies;
 
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
         /*
-         * Process the binary species interaction child elements
+         * Process the binary species interaction parameters.
+         * They are in subblocks labeled:
+         *           excessEnthalpy
+         *           excessEntropy
+         *           excessVolume_Enthalpy
+         *           excessVolume_Entropy
+         * Other blocks are currently ignored. 
+         * @TODO determine a policy about ignoring blocks that should or shouldn't be there.
          */
         if (nodeName == "excessenthalpy") {
             /*
@@ -818,8 +773,8 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             nParamsFound = vParams.size();
 
             if (nParamsFound != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + ispName
-                                   + "::" + jspName,
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + aspName
+                                   + "::" + bspName,
                                    "wrong number of params found. Need 2");
             }
             m_HE_b_ij[iSpot] = vParams[0];
@@ -834,8 +789,8 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             nParamsFound = vParams.size();
 
             if (nParamsFound != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + ispName
-                                   + "::" + jspName,
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + aspName
+                                   + "::" + bspName,
                                    "wrong number of params found. Need 2");
             }
             m_SE_b_ij[iSpot] = vParams[0];
@@ -850,8 +805,8 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             nParamsFound = vParams.size();
 
             if (nParamsFound != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
-                                   + "::" + jspName,
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + aspName
+                                   + "::" + bspName,
                                    "wrong number of params found. Need 2");
             }
             m_VHE_b_ij[iSpot] = vParams[0];
@@ -866,8 +821,8 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             nParamsFound = vParams.size();
 
             if (nParamsFound != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
-                                   + "::" + jspName,
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + aspName
+                                   + "::" + bspName,
                                    "wrong number of params found. Need 2");
             }
             m_VSE_b_ij[iSpot] = vParams[0];
@@ -875,5 +830,6 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
     }
 }
-
+//=====================================================================================================================
 }
+//=====================================================================================================================

@@ -55,12 +55,6 @@ public:
     double Tmax() {
         return 1.0e10;
     }
-    char* name() {
-        return (char*) m_name.c_str() ;
-    }
-    char* formula() {
-        return (char*) m_formula.c_str() ;
-    }
 
     double Pp();
     double up();

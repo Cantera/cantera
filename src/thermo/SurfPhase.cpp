@@ -21,8 +21,7 @@ SurfPhase::SurfPhase(doublereal n0):
     ThermoPhase(),
     m_n0(n0),
     m_logn0(0.0),
-    m_press(OneAtm),
-    m_tlast(0.0)
+    m_press(OneAtm)
 {
     if (n0 > 0.0) {
         m_logn0 = log(n0);
@@ -34,8 +33,7 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
-    m_press(OneAtm),
-    m_tlast(0.0)
+    m_press(OneAtm)
 {
     XML_Node* root = get_XML_File(infile);
     if (id_ == "-") {
@@ -60,8 +58,7 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
     ThermoPhase(),
     m_n0(0.0),
     m_logn0(0.0),
-    m_press(OneAtm),
-    m_tlast(0.0)
+    m_press(OneAtm)
 {
     const XML_Node& th = xmlphase.child("thermo");
     string model = th["model"];
@@ -75,21 +72,18 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
 SurfPhase::SurfPhase(const SurfPhase& right) :
     m_n0(right.m_n0),
     m_logn0(right.m_logn0),
-    m_press(right.m_press),
-    m_tlast(right.m_tlast)
+    m_press(right.m_press)
 {
     *this = operator=(right);
 }
 
-SurfPhase& SurfPhase::
-operator=(const SurfPhase& right)
+SurfPhase& SurfPhase::operator=(const SurfPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
         m_n0         = right.m_n0;
         m_logn0      = right.m_logn0;
         m_press      = right.m_press;
-        m_tlast      = right.m_tlast;
         m_h0         = right.m_h0;
         m_s0         = right.m_s0;
         m_cp0        = right.m_cp0;
@@ -117,6 +111,28 @@ doublereal SurfPhase::enthalpy_mole() const
 doublereal SurfPhase::intEnergy_mole() const
 {
     return enthalpy_mole();
+}
+
+doublereal SurfPhase::entropy_mole() const
+{
+    _updateThermo();
+    doublereal s = 0.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        s += moleFraction(k) * (m_s0[k] -
+            GasConstant * log(std::max(concentration(k) * size(k)/m_n0, SmallNumber)));
+    }
+    return s;
+}
+
+doublereal SurfPhase::cp_mole() const
+{
+    _updateThermo();
+    return mean_X(&m_cp0[0]);
+}
+
+doublereal SurfPhase::cv_mole() const
+{
+    return cp_mole();
 }
 
 void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const
@@ -185,12 +201,17 @@ doublereal SurfPhase::logStandardConc(size_t k) const
 
 void SurfPhase::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("SurfPhase::setParameters");
     if (n != 1) {
         throw CanteraError("SurfPhase::setParameters",
                            "Bad value for number of parameter");
     }
     setSiteDensity(c[0]);
+}
+
+void SurfPhase::getPureGibbs(doublereal* g) const
+{
+    _updateThermo();
+    copy(m_mu0.begin(), m_mu0.end(), g);
 }
 
 void SurfPhase::getGibbs_RT(doublereal* grt) const
@@ -200,8 +221,7 @@ void SurfPhase::getGibbs_RT(doublereal* grt) const
     scale(m_mu0.begin(), m_mu0.end(), grt, rrt);
 }
 
-void SurfPhase::
-getEnthalpy_RT(doublereal* hrt) const
+void SurfPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     _updateThermo();
     double rrt = 1.0/(GasConstant*temperature());

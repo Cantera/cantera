@@ -23,9 +23,7 @@ OneDim::OneDim()
       m_ss_jac_age(10), m_ts_jac_age(20),
       m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
-    //writelog("OneDim default constructor\n");
     m_newt = new MultiNewton(1);
-    //m_solve_time = 0.0;
 }
 
 OneDim::OneDim(vector<Domain1D*> domains) :
@@ -37,13 +35,9 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_ss_jac_age(10), m_ts_jac_age(20),
     m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
-    //writelog("OneDim constructor\n");
-
     // create a Newton iterator, and add each domain.
     m_newt = new MultiNewton(1);
-    int nd = static_cast<int>(domains.size());
-    int i;
-    for (i = 0; i < nd; i++) {
+    for (size_t i = 0; i < domains.size(); i++) {
         addDomain(domains[i]);
     }
     init();
@@ -58,20 +52,19 @@ size_t OneDim::domainIndex(const std::string& name)
         }
     }
     throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
-    return npos;
 }
 
 void OneDim::addDomain(Domain1D* d)
 {
     // if 'd' is not the first domain, link it to the last domain
     // added (the rightmost one)
-    int n = static_cast<int>(m_dom.size());
+    size_t n = m_dom.size();
     if (n > 0) {
         m_dom.back()->append(d);
     }
 
     // every other domain is a connector
-    if (2*(n/2) == n) {
+    if (n % 2 == 0) {
         m_connect.push_back(d);
     } else {
         m_bulk.push_back(d);
@@ -139,7 +132,8 @@ void OneDim::saveStats()
 void OneDim::resize()
 {
     m_bw = 0;
-    std::vector<size_t> nvars, loc;
+    m_nvars.clear();
+    m_loc.clear();
     size_t lc = 0;
 
     // save the statistics for the last grid
@@ -151,41 +145,33 @@ void OneDim::resize()
         size_t np = d->nPoints();
         size_t nv = d->nComponents();
         for (size_t n = 0; n < np; n++) {
-            nvars.push_back(nv);
-            loc.push_back(lc);
+            m_nvars.push_back(nv);
+            m_loc.push_back(lc);
             lc += nv;
             m_pts++;
         }
 
         // update the Jacobian bandwidth
-        size_t bw1, bw2 = 0;
 
         // bandwidth of the local block
-        bw1 = d->bandwidth();
+        size_t bw1 = d->bandwidth();
         if (bw1 == npos) {
             bw1 = 2*d->nComponents() - 1;
         }
+        m_bw = std::max(m_bw, bw1);
 
         // bandwidth of the block coupling the first point of this
         // domain to the last point of the previous domain
         if (i > 0) {
-            bw2 = m_dom[i-1]->bandwidth();
+            size_t bw2 = m_dom[i-1]->bandwidth();
             if (bw2 == npos) {
                 bw2 = m_dom[i-1]->nComponents();
             }
             bw2 += d->nComponents() - 1;
+            m_bw = std::max(m_bw, bw2);
         }
-        if (bw1 > m_bw) {
-            m_bw = bw1;
-        }
-        if (bw2 > m_bw) {
-            m_bw = bw2;
-        }
-
         m_size = d->loc() + d->size();
     }
-    m_nvars = nvars;
-    m_loc = loc;
 
     m_newt->resize(size());
     m_mask.resize(size());
@@ -244,7 +230,6 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
     if (rdt < 0.0) {
         rdt = m_rdt;
     }
-    //        int nn;
     vector<Domain1D*>::iterator d;
 
     // iterate over the bulk domains first
@@ -320,14 +305,6 @@ void OneDim::init()
     m_init = true;
 }
 
-void Domain1D::needJacUpdate()
-{
-    if (m_container) {
-        m_container->jacobian().setAge(10000);
-        m_container->saveStats();
-    }
-}
-
 doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
                             doublereal* r, int loglevel)
 {
@@ -337,12 +314,11 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
     writelog("\n\n step    size (s)    log10(ss) \n", loglevel);
     writelog("===============================\n", loglevel);
 
-    int n = 0, m;
-    doublereal ss;
+    int n = 0;
     char str[80];
     while (n < nsteps) {
         if (loglevel > 0) {
-            ss = ssnorm(x, r);
+            doublereal ss = ssnorm(x, r);
             sprintf(str, " %4d  %10.4g  %10.4g" , n,dt,log10(ss));
             writelog(str);
         }
@@ -351,7 +327,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         initTimeInteg(dt,x);
 
         // solve the transient problem
-        m = solve(x, r, loglevel-1);
+        int m = solve(x, r, loglevel-1);
 
         // successful time step. Copy the new solution in r to
         // the current solution in x.
@@ -362,10 +338,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
             if (m == 100) {
                 dt *= 1.5;
             }
-            //                 else dt /= 1.5;
-            if (dt > m_tmax) {
-                dt = m_tmax;
-            }
+            dt = std::min(dt, m_tmax);
         }
 
         // No solution could be found with this time step.
@@ -392,10 +365,9 @@ void OneDim::save(const std::string& fname, std::string id,
                   const std::string& desc, doublereal* sol,
                   int loglevel)
 {
-    struct tm* newtime;
     time_t aclock;
-    ::time(&aclock);                /* Get time in seconds */
-    newtime = localtime(&aclock);   /* Convert time to struct tm form */
+    ::time(&aclock); // Get time in seconds
+    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
 
     XML_Node root("doc");
     ifstream fin(fname.c_str());
@@ -435,15 +407,6 @@ void OneDim::save(const std::string& fname, std::string id,
     ct->write(s);
     s.close();
     writelog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
-}
-
-void Domain1D::setGrid(size_t n, const doublereal* z)
-{
-    m_z.resize(n);
-    m_points = n;
-    for (size_t j = 0; j < m_points; j++) {
-        m_z[j] = z[j];
-    }
 }
 
 }

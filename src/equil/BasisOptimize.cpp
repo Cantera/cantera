@@ -4,11 +4,11 @@
  */
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/equil/MultiPhase.h"
+#include "cantera/numerics/ctlapack.h"
 
 using namespace Cantera;
 using namespace std;
 
-#ifdef DEBUG_MODE
 namespace Cantera
 {
 int BasisOptimize_print_lvl = 0;
@@ -25,7 +25,6 @@ int BasisOptimize_print_lvl = 0;
  *                            2 left aligned
  */
 static void print_stringTrunc(const char* str, int space, int alignment);
-#endif
 
 //! Finds the location of the maximum component in a vector *x*
 /*!
@@ -36,31 +35,6 @@ static void print_stringTrunc(const char* str, int space, int alignment);
  *  @return  index of the greatest value on *x* searched
  */
 static size_t amax(double* x, size_t j, size_t n);
-
-//! Invert an nxn matrix and solve m rhs's
-/*!
- * Solve  C X + B = 0
- *
- * This routine uses Gauss elimination and is optimized for the solution of
- * lots of rhs's. A crude form of row pivoting is used here.
- *
- * @param  c      C is the matrix to be inverted
- * @param  idem   first dimension in the calling routine.
- *                 idem >= n must be true
- * @param  n      number of rows and columns in the matrix
- * @param  b      rhs of the matrix problem
- * @param  m      number of rhs to be solved for
- *
- * - c[i+j*idem] = c_i_j = Matrix to be inverted
- * - b[i+j*idem] = b_i_j = vectors of rhs's. Each column is a new rhs.
- *
- * Where j = column number and i = row number.
- *
- * @return Retuns 1 if the matrix is singular, or 0 if the solution is OK
- *
- * The solution is returned in the matrix b.
- */
-static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
 
 size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                               MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
@@ -102,9 +76,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         }
     }
 
-#ifdef DEBUG_MODE
-    double molSave = 0.0;
-    if (BasisOptimize_print_lvl >= 1) {
+    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
         writelog("   ");
         for (i=0; i<77; i++) {
             writelog("-");
@@ -142,7 +114,6 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
             writelog("   --- \n");
         }
     }
-#endif
 
     /*
      *  Calculate the maximum value of the number of components possible
@@ -172,13 +143,14 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         formRxnMatrix.resize(nspecies*ne, 0.0);
     }
 
-#ifdef DEBUG_MODE
     /*
      * For debugging purposes keep an unmodified copy of the array.
      */
-    vector_fp molNumBase(molNum);
-#endif
-
+    vector_fp molNumBase;
+    if (DEBUG_MODE_ENABLED) {
+        molNumBase = molNum;
+    }
+    double molSave = 0.0;
 
     size_t jr = npos;
     /*
@@ -284,8 +256,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
         if (jr != k) {
-#ifdef DEBUG_MODE
-            if (BasisOptimize_print_lvl >= 1) {
+            if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
                 kk = orderVectorSpecies[k];
                 sname = mphase->speciesName(kk);
                 writelogf("   ---   %-12.12s", sname.c_str());
@@ -294,7 +265,6 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                 writelogf("(%9.2g) replaces %-12.12s", molSave, ename.c_str());
                 writelogf("(%9.2g) as component %3d\n", molNum[jj], jr);
             }
-#endif
             std::swap(orderVectorSpecies[jr], orderVectorSpecies[k]);
         }
 
@@ -357,21 +327,20 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         kk = orderVectorSpecies[k];
         for (j = 0; j < nComponents; ++j) {
             jj = orderVectorElements[j];
-            formRxnMatrix[j + i * ne] = mphase->nAtoms(kk, jj);
+            formRxnMatrix[j + i * ne] = - mphase->nAtoms(kk, jj);
         }
     }
-    /*
-     *     Use Gauss-Jordan block elimination to calculate
-     *     the reaction matrix
-     */
-    int ierr = mlequ(DATA_PTR(sm), ne, nComponents, DATA_PTR(formRxnMatrix), nNonComponents);
-    if (ierr == 1) {
-        writelog("ERROR: mlequ returned an error condition\n");
-        throw CanteraError("basopt", "mlequ returned an error condition");
+    // Use LU factorization to calculate the reaction matrix
+    int info;
+    vector_int ipiv(nComponents);
+    ct_dgetrf(nComponents, nComponents, &sm[0], ne, &ipiv[0], info);
+    if (info) {
+        throw CanteraError("basopt", "factorization returned an error condition");
     }
+    ct_dgetrs(ctlapack::NoTranspose, nComponents, nNonComponents, &sm[0], ne,
+              &ipiv[0], &formRxnMatrix[0], ne, info);
 
-#ifdef DEBUG_MODE
-    if (Cantera::BasisOptimize_print_lvl >= 1) {
+    if (DEBUG_MODE_ENABLED && Cantera::BasisOptimize_print_lvl >= 1) {
         writelog("   ---\n");
         writelogf("   ---  Number of Components = %d\n", nComponents);
         writelog("   ---  Formula Matrix:\n");
@@ -414,14 +383,10 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
         }
         writelog("\n");
     }
-#endif
 
     return nComponents;
 } /* basopt() ************************************************************/
 
-
-
-#ifdef DEBUG_MODE
 static void print_stringTrunc(const char* str, int space, int alignment)
 
 /***********************************************************************
@@ -439,7 +404,7 @@ static void print_stringTrunc(const char* str, int space, int alignment)
  ***********************************************************************/
 {
     int i, ls=0, rs=0;
-    int len = strlen(str);
+    int len = static_cast<int>(strlen(str));
     if ((len) >= space) {
         for (i = 0; i < space; i++) {
             writelogf("%c", str[i]);
@@ -466,7 +431,6 @@ static void print_stringTrunc(const char* str, int space, int alignment)
         }
     }
 }
-#endif
 
 /*
  * Finds the location of the maximum component in a double vector
@@ -490,70 +454,6 @@ static size_t amax(double* x, size_t j, size_t n)
     return largest;
 }
 
-static int mlequ(double* c, size_t idem, size_t n, double* b, size_t m)
-{
-    size_t i, j, k, l;
-    double R;
-
-    /*
-     * Loop over the rows
-     *    -> At the end of each loop, the only nonzero entry in the column
-     *       will be on the diagonal. We can therfore just invert the
-     *       diagonal at the end of the program to solve the equation system.
-     */
-    for (i = 0; i < n; ++i) {
-        if (c[i + i * idem] == 0.0) {
-            /*
-            *   Do a simple form of row pivoting to find a non-zero pivot
-            */
-            bool foundPivot = false;
-            for (k = i + 1; k < n; ++k) {
-                if (c[k + i * idem] != 0.0) {
-                    foundPivot = true;
-                    break;
-                }
-            }
-
-            if (!foundPivot) {
-#ifdef DEBUG_MODE
-                writelogf("vcs_mlequ ERROR: Encountered a zero column: %d\n", i);
-#endif
-                return 1;
-            }
-
-            for (j = 0; j < n; ++j) {
-                c[i + j * idem] += c[k + j * idem];
-            }
-            for (j = 0; j < m; ++j) {
-                b[i + j * idem] += b[k + j * idem];
-            }
-        }
-
-        for (l = 0; l < n; ++l) {
-            if (l != i && c[l + i * idem] != 0.0) {
-                R = c[l + i * idem] / c[i + i * idem];
-                c[l + i * idem] = 0.0;
-                for (j = i+1; j < n; ++j) {
-                    c[l + j * idem] -= c[i + j * idem] * R;
-                }
-                for (j = 0; j < m; ++j) {
-                    b[l + j * idem] -= b[i + j * idem] * R;
-                }
-            }
-        }
-    }
-    /*
-     *  The negative in the last expression is due to the form of B upon
-     *  input
-     */
-    for (i = 0; i < n; ++i) {
-        for (j = 0; j < m; ++j) {
-            b[i + j * idem] = -b[i + j * idem] / c[i + i*idem];
-        }
-    }
-    return 0;
-}
-
 size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                               MultiPhase* mphase,
                               std::vector<size_t>& orderVectorSpecies,
@@ -570,8 +470,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
     size_t nspecies = mphase->nSpecies();
 
     double test = -1.0E10;
-#ifdef DEBUG_MODE
-    if (BasisOptimize_print_lvl > 0) {
+    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
         writelog("   ");
         for (i=0; i<77; i++) {
             writelog("-");
@@ -581,7 +480,6 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
         writelog("check stoich. coefficient matrix\n");
         writelog("   ---    and to rearrange the element ordering once\n");
     }
-#endif
 
     /*
      * Perhaps, initialize the element ordering
@@ -666,11 +564,9 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
                 // When we are here, there is an error usually.
                 // We haven't found the number of elements necessary.
                 // This is signalled by returning jr != nComponents.
-#ifdef DEBUG_MODE
-                if (BasisOptimize_print_lvl > 0) {
+                if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                     writelogf("Error exit: returning with nComponents = %d\n", jr);
                 }
-#endif
                 return jr;
             }
 
@@ -747,8 +643,7 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
         if (jr != k) {
-#ifdef DEBUG_MODE
-            if (BasisOptimize_print_lvl > 0) {
+            if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                 kk = orderVectorElements[k];
                 ename = mphase->elementName(kk);
                 writelog("   ---   ");
@@ -759,7 +654,6 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
                 writelogf("%-2.2s", ename.c_str());
                 writelogf(" as element %3d\n", jr);
             }
-#endif
             std::swap(orderVectorElements[jr], orderVectorElements[k]);
         }
 

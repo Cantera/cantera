@@ -1,6 +1,7 @@
 //! @file refine.cpp
 #include "cantera/oneD/refine.h"
 #include "cantera/oneD/Domain1D.h"
+#include "cantera/oneD/StFlow.h"
 
 #include <algorithm>
 #include <limits>
@@ -9,13 +10,6 @@ using namespace std;
 
 namespace Cantera
 {
-static void r_drawline()
-{
-    string s(78,'#');
-    s += '\n';
-    writelog(s.c_str());
-}
-
 Refiner::Refiner(Domain1D& domain) :
     m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001),
     m_min_range(0.01), m_domain(&domain), m_npmax(3000),
@@ -24,6 +18,32 @@ Refiner::Refiner(Domain1D& domain) :
     m_nv = m_domain->nComponents();
     m_active.resize(m_nv, true);
     m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
+}
+
+void Refiner::setCriteria(doublereal ratio, doublereal slope,
+                          doublereal curve, doublereal prune)
+{
+    if (ratio < 2.0) {
+        throw CanteraError("Refiner::setCriteria",
+            "'ratio' must be greater than 2.0 (" + fp2str(ratio) +
+            " was specified).");
+    } else if (slope < 0.0 || slope > 1.0) {
+        throw CanteraError("Refiner::setCriteria",
+            "'slope' must be between 0.0 and 1.0 (" + fp2str(slope) +
+            " was specified).");
+    } else if (curve < 0.0 || curve > 1.0) {
+        throw CanteraError("Refiner::setCriteria",
+            "'curve' must be between 0.0 and 1.0 (" + fp2str(curve) +
+            " was specified).");
+    } else if (prune > curve || prune > slope) {
+        throw CanteraError("Refiner::setCriteria",
+            "'prune' must be less than 'curve' and 'slope' (" + fp2str(prune) +
+            " was specified).");
+    }
+    m_ratio = ratio;
+    m_slope = slope;
+    m_curve = curve;
+    m_prune = prune;
 }
 
 int Refiner::analyze(size_t n, const doublereal* z,
@@ -132,6 +152,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
     }
 
+    FreeFlame* fflame = dynamic_cast<FreeFlame*>(m_domain);
+
     // Refine based on properties of the grid itself
     for (size_t j = 1; j < n-1; j++) {
         // Add a new point if the ratio with left interval is too large
@@ -167,7 +189,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
 
         // Keep the point where the temperature is fixed
-        if (z[j] == m_domain->m_zfixed) {
+        if (fflame && z[j] == fflame->m_zfixed) {
             m_keep[j] = 1;
         }
     }
@@ -191,7 +213,7 @@ double Refiner::value(const double* x, size_t i, size_t j)
 void Refiner::show()
 {
     if (!m_loc.empty()) {
-        r_drawline();
+        writeline('#', 78);
         writelog(string("Refining grid in ") +
                  m_domain->id()+".\n"
                  +"    New points inserted after grid points ");
@@ -206,7 +228,7 @@ void Refiner::show()
             writelog(string(bb->first)+" ");
         }
         writelog("\n");
-        r_drawline();
+        writeline('#', 78);
     } else if (m_domain->nPoints() > 1) {
         writelog("no new points needed in "+m_domain->id()+"\n");
     }

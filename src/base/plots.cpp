@@ -36,23 +36,20 @@ void outputTEC(std::ostream& s, const std::string& title,
                const std::vector<std::string>& names,
                const Array2D& data)
 {
-    int i,j;
-    int npts = static_cast<int>(data.nColumns());
-    int nv = static_cast<int>(data.nRows());
     s << "TITLE     = \"" + title + "\"" << endl;
     s << "VARIABLES = " << endl;
-    for (i = 0; i < nv; i++) {
+    for (size_t i = 0; i < data.nRows(); i++) {
         s << "\"" << names[i] << "\"" << endl;
     }
     s << "ZONE T=\"zone1\"" << endl;
-    s << " I=" << npts << ",J=1,K=1,F=POINT" << endl;
+    s << " I=" << data.nColumns() << ",J=1,K=1,F=POINT" << endl;
     s << "DT=( ";
-    for (i = 0; i < nv; i++) {
+    for (size_t i = 0; i < data.nRows(); i++) {
         s << " SINGLE";
     }
     s << " )" << endl;
-    for (i = 0; i < npts; i++) {
-        for (j = 0; j < nv; j++) {
+    for (size_t i = 0; i < data.nColumns(); i++) {
+        for (size_t j = 0; j < data.nRows(); j++) {
             s << data(j,i) << " ";
         }
         s << endl;
@@ -63,21 +60,18 @@ void outputExcel(std::ostream& s, const std::string& title,
                  const std::vector<std::string>& names,
                  const Array2D& data)
 {
-    int i,j;
-    int npts = static_cast<int>(data.nColumns());
-    int nv = static_cast<int>(data.nRows());
     s << title + "," << endl;
-    for (i = 0; i < nv; i++) {
+    for (size_t i = 0; i < data.nRows(); i++) {
         s << names[i];
-        if (i != nv-1) {
+        if (i != data.nRows()-1) {
             s << ",";
         }
     }
     s << endl;
-    for (i = 0; i < npts; i++) {
-        for (j = 0; j < nv; j++) {
+    for (size_t i = 0; i < data.nColumns(); i++) {
+        for (size_t j = 0; j < data.nRows(); j++) {
             s << data(j,i);
-            if (j != nv-1) {
+            if (j != data.nRows()-1) {
                 s << ",";
             }
         }

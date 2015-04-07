@@ -80,8 +80,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
     *this = operator=(b);
 }
 
-MolarityIonicVPSSTP& MolarityIonicVPSSTP::
-operator=(const MolarityIonicVPSSTP& b)
+MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b)
 {
     if (&b != this) {
         GibbsExcessVPSSTP::operator=(b);
@@ -107,15 +106,6 @@ ThermoPhase*
 MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MolarityIonicVPSSTP(*this);
-}
-
-/*
- *  -------------- Utilities -------------------------------
- */
-
-int MolarityIonicVPSSTP::eosType() const
-{
-    return 0;
 }
 
 /*
@@ -349,24 +339,10 @@ void MolarityIonicVPSSTP::s_update_lnActCoeff() const
 
 void MolarityIonicVPSSTP::s_update_dlnActCoeff_dT() const
 {
-
-
 }
 
 void  MolarityIonicVPSSTP::s_update_dlnActCoeff_dX_() const
 {
-
-}
-
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
-
-doublereal MolarityIonicVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("MolarityIonicVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
 }
 
 void MolarityIonicVPSSTP::initThermo()
@@ -479,10 +455,9 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
 void MolarityIonicVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     std::string xname = xmLBinarySpecies.name();
-
 }
 
-std::string MolarityIonicVPSSTP::report(bool show_thermo) const
+std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";

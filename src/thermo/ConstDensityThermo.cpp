@@ -16,13 +16,12 @@ using namespace ctml;
 namespace Cantera
 {
 
-ConstDensityThermo::ConstDensityThermo() : m_tlast(0.0)
+ConstDensityThermo::ConstDensityThermo()
 {
 }
 
 
 ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo& right)
-    : m_tlast(0.0)
 {
     *this = operator=(right);
 }
@@ -33,7 +32,6 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
         return *this;
     }
 
-    m_tlast         = right.m_tlast;
     m_h0_RT         = right.m_h0_RT;
     m_cp0_R         = right.m_cp0_R;
     m_g0_RT         = right.m_g0_RT;
@@ -49,8 +47,7 @@ ThermoPhase* ConstDensityThermo::duplMyselfAsThermoPhase() const
     return new ConstDensityThermo(*this);
 }
 
-int ConstDensityThermo::
-eosType() const
+int ConstDensityThermo::eosType() const
 {
     return cIncompressible;
 }
@@ -63,23 +60,10 @@ doublereal ConstDensityThermo::enthalpy_mole() const
            + (pressure() - p0)/molarDensity();
 }
 
-doublereal ConstDensityThermo::intEnergy_mole() const
-{
-    doublereal p0 = m_spthermo->refPressure();
-    return GasConstant * temperature() *
-           mean_X(&enthalpy_RT()[0])
-           - p0/molarDensity();
-}
-
 doublereal ConstDensityThermo::entropy_mole() const
 {
     return GasConstant * (mean_X(&entropy_R()[0]) -
                           sum_xlogx());
-}
-
-doublereal ConstDensityThermo::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal ConstDensityThermo::cp_mole() const
@@ -117,11 +101,6 @@ void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const
 doublereal ConstDensityThermo::standardConcentration(size_t k) const
 {
     return molarDensity();
-}
-
-doublereal ConstDensityThermo::logStandardConc(size_t k) const
-{
-    return log(molarDensity());
 }
 
 void ConstDensityThermo::getChemPotentials(doublereal* mu) const
@@ -181,7 +160,3 @@ void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata)
 }
 
 }
-
-
-
-

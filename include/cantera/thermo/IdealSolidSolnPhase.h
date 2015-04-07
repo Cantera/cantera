@@ -134,23 +134,6 @@ public:
     virtual doublereal enthalpy_mole() const;
 
     /**
-     * Molar internal energy of the solution. Units: J/kmol.
-     * For an ideal, constant partial molar volume solution mixture with
-     * pure species phases which exhibit zero volume expansivity and
-     * zero isothermal compressibility:
-     * \f[
-     * \hat u(T,X) = \hat h(T,P,X) - p \hat V
-     *         =  \sum_k X_k \hat h^0_k(T)  - P_{ref} (\sum_k{X_k \hat V^0_k})
-     * \f]
-     * and is a function only of temperature.
-     * The reference-state pure-species enthalpies
-     * \f$ \hat h^0_k(T) \f$ are computed by the species thermodynamic
-     * property manager.
-     * @see SpeciesThermo
-     */
-    virtual doublereal intEnergy_mole() const;
-
-    /**
      * Molar entropy of the solution. Units: J/kmol/K.
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
@@ -460,7 +443,6 @@ public:
      *  kmol/m3 holds for standard concentration units. For
      *  cIdealSolidSolnPhase0 type, the standard concentration is
      *  unitless.
-     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -907,12 +889,6 @@ protected:
      * Species molar volumes \f$ m^3 kmol^-1 \f$
      */
     vector_fp   m_speciesMolarVolume;
-
-    /**
-     *  Value of the temperature at which the thermodynamics functions
-     * for the reference state of the species were last evaluated.
-     */
-    mutable doublereal   m_tlast;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp      m_h0_RT;

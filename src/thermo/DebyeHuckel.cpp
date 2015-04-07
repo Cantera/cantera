@@ -117,8 +117,7 @@ DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
     *this = b;
 }
 
-DebyeHuckel& DebyeHuckel::
-operator=(const DebyeHuckel& b)
+DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
 {
     if (&b != this) {
         MolalityVPSSTP::operator=(b);
@@ -144,10 +143,8 @@ operator=(const DebyeHuckel& b)
 
         m_densWaterSS         = b.m_densWaterSS;
 
-        if (m_waterProps) {
-            delete m_waterProps;
-            m_waterProps = 0;
-        }
+        delete m_waterProps;
+        m_waterProps = 0;
         if (b.m_waterProps) {
             m_waterProps = new WaterProps(m_waterSS);
         }
@@ -164,10 +161,8 @@ operator=(const DebyeHuckel& b)
 
 DebyeHuckel::~DebyeHuckel()
 {
-    if (m_waterProps) {
-        delete m_waterProps;
-        m_waterProps = 0;
-    }
+    delete m_waterProps;
+    m_waterProps = 0;
 }
 
 ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const
@@ -204,15 +199,6 @@ doublereal DebyeHuckel::enthalpy_mole() const
     return mean_X(DATA_PTR(m_tmpV));
 }
 
-doublereal DebyeHuckel::intEnergy_mole() const
-{
-    // This is calculated from the soln enthalpy and then subtracting pV.
-    double hh = enthalpy_mole();
-    double pres = pressure();
-    double molarV = 1.0/molarDensity();
-    return hh - pres * molarV;
-}
-
 doublereal DebyeHuckel::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
@@ -233,10 +219,9 @@ doublereal DebyeHuckel::cp_mole() const
 
 doublereal DebyeHuckel::cv_mole() const
 {
+    throw NotImplementedError("DebyeHuckel::cv_mole");
     //getPartialMolarCv(m_tmpV.begin());
     //return mean_X(m_tmpV.begin());
-    err("not implemented");
-    return 0.0;
 }
 
 //
@@ -298,20 +283,6 @@ void DebyeHuckel::calcDensity()
     Phase::setDensity(dd);
 }
 
-doublereal DebyeHuckel::isothermalCompressibility() const
-{
-    throw CanteraError("DebyeHuckel::isothermalCompressibility",
-                       "unimplemented");
-    return 0.0;
-}
-
-doublereal DebyeHuckel::thermalExpansionCoeff() const
-{
-    throw CanteraError("DebyeHuckel::thermalExpansionCoeff",
-                       "unimplemented");
-    return 0.0;
-}
-
 void DebyeHuckel::setDensity(doublereal rho)
 {
     double dens = density();
@@ -352,12 +323,6 @@ doublereal DebyeHuckel::standardConcentration(size_t k) const
 {
     double mvSolvent = m_speciesSize[m_indexSolvent];
     return 1.0 / mvSolvent;
-}
-
-doublereal DebyeHuckel::logStandardConc(size_t k) const
-{
-    double c_solvent = standardConcentration(k);
-    return log(c_solvent);
 }
 
 void DebyeHuckel::getUnitsStandardConc(double* uA, int k, int sizeUA) const
@@ -402,8 +367,7 @@ void DebyeHuckel::getActivities(doublereal* ac) const
         exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
 }
 
-void DebyeHuckel::
-getMolalityActivityCoefficients(doublereal* acMolality) const
+void DebyeHuckel::getMolalityActivityCoefficients(doublereal* acMolality) const
 {
     _updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
@@ -479,8 +443,7 @@ void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void DebyeHuckel::
-getPartialMolarEntropies(doublereal* sbar) const
+void DebyeHuckel::getPartialMolarEntropies(doublereal* sbar) const
 {
     /*
      * Get the standard state entropies at the temperature
@@ -618,8 +581,7 @@ static int interp_est(const std::string& estString)
     return rval;
 }
 
-void DebyeHuckel::
-initThermoXML(XML_Node& phaseNode, const std::string& id_)
+void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0) {
         std::string idp = phaseNode.id();
@@ -682,12 +644,12 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (formString != "") {
             if (formString == "unity") {
                 m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("DebyeHuckel::initThermoXML",
+                                   "standardConc = unity not done");
             } else if (formString == "molar_volume") {
                 m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("DebyeHuckel::initThermoXML",
+                                   "standardConc = molar_volume not done");
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
@@ -709,8 +671,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& scNode = thermoNode.child("solvent");
         vector<std::string> nameSolventa;
         getStringArray(scNode, nameSolventa);
-        int nsp = static_cast<int>(nameSolventa.size());
-        if (nsp != 1) {
+        if (nameSolventa.size() != 1) {
             throw CanteraError("DebyeHuckel::initThermoXML",
                                "badly formed solvent XML node");
         }
@@ -1124,20 +1085,6 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
 }
 
-void DebyeHuckel::setParameters(int n, doublereal* const c)
-{
-    warn_deprecated("DebyeHuckel::setParameters");
-}
-
-void DebyeHuckel::getParameters(int& n, doublereal* const c) const
-{
-    warn_deprecated("DebyeHuckel::getParameters");
-}
-
-void DebyeHuckel::setParametersFromXML(const XML_Node& eosdata)
-{
-}
-
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
 {
     double T = temperature();
@@ -1159,8 +1106,7 @@ double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
         m_A_Debye = A;
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::A_Debye_TP", "shouldn't be here");
     }
     return A;
 }
@@ -1184,8 +1130,7 @@ double DebyeHuckel::dA_DebyedT_TP(double tempArg, double presArg) const
         dAdT = m_waterProps->ADebye(T, P, 1);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::dA_DebyedT_TP", "shouldn't be here");
     }
     return dAdT;
 }
@@ -1209,8 +1154,7 @@ double DebyeHuckel::d2A_DebyedT2_TP(double tempArg, double presArg) const
         d2AdT2 = m_waterProps->ADebye(T, P, 2);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::d2A_DebyedT2_TP", "shouldn't be here");
     }
     return d2AdT2;
 }
@@ -1234,8 +1178,7 @@ double DebyeHuckel::dA_DebyedP_TP(double tempArg, double presArg) const
         dAdP = m_waterProps->ADebye(T, P, 3);
         break;
     default:
-        printf("shouldn't be here\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::dA_DebyedP_TP", "shouldn't be here");
     }
     return dAdP;
 }
@@ -1252,13 +1195,6 @@ double DebyeHuckel::AionicRadius(int k) const
 /*
  * ------------ Private and Restricted Functions ------------------
  */
-
-doublereal DebyeHuckel::err(const std::string& msg) const
-{
-    throw CanteraError("DebyeHuckel",
-                       "Unfinished func called: " + msg);
-    return 0.0;
-}
 
 void DebyeHuckel::initLengths()
 {
@@ -1352,10 +1288,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         m_IionicMolality += m_molalities[k] * z_k * z_k;
     }
     m_IionicMolality /= 2.0;
-
-    if (m_IionicMolality > m_maxIionicStrength) {
-        m_IionicMolality = m_maxIionicStrength;
-    }
+    m_IionicMolality = std::min(m_IionicMolality, m_maxIionicStrength);
 
     /*
      * Calculate the stoichiometric ionic charge
@@ -1373,10 +1306,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         }
     }
     m_IionicMolalityStoich /= 2.0;
-
-    if (m_IionicMolalityStoich > m_maxIionicStrength) {
-        m_IionicMolalityStoich = m_maxIionicStrength;
-    }
+    m_IionicMolalityStoich = std::min(m_IionicMolalityStoich, m_maxIionicStrength);
 
     /*
      * Possibly update the stored value of the
@@ -1576,8 +1506,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("DebyeHuckel::s_update_lnMolalityActCoeff", "ERROR");
     }
     /*
      * Above, we calculated the ln(activitySolvent). Translate that
@@ -1709,9 +1638,8 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
-        break;
+        throw CanteraError("DebyeHuckel::s_update_dlnMolalityActCoeff_dT",
+                           "ERROR");
     }
 
 
@@ -1833,9 +1761,8 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
-        break;
+        throw CanteraError("DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2",
+                           "ERROR");
     }
 }
 
@@ -1959,9 +1886,8 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
         break;
 
     default:
-        printf("ERROR\n");
-        exit(EXIT_FAILURE);
-        break;
+        throw CanteraError("DebyeHuckel::s_update_dlnMolalityActCoeff_dP",
+                           "ERROR");
     }
 }
 

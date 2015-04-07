@@ -44,6 +44,14 @@ cdef class ReactorBase:
         def __set__(self, name):
             self.rbase.setName(stringify(name))
 
+    def syncState(self):
+        """
+        Set the state of the Reactor to match that of the associated
+        `ThermoPhase` object. After calling syncState(), call
+        ReactorNet.reinitialize() before further integration.
+        """
+        self.rbase.syncState()
+
     property thermo:
         """The `ThermoPhase` object representing the reactor's contents."""
         def __get__(self):
@@ -114,6 +122,12 @@ cdef class ReactorBase:
         garbage collected.
         """
         self._walls.append(wall)
+
+    def __reduce__(self):
+        raise NotImplementedError('Reactor object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Reactor object is not copyable')
 
 
 cdef class Reactor(ReactorBase):
@@ -194,6 +208,12 @@ cdef class Reactor(ReactorBase):
             self.reactor.setEnergy(int(value))
 
     def add_sensitivity_reaction(self, m):
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        reaction *m* should be computed. *m* is the 0-based reaction index.
+        The reactor must be part of a network first. Specifying the same
+        reaction more than one time raises an exception.
+        """
         self.reactor.addSensitivityReaction(m)
 
     def component_index(self, name):
@@ -717,10 +737,10 @@ cdef class ReactorNet:
         for R in reactors:
             self.add_reactor(R)
 
-    def add_reactor(self, ReactorBase r):
+    def add_reactor(self, Reactor r):
         """Add a reactor to the network."""
         self._reactors.append(r)
-        self.net.addReactor(r.rbase)
+        self.net.addReactor(deref(r.reactor))
 
     def advance(self, double t):
         """
@@ -735,6 +755,14 @@ cdef class ReactorNet:
         taking the step is returned.
         """
         return self.net.step(t)
+
+    def reinitialize(self):
+        """
+        Reinitialize the integrator after making changing to the state of the
+        system. Changes to Reactor contents will automatically trigger
+        reinitialization.
+        """
+        self.net.reinitialize()
 
     property time:
         """The current time [s]."""
@@ -811,13 +839,40 @@ cdef class ReactorNet:
         def __set__(self, pybool v):
             self.net.setVerbose(v)
 
-    def sensitivity(self, species, int p, int r=0):
-        if isinstance(species, int):
-            return self.net.sensitivity(species,p)
-        elif isinstance(species, (str, unicode)):
-            return self.net.sensitivity(stringify(species), p, r)
+    def sensitivity(self, component, int p, int r=0):
+        """
+        Returns the sensitivity of the solution variable *component* in
+        reactor *r* with respect to the parameter *p*. *component* can be a
+        string or an integer. See `component_index` and `sensitivities` to
+        determine the integer index for the variables. If it is not given, *r*
+        defaults to the first reactor. Returns an empty array until the first
+        time step is taken.
+        """
+        if isinstance(component, int):
+            return self.net.sensitivity(component, p)
+        elif isinstance(component, (str, unicode)):
+            return self.net.sensitivity(stringify(component), p, r)
 
     def sensitivities(self):
+        """
+        Returns the senstivities of all of the solution variables with respect
+        to all of the registered parameters. The sensitivities are returned in
+        an array with dimensions *(n_vars, n_sensitivity_params)*, unless no
+        timesteps have been taken, in which case the shape is
+        *(0, n_sensitivity_params)*. The order of the variables (i.e. rows) is:
+
+        `Reactor` or `IdealGasReactor`:
+
+          - 0  - mass
+          - 1  - volume
+          - 2  - internal energy or temperature
+          - 3+ - mass fractions of the species
+
+        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
+          - 0  - mass
+          - 1  - enthalpy or temperature
+          - 2+ - mass fractions of the species
+        """
         cdef np.ndarray[np.double_t, ndim=2] data = \
                 np.empty((self.n_vars, self.n_sensitivity_params))
         cdef int p,k
@@ -827,12 +882,37 @@ cdef class ReactorNet:
         return data
 
     def sensitivity_parameter_name(self, int p):
+        """
+        Name of the sensitivity parameter with index *p*.
+        """
         return pystr(self.net.sensitivityParameterName(p))
 
     property n_sensitivity_params:
+        """
+        The number of registered sensitivity parameters.
+        """
         def __get__(self):
             return self.net.nparams()
 
     property n_vars:
+        """
+        The number of state variables in the system. This is the sum of the
+        number of variables for each `Reactor` and `Wall` in the system.
+        Equal to:
+
+        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
+        internal energy or temperature).
+
+        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
+        `n_species` + 2 (mass, enthalpy or temperature).
+
+        `Wall`: number of surface species
+        """
         def __get__(self):
             return self.net.neq()
+
+    def __reduce__(self):
+        raise NotImplementedError('ReactorNet object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('ReactorNet object is not copyable')

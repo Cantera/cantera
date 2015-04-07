@@ -8,6 +8,7 @@
 #include "units.h"
 
 #include <fstream>
+#include <sstream>
 #include <functional>
 
 using std::string;
@@ -23,7 +24,6 @@ using std::endl;
 
 namespace Cantera
 {
-
 
 // If running multiple threads in a cpp application, the Application class
 // is the only internal object that is single instance with static data.
@@ -49,18 +49,10 @@ static mutex_t app_mutex;
 //! Mutex for controlling access to XML file storage
 static mutex_t xml_mutex;
 
-
 Application::Messages::Messages() :
     errorMessage(0),
     errorRoutine(0),
     logwriter(0)
-#ifdef WITH_HTML_LOGS
-    ,xmllog(0),
-    current(0),
-    loglevel(0),
-    loglevels(0),
-    loggroups(0)
-#endif
 {
     // install a default logwriter that writes to standard
     // output / standard error
@@ -71,13 +63,6 @@ Application::Messages::Messages(const Messages& r) :
     errorMessage(r.errorMessage),
     errorRoutine(r.errorRoutine),
     logwriter(0)
-#ifdef WITH_HTML_LOGS
-    , xmllog(r.xmllog),
-    current(r.current),
-    loglevel(r.loglevel),
-    loglevels(r.loglevels),
-    loggroups(r.loggroups)
-#endif
 {
     // install a default logwriter that writes to standard
     // output / standard error
@@ -92,24 +77,12 @@ Application::Messages& Application::Messages::operator=(const Messages& r)
     errorMessage = r.errorMessage;
     errorRoutine = r.errorRoutine;
     logwriter = new Logger(*(r.logwriter));
-#ifdef WITH_HTML_LOGS
-    xmllog = r.xmllog;
-    current = r.current;
-    loglevel = r.loglevel;
-    loglevels = r.loglevels;
-    loggroups = r.loggroups;
-#endif
     return *this;
 }
 
 Application::Messages::~Messages()
 {
     delete logwriter;
-#ifdef WITH_HTML_LOGS
-    if (xmllog) {
-        write_logfile("orphan");
-    }
-#endif
 }
 
 void Application::Messages::addError(const std::string& r, const std::string& msg)
@@ -137,6 +110,7 @@ void Application::Messages::setLogger(Logger* _logwriter)
 
 void Application::Messages::logerror(const std::string& msg)
 {
+    Cantera::warn_deprecated("Application::Messages::logerror");
     logwriter->error(msg) ;
 }
 
@@ -149,144 +123,6 @@ void Application::Messages::writelogendl()
 {
     logwriter->writeendl();
 }
-
-#ifdef WITH_HTML_LOGS
-
-void Application::Messages::beginLogGroup(const std::string& title, int _loglevel /*=-99*/)
-{
-    Cantera::warn_deprecated("Application::Messages::beginLogGroup",
-                             "HTML Logs will be removed in Cantera 2.2");
-    // Add the current loglevel to the vector of loglevels
-    loglevels.push_back(loglevel);
-
-    // loglevel is a member of the Messages class.
-    if (_loglevel != -99) {
-        loglevel = _loglevel;
-    } else {
-        loglevel--;
-    }
-
-    // Add the title of the current logLevel to the vector of titles
-    loggroups.push_back(title);
-
-    if (loglevel <= 0) {
-        return;
-    }
-
-    // If we haven't started an XML tree for the log file, do so here
-    if (xmllog == 0) {
-        // The top of this tree will have a zero pointer.
-        xmllog = new XML_Node("html");
-        current = &xmllog->addChild("ul");
-    }
-    // Add two children to the XML tree.
-    current = &current->addChild("li","<b>"+title+"</b>");
-    current = &current->addChild("ul");
-}
-
-void Application::Messages::addLogEntry(const std::string& tag, const std::string& value)
-{
-    if (loglevel > 0 && current) {
-        current->addChild("li",tag+": "+value);
-    }
-}
-
-void Application::Messages::addLogEntry(const std::string& tag, doublereal value)
-{
-    if (loglevel > 0 && current) {
-        current->addChild("li",tag+": "+fp2str(value));
-    }
-}
-
-void Application::Messages::addLogEntry(const std::string& tag, int value)
-{
-    if (loglevel > 0 && current) {
-        current->addChild("li",tag+": "+int2str(value));
-    }
-}
-
-void Application::Messages::addLogEntry(const std::string& msg)
-{
-    if (loglevel > 0 && current) {
-        current->addChild("li",msg);
-    }
-}
-
-void Application::Messages::endLogGroup(const std::string& title)
-{
-    if (title != "" && title != loggroups.back()) {
-        writelog("Logfile error."
-                 "\n   beginLogGroup: "+ loggroups.back()+
-                 "\n   endLogGroup:   "+title+"\n");
-        write_logfile("logerror");
-    }
-
-    if (loggroups.size() == 1) {
-        write_logfile(loggroups.back()+"_log");
-    } else if (loglevel > 0) {
-        AssertThrowMsg(current, "Application::Messages::endLogGroup",
-                       "Error while ending a LogGroup. This is probably due to an unmatched"
-                       " beginning and ending group");
-        current = current->parent();
-        AssertThrowMsg(current, "Application::Messages::endLogGroup",
-                       "Error while ending a LogGroup. This is probably due to an unmatched"
-                       " beginning and ending group");
-        current = current->parent();
-        // Get the loglevel of the previous level and get rid of
-        // vector entry in loglevels.
-    }
-
-    loggroups.pop_back();
-    loglevel = loglevels.back();
-    loglevels.pop_back();
-}
-
-void Application::Messages::write_logfile(const std::string& file)
-{
-    Cantera::warn_deprecated("Application::Messages::write_logfile",
-                             "HTML Logs will be removed in Cantera 2.2");
-
-    if (!xmllog) {
-        return;
-    }
-    std::string::size_type idot = file.rfind('.');
-    std::string ext = "";
-    std::string nm = file;
-    if (idot != std::string::npos) {
-        ext = file.substr(idot, file.size());
-        nm = file.substr(0,idot);
-    } else {
-        ext = ".html";
-        nm = file;
-    }
-
-    // see if file exists. If it does, find an integer that
-    // can be appended to the name to create the name of a file
-    // that does not exist.
-    std::string fname = nm + ext;
-    int n = 0;
-    while (std::ifstream(fname.c_str())) {
-        n++;
-        fname = nm + int2str(n) + ext;
-    }
-
-    // Now we have a file name that does not correspond to any
-    // existing file. Open it as an output stream, and dump the
-    // XML (HTML) tree to it.
-
-    if (xmllog) {
-        std::ofstream f(fname.c_str());
-        // go to the top of the tree, and write it all.
-        xmllog->root().write(f);
-        f.close();
-        writelog("Log file " + fname + " written.\n");
-        delete xmllog;
-        xmllog = 0;
-        current = 0;
-    }
-}
-
-#endif // WITH_HTML_LOGS
 
 #ifdef THREAD_SAFE_CANTERA
 
@@ -331,13 +167,6 @@ Application::Application() :
 
     // install a default logwriter that writes to standard
     // output / standard error
-    //      logwriter = new Logger();
-    //#ifdef WITH_HTML_LOGS
-    //      // HTML log files
-    //      xmllog = 0;
-    //      current = 0;
-    //      loglevel = 0;
-    //#endif
     setDefaultDirectories();
 #if defined(THREAD_SAFE_CANTERA)
     Unit::units() ;
@@ -389,7 +218,6 @@ void Application::thread_complete()
     pMessenger.removeThreadMessages() ;
 #endif
 }
-
 
 XML_Node* Application::get_XML_File(const std::string& file, int debug)
 {
@@ -451,10 +279,15 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
                 return xmlfiles[ff];
             }
             /*
-             * Ok, we didn't find the processed XML tree. Do the conversion
-             * to xml, possibly overwriting the file, ff, in the process.
+             * Ok, we didn't find the processed XML tree. Do the conversion from cti
              */
-            ctml::ct2ctml(path.c_str(),debug);
+            string phase_xml = ctml::ct2ctml_string(path);
+            XML_Node* x = new XML_Node("doc");
+            std::stringstream s(phase_xml);
+            x->build(s);
+            x->lock();
+            xmlfiles[ff] = x;
+            return x;
         } else {
             ff = path;
         }
@@ -484,7 +317,6 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
      */
     return xmlfiles[ff];
 }
-
 
 void Application::close_XML_File(const std::string& file)
 {
@@ -530,7 +362,7 @@ long int Application::readStringRegistryKey(const std::string& keyName, const st
 
 void Application::Messages::popError()
 {
-    if (static_cast<int>(errorMessage.size()) > 0) {
+    if (!errorMessage.empty()) {
         errorRoutine.pop_back() ;
         errorMessage.pop_back() ;
     }
@@ -538,7 +370,7 @@ void Application::Messages::popError()
 
 std::string Application::Messages::lastErrorMessage()
 {
-    if (static_cast<int>(errorMessage.size()) > 0) {
+    if (!errorMessage.empty()) {
         string head =
             "\n\n************************************************\n"
             "                Cantera Error!                  \n"
@@ -552,7 +384,7 @@ std::string Application::Messages::lastErrorMessage()
 
 void Application::Messages::getErrors(std::ostream& f)
 {
-    int i = static_cast<int>(errorMessage.size());
+    size_t i = errorMessage.size();
     if (i == 0) {
         return;
     }
@@ -561,8 +393,7 @@ void Application::Messages::getErrors(std::ostream& f)
     f << "                   Cantera Error!                  " << endl;
     f << "************************************************" << endl
       << endl;
-    int j;
-    for (j = 0; j < i; j++) {
+    for (size_t j = 0; j < i; j++) {
         f << endl;
         f << "Procedure: " << errorRoutine[j] << endl;
         f << "Error:     " << errorMessage[j] << endl;
@@ -574,7 +405,7 @@ void Application::Messages::getErrors(std::ostream& f)
 
 void Application::Messages::logErrors()
 {
-    int i = static_cast<int>(errorMessage.size());
+    size_t i = errorMessage.size();
     if (i == 0) {
         return;
     }
@@ -582,8 +413,7 @@ void Application::Messages::logErrors()
     writelog("************************************************\n");
     writelog("                   Cantera Error!                  \n");
     writelog("************************************************\n\n");
-    int j;
-    for (j = 0; j < i; j++) {
+    for (size_t j = 0; j < i; j++) {
         writelog("\n");
         writelog(string("Procedure: ")+ errorRoutine[j]+" \n");
         writelog(string("Error:     ")+ errorMessage[j]+" \n");
@@ -592,8 +422,6 @@ void Application::Messages::logErrors()
     errorMessage.clear();
     errorRoutine.clear();
 }
-
-
 
 void Application::setDefaultDirectories()
 {
@@ -680,12 +508,10 @@ std::string Application::findInputFile(const std::string& name)
     string inname;
     std::vector<string>& dirs = inputDirs;
 
-    int nd;
     if (islash == string::npos && ibslash == string::npos) {
-        nd = static_cast<int>(dirs.size());
-        int i;
+        size_t nd = dirs.size();
         inname = "";
-        for (i = 0; i < nd; i++) {
+        for (size_t i = 0; i < nd; i++) {
             inname = dirs[i] + "/" + name;
             std::ifstream fin(inname.c_str());
             if (fin) {
@@ -697,9 +523,9 @@ std::string Application::findInputFile(const std::string& name)
         msg = "\nInput file " + name
               + " not found in director";
         msg += (nd == 1 ? "y " : "ies ");
-        for (i = 0; i < nd; i++) {
+        for (size_t i = 0; i < nd; i++) {
             msg += "\n'" + dirs[i] + "'";
-            if (i < nd-1) {
+            if (i+1 < nd) {
                 msg += ", ";
             }
         }

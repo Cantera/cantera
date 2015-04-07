@@ -40,12 +40,7 @@ inline ThermoPhase* _fph(const integer* n)
 
 static Kinetics* _fkin(const integer* n)
 {
-    if (*n >= 0) {
-        return &KineticsCabinet::item(*n);
-    } else {
-        error("_fkin: negative kinetics index");
-        return &KineticsCabinet::item(0);
-    }
+    return &KineticsCabinet::item(*n);
 }
 
 inline ThermoPhase* _fth(const integer* n)
@@ -256,8 +251,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap xx = parseCompString(f2string(x, lx), p->speciesNames());
-            p->setMoleFractionsByName(xx);
+            p->setMoleFractionsByName(f2string(x, lx));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -283,8 +277,7 @@ extern "C" {
     {
         try {
             ThermoPhase* p = _fph(n);
-            compositionMap yy = parseCompString(f2string(y, leny), p->speciesNames());
-            p->setMassFractionsByName(yy);
+            p->setMassFractionsByName(f2string(y, leny));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

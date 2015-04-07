@@ -248,14 +248,6 @@ double nitrogen::Tmax()
 {
     return Tmx;
 }
-char* nitrogen::name()
-{
-    return (char*) m_name.c_str();
-}
-char* nitrogen::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double nitrogen::MolWt()
 {
     return M;

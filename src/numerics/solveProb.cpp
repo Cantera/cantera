@@ -11,7 +11,6 @@
 
 #include "cantera/numerics/solveProb.h"
 #include "cantera/base/clockWC.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -48,7 +47,6 @@ solveProb::solveProb(ResidEval* resid) :
     m_wtResid.resize(dim1, 0.0);
     m_wtSpecies.resize(dim1, 0.0);
     m_resid.resize(dim1, 0.0);
-    m_ipiv.resize(dim1, 0);
     m_topBounds.resize(dim1, 1.0);
     m_botBounds.resize(dim1, 0.0);
 
@@ -84,7 +82,6 @@ int solveProb::solve(int ifunc, doublereal time_scale,
     doublereal label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
-    int nrhs=1;
     doublereal deltaT = 1.0E-10; // Delta time step
     doublereal damp=1.0, tmp;
     //  Weighted L2 norm of the residual.  Currently, this is only
@@ -160,14 +157,6 @@ int solveProb::solve(int ifunc, doublereal time_scale,
         std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), m_CSolnSPOld.begin());
 
         /*
-         * Evaluate the largest surface species for each surface phase every
-         * 5 iterations.
-         */
-        //  if (iter%5 == 4) {
-        //    evalSurfLarge(DATA_PTR(m_CSolnSP));
-        // }
-
-        /*
          *    Calculate the value of the time step
          *       - heuristics to stop large oscillations in deltaT
          */
@@ -238,12 +227,9 @@ int solveProb::solve(int ifunc, doublereal time_scale,
         /*
          *  Solve Linear system (with LAPACK).  The solution is in resid[]
          */
-
-        ct_dgetrf(m_neq, m_neq, m_JacCol[0], m_neq, DATA_PTR(m_ipiv), info);
+        info = m_Jac.factor();
         if (info==0) {
-            ct_dgetrs(ctlapack::NoTranspose, m_neq, nrhs, m_JacCol[0],
-                      m_neq, DATA_PTR(m_ipiv), DATA_PTR(m_resid), m_neq,
-                      info);
+            m_Jac.solve(&m_resid[0]);
         }
         /*
          *    Force convergence if residual is small to avoid
@@ -474,10 +460,6 @@ doublereal solveProb::calc_damping(doublereal x[], doublereal dxneg[], size_t di
             damp = APPROACH * (x[i] - xbot) / dxneg[i];
             *label = i;
         }
-        // else  if (fabs(xnew) > 2.0*MAX(fabs(x[i]), 1.0E-10)) {
-        //    damp = 0.5 * MAX(fabs(x[i]), 1.0E-9)/ fabs(xnew);
-        //    *label = i;
-        //     }
         double denom = fabs(x[i]) + 1.0E5 * m_atol[i];
         if ((fabs(delta_x) / denom) > 0.3) {
             double newdamp = 0.3 * denom / fabs(delta_x);
@@ -553,9 +535,9 @@ void solveProb::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
     }
 }
 
-doublereal solveProb::
-calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
-       size_t* label, size_t* label_old, doublereal* label_factor, int ioflag)
+doublereal solveProb::calc_t(doublereal netProdRateSolnSP[], doublereal Csoln[],
+                             size_t* label, size_t* label_old, 
+                             doublereal* label_factor, int ioflag)
 {
     doublereal tmp, inv_timeScale=0.0;
     for (size_t k = 0; k < m_neq; k++) {
@@ -644,8 +626,8 @@ void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale,
             printf("\n   SOLVEPROB Called to integrate surface in time\n");
             printf("           for a total of %9.3e sec\n", time_scale);
         } else {
-            fprintf(stderr,"Unknown ifunc flag = %d\n", ifunc);
-            exit(EXIT_FAILURE);
+            throw CanteraError("solveProb::print_header",
+                               "Unknown ifunc flag = " + int2str(ifunc));
         }
 
 
@@ -778,7 +760,6 @@ void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
         for (int isp = 0; isp < m_numSurfPhases; isp++) {
             int nsp = m_nSpeciesSurfPhase[isp];
             InterfaceKinetics* m_kin = m_objects[isp];
-            //int surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
             m_kin->getNetProductionRates(DATA_PTR(m_numEqn1));
             for (int k = 0; k < nsp; k++, kindexSP++) {
                 int kspIndex = m_kinSpecIndex[kindexSP];
@@ -852,8 +833,6 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
     }
 #ifdef DEBUG_SOLVEPROB
     else if (ioflag > 1) {
-
-
         printf("\n================================== FINAL RESULT ========="
                "==================================================\n");
 
@@ -898,9 +877,9 @@ void solveProb::printFinal(int ioflag, doublereal damp, size_t label_d, size_t l
 }
 
 #ifdef DEBUG_SOLVEPROB
-void solveProb::
-printIterationHeader(int ioflag, doublereal damp,doublereal inv_t, doublereal t_real,
-                     int iter, bool do_time)
+void solveProb::printIterationHeader(int ioflag, doublereal damp, 
+                                     doublereal inv_t, doublereal t_real,
+                                     int iter, bool do_time)
 {
     if (ioflag > 1) {
         printf("\n===============================Iteration %5d "

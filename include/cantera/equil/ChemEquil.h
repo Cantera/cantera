@@ -132,7 +132,7 @@ public:
      * @param useThermoPhaseElementPotentials get the initial estimate for the
      *     chemical potentials from the ThermoPhase object (true) or create
      *     our own estimate (false)
-     * @param loglvel Specify amount of debug logging (0 to disable)
+     * @param loglevel Specify amount of debug logging (0 to disable)
      * @return Successful returns are indicated by a return value of 0.
      *     Unsuccessful returns are indicated by a return value of -1 for lack
      *     of convergence or -3 for a singular jacobian.

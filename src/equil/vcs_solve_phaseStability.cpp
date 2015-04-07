@@ -134,21 +134,6 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
      */
     vcs_redim_TP();
 
-    /*
-    vcs_VolPhase *Vphase = m_VolPhaseList[iphase];
-
-    std::vector<double> mfPop = Vphase->moleFractions();
-    int nsp = Vphase->nSpecies();
-
-    vcs_VolPhase *VPphase = vprob->VPhaseList[iphase];
-    int kstart = Vphase->spGlobalIndexVCS(0);
-    for (int k = 0; k < nsp; k++) {
-      vprob->mf[kstart + k] = mfPop[k];
-    }
-    VPphase->setMoleFractionsState(Vphase->totalMoles(),
-                   VCS_DATA_PTR(Vphase->moleFractions()),
-                   VCS_STATECALC_TMP);
-    */
     vcs_prob_update(vprob);
     /*
      *        Return the convergence success flag.
@@ -162,7 +147,6 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
 {
     double test = -1.0E-10;
     bool usedZeroedSpecies;
-    // std::vector<size_t> phasePopPhaseIDs(0);
     int iStab = 0;
 
     std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
@@ -186,9 +170,7 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     if (printLvl > 3) {
         vcs_printDeltaG(VCS_STATECALC_OLD);
     }
-    vcs_dcopy(VCS_DATA_PTR(m_deltaGRxn_Deficient), VCS_DATA_PTR(m_deltaGRxn_old), m_numRxnRdc);
-    // phasePopPhaseIDs.clear();
-    // vcs_popPhaseID(phasePopPhaseIDs);
+    m_deltaGRxn_Deficient = m_deltaGRxn_old;
     funcVal = vcs_phaseStabilityTest(iph);
     if (funcVal > 0.0) {
         iStab = 1;

@@ -8,8 +8,9 @@ if localenv['doxygen_docs']:
     if localenv['graphvizdir']:
         localenv.Append(PATH=localenv['graphvizdir'])
 
-    build(localenv.Command('#build/docs/doxygen/html/index.html',
-                           'doxygen/Doxyfile', 'doxygen $SOURCE'))
+    docs = build(localenv.Command('#build/docs/doxygen/html/index.html',
+                                  'doxygen/Doxyfile', 'doxygen $SOURCE'))
+    env.Alias('doxygen', docs)
     install(pjoin('$inst_docdir', 'doxygen/html'),
             mglob(localenv, '#/build/docs/doxygen/html', 'html', 'svg', 'css', 'png'))
 
@@ -20,6 +21,7 @@ if localenv['sphinx_docs']:
     sphinxdocs = build(localenv.Command('${SPHINXBUILD}/html/index.html',
         'sphinx/conf.py',
         '${sphinx_cmd} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
+    env.Alias('sphinx', sphinxdocs)
 
     # Python examples: Create individual documentation pages with the source
     # for each example
@@ -30,7 +32,7 @@ if localenv['sphinx_docs']:
             tmpenv['script_name'] = f.name
             tmpenv['script_path'] = '../../../../interfaces/cython/cantera/examples/%s/%s' % (subdir, f.name)
             b = tmpenv.SubstFile('#doc/sphinx/cython/examples/%s_%s.rst' % (subdir, f.name[:-3]),
-                                 '#doc/sphinx/cython/examples/example-script.rst.in')
+                                 '#doc/sphinx/cython/example-script.rst.in')
             build(b)
             localenv.Depends(sphinxdocs, b)
 
@@ -41,7 +43,7 @@ if localenv['sphinx_docs']:
         tmpenv['script_name'] = f.name
         tmpenv['script_path'] = '../../../../samples/matlab/%s' % f.name
         b = tmpenv.SubstFile('#doc/sphinx/matlab/examples/%s.rst' % f.name[:-2],
-                             '#doc/sphinx/matlab/examples/example-script.rst.in')
+                             '#doc/sphinx/matlab/example-script.rst.in')
         build(b)
         localenv.Depends(sphinxdocs, b)
 

@@ -40,10 +40,8 @@ public:
      */
     static void deleteUnit() {
         ScopedLock lock(units_mutex);
-        if (s_u) {
-            delete s_u;
-            s_u = 0;
-        }
+        delete s_u;
+        s_u = 0;
     }
 
     //! Empty Destructor
@@ -79,7 +77,6 @@ public:
         }
 
         doublereal f = 1.0, fctr;
-        int tsize;
         std::string u = units_, tok, tsub;
         std::string::size_type k;
         char action = '-';
@@ -94,7 +91,7 @@ public:
             } else {
                 tok = u;
             }
-            tsize = static_cast<int>(tok.size());
+            size_t tsize = tok.size();
             if (tsize == 0) {
                 fctr = 1.0;
             } else if (tok[tsize - 1] == '2') {

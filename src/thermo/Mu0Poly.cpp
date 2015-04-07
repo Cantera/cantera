@@ -66,9 +66,8 @@ Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
     return new Mu0Poly(*this);
 }
 
-void  Mu0Poly::
-updateProperties(const doublereal* tt,  doublereal* cp_R,
-                 doublereal* h_RT, doublereal* s_R) const
+void  Mu0Poly::updateProperties(const doublereal* tt,  doublereal* cp_R,
+                                doublereal* h_RT, doublereal* s_R) const
 {
     size_t j = m_numIntervals;
     double T = *tt;
@@ -88,11 +87,10 @@ updateProperties(const doublereal* tt,  doublereal* cp_R,
     s_R[m_index]  = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
-void  Mu0Poly::
-updatePropertiesTemp(const doublereal T,
-                     doublereal* cp_R,
-                     doublereal* h_RT,
-                     doublereal* s_R) const
+void Mu0Poly::updatePropertiesTemp(const doublereal T,
+                                   doublereal* cp_R,
+                                   doublereal* h_RT,
+                                   doublereal* s_R) const
 {
     updateProperties(&T, cp_R, h_RT, s_R);
 }
@@ -102,7 +100,6 @@ void Mu0Poly::reportParameters(size_t& n, int& type,
                                doublereal& pref,
                                doublereal* const coeffs) const
 {
-    warn_deprecated("Mu0Poly::reportParameters");
     n = m_index;
     type = MU0_INTERP;
     tlow = m_lowT;

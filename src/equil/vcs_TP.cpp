@@ -8,7 +8,6 @@ namespace VCSnonideal
 {
 int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg)
 {
-    int retn, iconv;
     /*
      *        Store the temperature and pressure in the private global variables
      */
@@ -18,7 +17,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
      *        Evaluate the standard state free energies
      *        at the current temperatures and pressures.
      */
-    iconv = vcs_evalSS_TP(ipr, ip1, m_temperature, pres_arg);
+    int iconv = vcs_evalSS_TP(ipr, ip1, m_temperature, pres_arg);
 
     /*
      *        Prepare the problem data:
@@ -35,7 +34,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
      *      If so, go get one. If not, then
      */
     if (m_doEstimateEquil) {
-        retn = vcs_inest_TP();
+        int retn = vcs_inest_TP();
         if (retn != VCS_SUCCESS) {
             plogf("vcs_inest_TP returned a failure flag\n");
         }
@@ -60,14 +59,6 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
 
 int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 {
-    // int i;
-    //double  R;
-    /*
-     * At this level of the program, we are still using values
-     * for the free energies that have units.
-     */
-    // R =  vcsUtil_gasConstant(m_VCS_UnitsFormat);
-
     /*
      *  We need to special case VCS_UNITS_UNITLESS, here.
      *      cpc_ts_GStar_calc() returns units of Kelvin. Also, the temperature
@@ -78,19 +69,6 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
      *      them to the cpc_ts_GStar_calc() routine. Then, we will revert
      *      them back to unitless at the end of this routine.
      */
-
-
-    /*
-     *    Loop over the species calculating the standard state Gibbs free
-     *    energies. -> These are energies that only depend upon the Temperature
-     *    and possibly on the pressure (i.e., ideal gas, etc).
-     */
-    // HKM -> We can change this to looks over phases, calling the vcs_VolPhase
-    //        object. Working to get rid of VCS_SPECIES_THERMO object
-    //for (i = 0; i < m_numSpeciesTot; ++i) {
-    // VCS_SPECIES_THERMO *spt = SpeciesThermo[i];
-    // ff[i] = R * spt->GStar_R_calc(i, Temp, pres);
-    //}
 
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* vph = m_VolPhaseList[iph];

@@ -17,7 +17,7 @@
  * @defgroup solverGroup Solvers for Equation Systems
  */
 
-#include "cantera/base/Array.h"
+#include "cantera/numerics/SquareMatrix.h"
 #include "ResidEval.h"
 
 //! Solution Methods
@@ -415,12 +415,6 @@ private:
      */
     vector_fp m_resid;
 
-    //!  pivots
-    /*!
-     * length MAX(1, m_neq)
-     */
-    vector_int m_ipiv;
-
     //! Vector of pointers to the top of the columns of the jacobians
     /*!
      *   The "dim" by "dim" computed Jacobian matrix for the
@@ -432,7 +426,7 @@ private:
     /*!
      *  m_neq by m_neq computed Jacobian matrix for the local Newton's method.
      */
-    Array2D m_Jac;
+    SquareMatrix m_Jac;
 
     //! Top bounds for the solution vector
     /*!

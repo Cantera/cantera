@@ -15,6 +15,10 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using namespace Cantera;
 using namespace std;
 
@@ -53,51 +57,88 @@ static string pypath()
 
 void ct2ctml(const char* file, const int debug)
 {
+    string xml = ct2ctml_string(file);
+    string out_name = file;
+#ifdef _WIN32
+    // For Windows, make the path POSIX compliant so code looking for directory
+    // separators is simpler.  Just look for '/' not both '/' and '\\'
+    std::replace_if(out_name.begin(), out_name.end(),
+                    std::bind2nd(std::equal_to<char>(), '\\'), '/') ;
+#endif
+    size_t idir = out_name.rfind('/');
+    if (idir != npos) {
+        out_name = out_name.substr(idir+1, out_name.size());
+    }
+    size_t idot = out_name.rfind('.');
+    if (idot != npos) {
+        out_name = out_name.substr(0, idot) + ".xml";
+    } else {
+        out_name += ".xml";
+    }
+    std::ofstream out(out_name.c_str());
+    out << xml;
+}
+
+std::string ct2ctml_string(const std::string& file)
+{
 #ifdef HAS_NO_PYTHON
     /*
      *  Section to bomb out if python is not
      *  present in the computation environment.
      */
-    string ppath = file;
     throw CanteraError("ct2ctml",
-                       "python cti to ctml conversion requested for file, " + ppath +
+                       "python cti to ctml conversion requested for file, " + file +
                        ", but not available in this computational environment");
 #endif
 
-    string python_output;
+    string python_output, error_output;
     int python_exit_code;
     try {
         exec_stream_t python;
         python.set_wait_timeout(exec_stream_t::s_all, 1800000); // 30 minutes
-        python.start(pypath(), "-i");
-        stringstream output_stream;
-        python.in() <<
-                    "if True:\n" << // Use this so that the rest is a single block
-                    "    import sys\n" <<
-                    "    sys.stderr = sys.stdout\n" <<
-                    "    try:\n" <<
-                    "        from cantera import ctml_writer\n" <<
-                    "    except ImportError:\n" <<
-                    "        import ctml_writer\n" <<
-                    "    ctml_writer.convert(r'" << file << "')\n" <<
-                    "    sys.exit(0)\n\n"
-                    "sys.exit(7)\n";
-        python.close_in();
+        stringstream output_stream, error_stream;
+        std::vector<string> args;
+        args.push_back("-c");
+
+        args.push_back(
+                    "from __future__ import print_function\n"
+                    "import sys\n"
+                    "try:\n"
+                    "    from cantera import ctml_writer\n"
+                    "except ImportError:\n"
+                    "    print('sys.path: ' + repr(sys.path) + '\\n', file=sys.stderr)\n"
+                    "    raise\n"
+                    "ctml_writer.convert(r'" + file + "', 'STDOUT')\n"
+                    "sys.exit(0)\n");
+
+        python.start(pypath(), args.begin(), args.end());
         std::string line;
+
         while (python.out().good()) {
             std::getline(python.out(), line);
-            output_stream << line << std::endl;;
+            output_stream << line << std::endl;
+        }
+
+#ifdef _WIN32
+        // Sleeping for 1 ms prevents a (somewhat inexplicable) deadlock while
+        // reading from the stream.
+        Sleep(1);
+#endif
+        while (python.err().good()) {
+            std::getline(python.err(), line);
+            error_stream << line << std::endl;
         }
         python.close();
         python_exit_code = python.exit_code();
-        python_output = stripws(output_stream.str());
+        error_output = stripws(error_stream.str());
+        python_output = output_stream.str();
     } catch (std::exception& err) {
         // Report failure to execute Python
         stringstream message;
         message << "Error executing python while converting input file:\n";
         message << "Python command was: '" << pypath() << "'\n";
         message << err.what() << std::endl;
-        throw CanteraError("ct2ctml", message.str());
+        throw CanteraError("ct2ctml_string", message.str());
     }
 
     if (python_exit_code != 0) {
@@ -106,26 +147,28 @@ void ct2ctml(const char* file, const int debug)
         message << "Error converting input file \"" << file << "\" to CTML.\n";
         message << "Python command was: '" << pypath() << "'\n";
         message << "The exit code was: " << python_exit_code << "\n";
-        if (python_output.size() > 0) {
+        if (error_output.size() > 0) {
             message << "-------------- start of converter log --------------\n";
-            message << python_output << std::endl;
+            message << error_output << std::endl;
             message << "--------------- end of converter log ---------------";
         } else {
             message << "The command did not produce any output." << endl;
         }
-        throw CanteraError("ct2ctml", message.str());
+        throw CanteraError("ct2ctml_string", message.str());
     }
 
-    if (python_output.size() > 0) {
+    if (error_output.size() > 0) {
         // Warn if there was any output from the conversion process
         stringstream message;
         message << "Warning: Unexpected output from CTI converter\n";
         message << "-------------- start of converter log --------------\n";
-        message << python_output << std::endl;
+        message << error_output << std::endl;
         message << "--------------- end of converter log ---------------\n";
         writelog(message.str());
     }
+    return python_output;
 }
+
 
 void ck2cti(const std::string& in_file, const std::string& thermo_file,
             const std::string& transport_file, const std::string& id_tag)
@@ -154,9 +197,10 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
                 "    import sys\n" <<
                 "    sys.stderr = sys.stdout\n" <<
                 "    try:\n" <<
-                "        from cantera import ck2cti\n" << // Cython module
+                "        from cantera import ck2cti\n" <<
                 "    except ImportError:\n" <<
-                "        import ck2cti\n" << // legacy Python module
+                "        print('sys.path: ' + repr(sys.path))\n" <<
+                "        raise\n"
                 "    ck2cti.Parser().convertMech(r'" << in_file << "',";
         if (thermo_file != "" && thermo_file != "-") {
             pyin << " thermoFile=r'" << thermo_file << "',";
@@ -165,7 +209,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
             pyin << " transportFile=r'" << transport_file << "',";
         }
         pyin << " phaseName='" << id_tag << "',";
-	pyin << " permissive=True,";
+        pyin << " permissive=True,";
         pyin << " quiet=True)\n";
         pyin << "    sys.exit(0)\n\n";
         pyin << "sys.exit(7)\n";
@@ -217,7 +261,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
 
 void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const int debug)
 {
-    std::string ff, ext = "";
+    std::string ext = "";
 
     // find the input file on the Cantera search path
     std::string inname = findInputFile(file);
@@ -236,27 +280,18 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const in
         ext = inname.substr(idot, inname.size());
     }
     if (ext != ".xml" && ext != ".ctml") {
-        try {
-            ctml::ct2ctml(inname.c_str(), debug);
-        } catch (std::exception& err) {
-            writelog("get_CTML_Tree: caught an exception:\n");
-            writelog(err.what());
-        }
-        string ffull = inname.substr(0,idot) + ".xml";
-        ff = "./" + getBaseName(ffull) + ".xml";
-        if (debug > 0) {
-            writelogf("ffull name = %s\n", ffull.c_str());
-            writelogf("ff name = %s\n", ff.c_str());
-        }
-    } else {
-        ff = inname;
+        string phase_xml = ctml::ct2ctml_string(inname);
+        stringstream s(phase_xml);
+        rootPtr->build(s);
+        return;
     }
-    writelog("Attempting to parse xml file " + ff + "\n", debug);
-    ifstream fin(ff.c_str());
+
+    writelog("Attempting to parse xml file " + inname + "\n", debug);
+    ifstream fin(inname.c_str());
     if (!fin) {
         throw
         CanteraError("get_CTML_Tree",
-                     "XML file " + ff + " not found");
+                     "XML file " + inname + " not found");
     }
     rootPtr->build(fin);
     fin.close();

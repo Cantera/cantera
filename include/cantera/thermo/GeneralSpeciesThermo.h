@@ -117,20 +117,15 @@ public:
     virtual doublereal refPressure(size_t k=npos) const;
     virtual int reportType(size_t index) const;
 
-    //! @deprecated
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
                               doublereal& minTemp,
                               doublereal& maxTemp,
                               doublereal& refPressure) const;
 
-#ifdef H298MODIFY_CAPABILITY
+    virtual doublereal reportOneHf298(const size_t k) const;
 
-    virtual doublereal reportOneHf298(int k) const;
-
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New);
-
-#endif
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
 
 private:
     //! Provide the SpeciesthermoInterpType object

@@ -13,11 +13,7 @@
 
 #ifdef HAS_SUNDIALS
 
-#if SUNDIALS_VERSION == 22
-#include "nvector_serial.h"
-#else
 #include "sundials/sundials_nvector.h"
-#endif
 
 namespace Cantera
 {
@@ -38,10 +34,6 @@ public:
  *
  * @see FuncEval.h. Classes that use CVodeInt:
  * ImplicitChem, ImplicitSurfChem, Reactor
- *
- * @deprecated Support for Sundials 2.2 and 2.3 is deprecated. Starting with
- *     %Cantera 2.2, only Sundials versions 2.4 and newer will be supported.
- *     (The CVodesIntegrator class itself is not deprecated).
  */
 class CVodesIntegrator : public Integrator
 {

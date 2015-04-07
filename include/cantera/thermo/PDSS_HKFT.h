@@ -29,9 +29,12 @@ class WaterProps;
 /*!
  * @ingroup pdssthermo
  */
-class PDSS_HKFT : public PDSS
+class PDSS_HKFT : public PDSS_Molar
 {
 public:
+
+    
+
     //! @name  Constructors
     //! @{
 
@@ -109,17 +112,14 @@ public:
      *  Note this is just an extra routine to check the arithmetic
      *
      * @return returns the species standard state enthalpy in  J kmol-1
-     * @deprecated
      */
     doublereal enthalpy_mole2() const;
 #endif
 
-    virtual doublereal enthalpy_RT() const;
     virtual doublereal intEnergy_mole() const;
     virtual doublereal entropy_mole() const;
     virtual doublereal gibbs_mole() const;
     virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
     virtual doublereal molarVolume() const;
     virtual doublereal density() const;
 
@@ -141,19 +141,7 @@ public:
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    doublereal temperature() const;
     virtual void setState_TP(doublereal temp, doublereal pres);
-
-    //! @}
-    //! @name Miscellaneous properties of the standard state
-    //! @{
-
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
 
     //! @}
     //! @name Initialization of the Object
@@ -200,7 +188,6 @@ public:
                           const XML_Node& speciesNode,
                           const XML_Node& phaseNode, bool spInstalled);
 
-    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              SpeciesThermo* spthermo_ptr);
 
@@ -229,7 +216,6 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     * @deprecated
      */
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
@@ -258,7 +244,6 @@ private:
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is an extra routine that was added to check the arithmetic
-     *  @deprecated
      */
     doublereal deltaH() const;
 #endif
@@ -446,6 +431,13 @@ private:
 
     //! Charge of the ion
     doublereal m_charge_j;
+
+    //!  Static variable determining error exiting 
+    /*!
+     *   If true, then will error exit if there is an inconsistency in DG0, DH0, and DS0.
+     *   If not, then will rewrite DH0 to be consistent with the other two.
+     */
+    static int s_InputInconsistencyErrorExit;
 };
 
 }

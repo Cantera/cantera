@@ -170,13 +170,8 @@ public:
                                              refPressure, chigh));
         m_low[igrp-1].push_back(ShomatePoly(index, tlow, tmid,
                                             refPressure, clow));
-        if (tlow > m_tlow_max) {
-            m_tlow_max = tlow;
-        }
-        if (thigh < m_thigh_min) {
-            m_thigh_min = thigh;
-        }
-
+        m_tlow_max = std::max(m_tlow_max, tlow);
+        m_thigh_min = std::min(m_thigh_min, thigh);
         if (m_tlow.size() < index + 1) {
             m_tlow.resize(index + 1,  tlow);
             m_thigh.resize(index + 1, thigh);
@@ -289,13 +284,11 @@ public:
         return SHOMATE;
     }
 
-    //! @deprecated
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
                               doublereal& minTemp,
                               doublereal& maxTemp,
                               doublereal& refPressure) const {
-        warn_deprecated("ShomateThermo::reportParams");
         type = reportType(index);
         if (type == SHOMATE) {
             size_t grp = m_group_map[index];
@@ -330,14 +323,12 @@ public:
         }
     }
 
-#ifdef H298MODIFY_CAPABILITY
-
-    virtual doublereal reportOneHf298(int k) const {
+    virtual doublereal reportOneHf298(const size_t k) const {
         doublereal h;
         doublereal t = 298.15;
 
-        int grp = m_group_map[k];
-        int pos = m_posInGroup_map[k];
+        size_t grp = m_group_map[k];
+        size_t pos = m_posInGroup_map[k];
         const std::vector<ShomatePoly> &mlg = m_low[grp-1];
         const ShomatePoly* nlow = &(mlg[pos]);
 
@@ -352,10 +343,10 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
 
-        int grp = m_group_map[k];
-        int pos = m_posInGroup_map[k];
+        size_t grp = m_group_map[k];
+        size_t pos = m_posInGroup_map[k];
         std::vector<ShomatePoly> &mlg = m_low[grp-1];
         ShomatePoly* nlow = &(mlg[pos]);
         std::vector<ShomatePoly> &mhg = m_high[grp-1];
@@ -378,7 +369,6 @@ public:
 
     }
 
-#endif
 protected:
     //! Vector of vector of NasaPoly1's for the high temp region.
     /*!

@@ -23,9 +23,7 @@ int main(int argc, char** argv)
         g->setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");
         //g.setState_TPX(1500.0, 1.0132E5, "SIH4:0.01, H2:0.99");
         equilibrate(*g, "TP");
-        std::string r = g->report(true);
-        cout << r;
-        cout << endl;
+        cout << g->report(true, 0.0) << endl;
         return 0;
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;

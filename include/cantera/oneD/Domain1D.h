@@ -235,37 +235,10 @@ public:
                            "no component named "+name);
     }
 
-    //! Set the lower and upper bounds for each solution component.
-    //! @deprecated Use the scalar version
-    void setBounds(size_t nl, const doublereal* lower,
-                   size_t nu, const doublereal* upper) {
-        warn_deprecated("setBounds", "Use the scalar version.");
-        if (nl < m_nv || nu < m_nv)
-            throw CanteraError("Domain1D::setBounds",
-                               "wrong array size for solution bounds. "
-                               "Size should be at least "+int2str(m_nv));
-        std::copy(upper, upper + m_nv, m_max.begin());
-        std::copy(lower, lower + m_nv, m_min.begin());
-    }
-
     void setBounds(size_t n, doublereal lower, doublereal upper) {
         m_min[n] = lower;
         m_max[n] = upper;
     }
-
-    //! set the error tolerances for all solution components.
-    //! @deprecated Use setTransientTolerances() and setSteadyTolerances().
-    void setTolerances(size_t nr, const doublereal* rtol,
-                       size_t na, const doublereal* atol, int ts = 0);
-
-    //! set the error tolerances for solution component \a n.
-    //! @deprecated Use setTransientTolerances() and setSteadyTolerances().
-    void setTolerances(size_t n, doublereal rtol, doublereal atol, int ts = 0);
-
-    //! set scalar error tolerances. All solution components will have the
-    //! same relative and absolute error tolerances.
-    //! @deprecated Use setTransientTolerances() and setSteadyTolerances().
-    void setTolerances(doublereal rtol, doublereal atol,int ts=0);
 
     //! Set tolerances for time-stepping mode
     /*!
@@ -277,9 +250,6 @@ public:
      */
     void setTransientTolerances(doublereal rtol, doublereal atol, size_t n=npos);
 
-    //! @deprecated use setTransientTolerances()
-    void setTolerancesTS(doublereal rtol, doublereal atol, size_t n=npos);
-
     //! Set tolerances for steady-state mode
     /*!
      *  @param rtol Relative tolerance
@@ -289,9 +259,6 @@ public:
      *      components.
      */
     void setSteadyTolerances(doublereal rtol, doublereal atol, size_t n=npos);
-
-    //! @deprecated use setSteadyTolerances()
-    void setTolerancesSS(doublereal rtol, doublereal atol, size_t n=npos);
 
     //! Relative tolerance of the nth component.
     doublereal rtol(size_t n) {
@@ -344,7 +311,6 @@ public:
      * Set this if something has changed in the governing
      * equations (e.g. the value of a constant has been changed,
      * so that the last-computed Jacobian is no longer valid.
-     * Note: see file OneDim.cpp for the implementation of this method.
      */
     void needJacUpdate();
 
@@ -577,8 +543,6 @@ public:
     //! called to set up initial grid, and after grid refinement
     virtual void setupGrid(size_t n, const doublereal* z);
 
-    void setGrid(size_t n, const doublereal* z);
-
     /**
      * Writes some or all initial solution values into the global
      * solution array, beginning at the location pointed to by
@@ -603,11 +567,6 @@ public:
      * not need to be overloaded.
      */
     virtual void _finalize(const doublereal* x) {}
-
-    doublereal m_zfixed;
-    doublereal m_tfixed;
-
-    bool m_adiabatic;
 
 protected:
     doublereal m_rdt;

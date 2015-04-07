@@ -12,7 +12,6 @@
 #include "TransportParams.h"
 #include "LiquidTransportData.h"
 #include "cantera/base/xml.h"
-#include "cantera/base/XML_Writer.h"
 
 namespace Cantera
 {
@@ -72,7 +71,6 @@ namespace Cantera
  */
 enum LiquidTranMixingModel {
     LTI_MODEL_NOTSET=-1,
-    LTI_MODEL_NONE,
     LTI_MODEL_SOLVENT,
     LTI_MODEL_MOLEFRACS,
     LTI_MODEL_MASSFRACS,
@@ -80,23 +78,25 @@ enum LiquidTranMixingModel {
     LTI_MODEL_PAIRWISE_INTERACTION,
     LTI_MODEL_STEFANMAXWELL_PPN,
     LTI_MODEL_STOKES_EINSTEIN,
-    LTI_MODEL_MOLEFRACS_EXPT
+    LTI_MODEL_MOLEFRACS_EXPT,
+    LTI_MODEL_NONE,
+    LTI_MODEL_MULTIPLE
 };
 
 //! Base class to handle transport property evaluation in a mixture.
 /*!
  * In a mixture, the mixture transport properties will generally depend on
- * the contributions of each of the pure species transport properties.
+ * the contributions of each of the standard state species transport properties.
  * Many composition dependencies are possible.  This class,
  * LiquidTranInteraction, is designed to be a base class for the
- * implementation of various models for the mixing of pure species
+ * implementation of various models for the mixing of standard state species
  * transport properties.
  *
  * There are two very broad types of transport properties to consider.
  * First, there are properties for which a mixture value can be
  * obtained through some mixing rule.  These are obtained using the
  * method getMixTransProp().  Viscosity is typical of this.
- * Second there are properties for which a matrix of properties may
+ * Second, there are properties for which a matrix of properties may
  * exist.  This matrix of properties is obtained from the method
  * getMatrixTransProp().  Diffusion coefficients are of this type.
  * Subclasses should implement the appropriate one or both of
@@ -107,7 +107,7 @@ class LiquidTranInteraction
 public:
     //! Constructor
     /**
-     *  @param tp_ind  Index indicating transport property type (i.e. viscosity)
+     *  @param tp_ind  Index indicating the transport property type (e.g., viscosity)
      */
     LiquidTranInteraction(TransportPropertyType tp_ind = TP_UNKNOWN);
 
@@ -130,16 +130,16 @@ public:
     //! Return the mixture transport property value.
     //! (Must be implemented in subclasses.)
     virtual doublereal getMixTransProp(doublereal* speciesValues, doublereal* weightSpecies = 0) {
-        throw NotImplemented("LiquidTranInteraction::getMixTransProp");
+        throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
     virtual doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs) {
-        throw NotImplemented("LiquidTranInteraction::getMixTransProp");
+        throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
     virtual void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
         //mat = m_Dij;
-        throw NotImplemented("LiquidTranInteraction::getMixTransProp");
+        throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
 protected:

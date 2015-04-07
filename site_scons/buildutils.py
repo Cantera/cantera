@@ -145,7 +145,7 @@ def regression_test(target, source, env):
     with open(pjoin(dir,outputName), 'w') as outfile:
         code = subprocess.call([program.abspath] + clopts + clargs,
                                stdout=outfile, stderr=outfile,
-                               cwd=dir)
+                               cwd=dir, env=env['ENV'])
 
     diff = 0
     # Compare output files
@@ -556,7 +556,7 @@ def getSpawn(env):
     Adapted from http://www.scons.org/wiki/LongCmdLinesOnWin32
     """
 
-    if sys.platform != 'win32' or env['toolchain'] != 'mingw':
+    if 'cmd.exe' not in env['SHELL'] or env.subst('$CXX') == 'cl':
         return env['SPAWN']
 
     try:

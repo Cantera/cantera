@@ -178,6 +178,19 @@ private:
     size_t m_, mmax_;
 };
 
+//! An error indicating that an unimplemented function has been called
+class NotImplementedError : public CanteraError
+{
+public:
+    NotImplementedError(const std::string& func) :
+        CanteraError(func, "Not implemented.") {}
+
+    virtual std::string getClass() const {
+        return "NotImplementedError";
+    }
+};
+
+
 //! Provides a line number
 #define XSTR_TRACE_LINE(s) STR_TRACE_LINE(s)
 

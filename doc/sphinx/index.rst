@@ -29,7 +29,6 @@ Documentation
    cti/index
    reactors
    cython/index
-   python/index
    matlab/index
    cxx-guide/index
 

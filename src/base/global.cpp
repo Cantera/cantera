@@ -68,8 +68,20 @@ void writelogendl()
     app()->writelogendl();
 }
 
+void writeline(char repeat, size_t count, bool endl_after, bool endl_before)
+{
+    if (endl_before) {
+        writelogendl();
+    }
+    writelog(std::string(count, repeat));
+    if (endl_after) {
+        writelogendl();
+    }
+}
+
 void error(const std::string& msg)
 {
+    warn_deprecated("error", "To be removed after Cantera 2.2");
     app()->logerror(msg);
 }
 
@@ -82,47 +94,6 @@ void suppress_deprecation_warnings()
 {
     app()->suppress_deprecation_warnings();
 }
-
-// **************** HTML Logging ****************
-
-#ifdef WITH_HTML_LOGS
-
-void beginLogGroup(const std::string& title, int loglevel)
-{
-    app()->beginLogGroup(title, loglevel) ;
-}
-
-void addLogEntry(const std::string& tag, const std::string& value)
-{
-    app()->addLogEntry(tag, value) ;
-}
-
-void addLogEntry(const std::string& tag, doublereal value)
-{
-    app()->addLogEntry(tag, value) ;
-}
-
-void addLogEntry(const std::string& tag, int value)
-{
-    app()->addLogEntry(tag, value) ;
-}
-
-void addLogEntry(const std::string& msg)
-{
-    app()->addLogEntry(msg) ;
-}
-
-void endLogGroup(const std::string& title)
-{
-    app()->endLogGroup(title) ;
-}
-
-void write_logfile(const std::string& file)
-{
-    app()->write_logfile(file) ;
-}
-
-#endif // WITH_HTML_LOGS
 
 // **************** Global Data ****************
 
@@ -144,7 +115,6 @@ void thread_complete()
 XML_Node* get_XML_File(const std::string& file, int debug)
 {
     XML_Node* xtmp = app()->get_XML_File(file, debug) ;
-    //writelog("get_XML_File: returned from app:get_XML_FILE " + int2str(xtmp) + "\n");
     return xtmp;
 }
 

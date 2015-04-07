@@ -4,10 +4,14 @@
  *  element abundances constraints and the algorithm for fixing violations
  *  of the element abundances constraints.
  */
+#include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/numerics/ctlapack.h"
 #include "math.h"
+
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -17,7 +21,7 @@ void VCS_SOLVE::vcs_elab()
         m_elemAbundances[j] = 0.0;
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                m_elemAbundances[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
+                m_elemAbundances[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
             }
         }
     }
@@ -26,9 +30,6 @@ void VCS_SOLVE::vcs_elab()
 bool VCS_SOLVE::vcs_elabcheck(int ibound)
 {
     size_t top = m_numComponents;
-    double eval, scale;
-    int numNonZero;
-    bool multisign = false;
     if (ibound) {
         top = m_numElemConstraints;
     }
@@ -47,23 +48,21 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                                                 "Problem with charge neutrality condition");
                 }
                 if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
-                    scale = VCS_DELETE_MINORSPECIES_CUTOFF;
+                    double scale = VCS_DELETE_MINORSPECIES_CUTOFF;
                     /*
                      * Find out if the constraint is a multisign constraint.
                      * If it is, then we have to worry about roundoff error
                      * in the addition of terms. We are limited to 13
                      * digits of finite arithmetic accuracy.
                      */
-                    numNonZero = 0;
-                    multisign = false;
+                    bool multisign = false;
                     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-                        eval = m_formulaMatrix[i][kspec];
+                        double eval = m_formulaMatrix(kspec,i);
                         if (eval < 0.0) {
                             multisign = true;
                         }
                         if (eval != 0.0) {
                             scale = std::max(scale, fabs(eval * m_molNumSpecies_old[kspec]));
-                            numNonZero++;
                         }
                     }
                     if (multisign) {
@@ -99,7 +98,7 @@ void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 if (m_phaseID[i] == iphase) {
-                    elemAbundPhase[j] += m_formulaMatrix[j][i] * m_molNumSpecies_old[i];
+                    elemAbundPhase[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
                 }
             }
         }
@@ -108,14 +107,10 @@ void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
 
 int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 {
-    int retn = 0, its;
-    bool goodSpec;
-    double xx, par, saveDir, dir;
+    int retn = 0;
 
 #ifdef DEBUG_MODE
-    double l2before = 0.0, l2after = 0.0;
-    std::vector<double> ga_save(m_numElemConstraints, 0.0);
-    vcs_dcopy(VCS_DATA_PTR(ga_save), VCS_DATA_PTR(m_elemAbundances), m_numElemConstraints);
+    std::vector<double> ga_save(m_elemAbundances);
     if (m_debug_print_lvl >= 2) {
         plogf("   --- vcsc_elcorr: Element abundances correction routine");
         if (m_numElemConstraints != m_numComponents) {
@@ -127,7 +122,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
     }
-    l2before = 0.0;
+    double l2before = 0.0;
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         l2before += x[i] * x[i];
     }
@@ -140,15 +135,13 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
      * formula matrix, and no other species have zero values either.
      *
      */
-    int numNonZero = 0;
     bool changed = false;
-    bool multisign = false;
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
-        numNonZero = 0;
-        multisign = false;
+        int numNonZero = 0;
+        bool multisign = false;
         for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                double eval = m_formulaMatrix[i][kspec];
+                double eval = m_formulaMatrix(kspec,i);
                 if (eval < 0.0) {
                     multisign = true;
                 }
@@ -161,7 +154,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             if (numNonZero < 2) {
                 for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                        double eval = m_formulaMatrix[i][kspec];
+                        double eval = m_formulaMatrix(kspec,i);
                         if (eval > 0.0) {
                             m_molNumSpecies_old[kspec] = m_elemAbundancesGoal[i] / eval;
                             changed = true;
@@ -173,7 +166,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 size_t compID = npos;
                 for (size_t kspec = 0; kspec < m_numComponents; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                        double eval = m_formulaMatrix[i][kspec];
+                        double eval = m_formulaMatrix(kspec,i);
                         if (eval > 0.0) {
                             compID = kspec;
                             numCompNonZero++;
@@ -184,10 +177,10 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     double diff = m_elemAbundancesGoal[i];
                     for (size_t kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
                         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                            double eval = m_formulaMatrix[i][kspec];
+                            double eval = m_formulaMatrix(kspec,i);
                             diff -= eval * m_molNumSpecies_old[kspec];
                         }
-                        m_molNumSpecies_old[compID] = std::max(0.0,diff/m_formulaMatrix[i][compID]);
+                        m_molNumSpecies_old[compID] = std::max(0.0,diff/m_formulaMatrix(compID,i));
                         changed = true;
                     }
                 }
@@ -213,19 +206,16 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         if (elType == VCS_ELEM_TYPE_ABSPOS) {
             for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
                 if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                    double atomComp = m_formulaMatrix[i][kspec];
+                    double atomComp = m_formulaMatrix(kspec,i);
                     if (atomComp > 0.0) {
                         double maxPermissible = m_elemAbundancesGoal[i] / atomComp;
                         if (m_molNumSpecies_old[kspec] > maxPermissible) {
-
-#ifdef DEBUG_MODE
-                            if (m_debug_print_lvl >= 3) {
+                            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 3) {
                                 plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g "
                                       "due to %s max bounds constraint\n",
                                       m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
                                       maxPermissible, m_elementName[i].c_str());
                             }
-#endif
                             m_molNumSpecies_old[kspec] = maxPermissible;
                             changed = true;
                             if (m_molNumSpecies_old[kspec] < VCS_DELETE_MINORSPECIES_CUTOFF) {
@@ -235,13 +225,11 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                                 } else {
                                     m_speciesStatus[kspec] = VCS_SPECIES_ACTIVEBUTZERO;
                                 }
-#ifdef DEBUG_MODE
-                                if (m_debug_print_lvl >= 2) {
+                                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                                     plogf("  ---  vcs_elcorr: Zeroed species %s and changed "
                                           "status to %d due to max bounds constraint\n",
                                           m_speciesName[kspec].c_str(), m_speciesStatus[kspec]);
                                 }
-#endif
                             }
                         }
                     }
@@ -266,29 +254,29 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             retn = 1;
         }
         for (size_t j = 0; j < m_numComponents; ++j) {
-            aa[j + i*m_numElemConstraints] = m_formulaMatrix[j][i];
+            aa[j + i*m_numElemConstraints] = - m_formulaMatrix(i,j);
         }
     }
-    int err = vcsUtil_mlequ(aa, m_numElemConstraints, m_numComponents, x, 1);
-    if (err == 1) {
-        plogf("vcs_elcorr ERROR: mlequ returned error condition\n");
+    int info;
+    vector_int ipiv(std::min(m_numComponents, m_numElemConstraints));
+    ct_dgetrf(m_numComponents, m_numComponents, aa, m_numElemConstraints,
+              &ipiv[0], info);
+    if (info) {
+        plogf("vcs_elcorr ERROR: matrix factorization\n");
         return VCS_FAILED_CONVERGENCE;
     }
+    ct_dgetrs(ctlapack::NoTranspose, m_numComponents, 1, aa,
+              m_numElemConstraints, &ipiv[0], x, m_numElemConstraints, info);
     /*
      * Now apply the new direction without creating negative species.
      */
-    par = 0.5;
+    double par = 0.5;
     for (size_t i = 0; i < m_numComponents; ++i) {
         if (m_molNumSpecies_old[i] > 0.0) {
-            xx = -x[i] / m_molNumSpecies_old[i];
-            if (par < xx) {
-                par = xx;
-            }
+            par = std::max(par, -x[i] / m_molNumSpecies_old[i]);
         }
     }
-    if (par > 100.0) {
-        par = 100.0;
-    }
+    par = std::min(par, 100.0);
     par = 1.0 / par;
     if (par < 1.0 && par > 0.0) {
         retn = 2;
@@ -341,10 +329,10 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 continue;
             }
-            saveDir = 0.0;
-            goodSpec = true;
+            double saveDir = 0.0;
+            bool goodSpec = true;
             for (size_t i = 0; i < m_numComponents; ++i) {
-                dir = m_formulaMatrix[i][kspec] * (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
+                double dir = m_formulaMatrix(kspec,i) * (m_elemAbundancesGoal[i] - m_elemAbundances[i]);
                 if (fabs(dir) > 1.0E-10) {
                     if (dir > 0.0) {
                         if (saveDir < 0.0) {
@@ -359,18 +347,18 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     }
                     saveDir = dir;
                 } else {
-                    if (m_formulaMatrix[i][kspec] != 0.) {
+                    if (m_formulaMatrix(kspec,i) != 0.) {
                         goodSpec = false;
                         break;
                     }
                 }
             }
             if (goodSpec) {
-                its = 0;
-                xx = 0.0;
+                int its = 0;
+                double xx = 0.0;
                 for (size_t i = 0; i < m_numComponents; ++i) {
-                    if (m_formulaMatrix[i][kspec] != 0.0) {
-                        xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / m_formulaMatrix[i][kspec];
+                    if (m_formulaMatrix(kspec,i) != 0.0) {
+                        xx += (m_elemAbundancesGoal[i] - m_elemAbundances[i]) / m_formulaMatrix(kspec,i);
                         its++;
                     }
                 }
@@ -403,21 +391,17 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) {
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (m_elemAbundances[i] > 0.0) {
-                    if (m_formulaMatrix[i][kspec] < 0.0) {
-                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix[i][kspec] ;
-                        if (m_molNumSpecies_old[kspec] < 0.0) {
-                            m_molNumSpecies_old[kspec] = 0.0;
-                        }
+                    if (m_formulaMatrix(kspec,i) < 0.0) {
+                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i) ;
+                        m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
                         vcs_elab();
                         break;
                     }
                 }
                 if (m_elemAbundances[i] < 0.0) {
-                    if (m_formulaMatrix[i][kspec] > 0.0) {
-                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix[i][kspec];
-                        if (m_molNumSpecies_old[kspec] < 0.0) {
-                            m_molNumSpecies_old[kspec] = 0.0;
-                        }
+                    if (m_formulaMatrix(kspec,i) > 0.0) {
+                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i);
+                        m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
                         vcs_elab();
                         break;
                     }
@@ -441,13 +425,13 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             bool useZeroed = true;
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (dev < 0.0) {
-                    if (m_formulaMatrix[i][kspec] < 0.0) {
+                    if (m_formulaMatrix(kspec,i) < 0.0) {
                         if (m_molNumSpecies_old[kspec] > 0.0) {
                             useZeroed = false;
                         }
                     }
                 } else {
-                    if (m_formulaMatrix[i][kspec] > 0.0) {
+                    if (m_formulaMatrix(kspec,i) > 0.0) {
                         if (m_molNumSpecies_old[kspec] > 0.0) {
                             useZeroed = false;
                         }
@@ -457,23 +441,19 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (m_molNumSpecies_old[kspec] > 0.0 || useZeroed) {
                     if (dev < 0.0) {
-                        if (m_formulaMatrix[i][kspec] < 0.0) {
-                            double delta = dev / m_formulaMatrix[i][kspec] ;
+                        if (m_formulaMatrix(kspec,i) < 0.0) {
+                            double delta = dev / m_formulaMatrix(kspec,i) ;
                             m_molNumSpecies_old[kspec] += delta;
-                            if (m_molNumSpecies_old[kspec] < 0.0) {
-                                m_molNumSpecies_old[kspec] = 0.0;
-                            }
+                            m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
                             vcs_elab();
                             break;
                         }
                     }
                     if (dev > 0.0) {
-                        if (m_formulaMatrix[i][kspec] > 0.0) {
-                            double delta = dev / m_formulaMatrix[i][kspec] ;
+                        if (m_formulaMatrix(kspec,i) > 0.0) {
+                            double delta = dev / m_formulaMatrix(kspec,i) ;
                             m_molNumSpecies_old[kspec] += delta;
-                            if (m_molNumSpecies_old[kspec] < 0.0) {
-                                m_molNumSpecies_old[kspec] = 0.0;
-                            }
+                            m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
                             vcs_elab();
                             break;
                         }
@@ -491,15 +471,15 @@ L_CLEANUP:
     ;
     vcs_tmoles();
 #ifdef DEBUG_MODE
-    l2after = 0.0;
-    for (int i = 0; i < m_numElemConstraints; ++i) {
+    double l2after = 0.0;
+    for (size_t i = 0; i < m_numElemConstraints; ++i) {
         l2after += SQUARE(m_elemAbundances[i] - m_elemAbundancesGoal[i]);
     }
     l2after = sqrt(l2after/m_numElemConstraints);
     if (m_debug_print_lvl >= 2) {
         plogf("   ---    Elem_Abund:  Correct             Initial  "
               "              Final\n");
-        for (int i = 0; i < m_numElemConstraints; ++i) {
+        for (size_t i = 0; i < m_numElemConstraints; ++i) {
             plogf("   ---       ");
             plogf("%-2.2s", m_elementName[i].c_str());
             plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);

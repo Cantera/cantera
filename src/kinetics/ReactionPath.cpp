@@ -84,7 +84,7 @@ ReactionPathDiagram::ReactionPathDiagram()
     normal_color = "steelblue";
     dashed_color = "gray";
     dot_options = "center=1;";
-    m_font = "Helvetica"; // RXNPATH_FONT;
+    m_font = "Helvetica";
     bold_min = 0.2;
     dashed_max = 0.0;
     label_min = 0.0;
@@ -122,9 +122,7 @@ vector_int ReactionPathDiagram::reactions()
     Path* p;
     for (i = 0; i < npaths; i++) {
         p = path(i);
-        if (p->flow() > flmax) {
-            flmax = p->flow();
-        }
+        flmax = std::max(p->flow(), flmax);
     }
     m_rxns.clear();
     for (i = 0; i < npaths; i++) {
@@ -148,12 +146,6 @@ vector_int ReactionPathDiagram::reactions()
 
 void ReactionPathDiagram::add(ReactionPathDiagram& d)
 {
-    //        doublereal f1, f2;
-    //         int nnodes = nNodes();
-    //         if (nnodes != d.nNodes()) {
-    //             throw CanteraError("ReactionPathDiagram::add",
-    //                 "number of nodes must be the same");
-    //         }
     size_t np = nPaths();
     size_t n, k1, k2;
     Path* p = 0;
@@ -176,9 +168,7 @@ void ReactionPathDiagram::findMajorPaths(doublereal athreshold, size_t lda,
             k1 = m_speciesNumber[n];
             k2 = m_speciesNumber[m];
             fl = fabs(netFlow(k1,k2));
-            if (fl > netmax) {
-                netmax = fl;
-            }
+            netmax = std::max(fl, netmax);
         }
     }
     for (n = 0; n < nn; n++) {
@@ -210,10 +200,8 @@ void ReactionPathDiagram::writeData(ostream& s)
             k2 = m_speciesNumber[i2];
             f1 = flow(k1, k2);
             f2 = flow(k2, k1);
-            //if (f1 > 0.001 || f2 > 0.001) {
             s << m_nodes[k1]->name << " " << m_nodes[k2]->name
               << " " << f1 << " " << -f2 << endl;
-            //}
         }
     }
 }
@@ -221,7 +209,6 @@ void ReactionPathDiagram::writeData(ostream& s)
 void ReactionPathDiagram::exportToDot(ostream& s)
 {
     doublereal flxratio, flmax = 0.0, lwidth;
-    //s.flags(std::ios_base::showpoint+std::ios_base::fixed);
     s.precision(3);
 
     // a directed graph
@@ -238,7 +225,6 @@ void ReactionPathDiagram::exportToDot(ostream& s)
           << endl;
     }
 
-    //s << "color = white;" << endl;
     if (dot_options != "") {
         s << dot_options << endl;
     }
@@ -263,18 +249,13 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                     if (flx < 0.0) {
                         flx = -flx;
                     }
-                    if (flx > flmax) {
-                        flmax = flx;
-                    }
+                    flmax = std::max(flx, flmax);
                 }
             }
         } else {
             flmax = scale;
         }
-
-        if (flmax < 1.e-10) {
-            flmax = 1.e-10;
-        }
+        flmax = std::max(flmax, 1e-10);
 
         // loop over all unique pairs of nodes
 
@@ -356,9 +337,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
     else {
         for (size_t i = 0; i < nPaths(); i++) {
             p = path(i);
-            if (p->flow() > flmax) {
-                flmax = p->flow();
-            }
+            flmax = std::max(p->flow(), flmax);
         }
 
         for (size_t i = 0; i < nPaths(); i++) {
@@ -380,17 +359,16 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                     lwidth = 1.0 - 4.0 * log10(flxratio/threshold)/log10(threshold)
                              + 1.0;
                     s <<  "[fontname=\""+m_font+"\", style=\"setlinewidth("
-                      //<< 1.0 - arrow_width*flxratio
                       << lwidth
                       << ")\"";
                     s << ", arrowsize="
-                      <<  std::min(6.0, 0.5*lwidth); // 1 - arrow_width*flxratio;
+                      <<  std::min(6.0, 0.5*lwidth);
                 } else {
                     s <<  ", style=\"setlinewidth("
                       <<  arrow_width << ")\"";
                     s << ", arrowsize=" << flxratio + 1;
                 }
-                doublereal hue = 0.7; //2.0/(1.0 + pow(log10(flxratio),2)) ;
+                doublereal hue = 0.7;
                 doublereal bright = 0.9;
                 s << ", color=" << "\"" << hue << ", " << flxratio + 0.5
                   << ", " << bright << "\"" << endl;
@@ -412,12 +390,11 @@ void ReactionPathDiagram::exportToDot(ostream& s)
     for (; b != m_nodes.end(); ++b) {
         if (b->second->visible) {
             s << "s" << b->first << " [ fontname=\""+m_font+"\", label=\"" << b->second->name
-              //<< " \\n " << b->second->value
               << "\"];" << endl;
         }
     }
     s << " label = " << "\"" << "Scale = "
-      << flmax << "\\l " << title << "\";" << endl; //created with Cantera (www.cantera.org)\\l\";"
+      << flmax << "\\l " << title << "\";" << endl;
     s  << " fontname = \""+m_font+"\";" << endl << "}" << endl;
 }
 
@@ -446,9 +423,7 @@ void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
     }
     ff->addReaction(rxn, value, legend);
     m_rxns[rxn] = 1;
-    if (ff->flow() > m_flxmax) {
-        m_flxmax = ff->flow();
-    }
+    m_flxmax = std::max(ff->flow(), m_flxmax);
 }
 
 std::vector<size_t> ReactionPathDiagram::species()
@@ -675,24 +650,14 @@ void ReactionPathBuilder::findElements(Kinetics& kin)
 
 int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 {
-    //m_warn.clear();
     m_transfer.clear();
-
-    //const Kinetics::thermo_t& ph = kin.thermo();
-
     m_elementSymbols.clear();
     findElements(kin);
-    //m_nel = ph.nElements();
-    m_ns = kin.nTotalSpecies(); //ph.nSpecies();
+    m_ns = kin.nTotalSpecies();
     m_nr = kin.nReactions();
-
-    //for (m = 0; m < m_nel; m++) {
-    //    m_elementSymbols.push_back(ph.elementName(m));
-    //}
 
     // all reactants / products, even ones appearing on both sides
     // of the reaction
-    // mod 8/18/01 dgg
     vector<vector<size_t> > allProducts;
     vector<vector<size_t> > allReactants;
     for (size_t i = 0; i < m_nr; i++) {
@@ -749,7 +714,6 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
         }
 
         size_t nrnet = m_reac[i].size();
-        // int npnet = m_prod[i].size();
 
         // compute number of atoms of each element in each reaction,
         // excluding molecules that appear on both sides of the
@@ -759,7 +723,7 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
         for (n = 0; n < nrnet; n++) {
             k = m_reac[i][n];
             for (size_t m = 0; m < m_nel; m++) {
-                m_elatoms(m,i) += m_atoms(k,m); //ph.nAtoms(k,m);
+                m_elatoms(m,i) += m_atoms(k,m);
             }
         }
     }
@@ -769,7 +733,7 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     m_sgroup.resize(m_ns);
     for (size_t j = 0; j < m_ns; j++) {
         for (size_t m = 0; m < m_nel; m++) {
-            comp[m] = int(m_atoms(j,m));    //ph.nAtoms(j,m));
+            comp[m] = int(m_atoms(j,m));
         }
         m_sgroup[j] = Group(comp);
     }
@@ -792,7 +756,6 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
             nar = 0;
             nap = 0;
             for (size_t j = 0;  j < nr; j++) {
-                //                    if (ph.nAtoms(m_reac[i][j],m) > 0) nar++;
                 if (m_atoms(m_reac[i][j],m) > 0) {
                     nar++;
                 }
@@ -816,8 +779,6 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 string reactionLabel(size_t i, size_t kr, size_t nr,
                      const std::vector<size_t>& slist, const Kinetics& s)
 {
-
-    //int np = s.nPhases();
     string label = "";
     for (size_t l = 0; l < nr; l++) {
         if (l != kr) {
@@ -842,8 +803,7 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
     doublereal threshold = 0.0;
     bool fwd_incl, rev_incl, force_incl;
 
-    //        const Kinetics::thermo_t& ph = s.thermo();
-    size_t m = m_enamemap[element]-1; //ph.elementIndex(element);
+    size_t m = m_enamemap[element]-1;
 
     r.element = element;
     if (m == npos) {
@@ -852,14 +812,6 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
 
     s.getFwdRatesOfProgress(DATA_PTR(m_ropf));
     s.getRevRatesOfProgress(DATA_PTR(m_ropr));
-
-    //ph.getMoleFractions(m_x.begin());
-
-    //doublereal sum = 0.0;
-    //for (k = 0; k < kk; k++) {
-    //    sum += m_x[k] * ph.nAtoms(k,m);
-    //}
-    //sum *= ph.molarDensity();
 
     // species explicitly included or excluded
     vector<string>& in_nodes = r.included();

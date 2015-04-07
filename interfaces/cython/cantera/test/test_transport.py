@@ -33,8 +33,8 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(Dbin1, Dbin1.T)
 
     def test_multiComponent(self):
-        self.assertRaises(Exception,
-                          lambda: self.phase.Multi_diff_coeffs)
+        with self.assertRaises(Exception):
+            self.phase.Multi_diff_coeffs
 
         self.assertArrayNear(self.phase.thermal_diff_coeffs,
                              np.zeros(self.phase.n_species))

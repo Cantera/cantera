@@ -2,6 +2,16 @@ cdef enum Thermasis:
     mass_basis = 0
     molar_basis = 1
 
+
+cdef stdmap[string,double] comp_map(dict X) except *:
+    cdef stdmap[string,double] m
+    cdef str species
+    cdef float val
+    for species,value in X.items():
+        m[stringify(species)] = value
+    return m
+
+
 cdef class ThermoPhase(_SolutionBase):
     """
     A phase with an equation of state.
@@ -17,7 +27,7 @@ cdef class ThermoPhase(_SolutionBase):
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
 
-    def report(self, show_thermo=True):
+    def report(self, show_thermo=True, float threshold=1e-14):
         """
         Generate a report describing the thermodynamic state of this phase. To
         print the report to the terminal, simply call the phase object. The
@@ -26,10 +36,10 @@ cdef class ThermoPhase(_SolutionBase):
         >>> phase()
         >>> print(phase.report())
         """
-        return pystr(self.thermo.report(bool(show_thermo)))
+        return pystr(self.thermo.report(bool(show_thermo), threshold))
 
-    def __call__(self):
-        print(self.report())
+    def __call__(self, *args, **kwargs):
+        print(self.report(*args, **kwargs))
 
     property name:
         """
@@ -117,11 +127,7 @@ cdef class ThermoPhase(_SolutionBase):
             'outer' iterations on T or P when some property pair other
             than TP is specified.
         :param loglevel:
-            Set to a value > 0 to write diagnostic output to a file in HTML
-            format. Larger values generate more detailed information. The file
-            will be named ``equilibrate_log.html.`` Subsequent files will be
-            named ``equilibrate_log1.html``, etc., so that log files are
-            not overwritten.
+            Set to a value > 0 to write diagnostic output.
             """
         cdef int iSolver
         if isinstance(solver, int):
@@ -240,11 +246,16 @@ cdef class ThermoPhase(_SolutionBase):
             return data
 
     cdef void _setArray1(self, thermoMethod1d method, values) except *:
-        if len(values) != self.n_species:
-            raise ValueError("Array has incorrect length")
+        cdef np.ndarray[np.double_t, ndim=1] data
 
-        cdef np.ndarray[np.double_t, ndim=1] data = \
-            np.ascontiguousarray(values, dtype=np.double)
+        if len(values) == self.n_species:
+            data = np.ascontiguousarray(values, dtype=np.double)
+        elif len(values) == len(self._selected_species):
+            data = np.zeros(self.n_species, dtype=np.double)
+            for i,k in enumerate(self._selected_species):
+                data[k] = values[i]
+        else:
+            raise ValueError("Array has incorrect length")
         method(self.thermo, &data[0])
 
     property molecular_weights:
@@ -259,10 +270,11 @@ cdef class ThermoPhase(_SolutionBase):
 
     property Y:
         """
-        Get/Set the species mass fractions. Can be set as either an array or
-        as a string. Always returns an array::
+        Get/Set the species mass fractions. Can be set as an array, as a dict,
+        or as a string. Always returns an array::
 
             >>> phase.Y = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
+            >>> phase.Y = {'H2':0.1, 'O2':0.4, 'AR':0.5}
             >>> phase.Y = 'H2:0.1, O2:0.4, AR:0.5'
             >>> phase.Y
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
@@ -272,25 +284,29 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, Y):
             if isinstance(Y, (str, unicode)):
                 self.thermo.setMassFractionsByName(stringify(Y))
+            elif isinstance(Y, dict):
+                self.thermo.setMassFractionsByName(comp_map(Y))
             else:
                 self._setArray1(thermo_setMassFractions, Y)
 
     property X:
         """
-        Get/Set the species mole fractions. Can be set as either an array or
-        as a string. Always returns an array::
+        Get/Set the species mole fractions. Can be set as an array, as a dict,
+        or as a string. Always returns an array::
 
             >>> phase.X = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
+            >>> phase.X = {'H2':0.1, 'O2':0.4, 'AR':0.5}
             >>> phase.X = 'H2:0.1, O2:0.4, AR:0.5'
             >>> phase.X
             array([0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5])
-
         """
         def __get__(self):
             return self._getArray1(thermo_getMoleFractions)
         def __set__(self, X):
             if isinstance(X, (str, unicode)):
                 self.thermo.setMoleFractionsByName(stringify(X))
+            elif isinstance(X, dict):
+                self.thermo.setMoleFractionsByName(comp_map(X))
             else:
                 self._setArray1(thermo_setMoleFractions, X)
 
@@ -300,6 +316,32 @@ cdef class ThermoPhase(_SolutionBase):
             return self._getArray1(thermo_getConcentrations)
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
+
+    def set_unnormalized_mass_fractions(self, Y):
+        """
+        Set the mass fractions without normalizing to force sum(Y) == 1.0.
+        Useful primarily when calculating derivatives with respect to Y[k] by
+        finite difference.
+        """
+        cdef np.ndarray[np.double_t, ndim=1] data
+        if len(Y) == self.n_species:
+            data = np.ascontiguousarray(Y, dtype=np.double)
+        else:
+            raise ValueError("Array has incorrect length")
+        self.thermo.setMassFractions_NoNorm(&data[0])
+
+    def set_unnormalized_mole_fractions(self, X):
+        """
+        Set the mole fractions without normalizing to force sum(X) == 1.0.
+        Useful primarily when calculating derivatives with respect to X[k]
+        by finite difference.
+        """
+        cdef np.ndarray[np.double_t, ndim=1] data
+        if len(X) == self.n_species:
+            data = np.ascontiguousarray(X, dtype=np.double)
+        else:
+            raise ValueError("Array has incorrect length")
+        self.thermo.setMoleFractions_NoNorm(&data[0])
 
     ######## Read-only thermodynamic properties ########
 

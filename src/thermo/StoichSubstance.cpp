@@ -15,27 +15,23 @@ namespace Cantera
 {
 StoichSubstance::StoichSubstance() :
     m_press(OneAtm),
-    m_p0(OneAtm),
-    m_tlast(-1.0)
+    m_p0(OneAtm)
 {
 }
 
 StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     m_press(OneAtm),
-    m_p0(OneAtm),
-    m_tlast(-1.0)
+    m_p0(OneAtm)
 {
     *this = operator=(right);
 }
 
-StoichSubstance& StoichSubstance::
-operator=(const StoichSubstance& right)
+StoichSubstance& StoichSubstance::operator=(const StoichSubstance& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
         m_press   = right.m_press;
         m_p0      = right.m_p0;
-        m_tlast   = right.m_tlast;
         m_h0_RT   = right.m_h0_RT;
         m_cp0_R   = right.m_cp0_R;
         m_s0_R    = right.m_s0_R;
@@ -64,11 +60,6 @@ doublereal StoichSubstance::entropy_mole() const
 {
     _updateThermo();
     return GasConstant * m_s0_R[0];
-}
-
-doublereal StoichSubstance::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal StoichSubstance::cp_mole() const
@@ -146,8 +137,7 @@ void StoichSubstance::getStandardChemPotentials(doublereal*  mu0) const
     mu0[0] = gibbs_mole();
 }
 
-void StoichSubstance::
-getUnitsStandardConc(double* uA, int k, int sizeUA) const
+void StoichSubstance::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
         uA[i] = 0.0;
@@ -177,6 +167,16 @@ void StoichSubstance::getPartialMolarEnthalpies(doublereal* hbar) const
 void StoichSubstance::getPartialMolarEntropies(doublereal* sbar) const
 {
     sbar[0] = entropy_mole();
+}
+
+void StoichSubstance::getPartialMolarIntEnergies(doublereal* ubar) const
+{
+    ubar[0] = intEnergy_mole();
+}
+
+void StoichSubstance::getPartialMolarCp(doublereal *cpbar) const
+{
+    cpbar[0] = cp_mole();
 }
 
 void StoichSubstance::getPartialMolarVolumes(doublereal* vbar) const
@@ -246,14 +246,12 @@ void StoichSubstance::getCp_R_ref(doublereal* cprt) const
 
 void StoichSubstance::setParameters(int n, double* const c)
 {
-    warn_deprecated("StoichSubstance::setParameters");
     double rho = c[0];
     setDensity(rho);
 }
 
 void StoichSubstance::getParameters(int& n, double* const c) const
 {
-    warn_deprecated("StoichSubstance::getParameters");
     double rho = density();
     c[0] = rho;
 }

@@ -163,11 +163,13 @@ public:
 
     //! Constructor
     SpeciesThermoInterpType(size_t n, doublereal tlow,
-                            doublereal thigh, doublereal pref) :
-        m_lowT(tlow),
-        m_highT(thigh),
-        m_Pref(pref),
-        m_index(n) {}
+                            doublereal thigh, doublereal pref);
+
+    //! Constructor
+    /*!
+     *  @param b Object to be copied
+     */
+    SpeciesThermoInterpType(const SpeciesThermoInterpType& b);
 
     //! Destructor
     virtual ~SpeciesThermoInterpType();
@@ -251,7 +253,6 @@ public:
      * @param refPressure output - reference pressure (Pa).
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
-     * @deprecated
      */
     virtual void reportParameters(size_t& index, int& type,
                                   doublereal& minTemp, doublereal& maxTemp,
@@ -262,11 +263,8 @@ public:
     /*!
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
-     * @deprecated
      */
     virtual void modifyParameters(doublereal* coeffs) {}
-
-#ifdef H298MODIFY_CAPABILITY
 
     //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
     /*!
@@ -288,9 +286,7 @@ public:
      *   @param  k           Species k
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
      */
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New);
-
-#endif
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
 
 protected:
     //!  lowest valid temperature
@@ -381,13 +377,11 @@ public:
                                       doublereal* h_RT,
                                       doublereal* s_R) const;
 
-    //! @deprecated
     virtual void reportParameters(size_t& index, int& type,
                                   doublereal& minTemp, doublereal& maxTemp,
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
 
-    //! @deprecated
     virtual void modifyParameters(doublereal* coeffs);
 
 private:

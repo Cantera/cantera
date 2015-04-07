@@ -25,9 +25,8 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_defs.h"
-#include "cantera/equil/vcs_DoubleStarStar.h"
-#include "cantera/equil/vcs_IntStarStar.h"
 #include "cantera/equil/vcs_internal.h"
+#include "cantera/base/Array.h"
 
 namespace VCSnonideal
 {
@@ -163,13 +162,13 @@ public:
      * Rearranges the solution data to put the component data at the
      * front of the species list.
      *
-     * Then, calculates m_stoichCoeffRxnMatrix[irxn][jcomp] the formation
+     * Then, calculates m_stoichCoeffRxnMatrix(jcomp,irxn) the formation
      * reactions for all noncomponent species in the mechanism. Also
      * calculates DNG(I) and DNL(I), the net mole change for each formation
      * reaction. Also, initializes IR(I) to the default state.
      *
-     * @param[in] doJustComponents  If true, the m_stoichCoeffRxnMatrix[][] and
-     *                              m_deltaMolNumPhase[]  are not calculated.
+     * @param[in] doJustComponents  If true, the m_stoichCoeffRxnMatrix and
+     *                              m_deltaMolNumPhase are not calculated.
      *
      * @param[in] aw     Vector of mole fractions which will be used to construct an
      *                   optimal basis from.
@@ -193,16 +192,13 @@ public:
      *   calculates the #m_numComponents species. It switches their positions
      *   in the species vector so that they occupy the first #m_numComponents
      *   spots in the species vector.
-     * - #m_stoichCoeffRxnMatrix[irxn][jcomp] Stoichiometric coefficient
+     * - #m_stoichCoeffRxnMatrix(jcomp,irxn) Stoichiometric coefficient
      *   matrix for the reaction mechanism expressed in Reduced Canonical
      *   Form. jcomp refers to the component number, and irxn refers to the
      *   irxn_th non-component species.
-     * - #m_deltaMolNumPhase[irxn]: Change in the number of total number of
-     *   moles of species in all phases due to the noncomponent formation
-     *   reaction, irxn.
-     * - #m_deltaMolNumPhase[irxn][iphase]: Change in the number of moles in
+     * - #m_deltaMolNumPhase(iphase,irxn): Change in the number of moles in
      *   phase, iphase, due to the noncomponent formation reaction, irxn.
-     * - #m_phaseParticipation[irxn]: This is 1 if the phase, iphase,
+     * - #m_phaseParticipation(iphase,irxn): This is 1 if the phase, iphase,
      *   participates in the formation reaction, irxn, and zero otherwise.
      */
     int vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
@@ -547,7 +543,7 @@ public:
     /*!
      *  Formation reactions are
      *  reactions which create each noncomponent species from the component
-     *  species. m_stoichCoeffRxnMatrix[irxn][jcomp]  are the stoichiometric
+     *  species. m_stoichCoeffRxnMatrix(jcomp,irxn)  are the stoichiometric
      *  coefficients for these  reactions. A stoichiometric coefficient of
      *  one is assumed for species irxn in this reaction.
      *
@@ -900,7 +896,6 @@ public:
      */
     void vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS);
 
-#ifdef DEBUG_MODE
     //! A line search algorithm is carried out on one reaction
     /*!
      *  In this routine we carry out a rough line search algorithm to make
@@ -914,10 +909,7 @@ public:
      *  @return         Returns the optimized step length found by the search
      */
     double vcs_line_search(const size_t irxn, const double dx_orig,
-                           char* const ANOTE);
-#else
-    double vcs_line_search(const size_t irxn, const double dx_orig);
-#endif
+                           char* const ANOTE=0);
 
     //!   Print out a report on the state of the equilibrium problem to
     //!   standard output.
@@ -1310,11 +1302,8 @@ private:
      *                          branch to the section that deletes a species
      *                          from the current set of active species.
      */
-    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete
-#ifdef DEBUG_MODE
-                              , char* ANOTE
-#endif
-                             ) const;
+    double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
+                              char* ANOTE=0) const;
 
     //! This routine optimizes the minimization of the total gibbs free energy
     //! by making sure the slope of the following functional stays negative:
@@ -1338,20 +1327,6 @@ private:
      */
     bool vcs_globStepDamp();
 
-    //! Switch rows and columns of a square matrix
-    /*!
-     *  Switches the row and column of a matrix. So that after
-     *
-     *      J[k1][j] = J_old[k2][j]  and J[j][k1] = J_old[j][k2]
-     *      J[k2][j] = J_old[k1][j]  and J[j][k2] = J_old[j][k1]
-     *
-     *  @param Jac  Double pointer to the Jacobian
-     *  @param k1   first row/column value to be switched
-     *  @param k2   second row/column value to be switched
-     */
-    void vcs_switch2D(double* const* const Jac,
-                      const size_t k1, const size_t k2) const;
-
     //! Calculate the norm of a deltaGibbs free energy vector
     /*!
      *   Positive DG for species which don't exist are ignored.
@@ -1364,9 +1339,9 @@ private:
 
     //! Print out and check the elemental abundance vector
     void prneav() const;
-
-    void checkDelta1(double* const ds, double* const delTPhMoles, int kspec);
 #endif
+
+    void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
 
     //! Estimate equilibrium compositions
     /*!
@@ -1452,6 +1427,27 @@ private:
      */
     void vcs_updateMolNumVolPhases(const int stateCalc);
 
+    // Helper functions used internally by vcs_solve_TP
+    int solve_tp_component_calc(bool& allMinorZeroedSpecies);
+    void solve_tp_inner(size_t& iti, size_t& it1, bool& uptodate_minors,
+                        bool& allMinorZeroedSpecies, int& forceComponentCalc,
+                        int& stage, bool printDetails, char* ANOTE);
+    void solve_tp_equilib_check(bool& allMinorZeroedSpecies, bool& uptodate_minors,
+                                bool& giveUpOnElemAbund, int& solveFail,
+                                size_t& iti, size_t& it1, int maxit,
+                                int& stage, bool& lec);
+    void solve_tp_elem_abund_check(size_t& iti, int& stage, bool& lec,
+                                   bool& giveUpOnElemAbund,
+                                   int& finalElemAbundAttempts,
+                                   int& rangeErrorFound);
+
+    // data used by vcs_solve_TP and it's helper functions
+    std::vector<double> m_sm;
+    std::vector<double> m_ss;
+    std::vector<double> m_sa;
+    std::vector<double> m_aw;
+    std::vector<double> m_wx;
+
 public:
     //! Calculate the rank of a matrix and return the rows and columns that
     //! will generate an independent basis for that rank
@@ -1482,7 +1478,7 @@ public:
      *         (These are the actionable element constraints).
      *
      * @return  Returns number of components. This is the rank of the matrix
-     * @deprecated
+     * @deprecated To be removed after Cantera 2.2.
      */
     int vcs_rank(const double* awtmp, size_t numSpecies, const double* matrix,  size_t numElemConstraints,
                  std::vector<size_t> &compRes, std::vector<size_t> &elemComp, int* const usedZeroedSpecies) const;
@@ -1531,11 +1527,11 @@ public:
 
     //! Formula matrix for the problem
     /*!
-     *  FormulaMatrix[j][kspec] =  Number of elements, j, in the kspec species
+     *  FormulaMatrix(kspec,j) =  Number of elements, j, in the kspec species
      *
      *  Both element and species indices are swapped.
      */
-    DoubleStarStar m_formulaMatrix;
+    Cantera::Array2D m_formulaMatrix;
 
     //! Stoichiometric coefficient matrix for the reaction mechanism expressed in Reduced Canonical Form.
     /*!
@@ -1545,15 +1541,15 @@ public:
      *
      *   NOTE: kspec = irxn + m_numComponents
      *
-     *   m_stoichCoeffRxnMatrix[irxn][j] :
+     *   m_stoichCoeffRxnMatrix(j,irxn) :
      *     j refers to the component number, and irxn refers to the irxn_th non-component species.
      *     The stoichiometric coefficients multilplied by the Formula coefficients of the
      *     component species add up to the negative value of the number of elements in
      *     the species kspec.
      *
-     *   length = [nspecies0][nelements0]
+     *   size = nelements0 x nspecies0
      */
-    DoubleStarStar m_stoichCoeffRxnMatrix;
+    Cantera::Array2D m_stoichCoeffRxnMatrix;
 
     //! Absolute size of the stoichiometric coefficients
     /*!
@@ -1631,13 +1627,13 @@ public:
     //! Change in the number of moles of phase, iphase, due to the
     //! noncomponent formation reaction, irxn, for species, k:
     /*!
-     *       m_deltaMolNumPhase[irxn][iphase] = k = nc + irxn
+     *       m_deltaMolNumPhase(iphase,irxn) = k = nc + irxn
      */
-    DoubleStarStar m_deltaMolNumPhase;
+    Cantera::Array2D m_deltaMolNumPhase;
 
     //!  This is 1 if the phase, iphase,  participates in the formation reaction
-    //!  irxn, and zero otherwise.  PhaseParticipation[irxn][iphase]
-    IntStarStar m_phaseParticipation;
+    //!  irxn, and zero otherwise.  PhaseParticipation(iphase,irxn)
+    Cantera::Array2D m_phaseParticipation;
 
     //! electric potential of the iph phase
     std::vector<double> m_phasePhi;
@@ -1930,12 +1926,12 @@ public:
     //! Change in the log of the activity coefficient with respect to the mole number
     //! multiplied by the phase mole number
     /*!
-     * length = [nspecies][nspecies]
+     *  size = nspecies x nspecies
      *
      *  This is a temporary array that gets regenerated every time it's
      *  needed. It is not swapped wrt species.
      */
-    DoubleStarStar m_np_dLnActCoeffdMolNum;
+    Cantera::Array2D m_np_dLnActCoeffdMolNum;
 
     //! Molecular weight of each species
     /*!

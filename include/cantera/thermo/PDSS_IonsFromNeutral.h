@@ -27,7 +27,7 @@ class ThermoPhase;
  *
  * @ingroup pdssthermo
  */
-class PDSS_IonsFromNeutral : public PDSS
+class PDSS_IonsFromNeutral : public PDSS_Nondimensional
 {
 public:
     //! @name  Constructors
@@ -92,12 +92,9 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_mole() const;
     virtual doublereal enthalpy_RT() const;
     virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
     virtual doublereal entropy_R() const;
-    virtual doublereal gibbs_mole() const;
 
     /*!
      * @copydoc PDSS::gibbs_RT()
@@ -112,10 +109,7 @@ public:
      * case is the single anion species, with species index <I>sp</I>.
      */
     virtual doublereal gibbs_RT() const;
-
-    virtual doublereal cp_mole() const;
     virtual doublereal cp_R() const;
-    virtual doublereal cv_mole() const;
     virtual doublereal molarVolume() const;
     virtual doublereal density() const;
 
@@ -133,21 +127,10 @@ public:
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal pres);
     virtual void setTemperature(doublereal temp);
-    doublereal temperature() const;
+    virtual doublereal temperature() const;
     virtual void setState_TP(doublereal temp, doublereal pres);
     virtual void setState_TR(doublereal temp, doublereal rho);
-
-    //! @}
-    //! @name Miscellaneous properties of the standard state
-    //! @{
-
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
-    virtual doublereal satPressure(doublereal t);
 
     //! @}
     //! @name Initialization of the Object
@@ -200,7 +183,6 @@ public:
                           const XML_Node& speciesNode,
                           const XML_Node& phaseNode, const std::string& id);
 
-    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
     virtual void initThermo();
     //@}
 

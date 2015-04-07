@@ -29,10 +29,8 @@ public:
 
     virtual void deleteFactory() {
         ScopedLock lock(reactor_mutex);
-        if (s_factory) {
-            delete s_factory;
-            s_factory = 0;
-        }
+        delete s_factory;
+        s_factory = 0;
     }
 
     /**
@@ -60,6 +58,3 @@ inline ReactorBase* newReactor(const std::string& model,
 }
 
 #endif
-
-
-

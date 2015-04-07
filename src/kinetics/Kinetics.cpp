@@ -58,8 +58,7 @@ Kinetics::Kinetics(const Kinetics& right) :
     *this = right;
 }
 
-Kinetics& Kinetics::
-operator=(const Kinetics& right)
+Kinetics& Kinetics::operator=(const Kinetics& right)
 {
     /*
      * Check for self assignment.
@@ -294,14 +293,6 @@ void Kinetics::finalize()
         size_t nsp = m_thermo[n]->nSpecies();
         m_kk += nsp;
     }
-}
-
-void Kinetics::err(const std::string& m) const
-{
-    throw CanteraError("Kinetics::" + m,
-                       "The default Base class method was called, when "
-                       "the inherited class's method should "
-                       "have been called");
 }
 
 }

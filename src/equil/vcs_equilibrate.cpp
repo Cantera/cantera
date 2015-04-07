@@ -36,22 +36,6 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
 {
     MultiPhase* m = 0;
     int retn = 1;
-    int retnSub = 0;
-
-    beginLogGroup("equilibrate", loglevel);
-    // retry:
-    addLogEntry("Single-phase equilibrate function");
-    {
-        beginLogGroup("arguments");
-        addLogEntry("phase",s.id());
-        addLogEntry("XY",XY);
-        addLogEntry("solver",solver);
-        addLogEntry("rtol",rtol);
-        addLogEntry("maxsteps",maxsteps);
-        addLogEntry("maxiter",maxiter);
-        addLogEntry("loglevel",loglevel);
-        endLogGroup("arguments");
-    }
 
     if (solver == 2) {
         m = new MultiPhase;
@@ -65,15 +49,9 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
 
             retn = vcs_equilibrate(*m, XY, estimateEquil, printLvl, solver,
                                    rtol, maxsteps, maxiter, loglevel);
-            if (retn == 1) {
-                addLogEntry("MultiPhaseEquil solver succeeded.");
-            } else {
-                addLogEntry("MultiPhaseEquil solver returned an error code: ", retn);
-            }
             delete m;
         } catch (CanteraError& err) {
             err.save();
-            addLogEntry("MultiPhaseEquil solver failed.");
             delete m;
             throw err;
         }
@@ -83,16 +61,10 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
             m->addPhase(&s, 1.0);
             m->init();
             (void) equilibrate(*m, XY, rtol, maxsteps, maxiter, loglevel-1);
-            if (loglevel > 0) {
-                addLogEntry("MultiPhaseEquil solver succeeded.");
-            }
             delete m;
             retn = 1;
         } catch (CanteraError& err) {
             err.save();
-            if (loglevel > 0) {
-                addLogEntry("MultiPhaseEquil solver failed.");
-            }
             delete m;
             throw err;
         }
@@ -105,12 +77,9 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
             if (estimateEquil == 0) {
                 useThermoPhaseElementPotentials = true;
             }
-            retnSub = e->equilibrate(s, XY,
+            int retnSub = e->equilibrate(s, XY,
                                      useThermoPhaseElementPotentials, loglevel-1);
             if (retnSub < 0) {
-                if (loglevel > 0) {
-                    addLogEntry("ChemEquil solver failed.");
-                }
                 delete e;
                 throw CanteraError("equilibrate",
                                    "ChemEquil equilibrium solver failed");
@@ -118,14 +87,8 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
             retn = 1;
             s.setElementPotentials(e->elementPotentials());
             delete e;
-            if (loglevel > 0) {
-                addLogEntry("ChemEquil solver succeeded.");
-            }
         } catch (CanteraError& err) {
             err.save();
-            if (loglevel > 0) {
-                addLogEntry("ChemEquil solver failed.");
-            }
             delete e;
             throw err;
         }
@@ -137,7 +100,6 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
     /*
      * We are here only for a success
      */
-    endLogGroup("equilibrate");
     return retn;
 }
 
@@ -159,16 +121,6 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
     static int counter = 0;
     int retn = 1;
 
-    beginLogGroup("equilibrate",loglevel);
-    addLogEntry("multiphase equilibrate function");
-    beginLogGroup("arguments");
-    addLogEntry("XY",ixy);
-    addLogEntry("tol",tol);
-    addLogEntry("maxsteps",maxsteps);
-    addLogEntry("maxiter",maxiter);
-    addLogEntry("loglevel",loglevel);
-    endLogGroup("arguments");
-
     int printLvlSub = std::max(0, printLvl-1);
 
     s.init();
@@ -179,11 +131,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
             int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub, tol, maxsteps, loglevel);
             if (err != 0) {
                 retn = -1;
-                addLogEntry("vcs_equilibrate Error   - ", err);
-            } else {
-                addLogEntry("vcs_equilibrate Success - ", err);
             }
-            endLogGroup("equilibrate");
             // hard code a csv output file.
             if (printLvl > 0) {
                 string reportFile = "vcs_equilibrate_res.csv";
@@ -197,33 +145,19 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
         } catch (CanteraError& e) {
             e.save();
             retn = -1;
-            addLogEntry("Failure.", lastErrorMessage());
-            endLogGroup("equilibrate");
             throw e;
         }
     } else if (solver == 1) {
         if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
             try {
-                double err = s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
-
-                addLogEntry("Success. Error",err);
-                endLogGroup("equilibrate");
-
+                s.equilibrate(ixy, tol, maxsteps, maxiter, loglevel);
                 return 0;
             } catch (CanteraError& e) {
                 e.save();
-                addLogEntry("Failure.",lastErrorMessage());
-                endLogGroup("equilibrate");
-
                 throw e;
             }
         } else {
-
-            addLogEntry("multiphase equilibrium can be done only for TP, HP, SP, or TV");
-            endLogGroup("equilibrate");
-
             throw CanteraError("equilibrate","unsupported option");
-            //return -1.0;
         }
     } else {
         throw CanteraError("vcs_equilibrate_1", "unknown solver");
@@ -236,25 +170,12 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
 {
     int iStab = 0;
     static int counter = 0;
-    beginLogGroup("PhaseStability",loglevel);
-    addLogEntry("multiphase phase stability function");
-    beginLogGroup("arguments");
-    addLogEntry("iphase",iphase);
-    addLogEntry("loglevel",loglevel);
-    endLogGroup("arguments");
-
     int printLvlSub = std::max(0, printLvl-1);
 
     s.init();
     try {
         VCSnonideal::vcs_MultiPhaseEquil* eqsolve = new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
         iStab = eqsolve->determine_PhaseStability(iphase, funcStab, printLvlSub, loglevel);
-        if (iStab != 0) {
-            addLogEntry("Phase is stable  - ", iphase);
-        } else {
-            addLogEntry("Phase is not stable - ", iphase);
-        }
-        endLogGroup("PhaseStability");
         // hard code a csv output file.
         if (printLvl > 0) {
             string reportFile = "vcs_phaseStability.csv";
@@ -266,8 +187,6 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
         }
         delete eqsolve;
     } catch (CanteraError& e) {
-        addLogEntry("Failure.", lastErrorMessage());
-        endLogGroup("equilibrate");
         throw e;
     }
     return iStab;

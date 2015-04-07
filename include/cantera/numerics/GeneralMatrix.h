@@ -15,6 +15,7 @@
 #define CT_GENERALMATRIX_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -77,7 +78,9 @@ public:
      *
      * @return  Returns the info variable from lapack
      */
-    virtual int factorQR() = 0;
+    virtual int factorQR() {
+        throw NotImplementedError("GeneralMatrix::factorQR");
+    }
 
     //! Returns an estimate of the inverse of the condition number for the matrix
     /*!
@@ -85,7 +88,9 @@ public:
      *
      * @return  returns the inverse of the condition number
      */
-    virtual doublereal rcondQR() = 0;
+    virtual doublereal rcondQR() {
+        throw NotImplementedError("GeneralMatrix::rcondQR");
+    }
 
     //! Returns an estimate of the inverse of the condition number for the matrix
     /*!
@@ -103,7 +108,9 @@ public:
      *                   0 LU factorization
      *                   1 QR factorization
      */
-    virtual void useFactorAlgorithm(int fAlgorithm) = 0;
+    virtual void useFactorAlgorithm(int fAlgorithm) {
+        throw NotImplementedError("GeneralMatrix::useFactorAlgorithm");
+    };
 
     //! Return the factor algorithm used
     virtual int factorAlgorithm() const = 0;
@@ -123,16 +130,23 @@ public:
     virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const = 0;
 
     //! clear the factored flag
-    virtual void clearFactorFlag() = 0;
+    virtual void clearFactorFlag() {
+        m_factored = 0;
+    };
 
     //! Solves the Ax = b system returning x in the b spot.
     /*!
-     *  @param b  Vector for the rhs of the equation system
+     *  @param b    Vector for the rhs of the equation system
+     *  @param nrhs Number of right-hand sides to solve, default 1
+     *  @param ldb  Leading dimension of the right-hand side array.
+     *              Defaults to nRows()
      */
-    virtual int solve(doublereal* b) = 0;
+    virtual int solve(doublereal* b, size_t nrhs=1, size_t ldb=0) = 0;
 
     //! true if the current factorization is up to date with the matrix
-    virtual bool factored() const = 0;
+    virtual bool factored() const {
+        return (m_factored != 0);
+    }
 
     //! Return a pointer to the top of column j, columns are assumed to be contiguous in memory
     /*!
@@ -218,6 +232,11 @@ public:
      */
     int matrixType_;
 
+protected:
+    //! Indicates whether the matrix is factored. 0 for unfactored; Non-zero values
+    //! indicate a particular factorization (LU=1, QR=2).
+    int m_factored;
 };
+
 }
 #endif

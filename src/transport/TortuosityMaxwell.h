@@ -97,16 +97,13 @@ protected:
     /*!
      *
      *   \f[
-     *         \code{relativeConductivites_} = \kappa_d / \kappa_0
+     *         \mathtt{relativeConductivites\_} = \kappa_d / \kappa_0
      *   \f]
      */
     doublereal relativeConductivities_;
 
 };
 
-
-
 }
 
 #endif
-

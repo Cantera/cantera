@@ -114,10 +114,8 @@ public:
      */
     virtual void modifyParameters(doublereal* coeffs);
 
-#ifdef H298MODIFY_CAPABILITY
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;
-    virtual void modifyOneHf298(const size_t& k, const doublereal Hf298New);
-#endif
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
 
 protected:
     //! Base temperature

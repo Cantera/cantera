@@ -315,7 +315,6 @@ XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
     m_parent(parent_),
     m_root(0),
     m_locked(false),
-    m_nchildren(0),
     m_iscomment(false),
     m_linenum(0)
 {
@@ -332,7 +331,6 @@ XML_Node::XML_Node(const XML_Node& right) :
     m_parent(0),
     m_root(0),
     m_locked(false),
-    m_nchildren(0),
     m_iscomment(right.m_iscomment),
     m_linenum(right.m_linenum)
 {
@@ -345,8 +343,7 @@ XML_Node::XML_Node(const XML_Node& right) :
 XML_Node& XML_Node::operator=(const XML_Node& right)
 {
     if (&right != this) {
-        int n = static_cast<int>(m_children.size());
-        for (int i = 0; i < n; i++) {
+        for (size_t i = 0; i < m_children.size(); i++) {
             if (m_children[i]) {
                 if (m_children[i]->parent() == this) {
                     delete m_children[i];
@@ -362,11 +359,10 @@ XML_Node& XML_Node::operator=(const XML_Node& right)
 
 XML_Node::~XML_Node()
 {
-    if (m_locked)
-        throw CanteraError("XML_Node::~XML_Node",
-                           "attempt to delete locked XML_Node "+name());
-    int n = static_cast<int>(m_children.size());
-    for (int i = 0; i < n; i++) {
+    if (m_locked) {
+        writelog("XML_Node::~XML_Node: deleted a locked XML_Node: "+name());
+    }
+    for (size_t i = 0; i < m_children.size(); i++) {
         if (m_children[i]) {
             if (m_children[i]->parent() == this) {
                 delete m_children[i];
@@ -378,8 +374,7 @@ XML_Node::~XML_Node()
 
 void XML_Node::clear()
 {
-    int n = static_cast<int>(m_children.size());
-    for (int i = 0; i < n; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         if (m_children[i]) {
             if (m_children[i]->parent() == this) {
                 delete m_children[i];
@@ -392,7 +387,6 @@ void XML_Node::clear()
     m_attribs.clear();
     m_children.clear();
 
-    m_nchildren = 0;
     m_iscomment = false;
     m_linenum = 0;
 
@@ -406,7 +400,6 @@ void XML_Node::addComment(const std::string& comment)
 XML_Node& XML_Node::mergeAsChild(XML_Node& node)
 {
     m_children.push_back(&node);
-    m_nchildren = static_cast<int>(m_children.size());
     m_childindex.insert(pair<const std::string, XML_Node*>(node.name(),  m_children.back()));
     node.setRoot(root());
     node.setParent(this);
@@ -415,43 +408,26 @@ XML_Node& XML_Node::mergeAsChild(XML_Node& node)
 
 XML_Node& XML_Node::addChild(const XML_Node& node)
 {
-    XML_Node* xx = new XML_Node(node);
-    m_children.push_back(xx);
-    m_nchildren = static_cast<int>(m_children.size());
-    m_childindex.insert(pair<const std::string, XML_Node*>(xx->name(), xx));
-    xx->setRoot(root());
-    xx->setParent(this);
-    return *m_children.back();
+    return mergeAsChild(*(new XML_Node(node)));
 }
 
 XML_Node& XML_Node::addChild(const std::string& sname)
 {
-    XML_Node* xxx = new XML_Node(sname, this);
-    m_children.push_back(xxx);
-    m_nchildren = m_children.size();
-    m_childindex.insert(pair<const std::string, XML_Node*>(sname, xxx));
-    xxx->setRoot(root());
-    xxx->setParent(this);
-    return *m_children.back();
+    return mergeAsChild(*(new XML_Node(sname, this)));
 }
 
-XML_Node& XML_Node::addChild(const char* cstring)
+XML_Node& XML_Node::addChild(const std::string& name, const std::string& value)
 {
-    return addChild(std::string(cstring));
-}
-
-XML_Node& XML_Node::addChild(const std::string& name_, const std::string& value_)
-{
-    XML_Node& c = addChild(name_);
-    c.addValue(value_);
+    XML_Node& c = addChild(name);
+    c.addValue(value);
     return c;
 }
 
-XML_Node& XML_Node::addChild(const std::string& name_, const doublereal value_,
+XML_Node& XML_Node::addChild(const std::string& name, const doublereal value,
                              const std::string& fmt)
 {
-    XML_Node& c = addChild(name_);
-    c.addValue(value_, fmt);
+    XML_Node& c = addChild(name);
+    c.addValue(value, fmt);
     return c;
 }
 
@@ -460,7 +436,6 @@ void XML_Node::removeChild(const XML_Node* const node)
     vector<XML_Node*>::iterator i;
     i = find(m_children.begin(), m_children.end(), node);
     m_children.erase(i);
-    m_nchildren = m_children.size();
     m_childindex.erase(node->name());
 }
 
@@ -515,15 +490,25 @@ std::string XML_Node::operator()(const std::string& loc) const
     return value(loc);
 }
 
-void XML_Node::addAttribute(const std::string& attrib_, const std::string& value_)
+void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
 {
-    m_attribs[attrib_] = value_;
+    m_attribs[attrib] = value;
 }
 
-void XML_Node::addAttribute(const std::string& attrib_,
-                            const doublereal value_, const std::string& fmt)
+void XML_Node::addAttribute(const std::string& attrib,
+                            const doublereal vvalue, const std::string& fmt)
 {
-    m_attribs[attrib_] = fp2str(value_, fmt);
+    m_attribs[attrib] = fp2str(vvalue, fmt);
+}
+
+void XML_Node::addAttribute(const std::string& aattrib, const int vvalue)
+{
+    m_attribs[aattrib] = int2str(vvalue);
+}
+
+void XML_Node::addAttribute(const std::string& aattrib, const size_t vvalue)
+{
+    m_attribs[aattrib] = int2str(vvalue);
 }
 
 std::string XML_Node::operator[](const std::string& attr) const
@@ -595,7 +580,7 @@ size_t XML_Node::nChildren(const bool discardComments) const
 {
     if (discardComments) {
         size_t count = 0;
-        for (size_t i = 0; i < m_nchildren; i++) {
+        for (size_t i = 0; i < m_children.size(); i++) {
             XML_Node* xc = m_children[i];
             if (!(xc->isComment())) {
                 count++;
@@ -603,7 +588,7 @@ size_t XML_Node::nChildren(const bool discardComments) const
         }
         return count;
     }
-    return m_nchildren;
+    return m_children.size();
 }
 
 bool XML_Node::isComment() const
@@ -623,9 +608,8 @@ void XML_Node::_require(const std::string& a, const std::string& v) const
     throw CanteraError("XML_Node::require", msg);
 }
 
-XML_Node* XML_Node::
-findNameID(const std::string& nameTarget,
-           const std::string& idTarget) const
+XML_Node* XML_Node::findNameID(const std::string& nameTarget,
+                               const std::string& idTarget) const
 {
     XML_Node* scResult = 0;
     XML_Node* sc;
@@ -635,7 +619,7 @@ findNameID(const std::string& nameTarget,
             return const_cast<XML_Node*>(this);
         }
     }
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         if (sc->name() == nameTarget) {
             if (idTarget == "") {
@@ -647,7 +631,7 @@ findNameID(const std::string& nameTarget,
             }
         }
     }
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         scResult = sc->findNameID(nameTarget, idTarget);
         if (scResult) {
@@ -673,7 +657,7 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
             }
         }
     }
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         if (sc->name() == nameTarget) {
             ii = sc->attrib("index");
@@ -832,7 +816,7 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
         }
     }
     const vector<XML_Node*> &vsc = node_dest->children();
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         size_t ndc = node_dest->nChildren();
         dc = 0;
@@ -887,7 +871,7 @@ void XML_Node::copy(XML_Node* const node_dest) const
     }
     const vector<XML_Node*> &vsc = node_dest->children();
 
-    for (size_t n = 0; n < m_nchildren; n++) {
+    for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
         size_t ndc = node_dest->nChildren();
         // Here is where we do a malloc of the child node.
@@ -900,7 +884,7 @@ void XML_Node::copy(XML_Node* const node_dest) const
 void XML_Node::lock()
 {
     m_locked = true;
-    for (size_t i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         m_children[i]->lock();
     }
 }
@@ -908,7 +892,7 @@ void XML_Node::lock()
 void XML_Node::unlock()
 {
     m_locked = false;
-    for (size_t i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         m_children[i]->unlock();
     }
 }
@@ -970,8 +954,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
             s << " ";
         }
         s << m_value;
-        int ll = static_cast<int>(m_value.size()) - 1;
-        if (! isspace(m_value[ll])) {
+        if (! isspace(m_value[m_value.size()-1])) {
             s << " ";
         }
         s << "-->";
@@ -983,7 +966,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
     for (; b != m_attribs.end(); ++b) {
         s << " " << b->first << "=\"" << b->second << "\"";
     }
-    if (m_value == "" && m_nchildren == 0) {
+    if (m_value == "" && m_children.empty()) {
         s << "/>";
     } else {
         s << ">";
@@ -1009,10 +992,10 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
                         }
                         vv = vv.substr(ieol+1);
                     } else {
-                        int lll = static_cast<int>(vv.size()) - 1;
-                        if (lll >= 0) {
-                            int jf = lll;
-                            for (int j = 0; j < lll; j++) {
+                        size_t lll = vv.size() - 1;
+                        if (lll != npos) {
+                            size_t jf = lll;
+                            for (size_t j = 0; j < lll; j++) {
                                 if (! isspace(vv[j])) {
                                     jf = j;
                                     break;
@@ -1029,7 +1012,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
             } else {
                 bool doSpace = true;
                 bool doNewLine = false;
-                int ll = static_cast<int>(m_value.size()) - 1;
+                size_t ll = m_value.size() - 1;
                 if (ll > 25) {
                     doNewLine = true;
                 }
@@ -1063,12 +1046,12 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
             }
         }
         if (numRecursivesAllowed > 0) {
-            for (size_t i = 0; i < m_nchildren; i++) {
+            for (size_t i = 0; i < m_children.size(); i++) {
                 s << endl;
                 m_children[i]->write_int(s,level + 2, numRecursivesAllowed - 1);
             }
         }
-        if (m_nchildren > 0) {
+        if (!m_children.empty()) {
             s << endl << indent;
         }
         s << "</" << m_name << ">";
@@ -1078,7 +1061,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
 void XML_Node::write(std::ostream& s, const int level, int numRecursivesAllowed) const
 {
     if (m_name == "--" && m_root == this) {
-        for (size_t i = 0; i < m_nchildren; i++) {
+        for (size_t i = 0; i < m_children.size(); i++) {
             m_children[i]->write_int(s,level, numRecursivesAllowed-1);
             s << endl;
         }
@@ -1096,7 +1079,7 @@ XML_Node& XML_Node::root() const
 void XML_Node::setRoot(const XML_Node& newRoot)
 {
     m_root = const_cast<XML_Node*>(&newRoot);
-    for (size_t i = 0; i < m_nchildren; i++) {
+    for (size_t i = 0; i < m_children.size(); i++) {
         m_children[i]->setRoot(newRoot);
     }
 }
@@ -1118,9 +1101,7 @@ XML_Node* findXMLPhase(XML_Node* root,
         idattrib = root->id();
         if (idtarget == idattrib) {
             return root;
-        } else {
-            return               0;
-        }
+        } 
     }
 
     const vector<XML_Node*> &vsc = root->children();
@@ -1138,11 +1119,9 @@ XML_Node* findXMLPhase(XML_Node* root,
     }
     for (size_t n = 0; n < root->nChildren(); n++) {
         sc = vsc[n];
-        if (sc->name() != "phase") {
-            scResult = findXMLPhase(sc, idtarget);
-            if (scResult) {
-                return scResult;
-            }
+        scResult = findXMLPhase(sc, idtarget);
+        if (scResult) {
+            return scResult;
         }
     }
     return scResult;

@@ -38,7 +38,7 @@ extern "C" {
     CANTERA_CAPI size_t phase_speciesIndex(int n, char* nm);
     CANTERA_CAPI int phase_report(int nth,
                                   int ibuf, char* buf, int show_thermo);
-    CANTERA_CAPI int write_phase(int nth, int show_thermo);
+    CANTERA_CAPI int write_phase(int nth, int show_thermo, double threshold);
 
     CANTERA_CAPI double phase_nAtoms(int n, size_t k, size_t m);
 
@@ -65,6 +65,8 @@ extern "C" {
     CANTERA_CAPI double th_cp_mass(int n);
     CANTERA_CAPI double th_cv_mass(int n);
     CANTERA_CAPI double th_electricPotential(int n);
+    CANTERA_CAPI double th_thermalExpansionCoeff(int n);
+    CANTERA_CAPI double th_isothermalCompressibility(int n);
     CANTERA_CAPI int th_chemPotentials(int n, size_t lenm, double* murt);
     CANTERA_CAPI int th_elementPotentials(int n, size_t lenm, double* lambda);
     CANTERA_CAPI int th_getEnthalpies_RT(int n, size_t lenm, double* h_rt);
@@ -107,7 +109,6 @@ extern "C" {
 
     CANTERA_CAPI int kin_getFwdRateConstants(int n, size_t len, double* kfwd);
     CANTERA_CAPI int kin_getRevRateConstants(int n, int doIrreversible, size_t len, double* krev);
-    CANTERA_CAPI int kin_getActivationEnergies(int n, size_t len, double* E);
     CANTERA_CAPI int kin_getDelta(int n, int job, size_t len, double* delta);
     CANTERA_CAPI int kin_getCreationRates(int n, size_t len, double* cdot);
     CANTERA_CAPI int kin_getDestructionRates(int n, size_t len, double* ddot);
@@ -144,7 +145,6 @@ extern "C" {
                                      int nphases, int* ith, int nkin);
     CANTERA_CAPI int getCanteraError(int buflen, char* buf);
     CANTERA_CAPI int showCanteraErrors();
-    CANTERA_CAPI int write_HTML_log(const char* file);
     CANTERA_CAPI int setLogWriter(void* logger);
     CANTERA_CAPI int addCanteraDirectory(size_t buflen, char* buf);
     CANTERA_CAPI int clearStorage();
@@ -157,7 +157,6 @@ extern "C" {
 
     CANTERA_CAPI int ck_to_cti(char* in_file, char* db_file,
                                char* tr_file, char* id_tag, int debug, int validate);
-    CANTERA_CAPI int writelogfile(char* logfile);
 }
 
 #endif

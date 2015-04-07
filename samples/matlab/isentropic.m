@@ -6,7 +6,7 @@ function isentropic(g)
 %
 help isentropic
 
-if nargin == 1 & isa(g,'solution')
+if nargin == 1
    gas = g;
 else
    gas = IdealGasMix('gri30.xml');

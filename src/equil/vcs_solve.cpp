@@ -10,6 +10,7 @@
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_prob.h"
 
@@ -20,6 +21,7 @@
 #include "cantera/base/clockWC.h"
 
 using namespace std;
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -91,14 +93,13 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
                                     " Number of species is nonpositive\n");
     }
 
-    //vcs_priv_init(this);
     m_VCS_UnitsFormat = VCS_UNITS_UNITLESS;
 
     /*
      * We will initialize sc[] to note the fact that it needs to be
      * filled with meaningful information.
      */
-    m_stoichCoeffRxnMatrix.resize(nspecies0, nelements, 0.0);
+    m_stoichCoeffRxnMatrix.resize(nelements, nspecies0, 0.0);
 
     m_scSize.resize(nspecies0, 0.0);
     m_spSize.resize(nspecies0, 1.0);
@@ -109,8 +110,8 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
 
     m_speciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
 
-    m_deltaMolNumPhase.resize(nspecies0, nphase0, 0.0);
-    m_phaseParticipation.resize(nspecies0, nphase0, 0);
+    m_deltaMolNumPhase.resize(nphase0, nspecies0, 0.0);
+    m_phaseParticipation.resize(nphase0, nspecies0, 0);
     m_phasePhi.resize(nphase0, 0.0);
 
     m_molNumSpecies_new.resize(nspecies0, 0.0);
@@ -131,7 +132,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     m_TmpPhase.resize(nphase0, 0.0);
     m_TmpPhase2.resize(nphase0, 0.0);
 
-    m_formulaMatrix.resize(nelements, nspecies0);
+    m_formulaMatrix.resize(nspecies0, nelements);
 
     TPhInertMoles.resize(nphase0, 0.0);
 
@@ -222,15 +223,14 @@ VCS_SOLVE::~VCS_SOLVE()
 
 void VCS_SOLVE::vcs_delete_memory()
 {
-    size_t j;
     size_t nspecies = m_numSpeciesTot;
 
-    for (j = 0; j < m_numPhases; j++) {
+    for (size_t j = 0; j < m_numPhases; j++) {
         delete m_VolPhaseList[j];
         m_VolPhaseList[j] = 0;
     }
 
-    for (j = 0; j < nspecies; j++) {
+    for (size_t j = 0; j < nspecies; j++) {
         delete m_speciesThermoList[j];
         m_speciesThermoList[j] = 0;
     }
@@ -247,13 +247,10 @@ void VCS_SOLVE::vcs_delete_memory()
 int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
 {
     int retn = 0, iconv = 0;
-    size_t nspecies0, nelements0, nphase0;
     Cantera::clockWC tickTock;
 
     int  iprintTime = std::max(ipr, ip1);
-    if (m_timing_print_lvl < iprintTime) {
-        iprintTime = m_timing_print_lvl ;
-    }
+    iprintTime = std::min(iprintTime, m_timing_print_lvl);
 
     if (ifunc > 2) {
         plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
@@ -266,9 +263,9 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
          *         This function is called to create the private data
          *         using the public data.
          */
-        nspecies0 = vprob->nspecies + 10;
-        nelements0 = vprob->ne;
-        nphase0 = vprob->NPhase;
+        size_t nspecies0 = vprob->nspecies + 10;
+        size_t nelements0 = vprob->ne;
+        size_t nphase0 = vprob->NPhase;
 
         vcs_initSizes(nspecies0, nelements0, nphase0);
 
@@ -380,7 +377,6 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
 
 int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 {
-    vcs_VolPhase* Vphase = 0;
     const char* ser =
         "vcs_pub_to_priv ERROR :ill defined interface -> bailout:\n\t";
 
@@ -449,10 +445,10 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     for (size_t i = 0; i < nspecies; i++) {
         bool nonzero = false;
         for (size_t j = 0; j < nelements; j++) {
-            if (pub->FormulaMatrix[j][i] != 0.0) {
+            if (pub->FormulaMatrix(i,j) != 0.0) {
                 nonzero = true;
             }
-            m_formulaMatrix[j][i] = pub->FormulaMatrix[j][i];
+            m_formulaMatrix(i,j) = pub->FormulaMatrix(i,j);
         }
         if (!nonzero) {
             plogf("vcs_prob_specifyFully:: species %d %s has a zero formula matrix!\n", i,
@@ -464,12 +460,12 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     /*
      *  Copy over the species molecular weights
      */
-    vcs_vdcopy(m_wtSpecies, pub->WtSpecies, nspecies);
+    m_wtSpecies = pub->WtSpecies;
 
     /*
      * Copy over the charges
      */
-    vcs_vdcopy(m_chargeSpecies, pub->Charge, nspecies);
+    m_chargeSpecies = pub->Charge;
 
     /*
      * Malloc and Copy the VCS_SPECIES_THERMO structures
@@ -488,8 +484,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     /*
      * Copy the species unknown type
      */
-    vcs_icopy(VCS_DATA_PTR(m_speciesUnknownType),
-              VCS_DATA_PTR(pub->SpeciesUnknownType), nspecies);
+    m_speciesUnknownType = pub->SpeciesUnknownType;
 
     /*
      *  iest => Do we have an initial estimate of the species mole numbers ?
@@ -500,10 +495,10 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      * w[] -> Copy the equilibrium mole number estimate if it exists.
      */
     if (pub->w.size() != 0) {
-        vcs_vdcopy(m_molNumSpecies_old, pub->w, nspecies);
+        m_molNumSpecies_old = pub->w;
     } else {
         m_doEstimateEquil = -1;
-        vcs_dzero(VCS_DATA_PTR(m_molNumSpecies_old), nspecies);
+        m_molNumSpecies_old.assign(m_molNumSpecies_old.size(), 0.0);
     }
 
     /*
@@ -526,7 +521,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
                 for (size_t kspec = 0; kspec < nspecies; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                         sum += m_molNumSpecies_old[kspec];
-                        m_elemAbundancesGoal[j] += m_formulaMatrix[j][kspec] * m_molNumSpecies_old[kspec];
+                        m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                     }
                 }
                 if (pub->m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO) {
@@ -566,7 +561,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      *   TPhInertMoles[] -> must be copied over here
      */
     for (size_t iph = 0; iph < nph; iph++) {
-        Vphase = pub->VPhaseList[iph];
+        vcs_VolPhase* Vphase = pub->VPhaseList[iph];
         TPhInertMoles[iph] = Vphase->totalMolesInert();
     }
 
@@ -626,7 +621,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
             numPhSp[iph]++;
         }
         for (size_t iph = 0; iph < nph; iph++) {
-            Vphase = pub->VPhaseList[iph];
+            vcs_VolPhase* Vphase = pub->VPhaseList[iph];
             if (numPhSp[iph] != Vphase->nSpecies()) {
                 plogf("%sNumber of species in phase %d, %s, doesn't match\n",
                       ser, iph, Vphase->PhaseName.c_str());
@@ -661,8 +656,8 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         if (!strncmp(m_elementName[i].c_str(), "cn_", 3)) {
             m_elType[i] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
             if (pub->m_elType[i] != VCS_ELEM_TYPE_CHARGENEUTRALITY) {
-                plogf("we have an inconsistency!\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
+                                   "we have an inconsistency!");
             }
         }
     }
@@ -671,9 +666,10 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         if (m_elType[i] ==  VCS_ELEM_TYPE_CHARGENEUTRALITY) {
             if (m_elemAbundancesGoal[i] != 0.0) {
                 if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
-                    plogf("Charge neutrality condition %s is signicantly nonzero, %g. Giving up\n",
-                          m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
+                            "Charge neutrality condition " + m_elementName[i] +
+                            " is signicantly nonzero, " + fp2str(m_elemAbundancesGoal[i]) +
+                            ". Giving up");
                 } else {
                     if (m_debug_print_lvl >= 2) {
                         plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
@@ -703,7 +699,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
          * It should point to the species thermo pointer in the private
          * data space.
          */
-        Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         for (size_t k = 0; k < Vphase->nSpecies(); k++) {
             vcs_SpeciesProperties* sProp = Vphase->speciesProperty(k);
             size_t kT = Vphase->spGlobalIndexVCS(k);
@@ -715,7 +711,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      * Specify the Activity Convention information
      */
     for (size_t iph = 0; iph < nph; iph++) {
-        Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         m_phaseActConvention[iph] = Vphase->p_activityConvention;
         if (Vphase->p_activityConvention != 0) {
             /*
@@ -751,7 +747,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      */
     m_totalVol = pub->Vol;
     if (m_PMVolumeSpecies.size() != 0) {
-        vcs_dcopy(VCS_DATA_PTR(m_PMVolumeSpecies), VCS_DATA_PTR(pub->VolPM), nspecies);
+        m_PMVolumeSpecies = pub->VolPM;
     }
 
     /*
@@ -762,10 +758,8 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 
 int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
 {
-    size_t kspec, k, i, j, iph;
     string yo("vcs_prob_specify ERROR: ");
     int retn = VCS_SUCCESS;
-    bool status_change = false;
 
     m_temperature = pub->T;
     m_pressurePA = pub->PresPA;
@@ -779,8 +773,8 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
     m_tolmaj2 = 0.01 * m_tolmaj;
     m_tolmin2 = 0.01 * m_tolmin;
 
-    for (kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
-        k = m_speciesMapIndex[kspec];
+    for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
+        size_t k = m_speciesMapIndex[kspec];
         m_molNumSpecies_old[kspec] = pub->w[k];
         m_molNumSpecies_new[kspec] = pub->mf[k];
         m_feSpecies_old[kspec] = pub->m_gibbsSpecies[k];
@@ -789,8 +783,8 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
     /*
      * Transfer the element abundance goals to the solve object
      */
-    for (i = 0; i < m_numElemConstraints; i++) {
-        j = m_elementMapIndex[i];
+    for (size_t i = 0; i < m_numElemConstraints; i++) {
+        size_t j = m_elementMapIndex[i];
         m_elemAbundancesGoal[i] = pub->gai[j];
     }
 
@@ -813,7 +807,8 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
      *         condition.
      */
 
-    for (iph = 0; iph < m_numPhases; iph++) {
+    bool status_change = false;
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* vPhase = m_VolPhaseList[iph];
         vcs_VolPhase* pub_phase_ptr = pub->VPhaseList[iph];
 
@@ -940,25 +935,26 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
                 k1 = vPhase->spGlobalIndexVCS(k);
                 double tmp = m_molNumSpecies_old[k1];
                 if (! vcs_doubleEqual(pubPhase->electricPotential() , tmp)) {
-                    plogf("We have an inconsistency in voltage, %g, %g\n",
-                          pubPhase->electricPotential(), tmp);
-                    exit(EXIT_FAILURE);
+                    throw CanteraError("VCS_SOLVE::vcs_prob_update",
+                            "We have an inconsistency in voltage, " +
+                            fp2str(pubPhase->electricPotential()) + " " +
+                            fp2str(tmp));
                 }
             }
 
             if (! vcs_doubleEqual(pub->mf[kT], vPhase->molefraction(k))) {
-                plogf("We have an inconsistency in mole fraction, %g, %g\n",
-                      pub->mf[kT], vPhase->molefraction(k));
-                exit(EXIT_FAILURE);
+                throw CanteraError("VCS_SOLVE::vcs_prob_update",
+                        "We have an inconsistency in mole fraction, " +
+                        fp2str(pub->mf[kT]) + " " + fp2str(vPhase->molefraction(k)));
             }
             if (pubPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 sumMoles +=  pub->w[kT];
             }
         }
         if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
-            plogf("We have an inconsistency in total moles, %g %g\n",
-                  sumMoles, pubPhase->totalMoles());
-            exit(EXIT_FAILURE);
+            throw CanteraError("VCS_SOLVE::vcs_prob_update",
+                            "We have an inconsistency in total moles, " +
+                            fp2str(sumMoles) + " " + fp2str(pubPhase->totalMoles()));
         }
 
     }

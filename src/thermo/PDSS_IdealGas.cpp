@@ -74,8 +74,6 @@ PDSS* PDSS_IdealGas::duplMyselfAsPDSS() const
 void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                      const XML_Node& phaseNode, const std::string& id)
 {
-    //initThermo();
-    //initThermoXML(phaseNode, id);
 }
 
 void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
@@ -109,11 +107,6 @@ void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     delete fxml;
 }
 
-void PDSS_IdealGas::initThermoXML(const XML_Node& phaseNode, const std::string& id)
-{
-    PDSS::initThermoXML(phaseNode, id);
-}
-
 void PDSS_IdealGas::initThermo()
 {
     PDSS::initThermo();
@@ -121,14 +114,6 @@ void PDSS_IdealGas::initThermo()
     m_p0 = sp.refPressure(m_spindex);
     m_minTemp = m_spthermo->minTemp(m_spindex);
     m_maxTemp = m_spthermo->maxTemp(m_spindex);
-}
-
-doublereal
-PDSS_IdealGas::enthalpy_mole() const
-{
-    doublereal val = enthalpy_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
 }
 
 doublereal
@@ -146,37 +131,15 @@ PDSS_IdealGas::intEnergy_mole() const
 }
 
 doublereal
-PDSS_IdealGas::entropy_mole() const
-{
-    doublereal val = entropy_R();
-    return val * GasConstant;
-}
-
-doublereal
 PDSS_IdealGas::entropy_R() const
 {
     return m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
 }
 
 doublereal
-PDSS_IdealGas::gibbs_mole() const
-{
-    doublereal val = gibbs_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_IdealGas::gibbs_RT() const
 {
     return m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
-}
-
-doublereal
-PDSS_IdealGas::cp_mole() const
-{
-    doublereal val = cp_R();
-    return val * GasConstant;
 }
 
 doublereal
@@ -243,24 +206,6 @@ void PDSS_IdealGas::setPressure(doublereal p)
     m_Vss_ptr[m_spindex] = GasConstant * m_temp / m_pres;
 }
 
-doublereal PDSS_IdealGas::critTemperature() const
-{
-    throw CanteraError("PDSS_IdealGas::critTemperature()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_IdealGas::critPressure() const
-{
-    throw CanteraError("PDSS_IdealGas::critPressure()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_IdealGas::critDensity() const
-{
-    throw CanteraError("PDSS_IdealGas::critDensity()", "unimplemented");
-    return 0.0;
-}
-
 doublereal PDSS_IdealGas::temperature() const
 {
     m_temp = m_vpssmgr_ptr->temperature();
@@ -292,13 +237,6 @@ void  PDSS_IdealGas::setState_TR(doublereal temp, doublereal rho)
 {
     m_pres = GasConstant * temp * rho / m_mw;
     setTemperature(temp);
-}
-
-doublereal PDSS_IdealGas::satPressure(doublereal t)
-{
-    throw CanteraError("PDSS_IdealGas::satPressure()", "unimplemented");
-    /*NOTREACHED*/
-    return 0.0;
 }
 
 }

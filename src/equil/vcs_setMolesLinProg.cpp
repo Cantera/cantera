@@ -17,36 +17,29 @@ using namespace std;
 namespace VCSnonideal
 {
 
-#ifdef DEBUG_MODE
 static void printProgress(const vector<string> &spName,
                           const vector<double> &soln,
                           const vector<double> &ff)
 {
-    int nsp = soln.size();
     double sum = 0.0;
     plogf(" --- Summary of current progress:\n");
     plogf(" ---                   Name           Moles  -       SSGibbs \n");
     plogf(" -------------------------------------------------------------------------------------\n");
-    for (int k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < soln.size(); k++) {
         plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k].c_str(), soln[k], ff[k]);
         sum += soln[k] * ff[k];
     }
     plogf(" ---  Total sum to be minimized = %g\n", sum);
 }
-#endif
 
 int VCS_SOLVE::vcs_setMolesLinProg()
 {
     size_t ik, irxn;
     double test = -1.0E-10;
 
-#ifdef DEBUG_MODE
-    std::string pprefix(" --- seMolesLinProg ");
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   --- call setInitialMoles\n");
     }
-#endif
-
 
     // m_mu are standard state chemical potentials
     //  Boolean on the end specifies standard chem potentials
@@ -75,21 +68,17 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         }
     }
 
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl >= 2) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     }
-#endif
 
     while (redo) {
 
         if (!vcs_elabcheck(0)) {
-#ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
-                plogf("%s Mole numbers failing element abundances\n", pprefix.c_str());
-                plogf("%sCall vcs_elcorr to attempt fix\n",          pprefix.c_str());
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
+                plogf(" --- seMolesLinProg  Call vcs_elcorr to attempt fix\n");
             }
-#endif
             retn = vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
             if (retn >= 2) {
                 abundancesOK = false;
@@ -111,11 +100,9 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             return retn;
         }
 
-#ifdef DEBUG_MODE
-        if (m_debug_print_lvl >= 2) {
+        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
             plogf("iteration %d\n", iter);
         }
-#endif
         redo = false;
         iter++;
         if (iter > 15) {
@@ -129,7 +116,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             ik = m_numComponents + irxn;
             dg_rt = m_SSfeSpecies[ik];
             dxi_min = 1.0e10;
-            const double* sc_irxn = m_stoichCoeffRxnMatrix[irxn];
+            const double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             for (size_t jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
                 dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
             }
@@ -152,17 +139,13 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                     // with a new set of components
                     if (!redo) {
                         if (delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
-#ifdef DEBUG_MODE
-                            if (m_debug_print_lvl >= 2) {
+                            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                                 plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str());
                             }
-#endif
                             redo = true;
                         }
                     }
-                    if (delta_xi < dxi_min) {
-                        dxi_min = delta_xi;
-                    }
+                    dxi_min = std::min(dxi_min, delta_xi);
                 }
             }
 
@@ -187,23 +170,15 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             }
         }
 
-        // set the moles of the phase objects to match
-        //  updateMixMoles();
-        // Update the phase objects with the contents of the m_molNumSpecies_old vector
-        // vcs_updateVP(0);
-#ifdef DEBUG_MODE
-        if (m_debug_print_lvl >= 2) {
+        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
             printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         }
-#endif
     }
 
-#ifdef DEBUG_MODE
-    if (m_debug_print_lvl == 1) {
+    if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         plogf("   --- setInitialMoles end\n");
     }
-#endif
     retn = 0;
     if (!abundancesOK) {
         retn = -1;

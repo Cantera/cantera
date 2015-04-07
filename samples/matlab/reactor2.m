@@ -8,7 +8,7 @@ function reactor2(g)
 
 help reactor2
 
-if nargin == 1 & isa(g,'solution')
+if nargin == 1
    gas = g;
 else
    gas = GRI30;
@@ -20,7 +20,7 @@ nsp = nSpecies(gas);
 set(gas,'T',1001.0,'P',oneatm,'X','H2:2,O2:1,N2:4');
 
 % create a reactor, and insert the gas
-r = Reactor(gas);
+r = IdealGasReactor(gas);
 
 % create a reactor network and insert the reactor
 network = ReactorNet({r});

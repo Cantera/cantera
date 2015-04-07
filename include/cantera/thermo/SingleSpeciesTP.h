@@ -187,11 +187,7 @@ public:
      * @param ac Output vector of activity coefficients. Length: 1.
      */
     virtual void getActivityCoefficients(doublereal* ac) const {
-        if (m_kk == 1) {
-            ac[0] = 1.0;
-        } else {
-            err("getActivityCoefficients");
-        }
+        ac[0] = 1.0;
     }
 
     //@}
@@ -326,22 +322,6 @@ public:
     /// equation of state.
     //@{
 
-#ifdef H298MODIFY_CAPABILITY
-
-    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
-    /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
-     *
-     *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
-     */
-    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
-        m_tlast += 0.0001234;
-    }
-#endif
-
     /*!
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
@@ -417,100 +397,11 @@ public:
      * @{
      */
 
-    //! Set the temperature (K), pressure (Pa), and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param x    Vector of mole fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_TPX(doublereal t, doublereal p, const doublereal* x);
+    //! Mass fractions are fixed, with Y[0] = 1.0.
+    void setMassFractions(const doublereal* const y) {};
 
-    //! Set the temperature (K), pressure (Pa), and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param x    String containing a composition map of the mole fractions. Species not in
-     *             the composition map are assumed to have zero mole fraction
-     */
-    void setState_TPX(doublereal t, doublereal p, compositionMap& x);
-
-    //! Set the temperature (K), pressure (Pa), and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param x    String containing a composition map of the mole fractions. Species not in
-     *             the composition map are assumed to have zero mole fraction
-     */
-    void setState_TPX(doublereal t, doublereal p, const std::string& x);
-
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase.
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param y    Vector of mass fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_TPY(doublereal t, doublereal p, const doublereal* y);
-
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param y    Composition map of mass fractions. Species not in
-     *             the composition map are assumed to have zero mass fraction
-     */
-    void setState_TPY(doublereal t, doublereal p, compositionMap& y);
-
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param t    Temperature (K)
-     * @param p    Pressure (Pa)
-     * @param y    String containing a composition map of the mass fractions. Species not in
-     *             the composition map are assumed to have zero mass fraction
-     */
-    void setState_TPY(doublereal t, doublereal p, const std::string& y);
-
-    //! Set the pressure (Pa) and mole fractions.
-    /*!
-     * Note, the mole fractions are set to X[0] = 1.0.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param p    Pressure (Pa)
-     * @param x    Vector of mole fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_PX(doublereal p, doublereal* x);
-
-    //! Set the internally stored pressure (Pa) and mass fractions.
-    /*!
-     * Note, the mass fractions are set to Y[0] = 1.0.
-     * Note, the temperature is held constant during this operation.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param p    Pressure (Pa)
-     * @param y    Vector of mass fractions.
-     *             Length is equal to m_kk.
-     */
-    void setState_PY(doublereal p, doublereal* y);
+    //! Mole fractions are fixed, with x[0] = 1.0.
+    void setMoleFractions(const doublereal* const x) {};
 
     //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
     /*!
@@ -560,65 +451,6 @@ public:
      */
     virtual void setState_SV(doublereal s, doublereal v,
                              doublereal tol = 1.e-8);
-
-    /**
-     * @internal
-     * Set equation of state parameters. The number and meaning of
-     * these depends on the subclass.
-     * @param n number of parameters
-     * @param c array of  n coefficients
-     * @deprecated Unimplemented
-     */
-    virtual void setParameters(int n, doublereal* const c) {
-        warn_deprecated("SingleSpeciesTP::setParameters");
-    }
-
-    //! @deprecated Unimplemented
-    virtual void getParameters(int& n, doublereal* const c) const {
-        warn_deprecated("SingleSpeciesTP::getParameters");
-    }
-
-    /**
-     * Set equation of state parameter values from XML
-     * entries. This method is called by function importPhase in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     * the "thermo" entry for this phase in the input file.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata) {}
-
-    //@}
-    /// @name Saturation properties.
-    /// These methods are only implemented by subclasses that
-    /// implement full liquid-vapor equations of state.
-    ///
-    virtual doublereal satTemperature(doublereal p) const {
-        err("satTemperature");
-        return -1.0;
-    }
-
-    virtual doublereal satPressure(doublereal t) {
-        err("satPressure");
-        return -1.0;
-    }
-
-    virtual doublereal vaporFraction() const {
-        err("vaprFraction");
-        return -1.0;
-    }
-
-    virtual void setState_Tsat(doublereal t, doublereal x) {
-        err("setState_sat");
-    }
-
-    virtual void setState_Psat(doublereal p, doublereal x) {
-        err("setState_sat");
-    }
-
     //@}
 
     /**
@@ -636,8 +468,6 @@ public:
      *
      * This version sets the mole fraction vector to x[0] = 1.0, and then
      * calls the ThermoPhase::initThermo() function.
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 
@@ -654,9 +484,6 @@ protected:
      */
     doublereal m_p0;
 
-    //! Last temperature used to evaluate the thermodynamic polynomial.
-    mutable doublereal     m_tlast;
-
     //! Dimensionless enthalpy at the (mtlast, m_p0)
     mutable vector_fp       m_h0_RT;
     //! Dimensionless heat capacity at the (mtlast, m_p0)
@@ -672,17 +499,6 @@ protected:
      *        S0 whenever the temperature has changed.
      */
     void _updateThermo() const;
-
-private:
-
-    //! Error return for unhandled cases.
-    /*!
-     * It's used when this class doesn't have an answer for the question given
-     * to it, because the derived class isn't overriding a function.
-     *
-     * @param msg   String message
-     */
-    doublereal err(const std::string& msg) const;
 };
 
 }

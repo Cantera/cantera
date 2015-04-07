@@ -48,7 +48,7 @@ cdef class Mixture:
     def __dealloc__(self):
         del self.mix
 
-    def report(self):
+    def report(self, threshold=1e-14):
         """
         Generate a report describing the thermodynamic state of this mixture. To
         print the report to the screen, simply call the mixture object. The
@@ -61,7 +61,7 @@ cdef class Mixture:
         for i,phase in enumerate(self._phases):
             s.append('************ Phase {0} ************'.format(phase.name))
             s.append('Moles:  {0}'.format(self.phase_moles(i)))
-            s.append(phase.report())
+            s.append(phase.report(threshold=threshold))
 
         return '\n'.join(s)
 
@@ -313,14 +313,7 @@ cdef class Mixture:
             process. 0 indicates no output, while larger numbers produce
             successively more verbose information.
         :param log_level:
-            Controls the amount of diagnostic output written to an HTML log
-            file. If log_level = 0, no diagnostic output is written. For
-            values > 0, more detailed information is written to the log file as
-            log_level increases. The default log file name is
-            "equilibrium_log.html", but if this file exists, the log
-            information will be written to "equilibrium_log{n}.html",
-            where {n} is an integer chosen to avoid overwriting existing
-            log files.
+            Controls the amount of diagnostic output written.
         """
         if solver == 'vcs':
             iSolver = 2

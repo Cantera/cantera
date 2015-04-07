@@ -362,7 +362,6 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
-     * @deprecated
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -443,9 +442,7 @@ public:
      * and subclasses that do not require initialization do not
      * need to overload this method.  When importing a CTML phase
      * description, this method is called just prior to returning
-     * from function importPhase.setParameters
-     *
-     * @see importCTML.cpp
+     * from function importPhase().
      */
     virtual void initThermo();
 
@@ -465,7 +462,6 @@ public:
      * @param n number of parameters
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
-     * @deprecated Use setDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -479,15 +475,13 @@ public:
      *  For this phase:
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
-     * @deprecated Use density()
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     * This method is called by function importPhase() in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
+     * This method is called by function importPhase() when processing a phase
+     * definition in an input file. It should be overloaded in subclasses to set
      * any parameters that are specific to that particular phase
      * model. Note, this method is called before the phase is
      * initialized with elements and/or species.

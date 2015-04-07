@@ -52,8 +52,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction& b) 
     PhaseCombo_Interaction::operator=(b);
 }
 
-PhaseCombo_Interaction& PhaseCombo_Interaction::
-operator=(const PhaseCombo_Interaction& b)
+PhaseCombo_Interaction& PhaseCombo_Interaction::operator=(const PhaseCombo_Interaction& b)
 {
     if (&b == this) {
         return *this;
@@ -203,9 +202,7 @@ void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const
      * Update the activity coefficients
      */
     s_update_lnActCoeff();
-    /*
-     *
-     */
+
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(moleFractions_[k], SmallNumber);
@@ -366,13 +363,6 @@ void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
             vbar[iK] += XA*XB*(g0+g1*XB)+((delAK-XA)*XB+XA*(delBK-XB))*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
         }
     }
-}
-
-doublereal PhaseCombo_Interaction::err(const std::string& msg) const
-{
-    throw CanteraError("PhaseCombo_Interaction","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
 }
 
 void PhaseCombo_Interaction::initThermo()
@@ -549,8 +539,6 @@ void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doub
     doublereal T = temperature();
     doublereal RT = GasConstant*T;
     doublereal xx;
-
-    //fvo_zero_dbl_1(dlnActCoeff, m_kk);
     s_update_dlnActCoeff_dT();
 
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -613,7 +601,6 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
         /*
          *  First wipe out the ideal solution mixing term
          */
-        // lnActCoeff_Scaled_[iK] = - log(xx);
         if (xx > SmallNumber) {
             dlnActCoeffdlnN_diag_[iK] = - 1.0 + xx;
         }

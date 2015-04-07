@@ -17,8 +17,7 @@ using namespace std;
 
 namespace Cantera
 {
-GasKinetics::
-GasKinetics(thermo_t* thermo) :
+GasKinetics::GasKinetics(thermo_t* thermo) :
     Kinetics(),
     m_nfall(0),
     m_nirrev(0),
@@ -88,6 +87,8 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_dn = right.m_dn;
     m_revindex = right.m_revindex;
     m_rxneqn = right.m_rxneqn;
+    m_reactantStrings = right.m_reactantStrings;
+    m_productStrings = right.m_productStrings;
 
     m_logp_ref = right.m_logp_ref;
     m_logc_ref  = right.m_logc_ref;
@@ -427,8 +428,7 @@ void GasKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void GasKinetics::
-getFwdRateConstants(doublereal* kfwd)
+void GasKinetics::getFwdRateConstants(doublereal* kfwd)
 {
     update_rates_C();
     update_rates_T();
@@ -457,8 +457,7 @@ getFwdRateConstants(doublereal* kfwd)
     }
 }
 
-void GasKinetics::
-getRevRateConstants(doublereal* krev, bool doIrreversible)
+void GasKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
 {
     /*
      * go get the forward rate constants. -> note, we don't
@@ -480,8 +479,7 @@ getRevRateConstants(doublereal* krev, bool doIrreversible)
     }
 }
 
-void GasKinetics::
-addReaction(ReactionData& r)
+void GasKinetics::addReaction(ReactionData& r)
 {
     switch (r.reactionType) {
     case ELEMENTARY_RXN:
@@ -509,11 +507,12 @@ addReaction(ReactionData& r)
     installGroups(reactionNumber(), r.rgroups, r.pgroups);
     incrementRxnCount();
     m_rxneqn.push_back(r.equation);
+    m_reactantStrings.push_back(r.reactantString);
+    m_productStrings.push_back(r.productString);
     m_rxntype.push_back(r.reactionType);
 }
 
-void GasKinetics::
-addFalloffReaction(ReactionData& r)
+void GasKinetics::addFalloffReaction(ReactionData& r)
 {
     // install high and low rate coeff calculators
     // and add constant terms to high and low rate coeff value vectors
@@ -550,8 +549,7 @@ addFalloffReaction(ReactionData& r)
     registerReaction(reactionNumber(), r.reactionType, iloc);
 }
 
-void GasKinetics::
-addElementaryReaction(ReactionData& r)
+void GasKinetics::addElementaryReaction(ReactionData& r)
 {
     // install rate coeff calculator
     size_t iloc = m_rates.install(reactionNumber(), r);
@@ -564,8 +562,7 @@ addElementaryReaction(ReactionData& r)
     registerReaction(reactionNumber(), ELEMENTARY_RXN, iloc);
 }
 
-void GasKinetics::
-addThreeBodyReaction(ReactionData& r)
+void GasKinetics::addThreeBodyReaction(ReactionData& r)
 {
     // install rate coeff calculator
     size_t iloc = m_rates.install(reactionNumber(), r);
@@ -623,9 +620,7 @@ void GasKinetics::installReagents(const ReactionData& r)
         reactantGlobalOrder += nsFlt;
         ns = (size_t) nsFlt;
         if ((doublereal) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         if (r.rstoich[n] != 0.0) {
             m_rrxn[r.reactants[n]][rnum] += r.rstoich[n];
@@ -643,9 +638,7 @@ void GasKinetics::installReagents(const ReactionData& r)
         productGlobalOrder += nsFlt;
         ns = (size_t) nsFlt;
         if ((double) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         if (r.pstoich[n] != 0.0) {
             m_prxn[r.products[n]][rnum] += r.pstoich[n];

@@ -206,7 +206,6 @@ double hydrogen::Pp()
 {
     double rt = 1.0/T;
     double rt2 = rt*rt;
-    //   double rt3 = rt*rt2;
     double egrho = exp(-Gamma*Rho*Rho);
 
     double P = Rho*R*T;
@@ -263,14 +262,6 @@ double hydrogen::Tmin()
 double hydrogen::Tmax()
 {
     return Tmx;
-}
-char* hydrogen::name()
-{
-    return (char*) m_name.c_str();
-}
-char* hydrogen::formula()
-{
-    return (char*) m_formula.c_str();
 }
 double hydrogen::MolWt()
 {

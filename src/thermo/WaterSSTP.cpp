@@ -113,8 +113,7 @@ void WaterSSTP::initThermo()
     SingleSpeciesTP::initThermo();
 }
 
-void WaterSSTP::
-initThermoXML(XML_Node& phaseNode, const std::string& id)
+void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     /*
      * Do initializations that don't depend on knowing the XML file
@@ -171,16 +170,12 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     }
     s = entropy_mole();
     s -=  GasConstant * log(oneBar/presLow);
-    //printf("s = %g\n", s);
 
     doublereal h = enthalpy_mole();
     if (h != -241.826E6) {
         EW_Offset = -241.826E6 - h;
     }
     h = enthalpy_mole();
-
-    //printf("h = %g\n", h);
-
 
     /*
      * Set the initial state of the system to 298.15 K and
@@ -196,10 +191,8 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     /*
      * We have to do something with the thermo function here.
      */
-    if (m_spthermo) {
-        delete m_spthermo;
-        m_spthermo = 0;
-    }
+    delete m_spthermo;
+    m_spthermo = 0;
 
     /*
      * Set the flag to say we are ready to calculate stuff
@@ -207,8 +200,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id)
     m_ready = true;
 }
 
-void WaterSSTP::
-setParametersFromXML(const XML_Node& eosdata)
+void WaterSSTP::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","PureLiquidWater");
 }
@@ -378,8 +370,7 @@ doublereal WaterSSTP::pressure() const
     return m_sub->pressure();
 }
 
-void WaterSSTP::
-setPressure(doublereal p)
+void WaterSSTP::setPressure(doublereal p)
 {
     double T = temperature();
     double dens = density();

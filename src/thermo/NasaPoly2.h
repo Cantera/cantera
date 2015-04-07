@@ -66,11 +66,10 @@ public:
     NasaPoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs) :
         SpeciesThermoInterpType(n, tlow, thigh, pref),
+        m_midT(coeffs[0]),
         mnp_low(n, tlow, coeffs[0], pref, coeffs +1),
         mnp_high(n, tlow, thigh, pref, coeffs + 8),
-        m_coeff(15, 0.0) {
-        std::copy(coeffs, coeffs + 15, m_coeff.begin());
-        m_midT = coeffs[0];
+        m_coeff(coeffs, coeffs + 15) {
     }
 
     //! Copy Constructor
@@ -151,12 +150,10 @@ public:
         }
     }
 
-    //! @deprecated
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
-        warn_deprecated("NasaPoly2::reportParameters");
         n = m_index;
         type = NASA2;
         tlow = m_lowT;
@@ -166,8 +163,6 @@ public:
             coeffs[i] = m_coeff[i];
         }
     }
-
-#ifdef H298MODIFY_CAPABILITY
 
     doublereal reportHf298(doublereal* const h298 = 0) const {
         double h;
@@ -182,7 +177,7 @@ public:
         return h;
     }
 
-    void modifyOneHf298(const size_t& k, const doublereal Hf298New) {
+    void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         if (k != m_index) {
             return;
         }
@@ -196,8 +191,6 @@ public:
         hnew = h + delH;
         mnp_high.modifyOneHf298(k, hnew);
     }
-
-#endif
 
 protected:
     //! Midrange temperature

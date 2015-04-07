@@ -11,8 +11,8 @@
 #ifndef VCS_VOLPHASE_H
 #define VCS_VOLPHASE_H
 
-#include "cantera/equil/vcs_DoubleStarStar.h"
 #include "cantera/equil/vcs_SpeciesProperties.h"
+#include "cantera/base/Array.h"
 
 // Forward reference for ThermoPhase object within the Cantera namespace
 namespace Cantera
@@ -288,12 +288,12 @@ public:
      *
      *  @param LnAcJac_VCS jacobian parameter
      *   The Jacobians are actually d( lnActCoeff) / d (MolNumber);
-     *   dLnActCoeffdMolNumber[j][k]
+     *   dLnActCoeffdMolNumber(k,j)
      *
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    void sendToVCS_LnActCoeffJac(double* const* const LnACJac_VCS);
+    void sendToVCS_LnActCoeffJac(Cantera::Array2D& LnACJac_VCS);
 
     //! Set the pointer for Cantera's ThermoPhase parameter
     /*!
@@ -502,7 +502,7 @@ public:
      *  Returns a `double**` pointer such that `fm[e][f]` is the formula
      *  matrix entry for element `e` for species `k`
      */
-    double const* const* getFormulaMatrix() const;
+    const Cantera::Array2D& getFormulaMatrix() const;
 
     //! Returns the type of the species unknown
     /*!
@@ -680,10 +680,10 @@ private:
 
     //! Formula Matrix for the phase
     /*!
-     *  FormulaMatrix[j][kspec] = Formula Matrix for the species
+     *  FormulaMatrix(kspec,j) = Formula Matrix for the species
      *  Number of elements, j, in the kspec species
      */
-    DoubleStarStar m_formulaMatrix;
+    Cantera::Array2D m_formulaMatrix;
 
     //! Type of the species unknown
     /*!
@@ -838,11 +838,11 @@ private:
     //! Vector of the derivatives of the ln activity coefficient wrt to the
     //! current mole number multiplied by the current phase moles
     /*!
-     * np_dLnActCoeffdMolNumber[j][k];
+     * np_dLnActCoeffdMolNumber(k,j);
      * - j = id of the species mole number
      * - k = id of the species activity coefficient
      */
-    mutable DoubleStarStar np_dLnActCoeffdMolNumber;
+    mutable Cantera::Array2D np_dLnActCoeffdMolNumber;
 
     //! Status
     /*!

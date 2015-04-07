@@ -1,5 +1,6 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
+from libcpp.map cimport map as stdmap
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
 
@@ -45,7 +46,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # miscellaneous
         int eosType()
-        string report(cbool) except +
+        string report(cbool, double) except +
         string name()
         void setName(string)
         string id()
@@ -84,10 +85,14 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # composition
         void setMassFractionsByName(string) except +
+        void setMassFractionsByName(stdmap[string,double]&) except +
+        void setMassFractions_NoNorm(double*) except +
         double massFraction(size_t) except +
         double massFraction(string) except +
 
         void setMoleFractionsByName(string) except +
+        void setMoleFractionsByName(stdmap[string,double]&) except +
+        void setMoleFractions_NoNorm(double*) except +
         void getMoleFractions(double*) except +
         double moleFraction(size_t) except +
         double moleFraction(string) except +
@@ -160,6 +165,8 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         cbool isReversible(int) except +
         int reactionType(int) except +
         string reactionString(int) except +
+        string reactantString(int) except +
+        string productString(int) except +
         double reactantStoichCoeff(int, int) except +
         double productStoichCoeff(int, int) except +
 
@@ -248,6 +255,7 @@ cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
         CxxReactorBase()
         void setThermoMgr(CxxThermoPhase&) except +
         void restoreState() except +
+        void syncState() except +
         double volume()
         string name()
         void setName(string)
@@ -321,9 +329,10 @@ cdef extern from "cantera/zeroD/flowControllers.h":
 cdef extern from "cantera/zeroD/ReactorNet.h":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
-        void addReactor(CxxReactorBase*)
+        void addReactor(CxxReactor&)
         void advance(double) except +
         double step(double) except +
+        void reinitialize() except +
         double time()
         void setInitialTime(double)
         void setTolerances(double, double)
@@ -449,7 +458,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void getInitialSoln() except +
         void solve(int, cbool) except +translate_exception
         void refine(int) except +
-        void setRefineCriteria(size_t, double, double, double, double)
+        void setRefineCriteria(size_t, double, double, double, double) except +
         void save(string, string, string, int) except +
         void restore(string, string, int) except +
         void writeStats(int) except +
@@ -543,7 +552,6 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +
 
     cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +
-    cdef void kin_getActivationEnergies(CxxKinetics*, double*) except +
     cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +
     cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +
 

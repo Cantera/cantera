@@ -180,8 +180,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
     *this = b;
 }
 
-RedlichKwongMFTP& RedlichKwongMFTP::
-operator=(const RedlichKwongMFTP& b)
+RedlichKwongMFTP& RedlichKwongMFTP::operator=(const RedlichKwongMFTP& b)
 {
     if (&b != this) {
         /*
@@ -240,13 +239,6 @@ doublereal RedlichKwongMFTP::enthalpy_mole() const
     return h_ideal + h_nonideal;
 }
 
-doublereal RedlichKwongMFTP::intEnergy_mole() const
-{
-    doublereal p0 = pressure();
-    doublereal md = molarDensity();
-    return enthalpy_mole() - p0 / md;
-}
-
 doublereal RedlichKwongMFTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
@@ -254,11 +246,6 @@ doublereal RedlichKwongMFTP::entropy_mole() const
                                           - sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
     doublereal sr_nonideal = sresid();
     return sr_ideal + sr_nonideal;
-}
-
-doublereal RedlichKwongMFTP::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal RedlichKwongMFTP::cp_mole() const
@@ -357,13 +344,6 @@ void RedlichKwongMFTP::setConcentrations(const doublereal* const c)
     updateAB();
 }
 
-doublereal RedlichKwongMFTP::isothermalCompressibility() const
-{
-    throw CanteraError("RedlichKwongMFTP::isothermalCompressibility() ",
-                       "not implemented");
-    return 0.0;
-}
-
 void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 {
     getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
@@ -376,12 +356,6 @@ doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 {
     getStandardVolumes(DATA_PTR(m_tmpV));
     return 1.0 / m_tmpV[k];
-}
-
-doublereal RedlichKwongMFTP::logStandardConc(size_t k) const
-{
-    double c = standardConcentration(k);
-    return std::log(c);
 }
 
 void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
@@ -625,9 +599,6 @@ void RedlichKwongMFTP::getPartialMolarCp(doublereal* cpbar) const
 
 void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    // getStandardVolumes(vbar);
-
-
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -763,18 +734,14 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
 
 void RedlichKwongMFTP::initLengths()
 {
-
-
     a_vec_Curr_.resize(m_kk * m_kk, 0.0);
     b_vec_Curr_.resize(m_kk, 0.0);
 
     a_coeff_vec.resize(2, m_kk * m_kk, 0.0);
 
-
     m_pc_Species.resize(m_kk, 0.0);
     m_tc_Species.resize(m_kk, 0.0);
     m_vc_Species.resize(m_kk, 0.0);
-
 
     m_pp.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
@@ -803,7 +770,6 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
             throw CanteraError("RedlichKwongMFTP::initThermoXML",
                                "Unknown thermo model : " + model);
         }
-
 
         /*
          * Go get all of the coefficients and factors in the
@@ -1059,11 +1025,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     double btmp;
     calculateAB(TKelvin, atmp, btmp);
 
-    doublereal pres = presGuess;
-    double pp = psatEst(TKelvin);
-    if (pres < pp) {
-        pres = pp;
-    }
+    doublereal pres = std::max(psatEst(TKelvin), presGuess);
     double Vroot[3];
 
     bool foundLiq = false;
@@ -1071,9 +1033,6 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     do {
 
         int nsol = NicholsSolve(TKelvin, pres, atmp, btmp, Vroot);
-
-        // printf("nsol = %d\n", nsol);
-        // printf("liquidVolEst start: T = %g , p = %g, a = %g, b = %g\n", TKelvin, pres, m_a_current, m_b_current);
 
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
@@ -1093,7 +1052,6 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     } else {
         v = -1.0;
     }
-    //printf ("     RedlichKwongMFTP::liquidVolEst %g %g converged in %d its\n", TKelvin, pres, i);
     return v;
 }
 
@@ -1128,7 +1086,6 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
 
     }
 
-
     doublereal volguess = mmw / rhoguess;
     NSolns_ = NicholsSolve(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
 
@@ -1149,8 +1106,6 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         if (phaseRequested == FLUID_GAS || phaseRequested == FLUID_SUPERCRIT || phaseRequested == FLUID_UNDEFINED) {
             molarVolLast = Vroot_[0];
         } else {
-            //molarVolLast = Vroot_[0];
-            //printf("DensityCalc(): Possible problem encountered\n");
             return -2.0;
         }
     } else if (NSolns_ == -1) {
@@ -1159,13 +1114,10 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         } else if (TKelvin > tcrit) {
             molarVolLast = Vroot_[0];
         } else {
-            // molarVolLast = Vroot_[0];
-            // printf("DensityCalc(): Possible problem encountered\n");
             return -2.0;
         }
     } else {
         molarVolLast = Vroot_[0];
-        //printf("DensityCalc(): Possible problem encountered\n");
         return -1.0;
     }
     return mmw / molarVolLast;
@@ -1309,7 +1261,6 @@ void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublerea
 
 doublereal RedlichKwongMFTP::da_dt() const
 {
-
     doublereal dadT = 0.0;
     if (m_formTempParam == 1) {
         for (size_t i = 0; i < m_kk; i++) {
@@ -1371,9 +1322,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     Vroot[0] = 0.0;
     Vroot[1] = 0.0;
     Vroot[2] = 0.0;
-    int nTurningPoints;
-    bool lotsOfNumError = false;
-    doublereal Vturn[2];
     if (TKelvin <= 0.0) {
         throw CanteraError("RedlichKwongMFTP::NicholsSolve()",  "neg temperature");
     }
@@ -1421,46 +1369,11 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         }
     }
 
-
     int nSolnValues;
-    nTurningPoints = 2;
-
-#ifdef PRINTPV
-    double V[100];
-    int n = 0;
-    for (int i = 0; i < 90; i++) {
-        V[n++] = 0.030 + 0.005 * i;
-    }
-    double p1, presCalc;
-    for (int i = 0; i < n; i++) {
-        p1 = dpdVCalc(TKelvin, V[i], presCalc);
-        printf(" %13.5g %13.5g %13.5g \n", V[i], presCalc , p1);
-    }
-#endif
 
     double h2 = 4. * an * an * delta2 * delta2 * delta2;
-    if (delta2 == 0.0) {
-        nTurningPoints = 1;
-        Vturn[0] = xN;
-        Vturn[1] = xN;
-    } else if (delta2 < 0.0) {
-        nTurningPoints = 0;
-        Vturn[0] = xN;
-        Vturn[1] = xN;
-    } else {
+    if (delta2 > 0.0) {
         delta = sqrt(delta2);
-        Vturn[0] = xN - delta;
-        Vturn[1] = xN + delta;
-#ifdef PRINTPV
-        double presCalc;
-        double p1 = dpdVCalc(TKelvin, Vturn[0], presCalc);
-
-        double p2 = dpdVCalc(TKelvin, Vturn[1], presCalc);
-
-        printf("p1 = %g p2 = %g \n", p1, p2);
-        p1 = dpdVCalc(TKelvin, 0.9*Vturn[0], presCalc);
-        printf("0.9 p1 = %g \n", p1);
-#endif
     }
 
     doublereal h = 2.0 * an * delta * delta2;
@@ -1483,13 +1396,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     } else if (desc == 0.0) {
         nSolnValues = 2;
         // We are here as p goes to zero.
-        //  double hleft = 3.0 * an * cn / (bn * bn);
-        //double ynleft = 9.0 * an * cn / (2.0 * bn * bn) - 27.0 * an * an * dn / (2.0 * bn * bn * bn);
-        //printf("hleft = %g , ynleft = %g\n", -3. / 2. * hleft, -ynleft);
-        //double h2left = - 3 *  hleft + 3 * hleft * hleft - hleft * hleft * hleft;
-        //double y2left = - 2.0 * ynleft + ynleft * ynleft;
-        //printf("h2left = %g , yn2left = %g\n", h2left, y2left);
-
     } else if (desc > 0.0) {
         nSolnValues = 1;
     }
@@ -1520,9 +1426,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         Vroot[2] = 0.0;
 
         tmp = an *  Vroot[0] * Vroot[0] * Vroot[0] + bn * Vroot[0] * Vroot[0] + cn  * Vroot[0] + dn;
-        if (fabs(tmp) > 1.0E-4) {
-            lotsOfNumError = true;
-        }
 
     } else if (desc < 0.0) {
         doublereal tmp = - yN/h;
@@ -1545,7 +1448,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         for (int i = 0; i < 3; i++) {
             tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
             if (fabs(tmp) > 1.0E-4) {
-                lotsOfNumError = true;
                 for (int j = 0; j < 3; j++) {
                     if (j != i) {
                         if (fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
@@ -1584,9 +1486,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         }
         for (int i = 0; i < 2; i++) {
             tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
-            if (fabs(tmp) > 1.0E-4) {
-                lotsOfNumError = true;
-            }
         }
     }
 
@@ -1640,8 +1539,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
         }
     }
-    // writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " + fp2str(pres) + "): finished");
-    // writelogendl();
     return nSolnValues;
 }
 

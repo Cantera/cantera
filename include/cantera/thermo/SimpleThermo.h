@@ -144,13 +144,8 @@ public:
         m_nspData++;
         doublereal tlow  = minTemp_;
         doublereal thigh = maxTemp_;
-
-        if (tlow > m_tlow_max) {
-            m_tlow_max = tlow;
-        }
-        if (thigh < m_thigh_min) {
-            m_thigh_min = thigh;
-        }
+        m_tlow_max = std::max(tlow, m_tlow_max);
+        m_thigh_min = std::min(thigh, m_thigh_min);
 
         if (m_tlow.size() < index + 1) {
             m_tlow.resize(index + 1,  tlow);
@@ -244,7 +239,6 @@ public:
      * @param minTemp_   output - Minimum temperature
      * @param maxTemp_   output - Maximum temperature
      * @param refPressure_ output - reference pressure (Pa).
-     * @deprecated
      */
     virtual void reportParams(size_t index, int& type,
                               doublereal* const c,
@@ -264,15 +258,13 @@ public:
         }
     }
 
-#ifdef H298MODIFY_CAPABILITY
-    virtual doublereal reportOneHf298(int k) const {
+    virtual doublereal reportOneHf298(const size_t k) const {
         throw CanteraError("reportHF298", "unimplemented");
     }
 
-    virtual void modifyOneHf298(const int k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         throw CanteraError("reportHF298", "unimplemented");
     }
-#endif
 
 protected:
     //! Mapping between the species index and the vector index where the coefficients are kept

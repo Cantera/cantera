@@ -8,8 +8,6 @@
  */
 
 #include "cantera/numerics/funcs.h"
-
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/polyfit.h"

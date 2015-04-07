@@ -19,6 +19,14 @@ for programName, sources in samples:
                 localenv['blas_lapack_dir'], localenv['boost_lib_dir']) +
                tuple(localenv['extra_lib_dirs']))
     linkflags = ('-g', localenv['thread_flags'])
+
+    mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
+    if ' ' in mak_path:
+        # There is no reasonable way to handle spaces in Makefile 'include'
+        # statement, so we fall back to using the relative path instead
+        mak_path = os.path.relpath(mak_path, pjoin(localenv['ct_sampledir'], 'f90'))
+    localenv['tmpl_Cantera_dot_mak'] = mak_path
+
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['tmpl_cantera_libs'] = repr(libs)
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])

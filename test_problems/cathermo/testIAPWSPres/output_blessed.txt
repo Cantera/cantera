@@ -1,8 +1,8 @@
 pres = 10107
 psat(273.16) = 611.655
 dens (liquid) = 999.793 kg m-3
-intEng (liquid) = 0.000000 J/kmol
-S (liquid) = 0.000000 J/kmolK
+intEng (liquid) = 4.77857e-09 J/kmol
+S (liquid) = 8.86157e-11 J/kmolK
 h (liquid) = 11.0214 J/kmol
 h (liquid) = 0.611782 J/kg
 dens (gas)    = 0.00485458 kg m-3

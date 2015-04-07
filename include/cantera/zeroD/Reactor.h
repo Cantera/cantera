@@ -115,6 +115,8 @@ public:
     virtual void evalEqs(doublereal t, doublereal* y,
                          doublereal* ydot, doublereal* params);
 
+    virtual void syncState();
+
     //! Set the state of the reactor to correspond to the state vector *y*.
     virtual void updateState(doublereal* y);
 
@@ -145,14 +147,47 @@ public:
     virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
+    //! Set reaction rate multipliers based on the sensitivity variables in
+    //! *params*.
+    virtual void applySensitivity(double* params);
+    //! Reset the reaction rate multipliers
+    virtual void resetSensitivity(double* params);
+
+    //! Return the index in the solution vector for this reactor of the species
+    //! named *nm*, in either the homogeneous phase or a surface phase, relative
+    //! to the start of the species terms. Used to implement componentIndex for
+    //! specific reactor implementations.
+    virtual size_t speciesIndex(const std::string& nm) const;
+
+    //! Evaluate terms related to Walls
+    //! Calculates #m_vdot and #m_Q based on wall movement and heat transfer
+    //! @param t     the current time
+    virtual void evalWalls(double t);
+
+    //! Evaluate terms related to surface reactions
+    //! Calculates #m_sdot and rate of change in surface species coverages
+    //! @param t          the current time
+    //! @param[out] ydot  array of d(coverage)/dt for surface species
+    //! @returns          Net mass flux from surfaces
+    virtual double evalSurfaces(double t, double* ydot);
+
+    //! Update the state of SurfPhase objects attached to this reactor
+    virtual void updateSurfaceState(double* y);
+
+    //! Get initial conditions for SurfPhase objects attached to this reactor
+    virtual void getSurfaceInitialConditions(double* y);
+
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics*   m_kin;
 
-    //! Tolerance on the temperature
-    doublereal m_vdot, m_Q;
+    doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
+    doublereal m_Q; //!< net heat transfer through walls [W]
     doublereal m_mass; //!< total mass
     vector_fp m_work;
-    vector_fp m_sdot;            // surface production rates
+
+    //! Production rates of gas phase species on surfaces [kmol/s]
+    vector_fp m_sdot;
+
     vector_fp m_wdot; //!< Species net molar production rates
     vector_fp m_uk; //!< Species molar internal energies
     bool m_chem;

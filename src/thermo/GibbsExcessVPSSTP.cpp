@@ -53,8 +53,7 @@ GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b) :
     GibbsExcessVPSSTP::operator=(b);
 }
 
-GibbsExcessVPSSTP& GibbsExcessVPSSTP::
-operator=(const GibbsExcessVPSSTP& b)
+GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
 {
     if (&b == this) {
         return *this;
@@ -110,11 +109,6 @@ void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
-int GibbsExcessVPSSTP::eosType() const
-{
-    return 0;
-}
-
 /*
  * ------------ Mechanical Properties ------------------------------
  */
@@ -126,10 +120,7 @@ void GibbsExcessVPSSTP::setPressure(doublereal p)
 
 void GibbsExcessVPSSTP::calcDensity()
 {
-    vector_fp vbar = getPartialMolarVolumes();
-    //    double *vbar = &m_pp[0];
-    //    getPartialMolarVolumes(&vbar[0]);
-
+    vector_fp vbar = getPartialMolarVolumesVector();
     doublereal vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFractions_[i];
@@ -223,16 +214,9 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     getStandardVolumes(vbar);
 }
 
-const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumes() const
+const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
 {
     return getStandardVolumes();
-}
-
-doublereal GibbsExcessVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("GibbsExcessVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
 }
 
 double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const

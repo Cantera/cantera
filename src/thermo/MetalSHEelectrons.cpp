@@ -166,8 +166,8 @@ doublereal MetalSHEelectrons::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void MetalSHEelectrons::
-getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
+void MetalSHEelectrons::getUnitsStandardConc(doublereal* uA, int k, 
+                                             int sizeUA) const
 {
     for (int i = 0; i < 6; i++) {
         uA[i] = 0;
@@ -178,8 +178,7 @@ getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
  * Properties of the Standard State of the Species in the Solution
  */
 
-void MetalSHEelectrons::
-getStandardChemPotentials(doublereal* mu0) const
+void MetalSHEelectrons::getStandardChemPotentials(doublereal* mu0) const
 {
     getGibbs_RT(mu0);
     mu0[0] *= GasConstant * temperature();
@@ -307,14 +306,12 @@ XML_Node* MetalSHEelectrons::makeDefaultXMLTree()
 
 void MetalSHEelectrons::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("MetalSHEelectrons::setParameters");
     doublereal rho = c[0];
     setDensity(rho);
 }
 
 void MetalSHEelectrons::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("MetalSHEelectrons::getParameters");
     doublereal rho = density();
     n = 1;
     c[0] = rho;

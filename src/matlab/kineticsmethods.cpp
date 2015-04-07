@@ -93,6 +93,12 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
             case 14:
                 ok = kin_getEquilibriumConstants(kin,nr,h);
                 break;
+            case 15:
+                ok = kin_getFwdRateConstants(kin,nr,h);
+                break;
+            case 16:
+                ok = kin_getRevRateConstants(kin,1,nr,h);
+                break;
             default:
                 ;
             }

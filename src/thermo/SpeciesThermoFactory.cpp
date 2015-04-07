@@ -90,8 +90,6 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
                 has_other = 1;
             } else {
                 has_other = 1;
-                //throw UnknownSpeciesThermoModel("getSpeciesThermoTypes:",
-                //                                spNode->attrib("name"), "missing");
             }
         } else {
             throw CanteraError("getSpeciesThermoTypes:",
@@ -121,10 +119,8 @@ SpeciesThermoFactory* SpeciesThermoFactory::factory()
 void SpeciesThermoFactory::deleteFactory()
 {
     ScopedLock lock(species_thermo_mutex);
-    if (s_factory) {
-        delete s_factory;
-        s_factory = 0;
-    }
+    delete s_factory;
+    s_factory = 0;
 }
 
 SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const
@@ -137,7 +133,6 @@ SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & s
         popError();
     }
     if (iother) {
-        //writelog("returning new GeneralSpeciesThermo");
         return new GeneralSpeciesThermo();
     }
     return newSpeciesThermo(NASA*inasa
@@ -593,24 +588,24 @@ static void installStatMechThermoFromXML(const std::string& speciesName,
     int nRegTmp = tp.size();
     vector_fp cPoly;
     std::vector<StatMech*> regionPtrs;
-    doublereal tmin, tmax = 0.0, pref = OneAtm;
+    doublereal tmin = 0.0;
+    doublereal tmax = 0.0; 
+    doublereal pref = OneAtm;
 
     // Loop over all of the possible temperature regions
     for (int i = 0; i < nRegTmp; i++) {
         fptr = tp[i];
         if (fptr) {
             if (fptr->name() == "StatMech") {
-                if (fptr->hasChild("floatArray")) {
-
-                    tmin = fpValue((*fptr)["Tmin"]);
-                    tmax = fpValue((*fptr)["Tmax"]);
-                    if ((*fptr).hasAttrib("P0")) {
-                        pref = fpValue((*fptr)["P0"]);
-                    }
-                    if ((*fptr).hasAttrib("Pref")) {
-                        pref = fpValue((*fptr)["Pref"]);
-                    }
-
+                 tmin = fpValue((*fptr)["Tmin"]);
+                 tmax = fpValue((*fptr)["Tmax"]);
+                 if ((*fptr).hasAttrib("P0")) {
+                     pref = fpValue((*fptr)["P0"]);
+                 }
+                 if ((*fptr).hasAttrib("Pref")) {
+                     pref = fpValue((*fptr)["Pref"]);
+                 }
+                 if (fptr->hasChild("floatArray")) {
                     getFloatArray(fptr->child("floatArray"), cPoly, false);
                     if (cPoly.size() != 0) {
                         throw CanteraError("installStatMechThermoFromXML",
@@ -688,15 +683,13 @@ void SpeciesThermoFactory::installThermoForSpecies
     // These shouldn't interfere with the algorithm at any point.
     const std::vector<XML_Node*>& tpWC = thermo.children();
     std::vector<XML_Node*> tp;
-    for (int i = 0; i < static_cast<int>(tpWC.size()); i++) {
+    for (size_t i = 0; i < tpWC.size(); i++) {
         if (!(tpWC[i])->isComment()) {
             tp.push_back(tpWC[i]);
         }
     }
-    int nc = static_cast<int>(tp.size());
-    string mname = thermo["model"];
 
-    if (mname == "MineralEQ3") {
+    if (thermo["model"] == "MineralEQ3") {
         const XML_Node* f = tp[0];
         if (f->name() != "MinEQ3") {
             throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
@@ -704,7 +697,7 @@ void SpeciesThermoFactory::installThermoForSpecies
         }
         installMinEQ3asShomateThermoFromXML(speciesNode["name"], th_ptr, spthermo, k, f);
     } else {
-        if (nc == 1) {
+        if (tp.size() == 1) {
             const XML_Node* f = tp[0];
             if (f->name() == "Shomate") {
                 installShomateThermoFromXML(speciesNode["name"], spthermo, k, f, 0);
@@ -724,7 +717,7 @@ void SpeciesThermoFactory::installThermoForSpecies
                 throw UnknownSpeciesThermoModel("installThermoForSpecies",
                                                 speciesNode["name"], f->name());
             }
-        } else if (nc == 2) {
+        } else if (tp.size() == 2) {
             const XML_Node* f0 = tp[0];
             const XML_Node* f1 = tp[1];
             if (f0->name() == "NASA" && f1->name() == "NASA") {
@@ -739,7 +732,7 @@ void SpeciesThermoFactory::installThermoForSpecies
                 throw UnknownSpeciesThermoModel("installThermoForSpecies", speciesNode["name"],
                                                 f0->name() + " and " + f1->name());
             }
-        } else if (nc > 2) {
+        } else if (tp.size() > 2) {
             const XML_Node* f0 = tp[0];
             if (f0->name() == "NASA9") {
                 installNasa9ThermoFromXML(speciesNode["name"], spthermo, k, tp);
@@ -756,12 +749,12 @@ void SpeciesThermoFactory::installThermoForSpecies
     }
 }
 
-void SpeciesThermoFactory::
-installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
-                          VPStandardStateTP* vp_ptr,
-                          VPSSMgr* vpssmgr_ptr,
-                          SpeciesThermo* spthermo_ptr,
-                          const XML_Node* phaseNode_ptr) const
+void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
+    const XML_Node& speciesNode,
+    VPStandardStateTP* vp_ptr,
+    VPSSMgr* vpssmgr_ptr,
+    SpeciesThermo* spthermo_ptr,
+    const XML_Node* phaseNode_ptr) const
 {
 
     // Call the VPStandardStateTP object to install the pressure dependent species

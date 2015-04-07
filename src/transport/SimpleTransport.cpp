@@ -8,7 +8,6 @@
 #include "cantera/base/utilities.h"
 #include "cantera/transport/LiquidTransportParams.h"
 #include "cantera/transport/TransportFactory.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -18,9 +17,10 @@ namespace Cantera
 SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
     tempDepType_(0),
-    compositionDepType_(0),
+    compositionDepType_(LTI_MODEL_SOLVENT),
     useHydroRadius_(false),
     doMigration_(0),
+    m_iStateMF(-1),
     concTot_(0.0),
     m_temp(-1.0),
     m_press(-1.0),
@@ -39,10 +39,11 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
 SimpleTransport::SimpleTransport(const SimpleTransport& right) :
     Transport(),
     tempDepType_(0),
-    compositionDepType_(0),
+    compositionDepType_(LTI_MODEL_SOLVENT),
     useHydroRadius_(false),
     doMigration_(0),
     m_iStateMF(-1),
+    concTot_(0.0),
     m_temp(-1.0),
     m_press(-1.0),
     m_lambda(-1.0),
@@ -171,30 +172,18 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         XML_Node& transportNode = phaseNode.child("transport");
         string transportModel = transportNode.attrib("model");
         if (transportModel == "Simple") {
-            /*
-             * <compositionDependence model="Solvent_Only"/>
-            *      or
-             * <compositionDependence model="Mixture_Averaged"/>
-             */
-            std::string modelName = "";
-            if (ctml::getOptionalModel(transportNode, "compositionDependence",
-                                       modelName)) {
-                modelName = lowercase(modelName);
-                if (modelName == "solvent_only") {
-                    compositionDepType_ = 0;
-                } else if (modelName == "mixture_averaged") {
-                    compositionDepType_ = 1;
-                } else {
-                    throw CanteraError("SimpleTransport::initLiquid", "Unknown compositionDependence Model: " + modelName);
-                }
-            }
-        }
+
+	    compositionDepType_ = tr.compositionDepTypeDefault_;
+          
+        } else {
+	    throw CanteraError("SimpleTransport::initLiquid()",
+			       "transport model isn't the correct type: " + transportModel);
+	}
     }
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(),
-         m_thermo->molecularWeights().end(), m_mw.begin());
+    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
 
     /*
      *  Get the input Viscosities
@@ -203,39 +192,11 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_coeffVisc_Ns.clear();
     m_coeffVisc_Ns.resize(m_nsp);
 
-    //Cantera::LiquidTransportData &ltd0 = tr.LTData[0];
     std::string spName = m_thermo->speciesName(0);
-    /*
-    LiquidTR_Model vm0 =  ltd0.model_viscosity;
-    std::string spName0 = m_thermo->speciesName(0);
-    if (vm0 == LTR_MODEL_CONSTANT) {
-      tempDepType_ = 0;
-    } else if (vm0 == LTR_MODEL_ARRHENIUS) {
-      tempDepType_ = 1;
-    } else if (vm0 == LTR_MODEL_NOTSET) {
-      throw CanteraError("SimpleTransport::initLiquid",
-             "Viscosity Model is not set for species " + spName0 + " in the input file");
-    } else {
-      throw CanteraError("SimpleTransport::initLiquid",
-             "Viscosity Model for species " + spName0 + " is not handled by this object");
-    }
-    */
 
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
         Cantera::LiquidTransportData& ltd = tr.LTData[k];
-        //LiquidTR_Model vm =  ltd.model_viscosity;
-        //vector_fp &kentry = m_coeffVisc_Ns[k];
-        /*
-        if (vm != vm0) {
-        if (compositionDepType_ != 0) {
-          throw CanteraError(" SimpleTransport::initLiquid",
-                     "different viscosity models for species " + spName + " and " + spName0 );
-        } else {
-           kentry = m_coeffVisc_Ns[0];
-        }
-             }
-             */
         m_coeffVisc_Ns[k] = ltd.viscosity;
         ltd.viscosity = 0;
     }
@@ -246,27 +207,10 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_condSpecies.resize(m_nsp);
     m_coeffLambda_Ns.clear();
     m_coeffLambda_Ns.resize(m_nsp);
-    //LiquidTR_Model cm0 =  ltd0.model_thermalCond;
-    //if (cm0 != vm0) {
-    //  throw CanteraError("SimpleTransport::initLiquid",
-    //    "Conductivity model is not the same as the viscosity model for species " + spName0);
-    //    }
 
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
         Cantera::LiquidTransportData& ltd = tr.LTData[k];
-        //LiquidTR_Model cm =  ltd.model_thermalCond;
-        //vector_fp &kentry = m_coeffLambda_Ns[k];
-        /*
-        if (cm != cm0) {
-        if (compositionDepType_ != 0) {
-          throw CanteraError(" SimpleTransport::initLiquid",
-                     "different thermal conductivity models for species " + spName + " and " + spName0);
-        } else {
-          kentry = m_coeffLambda_Ns[0];
-        }
-             }
-             */
         m_coeffLambda_Ns[k] = ltd.thermalCond;
         ltd.thermalCond = 0;
     }
@@ -279,52 +223,10 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_diffSpecies.resize(m_nsp);
     m_coeffDiff_Ns.clear();
     m_coeffDiff_Ns.resize(m_nsp);
-    //LiquidTR_Model dm0 =  ltd0.model_speciesDiffusivity;
-    /*
-    if (dm0 != vm0) {
-      if (dm0 == LTR_MODEL_NOTSET) {
-    LiquidTR_Model rm0 =  ltd0.model_hydroradius;
-    if (rm0 != vm0) {
-      throw CanteraError("SimpleTransport::initLiquid",
-                 "hydroradius model is not the same as the viscosity model for species " + spName0);
-    } else {
-      useHydroRadius_ = true;
-    }
-      }
-    }
-    */
 
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
         Cantera::LiquidTransportData& ltd = tr.LTData[k];
-        /*
-        LiquidTR_Model dm = ltd.model_speciesDiffusivity;
-        if (dm == LTR_MODEL_NOTSET) {
-        LiquidTR_Model rm =  ltd.model_hydroradius;
-        if (rm == LTR_MODEL_NOTSET) {
-          throw CanteraError("SimpleTransport::initLiquid",
-                     "Neither diffusivity nor hydroradius is set for species " + spName);
-        }
-        if (rm != vm0) {
-          throw CanteraError("SimpleTransport::initLiquid",
-                     "hydroradius model is not the same as the viscosity model for species " + spName);
-        }
-        if (rm !=  LTR_MODEL_CONSTANT) {
-          throw CanteraError("SimpleTransport::initLiquid",
-                     "hydroradius model is not constant for species " + spName0);
-        }
-        vector_fp &kentry = m_coeffHydroRadius_Ns[k];
-        kentry = ltd.hydroradius;
-             } else {
-        if (dm != dm0) {
-          throw CanteraError(" SimpleTransport::initLiquid",
-                     "different diffusivity models for species " + spName + " and " + spName0 );
-        }
-        vector_fp &kentry = m_coeffDiff_Ns[k];
-        kentry = ltd.speciesDiffusivity;
-             }
-             */
-
         m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
         ltd.speciesDiffusivity = 0;
 
@@ -381,13 +283,16 @@ doublereal SimpleTransport::viscosity()
         updateViscosity_T();
     }
 
-    if (compositionDepType_ == 0) {
+    if (compositionDepType_ == LTI_MODEL_SOLVENT) {
         m_viscmix = m_viscSpecies[0];
-    } else if (compositionDepType_ == 1) {
+    } else if (compositionDepType_ == LTI_MODEL_MOLEFRACS) {
         m_viscmix = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_viscmix += m_viscSpecies[k] * m_molefracs[k];
         }
+    } else {
+        throw CanteraError("SimpleTransport::viscosity()",
+                           "Unknowns compositionDepType");
     }
     m_visc_mix_ok = true;
     return m_viscmix;
@@ -473,13 +378,16 @@ doublereal SimpleTransport::thermalConductivity()
         updateCond_T();
     }
     if (!m_cond_mix_ok) {
-        if (compositionDepType_ == 0) {
+        if (compositionDepType_ == LTI_MODEL_SOLVENT) {
             m_lambda = m_condSpecies[0];
-        } else if (compositionDepType_ == 1) {
+        } else if (compositionDepType_ == LTI_MODEL_MOLEFRACS) {
             m_lambda = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
                 m_lambda += m_condSpecies[k] * m_molefracs[k];
             }
+        } else {
+            throw CanteraError("SimpleTransport::thermalConductivity()",
+                               "Unknown compositionDepType"); 
         }
         m_cond_mix_ok = true;
     }
@@ -682,7 +590,7 @@ bool SimpleTransport::update_C()
 
 void SimpleTransport::updateCond_T()
 {
-    if (compositionDepType_ == 0) {
+    if (compositionDepType_ == LTI_MODEL_SOLVENT) {
         m_condSpecies[0] = m_coeffLambda_Ns[0]->getSpeciesTransProp();
     } else {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -717,7 +625,7 @@ void SimpleTransport::updateViscosities_C()
 
 void SimpleTransport::updateViscosity_T()
 {
-    if (compositionDepType_ == 0) {
+    if (compositionDepType_ == LTI_MODEL_SOLVENT) {
         m_viscSpecies[0] = m_coeffVisc_Ns[0]->getSpeciesTransProp();
     } else {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -755,16 +663,6 @@ bool SimpleTransport::update_T()
     m_diff_temp_ok = false;
 
     return true;
-}
-
-doublereal SimpleTransport::err(const std::string& msg) const
-{
-    throw CanteraError("SimpleTransport Class",
-                       "\n\n\n**** Method "+ msg +" not implemented in model "
-                       + int2str(model()) + " ****\n"
-                       "(Did you forget to specify a transport model?)\n\n\n");
-
-    return 0.0;
 }
 
 }

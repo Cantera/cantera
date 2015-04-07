@@ -12,8 +12,6 @@
 namespace Cantera
 {
 
-class XML_Writer;
-
 //! Calculation of Collision integrals
 /*!
  * This class provides functions that
@@ -30,22 +28,20 @@ public:
 
     //! Initialize the object for calculation
     /*!
-     *  @param xml         Pointer to the log file that will receive the debug
-     *                     output messages
      *  @param tsmin       Minimum value of Tstar to carry out the fitting
      *  @param tsmax       Maximum value of Tstar to carry out the fitting
      *  @param loglevel    Set the loglevel for the object. The default
      *                     loglevel is zero, indicating no output.
      */
-    void init(XML_Writer* xml, doublereal tsmin,  doublereal tsmax, int loglevel = 0);
+    void init(doublereal tsmin,  doublereal tsmax, int loglevel = 0);
 
     doublereal omega22(double ts, double deltastar);
     doublereal astar(double ts, double deltastar);
     doublereal bstar(double ts, double deltastar);
     doublereal cstar(double ts, double deltastar);
-    void fit(std::ostream& logfile, int degree, doublereal deltastar,
+    void fit(int degree, doublereal deltastar,
              doublereal* astar, doublereal* bstar, doublereal* cstar);
-    void fit_omega22(std::ostream& logfile, int degree, doublereal deltastar, doublereal* om22);
+    void fit_omega22(int degree, doublereal deltastar, doublereal* om22);
     doublereal omega11(double ts, double deltastar) {
         return omega22(ts, deltastar)/astar(ts, deltastar);
     }
@@ -88,9 +84,6 @@ private:
     int m_nmin;
 
     int m_nmax;
-
-    //! XML_Writer pointer
-    XML_Writer* m_xml;
 
     //! loglevel
     int m_loglevel;

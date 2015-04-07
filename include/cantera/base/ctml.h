@@ -28,10 +28,6 @@ namespace ctml
  */
 const std::string CTML_Version = "1.4.1";
 
-extern std::string FP_Format;
-
-extern std::string INT_Format;
-
 //!  This function adds a child node with the name, "integer", with a value
 //!  consisting of a single integer
 /*!
@@ -216,7 +212,7 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
  *                    parameter. The default is the special double,
  *                    Cantera::Undef, which means to ignore the entry.
  */
-void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, const int n,
+void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, const size_t n,
                         const doublereal* const vals, const std::string units = "",
                         const std::string type = "",
                         const doublereal minval = Cantera::Undef,
@@ -545,46 +541,6 @@ doublereal getFloatCurrent(const Cantera::XML_Node& currXML, const std::string& 
 bool getOptionalFloat(const Cantera::XML_Node& parent, const std::string& name,
                       doublereal& fltRtn, const std::string& type="");
 
-//! Get a vector of floating-point values from a child element.
-/*!
- * Returns a std::map containing a keyed values for child XML_Nodes of the
- * current node with the name, "float". In the keyed mapping there will be a
- * list of titles vs. values for all of the XML nodes. The float XML_nodes are
- * expected to be in a particular form created by the function addFloat(). One
- * value per XML_node is expected.
- *
- * Example:
- *
- * Code snippet:
- *     @code
- *     const XML_Node &State_XMLNode;
- *     std::map<std::string,double> v;
- *     bool convert = true;
- *     getFloats(State_XMLNode, v, convert);
- *     @endcode
- *
- * reads the corresponding XML file:
- *
- *     <state>
- *       <float title="a1" units="m3">   32.4 <\float>
- *       <float title="a2" units="cm3">   1.  <\float>
- *       <float title="a3">             100.  <\float>
- *     <\state>
- *
- * Will produce the mapping:
- *
- *     v["a1"] = 32.4
- *     v["a2"] = 1.0E-6
- *     v["a3"] = 100.
- *
- * @param node     Current XML node to get the values from
- * @param v        Output map of the results.
- * @param convert  Turn on conversion to SI units
- * @deprecated Unused. To be removed in Cantera 2.2.
- */
-void getFloats(const Cantera::XML_Node& node, std::map<std::string, double>& v,
-               const bool convert=true);
-
 //! Get an integer value from a child element.
 /*!
  * Returns an integer value for the child named 'name' of element 'parent'.
@@ -761,7 +717,7 @@ void getString(const Cantera::XML_Node& node, const std::string& titleString,
  * @param[out] valueString  Value string that is found in the child node.
  * @param[out] typeString   String type. This is an optional output variable.
  *         It is filled with the attribute "type" of the XML entry.
- * @deprecated
+ * @deprecated To be removed after Cantera 2.2.
  */
 void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameString, std::string& valueString,
                          std::string& typeString);
@@ -817,6 +773,15 @@ Cantera::XML_Node getCtmlTree(const std::string& file);
  *  @ingroup inputfiles
  */
 void ct2ctml(const char* file, const int debug = 0);
+
+//! Get a string with the ctml representation of a cti file.
+/*!
+ *  @param   file    Path to the input file in CTI format
+ *  @return  String containing the xml representation of the input file
+ *
+ *  @ingroup inputfiles
+ */
+std::string ct2ctml_string(const std::string& file);
 
 //! Convert a Chemkin-format mechanism into a CTI file.
 /*!

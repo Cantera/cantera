@@ -99,7 +99,6 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     c[2] = 0.0;
     c[3] = 0.0;
     m_spthermo->install(pname, 0, SIMPLE, c, 0.0, 1.0E30, OneAtm);
-    freezeSpecies();
     initThermo();
     m_p0 = OneAtm;
     m_tlast = 298.15;
@@ -199,8 +198,8 @@ doublereal FixedChemPotSSTP::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void FixedChemPotSSTP::
-getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
+void FixedChemPotSSTP::getUnitsStandardConc(doublereal* uA, int k, 
+                                            int sizeUA) const
 {
     for (int i = 0; i < 6; i++) {
         uA[i] = 0;
@@ -328,13 +327,11 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
 
 void FixedChemPotSSTP::setParameters(int n, doublereal* const c)
 {
-    warn_deprecated("FixedChemPotSSTP::setParameters");
     chemPot_ = c[0];
 }
 
 void FixedChemPotSSTP::getParameters(int& n, doublereal* const c) const
 {
-    warn_deprecated("FixedChemPotSSTP::getParameters");
     n = 1;
     c[0] = chemPot_;
 }

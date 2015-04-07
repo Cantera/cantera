@@ -346,8 +346,7 @@ public:
      *                  TP problem.
      *  @param maxiter Maximum number of "outer" iterations for problems
      *                 holding fixed something other than (T,P).
-     *  @param loglevel Level of diagnostic output, written to a file in HTML
-     *                  format.
+     *  @param loglevel Level of diagnostic output
      */
     doublereal equilibrate(int XY, doublereal err = 1.0e-9,
                            int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
@@ -453,7 +452,7 @@ public:
      *              Mole numbers that are less than or equal to zero will be
      *              set to zero. units = kmol.
      */
-    void setMolesByName(compositionMap& xMap);
+    void setMolesByName(const compositionMap& xMap);
 
     //! Set the moles via a string containing their names.
     /*!
@@ -758,14 +757,12 @@ size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                      std::vector<size_t>& orderVectorSpecies,
                      std::vector<size_t>& orderVectorElements);
 
-#ifdef DEBUG_MODE
 //! External int that is used to turn on debug printing for the
 //! BasisOptimze program.
 /*!
  *   Set this to 1 if you want debug printing from BasisOptimize.
  */
 extern int BasisOptimize_print_lvl;
-#endif
 }
 
 #endif

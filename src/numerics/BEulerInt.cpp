@@ -261,12 +261,6 @@ void BEulerInt::setSolnWeights()
 {
     int i;
     if (m_itol == 1) {
-        /*
-         * Adjust the atol vector if we are using vector
-         * atol conditions.
-         */
-        // m_func->adjustAtol(m_abstol);
-
         for (i = 0; i < m_neq; i++) {
             m_ewt[i] = m_abstol[i] + m_reltol * 0.5 *
                        (fabs(m_y_n[i]) + fabs(m_y_pred_n[i]));
@@ -313,14 +307,6 @@ double BEulerInt::filterNewStep(double timeCurrent, double* y_current, double* y
     return 0.0;
 }
 
-static void print_line(const char* str, int n)
-{
-    for (int i = 0; i < n; i++) {
-        printf("%s", str);
-    }
-    printf("\n");
-}
-
 /*
  * Print out for relevant time step information
  */
@@ -336,8 +322,7 @@ static void print_time_step1(int order, int n_time_step, double time,
     } else if (order == 2) {
         string = "Adams-Bashforth/TR";
     }
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
     printf("\nStart of Time Step: %5d       Time_n = %9.5g Time_nm1 = %9.5g\n",
            n_time_step, time, time - delta_t_n);
     printf("\tIntegration method = %s\n", string);
@@ -372,9 +357,7 @@ static void print_time_step2(int  time_step_num, int order,
     printf("\t\tTolerated Error\n\n");
     printf("\t- Recommended next delta_t (not counting history) = %g\n",
            delta_t_np1);
-    printf("\n");
-    print_line("=", 80);
-    printf("\n");
+    writeline('=', 80, true, true);
 }
 
 /*
@@ -384,8 +367,7 @@ static void print_time_fail(bool convFailure, int time_step_num,
                             double time, double delta_t_n,
                             double delta_t_np1, double  time_error_factor)
 {
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
     if (convFailure) {
         printf("\tTime Step Number %5d experienced a convergence "
                "failure\n", time_step_num);
@@ -406,8 +388,7 @@ static void print_time_fail(bool convFailure, int time_step_num,
         printf("\t\tCalculated truncation error factor  = %g\n",
                time_error_factor);
     }
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
 }
 
 /*
@@ -418,8 +399,7 @@ static void print_final(double time, int step_failed,
                         int total_linear_solves, int numConvFails,
                         int numTruncFails, int nfe, int nJacEval)
 {
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
     printf("TIME INTEGRATION ROUTINE HAS FINISHED: ");
     if (step_failed) {
         printf(" IT WAS A FAILURE\n");
@@ -434,8 +414,7 @@ static void print_final(double time, int step_failed,
     printf("\tNumber of TimeTruncErr fails  = %d\n", numTruncFails);
     printf("\tNumber of Function evals      = %d\n", nfe);
     printf("\tNumber of Jacobian evals/solvs= %d\n", nJacEval);
-    printf("\n");
-    print_line("=", 80);
+    writeline('=', 80, true, true);
 }
 
 /*
@@ -445,7 +424,7 @@ static void print_lvl1_Header(int nTimes)
 {
     printf("\n");
     if (nTimes) {
-        print_line("-", 80);
+        writeline('-', 80);
     }
     printf("time       Time              Time                     Time  ");
     if (nTimes == 0) {
@@ -460,8 +439,7 @@ static void print_lvl1_Header(int nTimes)
 
     printf(" No.               Rslt      size    Its  Its  stps  error     |");
     printf("  comment");
-    printf("\n");
-    print_line("-", 80);
+    writeline('-', 80, true);
 }
 
 /*
@@ -532,10 +510,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
          * Call the function to get a jacobian.
          */
         m_func->evalJacobian(time_curr, delta_t_n, CJ, y, ydot, J, f);
-#ifdef DEBUG_HKM
-        //double dddd = J(89, 89);
-        //checkFinite(dddd);
-#endif
         m_nJacEval++;
         m_nfe++;
     }  else {
@@ -595,7 +569,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
             col_j = (double*) J.ptrColumn(j);
             ysave = y[j];
             dy = dyVector[j];
-            //dy = fmaxx(1.0E-6 * m_ewt[j], fabs(ysave)*1.0E-7);
 
             y[j] = ysave + dy;
             dy = y[j] - ysave;
@@ -613,7 +586,6 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
             for (i = 0; i < m_neq; i++) {
                 diff = subtractRD(m_wksp[i], f[i]);
                 col_j[i] = diff / dy;
-                //col_j[i] = (m_wksp[i] - f[i])/dy;
             }
 
             y[j] = ysave;
@@ -653,8 +625,7 @@ void BEulerInt::calc_y_pred(int order)
 
 }
 
-void BEulerInt::
-calc_ydot(int order, double* y_curr, double* ydot_curr)
+void BEulerInt::calc_ydot(int order, double* y_curr, double* ydot_curr)
 {
     int    i;
     double c1;
@@ -689,7 +660,7 @@ double BEulerInt::time_error_norm()
         printf("\t\t    I       entry   actual   predicted   "
                "    weight       ydot\n");
         printf("\t\t");
-        print_line("-", 70);
+        writeline('-', 70);
         for (j = 0; j < NUM_ENTRIES; j++) {
             imax[j] = -1;
         }
@@ -718,7 +689,7 @@ double BEulerInt::time_error_norm()
             }
         }
         printf("\t\t");
-        print_line("-", 70);
+        writeline('-', 70);
     }
 #endif
     rel_norm = 0.0;
@@ -1351,7 +1322,7 @@ double BEulerInt::soln_error_norm(const double* const delta_y,
         printf("\t\t         I    ysoln  deltaY  weightY  "
                "Error_Norm**2\n");
         printf("\t\t   ");
-        print_line("-", 80);
+        writeline('-', 80);
         for (int jnum = 0; jnum < num_entries; jnum++) {
             dmax1 = -1.0;
             for (i = 0; i < m_neq; i++) {
@@ -1377,7 +1348,7 @@ double BEulerInt::soln_error_norm(const double* const delta_y,
             }
         }
         printf("\t\t   ");
-        print_line("-", 80);
+        writeline('-', 80);
     }
     return sum_norm;
 }
@@ -1481,7 +1452,7 @@ void BEulerInt::doNewtonSolve(double time_curr, double* y_curr,
     RRow[0] = delta_y[focusRow];
     RRow[1] = delta_y[focusRow+1];
     double Pcutoff = 1.0E-70;
-    if (!jac.m_factored) {
+    if (!jac.factored()) {
         jacBack = jac;
     } else {
         freshJac = false;
@@ -1666,11 +1637,6 @@ int BEulerInt::dampStep(double time_curr, const double* y0,
          */
         for (j = 0; j < m_neq; j++) {
             y1[j] = y0[j] + ff*step0[j];
-            //                HKM setting intermediate y's to zero was a tossup.
-            //                    slightly different, equivalent results
-            //#ifdef DEBUG_HKM
-            //    y1[j] = MAX(0.0, y1[j]);
-            //#endif
         }
         calc_ydot(m_order, y1, ydot1);
 
@@ -1867,24 +1833,6 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
             }
         }
 
-        // If we are converged, then let's use the best solution possible
-        // for an end result. We did a resolve in dampStep(). Let's update
-        // the solution to reflect that.
-        // HKM 5/16 -> Took this out, since if the last step was a
-        //             damped step, then adding stp1[j] is undamped, and
-        //             may lead to oscillations. It kind of defeats the
-        //             purpose of dampStep() anyway.
-        // if (m == 1) {
-        //  for (int j = 0; j < m_neq; j++) {
-        //   y_new[j] += stp1[j];
-        //                HKM setting intermediate y's to zero was a tossup.
-        //                    slightly different, equivalent results
-        // #ifdef DEBUG_HKM
-        //     y_new[j] = MAX(0.0, y_new[j]);
-        // #endif
-        //  }
-        // }
-
         bool m_filterIntermediate = false;
         if (m_filterIntermediate) {
             if (m == 0) {
@@ -1928,16 +1876,15 @@ done:
     return m;
 }
 
-void BEulerInt::
-print_solnDelta_norm_contrib(const double* const solnDelta0,
-                             const char* const s0,
-                             const double* const solnDelta1,
-                             const char* const s1,
-                             const char* const title,
-                             const double* const y0,
-                             const double* const y1,
-                             double damp,
-                             int num_entries)
+void BEulerInt::print_solnDelta_norm_contrib(const double* const solnDelta0,
+                                             const char* const s0,
+                                             const double* const solnDelta1,
+                                             const char* const s1,
+                                             const char* const title,
+                                             const double* const y0,
+                                             const double* const y1,
+                                             double damp,
+                                             int num_entries)
 {
     int i, j, jnum;
     bool used;
@@ -1947,7 +1894,7 @@ print_solnDelta_norm_contrib(const double* const solnDelta0,
            "%10s weight relSoln0 relSoln1\n", s0, s1);
     vector_int imax(num_entries, -1);
     printf("\t\t   ");
-    print_line("-", 90);
+    writeline('-', 90);
     for (jnum = 0; jnum < num_entries; jnum++) {
         dmax1 = -1.0;
         for (i = 0; i < m_neq; i++) {
@@ -1981,7 +1928,7 @@ print_solnDelta_norm_contrib(const double* const solnDelta0,
         }
     }
     printf("\t\t   ");
-    print_line("-", 90);
+    writeline('-', 90);
 }
 
 } // End of namespace Cantera

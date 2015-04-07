@@ -180,7 +180,6 @@ double oxygen::Pp()
 {
     double rt = 1.0/T;
     double rt2 = rt*rt;
-    //double rt3 = rt*rt2;
     double egrho = exp(-Gamma*Rho*Rho);
 
     double P = Rho*R*T;
@@ -241,14 +240,6 @@ double oxygen::Tmin()
 double oxygen::Tmax()
 {
     return Tmx;
-}
-char* oxygen::name()
-{
-    return (char*) m_name.c_str();
-}
-char* oxygen::formula()
-{
-    return (char*) m_formula.c_str();
 }
 double oxygen::MolWt()
 {

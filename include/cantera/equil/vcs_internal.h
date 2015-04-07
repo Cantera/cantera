@@ -106,78 +106,6 @@ public:
  */
 double vcsUtil_gasConstant(int mu_units);
 
-//! Invert an n x n matrix and solve m rhs's
-/*!
- * Solve a square matrix with multiple right hand sides
- *
- * \f[
- *     C X + B = 0;
- * \f]
- *
- * This routine uses Gauss elimination and is optimized for the solution
- * of lots of rhs's. A crude form of row pivoting is used here.
- * The matrix C is destroyed during the solve.
- *
- * @return  The solution x[] is returned in the matrix <I>B</I>.
- *          Routine returns an integer representing success:
- *     -   1 : Matrix is singular
- *     -   0 : solution is OK
- *
- *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
- *            are the inner loop. Row  numbers equal to idem.
- *            c[i+j*idem] = c_i_j = Matrix to be inverted:
- *                   -  i = row number
- *                   -  j = column number
- *
- *  @param idem number of row dimensions in c
- *  @param n  Number of rows and columns in c
- *  @param b  Multiple RHS. Note, b is actually the negative of
- *            most formulations.  Row  numbers equal to idem.
- *             b[i+j*idem] = b_i_j = vectors of rhs's:
- *                   -  i = row number
- *                   -  j = column number
- *            (each column is a new rhs)
- *  @param m  number of rhs's
- */
-int  vcsUtil_mlequ(double* c, size_t idem, size_t n, double* b, size_t m);
-
-//! Invert an n x n matrix and solve m rhs's
-/*!
- * Solve a square matrix with multiple right hand sides
- *
- * \f[
- *     C X + B = 0;
- * \f]
- *
- * This routine uses Gauss-Jordan elimination and is optimized for the solution
- * of lots of rhs's. Full row and column pivoting is used here. It's been
- * shown to be necessary in at least one case.
- * The matrix C is destroyed during the solve.
- *
- * @return  The solution x[] is returned in the matrix <I>B</I>.
- *          Routine returns an integer representing success:
- *     -   1 : Matrix is singular
- *     -   0 : solution is OK
- *
- *  @param c  Matrix to be inverted. c is in fortran format, i.e., rows
- *            are the inner loop. Row  numbers equal to idem.
- *            c[i+j*idem] = c_i_j = Matrix to be inverted:
- *                   -  i = row number
- *                   -  j = column number
- *
- *  @param idem number of row dimensions in c
- *  @param n  Number of rows and columns in c
- *  @param b  Multiple RHS. Note, b is actually the negative of
- *            most formulations.  Row  numbers equal to idem.
- *             b[i+j*idem] = b_i_j = vectors of rhs's:
- *                   -  i = row number
- *                   -  j = column number
- *            (each column is a new rhs)
- *  @param m  number of rhs's
- */
-int vcsUtil_gaussj(double* c, size_t idem, size_t n, double* b, size_t m);
-
-
 //! Definition of the function pointer for the root finder
 /*!
  *  see vcsUtil_root1d for a definition of how to use this.
@@ -295,128 +223,6 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax, VCS_FUNC_PTR func,
  */
 double vcs_second();
 
-//! This define turns on using memset and memcpy. I have not run into
-//! any systems where this is a problem. It's the fastest way to do
-//! low lvl operations where applicable. There are alternative routines
-//! available if this ever fails.
-#define USE_MEMSET
-#ifdef USE_MEMSET
-
-//! Zero a double vector
-/*!
- * @param vec_to vector of doubles
- * @param length length of the vector to zero.
- */
-inline void vcs_dzero(double* const vec_to, const size_t length)
-{
-    (void) memset((void*) vec_to, 0, length * sizeof(double));
-}
-
-//! Zero an int vector
-/*!
- * @param vec_to vector of ints
- * @param length length of the vector to zero.
- */
-inline void vcs_izero(int* const vec_to, const size_t length)
-{
-    (void) memset((void*) vec_to, 0, length * sizeof(int));
-}
-
-//! Copy a double vector
-/*!
- * @param vec_to    Vector to copy into. This vector must be dimensioned
- *                  at least as large as the vec_from vector.
- * @param vec_from  Vector to copy from
- * @param length    Number of doubles to copy.
- */
-inline void vcs_dcopy(double* const vec_to,
-                      const double* const vec_from, const size_t length)
-{
-    (void) memcpy((void*) vec_to, (const void*) vec_from,
-                  (length) * sizeof(double));
-}
-
-//! Copy an int vector
-/*!
- * @param vec_to    Vector to copy into. This vector must be dimensioned
- *                  at least as large as the vec_from vector.
- * @param vec_from  Vector to copy from
- * @param length    Number of int to copy.
- */
-inline void vcs_icopy(int* const vec_to,
-                      const int* const vec_from, const size_t length)
-{
-    (void) memcpy((void*) vec_to, (const void*) vec_from,
-                  (length) * sizeof(int));
-}
-
-//! Zero a std double vector
-/*!
- * @param vec_to vector of doubles
- * @param length length of the vector to zero.
- */
-inline void vcs_vdzero(std::vector<double> &vec_to, const size_t length)
-{
-    (void) memset((void*)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(double));
-}
-
-//! Zero a std int vector
-/*!
- * @param vec_to vector of ints
- * @param length length of the vector to zero.
- */
-inline void vcs_vizero(std::vector<int> &vec_to, const size_t length)
-{
-    (void) memset((void*)VCS_DATA_PTR(vec_to), 0, (length) * sizeof(int));
-}
-
-//! Copy one std double vector into another
-/*!
- * This is an inlined function that uses memcpy. memcpy is probably
- * the fastest way to do this. This routine requires the vectors to be
- * previously dimensioned appropriately. No error checking is done.
- *
- * @param vec_to  Vector to copy into. This vector must be dimensioned
- *                at least as large as the vec_from vector.
- * @param vec_from Vector to copy from
- * @param length  Number of doubles to copy.
- */
-inline void vcs_vdcopy(std::vector<double> & vec_to,
-                       const std::vector<double> & vec_from, size_t length)
-{
-    (void) memcpy((void*)&(vec_to[0]), (const void*) &(vec_from[0]),
-                  (length) * sizeof(double));
-}
-
-//! Copy one std integer vector into another
-/*!
- * This is an inlined function that uses memcpy. memcpy is probably
- * the fastest way to do this.
- *
- * @param vec_to  Vector to copy into. This vector must be dimensioned
- *                at least as large as the vec_from vector.
- * @param vec_from Vector to copy from
- * @param length  Number of integers to copy.
- */
-inline void vcs_vicopy(std::vector<int> & vec_to,
-                       const std::vector<int> & vec_from, const int length)
-{
-    (void) memcpy((void*)&(vec_to[0]), (const void*) &(vec_from[0]),
-                  (length) * sizeof(int));
-}
-#else
-extern void vcs_dzero(double* const, const int);
-extern void vcs_izero(int* const , const int);
-extern void vcs_dcopy(double* const, const double* const, const int);
-extern void vcs_icopy(int* const, const int* const, const int);
-extern void vcs_vdzero(std::vector<double> &vvv, const int len = -1);
-extern void vcs_vizero(std::vector<double> &vvv, const int len = -1);
-void vcs_vdcopy(std::vector<double> &vec_to,
-                const std::vector<double> vec_from, const int len = -1);
-void vcs_vicopy(std::vector<int> &vec_to,
-                const std::vector<int> vec_from, const int len = -1);
-#endif
-
 //! determine the l2 norm of a vector of doubles
 /*!
  * @param vec vector of doubles
@@ -445,16 +251,6 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
  * @return returns the max integer value in the list
  */
 int vcs_max_int(const int* vector, int length);
-
-//! Prints a line consisting of multiple occurrences of the same string
-/*!
- *  This prints a string num times, and then terminate with a
- *  end of line character
- *
- * @param str C string that is null terminated
- * @param num number of times the string is to be printed
- */
-void vcs_print_line(const char* str, int num);
 
 //! Returns a const char string representing the type of the
 //! species given by the first argument
@@ -493,24 +289,6 @@ void vcs_print_stringTrunc(const char* str, size_t space, int alignment);
  * @return returns true if the doubles are "equal" and false otherwise
  */
 bool vcs_doubleEqual(double d1, double d2);
-
-//! Sorts a vector of ints in place from lowest to the highest values
-/*!
- *  The vector is returned sorted from lowest to highest.
- *
- * @param x Reference to a vector of ints.
- * @deprecated
- */
-void vcs_heapsort(std::vector<int> &x);
-
-//! Sorts a vector of ints and eliminates duplicates from the resulting list
-/*!
- * @param xOrderedUnique       Ordered vector of unique ints that were part of the original list
- * @param x                    Reference to a constant vector of ints.
- * @deprecated
- */
-void vcs_orderedUnique(std::vector<int> & xOrderedUnique, const std::vector<int> & x);
-
 }
 
 #endif

@@ -129,14 +129,7 @@ int main(int argc, char** argv)
             /*
              * Make sure we are at the saturation pressure or above.
              */
-
-            double psat = HMW->satPressure(T);
-
-            pres = OneAtm;
-            if (psat > pres) {
-                pres = psat;
-            }
-
+            pres = std::max(HMW->satPressure(T), OneAtm);
 
             HMW->setState_TPM(T, pres, moll);
 

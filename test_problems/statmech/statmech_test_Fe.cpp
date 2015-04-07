@@ -30,6 +30,7 @@ int main(int argc, char** argv)
 
         g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
         equilibrate(g, "TP", -1);
+        g.report();
 
         vector_fp cp_R(nsp, 0.0);
         g.getCp_R(DATA_PTR(cp_R));
@@ -46,7 +47,7 @@ int main(int argc, char** argv)
     } catch (CanteraError) {
         // need to get error here because of loading Fe in input file, when
         // no Fe exists in the species information table, in statmech.cpp
-        //showErrors(cout);
+        showErrors(cout);
         return 0;
     }
 

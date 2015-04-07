@@ -91,7 +91,6 @@ void checkRxnElementBalance(Kinetics& kin,
     bal.clear();
     balp.clear();
     balr.clear();
-    //cout << "checking " << rdata.equation << endl;
     size_t np = rdata.products.size();
 
     // iterate over the products
@@ -104,22 +103,17 @@ void checkRxnElementBalance(Kinetics& kin,
         for (size_t m = 0; m < ph.nElements(); m++) {
             bal[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
             balp[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
-            //cout << "product species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m)
-            //     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
         }
     }
     for (size_t index = 0; index < rdata.reactants.size(); index++) {
         size_t kr = rdata.reactants[index];
         size_t n = kin.speciesPhaseIndex(kr);
-        //klocal = kr - kin.start(n);
         size_t klocal = kr - kin.kineticsSpeciesIndex(0,n);
         kstoich = rdata.rstoich[index];
         const ThermoPhase& ph = kin.speciesPhase(kr);
         for (size_t m = 0; m < ph.nElements(); m++) {
             bal[ph.elementName(m)] -= kstoich*ph.nAtoms(klocal,m);
             balr[ph.elementName(m)] += kstoich*ph.nAtoms(klocal,m);
-            //cout << "reactant species " << ph.speciesName(klocal) << " has " << ph.nAtoms(klocal,m)
-            //     << " atoms of " << ph.elementName(m) << " and kstoich = " << kstoich << endl;
         }
     }
 
@@ -211,7 +205,6 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
         stoich.push_back(stch);
         ord = doublereal(stch);
         order.push_back(ord);
-        //cout << key[n] << " " << isp << " " << stch << endl;
 
         /*
          * Needed to process reaction orders below.
@@ -402,8 +395,8 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
     vector<string> p;
     getStringArray(f,p);
     vector_fp c;
-    int np = static_cast<int>(p.size());
-    for (int n = 0; n < np; n++) {
+    size_t np = p.size();
+    for (size_t n = 0; n < np; n++) {
         c.push_back(fpValue(p[n]));
     }
     if (type == "Troe") {
@@ -452,11 +445,11 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin,
     getPairs(eff, key, val);
     string nm;
     string phse = kin.thermo(0).id();
-    for (size_t n = 0; n < key.size(); n++) { // ; bb != ee; ++bb) {
-        nm = key[n];// bb->first;
+    for (size_t n = 0; n < key.size(); n++) {
+        nm = key[n];
         size_t k = kin.kineticsSpeciesIndex(nm, phse);
         if (k != npos) {
-            rdata.thirdBodyEfficiencies[k] = fpValue(val[n]); // bb->second;
+            rdata.thirdBodyEfficiencies[k] = fpValue(val[n]);
         } else if (!rules.skipUndeclaredThirdBodies) {
             throw CanteraError("getEfficiencies", "Encountered third-body "
                                "efficiency for undefined species \"" + nm + "\"\n"
@@ -569,27 +562,27 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
 doublereal isDuplicateReaction(std::map<int, doublereal>& r1,
                                std::map<int, doublereal>& r2)
 {
-
     map<int, doublereal>::const_iterator b = r1.begin(), e = r1.end();
     int k1 = b->first;
+    // check for duplicate written in the same direction
     doublereal ratio = 0.0;
-    if (r1[k1] == 0.0 || r2[k1] == 0.0) {
-        goto next;
-    }
-    ratio = r2[k1]/r1[k1];
-    ++b;
-    for (; b != e; ++b) {
-        k1 = b->first;
-        if (r1[k1] == 0.0 || r2[k1] == 0.0) {
-            goto next;
+    if (r1[k1] && r2[k1]) {
+        ratio = r2[k1]/r1[k1];
+        ++b;
+        bool different = false;
+        for (; b != e; ++b) {
+            k1 = b->first;
+            if (!r1[k1] || !r2[k1] || fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) {
+                different = true;
+                break;
+            }
         }
-        if (fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) {
-            goto next;
+        if (!different) {
+            return ratio;
         }
     }
-    return ratio;
-next:
-    ratio = 0.0;
+
+    // check for duplicate written in the reverse direction
     b = r1.begin();
     k1 = b->first;
     if (r1[k1] == 0.0 || r2[-k1] == 0.0) {
@@ -599,10 +592,7 @@ next:
     ++b;
     for (; b != e; ++b) {
         k1 = b->first;
-        if (r1[k1] == 0.0 || r2[-k1] == 0.0) {
-            return 0.0;
-        }
-        if (fabs(r2[-k1]/r1[k1] - ratio) > 1.e-8) {
+        if (!r1[k1] || !r2[-k1] || fabs(r2[-k1]/r1[k1] - ratio) > 1.e-8) {
             return 0.0;
         }
     }
@@ -638,13 +628,18 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
     // string representation. Post-process to convert "[" and "]" characters
     // back into "<" and ">" which cannot easily be stored in an XML file. This
     // reaction string is used only for display purposes. It is not parsed for
-    //  the identities of reactants or products.
+    // the identities of reactants or products.
     rdata.equation = (r.hasChild("equation")) ? r("equation") : "<no equation>";
-    for (size_t nn = 0; nn < rdata.equation.size(); nn++) {
-        if (rdata.equation[nn] == '[') {
-            rdata.equation[nn] = '<';
-        } else if (rdata.equation[nn] == ']') {
-            rdata.equation[nn] = '>';
+    static const char* delimiters[] = {" [=] ", " =] ", " = ", "[=]", "=]", "="};
+    static const char* replacements[] = {" <=> ", " => ", " = ", "<=>", "=>", "="};
+    for (size_t i = 0; i < 6; i++) {
+        size_t n = rdata.equation.find(delimiters[i]);
+        if (n != npos) {
+            size_t w = strlen(delimiters[i]);
+            rdata.reactantString = stripws(rdata.equation.substr(0, n));
+            rdata.productString = stripws(rdata.equation.substr(n+w, npos));
+            rdata.equation.replace(n, w, replacements[i]);
+            break;
         }
     }
 
@@ -756,11 +751,11 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
         unsigned long int participants = 0;
         for (size_t nn = 0; nn < rdata.reactants.size(); nn++) {
             rdata.net_stoich[-1 - int(rdata.reactants[nn])] -= rdata.rstoich[nn];
-            participants += rdata.reactants[nn];
+            participants += static_cast<unsigned long int>(rdata.reactants[nn]);
         }
         for (size_t nn = 0; nn < rdata.products.size(); nn++) {
             rdata.net_stoich[int(rdata.products[nn])+1] += rdata.pstoich[nn];
-            participants += 1000000 * rdata.products[nn];
+            participants += 1000000 * static_cast<unsigned long int>(rdata.products[nn]);
         }
 
         vector<size_t>& related = m_participants[participants];
@@ -825,12 +820,11 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
      * end result being purely additive.
      */
     p.getChildren("reactionArray",rarrays);
-    int na = static_cast<int>(rarrays.size());
-    if (na == 0) {
+    if (rarrays.empty()) {
         kin.finalize();
         return false;
     }
-    for (int n = 0; n < na; n++) {
+    for (size_t n = 0; n < rarrays.size(); n++) {
         /*
          * Go get a reference to the current xml element,
          * reactionArray. We will process this element now.
@@ -868,7 +862,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                 rxnrule.skipUndeclaredThirdBodies = true;
             }
         }
-        int i, nrxns = 0;
         /*
          * Search for child elements called include. We only include
          * a reaction if it's tagged by one of the include fields.
@@ -876,14 +869,12 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
          */
         vector<XML_Node*> incl;
         rxns.getChildren("include",incl);
-        int ninc = static_cast<int>(incl.size());
 
         vector<XML_Node*> allrxns;
         rdata->getChildren("reaction",allrxns);
-        nrxns = static_cast<int>(allrxns.size());
         // if no 'include' directive, then include all reactions
-        if (ninc == 0) {
-            for (i = 0; i < nrxns; i++) {
+        if (incl.empty()) {
+            for (size_t i = 0; i < allrxns.size(); i++) {
                 const XML_Node* r = allrxns[i];
                 if (r) {
                     if (_rxns.installReaction(itot, *r, kin,
@@ -893,7 +884,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                 }
             }
         } else {
-            for (int nii = 0; nii < ninc; nii++) {
+            for (size_t nii = 0; nii < incl.size(); nii++) {
                 const XML_Node& ii = *incl[nii];
                 string imin = ii["min"];
                 string imax = ii["max"];
@@ -907,7 +898,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                     }
                 }
 
-                for (i = 0; i < nrxns; i++) {
+                for (size_t i = 0; i < allrxns.size(); i++) {
                     const XML_Node* r = allrxns[i];
                     string rxid;
                     if (r) {
@@ -957,10 +948,12 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     string owning_phase = phase["id"];
 
     bool check_for_duplicates = false;
-    if (phase.parent()->hasChild("validate")) {
-        const XML_Node& d = phase.parent()->child("validate");
-        if (d["reactions"] == "yes") {
-            check_for_duplicates = true;
+    if (phase.parent()) {
+        if (phase.parent()->hasChild("validate")) {
+            const XML_Node& d = phase.parent()->child("validate");
+            if (d["reactions"] == "yes") {
+                check_for_duplicates = true;
+            }
         }
     }
 
@@ -1023,7 +1016,6 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
 {
     XML_Node* x;
     x = get_XML_NameID(nm, string("#")+id, &root);
-    //            x = get_XML_Node(string("#")+id, &root);
     if (!x) {
         return false;
     }

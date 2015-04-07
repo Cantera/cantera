@@ -31,8 +31,7 @@ GeneralSpeciesThermo::GeneralSpeciesThermo() :
     m_thigh_min = 1.0E30;
 }
 
-GeneralSpeciesThermo::
-GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
+GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
     m_tlow_max(b.m_tlow_max),
     m_thigh_min(b.m_thigh_min),
     m_kk(b.m_kk)
@@ -113,7 +112,6 @@ void GeneralSpeciesThermo::install(const std::string& name,
         m_kk = index+1;
     }
 
-    //int nfreq = 3;
     /*
      * Create the necessary object
      */
@@ -204,9 +202,8 @@ void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
     install_STIT(stit_ptr);
 }
 
-void GeneralSpeciesThermo::
-update_one(size_t k, doublereal t, doublereal* cp_R,
-           doublereal* h_RT, doublereal* s_R) const
+void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
+                                      doublereal* h_RT, doublereal* s_R) const
 {
     SpeciesThermoInterpType* sp_ptr = m_sp[k];
     if (sp_ptr) {
@@ -214,9 +211,8 @@ update_one(size_t k, doublereal t, doublereal* cp_R,
     }
 }
 
-void GeneralSpeciesThermo::
-update(doublereal t, doublereal* cp_R,
-       doublereal* h_RT, doublereal* s_R) const
+void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
+                                  doublereal* h_RT, doublereal* s_R) const
 {
     vector<SpeciesThermoInterpType*>::const_iterator _begin, _end;
     _begin  = m_sp.begin();
@@ -227,9 +223,6 @@ update(doublereal t, doublereal* cp_R,
         if (sp_ptr) {
             sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
         }
-        // else {
-        //   writelog("General::update: sp_ptr is NULL!\n");
-        //}
     }
 }
 
@@ -242,11 +235,10 @@ int GeneralSpeciesThermo::reportType(size_t index) const
     return -1;
 }
 
-void GeneralSpeciesThermo::
-reportParams(size_t index, int& type, doublereal* const c,
-             doublereal& minTemp_, doublereal& maxTemp_, doublereal& refPressure_) const
+void GeneralSpeciesThermo::reportParams(size_t index, int& type,
+        doublereal* const c, doublereal& minTemp_, doublereal& maxTemp_,
+        doublereal& refPressure_) const
 {
-    warn_deprecated("GeneralSpeciesThermo::reportParams");
     SpeciesThermoInterpType* sp = m_sp[index];
     size_t n;
     if (sp) {
@@ -305,9 +297,7 @@ SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
     return m_sp[k];
 }
 
-#ifdef H298MODIFY_CAPABILITY
-
-doublereal GeneralSpeciesThermo::reportOneHf298(int k) const
+doublereal GeneralSpeciesThermo::reportOneHf298(const size_t k) const
 {
     SpeciesThermoInterpType* sp_ptr = m_sp[k];
     doublereal h = -1.0;
@@ -317,14 +307,12 @@ doublereal GeneralSpeciesThermo::reportOneHf298(int k) const
     return h;
 }
 
-void GeneralSpeciesThermo::modifyOneHf298(const int k, const doublereal Hf298New)
+void GeneralSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
     SpeciesThermoInterpType* sp_ptr = m_sp[k];
     if (sp_ptr) {
         sp_ptr->modifyOneHf298(k, Hf298New);
     }
 }
-
-#endif
 
 }

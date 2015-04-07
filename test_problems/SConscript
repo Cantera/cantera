@@ -5,8 +5,18 @@ localenv = env.Clone()
 localenv.Prepend(CPPPATH=['#include', '#src', 'shared'])
 localenv.Append(CCFLAGS=env['warning_flags'])
 
-os.environ['PYTHONPATH'] = pjoin(os.getcwd(), '..', 'interfaces', 'python')
-os.environ['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
+if localenv['python_package'] in ('full', 'minimal'):
+    localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build2']
+    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
+    haveConverters = True
+elif localenv['python3_package'] == 'y':
+    localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build3']
+    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python3_cmd')
+    haveConverters = True
+else:
+    haveConverters = False
+
+localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
 PASSED_FILES = {}
 
@@ -31,6 +41,7 @@ class Test(object):
             self.artifacts = [self.artifacts]
         self.comparisons = kwargs.get('comparisons') or ()
         self.tolerance = kwargs.get('tolerance') or 1e-5 # error tolerance for CSV comparison
+        # self.tolerance = kwargs.get('tolerance') or 1e-7 # error tolerance for CSV comparison
         self.threshold = kwargs.get('threshold') or 1e-14 # error threshold for CSV comparison
 
         # ignore lines starting with specified strings when comparing output files
@@ -230,7 +241,6 @@ CompileAndTest('ChemEquil_red1',
 CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
                comparisons=[('eq1_blessed.csv', 'eq1.csv'),
                             ('kin1_blessed.csv', 'kin1.csv'),
-                            ('kin2_blessed.csv', 'kin2.csv'),
                             ('tr1_blessed.csv', 'tr1.csv'),
                             ('tr2_blessed.csv', 'tr2.csv')],
                tolerance=3e-3,
@@ -244,9 +254,9 @@ diamond = localenv.Program('diamondSurf/runDiamond',
 diamond_name = diamond[0].name
 Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
      options='diamond_blessed.xml', artifacts=diamond_name)
-Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
-     options='diamond.cti', artifacts=diamond_name,
-     comparisons=[('diamond_blessed.xml', 'diamond.xml')])
+if haveConverters:
+    Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
+         options='diamond.cti', artifacts=diamond_name)
 CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
                'output_blessed.txt')
 CompileAndTest('fracCoeff', 'fracCoeff', 'fracCoeff', 'frac_blessed.out')
@@ -262,31 +272,39 @@ negA = localenv.Program('negATest/negATest',
 negA_name = negA[0].name
 Test('negA-xml', 'negATest', negA, 'negATest_blessed.out',
      options='noxNeg_blessed.xml', artifacts=negA_name)
-Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
-     options='noxNeg.cti', artifacts=negA_name,
-     comparisons=[('noxNeg_blessed.xml', 'noxNeg.xml')])
+if haveConverters:
+    Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
+         options='noxNeg.cti', artifacts=negA_name)
 
 CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_blessed.txt')
-CompileAndTest('printUtil', 'printUtilUnitTest', 'pUtest', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
-CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt',
-               artifacts=['liquidvapor.xml'])
+if haveConverters:
+    CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
 CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
-# spectroscopy is incomplete
 CompileAndTest('simpleTransport', 'simpleTransport', 'simpleTransport',
                'output_blessed.txt')
 CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
                'stoichSolidKinetics', 'output_blessed.txt')
+CompileAndTest('statmech_test', 'statmech_test',
+               'statmech_test', 'output_blessed.txt')
+CompileAndTest('statmech_properties', 'statmech_properties',
+               'statmech_properties', 'output_blessed.txt')
+CompileAndTest('statmech_test_poly', 'statmech_test_poly',
+               'statmech_test_poly', 'output_blessed.txt')
+CompileAndTest('statmech_transport', 'statmech_transport',
+               'statmech_transport', 'output_blessed.txt')
+CompileAndTest('statmech_test_Fe', 'statmech',
+               'statmech_test_Fe', 'output_blessed.txt')
 CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                arguments='haca2.xml',
                comparisons=[('results_blessed.txt', 'results.txt')],
-               artifacts=['results.txt', 'diamond.xml'],
+               artifacts=['results.txt'],
                extensions=['^surfaceSolver.cpp'])
 CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
                arguments='haca2.xml',
                comparisons=[('results2_blessed.txt', 'results2.txt')],
-               artifacts=['results2.txt', 'diamond.xml'],
+               artifacts=['results2.txt'],
                extensions=['^surfaceSolver2.cpp'])
 CompileAndTest('VCS-NaCl', pjoin('VCSnonideal', 'NaCl_equil'),
                'nacl_equil', 'good_out.txt',
@@ -296,27 +314,6 @@ CompileAndTest('VCS-LiSi', pjoin('VCSnonideal', 'LatticeSolid_LiSi'),
                'latticeSolid_LiSi', 'output_blessed.txt',
                artifacts=['vcs_equilibrate_res.csv'])
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
-
-# Python Tests
-if localenv['python_package'] == 'full':
-    testDeps = [localenv['python_module']]
-    Test('python-diamond', 'python', '$python_cmd', None,
-         options='../../samples/python/surface_chemistry/diamond_cvd/diamond.py',
-         comparisons=[('diamond_blessed.csv', 'diamond.csv')],
-         artifacts=['diamond.xml'], dependencies=testDeps)
-    Test('python-frac', 'python', '$python_cmd', 'frac_blessed.out',
-         arguments='frac.py', artifacts=['frac.xml'], dependencies=testDeps,
-         options='-Wignore')
-    Test('python-tut1', pjoin('python','tut1'), '$python_cmd',
-         'output_blessed.txt', arguments='tut1.py', artifacts=['gri30.xml'],
-         dependencies=testDeps, options='-Wignore')
-    Test('python-tut2', pjoin('python','tut2'), '$python_cmd',
-         'output_blessed.txt', arguments='tut2.py', options='-Wignore',
-         dependencies=testDeps, artifacts=['gri30.xml', 'diamond.xml'])
-    # Skipping Python Tutorial 3 (documentation only)
-    Test('python-tut4', pjoin('python','tut4'), '$python_cmd',
-         'output_blessed.txt', arguments='tut4.py', artifacts=['gri30.xml'],
-         dependencies=testDeps, options='-Wignore')
 
 finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
 localenv.Depends(finish_tests, 'test-run')

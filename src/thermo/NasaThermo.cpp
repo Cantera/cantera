@@ -82,26 +82,16 @@ void NasaThermo::install(const std::string& name, size_t index, int type,
     vector_fp chigh(c+8, c+15);
     vector_fp clow(c+1, c+8);
 
-    if (!m_allow_discontinuities) {
-        doublereal maxError = checkContinuity(name, tmid, &clow[0], &chigh[0]);
-        if (maxError > 1e-6) {
-            fixDiscontinuities(tlow, tmid, thigh, &clow[0], &chigh[0]);
-            AssertThrowMsg(checkContinuity(name, tmid, &clow[0], &chigh[0]) < 1e-12,
-                   "NasaThermo::install", "Polynomials still not continuous");
-        }
-    }
+   checkContinuity(name, tmid, &clow[0], &chigh[0]);
+
 
     m_high[igrp-1].push_back(NasaPoly1(index, tmid, thigh,
                                        ref_pressure, &chigh[0]));
     m_low[igrp-1].push_back(NasaPoly1(index, tlow, tmid,
                                       ref_pressure, &clow[0]));
 
-    if (tlow > m_tlow_max) {
-        m_tlow_max = tlow;
-    }
-    if (thigh < m_thigh_min) {
-        m_thigh_min = thigh;
-    }
+    m_tlow_max = std::max(tlow, m_tlow_max);
+    m_thigh_min = std::min(thigh, m_thigh_min);
     if (m_tlow.size() < index + 1) {
         m_tlow.resize(index + 1,  tlow);
         m_thigh.resize(index + 1, thigh);
@@ -181,7 +171,6 @@ void NasaThermo::reportParams(size_t index, int& type,
                               doublereal& maxTemp,
                               doublereal& refPressure) const
 {
-    warn_deprecated("NasaThermo::reportParams");
     type = reportType(index);
     if (type == NASA) {
         size_t grp = m_group_map[index];
@@ -216,11 +205,10 @@ void NasaThermo::reportParams(size_t index, int& type,
     }
 }
 
-#ifdef H298MODIFY_CAPABILITY
-doublereal NasaThermo::reportOneHf298(const int k) const
+doublereal NasaThermo::reportOneHf298(const size_t k) const
 {
-    int grp = m_group_map[k];
-    int pos = m_posInGroup_map[k];
+    size_t grp = m_group_map[k];
+    size_t pos = m_posInGroup_map[k];
     const std::vector<NasaPoly1> &mlg = m_low[grp-1];
     const NasaPoly1* nlow = &(mlg[pos]);
     doublereal tmid = nlow->maxTemp();
@@ -235,10 +223,10 @@ doublereal NasaThermo::reportOneHf298(const int k) const
     return h;
 }
 
-void NasaThermo::modifyOneHf298(const int k, const doublereal Hf298New)
+void NasaThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
-    int grp = m_group_map[k];
-    int pos = m_posInGroup_map[k];
+    size_t grp = m_group_map[k];
+    size_t pos = m_posInGroup_map[k];
     std::vector<NasaPoly1> &mlg = m_low[grp-1];
     NasaPoly1* nlow = &(mlg[pos]);
     std::vector<NasaPoly1> &mhg = m_high[grp-1];
@@ -259,7 +247,6 @@ void NasaThermo::modifyOneHf298(const int k, const doublereal Hf298New)
         nlow->modifyOneHf298(k, hnew);
     }
 }
-#endif
 
 doublereal NasaThermo::cp_R(double t, const doublereal* c)
 {
@@ -285,7 +272,7 @@ doublereal NasaThermo::checkContinuity(const std::string& name, double tmid,
     doublereal cplow = cp_R(tmid, clow);
     doublereal cphigh = cp_R(tmid, chigh);
     doublereal delta = cplow - cphigh;
-    doublereal maxError = abs(delta);
+    doublereal maxError = std::abs(delta);
     if (fabs(delta/(fabs(cplow)+1.0E-4)) > 0.001) {
         writelog("\n\n**** WARNING ****\nFor species "+name+
                  ", discontinuity in cp/R detected at Tmid = "
@@ -439,8 +426,8 @@ void NasaThermo::fixDiscontinuities(doublereal Tlow, doublereal Tmid,
     // First get the desired size of the work array
     ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
               &sigma[0], -1, rank, &work[0], lwork, info);
-    work.resize(work[0]);
-    lwork = work[0];
+    work.resize(static_cast<size_t>(work[0]));
+    lwork = static_cast<int>(work[0]);
     ct_dgelss(nRows, nCols, 1, &M(0,0), nRows, &b[0], nRows,
               &sigma[0], -1, rank, &work[0], lwork, info);
 

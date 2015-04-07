@@ -16,7 +16,6 @@ ideal_gas(name = "gri30",
                    HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
                    C3H8  CH2CHO  CH3CHO """,
       reactions = "all",
-#      kinetics = "GRI30",
       initial_state = state(temperature = 300.0,
                         pressure = OneAtm)    )
 
@@ -29,7 +28,6 @@ ideal_gas(name = "gri30_mix",
                    HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
                    C3H8  CH2CHO  CH3CHO """,
       reactions = "all",
-#      kinetics = "GRI30",
       transport = "Mix",
       initial_state = state(temperature = 300.0,
                         pressure = OneAtm)    )
@@ -44,7 +42,6 @@ ideal_gas(name = "gri30_multi",
                    HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  N2  AR  C3H7 
                    C3H8  CH2CHO  CH3CHO """,
       reactions = "all",
-#      kinetics = "GRI30",
       transport = "Multi",
       initial_state = state(temperature = 300.0,
                         pressure = OneAtm)    )

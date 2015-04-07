@@ -164,7 +164,6 @@ VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
             throw CanteraError("VPSSMgr_General::returnPDSS_ptr", "new PDSS_ConstVol failed");
         }
     } else if (model == "waterIAPWS" || model == "waterPDSS") {
-        // VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
         kPDSS = new PDSS_Water(m_vptp_ptr, 0);
         if (!genSpthermo) {
             throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
@@ -213,24 +212,13 @@ VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 {
     bool doST;
     PDSS* kPDSS = returnPDSS_ptr(k, speciesNode, phaseNode_ptr, doST);
-    // VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
     if (m_PDSS_ptrs.size() < k+1) {
         m_PDSS_ptrs.resize(k+1, 0);
     }
     m_PDSS_ptrs[k] = kPDSS;
-    if ((k+1) >= m_kk) {
-        m_kk = k+1;
-    }
-
-    doublereal minTemp = kPDSS->minTemp();
-    if (minTemp > m_minTemp) {
-        m_minTemp = minTemp;
-    }
-
-    doublereal maxTemp = kPDSS->maxTemp();
-    if (maxTemp < m_maxTemp) {
-        m_maxTemp = maxTemp;
-    }
+    m_kk = std::max(m_kk, k+1);
+    m_minTemp = std::max(m_minTemp, kPDSS->minTemp());
+    m_maxTemp = std::min(m_maxTemp, kPDSS->maxTemp());
 
     doublereal p0 = kPDSS->refPressure();
     if (k == 0) {

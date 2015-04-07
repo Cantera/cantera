@@ -369,11 +369,7 @@ int main(int argc, char** argv)
          */
         double pres = gasTP->pressure();
         gasTP->getMoleFractions(x);
-        double tmp = 0.3 * x[0];
-        double tmp2 = 0.3 * x[1];
-        if (tmp2 < tmp) {
-            tmp = tmp2;
-        }
+        double tmp = 0.3 * std::min(x[0], x[1]);
         x[0] += tmp;
         x[1] -= tmp;
         gasTP->setState_PX(pres, x);

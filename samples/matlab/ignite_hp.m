@@ -5,7 +5,7 @@ function ignite_hp(gas)
 
 help ignite_hp
 
-if nargin == 0 | ~isa(gas,'GasMix')
+if nargin == 0
    gas = IdealGasMix('gri30.xml');
 end
 

@@ -18,63 +18,6 @@ using namespace std;
 namespace Cantera
 {
 
-void importSolution(size_t points,
-                    doublereal* oldSoln, IdealGasPhase& oldmech,
-                    size_t size_new, doublereal* newSoln, IdealGasPhase& newmech)
-{
-    // Number of components in old and new solutions
-    size_t nv_old = oldmech.nSpecies() + 4;
-    size_t nv_new = newmech.nSpecies() + 4;
-
-    if (size_new < nv_new*points) {
-        throw CanteraError("importSolution",
-                           "new solution array must have length "+
-                           int2str(nv_new*points));
-    }
-
-    size_t n, j, knew;
-    string nm;
-
-    // copy u,V,T,lambda
-    for (j = 0; j < points; j++)
-        for (n = 0; n < 4; n++) {
-            newSoln[nv_new*j + n] = oldSoln[nv_old*j + n];
-        }
-
-    // copy mass fractions
-    size_t nsp0 = oldmech.nSpecies();
-    //int nsp1 = newmech.nSpecies();
-
-    // loop over the species in the old mechanism
-    for (size_t k = 0; k < nsp0; k++) {
-        nm = oldmech.speciesName(k);      // name
-
-        // location of this species in the new mechanism.
-        // If < 0, then the species is not in the new mechanism.
-        knew = newmech.speciesIndex(nm);
-
-        // copy this species from the old to the new solution vectors
-        if (knew != npos) {
-            for (j = 0; j < points; j++) {
-                newSoln[nv_new*j + 4 + knew] = oldSoln[nv_old*j + 4 + k];
-            }
-        }
-    }
-
-
-    // normalize mass fractions
-    for (j = 0; j < points; j++) {
-        newmech.setMassFractions(&newSoln[nv_new*j + 4]);
-        newmech.getMassFractions(&newSoln[nv_new*j + 4]);
-    }
-}
-
-static void st_drawline()
-{
-    writelog("\n-------------------------------------"
-             "------------------------------------------");
-}
-
 StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+4, points),
     m_inlet_u(0.0),
@@ -95,9 +38,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
 
     m_points = points;
     m_thermo = ph;
-
-    m_zfixed = Undef;
-    m_tfixed = Undef;
 
     if (ph == 0) {
         return;    // used to create a dummy object
@@ -263,11 +203,11 @@ void StFlow::_finalize(const doublereal* x)
     bool e = m_do_energy[0];
     for (j = 0; j < m_points; j++) {
         if (e || nz == 0) {
-            setTemperature(j, T(x, j));
+            m_fixedtemp[j] = T(x, j);
         } else {
             zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
             tt = linearInterp(zz, m_zfix, m_tfix);
-            setTemperature(j, tt);
+            m_fixedtemp[j] = tt;
         }
         for (k = 0; k < m_nsp; k++) {
             setMassFraction(j, k, Y(x, k, j));
@@ -275,30 +215,6 @@ void StFlow::_finalize(const doublereal* x)
     }
     if (e) {
         solveEnergyEqn();
-    }
-
-    // If the domain contains the temperature fixed point, make sure that it
-    // is correctly set. This may be necessary when the grid has been modified
-    // externally.
-    if (m_tfixed != Undef) {
-        bool found_zfix = false;
-        for (size_t j = 0; j < m_points; j++) {
-            if (z(j) == m_zfixed) {
-                found_zfix = true;
-                break;
-            }
-        }
-        if (!found_zfix) {
-            for (size_t j = 0; j < m_points - 1; j++) {
-                // Find where the temperature profile crosses the current
-                // fixed temperature.
-                if ((T(x, j) - m_tfixed) * (T(x, j+1) - m_tfixed) <= 0.0) {
-                    m_tfixed = T(x, j+1);
-                    m_zfixed = z(j+1);
-                    break;
-                }
-            }
-        }
     }
 }
 
@@ -363,8 +279,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     doublereal sum, sum2, dtdzj;
 
     for (j = jmin; j <= jmax; j++) {
-
-
         //----------------------------------------------
         //         left boundary
         //----------------------------------------------
@@ -400,7 +314,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
             }
             rsd[index(c_offset_Y, 0)] = 1.0 - sum;
         }
-
 
         else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
@@ -537,7 +450,6 @@ void StFlow::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
     size_t i, j, n;
-    //char* buf = new char[100];
     char buf[100];
 
     // The mean molecular weight is needed to convert
@@ -546,14 +458,14 @@ void StFlow::showSolution(const doublereal* x)
     sprintf(buf, "    Pressure:  %10.4g Pa \n", m_press);
     writelog(buf);
     for (i = 0; i < nn; i++) {
-        st_drawline();
+        writeline('-', 79, false, true);
         sprintf(buf, "\n        z   ");
         writelog(buf);
         for (n = 0; n < 5; n++) {
             sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
             writelog(buf);
         }
-        st_drawline();
+        writeline('-', 79, false, true);
         for (j = 0; j < m_points; j++) {
             sprintf(buf, "\n %10.4g ",m_z[j]);
             writelog(buf);
@@ -565,14 +477,14 @@ void StFlow::showSolution(const doublereal* x)
         writelog("\n");
     }
     size_t nrem = m_nv - 5*nn;
-    st_drawline();
+    writeline('-', 79, false, true);
     sprintf(buf, "\n        z   ");
     writelog(buf);
     for (n = 0; n < nrem; n++) {
         sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
         writelog(buf);
     }
-    st_drawline();
+    writeline('-', 79, false, true);
     for (j = 0; j < m_points; j++) {
         sprintf(buf, "\n %10.4g ",m_z[j]);
         writelog(buf);
@@ -676,19 +588,14 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 
     vector<XML_Node*> str;
     dom.getChildren("string",str);
-    int nstr = static_cast<int>(str.size());
-    for (int istr = 0; istr < nstr; istr++) {
+    for (size_t istr = 0; istr < str.size(); istr++) {
         const XML_Node& nd = *str[istr];
         writelog(nd["title"]+": "+nd.value()+"\n");
     }
 
-    //map<string, double> params;
     double pp = -1.0;
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
-
-    getOptionalFloat(dom, "t_fixed", m_tfixed);
-    getOptionalFloat(dom, "z_fixed", m_zfixed);
 
     vector<XML_Node*> d;
     dom.child("grid_data").getChildren("floatArray",d);
@@ -857,11 +764,6 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     XML_Node& gv = flow.addChild("grid_data");
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
 
-    if (m_zfixed != Undef) {
-        addFloat(flow, "z_fixed", m_zfixed, "m");
-        addFloat(flow, "t_fixed", m_tfixed, "K");
-    }
-
     addFloatArray(gv,"z",m_z.size(),DATA_PTR(m_z),
                   "m","length");
     vector_fp x(soln.nColumns());
@@ -956,6 +858,15 @@ void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     diag[index(c_offset_U, j)] = 0;
 }
 
+FreeFlame::FreeFlame(IdealGasPhase* ph, size_t nsp, size_t points) :
+    StFlow(ph, nsp, points),
+    m_zfixed(Undef),
+    m_tfixed(Undef)
+{
+    m_dovisc = false;
+    setID("flame");
+}
+
 void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
                                   integer* diag, doublereal rdt)
 {
@@ -1010,6 +921,48 @@ void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     }
     //algebraic constraint
     diag[index(c_offset_U, j)] = 0;
+}
+
+void FreeFlame::_finalize(const doublereal* x)
+{
+    StFlow::_finalize(x);
+    // If the domain contains the temperature fixed point, make sure that it
+    // is correctly set. This may be necessary when the grid has been modified
+    // externally.
+    if (m_tfixed != Undef) {
+        for (size_t j = 0; j < m_points; j++) {
+            if (z(j) == m_zfixed) {
+                return; // fixed point is already set correctly
+            }
+        }
+
+        for (size_t j = 0; j < m_points - 1; j++) {
+            // Find where the temperature profile crosses the current
+            // fixed temperature.
+            if ((T(x, j) - m_tfixed) * (T(x, j+1) - m_tfixed) <= 0.0) {
+                m_tfixed = T(x, j+1);
+                m_zfixed = z(j+1);
+                return;
+            }
+        }
+    }
+}
+
+void FreeFlame::restore(const XML_Node& dom, doublereal* soln, int loglevel)
+{
+    StFlow::restore(dom, soln, loglevel);
+    getOptionalFloat(dom, "t_fixed", m_tfixed);
+    getOptionalFloat(dom, "z_fixed", m_zfixed);
+}
+
+XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
+{
+    XML_Node& flow = StFlow::save(o, sol);
+    if (m_zfixed != Undef) {
+        addFloat(flow, "z_fixed", m_zfixed, "m");
+        addFloat(flow, "t_fixed", m_tfixed, "K");
+    }
+    return flow;
 }
 
 }  // namespace

@@ -99,16 +99,6 @@ public:
         return m_press;
     }
 
-    //! @deprecated unused
-    virtual void setState(size_t point, const doublereal* state,
-                          doublereal* x) {
-        warn_deprecated("StFlow::setState");
-        setTemperature(point, state[2]);
-        for (size_t k = 0; k < m_nsp; k++) {
-            setMassFraction(point, k, state[4+k]);
-        }
-    }
-
     //! Write the initial solution estimate into array x.
     virtual void _getInitialSoln(doublereal* x) {
         for (size_t j = 0; j < m_points; j++) {
@@ -183,31 +173,49 @@ public:
     }
 
     void solveEnergyEqn(size_t j=npos) {
+        bool changed = false;
         if (j == npos)
             for (size_t i = 0; i < m_points; i++) {
+                if (!m_do_energy[i]) {
+                    changed = true;
+                }
                 m_do_energy[i] = true;
             }
         else {
+            if (!m_do_energy[j]) {
+                changed = true;
+            }
             m_do_energy[j] = true;
         }
         m_refiner->setActive(0, true);
         m_refiner->setActive(1, true);
         m_refiner->setActive(2, true);
-        needJacUpdate();
+        if (changed) {
+            needJacUpdate();
+        }
     }
 
     void fixTemperature(size_t j=npos) {
+        bool changed = false;
         if (j == npos)
             for (size_t i = 0; i < m_points; i++) {
+                if (m_do_energy[i]) {
+                    changed = true;
+                }
                 m_do_energy[i] = false;
             }
         else {
+            if (m_do_energy[j]) {
+                changed = true;
+            }
             m_do_energy[j] = false;
         }
         m_refiner->setActive(0, false);
         m_refiner->setActive(1, false);
         m_refiner->setActive(2, false);
-        needJacUpdate();
+        if (changed) {
+            needJacUpdate();
+        }
     }
 
     bool doSpecies(size_t k) {
@@ -530,12 +538,7 @@ public:
 class FreeFlame : public StFlow
 {
 public:
-    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
-        StFlow(ph, nsp, points) {
-        m_dovisc = false;
-        setID("flame");
-    }
-
+    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
     virtual void evalRightBoundary(doublereal* x, doublereal* res,
                                    integer* diag, doublereal rdt);
     virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
@@ -547,19 +550,17 @@ public:
     virtual bool fixed_mdot() {
         return false;
     }
-};
+    virtual void _finalize(const doublereal* x);
+    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
-/**
- * Import a previous solution to use as an initial estimate. The
- * previous solution may have been computed using a different
- * reaction mechanism. Species in the old and new mechanisms are
- * matched by name, and any species in the new mechanism that were
- * not in the old one are set to zero. The new solution is created
- * with the same number of grid points as in the old solution.
- * @deprecated Conversion is handled automatically when loading from XML
- */
-void importSolution(size_t points, doublereal* oldSoln, IdealGasPhase& oldmech,
-                    size_t size_new, doublereal* newSoln, IdealGasPhase& newmech);
+    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
+
+    //! Location of the point where temperature is fixed
+    doublereal m_zfixed;
+
+    //! Temperature at the point used to fix the flame location
+    doublereal m_tfixed;
+};
 
 }
 

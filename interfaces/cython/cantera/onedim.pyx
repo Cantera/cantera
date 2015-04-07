@@ -160,6 +160,11 @@ cdef class Domain1D:
         def __set__(self, desc):
             self.domain.setDesc(stringify(desc))
 
+    def __reduce__(self):
+        raise NotImplementedError('Domain1D object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Domain1D object is not copyable')
 
 cdef class Boundary1D(Domain1D):
     """
@@ -324,6 +329,8 @@ cdef class _FlowBase(Domain1D):
     def __init__(self, _SolutionBase thermo, *args, **kwargs):
         self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
+        if not thermo.transport_model:
+            thermo.transport_model = 'Mix'
         self.gas = thermo
         self.flow.setKinetics(deref(self.gas.kinetics))
         self.flow.setTransport(deref(self.gas.transport))

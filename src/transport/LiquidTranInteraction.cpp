@@ -74,18 +74,6 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
     size_t nsp = thermo->nSpecies();
     m_Dij.resize(nsp, nsp, 0.0);
     m_Eij.resize(nsp, nsp, 0.0);
-    /*
-    m_Aij.resize(nsp);
-    m_Bij.resize(nsp);
-    m_Hij.resize(nsp);
-    m_Sij.resize(nsp);
-    for (int k = 0; k < nsp; k++ ){
-      (*m_Aij[k]).resize(nsp, nsp, 0.0);
-      (*m_Bij[k]).resize(nsp, nsp, 0.0);
-      (*m_Hij[k]).resize(nsp, nsp, 0.0);
-      (*m_Sij[k]).resize(nsp, nsp, 0.0);
-    }
-    */
 
     std::string speciesA;
     std::string speciesB;
@@ -110,10 +98,6 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
             throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
                                "Unknown species " + speciesB);
         }
-        /*      if (xmlChild.hasChild("Aij" ) ) {
-        m_Aij(iSpecies,jSpecies) = getFloat(xmlChild, "Aij", "toSI" );
-        m_Aij(jSpecies,iSpecies) = m_Aij(iSpecies,jSpecies) ;
-        }*/
 
         if (xmlChild.hasChild("Eij")) {
             m_Eij(iSpecies,jSpecies) = getFloat(xmlChild, "Eij", "actEnergy");
@@ -123,9 +107,7 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
 
         if (xmlChild.hasChild("Aij")) {
             vector_fp poly;
-            // poly0 = getFloat(poly, xmlChild, "Aij", "toSI" );
             getFloatArray(xmlChild, poly, true, "toSI", "Aij");
-            // if (!poly.size() ) poly.push_back(poly0);
             while (m_Aij.size()<poly.size()) {
                 DenseMatrix* aTemp = new DenseMatrix();
                 aTemp->resize(nsp, nsp, 0.0);
@@ -133,14 +115,12 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
             }
             for (int i = 0; i < (int)poly.size(); i++) {
                 (*m_Aij[i])(iSpecies,jSpecies) = poly[i];
-                //(*m_Aij[i])(jSpecies,iSpecies) = (*m_Aij[i])(iSpecies,jSpecies) ;
             }
         }
 
         if (xmlChild.hasChild("Bij")) {
             vector_fp poly;
             getFloatArray(xmlChild, poly, true, "toSI",  "Bij");
-            //if (!poly.size() ) poly.push_back(poly0);
             while (m_Bij.size() < poly.size()) {
                 DenseMatrix* bTemp = new DenseMatrix();
                 bTemp->resize(nsp, nsp, 0.0);
@@ -148,15 +128,12 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
             }
             for (size_t i=0; i<poly.size(); i++) {
                 (*m_Bij[i])(iSpecies,jSpecies) = poly[i];
-                //(*m_Bij[i])(jSpecies,iSpecies) = (*m_Bij[i])(iSpecies,jSpecies) ;
             }
         }
 
         if (xmlChild.hasChild("Hij")) {
             vector_fp poly;
-            // poly0 = getFloat(poly, xmlChild, "Hij", "actEnergy" );
             getFloatArray(xmlChild, poly, true, "actEnergy", "Hij");
-            // if (!poly.size() ) poly.push_back(poly0);
             while (m_Hij.size()<poly.size()) {
                 DenseMatrix* hTemp = new DenseMatrix();
                 hTemp->resize(nsp, nsp, 0.0);
@@ -165,15 +142,12 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
             for (size_t i=0; i<poly.size(); i++) {
                 (*m_Hij[i])(iSpecies,jSpecies) = poly[i];
                 (*m_Hij[i])(iSpecies,jSpecies) /= GasConstant;
-                //(*m_Hij[i])(jSpecies,iSpecies) = (*m_Hij[i])(iSpecies,jSpecies) ;
             }
         }
 
         if (xmlChild.hasChild("Sij")) {
             vector_fp poly;
-            //  poly0 = getFloat(poly, xmlChild, "Sij", "actEnergy" );
             getFloatArray(xmlChild, poly, true, "actEnergy", "Sij");
-            // if (!poly.size() ) poly.push_back(poly0);
             while (m_Sij.size()<poly.size()) {
                 DenseMatrix* sTemp = new DenseMatrix();
                 sTemp->resize(nsp, nsp, 0.0);
@@ -182,15 +156,8 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
             for (size_t i=0; i<poly.size(); i++) {
                 (*m_Sij[i])(iSpecies,jSpecies) = poly[i];
                 (*m_Sij[i])(iSpecies,jSpecies) /= GasConstant;
-                //(*m_Sij[i])(jSpecies,iSpecies) = (*m_Sij[i])(iSpecies,jSpecies) ;
             }
         }
-
-        /*0      if (xmlChild.hasChild("Sij" ) ) {
-        m_Sij(iSpecies,jSpecies) = getFloat(xmlChild, "Sij", "toSI" );
-        m_Sij(iSpecies,jSpecies) /= GasConstant;
-        //m_Sij(jSpecies,iSpecies) = m_Sij(iSpecies,jSpecies) ;
-        }*/
 
         if (xmlChild.hasChild("Dij")) {
             m_Dij(iSpecies,jSpecies) = getFloat(xmlChild, "Dij", "toSI");
@@ -239,18 +206,10 @@ doublereal LTI_Solvent::getMixTransProp(doublereal* speciesValues, doublereal* s
     //if weightings are specified, use those
     if (speciesWeight) {
         for (size_t k = 0; k < nsp; k++) {
-            //molefracs[k] = molefracs[k];
             // should be: molefracs[k] = molefracs[k]*speciesWeight[k]; for consistency, but weight(solvent)=1?
         }
     } else {
         throw CanteraError("LTI_Solvent::getMixTransProp","You should be specifying the speciesWeight");
-        /*  //This does not follow directly a solvent model
-        //although if the solvent mole fraction is dominant
-        //and the other species values are given or zero,
-        //it should work.
-        for (int k = 0; k < nsp; k++) {
-        value += speciesValues[k] * molefracs[k];
-        }*/
     }
 
     for (size_t i = 0; i < nsp; i++) {
@@ -284,7 +243,6 @@ doublereal LTI_Solvent::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
     doublereal value = 0.0;
 
     for (size_t k = 0; k < nsp; k++) {
-        //molefracs[k] = molefracs[k];
         // should be:      molefracs[k] = molefracs[k]*LTPptrs[k]->getMixWeight(); for consistency, but weight(solvent)=1?
     }
 
@@ -455,11 +413,9 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(doublereal* speciesValues, doubler
         for (size_t j = 0; j < nsp; j++) {
             for (size_t k = 0; k < m_Hij.size(); k++) {
                 value += molefracs[i]*molefracs[j]*(*m_Hij[k])(i,j)/temp*pow(molefracs[i], (int) k);
-                //cout << "value = " << value << ", m_Sij = " << (*m_Sij[k])(i,j) << ", m_Hij = " << (*m_Hij[k])(i,j) << endl;
             }
             for (size_t k = 0; k < m_Sij.size(); k++) {
                 value -= molefracs[i]*molefracs[j]*(*m_Sij[k])(i,j)*pow(molefracs[i], (int) k);
-                //cout << "value = " << value << ", m_Sij = " << (*m_Sij[k])(i,j) << ", m_Hij = " << (*m_Hij[k])(i,j) << endl;
             }
         }
     }
@@ -488,21 +444,14 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
         for (size_t j = 0; j < nsp; j++) {
             for (size_t k = 0; k < m_Hij.size(); k++) {
                 value +=  molefracs[i]*molefracs[j]*(*m_Hij[k])(i,j)/temp*pow(molefracs[i], (int) k);
-                //cout << "1 = " << molefracs[i]+molefracs[j] << endl;
-                //cout << "value = " << value << ", m_Sij = " << (*m_Sij[k])(i,j) << ", m_Hij = " << (*m_Hij[k])(i,j) << endl;
             }
             for (size_t k = 0; k < m_Sij.size(); k++) {
                 value -=  molefracs[i]*molefracs[j]*(*m_Sij[k])(i,j)*pow(molefracs[i], (int) k);
-                //cout << "1 = " << molefracs[i]+molefracs[j] << endl;
-                //cout << "value = " << value << ", m_Sij = " << (*m_Sij[k])(i,j) << ", m_Hij = " << (*m_Hij[k])(i,j) << endl;
             }
         }
     }
 
     value = exp(value);
-    //    cout << ", viscSpeciesA = " << LTPptrs[0]->getSpeciesTransProp() << endl;
-    //cout << ", viscSpeciesB = " << LTPptrs[1]->getSpeciesTransProp() << endl;
-    //cout << "value = " << value << " FINAL" << endl;
     return value;
 }
 
@@ -568,11 +517,9 @@ void LTI_StefanMaxwell_PPN::setParameters(LiquidTransportParams& trParam)
 {
     size_t nsp = m_thermo->nSpecies();
     size_t nsp2 = nsp*nsp;
-    //vector<std
 
     m_ionCondMix = 0;
     m_ionCondMixModel = trParam.ionConductivity;
-    //trParam.ionConductivity = 0;
     m_ionCondSpecies.resize(nsp,0);
     m_mobRatMix.resize(nsp,nsp,0.0);
     m_mobRatMixModel.resize(nsp2);
@@ -583,26 +530,21 @@ void LTI_StefanMaxwell_PPN::setParameters(LiquidTransportParams& trParam)
 
     for (size_t k = 0; k < nsp2; k++) {
         m_mobRatMixModel[k] = trParam.mobilityRatio[k];
-        //trParam.mobilityRatio[k] = 0;
         m_mobRatSpecies[k].resize(nsp,0);
     }
     for (size_t k = 0; k < nsp; k++) {
         m_selfDiffMixModel[k] = trParam.selfDiffusion[k];
-        //trParam.selfDiffusion[k] = 0;
         m_selfDiffSpecies[k].resize(nsp,0);
     }
 
     for (size_t k = 0; k < nsp; k++) {
         Cantera::LiquidTransportData& ltd = trParam.LTData[k];
         m_ionCondSpecies[k]   =  ltd.ionConductivity;
-        //ltd.ionConductivity = 0;
         for (size_t j = 0; j < nsp2; j++) {
             m_mobRatSpecies[j][k] = ltd.mobilityRatio[j];
-            //ltd.mobilityRatio[j] = 0;
         }
         for (size_t j = 0; j < nsp; j++) {
             m_selfDiffSpecies[j][k] = ltd.selfDiffusion[j];
-            //ltd.selfDiffusion[j] = 0;
         }
     }
 }

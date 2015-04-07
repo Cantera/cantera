@@ -68,10 +68,6 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     }
     constructPhaseFile(inputFile, id_);
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
-    //y.resize(numNeutralMoleculeSpecies_,0.0);
-    //size_t numNeutMolSpec = geThermo->nSpecies();
-    //dlnActCoeff_NeutralMolecule.resize(numNeutMolSpec);
-    //dX_NeutralMolecule.resize(numNeutMolSpec);
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
@@ -122,8 +118,8 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
     IonsFromNeutralVPSSTP::operator=(b);
 }
 
-IonsFromNeutralVPSSTP& IonsFromNeutralVPSSTP::
-operator=(const IonsFromNeutralVPSSTP& b)
+IonsFromNeutralVPSSTP&
+IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
 {
     if (&b == this) {
         return *this;
@@ -213,7 +209,6 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-    XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id_);
@@ -222,7 +217,7 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
                            "ERROR: Can not find phase named " +
                            id_ + " in file named " + inputFile);
     }
-    fxml_phase->copy(&phaseNode_XML);
+    setXMLdata(*fxml_phase);
     constructPhaseXML(*fxml_phase, id_);
     delete fxml;
 }
@@ -314,14 +309,6 @@ doublereal IonsFromNeutralVPSSTP::enthalpy_mole() const
     return mean_X(DATA_PTR(m_pp));
 }
 
-doublereal IonsFromNeutralVPSSTP::intEnergy_mole() const
-{
-    double hh = enthalpy_mole();
-    double pres = pressure();
-    double molarV = 1.0/molarDensity();
-    return hh - pres * molarV;
-}
-
 doublereal IonsFromNeutralVPSSTP::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_pp));
@@ -345,8 +332,6 @@ doublereal IonsFromNeutralVPSSTP::cv_mole() const
     // Need to revisit this, as it is wrong
     getPartialMolarCp(DATA_PTR(m_pp));
     return mean_X(DATA_PTR(m_pp));
-    //err("not implemented");
-    //return 0.0;
 }
 
 /*
@@ -363,12 +348,6 @@ void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector_fp& coeffs,
 
 void IonsFromNeutralVPSSTP::getActivityCoefficients(doublereal* ac) const
 {
-
-    // This stuff has moved to the setState routines
-    //   calcNeutralMoleculeMoleFractions();
-    //   neutralMoleculePhase_->setState_TPX(temperature(), pressure(), DATA_PTR(NeutralMolecMoleFractions_));
-    //   neutralMoleculePhase_->getStandardChemPotentials(DATA_PTR(muNeutralMolecule_));
-
     /*
      * Update the activity coefficients
      */
@@ -390,13 +369,6 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
 {
     size_t icat, jNeut;
     doublereal xx, fact2;
-    /*
-     *  Transfer the mole fractions to the slave neutral molecule
-     *  phase
-     *   Note we may move this in the future.
-     */
-    //calcNeutralMoleculeMoleFractions();
-    //neutralMoleculePhase_->setState_TPX(temperature(), pressure(), DATA_PTR(NeutralMolecMoleFractions_));
 
     /*
      * Get the standard chemical potentials of netural molecules
@@ -410,7 +382,6 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
         neutralMoleculePhase_->getChemPotentials(mu);
         break;
     case cIonSolnType_SINGLEANION:
-        //  neutralMoleculePhase_->getActivityCoefficients(DATA_PTR(gammaNeutralMolecule_));
         neutralMoleculePhase_->getLnActivityCoefficients(DATA_PTR(lnActCoeff_NeutralMolecule_));
 
         fact2 = 2.0 * RT_ * log(2.0);
@@ -560,8 +531,6 @@ void IonsFromNeutralVPSSTP::setState_TP(doublereal t, doublereal p)
     /*
      * Calculate the partial molar volumes, and then the density of the fluid
      */
-
-    //calcDensity();
     double dd = neutralMoleculePhase_->density();
     Phase::setDensity(dd);
 }
@@ -613,18 +582,16 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
     for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
         NeutralMolecMoleFractions_[k] = 0.0;
     }
-#ifdef DEBUG_MODE
-    sum = -1.0;
-    for (size_t k = 0; k < m_kk; k++) {
-        sum += moleFractions_[k];
+    if (DEBUG_MODE_ENABLED) {
+        sum = -1.0;
+        for (size_t k = 0; k < m_kk; k++) {
+            sum += moleFractions_[k];
+        }
+        if (fabs(sum) > 1.0E-11)  {
+            throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
+                               "molefracts don't sum to one: " + fp2str(sum));
+        }
     }
-    if (fabs(sum) > 1.0E-11)  {
-        throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
-                           "molefracts don't sum to one: " + fp2str(sum));
-    }
-#endif
-
-    // bool fmSimple = true;
 
     switch (ionSolnType_) {
 
@@ -657,30 +624,30 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
             NeutralMolecMoleFractions_[jNeut] += moleFractions_[icat] / fmij;
         }
 
-#ifdef DEBUG_MODE
-        for (size_t k = 0; k < m_kk; k++) {
-            moleFractionsTmp_[k] = moleFractions_[k];
-        }
-        for (jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+        if (DEBUG_MODE_ENABLED) {
             for (size_t k = 0; k < m_kk; k++) {
-                fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
-                moleFractionsTmp_[k] -= fmij * NeutralMolecMoleFractions_[jNeut];
+                moleFractionsTmp_[k] = moleFractions_[k];
             }
-        }
-        for (size_t k = 0; k < m_kk; k++) {
-            if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
-                //! Check to see if we have in fact found the inverse.
-                if (anionList_[0] != k) {
-                    throw CanteraError("", "neutral molecule calc error");
-                } else {
-                    //! For the single anion case, we will allow some slippage
-                    if (fabs(moleFractionsTmp_[k]) > 1.0E-5) {
-                        throw CanteraError("", "neutral molecule calc error - anion");
+            for (jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+                for (size_t k = 0; k < m_kk; k++) {
+                    fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
+                    moleFractionsTmp_[k] -= fmij * NeutralMolecMoleFractions_[jNeut];
+                }
+            }
+            for (size_t k = 0; k < m_kk; k++) {
+                if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
+                    //! Check to see if we have in fact found the inverse.
+                    if (anionList_[0] != k) {
+                        throw CanteraError("", "neutral molecule calc error");
+                    } else {
+                        //! For the single anion case, we will allow some slippage
+                        if (fabs(moleFractionsTmp_[k]) > 1.0E-5) {
+                            throw CanteraError("", "neutral molecule calc error - anion");
+                        }
                     }
                 }
             }
         }
-#endif
 
         // Normalize the Neutral Molecule mole fractions
         sum = 0.0;
@@ -724,9 +691,6 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
         y_[k] = 0.0;
         dy[k] = 0.0;
     }
-
-
-    // bool fmSimple = true;
 
     switch (ionSolnType_) {
 
@@ -854,13 +818,6 @@ void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const c)
 /*
  * ------------ Partial Molar Properties of the Solution ------------
  */
-
-doublereal IonsFromNeutralVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("IonsFromNeutralVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
 
 void IonsFromNeutralVPSSTP::initThermo()
 {
@@ -1045,9 +1002,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
     for (size_t k = 0; k <  m_kk; k++) {
         fm_invert_ionForNeutral[k] = npos;
     }
-    /*    for (int jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-      fm_invert_ionForNeutral[jNeut] = -1;
-      }*/
     for (size_t jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
         for (size_t m = 0; m < nElementsN; m++) {
             elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);

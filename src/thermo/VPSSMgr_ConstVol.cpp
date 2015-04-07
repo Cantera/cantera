@@ -131,7 +131,6 @@ PDSS*
 VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr)
 {
-    //VPSSMgr::installSpecies(k, speciesNode, phaseNode_ptr);
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
         throw CanteraError("VPSSMgr_ConstVol::installSpecies",

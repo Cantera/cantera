@@ -21,7 +21,6 @@
 #include "MMCollisionInt.h"
 
 #include "cantera/base/xml.h"
-#include "cantera/base/XML_Writer.h"
 #include "cantera/transport/TransportParams.h"
 #include "cantera/transport/LiquidTransportParams.h"
 #include "cantera/transport/LiquidTranInteraction.h"
@@ -64,7 +63,7 @@ public:
      *  @param linenum  inputs the line number
      *  @param msg      String message to be sent to the user
      */
-    TransportDBError(int linenum, const std::string& msg) :
+    TransportDBError(size_t linenum, const std::string& msg) :
         CanteraError("getTransportData", "error reading transport data: "  + msg + "\n") {
     }
 };
@@ -178,7 +177,6 @@ TransportFactory::TransportFactory() :
     m_models["User"] = cUserTransport;
     m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
-    //m_models["Radiative"] = cRadiative;
     for (map<string, int>::iterator iter = m_models.begin();
             iter != m_models.end();
             iter++) {
@@ -203,7 +201,6 @@ TransportFactory::TransportFactory() :
     m_LTRmodelMap["exptemp"] = LTP_TD_EXPT;
 
     m_LTImodelMap[""] = LTI_MODEL_NOTSET;
-    m_LTImodelMap["none"] = LTI_MODEL_NONE;
     m_LTImodelMap["solvent"] = LTI_MODEL_SOLVENT;
     m_LTImodelMap["moleFractions"] = LTI_MODEL_MOLEFRACS;
     m_LTImodelMap["massFractions"] = LTI_MODEL_MASSFRACS;
@@ -211,15 +208,15 @@ TransportFactory::TransportFactory() :
     m_LTImodelMap["pairwiseInteraction"] = LTI_MODEL_PAIRWISE_INTERACTION;
     m_LTImodelMap["stefanMaxwell_PPN"] = LTI_MODEL_STEFANMAXWELL_PPN;
     m_LTImodelMap["moleFractionsExpT"] = LTI_MODEL_MOLEFRACS_EXPT;
+    m_LTImodelMap["none"] = LTI_MODEL_NONE;
+    m_LTImodelMap["multiple"] = LTI_MODEL_MULTIPLE;
 }
 
 void TransportFactory::deleteFactory()
 {
     ScopedLock transportLock(transport_mutex);
-    if (s_factory) {
-        delete s_factory;
-        s_factory = 0;
-    }
+    delete s_factory;
+    s_factory = 0;
 }
 
 std::string TransportFactory::modelName(int model)
@@ -303,8 +300,16 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
         lti = new LTI_MoleFracs_ExpT(tp_ind);
         lti->init(trNode, thermo);
         break;
+    case LTI_MODEL_NOTSET:
+    case LTI_MODEL_NONE:
+    case LTI_MODEL_MULTIPLE:
+        lti = new LiquidTranInteraction(tp_ind);
+        lti->init(trNode, thermo);
+        break;
     default:
-        //      throw CanteraError("newLTI","unknown transport model: " + model );
+        //
+        // @TODO make sure we can throw an error here with existing datasets and tests before changing code 
+        //
         lti = new LiquidTranInteraction(tp_ind);
         lti->init(trNode, thermo);
     }
@@ -404,7 +409,7 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
-void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_Node*> &transport_database,
+void TransportFactory::setupMM(const std::vector<const XML_Node*> &transport_database,
                                thermo_t* thermo, int mode, int log_level, GasTransportParams& tr)
 {
 
@@ -441,7 +446,7 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
         tr.poly[i].resize(nsp);
     }
 
-    doublereal ts1, ts2, tstar_min = 1.e8, tstar_max = 0.0;
+    doublereal tstar_min = 1.e8, tstar_max = 0.0;
     doublereal f_eps, f_sigma;
 
     DenseMatrix& diam = tr.diam;
@@ -460,14 +465,8 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
 
             //  The polynomial fits of collision integrals vs. T*
             //  will be done for the T* from tstar_min to tstar_max
-            ts1 = Boltzmann * tr.tmin/epsilon(i,j);
-            ts2 = Boltzmann * tr.tmax/epsilon(i,j);
-            if (ts1 < tstar_min) {
-                tstar_min = ts1;
-            }
-            if (ts2 > tstar_max) {
-                tstar_max = ts2;
-            }
+            tstar_min = std::min(tstar_min, Boltzmann * tr.tmin/epsilon(i,j));
+            tstar_max = std::max(tstar_max, Boltzmann * tr.tmax/epsilon(i,j));
 
             // the effective dipole moment for (i,j) collisions
             tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
@@ -501,34 +500,26 @@ void TransportFactory::setupMM(std::ostream& flog, const std::vector<const XML_N
 
     // initialize the collision integral calculator for the desired
     // T* range
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        tr.xml->XML_open(flog, "collision_integrals");
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelog("*** collision_integrals ***\n");
     }
-#endif
     MMCollisionInt integrals;
-    integrals.init(tr.xml, tstar_min, tstar_max, log_level);
-    fitCollisionIntegrals(flog, tr, integrals);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        tr.xml->XML_close(flog, "collision_integrals");
+    integrals.init(tstar_min, tstar_max, log_level);
+    fitCollisionIntegrals(tr, integrals);
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelog("*** end of collision_integrals ***\n");
     }
-#endif
     // make polynomial fits
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        tr.xml->XML_open(flog, "property fits");
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelog("*** property fits ***\n");
     }
-#endif
-    fitProperties(tr, integrals, flog);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        tr.xml->XML_close(flog, "property fits");
+    fitProperties(tr, integrals);
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelog("*** end of property fits ***\n");
     }
-#endif
 }
 
-void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo, int log_level,
+void TransportFactory::setupLiquidTransport(thermo_t* thermo, int log_level,
         LiquidTransportParams& trParam)
 {
 
@@ -554,8 +545,6 @@ void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo
 
     // Need to identify a method to obtain interaction matrices.
     // This will fill LiquidTransportParams members visc_Eij, visc_Sij
-    // trParam.visc_Eij.resize(nsp,nsp);
-    // trParam.visc_Sij.resize(nsp,nsp);
     trParam.thermalCond_Aij.resize(nsp,nsp);
     trParam.diff_Dij.resize(nsp,nsp);
     trParam.radius_Aij.resize(nsp,nsp);
@@ -574,7 +563,7 @@ void TransportFactory::setupLiquidTransport(std::ostream& flog, thermo_t* thermo
 
 }
 
-void TransportFactory::setupSolidTransport(std::ostream& flog, thermo_t* thermo, int log_level,
+void TransportFactory::setupSolidTransport(thermo_t* thermo, int log_level,
         SolidTransportData& trParam)
 {
     const XML_Node* phase_database = &thermo->xml();
@@ -582,7 +571,7 @@ void TransportFactory::setupSolidTransport(std::ostream& flog, thermo_t* thermo,
     // constant mixture attributes
     trParam.thermo = thermo;
     trParam.nsp_ = trParam.thermo->nSpecies();
-    int nsp = trParam.nsp_;
+    size_t nsp = trParam.nsp_;
 
     trParam.tmin = thermo->minTemp();
     trParam.tmax = thermo->maxTemp();
@@ -593,14 +582,7 @@ void TransportFactory::setupSolidTransport(std::ostream& flog, thermo_t* thermo,
     copy(trParam.thermo->molecularWeights().begin(),
          trParam.thermo->molecularWeights().end(), trParam.mw.begin());
 
-    // Resize all other vectors in trParam
-    //trParam.LTData.resize(nsp);
-
     XML_Node root, log;
-
-    // Note that getSolidSpeciesTransportData just populates the pure species transport data.
-    //    const std::vector<const XML_Node*> & species_database = thermo->speciesData();
-    //    getSolidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);
 
     // getSolidTransportData() populates the
     // phase transport models like electronic conductivity
@@ -619,31 +601,13 @@ void TransportFactory::initTransport(Transport* tran,
     const std::vector<const XML_Node*> & transport_database = thermo->speciesData();
 
     GasTransportParams trParam;
-#ifdef DEBUG_MODE
     if (log_level == 0) {
         m_verbose = 0;
     }
-    ofstream flog("transport_log.xml");
-    trParam.xml = new XML_Writer(flog);
-    if (m_verbose) {
-        trParam.xml->XML_open(flog, "transport");
-    }
-#else
-    // create the object, but don't associate it with a file
-    std::ostream& flog(std::cout);
-#endif
     // set up Monchick and Mason collision integrals
-    setupMM(flog, transport_database, thermo, mode, log_level, trParam);
+    setupMM(transport_database, thermo, mode, log_level, trParam);
     // do model-specific initialization
     tran->initGas(trParam);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        trParam.xml->XML_close(flog, "transport");
-    }
-    // finished with log file
-    flog.close();
-#endif
-    return;
 }
 
 void  TransportFactory::initLiquidTransport(Transport* tran,
@@ -651,27 +615,9 @@ void  TransportFactory::initLiquidTransport(Transport* tran,
         int log_level)
 {
     LiquidTransportParams trParam;
-#ifdef DEBUG_MODE
-    ofstream flog("transport_log.xml");
-    trParam.xml = new XML_Writer(flog);
-    if (m_verbose) {
-        trParam.xml->XML_open(flog, "transport");
-    }
-#else
-    // create the object, but don't associate it with a file
-    std::ostream& flog(std::cout);
-#endif
-    setupLiquidTransport(flog, thermo, log_level, trParam);
+    setupLiquidTransport(thermo, log_level, trParam);
     // do model-specific initialization
     tran->initLiquid(trParam);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        trParam.xml->XML_close(flog, "transport");
-    }
-    // finished with log file
-    flog.close();
-#endif
-    return;
 }
 
 void  TransportFactory::initSolidTransport(Transport* tran,
@@ -679,38 +625,13 @@ void  TransportFactory::initSolidTransport(Transport* tran,
         int log_level)
 {
     SolidTransportData trParam;
-
-    //setup output
-#ifdef DEBUG_MODE
-    ofstream flog("transport_log.xml");
-    trParam.xml = new XML_Writer(flog);
-    if (m_verbose) {
-        trParam.xml->XML_open(flog, "transport");
-    }
-#else
-    // create the object, but don't associate it with a file
-    std::ostream& flog(std::cout);
-#endif
-
-    //real work next two statements
-    setupSolidTransport(flog, thermo, log_level, trParam);
+    setupSolidTransport(thermo, log_level, trParam);
     // do model-specific initialization
     tran->initSolid(trParam);
-
-
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        trParam.xml->XML_close(flog, "transport");
-    }
-    // finished with log file
-    flog.close();
-#endif
-    return;
 }
 
-void TransportFactory::fitCollisionIntegrals(ostream& logfile,
-        GasTransportParams& tr,
-        MMCollisionInt& integrals)
+void TransportFactory::fitCollisionIntegrals(GasTransportParams& tr,
+                                             MMCollisionInt& integrals)
 {
     vector_fp::iterator dptr;
     doublereal dstar;
@@ -720,16 +641,14 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
 
     // Chemkin fits to sixth order polynomials
     int degree = (mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        tr.xml->XML_open(logfile, "tstar_fits");
-        tr.xml->XML_comment(logfile, "fits to A*, B*, and C* vs. log(T*).\n"
-                            "These are done only for the required dstar(j,k) values.");
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelog("tstar_fits\n"
+                 "fits to A*, B*, and C* vs. log(T*).\n"
+                 "These are done only for the required dstar(j,k) values.\n\n");
         if (tr.log_level < 3) {
-            tr.xml->XML_comment(logfile, "*** polynomial coefficients not printed (log_level < 3) ***");
+            writelog("*** polynomial coefficients not printed (log_level < 3) ***\n");
         }
     }
-#endif
     for (i = 0; i < nsp; i++) {
         for (j = i; j < nsp; j++)  {
             // Chemkin fits only delta* = 0
@@ -749,9 +668,9 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
             if (dptr == tr.fitlist.end()) {
                 vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
                 vector_fp co22(degree+1);
-                integrals.fit(logfile, degree, dstar,
+                integrals.fit(degree, dstar,
                               DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
-                integrals.fit_omega22(logfile, degree, dstar,
+                integrals.fit_omega22(degree, dstar,
                                       DATA_PTR(co22));
                 tr.omega22_poly.push_back(co22);
                 tr.astar_poly.push_back(ca);
@@ -769,11 +688,6 @@ void TransportFactory::fitCollisionIntegrals(ostream& logfile,
             tr.poly[j][i] = tr.poly[i][j];
         }
     }
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        tr.xml->XML_close(logfile, "tstar_fits");
-    }
-#endif
 }
 
 void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,
@@ -1001,9 +915,9 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
   these species read from the file.
 */
 void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transportNode,
-        XML_Node& log,
-        const std::vector<std::string> &names,
-        LiquidTransportParams& trParam)
+							  XML_Node& log,
+							  const std::vector<std::string> &names,
+							  LiquidTransportParams& trParam)
 {
     try {
 
@@ -1020,93 +934,103 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
             trParam.selfDiffusion.resize(nsp,0);
             ThermoPhase* temp_thermo = trParam.thermo;
 
+	    if (tranTypeNode.name() == "compositionDependence") {
+		std::string modelName = tranTypeNode.attrib("model");
+		std::map<string, LiquidTranMixingModel>::iterator it = m_LTImodelMap.find(modelName);
+		if (it == m_LTImodelMap.end()) {
+		    throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
+				       "Unknown compositionDependence string: " + modelName);
+		} else {
+		    trParam.compositionDepTypeDefault_ = (*it).second;
+		}
+	    } else {
+		if (tranTypeNode.hasChild("compositionDependence")) {
+		    //compDepNode contains the interaction model
+		    XML_Node& compDepNode = tranTypeNode.child("compositionDependence");
+		    switch (m_tranPropMap[nodeName]) {
+			break;
+		    case TP_VISCOSITY:
+			trParam.viscosity = newLTI(compDepNode, m_tranPropMap[nodeName], trParam);
+			break;
+		    case TP_IONCONDUCTIVITY:
+			trParam.ionConductivity = newLTI(compDepNode,
+							 m_tranPropMap[nodeName],
+							 trParam);
+			break;
+		    case TP_MOBILITYRATIO: {
+			for (size_t iSpec = 0; iSpec< nBinInt; iSpec++) {
+			    XML_Node& propSpecNode = compDepNode.child(iSpec);
+			    string specName = propSpecNode.name();
+			    size_t loc = specName.find(":");
+			    string firstSpec = specName.substr(0,loc);
+			    string secondSpec = specName.substr(loc+1);
+			    size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+			    trParam.mobilityRatio[index] = newLTI(propSpecNode,
+								  m_tranPropMap[nodeName],
+								  trParam);
+			};
+		    };
+			break;
+		    case TP_SELFDIFFUSION: {
+			for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
+			    XML_Node& propSpecNode = compDepNode.child(iSpec);
+			    string specName = propSpecNode.name();
+			    size_t index = temp_thermo->speciesIndex(specName.c_str());
+			    trParam.selfDiffusion[index] = newLTI(propSpecNode,
+								  m_tranPropMap[nodeName],
+								  trParam);
+			};
+		    };
+			break;
+		    case TP_THERMALCOND:
+			trParam.thermalCond = newLTI(compDepNode,
+						     m_tranPropMap[nodeName],
+						     trParam);
+			break;
+		    case TP_DIFFUSIVITY:
+			trParam.speciesDiffusivity = newLTI(compDepNode,
+							    m_tranPropMap[nodeName],
+							    trParam);
+			break;
+		    case TP_HYDRORADIUS:
+			trParam.hydroRadius = newLTI(compDepNode,
+						     m_tranPropMap[nodeName],
+						     trParam);
+			break;
+		    case TP_ELECTCOND:
+			trParam.electCond = newLTI(compDepNode,
+						   m_tranPropMap[nodeName],
+						   trParam);
+			break;
+		    default:
+			throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName);
 
-            if (tranTypeNode.hasChild("compositionDependence")) {
-                //compDepNode contains the interaction model
-                XML_Node& compDepNode = tranTypeNode.child("compositionDependence");
-                switch (m_tranPropMap[nodeName]) {
-                    break;
-                case TP_VISCOSITY:
-                    trParam.viscosity = newLTI(compDepNode, m_tranPropMap[nodeName], trParam);
-                    break;
-                case TP_IONCONDUCTIVITY:
-                    trParam.ionConductivity = newLTI(compDepNode,
-                                                     m_tranPropMap[nodeName],
-                                                     trParam);
-                    break;
-                case TP_MOBILITYRATIO: {
-                    for (size_t iSpec = 0; iSpec< nBinInt; iSpec++) {
-                        XML_Node& propSpecNode = compDepNode.child(iSpec);
-                        string specName = propSpecNode.name();
-                        size_t loc = specName.find(":");
-                        string firstSpec = specName.substr(0,loc);
-                        string secondSpec = specName.substr(loc+1);
-                        size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
-                        trParam.mobilityRatio[index] = newLTI(propSpecNode,
-                                                              m_tranPropMap[nodeName],
-                                                              trParam);
-                    };
-                };
-                break;
-                case TP_SELFDIFFUSION: {
-                    for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
-                        XML_Node& propSpecNode = compDepNode.child(iSpec);
-                        string specName = propSpecNode.name();
-                        size_t index = temp_thermo->speciesIndex(specName.c_str());
-                        trParam.selfDiffusion[index] = newLTI(propSpecNode,
-                                                              m_tranPropMap[nodeName],
-                                                              trParam);
-                    };
-                };
-                break;
-                case TP_THERMALCOND:
-                    trParam.thermalCond = newLTI(compDepNode,
-                                                 m_tranPropMap[nodeName],
-                                                 trParam);
-                    break;
-                case TP_DIFFUSIVITY:
-                    trParam.speciesDiffusivity = newLTI(compDepNode,
-                                                        m_tranPropMap[nodeName],
-                                                        trParam);
-                    break;
-                case TP_HYDRORADIUS:
-                    trParam.hydroRadius = newLTI(compDepNode,
-                                                 m_tranPropMap[nodeName],
-                                                 trParam);
-                    break;
-                case TP_ELECTCOND:
-                    trParam.electCond = newLTI(compDepNode,
-                                               m_tranPropMap[nodeName],
-                                               trParam);
-                    break;
-                default:
-                    throw CanteraError("getLiquidInteractionsTransportData","unknown transport property: " + nodeName);
-
-                }
-            }
-            /* Allow a switch between mass-averaged, mole-averaged
-             * and solvent specified reference velocities.
-             * XML code within the transportProperty node
-             * (i.e. within <viscosity>) should read as follows
-             * <velocityBasis basis="mass"> <!-- mass averaged -->
-             * <velocityBasis basis="mole"> <!-- mole averaged -->
-             * <velocityBasis basis="H2O">  <!-- H2O solvent -->
-             */
-            if (tranTypeNode.hasChild("velocityBasis")) {
-                std::string velocityBasis =
-                    tranTypeNode.child("velocityBasis").attrib("basis");
-                if (velocityBasis == "mass") {
-                    trParam.velocityBasis_ = VB_MASSAVG;
-                } else if (velocityBasis == "mole") {
-                    trParam.velocityBasis_ = VB_MOLEAVG;
-                } else if (trParam.thermo->speciesIndex(velocityBasis) > 0) {
-                    trParam.velocityBasis_ = static_cast<int>(trParam.thermo->speciesIndex(velocityBasis));
-                } else {
-                    int linenum = __LINE__;
-                    throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
-                }
-            }
-        }
+		    }
+		}
+		/* Allow a switch between mass-averaged, mole-averaged
+		 * and solvent specified reference velocities.
+		 * XML code within the transportProperty node
+		 * (i.e. within <viscosity>) should read as follows
+		 * <velocityBasis basis="mass"> <!-- mass averaged -->
+		 * <velocityBasis basis="mole"> <!-- mole averaged -->
+		 * <velocityBasis basis="H2O">  <!-- H2O solvent -->
+		 */
+		if (tranTypeNode.hasChild("velocityBasis")) {
+		    std::string velocityBasis =
+			tranTypeNode.child("velocityBasis").attrib("basis");
+		    if (velocityBasis == "mass") {
+			trParam.velocityBasis_ = VB_MASSAVG;
+		    } else if (velocityBasis == "mole") {
+			trParam.velocityBasis_ = VB_MOLEAVG;
+		    } else if (trParam.thermo->speciesIndex(velocityBasis) > 0) {
+			trParam.velocityBasis_ = static_cast<int>(trParam.thermo->speciesIndex(velocityBasis));
+		    } else {
+			int linenum = __LINE__;
+			throw TransportDBError(linenum, "Unknown attribute \"" + velocityBasis + "\" for <velocityBasis> node. ");
+		    }
+		}
+	    }
+	}
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
     }
@@ -1120,8 +1044,8 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
 {
     try {
 
-        int num = transportNode.nChildren();
-        for (int iChild = 0; iChild < num; iChild++) {
+        size_t num = transportNode.nChildren();
+        for (size_t iChild = 0; iChild < num; iChild++) {
             //tranTypeNode is a type of transport property like viscosity
             XML_Node& tranTypeNode = transportNode.child(iChild);
             std::string nodeName = tranTypeNode.name();
@@ -1129,7 +1053,6 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
             ThermoPhase* temp_thermo = trParam.thermo;
 
             //tranTypeNode contains the interaction model
-            //	XML_Node &compDepNode = tranTypeNode.child("compositionDependence");
             switch (m_tranPropMap[nodeName]) {
             case TP_IONCONDUCTIVITY:
                 trParam.ionConductivity = newLTP(tranTypeNode, phaseName,
@@ -1164,20 +1087,14 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
     } catch (CanteraError) {
         showErrors(std::cout);
     }
-    //catch(CanteraError) {
-    //  ;
-    //}
     return;
 }
 
 void TransportFactory::fitProperties(GasTransportParams& tr,
-                                     MMCollisionInt& integrals, std::ostream& logfile)
+                                     MMCollisionInt& integrals)
 {
     doublereal tstar;
     int ndeg = 0;
-#ifdef DEBUG_MODE
-    char s[100];
-#endif
     // number of points to use in generating fit data
     const size_t np = 50;
 
@@ -1203,29 +1120,21 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
 
     // fit the pure-species viscosity and thermal conductivity for
     // each species
-#ifdef DEBUG_MODE
-    if (tr.log_level < 2 && m_verbose) {
-        tr.xml->XML_comment(logfile,
-                            "*** polynomial coefficients not printed (log_level < 2) ***");
+    if (DEBUG_MODE_ENABLED && tr.log_level < 2 && m_verbose) {
+        writelog("*** polynomial coefficients not printed (log_level < 2) ***\n");
     }
-#endif
     doublereal sqrt_T, visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        tr.xml->XML_open(logfile, "viscosity");
-        tr.xml->XML_comment(logfile,"Polynomial fits for viscosity");
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelog("Polynomial fits for viscosity:\n");
         if (mode == CK_Mode) {
-            tr.xml->XML_comment(logfile,"log(viscosity) fit to cubic "
-                                "polynomial in log(T)");
+            writelog("log(viscosity) fit to cubic polynomial in log(T)\n");
         } else {
-            sprintf(s, "viscosity/sqrt(T) fit to "
-                    "polynomial of degree %d in log(T)",degree);
-            tr.xml->XML_comment(logfile,s);
+            writelogf("viscosity/sqrt(T) fit to polynomial of degree "
+                      "%d in log(T)", degree);
         }
     }
-#endif
 
     doublereal cp_R, cond, w_RT, f_int, A_factor, B_factor,
                c1, cv_rot, cv_int, f_rot, f_trans, om11;
@@ -1315,12 +1224,8 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             }
             err = fit - val;
             relerr = err/val;
-            if (fabs(err) > mxerr) {
-                mxerr = fabs(err);
-            }
-            if (fabs(relerr) > mxrelerr) {
-                mxrelerr = fabs(relerr);
-            }
+            mxerr = std::max(mxerr, fabs(err));
+            mxrelerr = std::max(mxrelerr, fabs(relerr));
         }
 
         // evaluate max fit errors for conductivity
@@ -1335,67 +1240,43 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             }
             err = fit - val;
             relerr = err/val;
-            if (fabs(err) > mxerr_cond) {
-                mxerr_cond = fabs(err);
-            }
-            if (fabs(relerr) > mxrelerr_cond) {
-                mxrelerr_cond = fabs(relerr);
-            }
+            mxerr_cond = std::max(mxerr_cond, fabs(err));
+            mxrelerr_cond = std::max(mxrelerr_cond, fabs(relerr));
         }
         tr.visccoeffs.push_back(c);
         tr.condcoeffs.push_back(c2);
 
-#ifdef DEBUG_MODE
-        if (tr.log_level >= 2 && m_verbose) {
-            tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k),
-                                    c.size(), DATA_PTR(c));
+        if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+            writelog(tr.thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
         }
-#endif
     }
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        sprintf(s, "Maximum viscosity absolute error:  %12.6g", mxerr);
-        tr.xml->XML_comment(logfile,s);
-        sprintf(s, "Maximum viscosity relative error:  %12.6g", mxrelerr);
-        tr.xml->XML_comment(logfile,s);
-        tr.xml->XML_close(logfile, "viscosity");
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
+        writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
 
-
-        tr.xml->XML_open(logfile, "conductivity");
-        tr.xml->XML_comment(logfile,"Polynomial fits for conductivity");
+        writelog("\nPolynomial fits for conductivity:\n");
         if (mode == CK_Mode)
-            tr.xml->XML_comment(logfile,"log(conductivity) fit to cubic "
-                                "polynomial in log(T)");
+            writelog("log(conductivity) fit to cubic polynomial in log(T)");
         else {
-            sprintf(s, "conductivity/sqrt(T) fit to "
-                    "polynomial of degree %d in log(T)",degree);
-            tr.xml->XML_comment(logfile,s);
+            writelogf("conductivity/sqrt(T) fit to "
+                      "polynomial of degree %d in log(T)", degree);
         }
         if (tr.log_level >= 2)
             for (size_t k = 0; k < tr.nsp_; k++) {
-                tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k),
-                                        degree+1, DATA_PTR(tr.condcoeffs[k]));
+                writelog(tr.thermo->speciesName(k) + ": [" + 
+                         vec2str(tr.condcoeffs[k]) + "]\n");
             }
-        sprintf(s, "Maximum conductivity absolute error:  %12.6g", mxerr_cond);
-        tr.xml->XML_comment(logfile,s);
-        sprintf(s, "Maximum conductivity relative error:  %12.6g", mxrelerr_cond);
-        tr.xml->XML_comment(logfile,s);
-        tr.xml->XML_close(logfile, "conductivity");
+        writelogf("Maximum conductivity absolute error:  %12.6g\n", mxerr_cond);
+        writelogf("Maximum conductivity relative error:  %12.6g\n", mxrelerr_cond);
 
         // fit the binary diffusion coefficients for each species pair
-
-        tr.xml->XML_open(logfile, "binary_diffusion_coefficients");
-        tr.xml->XML_comment(logfile, "binary diffusion coefficients");
+        writelogf("\nbinary diffusion coefficients:\n");
         if (mode == CK_Mode)
-            tr.xml->XML_comment(logfile,"log(D) fit to cubic "
-                                "polynomial in log(T)");
+            writelog("log(D) fit to cubic polynomial in log(T)");
         else {
-            sprintf(s, "D/T**(3/2) fit to "
-                    "polynomial of degree %d in log(T)",degree);
-            tr.xml->XML_comment(logfile,s);
+            writelogf("D/T**(3/2) fit to polynomial of degree %d in log(T)",degree);
         }
     }
-#endif
 
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
@@ -1421,8 +1302,6 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 // NOTE: THIS CORRECTION IS NOT APPLIED
                 doublereal fkj, fjk;
                 getBinDiffCorrection(t, tr, integrals, k, j, 1.0, 1.0, fkj, fjk);
-                //diffcoeff *= fkj;
-
 
                 if (mode == CK_Mode) {
                     diff[n] = log(diffcoeff);
@@ -1448,33 +1327,22 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 }
                 err = fit - val;
                 relerr = err/val;
-                if (fabs(err) > mxerr) {
-                    mxerr = fabs(err);
-                }
-                if (fabs(relerr) > mxrelerr) {
-                    mxrelerr = fabs(relerr);
-                }
+                mxerr = std::max(mxerr, fabs(err));
+                mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
             tr.diffcoeffs.push_back(c);
-#ifdef DEBUG_MODE
-            if (tr.log_level >= 2 && m_verbose) {
-                tr.xml->XML_writeVector(logfile, "    ", tr.thermo->speciesName(k)
-                                        + "__"+tr.thermo->speciesName(j), c.size(), DATA_PTR(c));
+            if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+                writelog(tr.thermo->speciesName(k) + "__" +
+                         tr.thermo->speciesName(j) + ": [" + vec2str(c) + "]\n");
             }
-#endif
         }
     }
-#ifdef DEBUG_MODE
-    if (m_verbose) {
-        sprintf(s,"Maximum binary diffusion coefficient absolute error:"
-                "  %12.6g", mxerr);
-        tr.xml->XML_comment(logfile,s);
-        sprintf(s, "Maximum binary diffusion coefficient relative error:"
-                "%12.6g", mxrelerr);
-        tr.xml->XML_comment(logfile,s);
-        tr.xml->XML_close(logfile, "binary_diffusion_coefficients");
+    if (DEBUG_MODE_ENABLED && m_verbose) {
+        writelogf("Maximum binary diffusion coefficient absolute error:"
+                 "  %12.6g\n", mxerr);
+        writelogf("Maximum binary diffusion coefficient relative error:"
+                 "%12.6g", mxrelerr);
     }
-#endif
 }
 
 Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f, int ndim)

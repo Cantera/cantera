@@ -7,7 +7,7 @@
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"
 
-#if SUNDIALS_VERSION >= 24
+#if HAS_SUNDIALS
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "ida/ida.h"
@@ -109,7 +109,6 @@ extern "C" {
         doublereal* const* colPts = Jac->cols;
         Cantera::IDA_Solver* s = d->m_solver;
         double delta_t = s->getCurrentStepFromIDA();
-        // printf(" delta_t = %g 1/cj = %g\n", delta_t, 1.0/c_j);
         f->evalJacobianDP(t, delta_t, c_j,  ydata, ydotdata, colPts, rdata);
         return 0;
     }
@@ -350,21 +349,6 @@ void IDA_Solver::init(doublereal t0)
 
 
     if (m_itol == IDA_SV) {
-#if SUNDIALS_VERSION <= 23
-        // vector atol
-        flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, m_y, m_ydot,
-                         m_itol, m_reltol, m_abstol);
-        if (flag != IDA_SUCCESS) {
-            if (flag == IDA_MEM_FAIL) {
-                throw IDA_Err("Memory allocation failed.");
-            } else if (flag == IDA_ILL_INPUT) {
-                throw IDA_Err("Illegal value for IDAMalloc input argument.");
-            }  else {
-                throw IDA_Err("IDAMalloc failed.");
-            }
-        }
-
-#elif SUNDIALS_VERSION >= 24
         flag = IDAInit(m_ida_mem, ida_resid, m_t0, m_y, m_ydot);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
@@ -379,23 +363,7 @@ void IDA_Solver::init(doublereal t0)
         if (flag != IDA_SUCCESS) {
             throw IDA_Err("Memory allocation failed.");
         }
-#endif
     } else {
-#if SUNDIALS_VERSION <= 23
-        // scalar atol
-        flag = IDAMalloc(m_ida_mem, ida_resid, m_t0, m_y, m_ydot,
-                         m_itol, m_reltol, &m_abstols);
-        if (flag != IDA_SUCCESS) {
-            if (flag == IDA_MEM_FAIL) {
-                throw IDA_Err("Memory allocation failed.");
-            } else if (flag == IDA_ILL_INPUT) {
-                throw IDA_Err("Illegal value for IDAMalloc input argument.");
-            } else {
-                throw IDA_Err("IDAMalloc failed.");
-            }
-        }
-
-#elif SUNDIALS_VERSION >= 24
         flag = IDAInit(m_ida_mem, ida_resid, m_t0, m_y, m_ydot);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
@@ -410,7 +378,6 @@ void IDA_Solver::init(doublereal t0)
         if (flag != IDA_SUCCESS) {
             throw IDA_Err("Memory allocation failed.");
         }
-#endif
     }
 
     //-----------------------------------
@@ -441,17 +408,10 @@ void IDA_Solver::init(doublereal t0)
 
     // pass a pointer to func in m_data
     m_fdata = new ResidData(&m_resid, this, m_resid.nparams());
-#if SUNDIALS_VERSION <= 23
-    flag = IDASetRdata(m_ida_mem, (void*)m_fdata);
-    if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDASetRdata failed.");
-    }
-#elif SUNDIALS_VERSION >= 24
     flag = IDASetUserData(m_ida_mem, (void*)m_fdata);
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDASetUserData failed.");
     }
-#endif
 
     // set options
     if (m_maxord > 0) {

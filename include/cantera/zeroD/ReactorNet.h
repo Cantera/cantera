@@ -36,7 +36,7 @@ public:
      */
     void setInitialTime(doublereal time) {
         m_time = time;
-        m_init = false;
+        m_integrator_init = false;
     }
 
     //! Set the maximum time step.
@@ -114,13 +114,20 @@ public:
     //@}
 
     //! Add the reactor *r* to this reactor network.
-    void addReactor(ReactorBase* r, bool iown = false);
+    void addReactor(Reactor& r);
+
+    //! Add the reactor *r* to this reactor network.
+    /**
+     *  @deprecated To be removed after Cantera 2.2. Use addReactor(Reactor&)
+     *  instead.
+     */
+    void addReactor(Reactor* r, bool iown = false);
 
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added
     //! to the reactor network.
-    ReactorBase& reactor(int n) {
-        return *m_r[n];
+    Reactor& reactor(int n) {
+        return *m_reactors[n];
     }
 
     //! Returns `true` if verbose logging output is enabled.
@@ -152,10 +159,10 @@ public:
         return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
     }
 
-    //! Return the sensitivity of the species named *species* with respect to
+    //! Return the sensitivity of the component named *component* with respect to
     //! the *p*-th sensitivity parameter.
-    double sensitivity(const std::string& species, size_t p, int reactor=0) {
-        size_t k = globalComponentIndex(species, reactor);
+    double sensitivity(const std::string& component, size_t p, int reactor=0) {
+        size_t k = globalComponentIndex(component, reactor);
         return sensitivity(k, p);
     }
 
@@ -182,10 +189,10 @@ public:
         return m_ntotpar;
     }
 
-    //! Return the index corresponding to the species named *species* in the
+    //! Return the index corresponding to the component named *component* in the
     //! reactor with index *reactor* in the global state vector for the
     //! reactor network.
-    size_t globalComponentIndex(const std::string& species, size_t reactor=0);
+    size_t globalComponentIndex(const std::string& component, size_t reactor=0);
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity reactions so that the ReactorNet can keep track of the
@@ -198,31 +205,44 @@ public:
         return m_paramNames.at(p);
     }
 
-    void connect(size_t i, size_t j) {
-        m_connect[j*m_nr + i] = 1;
-        m_connect[i*m_nr + j] = 1;
-    }
+    //! Reinitialize the integrator. Used to solve a new problem (different
+    //! initial conditions) but with the same configuration of the reactor
+    //! network. Can be called manually, or automatically after calling
+    //! setInitialTime or modifying a reactor's contents.
+    void reinitialize();
 
-    bool connected(size_t i, size_t j) {
-        return (m_connect[m_nr*i + j] == 1);
+    //! Called to trigger integrator reinitialization before further
+    //! integration.
+    void setNeedsReinit() {
+        m_integrator_init = false;
     }
 
 protected:
+    void connect(size_t i, size_t j) {
+        m_connect[j*m_reactors.size() + i] = 1;
+        m_connect[i*m_reactors.size() + j] = 1;
+    }
+
+    bool connected(size_t i, size_t j) {
+        return (m_connect[m_reactors.size()*i + j] == 1);
+    }
+
     /**
      * Initialize the reactor network. Called automatically the first time
      * advance or step is called.
      */
     void initialize();
 
-    std::vector<ReactorBase*> m_r;
     std::vector<Reactor*> m_reactors;
-    size_t m_nr;
-    size_t m_nreactors;
     Integrator* m_integ;
     doublereal m_time;
     bool m_init;
+    bool m_integrator_init; //! True if integrator initialization is current
     size_t m_nv;
-    std::vector<size_t> m_size;
+
+    //! m_start[n] is the starting point in the state vector for reactor n
+    std::vector<size_t> m_start;
+
     vector_fp m_atol;
     doublereal m_rtol, m_rtolsens;
     doublereal m_atols, m_atolsens;

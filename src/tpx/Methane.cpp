@@ -235,14 +235,6 @@ double methane::Tmax()
 {
     return Tmx;
 }
-char* methane::name()
-{
-    return (char*) m_name.c_str();
-}
-char* methane::formula()
-{
-    return (char*) m_formula.c_str();
-}
 double methane::MolWt()
 {
     return M;

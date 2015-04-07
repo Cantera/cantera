@@ -156,17 +156,6 @@ public:
      */
     XML_Node& addChild(const std::string& sname);
 
-    //! Add a child node to the current node with a specified name
-    /*!
-     * This will add an XML_Node as a child to the current node.
-     * The node will be blank except for the specified name.
-     *
-     *  @param cstring  Name of the new child as a c string
-     *
-     *  @return         Returns a reference to the added node
-     */
-    XML_Node& addChild(const char* cstring);
-
     //! Add a child node to the current xml node, and at the
     //! same time add a value to the child
     /*!
@@ -290,6 +279,20 @@ public:
      */
     void addAttribute(const std::string& attrib, const doublereal value,
                       const std::string& fmt="%g");
+
+    //! Add an integer attribute
+    /*!
+     * @param attrib   String name for the attribute to be assigned
+     * @param value    int Value that the node will be assigned
+     */
+    void addAttribute(const std::string& attrib, int value);
+
+    //! Add an unsigned integer attribute
+    /*!
+     * @param attrib   String name for the attribute to be assigned
+     * @param value    int Value that the node will be assigned
+     */
+    void addAttribute(const std::string& attrib, size_t value);
 
     //! The operator[] is overloaded to provide a lookup capability
     //! on attributes for the current XML element.
@@ -723,9 +726,6 @@ protected:
 
     //! Vector of pointers to child nodes
     std::vector<XML_Node*> m_children;
-
-    //! Number of children of this node
-    size_t m_nchildren;
 
     //! True if the current node is a comment node
     bool m_iscomment;

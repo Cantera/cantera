@@ -118,8 +118,7 @@ public:
      */
     static int clear() {
         dataRef data = getData();
-        int n = static_cast<int>(data.size());
-        for (int i = 1; i < n; i++) {
+        for (size_t i = 1; i < data.size(); i++) {
             del(i);
         }
         if (canDelete) {
@@ -135,7 +134,7 @@ public:
      * to it in the list is replaced by a pointer to the first element
      * in the list.
      */
-    static void del(int n) {
+    static void del(size_t n) {
         dataRef data = getData();
         if (n == 0) {
             return;

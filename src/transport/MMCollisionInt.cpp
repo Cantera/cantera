@@ -6,8 +6,8 @@
 #include "MMCollisionInt.h"
 #include "cantera/base/utilities.h"
 #include "cantera/numerics/polyfit.h"
-#include "cantera/base/xml.h"
-#include "cantera/base/XML_Writer.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 #include <cstdio>
 
@@ -224,25 +224,12 @@ MMCollisionInt::~MMCollisionInt()
 {
 }
 
-void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, int log_level)
+void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
 {
-#ifdef DEBUG_MODE
-    if (!xml) {
-        throw CanteraError("MMCollisionInt::init", "pointer to xml file is zero");
-    }
-    ostream& logfile = xml->output();
-    m_xml = xml;
-#else
-    m_xml = 0;
-    log_level = 0;
-#endif
     m_loglevel = log_level;
-#ifdef DEBUG_MODE
-    if (m_loglevel > 0) {
-        m_xml->XML_comment(logfile, "Collision Integral Polynomial Fits");
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
+        writelog("Collision Integral Polynomial Fits\n");
     }
-    char p[200];
-#endif
     m_nmin = -1;
     m_nmax = -1;
 
@@ -258,100 +245,63 @@ void MMCollisionInt::init(XML_Writer* xml, doublereal tsmin, doublereal tsmax, i
         m_nmin = 0;
         m_nmax = 36;
     }
-#ifdef DEBUG_MODE
-    if (m_loglevel > 0)  {
-        m_xml->XML_item(logfile, "Tstar_min", tstar[m_nmin + 1]);
-        m_xml->XML_item(logfile, "Tstar_max", tstar[m_nmax + 1]);
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0)  {
+        writelogf("T*_min = %g\n", tstar[m_nmin + 1]);
+        writelogf("T*_max = %g\n", tstar[m_nmax + 1]);
     }
-#endif
     m_logTemp.resize(37);
     doublereal rmserr, e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
-#ifdef DEBUG_MODE
-    if (m_loglevel > 0)  {
-        m_xml->XML_open(logfile, "dstar_fits");
-        m_xml->XML_comment(logfile, "Collision integral fits at each "
-                           "tabulated T* vs. delta*.\n"
-                           "These polynomial fits are used to interpolate between "
-                           "columns (delta*)\n in the Monchick and Mason tables."
-                           " They are only used for nonzero delta*.");
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0)  {
+        writelog("Collision integral fits at each tabulated T* vs. delta*.\n"
+                 "These polynomial fits are used to interpolate between "
+                 "columns (delta*)\n in the Monchick and Mason tables."
+                 " They are only used for nonzero delta*.\n");
         if (log_level < 4) {
-            m_xml->XML_comment(logfile,
-                               "polynomial coefficients not printed (log_level < 4)");
+            writelog("polynomial coefficients not printed (log_level < 4)\n");
         }
     }
-#endif
 
-    string indent = "    ";
     for (int i = 0; i < 37; i++) {
         m_logTemp[i] = log(tstar[i+1]);
         vector_fp c(DeltaDegree+1);
 
         rmserr = fitDelta(0, i, DeltaDegree, DATA_PTR(c));
-#ifdef DEBUG_MODE
-        if (log_level > 3) {
-            sprintf(p, " Tstar=\"%12.6g\"", tstar[i+1]);
-            m_xml->XML_open(logfile, "dstar_fit", p);
-            m_xml->XML_item(logfile, "Tstar", tstar[i+1]);
-            m_xml->XML_writeVector(logfile, indent, "omega22",
-                                   c.size(), DATA_PTR(c));
+        if (DEBUG_MODE_ENABLED && log_level > 3) {
+            writelogf("\ndelta* fit at T* = %.6g\n", tstar[i+1]);
+            writelog("omega22 = [" + vec2str(c) + "]\n");
         }
-#endif
         m_o22poly.push_back(c);
-        if (rmserr > e22) {
-            e22 = rmserr;
-        }
+        e22 = std::max(e22, rmserr);
 
         rmserr = fitDelta(1, i, DeltaDegree, DATA_PTR(c));
         m_apoly.push_back(c);
-#ifdef DEBUG_MODE
-        if (log_level > 3)
-            m_xml->XML_writeVector(logfile, indent, "astar",
-                                   c.size(), DATA_PTR(c));
-#endif
-        if (rmserr > ea) {
-            ea = rmserr;
+        if (DEBUG_MODE_ENABLED && log_level > 3) {
+            writelog("A* = [" + vec2str(c) + "]\n");
         }
+        ea = std::max(ea, rmserr);
 
         rmserr = fitDelta(2, i, DeltaDegree, DATA_PTR(c));
         m_bpoly.push_back(c);
-#ifdef DEBUG_MODE
-        if (log_level > 3)
-            m_xml->XML_writeVector(logfile, indent, "bstar",
-                                   c.size(), DATA_PTR(c));
-#endif
-        if (rmserr > eb) {
-            eb = rmserr;
+        if (DEBUG_MODE_ENABLED && log_level > 3) {
+            writelog("B* = [" + vec2str(c) + "]\n");
         }
+        eb = std::max(eb, rmserr);
 
         rmserr = fitDelta(3, i, DeltaDegree, DATA_PTR(c));
         m_cpoly.push_back(c);
-#ifdef DEBUG_MODE
-        if (log_level > 3) {
-            m_xml->XML_writeVector(logfile, indent, "cstar",
-                                   c.size(), DATA_PTR(c));
+        if (DEBUG_MODE_ENABLED && log_level > 3) {
+            writelog("C* = [" + vec2str(c) + "]\n");
         }
-#endif
-        if (rmserr > ec) {
-            ec = rmserr;
-        }
+        ec = std::max(ec, rmserr);
 
-#ifdef DEBUG_MODE
-        if (log_level > 3) {
-            m_xml->XML_close(logfile, "dstar_fit");
+        if (DEBUG_MODE_ENABLED && log_level > 0) {
+            writelogf("max RMS errors in fits vs. delta*:\n"
+                      "      omega_22 =     %12.6g \n"
+                      "      A*       =     %12.6g \n"
+                      "      B*       =     %12.6g \n"
+                      "      C*       =     %12.6g \n", e22, ea, eb, ec);
         }
-
-        if (log_level > 0) {
-            sprintf(p,
-                    "max RMS errors in fits vs. delta*:\n"
-                    "      omega_22 =     %12.6g \n"
-                    "      A*       =     %12.6g \n"
-                    "      B*       =     %12.6g \n"
-                    "      C*       =     %12.6g \n", e22, ea, eb, ec);
-            m_xml->XML_comment(logfile, p);
-            m_xml->XML_close(logfile, "dstar_fits");
-        }
-#endif
     }
 }
 
@@ -387,10 +337,7 @@ doublereal MMCollisionInt::omega22(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1, 0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;
@@ -415,10 +362,7 @@ doublereal MMCollisionInt::astar(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1, 0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;
@@ -443,10 +387,7 @@ doublereal MMCollisionInt::bstar(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1, 0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;
@@ -471,10 +412,7 @@ doublereal MMCollisionInt::cstar(double ts, double deltastar)
             break;
         }
     int i1, i2;
-    i1 = i - 1;
-    if (i1 < 0) {
-        i1 = 0;
-    }
+    i1 = std::max(i - 1,0);
     i2 = i1+3;
     if (i2 > 36) {
         i2 = 36;
@@ -492,12 +430,11 @@ doublereal MMCollisionInt::cstar(double ts, double deltastar)
                       DATA_PTR(values));
 }
 
-void MMCollisionInt::fit_omega22(ostream& logfile, int degree,
-                                 doublereal deltastar, doublereal* o22)
+void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
+                                 doublereal* o22)
 {
     int i, n = m_nmax - m_nmin + 1;
     int ndeg=0;
-    string indent = "    ";
     vector_fp values(n);
     doublereal rmserr;
     vector_fp w(n);
@@ -513,20 +450,16 @@ void MMCollisionInt::fit_omega22(ostream& logfile, int degree,
     rmserr = polyfit(n, logT, DATA_PTR(values),
                      DATA_PTR(w), degree, ndeg, 0.0, o22);
     if (DEBUG_MODE_ENABLED && m_loglevel > 0 && rmserr > 0.01) {
-        char p[100];
-        sprintf(p, "Warning: RMS error = %12.6g in omega_22 fit"
-                "with delta* = %12.6g\n", rmserr, deltastar);
-        m_xml->XML_comment(logfile, p);
+        writelogf("Warning: RMS error = %12.6g in omega_22 fit"
+                  "with delta* = %12.6g\n", rmserr, deltastar);
     }
 }
 
-void MMCollisionInt::fit(ostream& logfile, int degree,
-                         doublereal deltastar, doublereal* a, doublereal* b, doublereal* c)
+void MMCollisionInt::fit(int degree, doublereal deltastar,
+                         doublereal* a, doublereal* b, doublereal* c)
 {
     int i, n = m_nmax - m_nmin + 1;
     int ndeg=0;
-    //char s[100];
-    string indent = "    ";
     vector_fp values(n);
     doublereal rmserr;
     vector_fp w(n);
@@ -564,29 +497,22 @@ void MMCollisionInt::fit(ostream& logfile, int degree,
     rmserr = polyfit(n, logT, DATA_PTR(values),
                      DATA_PTR(w), degree, ndeg, 0.0, c);
     if (DEBUG_MODE_ENABLED && m_loglevel > 2) {
-        char p[100];
-        sprintf(p, " dstar=\"%12.6g\"", deltastar);
-        m_xml->XML_open(logfile, "tstar_fit", p);
+        writelogf("\nT* fit at delta* = %.6g\n", deltastar);
 
-        m_xml->XML_writeVector(logfile, indent, "astar", degree+1, a);
+        writelog("astar = [" + vec2str(vector_fp(a, a+degree+1))+ "]\n");
         if (rmserr > 0.01) {
-            sprintf(p, "Warning: RMS error = %12.6g for A* fit", rmserr);
-            m_xml->XML_comment(logfile, p);
+            writelogf("Warning: RMS error = %12.6g for A* fit\n", rmserr);
         }
 
-        m_xml->XML_writeVector(logfile, indent, "bstar", degree+1, b);
+        writelog("bstar = [" + vec2str(vector_fp(b, b+degree+1))+ "]\n");
         if (rmserr > 0.01) {
-            sprintf(p, "Warning: RMS error = %12.6g for B* fit", rmserr);
-            m_xml->XML_comment(logfile, p);
+            writelogf("Warning: RMS error = %12.6g for B* fit\n", rmserr);
         }
 
-        m_xml->XML_writeVector(logfile, indent, "cstar", degree+1, c);
-
+        writelog("cstar = [" + vec2str(vector_fp(c, c+degree+1))+ "]\n");
         if (rmserr > 0.01) {
-            sprintf(p, "Warning: RMS error = %12.6g for C* fit", rmserr);
-            m_xml->XML_comment(logfile, p);
+            writelogf("Warning: RMS error = %12.6g for C* fit\n", rmserr);
         }
-        m_xml->XML_close(logfile, "tstar_fit");
     }
 }
 

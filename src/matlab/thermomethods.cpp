@@ -175,6 +175,12 @@ static void thermoget(int nlhs, mxArray* plhs[],
         case 25:
             vv = th_electricPotential(n);
                 break;
+        case 26:
+            vv = th_isothermalCompressibility(n);
+                break;
+        case 27:
+            vv = th_thermalExpansionCoeff(n);
+                break;
         default:
             ok = false;
         }

@@ -16,7 +16,7 @@
 namespace Cantera
 {
 Nasa9Poly1::Nasa9Poly1()
-    : m_coeff(vector_fp(9))
+    : m_coeff(9, 0.0)
 {
     m_Pref = 1.0e5;
 }
@@ -25,27 +25,21 @@ Nasa9Poly1::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh,
                        doublereal pref,
                        const doublereal* coeffs) :
     SpeciesThermoInterpType(n, tlow, thigh, pref),
-    m_coeff(vector_fp(9))
+    m_coeff(coeffs, coeffs + 9)
 {
-    std::copy(coeffs, coeffs + 9, m_coeff.begin());
 }
 
 Nasa9Poly1::Nasa9Poly1(const Nasa9Poly1& b) :
     SpeciesThermoInterpType(b),
-    m_coeff(vector_fp(9))
+    m_coeff(b.m_coeff)
 {
-    std::copy(b.m_coeff.begin(),
-              b.m_coeff.begin() + 9,
-              m_coeff.begin());
 }
 
 Nasa9Poly1& Nasa9Poly1::operator=(const Nasa9Poly1& b)
 {
     if (&b != this) {
         SpeciesThermoInterpType::operator=(b);
-        std::copy(b.m_coeff.begin(),
-                  b.m_coeff.begin() + 9,
-                  m_coeff.begin());
+        m_coeff = b.m_coeff;
     }
     return *this;
 }
@@ -86,8 +80,6 @@ void Nasa9Poly1::updateProperties(const doublereal* tt,
     cp_R[m_index] = cpdivR;
     h_RT[m_index] = hdivRT;
     s_R[m_index] = sdivR;
-    //writelog("NASA9poly1: for species "+int2str(m_index)+", h_RT = "+
-    //    fp2str(h)+"\n");
 }
 
 void Nasa9Poly1::updatePropertiesTemp(const doublereal temp,
@@ -110,7 +102,6 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
                                   doublereal& pref,
                                   doublereal* const coeffs) const
 {
-    warn_deprecated("Nasa9Poly1::reportParameters");
     n = m_index;
     type = NASA9;
     tlow = m_lowT;
@@ -126,7 +117,6 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
 
 void Nasa9Poly1::modifyParameters(doublereal* coeffs)
 {
-    warn_deprecated("Nasa9Poly1::modifyParameters");
     for (int i = 0; i < 9; i++) {
         m_coeff[i] = coeffs[i];
     }

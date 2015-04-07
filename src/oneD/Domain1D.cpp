@@ -3,7 +3,9 @@
  */
 
 #include "cantera/oneD/Domain1D.h"
- #include "cantera/base/ctml.h"
+#include "cantera/oneD/OneDim.h"
+#include "cantera/oneD/MultiJac.h"
+#include "cantera/base/ctml.h"
 
 #include <cstdio>
 
@@ -12,58 +14,6 @@ using namespace ctml;
 
 namespace Cantera
 {
-
-void Domain1D::
-setTolerances(size_t nr, const doublereal* rtol,
-              size_t na, const doublereal* atol, int ts)
-{
-    warn_deprecated("Domain1D::setTolerances",
-                    "Use setTransientTolerances or setSteadyTolerances.");
-    if (nr < m_nv || na < m_nv)
-        throw CanteraError("Domain1D::setTolerances",
-                           "wrong array size for solution error tolerances. "
-                           "Size should be at least "+int2str(m_nv));
-    if (ts >= 0) {
-        copy(rtol, rtol + m_nv, m_rtol_ss.begin());
-        copy(atol, atol + m_nv, m_atol_ss.begin());
-    }
-    if (ts <= 0) {
-        copy(rtol, rtol + m_nv, m_rtol_ts.begin());
-        copy(atol, atol + m_nv, m_atol_ts.begin());
-    }
-}
-
-void Domain1D::
-setTolerances(size_t n, doublereal rtol, doublereal atol, int ts)
-{
-    warn_deprecated("Domain1D::setTolerances",
-                    "Use setTransientTolerances or setSteadyTolerances.");
-    if (ts >= 0) {
-        m_rtol_ss[n] = rtol;
-        m_atol_ss[n] = atol;
-    }
-    if (ts <= 0) {
-        m_rtol_ts[n] = rtol;
-        m_atol_ts[n] = atol;
-    }
-}
-
-void Domain1D::
-setTolerances(doublereal rtol, doublereal atol,int ts)
-{
-    warn_deprecated("Domain1D::setTolerances",
-                    "Use setTransientTolerances or setSteadyTolerances.");
-    for (size_t n = 0; n < m_nv; n++) {
-        if (ts >= 0) {
-            m_rtol_ss[n] = rtol;
-            m_atol_ss[n] = atol;
-        }
-        if (ts <= 0) {
-            m_rtol_ts[n] = rtol;
-            m_atol_ts[n] = atol;
-        }
-    }
-}
 
 void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n)
 {
@@ -76,13 +26,6 @@ void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n
         m_rtol_ts[n] = rtol;
         m_atol_ts[n] = atol;
     }
-}
-
-void Domain1D::setTolerancesTS(doublereal rtol, doublereal atol, size_t n)
-{
-    warn_deprecated("Domain1D::setTolerancesTS",
-                    "Use setTransientTolerances");
-    setTransientTolerances(rtol, atol, n);
 }
 
 void Domain1D::setSteadyTolerances(doublereal rtol, doublereal atol, size_t n)
@@ -98,16 +41,16 @@ void Domain1D::setSteadyTolerances(doublereal rtol, doublereal atol, size_t n)
     }
 }
 
-void Domain1D::setTolerancesSS(doublereal rtol, doublereal atol, size_t n)
+void Domain1D::needJacUpdate()
 {
-    warn_deprecated("Domain1D::setTolerancesSS",
-                    "Use setSteadyTolerances");
-    setSteadyTolerances(rtol, atol, n);
+    if (m_container) {
+        m_container->jacobian().setAge(10000);
+        m_container->saveStats();
+    }
 }
 
-void Domain1D::
-eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* mask, doublereal rdt)
+void Domain1D::eval(size_t jg, doublereal* xg, doublereal* rg,
+                    integer* mask, doublereal rdt)
 {
 
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
@@ -216,28 +159,21 @@ void Domain1D::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void drawline()
-{
-    writelog("\n-------------------------------------"
-             "------------------------------------------");
-}
-
 void Domain1D::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
     size_t i, j, n;
-    //char* buf = new char[100];
     char buf[100];
     doublereal v;
     for (i = 0; i < nn; i++) {
-        drawline();
+        writeline('-', 79, false, true);
         sprintf(buf, "\n        z   ");
         writelog(buf);
         for (n = 0; n < 5; n++) {
             sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
             writelog(buf);
         }
-        drawline();
+        writeline('-', 79, false, true);
         for (j = 0; j < m_points; j++) {
             sprintf(buf, "\n %10.4g ",m_z[j]);
             writelog(buf);
@@ -250,14 +186,14 @@ void Domain1D::showSolution(const doublereal* x)
         writelog("\n");
     }
     size_t nrem = m_nv - 5*nn;
-    drawline();
+    writeline('-', 79, false, true);
     sprintf(buf, "\n        z   ");
     writelog(buf);
     for (n = 0; n < nrem; n++) {
         sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
         writelog(buf);
     }
-    drawline();
+    writeline('-', 79, false, true);
     for (j = 0; j < m_points; j++) {
         sprintf(buf, "\n %10.4g ",m_z[j]);
         writelog(buf);

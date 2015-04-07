@@ -228,6 +228,18 @@ public:
      */
     virtual doublereal intEnergy_mole() const;
 
+    //! Return the Molar Entropy. Units: J/kmol-K
+    /**
+     * \f[
+     *  \hat s(T,P) = \sum_k X_k (\hat s^0_k(T) - R \log(\theta_k))
+     * \f]
+     */
+    virtual doublereal entropy_mole() const;
+
+    virtual doublereal cp_mole() const;
+
+    virtual doublereal cv_mole() const;
+
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
      * This function returns a vector of chemical potentials of the
@@ -345,7 +357,6 @@ public:
      * @param n number of parameters. Must be one
      * @param c array of \a n coefficients
      *           c[0] = The site density (kmol m-2)
-     * @deprecated use setSiteDensity()
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -385,8 +396,6 @@ public:
      * description, this method is called from ThermoPhase::initThermoXML(),
      * which is called from importPhase(),
      * just prior to returning from function importPhase().
-     *
-     * @see importCTML.cpp
      */
     virtual void initThermo();
 
@@ -494,6 +503,8 @@ public:
         m_press = p;
     }
 
+    virtual void getPureGibbs(doublereal* g) const;
+
     //!  Returns the vector of nondimensional
     //!  Gibbs Free Energies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
@@ -511,22 +522,6 @@ public:
      *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-
-#ifdef H298MODIFY_CAPABILITY
-
-    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
-    /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
-     *
-     *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
-     */
-    virtual void modifyOneHf298SS(const size_t& k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
-        m_tlast += 0.0001234;
-    }
-#endif
 
     //!  Returns the vector of nondimensional
     //!  entropies of the reference state at the current temperature
@@ -603,9 +598,6 @@ protected:
 
     //! Current value of the pressure (Pa)
     doublereal m_press;
-
-    //! Current value of the temperature (Kelvin)
-    mutable doublereal    m_tlast;
 
     //! Temporary storage for the reference state enthalpies
     mutable vector_fp      m_h0;

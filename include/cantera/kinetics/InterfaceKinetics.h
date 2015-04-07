@@ -103,7 +103,9 @@ public:
 
     virtual void getEquilibriumConstants(doublereal* kc);
 
-    void getExchangeCurrentQuantities();
+    /** values needed to convert from exchange current density to surface reaction rate.
+     */
+    void updateExchangeCurrentQuantities();
 
     virtual void getDeltaGibbs(doublereal* deltaG);
 
@@ -173,7 +175,6 @@ public:
     virtual void getFwdRateConstants(doublereal* kfwd);
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
-    virtual void getActivationEnergies(doublereal* E);
 
     //! @}
     //! @name Reaction Mechanism Construction
@@ -268,19 +269,27 @@ public:
 
     void checkPartialEquil();
 
+    //!  Update the standard state chemical potentials and species equilibrium constant entries
+    /*!
+     *  Virtual because it is overwritten when dealing with experimental open circuit voltage overrides
+     */
+    virtual void updateMu0();
+
     size_t reactionNumber() const {
         return m_ii;
     }
 
     void addElementaryReaction(ReactionData& r);
-    void addGlobalReaction(const ReactionData& r);
+    //void addGlobalReaction(const ReactionData& r);
     void installReagents(const ReactionData& r);
 
-    /**
-     * Update the equilibrium constants in molar units for all reversible
-     * reactions. Irreversible reactions have their equilibrium constant set
-     * to zero. For reactions involving charged species the equilibrium
-     * constant is adjusted according to the electrostatic potential.
+    
+    //! Update the equilibrium constants and stored electrochemical potentials
+    //! in molar units for all reversible reactions and for all species.
+    /*!
+     *         Irreversible reactions have their equilibrium constant set
+     *         to zero. For reactions involving charged species the equilibrium
+     *         constant is adjusted according to the electrostatic potential.
      */
     void updateKc();
 
@@ -306,8 +315,13 @@ public:
     void applyButlerVolmerCorrection(doublereal* const kf);
 
     //! When an electrode reaction rate is optionally specified in terms of its
-    //! exchange current density, extra vectors need to be precalculated
-    void applyExchangeCurrentDensityFormulation(doublereal* const kfwd);
+    //! exchange current density, adjust to standard reaction rate form.
+    /**
+     * For a reaction rate that was given in units of Amps/m2 (exchange current
+     *  density formulation with iECDFormulation == true), convert the rate to
+     *  kmoles/m2/s.
+     */
+    void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
     //! Set the existence of a phase in the reaction object
     /*!
@@ -454,14 +468,30 @@ protected:
      */
     vector_fp m_conc;
 
-    //! Vector of standard state chemical potentials
+    //! Vector of standard state chemical potentials for all species
     /*!
      * This vector contains a temporary vector of standard state chemical
      * potentials for all of the species in the kinetics object
      *
-     * Length = m_k. Units = J/kmol.
+     * Length = m_kk. Units = J/kmol.
      */
     vector_fp m_mu0;
+
+    //! Vector of standard state electrochemical potentials modified by
+    //! a standard concentration term.
+    /*!
+     * This vector contains a temporary vector of standard state electrochemical
+     * potentials + RTln(Cs) for all of the species in the kinetics object
+     *
+     * In order to get the units correct for the concentration equilibrium
+     * constant, each species needs to have an 
+     * RT ln(Cs)  added to its contribution to the equilibrium constant
+     * Cs is the standard concentration for the species. Frequently, for
+     * solid species, Cs is equal to 1. However, for gases Cs is P/RT.
+     *
+     * Length = m_kk. Units = J/kmol.
+     */
+    vector_fp m_mu0_Kc;
 
     //! Vector of phase electric potentials
     /*!
@@ -488,8 +518,8 @@ protected:
 
     //! Vector of raw activation energies for the reactions
     /*!
-     * units are in Kelvin
-     * Length is number of reactions.
+     *    Units are in Kelvin.
+     *    Length is number of reactions.
      */
     vector_fp m_E;
 
@@ -520,7 +550,18 @@ protected:
     //! be described by an exchange current density expression
     vector_int m_ctrxn_ecdf;
 
+    //! Vector of standard concentrations
+    /*!
+     *   Length number of kinetic species
+     *   units depend on the definition of the standard concentration within each phase
+     */
     vector_fp m_StandardConc;
+
+    //!  Vector of delta G^0, the standard state gibbs free energies for each reaction
+    /*!
+     *    Length is the number of reactions
+     *    units are Joule kmol-1
+     */
     vector_fp m_deltaG0;
     vector_fp m_ProdStanConcReac;
 
@@ -534,12 +575,22 @@ protected:
 
     //! Current temperature of the data
     doublereal m_temp;
+
     //! Current log of the temperature
     doublereal m_logtemp;
+
     vector_fp m_rfn;
+
+    //! Equilibrium constant for all reactions including the voltage term
+    /*!
+     *   Kc = exp(deltaG/RT)
+     *
+     *   where deltaG is the electrochemical potential difference between
+     *   products minus reactants.
+     */
     vector_fp m_rkcn;
 
-    //! boolean indicating whether mechanism has been finalized
+    //! Boolean indicating whether mechanism has been finalized
     bool m_finalized;
 
     //! Boolean flag indicating whether any reaction in the mechanism
@@ -581,7 +632,11 @@ protected:
     //!  Vector of booleans indicating whether phases exist or not
     /*!
      *  Vector of booleans indicating whether a phase exists or not. We use
-     *  this to set the ROP's so that unphysical things don't happen
+     *  this to set the ROP's so that unphysical things don't happen.
+     *  For example, a reaction can't go in the forwards direction if a 
+     *  phase in which a reactant is present doesn't exist. Because InterfaceKinetics
+     *  deals with intrinsic quantities only normally, nowhere else is this extrinsic
+     *  concept introduced except here.
      *
      *  length = number of phases in the object. By default all phases exist.
      */
@@ -591,7 +646,7 @@ protected:
     /*!
      *  Vector of booleans indicating whether a phase is stable or not under
      *  the current conditions. We use this to set the ROP's so that
-     *  unphysical things don't happen
+     *  unphysical things don't happen.
      *
      *  length = number of phases in the object. By default all phases are stable.
      */

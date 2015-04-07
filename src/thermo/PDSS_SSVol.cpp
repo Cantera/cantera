@@ -183,14 +183,6 @@ void PDSS_SSVol::initThermo()
 }
 
 doublereal
-PDSS_SSVol::enthalpy_mole() const
-{
-    doublereal val = enthalpy_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_SSVol::enthalpy_RT() const
 {
     return m_hss_RT_ptr[m_spindex];
@@ -206,37 +198,15 @@ PDSS_SSVol::intEnergy_mole() const
 }
 
 doublereal
-PDSS_SSVol::entropy_mole() const
-{
-    doublereal val = entropy_R();
-    return val * GasConstant;
-}
-
-doublereal
 PDSS_SSVol::entropy_R() const
 {
     return m_sss_R_ptr[m_spindex];
 }
 
 doublereal
-PDSS_SSVol::gibbs_mole() const
-{
-    doublereal val = gibbs_RT();
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
-}
-
-doublereal
 PDSS_SSVol::gibbs_RT() const
 {
     return m_gss_RT_ptr[m_spindex];
-}
-
-doublereal
-PDSS_SSVol::cp_mole() const
-{
-    doublereal val = m_cpss_R_ptr[m_spindex];
-    return val * GasConstant;
 }
 
 doublereal
@@ -309,24 +279,6 @@ void PDSS_SSVol::calcMolarVolume() const
     } else {
         throw CanteraError("PDSS_SSVol::calcMolarVolume", "unimplemented");
     }
-}
-
-doublereal PDSS_SSVol::critTemperature() const
-{
-    throw CanteraError("PDSS_SSVol::critTemperature()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_SSVol::critPressure() const
-{
-    throw CanteraError("PDSS_SSVol::critPressure()", "unimplemented");
-    return 0.0;
-}
-
-doublereal PDSS_SSVol::critDensity() const
-{
-    throw CanteraError("PDSS_SSVol::critDensity()", "unimplemented");
-    return 0.0;
 }
 
 void PDSS_SSVol::setPressure(doublereal p)

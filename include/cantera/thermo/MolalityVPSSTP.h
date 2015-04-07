@@ -223,16 +223,6 @@ public:
     //! @name  Utilities
     //! @{
 
-    //! Equation of state type flag.
-    /*!
-     * The ThermoPhase base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Known constants defined for this purpose are
-     * listed in mix_defs.h. The MolalityVPSSTP class also returns
-     * zero, as it is a non-complete class.
-     */
-    virtual int eosType() const;
-
     //! Set the pH scale, which determines the scale for single-ion activity
     //! coefficients.
     /*!
@@ -362,7 +352,7 @@ public:
      *
      * @param xMap  Composition Map containing the molalities.
      */
-    void setMolalitiesByName(compositionMap& xMap);
+    void setMolalitiesByName(const compositionMap& xMap);
 
     //! Set the molalities of a phase
     /*!
@@ -432,14 +422,6 @@ public:
     virtual doublereal standardConcentration(size_t k=0) const;
 
     /**
-     * Returns the natural logarithm of the standard
-     * concentration of the kth species
-     *
-     * @param k  species index
-     */
-    virtual doublereal logStandardConc(size_t k=0) const;
-
-    /**
      * Returns the units of the standard and generalized
      * concentrations Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth
@@ -460,7 +442,6 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
-     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -607,11 +588,9 @@ public:
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     * This method is called by function importPhase() in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model.
+     * This method is called by function importPhase() when processing a phase
+     * definition in an input file. It should be overloaded in subclasses to set
+     * any parameters that are specific to that particular phase model.
      *
      * The MolalityVPSSTP object defines a new method for setting
      * the concentrations of a phase. The new method is defined by a
@@ -638,8 +617,7 @@ public:
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
     /// input file. They are not normally used in application programs.
-    /// To see how they are used, see files importCTML.cpp and
-    /// ThermoFactory.cpp.
+    /// To see how they are used, see importPhase().
     //@{
 
     virtual void initThermo();
@@ -679,7 +657,7 @@ public:
      * @param p           Pressure (Pa)
      * @param m           compositionMap containing the molalities
      */
-    void setState_TPM(doublereal t, doublereal p, compositionMap& m);
+    void setState_TPM(doublereal t, doublereal p, const compositionMap& m);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!
@@ -717,8 +695,11 @@ public:
     /*!
      * @param show_thermo If true, extra information is printed out
      *                    about the thermodynamic state of the system.
+     * @param threshold   Show information about species with mole fractions
+     *                    greater than *threshold*.
      */
-    virtual std::string report(bool show_thermo = true) const;
+    virtual std::string report(bool show_thermo=true,
+                               doublereal threshold=1e-14) const;
 
 protected:
 
@@ -821,16 +802,6 @@ protected:
      * units are (kg/kmol)
      */
     mutable vector_fp  m_molalities;
-
-private:
-    //! Error function
-    /*!
-     *  Print an error string and exit
-     *
-     * @param msg  Message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
 };
 
 

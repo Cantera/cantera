@@ -64,13 +64,6 @@ of this file is:
     same Python interpreter being used by SCons.
     - default: '/usr/bin/python'
 
-* python_array: [ numpy | numarray | numeric ]
-    The Cantera Python interface requires one of the Python array
-    packages listed. Support for the legacy 'numeric' and 'numarray'
-    packages is deprecated, and will be removed in a future version of
-    Cantera.
-    - default: 'numpy'
-
 * python_array_home: [ /path/to/python_array_home ]
     If numpy was installed using the --home option, set this to the home
     directory for numpy.

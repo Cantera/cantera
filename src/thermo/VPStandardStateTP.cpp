@@ -79,10 +79,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
         /*
          *  Duplicate the VPSS Manager object that conducts the calculations
          */
-        if (m_VPSS_ptr) {
-            delete m_VPSS_ptr;
-            m_VPSS_ptr = 0;
-        }
+        delete m_VPSS_ptr;
         m_VPSS_ptr = (b.m_VPSS_ptr)->duplMyselfAsVPSSMgr();
 
         /*
@@ -129,13 +126,6 @@ int VPStandardStateTP::standardStateConvention() const
     return cSS_CONVENTION_VPSS;
 }
 
-doublereal VPStandardStateTP::err(const std::string& msg) const
-{
-    throw CanteraError("VPStandardStateTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
@@ -165,13 +155,11 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
 }
 
 //================================================================================================
-#ifdef H298MODIFY_CAPABILITY
-void VPStandardStateTP::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
+void VPStandardStateTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ss += 0.0001234;
 }
-#endif
 //================================================================================================
 void VPStandardStateTP::getEntropy_R(doublereal* srt) const
 {
@@ -305,7 +293,8 @@ void VPStandardStateTP::setPressure(doublereal p)
 
 void VPStandardStateTP::calcDensity()
 {
-    err("VPStandardStateTP::calcDensity() called, but EOS for phase is not known");
+    throw NotImplementedError("VPStandardStateTP::calcDensity() called, "
+                              "but EOS for phase is not known");
 }
 
 
@@ -367,7 +356,6 @@ void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id
     // routine.
     VPStandardStateTP::initLengths();
 
-    //m_VPSS_ptr->initThermo();
     for (size_t k = 0; k < m_kk; k++) {
         PDSS* kPDSS = m_PDSS_storage[k];
         AssertTrace(kPDSS != 0);

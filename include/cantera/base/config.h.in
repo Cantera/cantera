@@ -1,6 +1,3 @@
-//
-//  Run the 'preconfig' script to generate 'config.h' from this input file.
-//
 #ifndef CT_CONFIG_H
 #define CT_CONFIG_H
 
@@ -72,10 +69,12 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // with a native compiler
 %(SOLARIS)s
 
-//--------- Fonts for reaction path diagrams ----------------------
-%(RXNPATH_FONT)s
-
 //---------- C++ Compiler Variations ------------------------------
+
+// Name for 'isnan' varies for different compilers / standard libraries
+%(USE_STD_ISNAN)s
+%(USE_GLOBAL_ISNAN)s
+%(USE_UNDERSCORE_ISNAN)s
 
 // This define is needed to account for the variability for how
 // static variables in templated classes are defined. Right now
@@ -91,31 +90,17 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 
 //--------------------- Python ------------------------------------
 
-// If this is defined, the Cantera Python interface will use the
-// Numeric package
-%(HAS_NUMERIC)s
-
-// If this is defined, the Cantera Python interface will use the
-// numarray package
-%(HAS_NUMARRAY)s
-
-// If this is defined, the Cantera Python interface will use the
-// numpy package
-%(HAS_NUMPY)s
-
 // If this is defined, then python will not be assumed to be
 // present to support conversions
 %(HAS_NO_PYTHON)s
-
-%(WITH_HTML_LOGS)s
 
 //--------------------- compile options ----------------------------
 %(THREAD_SAFE_CANTERA)s
 
 //-------------- Optional Cantera Capabilities ----------------------
 
-//    Enable sensitivity analysis via changing H298 directly
-//    for species
-%(H298MODIFY_CAPABILITY)s
+//    Enable Sundials to use an external BLAS/LAPACK library if it was
+//    built to use this option
+%(SUNDIALS_USE_LAPACK)s
 
 #endif

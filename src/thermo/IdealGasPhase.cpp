@@ -17,14 +17,12 @@ namespace Cantera
 
 IdealGasPhase::IdealGasPhase() :
     m_p0(-1.0),
-    m_tlast(0.0),
     m_logc0(0.0)
 {
 }
 
 IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id_) :
     m_p0(-1.0),
-    m_tlast(0.0),
     m_logc0(0.0)
 {
     initThermoFile(inputFile, id_);
@@ -32,7 +30,6 @@ IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id
 
 IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
     m_p0(-1.0),
-    m_tlast(0.0),
     m_logc0(0.0)
 {
     initThermoXML(phaseRef, id_);
@@ -40,7 +37,6 @@ IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
 
 IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
     m_p0(right.m_p0),
-    m_tlast(right.m_tlast),
     m_logc0(right.m_logc0)
 {
     /*
@@ -55,7 +51,6 @@ IdealGasPhase& IdealGasPhase::operator=(const IdealGasPhase& right)
     if (&right != this) {
         ThermoPhase::operator=(right);
         m_p0 = right.m_p0;
-        m_tlast = right.m_tlast;
         m_logc0 = right.m_logc0;
         m_h0_RT = right.m_h0_RT;
         m_cp0_R = right.m_cp0_R;
@@ -74,19 +69,9 @@ ThermoPhase* IdealGasPhase::duplMyselfAsThermoPhase() const
 
 // Molar Thermodynamic Properties of the Solution ------------------
 
-doublereal IdealGasPhase::intEnergy_mole() const
-{
-    return GasConstant * temperature() * (mean_X(&enthalpy_RT_ref()[0]) - 1.0);
-}
-
 doublereal IdealGasPhase::entropy_mole() const
 {
     return GasConstant * (mean_X(&entropy_R_ref()[0]) - sum_xlogx() - std::log(pressure() / m_spthermo->refPressure()));
-}
-
-doublereal IdealGasPhase::gibbs_mole() const
-{
-    return enthalpy_mole() - temperature() * entropy_mole();
 }
 
 doublereal IdealGasPhase::cp_mole() const
@@ -160,13 +145,6 @@ doublereal IdealGasPhase::standardConcentration(size_t k) const
     return p / (GasConstant * temperature());
 }
 
-doublereal IdealGasPhase::logStandardConc(size_t k) const
-{
-    _updateThermo();
-    double p = pressure();
-    return std::log(p / (GasConstant * temperature()));
-}
-
 void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
@@ -190,10 +168,8 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 void IdealGasPhase::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
-    //doublereal logp = log(pressure()/m_spthermo->refPressure());
     doublereal xx;
     doublereal rt = temperature() * GasConstant;
-    //const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt * (log(xx));
@@ -395,20 +371,21 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
 
 void IdealGasPhase::_updateThermo() const
 {
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
     doublereal tnow = temperature();
 
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
-    if (m_tlast != tnow) {
+    if (cached.state1 != tnow) {
         m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
-        m_tlast = tnow;
+        cached.state1 = tnow;
 
         // update the species Gibbs functions
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_logc0 = log(m_p0 / (GasConstant * tnow));
-        m_tlast = tnow;
     }
 }
 }

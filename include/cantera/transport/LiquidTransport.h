@@ -1312,14 +1312,6 @@ private:
      *  Turn on to get debugging information
      */
     bool m_debug;
-
-    //! Throw an exception if this method is invoked.
-    /*!
-     * This probably indicates something is not yet implemented.
-     *
-     * @param msg      Indicates the member function which is not implemented
-     */
-    doublereal err(const std::string& msg) const;
 };
 }
 #endif

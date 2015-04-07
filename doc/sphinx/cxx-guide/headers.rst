@@ -15,9 +15,6 @@ included by the Cantera core. The headers and their functions are:
 ``equilibrium.h``
     Chemical equilibrium.
 
-``GRI30.h``
-    Provides class :ct:`GRI30`.
-
 ``IdealGasMix.h``
     Provides class :ct:`IdealGasMix`.
 

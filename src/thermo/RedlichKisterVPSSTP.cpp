@@ -131,8 +131,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :
     RedlichKisterVPSSTP::operator=(b);
 }
 
-RedlichKisterVPSSTP& RedlichKisterVPSSTP::
-operator=(const RedlichKisterVPSSTP& b)
+RedlichKisterVPSSTP& RedlichKisterVPSSTP::operator=(const RedlichKisterVPSSTP& b)
 {
     if (&b == this) {
         return *this;
@@ -153,15 +152,9 @@ operator=(const RedlichKisterVPSSTP& b)
     return *this;
 }
 
-ThermoPhase*
-RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new RedlichKisterVPSSTP(*this);
-}
-
-int RedlichKisterVPSSTP::eosType() const
-{
-    return 0;
 }
 
 /*
@@ -210,9 +203,7 @@ void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
      * Update the activity coefficients
      */
     s_update_lnActCoeff();
-    /*
-     *
-     */
+
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
         xx = std::max(moleFractions_[k], SmallNumber);
@@ -351,13 +342,6 @@ void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-doublereal RedlichKisterVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("RedlichKisterVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void RedlichKisterVPSSTP::initThermo()
 {
     initLengths();
@@ -494,9 +478,6 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
             polyk *= fac;
         }
         // This gives the same result as above
-        //  printf("RT lnActCoeff_Scaled_[iA] = %15.8E   , lnA = %15.8E\n",  lnActCoeff_Scaled_[iA], lnA);
-        // printf("RT lnActCoeff_Scaled_[iB] = %15.8E   , lnB = %15.8E\n",  lnActCoeff_Scaled_[iB], lnB);
-
 #endif
 
     }
@@ -506,8 +487,6 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
 {
     doublereal XA, XB;
-    //   doublereal T = temperature();
-
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
 
@@ -752,11 +731,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
              * Get the string containing all of the values
              */
             ctml::getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
-            size_t nParamsFound = hParams.size();
-            if (nParamsFound > Npoly) {
-                Npoly = nParamsFound;
-            }
-
+            Npoly = std::max(hParams.size(), Npoly);
         }
 
         if (nodeName == "excessentropy") {
@@ -764,10 +739,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
              * Get the string containing all of the values
              */
             ctml::getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
-            size_t nParamsFound = sParams.size();
-            if (nParamsFound > Npoly) {
-                Npoly = nParamsFound;
-            }
+            Npoly = std::max(sParams.size(), Npoly);
         }
     }
     hParams.resize(Npoly, 0.0);
@@ -781,19 +753,16 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 #ifdef DEBUG_MODE
 void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
-    int iA, iB, m;
-    doublereal XA, XB;
+    doublereal XA;
     doublereal T = temperature();
     doublereal RT = GasConstant * T;
     double Volts = 0.0;
 
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
-    for (int i = 0; i <  numBinaryInteractions_; i++) {
-        iA =  m_pSpecies_A_ij[i];
-        iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+        size_t iA =  m_pSpecies_A_ij[i];
         XA = moleFractions_[iA];
-        XB = moleFractions_[iB];
         if (XA <= 1.0E-14) {
             XA = 1.0E-14;
         }
@@ -801,7 +770,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
             XA = 1.0 - 1.0E-14;
         }
 
-        int N = m_N_ij[i];
+        size_t N = m_N_ij[i];
         vector_fp& he_vec = m_HE_m_ij[i];
         vector_fp& se_vec = m_SE_m_ij[i];
         double fac = 2.0 * XA - 1.0;
@@ -811,7 +780,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
         double polykp1 = fac;
         double poly1mk = fac;
 
-        for (m = 0; m < N; m++) {
+        for (size_t m = 0; m < N; m++) {
             doublereal A_ge = he_vec[m] - T * se_vec[m];
             Volts += A_ge * (polykp1 - (2.0 * XA * m * (1.0-XA)) / poly1mk);
             polykp1 *= fac;

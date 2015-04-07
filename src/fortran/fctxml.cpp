@@ -310,7 +310,6 @@ extern "C" {
             for (int i = 0; i < nv; i++) {
                 data[i] = v[i];
             }
-            //n = nv;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

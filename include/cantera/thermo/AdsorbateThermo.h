@@ -67,11 +67,9 @@ public:
         return (SpeciesThermoInterpType*) np;
     }
 
-    //! @deprecated Not a member of the base class
     virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c, doublereal minTemp_, doublereal maxTemp_,
                          doublereal refPressure_) {
-        warn_deprecated("Adsorbate::install", "Not a member of the base class.");
         m_be = c[1];
         m_nFreqs = int(c[0]);
         for (size_t n = 0; n < m_nFreqs; n++) {
@@ -98,12 +96,10 @@ public:
         s_R[m_index] = h_RT[m_index] - _free_energy_RT(temp);
     }
 
-    //! @deprecated
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
-        warn_deprecated("AdsorbateThermo::reportParameters");
         n = m_index;
         type = ADSORBATE;
         tlow = m_lowT;

@@ -138,19 +138,6 @@ public:
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! @name  Utilities
-    //! @{
-
-    /**
-     * Equation of state type flag. The base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Constants defined for this purpose are
-     * listed in mix_defs.h.
-     */
-    virtual int eosType() const {
-        return 0;
-    }
-
     //! @}
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
@@ -335,38 +322,6 @@ public:
 
     /**
      * @}
-     * @name Potential Energy
-     *
-     * Species may have an additional potential energy due to the
-     * presence of external gravitation or electric fields. These
-     * methods allow specifying a potential energy for individual
-     * species.
-     * @{
-     */
-
-    //!Set the potential energy of species k to pe.
-    /*!
-     * Units: J/kmol.
-     *
-     * @param k    Species index
-     * @param pe   Input potential energy.
-     */
-    virtual void setPotentialEnergy(int k, doublereal pe) {
-        err("setPotentialEnergy");
-    }
-
-    /**
-     * Get the potential energy of species k.
-     * Units: J/kmol.
-     *
-     * @param k Species index
-     */
-    virtual doublereal potentialEnergy(int k) const {
-        return err("potentialEnergy");
-    }
-
-    /**
-     * @}
      * @name Activities and Activity Concentrations
      *
      * The activity \f$a_k\f$ of a species in solution is
@@ -408,14 +363,6 @@ public:
     virtual doublereal standardConcentration(size_t k=0) const;
 
     /*!
-     * Returns the natural logarithm of the standard
-     * concentration of the kth species
-     *
-     * @param k  Species index
-     */
-    virtual doublereal logStandardConc(size_t k=0) const;
-
-    /*!
      * Returns the units of the standard and generalized
      * concentrations Note they have the same units, as their
      * ratio is defined to be equal to the activity of the kth
@@ -436,7 +383,6 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
-     * @deprecated
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -471,7 +417,6 @@ public:
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
-
 
     //!Get the species chemical potentials: Units: J/kmol.
     /*!
@@ -516,7 +461,6 @@ public:
      *               Length: m_kk.
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-
 
     //! Returns an array of partial molar entropies of the species in the solution. Units: J/kmol.
     /*!
@@ -598,79 +542,7 @@ public:
      * @param lambda_RT vector of Nondimensional element potentials.
      */
     virtual void setToEquilState(const doublereal* lambda_RT) {
-        err("setToEquilState");
-    }
-
-    //@}
-
-    /**
-     * @internal
-     * Set equation of state parameters. The number and meaning of
-     * these depends on the subclass.
-     * @param n number of parameters
-     * @param c array of <I>n</I> coefficients
-     * @deprecated Unimplemented
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    /*!
-     * @internal
-     *  Get the parameters used to initialize the phase.
-     *
-     * @param n  number of parameters (output)
-     * @param c array of <I>n</I> coefficients
-     * * @deprecated Unimplemented
-     */
-    virtual void getParameters(int& n, doublereal* const c) const;
-
-    /*!
-     * Set equation of state parameter values from XML
-     * entries. This method is called by function importPhase in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model.
-     *
-     * HKM -> Right now, the parameters are set elsewhere (initThermo)
-     *        It just didn't seem to fit.
-     *
-     *
-     * @param eosdata An XML_Node object corresponding to
-     * the "thermo" entry for this phase in the input file.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata);
-
-    /// @name Critical state properties.
-    /// These methods are only implemented by some subclasses.
-
-    //@{
-
-    /**
-     *   Critical temperature (K).
-     *   Not implemented for this phase type.
-     */
-    virtual doublereal critTemperature() const {
-        err("critTemperature");
-        return -1.0;
-    }
-
-    /**
-     *  Critical pressure (Pa).
-     *
-     * Not implemented for this phase type.
-     */
-    virtual doublereal critPressure() const {
-        err("critPressure");
-        return -1.0;
-    }
-
-    /**
-     *  Critical density (kg/m3).
-     *  Not implemented for this phase type.
-     */
-    virtual doublereal critDensity() const {
-        err("critDensity");
-        return -1.0;
+        throw NotImplementedError("IdealMolalSoln::setToEquilState");
     }
 
     //@}
@@ -803,13 +675,6 @@ public:
     //! @}
 
 private:
-
-    //! Internal error message
-    /*!
-     *  @param          msg message to be printed
-     */
-    doublereal err(const std::string& msg) const;
-
     //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients
     /*!

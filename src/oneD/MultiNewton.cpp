@@ -134,9 +134,7 @@ doublereal norm_square(const doublereal* x,
         for (j = 0; j < np; j++) {
             f = step[nv*j + n]/ewt;
             sum += f*f;
-            if (f*f > f2max) {
-                f2max = f*f;
-            }
+            f2max = std::max(f*f, f2max);
         }
     }
     return sum;
@@ -147,9 +145,6 @@ doublereal norm_square(const doublereal* x,
 //-----------------------------------------------------------
 //                  constants
 //-----------------------------------------------------------
-
-const string dashedline =
-    "-----------------------------------------------------------------";
 
 const doublereal DampFactor = sqrt(2.0);
 const size_t NDAMP = 7;
@@ -184,7 +179,7 @@ void MultiNewton::resize(size_t sz)
 doublereal MultiNewton::norm2(const doublereal* x,
                               const doublereal* step, OneDim& r) const
 {
-    doublereal f, sum = 0.0;//, fmx = 0.0;
+    doublereal f, sum = 0.0;
     size_t nd = r.nDomains();
     for (size_t n = 0; n < nd; n++) {
         f = norm_square(x + r.start(n), step + r.start(n),
@@ -274,13 +269,13 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     // write header
     if (loglevel > 0 && writetitle) {
         writelog("\n\nDamped Newton iteration:\n");
-        writelog(dashedline);
+        writeline('-', 65, false);
 
         sprintf(m_buf,"\n%s  %9s   %9s     %9s   %9s   %9s  %5s %5s\n",
                 "m","F_damp","F_bound","log10(ss)",
                 "log10(s0)","log10(s1)","N_jac","Age");
         writelog(m_buf);
-        writelog(dashedline+"\n");
+        writeline('-', 65);
     }
 
     // compute the weighted norm of the undamped step size step0
@@ -382,7 +377,6 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     int nJacReeval = 0;
 
     while (1 > 0) {
-
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
             writelog("\nMaximum Jacobian age reached ("+int2str(m_maxAge)+")\n", loglevel);
@@ -427,6 +421,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
 
         // convergence
         else if (m == 1) {
+            jac.setAge(0); // for efficient sensitivity analysis
             break;
         }
 

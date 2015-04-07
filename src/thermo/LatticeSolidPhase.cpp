@@ -20,7 +20,6 @@ using namespace std;
 namespace Cantera
 {
 LatticeSolidPhase::LatticeSolidPhase() :
-    m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
     m_nlattice(0),
@@ -32,7 +31,6 @@ LatticeSolidPhase::LatticeSolidPhase() :
 }
 
 LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
-    m_tlast(0.0),
     m_press(-1.0),
     m_molar_density(0.0),
     m_nlattice(0),
@@ -244,15 +242,15 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
          * At this point we can check against the mole fraction vector of the underlying LatticePhase objects and
          * get the same answer.
          */
-#ifdef DEBUG_MODE
-        m_lattice[n]->getMoleFractions(&(m_x[strt]));
-        for (size_t k = 0; k < nsp; k++) {
-            if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
-                throw CanteraError("LatticeSolidPhase::getMoleFractions()",
-                                   "internal error");
+        if (DEBUG_MODE_ENABLED) {
+            m_lattice[n]->getMoleFractions(&(m_x[strt]));
+            for (size_t k = 0; k < nsp; k++) {
+                if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
+                    throw CanteraError("LatticeSolidPhase::getMoleFractions()",
+                                       "internal error");
+                }
             }
         }
-#endif
         strt += nsp;
     }
 }
@@ -443,10 +441,6 @@ void LatticeSolidPhase::initLengths()
 void LatticeSolidPhase::_updateThermo() const
 {
     doublereal tnow = temperature();
-    //        if (fabs(molarDensity() - m_molar_density)/m_molar_density > 0.0001) {
-    //   throw CanteraError("_updateThermo","molar density changed from "
-    //        +fp2str(m_molar_density)+" to "+fp2str(molarDensity()));
-    //}
     if (m_tlast != tnow) {
         getMoleFractions(DATA_PTR(m_x));
         size_t strt = 0;
@@ -512,8 +506,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
 
 }
 
-#ifdef H298MODIFY_CAPABILITY
-void LatticeSolidPhase::modifyOneHf298SS(const size_t& k, const doublereal Hf298New)
+void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     for (size_t n = 0; n < m_nlattice; n++) {
         if (lkstart_[n+1] < k) {
@@ -524,13 +517,6 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t& k, const doublereal Hf298
     }
     m_tlast += 0.0001234;
     _updateThermo();
-}
-#endif
-
-doublereal LatticeSolidPhase::err(const std::string& msg) const
-{
-    throw CanteraError("LatticeSolidPhase","Unimplemented " + msg);
-    return 0.0;
 }
 
 } // End namespace Cantera

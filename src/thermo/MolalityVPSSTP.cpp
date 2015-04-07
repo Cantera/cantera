@@ -57,8 +57,7 @@ MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
     *this = operator=(b);
 }
 
-MolalityVPSSTP& MolalityVPSSTP::
-operator=(const MolalityVPSSTP& b)
+MolalityVPSSTP& MolalityVPSSTP::operator=(const MolalityVPSSTP& b)
 {
     if (&b != this) {
         VPStandardStateTP::operator=(b);
@@ -73,8 +72,7 @@ operator=(const MolalityVPSSTP& b)
     return *this;
 }
 
-ThermoPhase*
-MolalityVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* MolalityVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MolalityVPSSTP(*this);
 }
@@ -82,11 +80,6 @@ MolalityVPSSTP::duplMyselfAsThermoPhase() const
 /*
  *  -------------- Utilities -------------------------------
  */
-
-int MolalityVPSSTP::eosType() const
-{
-    return 0;
-}
 
 void MolalityVPSSTP::setpHScale(const int pHscaleType)
 {
@@ -120,8 +113,7 @@ size_t MolalityVPSSTP::solventIndex() const
     return m_indexSolvent;
 }
 
-void  MolalityVPSSTP::
-setMoleFSolventMin(doublereal xmolSolventMIN)
+void  MolalityVPSSTP::setMoleFSolventMin(doublereal xmolSolventMIN)
 {
     if (xmolSolventMIN <= 0.0) {
         throw CanteraError("MolalityVPSSTP::setSolute ", "trouble");
@@ -139,10 +131,7 @@ doublereal MolalityVPSSTP::moleFSolventMin() const
 void MolalityVPSSTP::calcMolalities() const
 {
     getMoleFractions(DATA_PTR(m_molalities));
-    double xmolSolvent = m_molalities[m_indexSolvent];
-    if (xmolSolvent < m_xmolSolventMIN) {
-        xmolSolvent = m_xmolSolventMIN;
-    }
+    double xmolSolvent = std::max(m_molalities[m_indexSolvent], m_xmolSolventMIN);
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         m_molalities[k] *= denomInv;
@@ -186,7 +175,7 @@ void MolalityVPSSTP::setMolalities(const doublereal* const molal)
     calcMolalities();
 }
 
-void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
+void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
 {
     /*
      *  HKM -> Might need to be more complicated here, setting
@@ -194,7 +183,6 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
      *         preserved.
      */
     size_t kk = nSpecies();
-    doublereal x;
     /*
      * Get a vector of mole fractions
      */
@@ -202,14 +190,10 @@ void MolalityVPSSTP::setMolalitiesByName(compositionMap& mMap)
     getMoleFractions(DATA_PTR(mf));
     double xmolS = mf[m_indexSolvent];
     double xmolSmin = std::max(xmolS, m_xmolSolventMIN);
-    compositionMap::iterator p;
     for (size_t k = 0; k < kk; k++) {
-        p = mMap.find(speciesName(k));
-        if (p != mMap.end()) {
-            x = mMap[speciesName(k)];
-            if (x > 0.0) {
-                mf[k] = x * m_Mnaught * xmolSmin;
-            }
+        compositionMap::const_iterator iter = mMap.find(speciesName(k));
+        if (iter != mMap.end() && iter->second > 0.0) {
+            mf[k] = iter->second * m_Mnaught * xmolSmin;
         }
     }
     /*
@@ -290,34 +274,24 @@ int MolalityVPSSTP::activityConvention() const
 
 void MolalityVPSSTP::getActivityConcentrations(doublereal* c) const
 {
-    err("getActivityConcentrations");
+    throw NotImplementedError("MolalityVPSSTP::getActivityConcentrations");
 }
 
 doublereal MolalityVPSSTP::standardConcentration(size_t k) const
 {
-    err("standardConcentration");
-    return -1.0;
-}
-
-doublereal MolalityVPSSTP::logStandardConc(size_t k) const
-{
-    err("logStandardConc");
-    return -1.0;
+    throw NotImplementedError("MolalityVPSSTP::standardConcentration");
 }
 
 void MolalityVPSSTP::getActivities(doublereal* ac) const
 {
-    err("getActivities");
+    throw NotImplementedError("MolalityVPSSTP::getActivities");
 }
 
 void MolalityVPSSTP::getActivityCoefficients(doublereal* ac) const
 {
     getMolalityActivityCoefficients(ac);
     AssertThrow(m_indexSolvent==0, "MolalityVPSSTP::getActivityCoefficients");
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    if (xmolSolvent < m_xmolSolventMIN) {
-        xmolSolvent = m_xmolSolventMIN;
-    }
+    double xmolSolvent = std::max(moleFraction(m_indexSolvent), m_xmolSolventMIN);
     for (size_t k = 1; k < m_kk; k++) {
         ac[k] /= xmolSolvent;
     }
@@ -360,13 +334,6 @@ void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-doublereal MolalityVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("MolalityVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void MolalityVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
     for (int i = 0; i < sizeUA; i++) {
@@ -394,7 +361,7 @@ void MolalityVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 void MolalityVPSSTP::setToEquilState(const doublereal* lambda_RT)
 {
     updateStandardStateThermo();
-    err("setToEquilState");
+    throw NotImplementedError("MolalityVPSSTP::setToEquilState");
 }
 
 void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
@@ -417,7 +384,7 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p,
     setState_TP(t, p);
 }
 
-void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, compositionMap& m)
+void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const compositionMap& m)
 {
     setMolalitiesByName(m);
     setState_TP(t, p);
@@ -447,12 +414,12 @@ void MolalityVPSSTP::initThermo()
 
 void MolalityVPSSTP::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
 {
-    err("getUnscaledMolalityActivityCoefficients");
+    throw NotImplementedError("MolalityVPSSTP::getUnscaledMolalityActivityCoefficients");
 }
 
 void MolalityVPSSTP::applyphScale(doublereal* acMolality) const
 {
-    err("applyphScale");
+    throw NotImplementedError("MolalityVPSSTP::applyphScale");
 }
 
 size_t MolalityVPSSTP::findCLMIndex() const
@@ -535,7 +502,7 @@ void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 /**
   * Format a summary of the mixture state for output.
   */
-std::string MolalityVPSSTP::report(bool show_thermo) const
+std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";
@@ -613,6 +580,8 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
 
         sprintf(p, " \n");
         s += p;
+        int nMinor = 0;
+        doublereal xMinor = 0.0;
         if (show_thermo) {
             sprintf(p, "                           X        "
                     "   Molalities         Chem.Pot.    ChemPotSS    ActCoeffMolal\n");
@@ -624,14 +593,19 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
                     "  ------------     ------------  ------------    ------------\n");
             s += p;
             for (size_t k = 0; k < kk; k++) {
-                if (x[k] > SmallNumber) {
-                    sprintf(p, "%18s  %12.6g     %12.6g     %12.6g   %12.6g   %12.6g\n",
-                            speciesName(k).c_str(), x[k], molal[k], mu[k], muss[k], acMolal[k]);
+                if (x[k] > threshold) {
+                    if (x[k] > SmallNumber) {
+                        sprintf(p, "%18s  %12.6g     %12.6g     %12.6g   %12.6g   %12.6g\n",
+                                speciesName(k).c_str(), x[k], molal[k], mu[k], muss[k], acMolal[k]);
+                    } else {
+                        sprintf(p, "%18s  %12.6g     %12.6g          N/A      %12.6g   %12.6g \n",
+                                speciesName(k).c_str(), x[k], molal[k], muss[k], acMolal[k]);
+                    }
+                    s += p;
                 } else {
-                    sprintf(p, "%18s  %12.6g     %12.6g          N/A      %12.6g   %12.6g \n",
-                            speciesName(k).c_str(), x[k], molal[k], muss[k], acMolal[k]);
+                    nMinor++;
+                    xMinor += x[k];
                 }
-                s += p;
             }
         } else {
             sprintf(p, "                           X"
@@ -641,10 +615,19 @@ std::string MolalityVPSSTP::report(bool show_thermo) const
                     "     ------------\n");
             s += p;
             for (size_t k = 0; k < kk; k++) {
-                sprintf(p, "%18s   %12.6g     %12.6g\n",
-                        speciesName(k).c_str(), x[k], molal[k]);
-                s += p;
+                if (x[k] > threshold) {
+                    sprintf(p, "%18s   %12.6g     %12.6g\n",
+                            speciesName(k).c_str(), x[k], molal[k]);
+                    s += p;
+                } else {
+                    nMinor++;
+                    xMinor += x[k];
+                }
             }
+        }
+        if (nMinor) {
+            sprintf(p, "     [%+5i minor] %12.6g\n", nMinor, xMinor);
+            s += p;
         }
     } catch (CanteraError& err) {
         err.save();

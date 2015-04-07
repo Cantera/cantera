@@ -72,10 +72,7 @@ WaterProps& WaterProps::operator=(const WaterProps& b)
     }
 
     if (m_own_sub) {
-        if (m_waterIAPWS) {
-            delete m_waterIAPWS;
-            m_waterIAPWS = 0;
-        }
+        delete m_waterIAPWS;
     }
     if (b.m_own_sub) {
         m_waterIAPWS = new WaterPropsIAPWS();
@@ -90,11 +87,11 @@ WaterProps& WaterProps::operator=(const WaterProps& b)
 
 doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
 {
-    doublereal Tc = T - 273.15;
-    const doublereal U1 = 288.9414;
-    const doublereal U2 = 508929.2;
-    const doublereal U3 = 68.12963;
-    const doublereal U4 = -3.9863;
+    static const doublereal Tc = T - 273.15;
+    static const doublereal U1 = 288.9414;
+    static const doublereal U2 = 508929.2;
+    static const doublereal U3 = 68.12963;
+    static const doublereal U4 = -3.9863;
 
     doublereal tmp1 = Tc + U1;
     doublereal tmp4 = Tc + U4;
@@ -143,15 +140,15 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
 doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
                                   int ifunc)
 {
-    const doublereal U1 = 3.4279E2;
-    const doublereal U2 = -5.0866E-3;
-    const doublereal U3 = 9.4690E-7;
-    const doublereal U4 = -2.0525;
-    const doublereal U5 = 3.1159E3;
-    const doublereal U6 = -1.8289E2;
-    const doublereal U7 = -8.0325E3;
-    const doublereal U8 = 4.2142E6;
-    const doublereal U9 = 2.1417;
+    static const doublereal U1 = 3.4279E2;
+    static const doublereal U2 = -5.0866E-3;
+    static const doublereal U3 = 9.4690E-7;
+    static const doublereal U4 = -2.0525;
+    static const doublereal U5 = 3.1159E3;
+    static const doublereal U6 = -1.8289E2;
+    static const doublereal U7 = -8.0325E3;
+    static const doublereal U8 = 4.2142E6;
+    static const doublereal U9 = 2.1417;
     doublereal T2 = T * T;
 
     doublereal eps1000 = U1 * exp(U2 * T + U3 * T2);
@@ -205,16 +202,11 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
     doublereal psat = satPressure(T);
     doublereal P;
     if (psat > P_input) {
-        //printf("ADebye WARNING: p_input < psat: %g %g\n",
-        // P_input, psat);
         P = psat;
     } else {
         P = P_input;
     }
     doublereal epsRelWater = relEpsilon(T, P, 0);
-    //printf("releps calc = %g, compare to 78.38\n", epsRelWater);
-    //doublereal B_Debye = 3.28640E9;
-
     doublereal epsilon = epsilon_0 * epsRelWater;
     doublereal dw = density_IAPWS(T, P);
     doublereal tmp = sqrt(2.0 * Avogadro * dw / 1000.);
@@ -235,23 +227,12 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
         doublereal depsRelWaterdT = relEpsilon(T, P, 1);
         dAdT -= A_Debye * (1.5 * depsRelWaterdT / epsRelWater);
 
-        //int methodD = 1;
-        //doublereal ddwdT = density_T_new(T, P, 1);
-        // doublereal contrib1 = A_Debye * (0.5 * ddwdT / dw);
-
         /*
          * calculate d(lnV)/dT _constantP, i.e., the cte
          */
         doublereal cte = coeffThermalExp_IAPWS(T, P);
         doublereal contrib2 =  - A_Debye * (0.5 * cte);
-
-        //dAdT += A_Debye * (0.5 * ddwdT / dw);
         dAdT += contrib2;
-
-#ifdef DEBUG_HKM
-        //printf("dAdT = %g, contrib1 = %g, contrib2 = %g\n",
-        //    dAdT, contrib1, contrib2);
-#endif
 
         if (ifunc == 1) {
             return dAdT;
@@ -267,13 +248,6 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 
             doublereal d2epsRelWaterdT2 = relEpsilon(T, P, 2);
 
-            //doublereal dT = -0.01;
-            //doublereal TT = T + dT;
-            //doublereal depsRelWaterdTdel = relEpsilon(TT, P, 1);
-            //doublereal d2alt = (depsRelWaterdTdel- depsRelWaterdT ) / dT;
-            //printf("diff %g %g\n",d2epsRelWaterdT2, d2alt);
-            // HKM -> checks out, i.e., they are the same.
-
             d2AdT2 += 1.5 * (- dAdT * depsRelWaterdT / epsRelWater
                              - A_Debye / epsRelWater *
                              (d2epsRelWaterdT2 - depsRelWaterdT * depsRelWaterdT / epsRelWater));
@@ -282,10 +256,6 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
             doublereal Tdel = T + deltaT;
             doublereal cte_del =  coeffThermalExp_IAPWS(Tdel, P);
             doublereal dctedT = (cte_del - cte) / Tdel;
-
-
-            //doublereal d2dwdT2 = density_T_new(T, P, 2);
-
             doublereal contrib3 = 0.5 * (-(dAdT * cte) -(A_Debye * dctedT));
             d2AdT2 += contrib3;
 
@@ -312,8 +282,6 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
         dAdP -=  A_Debye * (1.5 * depsRelWaterdP / epsRelWater);
 
         doublereal kappa = isothermalCompressibility_IAPWS(T,P);
-
-        //doublereal ddwdP = density_T_new(T, P, 3);
         dAdP += A_Debye * (0.5 * kappa);
 
         return dAdP;
@@ -357,16 +325,9 @@ doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublere
     return m_waterIAPWS->isothermalCompressibility();
 }
 
-// Parameters for the viscosityWater() function
+static const doublereal H[4] = {1., 0.978197, 0.579829, -0.202354};
 
-// \cond
-const doublereal H[4] = {1.,
-                         0.978197,
-                         0.579829,
-                         -0.202354
-                        };
-
-const doublereal Hij[6][7] = {
+static const doublereal Hij[6][7] = {
     { 0.5132047, 0.2151778, -0.2818107,  0.1778064, -0.04176610,          0.,           0.},
     { 0.3205656, 0.7317883, -1.070786 ,  0.4605040,          0., -0.01578386,           0.},
     { 0.,        1.241044 , -1.263184 ,  0.2340379,          0.,          0.,           0.},
@@ -374,35 +335,23 @@ const doublereal Hij[6][7] = {
     {-0.7782567,      0.0 ,         0.,  0.       ,          0.,          0.,           0.},
     { 0.1885447,      0.0 ,         0.,  0.       ,          0.,          0.,           0.},
 };
-const doublereal TStar = 647.27;       // Kelvin
-const doublereal rhoStar = 317.763;    // kg / m3
-const doublereal presStar = 22.115E6;  // Pa
-const doublereal muStar = 55.071E-6;   //Pa s
-// \endcond
+
+static const doublereal rhoStar = 317.763;    // kg / m3
+static const doublereal presStar = 22.115E6;  // Pa
 
 doublereal WaterProps::viscosityWater() const
 {
+    static const doublereal TStar = 647.27;       // Kelvin
+    static const doublereal muStar = 55.071E-6;   //Pa s
     doublereal temp = m_waterIAPWS->temperature();
     doublereal dens = m_waterIAPWS->density();
 
-    //WaterPropsIAPWS *waterP = new WaterPropsIAPWS();
-    //m_waterIAPWS->setState_TR(temp, dens);
-    //doublereal pressure = m_waterIAPWS->pressure();
-    //printf("pressure = %g\n", pressure);
-    //dens = 18.02 * pressure / (GasConstant * temp);
-    //printf ("mod dens = %g\n", dens);
-
     doublereal rhobar = dens/rhoStar;
     doublereal tbar = temp / TStar;
-    // doublereal pbar = pressure / presStar;
-
     doublereal tbar2 = tbar * tbar;
     doublereal tbar3 = tbar2 * tbar;
 
     doublereal mu0bar = std::sqrt(tbar) / (H[0] + H[1]/tbar + H[2]/tbar2 + H[3]/tbar3);
-
-    //printf("mu0bar = %g\n", mu0bar);
-    //printf("mu0 = %g\n", mu0bar * muStar);
 
     doublereal tfac1 = 1.0 / tbar - 1.0;
     doublereal tfac2 = tfac1 * tfac1;
@@ -473,8 +422,6 @@ doublereal WaterProps::thermalConductivityWater() const
     doublereal tbar2 = tbar * tbar;
     doublereal tbar3 = tbar2 * tbar;
     doublereal lambda0bar = sqrt(tbar) / (L[0] + L[1]/tbar + L[2]/tbar2 + L[3]/tbar3);
-
-    //doublereal lambdagas = lambda0bar * lambdastar * 1.0E3;
 
     doublereal tfac1 = 1.0 / tbar - 1.0;
     doublereal tfac2 = tfac1 * tfac1;

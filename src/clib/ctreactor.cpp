@@ -303,7 +303,8 @@ extern "C" {
     int reactornet_addreactor(int i, int n)
     {
         try {
-            NetworkCabinet::item(i).addReactor(&ReactorCabinet::item(n));
+            NetworkCabinet::item(i).addReactor(
+                dynamic_cast<Reactor&>(ReactorCabinet::item(n)));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

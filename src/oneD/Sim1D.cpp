@@ -4,7 +4,7 @@
 
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
-
+#include "cantera/oneD/StFlow.h"
 #include <fstream>
 
 using namespace std;
@@ -12,17 +12,9 @@ using namespace std;
 namespace Cantera
 {
 
-static void sim1D_drawline()
-{
-    string s(78,'.');
-    s += '\n';
-    writelog(s.c_str());
-}
-
 Sim1D::Sim1D() :
     OneDim()
 {
-    //writelog("Sim1D default constructor\n");
 }
 
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
@@ -35,12 +27,10 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_xnew.resize(size(), 0.0);
     for (size_t n = 0; n < m_nd; n++) {
         domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
-        domain(n).m_adiabatic=false;
     }
 
     // set some defaults
     m_tstep = 1.0e-5;
-    //m_maxtimestep = 10.0;
     m_steps.push_back(1);
     m_steps.push_back(2);
     m_steps.push_back(5);
@@ -239,8 +229,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
         bool ok = false;
         if (loglevel > 0) {
-            writelog("\n");
-            sim1D_drawline();
+            writeline('.', 78, true, true);
         }
         while (!ok) {
             writelog("Attempt Newton solution of steady-state problem...", loglevel);
@@ -301,14 +290,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 } else {
                     nsteps = m_steps[istep];
                 }
-                if (dt > m_tmax) {
-                    dt = m_tmax;
-                }
+                dt = std::min(dt, m_tmax);
             }
         }
         if (loglevel > 0) {
-            sim1D_drawline();
-            writelog("\n");
+            writeline('.', 78, true, true);
         }
         if (loglevel > 2) {
             showSolution();
@@ -388,7 +374,6 @@ int Sim1D::refine(int loglevel)
                     zmid = 0.5*(d.grid(m) + d.grid(m+1));
                     znew.push_back(zmid);
                     np++;
-                    //writelog(string("refine: adding point at ")+fp2str(zmid)+"\n");
 
                     // for each component, linearly interpolate
                     // the solution to this point
@@ -412,8 +397,7 @@ int Sim1D::refine(int loglevel)
     size_t gridstart = 0, gridsize;
     for (size_t n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);
-        //            Refiner& r = d.refiner();
-        gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
+        gridsize = dsize[n];
         d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
         gridstart += gridsize;
     }
@@ -424,8 +408,6 @@ int Sim1D::refine(int loglevel)
 
     // resize the work array
     m_xnew.resize(xnew.size());
-
-    //        copy(xnew.begin(), xnew.end(), m_xnew.begin());
 
     resize();
     finalize();
@@ -451,33 +433,33 @@ int Sim1D::setFixedTemperature(doublereal t)
         size_t comp = d.nComponents();
 
         // loop over points in the current grid to determine where new point is needed.
+        FreeFlame* d_free = dynamic_cast<FreeFlame*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
-        for (m = 0; m < npnow-1; m++) {
-            if (value(n,2,m) == t) {
-                zfixed = d.grid(m);
-                //set d.zfixed, d.ztemp
-                d.m_zfixed = zfixed;
-                d.m_tfixed = t;
-                addnewpt = false;
-                break;
-            } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
-                z1 = d.grid(m);
-                m1 = m;
-                z2 = d.grid(m+1);
-                t1 = value(n,2,m);
-                t2 = value(n,2,m+1);
+        if (d_free) {
+            for (m = 0; m < npnow-1; m++) {
+                if (value(n,2,m) == t) {
+                    zfixed = d.grid(m);
+                    d_free->m_zfixed = zfixed;
+                    d_free->m_tfixed = t;
+                    addnewpt = false;
+                    break;
+                } else if ((value(n,2,m)<t) && (value(n,2,m+1)>t)) {
+                    z1 = d.grid(m);
+                    m1 = m;
+                    z2 = d.grid(m+1);
+                    t1 = value(n,2,m);
+                    t2 = value(n,2,m+1);
 
-                zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
-                //set d.zfixed, d.ztemp;
-                d.m_zfixed = zfixed;
-                d.m_tfixed = t;
-                addnewpt = true;
-                break;
-                //copy solution domain and push back values
+                    zfixed = (z1-z2)/(t1-t2)*(t-t2)+z2;
+                    d_free->m_zfixed = zfixed;
+                    d_free->m_tfixed = t;
+                    addnewpt = true;
+                    break;
+                    //copy solution domain and push back values
+                }
             }
         }
-
 
         for (m = 0; m < npnow; m++) {
             // add the current grid point to the new grid
@@ -513,8 +495,7 @@ int Sim1D::setFixedTemperature(doublereal t)
     size_t gridstart = 0, gridsize;
     for (n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);
-        //            Refiner& r = d.refiner();
-        gridsize = dsize[n]; // d.nPoints() + r.nNewPoints();
+        gridsize = dsize[n];
         d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
         gridstart += gridsize;
     }
@@ -531,14 +512,6 @@ int Sim1D::setFixedTemperature(doublereal t)
     resize();
     finalize();
     return np;
-}
-
-void Sim1D::setAdiabaticFlame(void)
-{
-    for (size_t n = 0; n < m_nd; n++) {
-        Domain1D& d = domain(n);
-        d.m_adiabatic=true;
-    }
 }
 
 void Sim1D::setRefineCriteria(int dom, doublereal ratio,

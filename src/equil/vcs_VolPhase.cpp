@@ -14,9 +14,12 @@
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/mix_defs.h"
+#include "cantera/base/stringUtils.h"
 
 #include <sstream>
 #include <cstdio>
+
+using namespace Cantera;
 
 namespace VCSnonideal
 {
@@ -131,12 +134,7 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         }
         m_elementActive = b.m_elementActive;
         m_elementType = b.m_elementType;
-        m_formulaMatrix.resize(m_numElemConstraints, m_numSpecies, 0.0);
-        for (size_t e = 0; e < m_numElemConstraints; e++) {
-            for (size_t k = 0; k < m_numSpecies; k++) {
-                m_formulaMatrix[e][k] = b.m_formulaMatrix[e][k];
-            }
-        }
+        m_formulaMatrix = b.m_formulaMatrix;
         m_speciesUnknownType = b.m_speciesUnknownType;
         m_elemGlobalIndex    = b.m_elemGlobalIndex;
         PhaseName           = b.PhaseName;
@@ -148,7 +146,6 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
          * Do a shallow copy because we haven' figured this out.
          */
         IndSpecies = b.IndSpecies;
-        //IndSpeciesContig = b.IndSpeciesContig;
 
         for (size_t k = 0; k < old_num; k++) {
             if (ListSpeciesPtr[k]) {
@@ -203,25 +200,16 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
                           const size_t numElem, const char* const phaseName,
                           const double molesInert)
 {
-#ifdef DEBUG_MODE
-    if (nspecies <= 0) {
-        plogf("nspecies Error\n");
-        exit(EXIT_FAILURE);
-    }
-    if (phaseNum < 0) {
-        plogf("phaseNum should be greater than 0\n");
-        exit(EXIT_FAILURE);
-    }
-#endif
+    AssertThrowMsg(nspecies > 0, "vcs_VolPhase::resize", "nspecies Error");
     setTotalMolesInert(molesInert);
     m_phi = 0.0;
     m_phiVarIndex = npos;
 
     if (phaseNum == VP_ID_) {
         if (strcmp(PhaseName.c_str(), phaseName)) {
-            plogf("Strings are different: %s %s :unknown situation\n",
-                  PhaseName.c_str(), phaseName);
-            exit(EXIT_FAILURE);
+            throw CanteraError("vcs_VolPhase::resize",
+                               "Strings are different: " + PhaseName + " " +
+                               phaseName + " :unknown situation");
         }
     } else {
         VP_ID_ = phaseNum;
@@ -270,7 +258,7 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     for (size_t i = 0; i < nspecies; i++) {
         Xmol_[i] = 1.0/nspecies;
         creationMoleNumbers_[i] = 1.0/nspecies;
-        if (IndSpecies[i] - m_numElemConstraints >= 0) {
+        if (IndSpecies[i] >= m_numElemConstraints) {
             creationGlobalRxnNumbers_[i] = IndSpecies[i] - m_numElemConstraints;
         } else {
             creationGlobalRxnNumbers_[i] = npos;
@@ -306,7 +294,7 @@ void vcs_VolPhase::elemResize(const size_t numElemConstraints)
 
     m_elementActive.resize(numElemConstraints+1, 1);
     m_elementType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
-    m_formulaMatrix.resize(numElemConstraints, m_numSpecies, 0.0);
+    m_formulaMatrix.resize(m_numSpecies, numElemConstraints, 0.0);
 
     m_elementNames.resize(numElemConstraints, "");
     m_elemGlobalIndex.resize(numElemConstraints, npos);
@@ -433,30 +421,28 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
         // There are other ways to set the mole fractions when VCS_STATECALC
         // is set to a normal settting.
         if (vcsStateStatus != VCS_STATECALC_TMP) {
-            printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("vcs_VolPhase::setMolesFractionsState",
+                               "inappropriate usage");
         }
         m_UpToDate = false;
         m_vcsStateStatus = VCS_STATECALC_TMP;
         if (m_existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
-            printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("vcs_VolPhase::setMolesFractionsState",
+                               "inappropriate usage");
         }
         m_existence = VCS_PHASE_EXIST_YES;
     } else {
         m_UpToDate = true;
         m_vcsStateStatus = vcsStateStatus;
-        if (m_existence > VCS_PHASE_EXIST_NO) {
-            m_existence = VCS_PHASE_EXIST_NO;
-        }
+        m_existence = std::min(m_existence, VCS_PHASE_EXIST_NO);
     }
     double fractotal = 1.0;
     v_totalMoles = totalMoles;
     if (m_totalMolesInert > 0.0) {
         if (m_totalMolesInert > v_totalMoles) {
-            printf("vcs_VolPhase::setMolesFractionsState: inerts greater than total: %g %g\n",
-                   v_totalMoles,  m_totalMolesInert);
-            exit(EXIT_FAILURE);
+            throw CanteraError("vcs_VolPhase::setMolesFractionsState",
+                 "inerts greater than total: " + fp2str(v_totalMoles) + " " +
+                 fp2str(m_totalMolesInert));
         }
         fractotal = 1.0 - m_totalMolesInert/v_totalMoles;
     }
@@ -466,8 +452,8 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
         sum += moleFractions[k];
     }
     if (sum == 0.0) {
-        printf("vcs_VolPhase::setMolesFractionsState: inappropriate usage\n");
-        exit(EXIT_FAILURE);
+        throw CanteraError("vcs_VolPhase::setMolesFractionsState",
+                           "inappropriate usage");
     }
     if (sum  != fractotal) {
         for (size_t k = 0; k < m_numSpecies; k++) {
@@ -481,58 +467,40 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
 void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
                                    const double* molesSpeciesVCS)
 {
-    size_t kglob;
-    double tmp;
     v_totalMoles = m_totalMolesInert;
 
     if (molesSpeciesVCS == 0) {
-#ifdef DEBUG_MODE
-        if (m_owningSolverObject == 0) {
-            printf("vcs_VolPhase::setMolesFromVCS  shouldn't be here\n");
-            exit(EXIT_FAILURE);
-        }
-#endif
+        AssertThrowMsg(m_owningSolverObject, "vcs_VolPhase::setMolesFromVCS",
+                       "shouldn't be here");
         if (stateCalc == VCS_STATECALC_OLD) {
             molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old);
         } else if (stateCalc == VCS_STATECALC_NEW) {
             molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new);
-        }
-#ifdef DEBUG_MODE
-        else {
-            printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-            exit(EXIT_FAILURE);
-        }
-#endif
-    }
-#ifdef DEBUG_MODE
-    else {
-        if (m_owningSolverObject) {
-            if (stateCalc == VCS_STATECALC_OLD) {
-                if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
-                    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-                    exit(EXIT_FAILURE);
-                }
-            } else if (stateCalc == VCS_STATECALC_NEW) {
-                if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
-                    printf("vcs_VolPhase::setMolesFromVCS shouldn't be here\n");
-                    exit(EXIT_FAILURE);
-                }
+        } else if (DEBUG_MODE_ENABLED) {
+            throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");        }
+    } else if (DEBUG_MODE_ENABLED && m_owningSolverObject) {
+        if (stateCalc == VCS_STATECALC_OLD) {
+            if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
+                throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
+            }
+        } else if (stateCalc == VCS_STATECALC_NEW) {
+            if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
+                throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
             }
         }
     }
-#endif
 
     for (size_t k = 0; k < m_numSpecies; k++) {
         if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            kglob = IndSpecies[k];
+            size_t kglob = IndSpecies[k];
             v_totalMoles += std::max(0.0, molesSpeciesVCS[kglob]);
         }
     }
     if (v_totalMoles > 0.0) {
         for (size_t k = 0; k < m_numSpecies; k++) {
             if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                kglob = IndSpecies[k];
-                tmp = std::max(0.0, molesSpeciesVCS[kglob]);
+                size_t kglob = IndSpecies[k];
+                double tmp = std::max(0.0, molesSpeciesVCS[kglob]);
                 Xmol_[k] = tmp / v_totalMoles;
             }
         }
@@ -541,9 +509,6 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         // This is where we will start to store a better approximation
         // for the mole fractions, when the phase doesn't exist.
         // This is currently unimplemented.
-        //for (int k = 0; k < m_numSpecies; k++) {
-        //    Xmol_[k] = 1.0 / m_numSpecies;
-        //}
         m_existence = VCS_PHASE_EXIST_NO;
     }
     /*
@@ -551,7 +516,7 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
      * in the equation system
      */
     if (m_phiVarIndex != npos) {
-        kglob = IndSpecies[m_phiVarIndex];
+        size_t kglob = IndSpecies[m_phiVarIndex];
         if (m_numSpecies == 1) {
             Xmol_[m_phiVarIndex] = 1.0;
         } else {
@@ -575,8 +540,7 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
      */
     if (stateCalc == VCS_STATECALC_OLD) {
         if (v_totalMoles > 0.0) {
-            vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), VCS_DATA_PTR(Xmol_), m_numSpecies);
-
+            creationMoleNumbers_ = Xmol_;
         }
     }
 
@@ -600,10 +564,9 @@ void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
         if (vcs_doubleEqual(Tcheck, v_totalMoles)) {
             Tcheck = v_totalMoles;
         } else {
-            plogf("vcs_VolPhase::setMolesFromVCSCheck: "
-                  "We have a consistency problem: %21.16g %21.16g\n",
-                  Tcheck, v_totalMoles);
-            exit(EXIT_FAILURE);
+            throw CanteraError("vcs_VolPhase::setMolesFromVCSCheck",
+                  "We have a consistency problem: " + fp2str(Tcheck) + " " +
+                  fp2str(v_totalMoles));
         }
     }
 }
@@ -748,8 +711,7 @@ double vcs_VolPhase::_updateVolPM() const
             double volI = m_totalMolesInert * Cantera::GasConstant * Temp_ / Pres_;
             m_totalVol += volI;
         } else {
-            printf("unknown situation\n");
-            exit(EXIT_FAILURE);
+            throw CanteraError("vcs_VolPhase::_updateVolPM", "unknown situation");
         }
     }
     m_UpToDate_VolPM = true;
@@ -772,10 +734,10 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     if (!TP_ptr) {
         return;
     }
-    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &np_dLnActCoeffdMolNumber[0][0]);
+    TP_ptr->getdlnActCoeffdlnN(m_numSpecies, &np_dLnActCoeffdMolNumber(0,0));
     for (size_t j = 0; j < m_numSpecies; j++) {
         double moles_j_base = phaseTotalMoles * Xmol_[j];
-        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber[j];
+        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber.ptrColumn(j);
         if (moles_j_base < 1.0E-200) {
             moles_j_base = 1.0E-7 * moles_j_base + 1.0E-13 * phaseTotalMoles + 1.0E-150;
         }
@@ -818,25 +780,10 @@ void vcs_VolPhase::_updateLnActCoeffJac()
         _updateMoleFractionDependencies();
         _updateActCoeff();
         /*
-         * Calculate the column of the matrix
-         */
-        double* const np_lnActCoeffCol = np_dLnActCoeffdMolNumber[j];
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            double tmp;
-            tmp = (ActCoeff[k] - ActCoeff_Base[k]) /
-                  ((ActCoeff[k] + ActCoeff_Base[k]) * 0.5 * deltaMoles_j);
-            if (fabs(tmp - np_lnActCoeffCol[k]) > 1.0E-4 * fabs(tmp) +  fabs(np_lnActCoeffCol[k])) {
-                //  printf(" we have an error\n");
-
-            }
-            //tmp = lnActCoeffCol[k];
-
-        }
-        /*
          * Revert to the base case Xmol_, v_totalMoles
          */
         v_totalMoles = TMoles_base;
-        vcs_vdcopy(Xmol_, Xmol_Base, m_numSpecies);
+        Xmol_ = Xmol_Base;
     }
     /*
      * Go get base values for the activity coefficients.
@@ -849,7 +796,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     _updateActCoeff();
 }
 
-void vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
+void vcs_VolPhase::sendToVCS_LnActCoeffJac(Cantera::Array2D& np_LnACJac_VCS)
 {
     /*
      * update the Ln Act Coeff jacobian entries with respect to the
@@ -863,11 +810,9 @@ void vcs_VolPhase::sendToVCS_LnActCoeffJac(double* const* const np_LnACJac_VCS)
      */
     for (size_t j = 0; j < m_numSpecies; j++) {
         size_t jglob = IndSpecies[j];
-        double* const np_lnACJacVCS_col = np_LnACJac_VCS[jglob];
-        const double* const np_lnACJac_col = np_dLnActCoeffdMolNumber[j];
         for (size_t k = 0; k < m_numSpecies; k++) {
             size_t kglob = IndSpecies[k];
-            np_lnACJacVCS_col[kglob] = np_lnACJac_col[k];
+            np_LnACJac_VCS(kglob,jglob) = np_dLnActCoeffdMolNumber(k,j);
         }
     }
 }
@@ -891,7 +836,7 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
             resize(VP_ID_, nsp, nelem, PhaseName.c_str());
         }
         TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol_));
-        vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), VCS_DATA_PTR(Xmol_), m_numSpecies);
+        creationMoleNumbers_ = Xmol_;
         _updateMoleFractionDependencies();
 
         /*
@@ -941,7 +886,7 @@ double vcs_VolPhase::molefraction(size_t k) const
 void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
         const std::vector<size_t> &creationGlobalRxnNumbers)
 {
-    vcs_dcopy(VCS_DATA_PTR(creationMoleNumbers_), n_k, m_numSpecies);
+    creationMoleNumbers_.assign(n_k, n_k+m_numSpecies);
     for (size_t k = 0; k < m_numSpecies; k++) { 
         creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
     }
@@ -958,14 +903,10 @@ void vcs_VolPhase::setTotalMoles(const double totalMols)
     v_totalMoles = totalMols;
     if (m_totalMolesInert > 0.0) {
         m_existence = VCS_PHASE_EXIST_ALWAYS;
-#ifdef DEBUG_MODE
-        if (totalMols < m_totalMolesInert) {
-            printf(" vcs_VolPhase::setTotalMoles:: ERROR totalMoles "
-                   "less than inert moles: %g %g\n",
-                   totalMols, m_totalMolesInert);
-            exit(EXIT_FAILURE);
-        }
-#endif
+        AssertThrowMsg(totalMols >= m_totalMolesInert,
+                       "vcs_VolPhase::setTotalMoles",
+                       "totalMoles less than inert moles: " +
+                       fp2str(totalMols) + " " + fp2str(m_totalMolesInert));
     } else {
         if (m_singleSpecies && (m_phiVarIndex == 0)) {
             m_existence =  VCS_PHASE_EXIST_ALWAYS;
@@ -1067,39 +1008,29 @@ void vcs_VolPhase::setExistence(const int existence)
 {
     if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
         if (v_totalMoles != 0.0) {
-#ifdef DEBUG_MODE
-            plogf("vcs_VolPhase::setExistence setting false existence for phase with moles");
-            plogendl();
-            exit(EXIT_FAILURE);
-#else
-            v_totalMoles = 0.0;
-#endif
+            if (DEBUG_MODE_ENABLED) {
+                throw CanteraError("vcs_VolPhase::setExistence",
+                                   "setting false existence for phase with moles");
+            } else {
+                v_totalMoles = 0.0;
+            }
         }
-    }
-#ifdef DEBUG_MODE
-    else {
-        if (m_totalMolesInert == 0.0) {
-            if (v_totalMoles == 0.0) {
-                if (!m_singleSpecies  || m_phiVarIndex != 0) {
-                    plogf("vcs_VolPhase::setExistence setting true existence for phase with no moles");
-                    plogendl();
-                    exit(EXIT_FAILURE);
-                }
+    } else if (DEBUG_MODE_ENABLED && m_totalMolesInert == 0.0) {
+        if (v_totalMoles == 0.0) {
+            if (!m_singleSpecies  || m_phiVarIndex != 0) {
+                throw CanteraError("vcs_VolPhase::setExistence",
+                        "setting true existence for phase with no moles");
             }
         }
     }
-#endif
-#ifdef DEBUG_MODE
-    if (m_singleSpecies) {
+    if (DEBUG_MODE_ENABLED && m_singleSpecies) {
         if (m_phiVarIndex == 0) {
             if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
-                plogf("vcs_VolPhase::Trying to set existence of an electron phase to false");
-                plogendl();
-                exit(EXIT_FAILURE);
+                throw CanteraError("vcs_VolPhase::setExistence",
+                        "Trying to set existence of an electron phase to false");
             }
         }
     }
-#endif
     m_existence = existence;
 }
 
@@ -1200,9 +1131,6 @@ static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
 
 size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase)
 {
-    size_t e, k, eT;
-    std::string ename;
-    size_t eFound = npos;
     size_t nebase = tPhase->nElements();
     size_t ne = nebase;
     size_t ns = tPhase->nSpecies();
@@ -1227,6 +1155,7 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
         m_elementType[ChargeNeutralityElement] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
     }
 
+    size_t eFound = npos;
     if (hasChargedSpecies(tPhase)) {
         if (cne) {
             /*
@@ -1238,18 +1167,16 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
              * by toggling the ElActive variable. If we find we need it
              * later, we will retoggle ElActive to true.
              */
-            for (eT = 0; eT < nebase; eT++) {
-                ename = tPhase->elementName(eT);
-                if (ename == "E") {
+            for (size_t eT = 0; eT < nebase; eT++) {
+                if (tPhase->elementName(eT) == "E") {
                     eFound = eT;
                     m_elementActive[eT] = 0;
                     m_elementType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
                 }
             }
         } else {
-            for (eT = 0; eT < nebase; eT++) {
-                ename = tPhase->elementName(eT);
-                if (ename == "E") {
+            for (size_t eT = 0; eT < nebase; eT++) {
+                if (tPhase->elementName(eT) == "E") {
                     eFound = eT;
                     m_elementType[eT] = VCS_ELEM_TYPE_ELECTRONCHARGE;
                 }
@@ -1267,16 +1194,15 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
 
     }
 
-    m_formulaMatrix.resize(ne, ns, 0.0);
+    m_formulaMatrix.resize(ns, ne, 0.0);
 
     m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
 
     elemResize(ne);
 
-    e = 0;
-    for (eT = 0; eT < nebase; eT++) {
-        ename = tPhase->elementName(eT);
-        m_elementNames[e] = ename;
+    size_t e = 0;
+    for (size_t eT = 0; eT < nebase; eT++) {
+        m_elementNames[e] = tPhase->elementName(eT);
         m_elementType[e] = tPhase->elementType(eT);
         e++;
     }
@@ -1288,26 +1214,24 @@ size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase
             sss << "phase" << VP_ID_;
             pname = sss.str();
         }
-        ename = "cn_" + pname;
         e = ChargeNeutralityElement;
-        m_elementNames[e] = ename;
+        m_elementNames[e] = "cn_" + pname;
     }
 
-    double* const* const fm = m_formulaMatrix.baseDataAddr();
-    for (k = 0; k < ns; k++) {
+    for (size_t k = 0; k < ns; k++) {
         e = 0;
-        for (eT = 0; eT < nebase; eT++) {
-            fm[e][k] = tPhase->nAtoms(k, eT);
+        for (size_t eT = 0; eT < nebase; eT++) {
+            m_formulaMatrix(k,e) = tPhase->nAtoms(k, eT);
             e++;
         }
         if (eFound != npos) {
-            fm[eFound][k] = - tPhase->charge(k);
+            m_formulaMatrix(k,eFound) = - tPhase->charge(k);
         }
     }
 
     if (cne) {
-        for (k = 0; k < ns; k++) {
-            fm[ChargeNeutralityElement][k] = tPhase->charge(k);
+        for (size_t k = 0; k < ns; k++) {
+            m_formulaMatrix(k,ChargeNeutralityElement) = tPhase->charge(k);
         }
     }
 
@@ -1337,9 +1261,9 @@ void vcs_VolPhase::setElementType(const size_t e, const int eType)
     m_elementType[e] = eType;
 }
 
-double const* const* vcs_VolPhase::getFormulaMatrix() const
+const Cantera::Array2D& vcs_VolPhase::getFormulaMatrix() const
 {
-    return m_formulaMatrix.constBaseDataAddr();
+    return m_formulaMatrix;
 }
 
 int vcs_VolPhase::speciesUnknownType(const size_t k) const

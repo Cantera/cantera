@@ -30,8 +30,6 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
     m_temp(0.0),
     m_finalized(false)
 {
-    warn_deprecated("AqueousKinetics",
-                    "Unfinished implementation of this class will be removed.");
     if (thermo != 0) {
         addPhase(*thermo);
     }
@@ -102,11 +100,13 @@ Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & t
     return gK;
 }
 
-void AqueousKinetics::
-update_T() {}
+void AqueousKinetics::update_T()
+{
+}
 
-void AqueousKinetics::
-update_C() {}
+void AqueousKinetics::update_C()
+{
+}
 
 void AqueousKinetics::_update_rates_T()
 {
@@ -119,8 +119,7 @@ void AqueousKinetics::_update_rates_T()
     m_ROP_ok = false;
 }
 
-void AqueousKinetics::
-_update_rates_C()
+void AqueousKinetics::_update_rates_C()
 {
     thermo().getActivityConcentrations(&m_conc[0]);
 
@@ -141,7 +140,6 @@ void AqueousKinetics::updateKc()
     // compute Delta G^0 for all reversible reactions
     m_rxnstoich.getRevReactionDelta(m_ii, &m_grt[0], &m_rkcn[0]);
 
-    //doublereal logStandConc = m_kdata->m_logStandConc;
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_nrev; i++) {
         size_t irxn = m_revindex[i];
@@ -314,8 +312,7 @@ void AqueousKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void AqueousKinetics::
-getFwdRateConstants(doublereal* kfwd)
+void AqueousKinetics::getFwdRateConstants(doublereal* kfwd)
 {
     _update_rates_T();
     _update_rates_C();
@@ -331,8 +328,8 @@ getFwdRateConstants(doublereal* kfwd)
     }
 }
 
-void AqueousKinetics::
-getRevRateConstants(doublereal* krev, bool doIrreversible)
+void AqueousKinetics::getRevRateConstants(doublereal* krev,
+                                          bool doIrreversible)
 {
     /*
      * go get the forward rate constants. -> note, we don't
@@ -403,9 +400,7 @@ void AqueousKinetics::installReagents(const ReactionData& r)
         reactantGlobalOrder += nsFlt;
         ns = (size_t) nsFlt;
         if ((doublereal) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         if (r.rstoich[n] != 0.0) {
             m_rrxn[r.reactants[n]][rnum] += r.rstoich[n];
@@ -423,9 +418,7 @@ void AqueousKinetics::installReagents(const ReactionData& r)
         productGlobalOrder += nsFlt;
         ns = (size_t) nsFlt;
         if ((double) ns != nsFlt) {
-            if (ns < 1) {
-                ns = 1;
-            }
+            ns = std::max<size_t>(ns, 1);
         }
         if (r.pstoich[n] != 0.0) {
             m_prxn[r.products[n]][rnum] += r.pstoich[n];

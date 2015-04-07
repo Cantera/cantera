@@ -20,8 +20,10 @@ extern "C" {
                                       double upper);
     CANTERA_CAPI double domain_lowerBound(int i, int n);
     CANTERA_CAPI double domain_upperBound(int i, int n);
-    CANTERA_CAPI int domain_setTolerances(int i, int n, double rtol,
-                                          double atol, int itime);
+    CANTERA_CAPI int domain_setSteadyTolerances(int i, int n, double rtol,
+                                                double atol);
+    CANTERA_CAPI int domain_setTransientTolerances(int i, int n, double rtol,
+                                                   double atol);
     CANTERA_CAPI double domain_rtol(int i, int n);
     CANTERA_CAPI double domain_atol(int i, int n);
     CANTERA_CAPI int domain_setupGrid(int i, size_t npts, double* grid);

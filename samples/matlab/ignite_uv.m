@@ -4,7 +4,7 @@ function ignite_uv(gas)
 %
 help ignite_uv
 
-if nargin == 0 | ~isa(gas,'GasMix')
+if nargin == 0
    gas = IdealGasMix('gri30.xml');
 end
 

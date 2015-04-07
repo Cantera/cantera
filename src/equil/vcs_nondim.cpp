@@ -14,11 +14,12 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
+using namespace Cantera;
+
 namespace VCSnonideal
 {
 double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
 {
-    double Farad;
     if (TKelvin <= 0.0) {
         TKelvin = 293.15;
     }
@@ -26,59 +27,45 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
     case VCS_UNITS_KJMOL:
     case VCS_UNITS_KCALMOL:
-        Farad = Cantera::ElectronCharge * Cantera::Avogadro /
+        return Cantera::ElectronCharge * Cantera::Avogadro /
                 (TKelvin * Cantera::GasConstant);
-        break;
     case VCS_UNITS_UNITLESS:
-        Farad = Cantera::ElectronCharge * Cantera::Avogadro;
-        break;
+        return Cantera::ElectronCharge * Cantera::Avogadro;
     case VCS_UNITS_KELVIN:
-        Farad = Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
-        break;
+        return Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
     default:
-        plogf("vcs_nondim_Farad error: unknown units: %d\n", mu_units);
-        plogendl();
-        exit(EXIT_FAILURE);
+        throw CanteraError("vcs_nondim_Farad",
+                           "unknown units: " + int2str(mu_units));
     }
-    return Farad;
 }
 
 double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
 {
-    double rt;
     if (TKelvin <= 0.0) {
         TKelvin = 293.15;
     }
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        rt = TKelvin * Cantera::GasConst_cal_mol_K * 1e-3;
-        break;
+        return TKelvin * Cantera::GasConst_cal_mol_K * 1e-3;
     case VCS_UNITS_UNITLESS:
-        rt = 1.0;
-        break;
+        return 1.0;
     case VCS_UNITS_KJMOL:
-        rt = TKelvin * Cantera::GasConstant * 1e-6;
-        break;
+        return TKelvin * Cantera::GasConstant * 1e-6;
     case VCS_UNITS_KELVIN:
-        rt = TKelvin;
-        break;
+        return TKelvin;
     case VCS_UNITS_MKS:
-        rt = TKelvin * Cantera::GasConstant;
-        break;
+        return TKelvin * Cantera::GasConstant;
     default:
-        plogf("vcs_nondimMult_TP error: unknown units: %d\n", mu_units);
-        plogendl();
-        exit(EXIT_FAILURE);
+        throw CanteraError("vcs_nondimMult_TP",
+                           "unknown units: " + int2str(mu_units));
     }
-    return rt;
 }
 
 void VCS_SOLVE::vcs_nondim_TP()
 {
-    double tf;
     if (m_unitsState == VCS_DIMENSIONAL_G) {
         m_unitsState = VCS_NONDIMENSIONAL_G;
-        tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        double tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             /*
              *        Modify the standard state and total chemical potential data,
@@ -117,12 +104,9 @@ void VCS_SOLVE::vcs_nondim_TP()
          * reasonable input would be between these two numbers below.
          */
         if (tmole_orig < 1.0E-200 || tmole_orig > 1.0E200) {
-            plogf(" VCS_SOLVE::vcs_nondim_TP ERROR: Total input moles , %g,  is outside the range handled by vcs. exit",
-                  tmole_orig);
-            plogendl();
-            throw Cantera::CanteraError("VCS_SOLVE::vcs_nondim_TP",
-                                        " Total input moles ," + Cantera::fp2str(tmole_orig) +
-                                        "is outside the range handled by vcs.\n");
+            throw CanteraError("VCS_SOLVE::vcs_nondim_TP",
+                               "Total input moles ," + fp2str(tmole_orig) +
+                               "is outside the range handled by vcs.\n");
         }
 
         // Determine the scale of the problem
@@ -136,12 +120,10 @@ void VCS_SOLVE::vcs_nondim_TP()
 
         if (m_totalMoleScale != 1.0) {
             if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-#ifdef DEBUG_MODE
-                if (m_debug_print_lvl >= 2) {
+                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("  --- vcs_nondim_TP() called: USING A MOLE SCALE OF %g until further notice", m_totalMoleScale);
                     plogendl();
                 }
-#endif
                 for (size_t i = 0; i < m_numSpeciesTot; ++i) {
                     if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                         m_molNumSpecies_old[i] *= (1.0 / m_totalMoleScale);
@@ -166,10 +148,9 @@ void VCS_SOLVE::vcs_nondim_TP()
 
 void VCS_SOLVE::vcs_redim_TP(void)
 {
-    double tf;
     if (m_unitsState != VCS_DIMENSIONAL_G) {
         m_unitsState = VCS_DIMENSIONAL_G;
-        tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        double tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             /*
              *        Modify the standard state and total chemical potential data,
@@ -184,12 +165,10 @@ void VCS_SOLVE::vcs_redim_TP(void)
     }
     if (m_totalMoleScale != 1.0) {
         if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-#ifdef DEBUG_MODE
-            if (m_debug_print_lvl >= 2) {
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("  --- vcs_redim_TP() called: getting rid of mole scale of %g", m_totalMoleScale);
                 plogendl();
             }
-#endif
             for (size_t i = 0; i < m_numSpeciesTot; ++i) {
                 if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                     m_molNumSpecies_old[i] *= m_totalMoleScale;
@@ -230,8 +209,7 @@ void VCS_SOLVE::vcs_printChemPotUnits(int unitsFormat) const
         plogf("J/kmol");
         break;
     default:
-        plogf("unknown units!");
-        exit(EXIT_FAILURE);
+        throw CanteraError("VCS_SOLVE::vcs_printChemPotUnits", "unknown units!");
     }
 }
 

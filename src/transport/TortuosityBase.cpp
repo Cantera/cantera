@@ -16,11 +16,6 @@
 namespace Cantera
 {
 //====================================================================================================================
-static void err(const std::string& r)
-{
-    throw Cantera::CanteraError("TortuosityBase", "Error calling base class " + r);
-}
-//====================================================================================================================
 // Default constructor
 TortuosityBase::TortuosityBase()
 {
@@ -73,8 +68,7 @@ TortuosityBase* TortuosityBase::duplMyselfAsTortuosityBase() const
  */
 doublereal TortuosityBase::tortuosityFactor(doublereal porosity)
 {
-    err("tortuosityFactor");
-    return 0.0;
+    throw NotImplementedError("TortuosityBase::tortuosityFactor");
 }
 //====================================================================================================================
 // The McMillan number is the ratio of the flux-like variable to the value it would have without porous flow.
@@ -88,8 +82,7 @@ doublereal TortuosityBase::tortuosityFactor(doublereal porosity)
  */
 doublereal TortuosityBase::McMillanFactor(doublereal porosity)
 {
-    err("McMillanFactor");
-    return 0.0;
+    throw NotImplementedError("TortuosityBase::McMillanFactor");
 }
 //====================================================================================================================
 }

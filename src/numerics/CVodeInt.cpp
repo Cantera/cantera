@@ -255,8 +255,6 @@ void CVodeInt::reinitialize(double t0, FuncEval& func)
     m_iopt[MAXORD] = m_maxord;
     m_ropt[HMAX]   = m_hmax;
 
-    //if (m_cvode_mem) CVodeFree(m_cvode_mem);
-
     // pass a pointer to func in m_data
     m_data = (void*)&func;
     int result;

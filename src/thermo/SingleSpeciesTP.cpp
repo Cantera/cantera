@@ -20,16 +20,14 @@ namespace Cantera
 SingleSpeciesTP::SingleSpeciesTP() :
     ThermoPhase(),
     m_press(OneAtm),
-    m_p0(OneAtm),
-    m_tlast(-1.0)
+    m_p0(OneAtm)
 {
 }
 
 SingleSpeciesTP::SingleSpeciesTP(const SingleSpeciesTP& right):
     ThermoPhase(),
     m_press(OneAtm),
-    m_p0(OneAtm),
-    m_tlast(-1.0)
+    m_p0(OneAtm)
 {
     *this = operator=(right);
 }
@@ -40,7 +38,6 @@ SingleSpeciesTP& SingleSpeciesTP::operator=(const SingleSpeciesTP& right)
         ThermoPhase::operator=(right);
         m_press      = right.m_press;
         m_p0         = right.m_p0;
-        m_tlast      = right.m_tlast;
         m_h0_RT      = right.m_h0_RT;
         m_cp0_R      = right.m_cp0_R;
         m_s0_R       = right.m_s0_R;
@@ -55,8 +52,7 @@ ThermoPhase* SingleSpeciesTP::duplMyselfAsThermoPhase() const
 
 int SingleSpeciesTP::eosType() const
 {
-    err("eosType");
-    return -1;
+    throw NotImplementedError("SingleSpeciesTP::eosType");
 }
 
 /*
@@ -104,7 +100,6 @@ doublereal SingleSpeciesTP::cp_mole() const
      * function in ThermoPhase. However, the standard
      * state heat capacity will do fine here for now.
      */
-    //getPartialMolarCp(&cpbar);
     getCp_R(&cpbar);
     cpbar *= GasConstant;
     return cpbar;
@@ -154,24 +149,21 @@ void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const
     getChemPotentials(mu);
 }
 
-void SingleSpeciesTP::
-getPartialMolarEnthalpies(doublereal* hbar) const
+void SingleSpeciesTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     double _rt = GasConstant * temperature();
     getEnthalpy_RT(hbar);
     hbar[0] *= _rt;
 }
 
-void SingleSpeciesTP::
-getPartialMolarIntEnergies(doublereal* ubar) const
+void SingleSpeciesTP::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     double _rt = GasConstant * temperature();
     getIntEnergy_RT(ubar);
     ubar[0] *= _rt;
 }
 
-void SingleSpeciesTP::
-getPartialMolarEntropies(doublereal* sbar) const
+void SingleSpeciesTP::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R(sbar);
     sbar[0] *= GasConstant;
@@ -245,76 +237,13 @@ void SingleSpeciesTP::getCp_R_ref(doublereal* cpr) const
  * ------------------ Setting the State ------------------------
  */
 
-void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
-                                   const doublereal* x)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
-                                   compositionMap& x)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPX(doublereal t, doublereal p,
-                                   const std::string& x)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
-                                   const doublereal* y)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
-                                   compositionMap& y)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_TPY(doublereal t, doublereal p,
-                                   const std::string& y)
-{
-    setTemperature(t);
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_PX(doublereal p, doublereal* x)
-{
-    if (x[0] != 1.0) {
-        err("setStatePX -> x[0] not 1.0");
-    }
-    setPressure(p);
-}
-
-void SingleSpeciesTP::setState_PY(doublereal p, doublereal* y)
-{
-    if (y[0] != 1.0) {
-        err("setStatePY -> x[0] not 1.0");
-    }
-    setPressure(p);
-}
-
 void SingleSpeciesTP::setState_HP(doublereal h, doublereal p,
                                   doublereal tol)
 {
     doublereal dt;
     setPressure(p);
     for (int n = 0; n < 50; n++) {
-        dt = (h - enthalpy_mass())/cp_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((h - enthalpy_mass())/cp_mass(), -100.0, 100.0);
         setState_TP(temperature() + dt, p);
         if (fabs(dt) < tol) {
             return;
@@ -333,12 +262,7 @@ void SingleSpeciesTP::setState_UV(doublereal u, doublereal v,
         setDensity(1.0/v);
     }
     for (int n = 0; n < 50; n++) {
-        dt = (u - intEnergy_mass())/cv_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((u - intEnergy_mass())/cv_mass(), -100.0, 100.0);
         setTemperature(temperature() + dt);
         if (fabs(dt) < tol) {
             return;
@@ -355,12 +279,7 @@ void SingleSpeciesTP::setState_SP(doublereal s, doublereal p,
     doublereal dt;
     setPressure(p);
     for (int n = 0; n < 50; n++) {
-        dt = (s - entropy_mass())*temperature()/cp_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((s - entropy_mass())*temperature()/cp_mass(), -100.0, 100.0);
         setState_TP(temperature() + dt, p);
         if (fabs(dt) < tol) {
             return;
@@ -379,26 +298,13 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
         setDensity(1.0/v);
     }
     for (int n = 0; n < 50; n++) {
-        dt = (s - entropy_mass())*temperature()/cv_mass();
-        if (dt > 100.0) {
-            dt = 100.0;
-        } else if (dt < -100.0) {
-            dt = -100.0;
-        }
+        dt = clip((s - entropy_mass())*temperature()/cv_mass(), -100.0, 100.0);
         setTemperature(temperature() + dt);
         if (fabs(dt) < tol) {
             return;
         }
     }
     throw CanteraError("setState_SV","no convergence. dt = " + fp2str(dt));
-}
-
-doublereal SingleSpeciesTP::err(const std::string& msg) const
-{
-    throw CanteraError("SingleSpeciesTP","Base class method "
-                       +msg+" called. Equation of state type: "
-                       +int2str(eosType()));
-    return 0;
 }
 
 void SingleSpeciesTP::initThermo()
@@ -423,7 +329,7 @@ void SingleSpeciesTP::initThermo()
      *  Make sure the species mole fraction is equal to 1.0;
      */
     double x = 1.0;
-    setMoleFractions(&x);
+    ThermoPhase::setMoleFractions(&x);
     /*
      * Call the base class initThermo object.
      */

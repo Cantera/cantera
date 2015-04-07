@@ -176,7 +176,7 @@ public:
 
     //  Listing of friend functions which are defined below
 
-    friend int solve(DenseMatrix& A, double* b);
+    friend int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb);
     friend int solve(DenseMatrix& A, DenseMatrix& b);
     friend int invert(DenseMatrix& A, int nn);
 };
@@ -194,10 +194,12 @@ public:
  *
  *  The system is then solved using the LAPACK routine dgetrs
  *
- *   @param A   Dense matrix to be factored
- *   @param b   rhs to be solved.
+ *   @param A    Dense matrix to be factored
+ *   @param b    rhs(s) to be solved.
+ *   @param nrhs Number of right hand sides to solve
+ *   @param ldb  Leading dimension of b, if nrhs > 1
  */
-int solve(DenseMatrix& A, double* b);
+int solve(DenseMatrix& A, double* b, size_t nrhs=1, size_t ldb=0);
 
 //!  Solve Ax = b for multiple right-hand-side vectors.
 /*!

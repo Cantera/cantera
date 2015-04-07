@@ -39,7 +39,7 @@ int main(int argc, char** argv)
         g.setState_TPX(T, pres, DATA_PTR(Xmol));
         try {
             retnSub = equilibrate(g, "TP", solver);
-            cout << g;
+            cout << g.report(true, 0.0);
             if (retnSub != 1) {
                 cerr << "ERROR: ChemEquil equilibration step failed at "
                      << " T    = " << T
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
                 exit(-1);
             }
         } catch (CanteraError& err) {
-            cout << g;
+            cout << g.report(true, 0.0);
             std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
         g.setState_TPX(T, pres, DATA_PTR(Xmol));
         try {
             retnSub = equilibrate(g, "TP", solver);
-            cout << g;
+            cout << g.report(true, 0.0);
             if (retnSub != 1) {
                 cerr << "ERROR: ChemEquil equilibration step failed at "
                      << " T    = " << T
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
                 exit(-1);
             }
         } catch (CanteraError& err) {
-            cout << g;
+            cout << g.report(true, 0.0);
             std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
@@ -113,7 +113,7 @@ int main(int argc, char** argv)
         g.setState_TPX(T, pres, DATA_PTR(Xmol));
         try {
             retnSub = equilibrate(g, "TP", solver);
-            cout << g;
+            cout << g.report(true, 0.0);
             if (retnSub != 1) {
                 cerr << "ERROR: ChemEquil equilibration step failed at "
                      << " T    = " << T
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
                 exit(-1);
             }
         } catch (CanteraError& err) {
-            cout << g;
+            cout << g.report(true, 0.0);
             std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
         g.setState_TPX(T, pres, DATA_PTR(Xmol));
         try {
             retnSub = equilibrate(g, "TP", solver);
-            cout << g;
+            cout << g.report(true, 0.0);
             if (retnSub != 1) {
                 cerr << "ERROR: ChemEquil equilibration step failed at "
                      << " T    = " << T
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
                 exit(-1);
             }
         } catch (CanteraError& err) {
-            cout << g;
+            cout << g.report(true, 0.0);
             std::cerr << err.what() << std::endl;
             cerr << "ERROR: equilibration step failed at "
                  << " T    = " << T
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
                              << endl;
                     }
                     if (showResults) {
-                        cout << g;
+                        cout << g.report(true, 0.0);
                     }
                     if (retnSub ==1) {
                         numSucc++;

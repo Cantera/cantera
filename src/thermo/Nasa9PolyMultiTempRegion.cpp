@@ -26,8 +26,7 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
 {
 }
 
-Nasa9PolyMultiTempRegion::
-Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
     m_numTempRegions(0),
     m_currRegion(0)
 {
@@ -63,8 +62,7 @@ Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts) :
     }
 }
 
-Nasa9PolyMultiTempRegion::
-Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
     SpeciesThermoInterpType(b),
     m_numTempRegions(b.m_numTempRegions),
     m_lowerTempBounds(b.m_lowerTempBounds),
@@ -170,7 +168,6 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
         doublereal& pref,
         doublereal* const coeffs) const
 {
-    warn_deprecated("Nasa9PolyMultiTempRegion::reportParameters");
     n = m_index;
     type = NASA9MULTITEMP;
     tlow = m_lowT;
@@ -196,7 +193,6 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
 
 void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs)
 {
-    warn_deprecated("Nasa9PolyMultiTempRegion::modifyParameters");
     int index = 3;
     for (size_t iReg = 0; iReg < m_numTempRegions; iReg++) {
         m_regionPts[iReg]->modifyParameters(coeffs + index);

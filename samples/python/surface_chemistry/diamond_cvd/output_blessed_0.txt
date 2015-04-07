@@ -1,4 +1,0 @@
-
-******  CVD Diamond Example  ******
-
-H concentration, growth rate, and surface coverages written to file diamond.csv

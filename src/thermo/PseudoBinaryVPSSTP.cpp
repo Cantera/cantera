@@ -54,8 +54,7 @@ PseudoBinaryVPSSTP::PseudoBinaryVPSSTP(const PseudoBinaryVPSSTP& b) :
     *this = operator=(b);
 }
 
-PseudoBinaryVPSSTP& PseudoBinaryVPSSTP::
-operator=(const PseudoBinaryVPSSTP& b)
+PseudoBinaryVPSSTP& PseudoBinaryVPSSTP::operator=(const PseudoBinaryVPSSTP& b)
 {
     if (&b != this) {
         GibbsExcessVPSSTP::operator=(b);
@@ -85,21 +84,9 @@ PseudoBinaryVPSSTP::duplMyselfAsThermoPhase() const
     return new PseudoBinaryVPSSTP(*this);
 }
 
-int PseudoBinaryVPSSTP::eosType() const
-{
-    return 0;
-}
-
 doublereal PseudoBinaryVPSSTP::standardConcentration(size_t k) const
 {
-    err("standardConcentration");
-    return -1.0;
-}
-
-doublereal PseudoBinaryVPSSTP::logStandardConc(size_t k) const
-{
-    err("logStandardConc");
-    return -1.0;
+    throw NotImplementedError("PseudoBinaryVPSSTP::standardConcentration");
 }
 
 void PseudoBinaryVPSSTP::getElectrochemPotentials(doublereal* mu) const
@@ -171,13 +158,6 @@ void PseudoBinaryVPSSTP::calcPseudoBinaryMoleFractions() const
     }
 }
 
-doublereal PseudoBinaryVPSSTP::err(const std::string& msg) const
-{
-    throw CanteraError("PseudoBinaryVPSSTP","Base class method "
-                       +msg+" called. Equation of state type: "+int2str(eosType()));
-    return 0;
-}
-
 void PseudoBinaryVPSSTP::initThermo()
 {
     initLengths();
@@ -195,7 +175,7 @@ void PseudoBinaryVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& i
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
-std::string PseudoBinaryVPSSTP::report(bool show_thermo) const
+std::string PseudoBinaryVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];
     string s = "";

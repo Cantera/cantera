@@ -12,7 +12,7 @@ function reactor1(g)
 
 help reactor1
 
-if nargin == 1 & isa(g,'solution')
+if nargin == 1
    gas = g;
 else
    gas = GRI30;
@@ -25,7 +25,7 @@ P = oneatm
 set(gas,'T',1001.0,'P',P,'X','H2:2,O2:1,N2:4');
 
 % create a reactor, and insert the gas
-r = Reactor(gas);
+r = IdealGasReactor(gas);
 
 % create a reservoir to represent the environment
 a = IdealGasMix('air.cti');

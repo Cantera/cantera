@@ -10,7 +10,6 @@
 
 #include "cantera/kinetics/solveSP.h"
 #include "cantera/base/clockWC.h"
-#include "cantera/numerics/ctlapack.h"
 
 #include <cstdio>
 
@@ -125,13 +124,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_wtResid.resize(dim1, 0.0);
     m_wtSpecies.resize(dim1, 0.0);
     m_resid.resize(dim1, 0.0);
-    m_ipiv.resize(dim1, 0);
-
     m_Jac.resize(dim1, dim1, 0.0);
-    m_JacCol.resize(dim1, 0);
-    for (size_t k = 0; k < dim1; k++) {
-        m_JacCol[k] = m_Jac.ptrColumn(k);
-    }
 }
 
 solveSP::~solveSP()
@@ -152,7 +145,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     doublereal     label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
-    int nrhs=1;
     doublereal deltaT = 1.0E-10; // Delta time step
     doublereal damp=1.0, tmp;
     //  Weighted L2 norm of the residual.  Currently, this is only
@@ -162,10 +154,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     doublereal t_real = 0.0, update_norm = 1.0E6;
 
     bool do_time = false, not_converged = true;
-
-    if (m_ioflag > 1) {
-        m_ioflag = 1;
-    }
+    m_ioflag = std::min(m_ioflag, 1);
 
     /*
      *       Set the initial value of the do_time parameter
@@ -193,10 +182,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
 
     // Calculate the largest species in each phase
     evalSurfLarge(DATA_PTR(m_CSolnSP));
-    /*
-     * Get the net production rate of all species in the kinetics manager.
-     */
-    // m_kin->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
 
     if (m_ioflag) {
         print_header(m_ioflag, ifunc, time_scale, true, reltol, abstol,
@@ -272,7 +257,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
          * Call the routine to numerically evaluation the jacobian
          * and residual for the current iteration.
          */
-        resjac_eval(m_JacCol, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
+        resjac_eval(m_Jac, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
                     DATA_PTR(m_CSolnSPOld), do_time, deltaT);
 
         /*
@@ -291,13 +276,11 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                                       DATA_PTR(m_resid), m_neq);
 
         /*
-         *  Solve Linear system (with LAPACK).  The solution is in resid[]
+         *  Solve Linear system.  The solution is in resid[]
          */
-        ct_dgetrf(m_neq, m_neq, m_JacCol[0], m_neq, DATA_PTR(m_ipiv), info);
+        info = m_Jac.factor();
         if (info==0) {
-            ct_dgetrs(ctlapack::NoTranspose, m_neq, nrhs, m_JacCol[0],
-                      m_neq, DATA_PTR(m_ipiv), DATA_PTR(m_resid), m_neq,
-                      info);
+            m_Jac.solve(&m_resid[0]);
         }
         /*
          *    Force convergence if residual is small to avoid
@@ -541,8 +524,6 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
             kindexSP = m_numTotSurfSpecies;
             for (isp = 0; isp < m_numBulkPhasesSS; isp++) {
                 doublereal* XBlk = DATA_PTR(m_numEqn1);
-                //ThermoPhase *THptr = m_bulkPhasePtrs[isp];
-                //THptr->getMoleFractions(XBlk);
                 nsp = m_nSpeciesSurfPhase[isp];
                 size_t surfPhaseIndex = m_indexKinObjSurfPhase[isp];
                 InterfaceKinetics* m_kin = m_objects[isp];
@@ -586,14 +567,13 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
     }
 }
 
-void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
+void solveSP::resjac_eval(SquareMatrix& jac,
                           doublereal resid[], doublereal CSoln[],
                           const doublereal CSolnOld[], const bool do_time,
                           const doublereal deltaT)
 {
     size_t kColIndex = 0, nsp, jsp, i, kCol;
     doublereal dc, cSave, sd;
-    doublereal* col_j;
     /*
      * Calculate the residual
      */
@@ -609,9 +589,8 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
             dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
             CSoln[kColIndex] += dc;
             fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
-            col_j = JacCol[kColIndex];
             for (i = 0; i < m_neq; i++) {
-                col_j[i] = (m_numEqn2[i] - resid[i])/dc;
+                jac(i, kColIndex) = (m_numEqn2[i] - resid[i])/dc;
             }
             CSoln[kColIndex] = cSave;
             kColIndex++;
@@ -627,9 +606,8 @@ void solveSP::resjac_eval(std::vector<doublereal*> &JacCol,
                 dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
                 CSoln[kColIndex] += dc;
                 fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
-                col_j = JacCol[kColIndex];
                 for (i = 0; i < m_neq; i++) {
-                    col_j[i] = (m_numEqn2[i] - resid[i])/dc;
+                    jac(i, kColIndex) = (m_numEqn2[i] - resid[i])/dc;
                 }
                 CSoln[kColIndex] = cSave;
                 kColIndex++;
@@ -684,10 +662,7 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
             *label = int(i);
         }
     }
-
-    if (damp < 1.0e-2) {
-        damp = 1.0e-2;
-    }
+    damp = std::max(damp, 1e-2);
     /*
      * Only allow the damping parameter to increase by a factor of three each
      * iteration. Heuristic to avoid oscillations in the value of damp
@@ -767,9 +742,10 @@ void solveSP::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
     }
 }
 
-doublereal solveSP::
-calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
-       int* label, int* label_old, doublereal* label_factor, int ioflag)
+doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
+                          doublereal XMolSolnSP[],
+                          int* label, int* label_old,
+                          doublereal* label_factor, int ioflag)
 {
     size_t k, isp, nsp, kstart;
     doublereal   inv_timeScale = 1.0E-10;
@@ -847,8 +823,8 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
             printf("\n   SOLVESP Called to integrate surface in time\n");
             printf("           for a total of %9.3e sec\n", time_scale);
         } else {
-            fprintf(stderr,"Unknown ifunc flag = %d\n", ifunc);
-            exit(EXIT_FAILURE);
+            throw CanteraError("solveSP::print_header",
+                               "Unknown ifunc flag = " + int2str(ifunc));
         }
 
         if (m_bulkFunc == BULK_DEPOSITION) {
@@ -856,8 +832,8 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
         } else if (m_bulkFunc == BULK_ETCH) {
             printf("     Bulk Phases have fixed compositions\n");
         } else {
-            fprintf(stderr,"Unknown bulkFunc flag = %d\n", m_bulkFunc);
-            exit(EXIT_FAILURE);
+            throw CanteraError("solveSP::print_header",
+                               "Unknown bulkFunc flag = " + int2str(m_bulkFunc));
         }
 
         if (damping) {

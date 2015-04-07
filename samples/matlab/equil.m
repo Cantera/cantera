@@ -6,7 +6,7 @@ function equil(g)
 %    equivalence ratio.
 help equil;
 
-if nargin == 1 & isa(g,'GasMix')
+if nargin == 1
    gas = g;
 else
    gas = IdealGasMix('gri30.cti');

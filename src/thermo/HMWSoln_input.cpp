@@ -990,16 +990,16 @@ void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-    XML_Node& phaseNode_XML = xml();
     XML_Node* fxml = new XML_Node();
     fxml->build(fin);
     XML_Node* fxml_phase = findXMLPhase(fxml, id_);
+     
     if (!fxml_phase) {
         throw CanteraError("HMWSoln:constructPhaseFile",
                            "ERROR: Can not find phase named " +
                            id_ + " in file named " + inputFile);
     }
-    fxml_phase->copy(&phaseNode_XML);
+    setXMLdata(*fxml_phase);
     constructPhaseXML(*fxml_phase, id_);
     delete fxml;
 }
@@ -1035,12 +1035,12 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
         if (formString != "") {
             if (formString == "unity") {
                 m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::constructPhaseXML",
+                                   "standardConc = unity not done");
             } else if (formString == "molar_volume") {
                 m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::constructPhaseXML",
+                   "standardConc = molar_volume not done");
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
@@ -1058,8 +1058,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
         XML_Node& scNode = thermoNode.child("solvent");
         vector<string> nameSolventa;
         getStringArray(scNode, nameSolventa);
-        int nsp = static_cast<int>(nameSolventa.size());
-        if (nsp != 1) {
+        if (nameSolventa.size() != 1) {
             throw CanteraError("HMWSoln::constructPhaseXML",
                                "badly formed solvent XML node");
         }
@@ -1132,8 +1131,7 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 
 }
 
-void HMWSoln::
-initThermoXML(XML_Node& phaseNode, const std::string& id_)
+void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     string stemp;
     if (id_.size() > 0) {
@@ -1164,12 +1162,12 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (formString != "") {
             if (formString == "unity") {
                 m_formGC = 0;
-                printf("exit standardConc = unity not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::initThermoXML",
+                                   "standardConc = unity not done");
             } else if (formString == "molar_volume") {
                 m_formGC = 1;
-                printf("exit standardConc = molar_volume not done\n");
-                exit(EXIT_FAILURE);
+                throw CanteraError("HMWSoln::initThermoXML",
+                                   "standardConc = molar_volume not done");
             } else if (formString == "solvent_volume") {
                 m_formGC = 2;
             } else {
@@ -1243,8 +1241,7 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& scNode = thermoNode.child("solvent");
         vector<string> nameSolventa;
         getStringArray(scNode, nameSolventa);
-        int nsp = static_cast<int>(nameSolventa.size());
-        if (nsp != 1) {
+        if (nameSolventa.size() != 1) {
             throw CanteraError("HMWSoln::initThermoXML",
                                "badly formed solvent XML node");
         }
@@ -1340,9 +1337,6 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
                      m_speciesSize[k] << endl;
 #endif
             } else {
-                //  throw CanteraError("HMWSoln::initThermoXML",
-                //                     "Solvent SS Model \"" + modelStringa +
-                //                     "\" is not allowed, name = " + sss[0]);
                 m_waterSS = providePDSS(0);
                 m_waterSS->setState_TP(300., OneAtm);
                 double dens = m_waterSS->density();
@@ -1470,10 +1464,6 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
             if (jmap != npos) {
                 const XML_Node& sp = *xspecies[jmap];
                 getOptionalFloat(sp, "stoichIsMods",  m_speciesCharge_Stoich[k]);
-                // if (sp.hasChild("stoichIsMods")) {
-                // double val = getFloat(sp, "stoichIsMods");
-                //m_speciesCharge_Stoich[k] = val;
-                //}
             }
         }
 
@@ -1675,19 +1665,6 @@ initThermoXML(XML_Node& phaseNode, const std::string& id_)
             notDone = false;
         }
     } while (notDone);
-
-
-
-
-
-
-
-
-    //    if (phaseNode.hasChild("state")) {
-    // XML_Node& stateNode = phaseNode.child("state");
-    // setStateFromXML(stateNode);
-    //}
-
 }
 
 void  HMWSoln::calcIMSCutoffParams_()

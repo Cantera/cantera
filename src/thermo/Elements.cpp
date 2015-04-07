@@ -17,7 +17,6 @@ using namespace std;
 namespace Cantera
 {
 
-
 /*! Database for atomic molecular weights
  *  Values are taken from the 1989 Standard Atomic Weights, CRC
  *
@@ -185,10 +184,6 @@ doublereal LookupWtElements(const std::string& ename)
     return -1.0;
 }
 
-
-
-
-
 //!  Exception class to indicate a fixed set of elements.
 /*!
  *   This class is used to warn the user when the number of elements
@@ -216,7 +211,6 @@ Elements::Elements() :
     m_elem_type(0),
     numSubscribers(0)
 {
-    warn_deprecated("class Elements");
 }
 
 /*
@@ -364,8 +358,7 @@ int Elements::changeElementType(int m, int elem_type)
  *  looks up the required parameters for the regular interface
  *  and then calls the base routine.
  */
-void Elements::
-addElement(const std::string& symbol, doublereal weight)
+void Elements::addElement(const std::string& symbol, doublereal weight)
 {
     if (weight == -12345.0) {
         weight = LookupWtElements(symbol);
@@ -388,8 +381,7 @@ addElement(const std::string& symbol, doublereal weight)
     m_mm++;
 }
 //===========================================================================================================
-void Elements::
-addElement(const XML_Node& e)
+void Elements::addElement(const XML_Node& e)
 {
     doublereal weight = fpValue(e["atomicWt"]);
     string symbol = e["name"];
@@ -409,10 +401,9 @@ addElement(const XML_Node& e)
  *  The default weight is a special value, which will cause the
  *  routine to look up the actual weight via a string lookup.
  */
-void Elements::
-addUniqueElement(const std::string& symbol,
-                 doublereal weight, int atomicNumber_, doublereal entropy298,
-                 int elem_type)
+void Elements::addUniqueElement(const std::string& symbol, doublereal weight,
+                                int atomicNumber_, doublereal entropy298,
+                                int elem_type)
 {
     if (weight == -12345.0) {
         weight =  LookupWtElements(symbol);
@@ -461,8 +452,7 @@ addUniqueElement(const std::string& symbol,
  * @todo call addUniqueElement(symbol, weight) instead of
  * addElement.
  */
-void Elements::
-addUniqueElement(const XML_Node& e)
+void Elements::addUniqueElement(const XML_Node& e)
 {
     doublereal weight = 0.0;
     if (e.hasAttrib("atomicWt")) {
@@ -555,9 +545,7 @@ void Elements::addElementsFromXML(const XML_Node& phase)
     for (i = 0; i < nel; i++) {
         e = 0;
         if (local_db) {
-            //writelog("looking in local database.");
             e = local_db->findByAttr("name",enames[i]);
-            //if (!e) writelog(enames[i]+" not found.");
         }
         if (!e) {
             e = dbe->findByAttr("name",enames[i]);

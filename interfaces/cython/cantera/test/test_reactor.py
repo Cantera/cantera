@@ -1,6 +1,8 @@
+import math
+import re
+
 import numpy as np
 from .utilities import unittest
-import re
 
 import cantera as ct
 from . import utilities
@@ -36,10 +38,10 @@ class TestReactor(utilities.CanteraTest):
 
     def test_insert(self):
         R = self.reactorClass()
-        f1 = lambda r: r.T
-        f2 = lambda r: r.kinetics.net_production_rates
-        self.assertRaises(Exception, f1, R)
-        self.assertRaises(Exception, f2, R)
+        with self.assertRaises(Exception):
+            R.T
+        with self.assertRaises(Exception):
+            R.kinetics.net_production_rates
 
         g = ct.Solution('h2o2.xml')
         g.TP = 300, 101325
@@ -337,7 +339,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertEqual(self.r1.outlets, self.r2.inlets)
         self.assertTrue(self.r1.energy_enabled)
         self.assertTrue(self.r2.energy_enabled)
-        self.assertTrue((self.r1.thermo.P - self.r2.thermo.P) * k,
+        self.assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
                         valve.mdot(0))
 
         m1a = self.r1.thermo.density * self.r1.volume
@@ -350,7 +352,7 @@ class TestReactor(utilities.CanteraTest):
         m1b = self.r1.thermo.density * self.r1.volume
         m2b = self.r2.thermo.density * self.r2.volume
 
-        self.assertTrue((self.r1.thermo.P - self.r2.thermo.P) * k,
+        self.assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
                         valve.mdot(0.1))
         self.assertNear(m1a+m2a, m1b+m2b)
         Y1b = self.r1.thermo.Y
@@ -471,6 +473,45 @@ class TestReactor(utilities.CanteraTest):
 
         self.assertNear(p1a, p1b)
         self.assertNear(p2a, p2b)
+
+    def test_reinitialize(self):
+        self.make_reactors(T1=300, T2=1000, independent=False)
+        self.add_wall(U=200, A=1.0)
+        self.net.advance(1.0)
+        T1a = self.r1.T
+        T2a = self.r2.T
+
+        self.r1.thermo.TD = 300, None
+        self.r1.syncState()
+
+        self.r2.thermo.TD = 1000, None
+        self.r2.syncState()
+
+        self.assertNear(self.r1.T, 300)
+        self.assertNear(self.r2.T, 1000)
+        self.net.advance(2.0)
+        T1b = self.r1.T
+        T2b = self.r2.T
+
+        self.assertNear(T1a, T1b)
+        self.assertNear(T2a, T2b)
+
+    def test_unpicklable(self):
+        self.make_reactors()
+        import pickle
+        with self.assertRaises(NotImplementedError):
+            pickle.dumps(self.r1)
+        with self.assertRaises(NotImplementedError):
+            pickle.dumps(self.net)
+
+    def test_uncopyable(self):
+        self.make_reactors()
+        import copy
+        with self.assertRaises(NotImplementedError):
+            copy.copy(self.r1)
+        with self.assertRaises(NotImplementedError):
+            copy.copy(self.net)
+
 
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
@@ -615,16 +656,16 @@ class TestConstPressureReactor(utilities.CanteraTest):
             mfc2 = ct.MassFlowController(env, self.r2, mdot=0.05)
 
         if add_surf:
-            interface1 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface1 = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas1, solid))
-            interface2 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface2 = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas2, solid))
 
-            C = np.zeros(interface1.n_species)
+            C = np.zeros(self.interface1.n_species)
             C[0] = 0.3
             C[4] = 0.7
-            self.w1.left.kinetics = interface1
-            self.w2.left.kinetics = interface2
+            self.w1.left.kinetics = self.interface1
+            self.w2.left.kinetics = self.interface2
             self.w1.left.coverages = C
             self.w2.left.coverages = C
 
@@ -633,6 +674,19 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.net1.set_max_time_step(0.05)
         self.net2.set_max_time_step(0.05)
         self.net2.max_err_test_fails = 10
+
+    def test_component_index(self):
+        self.create_reactors(add_surf=True)
+        for (gas,net,iface,r) in ((self.gas1, self.net1, self.interface1, self.r1),
+                                  (self.gas2, self.net2, self.interface2, self.r2)):
+            net.step(1.0)
+
+            N0 = net.n_vars - gas.n_species - iface.n_species
+            N1 = net.n_vars - iface.n_species
+            for i, name in enumerate(gas.species_names):
+                self.assertEqual(i + N0, r.component_index(name))
+            for i, name in enumerate(iface.species_names):
+                self.assertEqual(i + N1, r.component_index(name))
 
     def integrate(self, surf=False):
         for t in np.arange(0.5, 50, 1.0):
@@ -661,6 +715,8 @@ class TestConstPressureReactor(utilities.CanteraTest):
 
     def test_with_surface_reactions(self):
         self.create_reactors(add_surf=True)
+        self.net1.atol = self.net2.atol = 1e-18
+        self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
 
 
@@ -748,14 +804,16 @@ class TestWallKinetics(utilities.CanteraTest):
         C_left = self.w.left.coverages
 
         self.assertEqual(self.w.right.kinetics, None)
-        self.assertRaises(Exception, lambda: self.w.right.coverages)
+        with self.assertRaises(Exception):
+            self.w.right.coverages
 
         self.make_reactors()
         self.w.right.kinetics = self.interface
         self.w.right.coverages = C
         self.assertArrayNear(self.w.right.coverages, C)
         self.assertEqual(self.w.left.kinetics, None)
-        self.assertRaises(Exception, lambda: self.w.left.coverages)
+        with self.assertRaises(Exception):
+            self.w.left.coverages
         self.net.advance(1e-5)
         C_right = self.w.right.coverages
 
@@ -1065,3 +1123,166 @@ class TestReactorSensitivities(utilities.CanteraTest):
         for a,b in [(0,1),(2,3),(4,5),(6,7)]:
             for i,j in enumerate((4,2,1,3,0)):
                 self.assertArrayNear(S[a][:,i], S[b][:,j], 1e-2, 1e-3)
+
+
+class CombustorTestImplementation(object):
+    """
+    These tests are based on the sample:
+
+        interfaces/cython/cantera/examples/reactors/combustor.py
+
+    with some simplifications so that they run faster and produce more
+    consistent output.
+    """
+
+    referenceFile = '../data/CombustorTest-integrateWithAdvance.csv'
+    def setUp(self):
+        self.gas = ct.Solution('h2o2.xml')
+
+        # create a reservoir for the fuel inlet, and set to pure methane.
+        self.gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
+        fuel_in = ct.Reservoir(self.gas)
+        fuel_mw = self.gas.mean_molecular_weight
+
+        # Oxidizer inlet
+        self.gas.TPX = 300.0, ct.one_atm, 'O2:1.0, AR:3.0'
+        oxidizer_in = ct.Reservoir(self.gas)
+        oxidizer_mw = self.gas.mean_molecular_weight
+
+        # to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
+        # The steady-state behavior is independent of how we do this, so we'll
+        # just use a stream of pure atomic hydrogen.
+        self.gas.TPX = 300.0, ct.one_atm, 'H:1.0'
+        self.igniter = ct.Reservoir(self.gas)
+
+        # create the combustor, and fill it in initially with a diluent
+        self.gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
+        self.combustor = ct.IdealGasReactor(self.gas, volume=1.0)
+
+        # create a reservoir for the exhaust
+        self.exhaust = ct.Reservoir(self.gas)
+
+        # compute fuel and air mass flow rates
+        factor = 0.1
+        oxidizer_mdot = 4 * factor*oxidizer_mw
+        fuel_mdot = factor*fuel_mw
+
+        # The igniter will use a time-dependent igniter mass flow rate.
+        def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
+            return amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
+
+        # create and install the mass flow controllers. Controllers
+        # m1 and m2 provide constant mass flow rates, and m3 provides
+        # a short Gaussian pulse only to ignite the mixture
+        m1 = ct.MassFlowController(fuel_in, self.combustor, mdot=fuel_mdot)
+        m2 = ct.MassFlowController(oxidizer_in, self.combustor, mdot=oxidizer_mdot)
+        m3 = ct.MassFlowController(self.igniter, self.combustor, mdot=igniter_mdot)
+
+        # put a valve on the exhaust line to regulate the pressure
+        self.v = ct.Valve(self.combustor, self.exhaust, K=1.0)
+
+        # the simulation only contains one reactor
+        self.sim = ct.ReactorNet([self.combustor])
+
+    def test_integrateWithStep(self):
+        tnow = 0.0
+        tfinal = 0.25
+        self.data = []
+        while tnow < tfinal:
+            tnow = self.sim.step(tfinal)
+            self.data.append([tnow, self.combustor.T] +
+                             list(self.combustor.thermo.X))
+
+        self.assertTrue(tnow >= tfinal)
+        bad = utilities.compareProfiles(self.referenceFile, self.data,
+                                        rtol=1e-3, atol=1e-9)
+        self.assertFalse(bad, bad)
+
+    def test_integrateWithAdvance(self, saveReference=False):
+        self.data = []
+        for t in np.linspace(0, 0.25, 101)[1:]:
+            self.sim.advance(t)
+            self.data.append([t, self.combustor.T] +
+                             list(self.combustor.thermo.X))
+
+        if saveReference:
+            np.savetxt(self.referenceFile, np.array(self.data), '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(self.referenceFile, self.data,
+                                            rtol=1e-6, atol=1e-12)
+            self.assertFalse(bad, bad)
+
+
+class WallTestImplementation(object):
+    """
+    These tests are based on the sample:
+
+        interfaces/cython/cantera/examples/reactors/reactor2.py
+
+    with some simplifications so that they run faster and produce more
+    consistent output.
+    """
+
+    referenceFile = '../data/WallTest-integrateWithAdvance.csv'
+    def setUp(self):
+        # reservoir to represent the environment
+        self.gas0 = ct.Solution('air.xml')
+        self.gas0.TP = 300, ct.one_atm
+        self.env = ct.Reservoir(self.gas0)
+
+        # reactor to represent the side filled with Argon
+        self.gas1 = ct.Solution('air.xml')
+        self.gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
+        self.r1 = ct.Reactor(self.gas1)
+
+        # reactor to represent the combustible mixture
+        self.gas2 = ct.Solution('h2o2.xml')
+        self.gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
+        self.r2 = ct.Reactor(self.gas2)
+
+        # Wall between the two reactors
+        self.w1 = ct.Wall(self.r2, self.r1, A=1.0, K=2e-4, U=400.0)
+
+        # Wall to represent heat loss to the environment
+        self.w2 = ct.Wall(self.r2, self.env, A=1.0, U=2000.0)
+
+        # Create the reactor network
+        self.sim = ct.ReactorNet([self.r1, self.r2])
+
+    def test_integrateWithStep(self):
+        tnow = 0.0
+        tfinal = 0.01
+        self.data = []
+        while tnow < tfinal:
+            tnow = self.sim.step(tfinal)
+            self.data.append([tnow,
+                              self.r1.T, self.r2.T,
+                              self.r1.thermo.P, self.r2.thermo.P,
+                              self.r1.volume, self.r2.volume])
+
+        self.assertTrue(tnow >= tfinal)
+        bad = utilities.compareProfiles(self.referenceFile, self.data,
+                                        rtol=1e-3, atol=1e-8)
+        self.assertFalse(bad, bad)
+
+    def test_integrateWithAdvance(self, saveReference=False):
+        self.data = []
+        for t in np.linspace(0, 0.01, 200)[1:]:
+            self.sim.advance(t)
+            self.data.append([t,
+                              self.r1.T, self.r2.T,
+                              self.r1.thermo.P, self.r2.thermo.P,
+                              self.r1.volume, self.r2.volume])
+
+        if saveReference:
+            np.savetxt(self.referenceFile, np.array(self.data), '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(self.referenceFile, self.data,
+                                            rtol=2e-5, atol=1e-9)
+            self.assertFalse(bad, bad)
+
+
+# Keep the implementations separate from the unittest-derived class
+# so that they can be run independently to generate the reference data files.
+class CombustorTest(CombustorTestImplementation, unittest.TestCase): pass
+class WallTest(WallTestImplementation, unittest.TestCase): pass

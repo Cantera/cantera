@@ -86,15 +86,6 @@ public:
     //@}
     //! @name  Utilities (VPStandardStateTP)
     //@{
-    /**
-     * Equation of state type flag. The base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Constants defined for this purpose are
-     * listed in mix_defs.h.
-     */
-    virtual int eosType() const {
-        return 0;
-    }
 
     //! This method returns the convention used in specification
     //! of the standard state, of which there are currently two,
@@ -127,7 +118,7 @@ public:
      *                         log Activity Coefficients. length = m_kk
      */
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
-        err("getdlnActCoeffdlnN_diag");
+        throw NotImplementedError("VPStandardStateTP::getdlnActCoeffdlnN_diag");
     }
 
     //@}
@@ -397,7 +388,6 @@ public:
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
 
-#ifdef H298MODIFY_CAPABILITY
     //!  Modify the value of the 298 K Heat of Formation of the standard state of
     //!  one species in the phase (J kmol-1)
     /*!
@@ -408,8 +398,7 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar.
      *                       units = J/kmol.
      */
-    void modifyOneHf298SS(const size_t& k, const doublereal Hf298New);
-#endif
+    void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
 
     //!  Returns the vector of nondimensional
     //!  Gibbs free energies of the reference state at the current temperature
@@ -476,23 +465,9 @@ public:
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
      * input file. They are not normally used in application programs.
-     * To see how they are used, see files importCTML.cpp and
-     * ThermoFactory.cpp.
+     * To see how they are used, see importPhase().
      */
     //@{
-
-    /**
-     * Set equation of state parameter values from XML
-     * entries. This method is called by function importPhase in
-     * file importCTML.cpp when processing a phase definition in
-     * an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata) {}
 
     virtual void initThermo();
 
@@ -589,14 +564,6 @@ protected:
      *  Copy operations are deep.
      */
     std::vector<PDSS*> m_PDSS_storage;
-
-private:
-    //! VPStandardStateTP has its own err routine
-    /*!
-     * @param msg  Error message string
-     */
-    doublereal err(const std::string& msg) const;
-
 };
 }
 

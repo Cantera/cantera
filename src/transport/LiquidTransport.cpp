@@ -8,7 +8,6 @@
 #include "cantera/base/utilities.h"
 #include "cantera/transport/LiquidTransportParams.h"
 #include "cantera/transport/TransportFactory.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
@@ -220,27 +219,21 @@ LiquidTransport::~LiquidTransport()
     delete m_ionCondMixModel;
     delete m_lambdaMixModel;
     delete m_diffMixModel;
-    //if ( m_radiusMixModel ) delete m_radiusMixModel;
 }
-
+//=============================================================================================================================
 bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 {
-
-    // constant substance attributes
+    //
+    //  Transfer quantitities from the database to the Transport object
+    //
     m_thermo = tr.thermo;
-    tr.thermo = 0;
     m_velocityBasis = tr.velocityBasis_;
     m_nsp   = m_thermo->nSpecies();
     m_nsp2 = m_nsp*m_nsp;
-
-    // make a local copy of the molecular weights
+    //
+    //  Resize the local storage according to the number of species
+    // 
     m_mw.resize(m_nsp, 0.0);
-    copy(m_thermo->molecularWeights().begin(),
-         m_thermo->molecularWeights().end(), m_mw.begin());
-
-    /*
-     *  Get the input Viscosities, and stuff
-     */
     m_viscSpecies.resize(m_nsp, 0.0);
     m_viscTempDep_Ns.resize(m_nsp, 0);
     m_ionCondSpecies.resize(m_nsp, 0.0);
@@ -253,18 +246,25 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_selfDiffMixModel.resize(m_nsp);
     m_selfDiffSpecies.resize(m_nsp, m_nsp, 0.0);
     m_selfDiffMix.resize(m_nsp,0.0);
-    for (size_t k=0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
         m_selfDiffTempDep_Ns[k].resize(m_nsp, 0);
     }
-    for (size_t k=0; k < m_nsp2; k++) {
+    for (size_t k = 0; k < m_nsp2; k++) {
         m_mobRatTempDep_Ns[k].resize(m_nsp, 0);
     }
     m_lambdaSpecies.resize(m_nsp, 0.0);
     m_lambdaTempDep_Ns.resize(m_nsp, 0);
     m_hydrodynamic_radius.resize(m_nsp, 0.0);
     m_radiusTempDep_Ns.resize(m_nsp, 0);
-
-    //first populate mixing rules and indices
+    //
+    //  Make a local copy of the molecular weights
+    //
+    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
+    //
+    //  First populate mixing rules and indices
+    //       (NOTE, we transfer pointers of malloced quantities. We zero out pointers so that
+    //        we only have one copy of the malloced quantity)
+    //
     for (size_t k = 0; k < m_nsp; k++) {
         m_selfDiffMixModel[k] = tr.selfDiffusion[k];
         tr.selfDiffusion[k] = 0;
@@ -334,14 +334,16 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 
     m_ionCondMixModel = tr.ionConductivity;
     tr.ionConductivity = 0;
-    //m_mobRatMixModel = tr.mobilityRatio;
 
     m_lambdaMixModel = tr.thermalCond;
     tr.thermalCond = 0;
 
     m_diffMixModel = tr.speciesDiffusivity;
     tr.speciesDiffusivity = 0;
-
+    if (! m_diffMixModel) {
+        throw CanteraError("LiquidTransport::initLiquid()",
+                           "A speciesDiffusivity model is required in the transport block for the phase, but none was provided");
+    }
 
     m_bdiff.resize(m_nsp,m_nsp, 0.0);
 
@@ -423,7 +425,7 @@ void LiquidTransport::getSpeciesViscosities(doublereal* const visc)
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc);
 }
 
-doublereal LiquidTransport:: ionConductivity()
+doublereal LiquidTransport::ionConductivity()
 {
     update_T();
     update_C();
@@ -436,17 +438,6 @@ doublereal LiquidTransport:: ionConductivity()
     m_ionCondmix = m_ionCondMixModel->getMixTransProp(m_ionCondTempDep_Ns);
 
     return m_ionCondmix;
-
-    /*
-    // update m_ionCondSpecies[] if necessary
-    if (!m_ionCond_temp_ok) {
-      updateIonConductivity_T();
-    }
-
-    if (!m_ionCond_conc_ok) {
-      updateIonConductivity_C();
-    }
-    */
 }
 
 void LiquidTransport::getSpeciesIonConductivity(doublereal* ionCond)
@@ -458,7 +449,7 @@ void LiquidTransport::getSpeciesIonConductivity(doublereal* ionCond)
     copy(m_ionCondSpecies.begin(), m_ionCondSpecies.end(), ionCond);
 }
 
-void LiquidTransport:: mobilityRatio(doublereal* mobRat)
+void LiquidTransport::mobilityRatio(doublereal* mobRat)
 {
 
     update_T();
@@ -566,9 +557,6 @@ void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
-            //if (!( ( m_bdiff(i,j) > 0.0 ) |  ( m_bdiff(i,j) < 0.0 ))){
-            //  throw CanteraError("LiquidTransport::getBinaryDiffCoeffs ",
-            //      "m_bdiff has zero entry in non-diagonal.");}
             d[ld*j + i] = 1.0 / m_bdiff(i,j);
 
         }
@@ -951,12 +939,6 @@ void LiquidTransport::updateHydrodynamicRadius_T()
 void LiquidTransport::update_Grad_lnAC()
 {
     doublereal grad_T;
-    //    static vector_fp grad_lnAC(m_nsp), grad_X(m_nsp);
-    //   IonsFromNeutralVPSSTP * tempIons = dynamic_cast<IonsFromNeutralVPSSTP *> m_thermo;
-    //MargulesVPSSTP * tempMarg = dynamic_cast<MargulesVPSSTP *> (tempIons->neutralMoleculePhase_);
-
-
-    //m_thermo->getdlnActCoeffdlnX( DATA_PTR(grad_lnAC) );
     for (size_t k = 0; k < m_nDim; k++) {
         grad_T = m_Grad_T[k];
         const int start = m_nsp*k;
@@ -967,7 +949,6 @@ void LiquidTransport::update_Grad_lnAC()
             } else {
                 m_Grad_lnAC[start+i] += m_Grad_X[start+i]/m_molefracs[i];
             }
-        //      std::cout << k << " m_Grad_lnAC = " << m_Grad_lnAC[k] << std::endl;
     }
 
     return;
@@ -997,7 +978,6 @@ void LiquidTransport::stefan_maxwell_solve()
 
     update_Grad_lnAC() ;
 
-    //m_thermo->getStandardVolumes(DATA_PTR(m_volume_spec));
     m_thermo->getActivityCoefficients(DATA_PTR(m_actCoeff));
 
     /*
@@ -1029,7 +1009,6 @@ void LiquidTransport::stefan_maxwell_solve()
         for (size_t i = 0; i < m_nsp; i++) {
             m_Grad_mu[a*m_nsp + i] =
                 m_chargeSpecies[i] *  Faraday * m_Grad_V[a]
-                //+  (m_volume_spec[i] - M[i]/dens_) * m_Grad_P[a]
                 +  GasConstant * T * m_Grad_lnAC[a*m_nsp+i];
         }
     }
@@ -1081,9 +1060,6 @@ void LiquidTransport::stefan_maxwell_solve()
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    //if ( !( m_bdiff(i,j) > 0.0 ) )
-                    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-                    //    "m_bdiff has zero entry in non-diagonal.");
                     tmp = m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  =   tmp;
@@ -1094,29 +1070,10 @@ void LiquidTransport::stefan_maxwell_solve()
         //! invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
 
-        /*
-        condSum2 = m_chargeSpecies[1]*m_chargeSpecies[1]*m_molefracs_tran[1]*m_bdiff(2,3) +
-        m_chargeSpecies[2]*m_chargeSpecies[2]*m_molefracs_tran[2]*m_bdiff(1,3) +
-        m_chargeSpecies[3]*m_chargeSpecies[3]*m_molefracs_tran[3]*m_bdiff(1,2);
-             condSum1 = m_molefracs_tran[1]*m_bdiff(1,2)*m_bdiff(1,3) +
-        m_molefracs_tran[2]*m_bdiff(2,3)*m_bdiff(1,2) +
-        m_molefracs_tran[3]*m_bdiff(1,3)*m_bdiff(2,3);
-             condSum2 = condSum2/condSum1*Faraday*Faraday/GasConstant/T/vol;
-             */
-
         condSum1 = 0;
         for (size_t i = 0; i < m_nsp; i++) {
             condSum1 -= Faraday*m_chargeSpecies[i]*m_B(i,0)*m_molefracs_tran[i]/vol;
         }
-
-        /*
-        Check Mobility Ratio of Cations
-        cout << "mobility ratio = " << m_chargeSpecies[1]*(m_B(1,0)-m_B(2,0))/m_chargeSpecies[0]/(m_B(0,0)-m_B(2,0)) << endl;
-        */
-
-        //      cout << condSum1 << " = " << condSum2 << endl;
-
-
         break;
     case 2:  /* 2-D approximation */
         m_B(0,0) = 0.0;
@@ -1145,9 +1102,6 @@ void LiquidTransport::stefan_maxwell_solve()
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    //if ( !( m_bdiff(i,j) > 0.0 ) )
-                    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-                    //    "m_bdiff has zero entry in non-diagonal.");
                     tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  =   tmp;
@@ -1190,9 +1144,6 @@ void LiquidTransport::stefan_maxwell_solve()
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    //if ( !( m_bdiff(i,j) > 0.0 ) )
-                    //throw CanteraError("LiquidTransport::stefan_maxwell_solve",
-                    //    "m_bdiff has zero entry in non-diagonal.");
                     tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -=   tmp;
                     m_A(i,j)  = tmp;
@@ -1216,15 +1167,6 @@ void LiquidTransport::stefan_maxwell_solve()
             m_flux(j,a) = concTot_ * M[j] * m_molefracs_tran[j] * m_B(j,a);
         }
     }
-}
-
-doublereal LiquidTransport::err(const std::string& msg) const
-{
-    throw CanteraError("LiquidTransport::err()",
-                       "\n\n\n**** Method "+ msg +" not implemented in model "
-                       + int2str(model()) + " ****\n"
-                       "(Did you forget to specify a transport model?)\n\n\n");
-    return 0.0;
 }
 
 }

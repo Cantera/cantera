@@ -10,6 +10,7 @@
 #include "cantera/base/vec_functions.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/Elements.h"
+#include "cantera/base/ValueCache.h"
 
 namespace Cantera
 {
@@ -110,10 +111,24 @@ public:
     //!     @param right Reference to the class to be used in the copy
     Phase& operator=(const Phase& right);
 
-    //! Returns a reference to the XML_Node stored for the phase.
-    //! The XML_Node for the phase contains all of the input data used to set
-    //! up the model for the phase, during its initialization.
-    XML_Node& xml();
+    //! Returns a const reference to the XML_Node that describes the phase.
+    /*!
+     *       The XML_Node for the phase contains all of the input data used to set
+     *       up the model for the phase during its initialization.
+     *
+     */
+    XML_Node& xml() const;
+
+    //! Stores the XML tree information for the current phase
+    /*!
+     *  This function now stores the complete XML_Node tree as read into the code
+     *  via a file. This is needed to move around within the XML tree during
+     *  construction of transport and kinetics mechanisms after copy
+     *  construction operations.
+     *
+     *  @param xmlPhase Reference to the XML node corresponding to the phase
+     */
+    void setXMLdata(XML_Node& xmlPhase);   
 
     /*! @name Name and ID
      * Class Phase contains two strings that identify a phase. The ID is the
@@ -121,13 +136,13 @@ public:
      * initialize a phase when it is read. The name field is also initialized
      * to the value of the ID attribute of the XML phase node.
      *
-     * However, the name field  may be changed to another value during the
+     * However, the name field may be changed to another value during the
      * course of a calculation. For example, if a phase is located in two
-     * places, but has the same constitutive input, the ids of the two phases
+     * places, but has the same constitutive input, the IDs of the two phases
      * will be the same, but the names of the two phases may be different.
      *
      * It is an error to have two phases in a single problem with the same name
-     * or the same id (or the name from one phase being the same as the id of
+     * and ID (or the name from one phase being the same as the id of
      * another phase). Thus, it is expected that there is a 1-1 correspondence
      * between names and unique phases within a Cantera problem.
      */
@@ -137,10 +152,15 @@ public:
     std::string id() const;
 
     //! Set the string id for the phase.
-    //!     @param id String id of the phase
+    /*!
+     *    @param id String id of the phase
+     */
     void setID(const std::string& id);
 
     //! Return the name of the phase.
+    /*!
+     *   Names are unique within a Cantera problem.
+     */
     std::string name() const;
 
     //! Sets the string name for the phase.
@@ -297,7 +317,7 @@ public:
     //! Set the species mole fractions by name.
     //! Species not listed by name in \c xMap are set to zero.
     //!     @param xMap map from species names to mole fraction values.
-    void setMoleFractionsByName(compositionMap& xMap);
+    void setMoleFractionsByName(const compositionMap& xMap);
 
     //! Set the mole fractions of a group of species by name. Species which
     //! are not listed by name in the composition map are set to zero.
@@ -307,7 +327,7 @@ public:
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c yMap are set to zero.
     //!     @param yMap map from species names to mass fraction values.
-    void setMassFractionsByName(compositionMap& yMap);
+    void setMassFractionsByName(const compositionMap& yMap);
 
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c x are set to zero.
@@ -326,7 +346,7 @@ public:
     //!     @param x     Composition Map containing the mole fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mole fraction.
-    void setState_TRX(doublereal t, doublereal dens, compositionMap& x);
+    void setState_TRX(doublereal t, doublereal dens, const compositionMap& x);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
     //!     @param t     Temperature in kelvin
@@ -340,7 +360,7 @@ public:
     //!     @param y     Composition Map containing the mass fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mass fraction.
-    void setState_TRY(doublereal t, doublereal dens, compositionMap& y);
+    void setState_TRY(doublereal t, doublereal dens, const compositionMap& y);
 
     //! Set the internally stored temperature (K), molar density (kmol/m^3), and mole fractions.
     //!     @param t     Temperature in kelvin
@@ -682,15 +702,6 @@ public:
                           doublereal size = 1.0);
     //!@} end group adding species and elements
 
-    //! Call when finished adding species.
-    //! Prepare to use them for calculation of mixture properties.
-    virtual void freezeSpecies();
-
-    //! True if freezeSpecies has been called.
-    bool speciesFrozen() {
-        return m_speciesFrozen;
-    }
-
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
@@ -699,11 +710,7 @@ public:
     }
 
 protected:
-    //! @internal Initialize.
-    //! Make a local copy of the vector of molecular weights, and resize the
-    //! composition arrays to the appropriate size.
-    //!     @param mw Vector of molecular weights of the species.
-    void init(const vector_fp& mw);
+    mutable ValueCache m_cache;
 
     //! Set the molecular weight of a single species to a given value
     //!     @param k       id of the species
@@ -764,11 +771,6 @@ private:
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
     int m_stateNum;
-
-    //! Boolean indicating whether the number of species has been frozen.
-    //! During the construction of the phase, this is false. After construction
-    //! of the the phase, this is true.
-    bool m_speciesFrozen;
 
     //! If this is true, then no elements may be added to the object.
     bool m_elementsFrozen;
