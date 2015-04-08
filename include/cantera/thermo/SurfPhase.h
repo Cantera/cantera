@@ -383,20 +383,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& thermoData);
 
     //! Initialize the SurfPhase object after all species have been set up
-    /*!
-     * @internal Initialize.
-     *
-     * This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called from ThermoPhase::initThermoXML(),
-     * which is called from importPhase(),
-     * just prior to returning from function importPhase().
-     */
     virtual void initThermo();
 
     //! Set the initial state of the Surface Phase from an XML_Node
@@ -475,13 +461,6 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //! Return the thermodynamic pressure (Pa).
-    /*!
-     *  This method must be overloaded in derived classes. Since the
-     *  mass density, temperature, and mass fractions are stored,
-     *  this method should use these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
-     *  Y_K) \f$.
-     */
     virtual doublereal pressure() const {
         return m_press;
     }
@@ -489,14 +468,6 @@ public:
     //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
-     *   This method must be reimplemented in derived classes, where it
-     *   may involve the solution of a nonlinear equation. Within %Cantera,
-     *   the independent variable is the density. Therefore, this function
-     *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition are held constant during this process.
-     *
-     *  This base class function will print an error, if not overwritten.
-     *
      *  @param p input Pressure (Pa)
      */
     virtual void setPressure(doublereal p) {
