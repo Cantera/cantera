@@ -81,7 +81,7 @@ namespace Cantera
  *
  * Specify that the input mole, mass, and volume fraction vectors must sum to one on entry to the set state routines.
  * Non-conforming mole/mass fraction vectors are not thermodynamically consistent.
- * Moreover, ynless we do this, the calculation of jacobians will be altered whenever the treatment of non-conforming mole
+ * Moreover, unless we do this, the calculation of jacobians will be altered whenever the treatment of non-conforming mole
  * fractions is changed. Add setState functions corresponding to specifying mole numbers, which is actually what
  * is being done (well one of the options, there are many) when non-conforming mole fractions are input.
  * Note, we realize that most numerical jacobian and some analytical jacobians use non-conforming calculations.
@@ -752,7 +752,7 @@ public:
     //! if used will cause Cantera to throw an error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
-    //! @deprecated. Equivalentto addElement. To be removed after Cantera 2.2.
+    //! @deprecated. Equivalent to addElement. To be removed after Cantera 2.2.
     size_t addUniqueElementAfterFreeze(const std::string& symbol,
                                        doublereal weight, int atomicNumber,
                                        doublereal entropy298 = ENTROPY298_UNKNOWN,
@@ -799,7 +799,7 @@ public:
 
     //!@} end group adding species and elements
 
-    //!  Returns a bool indicating wether the object is ready for use
+    //!  Returns a bool indicating whether the object is ready for use
     /*!
      *  @return returns true if the object is ready for calculation, false otherwise.
      */

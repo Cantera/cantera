@@ -35,7 +35,7 @@ public:
      */
     PDSS_IdealGas(VPStandardStateTP* tp, int spindex);
 
-    //! Copy Constructur
+    //! Copy Constructor
     /*!
      * @param b Object to be copied
      */
@@ -43,7 +43,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b Object to be copeid
+     * @param b Object to be copied
      */
     PDSS_IdealGas& operator=(const PDSS_IdealGas& b);
 

@@ -63,7 +63,7 @@ public:
     PDSS_ConstVol(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                   const XML_Node& phaseRef, bool spInstalled);
 
-    //! Copy Constructur
+    //! Copy Constructor
     /*!
      * @param b Object to be copied
      */
@@ -71,7 +71,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b Object to be copeid
+     * @param b Object to be copied
      */
     PDSS_ConstVol& operator=(const PDSS_ConstVol& b);
 

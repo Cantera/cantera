@@ -764,7 +764,7 @@ public:
      *  same order. The idea here is to allow copy constructors and duplicators
      *  to work. In order for them to work, we need a method to switch the
      *  internal pointer within the Transport object after the duplication
-     *  takes place.  Also, different thermodynamic instanteations of the same
+     *  takes place.  Also, different thermodynamic instantiations of the same
      *  species should also work.
      *
      *   @param   thermo  Reference to the ThermoPhase object that

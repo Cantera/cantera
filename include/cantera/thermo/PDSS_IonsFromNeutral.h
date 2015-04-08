@@ -76,7 +76,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b Object to be copeid
+     * @param b Object to be copied
      */
     PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
 

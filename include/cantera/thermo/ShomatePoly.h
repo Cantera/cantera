@@ -194,7 +194,7 @@ public:
          *  J/(gmol*K) for cp_r and s_R and kJ/(gmol) for h.
          *  However, Cantera assumes default MKS units of
          *  J/(kmol*K). This requires us to multiply cp and s
-         *  by 1.e3 and h by 1.e6, before we then nondimensionlize
+         *  by 1.e3 and h by 1.e6, before we then nondimensionalize
          *  the results by dividing by (GasConstant * T),
          *  where GasConstant has units of J/(kmol * K).
          */
@@ -264,7 +264,7 @@ public:
     }
 
 protected:
-    //! Array of coeffcients
+    //! Array of coefficients
     vector_fp m_coeff;
 };
 

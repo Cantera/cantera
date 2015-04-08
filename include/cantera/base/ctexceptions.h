@@ -119,7 +119,7 @@ public:
     //! Function to put this error onto Cantera's error stack
     void save();
 
-    //! Method overridden by derived classes to formatted the error message
+    //! Method overridden by derived classes to format the error message
     virtual std::string getMessage() const;
 
     //! Method overridden by derived classes to indicate their type

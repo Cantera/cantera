@@ -559,7 +559,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
     /*
      *
      *     When we form the Hessian we must be careful to ensure that it
-     * is a symmetric positive definate matrix, still. This means zeroing
+     * is a symmetric positive definite matrix, still. This means zeroing
      * out columns when we zero out rows as well.
      *     -> I suggest writing a small program to make sure of this
      *        property.

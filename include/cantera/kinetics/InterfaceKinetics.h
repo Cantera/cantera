@@ -309,7 +309,7 @@ public:
      */
     void updateKc();
 
-    //! Apply modifications for the fowward reaction rate for interfacial charge transfer reactions
+    //! Apply modifications for the forward reaction rate for interfacial charge transfer reactions
     /*!
      * For reactions that transfer charge across a potential difference,
      * the activation energies are modified by the potential difference.
@@ -535,7 +535,7 @@ protected:
     //! Pointer to the Implicit surface chemistry object
     /*!
      * Note this object is owned by this InterfaceKinetics object. It may only
-     * be used to solve this single InterfaceKinetics objects's surface
+     * be used to solve this single InterfaceKinetics object's surface
      * problem uncoupled from other surface phases.
      */
     ImplicitSurfChem* m_integrator;

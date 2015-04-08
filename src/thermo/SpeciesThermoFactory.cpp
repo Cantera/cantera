@@ -653,7 +653,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& speciesNode)
     if (thermo["model"] == "MineralEQ3") {
         if (thermoType != "mineq3") {
             throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
-                               "confused: expedted MinEQ3");
+                               "confused: expected MinEQ3");
         }
         return newShomateForMineralEQ3(specName, *tp[0]);
     } else if (thermoType == "shomate") {

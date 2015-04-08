@@ -197,7 +197,7 @@ protected:
     /*!
      * This is useful when the normalization
      * condition is being handled by some other means, for example
-     * by a constraint equation as part of a larger set ofequations.
+     * by a constraint equation as part of a larger set of equations.
      *
      * @param x  Input vector of mole fractions. Length is m_kk.
      */

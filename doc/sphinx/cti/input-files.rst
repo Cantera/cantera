@@ -361,7 +361,7 @@ by hand, but is much easier to parse, particularly since it is not necessary to
 write a custom parser---virtually any standard XML parser, of which there are
 many, can be used to read the CTML data.
 
-So in general files that are easy for knowledgable users (you) to write are more
+So in general files that are easy for knowledgeable users (you) to write are more
 difficult for machines to parse, because they make use of high-level
 application-specific knowledge and conventions to simplify the
 notation. Conversely, files that are designed to be easily parsed are tedious to
@@ -490,7 +490,7 @@ the definition is modified to declare these additional elements::
 it may be imported successfully.
 
 Errors of this type do not have to be fatal, as long as you tell Cantera how you
-want to handle them. You can, for example, instruct Cantera to quitely skip
+want to handle them. You can, for example, instruct Cantera to quietly skip
 importing any species that contain undeclared elements, instead of flagging them
 as errors. You can also specify that reactions containing undeclared species
 (also usually an error) should be skipped. This allows you to very easily

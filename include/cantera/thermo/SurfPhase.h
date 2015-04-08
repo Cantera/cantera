@@ -493,7 +493,7 @@ public:
      *   may involve the solution of a nonlinear equation. Within %Cantera,
      *   the independent variable is the density. Therefore, this function
      *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition iare held constant during this process.
+     *   The temperature and composition are held constant during this process.
      *
      *  This base class function will print an error, if not overwritten.
      *

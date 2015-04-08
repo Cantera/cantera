@@ -369,7 +369,7 @@ extern "C" {
 /*
  *  HKM 7/22/09:
  *    I'm skeptical that you need this for any system.
- *    Definately creates an error (dupl main()) for the solaris
+ *    Definitely creates an error (dupl main()) for the solaris
  *    system
  */
 #ifdef NEED_ALT_MAIN

@@ -788,7 +788,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), VCS_STATECALC_PHASESTABILITY);
 	    /*
 	     * Save fracDelta for later use to initialize the problem better
-	     *  @TODO  creationGlobalRxnNumbers needs to be calculated here and storred.
+	     *  @TODO  creationGlobalRxnNumbers needs to be calculated here and stored.
 	     */
             Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
         }

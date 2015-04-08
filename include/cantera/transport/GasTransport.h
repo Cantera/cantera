@@ -300,10 +300,10 @@ protected:
     //! are calculated (Kelvin).
     doublereal m_temp;
 
-    //! Current value of Boltzman's constant times the temperature (Joules)
+    //! Current value of Boltzmann constant times the temperature (Joules)
     doublereal m_kbt;
 
-    //! current value of  Boltzman's constant times the temperature.
+    //! current value of Boltzmann constant times the temperature.
     //! (Joules) to 1/2 power
     doublereal m_sqrt_kbt;
 

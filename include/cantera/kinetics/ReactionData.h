@@ -128,7 +128,7 @@ public:
 
     //! Power of the "One minus Affinity" term within the Affinity representation
     /*!
-     *   Only valud for Affinity representation
+     *   Only value for Affinity representation
      *   default = 1.0
      */
     doublereal affinityPower;

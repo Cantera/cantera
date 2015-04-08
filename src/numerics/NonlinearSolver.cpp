@@ -1060,7 +1060,7 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(HessianPtr_->begin())), neq_, info);
         if (info) {
             if (m_print_flag >= 2) {
-                printf("\t\t    doAffineNewtonSolve() ERROR: Hessian isn't positive definate DPOTRF returned INFO = %d\n", info);
+                printf("\t\t    doAffineNewtonSolve() ERROR: Hessian isn't positive definite DPOTRF returned INFO = %d\n", info);
             }
             return info;
         }

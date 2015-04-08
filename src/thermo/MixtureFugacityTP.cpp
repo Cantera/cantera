@@ -541,7 +541,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         double dpdVBase = dpdVCalc(TKelvin, molarVolBase, presBase);
 
         /*
-         * If dpdV is positve, then we are in the middle of the
+         * If dpdV is positive, then we are in the middle of the
          * 2 phase region and beyond the spinodal stability curve. We need to adjust
          * the initial guess outwards and start a new iteration.
          */
@@ -552,7 +552,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
             }
             /*
              * TODO Spawn a calculation for the value of the spinodal point that is
-             *      very accurate. Answer the question as to wethera solution is
+             *      very accurate. Answer the question as to whether a solution is
              *      possible on the current side of the vapor dome.
              */
             if (gasSide) {
@@ -646,7 +646,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
     double densBase = 0.0;
     if (! conv) {
         molarVolBase = 0.0;
-        throw CanteraError("MixtureFugacityTP::densityCalc()", "Process didnot converge");
+        throw CanteraError("MixtureFugacityTP::densityCalc()", "Process did not converge");
     } else {
         densBase = mmw / molarVolBase;
     }
@@ -745,12 +745,12 @@ int MixtureFugacityTP::phaseState(bool checkState) const
 
 doublereal MixtureFugacityTP::densSpinodalLiquid() const
 {
-    throw CanteraError("", "unimplmented");
+    throw CanteraError("", "unimplemented");
 }
 
 doublereal MixtureFugacityTP::densSpinodalGas() const
 {
-    throw CanteraError("", "unimplmented");
+    throw CanteraError("", "unimplemented");
 }
 
 doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)
@@ -884,11 +884,11 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             }
         }
         if (!foundGas || !foundLiquid) {
-            printf("error coundn't find a starting pressure\n");
+            printf("error couldn't find a starting pressure\n");
             return 0.0;
         }
         if (presGas != presLiquid) {
-            printf("error coundn't find a starting pressure\n");
+            printf("error couldn't find a starting pressure\n");
             return 0.0;
         }
 

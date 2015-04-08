@@ -67,7 +67,7 @@ namespace Cantera
  *       \f]
  *
  * The enthalpy is calculated mostly from the SpeciesThermo object's enthalpy
- * evalulator. The dependence on pressure originates from the Maxwell relation
+ * evaluator. The dependence on pressure originates from the Maxwell relation
  *
  *       \f[
  *            {\left(\frac{dH^o_k}{dP}\right)}_T = T  {\left(\frac{dS^o_k}{dP}\right)}_T + V^o_k
@@ -79,7 +79,7 @@ namespace Cantera
  *       \f]
  *
  * The entropy is calculated mostly from the SpeciesThermo objects entropy
- * evalulator. The dependence on pressure originates from the Maxwell relation:
+ * evaluator. The dependence on pressure originates from the Maxwell relation:
  *
  *       \f[
  *              {\left(\frac{dS^o_k}{dP}\right)}_T =  - {\left(\frac{dV^o_k}{dT}\right)}_P
@@ -196,7 +196,7 @@ public:
     PDSS_SSVol(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                const XML_Node& phaseRef, bool spInstalled);
 
-    //! Copy Constructur
+    //! Copy Constructor
     /*!
      * @param b Object to be copied
      */
@@ -204,7 +204,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b Object to be copeid
+     * @param b Object to be copied
      */
     PDSS_SSVol& operator=(const PDSS_SSVol& b);
 

@@ -76,7 +76,7 @@ const int INTERFACE_RXN = 20;
 
 //!  This is a surface reaction that is formulated using the Butler-Volmer
 //!  formulation and using concentrations instead of activity concentrations
-//!  for its exchange current density formulat.
+//!  for its exchange current density formula.
 const int BUTLERVOLMER_NOACTIVITYCOEFFS_RXN = 25;
 
 //!  This is a surface reaction that is formulated using the Butler-Volmer

@@ -4,7 +4,7 @@
  * @ingroup chemkinetics
  */
 /*
- * Copywrite (2005) Sandia Corporation. Under the terms of
+ * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
@@ -23,7 +23,7 @@ namespace Cantera
 //!  reactions are assumed to occur at a 2D interface between two 3D phases.
 /*!
  *   This class is a slight addition to the InterfaceKinetics class, adding
- *   several concepts. First we explicity identify the electrode and solution
+ *   several concepts. First we explicitly identify the electrode and solution
  *   phases. We will also assume that there is an electron phase. 
  *
  *  @ingroup chemkinetics

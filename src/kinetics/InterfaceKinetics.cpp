@@ -538,7 +538,7 @@ void InterfaceKinetics::updateROP()
     // the equilibrium constants
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
-    // multiply ropf by the actyivity concentration reaction orders to obtain
+    // multiply ropf by the activity concentration reaction orders to obtain
     // the forward rates of progress.
     m_reactantStoich.multiply(DATA_PTR(m_actConc), DATA_PTR(m_ropf));
 

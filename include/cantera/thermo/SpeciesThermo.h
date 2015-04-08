@@ -118,7 +118,7 @@ class SpeciesThermoInterpType;
  *   - ConstCpPoly        in file ConstCpPoly.h
  *      - This is a one-zone constant heat capacity model.
  *   - Mu0Poly            in file Mu0Poly.h
- *      - This is a multizoned model. The chemical potential is given
+ *      - This is a multi-zone model. The chemical potential is given
  *        at a set number of temperatures. Between each temperature
  *        the heat capacity is treated as a constant.
  *   - Nasa9Poly1          in file Nasa9Poly1.h

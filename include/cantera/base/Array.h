@@ -284,7 +284,7 @@ public:
 
     //! Returns a changeable reference to position in the matrix
     /*!
-     * This is a key entry. Returns a reference to the matrixes (i,j)
+     * This is a key entry. Returns a reference to the matrix's (i,j)
      * element. This may be used as an L value.
      *
      * @param i   The row index

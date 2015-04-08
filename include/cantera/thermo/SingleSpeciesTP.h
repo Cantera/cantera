@@ -95,7 +95,7 @@ public:
     /**
      * Returns the equation of state type flag.
      * This is a modified base class.
-     * Therefore, if not overridden in derivied classes,
+     * Therefore, if not overridden in derived classes,
      * this call will throw an exception.
      */
     virtual int eosType() const;
