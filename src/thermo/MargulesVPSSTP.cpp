@@ -88,6 +88,8 @@ MargulesVPSSTP::MargulesVPSSTP(int testProb)  :
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("MargulesVPSSTP::MargulesVPSSTP(int testProb)",
+        "To be removed after Cantera 2.2");
 
     initThermoFile("LiKCl_liquid.xml", "");
 

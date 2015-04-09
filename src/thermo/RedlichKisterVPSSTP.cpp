@@ -51,6 +51,9 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
     formRedlichKister_(0),
     formTempModel_(0)
 {
+    warn_deprecated("RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)",
+        "To be removed after Cantera 2.2");
+
     initThermoFile("LiKCl_liquid.xml", "");
     numBinaryInteractions_ = 1;
 

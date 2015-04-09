@@ -95,6 +95,8 @@ RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
     dpdV_(0.0),
     dpdT_(0.0)
 {
+    warn_deprecated("RedlichKwongMFTP::RedlichKwongMFTP(int testProb)",
+        "To be removed after Cantera 2.2");
     std::string infile = "co2_redlichkwong.xml";
     std::string id_;
     if (testProb == 1) {
