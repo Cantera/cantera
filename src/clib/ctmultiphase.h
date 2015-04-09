@@ -9,6 +9,7 @@
 extern "C" {
     CANTERA_CAPI int mix_new();
     CANTERA_CAPI int mix_del(int i);
+    CANTERA_CAPI int mix_clear();
     CANTERA_CAPI int mix_copy(int i);
     CANTERA_CAPI int mix_assign(int i, int j);
     CANTERA_CAPI int mix_addPhase(int i, int j, double moles);

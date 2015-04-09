@@ -36,6 +36,16 @@ extern "C" {
         }
     }
 
+    int mix_clear()
+    {
+        try {
+            mixCabinet::clear();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int mix_copy(int i)
     {
         try {

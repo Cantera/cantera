@@ -103,6 +103,16 @@ extern "C" {
         }
     }
 
+    int func_clear()
+    {
+        try {
+            FuncCabinet::clear();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int func_copy(int i)
     {
         try {

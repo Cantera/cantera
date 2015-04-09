@@ -9,6 +9,7 @@
 extern "C" {
     CANTERA_CAPI int func_new(int type, size_t n, size_t lenp, double* p);
     CANTERA_CAPI int func_del(int i);
+    CANTERA_CAPI int func_clear();
     CANTERA_CAPI int func_copy(int i);
     CANTERA_CAPI int func_assign(int i, int j);
     CANTERA_CAPI double func_value(int i, double t);

@@ -308,4 +308,15 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
+
+    int clear_rxnpath()
+    {
+        try {
+            DiagramCabinet::clear();
+            BuilderCabinet::clear();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
 }

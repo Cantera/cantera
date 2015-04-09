@@ -5,8 +5,12 @@
 #include <iostream>
 
 #include "clib/ct.h"
+#include "clib/ctreactor.h"
 #include "clib/ctonedim.h"
+#include "clib/ctmultiphase.h"
 #include "clib/ctxml.h"
+#include "clib/ctfunc.h"
+#include "clib/ctrpath.h"
 #include "ctmatutils.h"
 
 using namespace std;
@@ -66,8 +70,12 @@ void ctfunctions(int nlhs, mxArray* plhs[],
     case 4:
         iok = domain_clear();
         iok = sim1D_clear();
+        iok = mix_clear();
         iok = xml_clear();
+        iok = func_clear();
         iok = clearStorage();
+        iok = clear_reactors();
+        iok = clear_rxnpath();
         break;
 
     default:

@@ -34,6 +34,8 @@ extern "C" {
     CANTERA_CAPI int rbuild_init(int i, char* logfile, int k);
     CANTERA_CAPI int rbuild_build(int i, int k, char* el, char* dotfile,
                                   int idiag, int iquiet);
+
+    CANTERA_CAPI int clear_rxnpath();
 }
 
 #endif
