@@ -235,6 +235,12 @@ you can skip any steps which have already been completed.
 
          brew install cantera --devel --with-matlab=/Applications/MATLAB_R2014a.app/
 
+   * If something goes wrong with the Homebrew install, re-run the command with
+     the ``-v`` flag to get more verbose output that may help identify the
+     source of the problem::
+
+         brew install -v cantera
+
 4. **Test Cantera Installation (Python)**
 
    * The Python examples will be installed in::
