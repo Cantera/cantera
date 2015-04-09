@@ -36,6 +36,8 @@ AqueousTransport::AqueousTransport() :
     m_debug(false),
     m_nDim(1)
 {
+    warn_deprecated("class AqueousTransport",
+        "Non-functional. To be removed after Cantera 2.2.");
 }
 
 bool AqueousTransport::initLiquid(LiquidTransportParams& tr)

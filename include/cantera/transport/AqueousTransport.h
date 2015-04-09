@@ -97,6 +97,7 @@ namespace Cantera
  *  In the second part, a mixing rule is applied, based on the
  *  Wilkes correlation, to yield the mixture viscosity.
  * @ingroup tranprops
+ * @deprecated Non-functional. To be removed after Cantera 2.2.
  */
 class AqueousTransport : public Transport
 {
