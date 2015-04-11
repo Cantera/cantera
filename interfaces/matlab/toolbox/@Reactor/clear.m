@@ -5,4 +5,4 @@ function clear(r)
 %     Instance of :mat:func:`Reactor` to be cleared.
 %
 
-reactormethods(2, reactor_hndl(r));
+reactormethods(1, reactor_hndl(r));
