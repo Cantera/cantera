@@ -526,11 +526,9 @@ double ElectrodeKinetics::calcForwardROP_BV(size_t irxn, size_t iBeta, double io
 { 
     double ropf;
     doublereal rt = GasConstant * thermo(0).temperature();
-    doublereal rrt = 1.0/rt;
     //
     //    Calculate gather the exchange current reaction rate constant (where does n_s appear?)
     //
-    double iorc = m_rfn[irxn] * m_perturb[irxn];
     doublereal beta =  m_beta[iBeta];
 
 #ifdef DEBUG_MODE
@@ -829,10 +827,6 @@ getExchangeCurrentDensityFormulation(size_t irxn,
 	const std::vector<doublereal>& kinSpeciesOrders = ro_fwd->kinSpeciesOrders_;
 	for (size_t j = 0; j < kinSpeciesIDs.size(); j++) {
 	    size_t ks = kinSpeciesIDs[j];
-	    thermo_t& th = speciesPhase(ks);
-	    size_t n = speciesPhaseIndex(ks);
-	    size_t klocal = ks - m_start[n];
-	    double mfS = th.moleFraction(klocal);
 	
 	    double oo = kinSpeciesOrders[j];
 	    tmp *= pow((m_actConc[ks]/m_StandardConc[ks]), oo);

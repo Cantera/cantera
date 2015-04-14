@@ -338,7 +338,6 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
      * Go get all of the coefficients and factors in the
      * activityCoefficients XML block
      */
-    XML_Node* acNodePtr = 0;
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         mString = acNode.attrib("model");

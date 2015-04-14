@@ -516,9 +516,6 @@ void InterfaceKinetics::updateROP()
     // get updated activities (rates updated below)
     _update_rates_C();
 
-    double TT = m_surf->temperature();
-    double rtdf = GasConstant * TT / Faraday;
-
     if (m_ROP_ok) {
         return;
     }
@@ -1251,7 +1248,6 @@ void InterfaceKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<do
 
     //   forward and reverse beta values
     double betaf = rdata.beta;
-    double betar = 1.0 - betaf;
 
     //   Loop over the reactants doing away with the BV terms.
     //   This should leave the reactant terms only, even if they are non-mass action.
@@ -1290,7 +1286,6 @@ void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, std::ve
 
     //   forward and reverse beta values
     double betaf = r.beta;
-    double betar = 1.0 - betaf;
 
     // Loop over the reactants doing away with the BV terms.
     // This should leave the reactant terms only, even if they are non-mass action.

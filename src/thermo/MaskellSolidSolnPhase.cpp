@@ -20,7 +20,6 @@ namespace Cantera
 {
 
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
-    m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_h0_RT(2),
     m_cp0_R(2),
@@ -33,7 +32,6 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
 }
 
 MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
-    m_Pref(OneAtm),
     m_Pcurrent(OneAtm),
     m_h0_RT(2),
     m_cp0_R(2),

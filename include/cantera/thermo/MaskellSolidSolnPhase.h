@@ -274,14 +274,6 @@ public:
 
 private:
     /**
-     * Value of the reference pressure for all species in this phase.
-     * The T dependent polynomials are evaluated at the reference
-     * pressure. Note, because this is a single value, all species
-     * are required to have the same reference pressure.
-     */
-    doublereal m_Pref;
-
-    /**
      * m_Pcurrent = The current pressure
      * Since the density isn't a function of pressure, but only of the
      * mole fractions, we need to independently specify the pressure.
