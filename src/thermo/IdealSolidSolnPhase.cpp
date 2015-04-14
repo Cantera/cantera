@@ -284,6 +284,8 @@ doublereal IdealSolidSolnPhase::logStandardConc(size_t k) const
 
 void IdealSolidSolnPhase::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
+    warn_deprecated("IdealSolidSolnPhase::getUnitsStandardConc",
+                    "To be removed after Cantera 2.2.");
     int eos = eosType();
     if (eos == cIdealSolidSolnPhase0) {
         for (int i = 0; i < sizeUA; i++) {

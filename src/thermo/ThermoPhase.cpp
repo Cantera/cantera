@@ -587,6 +587,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 
 void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("ThermoPhase::getUnitsStandardConc",
+                    "To be removed after Cantera 2.2.");
     for (int i = 0; i < sizeUA; i++) {
         if (i == 0) {
             uA[0] = 1.0;

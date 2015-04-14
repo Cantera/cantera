@@ -304,6 +304,9 @@ doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 
 void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
+    warn_deprecated("RedlichKwongMFTP::getUnitsStandardConc",
+                "To be removed after Cantera 2.2.");
+
     //int eos = eosType();
 
     for (int i = 0; i < sizeUA; i++) {

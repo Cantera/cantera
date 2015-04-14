@@ -440,6 +440,7 @@ public:
      *  kmol/m3 holds for standard concentration units. For
      *  cIdealSolidSolnPhase0 type, the standard concentration is
      *  unitless.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;

@@ -197,6 +197,9 @@ doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
 
 void IdealSolnGasVPSS::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
+    warn_deprecated("IdealSolnGasVPSS::getUnitsStandardConc",
+                "To be removed after Cantera 2.2.");
+
     if (eosType() == cIdealSolnGasPhase0) {
         for (int i = 0; i < sizeUA; i++) {
             uA[i] = 0.0;

@@ -138,6 +138,8 @@ void StoichSubstance::getStandardChemPotentials(doublereal*  mu0) const
 
 void StoichSubstance::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("StoichSubstance::getUnitsStandardConc",
+                "To be removed after Cantera 2.2.");
     for (int i = 0; i < sizeUA; i++) {
         uA[i] = 0.0;
     }

@@ -232,6 +232,8 @@ double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
 
 void GibbsExcessVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("GibbsExcessVPSSTP::getUnitsStandardConc",
+                    "To be removed after Cantera 2.2.");
     //
     // We assume here that the units of the standard concentration is unitless. In other words activities are
     // used unchanged in kinetics expressions. This may be changed in implementations of child classes.

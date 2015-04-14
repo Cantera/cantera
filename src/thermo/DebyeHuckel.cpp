@@ -323,6 +323,8 @@ doublereal DebyeHuckel::standardConcentration(size_t k) const
 
 void DebyeHuckel::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("DebyeHuckel::getUnitsStandardConc",
+                    "To be removed after Cantera 2.2.");
     for (int i = 0; i < sizeUA; i++) {
         if (i == 0) {
             uA[0] = 1.0;

@@ -267,6 +267,9 @@ doublereal IdealMolalSoln::standardConcentration(size_t k) const
 
 void IdealMolalSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("IdealMolalSoln::getUnitsStandardConc",
+                    "To be removed after Cantera 2.2.");
+
     int eos = eosType();
     if (eos == 0) {
         for (int i = 0; i < sizeUA; i++) {

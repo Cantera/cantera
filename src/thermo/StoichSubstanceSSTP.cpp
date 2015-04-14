@@ -131,6 +131,8 @@ doublereal StoichSubstanceSSTP::logStandardConc(size_t k) const
 
 void StoichSubstanceSSTP::getUnitsStandardConc(doublereal* uA, int k, int sizeUA) const
 {
+    warn_deprecated("StoichSubstanceSSTP::getUnitsStandardConc",
+                "To be removed after Cantera 2.2.");
     for (int i = 0; i < 6; i++) {
         uA[i] = 0;
     }
