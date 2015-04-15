@@ -38,6 +38,21 @@ cdef extern from "cantera/cython/funcWrapper.h":
         CxxFunc1(callback_wrapper, void*)
         double eval(double) except +translate_exception
 
+cdef extern from "cantera/base/smart_ptr.h":
+    cppclass shared_ptr "Cantera::shared_ptr" [T]:
+        T* get()
+        void reset(T*)
+
+cdef extern from "cantera/thermo/Species.h":
+    cdef cppclass CxxSpecies "Cantera::Species":
+        CxxSpecies()
+        CxxSpecies(string, stdmap[string,double])
+
+        string name
+        stdmap[string,double] composition
+        double charge
+        double size
+
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
@@ -75,6 +90,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # species properties
         size_t nSpecies()
+        shared_ptr[CxxSpecies] species(string) except +
+        shared_ptr[CxxSpecies] species(size_t) except +
         size_t speciesIndex(string) except +
         string speciesName(size_t) except +
         double nAtoms(size_t, size_t) except +
@@ -588,6 +605,12 @@ ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +
 
 # classes
+cdef class Species:
+    cdef shared_ptr[CxxSpecies] _species
+    cdef CxxSpecies* species
+
+    cdef _assign(self, shared_ptr[CxxSpecies] other)
+
 cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics

@@ -13,6 +13,47 @@ cdef stdmap[string,double] comp_map(dict X) except *:
         m[stringify(species)] = value
     return m
 
+cdef comp_map_to_dict(stdmap[string,double] m):
+    return {pystr(species):value for species,value in m.items()}
+
+
+cdef class Species:
+    def __cinit__(self, *args, init=True, **kwargs):
+        if init:
+            self._species.reset(new CxxSpecies())
+            self.species = self._species.get()
+
+    def __init__(self, name=None, composition=None, charge=None, size=None,
+                 *args, init=True, **kwargs):
+        if not init:
+            return
+
+        if name is not None:
+            self.species.name = stringify(name)
+
+        if composition is not None:
+            self.species.composition = comp_map(composition)
+
+    cdef _assign(self, shared_ptr[CxxSpecies] other):
+        self._species = other
+        self.species = self._species.get()
+
+    property name:
+        def __get__(self):
+            return pystr(self.species.name)
+
+    property composition:
+        def __get__(self):
+            return comp_map_to_dict(self.species.composition)
+
+    property charge:
+        def __get__(self):
+            return self.species.charge
+
+    property size:
+        def __get__(self):
+            return self.species.size
+
 
 cdef class ThermoPhase(_SolutionBase):
     """
@@ -236,6 +277,16 @@ cdef class ThermoPhase(_SolutionBase):
             raise ValueError('No such species.')
 
         return index
+
+    def species(self, k):
+        s = Species(init=False)
+        if isinstance(k, (str, unicode)):
+            s._assign(self.thermo.species(stringify(k)))
+        elif isinstance(k, (int, float)):
+            s._assign(self.thermo.species(<int>k))
+        else:
+            raise TypeError("Argument must be a string or a number")
+        return s
 
     def n_atoms(self, species, element):
         """

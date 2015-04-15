@@ -624,3 +624,36 @@ ideal_gas(name='spam', elements='O H',
     def test_checkReactionBalance(self):
         with self.assertRaises(Exception):
             ct.Solution('../data/h2o2_unbalancedReaction.xml')
+
+
+class TestSpecies(utilities.CanteraTest):
+    def test_standalone(self):
+        s = ct.Species('CH4', {'C':1, 'H':4})
+
+        self.assertEqual(s.name, 'CH4')
+        c = s.composition
+        self.assertEqual(len(c), 2)
+        self.assertEqual(c['C'], 1)
+        self.assertEqual(c['H'], 4)
+
+    def test_defaults(self):
+        s = ct.Species('H2')
+        self.assertEqual(s.size, 0.0)
+        self.assertEqual(s.charge, 0.0)
+
+    def test_index_accessor(self):
+        gas = ct.Solution('h2o2.xml')
+
+        for k in range(gas.n_species):
+            s = gas.species(k)
+            self.assertEqual(s.name, gas.species_name(k))
+
+            for m,n in s.composition.items():
+                self.assertEqual(n, gas.n_atoms(k,m))
+
+    def test_name_accessor(self):
+        gas = ct.Solution('h2o2.xml')
+
+        for name in gas.species_names:
+            s = gas.species(name)
+            self.assertEqual(s.name, name)

@@ -9,8 +9,8 @@
 namespace Cantera {
 
 Species::Species()
-    : charge(std::numeric_limits<double>::quiet_NaN())
-    , size(std::numeric_limits<double>::quiet_NaN())
+    : charge(0.0)
+    , size(0.0)
 {
 }
 
