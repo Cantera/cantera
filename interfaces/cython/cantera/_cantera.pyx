@@ -14,6 +14,7 @@ include "constants.pyx"
 include "func1.pyx"
 
 include "base.pyx"
+include "speciesthermo.pyx"
 include "thermo.pyx"
 include "kinetics.pyx"
 include "transport.pyx"

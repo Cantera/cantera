@@ -657,3 +657,39 @@ class TestSpecies(utilities.CanteraTest):
         for name in gas.species_names:
             s = gas.species(name)
             self.assertEqual(s.name, name)
+
+
+class TestSpeciesThermo(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Solution('h2o2.xml')
+        self.gas.X = 'H2O:1.0'
+
+    def test_create(self):
+        st = ct.NasaPoly2(300, 3500, 101325,
+                [1000.0, 3.03399249E+00, 2.17691804E-03, -1.64072518E-07,
+                 -9.70419870E-11, 1.68200992E-14, -3.00042971E+04, 4.96677010E+00,
+                 4.19864056E+00, -2.03643410E-03, 6.52040211E-06, -5.48797062E-09,
+                 1.77197817E-12, -3.02937267E+04, -8.49032208E-01])
+
+        for T in [300, 500, 900, 1200, 2000]:
+            self.gas.TP = T, 101325
+            self.assertAlmostEqual(st.cp(T), self.gas.cp_mole)
+            self.assertAlmostEqual(st.h(T), self.gas.enthalpy_mole)
+            self.assertAlmostEqual(st.s(T), self.gas.entropy_mole)
+
+    def test_invalid(self):
+        with self.assertRaises(ValueError):
+            # not enough coefficients
+            st = ct.NasaPoly2(300, 3500, 101325,
+                              [1000.0, 3.03399249E+00, 2.17691804E-03])
+
+    def test_wrap(self):
+        st = self.gas.species('H2O').thermo
+
+        self.assertTrue(isinstance(st, ct.NasaPoly2))
+
+        for T in [300, 500, 900, 1200, 2000]:
+            self.gas.TP = T, 101325
+            self.assertAlmostEqual(st.cp(T), self.gas.cp_mole)
+            self.assertAlmostEqual(st.h(T), self.gas.enthalpy_mole)
+            self.assertAlmostEqual(st.s(T), self.gas.entropy_mole)

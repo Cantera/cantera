@@ -54,6 +54,13 @@ cdef class Species:
         def __get__(self):
             return self.species.size
 
+    property thermo:
+        def __get__(self):
+            return wrapSpeciesThermo(self.species.thermo)
+
+        def __set__(self, SpeciesThermo spthermo):
+            self.species.thermo = spthermo._spthermo
+
 
 cdef class ThermoPhase(_SolutionBase):
     """

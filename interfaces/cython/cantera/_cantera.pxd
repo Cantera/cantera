@@ -43,16 +43,26 @@ cdef extern from "cantera/base/smart_ptr.h":
         T* get()
         void reset(T*)
 
+cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
+    cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
+        CxxSpeciesThermo()
+        int reportType()
+        void updatePropertiesTemp(double, double*, double*, double*) except +
+
+cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
+    cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\
+        (int, double, double, double, double*) except +
+
 cdef extern from "cantera/thermo/Species.h":
     cdef cppclass CxxSpecies "Cantera::Species":
         CxxSpecies()
         CxxSpecies(string, stdmap[string,double])
+        shared_ptr[CxxSpeciesThermo] thermo
 
         string name
         stdmap[string,double] composition
         double charge
         double size
-
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
@@ -611,6 +621,11 @@ cdef class Species:
 
     cdef _assign(self, shared_ptr[CxxSpecies] other)
 
+cdef class SpeciesThermo:
+    cdef shared_ptr[CxxSpeciesThermo] _spthermo
+    cdef CxxSpeciesThermo* spthermo
+    cdef _assign(self, shared_ptr[CxxSpeciesThermo] other)
+
 cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics
@@ -771,3 +786,4 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
+cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
