@@ -123,8 +123,7 @@ void Mu0Poly::modifyParameters(doublereal* coeffs)
     processCoeffs(coeffs);
 }
 
-Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
-                             const XML_Node& Mu0Node)
+Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
 {
     bool dimensionlessMu0Values = false;
 
@@ -141,9 +140,7 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
     vector_fp cValues(numPoints);
     const XML_Node* valNode_ptr = getByTitle(Mu0Node, "Mu0Values");
     if (!valNode_ptr) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "missing required while processing "
-                           + speciesName);
+        throw CanteraError("installMu0ThermoFromXML", "missing Mu0Values");
     }
     getFloatArray(*valNode_ptr, cValues, true, "actEnergy");
     /*
@@ -155,23 +152,18 @@ Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
         dimensionlessMu0Values = true;
     }
     if (cValues.size() != numPoints) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "numPoints inconsistent while processing "
-                           + speciesName);
+        throw CanteraError("installMu0ThermoFromXML", "numPoints inconsistent");
     }
 
     vector_fp cTemperatures(numPoints);
     const XML_Node* tempNode_ptr = getByTitle(Mu0Node, "Mu0Temperatures");
     if (!tempNode_ptr) {
         throw CanteraError("installMu0ThermoFromXML",
-                           "missing required while processing + "
-                           + speciesName);
+                           "missing Mu0Temperatures");
     }
     getFloatArray(*tempNode_ptr, cTemperatures, false);
     if (cTemperatures.size() != numPoints) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "numPoints inconsistent while processing "
-                           + speciesName);
+        throw CanteraError("installMu0ThermoFromXML", "numPoints inconsistent");
     }
 
     /*

@@ -240,14 +240,12 @@ private:
  * parameterization for species k into a SpeciesThermo instance,
  * getting the information from an XML database.
  *
- * @param speciesName  Name of the species
  * @param Mu0Node      Pointer to the XML element containing the
  *                     Mu0 information.
  *
  *  @ingroup spthermo
  */
-Mu0Poly* newMu0ThermoFromXML(const std::string& speciesName,
-                             const XML_Node& Mu0Node);
+Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node);
 }
 
 #endif

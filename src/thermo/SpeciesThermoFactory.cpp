@@ -245,12 +245,10 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
 /*!
  * This is called if a 'NASA' node is found in the XML input.
  *
- *  @param speciesName  name of the species
  *  @param nodes        vector of 1 or 2 'NASA' XML_Nodes, each defining the
  *      coefficients for a temperature range
  */
-static SpeciesThermoInterpType* newNasaThermoFromXML(
-    const std::string& speciesName, vector<XML_Node*> nodes)
+static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
 {
     const XML_Node& f0 = *nodes[0];
     bool dualRange = (nodes.size() > 1);
@@ -311,12 +309,9 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(
 //! Create a Shomate polynomial from an XML node giving the 'EQ3' coefficients
 /*!
  *  This is called if a 'MinEQ3' node is found in the XML input.
- *
- *  @param name         name of the species
  *  @param MinEQ3node   The XML_Node containing the MinEQ3 parameterization
  */
-SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
-                                                 const XML_Node& MinEQ3node)
+SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
 {
     doublereal tmin0 = strSItoDbl(MinEQ3node["Tmin"]);
     doublereal tmax0 = strSItoDbl(MinEQ3node["Tmax"]);
@@ -373,12 +368,11 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const std::string& name,
 /*!
  *  This is called if a 'Shomate' node is found in the XML input.
  *
- *  @param speciesName  name of the species
  *  @param nodes        vector of 1 or 2 'Shomate' XML_Nodes, each defining the
  *      coefficients for a temperature range
  */
 static SpeciesThermoInterpType* newShomateThermoFromXML(
-    const std::string& speciesName, vector<XML_Node*>& nodes)
+    vector<XML_Node*>& nodes)
 {
     bool dualRange = false;
     if (nodes.size() == 2) {
@@ -448,11 +442,9 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
 /*!
  * This is called if a 'const_cp' XML node is found
  *
- *  @param speciesName  name of the species
  *  @param f            'const_cp' XML node
  */
-static SpeciesThermoInterpType* newConstCpThermoFromXML(
-    const std::string& speciesName, XML_Node& f)
+static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
 {
     double tmin = fpValue(f["Tmin"]);
     double tmax = fpValue(f["Tmax"]);
@@ -475,11 +467,10 @@ static SpeciesThermoInterpType* newConstCpThermoFromXML(
 /*!
  *  This is called if a 'NASA9' Node is found in the XML input.
  *
- *  @param speciesName  name of the species
  *  @param tp           Vector of XML Nodes that make up the parameterization
  */
 static SpeciesThermoInterpType* newNasa9ThermoFromXML(
-    const std::string& speciesName, const std::vector<XML_Node*>& tp)
+    const std::vector<XML_Node*>& tp)
 {
     int nRegions = 0;
     vector_fp cPoly;
@@ -508,8 +499,7 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
         }
     }
     if (nRegions == 0) {
-        throw UnknownSpeciesThermoModel("installThermoForSpecies",
-                                        speciesName, "  ");
+        throw CanteraError("newNasa9ThermoFromXML", "zero regions found");
     } else if (nRegions == 1)  {
         return regionPtrs[0];
     } else {
@@ -521,7 +511,7 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
  * Create a stat mech based property solver for a species
  * @deprecated
  */
-static StatMech* newStatMechThermoFromXML(const std::string& speciesName, XML_Node& f)
+static StatMech* newStatMechThermoFromXML(XML_Node& f)
 {
     doublereal tmin = fpValue(f["Tmin"]);
     doublereal tmax = fpValue(f["Tmax"]);
@@ -537,7 +527,7 @@ static StatMech* newStatMechThermoFromXML(const std::string& speciesName, XML_No
     tmin = 0.1;
     vector_fp coeffs(1);
     coeffs[0] = 0.0;
-    return new StatMech(0, tmin, tmax, pref, &coeffs[0], speciesName);
+    return new StatMech(0, tmin, tmax, pref, &coeffs[0], "");
 }
 
 //! Create an Adsorbate polynomial thermodynamic property parameterization for a
@@ -545,11 +535,9 @@ static StatMech* newStatMechThermoFromXML(const std::string& speciesName, XML_No
 /*!
  * This is called if a 'Adsorbate' node is found in the XML input.
  *
- *  @param speciesName  name of the species
  *  @param f            XML Node that contains the parameterization
  */
-static SpeciesThermoInterpType* newAdsorbateThermoFromXML(
-    const std::string& speciesName, const XML_Node& f)
+static SpeciesThermoInterpType* newAdsorbateThermoFromXML(const XML_Node& f)
 {
     vector_fp freqs;
     doublereal pref = OneAtm;
@@ -654,21 +642,21 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& speciesNode)
             throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
                                "confused: expected MinEQ3");
         }
-        return newShomateForMineralEQ3(specName, *tp[0]);
+        return newShomateForMineralEQ3(*tp[0]);
     } else if (thermoType == "shomate") {
-        return newShomateThermoFromXML(specName, tp);
+        return newShomateThermoFromXML(tp);
     } else if (thermoType == "const_cp") {
-        return newConstCpThermoFromXML(specName, *tp[0]);
+        return newConstCpThermoFromXML(*tp[0]);
     } else if (thermoType == "nasa") {
-        return newNasaThermoFromXML(specName, tp);
+        return newNasaThermoFromXML(tp);
     } else if (thermoType == "mu0") {
-        return newMu0ThermoFromXML(specName, *tp[0]);
+        return newMu0ThermoFromXML(*tp[0]);
     } else if (thermoType == "nasa9") {
-        return newNasa9ThermoFromXML(specName, tp);
+        return newNasa9ThermoFromXML(tp);
     } else if (thermoType == "adsorbate") {
-        return newAdsorbateThermoFromXML(specName, *tp[0]);
+        return newAdsorbateThermoFromXML(*tp[0]);
     } else if (thermoType == "statmech") {
-        return newStatMechThermoFromXML(specName, *tp[0]);
+        return newStatMechThermoFromXML(*tp[0]);
     } else {
         throw UnknownSpeciesThermoModel("installThermoForSpecies",
                                         specName, thermoType);
