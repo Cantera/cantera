@@ -15,13 +15,9 @@ class TransportData
 {
 public:
     TransportData() {}
-    explicit TransportData(const std::string& name);
     virtual ~TransportData() {}
 
     virtual void validate(const Species& species) {}
-
-    //! The name of the species
-    std::string name;
 };
 
 //! Transport data for a single gas-phase species which can be used in
@@ -31,16 +27,16 @@ class GasTransportData : public TransportData
 public:
     GasTransportData();
 
-    GasTransportData(const std::string& name, const std::string& geometry,
-                     double diameter, double well_depth, double dipole=0.0,
+    GasTransportData(const std::string& geometry, double diameter,
+                     double well_depth, double dipole=0.0,
                      double polarizability=0.0, double rot_relax=0.0,
                      double acentric=0.0);
 
     //! Set the parameters using "customary" units: diameter in Angstroms, well
     //! depth in Kelvin, dipole in Debye, and polarizability in Angstroms^3.
     //! These are the units used in in CK-style input files.
-    void setCustomaryUnits(const std::string& name, const std::string& geometry,
-                           double diameter, double well_depth, double dipole=0.0,
+    void setCustomaryUnits(const std::string& geometry, double diameter,
+                           double well_depth, double dipole=0.0,
                            double polarizability=0.0, double rot_relax=0.0,
                            double acentric=0.0);
 

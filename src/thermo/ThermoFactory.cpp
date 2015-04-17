@@ -646,8 +646,8 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
             getOptionalFloat(tr, "acentric_factor", acentric);
 
             GasTransportData* gastran = new GasTransportData;
-            gastran->setCustomaryUnits(sp->name, geometry, diam, welldepth,
-                                   dipole, polar, rot, acentric);
+            gastran->setCustomaryUnits(geometry, diam, welldepth,
+                                       dipole, polar, rot, acentric);
             sp->transport.reset(gastran);
             gastran->validate(*sp);
         }
