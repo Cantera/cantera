@@ -570,7 +570,8 @@ void SpeciesThermoFactory::installThermoForSpecies
 (size_t k, const XML_Node& speciesNode, ThermoPhase* th_ptr,
  SpeciesThermo& spthermo, const XML_Node* phaseNode_ptr) const
 {
-    shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(speciesNode));
+    shared_ptr<SpeciesThermoInterpType> stit(
+        newSpeciesThermoInterpType(speciesNode.child("thermo")));
     stit->validate(speciesNode["name"]);
     spthermo.install_STIT(k, stit);
 }
@@ -595,18 +596,8 @@ void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
     vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
 }
 
-SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& speciesNode)
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 {
-    /*
-     * Check to see that the species block has a thermo block
-     * before processing. Throw an error if not there.
-     */
-    if (!(speciesNode.hasChild("thermo"))) {
-        throw UnknownSpeciesThermoModel("installThermoForSpecies",
-                                        speciesNode["name"], "<nonexistent>");
-    }
-    const XML_Node& thermo = speciesNode.child("thermo");
-
     // Get the children of the thermo XML node. In the next bit of code we take out the comments that
     // may have been children of the thermo XML node by doing a selective copy.
     // These shouldn't interfere with the algorithm at any point.
@@ -619,13 +610,11 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& speciesNode)
     }
 
     std::string thermoType = lowercase(tp[0]->name());
-    std::string specName = speciesNode["name"];
 
     for (size_t i = 1; i < tp.size(); i++) {
         if (lowercase(tp[i]->name()) != thermoType) {
             throw CanteraError("newSpeciesThermoInterpType",
-                "Encounter unsupported mixed species thermo parameterizations "
-                "for species '" + specName + "'.");
+                "Encounterd unsupported mixed species thermo parameterizations");
         }
     }
     if ((tp.size() > 2 && thermoType != "nasa9") ||
@@ -633,8 +622,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& speciesNode)
                            thermoType == "mu0" ||
                            thermoType == "adsorbate"))) {
         throw CanteraError("newSpeciesThermoInterpType",
-            "Too many regions in thermo parameterization for species '" +
-            specName + "'.");
+            "Too many regions in thermo parameterization.");
     }
 
     if (thermo["model"] == "MineralEQ3") {
@@ -658,8 +646,8 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& speciesNode)
     } else if (thermoType == "statmech") {
         return newStatMechThermoFromXML(*tp[0]);
     } else {
-        throw UnknownSpeciesThermoModel("installThermoForSpecies",
-                                        specName, thermoType);
+        throw CanteraError("newSpeciesThermoInterpType",
+            "Unknown species thermo model '" + thermoType + "'.");
     }
 }
 

@@ -278,11 +278,12 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
 
 //! Create a new SpeciesThermoInterpType object from XML_Node
 /*!
- *  @param speciesNode XML_Node defining the species (with child 'thermo' node)
+ *  @param thermo 'thermo' XML_Node (child of the 'species' node) with child
+ *      nodes representing parameterizations for one or more temperature ranges
  *  @return       Returns the pointer to the newly allocated
  *                SpeciesThermoInterpType object
  */
-SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& speciesNode);
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
 
 }
 

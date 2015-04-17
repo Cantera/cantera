@@ -103,7 +103,8 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         m_Vss.resize(k+1, 0.0);
     }
 
-    shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(speciesNode));
+    shared_ptr<SpeciesThermoInterpType> stit(
+        newSpeciesThermoInterpType(speciesNode.child("thermo")));
     stit->validate(speciesNode["name"]);
     m_spthermo->install_STIT(k, stit);
 

@@ -621,7 +621,7 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
         vp_ptr->createInstallPDSS(k, s, phaseNode_ptr);
     } else {
         shared_ptr<Species> sp(new Species(s["name"], comp_map, chrg, sz));
-        sp->thermo.reset(newSpeciesThermoInterpType(s));
+        sp->thermo.reset(newSpeciesThermoInterpType(s.child("thermo")));
 
         // Read gas-phase transport data, if provided
         if (s.hasChild("transport") &&

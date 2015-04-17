@@ -394,7 +394,7 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
 void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,
                                const XML_Node* phaseNode_ptr)
 {
-    shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(s));
+    shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(s.child("thermo")));
     stit->validate(s["name"]);
     m_spthermo->install_STIT(k, stit);
     if (m_p0 < 0.0) {

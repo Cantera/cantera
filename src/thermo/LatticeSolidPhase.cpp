@@ -361,7 +361,8 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             }
             addUniqueSpecies(lp->speciesName(k), &ecomp[0], lp->charge(k),
                              lp->size(k));
-            shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(*spNode[k]));
+            shared_ptr<SpeciesThermoInterpType> stit(
+                newSpeciesThermoInterpType(spNode[k]->child("thermo")));
             stit->validate(spNode[k]->attrib("name"));
             m_spthermo->install_STIT(kk, stit);
             m_speciesData.push_back(new XML_Node(*(spNode[k])));
