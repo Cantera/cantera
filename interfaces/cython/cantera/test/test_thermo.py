@@ -638,7 +638,7 @@ class TestSpecies(utilities.CanteraTest):
 
     def test_defaults(self):
         s = ct.Species('H2')
-        self.assertEqual(s.size, 0.0)
+        self.assertEqual(s.size, 1.0)
         self.assertEqual(s.charge, 0.0)
 
     def test_index_accessor(self):

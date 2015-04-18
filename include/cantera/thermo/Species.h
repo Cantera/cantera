@@ -24,7 +24,7 @@ public:
 
     //! Constructor
     Species(const std::string& name, const compositionMap& comp,
-            double charge=0.0, double size=0.0);
+            double charge=0.0, double size=1.0);
 
     Species(const Species& other);
     Species& operator=(const Species& other);
