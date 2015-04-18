@@ -4,6 +4,9 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
+
+using namespace ctml;
 
 namespace Cantera
 {
@@ -103,6 +106,42 @@ void GasTransportData::validate(const Species& sp)
     if (rotational_relaxation < 0.0) {
         throw CanteraError("GasTransportData::validate",
             "negative rotation relaxation number for species '" + sp.name + "'");
+    }
+}
+
+void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
+{
+    std::string geometry, dummy;
+    getString(tr_node, "geometry", geometry, dummy);
+
+    double diam = getFloat(tr_node, "LJ_diameter");
+    double welldepth = getFloat(tr_node, "LJ_welldepth");
+
+    double dipole = 0.0;
+    getOptionalFloat(tr_node, "dipoleMoment", dipole);
+
+    double polar = 0.0;
+    getOptionalFloat(tr_node, "polarizability", polar);
+
+    double rot = 0.0;
+    getOptionalFloat(tr_node, "rotRelax", rot);
+    double acentric = 0.0;
+    getOptionalFloat(tr_node, "acentric_factor", acentric);
+
+    tr.setCustomaryUnits(geometry, diam, welldepth, dipole, polar,
+                         rot, acentric);
+}
+
+shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)
+{
+    std::string model = transport_node["model"];
+    if (model == "gas_transport") {
+        shared_ptr<GasTransportData> tr(new GasTransportData());
+        setupGasTransportData(*tr, transport_node);
+        return tr;
+    } else {
+        // Transport model not handled here
+        return shared_ptr<TransportData>(new TransportData());
     }
 }
 

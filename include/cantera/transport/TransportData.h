@@ -4,11 +4,13 @@
 #define CT_TRANSPORTDATA_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
 
 class Species;
+class XML_Node;
 
 //! Base class for transport data for a single species
 class TransportData
@@ -66,6 +68,9 @@ public:
     // Pitzer's acentric factor [dimensionless]. Default 0.0.
     double acentric_factor;
 };
+
+//! Create a new TransportData object from a 'transport' XML_Node.
+shared_ptr<TransportData> newTransportData(const XML_Node& transport_node);
 
 }
 

@@ -624,32 +624,9 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
         sp->thermo.reset(newSpeciesThermoInterpType(s.child("thermo")));
 
         // Read gas-phase transport data, if provided
-        if (s.hasChild("transport") &&
-                s.child("transport")["model"] == "gas_transport") {
-            XML_Node& tr = s.child("transport");
-
-            string geometry, dummy;
-            getString(tr, "geometry", geometry, dummy);
-
-            double diam = getFloat(tr, "LJ_diameter");
-            double welldepth = getFloat(tr, "LJ_welldepth");
-
-            double dipole = 0.0;
-            getOptionalFloat(tr, "dipoleMoment", dipole);
-
-            double polar = 0.0;
-            getOptionalFloat(tr, "polarizability", polar);
-
-            double rot = 0.0;
-            getOptionalFloat(tr, "rotRelax", rot);
-            double acentric = 0.0;
-            getOptionalFloat(tr, "acentric_factor", acentric);
-
-            GasTransportData* gastran = new GasTransportData;
-            gastran->setCustomaryUnits(geometry, diam, welldepth,
-                                       dipole, polar, rot, acentric);
-            sp->transport.reset(gastran);
-            gastran->validate(*sp);
+        if (s.hasChild("transport")) {
+            sp->transport = newTransportData(s.child("transport"));
+            sp->transport->validate(*sp);
         }
         th.addSpecies(sp);
     }
