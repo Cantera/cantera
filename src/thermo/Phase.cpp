@@ -837,7 +837,7 @@ size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
     return addElement(symbol, weight, atomicNumber, entropy298, elem_type);
 }
 
-bool Phase::addSpecies(shared_ptr<Species>& spec) {
+bool Phase::addSpecies(shared_ptr<Species> spec) {
     m_species[spec->name] = spec;
     vector_fp comp(nElements());
     for (map<string, double>::const_iterator iter = spec->composition.begin();

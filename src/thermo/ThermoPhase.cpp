@@ -694,7 +694,7 @@ void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
 }
 
-bool ThermoPhase::addSpecies(shared_ptr<Species>& spec)
+bool ThermoPhase::addSpecies(shared_ptr<Species> spec)
 {
     bool added = Phase::addSpecies(spec);
     if (added) {

@@ -761,7 +761,7 @@ public:
     //! Add a Species to this Phase. Returns `true` if the species was
     //! successfully added, or `false` if the species was ignored.
     //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
-    virtual bool addSpecies(shared_ptr<Species>& spec);
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
     void addSpecies(const std::string& name, const doublereal* comp,
                     doublereal charge = 0.0, doublereal size = 1.0);
