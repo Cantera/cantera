@@ -763,6 +763,8 @@ public:
     //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
     virtual bool addSpecies(shared_ptr<Species> spec);
 
+    //! @deprecated Use AddSpecies(shared_ptr<Species> spec) instead. To be
+    //! removed after Cantera 2.2.
     void addSpecies(const std::string& name, const doublereal* comp,
                     doublereal charge = 0.0, doublereal size = 1.0);
 
@@ -774,6 +776,8 @@ public:
     //! species.
     //!     @param charge  Charge of the species. Defaults to zero.
     //!     @param size    Size of the species (meters). Defaults to 1 meter.
+    //! @deprecated Use addSpecies(shared_ptr<Species> spec) instead. To be
+    //!     removed after Cantera 2.2.
     void addUniqueSpecies(const std::string& name, const doublereal* comp,
                           doublereal charge = 0.0,
                           doublereal size = 1.0);

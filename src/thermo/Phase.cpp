@@ -926,6 +926,9 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
 void Phase::addSpecies(const std::string& name_, const doublereal* comp,
                        doublereal charge_, doublereal size_)
 {
+    warn_deprecated("Phase::addSpecies(string, double*, double, double)",
+        "Use AddSpecies(shared_ptr<Species> spec) instead. To be removed "
+        "after Cantera 2.2.");
     compositionMap cmap;
     for (size_t i = 0; i < nElements(); i++) {
         if (comp[i]) {
@@ -939,6 +942,9 @@ void Phase::addSpecies(const std::string& name_, const doublereal* comp,
 void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
                              doublereal charge_, doublereal size_)
 {
+    warn_deprecated("Phase::addUniqueSpecies",
+        "Use AddSpecies(shared_ptr<Species> spec) instead. To be removed "
+        "after Cantera 2.2.");
     for (size_t k = 0; k < m_kk; k++) {
         if (m_speciesNames[k] == name_) {
             // We have found a match. Do some compatibility checks.

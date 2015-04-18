@@ -341,31 +341,10 @@ void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
             addElement(lp->elementName(es), aws[es], lp->atomicNumber(es),
                        lp->entropyElement298(es), lp->elementType(es));
         }
-        const std::vector<const XML_Node*> & spNode =  lp->speciesData();
         kstart = kk;
 
-
         for (size_t k = 0; k < lp->nSpecies(); k++) {
-            std::map<std::string, double> comp;
-            lp->getAtoms(k, DATA_PTR(constArr));
-            vector_fp ecomp(nElements(), 0.0);
-            for (size_t m = 0; m < lp->nElements(); m++) {
-                if (constArr[m] != 0.0) {
-                    size_t newIndex = elementIndex(lp->elementName(m));
-                    if (newIndex == npos) {
-                        throw CanteraError("LatticeSolidPhase::installSlavePhases",
-                                           "element not found");
-                    }
-                    ecomp[newIndex] = constArr[m];
-                }
-            }
-            addUniqueSpecies(lp->speciesName(k), &ecomp[0], lp->charge(k),
-                             lp->size(k));
-            shared_ptr<SpeciesThermoInterpType> stit(
-                newSpeciesThermoInterpType(spNode[k]->child("thermo")));
-            stit->validate(spNode[k]->attrib("name"));
-            m_spthermo->install_STIT(kk, stit);
-            m_speciesData.push_back(new XML_Node(*(spNode[k])));
+            addSpecies(lp->species(k));
             kk++;
         }
         /*
