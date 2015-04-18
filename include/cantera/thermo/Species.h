@@ -11,6 +11,7 @@ namespace Cantera
 
 class SpeciesThermoInterpType;
 class TransportData;
+class XML_Node;
 
 //! Contains data about a single chemical species
 /*!
@@ -48,6 +49,9 @@ public:
     //! Thermodynamic data for the species
     shared_ptr<SpeciesThermoInterpType> thermo;
 };
+
+//! Create a new Species object from a 'species' XML_Node.
+shared_ptr<Species> newSpecies(const XML_Node& species_node);
 
 }
 

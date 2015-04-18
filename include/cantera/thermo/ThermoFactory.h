@@ -274,8 +274,8 @@ void installElements(Phase& th, const XML_Node& phaseNode);
  *                state thermo properties
  * @param factory Pointer to the SpeciesThermoFactory .
  *              (defaults to 0)
- * @deprecated The 'factory' argument is unused and will be removed after
- *     Cantera 2.2.
+ * @deprecated Use newSpecies and addSpecies. For VPStandardStateTP phases, call
+ *     createInstallPDSS as well. To be removed after Cantera 2.2.
  * @return
  *  Returns true if everything is ok, false otherwise.
  */

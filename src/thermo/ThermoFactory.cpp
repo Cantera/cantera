@@ -7,6 +7,7 @@
 
 #include "cantera/thermo/ThermoFactory.h"
 
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
@@ -51,8 +52,6 @@
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/MixedSolventElectrolyte.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
-
-#include "cantera/transport/TransportData.h"
 
 #include "cantera/base/stringUtils.h"
 
@@ -454,16 +453,11 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
                            sparrays, dbases, sprule);
 
     // Decide whether the the phase has a variable pressure ss or not
-    SpeciesThermo* spth = &th->speciesThermo();
-    VPSSMgr* vp_spth = 0;
     if (ssConvention == cSS_CONVENTION_VPSS) {
-        vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
+        VPSSMgr* vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
         vpss_ptr->setVPSSMgr(vp_spth);
-        spth = vp_spth->SpeciesThermoMgr();
-        th->setSpeciesThermo(spth);
+        th->setSpeciesThermo(vp_spth->SpeciesThermoMgr());
     }
-
-    size_t k = 0;
 
     size_t nsp = spDataNodeList.size();
     if (ssConvention == cSS_CONVENTION_SLAVE) {
@@ -472,15 +466,17 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
                                + int2str(nsp));
         }
     }
-    for (size_t i = 0; i < nsp; i++) {
-        XML_Node* s = spDataNodeList[i];
+    for (size_t k = 0; k < nsp; k++) {
+        XML_Node* s = spDataNodeList[k];
         AssertTrace(s != 0);
-        bool ok = installSpecies(k, *s, *th, spth, spRuleList[i],
-                                 &phase, vp_spth, spfactory);
-        if (ok) {
-            th->saveSpeciesData(k, s);
-            ++k;
+        if (spRuleList[k]) {
+           th->ignoreUndefinedElements();
         }
+        th->addSpecies(newSpecies(*s));
+        if (vpss_ptr) {
+            vpss_ptr->createInstallPDSS(k, *s, &phase);
+        }
+        th->saveSpeciesData(k, s);
     }
 
     if (ssConvention == cSS_CONVENTION_SLAVE) {
@@ -572,65 +568,14 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
                     VPSSMgr* vpss_ptr,
                     SpeciesThermoFactory* factory)
 {
-    std::string xname = s.name();
-    if (xname != "species") {
-        throw CanteraError("installSpecies",
-                           "Unexpected XML name of species XML_Node: " + xname);
-    }
-
-    if (rule) {
-        th.ignoreUndefinedElements();
-    }
-
-    // get the composition of the species
-    const XML_Node& a = s.child("atomArray");
-    map<string,string> comp;
-    getMap(a, comp);
-
-    // construct a vector of atom numbers for each element in phase th. Elements
-    // not declared in the species (i.e., not in map comp) will have zero
-    // entries in the vector.
-    size_t nel = th.nElements();
-    vector_fp ecomp(nel, 0.0);
-    compositionMap comp_map = parseCompString(a.value());
-    for (size_t m = 0; m < nel; m++) {
-        std::string& es = comp[th.elementName(m)];
-        if (!es.empty()) {
-            ecomp[m] = fpValueCheck(es);
-        }
-    }
-
-    // get the species charge, if any. Note that the charge need
-    // not be explicitly specified if special element 'E'
-    // (electron) is one of the elements.
-    doublereal chrg = 0.0;
-    if (s.hasChild("charge")) {
-        chrg = getFloat(s, "charge");
-    }
-
-    // get the species size, if any. (This is used by surface
-    // phases to represent how many sites a species occupies.)
-    doublereal sz = 1.0;
-    if (s.hasChild("size")) {
-        sz = getFloat(s, "size");
-    }
-
-    if (vpss_ptr) {
-        th.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
-        VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
+    warn_deprecated("installSpecies", "Use newSpecies and addSpecies. For"
+        " VPStandardStateTP phases, call createInstallPDSS as well."
+        " To be removed after Cantera 2.2.");
+    th.addSpecies(newSpecies(s));
+    VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
+    if (vp_ptr) {
         vp_ptr->createInstallPDSS(k, s, phaseNode_ptr);
-    } else {
-        shared_ptr<Species> sp(new Species(s["name"], comp_map, chrg, sz));
-        sp->thermo.reset(newSpeciesThermoInterpType(s.child("thermo")));
-
-        // Read gas-phase transport data, if provided
-        if (s.hasChild("transport")) {
-            sp->transport = newTransportData(s.child("transport"));
-            sp->transport->validate(*sp);
-        }
-        th.addSpecies(sp);
     }
-
     return true;
 }
 

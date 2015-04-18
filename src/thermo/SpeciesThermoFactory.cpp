@@ -625,7 +625,8 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
             "Too many regions in thermo parameterization.");
     }
 
-    if (thermo["model"] == "MineralEQ3") {
+    std::string model = lowercase(thermo["model"]);
+    if (model == "mineraleq3") {
         if (thermoType != "mineq3") {
             throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
                                "confused: expected MinEQ3");
@@ -645,6 +646,11 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
         return newAdsorbateThermoFromXML(*tp[0]);
     } else if (thermoType == "statmech") {
         return newStatMechThermoFromXML(*tp[0]);
+    } else if (model == "hkft" || model == "ionfromneutral") {
+        // Some PDSS species use the 'thermo' node, but don't specify a
+        // SpeciesThermoInterpType parameterization. This function needs to just
+        // ignore this data.
+        return 0;
     } else {
         throw CanteraError("newSpeciesThermoInterpType",
             "Unknown species thermo model '" + thermoType + "'.");

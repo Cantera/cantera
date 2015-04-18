@@ -260,6 +260,13 @@ void VPStandardStateTP::setVPSSMgr(VPSSMgr* vp_ptr)
     m_VPSS_ptr = vp_ptr;
 }
 
+bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)
+{
+    // Specifically skip ThermoPhase::addSpecies since the Species object
+    // doesn't have an associated SpeciesThermoInterpType object
+    return Phase::addSpecies(spec);
+}
+
 void VPStandardStateTP::setTemperature(const doublereal temp)
 {
     setState_TP(temp, m_Pcurrent);

@@ -491,6 +491,8 @@ public:
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    using Phase::addSpecies;
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
     //! set the VPSS Mgr
     /*!

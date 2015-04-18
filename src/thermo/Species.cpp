@@ -1,10 +1,15 @@
 #include "cantera/thermo/Species.h"
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/transport/TransportData.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/ctml.h"
 #include <iostream>
 #include <limits>
+
+using namespace ctml;
 
 namespace Cantera {
 
@@ -53,6 +58,28 @@ Species& Species::operator=(const Species& other)
         thermo.reset(other.thermo->duplMyselfAsSpeciesThermoInterpType());
     }
     return *this;
+}
+
+shared_ptr<Species> newSpecies(const XML_Node& species_node)
+{
+    std::string name = species_node["name"];
+    compositionMap comp = parseCompString(species_node.child("atomArray").value());
+    shared_ptr<Species> s(new Species(name, comp));
+    if (species_node.hasChild("charge")) {
+        s->charge = getFloat(species_node, "charge");
+    }
+    if (species_node.hasChild("size")) {
+        s->size = getFloat(species_node, "size");
+    }
+    s->thermo.reset(newSpeciesThermoInterpType(species_node.child("thermo")));
+
+    // Read transport data, if provided
+    if (species_node.hasChild("transport")) {
+        s->transport = newTransportData(species_node.child("transport"));
+        s->transport->validate(*s);
+    }
+
+    return s;
 }
 
 }
