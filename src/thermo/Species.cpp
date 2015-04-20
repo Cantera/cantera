@@ -82,4 +82,19 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
     return s;
 }
 
+std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node)
+{
+    std::vector<shared_ptr<Species> > all_species;
+    std::vector<XML_Node*> species_nodes =
+        node.child("speciesData").getChildren("species");
+
+    for (std::vector<XML_Node*>::iterator iter = species_nodes.begin();
+         iter != species_nodes.end();
+         ++iter)
+    {
+        all_species.push_back(newSpecies(**iter));
+    }
+    return all_species;
+}
+
 }

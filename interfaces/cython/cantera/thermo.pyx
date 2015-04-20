@@ -36,6 +36,80 @@ cdef class Species:
         self._species = other
         self.species = self._species.get()
 
+    @staticmethod
+    def fromCti(text):
+        """
+        Create a Species object from its CTI string representation.
+        """
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        assert cxx_species.size() == 1, cxx_species.size()
+        species = Species(init=False)
+        species._assign(cxx_species[0])
+        return species
+
+    @staticmethod
+    def fromXml(text):
+        """
+        Create a Species object from its XML string representation.
+        """
+        cxx_species = CxxNewSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        species = Species(init=False)
+        species._assign(cxx_species)
+        return species
+
+    @staticmethod
+    def listFromFile(filename):
+        """
+        Create a list of Species objects from all of the species defined in a
+        CTI or XML file.
+
+        Directories on Cantera's input file path will be searched for the
+        specified file.
+
+        In the case of an XML file, the <species> nodes are assumed to be
+        children of the <speciesData> node in a document with a <ctml> root
+        node, as in the XML files produced by conversion from CTI files.
+        """
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFile(stringify(filename))))
+        species = []
+        for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    @staticmethod
+    def listFromXml(text):
+        """
+        Create a list of Species objects from all the species defined in an
+        XML string. The <species> nodes are assumed to be children of the
+        <speciesData> node in a document with a <ctml> root node, as in the XML
+        files produced by conversion from CTI files.
+        """
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        species = []
+        for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    @staticmethod
+    def listFromCti(text):
+        """
+        Create a list of Species objects from all the species defined in a CTI
+        string.
+        """
+        # Currently identical to listFromXml since get_XML_from_string is able
+        # to distinguish between CTI and XML.
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        species = []
+        for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
     property name:
         def __get__(self):
             return pystr(self.species.name)

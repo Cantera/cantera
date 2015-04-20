@@ -627,6 +627,9 @@ ideal_gas(name='spam', elements='O H',
 
 
 class TestSpecies(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Solution('h2o2.xml')
+
     def test_standalone(self):
         s = ct.Species('CH4', {'C':1, 'H':4})
 
@@ -642,21 +645,81 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(s.charge, 0.0)
 
     def test_index_accessor(self):
-        gas = ct.Solution('h2o2.xml')
-
-        for k in range(gas.n_species):
-            s = gas.species(k)
-            self.assertEqual(s.name, gas.species_name(k))
+        for k in range(self.gas.n_species):
+            s = self.gas.species(k)
+            self.assertEqual(s.name, self.gas.species_name(k))
 
             for m,n in s.composition.items():
-                self.assertEqual(n, gas.n_atoms(k,m))
+                self.assertEqual(n, self.gas.n_atoms(k,m))
 
     def test_name_accessor(self):
-        gas = ct.Solution('h2o2.xml')
-
-        for name in gas.species_names:
-            s = gas.species(name)
+        for name in self.gas.species_names:
+            s = self.gas.species(name)
             self.assertEqual(s.name, name)
+
+    def test_fromCti(self):
+        h2_cti = """
+            species(
+                name="H2",
+                atoms="H:2",
+                thermo=(
+                    NASA([200.00, 1000.00],
+                         [2.344331120E+00, 7.980520750E-03, -1.947815100E-05,
+                          2.015720940E-08, -7.376117610E-12, -9.179351730E+02,
+                          6.830102380E-01]),
+                    NASA([1000.00, 3500.00],
+                         [3.337279200E+00, -4.940247310E-05, 4.994567780E-07,
+                         -1.795663940E-10, 2.002553760E-14, -9.501589220E+02,
+                         -3.205023310E+00])
+                ),
+                transport=gas_transport(geom="linear",
+                                        diam=2.92,
+                                        well_depth=38.00,
+                                        polar=0.79,
+                                        rot_relax=280.00),
+                note = "TPIS78"
+            )"""
+        s1 = self.gas.species('H2')
+        s2 = ct.Species.fromCti(h2_cti)
+        self.assertEqual(s2.name, 'H2')
+        self.assertEqual(s1.composition, s2.composition)
+        self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
+
+    def test_fromXml(self):
+        import xml.etree.ElementTree as ET
+        root = ET.parse('../../build/data/h2o2.xml').getroot()
+        h2_node = root.find('.//species[@name="H2"]')
+        h2_string = ET.tostring(h2_node)
+
+        s1 = self.gas.species('H2')
+        s2 = ct.Species.fromXml(h2_string)
+
+        self.assertEqual(s2.name, 'H2')
+        self.assertEqual(s1.composition, s2.composition)
+        self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
+
+    def test_listFromFile_cti(self):
+        S = ct.Species.listFromFile('h2o2.cti')
+        self.assertEqual({sp.name for sp in S},
+                         set(self.gas.species_names))
+
+    def test_listFromFile_xml(self):
+        S = ct.Species.listFromFile('h2o2.xml')
+        self.assertEqual({sp.name for sp in S},
+                         set(self.gas.species_names))
+
+    def test_listFromCti(self):
+        S = ct.Species.listFromCti(open('../../build/data/h2o2.cti').read())
+
+        self.assertEqual({sp.name for sp in S},
+                         set(self.gas.species_names))
+
+    def test_listFromXml(self):
+        S = ct.Species.listFromXml(open('../../build/data/h2o2.xml').read())
+
+        self.assertEqual({sp.name for sp in S},
+                         set(self.gas.species_names))
+
 
 
 class TestSpeciesThermo(utilities.CanteraTest):

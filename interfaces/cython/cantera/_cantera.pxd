@@ -53,7 +53,7 @@ cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
     cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\
         (int, double, double, double, double*) except +
 
-cdef extern from "cantera/thermo/Species.h":
+cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef cppclass CxxSpecies "Cantera::Species":
         CxxSpecies()
         CxxSpecies(string, stdmap[string,double])
@@ -63,6 +63,9 @@ cdef extern from "cantera/thermo/Species.h":
         stdmap[string,double] composition
         double charge
         double size
+
+    cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (XML_Node&)
+    cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (XML_Node&)
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
