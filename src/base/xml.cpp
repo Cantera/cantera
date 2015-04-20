@@ -757,6 +757,7 @@ void XML_Node::build(std::istream& f)
     string nm, nm2, val;
     XML_Node* node = this;
     map<string, string> node_attribs;
+    bool first = true;
     while (!f.eof()) {
         node_attribs.clear();
         nm = r.readTag(node_attribs);
@@ -770,14 +771,24 @@ void XML_Node::build(std::istream& f)
         int lnum = r.m_line;
         if (nm[nm.size() - 1] == '/') {
             nm2 = nm.substr(0,nm.size()-1);
-            node = &node->addChild(nm2);
+            if (first) {
+                node->setName(nm2);
+                first = false;
+            } else {
+                node = &node->addChild(nm2);
+            }
             node->addValue("");
             node->attribs() = node_attribs;
             node->setLineNumber(lnum);
             node = node->parent();
         } else if (nm[0] != '/') {
             if (nm[0] != '!' && nm[0] != '-' && nm[0] != '?') {
-                node = &node->addChild(nm);
+                if (first) {
+                    node->setName(nm);
+                    first = false;
+                } else {
+                    node = &node->addChild(nm);
+                }
                 val = r.readValue();
                 node->addValue(val);
                 node->attribs() = node_attribs;
@@ -1067,15 +1078,8 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
 
 void XML_Node::write(std::ostream& s, const int level, int numRecursivesAllowed) const
 {
-    if (m_name == "--" && m_root == this) {
-        for (size_t i = 0; i < m_children.size(); i++) {
-            m_children[i]->write_int(s,level, numRecursivesAllowed-1);
-            s << endl;
-        }
-    } else {
-        write_int(s, level, numRecursivesAllowed);
-        s << endl;
-    }
+    write_int(s, level, numRecursivesAllowed);
+    s << endl;
 }
 
 XML_Node& XML_Node::root() const

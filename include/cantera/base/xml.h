@@ -598,10 +598,7 @@ public:
     /*!
      * This is a wrapper around the static routine write_int(). All this does
      * is add an endl on to the output stream. write_int() is fine, but the
-     * last endl wasn't being written. It also checks for the special name
-     * "`--`". If found and we are at the root of the xml tree, then the block
-     * is skipped and the children are processed. "`--`" is used to denote the
-     * top of the tree.
+     * last endl wasn't being written.
      *
      *  @param s       ostream to write to
      *  @param level   Indentation level to work from

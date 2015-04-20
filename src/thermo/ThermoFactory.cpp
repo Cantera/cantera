@@ -513,14 +513,12 @@ void installElements(Phase& th, const XML_Node& phaseNode)
     }
 
     XML_Node* doc = get_XML_File(element_database);
-    XML_Node* dbe = &doc->child("ctml/elementData");
+    XML_Node* dbe = &doc->child("elementData");
 
     XML_Node& root = phaseNode.root();
     XML_Node* local_db = 0;
-    if (root.hasChild("ctml")) {
-        if (root.child("ctml").hasChild("elementData")) {
-            local_db = &root.child("ctml/elementData");
-        }
+    if (root.hasChild("elementData")) {
+        local_db = &root.child("elementData");
     }
 
     for (size_t i = 0; i < enames.size(); i++) {

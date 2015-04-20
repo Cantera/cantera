@@ -529,14 +529,12 @@ void Elements::addElementsFromXML(const XML_Node& phase)
     }
 
     XML_Node* doc = get_XML_File(element_database);
-    XML_Node* dbe = &doc->child("ctml/elementData");
+    XML_Node* dbe = &doc->child("elementData");
 
     XML_Node& root = phase.root();
     XML_Node* local_db = 0;
-    if (root.hasChild("ctml")) {
-        if (root.child("ctml").hasChild("elementData")) {
-            local_db = &root.child("ctml/elementData");
-        }
+    if (root.hasChild("elementData")) {
+        local_db = &root.child("elementData");
     }
 
     int nel = static_cast<int>(enames.size());
