@@ -289,7 +289,7 @@ XML_Node* Application::get_XML_from_string(const std::string& text)
     if (text.substr(start,1) == "<") {
         s << text;
     } else {
-        s << ctml::ct_string2ctml_string(text);
+        s << ctml::ct_string2ctml_string(text.substr(start));
     }
     entry.first = new XML_Node();
     entry.first->build(s);
