@@ -286,7 +286,7 @@ XML_Node* Application::get_XML_from_string(const std::string& text)
     }
     std::stringstream s;
     size_t start = text.find_first_not_of(" \t\r\n");
-    if (text.substr(start,5) == "<?xml") {
+    if (text.substr(start,1) == "<") {
         s << text;
     } else {
         s << ctml::ct_string2ctml_string(text);
