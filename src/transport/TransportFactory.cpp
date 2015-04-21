@@ -269,19 +269,10 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
 
 Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
 {
-    XML_Node& phaseNode=phase->xml();
-    /*
-     * Find the Thermo XML node
-     */
-    if (!phaseNode.hasChild("transport")) {
-        throw CanteraError("TransportFactory::newTransport",
-                           "no transport XML node");
-    }
-    XML_Node& transportNode = phaseNode.child("transport");
-    std::string transportModel = transportNode.attrib("model");
-    if (transportModel == "") {
-        throw CanteraError("TransportFactory::newTransport",
-                           "transport XML node doesn't have a model string");
+    std::string transportModel = "None";
+    XML_Node& phaseNode = phase->xml();
+    if (phaseNode.hasChild("transport")) {
+        transportModel = phaseNode.child("transport").attrib("model");
     }
     return newTransport(transportModel, phase,log_level);
 }
