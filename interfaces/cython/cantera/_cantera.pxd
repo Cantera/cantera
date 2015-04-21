@@ -84,6 +84,11 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         cbool getElementPotentials(double*) except +
         void equilibrate(string, string, double, int, int, int, int) except +
 
+        # initialization
+        void addUndefinedElements() except +
+        cbool addSpecies(shared_ptr[CxxSpecies]) except +
+        void initThermo() except +
+
         # basic thermodynamic properties
         double temperature() except +
         double pressure() except +
@@ -387,9 +392,11 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +
     cdef CxxThermoPhase* newPhase(XML_Node&) except +
+    cdef CxxThermoPhase* newThermoPhase(string) except +
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +
+    cdef CxxKinetics* CxxNewKinetics "Cantera::newKineticsMgr" (string) except +
 
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +

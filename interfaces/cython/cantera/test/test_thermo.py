@@ -620,6 +620,19 @@ ideal_gas(name='spam', elements='O H',
         gas = ct.Solution(source=xml_def)
         self.check(gas, 'spam', 350, 2e6, 2, 1)
 
+    def test_import_from_species(self):
+        gas1 = ct.Solution('h2o2.xml')
+        gas1.TPX = 350, 101325, 'H2:0.3, O2:0.7'
+        gas1.equilibrate('HP')
+
+        species = ct.Species.listFromFile('h2o2.xml')
+        gas2 = ct.ThermoPhase(thermo='IdealGas', species=species)
+        gas2.TPX = 350, 101325, 'H2:0.3, O2:0.7'
+        gas2.equilibrate('HP')
+        self.assertEqual(gas1.n_elements, gas2.n_elements)
+        self.assertEqual(gas1.species_names, gas2.species_names)
+        self.assertNear(gas1.T, gas2.T)
+        self.assertArrayNear(gas1.X, gas2.X)
 
     def test_checkReactionBalance(self):
         with self.assertRaises(Exception):

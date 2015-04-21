@@ -1,6 +1,6 @@
 cdef class _SolutionBase:
     def __cinit__(self, infile='', phaseid='', phases=(), origin=None,
-                  source=None, **kwargs):
+                  source=None, thermo=None, species=(), **kwargs):
         # Shallow copy of an existing Solution (for slicing support)
         cdef _SolutionBase other
         if origin is not None:
@@ -18,13 +18,31 @@ cdef class _SolutionBase:
             self._selected_species = other._selected_species.copy()
             return
 
-        # Instantiate a set of new Cantera C++ objects
+        if infile or source:
+            self._init_cti_xml(infile, phaseid, phases, source)
+        elif thermo and species:
+            self._init_parts(thermo, species)
+        else:
+            raise ValueError("Arguments are insufficient to define a phase")
+
+        # Initialization of transport is deferred to Transport.__init__
+        self.transport = NULL
+
+        self._selected_species = np.ndarray(0, dtype=np.integer)
+
+    def __init__(self, *args, **kwargs):
+        if isinstance(self, Transport):
+            assert self.transport is not NULL
+
+    def _init_cti_xml(self, infile, phaseid, phases, source):
+        """
+        Instantiate a set of new Cantera C++ objects from a CTI or XML
+        phase definition
+        """
         if infile:
             rootNode = CxxGetXmlFile(stringify(infile))
         elif source:
             rootNode = CxxGetXmlFromString(stringify(source))
-        else:
-            raise ValueError('No phase definition provided')
 
         # Get XML data
         cdef XML_Node* phaseNode
@@ -54,14 +72,21 @@ cdef class _SolutionBase:
         else:
             self.kinetics = NULL
 
-        # Initialization of transport is deferred to Transport.__init__
-        self.transport = NULL
+    def _init_parts(self, thermo, species):
+        """
+        Instantiate a set of new Cantera C++ objects based on a string defining
+        the model type and a list of Species objects.
+        """
+        self.thermo = newThermoPhase(stringify(thermo))
+        self.thermo.addUndefinedElements()
+        cdef Species S
+        for S in species:
+            self.thermo.addSpecies(S._species)
+        self.thermo.initThermo()
 
-        self._selected_species = np.ndarray(0, dtype=np.integer)
-
-    def __init__(self, *args, **kwargs):
-        if isinstance(self, Transport):
-            assert self.transport is not NULL
+        if isinstance(self, Kinetics):
+            # Not yet implemented
+            self.kinetics = CxxNewKinetics(stringify("none"))
 
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)
