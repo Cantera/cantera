@@ -5,13 +5,13 @@ cdef enum Thermasis:
     molar_basis = 1
 
 
-cdef stdmap[string,double] comp_map(dict X) except *:
-    cdef stdmap[string,double] m
+cdef Composition comp_map(dict X) except *:
+    cdef Composition m
     for species,value in X.items():
         m[stringify(species)] = value
     return m
 
-cdef comp_map_to_dict(stdmap[string,double] m):
+cdef comp_map_to_dict(Composition m):
     return {pystr(species):value for species,value in m.items()}
 
 

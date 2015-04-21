@@ -7,6 +7,8 @@ from cpython cimport bool as pybool
 import numpy as np
 cimport numpy as np
 
+ctypedef stdmap[string,double] Composition
+
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:
         XML_Node* findByName(string)
@@ -56,11 +58,11 @@ cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
 cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef cppclass CxxSpecies "Cantera::Species":
         CxxSpecies()
-        CxxSpecies(string, stdmap[string,double])
+        CxxSpecies(string, Composition)
         shared_ptr[CxxSpeciesThermo] thermo
 
         string name
-        stdmap[string,double] composition
+        Composition composition
         double charge
         double size
 
@@ -120,17 +122,17 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # composition
         void setMassFractionsByName(string) except +
-        void setMassFractionsByName(stdmap[string,double]&) except +
+        void setMassFractionsByName(Composition&) except +
         void setMassFractions_NoNorm(double*) except +
-        stdmap[string,double] getMassFractionsByName(double)
+        Composition getMassFractionsByName(double)
         double massFraction(size_t) except +
         double massFraction(string) except +
 
         void setMoleFractionsByName(string) except +
-        void setMoleFractionsByName(stdmap[string,double]&) except +
+        void setMoleFractionsByName(Composition&) except +
         void setMoleFractions_NoNorm(double*) except +
         void getMoleFractions(double*) except +
-        stdmap[string,double] getMoleFractionsByName(double)
+        Composition getMoleFractionsByName(double)
         double moleFraction(size_t) except +
         double moleFraction(string) except +
 
