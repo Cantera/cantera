@@ -122,18 +122,15 @@ no requirement that all species in a phase use the same parameterization; each
 species can use the one most appropriate to represent how the heat capacity
 depends on temperature.
 
-Currently, three entry types are implemented, all of which provide species
-properties appropriate for models of ideal gas mixtures, ideal solutions, and
-pure compounds. Non-ideal phase models are not yet implemented, but may be in
-future releases. When they are, additional entry types may also be added that
-provide species-specific coefficients required by specific non-ideal equations
-of state.
+Currently, several types are implemented which provide species properties
+appropriate for models of ideal gas mixtures, ideal solutions, and pure
+compounds.
 
-The NASA Polynomial Parameterization
-------------------------------------
+The NASA 7-Coefficient Polynomial Parameterization
+--------------------------------------------------
 
-The NASA polynomial parameterization is used to compute the species
-reference-state thermodynamic properties :math:`\hat{c}^0_p(T)`,
+The NASA 7-coefficient polynomial parameterization is used to compute the
+species reference-state thermodynamic properties :math:`\hat{c}^0_p(T)`,
 :math:`\hat{h}^0(T)` and :math:`\hat{s}^0(T)`.
 
 The NASA parameterization represents :math:`\hat{c}^0_p(T)` with a fourth-order
@@ -150,9 +147,10 @@ polynomial:
                        \frac{a_4}{4} T^4 + a_6
 
 Note that this is the "old" NASA polynomial form, used in the original NASA
-equilibrium program and in Chemkin. It is not compatible with the form used in
-the most recent version of the NASA equilibrium program, which uses 9
-coefficients, not 7.
+equilibrium program and in Chemkin, which uses 7 coefficients in each of two
+temperature regions. It is not compatible with the form used in the most recent
+version of the NASA equilibrium program, which uses 9 coefficients for each
+temperature region.
 
 A NASA parameterization is defined by an embedded :class:`NASA` entry. Very
 often, two NASA parameterizations are used for two contiguous temperature
@@ -169,6 +167,102 @@ ranges. This can be specified by assigning the ``thermo`` field of the
                 NASA( [ 1000.00, 3500.00], [ 3.282537840E+00, 1.483087540E-03,
                         -7.579666690E-07, 2.094705550E-10, -2.167177940E-14,
                         -1.088457720E+03, 5.453231290E+00] ) ) )
+
+The NASA 9-Coefficient Polynomial Parameterization
+--------------------------------------------------
+
+The NASA 9-coefficient polynomial parameterization [#McBride2002]_ ("NASA9" for
+short) is an extension of the NASA 7-coefficient polynomial parameterization
+which includes two additional terms in each temperature region, as well as
+supporting an arbitrary number of temperature regions.
+
+The NASA9 parameterization represents the species thermodynamic properties with
+the following equations:
+
+.. math::
+
+    \frac{C_p^0(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T
+                     + a_4 T^2 + a_5 T^3 + a_6 T^4
+
+    \frac{H^0(T)}{RT} = - a_0 T^{-2} + a_1 \frac{\ln T}{T} + a_2
+        + \frac{a_3}{2} T + \frac{a_4}{3} T^2  + \frac{a_5}{4} T^3 +
+        \frac{a_6}{5} T^4 + \frac{a_7}{T}
+
+    \frac{s^0(T)}{R} = - \frac{a_0}{2} T^{-2} - a_1 T^{-1} + a_2 \ln T
+       + a_3 T + \frac{a_4}{2} T^2 + \frac{a_5}{3} T^3  + \frac{a_6}{4} T^4 + a_8
+
+The following is an example of a species defined using the NASA9
+parameterization in three different temperature regions::
+
+    species(name=u'CO2',
+            atoms='C:1 O:2',
+            thermo=(NASA9([200.00, 1000.00],
+                          [ 4.943650540E+04, -6.264116010E+02,  5.301725240E+00,
+                            2.503813816E-03, -2.127308728E-07, -7.689988780E-10,
+                            2.849677801E-13, -4.528198460E+04, -7.048279440E+00]),
+                    NASA9([1000.00, 6000.00],
+                          [ 1.176962419E+05, -1.788791477E+03,  8.291523190E+00,
+                           -9.223156780E-05,  4.863676880E-09, -1.891053312E-12,
+                            6.330036590E-16, -3.908350590E+04, -2.652669281E+01]),
+                    NASA9([6000.00, 20000.00],
+                          [-1.544423287E+09,  1.016847056E+06, -2.561405230E+02,
+                            3.369401080E-02, -2.181184337E-06,  6.991420840E-11,
+                           -8.842351500E-16, -8.043214510E+06,  2.254177493E+03])),
+            note='Gurvich,1991 pt1 p27 pt2 p24. [g 9/99]')
+
+Thermodynamic data for a range of species can be obtained from the `NASA
+ThermoBuild <http://cearun.grc.nasa.gov/cea/index_ds.html>`_ tool. Using the web
+interface, an input file can be obtained for a set of species. This input file
+should then be modified so that the first line reads "`thermo nasa9`", as in the
+following example::
+
+    thermo nasa9
+       200.000  1000.000  6000.000 20000.000   9/09/04
+    CO                Gurvich,1979 pt1 p25 pt2 p29.
+     3 tpis79 C   1.00O   1.00    0.00    0.00    0.00 0   28.0101000    -110535.196
+        200.000   1000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         8671.104
+     1.489045326D+04-2.922285939D+02 5.724527170D+00-8.176235030D-03 1.456903469D-05
+    -1.087746302D-08 3.027941827D-12                -1.303131878D+04-7.859241350D+00
+       1000.000   6000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         8671.104
+     4.619197250D+05-1.944704863D+03 5.916714180D+00-5.664282830D-04 1.398814540D-07
+    -1.787680361D-11 9.620935570D-16                -2.466261084D+03-1.387413108D+01
+       6000.000  20000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         8671.104
+     8.868662960D+08-7.500377840D+05 2.495474979D+02-3.956351100D-02 3.297772080D-06
+    -1.318409933D-10 1.998937948D-15                 5.701421130D+06-2.060704786D+03
+    CO2               Gurvich,1991 pt1 p27 pt2 p24.
+     3 g 9/99 C   1.00O   2.00    0.00    0.00    0.00 0   44.0095000    -393510.000
+        200.000   1000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         9365.469
+     4.943650540D+04-6.264116010D+02 5.301725240D+00 2.503813816D-03-2.127308728D-07
+    -7.689988780D-10 2.849677801D-13                -4.528198460D+04-7.048279440D+00
+       1000.000   6000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         9365.469
+     1.176962419D+05-1.788791477D+03 8.291523190D+00-9.223156780D-05 4.863676880D-09
+    -1.891053312D-12 6.330036590D-16                -3.908350590D+04-2.652669281D+01
+       6000.000  20000.0007 -2.0 -1.0  0.0  1.0  2.0  3.0  4.0  0.0         9365.469
+    -1.544423287D+09 1.016847056D+06-2.561405230D+02 3.369401080D-02-2.181184337D-06
+     6.991420840D-11-8.842351500D-16                -8.043214510D+06 2.254177493D+03
+    END PRODUCTS
+    END REACTANTS
+
+This file (saved for example as `nasathermo.dat`) can then be converted to the
+CTI format using the `ck2cti` script::
+
+    ck2cti --thermo=nasathermo.dat
+
+To generate a full phase definition, create an input file defining the phase as
+well, saved for example as `nasa.inp`::
+
+    elements
+    C O
+    end
+
+    species
+    CO CO2
+    end
+
+The two input files can then be converted together by calling::
+
+    ck2cti --input=nasa.inp --thermo=nasathermo.dat
+
 
 The Shomate Parameterization
 ----------------------------
@@ -240,3 +334,7 @@ written as::
 .. [#Kee1986] R. J. Kee, G. Dixon-Lewis, J. Warnatz, M. E. Coltrin, and J. A. Miller.
    A FORTRAN Computer Code Package for the Evaluation of Gas-Phase, Multicomponent
    Transport Properties. Technical Report SAND86-8246, Sandia National Laboratories, 1986.
+
+.. [#Mcbride2002] B. J. McBride, M. J. Zehe, S. Gordon. "NASA Glenn Coefficients
+   for Calculating Thermodynamic Properties of Individual Species,"
+   NASA/TP-2002-211556, Sept. 2002.
