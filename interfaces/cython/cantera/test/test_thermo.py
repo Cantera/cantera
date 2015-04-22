@@ -26,8 +26,8 @@ class TestThermoPhase(utilities.CanteraTest):
             self.assertEqual(i, self.phase.element_index(i))
 
     def test_n_atoms(self):
-        data = [(1, 'O', 'O'), (2, 'O', 'O2'), (1, 'H', 'OH'),
-                (2, 'H', 'H2O'), (2, 'O', 'H2O2'), (1, 'Ar', 'AR'),
+        data = [(1, 'O', 'O'), (2, 'O', 'O2'), (1, b'H', b'OH'),
+                (2, 'H', 'H2O'), (2, u'O', u'H2O2'), (1, 'Ar', 'AR'),
                 (0, 'O', 'H'), (0, 'H', 'AR'), (0, 'Ar', 'HO2')]
         for (n, elem, species) in data:
             self.assertEqual(self.phase.n_atoms(species, elem), n)
@@ -118,12 +118,12 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertArrayNear(X0, self.phase.X)
 
     def test_setCompositionDict(self):
-        self.phase.X = {'H2':1.0, 'O2':3.0}
+        self.phase.X = {b'H2':1.0, b'O2':3.0}
         X = self.phase.X
         self.assertNear(X[0], 0.25)
         self.assertNear(X[3], 0.75)
 
-        self.phase.Y = {'H2':1.0, 'O2':3.0}
+        self.phase.Y = {u'H2':1.0, u'O2':3.0}
         Y = self.phase.Y
         self.assertNear(Y[0], 0.25)
         self.assertNear(Y[3], 0.75)

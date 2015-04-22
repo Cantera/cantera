@@ -65,7 +65,7 @@ cdef class Kinetics(_SolutionBase):
         argument is unused.
         """
         cdef int k
-        if isinstance(species, (str, unicode)):
+        if isinstance(species, (str, unicode, bytes)):
             return self.kinetics.kineticsSpeciesIndex(stringify(species))
         else:
             k = species
@@ -144,7 +144,7 @@ cdef class Kinetics(_SolutionBase):
         reaction *i_reaction*.
         """
         cdef int k
-        if isinstance(k_spec, (str, unicode)):
+        if isinstance(k_spec, (str, unicode, bytes)):
             k = self.kinetics_species_index(k_spec)
         else:
             k = k_spec
@@ -159,7 +159,7 @@ cdef class Kinetics(_SolutionBase):
         reaction *i_reaction*.
         """
         cdef int k
-        if isinstance(k_spec, (str, unicode)):
+        if isinstance(k_spec, (str, unicode, bytes)):
             k = self.kinetics_species_index(k_spec)
         else:
             k = k_spec

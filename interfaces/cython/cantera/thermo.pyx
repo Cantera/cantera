@@ -7,8 +7,6 @@ cdef enum Thermasis:
 
 cdef stdmap[string,double] comp_map(dict X) except *:
     cdef stdmap[string,double] m
-    cdef str species
-    cdef float val
     for species,value in X.items():
         m[stringify(species)] = value
     return m
@@ -219,7 +217,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such element is present, an exception is thrown.
         """
-        if isinstance(element, (str, unicode)):
+        if isinstance(element, (str, unicode, bytes)):
             index = self.thermo.elementIndex(stringify(element))
         elif isinstance(element, (int, float)):
             index = <int>element
@@ -273,7 +271,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such species is present, an exception is thrown.
         """
-        if isinstance(species, (str, unicode)):
+        if isinstance(species, (str, unicode, bytes)):
             index = self.thermo.speciesIndex(stringify(species))
         elif isinstance(species, (int, float)):
             index = <int>species
@@ -287,7 +285,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     def species(self, k):
         s = Species(init=False)
-        if isinstance(k, (str, unicode)):
+        if isinstance(k, (str, unicode, bytes)):
             s._assign(self.thermo.species(stringify(k)))
         elif isinstance(k, (int, float)):
             s._assign(self.thermo.species(<int>k))
@@ -351,7 +349,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMassFractions)
         def __set__(self, Y):
-            if isinstance(Y, (str, unicode)):
+            if isinstance(Y, (str, unicode, bytes)):
                 self.thermo.setMassFractionsByName(stringify(Y))
             elif isinstance(Y, dict):
                 self.thermo.setMassFractionsByName(comp_map(Y))
@@ -372,7 +370,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMoleFractions)
         def __set__(self, X):
-            if isinstance(X, (str, unicode)):
+            if isinstance(X, (str, unicode, bytes)):
                 self.thermo.setMoleFractionsByName(stringify(X))
             elif isinstance(X, dict):
                 self.thermo.setMoleFractionsByName(comp_map(X))

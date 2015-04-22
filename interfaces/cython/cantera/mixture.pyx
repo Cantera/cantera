@@ -81,7 +81,7 @@ cdef class Mixture:
             >>> mix.element_index('H')
             2
         """
-        if isinstance(element, (str, unicode)):
+        if isinstance(element, (str, unicode, bytes)):
             index = self.mix.elementIndex(stringify(element))
         elif isinstance(element, (int, float)):
             index = <int>element
@@ -118,7 +118,7 @@ cdef class Mixture:
         """
         p = self.phase_index(phase)
 
-        if isinstance(species, (str, unicode)):
+        if isinstance(species, (str, unicode, bytes)):
             k = self.phase(p).species_index(species)
         elif isinstance(species, (int, float)):
             k = <int?>species
@@ -159,7 +159,7 @@ cdef class Mixture:
                 return int(p)
             else:
                 raise IndexError("Phase index '{0}' out of range.".format(p))
-        elif isinstance(p, (str, unicode)):
+        elif isinstance(p, (str, unicode, bytes)):
             for i, phase in enumerate(self._phases):
                 if phase.name == p:
                     return i
@@ -248,7 +248,7 @@ cdef class Mixture:
             return data
 
         def __set__(self, moles):
-            if isinstance(moles, (str, unicode)):
+            if isinstance(moles, (str, unicode, bytes)):
                 self.mix.setMolesByName(stringify(moles))
                 return
 

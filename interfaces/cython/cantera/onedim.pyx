@@ -506,7 +506,7 @@ cdef class Sim1D:
     def _get_indices(self, dom, comp):
         idom = self.domain_index(dom)
         dom = self.domains[idom]
-        if isinstance(comp, (str, unicode)):
+        if isinstance(comp, (str, unicode, bytes)):
             kcomp = dom.component_index(comp)
         else:
             kcomp = comp

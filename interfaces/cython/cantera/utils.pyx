@@ -7,8 +7,11 @@ CxxSetLogger(_logger)
 cdef string stringify(x):
     """ Converts Python strings to std::string. """
     # This method works with both Python 2.x and 3.x.
-    tmp = bytes(x.encode())
-    return string(tmp)
+    if isinstance(x, bytes):
+        return string(<bytes>x)
+    else:
+        tmp = bytes(x.encode())
+        return string(tmp)
 
 cdef pystr(string x):
     cdef bytes s = x.c_str()
