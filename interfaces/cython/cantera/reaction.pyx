@@ -7,6 +7,9 @@ cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
     cdef int CHEMACT_RXN
     cdef int INTERFACE_RXN
 
+    cdef int SIMPLE_FALLOFF
+    cdef int TROE_FALLOFF
+    cdef int SRI_FALLOFF
 
 
 cdef class Reaction:
@@ -117,6 +120,69 @@ cdef class ThirdBodyReaction(ElementaryReaction):
         return self.tbr().third_body.efficiency(stringify(species))
 
 
+cdef class Falloff:
+    def __cinit__(self, init=True):
+        if init:
+            self._falloff.reset(new CxxFalloff())
+            self.falloff = self._falloff.get()
+
+    property type:
+        def __get__(self):
+            cdef int falloff_type = self.falloff.getType()
+            if falloff_type == SIMPLE_FALLOFF:
+                return "Simple"
+            elif falloff_type == TROE_FALLOFF:
+                return "Troe"
+            elif falloff_type == SRI_FALLOFF:
+                return "SRI"
+            else:
+                return "unknown"
+
+    property parameters:
+        def __get__(self):
+            N = self.falloff.nParameters()
+            if N == 0:
+                return np.empty(0)
+
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(N)
+            self.falloff.getParameters(&data[0])
+            return data
+
+    def __call__(self, float T, float Pr):
+        N = max(self.falloff.workSize(), 1)
+        cdef np.ndarray[np.double_t, ndim=1] work = np.empty(N)
+        self.falloff.updateTemp(T, &work[0])
+        return self.falloff.F(Pr, &work[0])
+
+
+cdef wrapFalloff(shared_ptr[CxxFalloff] falloff):
+    f = Falloff(init=False)
+    f._falloff = falloff
+    f.falloff = f._falloff.get()
+    return f
+
+
+cdef class FalloffReaction(Reaction):
+    property low_rate:
+        def __get__(self):
+            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
+            return wrapArrhenius(&(r.low_rate), self)
+
+    property high_rate:
+        def __get__(self):
+            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
+            return wrapArrhenius(&(r.high_rate), self)
+
+    property falloff:
+        def __get__(self):
+            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
+            return wrapFalloff(r.falloff)
+
+
+cdef class ChemicallyActivatedReaction(FalloffReaction):
+    pass
+
+
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
     """
     Wrap a C++ Reaction object with a Python object of the correct derived type.
@@ -127,6 +193,10 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
         R = ElementaryReaction(init=False)
     elif reaction_type == THREE_BODY_RXN:
         R = ThirdBodyReaction(init=False)
+    elif reaction_type == FALLOFF_RXN:
+        R = FalloffReaction(init=False)
+    elif reaction_type == CHEMACT_RXN:
+        R = ChemicallyActivatedReaction(init=False)
     else:
         R = Reaction(init=False)
 

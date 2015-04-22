@@ -235,6 +235,25 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxThirdBodyReaction()
         CxxThirdBody third_body
 
+    cdef cppclass CxxFalloff "Cantera::Falloff":
+        CxxFalloff()
+        void updateTemp(double, double*)
+        double F(double, double*)
+        size_t workSize()
+
+        size_t nParameters()
+        int getType()
+        void getParameters(double*)
+
+    cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
+        CxxFalloffReaction()
+
+        CxxArrhenius low_rate
+        CxxArrhenius high_rate
+        CxxThirdBody third_body
+        shared_ptr[CxxFalloff] falloff
+
+
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
         CxxKinetics()
@@ -711,6 +730,10 @@ cdef class Reaction:
 cdef class Arrhenius:
     cdef CxxArrhenius* rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
+
+cdef class Falloff:
+    cdef shared_ptr[CxxFalloff] _falloff
+    cdef CxxFalloff* falloff
 
 cdef class Kinetics(_SolutionBase):
     pass
