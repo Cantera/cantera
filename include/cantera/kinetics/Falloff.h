@@ -2,8 +2,6 @@
 #define CT_FALLOFF_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/stringUtils.h"
-#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -113,22 +111,7 @@ public:
      * @param c Vector of three or four doubles: The doubles are the parameters,
      *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
-    virtual void init(const vector_fp& c) {
-        m_a  = c[0];
-        if (c[1] == 0.0) {
-            m_rt3 = 1000.;
-        } else {
-            m_rt3 = 1.0/c[1];
-        }
-        if (c[2] == 0.0) {
-            m_rt1 = 1000.;
-        } else {
-            m_rt1 = 1.0/c[2];
-        }
-        if (c.size() == 4) {
-            m_t2 = c[3];
-        }
-    }
+    virtual void init(const vector_fp& c);
 
     //! Update the temperature parameters in the representation
     /*!
@@ -136,23 +119,9 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const {
-        doublereal Fcent = (1.0 - m_a) * exp(-T*m_rt3) + m_a * exp(-T*m_rt1);
-        if (m_t2) {
-            Fcent += exp(- m_t2 / T);
-        }
-        *work = log10(std::max(Fcent, SmallNumber));
-    }
+    virtual void updateTemp(doublereal T, doublereal* work) const;
 
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
-        doublereal lpr,f1,lgf, cc, nn;
-        lpr = log10(std::max(pr,SmallNumber));
-        cc = -0.4 - 0.67 * (*work);
-        nn = 0.75 - 1.27 * (*work);
-        f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
-        lgf = (*work) / (1.0 + f1 * f1);
-        return pow(10.0, lgf);
-    }
+    virtual doublereal F(doublereal pr, const doublereal* work) const;
 
     virtual size_t workSize() {
         return 1;
@@ -205,27 +174,7 @@ public:
      *          a, b, c, d (optional; default 1.0), and e (optional; default
      *          0.0) of the SRI parameterization
      */
-    virtual void init(const vector_fp& c) {
-        if (c[2] < 0.0) {
-            throw CanteraError("SRI::init()",
-                               "m_c parameter is less than zero: " + fp2str(c[2]));
-        }
-        m_a = c[0];
-        m_b = c[1];
-        m_c = c[2];
-
-        if (c.size() == 5) {
-            if (c[3] < 0.0) {
-                throw CanteraError("SRI::init()",
-                                   "m_d parameter is less than zero: " + fp2str(c[3]));
-            }
-            m_d = c[3];
-            m_e = c[4];
-        } else {
-            m_d = 1.0;
-            m_e = 0.0;
-        }
-    }
+    virtual void init(const vector_fp& c);
 
     //! Update the temperature parameters in the representation
     /*!
@@ -233,19 +182,9 @@ public:
      *   @param work      Vector of working space, length 2, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const {
-        *work = m_a * exp(- m_b / T);
-        if (m_c != 0.0) {
-            *work += exp(- T/m_c);
-        }
-        work[1] = m_d * pow(T,m_e);
-    }
+    virtual void updateTemp(doublereal T, doublereal* work) const;
 
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
-        doublereal lpr = log10(std::max(pr,SmallNumber));
-        doublereal xx = 1.0/(1.0 + lpr*lpr);
-        return pow(*work, xx) * work[1];
-    }
+    virtual doublereal F(doublereal pr, const doublereal* work) const;
 
     virtual size_t workSize() {
         return 2;
