@@ -806,6 +806,11 @@ public:
      */
     virtual void addReaction(shared_ptr<Reaction> r);
 
+    /**
+     * Return the Reaction object for reaction *i*.
+     */
+    shared_ptr<Reaction> reaction(size_t i);
+
     //! Determine behavior when adding a new reaction that contains species not
     //! defined in any of the phases associated with this kinetics manager. If
     //! set to true, the reaction will silently be ignored. If false, (the

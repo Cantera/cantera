@@ -190,6 +190,51 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         void getCoverages(double*) except +
 
 
+cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
+    cdef cppclass CxxArrhenius "Cantera::Arrhenius":
+        CxxArrhenius()
+        CxxArrhenius(double, double, double)
+        double updateRC(double, double)
+        double preExponentialFactor()
+        double temperatureExponent()
+        double activationEnergy_R()
+
+    cdef cppclass CxxReaction "Cantera::Reaction":
+        # Note, this default constructor doesn't actually exist. The declaration
+        # is required by a Cython bug which should be resolved in Cython 0.22.
+        CxxReaction()
+        CxxReaction(int)
+
+        string reactantString()
+        string productString()
+        string equation()
+        void validate() except +
+        int reaction_type
+        Composition reactants
+        Composition products
+        Composition orders
+        string id
+        cbool reversible
+        cbool duplicate
+        cbool allow_nonreactant_orders
+        cbool allow_negative_orders
+
+    cdef cppclass CxxElementaryReaction "Cantera::ElementaryReaction" (CxxReaction):
+        CxxElementaryReaction()
+        CxxArrhenius rate
+        cbool allow_negative_pre_exponential_factor
+
+    cdef cppclass CxxThirdBody "Cantera::ThirdBody":
+        CxxThirdBody()
+        CxxThirdBody(double)
+        double efficiency(string)
+        Composition efficiencies
+        double default_efficiency
+
+    cdef cppclass CxxThirdBodyReaction "Cantera::ThirdBodyReaction" (CxxElementaryReaction):
+        CxxThirdBodyReaction()
+        CxxThirdBody third_body
+
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
         CxxKinetics()
@@ -204,6 +249,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         CxxThermoPhase& thermo(int)
 
+        shared_ptr[CxxReaction] reaction(size_t) except +
         cbool isReversible(int) except +
         int reactionType(int) except +
         string reactionString(int) except +
@@ -657,6 +703,15 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
 
+cdef class Reaction:
+    cdef shared_ptr[CxxReaction] _reaction
+    cdef CxxReaction* reaction
+    cdef _assign(self, shared_ptr[CxxReaction] other)
+
+cdef class Arrhenius:
+    cdef CxxArrhenius* rate
+    cdef Reaction reaction # parent reaction, to prevent garbage collection
+
 cdef class Kinetics(_SolutionBase):
     pass
 
@@ -799,3 +854,4 @@ cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
+cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction)

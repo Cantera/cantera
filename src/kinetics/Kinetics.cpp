@@ -769,6 +769,12 @@ void Kinetics::addReaction(shared_ptr<Reaction> r)
     m_ropnet.push_back(0.0);
 }
 
+shared_ptr<Reaction> Kinetics::reaction(size_t i)
+{
+    checkReactionIndex(i);
+    return m_reactions[i];
+}
+
 
 void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,
                              const vector<grouplist_t>& p)

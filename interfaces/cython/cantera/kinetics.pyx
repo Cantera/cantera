@@ -73,6 +73,9 @@ cdef class Kinetics(_SolutionBase):
             self._check_phase_index(k)
             return self.kinetics.kineticsSpeciesIndex(k, phase)
 
+    def reaction(self, int i_reaction):
+        return wrapReaction(self.kinetics.reaction(i_reaction))
+
     def is_reversible(self, int i_reaction):
         """True if reaction `i_reaction` is reversible."""
         self._check_reaction_index(i_reaction)

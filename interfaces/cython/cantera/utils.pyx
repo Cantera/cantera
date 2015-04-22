@@ -34,3 +34,12 @@ __version__ = pystr(get_cantera_version())
 def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()
+
+cdef Composition comp_map(dict X) except *:
+    cdef Composition m
+    for species,value in X.items():
+        m[stringify(species)] = value
+    return m
+
+cdef comp_map_to_dict(Composition m):
+    return {pystr(species):value for species,value in m.items()}
