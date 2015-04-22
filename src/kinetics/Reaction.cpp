@@ -3,6 +3,7 @@
  */
 
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/Array.h"
 #include <sstream>
@@ -157,21 +158,17 @@ std::string ThirdBodyReaction::productString() const {
 
 FalloffReaction::FalloffReaction()
     : Reaction(FALLOFF_RXN)
-    , falloff_type(-1)
 {
 }
 
 FalloffReaction::FalloffReaction(
         const Composition& reactants_, const Composition& products_,
         const Arrhenius& low_rate_, const Arrhenius& high_rate_,
-        const ThirdBody& tbody, int type,
-        const vector_fp& params)
+        const ThirdBody& tbody)
     : Reaction(FALLOFF_RXN, reactants_, products_)
     , low_rate(low_rate_)
     , high_rate(high_rate_)
     , third_body(tbody)
-    , falloff_type(type)
-    , falloff_parameters(params)
 {
 }
 
@@ -212,10 +209,8 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction()
 ChemicallyActivatedReaction::ChemicallyActivatedReaction(
         const Composition& reactants_, const Composition& products_,
         const Arrhenius& low_rate_, const Arrhenius& high_rate_,
-        const ThirdBody& tbody, int falloff_type,
-        const vector_fp& falloff_params)
-    : FalloffReaction(reactants_, products_, low_rate, high_rate, tbody,
-                      falloff_type, falloff_params)
+        const ThirdBody& tbody)
+    : FalloffReaction(reactants_, products_, low_rate, high_rate, tbody)
 {
     reaction_type = CHEMACT_RXN;
 }
@@ -300,26 +295,28 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
 {
     XML_Node& falloff = rc_node.child("falloff");
     std::vector<std::string> p;
+    vector_fp falloff_parameters;
     getStringArray(falloff, p);
     size_t np = p.size();
     for (size_t n = 0; n < np; n++) {
-        R.falloff_parameters.push_back(fpValueCheck(p[n]));
+        falloff_parameters.push_back(fpValueCheck(p[n]));
     }
 
+    int falloff_type = 0;
     if (lowercase(falloff["type"]) == "lindemann") {
-        R.falloff_type = SIMPLE_FALLOFF;
+        falloff_type = SIMPLE_FALLOFF;
         if (np != 0) {
             throw CanteraError("readFalloff", "Lindemann parameterization "
                 "takes no parameters, but " + int2str(np) + "were given");
         }
     } else if (lowercase(falloff["type"]) == "troe") {
-        R.falloff_type = TROE_FALLOFF;
+        falloff_type = TROE_FALLOFF;
         if (np != 3 && np != 4) {
             throw CanteraError("readFalloff", "Troe parameterization takes "
                 "3 or 4 parameters, but " + int2str(np) + "were given");
         }
     } else if (lowercase(falloff["type"]) == "sri") {
-        R.falloff_type = SRI_FALLOFF;
+        falloff_type = SRI_FALLOFF;
         if (np != 3 && np != 5) {
             throw CanteraError("readFalloff", "SRI parameterization takes "
                 "3 or 5 parameters, but " + int2str(np) + "were given");
@@ -328,6 +325,7 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
         throw CanteraError("readFalloff", "Unrecognized falloff type: '" +
             falloff["type"] + "'");
     }
+    R.falloff = newFalloff(falloff_type, falloff_parameters);
 }
 
 void readEfficiencies(ThirdBody& tbody, const XML_Node& rc_node)

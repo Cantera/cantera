@@ -361,8 +361,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
                             r.third_body.default_efficiency);
 
     // install the falloff function calculator for this reaction
-    m_falloffn.install(m_nfall, r.falloff_type, r.reaction_type,
-                       r.falloff_parameters);
+    m_falloffn.install(m_nfall, r.reaction_type, r.falloff);
 
     // increment the falloff reaction counter
     ++m_nfall;

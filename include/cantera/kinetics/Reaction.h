@@ -8,6 +8,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/smart_ptr.h"
 #include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
 {
@@ -128,8 +129,7 @@ public:
     FalloffReaction();
     FalloffReaction(const Composition& reactants, const Composition& products,
                     const Arrhenius& low_rate, const Arrhenius& high_rate,
-                    const ThirdBody& tbody, int falloff_type,
-                    const vector_fp& falloff_params);
+                    const ThirdBody& tbody);
     virtual std::string reactantString() const;
     virtual std::string productString() const;
     virtual void validate();
@@ -143,13 +143,9 @@ public:
     //! Relative efficiencies of third-body species in enhancing the reaction rate
     ThirdBody third_body;
 
-    //! Type of falloff parameterization to use. Values are defined in
-    //! reaction_defs.h, with names ending in `FALLOFF`.
-    int falloff_type;
-
-    //! Values used in the falloff parameterization. Meaning of each parameter
-    //! depends on #falloff_type.
-    vector_fp falloff_parameters;
+    //! Falloff function which determines how low_rate and high_rate are
+    //! combined to determine the rate constant for the reaction.
+    shared_ptr<Falloff> falloff;
 };
 
 //! A reaction where the rate decreases as pressure increases due to collisional
@@ -162,8 +158,7 @@ public:
     ChemicallyActivatedReaction();
     ChemicallyActivatedReaction(const Composition& reactants,
         const Composition& products, const Arrhenius& low_rate,
-        const Arrhenius& high_rate, const ThirdBody& tbody, int falloff_type,
-        const vector_fp& falloff_params);
+        const Arrhenius& high_rate, const ThirdBody& tbody);
 };
 
 //! A pressure-dependent reaction parameterized by logarithmically interpolating

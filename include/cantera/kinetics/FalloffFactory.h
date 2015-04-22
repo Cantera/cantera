@@ -11,6 +11,7 @@
 
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/ct_thread.h"
+#include "cantera/base/smart_ptr.h"
 #include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
@@ -70,6 +71,9 @@ private:
     //!  Mutex for use when calling the factory
     static mutex_t falloff_mutex;
 };
+
+//! @copydoc FalloffFactory::newFalloff
+shared_ptr<Falloff> newFalloff(int type, const vector_fp& c);
 
 }
 #endif

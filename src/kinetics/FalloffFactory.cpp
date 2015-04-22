@@ -32,4 +32,10 @@ Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
     return f;
 }
 
+shared_ptr<Falloff> newFalloff(int type, const vector_fp& c)
+{
+    shared_ptr<Falloff> f(FalloffFactory::factory()->newFalloff(type, c));
+    return f;
+}
+
 }

@@ -125,8 +125,8 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
     shared_ptr<FalloffReaction> R(new FalloffReaction(reac, prod, low_rate,
-                                                      high_rate, tbody, TROE_FALLOFF,
-                                                      falloff_params));
+                                                      high_rate, tbody));
+    R->falloff = newFalloff(TROE_FALLOFF, falloff_params);
     kin.addReaction(R);
     kin.finalize();
     check_rates(2);

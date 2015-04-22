@@ -9,6 +9,7 @@
 
 #include "reaction_defs.h"
 #include "FalloffFactory.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -29,17 +30,6 @@ public:
         //else m_factory = f;
     }
 
-    //! Destructor. Deletes all installed falloff function calculators.
-    virtual ~FalloffMgr() {
-        for (size_t i = 0; i < m_falloff.size(); i++) {
-            delete m_falloff[i];
-        }
-        //if (m_factory) {
-        //FalloffFactory::deleteFalloffFactory();
-        //m_factory = 0;
-        //}
-    }
-
     //! Install a new falloff function calculator.
     /*
      * @param rxn Index of the falloff reaction. This will be used to
@@ -47,11 +37,26 @@ public:
      * @param falloffType of falloff function to install.
      * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
      * @param c vector of coefficients for the falloff function.
+     * @deprecated Use install(size_t, int, shared_ptr<Falloff>). To be removed
+     *     after Cantera 2.2.
      */
     void install(size_t rxn, int falloffType, int reactionType,
                  const vector_fp& c) {
+        warn_deprecated("FalloffMgr::install(size_t, int, int, const vector_fp&)",
+            "Use install(size_t, int, shared_ptr<Falloff>). To be removed after Cantera 2.2.");
+        shared_ptr<Falloff> f(m_factory->newFalloff(falloffType,c));
+        install(rxn, reactionType, f);
+    }
+
+    //! Install a new falloff function calculator.
+    /*
+     * @param rxn Index of the falloff reaction. This will be used to
+     *     determine which array entry is modified in method pr_to_falloff.
+     * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
+     * @param f The falloff function.
+     */
+    void install(size_t rxn, int reactionType, shared_ptr<Falloff> f) {
         m_rxn.push_back(rxn);
-        Falloff* f = m_factory->newFalloff(falloffType,c);
         m_offset.push_back(m_worksize);
         m_worksize += f->workSize();
         m_falloff.push_back(f);
@@ -96,7 +101,7 @@ public:
 
 protected:
     std::vector<size_t> m_rxn;
-    std::vector<Falloff*> m_falloff;
+    std::vector<shared_ptr<Falloff> > m_falloff;
     FalloffFactory* m_factory;
     vector_int m_loc;
     std::vector<vector_fp::difference_type> m_offset;
