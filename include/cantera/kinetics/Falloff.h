@@ -1,7 +1,7 @@
 #ifndef CT_FALLOFF_H
 #define CT_FALLOFF_H
 
-#include "cantera/base/ct_defs.h"
+#include "cantera/kinetics/reaction_defs.h"
 
 namespace Cantera
 {
@@ -69,6 +69,21 @@ public:
     virtual size_t workSize() {
         return 0;
     }
+
+    //! Return an integer representing the type of the Falloff parameterization.
+    virtual int getType() const {
+        return SIMPLE_FALLOFF;
+    }
+
+    //! Returns the number of parameters used by this parameterization. The
+    //! values of these parameters can be obtained from getParameters().
+    virtual size_t nParameters() const {
+        return 0;
+    }
+
+    //! Get the values of the parameters for this object. *params* must be an
+    //! array of at least nParameters() elements.
+    virtual void getParameters(double* params) const {}
 };
 
 
@@ -126,6 +141,17 @@ public:
     virtual size_t workSize() {
         return 1;
     }
+
+    virtual int getType() const {
+        return TROE_FALLOFF;
+    }
+
+    virtual size_t nParameters() const {
+        return 4;
+    }
+
+    //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
+    virtual void getParameters(double* params) const;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -189,6 +215,17 @@ public:
     virtual size_t workSize() {
         return 2;
     }
+
+    virtual int getType() const {
+        return SRI_FALLOFF;
+    }
+
+    virtual size_t nParameters() const {
+        return 5;
+    }
+
+    //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
+    virtual void getParameters(double* params) const;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.

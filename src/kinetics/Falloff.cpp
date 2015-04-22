@@ -48,6 +48,13 @@ double Troe::F(double pr, const double* work) const
     return pow(10.0, lgf);
 }
 
+void Troe::getParameters(double* params) const {
+    params[0] = m_a;
+    params[1] = 1.0/m_rt3;
+    params[2] = 1.0/m_rt1;
+    params[3] = m_t2;
+}
+
 void SRI::init(const vector_fp& c)
 {
     if (c[2] < 0.0) {
@@ -85,6 +92,15 @@ double SRI::F(double pr, const double* work) const
     double lpr = log10(std::max(pr,SmallNumber));
     double xx = 1.0/(1.0 + lpr*lpr);
     return pow(*work, xx) * work[1];
+}
+
+void SRI::getParameters(double* params) const
+{
+    params[0] = m_a;
+    params[1] = m_b;
+    params[2] = m_c;
+    params[3] = m_d;
+    params[4] = m_e;
 }
 
 }
