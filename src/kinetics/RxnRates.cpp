@@ -245,7 +245,11 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
 }
 
 ChebyshevRate::ChebyshevRate(const ReactionData& rdata)
-    : nP_(rdata.chebDegreeP)
+    : Tmin_(rdata.chebTmin)
+    , Tmax_(rdata.chebTmax)
+    , Pmin_(rdata.chebPmin)
+    , Pmax_(rdata.chebPmax)
+    , nP_(rdata.chebDegreeP)
     , nT_(rdata.chebDegreeT)
     , chebCoeffs_(rdata.chebCoeffs)
     , dotProd_(rdata.chebDegreeT)
@@ -263,7 +267,11 @@ ChebyshevRate::ChebyshevRate(const ReactionData& rdata)
 
 ChebyshevRate::ChebyshevRate(double Pmin, double Pmax, double Tmin, double Tmax,
                              const Array2D& coeffs)
-    : nP_(coeffs.nColumns())
+    : Tmin_(Tmin)
+    , Tmax_(Tmax)
+    , Pmin_(Pmin)
+    , Pmax_(Pmax)
+    , nP_(coeffs.nColumns())
     , nT_(coeffs.nRows())
     , chebCoeffs_(coeffs.nColumns() * coeffs.nRows(), 0.0)
     , dotProd_(coeffs.nRows())

@@ -521,7 +521,48 @@ public:
         return false;
     }
 
+    //! Minimum valid temperature [K]
+    double Tmin() const {
+        return Tmin_;
+    }
+
+    //! Maximum valid temperature [K]
+    double Tmax() const {
+        return Tmax_;
+    }
+
+    //! Minimum valid pressure [Pa]
+    double Pmin() const {
+        return Pmin_;
+    }
+
+    //! Maximum valid pressure [Pa]
+    double Pmax() const {
+        return Pmax_;
+    }
+
+    //! Number of points in the pressure direction
+    size_t nPressure() const {
+        return nP_;
+    }
+
+    //! Number of points in the temperature direction
+    size_t nTemperature() const {
+        return nT_;
+    }
+
+    //! Access the Chebyshev coefficients.
+    /*!
+     *  \f$ \alpha_{t,p} = \mathrm{coeffs}[N_P*t + p] \f$ where
+     *  \f$ 0 <= t < N_T \f$ and \f$ 0 <= p < N_P \f$.
+     */
+    const vector_fp& coeffs() const {
+        return chebCoeffs_;
+    }
+
 protected:
+    double Tmin_, Tmax_; //!< valid temperature range
+    double Pmin_, Pmax_; //!< valid pressure range
     double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
