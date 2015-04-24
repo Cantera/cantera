@@ -199,6 +199,45 @@ cdef class PlogReaction(Reaction):
                 rates.append((p_rate.first,copyArrhenius(&p_rate.second)))
             return rates
 
+
+cdef class ChebyshevReaction(Reaction):
+    property Tmin:
+        def __get__(self):
+            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            return r.rate.Tmin()
+
+    property Tmax:
+        def __get__(self):
+            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            return r.rate.Tmax()
+
+    property Pmin:
+        def __get__(self):
+            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            return r.rate.Pmin()
+
+    property Pmax:
+        def __get__(self):
+            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            return r.rate.Pmax()
+
+    property nPressure:
+        def __get__(self):
+            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            return r.rate.nPressure()
+
+    property nTemperature:
+        def __get__(self):
+            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            return r.rate.nTemperature()
+
+    property coeffs:
+        def __get__(self):
+            cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+            c = np.fromiter(r.rate.coeffs(), np.double)
+            return c.reshape((r.rate.nTemperature(), r.rate.nPressure()))
+
+
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
     """
     Wrap a C++ Reaction object with a Python object of the correct derived type.
@@ -215,6 +254,8 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
         R = ChemicallyActivatedReaction(init=False)
     elif reaction_type == PLOG_RXN:
         R = PlogReaction(init=False)
+    elif reaction_type == CHEBYSHEV_RXN:
+        R = ChebyshevReaction(init=False)
     else:
         R = Reaction(init=False)
 

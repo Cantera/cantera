@@ -260,6 +260,18 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxPlogReaction "Cantera::PlogReaction" (CxxReaction):
         CxxPlog rate
 
+    cdef cppclass CxxChebyshevRate "Cantera::ChebyshevRate":
+        double Tmin()
+        double Tmax()
+        double Pmin()
+        double Pmax()
+        size_t nPressure()
+        size_t nTemperature()
+        vector[double]& coeffs()
+
+    cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction":
+        CxxChebyshevRate rate
+
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
