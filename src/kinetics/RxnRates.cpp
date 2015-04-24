@@ -143,16 +143,13 @@ Plog::Plog(const ReactionData& rdata)
     : logP_(-1000)
     , logP1_(1000)
     , logP2_(-1000)
-    , m1_(npos)
-    , m2_(npos)
     , rDeltaP_(-1.0)
-    , maxRates_(1)
 {
     typedef std::multimap<double, vector_fp>::const_iterator iter_t;
 
     size_t j = 0;
-    size_t rateCount = 0;
     // Insert intermediate pressures
+    rates_.reserve(rdata.plogParameters.size());
     for (iter_t iter = rdata.plogParameters.begin();
             iter != rdata.plogParameters.end();
             iter++) {
@@ -160,41 +157,19 @@ Plog::Plog(const ReactionData& rdata)
         if (pressures_.empty() || pressures_.rbegin()->first != logp) {
             // starting a new group
             pressures_[logp] = std::make_pair(j, j+1);
-            rateCount = 1;
         } else {
             // another rate expression at the same pressure
             pressures_[logp].second = j+1;
-            rateCount++;
         }
-        maxRates_ = std::max(rateCount, maxRates_);
 
         j++;
-        A_.push_back(iter->second[0]);
-        n_.push_back(iter->second[1]);
-        Ea_.push_back(iter->second[2]);
-    }
-
-    // For pressures with only one Arrhenius expression, it is more
-    // efficient to work with log(A)
-    for (pressureIter iter = pressures_.begin();
-            iter != pressures_.end();
-            iter++) {
-        if (iter->second.first == iter->second.second - 1) {
-            A_[iter->second.first] = std::log(A_[iter->second.first]);
-        }
+        rates_.push_back(Arrhenius(iter->second[0], iter->second[1],
+                                   iter->second[2]));
     }
 
     // Duplicate the first and last groups to handle P < P_0 and P > P_N
     pressures_.insert(std::make_pair(-1000.0, pressures_.begin()->second));
     pressures_.insert(std::make_pair(1000.0, pressures_.rbegin()->second));
-
-    // Resize work arrays
-    A1_.resize(maxRates_);
-    A2_.resize(maxRates_);
-    n1_.resize(maxRates_);
-    n2_.resize(maxRates_);
-    Ea1_.resize(maxRates_);
-    Ea2_.resize(maxRates_);
 
     if (rdata.validate) {
         validate(rdata.equation);
@@ -205,13 +180,10 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     : logP_(-1000)
     , logP1_(1000)
     , logP2_(-1000)
-    , m1_(npos)
-    , m2_(npos)
     , rDeltaP_(-1.0)
-    , maxRates_(1)
 {
     size_t j = 0;
-    size_t rateCount = 0;
+    rates_.reserve(rates.size());
     // Insert intermediate pressures
     for (std::multimap<double, Arrhenius>::const_iterator iter = rates.begin();
             iter != rates.end();
@@ -220,41 +192,18 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
         if (pressures_.empty() || pressures_.rbegin()->first != logp) {
             // starting a new group
             pressures_[logp] = std::make_pair(j, j+1);
-            rateCount = 1;
         } else {
             // another rate expression at the same pressure
             pressures_[logp].second = j+1;
-            rateCount++;
         }
-        maxRates_ = std::max(rateCount, maxRates_);
 
         j++;
-        A_.push_back(iter->second.preExponentialFactor());
-        n_.push_back(iter->second.temperatureExponent());
-        Ea_.push_back(iter->second.activationEnergy_R());
-    }
-
-    // For pressures with only one Arrhenius expression, it is more
-    // efficient to work with log(A)
-    for (pressureIter iter = pressures_.begin();
-            iter != pressures_.end();
-            iter++) {
-        if (iter->second.first == iter->second.second - 1) {
-            A_[iter->second.first] = std::log(A_[iter->second.first]);
-        }
+        rates_.push_back(iter->second);
     }
 
     // Duplicate the first and last groups to handle P < P_0 and P > P_N
     pressures_.insert(std::make_pair(-1000.0, pressures_.begin()->second));
     pressures_.insert(std::make_pair(1000.0, pressures_.rbegin()->second));
-
-    // Resize work arrays
-    A1_.resize(maxRates_);
-    A2_.resize(maxRates_);
-    n1_.resize(maxRates_);
-    n2_.resize(maxRates_);
-    Ea1_.resize(maxRates_);
-    Ea2_.resize(maxRates_);
 }
 
 void Plog::validate(const std::string& equation)

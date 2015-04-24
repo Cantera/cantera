@@ -72,6 +72,13 @@ public:
     }
 
     /**
+     * Update the value of the natural logarithm of the rate constant.
+     */
+    doublereal updateLog(doublereal logT, doublereal recipT) const {
+        return m_logA + m_b*logT - m_E*recipT;
+    }
+
+    /**
      * Update the value the rate constant.
      *
      * This function returns the actual value of the rate constant.
@@ -337,23 +344,13 @@ public:
 
         // upper interpolation pressure
         logP2_ = iter->first;
-        size_t start = iter->second.first;
-        m2_ = iter->second.second - start;
-        for (size_t m = 0; m < m2_; m++) {
-            A2_[m] = A_[start+m];
-            n2_[m] = n_[start+m];
-            Ea2_[m] = Ea_[start+m];
-        }
+        ihigh1_ = iter->second.first;
+        ihigh2_ = iter->second.second;
 
         // lower interpolation pressure
         logP1_ = (--iter)->first;
-        start = iter->second.first;
-        m1_ = iter->second.second - start;
-        for (size_t m = 0; m < m1_; m++) {
-            A1_[m] = A_[start+m];
-            n1_[m] = n_[start+m];
-            Ea1_[m] = Ea_[start+m];
-        }
+        ilow1_ = iter->second.first;
+        ilow2_ = iter->second.second;
 
         rDeltaP_ = 1.0 / (logP2_ - logP1_);
     }
@@ -373,22 +370,22 @@ public:
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         double log_k1, log_k2;
-        if (m1_ == 1) {
-            log_k1 = A1_[0] + n1_[0] * logT - Ea1_[0] * recipT;
+        if (ilow1_ == ilow2_) {
+            log_k1 = rates_[ilow1_].updateLog(logT, recipT);
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
-            for (size_t m = 0; m < m1_; m++) {
-                k += A1_[m] * std::exp(n1_[m] * logT - Ea1_[m] * recipT);
+            for (size_t i = ilow1_; i < ilow2_; i++) {
+                k += rates_[i].updateRC(logT, recipT);
             }
             log_k1 = std::log(k);
         }
 
-        if (m2_ == 1) {
-            log_k2 = A2_[0] + n2_[0] * logT - Ea2_[0] * recipT;
+        if (ihigh1_ == ihigh2_) {
+            log_k2 = rates_[ihigh1_].updateLog(logT, recipT);
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
-            for (size_t m = 0; m < m2_; m++) {
-                k += A2_[m] * std::exp(n2_[m] * logT - Ea2_[m] * recipT);
+            for (size_t i = ihigh1_; i < ihigh2_; i++) {
+                k += rates_[i].updateRC(logT, recipT);
             }
             log_k2 = std::log(k);
         }
@@ -413,28 +410,23 @@ public:
     void validate(const std::string& equation);
 
 protected:
-    //! log(p) to (index range) in A_, n, Ea vectors
+    //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t> > pressures_;
     typedef std::map<double, std::pair<size_t, size_t> >::iterator pressureIter;
 
-    vector_fp A_; //!< Pre-exponential factor at each pressure (or log(A))
-    vector_fp n_; //!< Temperature exponent at each pressure [dimensionless]
-    vector_fp Ea_; //!< Activation energy at each pressure [K]
+    // Rate expressions which are referenced by the indices stored in pressures_
+    std::vector<Arrhenius> rates_;
 
     double logP_; //!< log(p) at the current state
     double logP1_, logP2_; //!< log(p) at the lower / upper pressure reference
 
-    //! Pre-exponential factors at lower / upper pressure reference.
-    //! Stored as log(A) when there is only one at the corresponding pressure.
-    vector_fp A1_, A2_;
-    vector_fp n1_, n2_; //!< n at lower / upper pressure reference
-    vector_fp Ea1_, Ea2_; //!< Activation energy at lower / upper pressure reference
+    //! Indices to the ranges within rates_ for the lower / upper pressure, such
+    //! that rates_[ilow1_] through rates_[ilow2_] (inclusive) are the rates
+    //! expressions which are combined to form the rate at the lower reference
+    //! pressure.
+    size_t ilow1_, ilow2_, ihigh1_, ihigh2_;
 
-    //! Number of Arrhenius expressions at lower / upper pressure references
-    size_t m1_, m2_;
     double rDeltaP_; //!< reciprocal of (logP2 - logP1)
-
-    size_t maxRates_; //!< The maximum number of rates at any given pressure
 };
 
 
