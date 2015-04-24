@@ -68,9 +68,9 @@ cdef class Reaction:
 
 
 cdef class Arrhenius:
-    def __cinit__(self, init=True):
+    def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
-            self.rate = new CxxArrhenius()
+            self.rate = new CxxArrhenius(A, b, E)
             self.reaction = None
 
     def __dealloc__(self):
@@ -94,6 +94,11 @@ cdef wrapArrhenius(CxxArrhenius* rate, Reaction reaction):
     r = Arrhenius(init=False)
     r.rate = rate
     r.reaction = reaction
+    return r
+
+cdef copyArrhenius(CxxArrhenius* rate):
+    r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
+                  rate.activationEnergy_R())
     return r
 
 
@@ -183,6 +188,17 @@ cdef class ChemicallyActivatedReaction(FalloffReaction):
     pass
 
 
+cdef class PlogReaction(Reaction):
+    property rates:
+        def __get__(self):
+            cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
+            rates = []
+            cdef vector[pair[double,CxxArrhenius]] cxxrates = r.rate.rates()
+            cdef pair[double,CxxArrhenius] p_rate
+            for p_rate in cxxrates:
+                rates.append((p_rate.first,copyArrhenius(&p_rate.second)))
+            return rates
+
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
     """
     Wrap a C++ Reaction object with a Python object of the correct derived type.
@@ -197,6 +213,8 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
         R = FalloffReaction(init=False)
     elif reaction_type == CHEMACT_RXN:
         R = ChemicallyActivatedReaction(init=False)
+    elif reaction_type == PLOG_RXN:
+        R = PlogReaction(init=False)
     else:
         R = Reaction(init=False)
 

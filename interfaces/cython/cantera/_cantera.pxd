@@ -1,6 +1,7 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map as stdmap
+from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
 
@@ -252,6 +253,12 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxArrhenius high_rate
         CxxThirdBody third_body
         shared_ptr[CxxFalloff] falloff
+
+    cdef cppclass CxxPlog "Cantera::Plog":
+        vector[pair[double,CxxArrhenius]] rates()
+
+    cdef cppclass CxxPlogReaction "Cantera::PlogReaction" (CxxReaction):
+        CxxPlog rate
 
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
