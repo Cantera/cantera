@@ -310,7 +310,8 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
-
+//! Pressure-dependent reaction rate expressed by logarithmically interpolating
+//! between Arrhenius rate expressions at various pressures.
 class Plog
 {
 public:
@@ -433,7 +434,8 @@ protected:
     double rDeltaP_; //!< reciprocal of (logP2 - logP1)
 };
 
-
+//! Pressure-dependent rate expression where the rate coefficient is expressed
+//! as a bivariate Chebyshev polynomial in temperature and pressure.
 class ChebyshevRate
 {
 public:
