@@ -409,6 +409,10 @@ public:
     //! has a negative pre-exponential factor.
     void validate(const std::string& equation);
 
+    //! Return the pressures and Arrhenius expressions which comprise this
+    //! reaction.
+    std::vector<std::pair<double, Arrhenius> > rates() const;
+
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t> > pressures_;
