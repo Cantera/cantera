@@ -492,6 +492,16 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
         R.is_sticking_coefficient = true;
         R.sticking_species = arr["species"];
     }
+    std::vector<XML_Node*> cov = arr.getChildren("coverage");
+    for (std::vector<XML_Node*>::iterator iter = cov.begin();
+         iter != cov.end();
+         ++iter)
+    {
+        CoverageDependency& cdep = R.coverage_deps[(*iter)->attrib("species")];
+        cdep.a = getFloat(**iter, "a", "toSI");
+        cdep.m = getFloat(**iter, "m");
+        cdep.E = getFloat(**iter, "e", "actEnergy") / GasConstant;
+    }
     setupElementaryReaction(R, rxn_node);
 }
 
