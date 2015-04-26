@@ -272,6 +272,16 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction":
         CxxChebyshevRate rate
 
+    cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
+        double a
+        double E
+        double m
+
+    cdef cppclass CxxInterfaceReaction "Cantera::InterfaceReaction" (CxxElementaryReaction):
+        stdmap[string, CxxCoverageDependency] coverage_deps
+        cbool is_sticking_coefficient
+        string sticking_species
+
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":

@@ -238,6 +238,40 @@ cdef class ChebyshevReaction(Reaction):
             return c.reshape((r.rate.nTemperature(), r.rate.nPressure()))
 
 
+cdef class CoverageDepenency:
+    cdef public double a
+    cdef public double m
+    cdef public double E
+
+    def __init__(self, a, m, E):
+        self.a = a
+        self.m = m
+        self.E = E
+
+
+cdef class InterfaceReaction(ElementaryReaction):
+    property coverage_deps:
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            print('ncov:', r.coverage_deps.size())
+            deps = {}
+            cdef pair[string,CxxCoverageDependency] item
+            for item in r.coverage_deps:
+                deps[pystr(item.first)] = CoverageDepenency(
+                    item.second.a, item.second.m, item.second.E * gas_constant)
+            return deps
+
+    property is_sticking_coefficient:
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            return r.is_sticking_coefficient
+
+    property sticking_species:
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            return pystr(r.sticking_species)
+
+
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
     """
     Wrap a C++ Reaction object with a Python object of the correct derived type.
@@ -256,6 +290,8 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
         R = PlogReaction(init=False)
     elif reaction_type == CHEBYSHEV_RXN:
         R = ChebyshevReaction(init=False)
+    elif reaction_type == INTERFACE_RXN:
+        R = InterfaceReaction(init=False)
     else:
         R = Reaction(init=False)
 
