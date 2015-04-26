@@ -144,4 +144,23 @@ TEST_F(FracCoeffTest, EquilibriumConstants)
     EXPECT_NEAR(exp(-deltaG0_1/RT) * pow(pRef/RT, -0.5), Kc[1], 1e-13 * Kc[1]);
 }
 
+TEST(InterfaceReaction, CoverageDependency) {
+    IdealGasPhase gas("ptcombust.cti", "gas");
+    SurfPhase surf("ptcombust.cti", "Pt_surf");
+    std::vector<ThermoPhase*> phases;
+    phases.push_back(&gas);
+    phases.push_back(&surf);
+    shared_ptr<Kinetics> kin(newKineticsMgr(surf.xml(), phases));
+    ASSERT_EQ(kin->nReactions(), 25);
+
+    double T = 500;
+    surf.setState_TP(T, 101325);
+    surf.setCoveragesByName("PT(S):0.7, H(S):0.3");
+    vector_fp kf(kin->nReactions());
+    kin->getFwdRateConstants(&kf[0]);
+    EXPECT_NEAR(kf[0], 4.4579e7 * pow(T, 0.5), 1e-14*kf[0]);
+    // Energies in XML file are converted from J/mol to J/kmol
+    EXPECT_NEAR(kf[1], 3.7e20 * exp(-(67.4e6-6e6*0.3)/(GasConstant*T)), 1e-14*kf[1]);
+}
+
 }
