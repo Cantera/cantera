@@ -966,7 +966,7 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     for (map<string, CoverageDependency>::const_iterator iter = r.coverage_deps.begin();
          iter != r.coverage_deps.end();
          ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
+        size_t k = thermo(reactionPhaseIndex()).speciesIndex(iter->first);
         rate.addCoverageDependence(k, iter->second.a, iter->second.m, iter->second.E);
     }
 
