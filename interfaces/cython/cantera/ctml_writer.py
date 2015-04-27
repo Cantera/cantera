@@ -995,7 +995,6 @@ class Arrhenius(rate_expression):
                  b = 0.0,
                  E = 0.0,
                  coverage = [],
-                 rate_type = '',
                  n = None):
         """
         :param A:
@@ -1012,8 +1011,6 @@ class Arrhenius(rate_expression):
             parameters. For multiple coverage dependencies, a list of lists
             containing the individual sets of coverage parameters. Only used for
             surface and edge reactions.
-        :param rate_type:
-
         :param n:
             The temperature exponent. Dimensionless. Default: 0.0. Deprecated usage
             provided for compatibility.
@@ -1032,7 +1029,6 @@ class Arrhenius(rate_expression):
                 "b = XXX.")
 
         self._c = [A, b, E]
-        self._type = rate_type
 
         if coverage:
             if isinstance(coverage[0], str):
@@ -1046,33 +1042,19 @@ class Arrhenius(rate_expression):
             self._cov = None
 
 
-    def build(self, p, units_factor = 1.0,
-              gas_species = [], name = '', rxn_phase = None):
-
-        a = p.addChild('Arrhenius')
-        if name: a['name'] = name
-
-        # check for sticking probability
-        if self._type:
-            a['type'] = self._type
-            if self._type == 'stick':
-                ngas = len(gas_species)
-                if ngas != 1:
-                    raise CTI_Error("""
-Sticking probabilities can only be used for reactions with one gas-phase
-reactant, but this reaction has """+str(ngas)+': '+str(gas_species))
-                else:
-                    a['species'] = gas_species[0]
-                    units_factor = 1.0
-
+    def build(self, p, name='', a=None):
+        if a is None:
+            a = p.addChild('Arrhenius')
+        if name:
+            a['name'] = name
 
         # if a pure number is entered for A, multiply by the conversion
         # factor to SI and write it to CTML as a pure number. Otherwise,
         # pass it as-is through to CTML with the unit string.
         if isnum(self._c[0]):
-            addFloat(a,'A',self._c[0]*units_factor, fmt = '%14.6E')
+            addFloat(a,'A',self._c[0]*self.unit_factor, fmt = '%14.6E')
         elif len(self._c[0]) == 2 and self._c[0][1] == '/site':
-            addFloat(a,'A',self._c[0][0]/rxn_phase._sitedens,
+            addFloat(a,'A',self._c[0][0]/self.rxn_phase._sitedens,
                      fmt = '%14.6E')
         else:
             addFloat(a,'A',self._c[0], fmt = '%14.6E')
@@ -1094,9 +1076,19 @@ reactant, but this reaction has """+str(ngas)+': '+str(gas_species))
                 c.addChild('m', repr(cov[2]))
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
-def stick(A = 0.0, b = 0.0, E = 0.0, coverage = []):
-    return Arrhenius(A = A, b = b, E = E, coverage = coverage, rate_type = 'stick')
+class stick(Arrhenius):
+    def build(self, p, name=''):
+        a = p.addChild('Arrhenius')
+        a['type'] = 'stick'
+        ngas = len(self.gas_species)
+        if ngas != 1:
+            raise CTI_Error("Sticking probabilities can only be used for "
+                "reactions with one gas-phase reactant, but this reaction has "
+                + str(ngas) + ': ' + str(self.gas_species))
 
+        a['species'] = self.gas_species[0]
+        self.unit_factor = 1.0
+        Arrhenius.build(self, p, name, a)
 
 def getPairs(s):
     toks = s.split()
@@ -1292,8 +1284,11 @@ class reaction(object):
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], b = kf[1], E = kf[2])
-            k.build(kfnode, self.unit_factor(), gas_species = self._igspecies,
-                    name = nm, rxn_phase = self._rxnphase)
+            if isinstance(kf, stick):
+                kf.gas_species = self._igspecies
+                kf.rxn_phase = self._rxnphase
+            k.unit_factor = self.unit_factor()
+            k.build(kfnode, name=nm)
 
             if self._type == 'falloff':
                 # set values for low-pressure rate coeff if falloff rxn
