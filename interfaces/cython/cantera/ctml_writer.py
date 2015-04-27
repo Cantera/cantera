@@ -1188,21 +1188,27 @@ class reaction(object):
             nm = -999
             nl = -999
 
-            mindim = 4
-            for ph in _phases:
-                if ph.has_species(s):
-                    nm, nl = ph.conc_dim()
-                    if ph.is_ideal_gas():
-                        self._igspecies.append(s)
-                    if not ph in rxnph:
-                        rxnph.append(ph)
-                        self._dims[ph._dim] += 1
-                        if ph._dim < mindim:
-                            self._rxnphase = ph
-                            mindim = ph._dim
-                    break
-            if nm == -999:
-                raise CTI_Error("species "+s+" not found")
+            if _phases:
+                mindim = 4
+                for ph in _phases:
+                    if ph.has_species(s):
+                        nm, nl = ph.conc_dim()
+                        if ph.is_ideal_gas():
+                            self._igspecies.append(s)
+                        if not ph in rxnph:
+                            rxnph.append(ph)
+                            self._dims[ph._dim] += 1
+                            if ph._dim < mindim:
+                                self._rxnphase = ph
+                                mindim = ph._dim
+                        break
+                if nm == -999:
+                    raise CTI_Error("species "+s+" not found")
+            else:
+                # If no phases are defined, assume all reactants are in bulk
+                # phases
+                nm = 1
+                nl = -3
 
             self.mdim += nm*ns
             self.ldim += nl*ns
