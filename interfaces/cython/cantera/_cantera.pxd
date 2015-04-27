@@ -192,6 +192,9 @@ cdef extern from "cantera/thermo/SurfPhase.h":
 
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
+    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&)
+    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&)
+
     cdef cppclass CxxArrhenius "Cantera::Arrhenius":
         CxxArrhenius()
         CxxArrhenius(double, double, double)

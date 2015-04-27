@@ -673,4 +673,19 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     }
 }
 
+std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node)
+{
+    std::vector<shared_ptr<Reaction> > all_reactions;
+    std::vector<XML_Node*> reaction_nodes =
+        node.child("reactionData").getChildren("reaction");
+
+    for (std::vector<XML_Node*>::iterator iter = reaction_nodes.begin();
+         iter != reaction_nodes.end();
+         ++iter)
+    {
+        all_reactions.push_back(newReaction(**iter));
+    }
+    return all_reactions;
+}
+
 }

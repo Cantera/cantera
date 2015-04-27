@@ -255,6 +255,27 @@ public:
 
 //! Create a new Reaction object for the reaction defined in `rxn_node`
 shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
+
+//! Create Reaction objects for all <reaction> nodes in an XML document.
+//!
+//! The `<reaction>` nodes are assumed to be children of the `<reactionData>`
+//! node in an XML document with a `<ctml>` root node, as in the case of XML
+//! files produced by conversion from CTI files.
+//!
+//! This function can be used in combination with get_XML_File() and
+//! get_XML_from_string() to get Reaction objects from either a file or a
+//! string, respectively, where the string or file is formatted as either CTI
+//! or XML.
+//!
+//! If Reaction objects are being created from a CTI definition that does not
+//! contain corresponding phase definitions, then one of the following must be
+//! true, or the resulting rate constants will be incorrect:
+//!
+//!   - The rate constants are expressed in (kmol, meter, second) units
+//!   - A `units` directive is included **and** all reactions take place in
+//!     bulk (e.g. gas) phases
+std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node);
+
 }
 
 #endif

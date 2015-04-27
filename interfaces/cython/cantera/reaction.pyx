@@ -22,6 +22,61 @@ cdef class Reaction:
         self._reaction = other
         self.reaction = self._reaction.get()
 
+    @staticmethod
+    def fromCti(text):
+        """
+        Create a Reaction object from its CTI string representation.
+        """
+        cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
+        assert cxx_reactions.size() == 1, cxx_reactions.size()
+        return wrapReaction(cxx_reactions[0])
+
+    @staticmethod
+    def fromXml(text):
+        """
+        Create a Reaction object from its XML string representation.
+        """
+        cxx_reaction = CxxNewReaction(deref(CxxGetXmlFromString(stringify(text))))
+        return wrapReaction(cxx_reaction)
+
+    @staticmethod
+    def listFromFile(filename):
+        """
+        Create a list of Reaction objects from all of the reactions defined in a
+        CTI or XML file.
+
+        Directories on Cantera's input file path will be searched for the
+        specified file.
+
+        In the case of an XML file, the <reactions> nodes are assumed to be
+        children of the <reactionsData> node in a document with a <ctml> root
+        node, as in the XML files produced by conversion from CTI files.
+        """
+        cxx_reactions = CxxGetReactions(deref(CxxGetXmlFile(stringify(filename))))
+        return [wrapReaction(r) for r in cxx_reactions]
+
+    @staticmethod
+    def listFromXml(text):
+        """
+        Create a list of Reaction objects from all the reaction defined in an
+        XML string. The <reaction> nodes are assumed to be children of the
+        <reactionData> node in a document with a <ctml> root node, as in the XML
+        files produced by conversion from CTI files.
+        """
+        cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
+        return [wrapReaction(r) for r in cxx_reactions]
+
+    @staticmethod
+    def listFromCti(text):
+        """
+        Create a list of Species objects from all the species defined in a CTI
+        string.
+        """
+        # Currently identical to listFromXml since get_XML_from_string is able
+        # to distinguish between CTI and XML.
+        cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
+        return [wrapReaction(r) for r in cxx_reactions]
+
     property reactant_string:
         def __get__(self):
             return pystr(self.reaction.reactantString())

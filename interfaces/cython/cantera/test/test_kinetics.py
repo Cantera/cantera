@@ -510,3 +510,52 @@ class TestDuplicateReactions(utilities.CanteraTest):
     def test_declared_duplicate(self):
         gas = ct.Solution(self.infile, 'I')
         self.assertEqual(gas.n_reactions, 2)
+
+
+class TestReaction(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.gas = ct.Solution('h2o2.xml')
+
+    def test_fromCti(self):
+        r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
+            [1.200000e+11, -1.0, 0.0], efficiencies='AR:0.83 H2:2.4 H2O:15.4')''')
+
+        self.assertTrue(isinstance(r, ct.ThirdBodyReaction))
+        self.assertEqual(r.reactants['O'], 2)
+        self.assertEqual(r.products['O2'], 1)
+        self.assertEqual(r.efficiencies['H2O'], 15.4)
+        self.assertEqual(r.rate.temperature_exponent, -1.0)
+
+    def test_fromXml(self):
+        import xml.etree.ElementTree as ET
+        root = ET.parse('../../build/data/h2o2.xml').getroot()
+        rxn_node = root.find('.//reaction[@id="0001"]')
+        r = ct.Reaction.fromXml(ET.tostring(rxn_node))
+
+        self.assertTrue(isinstance(r, ct.ThirdBodyReaction))
+        self.assertEqual(r.reactants['O'], 2)
+        self.assertEqual(r.products['O2'], 1)
+        self.assertEqual(r.efficiencies['H2O'], 15.4)
+        self.assertEqual(r.rate.temperature_exponent, -1.0)
+
+    def test_listFromFile(self):
+        R = ct.Reaction.listFromFile('h2o2.xml')
+        eq1 = [r.equation for r in R]
+        eq2 = [self.gas.reaction(i).equation
+               for i in range(self.gas.n_reactions)]
+        self.assertEqual(eq1, eq2)
+
+    def test_listFromCti(self):
+        R = ct.Reaction.listFromCti(open('../../build/data/h2o2.cti').read())
+        eq1 = [r.equation for r in R]
+        eq2 = [self.gas.reaction(i).equation
+               for i in range(self.gas.n_reactions)]
+        self.assertEqual(eq1, eq2)
+
+    def test_listFromXml(self):
+        R = ct.Reaction.listFromCti(open('../../build/data/h2o2.xml').read())
+        eq1 = [r.equation for r in R]
+        eq2 = [self.gas.reaction(i).equation
+               for i in range(self.gas.n_reactions)]
+        self.assertEqual(eq1, eq2)
