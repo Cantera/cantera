@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import re
+import itertools
 
 import cantera as ct
 from . import utilities
@@ -141,6 +142,86 @@ class TestKinetics(utilities.CanteraTest):
         self.assertArrayNear(self.phase.delta_standard_enthalpy -
                              self.phase.delta_standard_entropy * self.phase.T,
                              self.phase.delta_standard_gibbs)
+
+
+class KineticsFromReactions(utilities.CanteraTest):
+    """
+    Test for Kinetics objects which are constructed directly from Reaction
+    objects instead of from CTI/XML files.
+    """
+    def test_idealgas(self):
+        gas1 = ct.Solution('h2o2.xml')
+
+        S = ct.Species.listFromFile('h2o2.xml')
+        R = ct.Reaction.listFromFile('h2o2.xml')
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=S, reactions=R)
+
+        self.assertEqual(gas1.n_reactions, gas2.n_reactions)
+        gas1.TPY = 800, 2*ct.one_atm, 'H2:0.3, O2:0.7, OH:2e-4, O:1e-3, H:5e-5'
+        gas2.TPY = gas1.TPY
+
+        self.assertTrue((gas1.reactant_stoich_coeffs() ==
+                         gas2.reactant_stoich_coeffs()).all())
+        self.assertTrue((gas1.product_stoich_coeffs() ==
+                         gas2.product_stoich_coeffs()).all())
+
+        self.assertArrayNear(gas1.delta_gibbs,
+                             gas2.delta_gibbs)
+        self.assertArrayNear(gas1.reverse_rate_constants,
+                             gas2.reverse_rate_constants)
+        self.assertArrayNear(gas1.net_production_rates,
+                             gas2.net_production_rates)
+
+    def test_surface(self):
+        gas_species = ct.Species.listFromFile('gri30.xml')
+        surf_species = ct.Species.listFromFile('ptcombust.xml')
+        reactions = ct.Reaction.listFromFile('ptcombust.xml')
+
+        gas = ct.Solution('ptcombust.xml', 'gas')
+        surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+
+        surf2 = ct.Interface(thermo='Surface', kinetics='interface',
+                             species=surf_species, reactions=reactions,
+                             phases=[gas])
+        surf1.site_density = surf2.site_density = 5e-9
+        gas.TP = surf2.TP = surf1.TP = 900, 2*ct.one_atm
+        surf2.concentrations = surf1.concentrations
+
+        self.assertEqual(surf1.n_reactions, surf2.n_reactions)
+
+        for k,i in itertools.product(['PT(S)','H2','OH','OH(S)'],
+                                     range(surf1.n_species)):
+            self.assertEqual(surf1.reactant_stoich_coeff(k,i),
+                             surf2.reactant_stoich_coeff(k,i))
+            self.assertEqual(surf1.product_stoich_coeff(k,i),
+                             surf2.product_stoich_coeff(k,i))
+
+        for i in range(surf1.n_reactions):
+            r1 = surf1.reaction(i)
+            r2 = surf2.reaction(i)
+            self.assertEqual(r1.reactants, r2.reactants)
+            self.assertEqual(r1.products, r2.products)
+            self.assertEqual(r1.rate.preexponential_factor,
+                             r2.rate.preexponential_factor)
+            self.assertEqual(r1.rate.temperature_exponent,
+                             r2.rate.temperature_exponent)
+            self.assertEqual(r1.rate.activation_energy,
+                             r2.rate.activation_energy)
+
+        self.assertArrayNear(surf1.delta_enthalpy,
+                             surf2.delta_enthalpy)
+        self.assertArrayNear(surf1.forward_rate_constants,
+                             surf2.forward_rate_constants)
+        self.assertArrayNear(surf1.reverse_rate_constants,
+                             surf2.reverse_rate_constants)
+
+        rop1 = surf1.net_production_rates
+        rop2 = surf2.net_production_rates
+        for k in gas.species_names + surf1.species_names:
+            k1 = surf1.kinetics_species_index(k)
+            k2 = surf2.kinetics_species_index(k)
+            self.assertNear(rop1[k1], rop2[k2])
 
 
 class KineticsRepeatability(utilities.CanteraTest):

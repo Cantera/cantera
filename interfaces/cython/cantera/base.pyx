@@ -1,6 +1,7 @@
 cdef class _SolutionBase:
     def __cinit__(self, infile='', phaseid='', phases=(), origin=None,
-                  source=None, thermo=None, species=(), **kwargs):
+                  source=None, thermo=None, species=(), kinetics=None,
+                  reactions=(), **kwargs):
         # Shallow copy of an existing Solution (for slicing support)
         cdef _SolutionBase other
         if origin is not None:
@@ -21,7 +22,7 @@ cdef class _SolutionBase:
         if infile or source:
             self._init_cti_xml(infile, phaseid, phases, source)
         elif thermo and species:
-            self._init_parts(thermo, species)
+            self._init_parts(thermo, species, kinetics, phases, reactions)
         else:
             raise ValueError("Arguments are insufficient to define a phase")
 
@@ -72,7 +73,7 @@ cdef class _SolutionBase:
         else:
             self.kinetics = NULL
 
-    def _init_parts(self, thermo, species):
+    def _init_parts(self, thermo, species, kinetics, phases, reactions):
         """
         Instantiate a set of new Cantera C++ objects based on a string defining
         the model type and a list of Species objects.
@@ -84,9 +85,21 @@ cdef class _SolutionBase:
             self.thermo.addSpecies(S._species)
         self.thermo.initThermo()
 
+        if not kinetics:
+            kinetics = "none"
+
+        cdef ThermoPhase phase
+        cdef Reaction reaction
         if isinstance(self, Kinetics):
-            # Not yet implemented
-            self.kinetics = CxxNewKinetics(stringify("none"))
+            self.kinetics = CxxNewKinetics(stringify(kinetics))
+            self.kinetics.addPhase(deref(self.thermo))
+            for phase in phases:
+                self.kinetics.addPhase(deref(phase.thermo))
+            self.kinetics.init()
+            for reaction in reactions:
+                self.kinetics.addReaction(reaction._reaction)
+            self.kinetics.finalize()
+
 
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)

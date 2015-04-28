@@ -300,6 +300,11 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         CxxThermoPhase& thermo(int)
 
+        void addPhase(CxxThermoPhase&) except +
+        void init() except +
+        void addReaction(shared_ptr[CxxReaction]) except +
+        void finalize() except +
+
         shared_ptr[CxxReaction] reaction(size_t) except +
         cbool isReversible(int) except +
         int reactionType(int) except +
