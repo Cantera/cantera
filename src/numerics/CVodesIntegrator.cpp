@@ -465,6 +465,7 @@ string CVodesIntegrator::getErrorInfo(int N)
     N_VDestroy(errs);
     N_VDestroy(errw);
 
+    N = std::min(N, static_cast<int>(m_neq));
     sort(weightedErrors.begin(), weightedErrors.end());
     stringstream s;
     for (int i=0; i<N; i++) {
