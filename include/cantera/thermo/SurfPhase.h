@@ -148,7 +148,7 @@ public:
      *  @param n0 Site Density of the Surface Phase
      *            Units: kmol m-2.
      */
-    SurfPhase(doublereal n0 = 0.0);
+    SurfPhase(doublereal n0 = 1.0);
 
     //! Construct and initialize a SurfPhase ThermoPhase object
     //! directly from an ASCII input file

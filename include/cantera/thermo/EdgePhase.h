@@ -33,7 +33,7 @@ public:
     /*!
      * @param n0  Surface site density (kmol m-1).
      */
-    EdgePhase(doublereal n0 = 0.0);
+    EdgePhase(doublereal n0=1.0);
 
     //! Copy Constructor
     /*!

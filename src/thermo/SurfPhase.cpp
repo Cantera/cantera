@@ -20,19 +20,13 @@ using namespace std;
 namespace Cantera
 {
 SurfPhase::SurfPhase(doublereal n0):
-    m_n0(n0),
-    m_logn0(0.0),
     m_press(OneAtm)
 {
-    if (n0 > 0.0) {
-        m_logn0 = log(n0);
-    }
+    setSiteDensity(n0);
     setNDim(2);
 }
 
 SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
-    m_n0(0.0),
-    m_logn0(0.0),
     m_press(OneAtm)
 {
     XML_Node* root = get_XML_File(infile);
@@ -54,8 +48,6 @@ SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
 }
 
 SurfPhase::SurfPhase(XML_Node& xmlphase) :
-    m_n0(0.0),
-    m_logn0(0.0),
     m_press(OneAtm)
 {
     string model = xmlphase.child("thermo")["model"];
@@ -284,7 +276,7 @@ void SurfPhase::setSiteDensity(doublereal n0)
 {
     if (n0 <= 0.0) {
         throw CanteraError("SurfPhase::setSiteDensity",
-                           "Bad value for parameter");
+                           "Site density must be positive. Got " + fp2str(n0));
     }
     m_n0 = n0;
     m_logn0 = log(m_n0);
@@ -373,11 +365,7 @@ void SurfPhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","Surface");
     doublereal n = getFloat(eosdata, "site_density", "toSI");
-    if (n <= 0.0)
-        throw CanteraError("SurfPhase::setParametersFromXML",
-                           "missing or negative site density");
-    m_n0 = n;
-    m_logn0 = log(m_n0);
+    setSiteDensity(n);
 }
 
 void SurfPhase::setStateFromXML(const XML_Node& state)
@@ -424,11 +412,7 @@ void EdgePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","Edge");
     doublereal n = getFloat(eosdata, "site_density", "toSI");
-    if (n <= 0.0)
-        throw CanteraError("EdgePhase::setParametersFromXML",
-                           "missing or negative site density");
-    m_n0 = n;
-    m_logn0 = log(m_n0);
+    setSiteDensity(n);
 }
 
 }
