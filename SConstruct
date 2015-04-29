@@ -802,7 +802,9 @@ if not conf.CheckCXXHeader('cmath', '<>'):
 
 def get_expression_value(includes, expression):
     s = ['#include ' + i for i in includes]
-    s.extend(('#include <iostream>',
+    s.extend(('#define Q(x) #x',
+              '#define QUOTE(x) Q(x)',
+              '#include <iostream>',
               'int main(int argc, char** argv) {',
               '    std::cout << %s << std::endl;' % expression,
               '    return 0;',
@@ -863,23 +865,30 @@ env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     # Determine Sundials version
     sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
-                                                   'SUNDIALS_PACKAGE_VERSION')
+                                                   'QUOTE(SUNDIALS_PACKAGE_VERSION)')
     retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
     if retcode == 0:
         config_error("Failed to determine Sundials version.")
+    sundials_version = sundials_version.strip(' "\n')
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
-    env['sundials_version'] = '.'.join(sundials_version.strip().split('.')[:2])
-    print """INFO: Using Sundials version %s.""" % sundials_version.strip()
+    env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
+    print """INFO: Using Sundials version %s.""" % sundials_version
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
-    sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
-                                                   'SUNDIALS_BLAS_LAPACK')
-    retcode, has_sundials_lapack = conf.TryRun(sundials_blas_lapack, '.cpp')
-    if retcode == 0:
-        config_error("Failed to determine Sundials BLAS/LAPACK.")
-    env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
-    
+    if LooseVersion(env['sundials_version']) < LooseVersion('2.6'):
+        # In Sundials 2.4 / 2.5, SUNDIALS_BLAS_LAPACK is either 0 or 1
+        sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
+                                                       'SUNDIALS_BLAS_LAPACK')
+        retcode, has_sundials_lapack = conf.TryRun(sundials_blas_lapack, '.cpp')
+        if retcode == 0:
+            config_error("Failed to determine Sundials BLAS/LAPACK.")
+        env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
+    else:
+        # In Sundials 2.6, SUNDIALS_BLAS_LAPACK is either defined or undefined
+        env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
+                '#include "sundials/sundials_config.h"', 'C++')
+
     #In the case where a user is trying to link Cantera to an exteral BLAS/LAPACK
     #library, but Sundials was configured without this support, print a Warning.
     if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
@@ -1122,7 +1131,7 @@ if env['use_sundials'] == 'default':
         env['use_sundials'] = 'n'
 elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
     config_error("Unable to find Sundials headers and / or libraries.")
-elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.4','2.5'):
+elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.4','2.5','2.6'):
     print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
     sys.exit(1)
 

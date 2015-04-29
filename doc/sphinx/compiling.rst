@@ -478,11 +478,16 @@ Optional Programs
   * Required to enable some features such as sensitivity analysis.
   * Strongly recommended if using reactor network or 1D simulation capabilities.
   * https://computation.llnl.gov/casc/sundials/download/download.html
-  * Known to work with versions 2.4 and 2.5.
-  * To use Sundials with Cantera, you may need to compile it with the
-    ``-fPIC`` flag. You can specify this flag when configuring Sundials::
+  * Known to work with versions 2.4, 2.5 and 2.6.
+  * To use Sundials with Cantera on a Linux/Unix system, it must be compiled
+    with the ``-fPIC`` flag. You can specify this flag when configuring
+    Sundials (2.4 or 2.5)::
 
           configure --with-cflags=-fPIC
+
+    or Sundials 2.6::
+
+          cmake -DCMAKE_C_FLAGS=-fPIC <other command-line options>
 
   .. note:: If you are compiling Sundials 2.5.0 on Windows using CMake, you need
             to edit the ``CMakeLists.txt`` file first and change the lines::
