@@ -747,6 +747,7 @@ cdef class _SolutionBase:
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
+    cdef cbool is_slice
 
 cdef class ThermoPhase(_SolutionBase):
     cdef double _mass_factor(self)

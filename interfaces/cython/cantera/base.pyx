@@ -9,7 +9,8 @@ cdef class _SolutionBase:
 
             # keep a reference to the parent to prevent the underlying
             # C++ objects from being deleted
-            self.parent = other
+            self.parent = origin
+            self.is_slice = True
 
             self.thermo = other.thermo
             self.kinetics = other.kinetics
@@ -18,6 +19,8 @@ cdef class _SolutionBase:
             self.thermo_basis = other.thermo_basis
             self._selected_species = other._selected_species.copy()
             return
+
+        self.is_slice = False
 
         if infile or source:
             self._init_cti_xml(infile, phaseid, phases, source)
@@ -128,7 +131,7 @@ cdef class _SolutionBase:
 
     def __dealloc__(self):
         # only delete the C++ objects if this is the parent object
-        if self.parent is None:
+        if not self.is_slice:
             del self.thermo
             del self.kinetics
             del self.transport
