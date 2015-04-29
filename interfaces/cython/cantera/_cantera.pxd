@@ -257,6 +257,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxThirdBody third_body
         shared_ptr[CxxFalloff] falloff
 
+    cdef cppclass CxxChemicallyActivatedReaction "Cantera::ChemicallyActivatedReaction" (CxxFalloffReaction):
+        CxxChemicallyActivatedReaction()
+
     cdef cppclass CxxPlog "Cantera::Plog":
         vector[pair[double,CxxArrhenius]] rates()
 
@@ -272,7 +275,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         size_t nTemperature()
         vector[double]& coeffs()
 
-    cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction":
+    cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
         CxxChebyshevRate rate
 
     cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":

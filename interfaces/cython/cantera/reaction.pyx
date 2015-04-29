@@ -13,9 +13,11 @@ cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
 
 
 cdef class Reaction:
+    reaction_type = 0
+
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
-            self._reaction.reset(new CxxReaction(0))
+            self._reaction.reset(newReaction(self.reaction_type))
             self.reaction = self._reaction.get()
 
     cdef _assign(self, shared_ptr[CxxReaction] other):
@@ -158,6 +160,8 @@ cdef copyArrhenius(CxxArrhenius* rate):
 
 
 cdef class ElementaryReaction(Reaction):
+    reaction_type = ELEMENTARY_RXN
+
     property rate:
         def __get__(self):
             cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
@@ -165,6 +169,8 @@ cdef class ElementaryReaction(Reaction):
 
 
 cdef class ThirdBodyReaction(ElementaryReaction):
+    reaction_type = THREE_BODY_RXN
+
     cdef CxxThirdBodyReaction* tbr(self):
         return <CxxThirdBodyReaction*>self.reaction
 
@@ -223,6 +229,8 @@ cdef wrapFalloff(shared_ptr[CxxFalloff] falloff):
 
 
 cdef class FalloffReaction(Reaction):
+    reaction_type = FALLOFF_RXN
+
     property low_rate:
         def __get__(self):
             cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
@@ -240,10 +248,12 @@ cdef class FalloffReaction(Reaction):
 
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
-    pass
+    reaction_type = CHEMACT_RXN
 
 
 cdef class PlogReaction(Reaction):
+    reaction_type = PLOG_RXN
+
     property rates:
         def __get__(self):
             cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
@@ -256,6 +266,8 @@ cdef class PlogReaction(Reaction):
 
 
 cdef class ChebyshevReaction(Reaction):
+    reaction_type = CHEBYSHEV_RXN
+
     property Tmin:
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
@@ -305,6 +317,8 @@ cdef class CoverageDepenency:
 
 
 cdef class InterfaceReaction(ElementaryReaction):
+    reaction_type = INTERFACE_RXN
+
     property coverage_deps:
         def __get__(self):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
@@ -352,3 +366,21 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
 
     R._assign(reaction)
     return R
+
+cdef CxxReaction* newReaction(int reaction_type):
+    if reaction_type == ELEMENTARY_RXN:
+        return new CxxElementaryReaction()
+    elif reaction_type == THREE_BODY_RXN:
+        return new CxxThirdBodyReaction()
+    elif reaction_type == FALLOFF_RXN:
+        return new CxxFalloffReaction()
+    elif reaction_type == CHEMACT_RXN:
+        return new CxxChemicallyActivatedReaction()
+    elif reaction_type == PLOG_RXN:
+        return new CxxPlogReaction()
+    elif reaction_type == CHEBYSHEV_RXN:
+        return new CxxChebyshevReaction()
+    elif reaction_type == INTERFACE_RXN:
+        return new CxxInterfaceReaction()
+    else:
+        return new CxxReaction(0)
