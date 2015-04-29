@@ -916,6 +916,9 @@ public:
                      doublereal* phase_data);
 
 protected:
+    //! Cache for saved calculations within each Kinetics object.
+    ValueCache m_cache;
+
     // Update internal rate-of-progress variables #m_ropf and #m_ropr.
     virtual void updateROP() {
         throw NotImplementedError("Kinetics::updateROP");

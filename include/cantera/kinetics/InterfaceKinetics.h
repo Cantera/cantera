@@ -719,6 +719,13 @@ protected:
      */
     std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
 
+    //! Pairs of (reaction index, total order) for sticking reactions, which are
+    //! needed to compute the dependency of the rate constant on the site
+    //! density.
+    std::vector<std::pair<size_t, double> > m_sticking_orders;
+
+    void applyStickingCorrection(double* kf);
+
     int m_ioFlag;
 };
 }

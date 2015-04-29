@@ -184,6 +184,7 @@ void InterfaceKinetics::_update_rates_T()
 
         //  Calculate the forward rate constant by calling m_rates and store it in m_rfn[]
         m_rates.update(T, m_logtemp, DATA_PTR(m_rfn));
+        applyStickingCorrection(&m_rfn[0]);
 
         //  If we need to do conversions between exchange current density formulation and regular formulation
         //  (either way) do it here.
@@ -938,23 +939,34 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
             }
         }
 
+        double surface_order = 0.0;
         // Adjust the A-factor
         for (Composition::const_iterator iter = r.reactants.begin();
              iter != r.reactants.end();
              ++iter) {
             size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
             const ThermoPhase& p = thermo(iPhase);
+            const ThermoPhase& surf = thermo(surfacePhaseIndex());
             size_t k = p.speciesIndex(iter->first);
             if (iter->first == sticking_species) {
                 A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
             } else {
                 // Non-sticking species. Convert from coverages used in the
                 // sticking probability expression to the concentration units
-                // used in the mass action rate expression
+                // used in the mass action rate expression. For surface phases,
+                // the dependence on the site density is incorporated when the
+                // rate constant is evaluated, since we don't assume that the
+                // site density is known at this time.
                 double order = getValue(r.orders, iter->first, iter->second);
-                A_rate /= pow(p.standardConcentration(k), order);
+                if (&p == &surf) {
+                    A_rate *= pow(p.size(k), order);
+                    surface_order += order;
+                } else {
+                    A_rate *= pow(p.standardConcentration(k), -order);
+                }
             }
         }
+        m_sticking_orders.push_back(make_pair(m_ii, surface_order));
     }
     SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
 
@@ -1311,6 +1323,30 @@ void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, std::ve
         if (abs(fwdFullOrders[k]) < 0.00001) {
             fwdFullOrders[k] = 0.0;
         }
+    }
+}
+
+void InterfaceKinetics::applyStickingCorrection(double* kf)
+{
+    if (m_sticking_orders.empty()) {
+        return;
+    }
+
+    static const int cacheId = m_cache.getId();
+    CachedArray cached = m_cache.getArray(cacheId);
+    vector_fp& factors = cached.value;
+
+    SurfPhase& surf = dynamic_cast<SurfPhase&>(thermo(reactionPhaseIndex()));
+    double n0 = surf.siteDensity();
+    if (!cached.validate(n0)) {
+        factors.resize(m_sticking_orders.size());
+        for (size_t n = 0; n < m_sticking_orders.size(); n++) {
+            factors[n] = pow(n0, -m_sticking_orders[n].second);
+        }
+    }
+
+    for (size_t n = 0; n < m_sticking_orders.size(); n++) {
+        kf[m_sticking_orders[n].first] *= factors[n];
     }
 }
 
