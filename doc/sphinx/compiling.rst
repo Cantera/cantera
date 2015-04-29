@@ -39,8 +39,8 @@ Linux
 
       cython python-dev python-numpy python-numpy-dev
 
-* Checking out the source code from version control requires either Git (install
-  ``git`` and ``git-svn``) or Subversion (install ``subversion``).
+* Checking out the source code from version control requires Git (install
+  ``git``).
 
 * The minimum compatible Cython version is 0.17. If your distribution does not
   contain a suitable version, you may be able to install a more recent version
@@ -402,11 +402,6 @@ program.
 
 Other Required Software
 -----------------------
-
-* Subversion
-
-  * For Windows: http://tortoisesvn.net/downloads.html
-  * Known to work with versions >= 1.6
 
 * SCons:
 

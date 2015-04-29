@@ -3,7 +3,6 @@
 
 //---------------------------- Version Flags ------------------//
 // Cantera version -> this will be a double-quoted string value
-//                    referring to branch number within svn
 %(CANTERA_VERSION)s
 
 //------------------------ Development flags ------------------//

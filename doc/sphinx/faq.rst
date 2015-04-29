@@ -45,7 +45,7 @@ Installation & Compilation
       * The output of the ``scons build`` and ``scons build dump`` commands
         (you can direct this output to a file by running ``scons build >buildlog.txt 2>&1``)
       * The exact version of Cantera you are trying to compile, and how it was
-        obtained (i.e. downloaded source tarball or the specific Git/SVN commit)
+        obtained (i.e. downloaded source tarball or the specific Git commit)
       * Your operating system, compiler versions, and the versions of any other
         relevant software.
 
