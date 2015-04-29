@@ -597,6 +597,9 @@ class TestReaction(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         cls.gas = ct.Solution('h2o2.xml')
+        cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
+        cls.gas.TP = 900, 2*ct.one_atm
+        cls.species = ct.Species.listFromFile('h2o2.xml')
 
     def test_fromCti(self):
         r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
@@ -640,3 +643,34 @@ class TestReaction(utilities.CanteraTest):
         eq2 = [self.gas.reaction(i).equation
                for i in range(self.gas.n_reactions)]
         self.assertEqual(eq1, eq2)
+
+    def test_elementary(self):
+        r = ct.ElementaryReaction()
+        r.reactants = {'O':1, 'H2':1}
+        r.products = {'H':1, 'OH':1}
+        r.rate = ct.Arrhenius(3.87e1, 2.7, 6260*1000*4.184)
+
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=self.species, reactions=[r])
+        gas2.TPX = self.gas.TPX
+
+        self.assertNear(gas2.forward_rate_constants[0],
+                        self.gas.forward_rate_constants[2])
+        self.assertNear(gas2.net_rates_of_progress[0],
+                        self.gas.net_rates_of_progress[2])
+
+    def test_thirdbody(self):
+        r = ct.ThirdBodyReaction()
+        r.reactants = {'O':1, 'H':1}
+        r.products = {'OH':1}
+        r.rate = ct.Arrhenius(5e11, -1.0, 0.0)
+        r.efficiencies = {'AR':0.7, 'H2':2.0, 'H2O':6.0}
+
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=self.species, reactions=[r])
+        gas2.TPX = self.gas.TPX
+
+        self.assertNear(gas2.forward_rate_constants[0],
+                        self.gas.forward_rate_constants[1])
+        self.assertNear(gas2.net_rates_of_progress[0],
+                        self.gas.net_rates_of_progress[1])

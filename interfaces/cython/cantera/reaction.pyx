@@ -94,40 +94,56 @@ cdef class Reaction:
     property reactants:
         def __get__(self):
             return comp_map_to_dict(self.reaction.reactants)
+        def __set__(self, reactants):
+            self.reaction.reactants = comp_map(reactants)
 
     property products:
         def __get__(self):
             return comp_map_to_dict(self.reaction.products)
+        def __set__(self, products):
+            self.reaction.products = comp_map(products)
 
     property orders:
         def __get__(self):
             return comp_map_to_dict(self.reaction.orders)
+        def __set__(self, orders):
+            self.reaction.orders = comp_map(orders)
 
     property ID:
         def __get__(self):
             return pystr(self.reaction.id)
+        def __set__(self, ID):
+            self.reaction.id = stringify(ID)
 
     property reversible:
         def __get__(self):
             return self.reaction.reversible
+        def __set__(self, reversible):
+            self.reaction.reversible = reversible
 
     property duplicate:
         def __get__(self):
             return self.reaction.duplicate
+        def __set__(self, duplicate):
+             self.reaction.duplicate = duplicate
 
     property allow_nonreactant_orders:
         def __get__(self):
             return self.reaction.allow_nonreactant_orders
+        def __set__(self, allow):
+            self.reaction.allow_nonreactant_orders = allow
 
     property allow_negative_orders:
         def __get__(self):
             return self.reaction.allow_negative_orders
+        def __set__(self, allow):
+            self.reaction.allow_negative_orders = allow
 
 
 cdef class Arrhenius:
-    def __cinit__(self, A=0, b=0, E=0, init=True):
+    def __cinit__(self, A=0, b=0, E=0, Ta=0, init=True):
         if init:
-            self.rate = new CxxArrhenius(A, b, E)
+            self.rate = new CxxArrhenius(A, b, E / gas_constant)
             self.reaction = None
 
     def __dealloc__(self):
@@ -155,7 +171,7 @@ cdef wrapArrhenius(CxxArrhenius* rate, Reaction reaction):
 
 cdef copyArrhenius(CxxArrhenius* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
-                  rate.activationEnergy_R())
+                  rate.activationEnergy_R() * gas_constant)
     return r
 
 
@@ -166,6 +182,9 @@ cdef class ElementaryReaction(Reaction):
         def __get__(self):
             cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
             return wrapArrhenius(&(r.rate), self)
+        def __set__(self, Arrhenius rate):
+            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            r.rate = deref(rate.rate)
 
 
 cdef class ThirdBodyReaction(ElementaryReaction):
@@ -177,10 +196,14 @@ cdef class ThirdBodyReaction(ElementaryReaction):
     property efficiencies:
         def __get__(self):
             return comp_map_to_dict(self.tbr().third_body.efficiencies)
+        def __set__(self, eff):
+            self.tbr().third_body.efficiencies = comp_map(eff)
 
     property default_efficiency:
         def __get__(self):
             return self.tbr().third_body.default_efficiency
+        def __set__(self, default_eff):
+            self.tbr().third_body.default_efficiency = default_eff
 
     def efficiency(self, species):
         return self.tbr().third_body.efficiency(stringify(species))
