@@ -231,8 +231,9 @@ void Plog::validate(const std::string& equation)
 std::vector<std::pair<double, Arrhenius> > Plog::rates() const
 {
     std::vector<std::pair<double, Arrhenius> > R;
+    // initial preincrement to skip rate for P --> 0
     for (std::map<double, std::pair<size_t, size_t> >::const_iterator iter = ++pressures_.begin();
-         iter != pressures_.end();
+         iter->first < 1000; // skip rates for (P --> infinity)
          ++iter) {
         for (size_t i = iter->second.first;
              i < iter->second.second;
@@ -240,7 +241,6 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
             R.push_back(std::make_pair(std::exp(iter->first), rates_[i]));
         }
     }
-    R.pop_back(); // remove the last rate (introduced for P > P_max)
     return R;
 }
 
