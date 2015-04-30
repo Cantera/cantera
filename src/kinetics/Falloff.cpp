@@ -10,8 +10,22 @@
 namespace Cantera
 {
 
+void Falloff::init(const vector_fp& c)
+{
+    if (c.size() != 0) {
+        throw CanteraError("Falloff::init",
+            "Incorrect number of parameters. 0 required. Received " +
+            int2str(c.size()) + ".");
+    }
+}
+
 void Troe::init(const vector_fp& c)
 {
+    if (c.size() != 3 && c.size() != 4) {
+        throw CanteraError("Troe::init",
+            "Incorrect number of parameters. 3 or 4 required. Received " +
+            int2str(c.size()) + ".");
+    }
     m_a  = c[0];
     if (c[1] == 0.0) {
         m_rt3 = 1000.;
@@ -57,6 +71,12 @@ void Troe::getParameters(double* params) const {
 
 void SRI::init(const vector_fp& c)
 {
+    if (c.size() != 3 && c.size() != 5) {
+        throw CanteraError("SRI::init",
+            "Incorrect number of parameters. 3 or 5 required. Received " +
+            int2str(c.size()) + ".");
+    }
+
     if (c[2] < 0.0) {
         throw CanteraError("SRI::init()",
                            "m_c parameter is less than zero: " + fp2str(c[2]));

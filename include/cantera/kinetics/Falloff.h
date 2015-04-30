@@ -32,7 +32,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void init(const vector_fp& c) {}
+    virtual void init(const vector_fp& c);
 
     /**
      * Update the temperature-dependent portions of the falloff function, if
