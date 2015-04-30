@@ -692,3 +692,29 @@ class TestReaction(utilities.CanteraTest):
                         self.gas.forward_rate_constants[20])
         self.assertNear(gas2.net_rates_of_progress[0],
                         self.gas.net_rates_of_progress[20])
+
+    def test_plog(self):
+        gas1 = ct.Solution('pdep-test.cti')
+        species = ct.Species.listFromFile('pdep-test.cti')
+
+        r = ct.PlogReaction()
+        r.reactants = {'R1A':1, 'R1B':1}
+        r.products = {'P1':1, 'H':1}
+        r.rates = [
+            (0.01*ct.one_atm, ct.Arrhenius(1.2124e13, -0.5779, 10872.7*4184)),
+            (1.0*ct.one_atm, ct.Arrhenius(4.9108e28, -4.8507, 24772.8*4184)),
+            (10.0*ct.one_atm, ct.Arrhenius(1.2866e44, -9.0246, 39796.5*4184)),
+            (100.0*ct.one_atm, ct.Arrhenius(5.9632e53, -11.529, 52599.6*4184))
+        ]
+
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=species, reactions=[r])
+
+        gas2.X = gas1.X = 'R1A:0.3, R1B:0.6, P1:0.1'
+
+        for P in [0.001, 0.01, 0.2, 1.0, 1.1, 9.0, 10.0, 99.0, 103.0]:
+            gas1.TP = gas2.TP = 900, P * ct.one_atm
+            self.assertNear(gas2.forward_rate_constants[0],
+                            gas1.forward_rate_constants[0])
+            self.assertNear(gas2.net_rates_of_progress[0],
+                            gas1.net_rates_of_progress[0])

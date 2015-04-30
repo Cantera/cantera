@@ -332,6 +332,18 @@ cdef class PlogReaction(Reaction):
                 rates.append((p_rate.first,copyArrhenius(&p_rate.second)))
             return rates
 
+        def __set__(self, rates):
+            cdef multimap[double,CxxArrhenius] ratemap
+            cdef Arrhenius rate
+            cdef pair[double,CxxArrhenius] item
+            for p,rate in rates:
+                item.first = p
+                item.second = deref(rate.rate)
+                ratemap.insert(item)
+
+            cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
+            r.rate = CxxPlog(ratemap)
+
 
 cdef class ChebyshevReaction(Reaction):
     reaction_type = CHEBYSHEV_RXN

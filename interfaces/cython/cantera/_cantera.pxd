@@ -10,6 +10,21 @@ cimport numpy as np
 
 ctypedef stdmap[string,double] Composition
 
+cdef extern from "<map>" namespace "std":
+    cdef cppclass multimap[T, U]:
+        cppclass iterator:
+            pair[T, U]& operator*() nogil
+            iterator operator++() nogil
+            iterator operator--() nogil
+            bint operator==(iterator) nogil
+            bint operator!=(iterator) nogil
+        multimap() nogil except +
+        U& operator[](T&) nogil
+        iterator begin() nogil
+        iterator end() nogil
+        pair[iterator, bint] insert(pair[T, U]) nogil
+        iterator find(T&) nogil
+
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:
         XML_Node* findByName(string)
@@ -261,6 +276,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxChemicallyActivatedReaction()
 
     cdef cppclass CxxPlog "Cantera::Plog":
+        CxxPlog(multimap[double,CxxArrhenius])
         vector[pair[double,CxxArrhenius]] rates()
 
     cdef cppclass CxxPlogReaction "Cantera::PlogReaction" (CxxReaction):
