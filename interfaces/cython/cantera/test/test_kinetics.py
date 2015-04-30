@@ -674,3 +674,21 @@ class TestReaction(utilities.CanteraTest):
                         self.gas.forward_rate_constants[1])
         self.assertNear(gas2.net_rates_of_progress[0],
                         self.gas.net_rates_of_progress[1])
+
+    def test_falloff(self):
+        r = ct.FalloffReaction()
+        r.reactants = {'OH':2}
+        r.products = {'H2O2':1}
+        r.high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
+        r.low_rate = ct.Arrhenius(2.3e12, -0.9, -1700*1000*4.184)
+        r.falloff = ct.TroeFalloff((0.7346, 94, 1756, 5182))
+        r.efficiencies = {'AR':0.7, 'H2':2.0, 'H2O':6.0}
+
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=self.species, reactions=[r])
+        gas2.TPX = self.gas.TPX
+
+        self.assertNear(gas2.forward_rate_constants[0],
+                        self.gas.forward_rate_constants[20])
+        self.assertNear(gas2.net_rates_of_progress[0],
+                        self.gas.net_rates_of_progress[20])

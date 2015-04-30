@@ -288,6 +288,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool is_sticking_coefficient
         string sticking_species
 
+cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":
+    cdef shared_ptr[CxxFalloff] CxxNewFalloff "Cantera::newFalloff" (int, vector[double]) except +
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":

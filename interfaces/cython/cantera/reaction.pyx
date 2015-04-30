@@ -210,10 +210,17 @@ cdef class ThirdBodyReaction(ElementaryReaction):
 
 
 cdef class Falloff:
-    def __cinit__(self, init=True):
-        if init:
-            self._falloff.reset(new CxxFalloff())
-            self.falloff = self._falloff.get()
+    falloff_type = SIMPLE_FALLOFF
+
+    def __cinit__(self, params=(), init=True):
+        if not init:
+            return
+
+        cdef vector[double] c
+        for p in params:
+            c.push_back(p)
+        self._falloff = CxxNewFalloff(self.falloff_type, c)
+        self.falloff = self._falloff.get()
 
     property type:
         def __get__(self):
@@ -244,8 +251,25 @@ cdef class Falloff:
         return self.falloff.F(Pr, &work[0])
 
 
+cdef class TroeFalloff(Falloff):
+    falloff_type = TROE_FALLOFF
+
+
+cdef class SriFalloff(Falloff):
+    falloff_type = SRI_FALLOFF
+
+
 cdef wrapFalloff(shared_ptr[CxxFalloff] falloff):
-    f = Falloff(init=False)
+    cdef int falloff_type = falloff.get().getType()
+    if falloff_type == SIMPLE_FALLOFF:
+        f = Falloff(init=False)
+    elif falloff_type == TROE_FALLOFF:
+        f = TroeFalloff(init=False)
+    elif falloff_type == SRI_FALLOFF:
+        f = SriFalloff(init=False)
+    else:
+        warnings.warn('Unknown falloff type: {0}'.format(falloff_type))
+        f = Falloff(init=False)
     f._falloff = falloff
     f.falloff = f._falloff.get()
     return f
@@ -254,20 +278,41 @@ cdef wrapFalloff(shared_ptr[CxxFalloff] falloff):
 cdef class FalloffReaction(Reaction):
     reaction_type = FALLOFF_RXN
 
+    cdef CxxFalloffReaction* frxn(self):
+        return <CxxFalloffReaction*>self.reaction
+
     property low_rate:
         def __get__(self):
-            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
-            return wrapArrhenius(&(r.low_rate), self)
+            return wrapArrhenius(&(self.frxn().low_rate), self)
+        def __set__(self, Arrhenius rate):
+            self.frxn().low_rate = deref(rate.rate)
 
     property high_rate:
         def __get__(self):
-            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
-            return wrapArrhenius(&(r.high_rate), self)
+            return wrapArrhenius(&(self.frxn().high_rate), self)
+        def __set__(self, Arrhenius rate):
+            self.frxn().high_rate = deref(rate.rate)
 
     property falloff:
         def __get__(self):
-            cdef CxxFalloffReaction* r = <CxxFalloffReaction*>self.reaction
-            return wrapFalloff(r.falloff)
+            return wrapFalloff(self.frxn().falloff)
+        def __set__(self, Falloff f):
+            self.frxn().falloff = f._falloff
+
+    property efficiencies:
+        def __get__(self):
+            return comp_map_to_dict(self.frxn().third_body.efficiencies)
+        def __set__(self, eff):
+            self.frxn().third_body.efficiencies = comp_map(eff)
+
+    property default_efficiency:
+        def __get__(self):
+            return self.frxn().third_body.default_efficiency
+        def __set__(self, default_eff):
+            self.frxn().third_body.default_efficiency = default_eff
+
+    def efficiency(self, species):
+        return self.frxn().third_body.efficiency(stringify(species))
 
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
