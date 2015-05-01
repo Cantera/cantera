@@ -1067,6 +1067,10 @@ cdef class InterfacePhase(ThermoPhase):
                 return data
 
         def __set__(self, theta):
+            if isinstance(theta, (dict, str, unicode, bytes)):
+                self.surf.setCoveragesByName(comp_map(theta))
+                return
+
             if len(theta) != self.n_species:
                 raise ValueError("Array has incorrect length")
             cdef np.ndarray[np.double_t, ndim=1] data = \

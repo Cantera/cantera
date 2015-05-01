@@ -557,6 +557,31 @@ class TestInterfacePhase(utilities.CanteraTest):
         self.interface.site_density = 100
         self.assertNear(self.interface.site_density, 100)
 
+    def test_coverages_array(self):
+        C = np.zeros(self.interface.n_species)
+        C[1] = 0.25
+        C[3] = 0.125
+        C[4] = 0.125
+        self.interface.coverages = C
+        C = self.interface.coverages
+        # should now be normalized
+        self.assertNear(C[1], 0.5)
+        self.assertNear(C[3], 0.25)
+        self.assertNear(C[4], 0.25)
+        self.assertNear(sum(C), 1.0)
+
+    def test_coverages_string(self):
+        self.interface.coverages = 'c6HM:0.2, c6H*:0.8'
+        C = self.interface.coverages
+        self.assertNear(C[self.interface.species_index('c6HM')], 0.2)
+        self.assertNear(C[self.interface.species_index('c6H*')], 0.8)
+
+    def test_coverages_dict(self):
+        self.interface.coverages = {'c6**':1.0, 'c6*M':3.0}
+        C = self.interface.coverages
+        self.assertNear(C[self.interface.species_index('c6**')], 0.25)
+        self.assertNear(C[self.interface.species_index('c6*M')], 0.75)
+
 
 class ImportTest(utilities.CanteraTest):
     """

@@ -213,6 +213,7 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         double siteDensity()
         void setSiteDensity(double)
         void setCoverages(double*) except +
+        void setCoveragesByName(Composition&) except +
         void getCoverages(double*) except +
 
 
