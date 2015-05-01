@@ -37,6 +37,13 @@ public:
     }
 };
 
+// Function for assigning elements of Array2D, since Cython has trouble
+// with assigning to the reference returned by operator()
+void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
+{
+    array(i,j) = value;
+}
+
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
     void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \

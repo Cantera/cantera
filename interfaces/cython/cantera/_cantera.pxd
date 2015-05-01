@@ -61,6 +61,13 @@ cdef extern from "cantera/base/smart_ptr.h":
         T* get()
         void reset(T*)
 
+cdef extern from "cantera/base/Array.h" namespace "Cantera":
+    cdef cppclass CxxArray2D "Cantera::Array2D":
+        CxxArray2D()
+        CxxArray2D(size_t, size_t)
+        void resize(size_t, size_t)
+        double operator()(size_t, size_t)
+
 cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
         CxxSpeciesThermo()
@@ -283,6 +290,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxPlog rate
 
     cdef cppclass CxxChebyshevRate "Cantera::ChebyshevRate":
+        CxxChebyshevRate(double, double, double, double, CxxArray2D)
         double Tmin()
         double Tmax()
         double Pmin()
@@ -685,6 +693,9 @@ cdef extern from "cantera/cython/wrappers.h":
         pass
 
     cdef void CxxSetLogger "setLogger" (CxxPythonLogger*)
+
+    # workaround for Cython assignment limitations
+    cdef void CxxArray2D_set(CxxArray2D, size_t, size_t, double)
 
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +

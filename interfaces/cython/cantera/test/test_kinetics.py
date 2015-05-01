@@ -718,3 +718,28 @@ class TestReaction(utilities.CanteraTest):
                             gas1.forward_rate_constants[0])
             self.assertNear(gas2.net_rates_of_progress[0],
                             gas1.net_rates_of_progress[0])
+
+    def test_chebyshev(self):
+        gas1 = ct.Solution('pdep-test.cti')
+        species = ct.Species.listFromFile('pdep-test.cti')
+
+        r = ct.ChebyshevReaction()
+        r.reactants = {'R5': 1, 'H': 1}
+        r.products = {'P5A': 1, 'P5B': 1}
+        r.set_parameters(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+            coeffs=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02],
+                    [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],
+                    [ 3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03],
+                    [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])
+
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=species, reactions=[r])
+
+        gas2.X = gas1.X = 'R5:0.3, P5A:0.6, H:0.1'
+
+        for T,P in itertools.product([300, 500, 1500], [1e4, 4e5, 3e6]):
+            gas1.TP = gas2.TP = T, P
+            self.assertNear(gas2.forward_rate_constants[0],
+                            gas1.forward_rate_constants[4])
+            self.assertNear(gas2.net_rates_of_progress[0],
+                            gas1.net_rates_of_progress[4])

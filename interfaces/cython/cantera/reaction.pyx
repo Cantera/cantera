@@ -384,6 +384,20 @@ cdef class ChebyshevReaction(Reaction):
             c = np.fromiter(r.rate.coeffs(), np.double)
             return c.reshape((r.rate.nTemperature(), r.rate.nPressure()))
 
+    def set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
+        cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+
+        cdef CxxArray2D data
+        data.resize(len(coeffs), len(coeffs[0]))
+        cdef double value
+        cdef int i
+        cdef int j
+        for i,row in enumerate(coeffs):
+            for j,value in enumerate(row):
+                CxxArray2D_set(data, i, j, value)
+
+        r.rate = CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, data)
+
 
 cdef class CoverageDepenency:
     cdef public double a
