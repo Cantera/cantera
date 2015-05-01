@@ -327,11 +327,15 @@ void SurfPhase::getCoverages(doublereal* theta) const
 
 void SurfPhase::setCoveragesByName(const std::string& cov)
 {
-    compositionMap cc = parseCompString(cov, speciesNames());
+    setCoveragesByName(parseCompString(cov, speciesNames()));
+}
+
+void SurfPhase::setCoveragesByName(const compositionMap& cov)
+{
     vector_fp cv(m_kk, 0.0);
     bool ifound = false;
     for (size_t k = 0; k < m_kk; k++) {
-        double c = cc[speciesName(k)];
+        double c = getValue(cov, speciesName(k), 0.0);
         if (c > 0.0) {
             ifound = true;
             cv[k] = c;
