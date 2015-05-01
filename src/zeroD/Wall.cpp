@@ -101,6 +101,26 @@ void Wall::setCoverages(int leftright, const doublereal* cov)
     }
 }
 
+void Wall::setCoverages(int leftright, const compositionMap& cov)
+{
+    m_surf[leftright]->setCoveragesByName(cov);
+    if (leftright == 0) {
+        m_surf[0]->getCoverages(&m_leftcov[0]);
+    } else {
+        m_surf[1]->getCoverages(&m_rightcov[0]);
+    }
+}
+
+void Wall::setCoverages(int leftright, const std::string& cov)
+{
+    m_surf[leftright]->setCoveragesByName(cov);
+    if (leftright == 0) {
+        m_surf[0]->getCoverages(&m_leftcov[0]);
+    } else {
+        m_surf[1]->getCoverages(&m_rightcov[0]);
+    }
+}
+
 void Wall::getCoverages(int leftright, doublereal* cov)
 {
     if (leftright == 0) {
