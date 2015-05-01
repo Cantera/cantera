@@ -452,15 +452,15 @@ public:
 
     //! Constructor directly from coefficient array
     /*
-     *  @param Pmin    Minimum pressure [Pa]
-     *  @param Pmax    Maximum pressure [Pa]
      *  @param Tmin    Minimum temperature [K]
      *  @param Tmax    Maximum temperature [K]
+     *  @param Pmin    Minimum pressure [Pa]
+     *  @param Pmax    Maximum pressure [Pa]
      *  @param coeffs  Coefficient array dimensioned `nT` by `nP` where `nT` and
      *      `nP` are the number of temperatures and pressures used in the fit,
      *      respectively.
      */
-    ChebyshevRate(double Pmin, double Pmax, double Tmin, double Tmax,
+    ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
                   const Array2D& coeffs);
 
     //! Update concentration-dependent parts of the rate coefficient.

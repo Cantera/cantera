@@ -474,10 +474,10 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
             coeffs(t,p) = coeffs_flat[nP*t + p];
         }
     }
-    R.rate = ChebyshevRate(getFloat(rc, "Pmin", "toSI"),
-                           getFloat(rc, "Pmax", "toSI"),
-                           getFloat(rc, "Tmin", "toSI"),
+    R.rate = ChebyshevRate(getFloat(rc, "Tmin", "toSI"),
                            getFloat(rc, "Tmax", "toSI"),
+                           getFloat(rc, "Pmin", "toSI"),
+                           getFloat(rc, "Pmax", "toSI"),
                            coeffs);
     setupReaction(R, rxn_node);
 }

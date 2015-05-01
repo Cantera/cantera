@@ -265,7 +265,7 @@ ChebyshevRate::ChebyshevRate(const ReactionData& rdata)
     PrDen_ = 1.0 / (logPmax - logPmin);
 }
 
-ChebyshevRate::ChebyshevRate(double Pmin, double Pmax, double Tmin, double Tmax,
+ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
                              const Array2D& coeffs)
     : Tmin_(Tmin)
     , Tmax_(Tmax)

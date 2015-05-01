@@ -195,7 +195,7 @@ TEST_F(KineticsFromScratch, add_chebyshev_reaction)
     coeffs(2,1) = 2.6889e-01;
     coeffs(2,2) = 9.4806e-02;
     coeffs(2,3) = -7.6385e-03;
-    ChebyshevRate rate(1000.0, 10000000.0, 290, 3000, coeffs);
+    ChebyshevRate rate(290, 3000, 1000.0, 10000000.0, coeffs);
 
     shared_ptr<ChebyshevReaction> R(new ChebyshevReaction(reac, prod, rate));
     kin.addReaction(R);
