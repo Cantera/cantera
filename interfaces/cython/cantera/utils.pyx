@@ -35,7 +35,11 @@ def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()
 
-cdef Composition comp_map(dict X) except *:
+cdef Composition comp_map(X) except *:
+    if isinstance(X, (str, unicode, bytes)):
+        return parseCompString(stringify(X))
+
+    # assume X is dict-like
     cdef Composition m
     for species,value in X.items():
         m[stringify(species)] = value

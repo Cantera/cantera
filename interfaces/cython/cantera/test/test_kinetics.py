@@ -677,8 +677,8 @@ class TestReaction(utilities.CanteraTest):
 
     def test_falloff(self):
         r = ct.FalloffReaction()
-        r.reactants = {'OH':2}
-        r.products = {'H2O2':1}
+        r.reactants = 'OH:2'
+        r.products = 'H2O2:1'
         r.high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
         r.low_rate = ct.Arrhenius(2.3e12, -0.9, -1700*1000*4.184)
         r.falloff = ct.TroeFalloff((0.7346, 94, 1756, 5182))
@@ -724,8 +724,8 @@ class TestReaction(utilities.CanteraTest):
         species = ct.Species.listFromFile('pdep-test.cti')
 
         r = ct.ChebyshevReaction()
-        r.reactants = {'R5': 1, 'H': 1}
-        r.products = {'P5A': 1, 'P5B': 1}
+        r.reactants = 'R5:1, H:1'
+        r.products = 'P5A:1, P5B:1'
         r.set_parameters(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
             coeffs=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02],
                     [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],

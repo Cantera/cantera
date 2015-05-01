@@ -31,6 +31,9 @@ cdef extern from "cantera/base/xml.h" namespace "Cantera":
         XML_Node* findID(string)
         int nChildren()
 
+cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
+    cdef Composition parseCompString(string) except +
+
 cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAddDirectory "Cantera::addDirectory" (string)
     cdef size_t CxxNpos "Cantera::npos"
