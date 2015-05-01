@@ -472,6 +472,7 @@ cdef extern from "cantera/zeroD/Wall.h":
         void setHeatFlux(CxxFunc1*)
         void setKinetics(CxxKinetics*, CxxKinetics*)
         void setCoverages(int, double*)
+        void setCoverages(int, Composition&) except +
         void syncCoverages(int)
         double vdot(double)
         double Q(double)

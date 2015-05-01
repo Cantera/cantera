@@ -324,6 +324,11 @@ cdef class WallSurface:
         def __set__(self, coverages):
             if self._kinetics is None:
                 raise Exception("Can't set coverages before assigning kinetics manager.")
+
+            if isinstance(coverages, (dict, str, unicode, bytes)):
+                self.cxxwall.setCoverages(self.side, comp_map(coverages))
+                return
+
             if len(coverages) != self._kinetics.n_species:
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \

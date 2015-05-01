@@ -814,12 +814,10 @@ class TestWallKinetics(utilities.CanteraTest):
         self.make_reactors()
         self.w.left.kinetics = self.interface
 
-        C = np.zeros(self.interface.n_species)
-        C[0] = 0.3
-        C[4] = 0.7
-
-        self.w.left.coverages = C
-        self.assertArrayNear(self.w.left.coverages, C)
+        self.w.left.coverages = {'c6HH':0.3, 'c6HM':0.7}
+        self.assertNear(self.w.left.coverages[0], 0.3)
+        self.assertNear(self.w.left.coverages[1], 0.0)
+        self.assertNear(self.w.left.coverages[4], 0.7)
         self.net.advance(1e-5)
         C_left = self.w.left.coverages
 
@@ -829,8 +827,9 @@ class TestWallKinetics(utilities.CanteraTest):
 
         self.make_reactors()
         self.w.right.kinetics = self.interface
-        self.w.right.coverages = C
-        self.assertArrayNear(self.w.right.coverages, C)
+        self.w.right.coverages = 'c6HH:0.3, c6HM:0.7'
+        self.assertNear(self.w.right.coverages[0], 0.3)
+        self.assertNear(self.w.right.coverages[4], 0.7)
         self.assertEqual(self.w.left.kinetics, None)
         with self.assertRaises(Exception):
             self.w.left.coverages
