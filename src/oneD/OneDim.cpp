@@ -380,9 +380,8 @@ void OneDim::save(const std::string& fname, std::string id,
     ::time(&aclock); // Get time in seconds
     struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
 
-    XML_Node root("doc");
+    XML_Node root("ctml");
     ifstream fin(fname.c_str());
-    XML_Node* ct;
     if (fin) {
         root.build(fin);
         // Remove existing solution with the same id
@@ -391,11 +390,8 @@ void OneDim::save(const std::string& fname, std::string id,
             same_ID->parent()->removeChild(same_ID);
         }
         fin.close();
-        ct = &root.child("ctml");
-    } else {
-        ct = &root.addChild("ctml");
     }
-    XML_Node& sim = ct->addChild("simulation");
+    XML_Node& sim = root.addChild("simulation");
     sim.addAttribute("id",id);
     addString(sim,"timestamp",asctime(newtime));
     if (desc != "") {
@@ -411,7 +407,7 @@ void OneDim::save(const std::string& fname, std::string id,
     if (!s) {
         throw CanteraError("save","could not open file "+fname);
     }
-    ct->write(s);
+    root.write(s);
     s.close();
     writelog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
 }

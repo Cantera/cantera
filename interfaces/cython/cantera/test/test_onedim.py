@@ -252,6 +252,9 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.save(filename, 'test', loglevel=0)
 
+        # Save a second solution to the same file
+        self.sim.save(filename, 'test2', loglevel=0)
+
         # Create flame object with dummy initial grid
         self.sim = ct.FreeFlame(self.gas)
         self.sim.restore(filename, 'test', loglevel=0)
