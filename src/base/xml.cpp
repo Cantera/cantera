@@ -40,6 +40,10 @@ protected:
         m_msg += ".\n";
     }
 
+    virtual std::string getMessage() const {
+        return m_msg;
+    }
+
     //! destructor
     virtual ~XML_Error() throw() {
     }
@@ -71,7 +75,10 @@ public:
                     int line=0) :
         XML_Error(line) {
         m_msg += "<" + opentag + "> paired with </" + closetag + ">.\n";
-        setError("XML_TagMismatch", m_msg);
+    }
+
+    virtual std::string getClass() const {
+        return "XML_TagMismatch";
     }
 };
 
@@ -101,7 +108,10 @@ public:
         ostringstream ss(ostringstream::out);
         p->write(ss,1);
         m_msg += ss.str() + "\n";
-        setError("XML_NoChild", m_msg);
+    }
+
+    virtual std::string getClass() const {
+        return "XML_NoChild";
     }
 };
 
