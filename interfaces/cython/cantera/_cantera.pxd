@@ -82,10 +82,13 @@ cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
         (int, double, double, double, double*) except +
 
 cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
+    cdef cppclass CxxTransportData "Cantera::TransportData"
+
     cdef cppclass CxxSpecies "Cantera::Species":
         CxxSpecies()
         CxxSpecies(string, Composition)
         shared_ptr[CxxSpeciesThermo] thermo
+        shared_ptr[CxxTransportData] transport
 
         string name
         Composition composition
@@ -377,6 +380,24 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
         void setMeanParticleDiameter(double) except +
         void setPermeability(double) except +
         void getMolarFluxes(double*, double*, double, double*) except +
+
+
+cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
+    cdef cppclass CxxTransportData "Cantera::TransportData":
+        CxxTransportData()
+
+    cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
+        CxxGasTransportData()
+        CxxGasTransportData(string, double, double, double, double, double, double)
+        void setCustomaryUnits(string, double, double, double, double, double, double)
+
+        string geometry
+        double diameter
+        double well_depth
+        double dipole
+        double polarizability
+        double rotational_relaxation
+        double acentric_factor
 
 
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
@@ -776,6 +797,11 @@ cdef class SpeciesThermo:
     cdef shared_ptr[CxxSpeciesThermo] _spthermo
     cdef CxxSpeciesThermo* spthermo
     cdef _assign(self, shared_ptr[CxxSpeciesThermo] other)
+
+cdef class GasTransportData:
+    cdef shared_ptr[CxxTransportData] _data
+    cdef CxxGasTransportData* data
+    cdef _assign(self, shared_ptr[CxxTransportData] other)
 
 cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo

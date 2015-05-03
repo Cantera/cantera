@@ -16,6 +16,69 @@ cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method):
     return data
 
 
+cdef class GasTransportData:
+    def __cinit__(self, geometry='', diameter=-1, well_depth=-1,
+                  dipole=0.0, polarizability=0.0, rotational_relaxation=0.0,
+                  acentric_factor=0.0, *, init=True):
+        if init:
+            self._data.reset(new CxxGasTransportData(stringify(geometry),
+                diameter, well_depth, dipole, polarizability,
+                rotational_relaxation, acentric_factor))
+            self.data = <CxxGasTransportData*?>self._data.get()
+
+    cdef _assign(self, shared_ptr[CxxTransportData] other):
+        self._data = other
+        self.data = <CxxGasTransportData*?>self._data.get()
+
+    def set_customary_units(self, geometry, diameter, well_depth, dipole=0.0,
+                            polarizability=0.0, rotational_relaxation=0.0,
+                            acentric_factor=0.0):
+        self.data.setCustomaryUnits(stringify(geometry), diameter, well_depth,
+            dipole, polarizability, rotational_relaxation, acentric_factor)
+
+    property geometry:
+        def __get__(self):
+            return pystr(self.data.geometry)
+        def __set__(self, geometry):
+            self.data.geometry = stringify(geometry)
+
+    property diameter:
+        def __get__(self):
+            return self.data.diameter
+        def __set__(self, diameter):
+            self.data.diameter = diameter
+
+    property well_depth:
+        def __get__(self):
+            return self.data.well_depth
+        def __set__(self, well_depth):
+            self.data.well_depth = well_depth
+
+    property dipole:
+        def __get__(self):
+            return self.data.dipole
+        def __set__(self, dipole):
+            self.data.dipole = dipole
+
+    property polarizability:
+        def __get__(self):
+            return self.data.polarizability
+        def __set__(self, polarizability):
+            self.data.polarizability = polarizability
+
+    property rotational_relaxation:
+        def __get__(self):
+            return self.data.rotational_relaxation
+        def __set__(self, rotational_relaxation):
+            self.data.rotational_relaxation = rotational_relaxation
+
+    property acentric_factor:
+        def __get__(self):
+            return self.data.acentric_factor
+        def __set__(self, acentric_factor):
+            self.data.acentric_factor = acentric_factor
+
+
 cdef class Transport(_SolutionBase):
     """
     This class is used to compute transport properties for a phase of matter.

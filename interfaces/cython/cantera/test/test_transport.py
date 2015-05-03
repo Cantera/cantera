@@ -131,3 +131,29 @@ class TestDustyGas(utilities.CanteraTest):
 
         # Not sure why the following condition is not satisfied:
         # self.assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
+
+
+class TestTransportData(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.gas = ct.Solution('h2o2.xml')
+        cls.gas.X = 'H2O:0.6, H2:0.4'
+
+    def test_read(self):
+        tr = self.gas.species('H2').transport
+        self.assertEqual(tr.geometry, 'linear')
+        self.assertNear(tr.diameter, 2.92e-10)
+        self.assertNear(tr.well_depth, 38.0 * ct.boltzmann)
+        self.assertNear(tr.polarizability, 0.79e-30)
+        self.assertNear(tr.rotational_relaxation, 280)
+
+    def test_set_customary_units(self):
+        tr1 = ct.GasTransportData()
+        tr1.set_customary_units('nonlinear', 2.60, 572.40, 1.84, 0.0, 4.00)
+        tr2 = self.gas.species('H2O').transport
+        self.assertEqual(tr1.geometry, tr2.geometry)
+        self.assertNear(tr1.diameter, tr2.diameter)
+        self.assertNear(tr1.well_depth, tr2.well_depth)
+        self.assertNear(tr1.dipole, tr2.dipole)
+        self.assertNear(tr1.polarizability, tr2.polarizability)
+        self.assertNear(tr1.rotational_relaxation, tr2.rotational_relaxation)

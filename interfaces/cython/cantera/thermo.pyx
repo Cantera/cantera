@@ -123,6 +123,12 @@ cdef class Species:
         def __set__(self, SpeciesThermo spthermo):
             self.species.thermo = spthermo._spthermo
 
+    property transport:
+        def __get__(self):
+            data = GasTransportData(init=False)
+            data._assign(self.species.transport)
+            return data
+
 
 cdef class ThermoPhase(_SolutionBase):
     """
