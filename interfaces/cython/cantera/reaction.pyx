@@ -416,7 +416,6 @@ cdef class InterfaceReaction(ElementaryReaction):
     property coverage_deps:
         def __get__(self):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
-            print('ncov:', r.coverage_deps.size())
             deps = {}
             cdef pair[string,CxxCoverageDependency] item
             for item in r.coverage_deps:
