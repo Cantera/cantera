@@ -743,3 +743,29 @@ class TestReaction(utilities.CanteraTest):
                             gas1.forward_rate_constants[4])
             self.assertNear(gas2.net_rates_of_progress[0],
                             gas1.net_rates_of_progress[4])
+
+    def test_interface(self):
+        surf_species = ct.Species.listFromFile('ptcombust.xml')
+        gas = ct.Solution('ptcombust.xml', 'gas')
+        surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+        r1 = ct.InterfaceReaction()
+        r1.reactants = 'H(S):2'
+        r1.products = 'H2:1, PT(S):2'
+        r1.rate = ct.Arrhenius(3.7e20, 0, 67.4e6)
+        r1.coverage_deps = {'H(S)': (0, 0, -6e6)}
+
+        self.assertNear(r1.coverage_deps['H(S)'][2], -6e6)
+
+        surf2 = ct.Interface(thermo='Surface', species=surf_species,
+                             kinetics='interface', reactions=[r1], phases=[gas])
+
+        surf2.site_density = surf1.site_density
+        surf1.coverages = surf2.coverages = 'PT(S):0.7, H(S):0.3'
+        gas.TP = surf2.TP = surf1.TP
+
+        for T in [300, 500, 1500]:
+            gas.TP = surf1.TP = surf2.TP = T, 5*ct.one_atm
+            self.assertNear(surf1.forward_rate_constants[1],
+                            surf2.forward_rate_constants[0])
+            self.assertNear(surf1.net_rates_of_progress[1],
+                            surf2.net_rates_of_progress[0])

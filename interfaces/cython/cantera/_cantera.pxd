@@ -310,6 +310,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxChebyshevRate rate
 
     cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
+        CxxCoverageDependency(double, double, double)
         double a
         double E
         double m

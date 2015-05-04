@@ -399,17 +399,6 @@ cdef class ChebyshevReaction(Reaction):
         r.rate = CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, data)
 
 
-cdef class CoverageDependency:
-    cdef public double a
-    cdef public double m
-    cdef public double E
-
-    def __init__(self, a, m, E):
-        self.a = a
-        self.m = m
-        self.E = E
-
-
 cdef class InterfaceReaction(ElementaryReaction):
     reaction_type = INTERFACE_RXN
 
@@ -419,19 +408,32 @@ cdef class InterfaceReaction(ElementaryReaction):
             deps = {}
             cdef pair[string,CxxCoverageDependency] item
             for item in r.coverage_deps:
-                deps[pystr(item.first)] = CoverageDependency(
-                    item.second.a, item.second.m, item.second.E * gas_constant)
+                deps[pystr(item.first)] = (item.second.a, item.second.m,
+                                           item.second.E * gas_constant)
             return deps
+        def __set__(self, deps):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.coverage_deps.clear()
+            cdef str species
+            for species, D in deps.items():
+                r.coverage_deps[stringify(species)] = CxxCoverageDependency(
+                    D[0], D[2] / gas_constant, D[1])
 
     property is_sticking_coefficient:
         def __get__(self):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             return r.is_sticking_coefficient
+        def __set__(self, stick):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.is_sticking_coefficient = stick
 
     property sticking_species:
         def __get__(self):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             return pystr(r.sticking_species)
+        def __set__(self, species):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.sticking_species = stringify(species)
 
 
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
