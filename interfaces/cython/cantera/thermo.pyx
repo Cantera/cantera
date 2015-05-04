@@ -22,6 +22,12 @@ cdef class Species:
         if composition is not None:
             self.species.composition = comp_map(composition)
 
+        if charge is not None:
+            self.species.charge = charge
+
+        if size is not None:
+            self.species.size = size
+
     cdef _assign(self, shared_ptr[CxxSpecies] other):
         self._species = other
         self.species = self._species.get()
