@@ -6,6 +6,22 @@ cdef enum Thermasis:
 
 
 cdef class Species:
+    """
+    A class which stores data about a single chemical species that may be
+    needed to add it to a ThermoPhase or Transport object.
+
+    :param name:
+        A string giving the name of the species, e.g. ``'CH4'``
+    :param composition:
+        The elemental composition of the species, given either as a dict or a
+        composition string, e.g. `{'C':1, 'H':4}` or `'C:1, H:4'`.
+    :param charge:
+        The electrical charge, in units of the elementary charge. Default 0.0.
+    :param size:
+        The effective size [m] of the species. Default 1.0.
+    :param init:
+        Used internally when wrapping :ct:`Species` objects returned from C++
+    """
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
             self._species.reset(new CxxSpecies())
@@ -107,22 +123,35 @@ cdef class Species:
         return species
 
     property name:
+        """ The name of the species. """
         def __get__(self):
             return pystr(self.species.name)
 
     property composition:
+        """
+        A dict containing the elemental composition of the species. Keys are
+        element names; values are the corresponding atomicities.
+        """
         def __get__(self):
             return comp_map_to_dict(self.species.composition)
 
     property charge:
+        """
+        The electrical charge on the species, in units of the elementary charge.
+        """
         def __get__(self):
             return self.species.charge
 
     property size:
+        """ The effective size [m] of the species. """
         def __get__(self):
             return self.species.size
 
     property thermo:
+        """
+        Get/Set the species reference-state thermodynamic data, as an instance
+        of class `SpeciesThermo`.
+        """
         def __get__(self):
             return wrapSpeciesThermo(self.species.thermo)
 
@@ -130,6 +159,10 @@ cdef class Species:
             self.species.thermo = spthermo._spthermo
 
     property transport:
+        """
+        Get/Set the species transport parameters, as an instance of class
+        `GasTransportData`.
+        """
         def __get__(self):
             data = GasTransportData(init=False)
             data._assign(self.species.transport)
