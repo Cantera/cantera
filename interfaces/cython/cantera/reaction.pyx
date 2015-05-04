@@ -399,7 +399,7 @@ cdef class ChebyshevReaction(Reaction):
         r.rate = CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, data)
 
 
-cdef class CoverageDepenency:
+cdef class CoverageDependency:
     cdef public double a
     cdef public double m
     cdef public double E
@@ -420,7 +420,7 @@ cdef class InterfaceReaction(ElementaryReaction):
             deps = {}
             cdef pair[string,CxxCoverageDependency] item
             for item in r.coverage_deps:
-                deps[pystr(item.first)] = CoverageDepenency(
+                deps[pystr(item.first)] = CoverageDependency(
                     item.second.a, item.second.m, item.second.E * gas_constant)
             return deps
 
