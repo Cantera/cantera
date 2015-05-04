@@ -154,6 +154,10 @@ public:
     explicit SurfaceArrhenius(double A, double b, double Ta);
     explicit SurfaceArrhenius(const ReactionData& rdata);
 
+    //! Add a coverage dependency for species *k*, with pre-exponential
+    //! dependence *a*, temperature exponent dependence *m* and activation
+    //! energy dependence *e*, where *e* is in Kelvin, i.e. energy divided by
+    //! the molar gas constant.
     void addCoverageDependence(size_t k, doublereal a,
                                doublereal m, doublereal e);
 

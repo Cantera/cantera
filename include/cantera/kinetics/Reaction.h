@@ -185,14 +185,19 @@ public:
     ChebyshevRate rate;
 };
 
-
+//! Modifications to an InterfaceReaction rate based on a surface species
+//! coverage.
 struct CoverageDependency
 {
+    //! Constructor
+    //! @param a_  modification to the pre-exponential factor [m, kmol, s units]
+    //! @param E_  modification to the activation energy [K]
+    //! @param m_  modification to the temperature exponent
     CoverageDependency(double a_, double E_, double m_) : a(a_), E(E_), m(m_) {}
     CoverageDependency() {}
-    double a;
-    double E;
-    double m;
+    double a; //!< modification to the pre-exponential factor [m, kmol, s units]
+    double E; //!< modification to the activation energy [K]
+    double m; //!< modification to the temperature exponent
 };
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
