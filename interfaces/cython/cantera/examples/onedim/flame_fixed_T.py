@@ -72,10 +72,8 @@ gas.TPX = tburner, p, comp
 # create the BurnerFlame object.
 f = ct.BurnerFlame(gas=gas, grid=initial_grid)
 
-# set the properties at the burner
+# set the mass flow rate at the burner
 f.burner.mdot = mdot
-f.burner.X = comp
-f.burner.T = tburner
 
 # read in the fixed temperature profile
 [zloc, tvalues] = getTempData('tdata.dat')

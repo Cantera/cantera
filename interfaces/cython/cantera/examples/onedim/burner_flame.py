@@ -20,9 +20,6 @@ gas = ct.Solution('h2o2.xml')
 gas.TPX = tburner, p, reactants
 
 f = ct.BurnerFlame(gas, initial_grid)
-
-f.burner.T = tburner
-f.burner.X = reactants
 f.burner.mdot = mdot
 
 f.set_initial_guess()

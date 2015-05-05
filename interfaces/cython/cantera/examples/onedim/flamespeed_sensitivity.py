@@ -27,10 +27,6 @@ f = ct.FreeFlame(gas, initial_grid)
 f.flame.set_steady_tolerances(default=tol_ss)
 f.flame.set_transient_tolerances(default=tol_ts)
 
-# Set properties of the upstream fuel-air mixture
-f.inlet.T = Tin
-f.inlet.X = reactants
-
 # Solve with the energy equation disabled
 f.energy_enabled = False
 f.set_max_jac_age(10, 10)

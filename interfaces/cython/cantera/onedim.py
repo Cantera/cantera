@@ -375,6 +375,10 @@ class FreeFlame(FlameBase):
         super(FreeFlame, self).__init__((self.inlet, self.flame, self.outlet),
                                         gas, grid)
 
+        # Setting X needs to be deferred until linked to the flow domain
+        self.inlet.T = gas.T
+        self.inlet.X = gas.X
+
     def set_initial_guess(self):
         """
         Set the initial guess for the solution. The adiabatic flame
@@ -422,12 +426,15 @@ class BurnerFlame(FlameBase):
         ``self.outlet``.
         """
         self.burner = Inlet1D(name='burner', phase=gas)
-        self.burner.T = gas.T
         self.outlet = Outlet1D(name='outlet', phase=gas)
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
 
         super(BurnerFlame, self).__init__((self.burner, self.flame, self.outlet),
                                           gas, grid)
+
+        # Setting X needs to be deferred until linked to the flow domain
+        self.burner.T = gas.T
+        self.burner.X = gas.X
 
     def set_initial_guess(self):
         """
@@ -744,7 +751,6 @@ class ImpingingJet(FlameBase):
         are stored as ``self.inlet``, ``self.flame``, and ``self.surface``.
         """
         self.inlet = Inlet1D(name='inlet', phase=gas)
-        self.inlet.T = gas.T
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
 
         if surface is None:
@@ -757,6 +763,10 @@ class ImpingingJet(FlameBase):
 
         super(ImpingingJet, self).__init__(
                 (self.inlet, self.flame, self.surface), gas, grid)
+
+        # Setting X needs to be deferred until linked to the flow domain
+        self.inlet.T = gas.T
+        self.inlet.X = gas.X
 
     def set_initial_guess(self, products='inlet'):
         """
@@ -820,6 +830,9 @@ class CounterflowPremixedFlame(FlameBase):
 
         super(CounterflowPremixedFlame, self).__init__(
                 (self.reactants, self.flame, self.products), gas, grid)
+
+        # Setting X needs to be deferred until linked to the flow domain
+        self.reactants.X = gas.X
 
     def set_initial_guess(self, equilibrate=True):
         """

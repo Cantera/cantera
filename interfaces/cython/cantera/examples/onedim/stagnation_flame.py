@@ -58,10 +58,8 @@ gas.TPX = tburner, p, comp
 # catalytic_combustion.py for how to do this.)
 sim = ct.ImpingingJet(gas=gas, grid=initial_grid)
 
-# set the properties at the inlet
+# set the mass flow rate at the inlet
 sim.inlet.mdot = mdot[0]
-sim.inlet.X = comp
-sim.inlet.T = tburner
 
 # set the surface state
 sim.surface.T = tsurf

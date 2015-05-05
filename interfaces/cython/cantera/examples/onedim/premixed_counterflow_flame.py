@@ -37,11 +37,8 @@ gas.TPX = T_in, p, comp
 # Create the flame simulation object
 sim = ct.CounterflowPremixedFlame(gas=gas, grid=initial_grid)
 
-# set the properties at the inlet
+# set the boundary flow rates
 sim.reactants.mdot = mdot_reactants
-sim.reactants.X = comp
-sim.reactants.T = T_in
-
 sim.products.mdot = mdot_products
 
 sim.flame.set_steady_tolerances(default=tol_ss)

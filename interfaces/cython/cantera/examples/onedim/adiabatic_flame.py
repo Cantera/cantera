@@ -17,7 +17,8 @@ tol_ts = [1.0e-4, 1.0e-13]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 8)
 refine_grid = True  # 'True' to enable refinement, 'False' to disable
 
-# IdealGasMix object used to compute mixture properties
+# IdealGasMix object used to compute mixture properties, set to the state of the
+# upstream fuel-air mixture
 gas = ct.Solution('h2o2.xml')
 gas.TPX = Tin, p, reactants
 
@@ -25,10 +26,6 @@ gas.TPX = Tin, p, reactants
 f = ct.FreeFlame(gas, initial_grid)
 f.flame.set_steady_tolerances(default=tol_ss)
 f.flame.set_transient_tolerances(default=tol_ts)
-
-# Set properties of the upstream fuel-air mixture
-f.inlet.T = Tin
-f.inlet.X = reactants
 
 f.show_solution()
 
