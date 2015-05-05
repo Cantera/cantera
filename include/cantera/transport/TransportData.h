@@ -29,6 +29,7 @@ class GasTransportData : public TransportData
 public:
     GasTransportData();
 
+    //! Construct a GasTransportData object using MKS units for all parameters.
     GasTransportData(const std::string& geometry, double diameter,
                      double well_depth, double dipole=0.0,
                      double polarizability=0.0, double rot_relax=0.0,
@@ -42,6 +43,10 @@ public:
                            double polarizability=0.0, double rot_relax=0.0,
                            double acentric=0.0);
 
+    //! Check transport data for invalid parameters such as a geometry
+    //! inconsistent with the atomic composition, non-positive diameter, or
+    //! negative values for well depth, dipole, polarizability, or
+    //! rotational relaxation number.
     virtual void validate(const Species& species);
 
     //! A string specifying the molecular geometry. One of `atom`, `linear`, or
@@ -65,7 +70,7 @@ public:
     //! Default 0.0.
     double rotational_relaxation;
 
-    // Pitzer's acentric factor [dimensionless]. Default 0.0.
+    //! Pitzer's acentric factor [dimensionless]. Default 0.0.
     double acentric_factor;
 };
 
