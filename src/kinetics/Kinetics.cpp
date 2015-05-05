@@ -653,7 +653,7 @@ void Kinetics::addReaction(ReactionData& r) {
     m_ropnet.push_back(0.0);
 }
 
-void Kinetics::addReaction(shared_ptr<Reaction> r)
+bool Kinetics::addReaction(shared_ptr<Reaction> r)
 {
     r->validate();
 
@@ -672,7 +672,7 @@ void Kinetics::addReaction(shared_ptr<Reaction> r)
          ++iter) {
         if (kineticsSpeciesIndex(iter->first) == npos) {
             if (m_skipUndeclaredSpecies) {
-                return;
+                return false;
             } else {
                 throw CanteraError("Kinetics::addReaction", "Reaction '" +
                     r->equation() + "' contains the undeclared species '" +
@@ -685,7 +685,7 @@ void Kinetics::addReaction(shared_ptr<Reaction> r)
          ++iter) {
         if (kineticsSpeciesIndex(iter->first) == npos) {
             if (m_skipUndeclaredSpecies) {
-                return;
+                return false;
             } else {
                 throw CanteraError("Kinetics::addReaction", "Reaction '" +
                     r->equation() + "' contains the undeclared species '" +
@@ -767,6 +767,7 @@ void Kinetics::addReaction(shared_ptr<Reaction> r)
     m_ropf.push_back(0.0);
     m_ropr.push_back(0.0);
     m_ropnet.push_back(0.0);
+    return true;
 }
 
 shared_ptr<Reaction> Kinetics::reaction(size_t i)

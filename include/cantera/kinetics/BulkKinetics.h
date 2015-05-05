@@ -35,7 +35,7 @@ public:
                                      bool doIrreversible = false);
 
     virtual void addReaction(ReactionData& r);
-    virtual void addReaction(shared_ptr<Reaction> r);
+    virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void init();
     virtual void finalize();
     virtual bool ready() const;

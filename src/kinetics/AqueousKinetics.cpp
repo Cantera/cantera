@@ -157,16 +157,19 @@ void AqueousKinetics::addReaction(ReactionData& r)
     BulkKinetics::addReaction(r);
 }
 
-void AqueousKinetics::addReaction(shared_ptr<Reaction> r)
+bool AqueousKinetics::addReaction(shared_ptr<Reaction> r)
 {
+    bool added = BulkKinetics::addReaction(r);
+    if (!added) {
+        return false;
+    }
     if (r->reaction_type == ELEMENTARY_RXN) {
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else {
         throw CanteraError("AqueousKinetics::addReaction",
             "Invalid reaction type: " + int2str(r->reaction_type));
     }
-
-    BulkKinetics::addReaction(r);
+    return true;
 }
 
 }

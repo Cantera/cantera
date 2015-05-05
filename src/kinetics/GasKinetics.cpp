@@ -267,8 +267,14 @@ void GasKinetics::addReaction(ReactionData& r)
     BulkKinetics::addReaction(r);
 }
 
-void GasKinetics::addReaction(shared_ptr<Reaction> r)
+bool GasKinetics::addReaction(shared_ptr<Reaction> r)
 {
+    // operations common to all reaction types
+    bool added = BulkKinetics::addReaction(r);
+    if (!added) {
+        return false;
+    }
+
     switch (r->reaction_type) {
     case ELEMENTARY_RXN:
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
@@ -290,9 +296,7 @@ void GasKinetics::addReaction(shared_ptr<Reaction> r)
         throw CanteraError("GasKinetics::addReaction",
             "Unknown reaction type specified: " + int2str(r->reaction_type));
     }
-
-    // operations common to all reaction types
-    BulkKinetics::addReaction(r);
+    return true;
 }
 
 void GasKinetics::addFalloffReaction(ReactionData& r)
@@ -348,7 +352,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
     m_rfn_low.push_back(0.0);
 
     // add this reaction number to the list of falloff reactions
-    m_fallindx.push_back(nReactions());
+    m_fallindx.push_back(nReactions()-1);
 
     // install the enhanced third-body concentration calculator
     map<size_t, double> efficiencies;
@@ -369,7 +373,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
 
 void GasKinetics::addThreeBodyReaction(ThirdBodyReaction& r)
 {
-    m_rates.install(nReactions(), r.rate);
+    m_rates.install(nReactions()-1, r.rate);
     map<size_t, double> efficiencies;
     for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
          iter != r.third_body.efficiencies.end();
@@ -383,18 +387,18 @@ void GasKinetics::addThreeBodyReaction(ThirdBodyReaction& r)
                 "' while adding reaction '" + r.equation() + "'");
         }
     }
-    m_3b_concm.install(nReactions(), efficiencies,
+    m_3b_concm.install(nReactions()-1, efficiencies,
                        r.third_body.default_efficiency);
 }
 
 void GasKinetics::addPlogReaction(PlogReaction& r)
 {
-    m_plog_rates.install(nReactions(), r.rate);
+    m_plog_rates.install(nReactions()-1, r.rate);
 }
 
 void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
 {
-    m_cheb_rates.install(nReactions(), r.rate);
+    m_cheb_rates.install(nReactions()-1, r.rate);
 }
 
 void GasKinetics::init()

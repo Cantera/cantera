@@ -803,8 +803,9 @@ public:
      * base class method in addition to handling their own specialized behavior.
      *
      * @param r      Pointer to the Reaction object to be added.
+     * @return `true` if the reaction is added or `false` if it was skipped
      */
-    virtual void addReaction(shared_ptr<Reaction> r);
+    virtual bool addReaction(shared_ptr<Reaction> r);
 
     /**
      * Return the Reaction object for reaction *i*.

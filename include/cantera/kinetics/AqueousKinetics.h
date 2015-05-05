@@ -56,7 +56,7 @@ public:
     void updateKc();
 
     virtual void addReaction(ReactionData& r);
-    virtual void addReaction(shared_ptr<Reaction> r);
+    virtual bool addReaction(shared_ptr<Reaction> r);
 };
 }
 

@@ -894,8 +894,14 @@ void InterfaceKinetics::addReaction(ReactionData& r)
     }
 }
 
-void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
+bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
 {
+    size_t i = nReactions();
+    bool added = Kinetics::addReaction(r_base);
+    if (!added) {
+        return false;
+    }
+
     InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
     // Create a SurfaceArrhenius rate calculator and set the coverage dependencies
     double A_rate = r.rate.preExponentialFactor();
@@ -966,7 +972,7 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
                 }
             }
         }
-        m_sticking_orders.push_back(make_pair(m_ii, surface_order));
+        m_sticking_orders.push_back(make_pair(i, surface_order));
     }
     SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
 
@@ -982,7 +988,7 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         rate.addCoverageDependence(k, iter->second.a, iter->second.m, iter->second.E);
     }
 
-    m_rates.install(m_ii, rate);
+    m_rates.install(i, rate);
 
     // Store activation energy
     m_E.push_back(rate.activationEnergy_R());
@@ -991,7 +997,7 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     if (re) {
         m_has_electrochem_rxns = true;
         m_beta.push_back(re->beta);
-        m_ctrxn.push_back(m_ii);
+        m_ctrxn.push_back(i);
         if (re->exchange_current_density_formulation) {
             m_has_exchange_current_density_formulation = true;
             m_ctrxn_ecdf.push_back(1);
@@ -1032,7 +1038,7 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
                     determineFwdOrdersBV(*re, fwdFullorders);
                     RxnOrders* ro = new RxnOrders();
                     ro->fill(fwdFullorders);
-                    m_ctrxn_FwdOrdersList_[m_ii] = ro;
+                    m_ctrxn_FwdOrdersList_[i] = ro;
                 }
             } else {
                 m_ctrxn_ROPOrdersList_.push_back(0);
@@ -1051,18 +1057,16 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     }
 
     if (r.reversible) {
-        m_revindex.push_back(nReactions());
+        m_revindex.push_back(i);
         m_nrev++;
     } else {
-        m_irrev.push_back(nReactions());
+        m_irrev.push_back(i);
         m_nirrev++;
     }
-    Kinetics::addReaction(r_base);
 
     m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
     m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));
 
-    size_t i = m_ii - 1;
     for (Composition::const_iterator iter = r.reactants.begin();
          iter != r.reactants.end();
          ++iter) {
@@ -1077,6 +1081,7 @@ void InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsProduct[i][p] = true;
     }
+    return true;
 }
 
 
