@@ -13,6 +13,10 @@ cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
 
 
 cdef class Reaction:
+    """
+    A class which stores data about a reaction and its rate parameterization so
+    that it can be added to a `Kinetics` object.
+    """
     reaction_type = 0
 
     def __cinit__(self, *args, init=True, **kwargs):
@@ -50,9 +54,9 @@ cdef class Reaction:
         Directories on Cantera's input file path will be searched for the
         specified file.
 
-        In the case of an XML file, the <reactions> nodes are assumed to be
-        children of the <reactionsData> node in a document with a <ctml> root
-        node, as in the XML files produced by conversion from CTI files.
+        In the case of an XML file, the ``<reactions>`` nodes are assumed to be
+        children of the ``<reactionsData>`` node in a document with a ``<ctml>``
+        root node, as in the XML files produced by conversion from CTI files.
         """
         cxx_reactions = CxxGetReactions(deref(CxxGetXmlFile(stringify(filename))))
         return [wrapReaction(r) for r in cxx_reactions]
@@ -61,9 +65,9 @@ cdef class Reaction:
     def listFromXml(text):
         """
         Create a list of Reaction objects from all the reaction defined in an
-        XML string. The <reaction> nodes are assumed to be children of the
-        <reactionData> node in a document with a <ctml> root node, as in the XML
-        files produced by conversion from CTI files.
+        XML string. The ``<reaction>`` nodes are assumed to be children of the
+        ``<reactionData>`` node in a document with a ``<ctml>`` root node, as in
+        the XML files produced by conversion from CTI files.
         """
         cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
         return [wrapReaction(r) for r in cxx_reactions]
@@ -80,60 +84,111 @@ cdef class Reaction:
         return [wrapReaction(r) for r in cxx_reactions]
 
     property reactant_string:
+        """
+        A string representing the reactants side of the chemical equation for
+        this reaction. Determined automatically based on `reactants`.
+        """
         def __get__(self):
             return pystr(self.reaction.reactantString())
 
     property product_string:
+        """
+        A string representing the products side of the chemical equation for
+        this reaction. Determined automatically based on `products`.
+        """
         def __get__(self):
             return pystr(self.reaction.productString())
 
     property equation:
+        """
+        A string giving the chemical equation for this reaction. Determined
+        automatically based on `reactants` and `products`.
+        """
         def __get__(self):
             return pystr(self.reaction.equation())
 
     property reactants:
+        """
+        Get/Set the reactants in this reaction as a dict where the keys are
+        species names and the values, are the stoichiometric coefficients, e.g.
+        ``{'CH4':1, 'OH':1}``, or as a composition string, e.g.
+        ``'CH4:1, OH:1'``.
+        """
         def __get__(self):
             return comp_map_to_dict(self.reaction.reactants)
         def __set__(self, reactants):
             self.reaction.reactants = comp_map(reactants)
 
     property products:
+        """
+        Get/Set the products in this reaction as a dict where the keys are
+        species names and the values, are the stoichiometric coefficients, e.g.
+        ``{'CH3':1, 'H2O':1}``, or as a composition string, e.g.
+        ``'CH3:1, H2O:1'``.
+        """
         def __get__(self):
             return comp_map_to_dict(self.reaction.products)
         def __set__(self, products):
             self.reaction.products = comp_map(products)
 
     property orders:
+        """
+        Get/Set the reaction order with respect to specific species as a dict
+        with species names as the keys and orders as the values, or as a
+        composition string. By default, mass-action kinetics is assumed, with
+        the reaction order for each reactant species equal to each its
+        stoichiometric coefficient.
+        """
         def __get__(self):
             return comp_map_to_dict(self.reaction.orders)
         def __set__(self, orders):
             self.reaction.orders = comp_map(orders)
 
     property ID:
+        """
+        Get/Set the identification string for the reaction, which can be used in
+        filtering operations.
+        """
         def __get__(self):
             return pystr(self.reaction.id)
         def __set__(self, ID):
             self.reaction.id = stringify(ID)
 
     property reversible:
+        """
+        Get/Set a flag which is `True` if this reaction is reversible or `False`
+        otherwise.
+        """
         def __get__(self):
             return self.reaction.reversible
         def __set__(self, reversible):
             self.reaction.reversible = reversible
 
     property duplicate:
+        """
+        Get/Set a flag which is `True` if this reaction is marked as a duplicate
+        or `False` otherwise.
+        """
         def __get__(self):
             return self.reaction.duplicate
         def __set__(self, duplicate):
              self.reaction.duplicate = duplicate
 
     property allow_nonreactant_orders:
+        """
+        Get/Set a flag which is `True` if reaction orders can be specified for
+        non-reactant species. Default is `False`.
+        """
         def __get__(self):
             return self.reaction.allow_nonreactant_orders
         def __set__(self, allow):
             self.reaction.allow_nonreactant_orders = allow
 
     property allow_negative_orders:
+        """
+        Get/Set a flag which is `True` if negative reaction orders are allowed.
+        Default is `False`.
+        """
         def __get__(self):
             return self.reaction.allow_negative_orders
         def __set__(self, allow):
@@ -141,7 +196,18 @@ cdef class Reaction:
 
 
 cdef class Arrhenius:
-    def __cinit__(self, A=0, b=0, E=0, Ta=0, init=True):
+    r"""
+    A reaction rate coefficient which depends on temperature only and follows
+    the modified Arrhenius form:
+
+    .. math::
+
+        k_f = A T^b \exp{-\tfrac{E}{RT}}
+
+    where *A* is the `preexponential_factor`, *b* is the `temperature_exponent`,
+    and *E* is the `activation_energy`.
+    """
+    def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
             self.rate = new CxxArrhenius(A, b, E / gas_constant)
             self.reaction = None
@@ -151,14 +217,24 @@ cdef class Arrhenius:
             del self.rate
 
     property preexponential_factor:
+        """
+        The pre-exponential factor *A* in units of m, kmol, and s raised to
+        powers depending on the reaction order.
+        """
         def __get__(self):
             return self.rate.preExponentialFactor()
 
     property temperature_exponent:
+        """
+        The temperature exponent *b*.
+        """
         def __get__(self):
             return self.rate.temperatureExponent()
 
     property activation_energy:
+        """
+        The activation energy *E* [J/kmol].
+        """
         def __get__(self):
             return self.rate.activationEnergy_R() * gas_constant
 
@@ -176,9 +252,14 @@ cdef copyArrhenius(CxxArrhenius* rate):
 
 
 cdef class ElementaryReaction(Reaction):
+    """
+    A reaction which follows mass-action kinetics with a modified Arrhenius
+    reaction rate.
+    """
     reaction_type = ELEMENTARY_RXN
 
     property rate:
+        """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
         def __get__(self):
             cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
             return wrapArrhenius(&(r.rate), self)
@@ -188,28 +269,59 @@ cdef class ElementaryReaction(Reaction):
 
 
 cdef class ThirdBodyReaction(ElementaryReaction):
+    """
+    A reaction with a non-reacting third body "M" that acts to add or remove
+    energy from the reacting species.
+    """
     reaction_type = THREE_BODY_RXN
 
     cdef CxxThirdBodyReaction* tbr(self):
         return <CxxThirdBodyReaction*>self.reaction
 
     property efficiencies:
+        """
+        Get/Set a `dict` defining non-default third-body efficiencies for this
+        reaction, where the keys are the species names and the values are the
+        efficiencies.
+        """
         def __get__(self):
             return comp_map_to_dict(self.tbr().third_body.efficiencies)
         def __set__(self, eff):
             self.tbr().third_body.efficiencies = comp_map(eff)
 
     property default_efficiency:
+        """
+        Get/Set the default third-body efficiency for this reaction, used for
+        species used for species not in `efficiencies`.
+        """
         def __get__(self):
             return self.tbr().third_body.default_efficiency
         def __set__(self, default_eff):
             self.tbr().third_body.default_efficiency = default_eff
 
     def efficiency(self, species):
+        """
+        Get the efficiency of the third body named *species* considering both
+        the default efficiency and species-specific efficiencies.
+        """
         return self.tbr().third_body.efficiency(stringify(species))
 
 
 cdef class Falloff:
+    """
+    A parameterization used to describe the fall-off in reaction rate constants
+    due to intermolecular energy transfer. These functions are used by reactions
+    defined using the `FalloffReaction` and `ChemicallyActivatedReaction`
+    classes.
+
+    This base class implements the simple falloff function
+    :math:`F(T,P_r) = 1.0`.
+
+    :param coeffs:
+        Not used for the "simple" falloff parameterization.
+    :param init:
+        Used internally when wrapping :ct:`Falloff` objects returned from C++.
+    """
     falloff_type = SIMPLE_FALLOFF
 
     def __cinit__(self, params=(), init=True):
@@ -223,6 +335,7 @@ cdef class Falloff:
         self.falloff = self._falloff.get()
 
     property type:
+        """ A string defining the type of the falloff parameterization """
         def __get__(self):
             cdef int falloff_type = self.falloff.getType()
             if falloff_type == SIMPLE_FALLOFF:
@@ -235,6 +348,7 @@ cdef class Falloff:
                 return "unknown"
 
     property parameters:
+        """ The array of parameters used to define this falloff function. """
         def __get__(self):
             N = self.falloff.nParameters()
             if N == 0:
@@ -245,6 +359,7 @@ cdef class Falloff:
             return data
 
     def __call__(self, float T, float Pr):
+        """ Evaluate the falloff function :math:`F(T, P_r)` """
         N = max(self.falloff.workSize(), 1)
         cdef np.ndarray[np.double_t, ndim=1] work = np.empty(N)
         self.falloff.updateTemp(T, &work[0])
@@ -252,10 +367,25 @@ cdef class Falloff:
 
 
 cdef class TroeFalloff(Falloff):
+    """
+    The 3- or 4-parameter Troe falloff function.
+
+    :param coeffs:
+        An array of 3 or 4 parameters: :math:`[a, T^{***}, T^*, T^{**}]` where
+        the final parameter is optional (with a default value of 0).
+    """
     falloff_type = TROE_FALLOFF
 
 
 cdef class SriFalloff(Falloff):
+    """
+    The 3- or 5-parameter SRI falloff function.
+
+    :param coeffs:
+        An array of 3 or 5 parameters: :math:`[a, b, c, d, e]` where the last
+        two parameters are optional (with default values of 1 and 0,
+        respectively).
+    """
     falloff_type = SRI_FALLOFF
 
 
@@ -276,53 +406,90 @@ cdef wrapFalloff(shared_ptr[CxxFalloff] falloff):
 
 
 cdef class FalloffReaction(Reaction):
+    """
+    A reaction that is first-order in [M] at low pressure, like a third-body
+    reaction, but zeroth-order in [M] as pressure increases.
+    """
     reaction_type = FALLOFF_RXN
 
     cdef CxxFalloffReaction* frxn(self):
         return <CxxFalloffReaction*>self.reaction
 
     property low_rate:
+        """ Get/Set the `Arrhenius` rate constant in the low-pressure limit """
         def __get__(self):
             return wrapArrhenius(&(self.frxn().low_rate), self)
         def __set__(self, Arrhenius rate):
             self.frxn().low_rate = deref(rate.rate)
 
     property high_rate:
+        """ Get/Set the `Arrhenius` rate constant in the high-pressure limit """
         def __get__(self):
             return wrapArrhenius(&(self.frxn().high_rate), self)
         def __set__(self, Arrhenius rate):
             self.frxn().high_rate = deref(rate.rate)
 
     property falloff:
+        """
+        Get/Set the `Falloff` function used to blend the high- and low-pressure
+        rate coefficients
+        """
         def __get__(self):
             return wrapFalloff(self.frxn().falloff)
         def __set__(self, Falloff f):
             self.frxn().falloff = f._falloff
 
     property efficiencies:
+        """
+        Get/Set a `dict` defining non-default third-body efficiencies for this
+        reaction, where the keys are the species names and the values are the
+        efficiencies.
+        """
         def __get__(self):
             return comp_map_to_dict(self.frxn().third_body.efficiencies)
         def __set__(self, eff):
             self.frxn().third_body.efficiencies = comp_map(eff)
 
     property default_efficiency:
+        """
+        Get/Set the default third-body efficiency for this reaction, used for
+        species used for species not in `efficiencies`.
+        """
         def __get__(self):
             return self.frxn().third_body.default_efficiency
         def __set__(self, default_eff):
             self.frxn().third_body.default_efficiency = default_eff
 
     def efficiency(self, species):
+        """
+        Get the efficiency of the third body named *species* considering both
+        the default efficiency and species-specific efficiencies.
+        """
         return self.frxn().third_body.efficiency(stringify(species))
 
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
+    """
+    A reaction where the rate decreases as pressure increases due to collisional
+    stabilization of a reaction intermediate. Like a `FalloffReaction`, except
+    that the forward rate constant is written as being proportional to the low-
+    pressure rate constant.
+    """
     reaction_type = CHEMACT_RXN
 
 
 cdef class PlogReaction(Reaction):
+    """
+    A pressure-dependent reaction parameterized by logarithmically interpolating
+    between Arrhenius rate expressions at various pressures.
+    """
     reaction_type = PLOG_RXN
 
     property rates:
+        """
+        Get/Set the rate coefficients for this reaction, which are given as a
+        list of (pressure, `Arrhenius`) tuples.
+        """
         def __get__(self):
             cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
             rates = []
@@ -346,45 +513,62 @@ cdef class PlogReaction(Reaction):
 
 
 cdef class ChebyshevReaction(Reaction):
+    """
+    A pressure-dependent reaction parameterized by a bivariate Chebyshev
+    polynomial in temperature and pressure.
+    """
     reaction_type = CHEBYSHEV_RXN
 
     property Tmin:
+        """ Minimum temperature [K] for the Chebyshev fit """
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
             return r.rate.Tmin()
 
     property Tmax:
+        """ Maximum temperature [K] for the Chebyshev fit """
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
             return r.rate.Tmax()
 
     property Pmin:
+        """ Minimum pressure [Pa] for the Chebyshev fit """
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
             return r.rate.Pmin()
 
     property Pmax:
+        """ Maximum pressure [Pa] for the Chebyshev fit """
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
             return r.rate.Pmax()
 
     property nPressure:
+        """ Number of pressures over which the Chebyshev fit is computed """
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
             return r.rate.nPressure()
 
     property nTemperature:
+        """ Number of temperatures over which the Chebyshev fit is computed """
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
             return r.rate.nTemperature()
 
     property coeffs:
+        """
+        2D array of Chebyshev coefficients of size `(nTemperature, nPressure)`.
+        """
         def __get__(self):
             cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
             c = np.fromiter(r.rate.coeffs(), np.double)
             return c.reshape((r.rate.nTemperature(), r.rate.nPressure()))
 
     def set_parameters(self, Tmin, Tmax, Pmin, Pmax, coeffs):
+        """
+        Simultaneously set values for `Tmin`, `Tmax`, `Pmin`, `Pmax`, and
+        `coeffs`.
+        """
         cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
 
         cdef CxxArray2D data
@@ -400,9 +584,18 @@ cdef class ChebyshevReaction(Reaction):
 
 
 cdef class InterfaceReaction(ElementaryReaction):
+    """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
     reaction_type = INTERFACE_RXN
 
     property coverage_deps:
+        """
+        Get/Set a dict containing adjustments to the Arrhenius rate expression
+        dependent on surface species coverages. The keys of the dict are species
+        names, and the values are tuples specifying the three coverage
+        parameters ``(a, m, E)`` which are the modifiers for the pre-exponential
+        factor [m, kmol, s units], the temperature exponent [nondimensional],
+        and the activation energy [J/kmol], respectively.
+        """
         def __get__(self):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             deps = {}
@@ -420,6 +613,11 @@ cdef class InterfaceReaction(ElementaryReaction):
                     D[0], D[2] / gas_constant, D[1])
 
     property is_sticking_coefficient:
+        """
+        Get/Set a boolean indicating if the rate coefficient for this reaction
+        is expressed as a sticking coefficient rather than the forward rate
+        constant.
+        """
         def __get__(self):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             return r.is_sticking_coefficient
@@ -428,6 +626,11 @@ cdef class InterfaceReaction(ElementaryReaction):
             r.is_sticking_coefficient = stick
 
     property sticking_species:
+        """
+        The name of the sticking species. Needed only for reactions with
+        multiple non-surface reactant species, where the sticking species is
+        ambiguous.
+        """
         def __get__(self):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             return pystr(r.sticking_species)
@@ -463,6 +666,9 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
     return R
 
 cdef CxxReaction* newReaction(int reaction_type):
+    """
+    Create a new C++ Reaction object of the specified type
+    """
     if reaction_type == ELEMENTARY_RXN:
         return new CxxElementaryReaction()
     elif reaction_type == THREE_BODY_RXN:

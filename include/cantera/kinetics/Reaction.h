@@ -149,7 +149,7 @@ public:
 };
 
 //! A reaction where the rate decreases as pressure increases due to collisional
-//! stabilization of a reaction intermediate. Like a FalloffReaction, except !
+//! stabilization of a reaction intermediate. Like a FalloffReaction, except
 //! that the forward rate constant is written as being proportional to the low-
 //! pressure rate constant.
 class ChemicallyActivatedReaction : public FalloffReaction
