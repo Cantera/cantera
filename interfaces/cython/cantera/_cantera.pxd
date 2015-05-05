@@ -339,6 +339,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         void addPhase(CxxThermoPhase&) except +
         void init() except +
+        void skipUndeclaredThirdBodies(cbool)
         void addReaction(shared_ptr[CxxReaction]) except +
         void finalize() except +
 

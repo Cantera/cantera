@@ -99,6 +99,7 @@ cdef class _SolutionBase:
             for phase in phases:
                 self.kinetics.addPhase(deref(phase.thermo))
             self.kinetics.init()
+            self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction)
             self.kinetics.finalize()
