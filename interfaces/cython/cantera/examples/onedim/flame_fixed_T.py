@@ -6,43 +6,6 @@ multicomponent transport properties and a specified temperature profile.
 import cantera as ct
 import numpy as np
 
-# read temperature vs. position data from a file.
-# The file is assumed to have one z, T pair per line, separated by a comma.
-def getTempData(filename):
-    # open the file containing the temperature data for reading
-    lines = open(filename).readlines()
-
-    # check for unix/Windows/Mac line ending problems
-    if len(lines) == 1:
-        print('Warning: only one line found.')
-        print('Possible text file line-ending problem?')
-        print('The one line found is: ', lines[0])
-
-    z = []
-    T = []
-
-    for line in lines:
-        if line[0] == '#':   # use '#' as the comment character
-            continue
-
-        try:
-            zval, tval = line.split(',')
-            z.append(float(zval))
-            T.append(float(tval))
-        except Exception:
-            pass
-
-    print('read {0} temperature values.'.format(len(z)))
-
-    # convert z values into non-dimensional relative positions.
-    n = len(z)
-    zmax = z[n-1]
-    for i in range(n):
-        z[i] = z[i]/zmax
-
-    return z,T
-
-
 ################################################################
 # parameter values
 p = ct.one_atm  # pressure
@@ -75,8 +38,10 @@ f = ct.BurnerFlame(gas=gas, grid=initial_grid)
 # set the mass flow rate at the burner
 f.burner.mdot = mdot
 
-# read in the fixed temperature profile
-[zloc, tvalues] = getTempData('tdata.dat')
+# read temperature vs. position data from a file.
+# The file is assumed to have one z, T pair per line, separated by a comma.
+zloc, tvalues = np.genfromtxt('tdata.dat', delimiter=',', comments='#').T
+zloc /= max(zloc)
 
 # set the temperature profile to the values read in
 f.flame.set_fixed_temp_profile(zloc, tvalues)
