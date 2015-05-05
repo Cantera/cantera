@@ -17,6 +17,14 @@ cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method):
 
 
 cdef class GasTransportData:
+    """
+    Transport data for a single gas-phase species which can be used in
+    mixture-averaged or multicomponent transport models.
+
+    The arguments passed to the constructor are equivalent to the properties of
+    the object, with values in MKS units. To set properties in non-MKS units,
+    use the `set_customary_units` method.
+    """
     def __cinit__(self, geometry='', diameter=-1, well_depth=-1,
                   dipole=0.0, polarizability=0.0, rotational_relaxation=0.0,
                   acentric_factor=0.0, *, init=True):
@@ -33,46 +41,65 @@ cdef class GasTransportData:
     def set_customary_units(self, geometry, diameter, well_depth, dipole=0.0,
                             polarizability=0.0, rotational_relaxation=0.0,
                             acentric_factor=0.0):
+        """
+        Set the parameters using "customary" units: diameter in Angstroms, well
+        depth in Kelvin, dipole in Debye, and polarizability in Angstroms^3.
+        These are the units used in in CK-style input files.
+        """
         self.data.setCustomaryUnits(stringify(geometry), diameter, well_depth,
             dipole, polarizability, rotational_relaxation, acentric_factor)
 
     property geometry:
+        """
+        Get/Set the string specifying the molecular geometry. One of `atom`,
+        `linear`, or `nonlinear`.
+        """
         def __get__(self):
             return pystr(self.data.geometry)
         def __set__(self, geometry):
             self.data.geometry = stringify(geometry)
 
     property diameter:
+        """ Get/Set the Lennard-Jones collision diameter [m] """
         def __get__(self):
             return self.data.diameter
         def __set__(self, diameter):
             self.data.diameter = diameter
 
     property well_depth:
+        """ Get/Set the Lennard-Jones well depth [J] """
         def __get__(self):
             return self.data.well_depth
         def __set__(self, well_depth):
             self.data.well_depth = well_depth
 
     property dipole:
+        """ Get/Set the permanent dipole moment of the molecule [Coulomb-m]. """
         def __get__(self):
             return self.data.dipole
         def __set__(self, dipole):
             self.data.dipole = dipole
 
     property polarizability:
+        """ Get/Set the polarizability of the molecule [m^3]. """
         def __get__(self):
             return self.data.polarizability
         def __set__(self, polarizability):
             self.data.polarizability = polarizability
 
     property rotational_relaxation:
+        """
+        Get/Set the rotational relaxation number (the number of collisions it
+        takes to equilibrate the rotational degrees of freedom with the
+        temperature).
+        """
         def __get__(self):
             return self.data.rotational_relaxation
         def __set__(self, rotational_relaxation):
             self.data.rotational_relaxation = rotational_relaxation
 
     property acentric_factor:
+        """ Get/Set Pitzer's acentric factor. [dimensionless] """
         def __get__(self):
             return self.data.acentric_factor
         def __set__(self, acentric_factor):
