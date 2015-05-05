@@ -69,7 +69,7 @@ tt {
     color: #333;
 }
 
-tt.descname {
+tt.descname, code.descname {
     background-color: transparent;
     font-weight: bold;
     font-size: 1.2em;
