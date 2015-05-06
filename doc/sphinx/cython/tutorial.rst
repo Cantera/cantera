@@ -224,12 +224,6 @@ two bulk phases and the interface between them from file ``diamond.cti``::
 Note that the bulk (i.e., 3D or homogeneous) phases that participate in the
 surface reactions must also be passed as arguments to `Interface`.
 
-When Cantera reads a ``.cti`` input file, wherever it is located, it always
-writes a file of the same name but with extension ``.xml`` *in the local
-directory*. If you happen to have some other file by that name, it will be
-overwritten. Once the XML file is created, you can use it instead of the
-``.cti`` file, which will result in somewhat faster startup.
-
 Converting CK-format files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -282,19 +282,9 @@ to construct the object representing the phase or interface in the
 application. While this is the net effect, it is actually a two-step
 process. When a function like importPhase is called to import a phase definition
 from a file, a preprocessor runs automatically to read the input file and create
-a data file that contains the same information but in an XML-based format called
+a string that contains the same information but in an XML-based format called
 CTML. After the preprocessor finishes, Cantera imports the phase definition from
-the CTML data file.
-
-The CTML file is saved in the same directory as the input file, and has the same
-name but with the extension changed to ``.xml``. If the input file has the name
-``propane.cti``, for example, then the CTML file will be placed in the same
-directory with name ``propane.xml``. If you like, once the CTML file has been
-created, you can specify it rather than the ``.cti`` input file in calls to
-importPhase (or similar functions). This is slightly faster, since the
-preprocessing step can be skipped. It also allows Cantera simulations to be run
-on systems that do not have Python, which Cantera uses in the preprocessing step
-but does not require to read CTML files.
+this CTML data.
 
 Two File Formats
 ----------------
@@ -393,8 +383,10 @@ conversion by running::
 
     ctml_writer phasedefs.cti
 
-Of course, most of the time creation of the CTML file will happen behind the
-scenes, and you will not need to be concerned with CTML files at all.
+This can be used to generate XML input files for use on systems where the
+Cantera Python package is not installed. Of course, most of the time creation of
+the CTML file will happen behind the scenes, and you will not need to be
+concerned with CTML files at all.
 
 Error Handling
 ==============
