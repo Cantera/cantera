@@ -17,6 +17,11 @@ cdef class Reaction:
     A class which stores data about a reaction and its rate parameterization so
     that it can be added to a `Kinetics` object.
 
+    :param reactants:
+        Value used to set `reactants`
+    :param products:
+        Value used to set `products`
+
     The static methods `listFromFile`, `listFromCti`, and `listFromXml` can be
     used to create lists of `Reaction` objects from existing definitions in the
     CTI or XML format. All of the following will produce a list of the 325
@@ -40,10 +45,14 @@ cdef class Reaction:
     """
     reaction_type = 0
 
-    def __cinit__(self, *args, init=True, **kwargs):
+    def __cinit__(self, reactants='', products='', init=True, **kwargs):
         if init:
             self._reaction.reset(newReaction(self.reaction_type))
             self.reaction = self._reaction.get()
+            if reactants:
+                self.reactants = reactants
+            if products:
+                self.products = products
 
     cdef _assign(self, shared_ptr[CxxReaction] other):
         self._reaction = other

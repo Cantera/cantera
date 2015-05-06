@@ -11,28 +11,28 @@ Reactions
 These classes contain the definition of a single reaction and its associated
 rate expression, indepenent of a specific `Kinetics` object.
 
-.. autoclass:: Reaction
+.. autoclass:: Reaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: ElementaryReaction
+.. autoclass:: ElementaryReaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: ThirdBodyReaction
+.. autoclass:: ThirdBodyReaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: FalloffReaction
+.. autoclass:: FalloffReaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: ChemicallyActivatedReaction
+.. autoclass:: ChemicallyActivatedReaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: PlogReaction
+.. autoclass:: PlogReaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: ChebyshevReaction
+.. autoclass:: ChebyshevReaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: InterfaceReaction
+.. autoclass:: InterfaceReaction(reactants='', products='')
    :no-undoc-members:
 
 Auxilliary Reaction Data

@@ -645,9 +645,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(eq1, eq2)
 
     def test_elementary(self):
-        r = ct.ElementaryReaction()
-        r.reactants = {'O':1, 'H2':1}
-        r.products = {'H':1, 'OH':1}
+        r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
         r.rate = ct.Arrhenius(3.87e1, 2.7, 6260*1000*4.184)
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -676,9 +674,7 @@ class TestReaction(utilities.CanteraTest):
                         self.gas.net_rates_of_progress[1])
 
     def test_falloff(self):
-        r = ct.FalloffReaction()
-        r.reactants = 'OH:2'
-        r.products = 'H2O2:1'
+        r = ct.FalloffReaction('OH:2', 'H2O2:1')
         r.high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
         r.low_rate = ct.Arrhenius(2.3e12, -0.9, -1700*1000*4.184)
         r.falloff = ct.TroeFalloff((0.7346, 94, 1756, 5182))
