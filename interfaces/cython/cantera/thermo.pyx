@@ -167,6 +167,8 @@ cdef class Species:
             data = GasTransportData(init=False)
             data._assign(self.species.transport)
             return data
+        def __set__(self, GasTransportData tran):
+            self.species.transport = tran._data
 
 
 cdef class ThermoPhase(_SolutionBase):
