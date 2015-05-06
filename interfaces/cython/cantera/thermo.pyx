@@ -8,19 +8,41 @@ cdef enum Thermasis:
 cdef class Species:
     """
     A class which stores data about a single chemical species that may be
-    needed to add it to a ThermoPhase or Transport object.
+    needed to add it to a `Solution` or `Interface` object (and to the
+    underlying `ThermoPhase` and `Transport` objects).
 
     :param name:
         A string giving the name of the species, e.g. ``'CH4'``
     :param composition:
         The elemental composition of the species, given either as a dict or a
-        composition string, e.g. `{'C':1, 'H':4}` or `'C:1, H:4'`.
+        composition string, e.g. ``{'C':1, 'H':4}`` or ``'C:1, H:4'``.
     :param charge:
         The electrical charge, in units of the elementary charge. Default 0.0.
     :param size:
         The effective size [m] of the species. Default 1.0.
     :param init:
         Used internally when wrapping :ct:`Species` objects returned from C++
+
+    Example: creating an ideal gas phase with a single species::
+
+        ch4 = ct.Species('CH4', 'C:1, H:4')
+        ch4.thermo = ct.ConstantCp(300, 1000, 101325,
+                                   (300, -7.453347e7, 1.865912e5, 3.576053e4))
+        tran = ct.GasTransportData()
+        tran.set_customary_units('nonlinear', 3.75, 141.40, 0.0, 2.60, 13.00)
+        ch4.transport = tran
+        gas = ct.Solution(thermo='IdealGas', species=[ch4])
+
+    The static methods `fromCti`, `fromXml`, `listFromFile`, `listFromCti`, and
+    `listFromXml` can be used to create `Species` objects from existing
+    definitions in the CTI or XML formats. All of the following will produce a
+    list of 53 `Species` objects containing the species defined in the GRI 3.0
+    mechanism::
+
+        S = ct.Species.listFromFile('gri30.cti')
+        S = ct.Species.listFromCti(open('path/to/gri30.cti').read())
+        S = ct.Species.listFromXml(open('path/to/gri30.xml').read())
+
     """
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
@@ -78,9 +100,9 @@ cdef class Species:
         Directories on Cantera's input file path will be searched for the
         specified file.
 
-        In the case of an XML file, the <species> nodes are assumed to be
-        children of the <speciesData> node in a document with a <ctml> root
-        node, as in the XML files produced by conversion from CTI files.
+        In the case of an XML file, the ``<species>`` nodes are assumed to be
+        children of the ``<speciesData>`` node in a document with a ``<ctml>``
+        root node, as in the XML files produced by conversion from CTI files.
         """
         cxx_species = CxxGetSpecies(deref(CxxGetXmlFile(stringify(filename))))
         species = []
@@ -93,10 +115,10 @@ cdef class Species:
     @staticmethod
     def listFromXml(text):
         """
-        Create a list of Species objects from all the species defined in an
-        XML string. The <species> nodes are assumed to be children of the
-        <speciesData> node in a document with a <ctml> root node, as in the XML
-        files produced by conversion from CTI files.
+        Create a list of Species objects from all the species defined in an XML
+        string. The ``<species>`` nodes are assumed to be children of the
+        ``<speciesData>`` node in a document with a ``<ctml>`` root node, as in
+        the XML files produced by conversion from CTI files.
         """
         cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
         species = []

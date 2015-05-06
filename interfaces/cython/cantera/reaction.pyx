@@ -16,6 +16,27 @@ cdef class Reaction:
     """
     A class which stores data about a reaction and its rate parameterization so
     that it can be added to a `Kinetics` object.
+
+    The static methods `listFromFile`, `listFromCti`, and `listFromXml` can be
+    used to create lists of `Reaction` objects from existing definitions in the
+    CTI or XML format. All of the following will produce a list of the 325
+    reactions which make up the GRI 3.0 mechanism::
+
+        R = ct.Reaction.listFromFile('gri30.cti')
+        R = ct.Reaction.listFromCti(open('path/to/gri30.cti').read())
+        R = ct.Reaction.listFromXml(open('path/to/gri30.xml').read())
+
+    The methods `fromCti` and `fromXml` can be used to create individual
+    `Reaction` objects from definitions in these formats. In the case of using
+    CTI definitions, it is important to verify that either the pre-exponential
+    factor and activation energy are supplied in SI units, or that they have
+    their units specified::
+
+        R = ct.Reaction.fromCti('''reaction('O + H2 <=> H + OH',
+                [3.87e1, 2.7, 2.619184e7])''')
+
+        R = ct.Reaction.fromCti('''reaction('O + H2 <=> H + OH',
+                        [(3.87e4, 'cm3/mol/s'), 2.7, (6260, 'cal/mol')])''')
     """
     reaction_type = 0
 
