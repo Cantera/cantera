@@ -359,7 +359,14 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
     for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
          iter != r.third_body.efficiencies.end();
          ++iter) {
-        efficiencies[kineticsSpeciesIndex(iter->first)] = iter->second;
+        size_t k = kineticsSpeciesIndex(iter->first);
+        if (k != npos) {
+            efficiencies[k] = iter->second;
+        } else if (!m_skipUndeclaredThirdBodies) {
+            throw CanteraError("GasKinetics::addTFalloffReaction", "Found "
+                "third-body efficiency for undefined species '" + iter->first +
+                "' while adding reaction '" + r.equation() + "'");
+        }
     }
     m_falloff_concm.install(m_nfall, efficiencies,
                             r.third_body.default_efficiency);

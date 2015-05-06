@@ -6,6 +6,7 @@
 #define CT_THIRDBODYCALC_H
 
 #include "cantera/base/utilities.h"
+#include <cassert>
 
 namespace Cantera
 {
@@ -26,6 +27,7 @@ public:
              iter != enhanced.end();
              ++iter)
         {
+            assert(iter->first != npos);
             m_species.back().push_back(iter->first);
             m_eff.back().push_back(iter->second - dflt);
         }
