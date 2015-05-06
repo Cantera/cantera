@@ -682,6 +682,9 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(s.size, 1.0)
         self.assertEqual(s.charge, 0.0)
 
+        self.assertIsNone(s.thermo)
+        self.assertIsNone(s.transport)
+
     def test_index_accessor(self):
         for k in range(self.gas.n_species):
             s = self.gas.species(k)

@@ -153,7 +153,10 @@ cdef class Species:
         of class `SpeciesThermo`.
         """
         def __get__(self):
-            return wrapSpeciesThermo(self.species.thermo)
+            if self.species.thermo.get() != NULL:
+                return wrapSpeciesThermo(self.species.thermo)
+            else:
+                return None
 
         def __set__(self, SpeciesThermo spthermo):
             self.species.thermo = spthermo._spthermo
@@ -164,9 +167,12 @@ cdef class Species:
         `GasTransportData`.
         """
         def __get__(self):
-            data = GasTransportData(init=False)
-            data._assign(self.species.transport)
-            return data
+            if self.species.transport.get() != NULL:
+                data = GasTransportData(init=False)
+                data._assign(self.species.transport)
+                return data
+            else:
+                return None
         def __set__(self, GasTransportData tran):
             self.species.transport = tran._data
 
