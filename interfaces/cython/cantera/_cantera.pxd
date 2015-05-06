@@ -214,15 +214,15 @@ cdef extern from "cantera/thermo/SurfPhase.h":
     cdef cppclass CxxSurfPhase "Cantera::SurfPhase":
         CxxSurfPhase()
         double siteDensity()
-        void setSiteDensity(double)
+        void setSiteDensity(double) except +
         void setCoverages(double*) except +
         void setCoveragesByName(Composition&) except +
         void getCoverages(double*) except +
 
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
-    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&)
-    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&)
+    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +
+    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +
 
     cdef cppclass CxxArrhenius "Cantera::Arrhenius":
         CxxArrhenius()
