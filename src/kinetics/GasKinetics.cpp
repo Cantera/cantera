@@ -311,6 +311,7 @@ void GasKinetics::addFalloffReaction(ReactionData& r)
 
     // add this reaction number to the list of falloff reactions
     m_fallindx.push_back(nReactions());
+    m_rfallindx[nReactions()] = m_nfall;
 
     // install the enhanced third-body concentration calculator for this
     // reaction
@@ -353,6 +354,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
 
     // add this reaction number to the list of falloff reactions
     m_fallindx.push_back(nReactions()-1);
+    m_rfallindx[nReactions()-1] = m_nfall;
 
     // install the enhanced third-body concentration calculator
     map<size_t, double> efficiencies;
@@ -406,6 +408,62 @@ void GasKinetics::addPlogReaction(PlogReaction& r)
 void GasKinetics::addChebyshevReaction(ChebyshevReaction& r)
 {
     m_cheb_rates.install(nReactions()-1, r.rate);
+}
+
+void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
+{
+    // operations common to all reaction types
+    BulkKinetics::modifyReaction(i, rNew);
+
+    switch (rNew->reaction_type) {
+    case ELEMENTARY_RXN:
+        modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
+        break;
+    case THREE_BODY_RXN:
+        modifyThreeBodyReaction(i, dynamic_cast<ThirdBodyReaction&>(*rNew));
+        break;
+    case FALLOFF_RXN:
+    case CHEMACT_RXN:
+        modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
+        break;
+    case PLOG_RXN:
+        modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*rNew));
+        break;
+    case CHEBYSHEV_RXN:
+        modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*rNew));
+        break;
+    default:
+        throw CanteraError("GasKinetics::modifyReaction",
+            "Unknown reaction type specified: " + int2str(rNew->reaction_type));
+    }
+
+    // invalidate all cached data
+    m_ROP_ok = false;
+    m_temp += 0.1234;
+    m_pres += 0.1234;
+}
+
+void GasKinetics::modifyThreeBodyReaction(size_t i, ThirdBodyReaction& r)
+{
+    m_rates.replace(i, r.rate);
+}
+
+void GasKinetics::modifyFalloffReaction(size_t i, FalloffReaction& r)
+{
+    size_t iFall = m_rfallindx[i];
+    m_falloff_high_rates.replace(iFall, r.high_rate);
+    m_falloff_low_rates.replace(iFall, r.low_rate);
+    m_falloffn.replace(iFall, r.falloff);
+}
+
+void GasKinetics::modifyPlogReaction(size_t i, PlogReaction& r)
+{
+    m_plog_rates.replace(i, r.rate);
+}
+
+void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction& r)
+{
+    m_cheb_rates.replace(i, r.rate);
 }
 
 void GasKinetics::init()

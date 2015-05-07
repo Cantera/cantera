@@ -166,6 +166,11 @@ void BulkKinetics::addElementaryReaction(ElementaryReaction& r)
     m_rates.install(nReactions()-1, r.rate);
 }
 
+void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction& rNew)
+{
+    m_rates.replace(i, rNew.rate);
+}
+
 void BulkKinetics::init()
 {
     m_kk = thermo().nSpecies();

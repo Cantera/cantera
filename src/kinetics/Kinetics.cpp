@@ -770,6 +770,30 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     return true;
 }
 
+void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
+{
+    checkReactionIndex(i);
+    shared_ptr<Reaction>& rOld = m_reactions[i];
+    if (rNew->reaction_type != rOld->reaction_type) {
+        throw CanteraError("Kinetics::modifyReaction",
+            "Reaction types are different: " + int2str(rOld->reaction_type) +
+            " != " + int2str(rNew->reaction_type) + ".");
+    }
+
+    if (rNew->reactants != rOld->reactants) {
+        throw CanteraError("Kinetics::modifyReaction",
+            "Reactants are different: '" + rOld->reactantString() + "' != '" +
+            rNew->reactantString() + "'.");
+    }
+
+    if (rNew->products != rOld->products) {
+        throw CanteraError("Kinetics::modifyReaction",
+            "Products are different: '" + rOld->productString() + "' != '" +
+            rNew->productString() + "'.");
+    }
+    m_reactions[i] = rNew;
+}
+
 shared_ptr<Reaction> Kinetics::reaction(size_t i)
 {
     checkReactionIndex(i);

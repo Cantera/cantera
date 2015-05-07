@@ -808,6 +808,16 @@ public:
     virtual bool addReaction(shared_ptr<Reaction> r);
 
     /**
+     * Modify the rate expression associated with a reaction. The
+     * stoichiometric equation, type of the reaction, reaction orders, third
+     * body efficiencies, reversibility, etc. must be unchanged.
+     *
+     * @param i    Index of the reaction to be modified
+     * @param rNew Reaction with the new rate expressions
+     */
+    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
+
+    /**
      * Return the Reaction object for reaction *i*.
      */
     shared_ptr<Reaction> reaction(size_t i);

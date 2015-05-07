@@ -42,6 +42,7 @@ public:
         // Install a rate calculator and return the index of the calculator.
         m_rxn.push_back(rxnNumber);
         m_rates.push_back(R(rdata));
+        m_indices[rxnNumber] = m_rxn.size() - 1;
         return m_rates.size() - 1;
     }
 
@@ -53,8 +54,14 @@ public:
     void install(size_t rxnNumber, const R& rate) {
         m_rxn.push_back(rxnNumber);
         m_rates.push_back(rate);
+        m_indices[rxnNumber] = m_rxn.size() - 1;
     }
 
+    //! Replace an existing rate coefficient calculator
+    void replace(size_t rxnNumber, const R& rate) {
+        size_t i = m_indices[rxnNumber];
+        m_rates[i] = rate;
+    }
 
     /**
      * Update the concentration-dependent parts of the rate
@@ -94,6 +101,9 @@ public:
 protected:
     std::vector<R>             m_rates;
     std::vector<size_t>           m_rxn;
+
+    //! map reaction number to index in m_rxn / m_rates
+    std::map<size_t, size_t> m_indices;
 };
 
 }

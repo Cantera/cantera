@@ -74,7 +74,22 @@ cdef class Kinetics(_SolutionBase):
             return self.kinetics.kineticsSpeciesIndex(k, phase)
 
     def reaction(self, int i_reaction):
+        """
+        Return a `Reaction` object representing the reaction with index
+        ``i_reaction``.
+        """
         return wrapReaction(self.kinetics.reaction(i_reaction))
+
+    def modify_reaction(self, int irxn, Reaction rxn):
+        """
+        Modify the `Reaction` with index ``irxn`` to have the same rate
+        parameters as ``rxn``. ``rxn`` must have the same reactants and products
+        and be of the same type (i.e. `ElementaryReaction`, `FalloffReaction`,
+        `PlogReaction`, etc.) as the existing reaction. This method does not
+        modify the third-body efficiencies, reaction orders, or reversibility of
+        the reaction.
+        """
+        self.kinetics.modifyReaction(irxn, rxn._reaction)
 
     def is_reversible(self, int i_reaction):
         """True if reaction `i_reaction` is reversible."""

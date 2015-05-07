@@ -61,6 +61,17 @@ public:
         m_worksize += f->workSize();
         m_falloff.push_back(f);
         m_reactionType.push_back(reactionType);
+        m_indices[rxn] = m_falloff.size()-1;
+    }
+
+    /*!
+     * Replace an existing falloff function calculator
+     *
+     * @param rxn   External reaction index
+     * @param f     New falloff function, of the same kind as the existing one
+     */
+    void replace(size_t rxn, shared_ptr<Falloff> f) {
+        m_falloff[m_indices[rxn]] = f;
     }
 
     //! Size of the work array required to store intermediate results.
@@ -109,6 +120,9 @@ protected:
 
     //! Distinguish between falloff and chemically activated reactions
     vector_int m_reactionType;
+
+    //! map of external reaction index to local index
+    std::map<size_t, size_t> m_indices;
 };
 }
 

@@ -765,3 +765,106 @@ class TestReaction(utilities.CanteraTest):
                             surf2.forward_rate_constants[0])
             self.assertNear(surf1.net_rates_of_progress[1],
                             surf2.net_rates_of_progress[0])
+
+    def test_modify_invalid(self):
+        # different reaction type
+        tbr = self.gas.reaction(0)
+        R2 = ct.ElementaryReaction(tbr.reactants, tbr.products)
+        R2.rate = tbr.rate
+        with self.assertRaises(Exception):
+            self.gas.modify_reaction(0, R2)
+
+        # different reactants
+        R = self.gas.reaction(7)
+        with self.assertRaises(Exception):
+            self.gas.modify_reaction(23, R)
+
+        # different products
+        R = self.gas.reaction(14)
+        with self.assertRaises(Exception):
+            self.gas.modify_reaction(15, R)
+
+    def test_modify_elementary(self):
+        gas = ct.Solution('h2o2.xml')
+        gas.TPX = self.gas.TPX
+        R = self.gas.reaction(2)
+        A1 = R.rate.preexponential_factor
+        b1 = R.rate.temperature_exponent
+        Ta1 = R.rate.activation_energy / ct.gas_constant
+        T = gas.T
+        self.assertNear(A1*T**b1*np.exp(-Ta1/T), gas.forward_rate_constants[2])
+
+        A2 = 1.5 * A1
+        b2 = b1 + 0.1
+        Ta2 = Ta1 * 1.2
+        R.rate = ct.Arrhenius(A2, b2, Ta2 * ct.gas_constant)
+        gas.modify_reaction(2, R)
+        self.assertNear(A2*T**b2*np.exp(-Ta2/T), gas.forward_rate_constants[2])
+
+    def test_modify_third_body(self):
+        gas = ct.Solution('h2o2.xml')
+        gas.TPX = self.gas.TPX
+        R = self.gas.reaction(5)
+        A1 = R.rate.preexponential_factor
+        b1 = R.rate.temperature_exponent
+        T = gas.T
+        kf1 = gas.forward_rate_constants[5]
+
+        A2 = 1.7 * A1
+        b2 = b1 - 0.1
+        R.rate = ct.Arrhenius(A2, b2, 0.0)
+        gas.modify_reaction(5, R)
+        kf2 = gas.forward_rate_constants[5]
+        self.assertNear((A2*T**b2) / (A1*T**b1), kf2/kf1)
+
+    def test_modify_falloff(self):
+        gas = ct.Solution('gri30.xml')
+        gas.TPX = 1100, 3 * ct.one_atm, 'CH4:1.0, O2:0.4, CO2:0.1, H2O:0.05'
+        # these two reactions happen to have the same third-body efficiencies
+        r1 = gas.reaction(49)
+        r2 = gas.reaction(53)
+        self.assertEqual(r1.efficiencies, r2.efficiencies)
+        r2.high_rate = r1.high_rate
+        r2.low_rate = r1.low_rate
+        r2.falloff = r1.falloff
+
+        gas.modify_reaction(53, r2)
+        kf = gas.forward_rate_constants
+        self.assertNear(kf[49], kf[53])
+
+    def test_modify_plog(self):
+        gas = ct.Solution('pdep-test.cti')
+        gas.TPX = 1010, 0.12 * ct.one_atm, 'R1A:0.3, R1B:0.2, H:0.1, R2:0.4'
+
+        r0 = gas.reaction(0)
+        r1 = gas.reaction(1)
+        r0.rates = r1.rates
+        gas.modify_reaction(0, r0)
+        kf = gas.forward_rate_constants
+        self.assertNear(kf[0], kf[1])
+
+        # Removing the high-pressure rates should have no effect at low P...
+        r1.rates = r1.rates[:-4]
+        gas.modify_reaction(1, r1)
+        self.assertNear(kf[1], gas.forward_rate_constants[1])
+
+        # ... but should change the rate at higher pressures
+        gas.TP = 1010, 12.0 * ct.one_atm
+        kf = gas.forward_rates_of_progress
+        self.assertNotAlmostEqual(kf[0], kf[1])
+
+    def test_modify_chebyshev(self):
+        gas = ct.Solution('pdep-test.cti')
+        gas.TPX = 1010, 0.34 * ct.one_atm, 'R1A:0.3, R1B:0.2, H:0.1, R2:0.4'
+
+        r1 = gas.reaction(4)
+        r2 = gas.reaction(5)
+        r1.set_parameters(r2.Tmin, r2.Tmax, r2.Pmin, r2.Pmax, r2.coeffs)
+
+        # rates should be different before calling 'modify_reaction'
+        kf = gas.forward_rate_constants
+        self.assertNotAlmostEqual(kf[4], kf[5])
+
+        gas.modify_reaction(4, r1)
+        kf = gas.forward_rate_constants
+        self.assertNear(kf[4], kf[5])

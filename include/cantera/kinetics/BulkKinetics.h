@@ -46,6 +46,7 @@ public:
 protected:
     virtual void addElementaryReaction(ReactionData& r);
     virtual void addElementaryReaction(ElementaryReaction& r);
+    virtual void modifyElementaryReaction(size_t i, ElementaryReaction& rNew);
 
     Rate1<Arrhenius> m_rates;
     std::vector<size_t> m_revindex; //!< Indices of reversible reactions

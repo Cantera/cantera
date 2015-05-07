@@ -342,6 +342,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void skipUndeclaredThirdBodies(cbool)
         void addReaction(shared_ptr[CxxReaction]) except +
         void finalize() except +
+        void modifyReaction(int, shared_ptr[CxxReaction]) except +
 
         shared_ptr[CxxReaction] reaction(size_t) except +
         cbool isReversible(int) except +
