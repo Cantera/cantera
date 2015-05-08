@@ -868,3 +868,37 @@ class TestReaction(utilities.CanteraTest):
         gas.modify_reaction(4, r1)
         kf = gas.forward_rate_constants
         self.assertNear(kf[4], kf[5])
+
+    def test_modify_interface(self):
+        gas = ct.Solution('ptcombust.xml', 'gas')
+        surf = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+        surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        gas.TP = surf.TP
+
+        R = surf.reaction(1)
+        R.coverage_deps = {'O(S)': (0.0, 0.0, -3e6)}
+        surf.modify_reaction(1, R)
+
+        # Rate constant should now be independent of H(S) coverage, but
+        # dependent on O(S) coverage
+        k1 = surf.forward_rate_constants[1]
+        surf.coverages = 'O(S):0.2, PT(S):0.4, H(S):0.4'
+        k2 = surf.forward_rate_constants[1]
+        surf.coverages = 'O(S):0.2, PT(S):0.6, H(S):0.2'
+        k3 = surf.forward_rate_constants[1]
+        self.assertNotAlmostEqual(k1, k2)
+        self.assertNear(k2, k3)
+
+    def test_modify_sticking(self):
+        gas = ct.Solution('ptcombust.xml', 'gas')
+        surf = ct.Interface('ptcombust.xml', 'Pt_surf', [gas])
+        surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        gas.TP = surf.TP
+
+        R = surf.reaction(2)
+        R.rate = ct.Arrhenius(0.25, 0, 0) # original sticking coefficient = 1.0
+
+        k1 = surf.forward_rate_constants[2]
+        surf.modify_reaction(2, R)
+        k2 = surf.forward_rate_constants[2]
+        self.assertNear(k1, 4*k2)

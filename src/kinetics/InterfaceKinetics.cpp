@@ -903,92 +903,13 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     }
 
     InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
-    // Create a SurfaceArrhenius rate calculator and set the coverage dependencies
-    double A_rate = r.rate.preExponentialFactor();
-    double b_rate = r.rate.temperatureExponent();
-
-    if (r.is_sticking_coefficient) {
-        // Identify the interface phase
-        size_t iInterface = npos;
-        size_t min_dim = 4;
-        for (size_t i = 0; i < nPhases(); i++) {
-            if (thermo(i).nDim() < min_dim) {
-                iInterface = i;
-                min_dim = thermo(i).nDim();
-            }
-        }
-
-        b_rate += 0.5;
-        std::string sticking_species = r.sticking_species;
-        if (sticking_species == "") {
-            // Identify the sticking species if not explicitly given
-            bool foundStick = false;
-            for (Composition::const_iterator iter = r.reactants.begin();
-                 iter != r.reactants.end();
-                 ++iter) {
-                size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
-                if (iPhase != iInterface) {
-                    // Non-interface species. There should be exactly one of these
-                    if (foundStick) {
-                        throw CanteraError("InterfaceKinetics::addReaction",
-                            "Multiple non-interface species found"
-                            "in sticking reaction: '" + r.equation() + "'");
-                    }
-                    foundStick = true;
-                    sticking_species = iter->first;
-                }
-            }
-            if (!foundStick) {
-                throw CanteraError("InterfaceKinetics::addReaction",
-                    "No non-interface species found"
-                    "in sticking reaction: '" + r.equation() + "'");
-            }
-        }
-
-        double surface_order = 0.0;
-        // Adjust the A-factor
-        for (Composition::const_iterator iter = r.reactants.begin();
-             iter != r.reactants.end();
-             ++iter) {
-            size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
-            const ThermoPhase& p = thermo(iPhase);
-            const ThermoPhase& surf = thermo(surfacePhaseIndex());
-            size_t k = p.speciesIndex(iter->first);
-            if (iter->first == sticking_species) {
-                A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
-            } else {
-                // Non-sticking species. Convert from coverages used in the
-                // sticking probability expression to the concentration units
-                // used in the mass action rate expression. For surface phases,
-                // the dependence on the site density is incorporated when the
-                // rate constant is evaluated, since we don't assume that the
-                // site density is known at this time.
-                double order = getValue(r.orders, iter->first, iter->second);
-                if (&p == &surf) {
-                    A_rate *= pow(p.size(k), order);
-                    surface_order += order;
-                } else {
-                    A_rate *= pow(p.standardConcentration(k), -order);
-                }
-            }
-        }
-        m_sticking_orders.push_back(make_pair(i, surface_order));
-    }
-    SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
+    SurfaceArrhenius rate = buildSurfaceArrhenius(i, r);
+    m_rates.install(i, rate);
 
     // Turn on the global flag indicating surface coverage dependence
     if (!r.coverage_deps.empty()) {
         m_has_coverage_dependence = true;
     }
-
-    for (map<string, CoverageDependency>::const_iterator iter = r.coverage_deps.begin();
-         iter != r.coverage_deps.end();
-         ++iter) {
-        size_t k = thermo(reactionPhaseIndex()).speciesIndex(iter->first);
-        rate.addCoverageDependence(k, iter->second.a, iter->second.m, iter->second.E);
-    }
-
-    m_rates.install(i, rate);
 
     // Store activation energy
     m_E.push_back(rate.activationEnergy_R());
@@ -1084,6 +1005,106 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     return true;
 }
 
+void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
+{
+    Kinetics::modifyReaction(i, r_base);
+    InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
+    SurfaceArrhenius rate = buildSurfaceArrhenius(npos, r);
+    m_rates.replace(i, rate);
+
+    // Invalidate cached data
+    m_redo_rates = true;
+    m_temp += 0.1;
+}
+
+SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
+    size_t i, InterfaceReaction& r)
+{
+    double A_rate = r.rate.preExponentialFactor();
+    double b_rate = r.rate.temperatureExponent();
+
+    if (r.is_sticking_coefficient) {
+        // Identify the interface phase
+        size_t iInterface = npos;
+        size_t min_dim = 4;
+        for (size_t n = 0; n < nPhases(); n++) {
+            if (thermo(n).nDim() < min_dim) {
+                iInterface = n;
+                min_dim = thermo(n).nDim();
+            }
+        }
+
+        b_rate += 0.5;
+        std::string sticking_species = r.sticking_species;
+        if (sticking_species == "") {
+            // Identify the sticking species if not explicitly given
+            bool foundStick = false;
+            for (Composition::const_iterator iter = r.reactants.begin();
+                 iter != r.reactants.end();
+                 ++iter) {
+                size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
+                if (iPhase != iInterface) {
+                    // Non-interface species. There should be exactly one of these
+                    if (foundStick) {
+                        throw CanteraError("InterfaceKinetics::addReaction",
+                            "Multiple non-interface species found"
+                            "in sticking reaction: '" + r.equation() + "'");
+                    }
+                    foundStick = true;
+                    sticking_species = iter->first;
+                }
+            }
+            if (!foundStick) {
+                throw CanteraError("InterfaceKinetics::addReaction",
+                    "No non-interface species found"
+                    "in sticking reaction: '" + r.equation() + "'");
+            }
+        }
+
+        double surface_order = 0.0;
+        // Adjust the A-factor
+        for (Composition::const_iterator iter = r.reactants.begin();
+             iter != r.reactants.end();
+             ++iter) {
+            size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
+            const ThermoPhase& p = thermo(iPhase);
+            const ThermoPhase& surf = thermo(surfacePhaseIndex());
+            size_t k = p.speciesIndex(iter->first);
+            if (iter->first == sticking_species) {
+                A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
+            } else {
+                // Non-sticking species. Convert from coverages used in the
+                // sticking probability expression to the concentration units
+                // used in the mass action rate expression. For surface phases,
+                // the dependence on the site density is incorporated when the
+                // rate constant is evaluated, since we don't assume that the
+                // site density is known at this time.
+                double order = getValue(r.orders, iter->first, iter->second);
+                if (&p == &surf) {
+                    A_rate *= pow(p.size(k), order);
+                    surface_order += order;
+                } else {
+                    A_rate *= pow(p.standardConcentration(k), -order);
+                }
+            }
+        }
+        if (i != npos) {
+            m_sticking_orders.push_back(make_pair(i, surface_order));
+        }
+    }
+
+    SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
+
+    // Set up coverage dependencies
+    for (map<string, CoverageDependency>::const_iterator iter = r.coverage_deps.begin();
+         iter != r.coverage_deps.end();
+         ++iter) {
+        size_t k = thermo(reactionPhaseIndex()).speciesIndex(iter->first);
+        rate.addCoverageDependence(k, iter->second.a, iter->second.m, iter->second.E);
+    }
+
+    return rate;
+}
 
 void InterfaceKinetics::setIOFlag(int ioFlag)
 {

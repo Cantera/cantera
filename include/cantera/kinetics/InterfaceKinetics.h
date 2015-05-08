@@ -211,6 +211,7 @@ public:
     virtual void init();
     virtual void addReaction(ReactionData& r);
     virtual bool addReaction(shared_ptr<Reaction> r);
+    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     virtual void finalize();
     virtual bool ready() const;
     //! @}
@@ -393,6 +394,13 @@ public:
     virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
 
 protected:
+    //! Build a SurfaceArrhenius object from a Reaction, taking into account
+    //! the possible sticking coefficient form and coverage dependencies
+    //! @param i  Reaction number. Set to npos if this reaction is replacing
+    //!           an existing rate constant.
+    //! @param r  Reaction object containing rate coefficient parameters
+    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction& r);
+
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 
