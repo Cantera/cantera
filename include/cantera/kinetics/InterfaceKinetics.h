@@ -393,9 +393,6 @@ public:
     virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
 
 protected:
-    void addElementaryReaction(InterfaceReaction& rdata);
-    void addGlobalReaction(InterfaceReaction& r);
-
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 
