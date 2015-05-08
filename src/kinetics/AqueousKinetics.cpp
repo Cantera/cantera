@@ -172,4 +172,14 @@ bool AqueousKinetics::addReaction(shared_ptr<Reaction> r)
     return true;
 }
 
+void AqueousKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
+{
+    BulkKinetics::modifyReaction(i, rNew);
+    modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
+
+    // invalidate all cached data
+    m_ROP_ok = false;
+    m_temp += 0.1234;
+}
+
 }
