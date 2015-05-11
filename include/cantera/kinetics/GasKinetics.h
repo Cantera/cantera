@@ -113,12 +113,12 @@ protected:
     void addPlogReaction(ReactionData& r);
     void addChebyshevReaction(ReactionData& r);
 
-    void addThreeBodyReaction(ThirdBodyReaction& r);
+    void addThreeBodyReaction(ThreeBodyReaction& r);
     void addFalloffReaction(FalloffReaction& r);
     void addPlogReaction(PlogReaction& r);
     void addChebyshevReaction(ChebyshevReaction& r);
 
-    void modifyThreeBodyReaction(size_t i, ThirdBodyReaction& r);
+    void modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
     void modifyPlogReaction(size_t i, PlogReaction& r);
     void modifyChebyshevReaction(size_t i, ChebyshevReaction& r);

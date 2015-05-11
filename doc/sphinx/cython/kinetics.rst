@@ -17,7 +17,7 @@ rate expression, indepenent of a specific `Kinetics` object.
 .. autoclass:: ElementaryReaction(reactants='', products='')
    :no-undoc-members:
 
-.. autoclass:: ThirdBodyReaction(reactants='', products='')
+.. autoclass:: ThreeBodyReaction(reactants='', products='')
    :no-undoc-members:
 
 .. autoclass:: FalloffReaction(reactants='', products='')

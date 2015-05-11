@@ -605,7 +605,7 @@ class TestReaction(utilities.CanteraTest):
         r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
             [1.200000e+11, -1.0, 0.0], efficiencies='AR:0.83 H2:2.4 H2O:15.4')''')
 
-        self.assertTrue(isinstance(r, ct.ThirdBodyReaction))
+        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
         self.assertEqual(r.reactants['O'], 2)
         self.assertEqual(r.products['O2'], 1)
         self.assertEqual(r.efficiencies['H2O'], 15.4)
@@ -617,7 +617,7 @@ class TestReaction(utilities.CanteraTest):
         rxn_node = root.find('.//reaction[@id="0001"]')
         r = ct.Reaction.fromXml(ET.tostring(rxn_node))
 
-        self.assertTrue(isinstance(r, ct.ThirdBodyReaction))
+        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
         self.assertEqual(r.reactants['O'], 2)
         self.assertEqual(r.products['O2'], 1)
         self.assertEqual(r.efficiencies['H2O'], 15.4)
@@ -673,8 +673,8 @@ class TestReaction(utilities.CanteraTest):
                           species=species, reactions=[r])
 
 
-    def test_thirdbody(self):
-        r = ct.ThirdBodyReaction()
+    def test_threebody(self):
+        r = ct.ThreeBodyReaction()
         r.reactants = {'O':1, 'H':1}
         r.products = {'OH':1}
         r.rate = ct.Arrhenius(5e11, -1.0, 0.0)

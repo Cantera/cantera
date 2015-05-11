@@ -107,11 +107,11 @@ public:
 
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
-class ThirdBodyReaction : public ElementaryReaction
+class ThreeBodyReaction : public ElementaryReaction
 {
 public:
-    ThirdBodyReaction();
-    ThirdBodyReaction(const Composition& reactants, const Composition& products,
+    ThreeBodyReaction();
+    ThreeBodyReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, const ThirdBody& tbody);
     virtual std::string reactantString() const;
     virtual std::string productString() const;

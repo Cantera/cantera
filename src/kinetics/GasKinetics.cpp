@@ -280,7 +280,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
         break;
     case THREE_BODY_RXN:
-        addThreeBodyReaction(dynamic_cast<ThirdBodyReaction&>(*r));
+        addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
         break;
     case FALLOFF_RXN:
     case CHEMACT_RXN:
@@ -380,7 +380,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
     ++m_nfall;
 }
 
-void GasKinetics::addThreeBodyReaction(ThirdBodyReaction& r)
+void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
 {
     m_rates.install(nReactions()-1, r.rate);
     map<size_t, double> efficiencies;
@@ -420,7 +420,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
         break;
     case THREE_BODY_RXN:
-        modifyThreeBodyReaction(i, dynamic_cast<ThirdBodyReaction&>(*rNew));
+        modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
         break;
     case FALLOFF_RXN:
     case CHEMACT_RXN:
@@ -443,7 +443,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     m_pres += 0.1234;
 }
 
-void GasKinetics::modifyThreeBodyReaction(size_t i, ThirdBodyReaction& r)
+void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r)
 {
     m_rates.replace(i, r.rate);
 }

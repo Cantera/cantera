@@ -310,15 +310,15 @@ cdef class ElementaryReaction(Reaction):
             r.allow_negative_pre_exponential_factor = allow
 
 
-cdef class ThirdBodyReaction(ElementaryReaction):
+cdef class ThreeBodyReaction(ElementaryReaction):
     """
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
     """
     reaction_type = THREE_BODY_RXN
 
-    cdef CxxThirdBodyReaction* tbr(self):
-        return <CxxThirdBodyReaction*>self.reaction
+    cdef CxxThreeBodyReaction* tbr(self):
+        return <CxxThreeBodyReaction*>self.reaction
 
     property efficiencies:
         """
@@ -690,7 +690,7 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
     if reaction_type == ELEMENTARY_RXN:
         R = ElementaryReaction(init=False)
     elif reaction_type == THREE_BODY_RXN:
-        R = ThirdBodyReaction(init=False)
+        R = ThreeBodyReaction(init=False)
     elif reaction_type == FALLOFF_RXN:
         R = FalloffReaction(init=False)
     elif reaction_type == CHEMACT_RXN:
@@ -714,7 +714,7 @@ cdef CxxReaction* newReaction(int reaction_type):
     if reaction_type == ELEMENTARY_RXN:
         return new CxxElementaryReaction()
     elif reaction_type == THREE_BODY_RXN:
-        return new CxxThirdBodyReaction()
+        return new CxxThreeBodyReaction()
     elif reaction_type == FALLOFF_RXN:
         return new CxxFalloffReaction()
     elif reaction_type == CHEMACT_RXN:

@@ -71,7 +71,7 @@ TEST_F(KineticsFromScratch, add_three_body_reaction)
     Arrhenius rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
-    shared_ptr<ThirdBodyReaction> R(new ThirdBodyReaction(reac, prod, rate, tbody));
+    shared_ptr<ThreeBodyReaction> R(new ThreeBodyReaction(reac, prod, rate, tbody));
 
     kin.addReaction(R);
     kin.finalize();
@@ -85,7 +85,7 @@ TEST_F(KineticsFromScratch, undefined_third_body)
     Arrhenius rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    shared_ptr<ThirdBodyReaction> R(new ThirdBodyReaction(reac, prod, rate, tbody));
+    shared_ptr<ThreeBodyReaction> R(new ThreeBodyReaction(reac, prod, rate, tbody));
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
@@ -97,7 +97,7 @@ TEST_F(KineticsFromScratch, skip_undefined_third_body)
     Arrhenius rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    shared_ptr<ThirdBodyReaction> R(new ThirdBodyReaction(reac, prod, rate, tbody));
+    shared_ptr<ThreeBodyReaction> R(new ThreeBodyReaction(reac, prod, rate, tbody));
 
     kin.skipUndeclaredThirdBodies(true);
     kin.addReaction(R);

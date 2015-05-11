@@ -133,12 +133,12 @@ ThirdBody::ThirdBody(double default_eff)
 {
 }
 
-ThirdBodyReaction::ThirdBodyReaction()
+ThreeBodyReaction::ThreeBodyReaction()
 {
     reaction_type = THREE_BODY_RXN;
 }
 
-ThirdBodyReaction::ThirdBodyReaction(const Composition& reactants_,
+ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
                                      const Composition& products_,
                                      const Arrhenius& rate_,
                                      const ThirdBody& tbody)
@@ -148,11 +148,11 @@ ThirdBodyReaction::ThirdBodyReaction(const Composition& reactants_,
     reaction_type = THREE_BODY_RXN;
 }
 
-std::string ThirdBodyReaction::reactantString() const {
+std::string ThreeBodyReaction::reactantString() const {
     return ElementaryReaction::reactantString() + " + M";
 }
 
-std::string ThirdBodyReaction::productString() const {
+std::string ThreeBodyReaction::productString() const {
     return ElementaryReaction::productString() + " + M";
 }
 
@@ -377,7 +377,7 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
-void setupThirdBodyReaction(ThirdBodyReaction& R, const XML_Node& rxn_node)
+void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
 {
     readEfficiencies(R.third_body, rxn_node.child("rateCoeff"));
     setupElementaryReaction(R, rxn_node);
@@ -629,8 +629,8 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         return R;
 
     } else if (type == "threebody" || type == "three_body") {
-        shared_ptr<ThirdBodyReaction> R(new ThirdBodyReaction());
-        setupThirdBodyReaction(*R, rxn_node);
+        shared_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());
+        setupThreeBodyReaction(*R, rxn_node);
         return R;
 
     } else if (type == "falloff") {
