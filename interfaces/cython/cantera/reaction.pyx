@@ -234,7 +234,7 @@ cdef class Arrhenius:
 
         k_f = A T^b \exp{-\tfrac{E}{RT}}
 
-    where *A* is the `preexponential_factor`, *b* is the `temperature_exponent`,
+    where *A* is the `pre_exponential_factor`, *b* is the `temperature_exponent`,
     and *E* is the `activation_energy`.
     """
     def __cinit__(self, A=0, b=0, E=0, init=True):
@@ -246,7 +246,7 @@ cdef class Arrhenius:
         if self.reaction is None:
             del self.rate
 
-    property preexponential_factor:
+    property pre_exponential_factor:
         """
         The pre-exponential factor *A* in units of m, kmol, and s raised to
         powers depending on the reaction order.

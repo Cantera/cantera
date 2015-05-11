@@ -202,8 +202,8 @@ class KineticsFromReactions(utilities.CanteraTest):
             r2 = surf2.reaction(i)
             self.assertEqual(r1.reactants, r2.reactants)
             self.assertEqual(r1.products, r2.products)
-            self.assertEqual(r1.rate.preexponential_factor,
-                             r2.rate.preexponential_factor)
+            self.assertEqual(r1.rate.pre_exponential_factor,
+                             r2.rate.pre_exponential_factor)
             self.assertEqual(r1.rate.temperature_exponent,
                              r2.rate.temperature_exponent)
             self.assertEqual(r1.rate.activation_energy,
@@ -788,7 +788,7 @@ class TestReaction(utilities.CanteraTest):
         gas = ct.Solution('h2o2.xml')
         gas.TPX = self.gas.TPX
         R = self.gas.reaction(2)
-        A1 = R.rate.preexponential_factor
+        A1 = R.rate.pre_exponential_factor
         b1 = R.rate.temperature_exponent
         Ta1 = R.rate.activation_energy / ct.gas_constant
         T = gas.T
@@ -805,7 +805,7 @@ class TestReaction(utilities.CanteraTest):
         gas = ct.Solution('h2o2.xml')
         gas.TPX = self.gas.TPX
         R = self.gas.reaction(5)
-        A1 = R.rate.preexponential_factor
+        A1 = R.rate.pre_exponential_factor
         b1 = R.rate.temperature_exponent
         T = gas.T
         kf1 = gas.forward_rate_constants[5]
