@@ -657,6 +657,22 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(gas2.net_rates_of_progress[0],
                         self.gas.net_rates_of_progress[2])
 
+    def test_negative_A(self):
+        species = ct.Species.listFromFile('gri30.cti')
+        r = ct.ElementaryReaction('NH:1, NO:1', 'N2O:1, H:1')
+        r.rate = ct.Arrhenius(-2.16e13, -0.23, 0)
+
+        self.assertFalse(r.allow_negative_pre_exponential_factor)
+
+        with self.assertRaises(Exception):
+            gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                              species=species, reactions=[r])
+
+        r.allow_negative_pre_exponential_factor = True
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=species, reactions=[r])
+
+
     def test_thirdbody(self):
         r = ct.ThirdBodyReaction()
         r.reactants = {'O':1, 'H':1}

@@ -297,6 +297,18 @@ cdef class ElementaryReaction(Reaction):
             cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
             r.rate = deref(rate.rate)
 
+    property allow_negative_pre_exponential_factor:
+        """
+        Get/Set whether the rate coefficient is allowed to have a negative
+        pre-exponential factor.
+        """
+        def __get__(self):
+            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            return r.allow_negative_pre_exponential_factor
+        def __set__(self, allow):
+            cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
+            r.allow_negative_pre_exponential_factor = allow
+
 
 cdef class ThirdBodyReaction(ElementaryReaction):
     """
