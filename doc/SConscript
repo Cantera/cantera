@@ -89,9 +89,6 @@ def get_function_name(str):
         return sig
 
 if localenv['doxygen_docs']:
-    if localenv['graphvizdir']:
-        localenv.Append(PATH=localenv['graphvizdir'])
-
     docs = build(localenv.Command('#build/docs/doxygen/html/index.html',
                                   'doxygen/Doxyfile', 'doxygen $SOURCE'))
     env.Depends(docs, env.Glob('#doc/doxygen/*') +

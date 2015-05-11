@@ -75,12 +75,6 @@ CANTERA_BLAS_LAPACK_LIBS_DEP=$(CANTERA_INSTALL_DIR)/lib/libctlapack.a $(CANTERA_
 endif
 
 ###############################################################################
-#       F2C USAGE
-###############################################################################
-
-CANTERA_F2C_LIBS= @mak_f2c_lib@
-
-###############################################################################
 #      COMBINATIONS OF INCLUDES AND LIBS
 ###############################################################################
 
@@ -95,7 +89,7 @@ CANTERA_DEFINES = -DCANTERA_VERSION=@cantera_version@
 CANTERA_LIBS=$(CANTERA_CORE_LIBS) \
              $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
              $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
-             $(CANTERA_F2C_LIBS) $(CANTERA_SYSLIBS)
+             $(CANTERA_SYSLIBS)
 
 CANTERA_TOTAL_LIBS=$(CANTERA_LIBS)
 
@@ -106,7 +100,7 @@ CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
 
 CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) \
                      $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
-                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_F2C_LIBS) \
+                     $(CANTERA_BLAS_LAPACK_LIBS) \
                      $(CANTERA_BOOST_LIBS) $(CANTERA_FORTRAN_SYSLIBS)
 
 ###############################################################################
