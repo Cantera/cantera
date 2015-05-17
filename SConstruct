@@ -612,7 +612,7 @@ config_options = [
            *Deprecated*. Make sure that 'dot' is on your path before building
            the Doxygen documentation.""",
         '', PathVariable.PathAccept),
-    ('cantera_version', '', '2.2a1')
+    ('cantera_version', '', '2.2b1')
 ]
 
 opts.AddVariables(*config_options)
