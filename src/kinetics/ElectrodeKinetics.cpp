@@ -547,7 +547,7 @@ double ElectrodeKinetics::calcForwardROP_BV(size_t irxn, size_t iBeta, double io
     if (ro_fwd == 0) {
 	throw CanteraError("ElectrodeKinetics::calcForwardROP_BV()", "forward orders pointer is zero ?!?");
     }
-    double tmp = exp(- m_beta[iBeta] * m_deltaG0[irxn] * rrt);
+    double tmp = exp(- m_beta[iBeta] * m_deltaG0[irxn] / rt);
     double tmp2 = 1.0;
     const std::vector<size_t>& kinSpeciesIDs = ro_fwd->kinSpeciesIDs_;
     const std::vector<doublereal>& kinSpeciesOrders = ro_fwd->kinSpeciesOrders_;
@@ -562,12 +562,13 @@ double ElectrodeKinetics::calcForwardROP_BV(size_t irxn, size_t iBeta, double io
     //
     //  Calculate the chemical reaction rate constant
     //
+    double iorc = m_rfn[irxn] * m_perturb[irxn];
     double kf = iorc * tmp;
     //
     //  Calculate the electrochemical factor
     // 
     double eamod = m_beta[iBeta] * deltaElectricEnergy_[irxn];
-    kf *= exp(- eamod * rrt);
+    kf *= exp(- eamod / rt);
     //
     // Calculate the forward rate of progress
     //   -> get the pointer for the orders
