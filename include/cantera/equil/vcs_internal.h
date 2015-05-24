@@ -215,12 +215,6 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax, VCS_FUNC_PTR func,
                    double FuncTargVal, int varID, double* xbest,
                    int printLvl = 0);
 
-//! Returns the system wall clock time in seconds
-/*!
- * @return time in seconds.
- */
-double vcs_second();
-
 //! determine the l2 norm of a vector of doubles
 /*!
  * @param vec vector of doubles
