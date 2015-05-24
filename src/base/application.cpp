@@ -410,15 +410,14 @@ void Application::setDefaultDirectories()
 
 #ifdef _WIN32
     // Under Windows, the Cantera setup utility records the installation
-    // directory in the registry. Data files are stored in the 'data' and
-    // 'templates' subdirectories of the main installation directory.
+    // directory in the registry. Data files are stored in the 'data'
+    // subdirectory of the main installation directory.
 
     std::string installDir;
-    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera 2.0",
+    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera 2.2",
                           "InstallDir", installDir, "");
     if (installDir != "") {
         dirs.push_back(installDir + "data");
-        dirs.push_back(installDir + "templates");
 
         // Scripts for converting mechanisms to CTI and CMTL are installed in
         // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
