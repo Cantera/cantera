@@ -17,7 +17,10 @@ cdef class ReactionPathDiagram:
         self.built = False
 
     property show_details:
-        """ Show the details of which reactions contribute to the flux """
+        """
+        Get/Set whether to show the details of which reactions contribute to the
+        flux.
+        """
         def __get__(self):
             return self.diagram.show_details
         def __set__(self, pybool value):
@@ -25,7 +28,7 @@ cdef class ReactionPathDiagram:
 
     property threshold:
         """
-        Set the threshold for the minimum flux relative value that will be
+        Get/Set the threshold for the minimum flux relative value that will be
         plotted.
         """
         def __get__(self):
@@ -34,55 +37,56 @@ cdef class ReactionPathDiagram:
             self.diagram.threshold = value
 
     property bold_threshold:
-        """ minimum relative flux for bold lines """
+        """ Get/Set the minimum relative flux for bold lines """
         def __get__(self):
             return self.diagram.bold_min
         def __set__(self, double value):
             self.diagram.bold_min = value
 
     property normal_threshold:
-        """ maximum relative flux for dashed lines """
+        """ Get/Set the maximum relative flux for dashed lines """
         def __get__(self):
             return self.diagram.dashed_max
         def __set__(self, double value):
             self.diagram.dashed_max = value
 
     property label_threshold:
-        """ minimum relative flux for labels """
+        """ Get/Set the minimum relative flux for labels """
         def __get__(self):
             return self.diagram.label_min
         def __set__(self, double value):
             self.diagram.label_min = value
 
     property bold_color:
-        """ color for bold lines """
+        """ Get/Set the color for bold lines """
         def __get__(self):
             return pystr(self.diagram.bold_color)
         def __set__(self, str value):
             self.diagram.bold_color = stringify(value)
 
     property normal_color:
-        """ color for normal-weight lines """
+        """ Get/Set the color for normal-weight lines """
         def __get__(self):
             return pystr(self.diagram.normal_color)
         def __set__(self, str value):
             self.diagram.normal_color = stringify(value)
 
     property dashed_color:
-        """ color for dashed lines """
+        """ Get/Set the color for dashed lines """
         def __get__(self):
             return pystr(self.diagram.dashed_color)
         def __set__(self, str value):
             self.diagram.dashed_color = stringify(value)
 
     property dot_options:
-        """ options for the 'dot' program """
+        """ Get/Set options for the 'dot' program """
         def __get__(self):
             return pystr(self.diagram.dot_options)
         def __set__(self, str value):
             self.diagram.dot_options = stringify(value)
 
     property font:
+        """ Get/Set the name of the font used """
         def __get__(self):
             return pystr(self.diagram.m_font)
         def __set__(self, str value):
@@ -90,8 +94,8 @@ cdef class ReactionPathDiagram:
 
     property scale:
         """
-        Scaling factor for the fluxes. Set to -1 to normalize by the maximum
-        net flux.
+        Get/Set the scaling factor for the fluxes. Set to -1 to normalize by the
+        maximum net flux.
         """
         def __get__(self):
             return self.diagram.scale
@@ -99,7 +103,7 @@ cdef class ReactionPathDiagram:
             self.diagram.scale = value
 
     property flow_type:
-        """ Set to either 'NetFlow' or 'OneWayFlow' """
+        """ Get/Set the way flows are drawn. Either 'NetFlow' or 'OneWayFlow' """
         def __get__(self):
             if self.diagram.flow_type == CxxNetFlow:
                 return 'NetFlow'
@@ -115,13 +119,14 @@ cdef class ReactionPathDiagram:
                 raise ValueError('Invalid flow_type: {!r}'.format(value))
 
     property arrow_width:
-        """ arrow width. If < 0, then scale with flux value """
+        """ Get/Set the arrow width. If < 0, then scale with flux value. """
         def __get__(self):
             return self.diagram.arrow_width
         def __set__(self, double value):
             self.diagram.arrow_width = value
 
     property title:
+        """ Get/Set the diagram title """
         def __get__(self):
             return pystr(self.diagram.title)
         def __set__(self, str value):
