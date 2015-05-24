@@ -240,18 +240,6 @@ public:
      */
     doublereal film_resistivity;
 
-    //! Power of the equilibrium constant within the Affinity representation
-    /*!
-     *  Only valid for Affinity representation. Default = 1.0.
-     */
-    doublereal equilibrium_constant_power;
-
-    //! Power of the "One minus Affinity" term within the Affinity representation
-    /*!
-     *   Only valid for Affinity representation. Default = 1.0.
-     */
-    doublereal affinity_power;
-
     //! Forward value of the apparent Electrochemical transfer coefficient
     doublereal beta;
 

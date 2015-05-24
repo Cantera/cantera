@@ -258,8 +258,6 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
 
 ElectrochemicalReaction::ElectrochemicalReaction()
     : film_resistivity(0.0)
-    , equilibrium_constant_power(1.0)
-    , affinity_power(1.0)
     , beta(0.0)
     , exchange_current_density_formulation(false)
 {
@@ -270,8 +268,6 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
                                                  const Arrhenius& rate_)
     : InterfaceReaction(reactants_, products_, rate_)
     , film_resistivity(0.0)
-    , equilibrium_constant_power(1.0)
-    , affinity_power(1.0)
     , beta(0.0)
     , exchange_current_density_formulation(false)
 {
@@ -537,8 +533,6 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     }
 
     getOptionalFloat(rxn_node, "filmResistivity", R.film_resistivity);
-    getOptionalFloat(rxn_node, "affinityPower", R.affinity_power);
-    getOptionalFloat(rxn_node, "equilibriumConstantPower", R.equilibrium_constant_power);
 
     setupInterfaceReaction(R, rxn_node);
 
