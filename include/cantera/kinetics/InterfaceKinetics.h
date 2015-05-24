@@ -432,15 +432,6 @@ protected:
     //! Number of reversible reactions in the mechanism
     size_t m_nrev;
 
-public:
-    //! Vector of additional information about each reaction
-    /*!
-     *  This vector contains information about the phase mole change for each reaction,
-     *  for example.
-     */
-    std::vector<RxnMolChange*> rmcVector;
-
-protected:
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
      * An array of generalized concentrations \f$ C_k \f$ that are defined

@@ -45,9 +45,6 @@ InterfaceKinetics::~InterfaceKinetics()
 {
     delete m_integrator;
 
-    for (size_t i = 0; i < rmcVector.size(); i++) {
-        delete rmcVector[i];
-    }
     for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
         delete m_ctrxn_ROPOrdersList_[i];
     }
@@ -116,16 +113,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_rxnPhaseIsReactant   = right.m_rxnPhaseIsReactant;
     m_rxnPhaseIsProduct    = right.m_rxnPhaseIsProduct;
     m_ioFlag               = right.m_ioFlag;
-
-    for (size_t i = 0; i <  rmcVector.size(); i++) {
-        delete rmcVector[i];
-    }
-    rmcVector.resize(m_ii, 0);
-    for (size_t i = 0; i < m_ii; i++) {
-        if (right.rmcVector[i]) {
-            rmcVector[i] = new RxnMolChange(*(right.rmcVector[i]));
-        }
-    }
 
     for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
         delete m_ctrxn_ROPOrdersList_[i];
@@ -1175,12 +1162,6 @@ void InterfaceKinetics::finalize()
         m_rkcn.resize(1, 0.0);
     }
 
-    // Malloc and calculate all of the quantities that go into the extra description of reactions
-    rmcVector.resize(m_ii, 0);
-    for (size_t i = 0; i < m_ii; i++) {
-          rmcVector[i] = new RxnMolChange(this, i);
-    }
-
     m_finalized = true;
 }
 
@@ -1415,12 +1396,6 @@ void EdgeKinetics::finalize()
         m_ropr.resize(1, 0.0);
         m_ropnet.resize(1, 0.0);
         m_rkcn.resize(1, 0.0);
-    }
-
-    // Malloc and calculate all of the quantities that go into the extra description of reactions
-    rmcVector.resize(m_ii, 0);
-    for (size_t i = 0; i < m_ii; i++) {
-          rmcVector[i] = new RxnMolChange(this, i);
     }
 
     m_finalized = true;

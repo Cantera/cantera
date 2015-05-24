@@ -24,7 +24,9 @@ ElectrodeKinetics::ElectrodeKinetics(thermo_t* thermo) :
 //============================================================================================================================
 ElectrodeKinetics::~ElectrodeKinetics()
 {
-  
+    for (size_t i = 0; i < rmcVector.size(); i++) {
+        delete rmcVector[i];
+    }
 }
 //============================================================================================================================
 ElectrodeKinetics::ElectrodeKinetics(const ElectrodeKinetics& right) :
@@ -51,7 +53,17 @@ ElectrodeKinetics& ElectrodeKinetics::operator=(const ElectrodeKinetics& right)
     metalPhaseIndex_   = right.metalPhaseIndex_;
     solnPhaseIndex_ = right.solnPhaseIndex_;
     kElectronIndex_ = right.kElectronIndex_;
-   
+
+    for (size_t i = 0; i <  rmcVector.size(); i++) {
+        delete rmcVector[i];
+    }
+    rmcVector.resize(m_ii, 0);
+    for (size_t i = 0; i < m_ii; i++) {
+        if (right.rmcVector[i]) {
+            rmcVector[i] = new RxnMolChange(*(right.rmcVector[i]));
+        }
+    }
+
     return *this;
 }
 //============================================================================================================================
@@ -876,6 +888,17 @@ void ElectrodeKinetics::init()
      InterfaceKinetics::init();
      identifyMetalPhase();
 }
+
+void ElectrodeKinetics::finalize()
+{
+    InterfaceKinetics::finalize();
+    // Malloc and calculate all of the quantities that go into the extra description of reactions
+    rmcVector.resize(m_ii, 0);
+    for (size_t i = 0; i < m_ii; i++) {
+          rmcVector[i] = new RxnMolChange(this, i);
+    }
+}
+
 //==================================================================================================================
 
 double ElectrodeKinetics::solveCurrentRes(double nu, double nStoich, doublereal ioc, doublereal beta, doublereal temp,

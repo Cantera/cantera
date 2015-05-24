@@ -105,6 +105,14 @@ public:
      */ 
     virtual void init();
 
+    virtual void finalize();
+
+    //! Vector of additional information about each reaction
+    /*!
+     *  This vector contains information about the phase mole change for each reaction,
+     *  for example.
+     */
+    std::vector<RxnMolChange*> rmcVector;
 
 protected:
     //! Index of the metal phase in the list of phases for this kinetics object. This is the electron phase.
