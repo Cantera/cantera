@@ -208,6 +208,7 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  *   return 0;
  * }
  * @endcode
+ * @deprecated Unused. To be removed after Cantera 2.2.
  */
 int vcsUtil_root1d(double xmin, double xmax, size_t itmax, VCS_FUNC_PTR func,
                    void* fptrPassthrough,
@@ -246,6 +247,7 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
  *  @param length length of the integer vector
  *
  * @return returns the max integer value in the list
+ * @deprecated Unused. To be removed after Cantera 2.2.
  */
 int vcs_max_int(const int* vector, int length);
 

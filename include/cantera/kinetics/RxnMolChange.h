@@ -24,6 +24,7 @@ class Kinetics;
 /*!
  *   Note that all indexes refer to a specific interfacial or homogeneous kinetics object. It does not
  *   refer to the Phase list indexes.
+ *   @deprecated Unfinished implementation to be removed after Cantera 2.2.
  */
 class RxnMolChange
 {

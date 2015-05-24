@@ -12,6 +12,7 @@
 #include "cantera/numerics/solveProb.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 namespace Cantera
@@ -31,6 +32,7 @@ solveProb::solveProb(ResidEval* resid) :
     m_maxstep(1000),
     m_ioflag(0)
 {
+    warn_deprecated("class solveProb", "To be removed after Cantera 2.2.");
     m_neq =   m_residFunc->nEquations();
 
     // Dimension solution vector

@@ -30,6 +30,7 @@ namespace Cantera
  *   within the kinetics object that is used to identify the global reaction. Rates of progress
  *   are defined in terms of the production rate of the special species.
  *   
+ *   @deprecated Unfinished implementation to be removed after Cantera 2.2.
  */
 class ExtraGlobalRxn
 {

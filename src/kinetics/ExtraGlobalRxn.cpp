@@ -98,6 +98,8 @@ ExtraGlobalRxn::ExtraGlobalRxn(Kinetics* k_ptr) :
     m_ok(false),
     m_reversible(true)
 {
+    warn_deprecated("class ExtraGlobalRxn",
+        "Unfinished implementation to be removed after Cantera 2.2.");
     m_InterfaceKinetics = dynamic_cast<InterfaceKinetics*>(k_ptr);
     if (m_InterfaceKinetics) {
         m_ThisIsASurfaceRxn = true;

@@ -36,6 +36,7 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
     m_beta(0.0),
     m_egr(0)
 {
+    warn_deprecated("class RxnMolChange", "To be removed after Cantera 2.2.");
     int nReac = kinPtr->nReactions();
     int iph;
     AssertTrace(irxn >= 0);

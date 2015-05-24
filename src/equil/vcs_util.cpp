@@ -62,6 +62,7 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
 
 int vcs_max_int(const int* vector, int length)
 {
+    warn_deprecated("vcs_max_int", "Unused. To be removed after Cantera 2.2.");
     int retn;
     if (vector == NULL || length <= 0) {
         return 0;

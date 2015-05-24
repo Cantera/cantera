@@ -38,6 +38,7 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
                    double FuncTargVal, int varID,
                    double* xbest, int printLvl)
 {
+    warn_deprecated("vcsUtil_root1d", "To be removed after Cantera 2.2.");
     static int callNum = 0;
     const char* stre = "vcs_root1d ERROR: ";
     const char* strw = "vcs_root1d WARNING: ";

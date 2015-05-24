@@ -121,6 +121,7 @@ namespace Cantera
  *  @endcode
  *
  *  @ingroup numerics
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 class NonlinearSolver
 {

@@ -11,6 +11,7 @@
 
 #include "cantera/numerics/BEulerInt.h"
 #include "cantera/numerics/SquareMatrix.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -66,7 +67,7 @@ BEulerInt::BEulerInt() :
     m_numTotalTruncFails(0),
     num_failures(0)
 {
-
+    warn_deprecated("class BEulerInt", "To be removed after Cantera 2.2.");
 }
 
 BEulerInt::~BEulerInt()

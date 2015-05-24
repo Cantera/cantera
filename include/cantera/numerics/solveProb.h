@@ -134,6 +134,7 @@ namespace Cantera
  *----------------------------------------------------------------------------
  *
  *  @ingroup solverGroup
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 class solveProb
 {

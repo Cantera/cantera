@@ -915,6 +915,7 @@ public:
     /*!
      *   The default is THROWON_OVERFLOW_CTRB
      *   Which throws an error in debug mode, but silently changes the answer in non-debug mode
+     *   @deprecated To be removed after Cantera 2.2.
      */
     enum CT_RealNumber_Range_Behavior realNumberRangeBehavior_;
 

@@ -27,6 +27,7 @@ namespace Cantera
  *   phases. We will also assume that there is an electron phase. 
  *
  *  @ingroup chemkinetics
+ *  @deprecated Unfinished implementation to be removed after Cantera 2.2.
  */
 class ElectrodeKinetics : public InterfaceKinetics
 {

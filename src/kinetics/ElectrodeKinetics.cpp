@@ -5,6 +5,7 @@
 #include "cantera/kinetics/ElectrodeKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 #include <cstdio>
 
@@ -19,7 +20,8 @@ ElectrodeKinetics::ElectrodeKinetics(thermo_t* thermo) :
     solnPhaseIndex_(npos),
     kElectronIndex_(npos)
 {
- 
+    warn_deprecated("class ElectrodeKinetics",
+        "To be removed after Cantera 2.2.");
 }
 //============================================================================================================================
 ElectrodeKinetics::~ElectrodeKinetics()

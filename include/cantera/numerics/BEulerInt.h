@@ -51,6 +51,7 @@ public:
 /*!
  *  Wrapper class for 'beuler' integrator
  *  We derive the class from the class Integrator
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 class BEulerInt : public Integrator
 {

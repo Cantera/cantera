@@ -119,6 +119,7 @@ NonlinearSolver::NonlinearSolver(ResidJacEval* func) :
     ResidDecreaseNewtExp_(0.0),
     ResidDecreaseNewt_(0.0)
 {
+    warn_deprecated("class NonlinearSolver", "To be removed after Cantera 2.2.");
     neq_ = m_func->nEquations();
 
     m_ewt.resize(neq_, rtol_);
