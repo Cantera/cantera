@@ -198,6 +198,9 @@ cdef class Species:
         def __set__(self, GasTransportData tran):
             self.species.transport = tran._data
 
+    def __repr__(self):
+        return '<Species {}>'.format(self.name)
+
 
 cdef class ThermoPhase(_SolutionBase):
     """

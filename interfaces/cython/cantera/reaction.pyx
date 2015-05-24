@@ -224,6 +224,12 @@ cdef class Reaction:
         def __set__(self, allow):
             self.reaction.allow_negative_orders = allow
 
+    def __repr__(self):
+        return '<{}: {}>'.format(self.__class__.__name__, self.equation)
+
+    def __str__(self):
+        return self.equation
+
 
 cdef class Arrhenius:
     r"""
@@ -267,6 +273,11 @@ cdef class Arrhenius:
         """
         def __get__(self):
             return self.rate.activationEnergy_R() * gas_constant
+
+    def __repr__(self):
+        return 'Arrhenius(A={:g}, b={:g}, E={:g})'.format(
+            self.pre_exponential_factor, self.temperature_exponent,
+            self.activation_energy)
 
 
 cdef wrapArrhenius(CxxArrhenius* rate, Reaction reaction):
