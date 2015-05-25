@@ -5,7 +5,7 @@
  *  on the NASA temperature polynomial form applied to two temperature regions
  *  (see \ref spthermo and class \link Cantera::NasaPoly2 NasaPoly2\endlink).
  *
- *  Two zoned Nasa polynomial parameterization
+ *  Two zoned NASA polynomial parameterization
  */
 // Copyright 2001  California Institute of Technology
 

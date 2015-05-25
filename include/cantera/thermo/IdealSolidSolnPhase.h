@@ -55,7 +55,7 @@ public:
      * Constructor for IdealSolidSolnPhase.
      * The generalized concentrations can have three different forms
      * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the xml data file.
+     * is supplied in the constructor or read from the XML data file.
      *
      * @param formCG This parameter initializes the #m_formGC variable.
      */
@@ -67,7 +67,7 @@ public:
      * This constructor will also fully initialize the object.
      * The generalized concentrations can have three different forms
      * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the xml data file.
+     * is supplied in the constructor or read from the XML data file.
      *
      * @param infile File name for the XML datafile containing information
      *               for this phase
@@ -146,15 +146,15 @@ public:
     virtual doublereal entropy_mole() const;
 
     /**
-     * Molar gibbs free energy of the solution. Units: J/kmol.
+     * Molar Gibbs free energy of the solution. Units: J/kmol.
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
      * \f[
      * \hat g(T, P) = \sum_k X_k \hat g^0_k(T,P) + \hat R T \sum_k X_k log(X_k)
      * \f]
-     * The reference-state pure-species gibbs free energies
+     * The reference-state pure-species Gibbs free energies
      * \f$ \hat g^0_k(T) \f$ are computed by the species thermodynamic
-     * property manager, while the standard state gibbs free energies
+     * property manager, while the standard state Gibbs free energies
      * \f$ \hat g^0_k(T,P) \f$ are computed by the member function, gibbs_RT().
      * @see SpeciesThermo
      */
@@ -603,7 +603,7 @@ public:
     void getEntropy_R(doublereal* sr) const;
 
     /**
-     * Get the nondimensional gibbs function for the species
+     * Get the nondimensional Gibbs function for the species
      * standard states at the current T and P of the solution.
      *
      *  \f[
@@ -615,7 +615,7 @@ public:
      *
      * @param grt Vector of length m_kk, which on return sr[k]
      *           will contain the nondimensional
-     *           standard state gibbs function for species k.
+     *           standard state Gibbs function for species k.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
@@ -697,7 +697,7 @@ public:
 
     /**
      *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
+     *  Gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *

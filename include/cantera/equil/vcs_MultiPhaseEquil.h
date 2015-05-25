@@ -171,7 +171,7 @@ namespace VCSnonideal
  *  @param mphase MultiPhase object that is the source for all of the information
  *  @param vprob  VCS_PROB problem definition that gets all of the information
  *
- *  Note, both objects share the underlying Thermophase objects. So, neither
+ *  Note, both objects share the underlying ThermoPhase objects. So, neither
  *  can be const objects.
  */
 int vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,

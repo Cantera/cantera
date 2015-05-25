@@ -133,7 +133,7 @@ std::string eosTypeString(int ieos, int length = 100);
 //! tree.
 /*!
  * This routine first looks up the identity of the model for the solution
- * thermodynamics in the model attribute of the thermo child of the xml phase
+ * thermodynamics in the model attribute of the thermo child of the XML phase
  * node. Then, it does a string lookup using Cantera's internal ThermoPhase
  * Factory routines on the model to figure out what ThermoPhase derived class
  * should be assigned. It creates a new instance of that class, and then calls
@@ -163,7 +163,7 @@ ThermoPhase* newPhase(XML_Node& phase);
  */
 ThermoPhase* newPhase(const std::string& infile, std::string id="");
 
-//! Import a phase information into an empty thermophase object
+//! Import a phase information into an empty ThermoPhase object
 /*!
  *   Here we read an XML description of the thermodynamic information
  *   for a phase. At the end of this routine, the phase should
@@ -218,7 +218,7 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  *             the species in the phase.
  * @param th   Pointer to the ThermoPhase object which will
  *             handle the thermodynamics for this phase.
- *             We initialize part of the Thermophase object
+ *             We initialize part of the ThermoPhase object
  *             here, especially for those objects which are
  *             part of the Cantera Kernel.
  *

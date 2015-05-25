@@ -406,7 +406,7 @@ public:
     }
 
     /*!
-     *  Returns the vector of the gibbs function of the reference state at the
+     *  Returns the vector of the Gibbs function of the reference state at the
      *  current temperature of the solution and the reference pressure for the
      *  species. units = J/kmol
      *
@@ -822,7 +822,7 @@ protected:
      */
     mutable vector_fp      mPDSS_cp0_R;
 
-    //! species reference gibbs free energies - used by individual PDSS objects
+    //! species reference Gibbs free energies - used by individual PDSS objects
     /**
      * Vector containing the species reference Gibbs functions
      * at T = m_tlast  and P = p_ref.
@@ -857,7 +857,7 @@ protected:
      */
     mutable vector_fp      mPDSS_cpss_R;
 
-    //! species standard state gibbs free energies - used by individual PDSS objects
+    //! species standard state Gibbs free energies - used by individual PDSS objects
     /**
      * Vector containing the species standard state Gibbs functions
      * at T = m_tlast  and P = p_ref.

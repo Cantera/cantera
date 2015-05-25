@@ -243,13 +243,13 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
             }
         } else {
             /* make steady state calc a step of 1 million seconds to
-               prevent singular jacobians for some pathological cases */
+               prevent singular Jacobians for some pathological cases */
             inv_t = 1.0e-6;
         }
         deltaT = 1.0/inv_t;
 
         /*
-         * Call the routine to numerically evaluation the jacobian
+         * Call the routine to numerically evaluation the Jacobian
          * and residual for the current iteration.
          */
         resjac_eval(m_Jac, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
@@ -801,7 +801,7 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
             printf("\n   SOLVESP Called to calculate steady state residual\n");
             printf("           from a good initial guess\n");
         } else if (ifunc == SFLUX_JACOBIAN)  {
-            printf("\n   SOLVESP Called to calculate steady state jacobian\n");
+            printf("\n   SOLVESP Called to calculate steady state Jacobian\n");
             printf("           from a good initial guess\n");
         } else if (ifunc == SFLUX_TRANSIENT) {
             printf("\n   SOLVESP Called to integrate surface in time\n");

@@ -245,7 +245,7 @@ protected:
     size_t m_numTotalSpecies;
 
     std::vector<vector_int> pLocVec;
-    //! Pointer to the cvode integrator
+    //! Pointer to the CVODE integrator
     Integrator* m_integ;
     doublereal m_atol, m_rtol;   // tolerances
     doublereal m_maxstep; //!< max step size

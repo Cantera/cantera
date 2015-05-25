@@ -51,7 +51,7 @@ namespace Cantera
  *            S^o_k(T,P) = S^{ref}_k(T) -  R \ln(\frac{P}{P_{ref}})
  *       \f]
  *
- *  The standard state gibbs free energy is obtained from the enthalpy and entropy
+ *  The standard state Gibbs free energy is obtained from the enthalpy and entropy
  *  functions:
  *
  *       \f[
@@ -115,7 +115,7 @@ namespace Cantera
  *  ThermoPhase *eMetal = newPhase("MetalSHEelectrons.xml", "MetalSHEelectrons");
  *  @endcode
  *
- *   Additionally, this phase may be created without including an xml file with
+ *   Additionally, this phase may be created without including an XML file with
  *   the special command, where the default file is embedded into this object.
  *
  * @code
@@ -389,7 +389,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;

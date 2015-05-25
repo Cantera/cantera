@@ -160,7 +160,7 @@ public:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!  Initialization of a PDSS object using an xml tree
+    //!  Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the object.
      *
@@ -218,7 +218,7 @@ public:
     //@}
 
 private:
-    //! Main routine that actually calculates the gibbs free energy difference
+    //! Main routine that actually calculates the Gibbs free energy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is eEqn. 59 in Johnson et al. (1992).

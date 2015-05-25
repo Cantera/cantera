@@ -110,8 +110,8 @@ namespace Cantera
  *
  * The functions incrementReaction() and decrementReaction() are used to find
  * the standard state equilibrium constant for a reaction. Here, output[] is a
- * vector of length number of reactions, usually the standard gibbs free
- * energies of reaction, while input, usually the standard state gibbs free
+ * vector of length number of reactions, usually the standard Gibbs free
+ * energies of reaction, while input, usually the standard state Gibbs free
  * energies of species, is a vector of length number of species.
  *
  * Note the stoichiometric coefficient for a species in a reaction is handled

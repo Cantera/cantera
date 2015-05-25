@@ -211,7 +211,7 @@ public:
      * The results are held internally within the object.
      *
      * @param kspec   Species number (within the phase)
-     * @return Gstar[kspec] returns the gibbs free energy for the
+     * @return Gstar[kspec] returns the Gibbs free energy for the
      *         standard state of the kth species.
      */
     double GStar_calc_one(size_t kspec) const;
@@ -220,7 +220,7 @@ public:
     //! of a species, return a value for one species
     /*!
      *  @param kspec   species index
-     *  @return return value of the gibbs free energy
+     *  @return return value of the Gibbs free energy
      */
     double G0_calc_one(size_t kspec) const;
 
@@ -274,12 +274,12 @@ public:
      */
     void setState_T(const double temperature_Kelvin);
 
-    // Downloads the ln ActCoeff jacobian into the VCS version of the
-    // ln ActCoeff jacobian.
+    // Downloads the ln ActCoeff Jacobian into the VCS version of the
+    // ln ActCoeff Jacobian.
     /*
      *   This is essentially a scatter operation.
      *
-     *  @param LnAcJac_VCS jacobian parameter
+     *  @param LnAcJac_VCS Jacobian parameter
      *   The Jacobians are actually d( lnActCoeff) / d (MolNumber);
      *   dLnActCoeffdMolNumber(k,j)
      *
@@ -486,7 +486,7 @@ public:
      * Also decide whether we need a new charge neutrality element in the
      * phase to enforce a charge neutrality constraint.
      *
-     * @param tPhase Pointer to the thermophase object
+     * @param tPhase Pointer to the ThermoPhase object
      */
     size_t transferElementsFM(const Cantera::ThermoPhase* const tPhase);
 

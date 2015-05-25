@@ -70,10 +70,10 @@ public:
     void incrementDiagonal(int j, doublereal d);
 
 protected:
-    //!  Residual evaluator for this jacobian
+    //!  Residual evaluator for this Jacobian
     /*!
      *  This is a pointer to the residual evaluator. This object isn't owned
-     *  by this jacobian object.
+     *  by this Jacobian object.
      */
     OneDim* m_resid;
 

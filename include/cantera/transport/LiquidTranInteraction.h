@@ -448,7 +448,7 @@ protected:
  * \f]
  * where F is Faraday's constant, RT is the gas constant times the
  * tempurature, and V is the molar volume (basis is moles of ions) that is
- * calculated by the thermophase member. X_A and X_B are the mole fractions
+ * calculated by the ThermoPhase member. X_A and X_B are the mole fractions
  * of the salts composed of cation(1) and cation(2), respectively, that share
  * a common anion(3). \f$\nu_{+,-}\f$ are the stoichiometric coefficients in
  * the dissociation reaction of the salts to the ions with charges of
@@ -463,7 +463,7 @@ protected:
  * where the self diffusion coefficients, \f$D_i^*\f$, are temperature and
  * composition parameterized inputs and the derivative of the activity
  * coefficient, \f$\frac{\partial \gamma_B}{\partial N_B}\f$, is calculated
- * by the thermophase member using the excess enthalpy and entropy upon mixing.
+ * by the ThermoPhase member using the excess enthalpy and entropy upon mixing.
  *
  * Finally, the deviation of the transferrence numbers from ideality,
  * \f$\epsilon\f$, is calculated from the mobility ratio of the cations.

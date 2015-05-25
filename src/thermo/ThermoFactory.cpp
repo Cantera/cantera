@@ -326,7 +326,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
 
     /*
      * In this section of code, we get the reference to the
-     * phase xml tree within the ThermoPhase object. Then,
+     * phase XML tree within the ThermoPhase object. Then,
      * we clear it and fill it with the current information that
      * we are about to use to construct the object. We will then
      * be able to resurrect the information later by calling xml().
@@ -500,7 +500,7 @@ void installElements(Phase& th, const XML_Node& phaseNode)
     // get the declared element names
     if (!phaseNode.hasChild("elementArray")) {
         throw CanteraError("installElements",
-                           "phase xml node doesn't have \"elementArray\" XML Node");
+                           "phase XML node doesn't have \"elementArray\" XML Node");
     }
     XML_Node& elements = phaseNode.child("elementArray");
     vector<string> enames;

@@ -57,7 +57,7 @@ class BEulerInt : public Integrator
 {
 public:
     /*!
-     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Constructor. Default settings: dense Jacobian, no user-supplied
      *  Jacobian function, Newton iteration.
      */
     BEulerInt();
@@ -118,7 +118,7 @@ public:
      * @param printSolnFirstSteps The solution is printed out the first
      *                   "printSolnFirstSteps" steps. After these steps the
      *                   other parameters determine the printing. default = 0
-     * @param dumpJacobians Dump jacobians to disk.
+     * @param dumpJacobians Dump Jacobians to disk.
      */
     virtual void setPrintSolnOptions(int printSolnStepInterval,
                                      int printSolnNumberToTout,
@@ -155,7 +155,7 @@ public:
      *  residual at the current time step.
      *  @param J = Jacobian matrix to be filled in
      *  @param f = Right hand side. This routine returns the current
-     *             value of the rhs (output), so that it does
+     *             value of the RHS (output), so that it does
      *             not have to be computed again.
      */
     void beuler_jac(GeneralMatrix& J, double* const f,
@@ -307,7 +307,7 @@ protected:
      * @param CJ       Inverse of the time step
      * @param time_curr  Current value of the time
      * @param jac      Jacobian
-     * @param num_newt_its  number of newton iterations
+     * @param num_newt_its  number of Newton iterations
      * @param num_linear_solves number of linear solves
      * @param num_backtracks number of backtracs
      * @param loglevel  Log level
@@ -351,8 +351,8 @@ protected:
      *               couldn't possibly be representative if the
      *               variable is changed by a lot. (true for
      *               nonlinear systems, false for linear systems)
-     *  Maximum increase in variable in any one newton iteration: factor of 2
-     *  Maximum decrease in variable in any one newton iteration: factor of 5
+     *  Maximum increase in variable in any one Newton iteration: factor of 2
+     *  Maximum decrease in variable in any one Newton iteration: factor of 5
      *
      *   @param y       Current value of the solution
      *   @param step0   Current raw step change in y[]
@@ -416,7 +416,7 @@ protected:
     bool m_colScaling;
     /**
      * m_matrixConditioning is a boolean. If true, then the
-     * Jacobian and every rhs is multiplied by the inverse
+     * Jacobian and every RHS is multiplied by the inverse
      * of a matrix that is suppose to reduce the condition
      * number of the matrix. This is done before row scaling.
      */
@@ -532,7 +532,7 @@ protected:
     vector_fp m_rowScales;
     vector_fp m_colScales;
 
-    //! Pointer to the jacobian representing the time dependent problem
+    //! Pointer to the Jacobian representing the time dependent problem
     GeneralMatrix* tdjac_ptr;
 
     /**
@@ -558,7 +558,7 @@ protected:
      */
     int m_nJacEval;
 
-    //! Number of total newton iterations
+    //! Number of total Newton iterations
     int m_numTotalNewtIts;
 
     //! Total number of linear iterations

@@ -514,7 +514,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 	minNumberIterations = 1;
     }
 
-    // We will do a full newton calculation later, but for now, ...
+    // We will do a full Newton calculation later, but for now, ...
     bool doSuccessiveSubstitution = true;
     double funcPhaseStability;
     vector<doublereal> X_est(nsp, 0.0);

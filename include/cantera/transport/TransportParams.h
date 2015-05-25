@@ -1,6 +1,6 @@
 /**
  *  @file TransportParams.h
- *  Class that holds the data that is read in from the xml file, and which is used for
+ *  Class that holds the data that is read in from the XML file, and which is used for
  *  processing of the transport object
  *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
  */

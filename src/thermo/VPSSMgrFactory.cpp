@@ -42,8 +42,8 @@ mutex_t VPSSMgrFactory::vpss_species_thermo_mutex;
  *                                     of species XML nodes underneath it.
  *  @param has_nasa_idealGas         Boolean indicating that one species has a NASA ideal gas standard state
  *  @param has_nasa_constVol         Boolean indicating that one species has a NASA ideal solution standard state
- *  @param has_shomate_idealGas      Boolean indicating that one species has a shomate ideal gas standard state
- *  @param has_shomate_constVol      Boolean indicating that one species has a shomate ideal solution standard state
+ *  @param has_shomate_idealGas      Boolean indicating that one species has a Shomate ideal gas standard state
+ *  @param has_shomate_constVol      Boolean indicating that one species has a Shomate ideal solution standard state
  *  @param has_simple_idealGas       Boolean indicating that one species has a simple ideal gas standard state
  *  @param has_simple_constVol       Boolean indicating that one species has a simple ideal solution standard state
  *  @param has_water                 Boolean indicating that one species has a water standard state

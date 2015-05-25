@@ -815,7 +815,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
 void vcs_VolPhase::sendToVCS_LnActCoeffJac(Cantera::Array2D& np_LnACJac_VCS)
 {
     /*
-     * update the Ln Act Coeff jacobian entries with respect to the
+     * update the Ln Act Coeff Jacobian entries with respect to the
      * mole number of species in the phase -> we always assume that
      * they are out of date.
      */

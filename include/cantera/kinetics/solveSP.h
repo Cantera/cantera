@@ -31,7 +31,7 @@ const int SFLUX_INITIALIZE = 1;
 const int SFLUX_RESIDUAL = 2;
 
 //! Calculation of the surface problem is due to the need for a numerical
-//! jacobian for the gas-problem. The solution is expected to be very close to
+//! Jacobian for the gas-problem. The solution is expected to be very close to
 //! the initial guess, and accuracy is needed because solution variables have
 //! been perturbed from nominal values to create Jacobian entries.
 const int SFLUX_JACOBIAN = 3;
@@ -303,7 +303,7 @@ private:
      *  @param resid   output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq. These are tweaked in order
-     *                  to derive the columns of the jacobian.
+     *                  to derive the columns of the Jacobian.
      *  @param CSolnSPOld Old Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
      *  @param do_time Calculate a time dependent residual

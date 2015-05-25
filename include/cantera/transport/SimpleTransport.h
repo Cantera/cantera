@@ -75,7 +75,7 @@ namespace Cantera
  *       \sum_i \mathbf{j}_i = 0
  *  \f]
  *
- *  When there are charged species, we replace the rhs with the
+ *  When there are charged species, we replace the RHS with the
  *  gradient of the electrochemical potential to obtain the
  *  modified equation
  *

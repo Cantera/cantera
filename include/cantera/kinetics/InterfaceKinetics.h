@@ -93,7 +93,7 @@ public:
      * @param thermo The optional parameter may be used to initialize
      *               the object with one ThermoPhase object.
      *               HKM Note -> Since the interface kinetics
-     *               object will probably require multiple thermophase
+     *               object will probably require multiple ThermoPhase
      *               objects, this is probably not a good idea
      *               to have this parameter.
      */
@@ -135,7 +135,7 @@ public:
      */
     void updateExchangeCurrentQuantities();
 
-    //! Return the vector of values for the reaction gibbs free energy change.
+    //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
      * (virtual from Kinetics.h)
      * These values depend upon the concentration of the solution.
@@ -330,7 +330,7 @@ public:
      *  kmoles/m2/s.
      *
      *  For a reaction rate constant that was given in units of kmol/m2/sec when the
-     *  reaction type is a butler-volmer form, convert it to exchange current density
+     *  reaction type is a Butler-Volmer form, convert it to exchange current density
      *  form (amps/m2).
      *
      * @param kfwd  Vector of forward reaction rate constants, given in either
@@ -553,7 +553,7 @@ protected:
      */
     std::vector<size_t> m_ctrxn;
 
-    //! Vector of Reactions which follow the butler volmer methodology for specifying the
+    //! Vector of Reactions which follow the Butler-Volmer methodology for specifying the
     //! exchange current density first. Then, the other forms are specified based on this form.
     /*!
      *     Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
@@ -605,14 +605,14 @@ protected:
      */
     vector_fp m_StandardConc;
 
-    //!  Vector of delta G^0, the standard state gibbs free energies for each reaction
+    //!  Vector of delta G^0, the standard state Gibbs free energies for each reaction
     /*!
      *    Length is the number of reactions
      *    units are Joule kmol-1
      */
     vector_fp m_deltaG0;
 
-    //! Vector of deltaG[] of reaction, the delta gibbs free energies for each reaction
+    //! Vector of deltaG[] of reaction, the delta Gibbs free energies for each reaction
     /*!
      *    Length is the number of reactions
      *    units are Joule kmol-1
@@ -661,7 +661,7 @@ protected:
     //! Boolean flag indicating whether any reaction in the mechanism
     //! is described by an exchange current density expression
     /*!
-     *  If this is true, the standard state gibbs free energy of the reaction
+     *  If this is true, the standard state Gibbs free energy of the reaction
      *  and the product of the reactant standard concentrations must be
      *  precalculated in order to calculate the rate constant.
      */

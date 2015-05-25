@@ -152,7 +152,7 @@ public:
      * VPStandardStateTP object.
      *
      * This serves to install the species into vpss_ptr, create a PDSS file. We also
-     * read the xml database to extract the constants for these steps.
+     * read the XML database to extract the constants for these steps.
      *
      * @param k             species number
      * @param speciesNode   Reference to the XML node specifying the species

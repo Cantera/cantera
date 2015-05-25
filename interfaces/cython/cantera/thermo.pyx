@@ -308,7 +308,7 @@ cdef class ThermoPhase(_SolutionBase):
             * 'gibbs' - a slower but more robust Gibbs minimization solver
             * 'vcs' - the VCS non-ideal equilibrium solver
             * "auto" - The element potential solver will be tried first, then
-              if it fails the gibbs solver will be tried.
+              if it fails the Gibbs solver will be tried.
         :param rtol:
             the relative error tolerance.
         :param maxsteps:

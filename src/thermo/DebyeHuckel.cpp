@@ -507,7 +507,7 @@ void DebyeHuckel::getPartialMolarVolumes(doublereal* vbar) const
 void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
-     * Get the nondimensional gibbs standard state of the
+     * Get the nondimensional Gibbs standard state of the
      * species at the T and P of the solution.
      */
     getCp_R(cpbar);
@@ -906,7 +906,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             if (m_formDH == DHFORM_BDOT_AK) {
                 /*
                  * Define a string-string map, and interpret the
-                 * value of the xml element as binary pairs separated
+                 * value of the XML element as binary pairs separated
                  * by colons, e.g.:
                  *      Na+:3.0
                  *      Cl-:4.0

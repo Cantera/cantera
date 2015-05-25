@@ -96,7 +96,7 @@ class PDSS_Water;
  *       \f]
  *
  * The standard state heat capacity and entropy are independent
- * of pressure. The standard state gibbs free energy is obtained
+ * of pressure. The standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * The vector Phase::m_speciesSize[] is used to hold the

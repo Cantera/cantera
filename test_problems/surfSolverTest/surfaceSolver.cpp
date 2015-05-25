@@ -270,7 +270,7 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
         for (i = 0; i < MSSIZE; i++) {
             x[i] = 0.0;
@@ -363,7 +363,7 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
         double pres = gasTP->pressure();
         gasTP->getMoleFractions(x);
@@ -388,12 +388,12 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
         pres = gasTP->pressure();
         double temp = gasTP->temperature();

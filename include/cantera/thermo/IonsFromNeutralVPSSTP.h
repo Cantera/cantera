@@ -44,7 +44,7 @@ enum IonSolnType_enumType {
  * for the same phase expressed in terms of combinations of the
  * ionic species that represent neutral molecules. It's expected
  * that the neutral molecules will be represented in terms of
- * an excess gibbs free energy approximation that is a derivative
+ * an excess Gibbs free energy approximation that is a derivative
  * of the GbbsExcessVPSSTP object. All of the e Excess Gibbs free
  *  energy formulations in this area employ
  *  symmetrical formulations.
@@ -156,7 +156,7 @@ public:
     /// the phase and setting its parameters from a specification in an
     /// input file.
 
-    //! Initialization of an IonsFromNeutralVPSSTP phase using an xml file
+    //! Initialization of an IonsFromNeutralVPSSTP phase using an XML file
     /*!
      * This routine is a precursor to initThermo(XML_Node*)
      * routine, which does most of the work.
@@ -179,7 +179,7 @@ public:
      *   reference state thermodynamic polynomials. We then freeze
      *   the state of the species.
      *
-     *   Then, we read the species molar volumes from the xml
+     *   Then, we read the species molar volumes from the XML
      *   tree to finish the initialization.
      *
      * @param phaseNode This object must be the phase node of a complete XML tree

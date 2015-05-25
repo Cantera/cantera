@@ -1384,8 +1384,7 @@ if env['use_sundials'] == 'y':
 else:
     env['sundials_libs'] = []
 
-#  Add lapack and blas to the link line
-#        If there is a special blas and lapack add that in
+#  Add LAPACK and BLAS to the link line
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
     linkSharedLibs.extend(env['blas_lapack_libs'])

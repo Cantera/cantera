@@ -143,7 +143,7 @@ class WaterProps;
  *
  *
  * The solute standard state heat capacity and entropy are independent
- * of pressure. The solute standard state gibbs free energy is obtained
+ * of pressure. The solute standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * The vector Phase::m_speciesSize[] is used to hold the
@@ -297,8 +297,8 @@ class WaterProps;
  *
  *  <H3> Specification of the Excess Gibbs Free Energy </H3>
  *
- *  Pitzer's formulation may best be represented as a specification of the excess gibbs
- *  free energy, \f$ G^{ex} \f$, defined as the deviation of the total gibbs free energy from
+ *  Pitzer's formulation may best be represented as a specification of the excess Gibbs
+ *  free energy, \f$ G^{ex} \f$, defined as the deviation of the total Gibbs free energy from
  *  that of an ideal molal solution.
  *     \f[
  *         G = G^{id} + G^{ex}
@@ -577,7 +577,7 @@ class WaterProps;
  *  below the critical temperature of water.
  *  They found a temperature functional form for fitting the 3 following
  *  coefficients that describe the Pitzer parameterization for a single salt
- *  to be adequate to describe how the excess gibbs free energy values for
+ *  to be adequate to describe how the excess Gibbs free energy values for
  *  the binary salt changes with respect to temperature.
  *  The following functional form
  *  was used to fit the temperature dependence of the Pitzer Coefficients
@@ -1308,7 +1308,7 @@ public:
      * about the species, including their reference state thermodynamic
      * polynomials. We then freeze the state of the species.
      *
-     * Then, we read the species molar volumes from the xml tree to finish the
+     * Then, we read the species molar volumes from the XML tree to finish the
      * initialization.
      *
      * @param phaseNode This object must be the phase node of a complete XML tree

@@ -80,9 +80,9 @@ const int cSS_CONVENTION_SLAVE = 2;
  *   dimensionless.
  *
  *   K_p is the calculation of the equilibrium constant from the
- *   reference state gibbs free energy values. It is by definition
+ *   reference state Gibbs free energy values. It is by definition
  *   dimensionless. The pressure dependence is handled entirely
- *   on the rhs of the equilibrium expression.
+ *   on the RHS of the equilibrium expression.
  *
  *   K_c is the equilibrium constant calculated from the
  *   activity concentrations. The dimensions depend on the number
@@ -694,7 +694,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const {
@@ -705,7 +705,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const {
@@ -802,7 +802,7 @@ public:
     }
 
     //!  Returns the vector of the
-    //!  gibbs function of the reference state at the current temperature
+    //!  Gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
@@ -1648,7 +1648,7 @@ protected:
      *  Occasionally, the need arises to find a safe mole fraction vector to initialize
      *  the object to. This contains such a vector.
      *  The algorithm will pick up the mole fraction vector that is applied from
-     *  the state xml file in the input file
+     *  the state XML file in the input file
      */
     std::vector<doublereal> xMol_Ref;
 

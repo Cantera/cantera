@@ -25,8 +25,8 @@ public:
 };
 
 /**
- *  Wrapper class for 'cvode' integrator from LLNL.
- *  The unmodified cvode code is in directory ext/cvode.
+ *  Wrapper class for 'CVODE' integrator from LLNL.
+ *  The unmodified CVODE code is in directory ext/cvode.
  *
  * @see FuncEval.h. Classes that use CVodeInt:
  * ImplicitChem, ImplicitSurfChem, Reactor
@@ -35,7 +35,7 @@ class CVodeInt : public Integrator
 {
 public:
     /*!
-     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Constructor. Default settings: dense Jacobian, no user-supplied
      *  Jacobian function, Newton iteration.
      */
     CVodeInt();

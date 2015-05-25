@@ -24,7 +24,7 @@ Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
                                        vector<ThermoPhase*> th)
 {
     /*
-     * Look for a child of the xml element phase called
+     * Look for a child of the XML element phase called
      * "kinetics". It has an attribute name "model".
      * Store the value of that attribute in the variable kintype
      */

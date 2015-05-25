@@ -39,7 +39,7 @@
  *                          algorithm to determine when to shut off
  *                          time-stepping.
  *  3:  SOLVEPROB_JACOBIAN    = Calculation of the surface problem is due to the
- *                          need for a numerical jacobian for the gas-problem.
+ *                          need for a numerical Jacobian for the gas-problem.
  *                          The solution is expected to be very close to the
  *                          initial guess, and accuracy is needed.
  *  4:  SOLVEPROB_TRANSIENT   = The transient calculation is performed here for an
@@ -97,11 +97,11 @@ namespace Cantera
  *                          time-stepping.
  *
  *  3:  SOLVEPROB_JACOBIAN    = Calculation of the surface problem is due to the
- *                          need for a numerical jacobian for the gas-problem.
+ *                          need for a numerical Jacobian for the gas-problem.
  *                          The solution is expected to be very close to the
  *                          initial guess, and extra accuracy is needed because
  *                          solution variables have been delta'd from
- *                          nominal values to create jacobian entries.
+ *                          nominal values to create Jacobian entries.
  *
  *  4: SOLVEPROB_TRANSIENT   = The transient calculation is performed here for an
  *                          amount of time specified by "time_scale".  It is
@@ -309,7 +309,7 @@ private:
      *  @param resid   output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq. These are tweaked in order
-     *                  to derive the columns of the jacobian.
+     *                  to derive the columns of the Jacobian.
      *  @param CSolnSPOld Old Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
      *  @param do_time Calculate a time dependent residual
@@ -416,7 +416,7 @@ private:
      */
     vector_fp m_resid;
 
-    //! Vector of pointers to the top of the columns of the jacobians
+    //! Vector of pointers to the top of the columns of the Jacobians
     /*!
      *   The "dim" by "dim" computed Jacobian matrix for the
      *   local Newton's method.

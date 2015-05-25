@@ -69,7 +69,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * This phase may be instantiated by calling the default ThermoFactory routine
- * for %Cantera. This new FixedChemPotSSTP object must then have a standalone xml file
+ * for %Cantera. This new FixedChemPotSSTP object must then have a standalone XML file
  * description an example of which is given below.
  *
  * It may also be created by the following code snippets. The code
@@ -392,7 +392,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -474,7 +474,7 @@ public:
 
     /*!
      *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
+     *  Gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *

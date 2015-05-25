@@ -170,7 +170,7 @@ public:
 
     //! Solve the matrix problem Ax = b
     /*!
-     *  @param b  INPUT rhs of the problem
+     *  @param b  INPUT RHS of the problem
      *  @param x  OUTPUT solution to the problem
      *
      * @return Return a success flag
@@ -181,7 +181,7 @@ public:
 
     //! Solve the matrix problem Ax = b
     /*!
-     *  @param b     INPUT rhs of the problem
+     *  @param b     INPUT RHS of the problem
      *               OUTPUT solution to the problem
      *  @param nrhs  Number of right hand sides to solve
      *  @param ldb   Leading dimension of `b`. Default is nColumns()
@@ -278,7 +278,7 @@ public:
      */
     virtual void copyData(const GeneralMatrix& y);
 
-    //! Check to see if we have any zero rows in the jacobian
+    //! Check to see if we have any zero rows in the Jacobian
     /*!
      *  This utility routine checks to see if any rows are zero.
      *  The smallest row is returned along with the largest coefficient in that row
@@ -289,7 +289,7 @@ public:
      */
     virtual size_t checkRows(doublereal& valueSmall) const;
 
-    //! Check to see if we have any zero columns in the jacobian
+    //! Check to see if we have any zero columns in the Jacobian
     /*!
      *  This utility routine checks to see if any columns are zero.
      *  The smallest column is returned along with the largest coefficient in that column

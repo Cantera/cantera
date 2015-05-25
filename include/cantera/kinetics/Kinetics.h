@@ -474,7 +474,7 @@ public:
      */
     virtual void getRevReactionDelta(const doublereal* g, doublereal* dg);
 
-    //! Return the vector of values for the reaction gibbs free energy change.
+    //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
      * (virtual from Kinetics.h)
      * These values depend upon the concentration of the solution.
@@ -527,7 +527,7 @@ public:
 
     /**
      * Return the vector of values for the reaction standard state
-     * gibbs free energy change.  These values don't depend upon
+     * Gibbs free energy change.  These values don't depend upon
      * the concentration of the solution.
      *
      *  units = J kmol-1
@@ -1063,7 +1063,7 @@ protected:
     std::vector<size_t>  m_start;
 
     /**
-     * Mapping of the phase id, i.e., the id attribute in the xml
+     * Mapping of the phase id, i.e., the id attribute in the XML
      * phase element to the position of the phase within the
      * kinetics object.  Positions start with the value of 1. The
      * member function, phaseIndex() decrements by one before

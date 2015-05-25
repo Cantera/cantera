@@ -37,7 +37,7 @@ class CVodesIntegrator : public Integrator
 {
 public:
     /**
-     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Constructor. Default settings: dense Jacobian, no user-supplied
      *  Jacobian function, Newton iteration.
      */
     CVodesIntegrator();

@@ -1,7 +1,7 @@
 /**
  *  @file  RedlichKisterVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
- *   employ gibbs excess free energy based formulations
+ *   employ Gibbs excess free energy based formulations
  *  (see \ref thermoprops
  * and class \link Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP\endlink).
  *
@@ -30,11 +30,11 @@ namespace Cantera
  */
 
 //!  RedlichKisterVPSSTP is a derived class of GibbsExcessVPSSTP that employs
-//!  the Redlich-Kister approximation for the excess gibbs free energy
+//!  the Redlich-Kister approximation for the excess Gibbs free energy
 /*!
  *  RedlichKisterVPSSTP derives from class GibbsExcessVPSSTP which is derived
  *  from VPStandardStateTP, and overloads the virtual methods defined there with ones that
- *  use expressions appropriate for the Redlich Kister Excess gibbs free energy approximation.
+ *  use expressions appropriate for the Redlich Kister Excess Gibbs free energy approximation.
  *
  *  The independent unknowns are pressure, temperature, and mass fraction.
  *
@@ -86,7 +86,7 @@ namespace Cantera
  *         G^E_{i} =   n X_{Ai} X_{Bi} \sum_m \left( A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  *      \f]
  *
- *  and where we can break down the gibbs free energy contributions into enthalpy and entropy contributions
+ *  and where we can break down the Gibbs free energy contributions into enthalpy and entropy contributions
  *
  *      \f[
  *         H^E_i = n X_{Ai} X_{Bi} \sum_m \left( H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
@@ -267,7 +267,7 @@ public:
     RedlichKisterVPSSTP();
 
     //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
-    //! directly from an xml input file
+    //! directly from an XML input file
     /*!
      *
      * @param inputFile Name of the input file containing the phase XML data
@@ -309,7 +309,7 @@ public:
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -664,11 +664,11 @@ protected:
     std::vector<size_t> m_N_ij;
 
     //! Enthalpy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable std::vector< vector_fp> m_HE_m_ij;
 
     //! Entropy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable  std::vector< vector_fp> m_SE_m_ij;
 
     //! form of the RedlichKister interaction expression

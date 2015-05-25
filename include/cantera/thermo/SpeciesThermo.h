@@ -87,7 +87,7 @@ class SpeciesThermoInterpType;
  *
  *   - NasaThermo          in file NasaThermo.h
  *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - ShomateThermo       in file ShomateThermo.h
  *      - This is a two zone model, with each zone consisting of a 7
  *        coefficient Shomate Polynomial format.
@@ -106,10 +106,10 @@ class SpeciesThermoInterpType;
  *
  *   - NasaPoly1          in file NasaPoly1.h
  *      - This is a one zone model,  consisting of a 7
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - NasaPoly2          in file NasaPoly2.h
  *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - ShomatePoly        in file ShomatePoly.h
  *      - This is a one zone model, consisting of a 7
  *        coefficient Shomate Polynomial format.
@@ -124,10 +124,10 @@ class SpeciesThermoInterpType;
  *        the heat capacity is treated as a constant.
  *   - Nasa9Poly1          in file Nasa9Poly1.h
  *      - This is a one zone model,  consisting of the 9
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
  *      - This is a multiple zone model, consisting of the 9
- *        coefficient Nasa Polynomial format in each zone.
+ *        coefficient NASA Polynomial format in each zone.
  *
  * In particular the NasaThermo SpeciesThermo-derived model has been
  * optimized for execution speed. It's the main-stay of gas phase computations

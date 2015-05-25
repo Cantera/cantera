@@ -178,7 +178,7 @@ public:
      *  tracer species at the current temperature and composition of the
      *  species. Therefore, the dilute limit of transport is assumed for the
      *  tracer species. The effective formula may be calculated from the
-     *  stefan-maxwell formulation by adding another row for the tracer
+     *  Stefan-Maxwell formulation by adding another row for the tracer
      *  species, assigning all D's to be equal to the respective species D's,
      *  and then taking the limit as the tracer species mole fraction goes to
      *  zero. The corresponding flux equation for the tracer species k in
@@ -656,14 +656,14 @@ protected:
      *      \nabla ( \ln a_k ) \right]
      *  \f]
      *
-     *  The gradient in the activity coefficient requires the use of thermophase
+     *  The gradient in the activity coefficient requires the use of ThermoPhase
      *  getdlnActCoeff that calculates its change based on a change in the state
      *  (i.e. temperature and composition of each species) which was first
      *  implemented in MargulesVPSSTP.cpp (LiquidTransport.h doxygen)
      */
     virtual void update_Grad_lnAC();
 
-    //! Solve the stefan_maxell equations for the diffusive fluxes.
+    //! Solve the Stefan-Maxwell equations for the diffusive fluxes.
     /*!
      * The diffusive mass flux of species \e k is computed
      * using the Stefan-Maxwell equation
@@ -687,7 +687,7 @@ protected:
      * velocities may be specified as relative to a specific species (i.e. a
      * solvent) all according to the `velocityBasis` input parameter.
      *
-     *  The gradient in the activity coefficient requires the use of thermophase
+     *  The gradient in the activity coefficient requires the use of ThermoPhase
      *  getdlnActCoeff that calculates its change based on a change in the state
      *  i.e. temperature and composition of each species.
      *  First implemented in MargulesVPSSTP.cpp.
@@ -914,7 +914,7 @@ private:
      */
     LiquidTranInteraction* m_diffMixModel;
 
-    //! Setfan-Maxwell diffusion coefficients
+    //! Stefan-Maxwell diffusion coefficients
     DenseMatrix m_diff_Dij;
 
     //!   Hydrodynamic radius for each species expressed as an  appropriate subclass of LTPspecies
@@ -1169,10 +1169,10 @@ private:
     //! Vector of activity coefficients
     vector_fp m_actCoeff;
 
-    //! RHS to the stefan-maxwell equation
+    //! RHS to the Stefan-Maxwell equation
     DenseMatrix   m_B;
 
-    //! Matrix for the stefan maxwell equation.
+    //! Matrix for the Stefan-Maxwell equation.
     DenseMatrix m_A;
 
     //! Current Temperature -> locally stored

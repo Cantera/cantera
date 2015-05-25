@@ -110,7 +110,7 @@ public:
 
     //! Return a const vector of const pointers to the columns
     /*!
-     *  Note, the jacobian can not be altered by this routine, and
+     *  Note, the Jacobian can not be altered by this routine, and
      *  therefore the member function is const.
      *
      *   @return returns a vector of pointers to the top of the columns
@@ -196,7 +196,7 @@ public:
  *  The system is then solved using the LAPACK routine dgetrs
  *
  *   @param A    Dense matrix to be factored
- *   @param b    rhs(s) to be solved.
+ *   @param b    RHS(s) to be solved.
  *   @param nrhs Number of right hand sides to solve
  *   @param ldb  Leading dimension of b, if nrhs > 1
  */
@@ -205,7 +205,7 @@ int solve(DenseMatrix& A, double* b, size_t nrhs=1, size_t ldb=0);
 //!  Solve Ax = b for multiple right-hand-side vectors.
 /*!
  *  @param A    Dense matrix to be factored
- *  @param b   Dense matrix of rhs's. Each column is a rhs
+ *  @param b   Dense matrix of RHS's. Each column is a RHS
  */
 int solve(DenseMatrix& A, DenseMatrix& b);
 

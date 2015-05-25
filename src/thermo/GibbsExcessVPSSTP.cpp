@@ -7,7 +7,7 @@
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based upon expressions
- * for the excess gibbs free energy expressed as a function of
+ * for the excess Gibbs free energy expressed as a function of
  * the mole fractions.
  */
 /*

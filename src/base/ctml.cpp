@@ -331,7 +331,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
         vector<Cantera::XML_Node*> ll = node.getChildren(nodeName);
         if (ll.size() == 0) {
             throw CanteraError("getFloatArray",
-                               "wrong xml element type/name: was expecting "
+                               "wrong XML element type/name: was expecting "
                                + nodeName + "but accessed " + node.name());
         } else {
             readNode = ll[0];

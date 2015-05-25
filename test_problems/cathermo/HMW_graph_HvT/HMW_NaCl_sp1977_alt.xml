@@ -7,7 +7,7 @@
      Capacity, with application to sodium chloride", 
      J. Phys. Chem., 81, 19 1822 - 1828 (1977)
 
-     This modification reworks the Na+ standard state shomate
+     This modification reworks the Na+ standard state Shomate
      polynomial, so that the resulting DeltaG0 for the NaCl(s) -> Na+ + Cl-
      reaction agrees closely with Silvester and Pitzer. The main
      effect that this has is to change the predicted Na+ heat capacity
@@ -149,7 +149,7 @@
 
     <species name="Cl-">
       <!-- Cl- (aq) standard state based on the unity molality convention
-           The shomate polynomial was created from the SUPCRT92
+           The Shomate polynomial was created from the SUPCRT92
            J. Phys Chem Ref article, and the CODATA recommended
            values. DelHf(298.15) = -167.08 kJ/gmol
                        S(298.15) = 56.60 J/gmolK
@@ -206,7 +206,7 @@
 
     <species name="OH-">
       <!-- OH- (aq) standard state based on the unity molality convention
-           The shomate polynomial was created with data from the SUPCRT92
+           The Shomate polynomial was created with data from the SUPCRT92
            J. Phys Chem Ref article, and from the CODATA recommended
            values. DelHf(298.15) = -230.015 kJ/gmol
                        S(298.15) = -10.90 J/gmolK

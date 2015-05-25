@@ -191,7 +191,7 @@ int main(int argc, char** argv)
             double G_ex_kgWater = Gibbs_kgWater - Gibbs0_kgWater - IdealMixing;
 
             /*
-            * Calcualte excess gibbs free energy from another formula
+            * Calcualte excess Gibbs free energy from another formula
             */
             double G_ex_formula = 2 * Is * rgas * T * (- osm1 + log(meanAC));
             /*

@@ -7,7 +7,7 @@
 #include "CVodeInt.h"
 using namespace std;
 
-// cvode includes
+// CVODE includes
 #include "../../ext/cvode/include/llnltyps.h"
 #include "../../ext/cvode/include/llnlmath.h"
 #include "../../ext/cvode/include/cvode.h"
@@ -21,7 +21,7 @@ using namespace std;
 extern "C" {
 
     /**
-     *  Function called by cvode to evaluate ydot given y.  The cvode
+     *  Function called by CVODE to evaluate ydot given y.  The CVODE
      *  integrator allows passing in a void* pointer to access
      *  external data. This pointer is cast to a pointer to a instance
      *  of class FuncEval. The equations to be integrated should be
@@ -39,7 +39,7 @@ extern "C" {
     }
 
     /**
-     *  Function called by cvode to evaluate the Jacobian matrix.
+     *  Function called by CVODE to evaluate the Jacobian matrix.
      *  (temporary)
      *  @ingroup odeGroup
      */

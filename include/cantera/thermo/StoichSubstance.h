@@ -198,7 +198,7 @@ public:
 
     /**
      * For a stoichiometric substance, there is only one species.
-     * This method returns the molar gibbs function in the
+     * This method returns the molar Gibbs function in the
      * first element of array \c mu.
      */
     virtual void getChemPotentials(doublereal* mu) const;
@@ -272,7 +272,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of  standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
@@ -312,20 +312,20 @@ public:
      *
      *  This function fills in its one entry in hrt[] by calling
      *  the underlying species thermo function for the
-     *  dimensionless gibbs free energy, calculated from the
+     *  dimensionless Gibbs free energy, calculated from the
      *  dimensionless enthalpy and entropy.
      */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     /**
      *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
+     *  Gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *
      *  This function fills in its one entry in g[] by calling
      *  the underlying species thermo functions for the
-     *  gibbs free energy, calculated from enthalpy and the
+     *  Gibbs free energy, calculated from enthalpy and the
      *  entropy, and the multiplying by RT.
      */
     virtual void  getGibbs_ref(doublereal* g) const;

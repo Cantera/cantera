@@ -274,7 +274,7 @@ void BEulerInt::computeResidWts(GeneralMatrix& jac)
      * We compute residual weights here, which we define as the L_0 norm
      * of the Jacobian Matrix, weighted by the solution weights.
      * This is the proper way to guage the magnitude of residuals. However,
-     * it does need the evaluation of the jacobian, and the implementation
+     * it does need the evaluation of the Jacobian, and the implementation
      * below is slow, but doesn't take up much memory.
      *
      * Here a small weighting indicates that the change in solution is
@@ -461,7 +461,7 @@ static void print_lvl1_summary(
  *
  *   This routine is used in numerical differencing schemes in order
  *   to avoid roundoff errors resulting in creating Jacobian terms.
- *   Note: This is a slow routine. However, jacobian errors may cause
+ *   Note: This is a slow routine. However, Jacobian errors may cause
  *         loss of convergence. Therefore, in practice this routine
  *         has proved cost-effective.
  */
@@ -497,7 +497,7 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
 
     if (m_jacFormMethod & BEULER_JAC_ANAL) {
         /********************************************************************
-         * Call the function to get a jacobian.
+         * Call the function to get a Jacobian.
          */
         m_func->evalJacobian(time_curr, delta_t_n, CJ, y, ydot, J, f);
         m_nJacEval++;
@@ -507,7 +507,7 @@ void BEulerInt::beuler_jac(GeneralMatrix& J, double* const f,
          * Generic algorithm to calculate a numerical Jacobian
          */
         /*
-         * Calculate the current value of the rhs given the
+         * Calculate the current value of the RHS given the
          * current conditions.
          */
 
@@ -1030,7 +1030,7 @@ double BEulerInt::step(double t_max)
         calc_ydot(m_order, &m_y_n[0], &m_ydot_n[0]);
 
         /*
-         * Calculate CJ, the coefficient for the jacobian corresponding to the
+         * Calculate CJ, the coefficient for the Jacobian corresponding to the
          * derivative of the residual wrt to the acceleration vector.
          */
         if (m_order < 2) {
@@ -1780,7 +1780,7 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
                        num_newt_its);
         } else {
             if (loglevel > 1) {
-                printf("\t\t\tSolving system with old jacobian\n");
+                printf("\t\t\tSolving system with old Jacobian\n");
             }
         }
 
@@ -1794,7 +1794,7 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
         num_backtracks += i_backtracks;
 
         /*
-         * Impose the minimum number of newton iterations critera
+         * Impose the minimum number of Newton iterations critera
          */
         if (num_newt_its < m_min_newt_its) {
             if (m == 1) {
@@ -1802,7 +1802,7 @@ int BEulerInt::solve_nonlinear_problem(double* const y_comm,
             }
         }
         /*
-         * Impose max newton iteration
+         * Impose max Newton iteration
          */
         if (num_newt_its > 20) {
             m = -1;

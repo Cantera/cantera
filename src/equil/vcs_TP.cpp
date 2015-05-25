@@ -63,7 +63,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
      *      comes into play in calculating the ideal equation of state
      *      contributions, and other equations of state also. Therefore,
      *      we will emulate the VCS_UNITS_KELVIN case, here by changing
-     *      the initial gibbs free energy units to Kelvin before feeding
+     *      the initial Gibbs free energy units to Kelvin before feeding
      *      them to the cpc_ts_GStar_calc() routine. Then, we will revert
      *      them back to unitless at the end of this routine.
      */

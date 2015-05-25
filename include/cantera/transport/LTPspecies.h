@@ -248,7 +248,7 @@ public:
  * \f[
  *      x = A T^b \exp( - E / RT )
  * \f]
- * where A, b, and E are passed in the xml input file.
+ * where A, b, and E are passed in the XML input file.
  *
  * As an example of the input required for LTPspecies_Arrhenius
  * consider the following XML fragment

@@ -316,7 +316,7 @@ public:
      *  The self diffusion coefficient is the diffusion coefficient of a tracer
      *  species at the current temperature and composition of the species.
      *  Therefore, the dilute limit of transport is assumed for the tracer
-     *  species. The effective formula may be calculated from the stefan-maxwell
+     *  species. The effective formula may be calculated from the Stefan-Maxwell
      *  formulation by adding another row for the tracer species, assigning all
      *  D's to be equal to the respective species D's, and then taking the limit
      *  as the tracer species mole fraction goes to zero. The corresponding flux
@@ -372,7 +372,7 @@ public:
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
      *   This function returns the mobilities. In some formulations
-     *   this is equal to the normal mobility multiplied by faraday's constant.
+     *   this is equal to the normal mobility multiplied by Faraday's constant.
      *
      *   Frequently, but not always, the mobility is calculated from the
      *   diffusion coefficient using the Einstein relation

@@ -132,7 +132,7 @@ public:
      * @param loglevel Specify amount of debug logging (0 to disable)
      * @return Successful returns are indicated by a return value of 0.
      *     Unsuccessful returns are indicated by a return value of -1 for lack
-     *     of convergence or -3 for a singular jacobian.
+     *     of convergence or -3 for a singular Jacobian.
      */
     int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles,
                     bool useThermoPhaseElementPotentials = false, int loglevel = 0);
@@ -195,7 +195,7 @@ protected:
      *
      * We have found that the previous estimate may not be good enough to
      * avoid drastic numerical issues associated with the use of a numerically
-     * generated jacobian used in the main algorithm.
+     * generated Jacobian used in the main algorithm.
      *
      * The Brinkley algorithm, here, assumes a constant T, P system and uses a
      * linearized analytical Jacobian that turns out to be very stable even
@@ -211,14 +211,14 @@ protected:
      *
      * Nonideal phases are handled in principle. This is done by calculating
      * the activity coefficients and adding them into the formula in the
-     * correct position. However, these are treated as a rhs contribution
+     * correct position. However, these are treated as a RHS contribution
      * only. Therefore, convergence might be a problem. This has not been
      * tested. Also molality based unit systems aren't handled.
      *
      * On return, int return value contains the success code:
      * - 0 - successful
      * - 1 - unsuccessful, max num iterations exceeded
-     * - -3 - unsuccessful, singular jacobian
+     * - -3 - unsuccessful, singular Jacobian
      *
      * NOTE: update for activity coefficients.
      */
@@ -325,7 +325,7 @@ protected:
     vector_fp m_mu_RT;
 
     /**
-     * Dimensionless values of the gibbs free energy for the
+     * Dimensionless values of the Gibbs free energy for the
      * standard state of each species, at the temperature and
      * pressure of the solution (the star standard state).
      */

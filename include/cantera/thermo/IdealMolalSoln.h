@@ -188,7 +188,7 @@ public:
 
     //! Molar Gibbs function for the solution: Units J/kmol.
     /*!
-     * Returns the gibbs free energy of the solution per mole of the solution.
+     * Returns the Gibbs free energy of the solution per mole of the solution.
      *
      * \f[
      * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)

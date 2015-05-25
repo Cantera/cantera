@@ -69,7 +69,7 @@ void checkRxnElementBalance(Kinetics& kin,
  * the spnum, stoich, and order vectors. The length of the vectors is the
  * number of different types of reactants or products found for the reaction.
  *
- *  @param[in] rxn xml node pointing to the reaction element in the xml tree.
+ *  @param[in] rxn XML node pointing to the reaction element in the XML tree.
  *  @param[in] kin Reference to the kinetics object to install the information
  *                 into.
  * @param[in] rp 1 -> Go get the reactants for a reaction; -1 -> Go get the
@@ -94,7 +94,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp, std::string default
 
 //! Read the rate coefficient data from the XML file.
 /*!
- *  Extract the rate coefficient for a reaction from the xml node, kf.
+ *  Extract the rate coefficient for a reaction from the XML node, kf.
  *  kf should point to a XML element named "rateCoeff".
  *  rdata is the partially filled ReactionData object for the reaction.
  *  This function will fill in more fields in the ReactionData object.
@@ -116,9 +116,9 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin, ReactionData& rdata,
 
 //!  Install information about reactions into the kinetics object, kin.
 /*!
- *  At this point, parent usually refers to the phase xml element.
+ *  At this point, parent usually refers to the phase XML element.
  *  One of the children of this element is reactionArray,
- *  the element which determines where in the xml file to
+ *  the element which determines where in the XML file to
  *  look up the reaction rate data.
  *
  *  @param p             parent XML phase element
@@ -148,7 +148,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
  * argument. The vector of ThermoPhase objects should consist of pointers to
  * phases I, A, and B.
  *
- * @param phase This is an xml node containing a description of the owning
+ * @param phase This is an XML node containing a description of the owning
  *              phase for the kinetics object. Within the phase is a XML
  *              element called reactionArray containing the location of the
  *              description of the reactions that make up the kinetics object.

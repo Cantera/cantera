@@ -148,7 +148,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of  standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const {
@@ -181,7 +181,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const {
@@ -312,7 +312,7 @@ protected:
     //! Temporary storage for dimensionless reference state heat capacities
     mutable vector_fp      m_cp0_R;
 
-    //! Temporary storage for dimensionless reference state gibbs energies
+    //! Temporary storage for dimensionless reference state Gibbs energies
     mutable vector_fp      m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies

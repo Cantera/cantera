@@ -1,7 +1,7 @@
 /**
  *  @file MixedSolventElectrolyte.cpp
  *   Definitions for ThermoPhase object for phases which
- *   employ excess gibbs free energy formulations related to Margules
+ *   employ excess Gibbs free energy formulations related to Margules
  *   expansions (see \ref thermoprops
  *    and class \link Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
  */

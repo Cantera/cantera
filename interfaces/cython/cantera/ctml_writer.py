@@ -283,7 +283,7 @@ def is_local_species(name):
     return 0
 
 def dataset(nm):
-    "Set the dataset name. Invoke this to change the name of the xml file."
+    "Set the dataset name. Invoke this to change the name of the XML file."
     global _name
     _name = nm
 

@@ -47,7 +47,7 @@ public:
 extern "C" {
 
     /**
-     *  Function called by cvodes to evaluate ydot given y.  The cvode
+     *  Function called by cvodes to evaluate ydot given y.  The CVODE
      *  integrator allows passing in a void* pointer to access
      *  external data. This pointer is cast to a pointer to a instance
      *  of class FuncEval. The equations to be integrated should be
@@ -289,7 +289,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
      *  Specify the method and the iteration type:
      *      Cantera Defaults:
      *         CV_BDF  - Use BDF methods
-     *         CV_NEWTON - use newton's method
+     *         CV_NEWTON - use Newton's method
      */
     m_cvode_mem = CVodeCreate(m_method, m_iter);
     if (!m_cvode_mem) {

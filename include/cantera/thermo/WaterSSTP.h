@@ -205,21 +205,21 @@ public:
     //! @name Properties of the Standard State of the Species in the Solution
     //! @{
 
-    //!  Get the gibbs function for the species
+    //!  Get the Gibbs function for the species
     //!  standard states at the current T and P of the solution.
     /*!
      * @param gss Vector of length m_kk, which on return
      *           will contain the
-     *           standard state gibbs function for species <I>k</I>.
+     *           standard state Gibbs function for species <I>k</I>.
      */
     virtual void getStandardChemPotentials(doublereal* gss) const;
 
-    //!Get the nondimensional gibbs function for the species
+    //!Get the nondimensional Gibbs function for the species
     //! standard states at the current T and P of the solution.
     /*!
      * @param grt Vector of length m_kk, which on return
      *           will contain the nondimensional
-     *           standard state gibbs function for species <I>k</I>
+     *           standard state Gibbs function for species <I>k</I>
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
@@ -288,7 +288,7 @@ public:
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     /*!
-     *  Returns the vector of the gibbs function of the reference state at the
+     *  Returns the vector of the Gibbs function of the reference state at the
      *  current temperature of the solution and the reference pressure for the
      *  species. units = J/kmol
      *

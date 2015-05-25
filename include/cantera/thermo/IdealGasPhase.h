@@ -70,7 +70,7 @@ namespace Cantera
  *       \f[
  *            S^o_k(T,P) = S^{ref}_k(T) -  R \ln(\frac{P}{P_{ref}})
  *       \f]
- *  The standard state gibbs free energy is obtained from the enthalpy and entropy
+ *  The standard state Gibbs free energy is obtained from the enthalpy and entropy
  *  functions:
  *
  *       \f[
@@ -690,7 +690,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -699,7 +699,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of  standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
@@ -754,7 +754,7 @@ public:
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     //!  Returns the vector of the
-    //!  gibbs function of the reference state at the current temperature
+    //!  Gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
@@ -899,7 +899,7 @@ protected:
     //! Temporary storage for dimensionless reference state heat capacities
     mutable vector_fp m_cp0_R;
 
-    //! Temporary storage for dimensionless reference state gibbs energies
+    //! Temporary storage for dimensionless reference state Gibbs energies
     mutable vector_fp m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies

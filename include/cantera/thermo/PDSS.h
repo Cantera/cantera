@@ -339,7 +339,7 @@ public:
     //! the current pressure and the reference pressure, p0
     virtual doublereal entropyDelp_mole() const;
 
-    //! Get the difference in the standard state gibbs free energy
+    //! Get the difference in the standard state Gibbs free energy
     //! between the current pressure and the reference pressure, p0.
     virtual doublereal gibbsDelp_mole() const;
 
@@ -366,9 +366,9 @@ public:
         return m_maxTemp;
     }
 
-    //! Return the molar gibbs free energy divided by RT at reference pressure
+    //! Return the molar Gibbs free energy divided by RT at reference pressure
     /*!
-     * @return The reference state gibbs free energy at the current
+     * @return The reference state Gibbs free energy at the current
      *     temperature, divided by RT.
      */
     virtual doublereal gibbs_RT_ref() const;

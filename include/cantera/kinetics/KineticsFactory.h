@@ -51,8 +51,8 @@ public:
      * progress of the reactions and for calculating the source terms for
      * species.
      *
-     * @param phase An XML_Node that contains the xml data describing the
-     *              phase. Of particular note to this routine is the child xml
+     * @param phase An XML_Node that contains the XML data describing the
+     *              phase. Of particular note to this routine is the child XML
      *              element called "kinetics". The element has one attribute
      *              called "model", with a string value. The value of this
      *              string is used to decide which kinetics manager is used to

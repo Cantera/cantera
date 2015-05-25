@@ -516,7 +516,7 @@ void Elements::addElementsFromXML(const XML_Node& phase)
     // get the declared element names
     if (! phase.hasChild("elementArray")) {
         throw CanteraError("Elements::addElementsFromXML",
-                           "phase xml node doesn't have \"elementArray\" XML Node");
+                           "phase XML node doesn't have \"elementArray\" XML Node");
     }
     XML_Node& elements = phase.child("elementArray");
     vector<string> enames;

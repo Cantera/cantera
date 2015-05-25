@@ -806,7 +806,7 @@ void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
 void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
-     * Get the nondimensional gibbs standard state of the
+     * Get the nondimensional Gibbs standard state of the
      * species at the T and P of the solution.
      */
     getCp_R(cpbar);

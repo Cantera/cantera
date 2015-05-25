@@ -1,7 +1,7 @@
 /**
  *  @file RedlichKisterVPSSTP.cpp
  *   Definitions for ThermoPhase object for phases which
- *   employ excess gibbs free energy formulations related to RedlichKister
+ *   employ excess Gibbs free energy formulations related to RedlichKister
  *   expansions (see \ref thermoprops
  *    and class \link Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP\endlink).
  *

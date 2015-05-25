@@ -666,7 +666,7 @@ public:
      *  The actual problem statement is assumed to be in the structure
      *  already.  This is a wrapper around the solve_TP() function. In this
      *  wrapper, we nondimensionalize the system we calculate the standard
-     *  state gibbs free energies of the species, and we decide whether to we
+     *  state Gibbs free energies of the species, and we decide whether to we
      *  need to use the initial guess algorithm.
      *
      * @param ipr = 1 -> Print results to standard output;
@@ -1305,7 +1305,7 @@ private:
     double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
                               char* ANOTE=0) const;
 
-    //! This routine optimizes the minimization of the total gibbs free energy
+    //! This routine optimizes the minimization of the total Gibbs free energy
     //! by making sure the slope of the following functional stays negative:
     /*!
      *  The slope of the following functional is equivalent to the slope

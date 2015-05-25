@@ -785,7 +785,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
 
         /*
-         * Get the thermophase object - assume volume phase
+         * Get the ThermoPhase object - assume volume phase
          */
         Cantera::ThermoPhase* tPhase = &(mphase->phase(iphase));
         size_t nelem = tPhase->nElements();
@@ -1066,7 +1066,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
 
         VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
         /*
-         * Now, calculate a sample naught gibbs free energy calculation
+         * Now, calculate a sample naught Gibbs free energy calculation
          * at the specified temperature.
          */
         double R = vcsUtil_gasConstant(vprob->m_VCS_UnitsFormat);

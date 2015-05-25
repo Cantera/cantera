@@ -104,8 +104,8 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
     /*
      * The id of reactants and products are kept in child elements
      * of reaction, named "reactants" and "products". We search
-     * the xml tree for these children based on the value of rp,
-     * and store the xml element pointer here.
+     * the XML tree for these children based on the value of rp,
+     * and store the XML element pointer here.
      */
     if (rp == 1) {
         rptype = "reactants";
@@ -196,7 +196,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
 }
 
 /**
- * getArrhenius() parses the xml element called Arrhenius.
+ * getArrhenius() parses the XML element called Arrhenius.
  * The Arrhenius expression is
  * \f[        k =  A T^(b) exp (-E_a / RT). \f]
  * @deprecated to be removed after Cantera 2.2.
@@ -565,7 +565,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
     int itot = 0;
     /*
      * Search the children of the phase element for the
-     * xml element named reactionArray. If we can't find it,
+     * XML element named reactionArray. If we can't find it,
      * then return signaling having not found any reactions.
      * Apparently, we allow multiple reactionArray elements here
      * Each one will be processed sequentially, with the
@@ -578,17 +578,17 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
     }
     for (size_t n = 0; n < rarrays.size(); n++) {
         /*
-         * Go get a reference to the current xml element,
+         * Go get a reference to the current XML element,
          * reactionArray. We will process this element now.
          */
         const XML_Node& rxns = *rarrays[n];
         /*
          * The reactionArray element has an attribute called,
-         * datasrc. The value of the attribute is the xml
+         * datasrc. The value of the attribute is the XML
          * element comprising the top of the
          * tree of reactions for the phase.
          * Find this datasrc element starting with the root
-         * of the current xml node.
+         * of the current XML node.
          */
         const XML_Node* rdata = get_XML_Node(rxns["datasrc"], &rxns.root());
         /*

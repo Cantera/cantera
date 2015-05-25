@@ -226,7 +226,7 @@ public:
 
     //! Return the Molar Gibbs energy. Units: J/kmol.
     /*!
-     * The molar gibbs free energy is determined by the following formula, where \f$ \theta_n \f$ is the
+     * The molar Gibbs free energy is determined by the following formula, where \f$ \theta_n \f$ is the
      * lattice stoichiometric coefficient of the nth lattice
      *
      * \f[
@@ -545,7 +545,7 @@ public:
     /*!
      *  This function fills in its one entry in hrt[] by calling
      *  the underlying species thermo function for the
-     *  dimensionless gibbs free energy, calculated from the
+     *  dimensionless Gibbs free energy, calculated from the
      *  dimensionless enthalpy and entropy.
      *
      *  @param grt  Vector of dimensionless Gibbs free energies of the reference state
@@ -553,13 +553,13 @@ public:
      */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-    //!  Returns the vector of the  gibbs function of the reference state at the current
+    //!  Returns the vector of the Gibbs function of the reference state at the current
     //! temperatureof the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
      *
      *  This function fills in its one entry in g[] by calling the underlying species thermo
-     *  functions for the  gibbs free energy, calculated from enthalpy and the
+     *  functions for the Gibbs free energy, calculated from enthalpy and the
      *  entropy, and the multiplying by RT.
      *
      *  @param g  Vector of Gibbs free energies of the reference state.

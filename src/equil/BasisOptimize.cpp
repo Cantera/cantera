@@ -278,7 +278,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
      *      C will be an nc x nc matrix made up of the formula
      * vectors for the components. Each component's formula
      * vector is a column. The rows are the elements.
-     *      n rhs's will be solved for. Thus, B is an nc x n
+     *      n RHS's will be solved for. Thus, B is an nc x n
      * matrix.
      *
      * BIG PROBLEM 1/21/99:

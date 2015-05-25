@@ -212,7 +212,7 @@ cdef class Mixture:
             return self.mix.charge()
 
     def phase_charge(self, p):
-        """The charge of phase *p* in Coulumbs."""
+        """The charge of phase *p* in Coulombs."""
         return self.mix.phaseCharge(self.phase_index(p))
 
     def phase_moles(self, p=None):

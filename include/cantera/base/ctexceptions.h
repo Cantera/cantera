@@ -58,7 +58,7 @@ namespace Cantera
 //! Enum containing Cantera's behavior for situations where overflow or underflow of real variables
 //! may occur.
 /*!
- * Note this frequently occurs when taking exponentials of delta gibbs energies of reactions
+ * Note this frequently occurs when taking exponentials of delta Gibbs energies of reactions
  * or when taking the exponentials of logs of activity coefficients.
  */
 enum CT_RealNumber_Range_Behavior {

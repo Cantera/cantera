@@ -73,7 +73,7 @@ else:
 localenv['mak_boost_libs'] = ' '.join('-l%s' % s for s in localenv['boost_libs'])
 pc_libs += localenv['boost_libs']
 
-# Handle blas/lapack linkage
+# Handle BLAS/LAPACK linkage
 localenv['mak_have_blas_lapack_dir'] = '1' if localenv['blas_lapack_dir'] else '0'
 
 if localenv['blas_lapack_dir']:

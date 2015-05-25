@@ -727,7 +727,7 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
                          std::string& typeString);
 
 //! This function reads a child node with the name, nameString, and returns
-//! its xml value as the return string
+//! its XML value as the return string
 /*!
  * If the child XML_node named "name" doesn't exist, the empty string is returned.
  *
@@ -783,7 +783,7 @@ void ct2ctml(const char* file, const int debug = 0);
 //! Get a string with the ctml representation of a cti file.
 /*!
  *  @param   file    Path to the input file in CTI format
- *  @return  String containing the xml representation of the input file
+ *  @return  String containing the XML representation of the input file
  *
  *  @ingroup inputfiles
  */
@@ -792,7 +792,7 @@ std::string ct2ctml_string(const std::string& file);
 //! Get a string with the ctml representation of a cti input string.
 /*!
  *  @param   cti    String containing the cti representation
- *  @return  String containing the xml representation of the input
+ *  @return  String containing the XML representation of the input
  *
  *  @ingroup inputfiles
  */

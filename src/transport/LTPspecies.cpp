@@ -28,7 +28,7 @@ public:
     }
 };
 
-//! Parses the xml element called Arrhenius.
+//! Parses the XML element called Arrhenius.
 /*!
  * The Arrhenius expression is
  *    \f[

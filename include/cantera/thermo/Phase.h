@@ -81,10 +81,10 @@ namespace Cantera
  *
  * Specify that the input mole, mass, and volume fraction vectors must sum to one on entry to the set state routines.
  * Non-conforming mole/mass fraction vectors are not thermodynamically consistent.
- * Moreover, unless we do this, the calculation of jacobians will be altered whenever the treatment of non-conforming mole
+ * Moreover, unless we do this, the calculation of Jacobians will be altered whenever the treatment of non-conforming mole
  * fractions is changed. Add setState functions corresponding to specifying mole numbers, which is actually what
  * is being done (well one of the options, there are many) when non-conforming mole fractions are input.
- * Note, we realize that most numerical jacobian and some analytical jacobians use non-conforming calculations.
+ * Note, we realize that most numerical Jacobian and some analytical Jacobians use non-conforming calculations.
  * These can easily be changed to the set mole number setState functions.
  *
  * @ingroup phases

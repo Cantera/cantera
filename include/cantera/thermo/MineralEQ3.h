@@ -61,7 +61,7 @@ namespace Cantera
  *       \f]
  *
  * The standard state heat capacity and entropy are independent
- * of pressure. The standard state gibbs free energy is obtained
+ * of pressure. The standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * <b> Specification of Solution Thermodynamic Properties </b>
@@ -305,7 +305,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;

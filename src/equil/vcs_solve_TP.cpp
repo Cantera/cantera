@@ -1736,7 +1736,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
         }
 
         /*
-         * get the diagonal of the activity coefficient jacobian
+         * get the diagonal of the activity coefficient Jacobian
          */
         s = m_np_dLnActCoeffdMolNum(kspec,kspec) / (m_tPhaseMoles_old[iph]);
         /*
@@ -2821,7 +2821,7 @@ L_END_LOOP:
      *  coefficients. CX + B = 0
      *      C will be an nc x nc matrix made up of the formula
      * vectors for the components.
-     *      n rhs's will be solved for. Thus, B is an nc x n
+     *      n RHS's will be solved for. Thus, B is an nc x n
      * matrix.
      *
      * BIG PROBLEM 1/21/99:

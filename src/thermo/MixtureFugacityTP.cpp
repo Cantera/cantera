@@ -769,7 +769,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
      *  The key requirement is to find an initial pressure where both the liquid and the gas exist. This
      *  is not as easy as it sounds, and it gets exceedingly hard as the critical temperature is approached
      *  from below.
-     *  Once we have this initial state, then we seek to equilibrate the gibbs free energies of the
+     *  Once we have this initial state, then we seek to equilibrate the Gibbs free energies of the
      *  gas and liquid and use the formula
      *
      *    dp = VdG

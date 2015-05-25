@@ -269,7 +269,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -299,7 +299,7 @@ public:
      */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-    //!  Returns the vector of the gibbs function of the reference state at the current temperature
+    //!  Returns the vector of the Gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol

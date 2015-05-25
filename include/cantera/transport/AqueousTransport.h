@@ -77,7 +77,7 @@ namespace Cantera
  *       \sum_i \mathbf{j}_i = 0
  *  \f]
  *
- *  When there are charged species, we replace the rhs with the
+ *  When there are charged species, we replace the RHS with the
  *  gradient of the electrochemical potential to obtain the
  *  modified equation
  *
@@ -435,10 +435,10 @@ private:
      */
     DenseMatrix m_wratkj1;
 
-    //! RHS to the stefan-maxwell equation
+    //! RHS to the Stefan-Maxwell equation
     Array2D   m_B;
 
-    //! Matrix for the stefan maxwell equation.
+    //! Matrix for the Stefan-Maxwell equation.
     DenseMatrix m_A;
 
     //! Internal storage for the species LJ well depth

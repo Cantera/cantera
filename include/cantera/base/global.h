@@ -85,7 +85,7 @@ void popError();
  * Additional directories may be added by calling function addDirectory.
  *
  * There are two different types of input files within %Cantera:
- *  - ctml: This is an xml file laid out in such a way that %Cantera can
+ *  - ctml: This is an XML file laid out in such a way that %Cantera can
  *          interpret the contents. This is the essential input file within
  *          Cantera, and contains all elements that are involved with simulation,
  *          error propagation, data support, and versioning.
@@ -224,15 +224,15 @@ void close_XML_File(const std::string& file);
  *
  * @param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
- *                pound character is the file name of an xml
+ *                pound character is the file name of an XML
  *                file to carry out the search. The string after
  *                the # character is the ID attribute
- *                of the xml element to search for.
+ *                of the XML element to search for.
  *                The string is interpreted as a file string if
  *                no # character is in the string.
  *
  * @param root    If the file string is empty, searches for the
- *                xml element with matching ID attribute are
+ *                XML element with matching ID attribute are
  *                carried out from this XML node.
  *
  * @return
@@ -249,21 +249,21 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
  * XML element name and the ID attribute of the XML element.
  * An exact match of both is usually required. However, the
  * ID attribute may be set to "", in which case the first
- * xml element with the correct element name will be returned.
+ * XML element with the correct element name will be returned.
  *
  * @param nameTarget This is the XML element name to look for.
  *
  * @param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
- *                pound character is the file name of an xml
+ *                pound character is the file name of an XML
  *                file to carry out the search. The string after
  *                the # character is the ID attribute
- *                of the xml element to search for.
+ *                of the XML element to search for.
  *                The string is interpreted as a file string if
  *                no # character is in the string.
  *
  * @param root    If the file string is empty, searches for the
- *                xml element with matching ID attribute are
+ *                XML element with matching ID attribute are
  *                carried out from this XML node.
  *
  * @return
