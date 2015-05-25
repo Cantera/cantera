@@ -1,5 +1,5 @@
 import os
-import inspect
+import inspect as _inspect
 
 from . import Solution, add_directory
 
@@ -17,4 +17,4 @@ def add_module_directory():
     Add the directory containing the module from which this function is called
     to the Cantera input file search path.
     """
-    add_directory(os.path.dirname(os.path.abspath(inspect.stack()[1][1])))
+    add_directory(os.path.dirname(os.path.abspath(_inspect.stack()[1][1])))

@@ -1,7 +1,7 @@
-from collections import defaultdict
-import numbers
+from collections import defaultdict as _defaultdict
+import numbers as _numbers
 
-reactor_counts = defaultdict(int)
+_reactor_counts = _defaultdict(int)
 
 cdef class ReactorBase:
     """
@@ -22,8 +22,8 @@ cdef class ReactorBase:
         if name is not None:
             self.name = name
         else:
-            reactor_counts[self.reactor_type] += 1
-            n = reactor_counts[self.reactor_type]
+            _reactor_counts[self.reactor_type] += 1
+            n = _reactor_counts[self.reactor_type]
             self.name = '{0}_{1}'.format(self.reactor_type, n)
 
         if volume is not None:
@@ -415,8 +415,8 @@ cdef class Wall:
         if name is not None:
             self.name = name
         else:
-            reactor_counts['Wall'] += 1
-            n = reactor_counts['Wall']
+            _reactor_counts['Wall'] += 1
+            n = _reactor_counts['Wall']
             self.name = 'Wall_{0}'.format(n)
 
         if A is not None:
@@ -562,8 +562,8 @@ cdef class FlowDevice:
         if name is not None:
             self.name = name
         else:
-            reactor_counts[self.__class__.__name__] += 1
-            n = reactor_counts[self.__class__.__name__]
+            _reactor_counts[self.__class__.__name__] += 1
+            n = _reactor_counts[self.__class__.__name__]
             self.name = '{0}_{1}'.format(self.__class__.__name__, n)
 
         self._install(upstream, downstream)
@@ -682,7 +682,7 @@ cdef class Valve(FlowDevice):
         """
         cdef double kv
         cdef Func1 f
-        if isinstance(k, numbers.Real):
+        if isinstance(k, _numbers.Real):
             kv = k
             self.dev.setParameters(1, &kv)
             return

@@ -4,10 +4,10 @@ from .liquidvapor import *
 from .onedim import *
 from .utils import *
 
-import os as _os
-import sys as _sys
-add_directory(_os.path.join(_os.path.dirname(__file__), 'data'))
+import os
+import sys
+add_directory(os.path.join(os.path.dirname(__file__), 'data'))
 
 # Python interpreter used for converting mechanisms
-if 'PYTHON_CMD' not in _os.environ:
-    _os.environ['PYTHON_CMD'] = _sys.executable
+if 'PYTHON_CMD' not in os.environ:
+    os.environ['PYTHON_CMD'] = sys.executable

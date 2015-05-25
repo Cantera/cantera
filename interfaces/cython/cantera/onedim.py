@@ -327,35 +327,35 @@ def _array_property(attr, size=None):
     return property(getter, doc=doc)
 
 # Add scalar properties to FlameBase
-for attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
-             'volume_mole', 'int_energy_mole', 'int_energy_mass', 'h',
-             'enthalpy_mole', 'enthalpy_mass', 's', 'entropy_mole',
-             'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
-             'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
-             'isothermal_compressibility', 'thermal_expansion_coeff',
-             'viscosity', 'thermal_conductivity']:
-    setattr(FlameBase, attr, _array_property(attr))
+for _attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
+              'volume_mole', 'int_energy_mole', 'int_energy_mass', 'h',
+              'enthalpy_mole', 'enthalpy_mass', 's', 'entropy_mole',
+              'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
+              'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
+              'isothermal_compressibility', 'thermal_expansion_coeff',
+              'viscosity', 'thermal_conductivity']:
+    setattr(FlameBase, _attr, _array_property(_attr))
 FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
 FlameBase.int_energy = _array_property('u') # avoid collision with velocity 'u'
 
 # Add properties with values for each species
-for attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
-             'partial_molar_entropies', 'partial_molar_int_energies',
-             'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
-             'partial_molar_volumes', 'standard_enthalpies_RT',
-             'standard_entropies_R', 'standard_int_energies_RT',
-             'standard_gibbs_RT', 'standard_cp_R', 'creation_rates',
-             'destruction_rates', 'net_production_rates', 'mix_diff_coeffs',
-             'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole', 'thermal_diff_coeffs']:
-    setattr(FlameBase, attr, _array_property(attr, 'n_species'))
+for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
+              'partial_molar_entropies', 'partial_molar_int_energies',
+              'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
+              'partial_molar_volumes', 'standard_enthalpies_RT',
+              'standard_entropies_R', 'standard_int_energies_RT',
+              'standard_gibbs_RT', 'standard_cp_R', 'creation_rates',
+              'destruction_rates', 'net_production_rates', 'mix_diff_coeffs',
+              'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole', 'thermal_diff_coeffs']:
+    setattr(FlameBase, _attr, _array_property(_attr, 'n_species'))
 
 # Add properties with values for each reaction
-for attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rates_of_progress',
-             'equilibrium_constants', 'forward_rate_constants', 'reverse_rate_constants',
-             'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
-             'delta_standard_enthalpy', 'delta_standard_gibbs',
-             'delta_standard_entropy']:
-    setattr(FlameBase, attr, _array_property(attr, 'n_reactions'))
+for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rates_of_progress',
+              'equilibrium_constants', 'forward_rate_constants', 'reverse_rate_constants',
+              'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
+              'delta_standard_enthalpy', 'delta_standard_gibbs',
+              'delta_standard_entropy']:
+    setattr(FlameBase, _attr, _array_property(_attr, 'n_reactions'))
 
 
 class FreeFlame(FlameBase):

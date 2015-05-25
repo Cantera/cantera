@@ -1,4 +1,3 @@
-import csv
 import interrupts
 
 cdef class Domain1D:
