@@ -657,6 +657,10 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(gas2.net_rates_of_progress[0],
                         self.gas.net_rates_of_progress[2])
 
+    def test_arrhenius_rate(self):
+        R = self.gas.reaction(2)
+        self.assertNear(R.rate(self.gas.T), self.gas.forward_rate_constants[2])
+
     def test_negative_A(self):
         species = ct.Species.listFromFile('gri30.cti')
         r = ct.ElementaryReaction('NH:1, NO:1', 'N2O:1, H:1')
@@ -731,6 +735,13 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(gas2.net_rates_of_progress[0],
                             gas1.net_rates_of_progress[0])
 
+    def test_plog_rate(self):
+        gas1 = ct.Solution('pdep-test.cti')
+        gas1.TP = 800, 2*ct.one_atm
+        for i in range(4):
+            self.assertNear(gas1.reaction(i)(gas1.T, gas1.P),
+                            gas1.forward_rate_constants[i])
+
     def test_chebyshev(self):
         gas1 = ct.Solution('pdep-test.cti')
         species = ct.Species.listFromFile('pdep-test.cti')
@@ -755,6 +766,13 @@ class TestReaction(utilities.CanteraTest):
                             gas1.forward_rate_constants[4])
             self.assertNear(gas2.net_rates_of_progress[0],
                             gas1.net_rates_of_progress[4])
+
+    def test_chebyshev_rate(self):
+        gas1 = ct.Solution('pdep-test.cti')
+        gas1.TP = 800, 2*ct.one_atm
+        for i in range(4,6):
+            self.assertNear(gas1.reaction(i)(gas1.T, gas1.P),
+                            gas1.forward_rate_constants[i])
 
     def test_interface(self):
         surf_species = ct.Species.listFromFile('ptcombust.xml')

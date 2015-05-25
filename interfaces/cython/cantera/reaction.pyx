@@ -279,6 +279,11 @@ cdef class Arrhenius:
             self.pre_exponential_factor, self.temperature_exponent,
             self.activation_energy)
 
+    def __call__(self, float T):
+        cdef double logT = np.log(T)
+        cdef double recipT = 1/T
+        return self.rate.updateRC(logT, recipT)
+
 
 cdef wrapArrhenius(CxxArrhenius* rate, Reaction reaction):
     r = Arrhenius(init=False)
@@ -564,6 +569,15 @@ cdef class PlogReaction(Reaction):
             cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
             r.rate = CxxPlog(ratemap)
 
+    def __call__(self, float T, float P):
+        cdef CxxPlogReaction* r = <CxxPlogReaction*>self.reaction
+        cdef double logT = np.log(T)
+        cdef double recipT = 1/T
+        cdef double logP = np.log(P)
+
+        r.rate.update_C(&logP)
+        return r.rate.updateRC(logT, recipT)
+
 
 cdef class ChebyshevReaction(Reaction):
     """
@@ -634,6 +648,15 @@ cdef class ChebyshevReaction(Reaction):
                 CxxArray2D_set(data, i, j, value)
 
         r.rate = CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, data)
+
+    def __call__(self, float T, float P):
+        cdef CxxChebyshevReaction* r = <CxxChebyshevReaction*>self.reaction
+        cdef double logT = np.log(T)
+        cdef double recipT = 1/T
+        cdef double logP = np.log10(P)
+
+        r.rate.update_C(&logP)
+        return r.rate.updateRC(logT, recipT)
 
 
 cdef class InterfaceReaction(ElementaryReaction):
