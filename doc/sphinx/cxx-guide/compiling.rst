@@ -80,7 +80,7 @@ Make
 Cantera is distributed with an "include Makefile" that can be used with
 Make-based build systems. This file ``Cantera.mak`` is located in the
 ``samples`` subdirectory of the Cantera installation directory. To use it, add a
-line referincing this file to the top of your Makefile::
+line referencing this file to the top of your Makefile::
 
     include path/to/Cantera.mak
 

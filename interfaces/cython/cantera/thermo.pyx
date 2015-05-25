@@ -1,6 +1,6 @@
 import warnings
 
-cdef enum Thermasis:
+cdef enum ThermoBasis:
     mass_basis = 0
     molar_basis = 1
 

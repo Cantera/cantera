@@ -63,7 +63,7 @@ namespace Cantera
  *  defined in terms of the  species mole fraction,
  *  temperature and pressure.  Charged species are expected
  *  and quantities like the electric current are computed
- *  based on a combined electrochemcial potential.
+ *  based on a combined electrochemical potential.
  *
  *
  *  @ingroup tranprops
@@ -657,7 +657,7 @@ protected:
      *  \f]
      *
      *  The gradient in the activity coefficient requires the use of thermophase
-     *  getdlnActCoeff that calculates its change based on a chane in the state
+     *  getdlnActCoeff that calculates its change based on a change in the state
      *  (i.e. temperature and composition of each species) which was first
      *  implemented in MargulesVPSSTP.cpp (LiquidTransport.h doxygen)
      */
@@ -690,7 +690,7 @@ protected:
      *  The gradient in the activity coefficient requires the use of thermophase
      *  getdlnActCoeff that calculates its change based on a change in the state
      *  i.e. temperature and composition of each species.
-     *  First implemented in MargulesVPSSTP.cppmeter.
+     *  First implemented in MargulesVPSSTP.cpp.
      *
      * One of the Stefan Maxwell equations is replaced by the appropriate
      * definition of the mass-averaged velocity, the mole-averaged velocity
@@ -836,7 +836,7 @@ private:
     //! Type def for LTPvector equating it with a vector of pointers to LTPspecies
     typedef std::vector<LTPspecies*> LTPvector;
 
-    //! Mobility ratio for the binary cominations of each species in each
+    //! Mobility ratio for the binary combinations of each species in each
     //! pure phase expressed as an appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
@@ -1239,7 +1239,7 @@ private:
      */
     bool m_ionCond_mix_ok;
 
-    //! Boolean indicating that weight factors wrt ionic conductivty is current
+    //! Boolean indicating that weight factors wrt ionic conductivity is current
     bool m_ionCond_temp_ok;
 
     //! Flag to indicate that the pure species ionic conductivities

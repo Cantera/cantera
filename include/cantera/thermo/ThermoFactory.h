@@ -102,7 +102,7 @@ private:
 //!  Create a new thermo manager instance.
 /*!
  * @param model   String to look up the model against
- * @param f       ThermoFactor instance to use in matching the string
+ * @param f       ThermoFactory instance to use in matching the string
  *
  * @return
  *   Returns a pointer to a new ThermoPhase instance matching the

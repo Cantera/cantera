@@ -240,7 +240,7 @@ protected:
      *    on input:
      *
      *      abs_error   - Generic absolute error tolerance
-     *      rel_error   - Generic realtive error tolerance
+     *      rel_error   - Generic relative error tolerance
      *      x_coor[]    - Solution vector from the implicit corrector
      *      x_pred_n[]    - Solution vector from the explicit predictor
      *
@@ -270,7 +270,7 @@ protected:
      *
      *      delta_t_n   - Magnitude of time step at time t_n
      *      delta_t_nm1 - Magnitude of time step at time t_n-1
-     *      rel_error   - Generic realtive error tolerance
+     *      rel_error   - Generic relative error tolerance
      *      time_error_factor   - Estimated value of the time step truncation error
      *                           factor. This value is a ratio of the computed
      *                           error norms. The premultiplying constants

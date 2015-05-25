@@ -110,7 +110,7 @@ public:
 
     //! Set the maximum number of nonlinear iterations on a timestep
     /*!
-     * @param n  Set the max iterations. The default is 4, which seems awefully low to me.
+     * @param n  Set the max iterations. The default is 4, which seems awfully low to me.
      */
     virtual void setMaxNonlinIterations(int n);
 
@@ -249,7 +249,7 @@ protected:
     //! Maximum value of the timestep allowed
     doublereal m_hmax;
 
-    //! Minimum value of the timestep allowd
+    //! Minimum value of the timestep allowed
     doublereal m_hmin;
 
     //! Value of the initial time step

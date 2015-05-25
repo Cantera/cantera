@@ -1460,7 +1460,7 @@ void NonlinearSolver::setupDoubleDogleg()
      */
     /*
      * This hasn't worked. so will do it heuristically. One issue is that the newton
-     * direction is not the inverse of the Hessian times the gradient. The Hession
+     * direction is not the inverse of the Hessian times the gradient. The Hessian
      * is the matrix squared. Until I have the inverse of the Hessian from QR factorization
      * I may not be able to do it this way.
      */
@@ -2854,7 +2854,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
         // Damp the Newton step
         /*
-         *  On return the recommended new solution and derivatisve is located in:
+         *  On return the recommended new solution and derivatives is located in:
          *          y_new
          *          y_dot_new
          *  The update delta vector is located in
@@ -2873,7 +2873,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
 
         /*
-         * Impose the minimum number of newton iterations critera
+         * Impose the minimum number of newton iterations criteria
          */
         if (num_newt_its < m_min_newt_its) {
             if (retnDamp > NSOLN_RETN_CONTINUE) {

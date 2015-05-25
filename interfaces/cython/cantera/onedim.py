@@ -208,7 +208,7 @@ class FlameBase(Sim1D):
     def solution(self, component, point=None):
         """
         Get the solution at one point or for the full flame domain (if
-        `point=None`) for the specified *component*. The *compnent* can be
+        `point=None`) for the specified *component*. The *component* can be
         specified by name or index.
         """
         if point is None:

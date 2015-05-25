@@ -11,7 +11,7 @@ Reactions
 ---------
 
 These classes contain the definition of a single reaction and its associated
-rate expression, indepenent of a specific `Kinetics` object.
+rate expression, independent of a specific `Kinetics` object.
 
 .. autoclass:: Reaction(reactants='', products='')
    :no-undoc-members:

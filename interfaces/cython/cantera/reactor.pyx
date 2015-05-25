@@ -489,7 +489,7 @@ cdef class Wall:
 
     def set_velocity(self, v):
         """
-        The wall velocity [m/s]. May be either a constant or an arbirary
+        The wall velocity [m/s]. May be either a constant or an arbitrary
         function of time. See `Func1`.
         """
         cdef Func1 f
@@ -671,7 +671,7 @@ cdef class Valve(FlowDevice):
 
     def set_valve_coeff(self, k):
         """
-        Set the relationship betwen mass flow rate and the pressure drop across
+        Set the relationship between mass flow rate and the pressure drop across
         the valve. If a number is given, it is the proportionality constant
         [kg/s/Pa]. If a function is given, it should compute the mass flow
         rate [kg/s] given the pressure drop [Pa].
@@ -871,9 +871,9 @@ cdef class ReactorNet:
 
     def sensitivities(self):
         r"""
-        Returns the senstivities of all of the solution variables with respect
+        Returns the sensitivities of all of the solution variables with respect
         to all of the registered parameters. The normalized sensitivity
-        coefficient :math:`S_{ki}` of the solution varible :math:`y_k` with
+        coefficient :math:`S_{ki}` of the solution variable :math:`y_k` with
         respect to sensitivity parameter :math:`p_i` is defined as:
 
         .. math:: S_{ki} = \frac{p_i}{y_k} \frac{\partial y_k}{\partial p_i}

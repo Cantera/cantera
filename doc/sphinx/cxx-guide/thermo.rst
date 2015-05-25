@@ -42,7 +42,7 @@ specific attributes of each type of phase are specified by deriving a class from
 Cantera has a wide variety of models for bulk phase currently. Special attention
 (in terms of the speed of execution) has been paid to an ideal gas phase
 implementation, where the species thermodynamic polynomial representations
-adhere to either the NASA polynomial form or to the Shomate polynomoial
+adhere to either the NASA polynomial form or to the Shomate polynomial
 form. This is widely used in combustion applications, the original application
 that Cantera was designed for. Recently, a lot of effort has been placed into
 constructing non-ideal liquid phase thermodynamics models that are used in

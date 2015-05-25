@@ -61,6 +61,6 @@ for m in range(gas.n_reactions):
           m, (Su-Su0)/(Su0*dk), gas.reaction_equation(m)))
 
 # Sensitivity analysis requires additional function evaluations on the final
-# grid, but no additonal Jacobian evaluations.
+# grid, but no additional Jacobian evaluations.
 print('\nInitial Solution + Sensitivity calculations:')
 f.show_stats()

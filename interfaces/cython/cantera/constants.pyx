@@ -15,7 +15,7 @@ cdef extern from "cantera/base/ct_defs.h" namespace "Cantera":
 #: Avogadro's Number, /kmol
 avogadro = CxxAvogadro
 
-#: The ideal gas constant in J/kmo-K
+#: The ideal gas constant in J/kmol-K
 gas_constant = CxxGasConstant
 
 #: One atmosphere in Pascals

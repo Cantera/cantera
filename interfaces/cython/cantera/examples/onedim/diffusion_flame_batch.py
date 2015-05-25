@@ -130,7 +130,7 @@ for p in p_range:
                ', reaction mechanism ' + reaction_mechanism)
         p_previous = p
     except Exception as e:
-        print('Error occured while solving:', e, 'Try next pressure level')
+        print('Error occurred while solving:', e, 'Try next pressure level')
         # If solution failed: Restore the last successful solution and continue
         f.restore(filename=data_directory + file_name, name='solution',
                   loglevel=0)

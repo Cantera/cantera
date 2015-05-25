@@ -229,7 +229,7 @@ The Transport Model
 
 A *transport model* is a set of equations used to compute transport
 properties. For :class:`ideal_gas` phases, multiple transport models are
-available; the one desired can be selected by assiging a string to this
+available; the one desired can be selected by assigning a string to this
 field. See :ref:`sec-gas-transport-models` for more details.
 
 The Initial State
@@ -460,7 +460,7 @@ Defining an interface is much like defining a phase. There are two new fields:
 participate in the heterogeneous reactions. Although in most cases this string
 will list one or two phases, no limit is placed on the number. This is
 particularly useful in some electrochemical problems, where reactions take place
-near the triple-phase bounday where a gas, an electrolyte, and a metal all meet.
+near the triple-phase boundary where a gas, an electrolyte, and a metal all meet.
 
 The ``site_density`` field is the number of adsorption sites per unit area.
 

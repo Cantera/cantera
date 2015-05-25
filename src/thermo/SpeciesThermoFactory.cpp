@@ -614,7 +614,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
     for (size_t i = 1; i < tp.size(); i++) {
         if (lowercase(tp[i]->name()) != thermoType) {
             throw CanteraError("newSpeciesThermoInterpType",
-                "Encounterd unsupported mixed species thermo parameterizations");
+                "Encountered unsupported mixed species thermo parameterizations");
         }
     }
     if ((tp.size() > 2 && thermoType != "nasa9") ||

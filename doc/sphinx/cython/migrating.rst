@@ -120,8 +120,8 @@ should be replaced with::
     >>> w = ct.Water()
     >>> w.TX = 400, 0.5
 
-Setting Thermodyamic State
---------------------------
+Setting Thermodynamic State
+---------------------------
 
 The ``set`` method has been removed in favor of property pairs or triplets. The
 following::
@@ -268,7 +268,7 @@ should be replaced with::
     >>> f.flame.set_transient_tolerances(default=tol_ts)
     >>> f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 
-To change the transport model and enbale calculation of the Soret diffusion
+To change the transport model and enable calculation of the Soret diffusion
 term, the following::
 
     >>> gas.addTransportModel('Multi')
