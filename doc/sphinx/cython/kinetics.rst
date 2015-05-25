@@ -5,6 +5,8 @@ Chemical Kinetics
 
 .. autoclass:: Kinetics(infile='', phaseid='', phases=())
 
+.. autoclass:: InterfaceKinetics
+
 Reactions
 ---------
 

@@ -55,12 +55,19 @@ FlowReactor
 .. autoclass:: FlowReactor(contents=None, *, name=None, energy='on')
 
 
-Flow Controllers
-----------------
+Walls
+-----
 
 Wall
 ^^^^
 .. autoclass:: Wall(left, right, *, name=None, A=None, K=None, U=None, Q=None, velocity=None, kinetics=(None,None))
+
+WallSurface
+^^^^^^^^^^^
+.. autoclass:: WallSurface(wall, side)
+
+Flow Controllers
+----------------
 
 MassFlowController
 ^^^^^^^^^^^^^^^^^^

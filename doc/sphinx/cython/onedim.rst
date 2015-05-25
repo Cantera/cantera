@@ -21,6 +21,14 @@ CounterflowDiffusionFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: CounterflowDiffusionFlame(gas, grid=None)
 
+CounterflowPremixedFlame
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: CounterflowPremixedFlame(gas, grid=None)
+
+ImpingingJet
+^^^^^^^^^^^^
+.. autoclass:: ImpingingJet(gas, grid=None)
+
 Flow Domains
 ------------
 
