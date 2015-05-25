@@ -241,6 +241,12 @@ you can skip any steps which have already been completed.
 
          brew install -v cantera
 
+   * If Homebrew claims that it can't find a formula named ``cantera``, you may
+     be able to fix it by running the commands::
+
+         brew doctor
+         brew tap --repair
+
 4. **Test Cantera Installation (Python)**
 
    * The Python examples will be installed in::
