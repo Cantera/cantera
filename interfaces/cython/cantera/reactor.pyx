@@ -850,7 +850,7 @@ cdef class ReactorNet:
         integration. The default is *False*.
         """
         def __get__(self):
-            return pybool(self.verbose())
+            return pybool(self.net.verbose())
         def __set__(self, pybool v):
             self.net.setVerbose(v)
 

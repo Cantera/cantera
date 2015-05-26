@@ -36,6 +36,12 @@ class TestReactor(utilities.CanteraTest):
         self.w = ct.Wall(self.r1, self.r2, **kwargs)
         return self.w
 
+    def test_verbose(self):
+        self.make_reactors(independent=False, n_reactors=1)
+        self.assertFalse(self.net.verbose)
+        self.net.verbose = True
+        self.assertTrue(self.net.verbose)
+
     def test_insert(self):
         R = self.reactorClass()
         with self.assertRaises(Exception):
