@@ -16,6 +16,7 @@ VCSnonideal/LatticeSolid_LiSi/latticeSolid_LiSi
 VCSnonideal/LatticeSolid_LiSi/vcs_equilibrate_res.csv
 VPsilane_test/VPsilane_test
 cathermo/DH_graph_1/DH_graph_1
+cathermo/DH_graph_1/DH_graph_1.log
 cathermo/HMW_dupl_test/HMW_dupl_test
 cathermo/HMW_graph_CpvT/HMW_graph_CpvT
 cathermo/HMW_graph_GvI/HMW_graph_GvI
