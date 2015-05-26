@@ -39,11 +39,11 @@ public:
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref.getFwdRateConstants(&k_ref[0]);
-        EXPECT_FLOAT_EQ(k_ref[iRef], k[0]);
+        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
         kin.getRevRateConstants(&k[0]);
         kin_ref.getRevRateConstants(&k_ref[0]);
-        EXPECT_FLOAT_EQ(k_ref[iRef], k[0]);
+        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
 };
 
@@ -357,11 +357,11 @@ public:
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref.getFwdRateConstants(&k_ref[0]);
-        EXPECT_FLOAT_EQ(k_ref[iRef], k[0]);
+        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
         kin.getRevRateConstants(&k[0]);
         kin_ref.getRevRateConstants(&k_ref[0]);
-        EXPECT_FLOAT_EQ(k_ref[iRef], k[0]);
+        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
 };
 

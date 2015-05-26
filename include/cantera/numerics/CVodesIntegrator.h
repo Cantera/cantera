@@ -53,7 +53,7 @@ public:
     virtual double& solution(size_t k);
     virtual double* solution();
     virtual int nEquations() const {
-        return m_neq;
+        return static_cast<int>(m_neq);
     }
     virtual int nEvals() const;
     virtual void setMaxOrder(int n) {
@@ -70,7 +70,7 @@ public:
         m_mlower = N_Lower;
     }
     virtual int nSensParams() {
-        return m_np;
+        return static_cast<int>(m_np);
     }
     virtual double sensitivity(size_t k, size_t p);
 

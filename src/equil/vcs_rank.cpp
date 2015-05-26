@@ -84,7 +84,7 @@ namespace VCSnonideal {
      *     It's equal to the minimum of the number of elements and the
      *     number of total species.
      */
-    int ncTrial = std::min(numElemConstraints, numSpecies);
+    int ncTrial = static_cast<int>(std::min(numElemConstraints, numSpecies));
     numComponents = ncTrial;
     *usedZeroedSpecies = false;
 
@@ -112,7 +112,7 @@ namespace VCSnonideal {
 	 *    The first search criteria is always the largest positive
 	 *    magnitude of the mole number.
 	 */
-	k = basisOptMax1(VCS_DATA_PTR(aw), numSpecies);
+	k = basisOptMax1(VCS_DATA_PTR(aw), static_cast<int>(numSpecies));
 
 	if ((aw[k] != test) && fabs(aw[k]) == 0.0) {
 	  *usedZeroedSpecies = true;
@@ -213,7 +213,7 @@ namespace VCSnonideal {
 
       do {
 
-	k = basisOptMax1(VCS_DATA_PTR(aw), numElemConstraints);
+	k = basisOptMax1(VCS_DATA_PTR(aw), static_cast<int>(numElemConstraints));
     
 	if (aw[k] == test) {
 	  numComponents = jr;

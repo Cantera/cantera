@@ -72,7 +72,7 @@ static void erase_vi(std::vector<int>& m_vec, int index)
 static void addV(int kkinspec, double ps, std::vector<int>& m_Products,
                  std::vector<doublereal>& m_ProductStoich)
 {
-    int nsize = m_Products.size();
+    int nsize = static_cast<int>(m_Products.size());
     for (int i = 0; i < nsize; i++) {
         if (m_Products[i] == kkinspec) {
             m_ProductStoich[i] += ps;
@@ -104,9 +104,9 @@ ExtraGlobalRxn::ExtraGlobalRxn(Kinetics* k_ptr) :
     if (m_InterfaceKinetics) {
         m_ThisIsASurfaceRxn = true;
     }
-    m_nRxns = m_kinetics->nReactions();
+    m_nRxns = static_cast<int>(m_kinetics->nReactions());
     m_ElemRxnVector.resize(m_nRxns,0.0);
-    m_nKinSpecies = m_kinetics->nTotalSpecies();
+    m_nKinSpecies = static_cast<int>(m_kinetics->nTotalSpecies());
 }
 //============================================================================================================
 void ExtraGlobalRxn::setupElemRxnVector(double* RxnVector,
@@ -194,9 +194,9 @@ Recheck:
 
         }
     }
-    m_nProducts = m_Products.size();
-    m_nReactants = m_Reactants.size();
-    m_nNetSpecies = m_NetSpecies.size();
+    m_nProducts = static_cast<int>(m_Products.size());
+    m_nReactants = static_cast<int>(m_Reactants.size());
+    m_nNetSpecies = static_cast<int>(m_NetSpecies.size());
 
     /*
      * Section to assign the special species

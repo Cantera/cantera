@@ -7,7 +7,7 @@
  */
 #ifndef CT_EQUIL_INCL
 #define CT_EQUIL_INCL
-#pragma message "cantera/equil/equil.h is deprecated"
+#pragma message("cantera/equilibrium.h is deprecated")
 #include "equil/equil.h"
 #include "equil/ChemEquil.h"
 #include "equil/MultiPhaseEquil.h"

@@ -44,10 +44,10 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
     p.initThermo();
     p2.setState_TPX(298.15, 101325, "H2:0.2, O2:0.7, H2O:0.1");
     p.setState_TPX(298.15, 101325, "H2:0.2, O2:0.7, H2O:0.1");
-    EXPECT_FLOAT_EQ(p2.meanMolecularWeight(), p.meanMolecularWeight());
-    EXPECT_FLOAT_EQ(p2.enthalpy_mass(), p.enthalpy_mass());
-    EXPECT_FLOAT_EQ(p2.entropy_mass(), p.entropy_mass());
-    EXPECT_FLOAT_EQ(p2.cp_mass(), p.cp_mass());
+    EXPECT_DOUBLE_EQ(p2.meanMolecularWeight(), p.meanMolecularWeight());
+    EXPECT_DOUBLE_EQ(p2.enthalpy_mass(), p.enthalpy_mass());
+    EXPECT_DOUBLE_EQ(p2.entropy_mass(), p.entropy_mass());
+    EXPECT_DOUBLE_EQ(p2.cp_mass(), p.cp_mass());
 }
 
 TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
@@ -79,10 +79,10 @@ TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
     p.initThermo();
     p2.setState_TPX(900, 101325, "H2:0.2, O2:0.7, H2O:0.1");
     p.setState_TPX(900, 101325, "H2:0.2, O2:0.7, H2O:0.1");
-    EXPECT_FLOAT_EQ(p2.meanMolecularWeight(), p.meanMolecularWeight());
-    EXPECT_FLOAT_EQ(p2.enthalpy_mass(), p.enthalpy_mass());
-    EXPECT_FLOAT_EQ(p2.entropy_mass(), p.entropy_mass());
-    EXPECT_FLOAT_EQ(p2.cp_mass(), p.cp_mass());
+    EXPECT_DOUBLE_EQ(p2.meanMolecularWeight(), p.meanMolecularWeight());
+    EXPECT_DOUBLE_EQ(p2.enthalpy_mass(), p.enthalpy_mass());
+    EXPECT_DOUBLE_EQ(p2.entropy_mass(), p.entropy_mass());
+    EXPECT_DOUBLE_EQ(p2.cp_mass(), p.cp_mass());
 }
 
 TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
@@ -98,8 +98,8 @@ TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
     p.initThermo();
     p2.setState_TPX(900, 101325, "CO:0.2, CO2:0.8");
     p.setState_TPX(900, 101325, "CO:0.2, CO2:0.8");
-    EXPECT_FLOAT_EQ(p2.meanMolecularWeight(), p.meanMolecularWeight());
-    EXPECT_FLOAT_EQ(p2.enthalpy_mass(), p.enthalpy_mass());
-    EXPECT_FLOAT_EQ(p2.entropy_mass(), p.entropy_mass());
-    EXPECT_FLOAT_EQ(p2.cp_mass(), p.cp_mass());
+    EXPECT_DOUBLE_EQ(p2.meanMolecularWeight(), p.meanMolecularWeight());
+    EXPECT_DOUBLE_EQ(p2.enthalpy_mass(), p.enthalpy_mass());
+    EXPECT_DOUBLE_EQ(p2.entropy_mass(), p.entropy_mass());
+    EXPECT_DOUBLE_EQ(p2.cp_mass(), p.cp_mass());
 }

@@ -27,7 +27,7 @@ bool PecosTransport::initGas(GasTransportParams& tr)
 {
     // constant substance attributes
     m_thermo = tr.thermo;
-    m_nsp   = m_thermo->nSpecies();
+    m_nsp   = static_cast<int>(m_thermo->nSpecies());
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);

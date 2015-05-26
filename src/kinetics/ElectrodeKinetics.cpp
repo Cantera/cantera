@@ -897,7 +897,7 @@ void ElectrodeKinetics::finalize()
     // Malloc and calculate all of the quantities that go into the extra description of reactions
     rmcVector.resize(m_ii, 0);
     for (size_t i = 0; i < m_ii; i++) {
-          rmcVector[i] = new RxnMolChange(this, i);
+          rmcVector[i] = new RxnMolChange(this, static_cast<int>(i));
     }
 }
 

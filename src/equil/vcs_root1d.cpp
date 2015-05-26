@@ -85,7 +85,7 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
     }
     f1 = func(x1, FuncTargVal, varID, fptrPassthrough, &err);
     if (DEBUG_MODE_ENABLED && printLvl >= 3) {
-        print_funcEval(fp, x1, f1, its);
+        print_funcEval(fp, x1, f1, static_cast<int>(its));
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E\n", -2, 0, x1, f1);
     }
     if (f1 == 0.0) {
@@ -104,7 +104,7 @@ int vcsUtil_root1d(double xmin, double xmax, size_t itmax,
     }
     f2 = func(x2, FuncTargVal, varID, fptrPassthrough, &err);
     if (DEBUG_MODE_ENABLED && printLvl >= 3) {
-        print_funcEval(fp, x2, f2, its);
+        print_funcEval(fp, x2, f2, static_cast<int>(its));
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, 0, x2, f2);
     }
 
@@ -312,7 +312,7 @@ QUAD_BAIL:
         fnew = func(xnew, FuncTargVal, varID, fptrPassthrough, &err);
         if (DEBUG_MODE_ENABLED && printLvl >= 3) {
             fprintf(fp,"\n");
-            print_funcEval(fp, xnew, fnew, its);
+            print_funcEval(fp, xnew, fnew, static_cast<int>(its));
             fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", (int) its, 0, xnew, fnew);
         }
 

@@ -180,14 +180,14 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         for (Composition::const_iterator iter = R.reactants.begin();
              iter != R.reactants.end();
              ++iter) {
-            size_t k = kineticsSpeciesIndex(iter->first);
+            int k = static_cast<int>(kineticsSpeciesIndex(iter->first));
             key += k*(k+1);
             net[-1 -k] -= iter->second;
         }
         for (Composition::const_iterator iter = R.products.begin();
              iter != R.products.end();
              ++iter) {
-            size_t k = kineticsSpeciesIndex(iter->first);
+            int k = static_cast<int>(kineticsSpeciesIndex(iter->first));
             key += k*(k+1);
             net[1+k] += iter->second;
         }

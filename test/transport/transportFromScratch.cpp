@@ -107,7 +107,7 @@ TEST_F(TransportFromScratch, viscosity)
     MixTransport trTest;
     trTest.init(test.get());
 
-    for (size_t i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         double T = 300 + 111*i;
         ref->setState_TPX(T, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
         test->setState_TPX(T, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
@@ -121,7 +121,7 @@ TEST_F(TransportFromScratch, thermalConductivityMix)
     MixTransport trTest;
     trTest.init(test.get());
 
-    for (size_t i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         double T = 300 + 111*i;
         ref->setState_TPX(T, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
         test->setState_TPX(T, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
@@ -157,7 +157,7 @@ TEST_F(TransportFromScratch, thermalConductivityMulti)
     MultiTransport trTest;
     trTest.init(test.get());
 
-    for (size_t i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         double T = 300 + 111*i;
         ref->setState_TPX(T, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
         test->setState_TPX(T, 5e5, "H2:0.5, O2:0.3, H2O:0.2");

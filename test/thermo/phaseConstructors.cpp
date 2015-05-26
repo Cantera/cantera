@@ -21,7 +21,7 @@ TEST_F(FixedChemPotSstpConstructorTest, fromXML)
     ASSERT_EQ((int) p->nSpecies(), 1);
     double mu;
     p->getChemPotentials(&mu);
-    ASSERT_FLOAT_EQ(-2.3e7, mu);
+    ASSERT_DOUBLE_EQ(-2.3e7, mu);
     delete p;
 }
 
@@ -31,7 +31,7 @@ TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
     ASSERT_EQ((int) p.nSpecies(), 1);
     double mu;
     p.getChemPotentials(&mu);
-    ASSERT_FLOAT_EQ(-2.3e7, mu);
+    ASSERT_DOUBLE_EQ(-2.3e7, mu);
 }
 
 #ifndef HAS_NO_PYTHON // skip these tests if the Python converter is unavailable
@@ -187,7 +187,7 @@ TEST_F(ConstructFromScratch, addUndefinedElements)
     ASSERT_EQ((size_t) 1, p.nAtoms(p.speciesIndex("CO2"), p.elementIndex("C")));
     ASSERT_EQ((size_t) 2, p.nAtoms(p.speciesIndex("CO2"), p.elementIndex("O")));
     p.setMassFractionsByName("H2:0.5, CO2:0.5");
-    ASSERT_FLOAT_EQ(0.5, p.massFraction("CO2"));
+    ASSERT_DOUBLE_EQ(0.5, p.massFraction("CO2"));
 }
 
 } // namespace Cantera

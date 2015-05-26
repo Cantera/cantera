@@ -240,7 +240,7 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root)
             }
             try {
                 findInputFile(fname);
-            } catch (CanteraError& err2) {
+            } catch (CanteraError&) {
                 // rethrow the original error, which indicates the given file name
                 throw err;
             }

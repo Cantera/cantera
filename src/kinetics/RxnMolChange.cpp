@@ -37,12 +37,11 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
     m_egr(0)
 {
     warn_deprecated("class RxnMolChange", "To be removed after Cantera 2.2.");
-    int nReac = kinPtr->nReactions();
     int iph;
     AssertTrace(irxn >= 0);
-    AssertTrace(irxn < nReac);
+    AssertTrace(irxn < static_cast<int>(kinPtr->nReactions()));
 
-    m_nPhases = kinPtr->nPhases();
+    m_nPhases = static_cast<int>(kinPtr->nPhases());
 
     m_phaseMoleChange.resize(m_nPhases, 0.0);
     m_phaseReactantMoles.resize(m_nPhases, 0.0);
@@ -52,12 +51,12 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
     m_phaseTypes.resize(m_nPhases, 0);
     m_phaseDims.resize(m_nPhases, 0);
 
-    int m_kk = kinPtr->nTotalSpecies();
+    int m_kk = static_cast<int>(kinPtr->nTotalSpecies());
 
     for (int kKin = 0; kKin < m_kk; kKin++) {
-        iph =  m_kinBase->speciesPhaseIndex(kKin);
+        iph = static_cast<int>(m_kinBase->speciesPhaseIndex(kKin));
         Cantera::ThermoPhase& tpRef = m_kinBase->thermo(iph);
-        int kLoc = kKin - m_kinBase->kineticsSpeciesIndex(0, iph);
+        int kLoc = kKin - static_cast<int>(m_kinBase->kineticsSpeciesIndex(0, iph));
         double rsc = m_kinBase->reactantStoichCoeff(kKin, irxn);
         double psc = m_kinBase->productStoichCoeff(kKin, irxn);
         double nsc = psc - rsc;
@@ -72,7 +71,7 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
 
     for (iph = 0; iph < m_nPhases; iph++) {
         Cantera::ThermoPhase& tpRef = m_kinBase->thermo(iph);
-        m_phaseDims[iph] = tpRef.nDim();
+        m_phaseDims[iph] = static_cast<int>(tpRef.nDim());
         m_phaseTypes[iph] = tpRef.eosType();
         if (m_phaseChargeChange[iph] != 0.0) {
             double tmp = fabs(m_phaseChargeChange[iph]);
@@ -104,7 +103,7 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, Cantera::ExtraGlobalRxn* e
     int iph;
     AssertTrace(egr != 0);
 
-    m_nPhases = kinPtr->nPhases();
+    m_nPhases = static_cast<int>(kinPtr->nPhases());
 
     m_phaseMoleChange.resize(m_nPhases, 0.0);
     m_phaseReactantMoles.resize(m_nPhases, 0.0);
@@ -114,12 +113,12 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, Cantera::ExtraGlobalRxn* e
     m_phaseTypes.resize(m_nPhases, 0);
     m_phaseDims.resize(m_nPhases, 0);
 
-    int m_kk = kinPtr->nTotalSpecies();
+    int m_kk = static_cast<int>(kinPtr->nTotalSpecies());
 
     for (int kKin = 0; kKin < m_kk; kKin++) {
-        iph =  m_kinBase->speciesPhaseIndex(kKin);
+        iph = static_cast<int>(m_kinBase->speciesPhaseIndex(kKin));
         ThermoPhase& tpRef = m_kinBase->thermo(iph);
-        int kLoc = kKin - m_kinBase->kineticsSpeciesIndex(0, iph);
+        int kLoc = kKin - static_cast<int>(m_kinBase->kineticsSpeciesIndex(0, iph));
         double rsc = egr->reactantStoichCoeff(kKin);
         double psc = egr->productStoichCoeff(kKin);
         double nsc = psc - rsc;
@@ -134,7 +133,7 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, Cantera::ExtraGlobalRxn* e
 
     for (iph = 0; iph < m_nPhases; iph++) {
         ThermoPhase& tpRef = m_kinBase->thermo(iph);
-        m_phaseDims[iph] = tpRef.nDim();
+        m_phaseDims[iph] = static_cast<int>(tpRef.nDim());
         m_phaseTypes[iph] = tpRef.eosType();
         if (m_phaseChargeChange[iph] != 0.0) {
             double tmp = fabs(m_phaseChargeChange[iph]);

@@ -12,7 +12,7 @@
 #define CT_KERNEL_EQUIL_H
 
 
-#pragma message "cantera/equil/equil.h is deprecated"
+#pragma message("cantera/equil/equil.h is deprecated")
 #include "MultiPhase.h"
 #include "vcs_defs.h"
 

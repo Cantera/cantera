@@ -3301,7 +3301,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
 
                 info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
-                                            JacDelta_ResidEval, j, dy);
+                                            JacDelta_ResidEval, static_cast<int>(j), dy);
                 m_nfe++;
 
                 if (DEBUG_MODE_ENABLED) {
@@ -3332,8 +3332,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             int ku, kl;
             size_t ivec[2];
             size_t n = J.nRowsAndStruct(ivec);
-            kl = ivec[0];
-            ku = ivec[1];
+            kl = static_cast<int>(ivec[0]);
+            ku = static_cast<int>(ivec[1]);
             if (n != neq_) {
                 printf("we have probs\n");
                 exit(-1);

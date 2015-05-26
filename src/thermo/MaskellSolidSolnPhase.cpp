@@ -257,8 +257,8 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
 
         if (thNode.hasChild("product_species")) {
             std::string product_species_name = thNode.child("product_species").value();
-            product_species_index = speciesIndex(product_species_name);
-            if (product_species_index == static_cast<int>(npos)) {
+            product_species_index = static_cast<int>(speciesIndex(product_species_name));
+            if (product_species_index == -1) {
                 throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
                                    "Species " + product_species_name + " not found.");
             }

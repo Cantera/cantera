@@ -1892,8 +1892,10 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
      *     -> This zeroes w[kspec] and modifies m_tPhaseMoles_old[]
      */
     const int retn = vcs_zero_species(kspec);
-    AssertThrowMsg(retn, "VCS_SOLVE::vcs_delete_species",
-        "Failed to delete a species!");
+    if (!retn) {
+        throw CanteraError("VCS_SOLVE::vcs_delete_species",
+                           "Failed to delete a species!");
+    }
     /*
      *    Decrement the minor species counter if the current species is
      *    a minor species

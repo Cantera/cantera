@@ -31,7 +31,7 @@ void testProblem()
     salt.setState_TPX(T, OneAtm, &x[0]);
     LiSi_solid->setState_TP(T, OneAtm);
 
-    int ee = LiSi_solid->nElements();
+    int ee = static_cast<int>(LiSi_solid->nElements());
     printf("Number of elements = %d\n", ee);
 
     LiFixed.setState_TP(T, OneAtm);

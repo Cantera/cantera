@@ -632,11 +632,10 @@ void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* spe
         m_selfDiffMix[k] = m_selfDiffMixModel[k]->getMixTransProp(m_selfDiffSpecies[k]);
     }
 
-    //! @todo Suspicious implicit conversion from double to int.
-    int vP = max(viS[cation[0]],viS[cation[1]]);
-    int vM = viS[anion[0]];
-    int zP = charges[cation[0]];
-    int zM = charges[anion[0]];
+    double vP = max(viS[cation[0]],viS[cation[1]]);
+    double vM = viS[anion[0]];
+    double zP = charges[cation[0]];
+    double zM = charges[anion[0]];
     doublereal xA, xB, eps;
     doublereal inv_vP_vM_MutualDiff;
     vector_fp dlnActCoeffdlnN_diag;

@@ -932,7 +932,7 @@ void LiquidTransport::update_Grad_lnAC()
     doublereal grad_T;
     for (size_t k = 0; k < m_nDim; k++) {
         grad_T = m_Grad_T[k];
-        const int start = m_nsp*k;
+        size_t start = m_nsp*k;
         m_thermo->getdlnActCoeffds(grad_T, &(m_Grad_X[start]), &(m_Grad_lnAC[start]));
         for (size_t i = 0; i < m_nsp; i++)
             if (m_molefracs[i] < 1.e-15) {
