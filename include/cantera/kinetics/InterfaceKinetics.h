@@ -24,6 +24,7 @@ class ImplicitSurfChem;
 class RxnMolChange;
 
 //! forward orders
+//! @deprecated Incomplete implementation to be removed after Cantera 2.2.
 class RxnOrders {
 
   public:
@@ -585,6 +586,7 @@ protected:
      *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
      *
      *   Some reactions have zero in this list, those that don't need special treatment.
+     *   @deprecated To be removed after Cantera 2.2.
      */
     std::vector<RxnOrders*> m_ctrxn_ROPOrdersList_;
 
@@ -593,6 +595,7 @@ protected:
      *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
      *
      *   Some reactions have zero in this list, indicating that the calculation isn't necessary.
+     *   @deprecated To be removed after Cantera 2.2.
      */
     std::vector<RxnOrders*> m_ctrxn_FwdOrdersList_;
 
