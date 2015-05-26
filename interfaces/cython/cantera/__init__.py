@@ -1,5 +1,5 @@
 from ._cantera import *
-from ._cantera import __version__, _have_sundials
+from ._cantera import __version__, __sundials_version__
 from .liquidvapor import *
 from .onedim import *
 from .utils import *

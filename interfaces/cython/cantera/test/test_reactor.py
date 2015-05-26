@@ -769,7 +769,7 @@ class TestFlowReactor(utilities.CanteraTest):
             self.assertNear(v0, r.speed)
             self.assertNear(r.distance, v0 * t)
 
-    @unittest.skipUnless(ct._have_sundials(),
+    @unittest.skipUnless(ct.__sundials_version__,
                          "Disabled until there is an interface for setting the "
                          "max_err_test_fails parameter for the old CVODE")
     def test_reacting(self):
@@ -898,7 +898,7 @@ class TestWallKinetics(utilities.CanteraTest):
         self.assertFalse(bool(bad), bad)
 
 
-@unittest.skipUnless(ct._have_sundials(),
+@unittest.skipUnless(ct.__sundials_version__,
                      "Sensitivity calculations require Sundials")
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):
