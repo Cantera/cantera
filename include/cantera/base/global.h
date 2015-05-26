@@ -84,23 +84,23 @@ void popError();
  *
  * Additional directories may be added by calling function addDirectory.
  *
- * There are two different types of input files within %Cantera:
- *  - ctml: This is an XML file laid out in such a way that %Cantera can
- *          interpret the contents. This is the essential input file within
- *          Cantera, and contains all elements that are involved with simulation,
- *          error propagation, data support, and versioning.
+ * There are currently two different types of input files within %Cantera:
+ *  - CTI: A human-readable input file written using Python syntax which
+ *    defines species, phases, and reactions, and contains thermodynamic,
+ *    chemical kinetic, and transport data needed by %Cantera. Some options for
+ *    non-ideal equations of state available in the CTML format have not yet
+ *    been implemented for the CTI format.
  *
- *  - cti:  A human-readable input file written using Python syntax which
- *    defines species and phases, and contains thermodynamic, chemical kinetic,
- *    and transport data needed by %Cantera. Some options and equations of state
- *    available in the CTML format have not yet been implemented for the CTI
- *    format. %Cantera provides a converter (ck2cti) for converting Chemkin-
- *    format gas-phase mechanisms to the CTI format.
+ *  - CTML: This is an XML file laid out in such a way that %Cantera can
+ *    interpret the contents directly. Given a file in CTI format, %Cantera will
+ *    convert the CTI file into the CTML format on-the-fly using a Python script
+ *    (ctml_writer). This process is done in-memory without writing any new
+ *    files to disk. Explicit use of the CTML format is not recommended unless
+ *    using features not available in CTI or working on a computer where Python
+ *    is not available.
  *
- * Internally, %Cantera works with the CTML file. Given a file in CTI format,
- * %Cantera will convert the CTI file into the CTML format on-the-fly using a
- * Python script (ctml_writer). This process is done in-memory without writing
- * any new files to disk.
+ * %Cantera provides a converter (ck2cti) for converting Chemkin-format
+ * gas-phase mechanisms to the CTI format.
  *
  * Other input routines in other modules:
  *   @see importKinetics()
