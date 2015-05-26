@@ -53,10 +53,10 @@ public:
 //! Create a new Species object from a 'species' XML_Node.
 shared_ptr<Species> newSpecies(const XML_Node& species_node);
 
-//! Generate Species objects for all <species> nodes in an XML document.
+//! Generate Species objects for all `<species>` nodes in an XML document.
 //!
-//! The <species> nodes are assumed to be children of the <speciesData> node in
-//! an XML document with a <ctml> root node, as in the case of XML files
+//! The `<species>` nodes are assumed to be children of the `<speciesData>` node
+//! in an XML document with a `<ctml>` root node, as in the case of XML files
 //! produced by conversion from CTI files.
 //!
 //! This function can be used in combination with get_XML_File and

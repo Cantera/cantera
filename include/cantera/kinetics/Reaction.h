@@ -249,7 +249,7 @@ public:
 //! Create a new Reaction object for the reaction defined in `rxn_node`
 shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
 
-//! Create Reaction objects for all <reaction> nodes in an XML document.
+//! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!
 //! The `<reaction>` nodes are assumed to be children of the `<reactionData>`
 //! node in an XML document with a `<ctml>` root node, as in the case of XML

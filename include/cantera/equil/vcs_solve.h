@@ -336,7 +336,7 @@ public:
      *                    + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
      *
      *  @param[in] iph        Phase to be calculated
-     *  @param[in] molNum(i)  Number of moles of species i (VCS species order)
+     *  @param[in] molNum     Number of moles of species i (VCS species order)
      *  @param[out] ac        Activity coefficients for species in phase (VCS
      *                        species order)
      *  @param[out] mu_i      Dimensionless chemical potentials for phase

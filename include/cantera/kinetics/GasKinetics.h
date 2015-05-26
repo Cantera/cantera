@@ -81,8 +81,11 @@ protected:
     //! #m_falloff_low_rates and #m_falloff_high_rates)
     std::map<size_t, size_t> m_rfallindx;
 
-    Rate1<Arrhenius>                    m_falloff_low_rates;
-    Rate1<Arrhenius>                    m_falloff_high_rates;
+    //! Rate expressions for falloff reactions at the low-pressure limit
+    Rate1<Arrhenius> m_falloff_low_rates;
+
+    //! Rate expressions for falloff reactions at the high-pressure limit
+    Rate1<Arrhenius> m_falloff_high_rates;
 
     FalloffMgr                          m_falloffn;
 
