@@ -140,7 +140,9 @@ public:
     }
 
     //! The fixed mass fraction value of species k at point j.
+    //! @deprecated Unused. To be removed after Cantera 2.2.
     doublereal Y_fixed(size_t k, size_t j) const {
+        warn_deprecated("StFlow::Y_fixed", "To be removed after Cantera 2.2.");
         return m_fixedy(k,j);
     }
 
@@ -251,14 +253,20 @@ public:
         }
     }
 
+    //! @deprecated Species equations are always solved. To be removed after
+    //! Cantera 2.2.
     bool doSpecies(size_t k) {
+        warn_deprecated("StFlow::doSpecies", "To be removed after Cantera 2.2.");
         return m_do_species[k];
     }
     bool doEnergy(size_t j) {
         return m_do_energy[j];
     }
 
+    //! @deprecated Species equations are always solved. To be removed after
+    //! Cantera 2.2.
     void solveSpecies(size_t k=npos) {
+        warn_deprecated("StFlow::solveSpecies", "To be removed after Cantera 2.2.");
         if (k == npos) {
             for (size_t i = 0; i < m_nsp; i++) {
                 m_do_species[i] = true;
@@ -269,7 +277,10 @@ public:
         needJacUpdate();
     }
 
+    //! @deprecated Species equations are always solved. To be removed after
+    //! Cantera 2.2.
     void fixSpecies(size_t k=npos) {
+        warn_deprecated("StFlow::fixSpecies", "To be removed after Cantera 2.2.");
         if (k == npos) {
             for (size_t i = 0; i < m_nsp; i++) {
                 m_do_species[i] = false;
@@ -523,7 +534,7 @@ protected:
     vector_fp m_qdotRadiation;
 
     // fixed T and Y values
-    Array2D   m_fixedy;
+    Array2D   m_fixedy; //!< @deprecated
     vector_fp m_fixedtemp;
     vector_fp m_zfix;
     vector_fp m_tfix;
