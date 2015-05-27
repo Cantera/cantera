@@ -9,11 +9,9 @@
 #include "cantera/base/ctml.h"
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {
-
 //! Exception thrown if an error is encountered while reading the transport database.
 class LTPError : public CanteraError
 {

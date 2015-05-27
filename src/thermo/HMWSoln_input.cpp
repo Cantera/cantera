@@ -22,7 +22,6 @@
 #include <fstream>
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {

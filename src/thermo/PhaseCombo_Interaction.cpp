@@ -767,7 +767,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessEnthalpy for " + ispName
                                    + "::" + jspName,
@@ -781,7 +781,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessEntropy for " + ispName
                                    + "::" + jspName,
@@ -795,7 +795,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
                                    + "::" + jspName,
@@ -809,7 +809,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
                                    + "::" + jspName,

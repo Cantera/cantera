@@ -236,13 +236,13 @@ void MixtureFugacityTP::getStandardVolumes_ref(doublereal* vol) const
 void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
 {
     int doTP = 0;
-    string comp = ctml::getChildValue(state,"moleFractions");
+    string comp = getChildValue(state,"moleFractions");
     if (comp != "") {
         // not overloaded in current object -> phase state is not calculated.
         setMoleFractionsByName(comp);
         doTP = 1;
     } else {
-        comp = ctml::getChildValue(state,"massFractions");
+        comp = getChildValue(state,"massFractions");
         if (comp != "") {
             // not overloaded in current object -> phase state is not calculated.
             setMassFractionsByName(comp);
@@ -251,14 +251,14 @@ void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
     }
     double t = temperature();
     if (state.hasChild("temperature")) {
-        t = ctml::getFloat(state, "temperature", "temperature");
+        t = getFloat(state, "temperature", "temperature");
         doTP = 1;
     }
     if (state.hasChild("pressure")) {
-        double p = ctml::getFloat(state, "pressure", "pressure");
+        double p = getFloat(state, "pressure", "pressure");
         setState_TP(t, p);
     } else if (state.hasChild("density")) {
-        double rho = ctml::getFloat(state, "density", "density");
+        double rho = getFloat(state, "density", "density");
         setState_TR(t, rho);
     } else if (doTP) {
         double rho = Phase::density();

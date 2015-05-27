@@ -9,8 +9,6 @@
 #include <iostream>
 #include <limits>
 
-using namespace ctml;
-
 namespace Cantera {
 
 Species::Species()

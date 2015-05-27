@@ -433,7 +433,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
     }
     std::vector<string> pnam;
     std::vector<string> pval;
-    int np = ctml::getPairs(eosdata.child("LatticeStoichiometry"), pnam, pval);
+    int np = getPairs(eosdata.child("LatticeStoichiometry"), pnam, pval);
     theta_.resize(m_nlattice);
     for (int i = 0; i < np; i++) {
         double val = fpValueCheck(pval[i]);

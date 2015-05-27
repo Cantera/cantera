@@ -575,7 +575,7 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     for (size_t k = 0; k < m_kk; k++) {
         XML_Node* s =  speciesDB->findByAttr("name", speciesName(k));
         XML_Node* ss = s->findByName("standardState");
-        m_speciesMolarVolume[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
+        m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
     }
 
     /*

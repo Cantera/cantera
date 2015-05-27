@@ -60,7 +60,7 @@ public:
 
 TEST_F(CtiConversionTest, ExplicitConversion) {
     p1 = newPhase("../data/air-no-reactions.xml");
-    ctml::ct2ctml("../data/air-no-reactions.cti");
+    ct2ctml("../data/air-no-reactions.cti");
     p2 = newPhase("air-no-reactions.xml", "");
     compare();
 }
@@ -83,20 +83,20 @@ public:
 
 TEST_F(ChemkinConversionTest, ValidConversion) {
     copyInputFile("pdep-test.inp");
-    ctml::ck2cti("pdep-test.inp");
+    ck2cti("pdep-test.inp");
     ThermoPhase* p = newPhase("pdep-test.cti");
     ASSERT_GT(p->temperature(), 0.0);
     delete p;
 }
 
 TEST_F(ChemkinConversionTest, MissingInputFile) {
-    ASSERT_THROW(ctml::ck2cti("nonexistent-file.inp"),
+    ASSERT_THROW(ck2cti("nonexistent-file.inp"),
                  CanteraError);
 }
 
 TEST_F(ChemkinConversionTest, FailedConversion) {
     copyInputFile("h2o2_missingThermo.inp");
-    ASSERT_THROW(ctml::ck2cti("h2o2_missingThermo.inp"),
+    ASSERT_THROW(ck2cti("h2o2_missingThermo.inp"),
                  CanteraError);
 }
 #endif

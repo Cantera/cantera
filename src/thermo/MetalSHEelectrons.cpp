@@ -230,7 +230,7 @@ void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id
     XML_Node& tnode = phaseNode.child("thermo");
     doublereal dens = 2.65E3;
     if (tnode.hasChild("density")) {
-        dens = ctml::getFloatDefaultUnits(tnode, "density", "kg/m3");
+        dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
     }
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
@@ -308,7 +308,7 @@ void MetalSHEelectrons::setParametersFromXML(const XML_Node& eosdata)
     }
     doublereal rho = 2.65E3;
     if (eosdata.hasChild("density")) {
-        rho = ctml::getFloat(eosdata, "density", "toSI");
+        rho = getFloat(eosdata, "density", "toSI");
     }
     setDensity(rho);
 }

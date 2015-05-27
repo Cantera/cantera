@@ -117,7 +117,7 @@ public:
 
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Metal");
-        doublereal rho = ctml::getFloat(eosdata, "density", "density");
+        doublereal rho = getFloat(eosdata, "density", "density");
         setDensity(rho);
     }
 

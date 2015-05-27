@@ -20,7 +20,6 @@
 
 #include <cstring>
 
-using namespace ctml;
 using namespace std;
 
 namespace Cantera
@@ -120,7 +119,7 @@ bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp,
      * pairs in the reactions/products object.
      */
     std::vector<string> key, val;
-    ctml::getPairs(rg, key, val);
+    getPairs(rg, key, val);
 
     /*
      * Loop over each of the pairs and process them
@@ -398,7 +397,7 @@ static void getEfficiencies(const XML_Node& eff, Kinetics& kin,
     rdata.default_3b_eff = fpValue(eff["default"]);
 
     vector<string> key, val;
-    ctml::getPairs(eff, key, val);
+    getPairs(eff, key, val);
     string nm;
     string phse = kin.thermo(0).id();
     for (size_t n = 0; n < key.size(); n++) {

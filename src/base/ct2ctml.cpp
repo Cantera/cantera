@@ -17,10 +17,9 @@
 #include <windows.h>
 #endif
 
-using namespace Cantera;
 using namespace std;
 
-namespace ctml
+namespace Cantera
 {
 
 //! return the full path to the Python interpreter.
@@ -275,7 +274,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
     }
 }
 
-void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const int debug)
+void get_CTML_Tree(XML_Node* rootPtr, const std::string& file, const int debug)
 {
     warn_deprecated("get_CTML_Tree", "To be removed after Cantera 2.2. "
             "Use get_XML_File instead.");
@@ -283,7 +282,7 @@ void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const in
     src->copy(rootPtr);
 }
 
-Cantera::XML_Node getCtmlTree(const std::string& file)
+XML_Node getCtmlTree(const std::string& file)
 {
     warn_deprecated("getCtmlTree", "To be removed after Cantera 2.2. "
             "Use get_XML_File instead.");

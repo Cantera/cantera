@@ -11,7 +11,6 @@
 #include <cstring>
 #include <fstream>
 
-using namespace ctml;
 using namespace std;
 using Cantera::XML_Node;
 using Cantera::CanteraError;

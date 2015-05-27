@@ -56,7 +56,6 @@
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {

@@ -19,7 +19,6 @@
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {

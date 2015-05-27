@@ -13,7 +13,6 @@
 
 using namespace std;
 using namespace Cantera;
-using namespace ctml;
 
 typedef Cabinet<XML_Node, false> XmlCabinet;
 template<> XmlCabinet* XmlCabinet::s_storage = 0;

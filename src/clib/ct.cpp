@@ -1501,7 +1501,7 @@ extern "C" {
                   char* id_tag, int debug, int validate)
     {
         try {
-            ctml::ck2cti(in_file, db_file, tr_file, id_tag);
+            ck2cti(in_file, db_file, tr_file, id_tag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

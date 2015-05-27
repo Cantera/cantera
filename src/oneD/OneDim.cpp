@@ -8,7 +8,6 @@
 #include <fstream>
 #include <ctime>
 
-using namespace ctml;
 using namespace std;
 
 namespace Cantera

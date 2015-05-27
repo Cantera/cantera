@@ -365,12 +365,12 @@ void MolalityVPSSTP::setToEquilState(const doublereal* lambda_RT)
 void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
 {
     VPStandardStateTP::setStateFromXML(state);
-    string comp = ctml::getChildValue(state,"soluteMolalities");
+    string comp = getChildValue(state,"soluteMolalities");
     if (comp != "") {
         setMolalitiesByName(comp);
     }
     if (state.hasChild("pressure")) {
-        double p = ctml::getFloat(state, "pressure", "pressure");
+        double p = getFloat(state, "pressure", "pressure");
         setPressure(p);
     }
 }

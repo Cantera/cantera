@@ -6,11 +6,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
-using namespace ctml;
-
 namespace Cantera
 {
-
 GasTransportData::GasTransportData()
     : diameter(0.0)
     , well_depth(0.0)

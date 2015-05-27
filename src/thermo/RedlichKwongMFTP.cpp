@@ -853,7 +853,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
                 throw CanteraError("", "unknown model");
             }
 
-            ctml::getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
+            getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
             nParamsFound = vParams.size();
             if (nParamsFound != nParamsExpected) {
                 throw CanteraError("RedlichKwongMFTP::readXMLPureFluid(for a_coeff" + iName + ")",
@@ -864,7 +864,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
                 a_coeff_vec(i, counter) = vParams[i];
             }
         } else if (nodeName == "b_coeff") {
-            ctml::getFloatArray(xmlChild, vParams, true, "m3/kmol", "b_coeff");
+            getFloatArray(xmlChild, vParams, true, "m3/kmol", "b_coeff");
             nParamsFound = vParams.size();
             if (nParamsFound != 1) {
                 throw CanteraError("RedlichKwongMFTP::readXMLPureFluid(for b_coeff" + iName + ")",
@@ -944,7 +944,7 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
                 throw CanteraError("", "unknown model");
             }
 
-            ctml::getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
+            getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
             nParamsFound = vParams.size();
             if (nParamsFound != nParamsExpected) {
                 throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid(for a_coeff" + iName + ")",

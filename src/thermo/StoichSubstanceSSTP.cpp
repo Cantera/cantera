@@ -229,7 +229,7 @@ void StoichSubstanceSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "no thermo XML node");
     }
     XML_Node& tnode = phaseNode.child("thermo");
-    double dens = ctml::getFloatDefaultUnits(tnode, "density", "kg/m3");
+    double dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
 }
@@ -252,7 +252,7 @@ void StoichSubstanceSSTP::setParametersFromXML(const XML_Node& eosdata)
         throw CanteraError("StoichSubstanceSSTP::setParametersFromXML",
                            "thermo model attribute must be StoichSubstance");
     }
-    setDensity(ctml::getFloat(eosdata, "density", "toSI"));
+    setDensity(getFloat(eosdata, "density", "toSI"));
 }
 
 // ------ Methods of class electrodeElectron ------

@@ -10,8 +10,6 @@
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/base/ctml.h"
 
-using namespace ctml;
-
 namespace Cantera
 {
 

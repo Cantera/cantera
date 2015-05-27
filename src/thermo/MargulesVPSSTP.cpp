@@ -718,7 +718,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + aspName
                                    + "::" + bspName,
@@ -732,7 +732,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + aspName
                                    + "::" + bspName,
@@ -746,7 +746,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + aspName
                                    + "::" + bspName,
@@ -760,7 +760,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + aspName
                                    + "::" + bspName,

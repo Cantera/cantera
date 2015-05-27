@@ -121,7 +121,7 @@ VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
             throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
                                "standardState model for species isn't constant_incompressible: " + s->attrib("name"));
         }
-        m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
+        m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
     }
 }
 
@@ -143,7 +143,7 @@ VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     if (m_Vss.size() < k+1) {
         m_Vss.resize(k+1, 0.0);
     }
-    m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
+    m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
 
     installSTSpecies(k, speciesNode, phaseNode_ptr);
     return new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);

@@ -23,7 +23,6 @@
 #include <cstdio>
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {

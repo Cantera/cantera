@@ -24,7 +24,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
-using namespace ctml;
 using namespace std;
 
 namespace Cantera

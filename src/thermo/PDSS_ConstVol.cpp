@@ -88,7 +88,7 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                            "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
 
-    m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");
+    m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
 }
 
 void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,

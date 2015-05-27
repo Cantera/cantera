@@ -259,7 +259,7 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
     XML_Node* x = new XML_Node("doc");
     if (ext != ".xml" && ext != ".ctml") {
         // Assume that we are trying to open a cti file. Do the conversion to XML.
-        std::stringstream phase_xml(ctml::ct2ctml_string(path));
+        std::stringstream phase_xml(ct2ctml_string(path));
         x->build(phase_xml);
     } else {
         std::ifstream s(path.c_str());
@@ -289,7 +289,7 @@ XML_Node* Application::get_XML_from_string(const std::string& text)
     if (text.substr(start,1) == "<") {
         s << text;
     } else {
-        s << ctml::ct_string2ctml_string(text.substr(start));
+        s << ct_string2ctml_string(text.substr(start));
     }
     entry.first = new XML_Node();
     entry.first->build(s);

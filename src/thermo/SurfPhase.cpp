@@ -14,7 +14,6 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/vec_functions.h"
 
-using namespace ctml;
 using namespace std;
 
 namespace Cantera

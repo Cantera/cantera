@@ -9,13 +9,12 @@
 #include "cantera/base/Array.h"
 
 using namespace std;
-using namespace Cantera;
 
-namespace ctml
+namespace Cantera
 {
 std::string FP_Format = "%23.15E";
 
-void addInteger(Cantera::XML_Node& node, const std::string& title, const int val,
+void addInteger(XML_Node& node, const std::string& title, const int val,
                 const std::string& units, const std::string& type)
 {
     XML_Node& f = node.addChild(title, val);
@@ -28,12 +27,12 @@ void addInteger(Cantera::XML_Node& node, const std::string& title, const int val
     }
 }
 
-void addFloat(Cantera::XML_Node& node, const std::string& title,
+void addFloat(XML_Node& node, const std::string& title,
               const doublereal val, const std::string& units,
               const std::string& type, const doublereal minval,
               const doublereal maxval)
 {
-    XML_Node& f = node.addChild(title, val, ctml::FP_Format);
+    XML_Node& f = node.addChild(title, val, FP_Format);
     if (type != "") {
         f.addAttribute("type",type);
     }
@@ -49,7 +48,7 @@ void addFloat(Cantera::XML_Node& node, const std::string& title,
     }
 }
 
-void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size_t n,
+void addFloatArray(XML_Node& node, const std::string& title, const size_t n,
                    const doublereal* const vals, const std::string& units,
                    const std::string& type,
                    const doublereal minval, const doublereal maxval)
@@ -82,7 +81,7 @@ void addFloatArray(Cantera::XML_Node& node, const std::string& title, const size
     }
 }
 
-void addNamedFloatArray(Cantera::XML_Node& node, const std::string& name, const size_t n,
+void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
                         const doublereal* const vals, const std::string units,
                         const std::string type, const doublereal minval,
                         const doublereal maxval)
@@ -120,7 +119,7 @@ void addNamedFloatArray(Cantera::XML_Node& node, const std::string& name, const 
     }
 }
 
-void addString(Cantera::XML_Node& node, const std::string& titleString,
+void addString(XML_Node& node, const std::string& titleString,
                const std::string& valueString,
                const std::string& typeString)
 {
@@ -131,7 +130,7 @@ void addString(Cantera::XML_Node& node, const std::string& titleString,
     }
 }
 
-XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& title)
+XML_Node* getByTitle(const XML_Node& node, const std::string& title)
 {
     XML_Node* s = node.findByAttr("title", title);
     if (s && s->parent() == &node) {
@@ -140,7 +139,7 @@ XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& title)
     return 0;
 }
 
-std::string getChildValue(const Cantera::XML_Node& parent, const std::string& nameString)
+std::string getChildValue(const XML_Node& parent, const std::string& nameString)
 {
     if (!parent.hasChild(nameString)) {
         return "";
@@ -148,7 +147,7 @@ std::string getChildValue(const Cantera::XML_Node& parent, const std::string& na
     return parent(nameString);
 }
 
-void getString(const Cantera::XML_Node& node, const std::string& titleString, std::string& valueString,
+void getString(const XML_Node& node, const std::string& titleString, std::string& valueString,
                std::string& typeString)
 {
     XML_Node* s = getByTitle(node, titleString);
@@ -161,7 +160,7 @@ void getString(const Cantera::XML_Node& node, const std::string& titleString, st
     }
 }
 
-void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameString, std::string& valueString,
+void getNamedStringValue(const XML_Node& node, const std::string& nameString, std::string& valueString,
                          std::string& typeString)
 {
     warn_deprecated("getNamedStringValue", "To be removed after Cantera 2.2");
@@ -180,7 +179,7 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
     }
 }
 
-void getIntegers(const Cantera::XML_Node& node,
+void getIntegers(const XML_Node& node,
                  std::map<std::string, int>& v)
 {
     std::vector<XML_Node*> f = node.getChildren("integer");
@@ -192,7 +191,7 @@ void getIntegers(const Cantera::XML_Node& node,
     }
 }
 
-doublereal getFloat(const Cantera::XML_Node& parent,
+doublereal getFloat(const XML_Node& parent,
                     const std::string& name,
                     const std::string& type)
 {
@@ -204,8 +203,7 @@ doublereal getFloat(const Cantera::XML_Node& parent,
     return getFloatCurrent(node, type);
 }
 
-doublereal getFloatCurrent(const Cantera::XML_Node& node,
-                           const std::string& type)
+doublereal getFloatCurrent(const XML_Node& node, const std::string& type)
 {
     doublereal fctr = 1.0;
     doublereal x = node.fp_value();
@@ -251,7 +249,7 @@ doublereal getFloatCurrent(const Cantera::XML_Node& node,
     return fctr*x;
 }
 
-bool getOptionalFloat(const Cantera::XML_Node& parent,
+bool getOptionalFloat(const XML_Node& parent,
                       const std::string& name,
                       doublereal& fltRtn,
                       const std::string& type)
@@ -263,7 +261,7 @@ bool getOptionalFloat(const Cantera::XML_Node& parent,
     return false;
 }
 
-doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
+doublereal getFloatDefaultUnits(const XML_Node& parent,
                                 const std::string& name,
                                 const std::string& defaultUnits,
                                 const std::string& type)
@@ -290,7 +288,7 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
     return getFloat(parent, name, type) / fctr;
 }
 
-bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeName,
+bool getOptionalModel(const XML_Node& parent, const std::string& nodeName,
                       std::string& modelName)
 {
     if (parent.hasChild(nodeName)) {
@@ -300,7 +298,7 @@ bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeNa
     return false;
 }
 
-int getInteger(const Cantera::XML_Node& parent, const std::string& name)
+int getInteger(const XML_Node& parent, const std::string& name)
 {
     if (!parent.hasChild(name)) {
         throw CanteraError("getInteger (called from XML Node \"" +
@@ -322,13 +320,13 @@ int getInteger(const Cantera::XML_Node& parent, const std::string& name)
     return x;
 }
 
-size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
+size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
                      const bool convert, const std::string& unitsString,
                      const std::string& nodeName)
 {
-    const Cantera::XML_Node* readNode = &node;
+    const XML_Node* readNode = &node;
     if (node.name() != nodeName) {
-        vector<Cantera::XML_Node*> ll = node.getChildren(nodeName);
+        vector<XML_Node*> ll = node.getChildren(nodeName);
         if (ll.size() == 0) {
             throw CanteraError("getFloatArray",
                                "wrong XML element type/name: was expecting "
@@ -402,7 +400,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
     return v.size();
 }
 
-void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m)
+void getMap(const XML_Node& node, std::map<std::string, std::string>& m)
 {
     std::vector<std::string> v;
     getStringArray(node, v);
@@ -416,7 +414,7 @@ void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m
     }
 }
 
-int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key,
+int getPairs(const XML_Node& node, std::vector<std::string>& key,
              std::vector<std::string>& val)
 {
     vector<string> v;
@@ -434,10 +432,10 @@ int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key,
     return n;
 }
 
-void getMatrixValues(const Cantera::XML_Node& node,
+void getMatrixValues(const XML_Node& node,
                      const std::vector<std::string>& keyStringRow,
                      const std::vector<std::string>& keyStringCol,
-                     Cantera::Array2D& retnValues, const bool convert,
+                     Array2D& retnValues, const bool convert,
                      const bool matrixSymmetric)
 {
     if (keyStringRow.size() > retnValues.nRows()) {
@@ -502,7 +500,7 @@ void getMatrixValues(const Cantera::XML_Node& node,
     }
 }
 
-void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v)
+void getStringArray(const XML_Node& node, std::vector<std::string>& v)
 {
     tokenizeString(node.value(), v);
 }

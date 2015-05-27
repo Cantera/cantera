@@ -260,7 +260,7 @@ void StoichSubstance::getParameters(int& n, double* const c) const
 void StoichSubstance::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","StoichSubstance");
-    doublereal rho = ctml::getFloat(eosdata, "density", "toSI");
+    doublereal rho = getFloat(eosdata, "density", "toSI");
     setDensity(rho);
 }
 

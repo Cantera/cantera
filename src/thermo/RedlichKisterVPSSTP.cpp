@@ -669,7 +669,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
+            getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
             Npoly = std::max(hParams.size(), Npoly);
         }
 
@@ -677,7 +677,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
+            getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
             Npoly = std::max(sParams.size(), Npoly);
         }
     }

@@ -8,8 +8,6 @@
 #include "cantera/base/Array.h"
 #include <sstream>
 
-using namespace ctml;
-
 namespace Cantera
 {
 

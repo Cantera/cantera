@@ -28,11 +28,9 @@
 #include "cantera/base/ctml.h"
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {
-
 SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
 mutex_t SpeciesThermoFactory::species_thermo_mutex;
 

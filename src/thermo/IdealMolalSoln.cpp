@@ -22,8 +22,6 @@
 #include "cantera/base/ctml.h"
 #include <iostream>
 
-using namespace ctml;
-
 namespace Cantera
 {
 

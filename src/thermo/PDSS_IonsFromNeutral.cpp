@@ -139,7 +139,7 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
     std::vector<std::string> key;
     std::vector<std::string> val;
 
-    numMult_ = ctml::getPairs(*nsm,  key, val);
+    numMult_ = getPairs(*nsm,  key, val);
     idNeutralMoleculeVec.resize(numMult_);
     factorVec.resize(numMult_);
     tmpNM.resize(neutralMoleculePhase_->nSpecies());

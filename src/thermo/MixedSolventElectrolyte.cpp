@@ -725,7 +725,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessEnthalpy for " + ispName
                                    + "::" + jspName,
@@ -739,7 +739,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
             if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessEntropy for " + ispName
                                    + "::" + jspName,
@@ -753,7 +753,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
                                    + "::" + jspName,
@@ -767,7 +767,7 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
             if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
                                    + "::" + jspName,

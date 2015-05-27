@@ -100,17 +100,17 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     std::string model = ss->attrib("model");
     if (model == "constant_incompressible" || model == "constant") {
         volumeModel_ = cSSVOLUME_CONSTANT;
-        m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");
+        m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
     } else if (model == "temperature_polynomial") {
         volumeModel_ = cSSVOLUME_TPOLY;
-        size_t num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
+        size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
         if (num != 4) {
             throw CanteraError("PDSS_SSVol::constructPDSSXML",
                                " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
         }
     } else if (model == "density_temperature_polynomial") {
         volumeModel_ = cSSVOLUME_DENSITY_TPOLY;
-        size_t num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
+        size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
         if (num != 4) {
             throw CanteraError("PDSS_SSVol::constructPDSSXML",
                                " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
