@@ -12,11 +12,8 @@
 #define _VCS_INTERNAL_H
 
 #include "cantera/base/global.h"
-
-namespace VCSnonideal
+namespace Cantera
 {
-using Cantera::npos;
-
 //! Points to the data in a std::vector<> object
 #define VCS_DATA_PTR(vvv) (&(vvv[0]))
 
@@ -24,14 +21,14 @@ using Cantera::npos;
 /*!
  * We can replace this with printf easily
  */
-#define plogf  Cantera::writelogf
+#define plogf writelogf
 
 //! define this Cantera function to replace cout << endl;
 /*!
  * We use this to place an endl in the log file, and
  * ensure that the IO buffers are flushed.
  */
-#define plogendl() Cantera::writelogendl()
+#define plogendl() writelogendl()
 
 //! Global hook for turning on and off time printing.
 /*!
@@ -198,10 +195,10 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  *   double thetaR = Pi/2.0;
  *   int printLvl = 4;
  *
- *   iconv =  VCSnonideal::vcsUtil_root1d(thetamin, thetamax, maxit,
- *                                        funcZero,
- *                                        (void *) 0, 0.0, 0,
- *                                        &thetaR, printLvl);
+ *   iconv =  vcsUtil_root1d(thetamin, thetamax, maxit,
+ *                           funcZero,
+ *                           (void *) 0, 0.0, 0,
+ *                           &thetaR, printLvl);
  *   printf("theta = %g\n", thetaR);
  *   double h2Final = calc_h2_farfield(thetaR);
  *   printf("h2Final = %g\n", h2Final);

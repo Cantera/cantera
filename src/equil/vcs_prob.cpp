@@ -18,10 +18,9 @@
 
 #include <cstdio>
 
-using namespace Cantera;
 using namespace std;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
@@ -336,7 +335,7 @@ size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
          */
         throw CanteraError("VCS_PROB::addOnePhaseSpecies", "Shouldn't be here");
     }
-    const Cantera::Array2D& fm = volPhase->getFormulaMatrix();
+    const Array2D& fm = volPhase->getFormulaMatrix();
     for (size_t eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {
         size_t e = volPhase->elemGlobalIndex(eVP);
         AssertThrowMsg(e != npos, "VCS_PROB::addOnePhaseSpecies",
@@ -397,7 +396,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         size_t istart = iK;
 
         vcs_VolPhase* volP = VPhaseList[iphase];
-        const Cantera::ThermoPhase* tp = volP->ptrThermoPhase();
+        const ThermoPhase* tp = volP->ptrThermoPhase();
         string phaseName = volP->PhaseName;
         size_t nSpeciesPhase = volP->nSpecies();
         volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
@@ -425,7 +424,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         vol += VolPhaseVolumes;
 
         if (actConvention == 1) {
-            const Cantera::MolalityVPSSTP* mTP = static_cast<const Cantera::MolalityVPSSTP*>(tp);
+            const MolalityVPSSTP* mTP = static_cast<const MolalityVPSSTP*>(tp);
             tp->getChemPotentials(VCS_DATA_PTR(mu));
             mTP->getMolalities(VCS_DATA_PTR(molalities));
             tp->getChemPotentials(VCS_DATA_PTR(mu));

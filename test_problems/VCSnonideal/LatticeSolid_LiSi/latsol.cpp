@@ -14,7 +14,7 @@ void testProblem()
 {
     suppress_deprecation_warnings();
     double T = 273.15 + 352.0;
-    VCSnonideal::vcs_timing_print_lvl = 0;
+    vcs_timing_print_lvl = 0;
 
     // Create the phases
     std::auto_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
@@ -49,7 +49,7 @@ void testProblem()
     printf("um_li_chempot = %g\n", um_li_chempot);
     LiFixed.setChemicalPotential(um_li_chempot);
 
-    Cantera::MultiPhase mmm;
+    MultiPhase mmm;
 
     mmm.addPhase(&salt, 10.);
     mmm.addPhase(LiSi_solid.get(), 1.);
@@ -61,7 +61,7 @@ void testProblem()
     mmm.equilibrate("TP", "vcs", 1e-9, 50000, 100, estimateEquil, printLvl);
     std::cout << mmm << std::endl;
 
-    Cantera::appdelete();
+    appdelete();
 }
 
 int main(int argc, char** argv)

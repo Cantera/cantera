@@ -11,9 +11,8 @@
 #ifndef VCS_DEFS_H
 #define VCS_DEFS_H
 
-namespace VCSnonideal
+namespace Cantera
 {
-
 /*!
  *      ERROR CODES
  *
@@ -377,7 +376,9 @@ namespace VCSnonideal
 #define VCS_STATECALC_TMP               3
 //@}
 
-
 }
+
+// namespace alias for backward compatibility
+namespace VCSnonideal = Cantera;
 
 #endif

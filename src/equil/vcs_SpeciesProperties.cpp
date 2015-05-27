@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,

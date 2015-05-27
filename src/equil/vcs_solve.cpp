@@ -19,9 +19,8 @@
 #include "cantera/base/clockWC.h"
 
 using namespace std;
-using namespace Cantera;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 int vcs_timing_print_lvl = 1;
@@ -49,7 +48,7 @@ VCS_SOLVE::VCS_SOLVE() :
     m_totalMoleScale(1.0),
     m_useActCoeffJac(0),
     m_totalVol(0.0),
-    m_Faraday_dim(Cantera::ElectronCharge* Cantera::Avogadro),
+    m_Faraday_dim(ElectronCharge * Avogadro),
     m_VCount(0),
     m_debug_print_lvl(0),
     m_timing_print_lvl(1),
@@ -77,18 +76,18 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     string ser = "VCS_SOLVE: ERROR:\n\t";
     if (nspecies0 <= 0) {
         plogf("%s Number of species is nonpositive\n", ser.c_str());
-        throw Cantera::CanteraError("VCS_SOLVE()", ser +
-                                    " Number of species is nonpositive\n");
+        throw CanteraError("VCS_SOLVE()", ser +
+                           " Number of species is nonpositive\n");
     }
     if (nelements <= 0) {
         plogf("%s Number of elements is nonpositive\n", ser.c_str());
-        throw Cantera::CanteraError("VCS_SOLVE()", ser +
-                                    " Number of species is nonpositive\n");
+        throw CanteraError("VCS_SOLVE()", ser +
+                           " Number of species is nonpositive\n");
     }
     if (nphase0 <= 0) {
         plogf("%s Number of phases is nonpositive\n", ser.c_str());
-        throw Cantera::CanteraError("VCS_SOLVE()", ser +
-                                    " Number of species is nonpositive\n");
+        throw CanteraError("VCS_SOLVE()", ser +
+                           " Number of species is nonpositive\n");
     }
 
     m_VCS_UnitsFormat = VCS_UNITS_UNITLESS;
@@ -245,7 +244,7 @@ void VCS_SOLVE::vcs_delete_memory()
 int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
 {
     int retn = 0, iconv = 0;
-    Cantera::clockWC tickTock;
+    clockWC tickTock;
 
     int  iprintTime = std::max(ipr, ip1);
     iprintTime = std::min(iprintTime, m_timing_print_lvl);
@@ -553,7 +552,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     if (pub->PresPA > 0.0) {
         m_pressurePA = pub->PresPA;
     } else {
-        m_pressurePA = Cantera::OneAtm;
+        m_pressurePA = OneAtm;
     }
     /*
      *   TPhInertMoles[] -> must be copied over here

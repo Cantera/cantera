@@ -1,7 +1,7 @@
 /**
  * @file vcs_phaseStability.cpp
  *  Implementation class for functions associated with determining the stability of a phase
- *   (see Class \link VCSnonideal::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
+ *   (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
@@ -9,9 +9,8 @@
 #include "cantera/base/ctexceptions.h"
 
 using namespace std;
-using namespace Cantera;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const

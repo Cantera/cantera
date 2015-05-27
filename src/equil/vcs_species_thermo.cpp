@@ -16,9 +16,7 @@
 #include "cantera/equil/vcs_internal.h"
 
 using namespace std;
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
                                        size_t indexSpeciesPhase) :
@@ -99,8 +97,8 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
     double T = TKelvin;
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-            throw Cantera::CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
-                                        "Possible inconsistency");
+            throw CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
+                               "Possible inconsistency");
         }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_TP(TKelvin, pres);
@@ -131,8 +129,8 @@ double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
     double T = TKelvin;
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-            throw Cantera::CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
-                                        "Possible inconsistency");
+            throw CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
+                               "Possible inconsistency");
         }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_TP(TKelvin, presPA);
@@ -143,7 +141,7 @@ double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
             vol = SSStar_Vol0;
             break;
         case VCS_SSVOL_IDEALGAS:
-            vol= Cantera::GasConstant * T / presPA;
+            vol= GasConstant * T / presPA;
             break;
         default:
             throw CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
@@ -164,8 +162,8 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
     }
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-            throw Cantera::CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
-                                        "Possible inconsistency");
+            throw CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
+                               "Possible inconsistency");
         }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_T(TKelvin);

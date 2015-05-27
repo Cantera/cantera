@@ -17,9 +17,7 @@
 #include <sstream>
 #include <cstdio>
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
@@ -724,7 +722,7 @@ double vcs_VolPhase::_updateVolPM() const
 
     if (m_totalMolesInert > 0.0) {
         if (m_gasPhase) {
-            double volI = m_totalMolesInert * Cantera::GasConstant * Temp_ / Pres_;
+            double volI = m_totalMolesInert * GasConstant * Temp_ / Pres_;
             m_totalVol += volI;
         } else {
             throw CanteraError("vcs_VolPhase::_updateVolPM", "unknown situation");
@@ -812,7 +810,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     _updateActCoeff();
 }
 
-void vcs_VolPhase::sendToVCS_LnActCoeffJac(Cantera::Array2D& np_LnACJac_VCS)
+void vcs_VolPhase::sendToVCS_LnActCoeffJac(Array2D& np_LnACJac_VCS)
 {
     /*
      * update the Ln Act Coeff Jacobian entries with respect to the
@@ -833,7 +831,7 @@ void vcs_VolPhase::sendToVCS_LnActCoeffJac(Cantera::Array2D& np_LnACJac_VCS)
     }
 }
 
-void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
+void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
 {
     TP_ptr = tp_ptr;
     if (TP_ptr) {
@@ -863,16 +861,16 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
         } else {
             int eos = TP_ptr->eosType();
             switch (eos) {
-            case Cantera::cIdealGas:
-            case Cantera::cIncompressible:
-            case Cantera::cSurf:
-            case Cantera::cMetal:
-            case Cantera::cStoichSubstance:
-            case Cantera::cSemiconductor:
-            case Cantera::cLatticeSolid:
-            case Cantera::cLattice:
-            case Cantera::cEdge:
-            case Cantera::cIdealSolidSolnPhase:
+            case cIdealGas:
+            case cIncompressible:
+            case cSurf:
+            case cMetal:
+            case cStoichSubstance:
+            case cSemiconductor:
+            case cLatticeSolid:
+            case cLattice:
+            case cEdge:
+            case cIdealSolidSolnPhase:
                 m_isIdealSoln = true;
                 break;
             default:
@@ -887,7 +885,7 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
     }
 }
 
-const Cantera::ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
+const ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
 {
     return TP_ptr;
 }
@@ -1121,7 +1119,7 @@ std::string vcs_VolPhase::elementName(const size_t e) const
 }
 
 //! This function decides whether a phase has charged species or not.
-static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
+static bool hasChargedSpecies(const ThermoPhase* const tPhase)
 {
     for (size_t k = 0; k < tPhase->nSpecies(); k++) {
         if (tPhase->charge(k) != 0.0) {
@@ -1137,7 +1135,7 @@ static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
  *  phase. It does this by searching for charged species. If it
  *  finds one, and if the phase needs one, then it returns true.
  */
-static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
+static bool chargeNeutralityElement(const ThermoPhase* const tPhase)
 {
     int hasCharge = hasChargedSpecies(tPhase);
     if (tPhase->chargeNeutralityNecessary()) {
@@ -1148,7 +1146,7 @@ static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
     return false;
 }
 
-size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase)
+size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
 {
     size_t nebase = tPhase->nElements();
     size_t ne = nebase;
@@ -1280,7 +1278,7 @@ void vcs_VolPhase::setElementType(const size_t e, const int eType)
     m_elementType[e] = eType;
 }
 
-const Cantera::Array2D& vcs_VolPhase::getFormulaMatrix() const
+const Array2D& vcs_VolPhase::getFormulaMatrix() const
 {
     return m_formulaMatrix;
 }

@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 class VCS_SPECIES_THERMO;

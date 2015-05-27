@@ -120,7 +120,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
 
     if (solver == 2) {
         try {
-            VCSnonideal::vcs_MultiPhaseEquil* eqsolve =  new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
+            vcs_MultiPhaseEquil* eqsolve =  new vcs_MultiPhaseEquil(&s, printLvlSub);
             int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub, tol, maxsteps, loglevel);
             if (err != 0) {
                 retn = -1;
@@ -167,7 +167,7 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
 
     s.init();
     try {
-        VCSnonideal::vcs_MultiPhaseEquil* eqsolve = new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
+        vcs_MultiPhaseEquil* eqsolve = new vcs_MultiPhaseEquil(&s, printLvlSub);
         iStab = eqsolve->determine_PhaseStability(iphase, funcStab, printLvlSub, loglevel);
         // hard code a csv output file.
         if (printLvl > 0) {

@@ -14,9 +14,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 
 int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,

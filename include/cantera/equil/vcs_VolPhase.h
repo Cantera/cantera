@@ -18,10 +18,6 @@
 namespace Cantera
 {
 class ThermoPhase;
-}
-
-namespace VCSnonideal
-{
 
 //! Models for the standard state volume of each species
 #define VCS_SSVOL_IDEALGAS    0
@@ -286,7 +282,7 @@ public:
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    void sendToVCS_LnActCoeffJac(Cantera::Array2D& LnACJac_VCS);
+    void sendToVCS_LnActCoeffJac(Array2D& LnACJac_VCS);
 
     //! Set the pointer for Cantera's ThermoPhase parameter
     /*!
@@ -296,13 +292,13 @@ public:
      * @param tp_ptr Pointer to the ThermoPhase object corresponding
      *               to this phase.
      */
-    void setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr);
+    void setPtrThermoPhase(ThermoPhase* tp_ptr);
 
     //! Return a const ThermoPhase pointer corresponding to this phase
     /*!
      *  @return pointer to the ThermoPhase.
      */
-    const Cantera::ThermoPhase* ptrThermoPhase() const;
+    const ThermoPhase* ptrThermoPhase() const;
 
     //! Return the total moles in the phase
     /*!
@@ -488,14 +484,14 @@ public:
      *
      * @param tPhase Pointer to the ThermoPhase object
      */
-    size_t transferElementsFM(const Cantera::ThermoPhase* const tPhase);
+    size_t transferElementsFM(const ThermoPhase* const tPhase);
 
     //! Get a constant form of the Species Formula Matrix
     /*!
      *  Returns a `double**` pointer such that `fm[e][f]` is the formula
      *  matrix entry for element `e` for species `k`
      */
-    const Cantera::Array2D& getFormulaMatrix() const;
+    const Array2D& getFormulaMatrix() const;
 
     //! Returns the type of the species unknown
     /*!
@@ -676,7 +672,7 @@ private:
      *  FormulaMatrix(kspec,j) = Formula Matrix for the species
      *  Number of elements, j, in the kspec species
      */
-    Cantera::Array2D m_formulaMatrix;
+    Array2D m_formulaMatrix;
 
     //! Type of the species unknown
     /*!
@@ -757,7 +753,7 @@ private:
      *  If we are using Cantera, this is the pointer to the ThermoPhase
      *  object. If not, this is null.
      */
-    Cantera::ThermoPhase* TP_ptr;
+    ThermoPhase* TP_ptr;
 
     //!  Total mols in the phase. units are kmol
     double v_totalMoles;
@@ -836,7 +832,7 @@ private:
      * - j = id of the species mole number
      * - k = id of the species activity coefficient
      */
-    mutable Cantera::Array2D np_dLnActCoeffdMolNumber;
+    mutable Array2D np_dLnActCoeffdMolNumber;
 
     //! Status
     /*!

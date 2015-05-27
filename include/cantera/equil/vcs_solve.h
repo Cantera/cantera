@@ -1,6 +1,6 @@
 /**
  * @file vcs_solve.h Header file for the internal object that holds the vcs
- *    equilibrium problem (see Class \link VCSnonideal::VCS_SOLVE
+ *    equilibrium problem (see Class \link Cantera::VCS_SOLVE
  *    VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 /*
@@ -28,7 +28,7 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/base/Array.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 /*
  * Forward references
@@ -1531,7 +1531,7 @@ public:
      *
      *  Both element and species indices are swapped.
      */
-    Cantera::Array2D m_formulaMatrix;
+    Array2D m_formulaMatrix;
 
     //! Stoichiometric coefficient matrix for the reaction mechanism expressed in Reduced Canonical Form.
     /*!
@@ -1549,7 +1549,7 @@ public:
      *
      *   size = nelements0 x nspecies0
      */
-    Cantera::Array2D m_stoichCoeffRxnMatrix;
+    Array2D m_stoichCoeffRxnMatrix;
 
     //! Absolute size of the stoichiometric coefficients
     /*!
@@ -1629,11 +1629,11 @@ public:
     /*!
      *       m_deltaMolNumPhase(iphase,irxn) = k = nc + irxn
      */
-    Cantera::Array2D m_deltaMolNumPhase;
+    Array2D m_deltaMolNumPhase;
 
     //!  This is 1 if the phase, iphase,  participates in the formation reaction
     //!  irxn, and zero otherwise.  PhaseParticipation(iphase,irxn)
-    Cantera::Array2D m_phaseParticipation;
+    Array2D m_phaseParticipation;
 
     //! electric potential of the iph phase
     std::vector<double> m_phasePhi;
@@ -1931,7 +1931,7 @@ public:
      *  This is a temporary array that gets regenerated every time it's
      *  needed. It is not swapped wrt species.
      */
-    Cantera::Array2D m_np_dLnActCoeffdMolNum;
+    Array2D m_np_dLnActCoeffdMolNum;
 
     //! Molecular weight of each species
     /*!

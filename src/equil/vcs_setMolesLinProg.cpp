@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 static void printProgress(const vector<string> &spName,

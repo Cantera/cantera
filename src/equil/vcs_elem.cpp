@@ -8,9 +8,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/numerics/ctlapack.h"
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 void VCS_SOLVE::vcs_elab()
 {
@@ -41,8 +39,8 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                  */
                 if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY &&
                         m_elemAbundancesGoal[i] != 0.0) {
-                    throw Cantera::CanteraError("VCS_SOLVE::vcs_elabcheck",
-                                                "Problem with charge neutrality condition");
+                    throw CanteraError("VCS_SOLVE::vcs_elabcheck",
+                                       "Problem with charge neutrality condition");
                 }
                 if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
                     double scale = VCS_DELETE_MINORSPECIES_CUTOFF;

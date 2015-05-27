@@ -19,14 +19,12 @@
 #include <cstdio>
 
 using namespace std;
-using namespace Cantera;
-
 namespace {
 enum stages {MAIN, EQUILIB_CHECK, ELEM_ABUND_CHECK,
              RECHECK_DELETED, RETURN_A, RETURN_B};
 }
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 void VCS_SOLVE::checkDelta1(double* const dsLocal,
@@ -77,7 +75,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
      *    Initialize and set up all counters
      */
     vcs_counters_init(0);
-    Cantera::clockWC ticktock;
+    clockWC ticktock;
 
     /*
      *  Malloc temporary space for usage in this routine and in
@@ -2519,7 +2517,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     size_t juse = npos;
     size_t jlose = npos;
     double* scrxn_ptr;
-    Cantera::clockWC tickTock;
+    clockWC tickTock;
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   ");
         for (size_t i=0; i<77; i++) {
@@ -3627,7 +3625,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
         }
     }
 
-    double RT = m_temperature * Cantera::GasConstant;
+    double RT = m_temperature * GasConstant;
     printf("   ---  CHEMICAL POT TABLE (J/kmol) Name PhID     MolFR     ChemoSS   "
            "   logMF       Gamma       Elect       extra       ElectrChem\n");
     printf("   ");
@@ -3665,7 +3663,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
             printf("   ---           ");
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3s", Cantera::int2str(iphase).c_str());
+        printf(" %-3s", int2str(iphase).c_str());
         printf(" % -12.4e", mfValue);
         printf(" % -12.4e", m_SSfeSpecies[kspec] * RT);
         printf(" % -12.4e", log(mfValue) * RT);
@@ -4088,7 +4086,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
     }
-    double RT = m_temperature * Cantera::GasConstant;
+    double RT = m_temperature * GasConstant;
     bool zeroedPhase = false;
     if (m_debug_print_lvl >= 2) {
         plogf("   --- DELTA_G TABLE  Components:");
@@ -4167,7 +4165,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
             feFull += log(actCoeff_ptr[kspec]) + log(mfValue);
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3s", Cantera::int2str(iphase).c_str());
+        printf(" %-3s", int2str(iphase).c_str());
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             printf("    NA       ");
         } else {

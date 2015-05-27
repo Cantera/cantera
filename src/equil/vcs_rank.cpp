@@ -15,7 +15,7 @@
 #include <cstdio>
 using namespace std;
 
-namespace VCSnonideal {
+namespace Cantera {
   static int basisOptMax1(const double * const molNum,
 		  const int n) {
     // int largest = 0;
@@ -38,7 +38,7 @@ namespace VCSnonideal {
   int VCS_SOLVE::vcs_rank(const double * awtmp, size_t numSpecies,  const double matrix[], size_t numElemConstraints,
 			  std::vector<size_t> &compRes, std::vector<size_t>& elemComp, int * const usedZeroedSpecies) const 
   {
-    Cantera::warn_deprecated("VCS_SOLVE::vcs_rank", "To be removed after Cantera 2.2");
+    warn_deprecated("VCS_SOLVE::vcs_rank", "To be removed after Cantera 2.2");
     int    lindep;
     size_t j, k, jl, i, l, ml;
     int numComponents = 0;
@@ -279,7 +279,7 @@ namespace VCSnonideal {
 
     if (numComponentsR != numComponents) {
       printf("vcs_rank ERROR: number of components are different: %d %d\n", numComponentsR,  numComponents);
-      throw Cantera::CanteraError("vcs_rank ERROR:",
+      throw CanteraError("vcs_rank ERROR:",
 			 " logical inconsistency");
       exit(-1);
     }

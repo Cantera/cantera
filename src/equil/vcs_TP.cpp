@@ -2,7 +2,7 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg)
 {

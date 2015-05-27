@@ -13,7 +13,7 @@
 #include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 void VCS_SOLVE::vcs_SSPhase()
 {

@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStable)

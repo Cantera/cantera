@@ -14,9 +14,7 @@
 
 #include <cstdio>
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 
 size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)

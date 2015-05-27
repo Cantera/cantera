@@ -11,7 +11,7 @@
 
 #include <cstdlib>
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 class vcs_VolPhase;

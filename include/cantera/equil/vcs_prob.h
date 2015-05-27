@@ -13,7 +13,7 @@
 
 #include "cantera/base/Array.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 class vcs_VolPhase;
@@ -87,7 +87,7 @@ public:
     /*!
      *   FormulaMatrix(kspec,j) = Number of elements, j, in the kspec species
      */
-    Cantera::Array2D FormulaMatrix;
+    Array2D FormulaMatrix;
 
     //! Specifies the species unknown type
     /*!

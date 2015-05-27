@@ -11,7 +11,7 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
                                   double* tPhMoles)

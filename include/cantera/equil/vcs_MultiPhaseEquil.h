@@ -159,13 +159,6 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
 int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
                                  double& funcStab, int printLvl, int loglevel);
 
-}
-
-//! Contains classes and functions implementing the VCS multi-phase
-//! equilibrium solver.
-namespace VCSnonideal
-{
-
 //! Translate a MultiPhase object into a VCS_PROB problem definition object
 /*!
  *  @param mphase MultiPhase object that is the source for all of the information
@@ -174,8 +167,7 @@ namespace VCSnonideal
  *  Note, both objects share the underlying ThermoPhase objects. So, neither
  *  can be const objects.
  */
-int vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
-                         VCSnonideal::VCS_PROB* vprob);
+int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob);
 
 //! Translate a MultiPhase information into a VCS_PROB problem definition object
 /*!
@@ -185,8 +177,7 @@ int vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
  *  @param mphase MultiPhase object that is the source for all of the information
  *  @param vprob  VCS_PROB problem definition that gets all of the information
  */
-int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
-                             VCSnonideal::VCS_PROB* vprob);
+int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob);
 
 //! %Cantera's Interface to the Multiphase chemical equilibrium solver.
 /*!
@@ -224,7 +215,7 @@ public:
      *        - 4: Print a table for each iteration
      *        - 5: Print more than a table for each iteration
      */
-    vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl);
+    vcs_MultiPhaseEquil(MultiPhase* mix, int printLvl);
 
     virtual ~vcs_MultiPhaseEquil() {}
 
@@ -254,7 +245,7 @@ public:
      * @param nu  Vector of coefficients for the formation reaction. Length is
      *            equal to the number of species in the MultiPhase object.
      */
-    void getStoichVector(size_t rxn, Cantera::vector_fp& nu);
+    void getStoichVector(size_t rxn, vector_fp& nu);
 
     //! return the number of iterations
     int iterations() const {
@@ -458,10 +449,8 @@ public:
     size_t numElemConstraints() const;
 
     // Friend functions
-    friend int vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
-                                    VCSnonideal::VCS_PROB* vprob);
-    friend int  vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
-                                         VCSnonideal::VCS_PROB* vprob);
+    friend int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob);
+    friend int  vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob);
 
 protected:
     //! Vector that takes into account of the current sorting of the species
@@ -472,7 +461,7 @@ protected:
      *
      *  `m_order[korig] = k_sorted`
      */
-    Cantera::vector_int m_order;
+    vector_int m_order;
 
     //! Object which contains the problem statement
     /*!
@@ -483,13 +472,13 @@ protected:
      *  constraints. All of these make the problem statement different than
      *  the simple element conservation statement.
      */
-    VCSnonideal::VCS_PROB m_vprob;
+    VCS_PROB m_vprob;
 
     //! Pointer to the MultiPhase mixture that will be equilibrated.
     /*!
      *  Equilibrium solutions will be returned via this variable.
      */
-    Cantera::MultiPhase* m_mix;
+    MultiPhase* m_mix;
 
     //! Print level from the VCSnonlinear package
     /*!
@@ -507,7 +496,7 @@ protected:
     int m_printLvl;
 
     //! Stoichiometric matrix
-    Cantera::DenseMatrix m_N;
+    DenseMatrix m_N;
 
     //! Iteration Count
     int m_iter;
@@ -516,14 +505,14 @@ protected:
     /*!
      *   This is used to exclude pure-phase species with invalid thermo data
      */
-    Cantera::vector_int m_species;
+    vector_int m_species;
 
     //! The object that does all of the equilibration work.
     /*!
      * VCS_SOLVE will have different ordering for species and element constraints
      * than this object or the VCS_PROB object.
      */
-    VCSnonideal::VCS_SOLVE m_vsolve;
+    VCS_SOLVE m_vsolve;
 };
 
 //! Global hook for turning on and off time printing.
@@ -535,4 +524,5 @@ protected:
 extern int vcs_timing_print_lvl;
 
 }
+
 #endif

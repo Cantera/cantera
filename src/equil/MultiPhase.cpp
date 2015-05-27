@@ -769,7 +769,7 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
     if (solver == "auto" || solver == "vcs") {
         try {
             writelog("Trying VCS equilibrium solver\n", log_level);
-            VCSnonideal::vcs_MultiPhaseEquil eqsolve(this, log_level-1);
+            vcs_MultiPhaseEquil eqsolve(this, log_level-1);
             int ret = eqsolve.equilibrate(ixy, estimate_equil, log_level-1,
                                           rtol, max_steps);
             if (ret) {

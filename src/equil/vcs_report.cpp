@@ -9,9 +9,7 @@
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/ctexceptions.h"
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 int VCS_SOLVE::vcs_report(int iconv)
 {

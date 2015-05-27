@@ -14,9 +14,7 @@
 
 #include <cstdio>
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 
 #define TOL_CONV 1.0E-5

@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     int numFail = 0;
     int printLvl = 1;
     string inputFile = "HMW_NaCl.xml";
-    VCSnonideal::vcs_timing_print_lvl = 0;
+    vcs_timing_print_lvl = 0;
 
     /*
      * Process the command line arguments
