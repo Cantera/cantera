@@ -425,7 +425,15 @@ cdef class ThermoPhase(_SolutionBase):
 
         return index
 
-    def species(self, k):
+    def species(self, k=None):
+        """
+        Return the `Species` object for species *k*, where *k* is either the
+        species index or the species name. If *k* is not specified, a list of
+        all species objects is returned.
+        """
+        if k is None:
+            return [self.species(i) for i in range(self.n_species)]
+
         s = Species(init=False)
         if isinstance(k, (str, unicode, bytes)):
             s._assign(self.thermo.species(stringify(k)))

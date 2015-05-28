@@ -693,6 +693,10 @@ class TestSpecies(utilities.CanteraTest):
             for m,n in s.composition.items():
                 self.assertEqual(n, self.gas.n_atoms(k,m))
 
+    def test_species_noargs(self):
+        for k,s in enumerate(self.gas.species()):
+            self.assertEqual(s.name, self.gas.species_name(k))
+
     def test_name_accessor(self):
         for name in self.gas.species_names:
             s = self.gas.species(name)
