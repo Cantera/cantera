@@ -626,22 +626,19 @@ class TestReaction(utilities.CanteraTest):
     def test_listFromFile(self):
         R = ct.Reaction.listFromFile('h2o2.xml')
         eq1 = [r.equation for r in R]
-        eq2 = [self.gas.reaction(i).equation
-               for i in range(self.gas.n_reactions)]
+        eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromCti(self):
         R = ct.Reaction.listFromCti(open('../../build/data/h2o2.cti').read())
         eq1 = [r.equation for r in R]
-        eq2 = [self.gas.reaction(i).equation
-               for i in range(self.gas.n_reactions)]
+        eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromXml(self):
         R = ct.Reaction.listFromCti(open('../../build/data/h2o2.xml').read())
         eq1 = [r.equation for r in R]
-        eq2 = [self.gas.reaction(i).equation
-               for i in range(self.gas.n_reactions)]
+        eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_elementary(self):

@@ -80,6 +80,12 @@ cdef class Kinetics(_SolutionBase):
         """
         return wrapReaction(self.kinetics.reaction(i_reaction))
 
+    def reactions(self):
+        """
+        Return a list of all `Reaction` objects
+        """
+        return [self.reaction(i) for i in range(self.n_reactions)]
+
     def modify_reaction(self, int irxn, Reaction rxn):
         """
         Modify the `Reaction` with index ``irxn`` to have the same rate

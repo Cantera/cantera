@@ -41,8 +41,7 @@ while t < 0.02:
 plt.plot(tt, TT, label='K=53, R=325', color='k', lw=3, zorder=100)
 
 # Get the reaction objects, and sort them so the most active reactions are first
-R = [(Rmax[i],gas.reaction(i)) for i in range(gas.n_reactions)]
-R.sort(key=lambda x: -x[0])
+R = sorted(zip(Rmax, gas.reactions()), key=lambda x: -x[0])
 
 # Test reduced mechanisms with different numbers of reactions
 C = plt.cm.winter(np.linspace(0,1,5))
