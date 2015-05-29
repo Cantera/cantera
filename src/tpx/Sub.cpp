@@ -10,6 +10,11 @@
 using std::string;
 using namespace Cantera;
 
+namespace {
+// these correspond to ordering withing propertyFlag::type
+std::string propertySymbols[] = {"H", "S", "U", "V", "P", "T"};
+}
+
 namespace tpx
 {
 Substance::Substance() :
@@ -514,7 +519,15 @@ void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
         Set(PropertyPair::TV, t_here, v_here);
         LoopCount++;
         if (LoopCount > 200) {
-            throw TPX_Error("Substance::set_xy","no convergence");
+            std::string msg = "No convergence. " +
+                propertySymbols[ifx] + " = " + fp2str(X) + ", " +
+                propertySymbols[ify] + " = " + fp2str(Y);
+            if (t_here == Tmin()) {
+                msg += "\nAt temperature limit (Tmin = " + fp2str(Tmin()) + ")";
+            } else if (t_here == Tmax()) {
+                msg += "\nAt temperature limit (Tmax = " + fp2str(Tmax()) + ")";
+            }
+            throw TPX_Error("Substance::set_xy", msg);
         }
     }
 }
