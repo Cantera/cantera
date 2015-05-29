@@ -13,14 +13,6 @@ using namespace std;
 namespace Cantera
 {
 
-//! Definition of whether the DEBUG_MODE environment is turned on within Cantera.
-#if DEBUG_MODE_ENABLED == 1
-const int g_DEBUG_MODE = 1;
-#else
-const int g_DEBUG_MODE = 0;
-#endif
-
-
 //! Return a pointer to the application object
 static Application* app()
 {
