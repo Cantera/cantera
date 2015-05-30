@@ -1170,9 +1170,18 @@ cdef class PureFluid(ThermoPhase):
     or a fluid beyond its critical point.
     """
     property X:
-        """Vapor fraction (quality)."""
+        """
+        Get/Set vapor fraction (quality). Can be set only when in the two-phase
+        region.
+        """
         def __get__(self):
             return self.thermo.vaporFraction()
+        def __set__(self, X):
+            if (self.P >= self.critical_pressure or
+                abs(self.P-self.P_sat)/self.P > 1e-4):
+                raise ValueError('Cannot set vapor quality outside the'
+                                 'two-phase region')
+            self.thermo.setState_Psat(self.P, X)
 
     property TX:
         """Get/Set the temperature and vapor fraction of a two-phase state."""
