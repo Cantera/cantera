@@ -337,3 +337,90 @@ Cantera uses a damped Newton method to solve these equations, and does a few
 other things to generate a good starting guess and to produce a reasonably
 robust algorithm. If you want to know more about the details, look at the on-
 line documented source code of Cantera C++ class 'ChemEquil.h'.
+
+Chemical Kinetics
+-----------------
+
+`Solution` objects are also `Kinetics` objects, and provide all of the methods
+necessary to compute the thermodynamic quantities associated with each reaction,
+reaction rates, and species creation and destruction rates. They also provide
+methods to inspect the quantities that define each reaction such as the rate
+constants and the stoichiometric coefficients. The rate calculation functions
+are used extensively within Cantera's :ref:`reactor network model
+<sec-cython-zerodim>` and :ref:`1D flame model <sec-cython-onedim>`.
+
+Information about individual reactions that is independent of the thermodynamic
+state can be obtained by accessing `Reaction` objects with the
+`Kinetics.reaction` method::
+
+    >>> g = ct.Solution('gri30.cti')
+    >>> r = g.reaction(2) # get a Reaction object
+    >>> r
+    <ElementaryReaction: H2 + O <=> H + OH>
+
+    >>> r.reactants
+    {'H2': 1.0, 'O': 1.0}
+    >>> r.products
+    {'H': 1.0, 'OH': 1.0}
+    >>> r.rate
+    Arrhenius(A=38.7, b=2.7, E=2.61918e+07)
+
+If we are interested in only certain types of reactions, we can use this
+information to filter the full list of reactions to find the just the ones of
+interest. For example, here we find the indices of just those reactions which
+convert `CO` into `CO2`::
+
+    >>> II = [i for i,r in enumerate(g.reactions())
+              if 'CO' in r.reactants and 'CO2' in r.products]
+    >>> for i in II:
+    ...     print(g.reaction(i).equation)
+    CO + O (+M) <=> CO2 (+M)
+    CO + O2 <=> CO2 + O
+    CO + OH <=> CO2 + H
+    CO + HO2 <=> CO2 + OH
+
+(Actually, we should also include reactions where the reaction is written such
+that ``CO2`` is a reactant and ``CO`` is a product, but for this example, we'll
+just stick to this smaller set of reactions.) Now, let's set the composition to
+an interesting equilibrium state::
+
+    >>> g.TPX = 300, 101325, {'CH4':0.6, 'O2':1.0, 'N2':3.76}
+    >>> g.equilibrate('HP')
+
+We can verify that this is an equilibrium state by seeing that the net reaction
+rates are essentially zero::
+
+    >>> g.net_rates_of_progress[II]
+    array([  4.06576e-20,  -5.50571e-21,   0.00000e+00,  -4.91279e-20])
+
+Now, let's see what happens if we decrease the temperature of the mixture::
+
+    >>> g.TP = g.T-100, None
+    >>> g.net_rates_of_progress[II]
+    array([  3.18645e-05,   5.00490e-08,   1.05965e-01,   2.89503e-06])
+
+All of the reaction rates are positive, favoring the formation of ``CO2`` from
+``CO``, with the third reaction, ``CO + OH <=> CO2 + H`` proceeding the fastest.
+If we look at the enthalpy change associated with each of these reactions::
+
+    >>> g.delta_enthalpy[II]
+    array([ -5.33035e+08,  -2.23249e+07,  -8.76650e+07,  -2.49170e+08])
+
+we see that the change is negative in each case, indicating a net release of
+thermal energy. The total heat release rate can be computed either from the
+reaction rates::
+
+    >>> np.dot(g.net_rates_of_progress, g.delta_enthalpy)
+    -58013370.720881931
+
+or from the species production rates::
+
+    >>> np.dot(g.net_production_rates, g.partial_molar_enthalpies)
+    -58013370.720881805
+
+The contribution from just the selected reactions is:
+
+    >>> np.dot(g.net_rates_of_progress[II], g.delta_enthalpy[II])
+    -9307123.2625651453
+
+Or about 16% of the total heat release rate.
