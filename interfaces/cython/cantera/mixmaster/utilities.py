@@ -28,6 +28,9 @@ def _print_value(name, value, unitstr):
 
 def handleError(message = '<error>', window = None,
                 fatal = 0, warning = 0, options = None):
+    # Print the message to the terminal, since this can at least be copied and
+    # pasted, unlike the contents of the dialog box.
+    print(message)
     if warning:
         messagebox.showwarning(title = 'Warning', message = message,
                                parent = window)

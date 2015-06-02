@@ -68,9 +68,9 @@ class MixMaster:
             self.mech = Solution(pathname)
             self.mechname = ff[0]
 
-        except:
+        except Exception as e:
             utilities.handleError('could not create gas mixture object: '
-                                  +ff[0]+'\n')
+                                  +ff[0]+'\n'+str(e))
             self.mechname = 'Error'
             return
 
