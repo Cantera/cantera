@@ -1,3 +1,21 @@
+cantera (2.2.0-1+trusty0) trusty; urgency=low
+
+  * New major upstream version
+
+ -- Raymond Speth <speth@mit.edu>  Thu, 04 Jun 2015 16:55:44 -0400
+
+cantera (2.1.2-1+trusty0) trusty; urgency=low
+
+  * Update to latest maintenance release
+
+ -- Raymond Speth <speth@mit.edu>  Tue, 16 Sep 2014 18:18:58 -0400
+
+cantera (2.1.2~b1-1+trusty0) trusty; urgency=low
+
+  * Jump to Trusty
+
+ -- Raymond Speth <speth@mit.edu>  Thu, 26 Jun 2014 15:02:14 -0400
+
 cantera (2.1.2~b1-1) saucy; urgency=low
 
   * New major upstream version
