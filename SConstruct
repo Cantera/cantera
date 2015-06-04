@@ -1176,6 +1176,7 @@ if env['layout'] == 'debian':
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
+    env['python3_prefix'] = pjoin(base, 'cantera-python3', 'usr')
     env['ct_datadir'] = '/usr/share/cantera/data'
 else:
     env['inst_libdir'] = pjoin(instRoot, 'lib')
