@@ -23,6 +23,12 @@ binary: build
 
 	scons install
 
+	rm -f debian/cantera-python/usr/bin/ctml_writer
+	rm -f debian/cantera-python/usr/bin/ck2cti
+	rm -f debian/cantera-python3/usr/bin/ctml_writer
+	rm -f debian/cantera-python3/usr/bin/ck2cti
+	mv debian/cantera-python3/usr/bin/mixmaster debian/cantera-python3/usr/bin/mixmaster3
+
 	dh_strip
 	dh_shlibdeps
 	dh_compress
