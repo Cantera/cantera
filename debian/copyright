@@ -1,6 +1,6 @@
 Format: http://dep.debian.net/deps/dep5
 Upstream-Name: cantera
-Source: http://cantera.googlecode.com
+Source: https://github.com/cantera/cantera
 
 Files: *
 Copyright: 2001-2012 California Institute of Technology
