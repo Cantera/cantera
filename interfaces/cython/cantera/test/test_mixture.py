@@ -180,3 +180,10 @@ class TestMixture(utilities.CanteraTest):
         self.assertArrayNear(E1, E2)
         self.assertNear(self.mix.T, 400)
         self.assertNear(self.mix.P, 2 * ct.one_atm)
+
+    def test_invalid_property(self):
+        x = self.mix
+        with self.assertRaises(AttributeError):
+            x.foobar = 300
+        with self.assertRaises(AttributeError):
+            x.foobar

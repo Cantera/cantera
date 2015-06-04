@@ -1,38 +1,18 @@
 /**
  * @file vcs_phaseStability.cpp
  *  Implementation class for functions associated with determining the stability of a phase
- *   (see Class \link VCSnonideal::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
+ *   (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"
-
-#include <cstdio>
-#include <algorithm>
+#include "cantera/base/ctexceptions.h"
 
 using namespace std;
-using namespace Cantera;
 
-namespace VCSnonideal
+namespace Cantera
 {
-//====================================================================================================================
-// Utility function that evaluates whether a phase can be popped into existence
-/*
- * A phase can be popped iff the stoichiometric coefficients for the
- * component species, whose concentrations will be lowered during the
- * process, are positive by at least a small degree.
- *  
- * If one of the phase species is a zeroed component, then the phase can
- * be popped if the component increases in mole number as the phase moles
- * are increased.
- * 
- * @param iphasePop  id of the phase, which is currently zeroed,
- *        
- * @return Returns true if the phase can come into existence
- *         and false otherwise.
- */
+
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
     vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
@@ -43,7 +23,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     /*
      * Loop through all of the species in the phase. We say the phase
      * can be popped, if there is one species in the phase that can be
-     * popped. This does not mean that the phase will be popped or that it 
+     * popped. This does not mean that the phase will be popped or that it
      * leads to a lower Gibbs free energy.
      */
     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
@@ -58,7 +38,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 	    /*
 	     *  Note one case is if the component is a member of the popping phase.
 	     *  This component will be zeroed and the logic here will negate the current
-	     *  species from causing a positive if this component is consumed. 
+	     *  species from causing a positive if this component is consumed.
 	     */
             for (size_t j = 0; j < m_numComponents; ++j) {
                 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
@@ -126,7 +106,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     }
     return false;
 }
-//=====================================================================================================
+
 int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
     int nfound = 0;
@@ -244,7 +224,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 
     return nfound;
 }
-//========================================================================================================
+
 size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
@@ -384,7 +364,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         for (size_t j = 0; j < m_numComponents; ++j) {
             if (!m_SSPhase[j]) {
                 if (m_molNumSpecies_old[j] > 0.0) {
-                    s += SQUARE(m_stoichCoeffRxnMatrix(j,irxn)) / m_molNumSpecies_old[j];
+                    s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
                 }
             }
         }
@@ -392,7 +372,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             Vphase = m_VolPhaseList[j];
             if (! Vphase->m_singleSpecies) {
                 if (m_tPhaseMoles_old[j] > 0.0) {
-                    s -= SQUARE(m_deltaMolNumPhase(j,irxn)) / m_tPhaseMoles_old[j];
+                    s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                 }
             }
         }
@@ -520,7 +500,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 
     return 0;
 }
- //====================================================================================================================
+
 double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 {
     /*
@@ -533,7 +513,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 	minNumberIterations = 1;
     }
 
-    // We will do a full newton calculation later, but for now, ...
+    // We will do a full Newton calculation later, but for now, ...
     bool doSuccessiveSubstitution = true;
     double funcPhaseStability;
     vector<doublereal> X_est(nsp, 0.0);
@@ -807,7 +787,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), VCS_STATECALC_PHASESTABILITY);
 	    /*
 	     * Save fracDelta for later use to initialize the problem better
-	     *  @TODO  creationGlobalRxnNumbers needs to be calculated here and storred.
+	     *  @TODO  creationGlobalRxnNumbers needs to be calculated here and stored.
 	     */
             Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
         }
@@ -828,5 +808,5 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     }
     return funcPhaseStability;
 }
-//====================================================================================================================
+
 }

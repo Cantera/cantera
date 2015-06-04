@@ -11,17 +11,15 @@
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
-#include "SpeciesThermo.h"
-#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
 
-//!  Class %IdealGasPhase represents low-density gases that obey the
+//!  Class IdealGasPhase represents low-density gases that obey the
 //!  ideal gas equation of state.
 /*!
  *
- * %IdealGasPhase derives from class ThermoPhase,
+ * IdealGasPhase derives from class ThermoPhase,
  * and overloads the virtual methods defined there with ones that
  * use expressions appropriate for ideal gas mixtures.
  *
@@ -52,7 +50,7 @@ namespace Cantera
  *  state thermo functions by calling the SpeciesThermo object.
  *
  *  Functions for the calculation of standard state properties for species
- *  at arbitrary pressure are provided in %IdealGasPhase. However, they
+ *  at arbitrary pressure are provided in IdealGasPhase. However, they
  *  are all derived from their reference state counterparts.
  *
  *  The standard state enthalpy is independent of pressure:
@@ -72,7 +70,7 @@ namespace Cantera
  *       \f[
  *            S^o_k(T,P) = S^{ref}_k(T) -  R \ln(\frac{P}{P_{ref}})
  *       \f]
- *  The standard state gibbs free energy is obtained from the enthalpy and entropy
+ *  The standard state Gibbs free energy is obtained from the enthalpy and entropy
  *  functions:
  *
  *       \f[
@@ -151,7 +149,7 @@ namespace Cantera
  *
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -257,7 +255,7 @@ namespace Cantera
  * <HR>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %IdealGasPhase may be created by the following code
+ * for %Cantera. A new IdealGasPhase may be created by the following code
  * snippet:
  *
  * @code
@@ -354,7 +352,7 @@ public:
      * duplicate the ThermoPhase object and all underlying structures.
      * This is basically a wrapper around the inherited copy constructor.
      *
-     * @return returns a pointer to a %ThermoPhase object, containing
+     * @return returns a pointer to a ThermoPhase object, containing
      *      a copy of the current object
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
@@ -384,7 +382,7 @@ public:
      * \see SpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
-        return GasConstant * temperature() * mean_X(&enthalpy_RT_ref()[0]);
+        return GasConstant * temperature() * mean_X(enthalpy_RT_ref());
     }
 
     /**
@@ -435,6 +433,7 @@ public:
      *   C^{tr}_{v,s} \equiv \frac{\partial e^{tr}_s}{\partial T} = \frac{3}{2} R_s
      * \f]
      * for atoms.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_tr(doublereal) const;
 
@@ -445,6 +444,7 @@ public:
      * \f[
      *   C^{trans}_{v,s} \equiv \frac{\partial e^{trans}_s}{\partial T} = \frac{3}{2} R_s
      * \f]
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_trans() const;
 
@@ -458,6 +458,7 @@ public:
      * \f[
      *   C^{rot}_{v,s} \equiv C^{tr}_{v,s} - C^{trans}_{v,s}
      * \f]
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_rot(double atomicity) const;
 
@@ -476,6 +477,7 @@ public:
      *   \f[
      *       \sum_i \frac{R_s \theta_{v,s,i}}{e^{\theta_{v,s,i}/T}-1}
      *   \f]
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual doublereal cv_vib(int k, doublereal T) const;
 
@@ -688,7 +690,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -697,7 +699,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of  standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
@@ -752,7 +754,7 @@ public:
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     //!  Returns the vector of the
-    //!  gibbs function of the reference state at the current temperature
+    //!  Gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
@@ -897,7 +899,7 @@ protected:
     //! Temporary storage for dimensionless reference state heat capacities
     mutable vector_fp m_cp0_R;
 
-    //! Temporary storage for dimensionless reference state gibbs energies
+    //! Temporary storage for dimensionless reference state Gibbs energies
     mutable vector_fp m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies

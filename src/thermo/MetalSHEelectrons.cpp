@@ -1,6 +1,6 @@
 /**
  * @file MetalSHEelectrons.cpp
- * Definition file for the %MetalSHEElectrons class, which represents the
+ * Definition file for the MetalSHEElectrons class, which represents the
  * electrons in a metal that are consistent with the
  * SHE electrode (see \ref thermoprops and
  * class \link Cantera::MetalSHEelectrons MetalSHEelectrons\endlink)
@@ -12,10 +12,9 @@
  * U.S. Government retains certain rights in this software.
  *
  */
-#include "cantera/base/ct_defs.h"
-
+#include "cantera/thermo/mix_defs.h"
+#include "cantera/base/ctml.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
-#include "cantera/thermo/SingleSpeciesTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 namespace Cantera
@@ -26,13 +25,11 @@ namespace Cantera
  */
 
 MetalSHEelectrons::MetalSHEelectrons():
-    SingleSpeciesTP(),
     xdef_(0)
 {
 }
 
 MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_) :
-    SingleSpeciesTP(),
     xdef_(0)
 {
     XML_Node* root;
@@ -51,9 +48,7 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_)
                            "Couldn't find phase name in file:" + id_);
     }
     // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    std::string model = th["model"];
-    if (model != "MetalSHEelectrons") {
+    if (xphase->child("thermo")["model"] != "MetalSHEelectrons") {
         throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
                            "thermo model attribute must be MetalSHEelectrons");
     }
@@ -61,19 +56,15 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_)
 }
 
 MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_) :
-    SingleSpeciesTP(),
     xdef_(0)
 {
     if (id_ != "") {
-        std::string idxml = xmlphase["id"];
-        if (id_ != idxml) {
+        if (id_ != xmlphase["id"]) {
             throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
                                "id's don't match");
         }
     }
-    const XML_Node& th = xmlphase.child("thermo");
-    std::string model = th["model"];
-    if (model != "MetalSHEelectrons") {
+    if (xmlphase.child("thermo")["model"] != "MetalSHEelectrons") {
         throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
                            "thermo model attribute must be MetalSHEelectrons");
     }
@@ -81,7 +72,6 @@ MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 }
 
 MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons&  right) :
-    SingleSpeciesTP(),
     xdef_(0)
 {
     operator=(right);
@@ -166,9 +156,12 @@ doublereal MetalSHEelectrons::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void MetalSHEelectrons::getUnitsStandardConc(doublereal* uA, int k, 
+void MetalSHEelectrons::getUnitsStandardConc(doublereal* uA, int k,
                                              int sizeUA) const
 {
+    warn_deprecated("MetalSHEelectrons::getUnitsStandardConc",
+            "To be removed after Cantera 2.2.");
+
     for (int i = 0; i < 6; i++) {
         uA[i] = 0;
     }
@@ -225,14 +218,6 @@ void MetalSHEelectrons::getIntEnergy_RT_ref(doublereal* urt) const
  * ---- Initialization and Internal functions
  */
 
-void MetalSHEelectrons::initThermo()
-{
-    /*
-     * Call the base class thermo initializer
-     */
-    SingleSpeciesTP::initThermo();
-}
-
 void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     /*
@@ -245,7 +230,7 @@ void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id
     XML_Node& tnode = phaseNode.child("thermo");
     doublereal dens = 2.65E3;
     if (tnode.hasChild("density")) {
-        dens = ctml::getFloatDefaultUnits(tnode, "density", "kg/m3");
+        dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
     }
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
@@ -306,27 +291,24 @@ XML_Node* MetalSHEelectrons::makeDefaultXMLTree()
 
 void MetalSHEelectrons::setParameters(int n, doublereal* const c)
 {
-    doublereal rho = c[0];
-    setDensity(rho);
+    setDensity(c[0]);
 }
 
 void MetalSHEelectrons::getParameters(int& n, doublereal* const c) const
 {
-    doublereal rho = density();
     n = 1;
-    c[0] = rho;
+    c[0] = density();
 }
 
 void MetalSHEelectrons::setParametersFromXML(const XML_Node& eosdata)
 {
-    std::string model = eosdata["model"];
-    if (model != "MetalSHEelectrons") {
+    if ( eosdata["model"] != "MetalSHEelectrons") {
         throw CanteraError("MetalSHEelectrons::setParametersFromXML",
                            "thermo model attribute must be MetalSHEelectrons");
     }
     doublereal rho = 2.65E3;
     if (eosdata.hasChild("density")) {
-        rho = ctml::getFloat(eosdata, "density", "toSI");
+        rho = getFloat(eosdata, "density", "toSI");
     }
     setDensity(rho);
 }

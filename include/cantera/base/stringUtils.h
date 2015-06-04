@@ -14,9 +14,6 @@
 namespace Cantera
 {
 
-class Phase;
-class ThermoPhase;
-
 //! Convert a double into a c++ string
 /*!
  * @param x double to be converted
@@ -91,11 +88,12 @@ std::string lowercase(const std::string& s);
  *
  *  @param ss    original string consisting of multiple key:composition
  *               pairs on multiple lines
- *  @param names valid names for elements in the composition map
+ *  @param names (optional) valid names for elements in the composition map. If
+ *      empty or unspecified, all values are allowed.
  *  @return     map of names to values
  */
 compositionMap parseCompString(const std::string& ss,
-                               const std::vector<std::string>& names);
+        const std::vector<std::string>& names=std::vector<std::string>());
 
 //! Parse a composition string into individual key:composition pairs
 /*!
@@ -103,6 +101,7 @@ compositionMap parseCompString(const std::string& ss,
  *              pairs on multiple lines
  *  @param w    Output vector consisting of single key:composition
  *              items in each index.
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 void split(const std::string& ss, std::vector<std::string>& w);
 
@@ -113,6 +112,7 @@ void split(const std::string& ss, std::vector<std::string>& w);
  *   @param a       Output pointer to a vector of floats
  *   @param delim   character delimiter. Defaults to a space
  *   @return        Returns the number of floats found and converted
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 int fillArrayFromString(const std::string& str, doublereal* const a,
                         const char delim = ' ');

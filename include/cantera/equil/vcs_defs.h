@@ -11,24 +11,8 @@
 #ifndef VCS_DEFS_H
 #define VCS_DEFS_H
 
-namespace VCSnonideal
+namespace Cantera
 {
-
-/*
- * COMMON DEFINITIONS -> Protect them against redefinitions
- */
-//@{
-
-#ifndef SQUARE
-# define SQUARE(x) ((x) * (x))
-#endif
-
-#ifndef DSIGN
-# define DSIGN(x) (( (x) == (0.0) ) ? (0.0) : ( ((x) > 0.0) ? 1.0 : -1.0 ))
-#endif
-
-//@}
-
 /*!
  *      ERROR CODES
  *
@@ -181,7 +165,7 @@ namespace VCSnonideal
  */
 #define VCS_SPECIES_DELETED       -4
 
-//! Species refers to an electron in the metal. 
+//! Species refers to an electron in the metal.
 /*!
  *  The unknown is equal to the electric potential of the phase
  *  in which it exists.
@@ -363,7 +347,7 @@ namespace VCSnonideal
  * Typically, these species are electrons in metals. There is an
  * infinite supply of them. However, their electrical potential
  * is sometimes allowed to vary, for example if the open circuit voltage
- * is sought after. 
+ * is sought after.
  */
 #define VCS_SPECIES_TYPE_INTERFACIALVOLTAGE -5
 //@}
@@ -392,7 +376,9 @@ namespace VCSnonideal
 #define VCS_STATECALC_TMP               3
 //@}
 
-
 }
+
+// namespace alias for backward compatibility
+namespace VCSnonideal = Cantera;
 
 #endif

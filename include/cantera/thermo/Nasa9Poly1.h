@@ -17,7 +17,7 @@
 
 #ifndef CT_NASA9POLY1_H
 #define CT_NASA9POLY1_H
-#include "cantera/base/global.h"
+
 #include "SpeciesThermoInterpType.h"
 
 namespace Cantera
@@ -35,7 +35,7 @@ namespace Cantera
  *  B. J. McBride, M. J. Zehe, S. Gordon
  *  NASA/TP-2002-211556, Sept. 2002
  *
- * Nine coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
+ * Nine coefficients \f$(a_0,\dots,a_8)\f$ are used to represent
  * \f$ C_p^0(T)\f$, \f$ H^0(T)\f$, and \f$ S^0(T) \f$ as
  * polynomials in \f$ T \f$ :
  * \f[
@@ -44,13 +44,14 @@ namespace Cantera
  * \f]
  *
  * \f[
- * \frac{H^0(T)}{RT} = - a_0 T^{-2} + a_1 \frac{\ln(T)}{T} + a_2
- * + a_3 T + a_4 T^2  + a_5 T^3 + a_6 T^4 + \frac{a_7}{T}
+ * \frac{H^0(T)}{RT} = - a_0 T^{-2} + a_1 \frac{\ln T}{T} + a_2
+ *     + \frac{a_3}{2} T + \frac{a_4}{3} T^2  + \frac{a_5}{4} T^3 +
+ *     \frac{a_6}{5} T^4 + \frac{a_7}{T}
  * \f]
  *
  * \f[
- * \frac{s^0(T)}{R} = - \frac{a_0}{2} T^{-2} - a_1 T^{-1} + a_2 \ln(T)
- +    + a_3 T  \frac{a_4}{2} T^2 + \frac{a_5}{3} T^3  + \frac{a_6}{4} T^4 + a_8
+ * \frac{s^0(T)}{R} = - \frac{a_0}{2} T^{-2} - a_1 T^{-1} + a_2 \ln T
+ *    + a_3 T + \frac{a_4}{2} T^2 + \frac{a_5}{3} T^3  + \frac{a_6}{4} T^4 + a_8
  * \f]
  *
  *  The standard state is assumed to be an ideal gas at the
@@ -61,10 +62,11 @@ namespace Cantera
  *
  * These NASA representations may have multiple temperature regions
  * through the use of the Nasa9PolyMultiTempRegion object, which uses
- * multiple copies of this %Nasa9Poly1 object to handle multiple temperature
+ * multiple copies of this Nasa9Poly1 object to handle multiple temperature
  * regions.
  *
  * @ingroup spthermo
+ * @see Nasa9PolyMultiTempRegion
  */
 class Nasa9Poly1 : public SpeciesThermoInterpType
 {
@@ -80,9 +82,21 @@ public:
      * @param pref         reference pressure (Pa).
      * @param coeffs       Vector of coefficients used to set the
      *                     parameters for the standard state.
+     * @deprecated  Use the constructor whic hdoes not require the species
+     *     index. To be removed after Cantera 2.2.
      */
     Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
                const doublereal* coeffs);
+
+    //! Normal constructor
+    /*!
+     * @param tlow         Minimum temperature
+     * @param thigh        Maximum temperature
+     * @param pref         reference pressure (Pa).
+     * @param coeffs       Vector of coefficients used to set the
+     *                     parameters for the standard state.
+     */
+    Nasa9Poly1(double tlow, double thigh, double pref, const double* coeffs);
 
     //! copy constructor
     /*!
@@ -100,6 +114,9 @@ public:
     duplMyselfAsSpeciesThermoInterpType() const;
 
     virtual int reportType() const;
+
+    virtual size_t temperaturePolySize() const { return 7; }
+    virtual void updateTemperaturePoly(double T, double* T_poly) const;
 
     //! Update the properties for this species, given a temperature polynomial
     /*!

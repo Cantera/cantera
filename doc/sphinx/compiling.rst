@@ -14,11 +14,11 @@ operating systems:
 
 * Linux
 
-  * Ubuntu 10.04 LTS (Lucid Lynx) or newer
-  * Debian 5.0 (Lenny) or newer
+  * Ubuntu 12.04 LTS (Lucid Lynx) or newer
+  * Debian 6.0 (Squeeze) or newer
 
 * Windows Vista, Windows 7, or Windows 8 (32-bit or 64-bit versions)
-* OS X 10.6 (Snow Leopard) or newer. OS X 10.9 (Mavericks) is recommended.
+* OS X 10.9 (Mavericks) or OS X 10.10 (Yosemite).
 
 In addition to the above operating systems, Cantera should work on any
 Unix-like system where the necessary prerequisites are available, but some
@@ -33,11 +33,14 @@ Linux
 * For Ubuntu or Debian users, the following packages should be installed using
   your choice of package manager::
 
-      g++ python scons libboost-all-dev libsundials-serial-dev subversion
+      g++ python scons libboost-all-dev libsundials-serial-dev
 
 * Building the python module also requires::
 
       cython python-dev python-numpy python-numpy-dev
+
+* Checking out the source code from version control requires Git (install
+  ``git``).
 
 * The minimum compatible Cython version is 0.17. If your distribution does not
   contain a suitable version, you may be able to install a more recent version
@@ -56,15 +59,6 @@ depending on which interfaces (Python, Matlab) you want to build and what
 architecture (32-bit or 64-bit) you want to use. See :ref:`sec-dependencies` for
 the full list of dependencies.
 
-* If you want to build the Python module, you must use the same version of the
-  Microsoft compiler as was used to compile Python. For Python 2.6 and Python
-  2.7, this means that you must use Visual Studio 2008 or the equivalent version
-  of the Windows SDK (see link below). For Python 3.3, you should use Visual
-  Studio 2010, or the corresponding version of the Windows SDK. You can use
-  MinGW to sidestep this requirement.
-* Note that the the "Express" editions of Visual Studio 2008 do not include a
-  64-bit compiler, so if you want to build 64-bit Cantera, you will also need to
-  install the Windows SDK.
 * The build process will produce a Python module compatible with the version of
   Python used for the compilation. To generate different modules for other
   versions of Python, you will need to install those versions of Python and
@@ -85,14 +79,21 @@ the full list of dependencies.
   (e.g. ``C:\Python27``) to your PATH. This is accessible from::
 
       Control Panel > System and Security > System > Advanced System Settings > Environment Variables
+* In order to use SCons to install Cantera to a system folder (e.g. ``C:\Program
+  Files\Cantera``) you must run the ``scons install`` command in a command
+  prompt that has been launched by selecting the *run as administrator* option.
 
 OS X
 ----
 
-* Download and install Xcode from the
-  `Apple Developer site <https://developer.apple.com/xcode/index.php>`_
-* Cantera can be compiled with the command line tools that ship with either
-  Xcode 3.x, Xcode 4.x, or Xcode 5.x. Xcode 5.x is recommended.
+* Download and install Xcode from the App Store
+
+* From a Terminal, run::
+
+      sudo xcode-select --install
+
+  and agree to the Xcode license agreement
+
 * If you don't have numpy version >= 1.3, you can install a recent version with::
 
     sudo easy_install -U numpy
@@ -121,25 +122,18 @@ Stable Release
   <https://sourceforge.net/projects/cantera/files/cantera/>`_ and extract the
   contents.
 
-* Option 2: Check out the code using Subversion::
+* Option 2: Check out the code using Git::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/branches/2.1/ cantera
-
-* Option 3: Check out the code using Git::
-
-    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
+    git clone https://github.com/Cantera/cantera.git
+    cd cantera
     git checkout 2.1
 
 Development Version
 -------------------
 
-* Option 1: Check out the code using Subversion::
+* Check out the code using Git::
 
-    svn checkout http://cantera.googlecode.com/svn/cantera/trunk/ cantera
-
-* Option 2: Check out the code using Git::
-
-    git svn clone --stdlayout http://cantera.googlecode.com/svn/cantera cantera
+    git clone https://github.com/Cantera/cantera.git
 
 Determine configuration options
 ===============================
@@ -149,6 +143,11 @@ General
 
 * run ``scons help`` to see a list all configuration options for Cantera, or
   see :ref:`scons-config`.
+* Configuration options are specified as additional arguments to the ``scons``
+  command, e.g.::
+
+    scons build -j4 blas_lapack_libs=lapack,blas
+
 * If the prerequisites are installed in standard locations, the default values
   should work.
 * If you installed Sundials to a non-standard location (e.g. the libraries
@@ -173,6 +172,12 @@ General
   line from cantera.conf or use the syntax::
 
     option_name=
+
+* Sometimes, changes in your environment can cause SCons's configuration tests
+  (e.g. checking for libraries or compiler capabilities) to unexpectedly fail.
+  To force SCons to re-run these tests rather than trusting the cached results,
+  run scons with the option ``--config=force``.
+
 
 Python Module
 -------------
@@ -219,11 +224,10 @@ Windows (MSVC)
   that Cantera depends on, so you will need to specify these paths explicitly.
 * Remember to put double quotes around any paths with spaces in them, e.g.
   "C:\Program Files".
-* By default, SCons attempts to use the same architecture and version of the
-  Microsoft compiler as was used to compile Python, typically Visual Studio
-  2008 or the equivalent version of the Windows SDK. If you aren't building the
-  Python module, you can override this with the configuration options
-  ``target_arch`` and ``msvc_version``.
+* By default, SCons attempts to use the same architecture as the copy of Python
+  that is running SCons, and the most recent installed version of the Visual
+  Studio compiler. If you aren't building the Python module, you can override
+  this with the configuration options ``target_arch`` and ``msvc_version``.
 
 .. note::
 
@@ -248,28 +252,9 @@ Windows (MinGW)
 OS X
 ----
 
-* The available compilers to compile Cantera will depend on the version of
-  Xcode that is installed.
-
-  * If Xcode 3 is installed, you can use either GCC by leaving the ``CC`` and
-    ``CXX`` options unspecified, or setting them to::
-
-      CC=gcc CXX=g++
-
-    You can also use LLVM with the GCC frontend by specifying::
-
-      CC=llvm-gcc CXX=llvm-g++
-
-  * If Xcode 4 is installed, then you can either use LLVM-GCC as above or
-    Clang by specifying::
-
-      CC=clang CXX=clang++
-
-  * With Xcode 5, SCons should use Clang automatically, and not additional
-    compilation options are required.
-
-* The Accelerate framework provides optimized versions of BLAS and LAPACK, so
-  the ``blas_lapack_libs`` option should generally be left unspecified.
+* The Accelerate framework is automatically used to provide optimized versions
+  of BLAS and LAPACK, so the ``blas_lapack_libs`` option should generally be
+  left unspecified.
 
 Intel Compilers
 ---------------
@@ -335,6 +320,19 @@ Compile Cantera & Test
     * Messages printed to the console while running scons test
     * Output files generated by the tests
 
+Building Documentation
+----------------------
+
+* To build the Cantera HTML documentation, run the commands::
+
+    scons doxygen
+    scons sphinx
+
+  or append the options `sphinx_docs=y` and `doxygen_docs=y` to the build
+  command, e.g.::
+
+    scons build doxygen_docs=y sphinx_docs=y
+
 MinGW Compilation problems
 --------------------------
 
@@ -370,13 +368,13 @@ program.
 
 * GNU compilers (C/C++/Fortran)
 
-  * Known to work with version 4.6; Expected to work with version >= 4.3
+  * Known to work with version 4.8; Expected to work with version >= 4.4
 
 * Clang/LLVM (C/C++)
 
-  * Known to work with versions 3.3 and 3.4. Expected to work with version >=
-    2.9.
-  * Works with the versions included with XCode 5.0.
+  * Known to work with versions 3.3 through 3.5. Expected to work with version
+    >= 2.9.
+  * Works with the versions included with Xcode 5.1 and Xcode 6.1.
 
 * Intel compilers (C/C++/Fortran)
 
@@ -385,13 +383,8 @@ program.
 
 * Microsoft compilers (C/C++)
 
-  * Known to work with version 9.0 (Visual Studio 2008) and version 10.0
-    (Visual Studio 2010). Expected to work with version 11.0 (Visual Studio
-    2012).
-  * If you are building the Python module, you must use the same version and
-    architecture (32- or 64-bit) as your copy of Python was compiled with:
-    Visual Studio 2008 for Python 2.6, 2.7, and 3.2, or Visual Studio 2010 for
-    Python 3.3.
+  * Known to work with versions 9.0 (Visual Studio 2008) through 12.0 (Visual
+    Studio 2013).
   * The "Express" editions of Visual Studio 2008 and 2010 do not include a
     64-bit compiler. To compile Cantera with 64-bit support, you must install
     the corresponding version of the Windows SDK, available as a free download.
@@ -410,15 +403,11 @@ program.
 Other Required Software
 -----------------------
 
-* Subversion
-
-  * For Windows: http://tortoisesvn.net/downloads.html
-  * Known to work with versions >= 1.6
-
 * SCons:
 
   * http://www.scons.org/download.php
-  * Known to work with SCons 2.1.0; Expected to work with versions >= 1.0.0
+  * Known to work with SCons 2.3.0; Expected to work with versions >= 1.0.0
+  * Version 2.3.2 or newer is required to use Visual Studio 2013.
 
 * Python:
 
@@ -431,7 +420,7 @@ Other Required Software
 * Boost
 
   * http://www.boost.org/users/download/
-  * Known to work with version 1.54; Expected to work with versions >= 1.40
+  * Known to work with version 1.54; Expected to work with versions >= 1.41
   * Only the "header-only" portions of Boost are required. Cantera does not
     currently depend on any of the compiled Boost libraries.
   * The compiled Boost.Thread library is required to build a thread-safe version
@@ -455,8 +444,8 @@ Optional Programs
   * Required to build the Python module
   * Known to work with versions 0.19 and 0.20. Expected to work with
     versions >= 0.17.
-  * Tested with Python 2.7 and 3.3. Expected to work with versions 2.6 and 3.1+
-    as well.
+  * Tested with Python 2.7, 3.3, and 3.4. Expected to work with versions 2.6 and
+    3.1+ as well.
 
 * `3to2 <http://pypi.python.org/pypi/3to2>`_
 
@@ -477,19 +466,23 @@ Optional Programs
 * Matlab
 
   * Required to build the Cantera Matlab toolbox.
-  * Known to work with 2009a, 2010a, 2011b, and 2013a. Expected to work with
-    versions >= 2009a.
+  * Known to work with 2009a and 2014b. Expected to work with versions >= 2009a.
 
 * Sundials
 
   * Required to enable some features such as sensitivity analysis.
   * Strongly recommended if using reactor network or 1D simulation capabilities.
   * https://computation.llnl.gov/casc/sundials/download/download.html
-  * Known to work with versions 2.4 and 2.5.
-  * To use Sundials with Cantera, you may need to compile it with the
-    ``-fPIC`` flag. You can specify this flag when configuring Sundials::
+  * Known to work with versions 2.4, 2.5 and 2.6.
+  * To use Sundials with Cantera on a Linux/Unix system, it must be compiled
+    with the ``-fPIC`` flag. You can specify this flag when configuring
+    Sundials (2.4 or 2.5)::
 
           configure --with-cflags=-fPIC
+
+    or Sundials 2.6::
+
+          cmake -DCMAKE_C_FLAGS=-fPIC <other command-line options>
 
   .. note:: If you are compiling Sundials 2.5.0 on Windows using CMake, you need
             to edit the ``CMakeLists.txt`` file first and change the lines::
@@ -522,6 +515,7 @@ Optional Programs
   * `Pygments <http://pygments.org/>`_ (install with ``easy_install -U pygments``)
   * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``easy_install -U pyparsing``)
   * `doxylink <http://pypi.python.org/pypi/sphinxcontrib-doxylink/>`_ (install with ``easy_install sphinxcontrib-doxylink``)
+  * `matlabdomain <https://pypi.python.org/pypi/sphinxcontrib-matlabdomain>`_ (install with ``easy_install sphinxcontrib-matlabdomain``)
 
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 

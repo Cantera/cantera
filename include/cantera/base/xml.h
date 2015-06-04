@@ -156,7 +156,7 @@ public:
      */
     XML_Node& addChild(const std::string& sname);
 
-    //! Add a child node to the current xml node, and at the
+    //! Add a child node to the current XML node, and at the
     //! same time add a value to the child
     /*!
      *  Resulting XML string:
@@ -169,7 +169,7 @@ public:
      */
     XML_Node& addChild(const std::string& name, const std::string& value);
 
-    //! Add a child node to the current xml node, and at the
+    //! Add a child node to the current XML node, and at the
     //! same time add a formatted value to the child
     /*!
      *  This version supplies a formatting string (printf format)
@@ -225,6 +225,7 @@ public:
     //! Overloaded parenthesis operator returns the value of the Node
     /*!
      *  @return  Returns the value of the node as a string.
+     *  @deprecated Use value() instead.
      */
     std::string operator()() const;
 
@@ -418,7 +419,7 @@ public:
     //! Return an unchangeable reference to the vector of children of the current node
     /*!
      *  Each of the individual XML_Node child pointers, however,
-     *  is to a changeable xml node object.
+     *  is to a changeable XML node object.
      *
      */
     const std::vector<XML_Node*>& children() const;
@@ -433,7 +434,7 @@ public:
     //!  Boolean function indicating whether a comment
     bool isComment() const;
 
-    //! Require that the current xml node have an attribute named by the first
+    //! Require that the current XML node have an attribute named by the first
     //! argument, a, and that this attribute have the the string value listed
     //! in the second argument, v.
     /*!
@@ -445,13 +446,13 @@ public:
     void _require(const std::string& a, const std::string& v) const;
 
     //! This routine carries out a recursive search for an XML node based
-    //! on both the xml element name and the attribute ID.
+    //! on both the XML element name and the attribute ID.
     /*!
      * If exact matches are found for both fields, the pointer
      * to the matching XML Node is returned.
      *
      * The ID attribute may be defaulted by setting it to "". In this case the
-     * pointer to the first xml element matching the name only is returned.
+     * pointer to the first XML element matching the name only is returned.
      *
      *  @param nameTarget  Name of the XML Node that is being searched for
      *  @param idTarget    "id" attribute of the XML Node that the routine
@@ -467,14 +468,14 @@ public:
                          const std::string& idTarget) const;
 
     //! This routine carries out a search for an XML node based
-    //! on both the xml element name and the attribute ID and an integer index.
+    //! on both the XML element name and the attribute ID and an integer index.
     /*!
      * If exact matches are found for all fields, the pointer
      * to the matching XML Node is returned. The search is only carried out on
      * the current element and the child elements of the current element.
      *
      * The "id" attribute may be defaulted by setting it to "".
-     * In this case the pointer to the first xml element matching the name
+     * In this case the pointer to the first XML element matching the name
      * only is returned.
      *
      *  @param nameTarget  Name of the XML Node that is being searched for
@@ -489,13 +490,13 @@ public:
                               const std::string& idTarget, const int index) const;
 
     //! This routine carries out a recursive search for an XML node based
-    //! on the xml element attribute, "id"
+    //! on the XML element attribute, "id"
     /*!
      * If exact match is found, the pointer
      * to the matching XML Node is returned. If not, 0 is returned.
      *
      * The ID attribute may be defaulted by setting it to "".
-     * In this case the pointer to the first xml element matching the name
+     * In this case the pointer to the first XML element matching the name
      * only is returned.
      *
      *  @param id       "id" attribute of the XML Node that the routine
@@ -565,8 +566,18 @@ public:
      *
      * @param children  output vector of pointers to XML_Node children
      *                  with the matching name
+     * @deprecated To be removed after Cantera 2.2. Use the version that returns
+     *     the vector of child nodes
      */
     void getChildren(const std::string& name, std::vector<XML_Node*>& children) const;
+
+    //! Get a vector of pointers to XML_Node containing all of the children
+    //! of the current node which match the given name
+    /*!
+     *  @param name   Name of the XML_Node children to search for
+     *  @return vector of pointers to child XML_Nodes with the matching name
+     */
+    std::vector<XML_Node*> getChildren(const std::string& name) const;
 
     //! Return a changeable reference to a child of the current node,  named by the argument
     /*!
@@ -577,7 +588,7 @@ public:
      */
     XML_Node& child(const std::string& loc) const;
 
-    //! Write the header to the xml file to the specified ostream
+    //! Write the header to the XML file to the specified ostream
     /*!
      *   @param s   ostream to write the output to
      */
@@ -587,10 +598,7 @@ public:
     /*!
      * This is a wrapper around the static routine write_int(). All this does
      * is add an endl on to the output stream. write_int() is fine, but the
-     * last endl wasn't being written. It also checks for the special name
-     * "`--`". If found and we are at the root of the xml tree, then the block
-     * is skipped and the children are processed. "`--`" is used to denote the
-     * top of the tree.
+     * last endl wasn't being written.
      *
      *  @param s       ostream to write to
      *  @param level   Indentation level to work from
@@ -656,7 +664,7 @@ private:
     /*!
      * This is the main recursive routine. It doesn't put a final endl
      * on. This is fixed up in the public method. A method to only write out a limited
-     * amount of the xml tree has been added.
+     * amount of the XML tree has been added.
      *
      *  @param s       ostream to write to
      *  @param level   Indentation level to work from
@@ -677,10 +685,10 @@ protected:
      */
     std::string m_name;
 
-    //! Value of the xml node
+    //! Value of the XML node
     /*!
      *  This is the string contents of the XML node. For
-     *  example. The xml node named eps:
+     *  example. The XML node named eps:
      *
      *      <eps>
      *         valueString

@@ -16,7 +16,7 @@
 //
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
-
+#include <iostream>
 #include <cstdio>
 
 using namespace std;

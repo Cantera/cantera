@@ -6,17 +6,13 @@
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
 
-#include "cantera/transport/TransportBase.h"
 #include "Domain1D.h"
 #include "cantera/base/Array.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/numerics/funcs.h"
 
 namespace Cantera
 {
-class MultiJac;
-
 //------------------------------------------
 //   constants
 //------------------------------------------
@@ -32,6 +28,8 @@ const size_t c_offset_Y = 4;    // mass fractions
 const int c_Mixav_Transport = 0;
 const int c_Multi_Transport = 1;
 const int c_Soret = 2;
+
+class Transport;
 
 /**
  *  This class represents 1D flow domains that satisfy the one-dimensional
@@ -133,7 +131,7 @@ public:
      */
     void setMassFraction(size_t j, size_t k, doublereal y) {
         m_fixedy(k,j) = y;
-        m_do_species[k] = true; // false;
+        m_do_species[k] = true;
     }
 
     //! The fixed temperature value at point j.
@@ -142,7 +140,9 @@ public:
     }
 
     //! The fixed mass fraction value of species k at point j.
+    //! @deprecated Unused. To be removed after Cantera 2.2.
     doublereal Y_fixed(size_t k, size_t j) const {
+        warn_deprecated("StFlow::Y_fixed", "To be removed after Cantera 2.2.");
         return m_fixedy(k,j);
     }
 
@@ -195,6 +195,41 @@ public:
         }
     }
 
+    //! Turn radiation on / off.
+    /*!
+     *  The simple radiation model used was established by Y. Liu and B. Rogg
+     *  [Y. Liu and B. Rogg, Modelling of thermally radiating diffusion flames
+     *  with detailed chemistry and transport, EUROTHERM Seminars, 17:114-127,
+     *  1991]. This model considers the radiation of CO2 and H2O.
+     */
+    void enableRadiation(bool doRadiation) {
+        m_do_radiation = doRadiation;
+    }
+
+    //! Returns `true` if the radiation term in the energy equation is enabled
+    bool radiationEnabled() const {
+        return m_do_radiation;
+    }
+
+    //! Set the emissivities for the boundary values
+    /*!
+    *   Reads the emissivities for the left and right boundary values in the
+    *   radiative term and writes them into the variables, which are used for
+    *   the calculation.
+    */
+    void setBoundaryEmissivities(doublereal e_left, doublereal e_right) {
+        if (e_left < 0 || e_left > 1) {
+            throw CanteraError("setBoundaryEmissivities",
+                "The left boundary emissivity must be between 0.0 and 1.0!");
+        } else if (e_right < 0 || e_right > 1) {
+            throw CanteraError("setBoundaryEmissivities",
+                "The right boundary emissivity must be between 0.0 and 1.0!");
+        } else {
+            m_epsilon_left = e_left;
+            m_epsilon_right = e_right;
+        }
+    }
+
     void fixTemperature(size_t j=npos) {
         bool changed = false;
         if (j == npos)
@@ -218,14 +253,20 @@ public:
         }
     }
 
+    //! @deprecated Species equations are always solved. To be removed after
+    //! Cantera 2.2.
     bool doSpecies(size_t k) {
+        warn_deprecated("StFlow::doSpecies", "To be removed after Cantera 2.2.");
         return m_do_species[k];
     }
     bool doEnergy(size_t j) {
         return m_do_energy[j];
     }
 
+    //! @deprecated Species equations are always solved. To be removed after
+    //! Cantera 2.2.
     void solveSpecies(size_t k=npos) {
+        warn_deprecated("StFlow::solveSpecies", "To be removed after Cantera 2.2.");
         if (k == npos) {
             for (size_t i = 0; i < m_nsp; i++) {
                 m_do_species[i] = true;
@@ -236,7 +277,10 @@ public:
         needJacUpdate();
     }
 
+    //! @deprecated Species equations are always solved. To be removed after
+    //! Cantera 2.2.
     void fixSpecies(size_t k=npos) {
+        warn_deprecated("StFlow::fixSpecies", "To be removed after Cantera 2.2.");
         if (k == npos) {
             for (size_t i = 0; i < m_nsp; i++) {
                 m_do_species[i] = false;
@@ -436,21 +480,10 @@ protected:
     //             member data
     //---------------------------------------------------------
 
-    // inlet
-    doublereal m_inlet_u;
-    doublereal m_inlet_V;
-    doublereal m_inlet_T;
-    doublereal m_rho_inlet;
-    vector_fp m_yin;
-
-    // surface
-    doublereal m_surface_T;
-
     doublereal m_press;        // pressure
 
     // grid parameters
     vector_fp m_dz;
-    //vector_fp m_z;
 
     // mixture thermo properties
     vector_fp m_rho;
@@ -459,7 +492,6 @@ protected:
     // species thermo properties
     vector_fp m_wt;
     vector_fp m_cp;
-    vector_fp m_enth;
 
     // transport properties
     vector_fp m_visc;
@@ -471,7 +503,6 @@ protected:
 
     // production rates
     Array2D m_wdot;
-    vector_fp m_surfdot;
 
     size_t m_nsp;
 
@@ -481,7 +512,13 @@ protected:
 
     MultiJac* m_jac;
 
-    bool m_ok;
+    // boundary emissivities for the radiation calculations
+    doublereal m_epsilon_left;
+    doublereal m_epsilon_right;
+
+    //! Indices within the ThermoPhase of the radiating species. First index is
+    //! for CO2, second is for H2O.
+    std::vector<size_t> m_kRadiating;
 
     // flags
     std::vector<bool> m_do_energy;
@@ -489,12 +526,15 @@ protected:
     std::vector<bool> m_do_species;
     int m_transport_option;
 
-    // solution estimate
-    //vector_fp m_zest;
-    //Array2D   m_yest;
+    // flag for the radiative heat loss
+    bool m_do_radiation;
+
+    // radiative heat loss vector
+    // vector which contains the values of the radiative heat loss
+    vector_fp m_qdotRadiation;
 
     // fixed T and Y values
-    Array2D   m_fixedy;
+    Array2D   m_fixedy; //!< @deprecated
     vector_fp m_fixedtemp;
     vector_fp m_zfix;
     vector_fp m_tfix;

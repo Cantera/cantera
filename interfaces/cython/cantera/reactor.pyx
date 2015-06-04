@@ -1,7 +1,7 @@
-from collections import defaultdict
-import numbers
+from collections import defaultdict as _defaultdict
+import numbers as _numbers
 
-reactor_counts = defaultdict(int)
+_reactor_counts = _defaultdict(int)
 
 cdef class ReactorBase:
     """
@@ -11,7 +11,8 @@ cdef class ReactorBase:
     def __cinit__(self, *args, **kwargs):
         self.rbase = newReactor(stringify(self.reactor_type))
 
-    def __init__(self, ThermoPhase contents=None, name=None, **kwargs):
+    # The signature of this function causes warnings for Sphinx documentation
+    def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -21,9 +22,12 @@ cdef class ReactorBase:
         if name is not None:
             self.name = name
         else:
-            reactor_counts[self.reactor_type] += 1
-            n = reactor_counts[self.reactor_type]
+            _reactor_counts[self.reactor_type] += 1
+            n = _reactor_counts[self.reactor_type]
             self.name = '{0}_{1}'.format(self.reactor_type, n)
+
+        if volume is not None:
+            self.volume = volume
 
     def __dealloc__(self):
         del self.rbase
@@ -142,6 +146,7 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, contents=None, *, name=None, energy='on', **kwargs):
         """
         :param contents:
@@ -174,7 +179,7 @@ cdef class Reactor(ReactorBase):
         >>> r3 = Reactor(name='adiabatic_reactor', contents=gas)
 
         """
-        super().__init__(contents, **kwargs)
+        super().__init__(contents, name, **kwargs)
 
         if energy == 'off':
             self.energy_enabled = False
@@ -319,6 +324,11 @@ cdef class WallSurface:
         def __set__(self, coverages):
             if self._kinetics is None:
                 raise Exception("Can't set coverages before assigning kinetics manager.")
+
+            if isinstance(coverages, (dict, str, unicode, bytes)):
+                self.cxxwall.setCoverages(self.side, comp_map(coverages))
+                return
+
             if len(coverages) != self._kinetics.n_species:
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
@@ -364,6 +374,7 @@ cdef class Wall:
     temperature of the reactor it faces.
     """
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None, kinetics=(None,None)):
         """
@@ -404,8 +415,8 @@ cdef class Wall:
         if name is not None:
             self.name = name
         else:
-            reactor_counts['Wall'] += 1
-            n = reactor_counts['Wall']
+            _reactor_counts['Wall'] += 1
+            n = _reactor_counts['Wall']
             self.name = 'Wall_{0}'.format(n)
 
         if A is not None:
@@ -478,7 +489,7 @@ cdef class Wall:
 
     def set_velocity(self, v):
         """
-        The wall velocity [m/s]. May be either a constant or an arbirary
+        The wall velocity [m/s]. May be either a constant or an arbitrary
         function of time. See `Func1`.
         """
         cdef Func1 f
@@ -543,6 +554,7 @@ cdef class FlowDevice:
         # Children of this abstract class are responsible for allocating dev
         self.dev = NULL
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None):
         assert self.dev != NULL
         self._rate_func = None
@@ -550,8 +562,8 @@ cdef class FlowDevice:
         if name is not None:
             self.name = name
         else:
-            reactor_counts[self.__class__.__name__] += 1
-            n = reactor_counts[self.__class__.__name__]
+            _reactor_counts[self.__class__.__name__] += 1
+            n = _reactor_counts[self.__class__.__name__]
             self.name = '{0}_{1}'.format(self.__class__.__name__, n)
 
         self._install(upstream, downstream)
@@ -602,6 +614,7 @@ cdef class MassFlowController(FlowDevice):
     def __cinit__(self, *args, **kwargs):
         self.dev = new CxxMassFlowController()
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, mdot=None):
         super().__init__(upstream, downstream, name=name)
         if mdot is not None:
@@ -650,6 +663,7 @@ cdef class Valve(FlowDevice):
     def __cinit__(self, *args, **kwargs):
         self.dev = new CxxValve()
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, K=None):
         super().__init__(upstream, downstream, name=name)
         if K is not None:
@@ -657,7 +671,7 @@ cdef class Valve(FlowDevice):
 
     def set_valve_coeff(self, k):
         """
-        Set the relationship betwen mass flow rate and the pressure drop across
+        Set the relationship between mass flow rate and the pressure drop across
         the valve. If a number is given, it is the proportionality constant
         [kg/s/Pa]. If a function is given, it should compute the mass flow
         rate [kg/s] given the pressure drop [Pa].
@@ -668,7 +682,7 @@ cdef class Valve(FlowDevice):
         """
         cdef double kv
         cdef Func1 f
-        if isinstance(k, numbers.Real):
+        if isinstance(k, _numbers.Real):
             kv = k
             self.dev.setParameters(1, &kv)
             return
@@ -696,6 +710,7 @@ cdef class PressureController(FlowDevice):
     def __cinit__(self, *args, **kwargs):
         self.dev = new CxxPressureController()
 
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, master=None, K=None):
         super().__init__(upstream, downstream, name=name)
         if master is not None:
@@ -835,7 +850,7 @@ cdef class ReactorNet:
         integration. The default is *False*.
         """
         def __get__(self):
-            return pybool(self.verbose())
+            return pybool(self.net.verbose())
         def __set__(self, pybool v):
             self.net.setVerbose(v)
 
@@ -844,22 +859,33 @@ cdef class ReactorNet:
         Returns the sensitivity of the solution variable *component* in
         reactor *r* with respect to the parameter *p*. *component* can be a
         string or an integer. See `component_index` and `sensitivities` to
-        determine the integer index for the variables. If it is not given, *r*
-        defaults to the first reactor. Returns an empty array until the first
-        time step is taken.
+        determine the integer index for the variables and the definition of the
+        resulting sensitivity coefficient. If it is not given, *r* defaults to
+        the first reactor. Returns an empty array until the first time step is
+        taken.
         """
         if isinstance(component, int):
             return self.net.sensitivity(component, p)
-        elif isinstance(component, (str, unicode)):
+        elif isinstance(component, (str, unicode, bytes)):
             return self.net.sensitivity(stringify(component), p, r)
 
     def sensitivities(self):
-        """
-        Returns the senstivities of all of the solution variables with respect
-        to all of the registered parameters. The sensitivities are returned in
-        an array with dimensions *(n_vars, n_sensitivity_params)*, unless no
-        timesteps have been taken, in which case the shape is
-        *(0, n_sensitivity_params)*. The order of the variables (i.e. rows) is:
+        r"""
+        Returns the sensitivities of all of the solution variables with respect
+        to all of the registered parameters. The normalized sensitivity
+        coefficient :math:`S_{ki}` of the solution variable :math:`y_k` with
+        respect to sensitivity parameter :math:`p_i` is defined as:
+
+        .. math:: S_{ki} = \frac{p_i}{y_k} \frac{\partial y_k}{\partial p_i}
+
+        For reaction sensitivities, the parameter is a multiplier on the forward
+        rate constant (and implicitly on the reverse rate constant for
+        reversible reactions).
+
+        The sensitivities are returned in an array with dimensions *(n_vars,
+        n_sensitivity_params)*, unless no timesteps have been taken, in which
+        case the shape is *(0, n_sensitivity_params)*. The order of the
+        variables (i.e. rows) is:
 
         `Reactor` or `IdealGasReactor`:
 

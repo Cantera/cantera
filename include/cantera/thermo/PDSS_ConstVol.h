@@ -16,9 +16,6 @@
 
 namespace Cantera
 {
-class XML_Node;
-class VPStandardStateTP;
-
 //! Class for pressure dependent standard states that use a constant volume model
 /*!
  * @ingroup pdssthermo
@@ -66,7 +63,7 @@ public:
     PDSS_ConstVol(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                   const XML_Node& phaseRef, bool spInstalled);
 
-    //! Copy Constructur
+    //! Copy Constructor
     /*!
      * @param b Object to be copied
      */
@@ -74,7 +71,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b Object to be copeid
+     * @param b Object to be copied
      */
     PDSS_ConstVol& operator=(const PDSS_ConstVol& b);
 
@@ -131,7 +128,7 @@ public:
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      * @param spindex     Species index within the phase
      * @param inputFile   XML file containing the description of the phase
@@ -142,7 +139,7 @@ public:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!  Initialization of a PDSS object using an xml tree
+    //!  Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the object.
      *
@@ -151,7 +148,7 @@ public:
      *     - getStuff from species Part of XML file
      *     - initThermoXML(phaseNode)      (cascade)
      *
-     * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
      * @param spindex    Species index within the phase
      * @param speciesNode XML Node containing the species information

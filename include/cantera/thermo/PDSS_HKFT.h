@@ -14,13 +14,10 @@
 #ifndef CT_PDSS_HKFT_H
 #define CT_PDSS_HKFT_H
 
-class WaterPropsIAPWS;
 #include "PDSS.h"
 
 namespace Cantera
 {
-class XML_Node;
-class VPStandardState;
 class PDSS_Water;
 class WaterProps;
 
@@ -32,9 +29,6 @@ class WaterProps;
 class PDSS_HKFT : public PDSS_Molar
 {
 public:
-
-    
-
     //! @name  Constructors
     //! @{
 
@@ -154,7 +148,7 @@ public:
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      * @param spindex     Species index within the phase
      * @param inputFile   XML file containing the description of the
@@ -166,7 +160,7 @@ public:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!  Initialization of a PDSS object using an xml tree
+    //!  Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the object.
      *
@@ -175,7 +169,7 @@ public:
      *     - getStuff from species Part of XML file
      *     - initThermoXML(phaseNode)      (cascade)
      *
-     * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
      * @param spindex    Species index within the phase
      * @param speciesNode XML Node containing the species information
@@ -224,7 +218,7 @@ public:
     //@}
 
 private:
-    //! Main routine that actually calculates the gibbs free energy difference
+    //! Main routine that actually calculates the Gibbs free energy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is eEqn. 59 in Johnson et al. (1992).
@@ -432,7 +426,7 @@ private:
     //! Charge of the ion
     doublereal m_charge_j;
 
-    //!  Static variable determining error exiting 
+    //!  Static variable determining error exiting
     /*!
      *   If true, then will error exit if there is an inconsistency in DG0, DH0, and DS0.
      *   If not, then will rewrite DH0 to be consistent with the other two.

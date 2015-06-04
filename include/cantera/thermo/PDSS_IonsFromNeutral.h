@@ -17,8 +17,6 @@
 
 namespace Cantera
 {
-class XML_Node;
-class VPStandardStateTP;
 class ThermoPhase;
 
 //! Derived class for pressure dependent standard states of an ideal gas species
@@ -78,7 +76,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b Object to be copeid
+     * @param b Object to be copied
      */
     PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
 
@@ -155,7 +153,7 @@ public:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!  Initialization of a PDSS object using an xml tree
+    //!  Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the object.
      *
@@ -164,7 +162,7 @@ public:
      *     - getStuff from species Part of XML file
      *     - initThermoXML(phaseNode)      (cascade)
      *
-     * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
      *
      * @param spindex    Species index within the phase

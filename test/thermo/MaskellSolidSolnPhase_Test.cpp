@@ -19,7 +19,7 @@ public:
 
     void initializeTestPhaseWithXML(const std::string & filename)
     {
-        test_phase = newPhase(filename.c_str(), "");
+        test_phase = newPhase(filename.c_str());
     }
 
     void set_r(const double r) {

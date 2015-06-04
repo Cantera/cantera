@@ -2,12 +2,7 @@
  *  @file SimpleTransport.cpp
  *  Simple mostly constant transport properties
  */
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/SimpleTransport.h"
-
-#include "cantera/base/utilities.h"
-#include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -22,6 +17,8 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     doMigration_(0),
     m_iStateMF(-1),
     concTot_(0.0),
+    meanMolecularWeight_(-1.0),
+    dens_(-1.0),
     m_temp(-1.0),
     m_press(-1.0),
     m_lambda(-1.0),
@@ -37,7 +34,6 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
 }
 
 SimpleTransport::SimpleTransport(const SimpleTransport& right) :
-    Transport(),
     tempDepType_(0),
     compositionDepType_(LTI_MODEL_SOLVENT),
     useHydroRadius_(false),
@@ -174,7 +170,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         if (transportModel == "Simple") {
 
 	    compositionDepType_ = tr.compositionDepTypeDefault_;
-          
+
         } else {
 	    throw CanteraError("SimpleTransport::initLiquid()",
 			       "transport model isn't the correct type: " + transportModel);

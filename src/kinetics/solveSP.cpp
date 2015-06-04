@@ -9,7 +9,8 @@
  */
 
 #include "cantera/kinetics/solveSP.h"
-#include "cantera/base/clockWC.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/ImplicitSurfChem.h"
 
 #include <cstdio>
 
@@ -127,10 +128,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_Jac.resize(dim1, dim1, 0.0);
 }
 
-solveSP::~solveSP()
-{
-}
-
 int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                            doublereal PGas, doublereal reltol, doublereal abstol)
 {
@@ -184,9 +181,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     evalSurfLarge(DATA_PTR(m_CSolnSP));
 
     if (m_ioflag) {
-        print_header(m_ioflag, ifunc, time_scale, true, reltol, abstol,
-                     TKelvin, PGas, DATA_PTR(m_netProductionRatesSave),
-                     DATA_PTR(m_XMolKinSpecies));
+        print_header(m_ioflag, ifunc, time_scale, true, reltol, abstol);
     }
 
     /*
@@ -248,13 +243,13 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
             }
         } else {
             /* make steady state calc a step of 1 million seconds to
-               prevent singular jacobians for some pathological cases */
+               prevent singular Jacobians for some pathological cases */
             inv_t = 1.0e-6;
         }
         deltaT = 1.0/inv_t;
 
         /*
-         * Call the routine to numerically evaluation the jacobian
+         * Call the routine to numerically evaluation the Jacobian
          * and residual for the current iteration.
          */
         resjac_eval(m_Jac, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
@@ -347,11 +342,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
 
         if (m_ioflag) {
             printIteration(m_ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
-                           update_norm, resid_norm,
-                           DATA_PTR(m_netProductionRatesSave),
-                           DATA_PTR(m_CSolnSP), DATA_PTR(m_resid),
-                           DATA_PTR(m_XMolKinSpecies), DATA_PTR(m_wtSpecies),
-                           m_neq, do_time);
+                           update_norm, resid_norm, do_time);
         }
 
         if (ifunc == SFLUX_TRANSIENT) {
@@ -393,12 +384,8 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                  false, deltaT);
         resid_norm = calcWeightedNorm(DATA_PTR(m_wtResid),
                                       DATA_PTR(m_resid), m_neq);
-        printFinal(m_ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
-                   update_norm, resid_norm, DATA_PTR(m_netProductionRatesSave),
-                   DATA_PTR(m_CSolnSP), DATA_PTR(m_resid),
-                   DATA_PTR(m_XMolKinSpecies), DATA_PTR(m_wtSpecies),
-                   DATA_PTR(m_wtResid), m_neq, do_time,
-                   TKelvin, PGas);
+        printIteration(m_ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
+                       update_norm, resid_norm, do_time, true);
     }
 
     /*
@@ -802,10 +789,7 @@ doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
 } /* calc_t */
 
 void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
-                           int damping, doublereal reltol, doublereal abstol,
-                           doublereal TKelvin,
-                           doublereal PGas, doublereal netProdRate[],
-                           doublereal XMolKinSpecies[])
+                           int damping, doublereal reltol, doublereal abstol)
 {
     if (ioflag) {
         printf("\n================================ SOLVESP CALL SETUP "
@@ -817,7 +801,7 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
             printf("\n   SOLVESP Called to calculate steady state residual\n");
             printf("           from a good initial guess\n");
         } else if (ifunc == SFLUX_JACOBIAN)  {
-            printf("\n   SOLVESP Called to calculate steady state jacobian\n");
+            printf("\n   SOLVESP Called to calculate steady state Jacobian\n");
             printf("           from a good initial guess\n");
         } else if (ifunc == SFLUX_TRANSIENT) {
             printf("\n   SOLVESP Called to integrate surface in time\n");
@@ -854,18 +838,18 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
 }
 
 void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
-                             int label_t,
-                             doublereal inv_t, doublereal t_real, size_t iter,
-                             doublereal update_norm, doublereal resid_norm,
-                             doublereal netProdRate[], doublereal CSolnSP[],
-                             doublereal resid[], doublereal XMolSolnSP[],
-                             doublereal wtSpecies[], size_t dim, bool do_time)
+                             int label_t, doublereal inv_t, doublereal t_real,
+                             size_t iter, doublereal update_norm,
+                             doublereal resid_norm, bool do_time, bool final)
 {
     size_t i, k;
     string nm;
     if (ioflag == 1) {
-
-        printf("\t%6s ", int2str(iter).c_str());
+        if (final) {
+            printf("\tFIN%3s ", int2str(iter).c_str());
+        } else {
+            printf("\t%6s ", int2str(iter).c_str());
+        }
         if (do_time) {
             printf("%9.4e %9.4e ", t_real, 1.0/inv_t);
         } else
@@ -896,59 +880,12 @@ void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
             InterfaceKinetics* m_kin = m_objects[isp];
             nm = m_kin->kineticsSpeciesName(k);
             printf(" %-16s", nm.c_str());
+        }
+        if (final) {
+            printf(" -- success");
         }
         printf("\n");
     }
 } /* printIteration */
-
-
-void solveSP::printFinal(int ioflag, doublereal damp, int label_d, int label_t,
-                         doublereal inv_t, doublereal t_real, size_t iter,
-                         doublereal update_norm, doublereal resid_norm,
-                         doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
-                         const doublereal resid[], doublereal XMolSolnSP[],
-                         const doublereal wtSpecies[], const doublereal wtRes[],
-                         size_t dim, bool do_time,
-                         doublereal TKelvin, doublereal PGas)
-{
-    size_t i, k;
-    string nm;
-    if (ioflag == 1) {
-
-        printf("\tFIN%3s ", int2str(iter).c_str());
-        if (do_time) {
-            printf("%9.4e %9.4e ", t_real, 1.0/inv_t);
-        } else
-            for (i = 0; i < 22; i++) {
-                printf(" ");
-            }
-        if (damp < 1.0) {
-            printf("%9.4e ", damp);
-        } else
-            for (i = 0; i < 11; i++) {
-                printf(" ");
-            }
-        printf("%9.4e %9.4e", update_norm, resid_norm);
-        if (do_time) {
-            k = m_kinSpecIndex[label_t];
-            size_t isp = m_kinObjIndex[label_t];
-            InterfaceKinetics* m_kin = m_objects[isp];
-            nm = m_kin->kineticsSpeciesName(k);
-            printf(" %-16s", nm.c_str());
-        } else {
-            for (i = 0; i < 16; i++) {
-                printf(" ");
-            }
-        }
-        if (label_d >= 0) {
-            k = m_kinSpecIndex[label_d];
-            size_t isp = m_kinObjIndex[label_d];
-            InterfaceKinetics* m_kin = m_objects[isp];
-            nm = m_kin->kineticsSpeciesName(k);
-            printf(" %-16s", nm.c_str());
-        }
-        printf(" -- success\n");
-    }
-}
 
 }

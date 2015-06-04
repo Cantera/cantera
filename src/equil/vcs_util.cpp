@@ -9,14 +9,15 @@
  */
 
 #include "cantera/equil/vcs_internal.h"
+#include "cantera/equil/vcs_defs.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include <cassert>
+#include <cstring>
 
 using namespace std;
-using namespace Cantera;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 double vcs_l2norm(const std::vector<double> vec)
@@ -60,6 +61,7 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
 
 int vcs_max_int(const int* vector, int length)
 {
+    warn_deprecated("vcs_max_int", "Unused. To be removed after Cantera 2.2.");
     int retn;
     if (vector == NULL || length <= 0) {
         return 0;
@@ -75,16 +77,16 @@ double vcsUtil_gasConstant(int mu_units)
 {
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        return Cantera::GasConst_cal_mol_K * 1e-3;
+        return GasConst_cal_mol_K * 1e-3;
     case VCS_UNITS_UNITLESS:
         return 1.0;
     case VCS_UNITS_KJMOL:
-        return Cantera::GasConstant * 1e-6;
+        return GasConstant * 1e-6;
     case VCS_UNITS_KELVIN:
         return 1.0;
     case VCS_UNITS_MKS:
         /* joules / kg-mol K = kg m2 / s2 kg-mol K */
-        return Cantera::GasConstant;
+        return GasConstant;
     default:
         throw CanteraError("vcsUtil_gasConstant",
                            "uknown units: " + int2str(mu_units));

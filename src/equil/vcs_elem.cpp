@@ -4,16 +4,11 @@
  *  element abundances constraints and the algorithm for fixing violations
  *  of the element abundances constraints.
  */
-#include "cantera/base/ct_defs.h"
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/numerics/ctlapack.h"
-#include "math.h"
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 void VCS_SOLVE::vcs_elab()
 {
@@ -44,8 +39,8 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                  */
                 if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY &&
                         m_elemAbundancesGoal[i] != 0.0) {
-                    throw Cantera::CanteraError("VCS_SOLVE::vcs_elabcheck",
-                                                "Problem with charge neutrality condition");
+                    throw CanteraError("VCS_SOLVE::vcs_elabcheck",
+                                       "Problem with charge neutrality condition");
                 }
                 if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
                     double scale = VCS_DELETE_MINORSPECIES_CUTOFF;
@@ -473,7 +468,7 @@ L_CLEANUP:
 #ifdef DEBUG_MODE
     double l2after = 0.0;
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
-        l2after += SQUARE(m_elemAbundances[i] - m_elemAbundancesGoal[i]);
+        l2after += pow(m_elemAbundances[i] - m_elemAbundancesGoal[i], 2);
     }
     l2after = sqrt(l2after/m_numElemConstraints);
     if (m_debug_print_lvl >= 2) {

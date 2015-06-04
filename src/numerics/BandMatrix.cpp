@@ -9,9 +9,7 @@
 #include "cantera/numerics/BandMatrix.h"
 #include "cantera/numerics/ctlapack.h"
 #include "cantera/base/utilities.h"
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 #include <cstring>
 #include <fstream>
@@ -28,8 +26,6 @@ BandMatrix::BandMatrix() :
     m_ku(0),
     m_zero(0.0)
 {
-    data.clear();
-    ludata.clear();
 }
 
 BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
@@ -173,38 +169,32 @@ size_t BandMatrix::nRowsAndStruct(size_t* const iStruct) const
     }
     return m_n;
 }
-//====================================================================================================================
-// Number of columns
+
 size_t BandMatrix::nColumns() const
 {
     return m_n;
 }
-//====================================================================================================================
-// Number of subdiagonals
+
 size_t BandMatrix::nSubDiagonals() const
 {
     return m_kl;
 }
-//====================================================================================================================
-// Number of superdiagonals
+
 size_t BandMatrix::nSuperDiagonals() const
 {
     return m_ku;
 }
-//====================================================================================================================
+
 size_t BandMatrix::ldim() const
 {
     return 2*m_kl + m_ku + 1;
 }
-//====================================================================================================================
+
 vector_int&   BandMatrix::ipiv()
 {
     return m_ipiv;
 }
-//====================================================================================================================
-/*
- * Multiply A*b and write result to \c prod.
- */
+
 void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 {
     int kl = static_cast<int>(m_kl);
@@ -435,10 +425,17 @@ doublereal* const* BandMatrix::colPts()
 
 void BandMatrix::copyData(const GeneralMatrix& y)
 {
+    warn_deprecated("BandMatrix::copyData", "To be removed after Cantera 2.2.");
     m_factored = false;
     size_t n = sizeof(doublereal) * m_n * (2 *m_kl + m_ku + 1);
     GeneralMatrix* yyPtr = const_cast<GeneralMatrix*>(&y);
     (void) memcpy(DATA_PTR(data), yyPtr->ptrColumn(0), n);
 }
+
+void BandMatrix::useFactorAlgorithm(int fAlgorithm)
+{
+//    useQR_ = fAlgorithm;
+}
+
 
 }

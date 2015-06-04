@@ -7,15 +7,10 @@
 //  Copyright 2001 California Institute of Technology
 
 #include "cantera/equil/ChemEquil.h"
-#include "cantera/numerics/DenseMatrix.h"
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
 #include "PropertyCalculator.h"
-#include "cantera/base/ctexceptions.h"
-#include "cantera/base/vec_functions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/equil/MultiPhase.h"
+#include "cantera/equil/MultiPhaseEquil.h"
 
 using namespace std;
 
@@ -273,12 +268,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     s.setMoleFractions(DATA_PTR(xMF_est));
     s.getMoleFractions(DATA_PTR(xMF_est));
 
-    size_t nct = Cantera::ElemRearrange(m_nComponents, elMolesGoal, &mp,
-                                        m_orderVectorSpecies, m_orderVectorElements);
-    if (nct != m_nComponents) {
-        throw CanteraError("ChemEquil::estimateElementPotentials",
-                           "confused");
-    }
+    ElemRearrange(m_nComponents, elMolesGoal, &mp,
+                  m_orderVectorSpecies, m_orderVectorElements);
 
     s.getChemPotentials(DATA_PTR(mu_RT));
     doublereal rrt = 1.0/(GasConstant* s.temperature());
@@ -438,7 +429,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
     size_t mm = m_mm;
     size_t nvar = mm + 1;
-    DenseMatrix jac(nvar, nvar);       // jacobian
+    DenseMatrix jac(nvar, nvar);       // Jacobian
     vector_fp x(nvar, -102.0);         // solution vector
     vector_fp res_trial(nvar, 0.0);    // residual
 
@@ -594,7 +585,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
      * Do a better estimate of the element potentials.
      * We have found that the current estimate may not be good
      * enough to avoid drastic numerical issues associated with
-     * the use of a numerically generated jacobian.
+     * the use of a numerically generated Jacobian.
      *
      * The Brinkley algorithm assumes a constant T, P system
      * and uses a linearized analytical Jacobian that turns out
@@ -702,7 +693,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             }
             return 0;
         }
-        // compute the residual and the jacobian using the current
+        // compute the residual and the Jacobian using the current
         // solution vector
         equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
         f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());

@@ -2,10 +2,11 @@
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
-#include "cantera/equilibrium.h"
+#include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/thermo.h"
 
 #include <stdio.h>
+#include <memory>
 
 using namespace Cantera;
 
@@ -13,7 +14,7 @@ void testProblem()
 {
     suppress_deprecation_warnings();
     double T = 273.15 + 352.0;
-    VCSnonideal::vcs_timing_print_lvl = 0;
+    vcs_timing_print_lvl = 0;
 
     // Create the phases
     std::auto_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
@@ -30,7 +31,7 @@ void testProblem()
     salt.setState_TPX(T, OneAtm, &x[0]);
     LiSi_solid->setState_TP(T, OneAtm);
 
-    int ee = LiSi_solid->nElements();
+    int ee = static_cast<int>(LiSi_solid->nElements());
     printf("Number of elements = %d\n", ee);
 
     LiFixed.setState_TP(T, OneAtm);
@@ -48,20 +49,19 @@ void testProblem()
     printf("um_li_chempot = %g\n", um_li_chempot);
     LiFixed.setChemicalPotential(um_li_chempot);
 
-    Cantera::MultiPhase mmm;
+    MultiPhase mmm;
 
     mmm.addPhase(&salt, 10.);
     mmm.addPhase(LiSi_solid.get(), 1.);
     mmm.addPhase(&LiFixed, 100.);
 
-    int solver = 2;
     int printLvl = 3;
     int estimateEquil = 0;
 
-    vcs_equilibrate(mmm, "TP", estimateEquil, printLvl, solver);
+    mmm.equilibrate("TP", "vcs", 1e-9, 50000, 100, estimateEquil, printLvl);
     std::cout << mmm << std::endl;
 
-    Cantera::appdelete();
+    appdelete();
 }
 
 int main(int argc, char** argv)

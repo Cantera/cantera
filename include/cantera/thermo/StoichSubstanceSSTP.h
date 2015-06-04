@@ -13,21 +13,19 @@
 #ifndef CT_STOICHSUBSTANCESSTP_H
 #define CT_STOICHSUBSTANCESSTP_H
 
-#include "mix_defs.h"
 #include "SingleSpeciesTP.h"
-#include "SpeciesThermo.h"
 
 namespace Cantera
 {
 
-//!  Class %StoichSubstanceSSTP represents a stoichiometric (fixed
+//!  Class StoichSubstanceSSTP represents a stoichiometric (fixed
 //!   composition)  incompressible substance.
 /*!
  * This class internally changes the independent degree of freedom from
  * density to pressure. This is necessary because the phase is
  * incompressible. It uses a constant volume approximation.
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It is assumed that the reference state thermodynamics may be
@@ -62,7 +60,7 @@ namespace Cantera
  *       \f]
  *
  * The standard state heat capacity and entropy are independent
- * of pressure. The standard state gibbs free energy is obtained
+ * of pressure. The standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * <b> Specification of Solution Thermodynamic Properties </b>
@@ -70,7 +68,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> Application within %Kinetics Managers </b>
+ * <b> Application within Kinetics Managers </b>
  *
  * The standard concentration is equal to 1.0. This means that the
  * kinetics operator works on an (activities basis). Since this
@@ -93,7 +91,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new %StoichSubstanceSSTP may be created by
+ * for %Cantera. However, a new StoichSubstanceSSTP may be created by
  * the following code snippets:
  *
  * @code
@@ -160,7 +158,7 @@ class StoichSubstanceSSTP : public SingleSpeciesTP
 {
 public:
     //! Default constructor for the StoichSubstanceSSTP class
-    StoichSubstanceSSTP();
+    StoichSubstanceSSTP() {}
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an ASCII input file
@@ -324,7 +322,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -342,6 +340,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -369,7 +368,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -483,6 +482,9 @@ public:
 /*!
  *  The class is based on the electron have a chemical potential
  *  equal to one-half of the entropy of the H2 gas at 1 bar.
+ *
+ *  @deprecated Deprecated in favor of class MetalSHEelectrons. To be removed
+ *      after Cantera 2.2.
  */
 class electrodeElectron : public StoichSubstanceSSTP
 {
@@ -520,7 +522,7 @@ public:
     electrodeElectron& operator=(const electrodeElectron& right);
 
     //! Destructor
-    virtual ~electrodeElectron();
+    virtual ~electrodeElectron() {}
 
     void setParametersFromXML(const XML_Node& eosdata);
 

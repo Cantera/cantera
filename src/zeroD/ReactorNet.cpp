@@ -1,6 +1,5 @@
 //! @file ReactorNet.cpp
 #include "cantera/zeroD/ReactorNet.h"
-#include "cantera/numerics/Integrator.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
 
@@ -11,7 +10,7 @@ using namespace std;
 namespace Cantera
 {
 
-ReactorNet::ReactorNet() : Cantera::FuncEval(),
+ReactorNet::ReactorNet() :
     m_integ(0), m_time(0.0), m_init(false), m_integrator_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),
@@ -82,43 +81,7 @@ void ReactorNet::initialize()
         }
     }
 
-    m_connect.resize(m_reactors.size()*m_reactors.size(), 0);
     m_ydot.resize(m_nv,0.0);
-    size_t i, j, nin, nout, nw;
-    ReactorBase* r, *rj;
-    for (i = 0; i < m_reactors.size(); i++) {
-        r = m_reactors[i];
-        for (j = 0; j < m_reactors.size(); j++) {
-            if (i == j) {
-                connect(i,j);
-            } else {
-                rj = m_reactors[j];
-                nin = rj->nInlets();
-                for (n = 0; n < nin; n++) {
-                    if (&rj->inlet(n).out() == r) {
-                        connect(i,j);
-                    }
-                }
-                nout = rj->nOutlets();
-                for (n = 0; n < nout; n++) {
-                    if (&rj->outlet(n).in() == r) {
-                        connect(i,j);
-                    }
-                }
-                nw = rj->nWalls();
-                for (n = 0; n < nw; n++) {
-                    if (&rj->wall(n).left() == rj
-                            && &rj->wall(n).right() == r) {
-                        connect(i,j);
-                    } else if (&rj->wall(n).left() == r
-                               && &rj->wall(n).right() == rj) {
-                        connect(i,j);
-                    }
-                }
-            }
-        }
-    }
-
     m_atol.resize(neq());
     fill(m_atol.begin(), m_atol.end(), m_atols);
     m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));

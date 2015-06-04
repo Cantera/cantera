@@ -10,20 +10,12 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_prob.h"
-
-#include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
-#include "cantera/equil/vcs_species_thermo.h"
-
-#include "cantera/base/clockWC.h"
 #include "cantera/base/ctexceptions.h"
 
 #include <cstdio>
 using namespace std;
 
-namespace VCSnonideal {
+namespace Cantera {
   static int basisOptMax1(const double * const molNum,
 		  const int n) {
     // int largest = 0;
@@ -46,7 +38,7 @@ namespace VCSnonideal {
   int VCS_SOLVE::vcs_rank(const double * awtmp, size_t numSpecies,  const double matrix[], size_t numElemConstraints,
 			  std::vector<size_t> &compRes, std::vector<size_t>& elemComp, int * const usedZeroedSpecies) const 
   {
-    Cantera::warn_deprecated("VCS_SOLVE::vcs_rank", "To be removed after Cantera 2.2");
+    warn_deprecated("VCS_SOLVE::vcs_rank", "To be removed after Cantera 2.2");
     int    lindep;
     size_t j, k, jl, i, l, ml;
     int numComponents = 0;
@@ -92,7 +84,7 @@ namespace VCSnonideal {
      *     It's equal to the minimum of the number of elements and the
      *     number of total species.
      */
-    int ncTrial = std::min(numElemConstraints, numSpecies);
+    int ncTrial = static_cast<int>(std::min(numElemConstraints, numSpecies));
     numComponents = ncTrial;
     *usedZeroedSpecies = false;
 
@@ -120,7 +112,7 @@ namespace VCSnonideal {
 	 *    The first search criteria is always the largest positive
 	 *    magnitude of the mole number.
 	 */
-	k = basisOptMax1(VCS_DATA_PTR(aw), numSpecies);
+	k = basisOptMax1(VCS_DATA_PTR(aw), static_cast<int>(numSpecies));
 
 	if ((aw[k] != test) && fabs(aw[k]) == 0.0) {
 	  *usedZeroedSpecies = true;
@@ -178,7 +170,7 @@ namespace VCSnonideal {
 	 */
 	sa[jr] = 0.0;
 	for (ml = 0; ml < numElemConstraints; ++ml) {
-	  sa[jr] += SQUARE(sm[ml + jr * numElemConstraints]);
+	  sa[jr] += pow(sm[ml + jr * numElemConstraints], 2);
 	}
 	/* **************************************************** */
 	/* **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT ********** */
@@ -221,7 +213,7 @@ namespace VCSnonideal {
 
       do {
 
-	k = basisOptMax1(VCS_DATA_PTR(aw), numElemConstraints);
+	k = basisOptMax1(VCS_DATA_PTR(aw), static_cast<int>(numElemConstraints));
     
 	if (aw[k] == test) {
 	  numComponents = jr;
@@ -253,7 +245,7 @@ namespace VCSnonideal {
 
 	sa[jr] = 0.0;
 	for (ml = 0; ml < numSpecies; ++ml) {
-	  sa[jr] += SQUARE(sm[ml + jr * numSpecies]);
+	  sa[jr] += pow(sm[ml + jr * numSpecies], 2);
 	}
 
 	if (sa[jr] < 1.0e-6)  lindep = true;
@@ -287,7 +279,7 @@ namespace VCSnonideal {
 
     if (numComponentsR != numComponents) {
       printf("vcs_rank ERROR: number of components are different: %d %d\n", numComponentsR,  numComponents);
-      throw Cantera::CanteraError("vcs_rank ERROR:",
+      throw CanteraError("vcs_rank ERROR:",
 			 " logical inconsistency");
       exit(-1);
     }

@@ -1,14 +1,14 @@
 /**
  *  @file MolarityIonicVPSSTP.cpp
  *   Definitions for intermediate ThermoPhase object for phases which
- *   employ excess gibbs free energy formulations
+ *   employ excess Gibbs free energy formulations
  *  (see \ref thermoprops
  * and class \link Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
  * thermodynamic properties that are further based upon expressions
- * for the excess gibbs free energy expressed as a function of
+ * for the excess Gibbs free energy expressed as a function of
  * the mole fractions.
  */
 /*
@@ -28,26 +28,18 @@ namespace Cantera
 {
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
 }
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
     initThermoFile(inputFile, id_);
@@ -55,29 +47,21 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
         const std::string& id_) :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
-    GibbsExcessVPSSTP(),
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
     indexSpecialSpecies_(npos),
-    numCationSpecies_(0),
-    numAnionSpecies_(0),
-    numPassThroughSpecies_(0),
     neutralPBindexStart(0)
 {
-    *this = operator=(b);
+    *this = b;
 }
 
 MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b)
@@ -91,11 +75,8 @@ MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b
     indexSpecialSpecies_        = b.indexSpecialSpecies_;
     PBMoleFractions_            = b.PBMoleFractions_;
     cationList_                 = b.cationList_;
-    numCationSpecies_           = b.numCationSpecies_;
     anionList_                  = b.anionList_;
-    numAnionSpecies_            = b.numAnionSpecies_;
     passThroughList_            = b.passThroughList_;
-    numPassThroughSpecies_      = b.numPassThroughSpecies_;
     neutralPBindexStart         = b.neutralPBindexStart;
     moleFractionsTmp_           = b.moleFractionsTmp_;
 
@@ -129,7 +110,6 @@ void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 
 void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
 {
-    doublereal xx;
     /*
      * First get the standard chemical potentials in
      * molar form.
@@ -141,12 +121,9 @@ void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
      * Update the activity coefficients
      */
     s_update_lnActCoeff();
-    /*
-     *
-     */
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], SmallNumber);
+        double xx = std::max(moleFractions_[k], SmallNumber);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
@@ -170,9 +147,8 @@ void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
      * dimensionalize it.
      */
     double T = temperature();
-    double RT = GasConstant * T;
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] *= RT;
+        hbar[k] *= GasConstant * T;
     }
     /*
      * Update the activity coefficients, This also update the
@@ -180,9 +156,8 @@ void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
-    double RTT = RT * T;
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
+        hbar[k] -= GasConstant * T * T * dlnActCoeffdT_Scaled_[k];
     }
 }
 
@@ -213,7 +188,6 @@ void MolarityIonicVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 
 void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 {
-    double xx;
     /*
      * Get the nondimensional standard state entropies
      */
@@ -227,7 +201,7 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], SmallNumber);
+        double xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
@@ -251,69 +225,62 @@ void MolarityIonicVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 
 void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
 {
-    size_t k;
-    size_t kCat;
-    size_t kMax;
-    doublereal sumCat;
-    doublereal sumAnion;
-    doublereal chP, chM;
-    doublereal sum = 0.0;
-    doublereal sumMax;
     switch (PBType_) {
     case PBTYPE_PASSTHROUGH:
-        for (k = 0; k < m_kk; k++) {
+        for (size_t k = 0; k < m_kk; k++) {
             PBMoleFractions_[k] = moleFractions_[k];
         }
         break;
     case PBTYPE_SINGLEANION:
-        sumCat = 0.0;
-        sumAnion = 0.0;
-        for (k = 0; k < m_kk; k++) {
+    {
+        double sumCat = 0.0;
+        double sumAnion = 0.0;
+        for (size_t k = 0; k < m_kk; k++) {
             moleFractionsTmp_[k] = moleFractions_[k];
         }
-        kMax = npos;
-        sumMax = 0.0;
-        for (k = 0; k < cationList_.size(); k++) {
-            kCat = cationList_[k];
-            chP = m_speciesCharge[kCat];
+        size_t kMax = npos;
+        double sumMax = 0.0;
+        for (size_t k = 0; k < cationList_.size(); k++) {
+            size_t kCat = cationList_[k];
+            double chP = m_speciesCharge[kCat];
             if (moleFractions_[kCat] > sumMax) {
                 kMax = k;
                 sumMax = moleFractions_[kCat];
             }
             sumCat += chP * moleFractions_[kCat];
         }
-        k = anionList_[0];
-        chM = m_speciesCharge[k];
-        sumAnion = moleFractions_[k] * chM;
-        sum = sumCat - sumAnion;
+        size_t ka = anionList_[0];
+        sumAnion = moleFractions_[ka] * m_speciesCharge[ka];
+        double sum = sumCat - sumAnion;
         if (fabs(sum) > 1.0E-16) {
             moleFractionsTmp_[cationList_[kMax]] -= sum / m_speciesCharge[kMax];
             sum = 0.0;
-            for (k = 0; k < numCationSpecies_; k++) {
+            for (size_t k = 0; k < cationList_.size(); k++) {
                 sum +=  moleFractionsTmp_[k];
             }
-            for (k = 0; k < numCationSpecies_; k++) {
+            for (size_t k = 0; k < cationList_.size(); k++) {
                 moleFractionsTmp_[k]/= sum;
             }
         }
 
-        for (k = 0; k < numCationSpecies_; k++) {
+        for (size_t k = 0; k < cationList_.size(); k++) {
             PBMoleFractions_[k] = moleFractionsTmp_[cationList_[k]];
         }
-        for (k = 0; k <  numPassThroughSpecies_; k++) {
+        for (size_t k = 0; k <  passThroughList_.size(); k++) {
             PBMoleFractions_[neutralPBindexStart + k] = moleFractions_[passThroughList_[k]];
         }
 
         sum = std::max(0.0, PBMoleFractions_[0]);
-        for (k = 1; k < numPBSpecies_; k++) {
+        for (size_t k = 1; k < numPBSpecies_; k++) {
             sum += PBMoleFractions_[k];
 
         }
-        for (k = 0; k < numPBSpecies_; k++) {
+        for (size_t k = 0; k < numPBSpecies_; k++) {
             PBMoleFractions_[k] /= sum;
         }
 
         break;
+    }
     case PBTYPE_SINGLECATION:
         throw CanteraError("eosType", "Unknown type");
 
@@ -352,53 +319,42 @@ void MolarityIonicVPSSTP::initThermo()
     /*
      *  Go find the list of cations and anions
      */
-    double ch;
-    numCationSpecies_ = 0;
     cationList_.clear();
     anionList_.clear();
     passThroughList_.clear();
     for (size_t k = 0; k < m_kk; k++) {
-        ch = m_speciesCharge[k];
+        double ch = m_speciesCharge[k];
         if (ch > 0.0) {
             cationList_.push_back(k);
-            numCationSpecies_++;
         } else if (ch < 0.0) {
             anionList_.push_back(k);
-            numAnionSpecies_++;
         } else {
             passThroughList_.push_back(k);
-            numPassThroughSpecies_++;
         }
     }
-    numPBSpecies_ = numCationSpecies_ + numAnionSpecies_ - 1;
+    numPBSpecies_ = cationList_.size() + anionList_.size() - 1;
     neutralPBindexStart = numPBSpecies_;
     PBType_ = PBTYPE_MULTICATIONANION;
-    if (numAnionSpecies_ == 1) {
+    if (anionList_.size() == 1) {
         PBType_ = PBTYPE_SINGLEANION;
-    } else if (numCationSpecies_ == 1) {
+    } else if (cationList_.size() == 1) {
         PBType_ = PBTYPE_SINGLECATION;
     }
-    if (numAnionSpecies_ == 0 && numCationSpecies_ == 0) {
+    if (anionList_.size() == 0 && cationList_.size() == 0) {
         PBType_ = PBTYPE_PASSTHROUGH;
     }
 }
 
 void  MolarityIonicVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     moleFractionsTmp_.resize(m_kk);
 }
 
 void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-    std::string subname = "MolarityIonicVPSSTP::initThermoXML";
-    std::string stemp;
-
-    if ((int) id.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id) {
-            throw CanteraError(subname, "phasenode and Id are incompatible");
-        }
+    if ((int) id.size() > 0 && phaseNode.id() != id) {
+        throw CanteraError("MolarityIonicVPSSTP::initThermoXML",
+                           "phasenode and Id are incompatible");
     }
 
     /*
@@ -407,13 +363,14 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
      * <thermo model="MolarityIonicVPSSTP" />
      */
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError(subname, "no thermo XML node");
+        throw CanteraError("MolarityIonicVPSSTP::initThermoXML",
+                           "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
     std::string mStringa = thermoNode.attrib("model");
     std::string mString = lowercase(mStringa);
     if (mString != "molarityionicvpss" && mString != "molarityionicvpsstp") {
-        throw CanteraError(subname.c_str(),
+        throw CanteraError("MolarityIonicVPSSTP::initThermoXML",
                            "Unknown thermo model: " + mStringa + " - This object only knows \"MolarityIonicVPSSTP\" ");
     }
 
@@ -421,25 +378,14 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
      * Go get all of the coefficients and factors in the
      * activityCoefficients XML block
      */
-    XML_Node* acNodePtr = 0;
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
-        acNodePtr = &acNode;
-        mStringa = acNode.attrib("model");
-        mString = lowercase(mStringa);
-        // if (mString != "redlich-kister") {
-        //   throw CanteraError(subname.c_str(),
-        //        "Unknown activity coefficient model: " + mStringa);
-        //}
-        size_t n = acNodePtr->nChildren();
-        for (size_t i = 0; i < n; i++) {
-            XML_Node& xmlACChild = acNodePtr->child(i);
-            stemp = xmlACChild.name();
-            std::string nodeName = lowercase(stemp);
+        for (size_t i = 0; i < acNode.nChildren(); i++) {
+            XML_Node& xmlACChild = acNode.child(i);
             /*
              * Process a binary interaction
              */
-            if (nodeName == "binaryneutralspeciesparameters") {
+            if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
@@ -479,13 +425,12 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) 
         sprintf(p, "         potential    %12.6g  V\n", phi);
         s += p;
 
-        size_t kk = nSpecies();
-        vector_fp x(kk);
-        vector_fp molal(kk);
-        vector_fp mu(kk);
-        vector_fp muss(kk);
-        vector_fp acMolal(kk);
-        vector_fp actMolal(kk);
+        vector_fp x(m_kk);
+        vector_fp molal(m_kk);
+        vector_fp mu(m_kk);
+        vector_fp muss(m_kk);
+        vector_fp acMolal(m_kk);
+        vector_fp actMolal(m_kk);
         getMoleFractions(&x[0]);
 
         getChemPotentials(&mu[0]);

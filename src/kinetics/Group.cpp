@@ -9,6 +9,7 @@
 // reaction path analysis support
 
 #include "cantera/kinetics/Group.h"
+#include <iostream>
 
 namespace Cantera
 {

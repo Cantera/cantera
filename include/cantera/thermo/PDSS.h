@@ -14,8 +14,6 @@
 #include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 
-class WaterPropsIAPWS;
-
 namespace Cantera
 {
 /**
@@ -165,7 +163,7 @@ class VPSSMgr;
  * Virtual base class for calculation of the
  * pressure dependent standard state for a single species
  *
- * Class %PDSS is the base class for a family of classes that compute
+ * Class PDSS is the base class for a family of classes that compute
  * properties of a set of species in their standard states at a range of
  * temperatures and pressures. The independent variables for this object are
  * temperature and pressure. The class may have a reference to a SpeciesThermo
@@ -224,14 +222,14 @@ public:
     PDSS& operator=(const PDSS& b);
 
     //! Destructor for the phase
-    virtual ~PDSS();
+    virtual ~PDSS() {}
 
-    //! Duplication routine for objects which inherit from %PDSS
+    //! Duplication routine for objects which inherit from PDSS
     /*!
      * This function can be used to duplicate objects derived from PDSS even
      * if the application only has a pointer to PDSS to work with.
      *
-     * @return A pointer to the base %PDSS object type
+     * @return A pointer to the base PDSS object type
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 
@@ -341,7 +339,7 @@ public:
     //! the current pressure and the reference pressure, p0
     virtual doublereal entropyDelp_mole() const;
 
-    //! Get the difference in the standard state gibbs free energy
+    //! Get the difference in the standard state Gibbs free energy
     //! between the current pressure and the reference pressure, p0.
     virtual doublereal gibbsDelp_mole() const;
 
@@ -368,9 +366,9 @@ public:
         return m_maxTemp;
     }
 
-    //! Return the molar gibbs free energy divided by RT at reference pressure
+    //! Return the molar Gibbs free energy divided by RT at reference pressure
     /*!
-     * @return The reference state gibbs free energy at the current
+     * @return The reference state Gibbs free energy at the current
      *     temperature, divided by RT.
      */
     virtual doublereal gibbs_RT_ref() const;

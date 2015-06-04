@@ -1,7 +1,12 @@
-function e = eosType(a)
-% EOSTYPE - Equation of state type.
+function e = eosType(tp)
+% EOSTYPE  Get the type of the equation of state.
+% e = eosType(tp)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     object that derives from ThermoPhase)
+% :return:
+%     An integer flag identifying the type of equation of state.
+%     See the definitions in include/cantera/thermo/mix_defs.h
 %
-%    This method returns an integer flag identifying the type of
-%    equation of state.
-%
-e = thermo_get(a.tp_id, 18);
+
+e = thermo_get(tp.tp_id, 18);

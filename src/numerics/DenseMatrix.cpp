@@ -4,19 +4,14 @@
 
 // Copyright 2001  California Institute of Technology
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/ctlapack.h"
-#include "cantera/base/utilities.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
 DenseMatrix::DenseMatrix() :
-    Array2D(0,0,0.0),
-    m_ipiv(0),
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {
@@ -24,7 +19,6 @@ DenseMatrix::DenseMatrix() :
 
 DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
     Array2D(n, m, v),
-    m_ipiv(0),
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {
@@ -39,7 +33,6 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
 
 DenseMatrix::DenseMatrix(const DenseMatrix& y) :
     Array2D(y),
-    m_ipiv(0),
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {

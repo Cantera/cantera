@@ -1,7 +1,12 @@
-function v = cp_R(p)
-% CP_R - Species non-dimensional heat capacities.
+function v = cp_R(tp)
+% CP_R  Get the non-dimensional specific heats at constant pressure.
+% v = cp_R(tp)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     object that derives from ThermoPhase)
+% :return:
+%     Vector of specific heats of the species at
+%     constant pressure, non-dimensional basis
 %
-%        This method returns an array containing the pure species
-%        standard-state heat capacities at constant pressure.
-%
-v = thermo_get(p.tp_id,38);
+
+v = thermo_get(tp.tp_id, 38);

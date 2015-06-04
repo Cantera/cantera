@@ -12,7 +12,6 @@
 #include "ct.h"
 
 // Cantera includes
-#include "cantera/equil/equil.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/ctml.h"
@@ -21,7 +20,6 @@
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
-#include "cantera/thermo/MixtureFugacityTP.h"
 
 using namespace std;
 using namespace Cantera;
@@ -31,9 +29,9 @@ typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 typedef Cabinet<XML_Node, false> XmlCabinet;
 
-template<> ThermoCabinet* ThermoCabinet::__storage = 0;
-template<> KineticsCabinet* KineticsCabinet::__storage = 0;
-template<> TransportCabinet* TransportCabinet::__storage = 0;
+template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
+template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
+template<> TransportCabinet* TransportCabinet::s_storage = 0;
 
 /**
  * Exported functions.
@@ -517,7 +515,7 @@ extern "C" {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(n);
             thrm.checkElementArraySize(lenm);
-            equilibrate(thrm, "TP", 0);
+            thrm.equilibrate("TP", "element_potential");
             thrm.getElementPotentials(lambda);
             return 0;
         } catch (...) {
@@ -593,14 +591,27 @@ extern "C" {
                  double rtol, int maxsteps, int maxiter, int loglevel)
     {
         try {
-            equilibrate(ThermoCabinet::item(n), XY, solver, rtol, maxsteps,
-                        maxiter, loglevel);
+            string ssolver;
+            if (solver < 0) {
+                ssolver = "auto";
+            } else if (solver == 0) {
+                ssolver = "element_potential";
+            } else if (solver == 1) {
+                ssolver = "gibbs";
+            } else if (solver == 2) {
+                ssolver = "vcs";
+            } else {
+                throw CanteraError("th_equil",
+                    "Invalid equilibrium solver specified.");
+            }
+            ThermoCabinet::item(n).equilibrate(XY, ssolver, rtol, maxsteps,
+                                               maxiter, 0, loglevel);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
-    
+
     doublereal th_refPressure(int n)
     {
         try {
@@ -780,7 +791,6 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-    
 
     //-------------- Kinetics ------------------//
 
@@ -1491,7 +1501,7 @@ extern "C" {
                   char* id_tag, int debug, int validate)
     {
         try {
-            ctml::ck2cti(in_file, db_file, tr_file, id_tag);
+            ck2cti(in_file, db_file, tr_file, id_tag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -1,3 +1,5 @@
+import warnings
+
 cdef class Mixture:
     """
 
@@ -74,12 +76,12 @@ cdef class Mixture:
             return self.mix.nElements()
 
     cpdef int element_index(self, element) except *:
-        """Index of element with name 'element'::
+        """Index of element with name 'element'.
 
             >>> mix.element_index('H')
             2
         """
-        if isinstance(element, (str, unicode)):
+        if isinstance(element, (str, unicode, bytes)):
             index = self.mix.elementIndex(stringify(element))
         elif isinstance(element, (int, float)):
             index = <int>element
@@ -116,7 +118,7 @@ cdef class Mixture:
         """
         p = self.phase_index(phase)
 
-        if isinstance(species, (str, unicode)):
+        if isinstance(species, (str, unicode, bytes)):
             k = self.phase(p).species_index(species)
         elif isinstance(species, (int, float)):
             k = <int?>species
@@ -157,7 +159,7 @@ cdef class Mixture:
                 return int(p)
             else:
                 raise IndexError("Phase index '{0}' out of range.".format(p))
-        elif isinstance(p, (str, unicode)):
+        elif isinstance(p, (str, unicode, bytes)):
             for i, phase in enumerate(self._phases):
                 if phase.name == p:
                     return i
@@ -170,8 +172,8 @@ cdef class Mixture:
 
     property T:
         """
-        The Temperature [K] of all phases in the mixture. When set, the
-        pressure of the mixture is held fixed.
+        Get or set the Temperature [K] of all phases in the mixture. When set,
+        the pressure of the mixture is held fixed.
         """
         def __get__(self):
             return self.mix.temperature()
@@ -197,8 +199,8 @@ cdef class Mixture:
             return self.mix.maxTemp()
 
     property P:
-        """The Pressure [Pa] of all phases in the mixture. When set, the
-         temperature of the mixture is held fixed."""
+        """Get or set the Pressure [Pa] of all phases in the mixture. When set,
+         the temperature of the mixture is held fixed."""
         def __get__(self):
             return self.mix.pressure()
         def __set__(self, P):
@@ -210,7 +212,7 @@ cdef class Mixture:
             return self.mix.charge()
 
     def phase_charge(self, p):
-        """The charge of phase *p* in Coulumbs."""
+        """The charge of phase *p* in Coulombs."""
         return self.mix.phaseCharge(self.phase_index(p))
 
     def phase_moles(self, p=None):
@@ -231,11 +233,11 @@ cdef class Mixture:
 
     property species_moles:
         """
-        The number of moles of each species. May be set either
-        as a string, or as an array. If an array is used, it must be
-        dimensioned at least as large as the total number of species in the
-        mixture. Note that the species may belong to any phase, and
-        unspecified species are set to zero.
+        Get or set the number of moles of each species. May be set either as a
+        string or as an array. If an array is used, it must be dimensioned at
+        least as large as the total number of species in the mixture. Note that
+        the species may belong to any phase, and unspecified species are set to
+        zero.
 
         >>> mix.species_moles = 'C(s):1.0, CH4:2.0, O2:0.2'
         """
@@ -246,7 +248,7 @@ cdef class Mixture:
             return data
 
         def __set__(self, moles):
-            if isinstance(moles, (str, unicode)):
+            if isinstance(moles, (str, unicode, bytes)):
                 self.mix.setMolesByName(stringify(moles))
                 return
 
@@ -271,8 +273,8 @@ cdef class Mixture:
             self.mix.getChemPotentials(&data[0])
             return data
 
-    def equilibrate(self, XY, solver='vcs', rtol=1e-9, max_steps=1000,
-                    max_iter=100, estimate_equil=0, print_level=0, log_level=0):
+    def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=1000,
+                    max_iter=100, estimate_equil=0, log_level=0):
         """
         Set to a state of chemical equilibrium holding property pair *XY*
         constant. This method uses a version of the VCS algorithm to find the
@@ -284,11 +286,11 @@ cdef class Mixture:
             A two-letter string, which must be one of the set::
 
                 ['TP', 'HP', 'SP']
-        :param solver:
-            Set to either 'vcs' or 'gibbs' to choose implementation
-            of the solver to use. 'vcs' uses the solver implemented in the
-            C++ class 'VCSnonideal', and 'gibbs' uses the one implemented
-            in class 'MultiPhaseEquil'.
+        :param solver: Set to either 'auto', 'vcs', or 'gibbs' to choose
+            implementation of the solver to use. 'vcs' uses the solver
+            implemented in the C++ class 'VCSnonideal', 'gibbs' uses the one
+            implemented in class 'MultiPhaseEquil'. 'auto' will try the 'vcs'
+            solver first and then the 'gibbs' solver if that fails.
         :param rtol:
             Error tolerance. Iteration will continue until (Delta mu)/RT is
             less than this value for each reaction. Note that this default is
@@ -308,21 +310,23 @@ cdef class Mixture:
             fraction vector is used if the element abundances are satisfied.
             if -1, the initial mole fraction vector is thrown out, and an
             estimate is formulated.
-        :param print_level:
+        :param log_level:
             Determines the amount of output displayed during the solution
             process. 0 indicates no output, while larger numbers produce
             successively more verbose information.
-        :param log_level:
-            Controls the amount of diagnostic output written.
         """
-        if solver == 'vcs':
-            iSolver = 2
-        elif solver == 'gibbs':
-            iSolver = 1
-        else:
-            raise ValueError('Unrecognized equilibrium solver '
-                             'specified: "{0}"'.format(solver))
+        if isinstance(solver, int):
+            warnings.warn('Mixture.equilibrate: Using integer solver flags is '
+                'deprecated, and will be disabled after Cantera 2.2.')
+            if solver == -1:
+                solver = 'auto'
+            elif solver == 1:
+                solver = 'gibbs'
+            elif solver == 2:
+                solver = 'vcs'
+            else:
+                raise ValueError('Unrecognized equilibrium solver '
+                                 'specified: "{0}"'.format(solver))
 
-        vcs_equilibrate(deref(self.mix), stringify(XY).c_str(), estimate_equil,
-                        print_level, iSolver, rtol, max_steps, max_iter,
-                        log_level)
+        self.mix.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
+                             max_steps, max_iter, estimate_equil, log_level)

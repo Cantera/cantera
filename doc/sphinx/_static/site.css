@@ -69,7 +69,7 @@ tt {
     color: #333;
 }
 
-tt.descname {
+tt.descname, code.descname {
     background-color: transparent;
     font-weight: bold;
     font-size: 1.2em;
@@ -129,7 +129,7 @@ dl.class, dl.function {
     border-top: 2px solid #888;
 }
 
-dl.method, dl.attribute {
+dl.method, dl.attribute, dl.staticmethod, dl.classmethod {
     border-top: 1px solid #aaa;
 }
 

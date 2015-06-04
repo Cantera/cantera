@@ -1,0 +1,36 @@
+units(length="m", time="s", quantity="mol", energy="J")
+
+ideal_gas(name="simple1",
+          elements = "H O C",
+          species = " O2 H2 H2O ")
+
+ideal_gas(name="nasa1",
+          elements = "H O C",
+          species = "gri30: O2 H2 H2O ")
+
+ideal_gas(name="shomate1",
+          elements = "H O C",
+          species = "CO CO2")
+
+species(name="O2", atoms="O:2",
+        thermo=const_cp(h0=0.0, s0=205.152, cp0=29.39))
+species(name="H2", atoms="H:2",
+        thermo=const_cp(h0=0.0, s0=130.680, cp0=28.85))
+species(name="H2O", atoms="H:2 O:1",
+        thermo=const_cp(h0=-241826.0, s0=188.84, cp0=35.22))
+
+species(name="CO", atoms="C:1 O:1",
+        thermo=(Shomate([298, 1300],
+                        [25.56759, 6.096130, 4.054656, -2.671301,
+                         0.131021, -118.0089, 227.3665]),
+                Shomate([1300, 6000],
+                        [35.15070, 1.300095, -0.205921, 0.013550,
+                         -3.282780, -127.8375, 231.7120])))
+
+species(name="CO2", atoms="C:1 O:2",
+        thermo=(Shomate([298, 1200],
+                        [24.99735, 55.18696, -33.69137, 7.948387,
+                         -0.136638, -403.6075, 228.2431]),
+                Shomate([1200, 6000],
+                        [58.16639, 2.720074,-0.492289, 0.038844,
+                         -6.447293,-425.9186, 263.6125])))

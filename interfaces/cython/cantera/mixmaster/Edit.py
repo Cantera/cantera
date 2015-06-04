@@ -179,8 +179,8 @@ class EditFrame(Frame):
         try:
             self.redraw()
             self.app.makeWindows()
-        except:
-            handleError('Edit err')
+        except Exception as e:
+            handleError('Edit err:\n'+str(e))
 
         self.app.mix = IdealGasMixture(self.app.mech)
         self.mix = self.app.mix

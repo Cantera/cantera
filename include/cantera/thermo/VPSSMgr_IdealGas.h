@@ -15,18 +15,10 @@
 #ifndef CT_VPSSMGR_IDEALGAS_H
 #define CT_VPSSMGR_IDEALGAS_H
 
-#include "cantera/base/ct_defs.h"
-#include "PDSS.h"
 #include "VPSSMgr.h"
 
 namespace Cantera
 {
-
-class SpeciesThermoInterpType;
-class VPStandardStateTP;
-class SpeciesThermo;
-
-
 //! A VPSSMgr where all species in the phase obey an ideal gas equation of state
 class VPSSMgr_IdealGas : public VPSSMgr
 {

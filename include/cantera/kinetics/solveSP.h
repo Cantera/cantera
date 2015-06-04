@@ -12,7 +12,6 @@
 #ifndef SOLVESP_H
 #define SOLVESP_H
 
-#include "ImplicitSurfChem.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/numerics/SquareMatrix.h"
 
@@ -32,7 +31,7 @@ const int SFLUX_INITIALIZE = 1;
 const int SFLUX_RESIDUAL = 2;
 
 //! Calculation of the surface problem is due to the need for a numerical
-//! jacobian for the gas-problem. The solution is expected to be very close to
+//! Jacobian for the gas-problem. The solution is expected to be very close to
 //! the initial guess, and accuracy is needed because solution variables have
 //! been perturbed from nominal values to create Jacobian entries.
 const int SFLUX_JACOBIAN = 3;
@@ -62,8 +61,6 @@ const int BULK_ETCH = 2;
 
 namespace Cantera
 {
-
-class InterfaceKinetics;
 
 //! Method to solve a pseudo steady state surface problem
 /*!
@@ -157,7 +154,7 @@ public:
     solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc = BULK_ETCH);
 
     //! Destructor. Deletes the integrator.
-    ~solveSP();
+    ~solveSP() {}
 
 private:
     //! Unimplemented private copy constructor
@@ -202,27 +199,13 @@ private:
     //! Printing routine that optionally gets called at the start of every
     //! invocation
     void print_header(int ioflag, int ifunc, doublereal time_scale,
-                      int damping, doublereal reltol, doublereal abstol,
-                      doublereal TKelvin, doublereal PGas, doublereal netProdRate[],
-                      doublereal XMolKinSpecies[]);
+                      int damping, doublereal reltol, doublereal abstol);
 
     //! Printing routine that gets called after every iteration
     void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
                         doublereal inv_t, doublereal t_real, size_t iter,
                         doublereal update_norm, doublereal resid_norm,
-                        doublereal netProdRate[], doublereal CSolnSP[],
-                        doublereal resid[], doublereal XMolSolnSP[],
-                        doublereal wtSpecies[], size_t dim, bool do_time);
-
-    //! Print a summary of the solution
-    void printFinal(int ioflag, doublereal damp, int label_d, int label_t,
-                    doublereal inv_t, doublereal t_real, size_t iter,
-                    doublereal update_norm, doublereal resid_norm,
-                    doublereal netProdRateKinSpecies[], const doublereal CSolnSP[],
-                    const doublereal resid[], doublereal XMolSolnSP[],
-                    const doublereal wtSpecies[], const doublereal wtRes[],
-                    size_t dim, bool do_time,
-                    doublereal TKelvin, doublereal PGas);
+                        bool do_time, bool final=false);
 
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
@@ -320,7 +303,7 @@ private:
      *  @param resid   output Vector of residuals, length = m_neq
      *  @param CSolnSP  Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq. These are tweaked in order
-     *                  to derive the columns of the jacobian.
+     *                  to derive the columns of the Jacobian.
      *  @param CSolnSPOld Old Vector of species concentrations, unknowns in the
      *                  problem, length = m_neq
      *  @param do_time Calculate a time dependent residual

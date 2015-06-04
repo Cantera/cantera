@@ -1,5 +1,4 @@
 #include "cantera/IdealGasMix.h"
-#include "cantera/equilibrium.h"
 
 #include <cstdio>
 
@@ -57,7 +56,7 @@ int main(int argc, char** argv)
                 double pres = gas->pressure();
                 printf("Initial T = %g, pres = %g atm\n", tkelvin, pres/OneAtm);
 
-                equilibrate(*gas,"UV", 0, 1e-12);
+                gas->equilibrate("UV", "element_potential", 1e-12);
 
                 tkelvin = gas->temperature();
                 pres = gas->pressure();

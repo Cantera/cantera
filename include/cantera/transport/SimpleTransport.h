@@ -7,17 +7,10 @@
 #ifndef CT_SIMPLETRAN_H
 #define CT_SIMPLETRAN_H
 
-#include "TransportBase.h"
-#include "cantera/numerics/DenseMatrix.h"
-#include "TransportParams.h"
 #include "LiquidTransportParams.h"
 
 namespace Cantera
 {
-
-class LiquidTransportParams;
-
-
 //! Class SimpleTransport implements mixture-averaged transport
 //! properties for liquid phases.
 /*!
@@ -82,7 +75,7 @@ class LiquidTransportParams;
  *       \sum_i \mathbf{j}_i = 0
  *  \f]
  *
- *  When there are charged species, we replace the rhs with the
+ *  When there are charged species, we replace the RHS with the
  *  gradient of the electrochemical potential to obtain the
  *  modified equation
  *

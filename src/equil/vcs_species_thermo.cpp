@@ -8,7 +8,6 @@
  * U.S. Government retains certain rights in this software.
  */
 
-#include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_defs.h"
 #include "cantera/equil/vcs_VolPhase.h"
@@ -17,9 +16,7 @@
 #include "cantera/equil/vcs_internal.h"
 
 using namespace std;
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
                                        size_t indexSpeciesPhase) :
@@ -35,22 +32,13 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
     SS0_S0(0.0),
     SS0_Cp0(0.0),
     SS0_Pref(1.01325E5),
-    SS0_Params(0),
     SSStar_Model(VCS_SSSTAR_CONSTANT),
-    SSStar_Params(0),
-    Activity_Coeff_Model(VCS_AC_CONSTANT),
-    Activity_Coeff_Params(0),
     SSStar_Vol_Model(VCS_SSVOL_IDEALGAS),
-    SSStar_Vol_Params(0),
     SSStar_Vol0(-1.0),
     UseCanteraCalls(false),
     m_VCS_UnitsFormat(VCS_UNITS_UNITLESS)
 {
     SS0_Pref = 1.01325E5;
-}
-
-VCS_SPECIES_THERMO::~VCS_SPECIES_THERMO()
-{
 }
 
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
@@ -65,18 +53,12 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
     SS0_S0(b.SS0_S0),
     SS0_Cp0(b.SS0_Cp0),
     SS0_Pref(b.SS0_Pref),
-    SS0_Params(0),
     SSStar_Model(b.SSStar_Model),
-    SSStar_Params(0),
-    Activity_Coeff_Model(b.Activity_Coeff_Model),
-    Activity_Coeff_Params(0),
     SSStar_Vol_Model(b.SSStar_Vol_Model),
-    SSStar_Vol_Params(0),
     SSStar_Vol0(b.SSStar_Vol0),
     UseCanteraCalls(b.UseCanteraCalls),
     m_VCS_UnitsFormat(b.m_VCS_UnitsFormat)
 {
-    SS0_Params = 0;
 }
 
 VCS_SPECIES_THERMO&
@@ -95,20 +77,7 @@ VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
         SS0_Cp0               = b.SS0_Cp0;
         SS0_Pref              = b.SS0_Pref;
         SSStar_Model          = b.SSStar_Model;
-        /*
-         * shallow copy because function is undeveloped.
-         */
-        SSStar_Params         = b.SSStar_Params;
-        Activity_Coeff_Model  = b.Activity_Coeff_Model;
-        /*
-         * shallow copy because function is undeveloped.
-         */
-        Activity_Coeff_Params = b.Activity_Coeff_Params;
         SSStar_Vol_Model      = b.SSStar_Vol_Model;
-        /*
-         * shallow copy because function is undeveloped.
-         */
-        SSStar_Vol_Params     = b.SSStar_Vol_Params;
         SSStar_Vol0           = b.SSStar_Vol0;
         UseCanteraCalls       = b.UseCanteraCalls;
         m_VCS_UnitsFormat     = b.m_VCS_UnitsFormat;
@@ -128,8 +97,8 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
     double T = TKelvin;
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-            throw Cantera::CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
-                                        "Possible inconsistency");
+            throw CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
+                               "Possible inconsistency");
         }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_TP(TKelvin, pres);
@@ -152,7 +121,7 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
     return fe;
 }
 
-double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin, 
+double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
                                         double presPA)
 {
     double vol;
@@ -160,8 +129,8 @@ double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
     double T = TKelvin;
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-            throw Cantera::CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
-                                        "Possible inconsistency");
+            throw CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
+                               "Possible inconsistency");
         }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_TP(TKelvin, presPA);
@@ -172,7 +141,7 @@ double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
             vol = SSStar_Vol0;
             break;
         case VCS_SSVOL_IDEALGAS:
-            vol= Cantera::GasConstant * T / presPA;
+            vol= GasConstant * T / presPA;
             break;
         default:
             throw CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
@@ -193,8 +162,8 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
     }
     if (UseCanteraCalls) {
         if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-            throw Cantera::CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
-                                        "Possible inconsistency");
+            throw CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
+                               "Possible inconsistency");
         }
         size_t kspec = IndexSpeciesPhase;
         OwningPhase->setState_T(TKelvin);
@@ -234,13 +203,7 @@ double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
         size_t kspec = IndexSpeciesPhase;
         ac = OwningPhase->AC_calc_one(kspec);
     } else {
-        switch (Activity_Coeff_Model) {
-        case VCS_AC_CONSTANT:
-            ac = 1.0;
-            break;
-        default:
-            throw CanteraError("VCS_SPECIES_THERMO::eval_ac" ,"unknown model");
-        }
+        ac = 1.0;
     }
     return ac;
 }

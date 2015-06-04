@@ -85,6 +85,20 @@ class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
         EquilTestCases.__init__(self, 'gibbs')
         unittest.TestCase.__init__(self, *args, **kwargs)
 
+    @unittest.expectedFailure
+    def test_equil_gri_stoichiometric(self):
+        gas = ct.Solution('gri30.xml')
+        gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
+        gas.equilibrate('TP', self.solver)
+        self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
+
+    @unittest.expectedFailure
+    def test_equil_gri_lean(self):
+        gas = ct.Solution('gri30.xml')
+        gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
+        gas.equilibrate('TP', self.solver)
+        self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
+
 
 class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):
@@ -103,19 +117,6 @@ class TestKOH_Equil(utilities.CanteraTest):
 
     def setUp(self):
         self.mix = ct.Mixture(self.phases)
-
-    def compare(self, data, reference_file):
-        if os.path.exists(reference_file):
-            # Compare with existing output file
-            ref = np.genfromtxt(reference_file)
-            self.assertEqual(data.shape, ref.shape)
-            for i in range(ref.shape[0]):
-                self.assertArrayNear(ref[i], data[i])
-        else:
-            # Generate the output file for the first time
-            warnings.warn('Generating test data file:' +
-                          os.path.abspath(reference_file))
-            np.savetxt(reference_file, data)
 
     def test_equil_TP(self):
         temperatures = range(350, 5000, 300)
@@ -154,3 +155,43 @@ class TestKOH_Equil(utilities.CanteraTest):
             data[i,2:] = self.mix.species_moles
 
         self.compare(data, '../data/koh-equil-HP.csv')
+
+
+class TestEquil_GasCarbon(utilities.CanteraTest):
+    "Test rougly based on examples/multiphase/adiabatic.py"
+    @classmethod
+    def setUpClass(cls):
+        cls.gas = ct.Solution('gri30.xml')
+        cls.carbon = ct.Solution('graphite.xml')
+        cls.fuel = 'CH4'
+        cls.mix_phases = [(cls.gas, 1.0), (cls.carbon, 0.0)]
+        cls.stoich = (cls.gas.n_atoms(cls.fuel,'C') +
+                       0.25*cls.gas.n_atoms(cls.fuel,'H'))
+        cls.n_species = cls.gas.n_species + cls.carbon.n_species
+
+    def solve(self, solver):
+        n_points = 12
+        T = 300
+        P = 101325
+        data = np.zeros((n_points, 2+self.n_species))
+        phi = np.linspace(0.3, 3.5, n_points)
+        for i in range(n_points):
+            X = {self.fuel: phi[i] / self.stoich, 'O2': 1.0, 'N2': 3.76}
+            self.gas.TPX = T, P, X
+
+            mix = ct.Mixture(self.mix_phases)
+            mix.T = T
+            mix.P = P
+
+            # equilibrate the mixture adiabatically at constant P
+            mix.equilibrate('HP', solver=solver, max_steps=1000)
+            data[i,:2] = (phi[i], mix.T)
+            data[i,2:] = mix.species_moles
+
+        self.compare(data, '../data/gas-carbon-equil.csv')
+
+    def test_gibbs(self):
+        self.solve('gibbs')
+
+    def test_vcs(self):
+        self.solve('vcs')

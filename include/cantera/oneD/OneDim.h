@@ -10,7 +10,6 @@
 namespace Cantera
 {
 
-class MultiJac;
 class MultiNewton;
 class Func1;
 
@@ -241,6 +240,9 @@ public:
      *    - CPU time spent evaluating functions
      */
     void saveStats();
+
+    //! Clear saved statistics
+    void clearStats();
 
     //! Set a function that will be called every time #eval is called.
     //! Can be used to provide keyboard interrupt support in the high-level

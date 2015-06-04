@@ -10,13 +10,23 @@ Installation & Compilation
     Download the MSI installer for Cantera and the corresponding Python module
     from `SourceForge <https://sourceforge.net/projects/cantera/files/cantera/>`_.
     Choose between x86 and x64 based on the versions of Python and/or Matlab
-    you want to work with.
+    you want to work with. See :ref:`Windows Installation <sec-install-win>`
+    for details.
 
 **How do I install Cantera on Linux?**
 
-    Download the source code (e.g. ``cantera-2.1.1.tar.gz``) from `SourceForge
+    For Ubuntu, packages for the current stable version of Cantera are available
+    in a PPA. See :ref:`Ubuntu Installation <sec-install-ubuntu>` for details.
+
+    For other Linux distributions, download the source code (e.g.
+    ``cantera-2.1.1.tar.gz``) from `SourceForge
     <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
     instructions in the :ref:`sec-compiling`.
+
+**How do I install Cantera on Mac OS X?**
+
+    Cantera can be installed using Homebrew. See :ref:`Mac OS X Installation
+    <sec-install-osx>` for details.
 
 **What do I do if compiling Cantera fails?**
 
@@ -35,7 +45,7 @@ Installation & Compilation
       * The output of the ``scons build`` and ``scons build dump`` commands
         (you can direct this output to a file by running ``scons build >buildlog.txt 2>&1``)
       * The exact version of Cantera you are trying to compile, and how it was
-        obtained (i.e. downloaded source tarball or the specific Git/SVN commit)
+        obtained (i.e. downloaded source tarball or the specific Git commit)
       * Your operating system, compiler versions, and the versions of any other
         relevant software.
 
@@ -81,6 +91,29 @@ General
     the ``interfaces/cython/cantera/examples`` subdirectory of the Cantera
     source directory.
 
+**How should I cite Cantera?**
+
+    The recommended citation for Cantera is as follows:
+
+    David G. Goodwin, Harry K. Moffat, and Raymond L. Speth. *Cantera: An object-
+    oriented software toolkit for chemical kinetics, thermodynamics, and
+    transport processes*. http://www.cantera.org, 2015. Version 2.2.0.
+
+    The following BibTeX entry may also be used::
+
+        @Misc{Cantera,
+           author = "David G. Goodwin and Harry K. Moffat and Raymond L. Speth",
+           title = "Cantera: An Object-oriented Software Toolkit for Chemical
+                    Kinetics, Thermodynamics, and Transport Processes",
+           year = 2015,
+           note = "Version 2.2.0",
+           howpublished = "\url{http://www.cantera.org}"
+        }
+
+    If you are using a different version of Cantera, update the ``version`` and
+    ``year`` fields accordingly.
+
+
 Support and Bug Reporting
 -------------------------
 
@@ -89,7 +122,7 @@ Support and Bug Reporting
     - Check to see if you're using the most recent version of Cantera, and
       upgrade if not.
     - Check the `Issue Tracker
-      <https://code.google.com/p/cantera/issues/list>`_ to see if the issue
+      <https://github.com/Cantera/cantera/issues>`_ to see if the issue
       has already been reported.
     - Try to generate a complete, minimal example that demonstrates the
       observed bug.

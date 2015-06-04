@@ -4,6 +4,7 @@ An opposed-flow ethane/air diffusion flame
 
 import cantera as ct
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Input parameters
 p = ct.one_atm  # pressure
@@ -54,6 +55,11 @@ f.flame.set_transient_tolerances(default=tol_ts)
 # constructing an initial guess.
 f.set_initial_guess(fuel='C2H6')
 
+# Set the boundary emissivities
+f.set_boundary_emissivities(0.0, 0.0)
+# Turn radiation off
+f.radiation_enabled = False
+
 # First disable the energy equation and solve the problem without
 # refining the grid
 f.energy_enabled = False
@@ -71,3 +77,21 @@ f.save('c2h6_diffusion.xml')
 f.write_csv('c2h6_diffusion.csv', quiet=False)
 
 f.show_stats(0)
+
+# Plot Temperature without radiation
+figTemperatureModifiedFlame = plt.figure()
+plt.plot(f.flame.grid, f.T, label='Temperature without radiation')
+plt.title('Temperature of the flame')
+plt.ylim(0,2500)
+plt.xlim(0.000, 0.020)
+
+# Turn on radiation and solve again
+f.radiation_enabled = True
+f.solve(loglevel = 1, refine_grid = 0)
+f.show_solution()
+
+# Plot Temperature with radiation
+plt.plot(f.flame.grid, f.T, label='Temperature with radiation')
+plt.legend()
+plt.legend(loc=2)
+plt.savefig('./c2h6_diffusion.pdf')

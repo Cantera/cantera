@@ -3,16 +3,13 @@
  */
 // Copyright 2002  California Institute of Technology
 
-#include <stdlib.h>
-#include <time.h>
-
 #include "cantera/oneD/StFlow.h"
 #include "cantera/base/ctml.h"
-#include "cantera/oneD/MultiJac.h"
+#include "cantera/transport/TransportBase.h"
+#include "cantera/numerics/funcs.h"
 
 #include <cstdio>
 
-using namespace ctml;
 using namespace std;
 
 namespace Cantera
@@ -20,19 +17,17 @@ namespace Cantera
 
 StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+4, points),
-    m_inlet_u(0.0),
-    m_inlet_V(0.0),
-    m_inlet_T(-1.0),
-    m_surface_T(-1.0),
     m_press(-1.0),
     m_nsp(nsp),
     m_thermo(0),
     m_kin(0),
     m_trans(0),
     m_jac(0),
-    m_ok(false),
+    m_epsilon_left(0.0),
+    m_epsilon_right(0.0),
     m_do_soret(false),
-    m_transport_option(-1)
+    m_transport_option(-1),
+    m_do_radiation(false)
 {
     m_type = cFlowType;
 
@@ -68,16 +63,15 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_multidiff.resize(m_nsp*m_nsp*m_points);
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
-    m_surfdot.resize(m_nsp, 0.0);
     m_ybar.resize(m_nsp);
-
+    m_qdotRadiation.resize(m_points, 0.0);
 
     //-------------- default solution bounds --------------------
 
     setBounds(0, -1e20, 1e20); // no bounds on u
     setBounds(1, -1e20, 1e20); // V
     setBounds(2, 200.0, 1e9); // temperature bounds
-    setBounds(3, -1e20, 1e20); // lamda should be negative
+    setBounds(3, -1e20, 1e20); // lambda should be negative
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
@@ -100,6 +94,13 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     }
     setupGrid(m_points, DATA_PTR(gr));
     setID("stagnation flow");
+
+    // Find indices for radiating species
+    m_kRadiating.resize(2, npos);
+    size_t kr = m_thermo->speciesIndex("CO2");
+    m_kRadiating[0] = (kr != npos) ? kr : m_thermo->speciesIndex("co2");
+    kr = m_thermo->speciesIndex("H2O");
+    m_kRadiating[1] = (kr != npos) ? kr : m_thermo->speciesIndex("h2o");
 }
 
 void StFlow::resize(size_t ncomponents, size_t points)
@@ -108,7 +109,6 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_rho.resize(m_points, 0.0);
     m_wtm.resize(m_points, 0.0);
     m_cp.resize(m_points, 0.0);
-    m_enth.resize(m_points, 0.0);
     m_visc.resize(m_points, 0.0);
     m_tcon.resize(m_points, 0.0);
 
@@ -122,6 +122,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
     m_do_energy.resize(m_points,false);
+    m_qdotRadiation.resize(m_points, 0.0);
 
     m_fixedy.resize(m_nsp, m_points);
     m_fixedtemp.resize(m_points);
@@ -137,6 +138,10 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
 
     m_z[0] = z[0];
     for (j = 1; j < m_points; j++) {
+        if (z[j] <= z[j-1]) {
+            throw CanteraError("StFlow::setupGrid",
+                               "grid points must be monotonically increasing");
+        }
         m_z[j] = z[j];
         m_dz[j-1] = m_z[j] - m_z[j-1];
     }
@@ -147,12 +152,13 @@ void StFlow::setTransport(Transport& trans, bool withSoret)
     m_trans = &trans;
     m_do_soret = withSoret;
 
-    if (m_trans->model() == cMulticomponent) {
+    int model = m_trans->model();
+    if (model == cMulticomponent || model == CK_Multicomponent) {
         m_transport_option = c_Multi_Transport;
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_diff.resize(m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
-    } else if (m_trans->model() == cMixtureAveraged) {
+    } else if (model == cMixtureAveraged || model == CK_MixtureAveraged) {
         m_transport_option = c_Mixav_Transport;
         m_diff.resize(m_nsp*m_points);
         if (withSoret)
@@ -259,10 +265,9 @@ void StFlow::eval(size_t jg, doublereal* xg,
     //              update properties
     //-----------------------------------------------------
 
-    // update thermodynamic and transport properties only if a Jacobian is not
-    // being evaluated
+    updateThermo(x, j0, j1);
+    // update transport properties only if a Jacobian is not being evaluated
     if (jg == npos) {
-        updateThermo(x, j0, j1);
         updateTransport(x, j0, j1);
     }
 
@@ -277,6 +282,71 @@ void StFlow::eval(size_t jg, doublereal* xg,
     //----------------------------------------------------
 
     doublereal sum, sum2, dtdzj;
+
+    // calculation of qdotRadiation
+
+    // The simple radiation model used was established by Y. Liu and B. Rogg [Y.
+    // Liu and B. Rogg, Modelling of thermally radiating diffusion flames with
+    // detailed chemistry and transport, EUROTHERM Seminars, 17:114-127, 1991].
+    // This model uses the optically thin limit and the gray-gas approximation
+    // to simply calculate a volume specified heat flux out of the Planck
+    // absorption coefficients, the boundary emissivities and the temperature.
+    // The model considers only CO2 and H2O as radiating species. Polynomial
+    // lines calculate the species Planck coefficients for H2O and CO2. The data
+    // for the lines is taken from the RADCAL program [Grosshandler, W. L.,
+    // RADCAL: A Narrow-Band Model for Radiation Calculations in a Combustion
+    // Environment, NIST technical note 1402, 1993]. The coefficients for the
+    // polynomials are taken from [http://www.sandia.gov/TNF/radiation.html].
+
+    if (m_do_radiation) {
+        // variable definitions for the Planck absorption coefficient and the
+        // radiation calculation:
+        doublereal k_P_ref = 1.0*OneAtm;
+
+        // polynomial coefficients:
+        const doublereal c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
+                                     0.51382, -1.86840e-5};
+        const doublereal c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
+                                     56.310, -5.8169};
+
+        // calculation of the two boundary values
+        double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
+        double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
+
+        // loop over all grid points
+        for (size_t j = jmin; j < jmax; j++) {
+            // helping variable for the calculation
+            double radiative_heat_loss = 0;
+
+            // calculation of the mean Planck absorption coefficient
+            double k_P = 0;
+            // absorption coefficient for H2O
+            if (m_kRadiating[1] != npos) {
+                double k_P_H2O = 0;
+                for (size_t n = 0; n <= 5; n++) {
+                    k_P_H2O += c_H2O[n] * pow(1000 / T(x, j), (double) n);
+                }
+                k_P_H2O /= k_P_ref;
+                k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
+            }
+            // absorption coefficient for CO2
+            if (m_kRadiating[0] != npos) {
+                double k_P_CO2 = 0;
+                for (size_t n = 0; n <= 5; n++) {
+                    k_P_CO2 += c_CO2[n] * pow(1000 / T(x, j), (double) n);
+                }
+                k_P_CO2 /= k_P_ref;
+                k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
+            }
+
+            // calculation of the radiative heat loss term
+            radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
+            - boundary_Rad_left - boundary_Rad_right);
+
+            // set the radiative heat loss vector
+            m_qdotRadiation[j] = radiative_heat_loss;
+        }
+    }
 
     for (j = jmin; j <= jmax; j++) {
         //----------------------------------------------
@@ -390,6 +460,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
 
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
+                rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
                 diag[index(c_offset_T, j)] = 1;
             } else {
                 // residual equations if the energy equation is disabled
@@ -413,34 +484,21 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
             m_tcon[j] = m_trans->thermalConductivity();
         }
     } else if (m_transport_option == c_Multi_Transport) {
-        doublereal sum, sumx, wtm, dz;
-        doublereal eps = 1.0e-12;
-        for (size_t m = j0; m < j1; m++) {
-            setGasAtMidpoint(x,m);
-            dz = m_z[m+1] - m_z[m];
-            wtm = m_thermo->meanMolecularWeight();
+        for (size_t j = j0; j < j1; j++) {
+            setGasAtMidpoint(x,j);
+            doublereal wtm = m_thermo->meanMolecularWeight();
+            doublereal rho = m_thermo->density();
+            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
+            m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
 
-            m_visc[m] = (m_dovisc ? m_trans->viscosity() : 0.0);
-
-            m_trans->getMultiDiffCoeffs(m_nsp,
-                                        DATA_PTR(m_multidiff) + mindex(0,0,m));
-
+            // Use m_diff as storage for the factor outside the summation
             for (size_t k = 0; k < m_nsp; k++) {
-                sum = 0.0;
-                sumx = 0.0;
-                for (size_t j = 0; j < m_nsp; j++) {
-                    if (j != k) {
-                        sum += m_wt[j]*m_multidiff[mindex(k,j,m)]*
-                               ((X(x,j,m+1) - X(x,j,m))/dz + eps);
-                        sumx += (X(x,j,m+1) - X(x,j,m))/dz;
-                    }
-                }
-                m_diff[k + m*m_nsp] = sum/(wtm*(sumx+eps));
+                m_diff[k+j*m_nsp] = m_wt[k] * rho / (wtm*wtm);
             }
 
-            m_tcon[m] = m_trans->thermalConductivity();
+            m_tcon[j] = m_trans->thermalConductivity();
             if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + m*m_nsp);
+                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
             }
         }
     }
@@ -494,6 +552,17 @@ void StFlow::showSolution(const doublereal* x)
         }
     }
     writelog("\n");
+    if (m_do_radiation) {
+        writeline('-', 79, false, true);
+        sprintf(buf, "\n        z        radiative heat loss");
+        writelog(buf);
+        writeline('-', 79, false, true);
+        for (j = 0; j < m_points; j++) {
+            sprintf(buf, "\n %10.4g        %10.4g", m_z[j], m_qdotRadiation[j]);
+            writelog(buf);
+        }
+        writelog("\n");
+    }
 }
 
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
@@ -504,7 +573,6 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     switch (m_transport_option) {
 
     case c_Mixav_Transport:
-    case c_Multi_Transport:
         for (j = j0; j < j1; j++) {
             sum = 0.0;
             wtm = m_wtm[j];
@@ -519,6 +587,20 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             // correction flux to insure that \sum_k Y_k V_k = 0.
             for (k = 0; k < m_nsp; k++) {
                 m_flux(k,j) += sum*Y(x,k,j);
+            }
+        }
+        break;
+
+    case c_Multi_Transport:
+        for (j = j0; j < j1; j++) {
+            dz = z(j+1) - z(j);
+
+            for (k = 0; k < m_nsp; k++) {
+                doublereal sum = 0.0;
+                for (size_t m = 0; m < m_nsp; m++) {
+                    sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
+                }
+                m_flux(k,j) = sum * m_diff[k+j*m_nsp] / dz;
             }
         }
         break;
@@ -586,8 +668,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     size_t nsp = m_thermo->nSpecies();
     vector_int did_species(nsp, 0);
 
-    vector<XML_Node*> str;
-    dom.getChildren("string",str);
+    vector<XML_Node*> str = dom.getChildren("string");
     for (size_t istr = 0; istr < str.size(); istr++) {
         const XML_Node& nd = *str[istr];
         writelog(nd["title"]+": "+nd.value()+"\n");
@@ -597,8 +678,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
 
-    vector<XML_Node*> d;
-    dom.child("grid_data").getChildren("floatArray",d);
+    vector<XML_Node*> d = dom.child("grid_data").getChildren("floatArray");
     size_t nd = d.size();
 
     vector_fp x;
@@ -786,7 +866,10 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
         addFloatArray(gv,m_thermo->speciesName(k),
                       x.size(),DATA_PTR(x),"","massFraction");
     }
-
+    if (m_do_radiation) {
+        addFloatArray(gv, "radiative_heat_loss", m_z.size(),
+            DATA_PTR(m_qdotRadiation), "W/m^3", "specificPower");
+    }
     vector_fp values(nPoints());
     for (size_t i = 0; i < nPoints(); i++) {
         values[i] = m_do_energy[i];

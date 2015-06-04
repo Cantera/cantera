@@ -1,6 +1,6 @@
 /**
  * @file MetalSHEelectrons.h
- * Header file for the %MetalSHEElectrons class, which represents the
+ * Header file for the MetalSHEElectrons class, which represents the
  * electrons in a metal that are consistent with the
  * SHE electrode (see \ref thermoprops and
  * class \link Cantera::MetalSHEelectrons MetalSHEelectrons\endlink)
@@ -14,19 +14,18 @@
 #ifndef CT_METALSHEELECTRONS_H
 #define CT_METALSHEELECTRONS_H
 
-#include "mix_defs.h"
 #include "SingleSpeciesTP.h"
 
 namespace Cantera
 {
 
-//!  Class %MetalSHEelectrons represents electrons within
+//!  Class MetalSHEelectrons represents electrons within
 //!  a metal, adjacent to an aqueous electrolyte, that are consistent with the SHE reference electrode.
 /*!
  *  The class is based on the electron having a chemical potential
  *  equal to one-half of the entropy of the H<SUP>2</SUP> gas at the system pressure
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It is assumed that the reference state thermodynamics may be
@@ -52,7 +51,7 @@ namespace Cantera
  *            S^o_k(T,P) = S^{ref}_k(T) -  R \ln(\frac{P}{P_{ref}})
  *       \f]
  *
- *  The standard state gibbs free energy is obtained from the enthalpy and entropy
+ *  The standard state Gibbs free energy is obtained from the enthalpy and entropy
  *  functions:
  *
  *       \f[
@@ -79,7 +78,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> %Application within %Kinetics Managers </b>
+ * <b> %Application within Kinetics Managers </b>
  *
  *  The standard concentration is equal to 1.0. This means that the
  *  kinetics operator works on an activities basis. Since this
@@ -95,7 +94,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %MetalSHEelectrons object may be created by
+ * for %Cantera. A new MetalSHEelectrons object may be created by
  * the following code snippets, where the file metalSHEelectrons.xml exists
  * in a local directory:
  *
@@ -116,7 +115,7 @@ namespace Cantera
  *  ThermoPhase *eMetal = newPhase("MetalSHEelectrons.xml", "MetalSHEelectrons");
  *  @endcode
  *
- *   Additionally, this phase may be created without including an xml file with
+ *   Additionally, this phase may be created without including an XML file with
  *   the special command, where the default file is embedded into this object.
  *
  * @code
@@ -125,7 +124,7 @@ namespace Cantera
  *
  *   <b> XML Example </b>
  *
- * The phase model name for this is called %MetalSHEelectrons. It must be supplied
+ * The phase model name for this is called MetalSHEelectrons. It must be supplied
  * as the model attribute of the thermo XML element entry.
  * Within the phase XML block,
  * the density of the phase must be specified though it's not used. An example of an XML file
@@ -174,7 +173,7 @@ namespace Cantera
  * @endcode
  *
  * The model attribute, "MetalSHEelectrons", on the thermo element
- * identifies the phase as being a %MetalSHEelectrons object.
+ * identifies the phase as being a MetalSHEelectrons object.
  *
  * @ingroup thermoprops
  */
@@ -184,7 +183,7 @@ public:
     //! Default constructor for the MetalSHEelectrons class
     MetalSHEelectrons();
 
-    //! Construct and initialize a %MetalSHEelectrons %ThermoPhase object
+    //! Construct and initialize a MetalSHEelectrons ThermoPhase object
     //! directly from an ASCII input file
     /*!
      * @param infile name of the input file
@@ -346,7 +345,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -362,6 +361,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -389,7 +389,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -432,19 +432,6 @@ public:
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
     // @}
-
-    /*
-     * @internal Initialize. This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called just prior to returning
-     * from function importPhase().
-     */
-    virtual void initThermo();
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 

@@ -6,10 +6,8 @@
 
 //  Copyright 2001 California Institute of Technology
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
@@ -23,7 +21,7 @@ StoichSubstance::StoichSubstance(const StoichSubstance& right) :
     m_press(OneAtm),
     m_p0(OneAtm)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 StoichSubstance& StoichSubstance::operator=(const StoichSubstance& right)
@@ -75,6 +73,7 @@ doublereal StoichSubstance::cv_mole() const
 
 void StoichSubstance::initThermo()
 {
+    ThermoPhase::initThermo();
     if (m_kk > 1) {
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");
@@ -139,6 +138,8 @@ void StoichSubstance::getStandardChemPotentials(doublereal*  mu0) const
 
 void StoichSubstance::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("StoichSubstance::getUnitsStandardConc",
+                "To be removed after Cantera 2.2.");
     for (int i = 0; i < sizeUA; i++) {
         uA[i] = 0.0;
     }
@@ -259,7 +260,7 @@ void StoichSubstance::getParameters(int& n, double* const c) const
 void StoichSubstance::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","StoichSubstance");
-    doublereal rho = ctml::getFloat(eosdata, "density", "toSI");
+    doublereal rho = getFloat(eosdata, "density", "toSI");
     setDensity(rho);
 }
 

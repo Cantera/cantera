@@ -15,8 +15,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "StFlow.h"
-#include "OneDim.h"
-#include "cantera/base/ctml.h"
 
 #include <cstdio>
 
@@ -67,7 +65,7 @@ public:
     }
 
     /// Set the mole fractions by specifying an array.
-    virtual void setMoleFractions(doublereal* xin) {
+    virtual void setMoleFractions(const doublereal* xin) {
         throw NotImplementedError("Bdry1D::setMoleFractions");
     }
 
@@ -154,14 +152,12 @@ public:
         x[1] = m_temp;
     }
 
-    virtual void _finalize(const doublereal* x) {}
-
     virtual size_t nSpecies() {
         return m_nsp;
     }
 
     virtual void setMoleFractions(const std::string& xin);
-    virtual void setMoleFractions(doublereal* xin);
+    virtual void setMoleFractions(const doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yin[k];
     }
@@ -202,7 +198,6 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-    virtual void _finalize(const doublereal* x) {}
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = 0.0;
     }
@@ -230,9 +225,6 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-    virtual void _finalize(const doublereal* x) {
-        ; //m_temp = x[0];
-    }
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
     }
@@ -258,9 +250,6 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-    virtual void _finalize(const doublereal* x) {
-        ; //m_temp = x[0];
-    }
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
     }
@@ -285,16 +274,12 @@ public:
         x[0] = m_temp;
     }
 
-    virtual void _finalize(const doublereal* x) {
-        ;
-    }
-
     virtual size_t nSpecies() {
         return m_nsp;
     }
 
     virtual void setMoleFractions(const std::string& xin);
-    virtual void setMoleFractions(doublereal* xin);
+    virtual void setMoleFractions(const doublereal* xin);
     virtual doublereal massFraction(size_t k) {
         return m_yres[k];
     }
@@ -337,10 +322,6 @@ public:
 
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
-    }
-
-    virtual void _finalize(const doublereal* x) {
-        ; //m_temp = x[0];
     }
 
     virtual void showSolution_s(std::ostream& s, const doublereal* x) {

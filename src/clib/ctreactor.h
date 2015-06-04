@@ -71,6 +71,8 @@ extern "C" {
     CANTERA_CAPI int wall_setEmissivity(int i, double epsilon);
     CANTERA_CAPI int wall_ready(int i);
     CANTERA_CAPI int wall_addSensitivityReaction(int i, int lr, int rxn);
+
+    CANTERA_CAPI int clear_reactors();
 }
 
 #endif

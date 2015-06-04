@@ -140,7 +140,7 @@ public:
     //! Copy constructor
     RootFind(const RootFind& r);
 
-    ~RootFind();
+    ~RootFind() {}
 
     //! Assignment operator
     RootFind& operator=(const RootFind& right);

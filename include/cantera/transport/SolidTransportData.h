@@ -6,9 +6,7 @@
 #ifndef CT_SOLIDTRANSPORTDATA_H
 #define CT_SOLIDTRANSPORTDATA_H
 
-#include "cantera/transport/TransportBase.h"
 #include "cantera/transport/TransportParams.h"
-#include "cantera/base/FactoryBase.h"
 #include "cantera/transport/LTPspecies.h"
 
 namespace Cantera

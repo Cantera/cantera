@@ -11,8 +11,9 @@
 #define CT_SHOMATETHERMO_H
 
 #include "cantera/thermo/SpeciesThermoMgr.h"
-#include "ShomatePoly.h"
-#include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/ShomatePoly.h"
+#include "cantera/base/global.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -54,6 +55,7 @@ namespace Cantera
  *  the implicit integration of (t = T 1000), which provides a
  *  multiplier of 1000 to the Enthalpy equation.
  *
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo instead.
  * @ingroup mgrsrefcalc
  */
 class ShomateThermo : public SpeciesThermo
@@ -72,6 +74,8 @@ public:
         m_thigh_min(1.e30),
         m_p0(-1.0),
         m_ngroups(0) {
+        warn_deprecated("class ShomateThermo", "To be removed after "
+            "Cantera 2.2. Use GeneralSpeciesThermo instead.");
         m_t.resize(7);
     }
 
@@ -85,7 +89,7 @@ public:
         m_thigh_min(1.e30),
         m_p0(-1.0),
         m_ngroups(0) {
-        *this = operator=(right);
+        *this = right;
     }
 
     //! Assignment Operator
@@ -97,6 +101,7 @@ public:
             return *this;
         }
 
+        SpeciesThermo::operator=(right);
         m_high           = right.m_high;
         m_low            = right.m_low;
         m_index          = right.m_index;
@@ -115,8 +120,7 @@ public:
     }
 
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const {
-        ShomateThermo* st = new ShomateThermo(*this);
-        return (SpeciesThermo*) st;
+        return new ShomateThermo(*this);
     }
 
     //! Install a new species thermodynamic property
@@ -148,6 +152,12 @@ public:
                          const doublereal* c,
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure) {
+        if (type != SHOMATE) {
+            throw CanteraError("ShomateThermo::install",
+                               "Incompatible thermo parameterization: Got " +
+                               int2str(type) + " but " + int2str(SHOMATE) +
+                               " was expected.");
+        }
         int imid = int(c[0]);       // midpoint temp converted to integer
         int igrp = m_index[imid];   // has this value been seen before?
         if (igrp == 0) {            // if not, prepare new group
@@ -191,10 +201,11 @@ public:
             throw CanteraError("install()", "Species have different reference pressures");
         }
         m_p0 = refPressure;
-
+        markInstalled(index);
     }
 
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) {
+    virtual void install_STIT(size_t index,
+                              shared_ptr<SpeciesThermoInterpType> stit_ptr) {
         throw CanteraError("install_STIT", "not implemented");
     }
 
@@ -217,13 +228,12 @@ public:
         m_t[5] = 1.0/GasConstant;
         m_t[6] = 1.0/(GasConstant * t);
 
-        size_t grp = m_group_map[k];
-        size_t pos = m_posInGroup_map[k];
+        size_t grp = getValue(m_group_map, k);
+        size_t pos = getValue(m_posInGroup_map, k);
         const std::vector<ShomatePoly> &mlg = m_low[grp-1];
         const ShomatePoly* nlow = &(mlg[pos]);
 
-        doublereal tmid = nlow->maxTemp();
-        if (t < tmid) {
+        if (t < nlow->maxTemp()) {
             nlow->updateProperties(&m_t[0], cp_R, h_RT, s_R);
         } else {
             const std::vector<ShomatePoly> &mhg = m_high[grp-1];
@@ -234,8 +244,6 @@ public:
 
     virtual void update(doublereal t, doublereal* cp_R,
                         doublereal* h_RT, doublereal* s_R) const {
-        int i;
-
         doublereal tt = 1.e-3*t;
         m_t[0] = tt;
         m_t[1] = tt*tt;
@@ -246,7 +254,7 @@ public:
         m_t[6] = 1.0/(GasConstant * t);
 
         std::vector<ShomatePoly>::const_iterator _begin, _end;
-        for (i = 0; i != m_ngroups; i++) {
+        for (int i = 0; i != m_ngroups; i++) {
             if (t > m_tmid[i]) {
                 _begin  = m_high[i].begin();
                 _end    = m_high[i].end();
@@ -291,8 +299,8 @@ public:
                               doublereal& refPressure) const {
         type = reportType(index);
         if (type == SHOMATE) {
-            size_t grp = m_group_map[index];
-            size_t pos = m_posInGroup_map[index];
+            size_t grp = getValue(m_group_map, index);
+            size_t pos = getValue(m_posInGroup_map, index);
             int itype = SHOMATE;
             const std::vector<ShomatePoly> &mlg = m_low[grp-1];
             const std::vector<ShomatePoly> &mhg = m_high[grp-1];
@@ -305,66 +313,60 @@ public:
             lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
                                       c + 1);
             if (n != index) {
-                throw CanteraError("  ", "confused");
+                throw CanteraError("ShomateThermo::reportParams",
+                                   "Index mismatch in low-T polynomial");
             }
             if (itype != SHOMATE && itype != SHOMATE1) {
-                throw CanteraError("  ", "confused");
+                throw CanteraError("ShomateThermo::reportParams",
+                                   "Thermo type mismatch in low-T polynomial");
             }
             highPoly->reportParameters(n, itype,  ttemp, maxTemp,
                                        refPressure, c + 8);
             if (n != index) {
-                throw CanteraError("  ", "confused");
+                throw CanteraError("ShomateThermo::reportParams",
+                                   "Index mismatch in high-T polynomial");
             }
             if (itype != SHOMATE && itype != SHOMATE1) {
-                throw CanteraError("  ", "confused");
+                throw CanteraError("ShomateThermo::reportParams",
+                                   "Thermo type mismatch in high-T polynomial");
             }
         } else {
-            throw CanteraError(" ", "confused");
+            throw CanteraError("ShomateThermo::reportParams", "Thermo type mismatch");
         }
     }
 
     virtual doublereal reportOneHf298(const size_t k) const {
-        doublereal h;
-        doublereal t = 298.15;
+        size_t grp = getValue(m_group_map, k);
+        size_t pos = getValue(m_posInGroup_map, k);
+        const ShomatePoly& nlow = m_low[grp-1][pos];
 
-        size_t grp = m_group_map[k];
-        size_t pos = m_posInGroup_map[k];
-        const std::vector<ShomatePoly> &mlg = m_low[grp-1];
-        const ShomatePoly* nlow = &(mlg[pos]);
-
-        doublereal tmid = nlow->maxTemp();
-        if (t <= tmid) {
-            h = nlow->reportHf298();
+        if (nlow.maxTemp() > 298.15) {
+            return nlow.reportHf298();
         } else {
-            const std::vector<ShomatePoly> &mhg = m_high[grp-1];
-            const ShomatePoly* nhigh = &(mhg[pos]);
-            h = nhigh->reportHf298();
+            const ShomatePoly& nhigh = m_high[grp-1][pos];
+            return nhigh.reportHf298();
         }
-        return h;
     }
 
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
 
         size_t grp = m_group_map[k];
         size_t pos = m_posInGroup_map[k];
-        std::vector<ShomatePoly> &mlg = m_low[grp-1];
-        ShomatePoly* nlow = &(mlg[pos]);
-        std::vector<ShomatePoly> &mhg = m_high[grp-1];
-        ShomatePoly* nhigh = &(mhg[pos]);
-        doublereal tmid = nlow->maxTemp();
+        ShomatePoly& nlow = m_low[grp-1][pos];
+        ShomatePoly& nhigh = m_high[grp-1][pos];
 
         double hnow = reportOneHf298(k);
         double delH =  Hf298New - hnow;
-        if (298.15 <= tmid) {
-            nlow->modifyOneHf298(k, Hf298New);
-            double h = nhigh->reportHf298(0);
+        if (nlow.maxTemp() > 298.15) {
+            nlow.modifyOneHf298(k, Hf298New);
+            double h = nhigh.reportHf298(0);
             double hnew = h + delH;
-            nhigh->modifyOneHf298(k, hnew);
+            nhigh.modifyOneHf298(k, hnew);
         } else {
-            nhigh->modifyOneHf298(k, Hf298New);
-            double h = nlow->reportHf298(0);
+            nhigh.modifyOneHf298(k, Hf298New);
+            double h = nlow.reportHf298(0);
             double hnew = h + delH;
-            nlow->modifyOneHf298(k, hnew);
+            nlow.modifyOneHf298(k, hnew);
         }
 
     }
@@ -434,14 +436,14 @@ protected:
      * for that species are stored. group indices start at 1,
      * so a decrement is always performed to access vectors.
      */
-    mutable std::map<size_t, size_t> m_group_map;
+    std::map<size_t, size_t> m_group_map;
 
     /*!
      * This map takes as its index, the species index in the phase.
      * It returns the position index within the group, where the
      * temperature polynomials for that species are stored.
      */
-    mutable std::map<size_t, size_t> m_posInGroup_map;
+    std::map<size_t, size_t> m_posInGroup_map;
 };
 
 }

@@ -14,29 +14,24 @@
 
 namespace Cantera
 {
-
-class GasTransportParams;
-
 //! Class MultiTransport implements multicomponent transport properties for
 //! ideal gas mixtures.
 /*!
- * The implementation generally follows the procedure outlined in Kee,
- * Coltrin, and Glarborg, "Theoretical and Practical Aspects of Chemically
- * Reacting Flow Modeling," Wiley Interscience.
+ * The implementation generally follows the procedure outlined in: R. J. Kee, M.
+ * J. Coltrin, and P. Glarborg, "Chemically Reacting Flow: Theory & Practice",
+ * John Wiley & Sons, 2003.
  *
  * @ingroup tranprops
  */
 class MultiTransport : public GasTransport
 {
-protected:
-
+public:
     //! default constructor
     /*!
      *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
      */
     MultiTransport(thermo_t* thermo=0);
 
-public:
     virtual int model() const {
         if (m_mode == CK_Mode) {
             return CK_Multicomponent;
@@ -120,13 +115,7 @@ public:
                                const doublereal* state2, doublereal delta,
                                doublereal* fluxes);
 
-    //! Initialize the transport operator with parameters from GasTransportParams object
-    /*!
-     *  @param tr  input GasTransportParams object
-     */
-    virtual bool initGas(GasTransportParams& tr);
-
-    friend class TransportFactory;
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
 protected:
     //! Update basic temperature-dependent quantities if the temperature has changed.
@@ -141,13 +130,6 @@ protected:
 
     doublereal m_thermal_tlast;
 
-    // property values
-    std::vector<std::vector<int> > m_poly;
-    std::vector<vector_fp>   m_astar_poly;
-    std::vector<vector_fp>   m_bstar_poly;
-    std::vector<vector_fp>   m_cstar_poly;
-    std::vector<vector_fp>   m_om22_poly;
-
     //! Dense matrix for astar
     DenseMatrix          m_astar;
 
@@ -160,16 +142,8 @@ protected:
     //! Dense matrix for omega22
     DenseMatrix          m_om22;
 
-public:
-    vector_fp   m_crot;
     vector_fp   m_cinternal;
-    vector_fp   m_zrot;
-    vector_fp   m_eps;
-    vector_fp   m_sigma;
-    vector_fp   m_alpha;
-    DenseMatrix   m_dipole;
 
-protected:
     vector_fp  m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
     vector_fp  m_frot_298;

@@ -3,8 +3,6 @@
  */
 
 // Copyright 2001  California Institute of Technology
-#include "cantera/base/config.h"
-
 #include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
 
@@ -29,8 +27,13 @@ using namespace std;
 #define CV_SS 1
 #define CV_SV 2
 
+#if SUNDIALS_VERSION < 25
+typedef int sd_size_t;
+#else
+typedef long int sd_size_t;
+#endif
+
 #include <sstream>
-#include <algorithm>
 
 namespace Cantera
 {
@@ -38,7 +41,7 @@ namespace Cantera
 class FuncData
 {
 public:
-    FuncData(FuncEval* f, int npar = 0) {
+    FuncData(FuncEval* f, size_t npar = 0) {
         m_pars.resize(npar, 1.0);
         m_func = f;
     }
@@ -46,13 +49,11 @@ public:
     vector_fp m_pars;
     FuncEval* m_func;
 };
-}
-
 
 extern "C" {
 
     /**
-     *  Function called by cvodes to evaluate ydot given y.  The cvode
+     *  Function called by cvodes to evaluate ydot given y.  The CVODE
      *  integrator allows passing in a void* pointer to access
      *  external data. This pointer is cast to a pointer to a instance
      *  of class FuncEval. The equations to be integrated should be
@@ -82,10 +83,19 @@ extern "C" {
         }
         return 0; // successful evaluation
     }
+
+    //! Function called by CVodes when an error is encountered instead of
+    //! writing to stdout. Here, save the error message provided by CVodes so
+    //! that it can be included in the subsequently raised CanteraError.
+    static void cvodes_err(int error_code, const char* module,
+                           const char* function, char* msg, void* eh_data)
+    {
+        CVodesIntegrator* integrator = (CVodesIntegrator*) eh_data;
+        integrator->m_error_message = msg;
+        integrator->m_error_message += "\n";
+    }
 }
 
-namespace Cantera
-{
 CVodesIntegrator::CVodesIntegrator() :
     m_neq(0),
     m_cvode_mem(0),
@@ -148,7 +158,7 @@ void CVodesIntegrator::setTolerances(double reltol, size_t n, double* abstol)
         if (m_abstol) {
             N_VDestroy_Serial(m_abstol);
         }
-        m_abstol = N_VNew_Serial(n);
+        m_abstol = N_VNew_Serial(static_cast<sd_size_t>(n));
     }
     for (size_t i=0; i<n; i++) {
         NV_Ith_S(m_abstol, i) = abstol[i];
@@ -236,8 +246,8 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 
     doublereal* data;
     N_Vector y;
-    y = N_VNew_Serial(nv);
-    m_yS = N_VCloneVectorArray_Serial(m_np, y);
+    y = N_VNew_Serial(static_cast<sd_size_t>(nv));
+    m_yS = N_VCloneVectorArray_Serial(static_cast<sd_size_t>(m_np), y);
     for (size_t n = 0; n < m_np; n++) {
         data = NV_DATA_S(m_yS[n]);
         for (size_t j = 0; j < nv; j++) {
@@ -245,8 +255,8 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
         }
     }
 
-    int flag = CVodeSensInit(m_cvode_mem, m_np, CV_STAGGERED,
-                             CVSensRhsFn(0), m_yS);
+    int flag = CVodeSensInit(m_cvode_mem, static_cast<sd_size_t>(m_np),
+                             CV_STAGGERED, CVSensRhsFn(0), m_yS);
 
     if (flag != CV_SUCCESS) {
         throw CVodesErr("Error in CVodeSensMalloc");
@@ -266,7 +276,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     if (m_y) {
         N_VDestroy_Serial(m_y); // free solution vector if already allocated
     }
-    m_y = N_VNew_Serial(m_neq); // allocate solution vector
+    m_y = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate solution vector
     for (size_t i = 0; i < m_neq; i++) {
         NV_Ith_S(m_y, i) = 0.0;
     }
@@ -285,7 +295,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
      *  Specify the method and the iteration type:
      *      Cantera Defaults:
      *         CV_BDF  - Use BDF methods
-     *         CV_NEWTON - use newton's method
+     *         CV_NEWTON - use Newton's method
      */
     m_cvode_mem = CVodeCreate(m_method, m_iter);
     if (!m_cvode_mem) {
@@ -302,6 +312,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
             throw CVodesErr("CVodeInit failed.");
         }
     }
+    CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
 
     if (m_itol == CV_SV) {
         flag = CVodeSVtolerances(m_cvode_mem, m_reltol, m_abstol);
@@ -339,7 +350,8 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0  = t0;
     m_time = t0;
-    func.getInitialConditions(m_t0, m_neq, NV_DATA_S(m_y));
+    func.getInitialConditions(m_t0, static_cast<sd_size_t>(m_neq),
+                              NV_DATA_S(m_y));
 
     int result;
 
@@ -353,7 +365,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 void CVodesIntegrator::applyOptions()
 {
     if (m_type == DENSE + NOJAC) {
-        long int N = m_neq;
+        sd_size_t N = static_cast<sd_size_t>(m_neq);
         #if SUNDIALS_USE_LAPACK
             CVLapackDense(m_cvode_mem, N);
         #else
@@ -364,7 +376,7 @@ void CVodesIntegrator::applyOptions()
     } else if (m_type == GMRES) {
         CVSpgmr(m_cvode_mem, PREC_NONE, 0);
     } else if (m_type == BAND + NOJAC) {
-        long int N = m_neq;
+        sd_size_t N = static_cast<sd_size_t>(m_neq);
         long int nu = m_mupper;
         long int nl = m_mlower;
         #if SUNDIALS_USE_LAPACK
@@ -397,7 +409,7 @@ void CVodesIntegrator::integrate(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
+        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
                         "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
     }
     m_sens_ok = false;
@@ -407,7 +419,7 @@ double CVodesIntegrator::step(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr(" CVodes error encountered. Error code: " + int2str(flag) +
+        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
                         "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
 
     }
@@ -447,8 +459,8 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
 
 string CVodesIntegrator::getErrorInfo(int N)
 {
-    N_Vector errs = N_VNew_Serial(m_neq);
-    N_Vector errw = N_VNew_Serial(m_neq);
+    N_Vector errs = N_VNew_Serial(static_cast<sd_size_t>(m_neq));
+    N_Vector errw = N_VNew_Serial(static_cast<sd_size_t>(m_neq));
     CVodeGetErrWeights(m_cvode_mem, errw);
     CVodeGetEstLocalErrors(m_cvode_mem, errs);
 
@@ -460,6 +472,7 @@ string CVodesIntegrator::getErrorInfo(int N)
     N_VDestroy(errs);
     N_VDestroy(errw);
 
+    N = std::min(N, static_cast<int>(m_neq));
     sort(weightedErrors.begin(), weightedErrors.end());
     stringstream s;
     for (int i=0; i<N; i++) {

@@ -1,7 +1,7 @@
 /**
  *  @file  MixedSolventElectrolyte.h
  *   Header for intermediate ThermoPhase object for phases which
- *   employ gibbs excess free energy based formulations
+ *   employ Gibbs excess free energy based formulations
  *  (see \ref thermoprops
  * and class \link Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
  *
@@ -29,13 +29,13 @@ namespace Cantera
  */
 
 //!  MixedSolventElectrolyte is a derived class of GibbsExcessVPSSTP that employs
-//!  the DH and local Marguless approximations for the excess gibbs free energy
+//!  the DH and local Marguless approximations for the excess Gibbs free energy
 /*!
  *
  * MixedSolventElectrolyte derives from class GibbsExcessVPSSTP which is derived
  * from VPStandardStateTP,
  * and overloads the virtual methods defined there with ones that
- * use expressions appropriate for the Margules Excess gibbs free energy
+ * use expressions appropriate for the Margules Excess Gibbs free energy
  * approximation.
  *
  * The independent unknowns are pressure, temperature, and mass fraction.
@@ -59,7 +59,7 @@ namespace Cantera
  *
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *  All species are defined to have standard states that depend upon both
@@ -152,7 +152,7 @@ namespace Cantera
  *       \f]
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -223,7 +223,7 @@ namespace Cantera
  *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
  *   \f]
  *
- *    %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *    Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
  *    using the second and third part of the above expression as a definition for the concentration
  *    equilibrium constant.
  *
@@ -271,7 +271,7 @@ public:
     MixedSolventElectrolyte();
 
     //! Construct and initialize a MixedSolventElectrolyte ThermoPhase object
-    //! directly from an xml input file
+    //! directly from an XML input file
     /*!
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
@@ -295,6 +295,7 @@ public:
      *  @param testProb Hard-coded value. Only the value of 1 is used. It's
      *                  for a LiKCl system -> test to predict the eutectic and
      *                  liquidus correctly.
+     *  @deprecated To be removed after Cantera 2.2.
      */
     MixedSolventElectrolyte(int testProb);
 
@@ -312,7 +313,7 @@ public:
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -658,51 +659,51 @@ protected:
     size_t numBinaryInteractions_;
 
     //! Enthalpy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_HE_b_ij;
 
     //! Enthalpy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_HE_c_ij;
 
     //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_HE_d_ij;
 
     //! Entropy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_SE_b_ij;
 
     //! Entropy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_SE_c_ij;
 
     //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_SE_d_ij;
 
     //! Enthalpy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_b_ij;
 
     //! Enthalpy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_c_ij;
 
     //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_d_ij;
 
     //! Entropy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_b_ij;
 
     //! Entropy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_c_ij;
 
     //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_d_ij;
 
     //! vector of species indices representing species A in the interaction

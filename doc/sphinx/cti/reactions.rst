@@ -1,4 +1,4 @@
-.. py:currentmodule:: ctml_writer
+.. py:currentmodule:: cantera.ctml_writer
 
 .. _sec-reactions:
 
@@ -92,6 +92,8 @@ Note that the ID string is only used when selectively importing reactions. If
 all reactions in the local file or in an external one are imported into a phase
 or interface, then the reaction ``ID`` field is not used.
 
+.. _sec-reaction-options:
+
 Options
 -------
 
@@ -135,6 +137,13 @@ should be handled.
     factors. But if there are duplicate reactions such that the total rate is
     positive, then negative *A* parameters are acceptable, as long as the
     ``'negative_A'`` option is specified.
+
+``negative_orders``
+    Reaction orders are normally required to be non-negative, since negative
+    orders are non-physical and undefined at zero concentration. Cantera allows
+    negative orders for a global reaction only if the ``negative_orders``
+    override option is specified for the reaction.
+
 
 Reactions with Pressure-Independent Rate
 ========================================
@@ -416,6 +425,76 @@ Note that the Chebyshev polynomials are not defined outside the interval
 :math:`(-1,1)`, and therefore extrapolation of rates outside the range of
 temperatures and pressure for which they are defined is strongly discouraged.
 
+Surface Reactions
+=================
+
+Heterogeneous reactions on surfaces are represented by an extended Arrhenius-
+like rate expression, which combines the modified Arrhenius rate expression with
+further corrections dependent on the fractional surface coverages
+:math:`\theta_k` of one or more surface species. The forward rate constant for a
+reaction of this type is:
+
+.. math::
+
+    k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+            \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+            \exp \left( \frac{- E_k \theta_k}{RT} \right)
+
+where :math:`A`, :math:`b`, and :math:`E_a` are the modified Arrhenius
+parameters and :math:`a_k`, :math:`m_k`, and :math:`E_k` are the coverage
+dependencies from species *k*. A reaction of this form with a single coverage
+dependency (on the species ``H(S)``) can be written using class
+:class:`surface_reaction` with the ``coverage`` keyword argument supplied to the
+class :class:`Arrhenius`::
+
+    surface_reaction("2 H(S) => H2 + 2 PT(S)",
+                     Arrhenius(A, b, E_a,
+                               coverage=['H(S)', a_1, m_1, E_1]))
+
+For a reaction with multiple coverage dependencies, the following syntax is
+used::
+
+    surface_reaction("2 H(S) => H2 + 2 PT(S)",
+                     Arrhenius(A, b, E_a,
+                               coverage=[['H(S)', a_1, m_1, E_1],
+                                         ['PT(S)', a_2, m_2, E_2]]))
+
+Additional Options
+==================
+
+Reaction Orders
+---------------
+
+Explicit reaction orders different from the stoichiometric coefficients are
+sometimes used for non-elementary reactions. For example, consider the global
+reaction:
+
+.. math::
+    \mathrm{C_8H_{18} + 12.5 O_2 \rightarrow 8 CO_2 + 9 H_2O}
+
+the forward rate constant might be given as [#Westbrook1981]_:
+
+.. math::
+    k_f = 4.6 \times 10^{11} [\mathrm{C_8H_{18}}]^{0.25} [\mathrm{O_2}]^{1.5}
+          \exp\left(\frac{30.0\,\mathrm{kcal/mol}}{RT}\right)
+
+This reaction could be defined as::
+
+    reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
+             order="C8H18:0.25 O2:1.5")
+
+Special care is required in this case since the units of the pre-exponential
+factor depend on the sum of the reaction orders, which may not be an integer.
+
+Normally, reaction orders are required to be positive. However, in some cases
+negative reaction orders are found to be better fits for experimental data. In
+these cases, the default behavior may be overridden by adding
+``negative_orders`` to the reaction options, e.g.::
+
+    reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
+             order="C8H18:-0.25 O2:1.75", options=['negative_orders'])
+
+
 .. rubric:: References
 
 .. [#Gilbert1983] R. G. Gilbert, K. Luther, and
@@ -435,3 +514,7 @@ temperatures and pressure for which they are defined is strongly discouraged.
 .. [#Kee1989] R. J. Kee, F. M. Rupley, and J. A. Miller. Chemkin-II: A Fortran
    chemical kinetics package for the analysis of gas-phase chemical
    kinetics. Technical Report SAND89-8009, Sandia National Laboratories, 1989.
+
+.. [#Westbrook1981] C. K. Westbrook and F. L. Dryer. Simplified reaction
+   mechanisms for the oxidation of hydrocarbon fuels in flames. *Combustion
+   Science and Technology* **27**, pp. 31--43. 1981.

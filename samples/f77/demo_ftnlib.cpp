@@ -40,7 +40,6 @@ IdealGasMix* _gasptr()
     return _gas;
 }
 
-#include "cantera/equilibrium.h"
 #include "cantera/transport.h"
 
 // store a pointer to a transport manager
@@ -277,7 +276,7 @@ extern "C" {
                                    "two-character string required.");
             }
             string optstr = string(opt, 2);
-            equilibrate(*_gas, optstr.c_str());
+            _gas->equilibrate(optstr);
         } catch (CanteraError& err) {
             handleError(err);
         }
@@ -370,7 +369,7 @@ extern "C" {
 /*
  *  HKM 7/22/09:
  *    I'm skeptical that you need this for any system.
- *    Definately creates an error (dupl main()) for the solaris
+ *    Definitely creates an error (dupl main()) for the solaris
  *    system
  */
 #ifdef NEED_ALT_MAIN

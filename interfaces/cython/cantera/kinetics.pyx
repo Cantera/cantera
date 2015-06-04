@@ -58,14 +58,44 @@ cdef class Kinetics(_SolutionBase):
         if not 0 <= n < self.n_total_species:
             raise ValueError("Kinetics Species index ({0}) out of range".format(n))
 
-    def kinetics_species_index(self, int species, int phase):
+    def kinetics_species_index(self, species, int phase=0):
         """
         The index of species *species* of phase *phase* within arrays returned
-        by methods of class `Kinetics`.
+        by methods of class `Kinetics`. If *species* is a string, the *phase*
+        argument is unused.
         """
-        self._check_kinetics_species_index(species)
-        self._check_phase_index(phase)
-        return self.kinetics.kineticsSpeciesIndex(species, phase)
+        cdef int k
+        if isinstance(species, (str, unicode, bytes)):
+            return self.kinetics.kineticsSpeciesIndex(stringify(species))
+        else:
+            k = species
+            self._check_kinetics_species_index(k)
+            self._check_phase_index(k)
+            return self.kinetics.kineticsSpeciesIndex(k, phase)
+
+    def reaction(self, int i_reaction):
+        """
+        Return a `Reaction` object representing the reaction with index
+        ``i_reaction``.
+        """
+        return wrapReaction(self.kinetics.reaction(i_reaction))
+
+    def reactions(self):
+        """
+        Return a list of all `Reaction` objects
+        """
+        return [self.reaction(i) for i in range(self.n_reactions)]
+
+    def modify_reaction(self, int irxn, Reaction rxn):
+        """
+        Modify the `Reaction` with index ``irxn`` to have the same rate
+        parameters as ``rxn``. ``rxn`` must have the same reactants and products
+        and be of the same type (i.e. `ElementaryReaction`, `FalloffReaction`,
+        `PlogReaction`, etc.) as the existing reaction. This method does not
+        modify the third-body efficiencies, reaction orders, or reversibility of
+        the reaction.
+        """
+        self.kinetics.modifyReaction(irxn, rxn._reaction)
 
     def is_reversible(self, int i_reaction):
         """True if reaction `i_reaction` is reversible."""
@@ -132,23 +162,35 @@ cdef class Kinetics(_SolutionBase):
         else:
             return [self.reaction_equation(i) for i in indices]
 
-    def reactant_stoich_coeff(self, int k_spec, int i_reaction):
+    def reactant_stoich_coeff(self, k_spec, int i_reaction):
         """
         The stoichiometric coefficient of species *k_spec* as a reactant in
         reaction *i_reaction*.
         """
-        self._check_kinetics_species_index(k_spec)
-        self._check_reaction_index(i_reaction)
-        return self.kinetics.reactantStoichCoeff(k_spec, i_reaction)
+        cdef int k
+        if isinstance(k_spec, (str, unicode, bytes)):
+            k = self.kinetics_species_index(k_spec)
+        else:
+            k = k_spec
+            self._check_kinetics_species_index(k_spec)
 
-    def product_stoich_coeff(self, int k_spec, int i_reaction):
+        self._check_reaction_index(i_reaction)
+        return self.kinetics.reactantStoichCoeff(k, i_reaction)
+
+    def product_stoich_coeff(self, k_spec, int i_reaction):
         """
         The stoichiometric coefficient of species *k_spec* as a product in
         reaction *i_reaction*.
         """
-        self._check_kinetics_species_index(k_spec)
+        cdef int k
+        if isinstance(k_spec, (str, unicode, bytes)):
+            k = self.kinetics_species_index(k_spec)
+        else:
+            k = k_spec
+            self._check_kinetics_species_index(k_spec)
+
         self._check_reaction_index(i_reaction)
-        return self.kinetics.productStoichCoeff(k_spec, i_reaction)
+        return self.kinetics.productStoichCoeff(k, i_reaction)
 
     def reactant_stoich_coeffs(self):
         """
@@ -292,7 +334,7 @@ cdef class InterfaceKinetics(Kinetics):
     A kinetics manager for heterogeneous reaction mechanisms. The
     reactions are assumed to occur at an interface between bulk phases.
     """
-    def __init__(self, infile, phaseid='', phases=(), *args, **kwargs):
+    def __init__(self, infile='', phaseid='', phases=(), *args, **kwargs):
         super().__init__(infile, phaseid, phases, *args, **kwargs)
         if self.kinetics.type() not in (kinetics_type_interface,
                                         kinetics_type_edge):

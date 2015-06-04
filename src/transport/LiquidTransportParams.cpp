@@ -4,8 +4,6 @@
  */
 
 #include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
-#include "cantera/thermo/MargulesVPSSTP.h"
 using namespace std;
 
 namespace Cantera
@@ -20,12 +18,8 @@ public:
 };
 
 LiquidTransportParams::LiquidTransportParams() :
-    TransportParams(),
-    LTData(0),
     viscosity(0),
     ionConductivity(0),
-    mobilityRatio(0),
-    selfDiffusion(0),
     thermalCond(0),
     speciesDiffusivity(0),
     electCond(0),
@@ -48,8 +42,6 @@ LiquidTransportParams::~LiquidTransportParams()
 }
 
 LiquidTransportParams::LiquidTransportParams(const LiquidTransportParams& right) :
-    TransportParams(),
-    LTData(0),
     viscosity(0),
     thermalCond(0),
     speciesDiffusivity(0),

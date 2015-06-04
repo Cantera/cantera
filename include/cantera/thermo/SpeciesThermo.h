@@ -10,6 +10,7 @@
 #define CT_SPECIESTHERMO_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
@@ -52,23 +53,23 @@ class SpeciesThermoInterpType;
  *  for a family of classes that compute properties of all
  *  species in a phase in their reference states, for a range of temperatures.
  *  Note, the pressure dependence of the species thermodynamic functions is not
- *  handled by this particular species thermodynamic model. %SpeciesThermo
+ *  handled by this particular species thermodynamic model. SpeciesThermo
  *  calculates the reference-state thermodynamic values of all species in a single
  *  phase during each call. The vector nature of the operation leads to
  *  a lower operation count and better efficiency, especially if the
  *  individual reference state classes are known to the reference-state
  *  manager class so that common operations may be grouped together.
  *
- *  The most important member function for the %SpeciesThermo class
+ *  The most important member function for the SpeciesThermo class
  *  is the member function \link SpeciesThermo::update() update()\endlink.
  *  The function calculates the values of Cp, H, and S for all of the
  *  species at once at the specified temperature.
  *
- *  Usually, all of the species in a phase are installed into a %SpeciesThermo
- *  class. However, there is no requirement that a %SpeciesThermo
+ *  Usually, all of the species in a phase are installed into a SpeciesThermo
+ *  class. However, there is no requirement that a SpeciesThermo
  *  object handles all of the species in a phase. There are
  *  two member functions that are called to install each species into
- *  the %SpeciesThermo.
+ *  the SpeciesThermo.
  *  One routine is called \link SpeciesThermo::install() install()\endlink.
  *  It is called with the index of the species in the phase,
  *  an integer type delineating
@@ -79,14 +80,14 @@ class SpeciesThermoInterpType;
  *  It accepts as an argument a pointer to an already formed
  *  SpeciesThermoInterpType object.
  *
- *  The following classes inherit from %SpeciesThermo. Each of these classes
+ *  The following classes inherit from SpeciesThermo. Each of these classes
  *  handle multiple species, usually all of the species in a phase. However,
- *  there is no requirement that a %SpeciesThermo object handles all of the
+ *  there is no requirement that a SpeciesThermo object handles all of the
  *  species in a phase.
  *
  *   - NasaThermo          in file NasaThermo.h
  *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - ShomateThermo       in file ShomateThermo.h
  *      - This is a two zone model, with each zone consisting of a 7
  *        coefficient Shomate Polynomial format.
@@ -101,14 +102,14 @@ class SpeciesThermoInterpType;
  * The class SpeciesThermoInterpType is a pure virtual base class for
  * calculation of thermodynamic functions for a single species
  * in its reference state.
- * The following classes inherit from %SpeciesThermoInterpType.
+ * The following classes inherit from SpeciesThermoInterpType.
  *
  *   - NasaPoly1          in file NasaPoly1.h
  *      - This is a one zone model,  consisting of a 7
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - NasaPoly2          in file NasaPoly2.h
  *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - ShomatePoly        in file ShomatePoly.h
  *      - This is a one zone model, consisting of a 7
  *        coefficient Shomate Polynomial format.
@@ -118,23 +119,23 @@ class SpeciesThermoInterpType;
  *   - ConstCpPoly        in file ConstCpPoly.h
  *      - This is a one-zone constant heat capacity model.
  *   - Mu0Poly            in file Mu0Poly.h
- *      - This is a multizoned model. The chemical potential is given
+ *      - This is a multi-zone model. The chemical potential is given
  *        at a set number of temperatures. Between each temperature
  *        the heat capacity is treated as a constant.
  *   - Nasa9Poly1          in file Nasa9Poly1.h
  *      - This is a one zone model,  consisting of the 9
- *        coefficient Nasa Polynomial format.
+ *        coefficient NASA Polynomial format.
  *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
  *      - This is a multiple zone model, consisting of the 9
- *        coefficient Nasa Polynomial format in each zone.
+ *        coefficient NASA Polynomial format in each zone.
  *
- * In particular the NasaThermo %SpeciesThermo-derived model has been
+ * In particular the NasaThermo SpeciesThermo-derived model has been
  * optimized for execution speed. It's the main-stay of gas phase computations
  * involving large numbers of species in a phase. It combines the calculation
  * of each species, which individually have NasaPoly2 representations, to
  * minimize the computational time.
  *
- * The GeneralSpeciesThermo %SpeciesThermo object is completely general. It
+ * The GeneralSpeciesThermo SpeciesThermo object is completely general. It
  * does not try to coordinate the individual species calculations at all and
  * therefore is the slowest but most general implementation.
  *
@@ -160,22 +161,6 @@ public:
 
     //! Destructor
     virtual ~SpeciesThermo() {}
-
-    //! Copy Constructor for the %SpeciesThermo object.
-    /*!
-     * @param right    Reference to %SpeciesThermo object to be copied into the
-     *                 current one.
-     */
-    SpeciesThermo(const SpeciesThermo& right) {}
-
-    //! Assignment operator for the %SpeciesThermo object
-    /*!
-     * @param right    Reference to %SpeciesThermo object to be copied into the
-     *                 current one.
-     */
-    SpeciesThermo& operator=(const SpeciesThermo& right) {
-        return *this;
-    }
 
     //! Duplication routine for objects derived from SpeciesThermo
     /*!
@@ -205,6 +190,8 @@ public:
      *                 is valid.
      * @param refPressure standard-state pressure for this
      *                    parameterization.
+     * @deprecated Use newSpeciesThermoInterpType and
+     *     GeneralSpeciesThermo::install_STIT. To be removed after Cantera 2.2.
      */
     virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,
@@ -214,10 +201,12 @@ public:
     //! Install a new species thermodynamic property
     //! parameterization for one species.
     /*!
-     * @param stit_ptr Pointer to the SpeciesThermoInterpType object
+     * @param index Index of the species being installed
+     * @param stit Pointer to the SpeciesThermoInterpType object
      *          This will set up the thermo for one species
      */
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr) = 0;
+    virtual void install_STIT(size_t index,
+                              shared_ptr<SpeciesThermoInterpType> stit) = 0;
 
     //! Compute the reference-state properties for all species.
     /*!
@@ -331,6 +320,15 @@ public:
      */
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) = 0;
 
+    //! Check if data for all species (0 through nSpecies-1) has been installed.
+    bool ready(size_t nSpecies);
+
+protected:
+    //! Mark species *k* as having its thermodynamic data installed
+    void markInstalled(size_t k);
+
+private:
+    std::vector<bool> m_installed; // indicates if data for species has been installed
 };
 //@}
 }

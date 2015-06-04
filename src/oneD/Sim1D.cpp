@@ -5,17 +5,15 @@
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/StFlow.h"
+#include "cantera/numerics/funcs.h"
+#include "cantera/base/xml.h"
+
 #include <fstream>
 
 using namespace std;
 
 namespace Cantera
 {
-
-Sim1D::Sim1D() :
-    OneDim()
-{
-}
 
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
     OneDim(domains)
@@ -124,8 +122,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         throw CanteraError("Sim1D::restore","No solution with id = "+id);
     }
 
-    vector<XML_Node*> xd;
-    f->getChildren("domain", xd);
+    vector<XML_Node*> xd = f->getChildren("domain");
     if (xd.size() != m_nd) {
         throw CanteraError("Sim1D::restore", "Solution does not contain the "
                            " correct number of domains. Found " +

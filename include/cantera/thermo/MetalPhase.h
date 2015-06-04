@@ -9,7 +9,7 @@
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
-#include "SpeciesThermo.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
@@ -28,7 +28,7 @@ public:
     MetalPhase() {}
 
     MetalPhase(const MetalPhase& right) {
-        *this = operator=(right);
+        *this = right;
     }
 
     MetalPhase& operator=(const MetalPhase& right) {
@@ -117,7 +117,7 @@ public:
 
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Metal");
-        doublereal rho = ctml::getFloat(eosdata, "density", "density");
+        doublereal rho = getFloat(eosdata, "density", "density");
         setDensity(rho);
     }
 

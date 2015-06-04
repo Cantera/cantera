@@ -1,7 +1,7 @@
 /**
  *  @file GibbsExcessVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
- *   employ gibbs excess free energy based formulations
+ *   employ Gibbs excess free energy based formulations
  *  (see \ref thermoprops
  * and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
  *
@@ -20,6 +20,7 @@
 #define CT_GIBBSEXCESSVPSSTP_H
 
 #include "VPStandardStateTP.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {
@@ -70,7 +71,7 @@ namespace Cantera
  * vector constant, all of the setState functions are redesigned at this layer.
  *
  *  <H3>
- *        Activity Concentrations: Relationship of %ThermoPhase to %Kinetics Expressions
+ *        Activity Concentrations: Relationship of ThermoPhase to %Kinetics Expressions
  * </H3>
  *
  *   As explained in a similar discussion in the ThermoPhase class, the actual units used
@@ -84,7 +85,7 @@ namespace Cantera
  *   Here we set a standard for the specification of the standard concentrations for this class
  *   and all child classes underneath it. We specify here that the standard concentration is
  *   equal to 1 for all species. Therefore, the activities appear directly in kinetics expressions
- *   involving species in underlying %GibbsExcessVPSSTP phases.
+ *   involving species in underlying GibbsExcessVPSSTP phases.
  *
  *  <H3>
  *       SetState Strategy
@@ -107,7 +108,7 @@ public:
      * density conservation and therefore element conservation
      * is the more important principle to follow.
      */
-    GibbsExcessVPSSTP();
+    GibbsExcessVPSSTP() {}
 
     //! Copy constructor
     /*!
@@ -123,7 +124,7 @@ public:
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -251,6 +252,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -295,7 +297,7 @@ public:
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * species log mole number (with all other species mole numbers held constant). The default treatment in the
-     * %ThermoPhase object is to set this vector to zero.
+     * ThermoPhase object is to set this vector to zero.
      *
      *  units = 1 / kmol
      *
@@ -496,12 +498,12 @@ protected:
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
-    //! log of the activity coefficients of the species  
+    //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdlnN_diag_;
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
-    //! log of the activity coefficients of the species 
+    //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
 
     //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the

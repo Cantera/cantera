@@ -13,10 +13,9 @@
  */
 
 #include "cantera/thermo/VPSSMgr_ConstVol.h"
-#include "cantera/base/xml.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-#include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -105,25 +104,24 @@ VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &phaseNode.root());
-    const vector<string>&sss = m_vptp_ptr->speciesNames();
 
     for (size_t k = 0; k < m_kk; k++) {
-        const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+        const XML_Node* s = speciesDB->findByAttr("name", m_vptp_ptr->speciesName(k));
         if (!s) {
             throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
-                               "no species Node for species " + sss[k]);
+                               "no species Node for species " + m_vptp_ptr->speciesName(k));
         }
         const XML_Node* ss = s->findByName("standardState");
         if (!ss) {
             throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
-                               "no standardState Node for species " + s->name());
+                               "no standardState Node for species " + s->attrib("name"));
         }
-        std::string model = (*ss)["model"];
+        std::string model = ss->attrib("model");
         if (model != "constant_incompressible" && model != "constantVolume") {
             throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
-                               "standardState model for species isn't constant_incompressible: " + s->name());
+                               "standardState model for species isn't constant_incompressible: " + s->attrib("name"));
         }
-        m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
+        m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
     }
 }
 
@@ -133,26 +131,22 @@ VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 {
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
-        throw CanteraError("VPSSMgr_ConstVol::installSpecies",
-                           "no standardState Node for species " + speciesNode.name());
+        throw CanteraError("VPSSMgr_ConstVol::createInstallPDSS",
+                           "no standardState Node for species " + speciesNode["name"]);
     }
-    std::string model = (*ss)["model"];
+    std::string model = ss->attrib("model");
     if (model != "constant_incompressible" && model != "constantVolume") {
-        throw CanteraError("VPSSMgr_ConstVol::initThermoXML",
+        throw CanteraError("VPSSMgr_ConstVol::createInstallPDSS",
                            "standardState model for species isn't "
-                           "constant_incompressible: " + speciesNode.name());
+                           "constant_incompressible: " + speciesNode["name"]);
     }
     if (m_Vss.size() < k+1) {
         m_Vss.resize(k+1, 0.0);
     }
-    m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
+    m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
 
     installSTSpecies(k, speciesNode, phaseNode_ptr);
-
-
-    PDSS* kPDSS = new PDSS_ConstVol(m_vptp_ptr, k, speciesNode,
-                                    *phaseNode_ptr, true);
-    return kPDSS;
+    return new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
 }
 
 PDSS_enumType VPSSMgr_ConstVol::reportPDSSType(int k) const

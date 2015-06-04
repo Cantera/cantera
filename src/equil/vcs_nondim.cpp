@@ -9,14 +9,11 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
 {
@@ -27,12 +24,11 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
     case VCS_UNITS_KJMOL:
     case VCS_UNITS_KCALMOL:
-        return Cantera::ElectronCharge * Cantera::Avogadro /
-                (TKelvin * Cantera::GasConstant);
+        return ElectronCharge * Avogadro / (TKelvin * GasConstant);
     case VCS_UNITS_UNITLESS:
-        return Cantera::ElectronCharge * Cantera::Avogadro;
+        return ElectronCharge * Avogadro;
     case VCS_UNITS_KELVIN:
-        return Cantera::ElectronCharge * Cantera::Avogadro/ TKelvin;
+        return ElectronCharge * Avogadro/ TKelvin;
     default:
         throw CanteraError("vcs_nondim_Farad",
                            "unknown units: " + int2str(mu_units));
@@ -46,15 +42,15 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     }
     switch (mu_units) {
     case VCS_UNITS_KCALMOL:
-        return TKelvin * Cantera::GasConst_cal_mol_K * 1e-3;
+        return TKelvin * GasConst_cal_mol_K * 1e-3;
     case VCS_UNITS_UNITLESS:
         return 1.0;
     case VCS_UNITS_KJMOL:
-        return TKelvin * Cantera::GasConstant * 1e-6;
+        return TKelvin * GasConstant * 1e-6;
     case VCS_UNITS_KELVIN:
         return TKelvin;
     case VCS_UNITS_MKS:
-        return TKelvin * Cantera::GasConstant;
+        return TKelvin * GasConstant;
     default:
         throw CanteraError("vcs_nondimMult_TP",
                            "unknown units: " + int2str(mu_units));

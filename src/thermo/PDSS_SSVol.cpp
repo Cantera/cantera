@@ -8,12 +8,8 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_SSVol.h"
-#include "cantera/thermo/ThermoFactory.h"
-
 #include "cantera/thermo/VPStandardStateTP.h"
 
 #include <fstream>
@@ -90,8 +86,7 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                   const XML_Node& phaseNode, bool spInstalled)
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
+    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
 
     if (!spInstalled) {
         throw CanteraError("PDSS_SSVol::constructPDSSXML", "spInstalled false not handled");
@@ -102,20 +97,20 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_SSVol::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    std::string model = (*ss)["model"];
+    std::string model = ss->attrib("model");
     if (model == "constant_incompressible" || model == "constant") {
         volumeModel_ = cSSVOLUME_CONSTANT;
-        m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");
+        m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
     } else if (model == "temperature_polynomial") {
         volumeModel_ = cSSVOLUME_TPOLY;
-        size_t num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
+        size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
         if (num != 4) {
             throw CanteraError("PDSS_SSVol::constructPDSSXML",
                                " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
         }
     } else if (model == "density_temperature_polynomial") {
         volumeModel_ = cSSVOLUME_DENSITY_TPOLY;
-        size_t num = ctml::getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
+        size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
         if (num != 4) {
             throw CanteraError("PDSS_SSVol::constructPDSSXML",
                                " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
@@ -124,7 +119,6 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_SSVol::constructPDSSXML",
                            "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
-    std::string id = "";
 }
 
 void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
@@ -145,9 +139,9 @@ void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
      * Use this object to store information.
      */
 
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
+    XML_Node fxml;
+    fxml.build(fin);
+    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
     if (!fxml_phase) {
         throw CanteraError("PDSS_SSVol::initThermo",
                            "ERROR: Can not find phase named " +
@@ -157,11 +151,9 @@ void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     XML_Node& speciesList = fxml_phase->child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &(fxml_phase->root()));
-    const vector<string>&sss = tp->speciesNames();
-    const XML_Node* s =  speciesDB->findByAttr("name", sss[spindex]);
+    const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
 
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
-    delete fxml;
 }
 
 void PDSS_SSVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)
@@ -176,8 +168,7 @@ void PDSS_SSVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 void PDSS_SSVol::initThermo()
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
+    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
     m_V0_ptr[m_spindex] = m_constMolarVolume;
     m_Vss_ptr[m_spindex] = m_constMolarVolume;
 }
@@ -191,10 +182,8 @@ PDSS_SSVol::enthalpy_RT() const
 doublereal
 PDSS_SSVol::intEnergy_mole() const
 {
-    doublereal pVRT = (m_pres * m_Vss_ptr[m_spindex]) / (GasConstant * m_temp);
-    doublereal val = m_h0_RT_ptr[m_spindex] - pVRT;
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
+    doublereal pV = m_pres * m_Vss_ptr[m_spindex];
+    return m_h0_RT_ptr[m_spindex] * GasConstant * m_temp - pV;
 }
 
 doublereal
@@ -230,8 +219,7 @@ PDSS_SSVol::molarVolume() const
 doublereal
 PDSS_SSVol::density() const
 {
-    doublereal val = m_Vss_ptr[m_spindex];
-    return m_mw/val;
+    return m_mw / m_Vss_ptr[m_spindex];
 }
 
 doublereal

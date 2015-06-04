@@ -1,7 +1,6 @@
 //! @file Func1.cpp
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -21,10 +20,6 @@ Func1::Func1(const Func1& right) :
     m_f1(right.m_f1),
     m_f2(right.m_f2),
     m_parent(right.m_parent)
-{
-}
-
-Func1::~Func1()
 {
 }
 

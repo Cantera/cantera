@@ -11,15 +11,9 @@
 #ifndef _VCS_INTERNAL_H
 #define _VCS_INTERNAL_H
 
-#include <cstring>
-
-#include "cantera/equil/vcs_defs.h"
 #include "cantera/base/global.h"
-
-namespace VCSnonideal
+namespace Cantera
 {
-using Cantera::npos;
-
 //! Points to the data in a std::vector<> object
 #define VCS_DATA_PTR(vvv) (&(vvv[0]))
 
@@ -27,14 +21,14 @@ using Cantera::npos;
 /*!
  * We can replace this with printf easily
  */
-#define plogf  Cantera::writelogf
+#define plogf writelogf
 
 //! define this Cantera function to replace cout << endl;
 /*!
  * We use this to place an endl in the log file, and
  * ensure that the IO buffers are flushed.
  */
-#define plogendl() Cantera::writelogendl()
+#define plogendl() writelogendl()
 
 //! Global hook for turning on and off time printing.
 /*!
@@ -201,27 +195,22 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  *   double thetaR = Pi/2.0;
  *   int printLvl = 4;
  *
- *   iconv =  VCSnonideal::vcsUtil_root1d(thetamin, thetamax, maxit,
- *                                        funcZero,
- *                                        (void *) 0, 0.0, 0,
- *                                        &thetaR, printLvl);
+ *   iconv =  vcsUtil_root1d(thetamin, thetamax, maxit,
+ *                           funcZero,
+ *                           (void *) 0, 0.0, 0,
+ *                           &thetaR, printLvl);
  *   printf("theta = %g\n", thetaR);
  *   double h2Final = calc_h2_farfield(thetaR);
  *   printf("h2Final = %g\n", h2Final);
  *   return 0;
  * }
  * @endcode
+ * @deprecated Unused. To be removed after Cantera 2.2.
  */
 int vcsUtil_root1d(double xmin, double xmax, size_t itmax, VCS_FUNC_PTR func,
                    void* fptrPassthrough,
                    double FuncTargVal, int varID, double* xbest,
                    int printLvl = 0);
-
-//! Returns the system wall clock time in seconds
-/*!
- * @return time in seconds.
- */
-double vcs_second();
 
 //! determine the l2 norm of a vector of doubles
 /*!
@@ -249,6 +238,7 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
  *  @param length length of the integer vector
  *
  * @return returns the max integer value in the list
+ * @deprecated Unused. To be removed after Cantera 2.2.
  */
 int vcs_max_int(const int* vector, int length);
 

@@ -15,13 +15,9 @@
 #define CT_IDEALSOLNGASVPSS_H
 
 #include "VPStandardStateTP.h"
-#include "VPSSMgr.h"
 
 namespace Cantera
 {
-class XML_Node;
-class PDSS;
-
 /*!
   * @name CONSTANTS
   * Models for the Standard State of an IdealSolnPhase
@@ -37,14 +33,12 @@ const int cIdealSolnGasPhase2 = 6012;
  *
  * An ideal solution or an ideal gas approximation of a phase. Uses variable
  * pressure standard state methods for calculating thermodynamic properties.
- *
- *  @nosubgrouping
  */
 class IdealSolnGasVPSS : public VPStandardStateTP
 {
 public:
     /*!
-     * @name Constructors and Duplicators for %IdealSolnGasVPSS
+     * @name Constructors and Duplicators for IdealSolnGasVPSS
      */
     //! @{
 
@@ -179,7 +173,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -195,6 +189,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;

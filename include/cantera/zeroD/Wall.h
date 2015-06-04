@@ -7,7 +7,6 @@
 #ifndef CT_WALL_H
 #define CT_WALL_H
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/numerics/Func1.h"
 
@@ -17,7 +16,6 @@ namespace Cantera
 // forward references
 class ReactorBase;
 class Kinetics;
-class Func1;
 class SurfPhase;
 
 //! Represents a wall between between two ReactorBase objects.
@@ -160,6 +158,14 @@ public:
     //! Set the surface coverages on the left (`leftright = 0`) or right
     //! (`leftright = 1`) surface to the values in array `cov`.
     void setCoverages(int leftright, const doublereal* cov);
+
+    //! Set the surface coverages on the left (`leftright = 0`) or right
+    //! (`leftright = 1`) surface to the values in array `cov`.
+    void setCoverages(int leftright, const compositionMap& cov);
+
+    //! Set the surface coverages on the left (`leftright = 0`) or right
+    //! (`leftright = 1`) surface to the values in array `cov`.
+    void setCoverages(int leftright, const std::string& cov);
 
     //! Write the coverages of the left or right surface into array `cov`.
     void getCoverages(int leftright, doublereal* cov);

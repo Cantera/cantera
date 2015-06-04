@@ -87,6 +87,16 @@ class chemkinConverterTest(utilities.CanteraTest):
         ref, gas = self.checkConversion('../data/pdep-test.xml', 'pdep_test.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
+    def test_species_only(self):
+        convertMech(None,
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='dummy-thermo.cti', quiet=True)
+
+        cti = "ideal_gas(elements='C H', species='dummy-thermo:R1A R1B P1')"
+        gas = ct.Solution(source=cti)
+        self.assertEqual(gas.n_species, 3)
+        self.assertEqual(gas.n_reactions, 0)
+
     def test_missingElement(self):
         with self.assertRaises(ck2cti.InputParseError):
             convertMech('../data/h2o2_missingElement.inp',
@@ -309,6 +319,31 @@ class chemkinConverterTest(utilities.CanteraTest):
                         transportFile='../data/h2o2-bad-geometry-tran.dat',
                         outName='h2o2_transport_bad_geometry.cti',
                         quiet=True)
+
+    def test_empty_reaction_section(self):
+        convertMech('../data/h2o2_emptyReactions.inp',
+                    outName='h2o2_emptyReactions.cti',
+                    quiet=True)
+
+        gas = ct.Solution('h2o2_emptyReactions.cti')
+        self.assertEqual(gas.n_species, 9)
+        self.assertEqual(gas.n_reactions, 0)
+
+    def test_reaction_comments1(self):
+        convertMech('../data/pdep-test.inp',
+                    outName='pdep_test.cti', quiet=True)
+        text = open('pdep_test.cti').read()
+        self.assertIn('Generic mechanism header', text)
+        self.assertIn('Single PLOG reaction', text)
+        self.assertIn('PLOG with duplicate rates and negative A-factors', text)
+
+    def test_reaction_comments2(self):
+        convertMech('../data/explicit-third-bodies.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='explicit_third_bodies.cti', quiet=True)
+        text = open('explicit_third_bodies.cti').read()
+        self.assertIn('An end of line comment', text)
+        self.assertIn('A comment after the last reaction', text)
 
 
 class CtmlConverterTest(utilities.CanteraTest):

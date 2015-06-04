@@ -6,15 +6,14 @@
  */
 // Copyright 2001  California Institute of Technology
 
-#include "cantera/base/config.h"
+#include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
+#include "cantera/base/utilities.h"
+
 #include <sstream>
 
-#include <algorithm>
 using namespace std;
-
-#include "cantera/base/xml.h"
-#include "cantera/base/global.h"
-#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
@@ -39,6 +38,10 @@ protected:
             m_msg += " at line " + int2str(line+1);
         }
         m_msg += ".\n";
+    }
+
+    virtual std::string getMessage() const {
+        return m_msg;
     }
 
     //! destructor
@@ -72,7 +75,10 @@ public:
                     int line=0) :
         XML_Error(line) {
         m_msg += "<" + opentag + "> paired with </" + closetag + ">.\n";
-        setError("XML_TagMismatch", m_msg);
+    }
+
+    virtual std::string getClass() const {
+        return "XML_TagMismatch";
     }
 };
 
@@ -102,7 +108,10 @@ public:
         ostringstream ss(ostringstream::out);
         p->write(ss,1);
         m_msg += ss.str() + "\n";
-        setError("XML_NoChild", m_msg);
+    }
+
+    virtual std::string getClass() const {
+        return "XML_NoChild";
     }
 };
 
@@ -311,7 +320,6 @@ std::string XML_Reader::readValue()
 
 XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
     m_name(nm),
-    m_value(""),
     m_parent(parent_),
     m_root(0),
     m_locked(false),
@@ -326,8 +334,6 @@ XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
 }
 
 XML_Node::XML_Node(const XML_Node& right) :
-    m_name(""),
-    m_value(""),
     m_parent(0),
     m_root(0),
     m_locked(false),
@@ -467,6 +473,8 @@ std::string XML_Node::value() const
 
 std::string XML_Node::operator()() const
 {
+    warn_deprecated("XML_Node::operator()",
+                    "To be removed after Cantera 2.2. Use XML_Node::value().");
     return m_value;
 }
 
@@ -518,11 +526,7 @@ std::string XML_Node::operator[](const std::string& attr) const
 
 std::string XML_Node::attrib(const std::string& attr) const
 {
-    std::map<std::string,std::string>::const_iterator i = m_attribs.find(attr);
-    if (i != m_attribs.end()) {
-        return i->second;
-    }
-    return "";
+    return getValue<string,string>(m_attribs, attr, "");
 }
 
 std::map<std::string,std::string>& XML_Node::attribs()
@@ -763,6 +767,7 @@ void XML_Node::build(std::istream& f)
     string nm, nm2, val;
     XML_Node* node = this;
     map<string, string> node_attribs;
+    bool first = true;
     while (!f.eof()) {
         node_attribs.clear();
         nm = r.readTag(node_attribs);
@@ -776,14 +781,24 @@ void XML_Node::build(std::istream& f)
         int lnum = r.m_line;
         if (nm[nm.size() - 1] == '/') {
             nm2 = nm.substr(0,nm.size()-1);
-            node = &node->addChild(nm2);
+            if (first) {
+                node->setName(nm2);
+                first = false;
+            } else {
+                node = &node->addChild(nm2);
+            }
             node->addValue("");
             node->attribs() = node_attribs;
             node->setLineNumber(lnum);
             node = node->parent();
         } else if (nm[0] != '/') {
             if (nm[0] != '!' && nm[0] != '-' && nm[0] != '?') {
-                node = &node->addChild(nm);
+                if (first) {
+                    node->setName(nm);
+                    first = false;
+                } else {
+                    node = &node->addChild(nm);
+                }
                 val = r.readValue();
                 node->addValue(val);
                 node->attribs() = node_attribs;
@@ -900,11 +915,24 @@ void XML_Node::unlock()
 void XML_Node::getChildren(const std::string& nm,
                            std::vector<XML_Node*>& children_) const
 {
+    warn_deprecated("XML_Node::getChildren", "To be removed after Cantera 2.2."
+                    "Use overload that returns the vector of XML_Node pointers.");
     for (size_t i = 0; i < nChildren(); i++) {
         if (child(i).name() == nm) {
             children_.push_back(&child(i));
         }
     }
+}
+
+std::vector<XML_Node*> XML_Node::getChildren(const std::string& nm) const
+{
+    std::vector<XML_Node*> children_;
+    for (size_t i = 0; i < nChildren(); i++) {
+        if (child(i).name() == nm) {
+            children_.push_back(&child(i));
+        }
+    }
+    return children_;
 }
 
 XML_Node& XML_Node::child(const std::string& aloc) const
@@ -1060,15 +1088,8 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
 
 void XML_Node::write(std::ostream& s, const int level, int numRecursivesAllowed) const
 {
-    if (m_name == "--" && m_root == this) {
-        for (size_t i = 0; i < m_children.size(); i++) {
-            m_children[i]->write_int(s,level, numRecursivesAllowed-1);
-            s << endl;
-        }
-    } else {
-        write_int(s, level, numRecursivesAllowed);
-        s << endl;
-    }
+    write_int(s, level, numRecursivesAllowed);
+    s << endl;
 }
 
 XML_Node& XML_Node::root() const
@@ -1101,7 +1122,7 @@ XML_Node* findXMLPhase(XML_Node* root,
         idattrib = root->id();
         if (idtarget == idattrib) {
             return root;
-        } 
+        }
     }
 
     const vector<XML_Node*> &vsc = root->children();

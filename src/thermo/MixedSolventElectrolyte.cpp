@@ -1,7 +1,7 @@
 /**
  *  @file MixedSolventElectrolyte.cpp
  *   Definitions for ThermoPhase object for phases which
- *   employ excess gibbs free energy formulations related to Margules
+ *   employ excess Gibbs free energy formulations related to Margules
  *   expansions (see \ref thermoprops
  *    and class \link Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
  */
@@ -14,16 +14,13 @@
 #include "cantera/thermo/MixedSolventElectrolyte.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
-
-#include <iomanip>
-#include <fstream>
+#include "cantera/base/ctml.h"
 
 using namespace std;
 
 namespace Cantera
 {
 MixedSolventElectrolyte::MixedSolventElectrolyte() :
-    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -32,7 +29,6 @@ MixedSolventElectrolyte::MixedSolventElectrolyte() :
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
         const std::string& id_) :
-    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -42,7 +38,6 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
         const std::string& id_) :
-    MolarityIonicVPSSTP(),
     numBinaryInteractions_(0),
     formMargules_(0),
     formTempModel_(0)
@@ -50,8 +45,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
-MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b) :
-    MolarityIonicVPSSTP()
+MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b)
 {
     MixedSolventElectrolyte::operator=(b);
 }
@@ -98,6 +92,9 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)  :
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("MixedSolventElectrolyte::MixedSolventElectrolyte(int testProb)",
+        "To be removed after Cantera 2.2");
+
     initThermoFile("LiKCl_liquid.xml", "");
 
 
@@ -183,7 +180,6 @@ void MixedSolventElectrolyte::getElectrochemPotentials(doublereal* mu) const
 
 void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
 {
-    doublereal xx;
     /*
      * First get the standard chemical potentials in
      * molar form.
@@ -195,23 +191,19 @@ void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
      * Update the activity coefficients
      */
     s_update_lnActCoeff();
-    /*
-     *
-     */
     doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], SmallNumber);
+        double xx = std::max(moleFractions_[k], SmallNumber);
         mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
 
 doublereal MixedSolventElectrolyte::enthalpy_mole() const
 {
-    size_t kk = nSpecies();
     double h = 0;
-    vector_fp hbar(kk);
+    vector_fp hbar(m_kk);
     getPartialMolarEnthalpies(&hbar[0]);
-    for (size_t i = 0; i < kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         h += moleFractions_[i]*hbar[i];
     }
     return h;
@@ -219,11 +211,10 @@ doublereal MixedSolventElectrolyte::enthalpy_mole() const
 
 doublereal MixedSolventElectrolyte::entropy_mole() const
 {
-    size_t kk = nSpecies();
     double s = 0;
-    vector_fp sbar(kk);
+    vector_fp sbar(m_kk);
     getPartialMolarEntropies(&sbar[0]);
-    for (size_t i = 0; i < kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         s += moleFractions_[i]*sbar[i];
     }
     return s;
@@ -231,11 +222,10 @@ doublereal MixedSolventElectrolyte::entropy_mole() const
 
 doublereal MixedSolventElectrolyte::cp_mole() const
 {
-    size_t kk = nSpecies();
     double cp = 0;
-    vector_fp cpbar(kk);
+    vector_fp cpbar(m_kk);
     getPartialMolarCp(&cpbar[0]);
-    for (size_t i = 0; i < kk; i++) {
+    for (size_t i = 0; i < m_kk; i++) {
         cp += moleFractions_[i]*cpbar[i];
     }
     return cp;
@@ -299,7 +289,6 @@ void MixedSolventElectrolyte::getPartialMolarCp(doublereal* cpbar) const
 
 void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
 {
-    double xx;
     /*
      * Get the nondimensional standard state entropies
      */
@@ -313,7 +302,7 @@ void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(moleFractions_[k], SmallNumber);
+        double xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
     /*
@@ -326,8 +315,6 @@ void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
 
 void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
 {
-    int delAK, delBK;
-    double XA, XB, g0 , g1;
     double T = temperature();
 
     /*
@@ -336,8 +323,8 @@ void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
     getStandardVolumes(vbar);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
-        delAK = 0;
-        delBK = 0;
+        int delAK = 0;
+        int delBK = 0;
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
@@ -348,11 +335,11 @@ void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
                 delBK = 1;
             }
 
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
+            double XA = moleFractions_[iA];
+            double XB = moleFractions_[iB];
 
-            g0 = (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
-            g1 = (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
+            double g0 = (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
+            double g1 = (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
 
             vbar[iK] += XA*XB*(g0+g1*XB)+((delAK-XA)*XB+XA*(delBK-XB))*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
         }
@@ -367,20 +354,14 @@ void MixedSolventElectrolyte::initThermo()
 
 void  MixedSolventElectrolyte::initLengths()
 {
-    m_kk = nSpecies();
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
 void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    string subname = "MixedSolventElectrolyte::initThermoXML";
-    string stemp;
-
-    if ((int) id_.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id_) {
-            throw CanteraError(subname, "phasenode and Id are incompatible");
-        }
+    if ((int) id_.size() > 0 && phaseNode.id() != id_) {
+        throw CanteraError("MixedSolventElectrolyte::initThermoXML",
+            "phasenode and Id are incompatible");
     }
 
     /*
@@ -388,40 +369,35 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::stri
      * <thermo model="MixedSolventElectrolyte" />
      */
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError(subname, "no thermo XML node");
+        throw CanteraError("MixedSolventElectrolyte::initThermoXML",
+                           "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-    string mStringa = thermoNode.attrib("model");
-    string mString = lowercase(mStringa);
-    if (mString != "mixedsolventelectrolyte") {
-        throw CanteraError(subname, "Unknown thermo model: " + mStringa);
+    string mString = thermoNode.attrib("model");
+    if (lowercase(mString) != "mixedsolventelectrolyte") {
+        throw CanteraError("MixedSolventElectrolyte::initThermoXML",
+            "Unknown thermo model: " + mString);
     }
 
     /*
      * Go get all of the coefficients and factors in the
      * activityCoefficients XML block
      */
-    XML_Node* acNodePtr = 0;
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
-        acNodePtr = &acNode;
-        mStringa = acNode.attrib("model");
-        mString = lowercase(mStringa);
-        if (mString != "margules") {
-            throw CanteraError(subname.c_str(),
-                               "Unknown activity coefficient model: " + mStringa);
+        mString = acNode.attrib("model");
+        if (lowercase(mString) != "margules") {
+            throw CanteraError("MixedSolventElectrolyte::initThermoXML",
+                               "Unknown activity coefficient model: " + mString);
         }
-        size_t n = acNodePtr->nChildren();
-        for (size_t i = 0; i < n; i++) {
-            XML_Node& xmlACChild = acNodePtr->child(i);
-            stemp = xmlACChild.name();
-            string nodeName = lowercase(stemp);
+        for (size_t i = 0; i < acNode.nChildren(); i++) {
+            XML_Node& xmlACChild = acNode.child(i);
             /*
              * Process a binary salt field, or any of the other XML fields
              * that make up the Pitzer Database. Entries will be ignored
              * if any of the species in the entry isn't in the solution.
              */
-            if (nodeName == "binaryneutralspeciesparameters") {
+            if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
 
             }
@@ -438,8 +414,6 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::stri
 
 void MixedSolventElectrolyte::s_update_lnActCoeff() const
 {
-    int delAK, delBK;
-    double XA, XB, g0, g1;
     double T = temperature();
     double RT = GasConstant*T;
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
@@ -447,17 +421,17 @@ void MixedSolventElectrolyte::s_update_lnActCoeff() const
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
-            delAK = 0;
-            delBK = 0;
+            int delAK = 0;
+            int delBK = 0;
             if (iA==iK) {
                 delAK = 1;
             } else if (iB==iK) {
                 delBK = 1;
             }
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
-            g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-            g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+            double XA = moleFractions_[iA];
+            double XB = moleFractions_[iB];
+            double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+            double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
             lnActCoeff_Scaled_[iK] += (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
         }
     }
@@ -465,8 +439,6 @@ void MixedSolventElectrolyte::s_update_lnActCoeff() const
 
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
 {
-    int delAK, delBK;
-    doublereal XA, XB, g0, g1;
     doublereal T = temperature();
     doublereal RTT = GasConstant*T*T;
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
@@ -475,17 +447,17 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
-            delAK = 0;
-            delBK = 0;
+            int delAK = 0;
+            int delBK = 0;
             if (iA==iK) {
                 delAK = 1;
             } else if (iB==iK) {
                 delBK = 1;
             }
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
-            g0 = -m_HE_b_ij[i] / RTT;
-            g1 = -m_HE_c_ij[i] / RTT;
+            double XA = moleFractions_[iA];
+            double XB = moleFractions_[iB];
+            double g0 = -m_HE_b_ij[i] / RTT;
+            double g1 = -m_HE_c_ij[i] / RTT;
             double temp = (delAK * XB + XA * delBK - XA * XB) * (g0 + g1 * XB) + XA * XB * (delBK - XB) * g1;
             dlnActCoeffdT_Scaled_[iK] += temp;
             d2lnActCoeffdT2_Scaled_[iK] -= 2.0 * temp / T;
@@ -512,11 +484,9 @@ void MixedSolventElectrolyte::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) co
 void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
         doublereal* dlnActCoeffds) const
 {
-    int delAK, delBK;
-    double XA, XB, g0, g1, dXA, dXB;
     double T = temperature();
     double RT = GasConstant*T;
-   s_update_dlnActCoeff_dT();
+    s_update_dlnActCoeff_dT();
 
     for (size_t iK = 0; iK < m_kk; iK++) {
         dlnActCoeffds[iK] = 0.0;
@@ -525,8 +495,8 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
 
-            delAK = 0;
-            delBK = 0;
+            int delAK = 0;
+            int delBK = 0;
 
             if (iA==iK) {
                 delAK = 1;
@@ -534,14 +504,14 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
                 delBK = 1;
             }
 
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
+            double XA = moleFractions_[iA];
+            double XB = moleFractions_[iB];
 
-            dXA = dXds[iA];
-            dXB = dXds[iB];
+            double dXA = dXds[iA];
+            double dXB = dXds[iB];
 
-            g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-            g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+            double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+            double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
             dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
                                  + dlnActCoeffdT_Scaled_[iK]*dTds;
@@ -551,24 +521,21 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
 
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
 {
-    int delAK, delBK;
-    double XA, XB, XK, g0, g1;
     double T = temperature();
     double RT = GasConstant*T;
 
     dlnActCoeffdlnN_diag_.assign(m_kk, 0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
-
-        XK = moleFractions_[iK];
+        double XK = moleFractions_[iK];
 
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
 
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
 
-            delAK = 0;
-            delBK = 0;
+            int delAK = 0;
+            int delBK = 0;
 
             if (iA==iK) {
                 delAK = 1;
@@ -576,11 +543,11 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
                 delBK = 1;
             }
 
-            XA = moleFractions_[iA];
-            XB = moleFractions_[iB];
+            double XA = moleFractions_[iA];
+            double XB = moleFractions_[iB];
 
-            g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-            g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+            double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+            double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
             dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
         }
@@ -590,12 +557,9 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
 
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 {
-    doublereal delAK, delBK;
-    double XA, XB, g0, g1,XM;
     double T = temperature();
     double RT = GasConstant*T;
 
-    doublereal delAM, delBM;
     dlnActCoeffdlnN_.zero();
 
     /*
@@ -603,16 +567,16 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
      */
     for (size_t iK = 0; iK < m_kk; iK++) {
         for (size_t iM = 0; iM < m_kk; iM++) {
-            XM = moleFractions_[iM];
+            double XM = moleFractions_[iM];
             for (size_t i = 0; i <  numBinaryInteractions_; i++) {
 
                 size_t iA =  m_pSpecies_A_ij[i];
                 size_t iB =  m_pSpecies_B_ij[i];
 
-                delAK = 0.0;
-                delBK = 0.0;
-                delAM = 0.0;
-                delBM = 0.0;
+                double delAK = 0.0;
+                double delBK = 0.0;
+                double delAM = 0.0;
+                double delBM = 0.0;
                 if (iA==iK) {
                     delAK = 1.0;
                 } else if (iB==iK) {
@@ -624,11 +588,11 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
                     delBM = 1.0;
                 }
 
-                XA = moleFractions_[iA];
-                XB = moleFractions_[iB];
+                double XA = moleFractions_[iA];
+                double XB = moleFractions_[iB];
 
-                g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-                g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+                double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+                double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
                 dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
                 dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
@@ -640,9 +604,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
 {
-    doublereal XA, XB, g0 , g1;
     doublereal T = temperature();
-
     dlnActCoeffdlnX_diag_.assign(m_kk, 0);
     doublereal RT = GasConstant * T;
 
@@ -651,11 +613,11 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
         size_t iA =  m_pSpecies_A_ij[i];
         size_t iB =  m_pSpecies_B_ij[i];
 
-        XA = moleFractions_[iA];
-        XB = moleFractions_[iB];
+        double XA = moleFractions_[iA];
+        double XB = moleFractions_[iB];
 
-        g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
-        g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
+        double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
+        double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
         dlnActCoeffdlnX_diag_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
         dlnActCoeffdlnX_diag_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
@@ -718,8 +680,6 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    string stemp;
-    size_t nParamsFound;
     vector_fp vParams;
     string iName = xmLBinarySpecies.attrib("speciesA");
     if (iName == "") {
@@ -755,11 +715,9 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     m_pSpecies_A_ij[iSpot] = iSpecies;
     m_pSpecies_B_ij[iSpot] = jSpecies;
 
-    size_t num = xmLBinarySpecies.nChildren();
-    for (size_t iChild = 0; iChild < num; iChild++) {
+    for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
-        stemp = xmlChild.name();
-        string nodeName = lowercase(stemp);
+        string nodeName = lowercase(xmlChild.name());
         /*
          * Process the binary species interaction child elements
          */
@@ -767,10 +725,8 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
-            nParamsFound = vParams.size();
-
-            if (nParamsFound != 2) {
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
+            if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessEnthalpy for " + ispName
                                    + "::" + jspName,
                                    "wrong number of params found");
@@ -783,10 +739,8 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
-            nParamsFound = vParams.size();
-
-            if (nParamsFound != 2) {
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
+            if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessEntropy for " + ispName
                                    + "::" + jspName,
                                    "wrong number of params found");
@@ -799,10 +753,8 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
-            nParamsFound = vParams.size();
-
-            if (nParamsFound != 2) {
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
+            if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
                                    + "::" + jspName,
                                    "wrong number of params found");
@@ -815,10 +767,8 @@ void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             /*
              * Get the string containing all of the values
              */
-            ctml::getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
-            nParamsFound = vParams.size();
-
-            if (nParamsFound != 2) {
+            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
+            if (vParams.size() != 2) {
                 throw CanteraError("MixedSolventElectrolyte::readXMLBinarySpecies::excessVolume_Entropy for " + ispName
                                    + "::" + jspName,
                                    "wrong number of params found");

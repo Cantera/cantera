@@ -3,7 +3,6 @@
 
 //---------------------------- Version Flags ------------------//
 // Cantera version -> this will be a double-quoted string value
-//                    referring to branch number within svn
 %(CANTERA_VERSION)s
 
 //------------------------ Development flags ------------------//
@@ -55,6 +54,12 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 %(LAPACK_NAMES_LOWERCASE)s
 %(LAPACK_FTN_TRAILING_UNDERSCORE)s
 
+//--------- shared_ptr implementation ---------
+%(CT_USE_STD_SHARED_PTR)s
+%(CT_USE_TR1_SHARED_PTR)s
+%(CT_USE_MSFT_SHARED_PTR)s
+%(CT_USE_BOOST_SHARED_PTR)s
+
 //-------- BOOST --------
 %(USE_BOOST_MATH)s
 
@@ -76,13 +81,15 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 %(USE_GLOBAL_ISNAN)s
 %(USE_UNDERSCORE_ISNAN)s
 
+%(HAS_FENV_H)s
+
 // This define is needed to account for the variability for how
 // static variables in templated classes are defined. Right now
 // this is only turned on for the SunPro compiler on Solaris.
 // in that system , you need to declare the static storage variable.
 // with the following line in the include file
 //
-//    template<class M> Cabinet<M>* Cabinet<M>::__storage;
+//    template<class M> Cabinet<M>* Cabinet<M>::s_storage;
 //
 // Note, on other systems that declaration is treated as a definition
 // and this leads to multiple defines at link time

@@ -1,14 +1,16 @@
 /**
  *  @file ThermoFactory.cpp
- *     Definitions for the factory class that can create known %ThermoPhase objects
+ *     Definitions for the factory class that can create known ThermoPhase objects
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  */
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/thermo/ThermoFactory.h"
 
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "VPSSMgrFactory.h"
@@ -54,7 +56,6 @@
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {
@@ -163,13 +164,12 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 
 std::string eosTypeString(int ieos, int length)
 {
-    std::string ss = "UnknownPhaseType";
     for (int n = 0; n < ntypes; n++) {
         if (_itypes[n] == ieos) {
             return _types[n];
         }
     }
-    return ss;
+    return "UnknownPhaseType";
 }
 
 ThermoPhase* newPhase(XML_Node& xmlphase)
@@ -204,7 +204,6 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
     return newPhase(*xphase);
 }
 
-//====================================================================================================================
 //!  Gather a vector of pointers to XML_Nodes for a phase
 /*!
  *   @param spDataNodeList   Output vector of pointer to XML_Nodes which contain the species XML_Nodes for the
@@ -242,8 +241,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
         // spArray_names field, then add all species
         // defined in the corresponding database to the phase
         if (nsp == 1 && spnames[0] == "all") {
-            std::vector<XML_Node*> allsp;
-            db->getChildren("species", allsp);
+            std::vector<XML_Node*> allsp = db->getChildren("species");
             nsp = allsp.size();
             spnames.resize(nsp);
             for (size_t nn = 0; nn < nsp; nn++) {
@@ -265,8 +263,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 }
             }
         } else if (nsp == 1 && spnames[0] == "unique") {
-            std::vector<XML_Node*> allsp;
-            db->getChildren("species", allsp);
+            std::vector<XML_Node*> allsp = db->getChildren("species");
             nsp = allsp.size();
             spnames.resize(nsp);
             for (size_t nn = 0; nn < nsp; nn++) {
@@ -328,7 +325,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
 
     /*
      * In this section of code, we get the reference to the
-     * phase xml tree within the ThermoPhase object. Then,
+     * phase XML tree within the ThermoPhase object. Then,
      * we clear it and fill it with the current information that
      * we are about to use to construct the object. We will then
      * be able to resurrect the information later by calling xml().
@@ -373,16 +370,11 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
         }
     }
 
-    // if no species thermo factory was supplied, use the default one.
-    if (!spfactory) {
-        spfactory = SpeciesThermoFactory::factory();
-    }
-
     /***************************************************************
      * Add the elements.
      ***************************************************************/
     if (ssConvention != cSS_CONVENTION_SLAVE) {
-        th->addElementsFromXML(phase);
+        installElements(*th, phase);
     }
 
     /***************************************************************
@@ -392,8 +384,7 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
      * sources. For each one, a speciesArray element must be
      * present.
      ***************************************************************/
-    vector<XML_Node*> sparrays;
-    phase.getChildren("speciesArray", sparrays);
+    vector<XML_Node*> sparrays = phase.getChildren("speciesArray");
     if (ssConvention != cSS_CONVENTION_SLAVE) {
         if (sparrays.empty()) {
             throw CanteraError("importPhase",
@@ -461,33 +452,11 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
                            sparrays, dbases, sprule);
 
     // Decide whether the the phase has a variable pressure ss or not
-    SpeciesThermo* spth = 0;
-    VPSSMgr* vp_spth = 0;
-    if (ssConvention == cSS_CONVENTION_TEMPERATURE) {
-        // Create a new species thermo manager.  Function
-        // 'newSpeciesThermoMgr' looks at the species in the database
-        // to see what thermodynamic property parameterizations are
-        // used, and selects a class that can handle the
-        // parameterizations found.
-        spth = newSpeciesThermoMgr(spDataNodeList);
-
-        // install it in the phase object
-        th->setSpeciesThermo(spth);
-    } else if (ssConvention == cSS_CONVENTION_SLAVE) {
-        /*
-         * No species thermo manager for this type
-         */
-    } else if (ssConvention == cSS_CONVENTION_VPSS) {
-        vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
+    if (ssConvention == cSS_CONVENTION_VPSS) {
+        VPSSMgr* vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
         vpss_ptr->setVPSSMgr(vp_spth);
-        spth = vp_spth->SpeciesThermoMgr();
-        th->setSpeciesThermo(spth);
-    } else {
-        throw CanteraError("importPhase()", "unknown convention");
+        th->setSpeciesThermo(vp_spth->SpeciesThermoMgr());
     }
-
-
-    size_t k = 0;
 
     size_t nsp = spDataNodeList.size();
     if (ssConvention == cSS_CONVENTION_SLAVE) {
@@ -496,15 +465,17 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
                                + int2str(nsp));
         }
     }
-    for (size_t i = 0; i < nsp; i++) {
-        XML_Node* s = spDataNodeList[i];
+    for (size_t k = 0; k < nsp; k++) {
+        XML_Node* s = spDataNodeList[k];
         AssertTrace(s != 0);
-        bool ok = installSpecies(k, *s, *th, spth, spRuleList[i],
-                                 &phase, vp_spth, spfactory);
-        if (ok) {
-            th->saveSpeciesData(k, s);
-            ++k;
+        if (spRuleList[k]) {
+           th->ignoreUndefinedElements();
         }
+        th->addSpecies(newSpecies(*s));
+        if (vpss_ptr) {
+            vpss_ptr->createInstallPDSS(k, *s, &phase);
+        }
+        th->saveSpeciesData(k, s);
     }
 
     if (ssConvention == cSS_CONVENTION_SLAVE) {
@@ -523,79 +494,85 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     return true;
 }
 
+void installElements(Phase& th, const XML_Node& phaseNode)
+{
+    // get the declared element names
+    if (!phaseNode.hasChild("elementArray")) {
+        throw CanteraError("installElements",
+                           "phase XML node doesn't have \"elementArray\" XML Node");
+    }
+    XML_Node& elements = phaseNode.child("elementArray");
+    vector<string> enames;
+    getStringArray(elements, enames);
+
+    // // element database defaults to elements.xml
+    string element_database = "elements.xml";
+    if (elements.hasAttrib("datasrc")) {
+        element_database = elements["datasrc"];
+    }
+
+    XML_Node* doc = get_XML_File(element_database);
+    XML_Node* dbe = &doc->child("elementData");
+
+    XML_Node& root = phaseNode.root();
+    XML_Node* local_db = 0;
+    if (root.hasChild("elementData")) {
+        local_db = &root.child("elementData");
+    }
+
+    for (size_t i = 0; i < enames.size(); i++) {
+        // Find the element data
+        XML_Node* e = 0;
+        if (local_db) {
+            e = local_db->findByAttr("name",enames[i]);
+        }
+        if (!e) {
+            e = dbe->findByAttr("name",enames[i]);
+        }
+        if (!e) {
+            throw CanteraError("addElementsFromXML","no data for element "
+                               +enames[i]);
+        }
+
+        // Add the element
+        doublereal weight = 0.0;
+        if (e->hasAttrib("atomicWt")) {
+            weight = fpValue(e->attrib("atomicWt"));
+        }
+        int anum = 0;
+        if (e->hasAttrib("atomicNumber")) {
+            anum = intValue(e->attrib("atomicNumber"));
+        }
+        string symbol = e->attrib("name");
+        doublereal entropy298 = ENTROPY298_UNKNOWN;
+        if (e->hasChild("entropy298")) {
+            XML_Node& e298Node = e->child("entropy298");
+            if (e298Node.hasAttrib("value")) {
+                entropy298 = fpValueCheck(e298Node["value"]);
+            }
+        }
+        if (weight != 0.0) {
+            th.addElement(symbol, weight, anum, entropy298);
+        } else {
+            th.addElement(symbol);
+        }
+    }
+}
+
 bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
                     SpeciesThermo* spthermo_ptr, int rule,
                     XML_Node* phaseNode_ptr,
                     VPSSMgr* vpss_ptr,
                     SpeciesThermoFactory* factory)
 {
-    std::string xname = s.name();
-    if (xname != "species") {
-        throw CanteraError("installSpecies",
-                           "Unexpected XML name of species XML_Node: " + xname);
+    warn_deprecated("installSpecies", "Use newSpecies and addSpecies. For"
+        " VPStandardStateTP phases, call createInstallPDSS as well."
+        " To be removed after Cantera 2.2.");
+    th.addSpecies(newSpecies(s));
+    VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
+    if (vp_ptr) {
+        vp_ptr->createInstallPDSS(k, s, phaseNode_ptr);
     }
-    // get the composition of the species
-    const XML_Node& a = s.child("atomArray");
-    map<string,string> comp;
-    getMap(a, comp);
-
-    // check that all elements in the species exist in 'p'. If rule != 0,
-    // quietly skip this species if some elements are undeclared; otherwise,
-    // throw an exception
-    map<string,string>::const_iterator _b = comp.begin();
-    for (; _b != comp.end(); ++_b) {
-        if (th.elementIndex(_b->first) == npos) {
-            if (rule == 0) {
-                throw CanteraError("installSpecies",
-                                   "Species " + s["name"] +
-                                   " contains undeclared element " + _b->first);
-            } else {
-                return false;
-            }
-        }
-    }
-
-    // construct a vector of atom numbers for each element in phase th. Elements
-    // not declared in the species (i.e., not in map comp) will have zero
-    // entries in the vector.
-    size_t nel = th.nElements();
-    vector_fp ecomp(nel, 0.0);
-    for (size_t m = 0; m < nel; m++) {
-        std::string& es = comp[th.elementName(m)];
-        if (!es.empty()) {
-            ecomp[m] = fpValueCheck(es);
-        }
-    }
-
-
-    // get the species charge, if any. Note that the charge need
-    // not be explicitly specified if special element 'E'
-    // (electron) is one of the elements.
-    doublereal chrg = 0.0;
-    if (s.hasChild("charge")) {
-        chrg = getFloat(s, "charge");
-    }
-
-    // get the species size, if any. (This is used by surface
-    // phases to represent how many sites a species occupies.)
-    doublereal sz = 1.0;
-    if (s.hasChild("size")) {
-        sz = getFloat(s, "size");
-    }
-
-    // add the species to phase th
-    th.addUniqueSpecies(s["name"], &ecomp[0], chrg, sz);
-
-    if (vpss_ptr) {
-        VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
-        factory->installVPThermoForSpecies(k, s, vp_ptr, vpss_ptr, spthermo_ptr,
-                                           phaseNode_ptr);
-    } else {
-        // install the thermo parameterization for this species into
-        // the species thermo manager for phase th
-        factory->installThermoForSpecies(k, s, &th, *spthermo_ptr, phaseNode_ptr);
-    }
-
     return true;
 }
 
@@ -610,8 +587,7 @@ const XML_Node* speciesXML_Node(const std::string& kname,
         throw CanteraError("speciesXML_Node()",
                            "Unexpected phaseSpeciesData name: " + jname);
     }
-    vector<XML_Node*> xspecies;
-    phaseSpeciesData->getChildren("species", xspecies);
+    vector<XML_Node*> xspecies = phaseSpeciesData->getChildren("species");
     for (size_t j = 0; j < xspecies.size(); j++) {
         const XML_Node& sp = *xspecies[j];
         jname = sp["name"];

@@ -1,6 +1,6 @@
 /**
  * @file vcs_solve.h Header file for the internal object that holds the vcs
- *    equilibrium problem (see Class \link VCSnonideal::VCS_SOLVE
+ *    equilibrium problem (see Class \link Cantera::VCS_SOLVE
  *    VCS_SOLVE\endlink and \ref equilfunctions ).
  */
 /*
@@ -28,7 +28,7 @@
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/base/Array.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 /*
  * Forward references
@@ -123,7 +123,7 @@ public:
      * @param printDetails  1 -> Print intermediate results.
      * @param maxit         Maximum number of iterations for the algorithm
      *
-     * @return     
+     * @return
      *     * 0 = Equilibrium Achieved
      *     * 1 = Range space error encountered. The element abundance criteria
      *       are only partially satisfied. Specifically, the first NC= (number
@@ -336,7 +336,7 @@ public:
      *                    + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
      *
      *  @param[in] iph        Phase to be calculated
-     *  @param[in] molNum(i)  Number of moles of species i (VCS species order)
+     *  @param[in] molNum     Number of moles of species i (VCS species order)
      *  @param[out] ac        Activity coefficients for species in phase (VCS
      *                        species order)
      *  @param[out] mu_i      Dimensionless chemical potentials for phase
@@ -666,7 +666,7 @@ public:
      *  The actual problem statement is assumed to be in the structure
      *  already.  This is a wrapper around the solve_TP() function. In this
      *  wrapper, we nondimensionalize the system we calculate the standard
-     *  state gibbs free energies of the species, and we decide whether to we
+     *  state Gibbs free energies of the species, and we decide whether to we
      *  need to use the initial guess algorithm.
      *
      * @param ipr = 1 -> Print results to standard output;
@@ -1305,7 +1305,7 @@ private:
     double vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
                               char* ANOTE=0) const;
 
-    //! This routine optimizes the minimization of the total gibbs free energy
+    //! This routine optimizes the minimization of the total Gibbs free energy
     //! by making sure the slope of the following functional stays negative:
     /*!
      *  The slope of the following functional is equivalent to the slope
@@ -1531,7 +1531,7 @@ public:
      *
      *  Both element and species indices are swapped.
      */
-    Cantera::Array2D m_formulaMatrix;
+    Array2D m_formulaMatrix;
 
     //! Stoichiometric coefficient matrix for the reaction mechanism expressed in Reduced Canonical Form.
     /*!
@@ -1549,7 +1549,7 @@ public:
      *
      *   size = nelements0 x nspecies0
      */
-    Cantera::Array2D m_stoichCoeffRxnMatrix;
+    Array2D m_stoichCoeffRxnMatrix;
 
     //! Absolute size of the stoichiometric coefficients
     /*!
@@ -1629,11 +1629,11 @@ public:
     /*!
      *       m_deltaMolNumPhase(iphase,irxn) = k = nc + irxn
      */
-    Cantera::Array2D m_deltaMolNumPhase;
+    Array2D m_deltaMolNumPhase;
 
     //!  This is 1 if the phase, iphase,  participates in the formation reaction
     //!  irxn, and zero otherwise.  PhaseParticipation(iphase,irxn)
-    Cantera::Array2D m_phaseParticipation;
+    Array2D m_phaseParticipation;
 
     //! electric potential of the iph phase
     std::vector<double> m_phasePhi;
@@ -1931,7 +1931,7 @@ public:
      *  This is a temporary array that gets regenerated every time it's
      *  needed. It is not swapped wrt species.
      */
-    Cantera::Array2D m_np_dLnActCoeffdMolNum;
+    Array2D m_np_dLnActCoeffdMolNum;
 
     //! Molecular weight of each species
     /*!

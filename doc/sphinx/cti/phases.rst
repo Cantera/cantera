@@ -1,4 +1,4 @@
-.. py:currentmodule:: ctml_writer
+.. py:currentmodule:: cantera.ctml_writer
 
 .. _sec-phases:
 
@@ -90,7 +90,8 @@ example, if a phase definition specifies the elements as::
 
     ideal_gas(name = "gasmix",
               elements = "H C O N Ar",
-              ...)
+              # ...
+              )
 
 then when this definition is imported by an application, element-specific
 properties will be ordered in the same way::
@@ -228,7 +229,7 @@ The Transport Model
 
 A *transport model* is a set of equations used to compute transport
 properties. For :class:`ideal_gas` phases, multiple transport models are
-available; the one desired can be selected by assiging a string to this
+available; the one desired can be selected by assigning a string to this
 field. See :ref:`sec-gas-transport-models` for more details.
 
 The Initial State
@@ -256,12 +257,9 @@ The options field is used to indicate how certain conditions should be handled
 when importing the phase definition.  The options field may be assigned a string
 or a sequence of strings from the table below.
 
-==================================  ================
+==================================  ========================================================
 Option String                       Meaning
-==================================  ================
-``'no_validation'``                 Turn off all validation. Use when the definition
-                                    has been previously validated to speed up importing
-                                    the definition into an application. Use with caution!
+==================================  ========================================================
 ``'skip_undeclared_elements'``      When importing species, skip any containing undeclared
                                     elements, rather than flagging them as an error.
 ``'skip_undeclared_species'``       When importing reactions, skip any containing undeclared
@@ -272,7 +270,7 @@ Option String                       Meaning
 ``'allow_discontinuous_thermo'``    Disable the automatic adjustment of NASA polynomials to
                                     eliminate discontinuities in enthalpy and entropy at the
                                     midpoint temperature.
-==================================  ================
+==================================  ========================================================
 
 Using the ``options`` field, it is possible to extract a sub-mechanism from a large
 reaction mechanism, as follows::
@@ -288,7 +286,7 @@ reaction mechanism, as follows::
 If we import this into Matlab, for example, we get a gas mixture containing the
 8 species (out of 53 total) that contain only H and O:
 
-.. code-block:: matlab
+.. code-block:: matlabsession
 
     >> gas = importPhase('gas.cti', 'hydrogen_mech')
 
@@ -311,13 +309,7 @@ If we import this into Matlab, for example, we get a gas mixture containing the
                                X                 Y          Chem. Pot. / RT
                          -------------     ------------     ------------
                     H2              1                1          -917934
-                     H              0                0
-                     O              0                0
-                    O2              0                0
-                    OH              0                0
-                   H2O              0                0
-                   HO2              0                0
-                  H2O2              0                0
+         [   +7 minor]              0                0
 
     >> eqs = reactionEqn(gas)
 
@@ -394,14 +386,16 @@ the string ``'Multi'``, and to select the mixture-averaged model, set it to the
 string ``'Mix'``::
 
     ideal_gas(name="gas1",
-              ...,
+              # ...
               transport="Multi", # use multicomponent formulation
-              ...)
+              # ...
+              )
 
     ideal_gas(name="gas2",
-              ...,
+              # ...
               transport="Mix", # use mixture-averaged formulation
-              ...)
+              # ...
+              )
 
 Stoichiometric Solid
 --------------------
@@ -417,7 +411,7 @@ reactions, since the composition is fixed.) ::
                          species='C(gr)',
                          density=(2.2, 'g/cm3'),
                          initial_state=state(temperature=300.0,
-                                             pressure=(1.0, 'atm'))
+                                             pressure=(1.0, 'atm')))
 
 In the example above, the definition of the species ``'C(gr)'`` must appear
 elsewhere in the input file.
@@ -428,6 +422,8 @@ Stoichiometric Liquid
 A stoichiometric liquid differs from a stoichiometric solid in only one respect:
 the transport manager computes the viscosity as well as the thermal
 conductivity.
+
+.. _sec-interfaces:
 
 Interfaces
 ==========
@@ -464,7 +460,7 @@ Defining an interface is much like defining a phase. There are two new fields:
 participate in the heterogeneous reactions. Although in most cases this string
 will list one or two phases, no limit is placed on the number. This is
 particularly useful in some electrochemical problems, where reactions take place
-near the triple-phase bounday where a gas, an electrolyte, and a metal all meet.
+near the triple-phase boundary where a gas, an electrolyte, and a metal all meet.
 
 The ``site_density`` field is the number of adsorption sites per unit area.
 

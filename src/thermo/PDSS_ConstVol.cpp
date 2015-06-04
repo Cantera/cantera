@@ -8,12 +8,8 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
-#include "cantera/thermo/ThermoFactory.h"
-
 #include "cantera/thermo/VPStandardStateTP.h"
 
 #include <fstream>
@@ -76,8 +72,7 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                      const XML_Node& phaseNode, bool spInstalled)
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
+    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
 
     if (!spInstalled) {
         throw CanteraError("PDSS_ConstVol::constructPDSSXML", "spInstalled false not handled");
@@ -88,15 +83,12 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_ConstVol::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    std::string model = (*ss)["model"];
-    if (model != "constant_incompressible") {
+    if (ss->attrib("model") != "constant_incompressible") {
         throw CanteraError("PDSS_ConstVol::initThermoXML",
                            "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
 
-    m_constMolarVolume = ctml::getFloat(*ss, "molarVolume", "toSI");
-
-    std::string id = "";
+    m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
 }
 
 void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
@@ -118,9 +110,9 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
      * Use this object to store information.
      */
 
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
+    XML_Node fxml;
+    fxml.build(fin);
+    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
     if (!fxml_phase) {
         throw CanteraError("PDSS_ConstVol::initThermo",
                            "ERROR: Can not find phase named " +
@@ -130,11 +122,9 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     XML_Node& speciesList = fxml_phase->child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &(fxml_phase->root()));
-    const vector<string>&sss = tp->speciesNames();
-    const XML_Node* s =  speciesDB->findByAttr("name", sss[spindex]);
+    const XML_Node* s =  speciesDB->findByAttr("name", tp->speciesName(spindex));
 
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
-    delete fxml;
 }
 
 void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)
@@ -149,8 +139,7 @@ void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, const std::string& 
 void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();
-    SpeciesThermo& sp = m_tp->speciesThermo();
-    m_p0 = sp.refPressure(m_spindex);
+    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
     m_V0_ptr[m_spindex] = m_constMolarVolume;
     m_Vss_ptr[m_spindex] = m_constMolarVolume;
 }
@@ -164,10 +153,8 @@ PDSS_ConstVol::enthalpy_RT() const
 doublereal
 PDSS_ConstVol::intEnergy_mole() const
 {
-    doublereal pVRT = (m_pres * m_Vss_ptr[m_spindex]) / (GasConstant * m_temp);
-    doublereal val = m_h0_RT_ptr[m_spindex] - pVRT;
-    doublereal RT = GasConstant * m_temp;
-    return val * RT;
+    doublereal pV = (m_pres * m_Vss_ptr[m_spindex]);
+    return m_h0_RT_ptr[m_spindex] * GasConstant * m_temp - pV;
 }
 
 doublereal
@@ -203,8 +190,7 @@ PDSS_ConstVol::molarVolume() const
 doublereal
 PDSS_ConstVol::density() const
 {
-    doublereal val = m_Vss_ptr[m_spindex];
-    return m_mw/val;
+    return m_mw / m_Vss_ptr[m_spindex];
 }
 
 doublereal
@@ -225,8 +211,7 @@ doublereal PDSS_ConstVol::entropy_R_ref() const
 
 doublereal PDSS_ConstVol::cp_R_ref() const
 {
-    doublereal val = m_cp0_R_ptr[m_spindex];
-    return (val);
+    return m_cp0_R_ptr[m_spindex];
 }
 
 doublereal PDSS_ConstVol::molarVolume_ref() const

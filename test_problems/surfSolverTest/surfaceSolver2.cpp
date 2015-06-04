@@ -219,10 +219,7 @@ int main(int argc, char** argv)
         }
 
         /************************************************************/
-        XML_Node* xc = new XML_Node();
-        string path = findInputFile(infile);
-        ctml::get_CTML_Tree(xc, path);
-
+        XML_Node* xc = get_XML_File(infile);
         XML_Node* const xg = (XML_Node*) findXMLPhase(xc, gasPhaseName);
         if (!xg) {
             printf("ERROR: Could not find gas phase named, %s, in file\n",
@@ -298,7 +295,7 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
         for (i = 0; i < MSSIZE; i++) {
             x[i] = 0.0;
@@ -314,7 +311,7 @@ int main(int argc, char** argv)
 
         /*
          * Set the surface initial state
-         *  other problem numbers take their initial state from the xml files.
+         *  other problem numbers take their initial state from the XML files.
          */
         for (i = 0; i < MSSIZE; i++) {
             x[i] = 0.0;
@@ -406,7 +403,7 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
         double pres = gasTP->pressure();
         gasTP->getMoleFractions(x);
@@ -430,12 +427,12 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the xml files too
+         * -> note that the states are set in the XML files too
          */
         pres = gasTP->pressure();
         double temp = gasTP->temperature();
@@ -479,7 +476,6 @@ int main(int argc, char** argv)
         surfPhaseTP = 0;
         delete surfPhaseTP2;
         surfPhaseTP2 = 0;
-        delete xc;
         appdelete();
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;

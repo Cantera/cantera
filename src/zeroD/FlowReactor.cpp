@@ -5,6 +5,7 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/zeroD/FlowReactor.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -12,16 +13,19 @@ namespace Cantera
 {
 
 FlowReactor::FlowReactor() :
-    Reactor(),
+    m_speed(0.0),
     m_dist(0.0),
+    m_T(0.0),
     m_fctr(1.0e10),
-    m_speed0(0.0)
+    m_rho0(0.0),
+    m_speed0(0.0),
+    m_P0(0.0),
+    m_h0(0.0)
 {
 }
 
 void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
-    m_init = true;
     if (m_thermo == 0) {
         writelog("Error: reactor is empty.\n");
         return;
@@ -40,7 +44,6 @@ void FlowReactor::initialize(doublereal t0)
 {
     m_thermo->restoreState(m_state);
     m_nv = m_nsp + 2;
-    m_init = true;
 }
 
 void FlowReactor::updateState(doublereal* y)

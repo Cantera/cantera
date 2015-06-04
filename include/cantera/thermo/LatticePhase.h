@@ -10,13 +10,8 @@
 #ifndef CT_LATTICE_H
 #define CT_LATTICE_H
 
-#include "cantera/base/config.h"
-
-#include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 #include "ThermoPhase.h"
-#include "SpeciesThermo.h"
-#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -62,7 +57,7 @@ namespace Cantera
  *       \f]
  *
  * The standard state heat capacity, internal energy, and entropy are independent
- * of pressure. The standard state gibbs free energy is obtained
+ * of pressure. The standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * The standard state molar volume is independent of temperature, pressure,
@@ -131,7 +126,7 @@ namespace Cantera
  *  concentration.
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ C^a_k = a_k = X_k  \f$
@@ -195,7 +190,7 @@ namespace Cantera
  * <HR>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %LatticePhase object may be created by the following code snippet:
+ * for %Cantera. A new LatticePhase object may be created by the following code snippet:
  *
  * @code
  *    XML_Node *xc = get_XML_File("O_lattice_SiO2.xml");
@@ -600,7 +595,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
@@ -652,14 +647,14 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     *  The standard gibbs free energies are obtained from the enthalpy
+     *  The standard Gibbs free energies are obtained from the enthalpy
      *  and entropy formulation.
      *
      *       \f[
      *            g^o_k(T,P) = h^{o}_k(T,P) - T s^{o}_k(T,P)
      *       \f]
      *
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -724,7 +719,7 @@ public:
      */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
-    //!  Returns the vector of the gibbs function of the reference state at the current temperature
+    //!  Returns the vector of the Gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
@@ -863,7 +858,7 @@ protected:
     //! Temporary storage for the reference state heat capacities
     mutable vector_fp m_cp0_R;
 
-    //! Temporary storage for the reference state gibbs energies
+    //! Temporary storage for the reference state Gibbs energies
     mutable vector_fp m_g0_RT;
 
     //! Temporary storage for the reference state entropies at the current temperature

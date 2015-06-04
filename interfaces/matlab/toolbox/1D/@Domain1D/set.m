@@ -1,27 +1,43 @@
 function a = set(a,varargin)
-% SET -  Set properties.
+% SET  Set properties of a Domain1D.
+% a = set(a,varargin)
+% The properties that may be set are
 %
-%   The properties that may be set are
+% * Temperature     (T)
+% * Pressure        (P)
+% * Mole Fractions  (X)
+% * Mass Flux       (mdot)
+% * tol
+% * tol-time
+% * grid
+% * bounds
+% * T_fixed
+% * ID
 %
-%   Either the full property name or the symbol may be
-%   specified. For the extensive properties (V,H,U,S), the values
-%   must be given per unit mass. H, U, and S must be set in
-%   conjunction with pressure (for H,S) or volume (for U,S). Either
-%   (specific) volume or density may be specified. Mole and mass
-%   fractions must be input as vectors (either row or column) with
-%   length equal to the number of species.
+% Either the full property name or the symbol may be
+% specified. Mole and mass
+% fractions must be input as vectors (either row or column) with
+% length equal to the number of species.
 %
-%   Examples:
+% Examples::
 %
-%      set(gas,'Temperature',600.0);
-%      set(gas,'T',600.0);
-%      set(gas,'T',600.0,'P',2*oneatm,'Y',massfracs);
-%      set(gas,'H',0.5*enthalpy_mass(gas),'P',pressure(gas));
-%      set(gas,'S',entropy_mass(gas),'P',0.5*pressure(gas));
-%      set(gas,'X',ones(nSpecies(gas),1));
+%     >> set(gas,'Temperature',600.0);
+%     >> set(gas,'T',600.0);
+%     >> set(gas,'T',600.0,'P',2*oneatm,'Y',massfracs);
+%     >> set(gas,'X',ones(nSpecies(gas),1));
 %
-%  Alternatively, individual methods to set properties may be
-%  called (setTemperature, setMoleFractions, etc.)
+% Alternatively, individual methods to set properties may be
+% called (setTemperature, setMoleFractions, etc.)
+%
+% See also: :mat:func:`setBounds`, :mat:func:`setFixedTempProfile` :mat:func:`setID`,
+% :mat:func:`setMdot`, :mat:func:`setMoleFractions`, :mat:func:`setPressure`,
+% :mat:func:`setProfile`, :mat:func:`setSteadyTolerances`, :mat:func:`setTemperature`,
+% :mat:func:`setTransientTolerances`, :mat:func:`setupGrid`
+%
+% :param a:
+%     Instance of class :mat:func:`Domain1D`
+% :param varargin:
+%     Comma separated list of ``property, value`` pairs to be set
 %
 
 property_argin = varargin;
@@ -32,21 +48,17 @@ while length(property_argin) >= 2,
     property_argin = property_argin(3:end);
     switch prop
         case 'Temperature'
-            setTemperature(a,val);
+            setTemperature(a, val);
         case 'T'
-            setTemperature(a,val);
-        case 'MassFractions'
-            setMassFractions(a,val);
-        case 'Y'
-            setMassFractions(a,val);
+            setTemperature(a, val);
         case 'mdot'
-            setMdot(a,val);
+            setMdot(a, val);
         case 'MassFlux'
-            setMdot(a,val);
+            setMdot(a, val);
         case 'P'
-            setPressure(a,val);
+            setPressure(a, val);
         case 'Pressure'
-            setPressure(a,val);
+            setPressure(a, val);
         case 'tol'
             sz = size(val);
             if sz == nComponents(a)
@@ -54,7 +66,7 @@ while length(property_argin) >= 2,
             elseif length(val) == 2
                 setSteadyTolerances(a, 'default', val(1), val(2));
             else
-                error('wrong array size for error tolerances');
+                error('Wrong array size for error tolerances.');
             end
         case 'tol-time'
             sz = size(val);
@@ -65,7 +77,7 @@ while length(property_argin) >= 2,
                 at = val(2);
                 setTransientTolerances(a, 'default', rt, at);
             else
-                error('wrong array size for error tolerances');
+                error('Wrong array size for error tolerances.');
             end
         case 'grid'
             setupGrid(a, val);

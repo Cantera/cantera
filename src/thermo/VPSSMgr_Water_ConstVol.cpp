@@ -18,6 +18,8 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -74,9 +76,8 @@ VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
     // Everything should be OK except for the water SS
     m_p0 = m_waterSS->pref_safe(m_tlast);
     if (m_p0 != m_plast) {
-        doublereal RT = GasConstant * m_tlast;
         m_waterSS->setState_TP(m_tlast, m_p0);
-        m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / RT;
+        m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
         m_waterSS->setState_TP(m_tlast, m_plast);
     } else {
         m_h0_RT[0] = m_hss_RT[0];
@@ -90,9 +91,8 @@ VPSSMgr_Water_ConstVol::getGibbs_RT_ref(doublereal* grt) const
     // Everything should be OK except for the water SS
     m_p0 = m_waterSS->pref_safe(m_tlast);
     if (m_p0 != m_plast) {
-        doublereal RT = GasConstant * m_tlast;
         m_waterSS->setState_TP(m_tlast, m_p0);
-        m_g0_RT[0] = (m_waterSS->gibbs_mole()) / RT;
+        m_g0_RT[0] = (m_waterSS->gibbs_mole()) / (GasConstant * m_tlast);
         m_waterSS->setState_TP(m_tlast, m_plast);
     } else {
         m_g0_RT[0] = m_gss_RT[0];
@@ -103,10 +103,9 @@ VPSSMgr_Water_ConstVol::getGibbs_RT_ref(doublereal* grt) const
 void
 VPSSMgr_Water_ConstVol::getGibbs_ref(doublereal* g) const
 {
-    doublereal RT = GasConstant * m_tlast;
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
-        g[k] *= RT;
+        g[k] *= GasConstant * m_tlast;
     }
 }
 
@@ -161,12 +160,10 @@ void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const
     m_spthermo->update(m_tlast, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
     for (size_t k = 0; k < m_kk; k++) {
         m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-        PDSS* kPDSS = m_vptp_ptr->providePDSS(k);
-        kPDSS->setTemperature(m_tlast);
+        m_vptp_ptr->providePDSS(k)->setTemperature(m_tlast);
     }
-    doublereal RT = GasConstant * m_tlast;
     m_waterSS->setState_TP(m_tlast, m_p0);
-    m_h0_RT[0] = (m_waterSS->enthalpy_mole())/ RT;
+    m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
     m_s0_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
     m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
@@ -176,8 +173,7 @@ void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const
 
 void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
 {
-    doublereal RT = GasConstant * m_tlast;
-    doublereal del_pRT = (m_plast - OneAtm) / (RT);
+    doublereal del_pRT = (m_plast - OneAtm) / (GasConstant * m_tlast);
 
     for (size_t k = 1; k < m_kk; k++) {
         m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
@@ -190,7 +186,7 @@ void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
     }
     // Do the water
     m_waterSS->setState_TP(m_tlast, m_plast);
-    m_hss_RT[0] = (m_waterSS->enthalpy_mole())/ RT;
+    m_hss_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
     m_sss_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
     m_cpss_R[0] = (m_waterSS->cp_mole())      / GasConstant;
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
@@ -210,8 +206,6 @@ VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &phaseNode.root());
-    const vector<string>&sss = m_vptp_ptr->speciesNames();
-
 
     if (!m_waterSS) {
         throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
@@ -222,25 +216,22 @@ VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id
     m_Vss[0] = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
 
     for (size_t k = 1; k < m_kk; k++) {
-        const XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+        const XML_Node* s = speciesDB->findByAttr("name", m_vptp_ptr->speciesName(k));
         if (!s) {
             throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
-                               "no species Node for species " + sss[k]);
+                               "no species Node for species " + m_vptp_ptr->speciesName(k));
         }
         const XML_Node* ss = s->findByName("standardState");
         if (!ss) {
-            std::string sName = s->operator[]("name");
             throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
-                               "no standardState Node for species " + sName);
+                               "no standardState Node for species " + s->attrib("name"));
         }
-        std::string model = (*ss)["model"];
-        if (model != "constant_incompressible") {
-            std::string sName = s->operator[]("name");
+        if (ss->attrib("model") != "constant_incompressible") {
             throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
                                "standardState model for species isn't "
-                               "constant_incompressible: " + sName);
+                               "constant_incompressible: " + s->attrib("name"));
         }
-        m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
+        m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
     }
 }
 
@@ -259,7 +250,7 @@ VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                "h2o wrong name: " + xn);
         }
         const XML_Node* ss = speciesNode.findByName("standardState");
-        std::string model = (*ss)["model"];
+        std::string model = ss->attrib("model");
         if (model != "waterIAPWS" && model != "waterPDSS") {
             throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies",
                                "wrong SS mode: " + model);
@@ -282,8 +273,7 @@ VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
             throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies",
                                "no standardState Node for species " + speciesNode.name());
         }
-        std::string model = (*ss)["model"];
-        if (model != "constant_incompressible") {
+        if (ss->attrib("model") != "constant_incompressible") {
             throw CanteraError("VPSSMgr_Water_ConstVol::initThermoXML",
                                "standardState model for species isn't "
                                "constant_incompressible: " + speciesNode.name());
@@ -291,7 +281,7 @@ VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
         if (m_Vss.size() < k+1) {
             m_Vss.resize(k+1, 0.0);
         }
-        m_Vss[k] = ctml::getFloat(*ss, "molarVolume", "toSI");
+        m_Vss[k] = getFloat(*ss, "molarVolume", "toSI");
 
         // instantiate a new kPDSS object
         kPDSS = new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);

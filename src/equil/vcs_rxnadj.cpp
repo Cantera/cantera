@@ -9,15 +9,12 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/base/global.h"
+#include "cantera/base/ctexceptions.h"
 
 #include <cstdio>
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 
 size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
@@ -176,7 +173,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 for (size_t j = 0; j < m_numComponents; ++j) {
                     if (!m_SSPhase[j]) {
                         if (m_molNumSpecies_old[j] > 0.0) {
-                            s += SQUARE(m_stoichCoeffRxnMatrix(j,irxn)) / m_molNumSpecies_old[j];
+                            s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
                         }
                     }
                 }
@@ -184,7 +181,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     vcs_VolPhase* Vphase = m_VolPhaseList[j];
                     if (!Vphase->m_singleSpecies) {
                         if (m_tPhaseMoles_old[j] > 0.0) {
-                            s -= SQUARE(m_deltaMolNumPhase(j,irxn)) / m_tPhaseMoles_old[j];
+                            s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                         }
                     }
                 }
@@ -462,13 +459,13 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
             }
             for (size_t j = 0; j < m_numComponents; ++j) {
                 if (!m_SSPhase[j]) {
-                    s += SQUARE(m_stoichCoeffRxnMatrix(j,irxn)) / m_molNumSpecies_old[j];
+                    s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
                 }
             }
             for (size_t j = 0; j < m_numPhases; j++) {
                 if (!(m_VolPhaseList[j])->m_singleSpecies) {
                     if (m_tPhaseMoles_old[j] > 0.0) {
-                        s -= SQUARE(m_deltaMolNumPhase(j,irxn)) / m_tPhaseMoles_old[j];
+                        s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                     }
                 }
             }
@@ -560,7 +557,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
     /*
      *
      *     When we form the Hessian we must be careful to ensure that it
-     * is a symmetric positive definate matrix, still. This means zeroing
+     * is a symmetric positive definite matrix, still. This means zeroing
      * out columns when we zero out rows as well.
      *     -> I suggest writing a small program to make sure of this
      *        property.

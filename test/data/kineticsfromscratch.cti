@@ -1,0 +1,33 @@
+units(length='m', time='s', quantity='kmol', act_energy='cal/mol')
+
+ideal_gas(name = "ohmech",
+      elements = " O  H  Ar ",
+      species = """ h2o2: H2  H  O  O2  OH  H2O  HO2  H2O2  AR""",
+      reactions = "all",
+      transport = "None",
+      initial_state = state(temperature = 300.0,
+                            pressure = OneAtm)    )
+
+reaction('O + H2 <=> H + OH', [3.870000e+01, 2.7, 6260.0])
+
+three_body_reaction('2 O + M <=> O2 + M', [1.200000e+11, -1.0, 0.0],
+                    efficiencies='AR:0.83 H2:2.4 H2O:15.4')
+
+falloff_reaction('2 OH (+ M) <=> H2O2 (+ M)',
+                 kf=[7.400000e+10, -0.37, 0.0],
+                 kf0=[2.300000e+12, -0.9, -1700.0],
+                 efficiencies='AR:0.7 H2:2.0 H2O:6.0',
+                 falloff=Troe(A=0.7346, T3=94.0, T1=1756.0, T2=5182.0))
+
+pdep_arrhenius('H2 + O2 <=> 2 OH',
+               [(0.01, 'atm'), 1.212400e+16, -0.5779, 10872.7],
+               [(1.0, 'atm'), 4.910800e+31, -4.8507, 24772.8],
+               [(10.0, 'atm'), 1.286600e+47, -9.0246, 39796.5],
+               [(100.0, 'atm'), 5.963200e+56, -11.529, 52599.6])
+
+chebyshev_reaction('HO2 <=> OH + O',
+                   Tmin=290.0, Tmax=3000.0,
+                   Pmin=(0.0098692326671601278, 'atm'), Pmax=(98.692326671601279, 'atm'),
+                   coeffs=[[ 8.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02],
+                           [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],
+                           [ 3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03]])

@@ -12,7 +12,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/ctlapack.h"
 #include "cantera/numerics/SquareMatrix.h"
-#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -20,7 +19,6 @@ namespace Cantera
 {
 
 SquareMatrix::SquareMatrix() :
-    DenseMatrix(),
     GeneralMatrix(0),
     a1norm_(0.0),
     useQR_(0)

@@ -2,6 +2,7 @@ Number of elements = 3
  chem pot = -2.3e+07
 dg_corr = -1.57754e+08
 um_li_chempot = -1.65555e+08
+Trying VCS equilibrium solver
 Unknown Cantera EOS to VCSnonideal: 0
 Unknown Cantera EOS to VCSnonideal: 20
 Unknown Cantera EOS to VCSnonideal: 70
@@ -235,6 +236,7 @@ Li(i)               1.398e-13         1.398e-13       -1.691e+08
 V(i)                5.000e-01         5.000e-01       -3.513e+06
 LiFixed             1.000e+02         1.000e+00       -1.656e+08
 -------------------------------------------------------------
+VCS solver succeeded
 *************** MoltenSalt_electrolyte *****************
 Moles: 10
  

@@ -7,8 +7,6 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_solve.h"
 
@@ -19,9 +17,7 @@
 #include <sstream>
 #include <cstdio>
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
@@ -44,8 +40,6 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_useCanteraCalls(false),
     TP_ptr(0),
     v_totalMoles(0.0),
-    creationMoleNumbers_(0),
-    creationGlobalRxnNumbers_(0),
     m_phiVarIndex(npos),
     m_totalVol(0.0),
     m_vcsStateStatus(VCS_STATECALC_OLD),
@@ -310,6 +304,9 @@ void vcs_VolPhase::_updateActCoeff() const
     }
     if (m_useCanteraCalls) {
         TP_ptr->getActivityCoefficients(VCS_DATA_PTR(ActCoeff));
+    } else {
+        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                "deprecated and will not work after Cantera 2.2.");
     }
     m_UpToDate_AC = true;
 }
@@ -327,6 +324,8 @@ void vcs_VolPhase::_updateG0() const
     if (m_useCanteraCalls) {
         TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
     } else {
+        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                        "deprecated and will not work after Cantera 2.2.");
         double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
         for (size_t k = 0; k < m_numSpecies; k++) {
             size_t kglob = IndSpecies[k];
@@ -352,6 +351,8 @@ void vcs_VolPhase::_updateGStar() const
     if (m_useCanteraCalls) {
         TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
     } else {
+        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                        "deprecated and will not work after Cantera 2.2.");
         double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
         for (size_t k = 0; k < m_numSpecies; k++) {
             size_t kglob = IndSpecies[k];
@@ -395,6 +396,9 @@ void vcs_VolPhase::_updateMoleFractionDependencies()
         if (TP_ptr) {
             TP_ptr->setState_PX(Pres_, &(Xmol_[m_MFStartIndex]));
         }
+    } else {
+        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                "deprecated and will not work after Cantera 2.2.");
     }
     if (!m_isIdealSoln) {
         m_UpToDate_AC = false;
@@ -623,7 +627,10 @@ void vcs_VolPhase::setElectricPotential(const double phi)
     m_phi = phi;
     if (m_useCanteraCalls) {
         TP_ptr->setElectricPotential(m_phi);
-    }
+    } else {
+    warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                    "deprecated and will not work after Cantera 2.2.");
+}
     // We have changed the state variable. Set uptodate flags to false
     m_UpToDate_AC = false;
     m_UpToDate_VolStar = false;
@@ -646,6 +653,9 @@ void vcs_VolPhase::setState_TP(const double temp, const double pres)
     if (m_useCanteraCalls) {
         TP_ptr->setElectricPotential(m_phi);
         TP_ptr->setState_TP(temp, pres);
+    } else {
+    warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                    "deprecated and will not work after Cantera 2.2.");
     }
     Temp_ = temp;
     Pres_ = pres;
@@ -666,6 +676,8 @@ void vcs_VolPhase::_updateVolStar() const
     if (m_useCanteraCalls) {
         TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
     } else {
+        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                        "deprecated and will not work after Cantera 2.2.");
         for (size_t k = 0; k < m_numSpecies; k++) {
             size_t kglob = IndSpecies[k];
             vcs_SpeciesProperties* sProp = ListSpeciesPtr[k];
@@ -689,6 +701,8 @@ double vcs_VolPhase::_updateVolPM() const
     if (m_useCanteraCalls) {
         TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
     } else {
+        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                        "deprecated and will not work after Cantera 2.2.");
         for (size_t k = 0; k < m_numSpecies; k++) {
             size_t kglob = IndSpecies[k];
             vcs_SpeciesProperties* sProp = ListSpeciesPtr[k];
@@ -708,7 +722,7 @@ double vcs_VolPhase::_updateVolPM() const
 
     if (m_totalMolesInert > 0.0) {
         if (m_gasPhase) {
-            double volI = m_totalMolesInert * Cantera::GasConstant * Temp_ / Pres_;
+            double volI = m_totalMolesInert * GasConstant * Temp_ / Pres_;
             m_totalVol += volI;
         } else {
             throw CanteraError("vcs_VolPhase::_updateVolPM", "unknown situation");
@@ -796,10 +810,10 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     _updateActCoeff();
 }
 
-void vcs_VolPhase::sendToVCS_LnActCoeffJac(Cantera::Array2D& np_LnACJac_VCS)
+void vcs_VolPhase::sendToVCS_LnActCoeffJac(Array2D& np_LnACJac_VCS)
 {
     /*
-     * update the Ln Act Coeff jacobian entries with respect to the
+     * update the Ln Act Coeff Jacobian entries with respect to the
      * mole number of species in the phase -> we always assume that
      * they are out of date.
      */
@@ -817,7 +831,7 @@ void vcs_VolPhase::sendToVCS_LnActCoeffJac(Cantera::Array2D& np_LnACJac_VCS)
     }
 }
 
-void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
+void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
 {
     TP_ptr = tp_ptr;
     if (TP_ptr) {
@@ -847,16 +861,16 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
         } else {
             int eos = TP_ptr->eosType();
             switch (eos) {
-            case Cantera::cIdealGas:
-            case Cantera::cIncompressible:
-            case Cantera::cSurf:
-            case Cantera::cMetal:
-            case Cantera::cStoichSubstance:
-            case Cantera::cSemiconductor:
-            case Cantera::cLatticeSolid:
-            case Cantera::cLattice:
-            case Cantera::cEdge:
-            case Cantera::cIdealSolidSolnPhase:
+            case cIdealGas:
+            case cIncompressible:
+            case cSurf:
+            case cMetal:
+            case cStoichSubstance:
+            case cSemiconductor:
+            case cLatticeSolid:
+            case cLattice:
+            case cEdge:
+            case cIdealSolidSolnPhase:
                 m_isIdealSoln = true;
                 break;
             default:
@@ -865,10 +879,13 @@ void vcs_VolPhase::setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr)
         }
     } else {
         m_useCanteraCalls = false;
+        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
+                "deprecated and will not work after Cantera 2.2.");
+
     }
 }
 
-const Cantera::ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
+const ThermoPhase* vcs_VolPhase::ptrThermoPhase() const
 {
     return TP_ptr;
 }
@@ -887,7 +904,7 @@ void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
         const std::vector<size_t> &creationGlobalRxnNumbers)
 {
     creationMoleNumbers_.assign(n_k, n_k+m_numSpecies);
-    for (size_t k = 0; k < m_numSpecies; k++) { 
+    for (size_t k = 0; k < m_numSpecies; k++) {
         creationGlobalRxnNumbers_[k] = creationGlobalRxnNumbers[k];
     }
 }
@@ -1102,7 +1119,7 @@ std::string vcs_VolPhase::elementName(const size_t e) const
 }
 
 //! This function decides whether a phase has charged species or not.
-static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
+static bool hasChargedSpecies(const ThermoPhase* const tPhase)
 {
     for (size_t k = 0; k < tPhase->nSpecies(); k++) {
         if (tPhase->charge(k) != 0.0) {
@@ -1118,7 +1135,7 @@ static bool hasChargedSpecies(const Cantera::ThermoPhase* const tPhase)
  *  phase. It does this by searching for charged species. If it
  *  finds one, and if the phase needs one, then it returns true.
  */
-static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
+static bool chargeNeutralityElement(const ThermoPhase* const tPhase)
 {
     int hasCharge = hasChargedSpecies(tPhase);
     if (tPhase->chargeNeutralityNecessary()) {
@@ -1129,7 +1146,7 @@ static bool chargeNeutralityElement(const Cantera::ThermoPhase* const tPhase)
     return false;
 }
 
-size_t vcs_VolPhase::transferElementsFM(const Cantera::ThermoPhase* const tPhase)
+size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
 {
     size_t nebase = tPhase->nElements();
     size_t ne = nebase;
@@ -1261,7 +1278,7 @@ void vcs_VolPhase::setElementType(const size_t e, const int eType)
     m_elementType[e] = eType;
 }
 
-const Cantera::Array2D& vcs_VolPhase::getFormulaMatrix() const
+const Array2D& vcs_VolPhase::getFormulaMatrix() const
 {
     return m_formulaMatrix;
 }

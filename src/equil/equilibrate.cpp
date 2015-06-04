@@ -2,11 +2,8 @@
  * @file equilibrate.cpp Driver routines for the chemical equilibrium solvers.
  */
 
-#include "cantera/equil/equil.h"
 #include "cantera/equil/ChemEquil.h"
-#include "cantera/equil/MultiPhaseEquil.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -15,6 +12,8 @@ doublereal equilibrate(MultiPhase& s, const char* XY,
                        doublereal tol, int maxsteps, int maxiter,
                        int loglevel)
 {
+    warn_deprecated("equilibrate(MultiPhase&, ...)",
+        "Use MultiPhase::equilibrate instead. To be removed after Cantera 2.2.");
     s.init();
     int ixy = _equilflag(XY);
     if (ixy == TP || ixy == HP || ixy == SP || ixy == TV) {
@@ -35,6 +34,8 @@ doublereal equilibrate(MultiPhase& s, const char* XY,
 int equilibrate(thermo_t& s, const char* XY, int solver,
                 doublereal rtol, int maxsteps, int maxiter, int loglevel)
 {
+    warn_deprecated("equilibrate(ThermoPhase&, ...)",
+        "Use ThermoPhase::equilibrate instead. To be removed after Cantera 2.2.");
     bool redo = true;
     int retn = -1;
     int nAttempts = 0;

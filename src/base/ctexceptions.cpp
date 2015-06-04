@@ -1,12 +1,11 @@
 //! @file ctexceptions.cpp
 #include "cantera/base/ctexceptions.h"
-
 #include "application.h"
-#include "cantera/base/global.h"
-#include "cantera/base/stringUtils.h"
 
+#ifdef HAVE_FENV_H
+#include <fenv.h>
+#endif
 #include <sstream>
-#include <typeinfo>
 
 namespace Cantera
 {
@@ -45,7 +44,11 @@ const char* CanteraError::what() const throw()
     try {
         formattedMessage_ = "\n";
         formattedMessage_ += stars;
-        formattedMessage_ += getClass() + " thrown by " + procedure_ + ":\n" + getMessage();
+        formattedMessage_ += getClass();
+        if (procedure_.size()) {
+            formattedMessage_ += " thrown by " + procedure_;
+        }
+        formattedMessage_ += ":\n" + getMessage();
         if (formattedMessage_.compare(formattedMessage_.size()-1, 1, "\n")) {
             formattedMessage_.append("\n");
         }
@@ -74,6 +77,23 @@ std::string IndexError::getMessage() const
     ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
        " outside valid range of 0 to " << (mmax_) << ".";
     return ss.str();
+}
+
+bool check_FENV_OverUnder_Flow() {
+#ifdef HAVE_FENV_H
+     fexcept_t ff;
+     fegetexceptflag(&ff, FE_OVERFLOW || FE_UNDERFLOW || FE_INVALID);
+     if (ff) {
+        return true;
+     }
+#endif
+     return false;
+};
+
+void clear_FENV() {
+#ifdef HAVE_FENV_H
+     feclearexcept(FE_ALL_EXCEPT);
+#endif
 }
 
 } // namespace Cantera

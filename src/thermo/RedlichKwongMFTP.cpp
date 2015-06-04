@@ -18,6 +18,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/numerics/RootFind.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -29,24 +30,13 @@ const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
 const doublereal RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
 
 RedlichKwongMFTP::RedlichKwongMFTP() :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     Vroot_[0] = 0.0;
     Vroot_[1] = 0.0;
@@ -54,24 +44,13 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id_) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     Vroot_[0] = 0.0;
     Vroot_[1] = 0.0;
@@ -89,24 +68,13 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id_) :
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id_) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     Vroot_[0] = 0.0;
     Vroot_[1] = 0.0;
@@ -119,25 +87,16 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
+    warn_deprecated("RedlichKwongMFTP::RedlichKwongMFTP(int testProb)",
+        "To be removed after Cantera 2.2");
     std::string infile = "co2_redlichkwong.xml";
     std::string id_;
     if (testProb == 1) {
@@ -158,24 +117,13 @@ RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
-    MixtureFugacityTP(),
     m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
-    a_vec_Curr_(0),
-    b_vec_Curr_(0),
-    a_coeff_vec(0,0),
-    m_pc_Species(0),
-    m_tc_Species(0),
-    m_vc_Species(0),
     NSolns_(0),
-    m_pp(0),
-    m_tmpV(0),
-    m_partialMolarVolumes(0),
     dpdV_(0.0),
-    dpdT_(0.0),
-    dpdni_(0)
+    dpdT_(0.0)
 {
     *this = b;
 }
@@ -233,8 +181,7 @@ int RedlichKwongMFTP::eosType() const
 doublereal RedlichKwongMFTP::enthalpy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal rt = _RT();
-    doublereal h_ideal = rt * mean_X(DATA_PTR(m_h0_RT));
+    doublereal h_ideal = _RT() * mean_X(m_h0_RT);
     doublereal h_nonideal = hresid();
     return h_ideal + h_nonideal;
 }
@@ -242,7 +189,7 @@ doublereal RedlichKwongMFTP::enthalpy_mole() const
 doublereal RedlichKwongMFTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal sr_ideal =  GasConstant * (mean_X(DATA_PTR(m_s0_R))
+    doublereal sr_ideal =  GasConstant * (mean_X(m_s0_R)
                                           - sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
     doublereal sr_nonideal = sresid();
     return sr_ideal + sr_nonideal;
@@ -256,7 +203,7 @@ doublereal RedlichKwongMFTP::cp_mole() const
     doublereal mv = molarVolume();
     doublereal vpb = mv + m_b_current;
     pressureDerivatives();
-    doublereal cpref = GasConstant * mean_X(DATA_PTR(m_cp0_R));
+    doublereal cpref = GasConstant * mean_X(m_cp0_R);
     doublereal dadt = da_dt();
     doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
     doublereal dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv) * fac
@@ -276,10 +223,8 @@ doublereal RedlichKwongMFTP::pressure() const
     _updateReferenceStateThermo();
 
     //  Get a copy of the private variables stored in the State object
-    double rho = density();
     doublereal T = temperature();
-    doublereal mmw = meanMolecularWeight();
-    double molarV = mmw / rho;
+    double molarV = meanMolecularWeight() / density();
 
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
 
@@ -303,8 +248,7 @@ void RedlichKwongMFTP::calcDensity()
      * Set the density in the parent State object directly,
      * by calling the Phase::setDensity() function.
      */
-    double dens = 1.0/invDens;
-    Phase::setDensity(dens);
+    Phase::setDensity(1.0/invDens);
 }
 
 void RedlichKwongMFTP::setTemperature(const doublereal temp)
@@ -360,6 +304,9 @@ doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 
 void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
 {
+    warn_deprecated("RedlichKwongMFTP::getUnitsStandardConc",
+                "To be removed after Cantera 2.2.");
+
     //int eos = eosType();
 
     for (int i = 0; i < sizeUA; i++) {
@@ -433,10 +380,9 @@ void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
 void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
 {
     getGibbs_ref(mu);
-    doublereal xx;
     doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(SmallNumber, moleFraction(k));
+        double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt*(log(xx));
     }
 
@@ -673,6 +619,38 @@ doublereal RedlichKwongMFTP::critPressure() const
     return pc;
 }
 
+doublereal RedlichKwongMFTP::critVolume() const
+{
+    double pc, tc, vc;
+    double a0 = 0.0;
+    double aT = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
+            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
+            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
+        }
+    }
+    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
+    return vc;
+}
+
+doublereal RedlichKwongMFTP::critCompressibility() const
+{
+    double pc, tc, vc;
+    double a0 = 0.0;
+    double aT = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j <m_kk; j++) {
+            size_t counter = i + m_kk * j;
+            a0 += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(0, counter);
+            aT += moleFractions_[i] * moleFractions_[j] * a_coeff_vec(1, counter);
+        }
+    }
+    calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
+    return pc*vc/tc/GasConstant;
+}
+
 doublereal RedlichKwongMFTP::critDensity() const
 {
     double pc, tc, vc;
@@ -875,7 +853,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
                 throw CanteraError("", "unknown model");
             }
 
-            ctml::getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
+            getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
             nParamsFound = vParams.size();
             if (nParamsFound != nParamsExpected) {
                 throw CanteraError("RedlichKwongMFTP::readXMLPureFluid(for a_coeff" + iName + ")",
@@ -886,7 +864,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
                 a_coeff_vec(i, counter) = vParams[i];
             }
         } else if (nodeName == "b_coeff") {
-            ctml::getFloatArray(xmlChild, vParams, true, "m3/kmol", "b_coeff");
+            getFloatArray(xmlChild, vParams, true, "m3/kmol", "b_coeff");
             nParamsFound = vParams.size();
             if (nParamsFound != 1) {
                 throw CanteraError("RedlichKwongMFTP::readXMLPureFluid(for b_coeff" + iName + ")",
@@ -966,7 +944,7 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
                 throw CanteraError("", "unknown model");
             }
 
-            ctml::getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
+            getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
             nParamsFound = vParams.size();
             if (nParamsFound != nParamsExpected) {
                 throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid(for a_coeff" + iName + ")",

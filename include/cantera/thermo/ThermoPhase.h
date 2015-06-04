@@ -34,11 +34,9 @@ const int    cAC_CONVENTION_MOLALITY = 1;
 const int cSS_CONVENTION_TEMPERATURE = 0;
 //! Standard state uses the molality convention
 const int cSS_CONVENTION_VPSS = 1;
-//! Standard state thermodynamics is obtained from slave %ThermoPhase objects
+//! Standard state thermodynamics is obtained from slave ThermoPhase objects
 const int cSS_CONVENTION_SLAVE = 2;
 //@}
-
-class XML_Node;
 
 //!   Base class for a phase with thermodynamic properties.
 /*!
@@ -59,7 +57,7 @@ class XML_Node;
  * those of class Phase do not, since they only involve data values
  * stored within the object.
  *
- * Instances of subclasses of %ThermoPhase should be created using
+ * Instances of subclasses of ThermoPhase should be created using
  * the factory class ThermoFactory, not by calling the constructor
  * directly. This allows new classes to be used with the various
  * Cantera language interfaces.
@@ -82,9 +80,9 @@ class XML_Node;
  *   dimensionless.
  *
  *   K_p is the calculation of the equilibrium constant from the
- *   reference state gibbs free energy values. It is by definition
+ *   reference state Gibbs free energy values. It is by definition
  *   dimensionless. The pressure dependence is handled entirely
- *   on the rhs of the equilibrium expression.
+ *   on the RHS of the equilibrium expression.
  *
  *   K_c is the equilibrium constant calculated from the
  *   activity concentrations. The dimensions depend on the number
@@ -107,7 +105,7 @@ public:
     //! Destructor. Deletes the species thermo manager.
     virtual ~ThermoPhase();
 
-    //!Copy Constructor for the %ThermoPhase object.
+    //!Copy Constructor for the ThermoPhase object.
     /*!
      * @param right  ThermoPhase to be copied
      */
@@ -115,16 +113,16 @@ public:
 
     //! Assignment operator
     /*!
-     * @param right    Reference to %ThermoPhase object to be copied into the
+     * @param right    Reference to ThermoPhase object to be copied into the
      *                 current one.
      */
     ThermoPhase& operator=(const ThermoPhase& right);
 
     //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
-    *  This virtual routine can be used to duplicate %ThermoPhase objects
-    *  inherited from %ThermoPhase even if the application only has
-    *  a pointer to %ThermoPhase to work with.
+    *  This virtual routine can be used to duplicate ThermoPhase objects
+    *  inherited from ThermoPhase even if the application only has
+    *  a pointer to ThermoPhase to work with.
     *
     *  These routines are basically wrappers around the derived copy
     *  constructor.
@@ -258,6 +256,7 @@ public:
     /**
      * @returns species vibrational specific heat at
      * constant volume.
+     * @deprecated To be removed after Cantera 2.2.
      */
     /// Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_vib(int, double) const {
@@ -287,7 +286,7 @@ public:
      *   may involve the solution of a nonlinear equation. Within %Cantera,
      *   the independent variable is the density. Therefore, this function
      *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition iare held constant during this process.
+     *   The temperature and composition are held constant during this process.
      *
      *  This base class function will print an error, if not overwritten.
      *
@@ -401,7 +400,7 @@ public:
      *   cSS_CONVENTION_VPSS 1
      *
      *  -  Thermodynamics is set via slave ThermoPhase objects with
-     *     nothing being carried out at this %ThermoPhase object level
+     *     nothing being carried out at this ThermoPhase object level
      *   cSS_CONVENTION_SLAVE 2
      */
     virtual int standardStateConvention() const;
@@ -465,7 +464,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -485,6 +484,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -694,7 +694,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const {
@@ -705,7 +705,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const {
@@ -802,7 +802,7 @@ public:
     }
 
     //!  Returns the vector of the
-    //!  gibbs function of the reference state at the current temperature
+    //!  Gibbs function of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
      *  units = J/kmol
@@ -1071,20 +1071,6 @@ public:
      */
     virtual void setState_UV(doublereal u, doublereal v, doublereal tol = 1.e-4);
 
-private:
-    //! Carry out work in HP and UV calculations.
-    /*!
-     * @param h     Specific enthalpy or internal energy (J/kg)
-     * @param p     Pressure (Pa) or specific volume (m^3/kg)
-     * @param tol   Optional parameter setting the tolerance of the calculation.
-     *              Defaults to 1.0E-4. Important for some applications where
-     *              numerical Jacobians are being calculated.
-     * @param doUV  True if solving for UV, false for HP.
-     */
-    void setState_HPorUV(doublereal h, doublereal p,
-                         doublereal tol = 1.e-4, bool doUV = false);
-
-public:
     //! Set the specific entropy (J/kg/K) and pressure (Pa).
     /*!
      * This function fixes the internal state of the phase so that
@@ -1111,7 +1097,20 @@ public:
      */
     virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
 
+    //@}
+
 private:
+    //! Carry out work in HP and UV calculations.
+    /*!
+     * @param h     Specific enthalpy or internal energy (J/kg)
+     * @param p     Pressure (Pa) or specific volume (m^3/kg)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     * @param doUV  True if solving for UV, false for HP.
+     */
+    void setState_HPorUV(doublereal h, doublereal p,
+                         doublereal tol = 1.e-4, bool doUV = false);
 
     //! Carry out work in SP and SV calculations.
     /*!
@@ -1131,13 +1130,46 @@ private:
 
 public:
 
-    //@}
-
     /**
      * @name Chemical Equilibrium
      * Chemical equilibrium.
      * @{
      */
+
+    //! Equilibrate a ThermoPhase object
+    /*!
+     *  Set this phase to chemical equilibrium by calling one of several
+     *  equilibrium solvers. The XY parameter indicates what two thermodynamic
+     *  quantities are to be held constant during the equilibration process.
+     *
+     *  @param XY      String representation of what two properties are being
+     *                 held constant
+     *  @param solver  Name of the solver to be used to equilibrate the phase.
+     *      If solver = 'element_potential', the ChemEquil element potential
+     *      solver will be used. If solver = 'vcs', the VCS solver will be used.
+     *      If solver = 'gibbs', the MultiPhaseEquil solver will be used. If
+     *      solver = 'auto', the solvers will be tried in order if the initial
+     *      solver(s) fail.
+     *  @param rtol      Relative tolerance
+     *  @param max_steps Maximum number of steps to take to find the solution
+     *  @param max_iter  For the 'gibbs' and 'vcs' solvers, this is the maximum
+     *      number of outer temperature or pressure iterations to take when T
+     *      and/or P is not held fixed.
+     *  @param estimate_equil integer indicating whether the solver should
+     *      estimate its own initial condition. If 0, the initial mole fraction
+     *      vector in the ThermoPhase object is used as the initial condition.
+     *      If 1, the initial mole fraction vector is used if the element
+     *      abundances are satisfied. If -1, the initial mole fraction vector is
+     *      thrown out, and an estimate is formulated.
+     *  @param log_level  loglevel Controls amount of diagnostic output.
+     *      log_level=0 suppresses diagnostics, and increasingly-verbose
+     *      messages are written as loglevel increases.
+     *
+     * @ingroup equilfunctions
+     */
+    void equilibrate(const std::string& XY, const std::string& solver="auto",
+                     double rtol=1e-9, int max_steps=50000, int max_iter=100,
+                     int estimate_equil=0, int log_level=0);
 
     //!This method is used by the ChemEquil equilibrium solver.
     /*!
@@ -1157,11 +1189,10 @@ public:
 
     //! Stores the element potentials in the ThermoPhase object
     /*!
-     * Called by function 'equilibrate' in ChemEquil.h to transfer
-     * the element potentials to this object after every successful
-     *  equilibration routine.
-     * The element potentials are stored in their dimensionless
-     * forms, calculated by dividing by RT.
+     * Called by the ChemEquil equilibrium solver to transfer the element
+     * potentials to this object after every successful equilibration routine.
+     * The element potentials are stored in their dimensionless forms,
+     * calculated by dividing by RT.
      *
      *    @param lambda Input vector containing the element potentials.
      *           Length = nElements. Units are Joules/kmol.
@@ -1202,6 +1233,16 @@ public:
         throw NotImplementedError("ThermoPhase::critPressure");
     }
 
+    /// Critical volume (m3/kmol).
+    virtual doublereal critVolume() const {
+        throw NotImplementedError("ThermoPhase::critVolume");
+    }
+
+    /// Critical compressibility (unitless).
+    virtual doublereal critCompressibility() const {
+        throw NotImplementedError("ThermoPhase::critCompressibility");
+    }
+
     /// Critical density (kg/m3).
     virtual doublereal critDensity() const {
         throw NotImplementedError("ThermoPhase::critDensity");
@@ -1213,7 +1254,7 @@ public:
      *
      * These methods are only implemented by subclasses that
      * implement full liquid-vapor equations of state. They may be
-     * moved out of %ThermoPhase at a later date.
+     * moved out of ThermoPhase at a later date.
      */
     //@{
 
@@ -1259,7 +1300,7 @@ public:
     //@}
 
 
-    //! @name Initialization Methods - For Internal Use (%ThermoPhase)
+    //! @name Initialization Methods - For Internal Use (ThermoPhase)
     /*!
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
@@ -1267,6 +1308,9 @@ public:
      * To see how they are used, see importPhase().
      */
     //@{
+
+    using Phase::addSpecies;
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
     //! Store a reference pointer to the XML tree containing the species data
     //! for this phase.
@@ -1504,7 +1548,7 @@ public:
     /*!
      * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
      * species log mole number (with all other species mole numbers held constant). The default treatment in the
-     * %ThermoPhase object is to set this vector to zero.
+     * ThermoPhase object is to set this vector to zero.
      *
      *  units = 1 / kmol
      *
@@ -1535,7 +1579,7 @@ public:
      *                    greater than *threshold*.
      */
     virtual std::string report(bool show_thermo=true,
-                               doublereal threshold=1e-14) const;
+                               doublereal threshold=-1e-14) const;
 
     //! returns a summary of the state of the phase to a comma separated file.
     //! To customize the data included in the report, derived classes should
@@ -1604,7 +1648,7 @@ protected:
      *  Occasionally, the need arises to find a safe mole fraction vector to initialize
      *  the object to. This contains such a vector.
      *  The algorithm will pick up the mole fraction vector that is applied from
-     *  the state xml file in the input file
+     *  the state XML file in the input file
      */
     std::vector<doublereal> xMol_Ref;
 

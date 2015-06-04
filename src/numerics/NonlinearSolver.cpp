@@ -9,16 +9,11 @@
  * See file License.txt for licensing information.
  */
 
-
-#include "cantera/numerics/SquareMatrix.h"
-#include "cantera/numerics/GeneralMatrix.h"
 #include "cantera/numerics/NonlinearSolver.h"
 #include "cantera/numerics/ctlapack.h"
 
 #include "cantera/base/clockWC.h"
-#include "cantera/base/vec_functions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 #include <limits>
 
@@ -64,22 +59,7 @@ NonlinearSolver::NonlinearSolver(ResidJacEval* func) :
     m_func(func),
     solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
-    m_ewt(0),
     m_manualDeltaStepSet(0),
-    m_deltaStepMinimum(0),
-    m_y_n_curr(0),
-    m_ydot_n_curr(0),
-    m_y_nm1(0),
-    m_ydot_nm1(0),
-    m_y_n_trial(0),
-    m_ydot_trial(0),
-    m_colScales(0),
-    m_rowScales(0),
-    m_rowWtScales(0),
-    m_resid(0),
-    m_wksp(0),
-    m_wksp_2(0),
-    m_residWts(0),
     m_normResid_0(0.0),
     m_normResid_Bound(0.0),
     m_normResid_1(0.0),
@@ -87,8 +67,6 @@ NonlinearSolver::NonlinearSolver(ResidJacEval* func) :
     m_normDeltaSoln_CP(0.0),
     m_normResidTrial(0.0),
     m_resid_scaled(false),
-    m_y_high_bounds(0),
-    m_y_low_bounds(0),
     m_dampBound(1.0),
     m_dampRes(1.0),
     delta_t_n(-1.0),
@@ -106,16 +84,12 @@ NonlinearSolver::NonlinearSolver(ResidJacEval* func) :
     m_order(1),
     rtol_(1.0E-3),
     atolBase_(1.0E-10),
-    atolk_(0),
-    userResidAtol_(0),
     userResidRtol_(1.0E-3),
     checkUserResidualTols_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopyPtr_(0),
     HessianPtr_(0),
-    deltaX_CP_(0),
-    deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     dogLegID_(0),
     dogLegAlpha_(1.0),
@@ -145,6 +119,7 @@ NonlinearSolver::NonlinearSolver(ResidJacEval* func) :
     ResidDecreaseNewtExp_(0.0),
     ResidDecreaseNewt_(0.0)
 {
+    warn_deprecated("class NonlinearSolver", "To be removed after Cantera 2.2.");
     neq_ = m_func->nEquations();
 
     m_ewt.resize(neq_, rtol_);
@@ -185,23 +160,7 @@ NonlinearSolver::NonlinearSolver(const NonlinearSolver& right) :
     m_func(right.m_func),
     solnType_(NSOLN_TYPE_STEADY_STATE),
     neq_(0),
-    m_ewt(0),
     m_manualDeltaStepSet(0),
-    m_deltaStepMinimum(0),
-    m_y_n_curr(0),
-    m_ydot_n_curr(0),
-    m_y_nm1(0),
-    m_ydot_nm1(0),
-    m_y_n_trial(0),
-    m_ydot_trial(0),
-    m_step_1(0),
-    m_colScales(0),
-    m_rowScales(0),
-    m_rowWtScales(0),
-    m_resid(0),
-    m_wksp(0),
-    m_wksp_2(0),
-    m_residWts(0),
     m_normResid_0(0.0),
     m_normResid_Bound(0.0),
     m_normResid_1(0.0),
@@ -209,8 +168,6 @@ NonlinearSolver::NonlinearSolver(const NonlinearSolver& right) :
     m_normDeltaSoln_CP(0.0),
     m_normResidTrial(0.0),
     m_resid_scaled(false),
-    m_y_high_bounds(0),
-    m_y_low_bounds(0),
     m_dampBound(1.0),
     m_dampRes(1.0),
     delta_t_n(-1.0),
@@ -228,23 +185,17 @@ NonlinearSolver::NonlinearSolver(const NonlinearSolver& right) :
     m_order(1),
     rtol_(1.0E-3),
     atolBase_(1.0E-10),
-    atolk_(0),
-    userResidAtol_(0),
     userResidRtol_(1.0E-3),
     checkUserResidualTols_(0),
     m_print_flag(0),
     m_ScaleSolnNormToResNorm(0.001),
     jacCopyPtr_(0),
     HessianPtr_(0),
-    deltaX_CP_(0),
-    deltaX_Newton_(0),
     residNorm2Cauchy_(0.0),
     dogLegID_(0),
     dogLegAlpha_(1.0),
     RJd_norm_(0.0),
     lambdaStar_(0.0),
-    Jd_(0),
-    deltaX_trust_(0),
     norm_deltaX_trust_(0.0),
     trustDelta_(1.0),
     trustRegionInitializationMethod_(2),
@@ -794,7 +745,7 @@ void NonlinearSolver::calcSolnToResNormVector()
         for (size_t irow = 0; irow < neq_; irow++) {
             m_wksp[irow] = 0.0;
         }
-        doublereal* jptr = &(jacCopyPtr_->operator()(0,0));
+        doublereal* jptr = &((*jacCopyPtr_)(0,0));
         for (size_t jcol = 0; jcol < neq_; jcol++) {
             for (size_t irow = 0; irow < neq_; irow++) {
                 m_wksp[irow] += (*jptr) * m_ewt[jcol];
@@ -1110,13 +1061,13 @@ int NonlinearSolver::doAffineNewtonSolve(const doublereal* const y_curr,   const
         ct_dpotrf(ctlapack::UpperTriangular, neq_, &(*(HessianPtr_->begin())), neq_, info);
         if (info) {
             if (m_print_flag >= 2) {
-                printf("\t\t    doAffineNewtonSolve() ERROR: Hessian isn't positive definate DPOTRF returned INFO = %d\n", info);
+                printf("\t\t    doAffineNewtonSolve() ERROR: Hessian isn't positive definite DPOTRF returned INFO = %d\n", info);
             }
             return info;
         }
 
         vector_fp delyH(neq_);
-        // First recalculate the scaled residual. It got wiped out doing the newton solve
+        // First recalculate the scaled residual. It got wiped out doing the Newton solve
         if (m_rowScaling) {
             for (size_t n = 0; n < neq_; n++) {
                 delyH[n] = -m_rowScales[n] * m_resid[n];
@@ -1454,23 +1405,23 @@ void  NonlinearSolver::descentComparison(doublereal time_curr, doublereal* ydot0
      *   HKM These have been shown to exactly match up.
      *   The steepest direction is always largest even when there are variable solution weights
      *
-     *   HKM When a hessian is used with junk on the diagonal,  funcDecreaseNewtExp2 is no longer accurate as the
+     *   HKM When a Hessian is used with junk on the diagonal,  funcDecreaseNewtExp2 is no longer accurate as the
      *  direction gets significantly shorter with increasing condition number. This suggests an algorithm where the
-     *  newton step from the Hessian should be increased so as to match funcDecreaseNewtExp2 =  funcDecreaseNewt2.
-     *  This roughly equals the ratio of the norms of the hessian and newton steps. This increased Newton step can
+     *  Newton step from the Hessian should be increased so as to match funcDecreaseNewtExp2 =  funcDecreaseNewt2.
+     *  This roughly equals the ratio of the norms of the Hessian and Newton steps. This increased Newton step can
      *  then be used with the trust region double dogleg algorithm.
      */
     if ((s_print_DogLeg && m_print_flag >= 3) || (doDogLeg_ && m_print_flag >= 5)) {
-        printf("\t\t   descentComparison: initial rate of decrease of func in cauchy dir (expected) = %g\n", funcDecreaseSDExp);
-        printf("\t\t   descentComparison: initial rate of decrease of func in cauchy dir            = %g\n", funcDecreaseSD);
-        printf("\t\t   descentComparison: initial rate of decrease of func in newton dir (expected) = %g\n", funcDecreaseNewtExp2);
-        printf("\t\t   descentComparison: initial rate of decrease of func in newton dir            = %g\n", funcDecreaseNewt2);
+        printf("\t\t   descentComparison: initial rate of decrease of func in Cauchy dir (expected) = %g\n", funcDecreaseSDExp);
+        printf("\t\t   descentComparison: initial rate of decrease of func in Cauchy dir            = %g\n", funcDecreaseSD);
+        printf("\t\t   descentComparison: initial rate of decrease of func in Newton dir (expected) = %g\n", funcDecreaseNewtExp2);
+        printf("\t\t   descentComparison: initial rate of decrease of func in Newton dir            = %g\n", funcDecreaseNewt2);
     }
     if ((s_print_DogLeg && m_print_flag >= 3) || (doDogLeg_ && m_print_flag >= 4)) {
-        printf("\t\t   descentComparison: initial rate of decrease of Resid in cauchy dir (expected) = %g\n", ResidDecreaseSDExp_);
-        printf("\t\t   descentComparison: initial rate of decrease of Resid in cauchy dir            = %g\n", ResidDecreaseSD_);
-        printf("\t\t   descentComparison: initial rate of decrease of Resid in newton dir (expected) = %g\n", ResidDecreaseNewtExp_);
-        printf("\t\t   descentComparison: initial rate of decrease of Resid in newton dir            = %g\n", ResidDecreaseNewt_);
+        printf("\t\t   descentComparison: initial rate of decrease of Resid in Cauchy dir (expected) = %g\n", ResidDecreaseSDExp_);
+        printf("\t\t   descentComparison: initial rate of decrease of Resid in Cauchy dir            = %g\n", ResidDecreaseSD_);
+        printf("\t\t   descentComparison: initial rate of decrease of Resid in Newton dir (expected) = %g\n", ResidDecreaseNewtExp_);
+        printf("\t\t   descentComparison: initial rate of decrease of Resid in Newton dir            = %g\n", ResidDecreaseNewt_);
     }
 
     if ((s_print_DogLeg && m_print_flag >= 5) || (doDogLeg_ && m_print_flag >= 5)) {
@@ -1508,16 +1459,16 @@ void NonlinearSolver::setupDoubleDogleg()
      *           (grad f)T H (grad f)  (grad f)T H-1 (grad f)
      */
     /*
-     * This hasn't worked. so will do it heuristically. One issue is that the newton
-     * direction is not the inverse of the Hessian times the gradient. The Hession
+     * This hasn't worked. so will do it heuristically. One issue is that the Newton
+     * direction is not the inverse of the Hessian times the gradient. The Hessian
      * is the matrix squared. Until I have the inverse of the Hessian from QR factorization
      * I may not be able to do it this way.
      */
 
     /*
      *  Heuristic algorithm - Find out where on the Newton line the residual is the same
-     *                        as the residual at the cauchy point. Then, go halfway to
-     *                        the newton point and call that Nuu.
+     *                        as the residual at the Cauchy point. Then, go halfway to
+     *                        the Newton point and call that Nuu.
      *                        Maybe we need to check that the linearized residual is
      *                        monotonic along that line. However, we haven't needed to yet.
      */
@@ -2492,15 +2443,15 @@ int NonlinearSolver::decideStep(const doublereal time_curr, int leg, doublereal 
     // Calculate the initial (R**2 * neq) value for the old function
     doublereal normResid0_2 = m_normResid_0 * m_normResid_0 * neq_;
 
-    // Calculate the distance to the cauchy point
+    // Calculate the distance to the Cauchy point
     doublereal cauchyDistanceNorm = solnErrorNorm(DATA_PTR(deltaX_CP_));
 
-    // This is the expected initial rate of decrease in the cauchy direction.
+    // This is the expected initial rate of decrease in the Cauchy direction.
     //   -> This is Eqn. 29 = Rhat dot Jhat dy / || d ||
     doublereal funcDecreaseSDExp = RJd_norm_ / cauchyDistanceNorm * lambdaStar_;
     if (funcDecreaseSDExp > 0.0) {
         if (m_print_flag >= 5) {
-            printf("\t\tdecideStep(): Unexpected condition -> cauchy slope is positive\n");
+            printf("\t\tdecideStep(): Unexpected condition -> Cauchy slope is positive\n");
         }
     }
 
@@ -2760,7 +2711,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
             }
         } else {
             if (m_print_flag > 1) {
-                printf("\t   solve_nonlinear_problem(): Solving system with old jacobian\n");
+                printf("\t   solve_nonlinear_problem(): Solving system with old Jacobian\n");
             }
         }
         /*
@@ -2785,7 +2736,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
         }
 
         /*
-         * Scale the matrix and the rhs, if they aren't already scaled
+         * Scale the matrix and the RHS, if they aren't already scaled
          * Figure out and store the residual scaling factors.
          */
         scaleMatrix(jac, DATA_PTR(m_y_n_curr), DATA_PTR(m_ydot_n_curr), time_curr, num_newt_its);
@@ -2903,7 +2854,7 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
         // Damp the Newton step
         /*
-         *  On return the recommended new solution and derivatisve is located in:
+         *  On return the recommended new solution and derivatives is located in:
          *          y_new
          *          y_dot_new
          *  The update delta vector is located in
@@ -2922,12 +2873,12 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
 
 
         /*
-         * Impose the minimum number of newton iterations critera
+         * Impose the minimum number of Newton iterations criteria
          */
         if (num_newt_its < m_min_newt_its) {
             if (retnDamp > NSOLN_RETN_CONTINUE) {
                 if (m_print_flag > 2) {
-                    printf("\t   solve_nonlinear_problem(): Damped Newton successful (m=%d) but minimum newton"
+                    printf("\t   solve_nonlinear_problem(): Damped Newton successful (m=%d) but minimum Newton"
                            "iterations not attained. Resolving ...\n", retnDamp);
                 }
                 retnDamp = NSOLN_RETN_CONTINUE;
@@ -2935,12 +2886,12 @@ int NonlinearSolver::solve_nonlinear_problem(int SolnType, doublereal* const y_c
         }
 
         /*
-         * Impose max newton iteration
+         * Impose max Newton iteration
          */
         if (num_newt_its > maxNewtIts_) {
             retnDamp = NSOLN_RETN_MAXIMUMITERATIONSEXCEEDED;
             if (m_print_flag > 1) {
-                printf("\t   solve_nonlinear_problem(): Damped newton unsuccessful (max newts exceeded) sfinal = %g\n",
+                printf("\t   solve_nonlinear_problem(): Damped Newton unsuccessful (max newts exceeded) sfinal = %g\n",
                        stepNorm_1);
             }
         }
@@ -3210,7 +3161,7 @@ void NonlinearSolver::print_solnDelta_norm_contrib(const doublereal* const step_
     printf("\t\t   ");
     writeline('-', 125);
 }
-//====================================================================================================================
+
 //!  This routine subtracts two numbers for one another
 /*!
  *   This routine subtracts 2 numbers. If the difference is less
@@ -3222,7 +3173,7 @@ void NonlinearSolver::print_solnDelta_norm_contrib(const doublereal* const step_
  *
  *   This routine is used in numerical differencing schemes in order
  *   to avoid roundoff errors resulting in creating Jacobian terms.
- *   Note: This is a slow routine. However, jacobian errors may cause
+ *   Note: This is a slow routine. However, Jacobian errors may cause
  *         loss of convergence. Therefore, in practice this routine has proved cost-effective.
  *
  * @param a   Value of a
@@ -3262,7 +3213,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
     J.clearFactorFlag();
     if (m_jacFormMethod == NSOLN_JAC_ANAL) {
         /********************************************************************
-         * Call the function to get a jacobian.
+         * Call the function to get a Jacobian.
          */
         info = m_func->evalJacobian(time_curr, delta_t_n, CJ, y, ydot, J, f);
         m_nJacEval++;
@@ -3276,7 +3227,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
              * Generic algorithm to calculate a numerical Jacobian
              */
             /*
-             * Calculate the current value of the rhs given the
+             * Calculate the current value of the RHS given the
              * current conditions.
              */
 
@@ -3303,7 +3254,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 if (m_print_flag >= 7) {
                     if (retn != 1) {
                         printf("\t\t  beuler_jac ERROR! calcDeltaSolnVariables() returned an error flag\n");
-                        printf("\t\t                    We will bail from the nonlinear solver after calculating the jacobian");
+                        printf("\t\t                    We will bail from the nonlinear solver after calculating the Jacobian");
                     }
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
@@ -3350,7 +3301,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
 
 
                 info =  m_func->evalResidNJ(time_curr, delta_t_n, y, ydot, DATA_PTR(m_wksp),
-                                            JacDelta_ResidEval, j, dy);
+                                            JacDelta_ResidEval, static_cast<int>(j), dy);
                 m_nfe++;
 
                 if (DEBUG_MODE_ENABLED) {
@@ -3381,8 +3332,8 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
             int ku, kl;
             size_t ivec[2];
             size_t n = J.nRowsAndStruct(ivec);
-            kl = ivec[0];
-            ku = ivec[1];
+            kl = static_cast<int>(ivec[0]);
+            ku = static_cast<int>(ivec[1]);
             if (n != neq_) {
                 printf("we have probs\n");
                 exit(-1);
@@ -3403,7 +3354,7 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
                 if (m_print_flag >= 7) {
                     if (retn != 1) {
                         printf("\t\t  beuler_jac ERROR! calcDeltaSolnVariables() returned an error flag\n");
-                        printf("\t\t                    We will bail from the nonlinear solver after calculating the jacobian");
+                        printf("\t\t                    We will bail from the nonlinear solver after calculating the Jacobian");
                     }
                     if (neq_ < 20) {
                         printf("\t\tUnk            m_ewt              y                dyVector            ResN\n");
@@ -3509,10 +3460,10 @@ int NonlinearSolver::beuler_jac(GeneralMatrix& J, doublereal* const f,
         }
     }
     /*
-     *  Make a copy of the data. Note, this jacobian copy occurs before any matrix scaling operations.
+     *  Make a copy of the data. Note, this Jacobian copy occurs before any matrix scaling operations.
      *  It's the raw matrix producted by this routine.
      */
-    jacCopyPtr_->copyData(J);
+    *jacCopyPtr_ = J;
 
     return retn;
 }

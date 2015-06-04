@@ -13,13 +13,20 @@ Basic usage:
 
     '[sudo] scons uninstall' - Uninstall Cantera.
 
-    'scons test' - Run full test suite.
+    'scons test' - Run all tests which did not previously pass or for which the
+                   results may have changed.
+
+    'scons test-reset' - Reset the passing status of all tests.
 
     'scons test-clean' - Delete files created while running the tests.
 
     'scons test-help' - List available tests.
 
     'scons test-NAME' - Run the test named "NAME".
+
+    'scons <command> dump' - Dump the state of the SCons environment to the
+                             screen instead of doing <action>, e.g.
+                             'scons build dump'. For debugging purposes.
 
     'scons samples' - Compile the C++ and Fortran samples.
 
@@ -54,15 +61,37 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
     removeFile('ext/f2c_libs/arith.h')
+    removeFile('interfaces/cython/cantera/_cantera.cpp')
+    removeFile('interfaces/cython/setup2.py')
+    removeFile('interfaces/cython/setup3.py')
+    removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
+    removeDirectory('doc/sphinx/matlab/tutorials')
+    removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
+    removeDirectory('interfaces/cython/build')
+    for name in os.listdir('interfaces/cython/cantera/data/'):
+        if name != '__init__.py':
+            removeFile('interfaces/cython/cantera/data/' + name)
+    for name in os.listdir('interfaces/cython/cantera/test/data/'):
+        if name != '__init__.py':
+            removeFile('interfaces/cython/cantera/test/data/' + name)
     for name in os.listdir('.'):
         if name.endswith('.msi'):
             removeFile(name)
+    for name in os.listdir('site_scons/'):
+        if name.endswith('.pyc'):
+            removeFile('site_scons/' + name)
+    for name in os.listdir('site_scons/site_tools/'):
+        if name.endswith('.pyc'):
+            removeFile('site_scons/site_tools/' + name)
     removeFile('interfaces/matlab/toolbox/cantera_shared.dll')
+    removeFile('interfaces/matlab/Contents.m')
+    removeFile('interfaces/matlab/ctpath.m')
     for name in os.listdir('interfaces/matlab/toolbox'):
         if name.startswith('ctmethods.'):
             removeFile('interfaces/matlab/toolbox/' + name)
+
     print 'Done removing output files.'
 
     if COMMAND_LINE_TARGETS == ['clean']:
@@ -81,21 +110,8 @@ opts = Variables('cantera.conf')
 
 windows_compiler_options = []
 if os.name == 'nt':
-    # On Windows, use the same version of Visual Studio that was used
-    # to compile Python, and target the same architecture, unless
-    # the user specified another option.
-
-    if 'MSC v.1400' in sys.version:
-        msvc_version = '8.0' # Visual Studio 2005
-    elif 'MSC v.1500' in sys.version:
-        msvc_version = '9.0' # Visual Studio 2008
-    elif 'MSC v.1600' in sys.version:
-        msvc_version = '10.0' # Visual Studio 2010
-    elif 'MSC v.1700' in sys.version:
-        msvc_version = '11.0' # Visual Studio 2012
-    else:
-        msvc_version = None
-
+    # On Windows, target the same architecture as the current copy of Python,
+    # unless the user specified another option.
     if '64 bit' in sys.version:
         target_arch = 'amd64'
     else:
@@ -109,26 +125,36 @@ if os.name == 'nt':
 
     windows_compiler_options.extend([
         ('msvc_version',
-         """Version of Visual Studio to use. The default is the same version
-            that was used to compile the installed version of Python.""",
-         msvc_version),
+         """Version of Visual Studio to use. The default is the newest
+            installed version. Specify '9.0' for Visual Studio 2008; '10.0'
+            for Visual Studio 2010; '11.0' for Visual Studio 2012; or '12.0'
+            for Visual Studio 2013.""",
+         ''),
         ('target_arch',
          """Target architecture. The default is the same
             architecture as the installed version of Python.""",
-         target_arch),
-        EnumVariable(
-            'toolchain',
-            """The preferred compiler toolchain.""",
-            defaultToolchain, ('msvc', 'mingw', 'intel'))])
+         target_arch)])
     opts.AddVariables(*windows_compiler_options)
 
     pickCompilerEnv = Environment()
     opts.Update(pickCompilerEnv)
 
+    if pickCompilerEnv['msvc_version']:
+        defaultToolchain = 'msvc'
+
+    windows_compiler_options.append(EnumVariable(
+        'toolchain',
+        """The preferred compiler toolchain.""",
+        defaultToolchain, ('msvc', 'mingw', 'intel')))
+    opts.AddVariables(windows_compiler_options[-1])
+    opts.Update(pickCompilerEnv)
+
     if pickCompilerEnv['toolchain'] == 'msvc':
         toolchain = ['default']
-        if msvc_version:
+        if pickCompilerEnv['msvc_version']:
             extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
+        print 'INFO: Compiling with MSVC', (pickCompilerEnv['msvc_version'] or
+                                            pickCompilerEnv['MSVC_VERSION'])
 
     elif pickCompilerEnv['toolchain'] == 'mingw':
         toolchain = ['mingw', 'f90']
@@ -140,6 +166,7 @@ if os.name == 'nt':
         toolchain = ['intelc'] # note: untested
 
     extraEnvArgs['TARGET_ARCH'] = pickCompilerEnv['target_arch']
+    print 'INFO: Compiling for architecture:', pickCompilerEnv['target_arch']
     print 'INFO: Compiling using the following toolchain(s):', repr(toolchain)
 
 else:
@@ -553,18 +580,6 @@ config_options = [
         static libaries and avoids a bug with using valgrind with
         the -static linking flag.""",
         True),
-    BoolVariable(
-        'install_gtest',
-        """Determines whether to install the Google Test library and headers
-           alongside Cantera's libraries. Not recommended.""",
-        False),
-    BoolVariable(
-        'single_library',
-        """If set to 'n', code from the 'ext' folder in the cantera library
-        will be placed in separate libraries for ctlapack, ctf2c, etc., rather
-        than being included in the cantera library. NOTE: This option is
-        deprecated, and will be removed in Cantera 2.2.""",
-        True),
     EnumVariable(
         'layout',
         """The layout of the directory structure. 'standard' installs files to
@@ -575,15 +590,7 @@ config_options = [
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
      defaults.fsLayout, ('standard','compact','debian')),
-    PathVariable(
-        'graphvizdir',
-        """The directory location of the graphviz program, "dot". dot is used
-           for creating the documentation, and for making reaction path
-           diagrams. If "dot" is in your path, you can leave this unspecified.
-           NOTE: Matlab comes with a stripped-down version of 'dot'. If 'dot'
-           is on your path, make sure it is not the Matlab version!""",
-        '', PathVariable.PathAccept),
-    ('cantera_version', '', '2.2a')
+    ('cantera_version', '', '2.2.0')
 ]
 
 opts.AddVariables(*config_options)
@@ -762,15 +769,25 @@ if not conf.CheckCXXHeader('cmath', '<>'):
 
 def get_expression_value(includes, expression):
     s = ['#include ' + i for i in includes]
-    s.extend(('#include <iostream>',
+    s.extend(('#define Q(x) #x',
+              '#define QUOTE(x) Q(x)',
+              '#include <iostream>',
               'int main(int argc, char** argv) {',
               '    std::cout << %s << std::endl;' % expression,
               '    return 0;',
               '}\n'))
     return '\n'.join(s)
 
+configh = {}
+
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
+#
+# Check to see if the compiler supports C99 fenv.h
+#      Apparently, the only compiler not to is MS visual before 2013
+#
+env['HAS_FENV_H'] = conf.CheckCHeader('fenv.h', '""')
+
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 
 env['HAS_GLOBAL_ISNAN'] = conf.CheckStatement('::isnan(1.0)', '#include <cmath>')
@@ -782,6 +799,22 @@ env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hp
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
+
+# Find shared pointer implementation
+configh['CT_USE_STD_SHARED_PTR'] = None
+configh['CT_USE_TR1_SHARED_PTR'] = None
+configh['CT_USE_MSFT_SHARED_PTR'] = None
+configh['CT_USE_BOOST_SHARED_PTR'] = None
+if conf.CheckStatement('std::shared_ptr<int> x', '#include <memory>'):
+    configh['CT_USE_STD_SHARED_PTR'] = 1
+elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <tr1/memory>'):
+    configh['CT_USE_TR1_SHARED_PTR'] = 1
+elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <memory>'):
+    configh['CT_USE_MSFT_SHARED_PTR'] = 1
+elif conf.CheckStatement('boost::shared_ptr<int> x', '#include <boost/shared_ptr.hpp>'):
+    configh['CT_USE_BOOST_SHARED_PTR'] = 1
+else:
+    config_error("Couldn't find a working shared_ptr implementation.")
 
 import SCons.Conftest, SCons.SConf
 ret = SCons.Conftest.CheckLib(SCons.SConf.CheckContext(conf),
@@ -799,23 +832,30 @@ env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     # Determine Sundials version
     sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
-                                                   'SUNDIALS_PACKAGE_VERSION')
+                                                   'QUOTE(SUNDIALS_PACKAGE_VERSION)')
     retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
     if retcode == 0:
         config_error("Failed to determine Sundials version.")
+    sundials_version = sundials_version.strip(' "\n')
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
-    env['sundials_version'] = '.'.join(sundials_version.strip().split('.')[:2])
-    print """INFO: Using Sundials version %s.""" % sundials_version.strip()
+    env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
+    print """INFO: Using Sundials version %s.""" % sundials_version
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
-    sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
-                                                   'SUNDIALS_BLAS_LAPACK')
-    retcode, has_sundials_lapack = conf.TryRun(sundials_blas_lapack, '.cpp')
-    if retcode == 0:
-        config_error("Failed to determine Sundials BLAS/LAPACK.")
-    env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
-    
+    if LooseVersion(env['sundials_version']) < LooseVersion('2.6'):
+        # In Sundials 2.4 / 2.5, SUNDIALS_BLAS_LAPACK is either 0 or 1
+        sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
+                                                       'SUNDIALS_BLAS_LAPACK')
+        retcode, has_sundials_lapack = conf.TryRun(sundials_blas_lapack, '.cpp')
+        if retcode == 0:
+            config_error("Failed to determine Sundials BLAS/LAPACK.")
+        env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
+    else:
+        # In Sundials 2.6, SUNDIALS_BLAS_LAPACK is either defined or undefined
+        env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
+                '#include "sundials/sundials_config.h"', 'C++')
+
     #In the case where a user is trying to link Cantera to an exteral BLAS/LAPACK
     #library, but Sundials was configured without this support, print a Warning.
     if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
@@ -886,6 +926,8 @@ if env['VERBOSE']:
     print open('config.log').read()
     print '--------------------- end config.log ---------------------'
 
+env['python_cmd_esc'] = quoted(env['python_cmd'])
+
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.17')
 env['install_python2_action'] = ''
@@ -954,7 +996,12 @@ if env['python_package'] in ('full','default'):
     # Check for 3to2. See http://pypi.python.org/pypi/3to2
     if env['python_package'] == 'full':
         try:
-            ret = getCommandOutput('3to2','-l')
+            if env['OS'] == 'Windows':
+                python_dir = os.path.dirname(which(env['python_cmd']))
+                threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
+                ret = getCommandOutput(env['python_cmd'], threetotwo_cmd, '-l')
+            else:
+                ret = getCommandOutput('3to2', '-l')
         except OSError:
             ret = ''
         if 'print' in ret:
@@ -1051,7 +1098,7 @@ if env['use_sundials'] == 'default':
         env['use_sundials'] = 'n'
 elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
     config_error("Unable to find Sundials headers and / or libraries.")
-elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.4','2.5'):
+elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.4','2.5','2.6'):
     print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
     sys.exit(1)
 
@@ -1129,6 +1176,7 @@ if env['layout'] == 'debian':
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
+    env['python3_prefix'] = pjoin(base, 'cantera-python3', 'usr')
     env['ct_datadir'] = '/usr/share/cantera/data'
 else:
     env['inst_libdir'] = pjoin(instRoot, 'lib')
@@ -1154,7 +1202,7 @@ else:
 # *** Set options needed in config.h ***
 # **************************************
 
-configh = {'CANTERA_VERSION': quoted(env['cantera_version'])}
+configh['CANTERA_VERSION'] = quoted(env['cantera_version'])
 
 # Conditional defines
 def cdefine(definevar, configvar, comp=True, value=1):
@@ -1203,6 +1251,12 @@ else:
 cdefine('USE_GLOBAL_ISNAN', 'HAS_GLOBAL_ISNAN')
 cdefine('USE_STD_ISNAN', 'HAS_STD_ISNAN')
 cdefine('USE_UNDERSCORE_ISNAN', 'HAS_UNDERSCORE_ISNAN')
+
+#  this turns on HAS_FENV_H
+if env['HAS_FENV_H']:
+    configh['HAS_FENV_H'] = 1
+else:
+    configh['HAS_FENV_H'] = None
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',
@@ -1268,7 +1322,7 @@ for cti in mglob(env, 'data/inputs', 'cti'):
     outName = os.path.splitext(cti.name)[0] + '.xml'
     convertedInputFiles.add(outName)
     build(env.Command('build/data/%s' % outName, cti.path,
-                      '$python_cmd interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
+                      '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
 
 # Copy input files which are not present as cti:
@@ -1286,15 +1340,15 @@ if addInstallActions:
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Data files
-    install('$inst_datadir', mglob(env, pjoin('build','data'), 'cti', 'xml'))
+    install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
 
     # Converter scripts
     pyExt = '.py' if env['OS'] == 'Windows' else ''
     install(env.InstallAs,
-            pjoin('$inst_bindir','ck2cti%s' % pyExt),
+            '$inst_bindir/ck2cti%s' % pyExt,
             'interfaces/cython/cantera/ck2cti.py')
     install(env.InstallAs,
-            pjoin('$inst_bindir','ctml_writer%s' % pyExt),
+            '$inst_bindir/ctml_writer%s' % pyExt,
             'interfaces/cython/cantera/ctml_writer.py')
 
     # Copy external libaries for Windows installations
@@ -1302,8 +1356,8 @@ if addInstallActions:
         boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
                                         env['BOOST_LIB_VERSION'])
         for lib in env['boost_windows_libs'].split(','):
-            install('$inst_libdir', pjoin('$boost_lib_dir',
-                                          'libboost_{0}{1}'.format(lib, boost_suffix)))
+            install('$inst_libdir',
+                    '$boost_lib_dir/libboost_{0}{1}'.format(lib, boost_suffix))
 
     # Copy sundials library and header files
     if env['install_sundials']:
@@ -1312,7 +1366,7 @@ if addInstallActions:
                 install(env.RecursiveInstall, pjoin('$inst_incdir', '..', subdir),
                         pjoin(env['sundials_include'], subdir))
         if os.path.exists(env['sundials_license']):
-            install(pjoin('$inst_incdir', '..', 'sundials'), env['sundials_license'])
+            install('$inst_incdir/../sundials', env['sundials_license'])
         libprefix = '' if os.name == 'nt' else 'lib'
         install('$inst_libdir', mglob(env, env['sundials_libdir'],
                                       '^{0}sundials_*'.format(libprefix)))
@@ -1330,34 +1384,15 @@ if env['use_sundials'] == 'y':
     linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
 else:
     env['sundials_libs'] = []
-    if not env['single_library']:
-        linkLibs.extend(['cvode'])
-        linkSharedLibs.extend(['cvode_shared'])
 
-if not env['single_library']:
-    linkLibs.append('ctmath')
-    linkSharedLibs.append('ctmath_shared')
-
-    # Add execstream to the link line
-    linkLibs.append('execstream')
-    linkSharedLibs.append('execstream_shared')
-
-#  Add lapack and blas to the link line
-#        If there is a special blas and lapack add that in
+#  Add LAPACK and BLAS to the link line
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
     linkSharedLibs.extend(env['blas_lapack_libs'])
-elif not env['single_library']:
-    linkLibs.extend(('ctlapack', 'ctblas'))
-    linkSharedLibs.extend(('ctlapack_shared', 'ctblas_shared'))
 
 if not env['build_with_f2c']:
     linkLibs.extend(env['FORTRANSYSLIBS'])
     linkSharedLibs.append(env['FORTRANSYSLIBS'])
-elif not env['single_library']:
-    # Add the f2c library when f2c is requested
-    linkLibs.append('ctf2c')
-    linkSharedLibs.append('ctf2c_shared')
 
 linkLibs.extend(env['boost_libs'])
 linkSharedLibs.extend(env['boost_libs'])
@@ -1408,7 +1443,7 @@ if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
     SConscript('build/samples/cxx/SConscript')
 
     # Install C++ samples
-    install(env.RecursiveInstall, pjoin('$inst_sampledir', 'cxx'),
+    install(env.RecursiveInstall, '$inst_sampledir/cxx',
             'samples/cxx', exclude=sampledir_excludes)
 
     if env['f90_interface'] == 'y':
@@ -1416,9 +1451,9 @@ if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
         SConscript('build/samples/f90/SConscript')
 
         # install F90 / F77 samples
-        install(env.RecursiveInstall, pjoin('$inst_sampledir', 'f77'),
+        install(env.RecursiveInstall, '$inst_sampledir/f77',
                 'samples/f77', sampledir_excludes)
-        install(env.RecursiveInstall, pjoin('$inst_sampledir', 'f90'),
+        install(env.RecursiveInstall, '$inst_sampledir/f90',
                 'samples/f90', sampledir_excludes)
 
 ### Meta-targets ###
@@ -1569,13 +1604,11 @@ if 'msi' in COMMAND_LINE_TARGETS:
                                   includeMatlab=env['matlab_toolbox']=='y')
         wxs.make_wxs(str(target[0]))
 
-    wxs_target = env.Command(pjoin('build', 'wix', 'cantera.wxs'),
-                             [], build_wxs)
+    wxs_target = env.Command('build/wix/cantera.wxs', [], build_wxs)
     env.AlwaysBuild(wxs_target)
 
     env.Append(WIXLIGHTFLAGS=['-ext', 'WixUIExtension'])
-    msi_target = env.WiX('cantera.msi',
-                         [pjoin('build', 'wix', 'cantera.wxs')])
+    msi_target = env.WiX('cantera.msi', ['build/wix/cantera.wxs'])
     env.Depends(wxs_target, installTargets)
     env.Depends(msi_target, wxs_target)
     build_msi = Alias('msi', msi_target)

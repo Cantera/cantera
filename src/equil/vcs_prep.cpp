@@ -10,12 +10,10 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 void VCS_SOLVE::vcs_SSPhase()
 {

@@ -8,6 +8,7 @@
 #define CT_STOICH_MGR_H
 
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -109,8 +110,8 @@ namespace Cantera
  *
  * The functions incrementReaction() and decrementReaction() are used to find
  * the standard state equilibrium constant for a reaction. Here, output[] is a
- * vector of length number of reactions, usually the standard gibbs free
- * energies of reaction, while input, usually the standard state gibbs free
+ * vector of length number of reactions, usually the standard Gibbs free
+ * energies of reaction, while input, usually the standard state Gibbs free
  * energies of species, is a vector of length number of species.
  *
  * Note the stoichiometric coefficient for a species in a reaction is handled
@@ -134,6 +135,7 @@ static doublereal ppow(doublereal x, doublereal order)
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 inline static std::string fmt(const std::string& r, size_t n)
 {
     return r + "[" + int2str(n) + "]";
@@ -151,19 +153,6 @@ public:
     C1(size_t rxn = 0, size_t ic0 = 0) :
         m_rxn(rxn),
         m_ic0(ic0) {
-    }
-
-    C1(const C1& right) :
-        m_rxn(right.m_rxn),
-        m_ic0(right.m_ic0) {
-    }
-
-    C1& operator=(const C1& right) {
-        if (this != &right) {
-            m_rxn = right.m_rxn;
-            m_ic0 = right.m_ic0;
-        }
-        return *this;
     }
 
     size_t data(std::vector<size_t>& ic) {
@@ -202,20 +191,27 @@ public:
         return 1;
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " + "+fmt(r, m_rxn);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_ic0] += " - "+fmt(r, m_rxn);
     }
@@ -237,21 +233,6 @@ class C2
 public:
     C2(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1) {}
-
-    C2(const C2& right) :
-        m_rxn(right.m_rxn),
-        m_ic0(right.m_ic0),
-        m_ic1(right.m_ic1) {
-    }
-
-    C2& operator=(const C2& right) {
-        if (this != &right) {
-            m_rxn = right.m_rxn;
-            m_ic0 = right.m_ic0;
-            m_ic1 = right.m_ic1;
-        }
-        return *this;
-    }
 
     size_t data(std::vector<size_t>& ic) {
         ic.resize(2);
@@ -292,21 +273,29 @@ public:
         return 2;
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
@@ -331,23 +320,6 @@ class C3
 public:
     C3(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0, size_t ic2 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1), m_ic2(ic2) {}
-
-    C3(const C3& right) :
-        m_rxn(right.m_rxn),
-        m_ic0(right.m_ic0),
-        m_ic1(right.m_ic1),
-        m_ic2(right.m_ic2) {
-    }
-
-    C3& operator=(const C3& right) {
-        if (this != &right) {
-            m_rxn = right.m_rxn;
-            m_ic0 = right.m_ic0;
-            m_ic1 = right.m_ic1;
-            m_ic2 = right.m_ic2;
-        }
-        return *this;
-    }
 
     size_t data(std::vector<size_t>& ic) {
         ic.resize(3);
@@ -391,21 +363,30 @@ public:
         return 3;
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = fmt(r, m_ic0) + " * " + fmt(r, m_ic1) + " * " + fmt(r, m_ic2);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " + "+fmt(r, m_ic0)+" + "+fmt(r, m_ic1)+" + "+fmt(r, m_ic2);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] += " - "+fmt(r, m_ic0)+" - "+fmt(r, m_ic1)+" - "+fmt(r, m_ic2);
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " + "+fmt(r, m_rxn);
         out[m_ic0] += s;
         out[m_ic1] += s;
         out[m_ic2] += s;
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = " - "+fmt(r, m_rxn);
         out[m_ic0] += s;
@@ -445,25 +426,6 @@ public:
             m_order[n] = order_[n];
             m_stoich[n] = stoich_[n];
         }
-    }
-
-    C_AnyN(const C_AnyN& right) :
-        m_n(right.m_n),
-        m_rxn(right.m_rxn),
-        m_ic(right.m_ic),
-        m_order(right.m_order),
-        m_stoich(right.m_stoich) {
-    }
-
-    C_AnyN& operator=(const C_AnyN& right) {
-        if (this != &right) {
-            m_n = right.m_n;
-            m_rxn = right.m_rxn;
-            m_ic = right.m_ic;
-            m_order = right.m_order;
-            m_stoich = right.m_stoich;
-        }
-        return *this;
     }
 
     size_t data(std::vector<size_t>& ic) {
@@ -522,6 +484,7 @@ public:
             -= m_stoich[n]*input[m_ic[n]];
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         out[m_rxn] = "";
         for (size_t n = 0; n < m_n; n++) {
@@ -535,16 +498,22 @@ public:
             }
         }
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " + "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         for (size_t n = 0; n < m_n; n++) {
             out[m_rxn] += " - "+fp2str(m_stoich[n]) + "*" + fmt(r, m_ic[n]);
         }
     }
+
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
@@ -552,6 +521,7 @@ public:
         }
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         std::string s = fmt(r, m_rxn);
         for (size_t n = 0; n < m_n; n++) {
@@ -560,27 +530,44 @@ public:
     }
 
 private:
+
     //! Length of the m_ic vector
     /*!
-     *   This is the number of species which have non-zero entries in either the
-     *   reaction order matrix or the stoichiometric order matrix for this reaction.
+     *   This is the number of species which participate in the reaction order
+     *   and stoichiometric coefficient vectors for the reactant or product description
+     *   of the reaction.
      */
     size_t m_n;
 
     //!  ID of the reaction corresponding to this stoichiometric manager
     /*!
-     *  This is used within the interface to select the
+     *  This is used within the interface to select the array position to read and write to
+     *  Normally this is associated with the reaction number in an array of quantities indexed
+     *  by the reaction number, e.g., ROP[irxn].
      */
     size_t m_rxn;
 
     //! Vector of species which are involved with this stoichiometric manager calculations
     /*!
-     *  This is an integer list of species which have non-zero entries in either the
+     *  This is an integer list of species which participate in either the
      *  reaction order matrix or the stoichiometric order matrix for this reaction, m_rxn.
-     *  It's used as the index into the arrays m_order[] and m_stoich[].
      */
     std::vector<size_t> m_ic;
+
+    //! Reaction orders for the reaction
+    /*!
+     * This is either for the reactants or products.
+     *  Length = m_n
+     *  Species number, m_ic[n], has a reaction order of m_order[n].
+     */
     vector_fp m_order;
+
+    //! Stoichiometric coefficients for the reaction, reactant or product side.
+    /*!
+     *  This is either for the reactants or products.
+     *  Length = m_n
+     *  Species number m_ic[m], has a stoichiometric coefficient of m_stoich[n].
+     */
     vector_fp m_stoich;
 };
 
@@ -629,7 +616,7 @@ inline static void _decrementReactions(InputIter begin,
     }
 }
 
-
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeIncrementSpecies(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -639,6 +626,7 @@ inline static void _writeIncrementSpecies(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeDecrementSpecies(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -648,6 +636,7 @@ inline static void _writeDecrementSpecies(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeIncrementReaction(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -657,6 +646,7 @@ inline static void _writeIncrementReaction(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeDecrementReaction(InputIter begin, InputIter end,
         const std::string& r, std::map<size_t, std::string>& out)
@@ -666,6 +656,7 @@ inline static void _writeDecrementReaction(InputIter begin, InputIter end,
     }
 }
 
+//! @deprecated To be removed after Cantera 2.2
 template<class InputIter>
 inline static void _writeMultiply(InputIter begin, InputIter end,
                                   const std::string& r, std::map<size_t, std::string>& out)
@@ -689,7 +680,7 @@ inline static void _writeMultiply(InputIter begin, InputIter end,
  * be the number of molecules on the product or reactant side of
  * reaction number i.
  * \f[
- * r_i = \sum_m^{M_i} s_{k_{m,i}}
+ *     r_i = \sum_m^{M_i} s_{k_{m,i}}
  * \f]
  * To understand the operations performed by this class, let
  * \f$ N_{k,i}\f$ denote the stoichiometric coefficient of species k on
@@ -702,7 +693,7 @@ inline static void _writeMultiply(InputIter begin, InputIter end,
  * - \f$ S = S + N R\f$   (incrementSpecies)
  * - \f$ S = S - N R\f$   (decrementSpecies)
  * - \f$ R = R + N^T S \f$ (incrementReaction)
- * - \f$ R = R - N^T S \f$ (deccrementReaction)
+ * - \f$ R = R - N^T S \f$ (decrementReaction)
  *
  * The actual implementation, however, does not compute these
  * quantities by matrix multiplication. A faster algorithm is used
@@ -732,27 +723,6 @@ public:
      * are not known initially.
      */
     StoichManagerN() {
-    }
-
-    StoichManagerN(const StoichManagerN& right) :
-        m_c1_list(right.m_c1_list),
-        m_c2_list(right.m_c2_list),
-        m_c3_list(right.m_c3_list),
-        m_cn_list(right.m_cn_list),
-        m_n(right.m_n),
-        m_loc(right.m_loc) {
-    }
-
-    StoichManagerN& operator=(const StoichManagerN& right) {
-        if (this != &right) {
-            m_c1_list = right.m_c1_list;
-            m_c2_list = right.m_c2_list;
-            m_c3_list = right.m_c3_list;
-            m_cn_list = right.m_cn_list;
-            m_n = right.m_n;
-            m_loc = right.m_loc;
-        }
-        return *this;
     }
 
     /**
@@ -793,33 +763,43 @@ public:
      */
     void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
              const vector_fp& stoich) {
-        m_n[rxn] = k.size();
+        if (order.size() != k.size()) {
+           throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");
+        }
+        if (stoich.size() != k.size()) {
+           throw CanteraError("StoichManagerN::add()", "size of stoich and species arrays differ");
+        }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
-            if (stoich[n] != 1.0 || order[n] != 1.0) {
+            if (fmod(stoich[n], 1.0) || fmod(order[n], 1.0)) {
                 frac = true;
                 break;
             }
         }
-        if (frac) {
-            m_loc[rxn] = m_cn_list.size();
+        if (frac || k.size() > 3) {
             m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
         } else {
-            switch (k.size()) {
+            // Try to express the reaction with unity stoichiometric
+            // coefficients (by repeating species when necessary) so that the
+            // simpler 'multiply' function can be used to compute the rate
+            // instead of 'power'.
+            std::vector<size_t> kRep;
+            for (size_t n = 0; n < k.size(); n++) {
+                for (size_t i = 0; i < stoich[n]; i++)
+                    kRep.push_back(k[n]);
+            }
+
+            switch (kRep.size()) {
             case 1:
-                m_loc[rxn] = m_c1_list.size();
-                m_c1_list.push_back(C1(rxn, k[0]));
+                m_c1_list.push_back(C1(rxn, kRep[0]));
                 break;
             case 2:
-                m_loc[rxn] = m_c2_list.size();
-                m_c2_list.push_back(C2(rxn, k[0], k[1]));
+                m_c2_list.push_back(C2(rxn, kRep[0], kRep[1]));
                 break;
             case 3:
-                m_loc[rxn] = m_c3_list.size();
-                m_c3_list.push_back(C3(rxn, k[0], k[1], k[2]));
+                m_c3_list.push_back(C3(rxn, kRep[0], kRep[1], kRep[2]));
                 break;
             default:
-                m_loc[rxn] = m_cn_list.size();
                 m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
             }
         }
@@ -860,6 +840,7 @@ public:
         _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -867,6 +848,7 @@ public:
         _writeIncrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementSpecies(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementSpecies(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementSpecies(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -874,6 +856,7 @@ public:
         _writeDecrementSpecies(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeIncrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeIncrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeIncrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -881,6 +864,7 @@ public:
         _writeIncrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeDecrementReaction(const std::string& r, std::map<size_t, std::string>& out) {
         _writeDecrementReaction(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeDecrementReaction(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -888,6 +872,7 @@ public:
         _writeDecrementReaction(m_cn_list.begin(), m_cn_list.end(), r, out);
     }
 
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiply(const std::string& r, std::map<size_t, std::string>& out) {
         _writeMultiply(m_c1_list.begin(), m_c1_list.end(), r, out);
         _writeMultiply(m_c2_list.begin(), m_c2_list.end(), r, out);
@@ -900,16 +885,6 @@ private:
     std::vector<C2>     m_c2_list;
     std::vector<C3>     m_c3_list;
     std::vector<C_AnyN> m_cn_list;
-    /**
-     * Map with the Reaction Number as key and the Number of species
-     * as the value.
-     */
-    std::map<size_t, size_t>  m_n;
-    /**
-     * Map with the Reaction Number as key and the placement in the
-     * vector of reactions list( i.e., m_c1_list[]) as key
-     */
-    std::map<size_t, size_t>  m_loc;
 };
 
 }

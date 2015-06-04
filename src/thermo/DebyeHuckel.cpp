@@ -1,10 +1,10 @@
 /**
  *  @file DebyeHuckel.cpp
- *    Declarations for the %DebyeHuckel ThermoPhase object, which models dilute
+ *    Declarations for the DebyeHuckel ThermoPhase object, which models dilute
  *    electrolyte solutions
  *    (see \ref thermoprops and \link Cantera::DebyeHuckel DebyeHuckel \endlink).
  *
- * Class %DebyeHuckel represents a dilute liquid electrolyte phase which
+ * Class DebyeHuckel represents a dilute liquid electrolyte phase which
  * obeys the Debye Huckel formulation for nonideality.
  */
 /*
@@ -15,21 +15,19 @@
 
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/PDSS_Water.h"
-
+#include "cantera/thermo/electrolytes.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
 
 #include <cstdio>
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {
 
 DebyeHuckel::DebyeHuckel() :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),
@@ -52,7 +50,6 @@ DebyeHuckel::DebyeHuckel() :
 
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
                          const std::string& id_) :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),
@@ -74,7 +71,6 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
 }
 
 DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),
@@ -96,7 +92,6 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
 }
 
 DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
-    MolalityVPSSTP(),
     m_formDH(DHFORM_DILUTE_LIMIT),
     m_formGC(2),
     m_IionicMolality(0.0),
@@ -196,25 +191,25 @@ int DebyeHuckel::eosType() const
 doublereal DebyeHuckel::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal DebyeHuckel::entropy_mole() const
 {
     getPartialMolarEntropies(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal DebyeHuckel::gibbs_mole() const
 {
     getChemPotentials(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal DebyeHuckel::cp_mole() const
 {
     getPartialMolarCp(DATA_PTR(m_tmpV));
-    return mean_X(DATA_PTR(m_tmpV));
+    return mean_X(m_tmpV);
 }
 
 doublereal DebyeHuckel::cv_mole() const
@@ -327,6 +322,8 @@ doublereal DebyeHuckel::standardConcentration(size_t k) const
 
 void DebyeHuckel::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("DebyeHuckel::getUnitsStandardConc",
+                    "To be removed after Cantera 2.2.");
     for (int i = 0; i < sizeUA; i++) {
         if (i == 0) {
             uA[0] = 1.0;
@@ -509,7 +506,7 @@ void DebyeHuckel::getPartialMolarVolumes(doublereal* vbar) const
 void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
 {
     /*
-     * Get the nondimensional gibbs standard state of the
+     * Get the nondimensional Gibbs standard state of the
      * species at the T and P of the solution.
      */
     getCp_R(cpbar);
@@ -631,8 +628,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          */
         m_formDH = DHFORM_DILUTE_LIMIT;
     }
-
-    std::string stemp;
 
     /*
      * Possibly change the form of the standard concentrations
@@ -910,7 +905,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             if (m_formDH == DHFORM_BDOT_AK) {
                 /*
                  * Define a string-string map, and interpret the
-                 * value of the xml element as binary pairs separated
+                 * value of the XML element as binary pairs separated
                  * by colons, e.g.:
                  *      Na+:3.0
                  *      Cl-:4.0
@@ -927,8 +922,9 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                  * lack of agreement (HKM -> may be changed in the
                  * future).
                  */
-                map<std::string,std::string>::const_iterator _b = m.begin();
-                for (; _b != m.end(); ++_b) {
+                for (map<std::string,std::string>::const_iterator _b = m.begin();
+                    _b != m.end();
+                    ++_b) {
                     size_t kk = speciesIndex(_b->first);
                     m_Aionic[kk] = fpValue(_b->second) * Afactor;
 
@@ -970,14 +966,13 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          *     in each of the species SS databases.
          */
         std::vector<const XML_Node*> xspecies= speciesData();
-        std::string kname, jname;
         size_t jj = xspecies.size();
         for (size_t k = 0; k < m_kk; k++) {
             size_t jmap = npos;
-            kname = speciesName(k);
+            std::string kname = speciesName(k);
             for (size_t j = 0; j < jj; j++) {
                 const XML_Node& sp = *xspecies[j];
-                jname = sp["name"];
+                std::string jname = sp["name"];
                 if (jname == kname) {
                     jmap = j;
                     break;
@@ -1001,8 +996,9 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
                 map<std::string, std::string> msIs;
                 getMap(sIsNode, msIs);
-                map<std::string,std::string>::const_iterator _b = msIs.begin();
-                for (; _b != msIs.end(); ++_b) {
+                for (map<std::string,std::string>::const_iterator _b = msIs.begin();
+                    _b != msIs.end();
+                    ++_b) {
                     size_t kk = speciesIndex(_b->first);
                     double val = fpValue(_b->second);
                     m_speciesCharge_Stoich[kk] = val;
@@ -1038,11 +1034,9 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
      *     in each of the species SS databases.
      */
     std::vector<const XML_Node*> xspecies= speciesData();
-    const XML_Node* spPtr = 0;
-    std::string kname;
     for (size_t k = 0; k < m_kk; k++) {
-        kname = speciesName(k);
-        spPtr = xspecies[k];
+        std::string kname = speciesName(k);
+        const XML_Node* spPtr = xspecies[k];
         if (!spPtr) {
             if (spPtr->hasChild("electrolyteSpeciesType")) {
                 std::string est = getChildValue(*spPtr, "electrolyteSpeciesType");
@@ -1061,8 +1055,9 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
             map<std::string, std::string> msEST;
             getMap(ESTNode, msEST);
-            map<std::string,std::string>::const_iterator _b = msEST.begin();
-            for (; _b != msEST.end(); ++_b) {
+            for (map<std::string,std::string>::const_iterator _b = msEST.begin();
+                _b != msEST.end();
+                ++_b) {
                 size_t kk = speciesIndex(_b->first);
                 std::string est = _b->second;
                 if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
@@ -1072,8 +1067,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
     }
-
-
 
     /*
      * Lastly set the state
@@ -1198,8 +1191,6 @@ double DebyeHuckel::AionicRadius(int k) const
 
 void DebyeHuckel::initLengths()
 {
-    m_kk = nSpecies();
-
     /*
      * Obtain the limits of the temperature from the species
      * thermo handler's limits.

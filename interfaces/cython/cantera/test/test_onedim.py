@@ -47,6 +47,19 @@ class TestOnedim(utilities.CanteraTest):
         self.assertArrayNear(inlet.X, Xref)
         self.assertArrayNear(inlet.Y, Yref)
 
+        inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
+        self.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
+
+    def test_grid_check(self):
+        gas = ct.Solution('h2o2.xml')
+        flame = ct.FreeFlow(gas)
+
+        with self.assertRaises(RuntimeError):
+            flame.grid = [0, 0.1, 0.1, 0.2]
+
+        with self.assertRaises(RuntimeError):
+            flame.grid = [0, 0.1, 0.2, 0.05]
+
     def test_unpicklable(self):
         import pickle
         gas = ct.Solution('h2o2.xml')
@@ -60,6 +73,18 @@ class TestOnedim(utilities.CanteraTest):
         flame = ct.FreeFlow(gas)
         with self.assertRaises(NotImplementedError):
             copy.copy(flame)
+
+    def test_invalid_property(self):
+        gas1 = ct.Solution('h2o2.xml')
+        inlet = ct.Inlet1D(name='something', phase=gas1)
+        flame = ct.FreeFlow(gas1)
+        sim = ct.Sim1D((inlet, flame))
+
+        for x in (inlet, flame, sim):
+            with self.assertRaises(AttributeError):
+                x.foobar = 300
+            with self.assertRaises(AttributeError):
+                x.foobar
 
 
 class TestFreeFlame(utilities.CanteraTest):
@@ -227,6 +252,9 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.save(filename, 'test', loglevel=0)
 
+        # Save a second solution to the same file
+        self.sim.save(filename, 'test2', loglevel=0)
+
         # Create flame object with dummy initial grid
         self.sim = ct.FreeFlame(self.gas)
         self.sim.restore(filename, 'test', loglevel=0)
@@ -339,7 +367,6 @@ class TestFreeFlame(utilities.CanteraTest):
 
 
 class TestDiffusionFlame(utilities.CanteraTest):
-    referenceFile = '../data/DiffusionFlameTest-h2-mix.csv'
     # Note: to re-create the reference file:
     # (1) set PYTHONPATH to build/python2 or build/python3.
     # (2) Start Python in the test/work directory and run:
@@ -392,6 +419,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertEqual(self.sim.transport_model, 'Mix')
 
     def test_mixture_averaged(self, saveReference=False):
+        referenceFile = '../data/DiffusionFlameTest-h2-mix.csv'
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -407,6 +435,122 @@ class TestDiffusionFlame(utilities.CanteraTest):
         data[:,2] = self.sim.V
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
+
+        if saveReference:
+            np.savetxt(referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(referenceFile, data,
+                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+            self.assertFalse(bad, bad)
+
+    def test_mixture_averaged_rad(self, saveReference=False):
+        referenceFile = '../data/DiffusionFlameTest-h2-mix-rad.csv'
+        self.create_sim(p=ct.one_atm)
+
+        nPoints = len(self.sim.grid)
+        Tfixed = self.sim.T
+        self.solve_fixed_T()
+        self.assertEqual(nPoints, len(self.sim.grid))
+        self.assertArrayNear(Tfixed, self.sim.T)
+        self.assertFalse(self.sim.radiation_enabled)
+        self.sim.radiation_enabled = True
+        self.assertTrue(self.sim.radiation_enabled)
+        self.sim.set_boundary_emissivities(0.25,0.15)
+
+        self.solve_mix()
+        data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
+        data[:,0] = self.sim.grid
+        data[:,1] = self.sim.u
+        data[:,2] = self.sim.V
+        data[:,3] = self.sim.T
+        data[:,4:] = self.sim.Y.T
+
+        if saveReference:
+            np.savetxt(referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(referenceFile, data,
+                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+            self.assertFalse(bad, bad)
+
+    def test_strain_rate(self):
+        # This doesn't test that the values are correct, just that they can be
+        # computed without error
+
+        self.create_sim(p=ct.one_atm)
+        self.solve_fixed_T()
+
+        a_max = self.sim.strain_rate('max')
+        a_mean = self.sim.strain_rate('mean')
+        a_pf_fuel = self.sim.strain_rate('potential_flow_fuel')
+        a_pf_oxidizer = self.sim.strain_rate('potential_flow_oxidizer')
+        a_stoich1 = self.sim.strain_rate('stoichiometric', fuel='H2')
+        a_stoich2 = self.sim.strain_rate('stoichiometric', fuel='H2', stoich=0.5)
+
+        self.assertLessEqual(a_mean, a_max)
+        self.assertLessEqual(a_pf_fuel, a_max)
+        self.assertLessEqual(a_pf_oxidizer, a_max)
+        self.assertLessEqual(a_stoich1, a_max)
+        self.assertEqual(a_stoich1, a_stoich2)
+
+        with self.assertRaises(ValueError):
+            self.sim.strain_rate('bad_keyword')
+        with self.assertRaises(KeyError): # missing 'fuel'
+            self.sim.strain_rate('stoichiometric')
+        with self.assertRaises(KeyError): # missing 'stoich'
+            self.sim.strain_rate('stoichiometric', fuel='H2', oxidizer='H2O2')
+
+    def test_mixture_fraction(self):
+        self.create_sim(p=ct.one_atm)
+        Z = self.sim.mixture_fraction('H')
+        self.assertNear(Z[0], 1.0)
+        self.assertNear(Z[-1], 0.0)
+        self.assertTrue(all(Z >= 0))
+        self.assertTrue(all(Z <= 1.0))
+
+
+class TestCounterflowPremixedFlame(utilities.CanteraTest):
+    referenceFile = '../data/CounterflowPremixedFlame-h2-mix.csv'
+    # Note: to re-create the reference file:
+    # (1) set PYTHONPATH to build/python2 or build/python3.
+    # (2) Start Python in the test/work directory and run:
+    #     >>> import cantera.test
+    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame("test_mixture_averaged")
+    #     >>> t.test_mixture_averaged(True)
+
+    def test_mixture_averaged(self, saveReference=False):
+        T_in = 373.0  # inlet temperature
+        comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
+
+        gas = ct.Solution('h2o2.xml')
+        gas.TPX = T_in, 0.05 * ct.one_atm, comp
+        initial_grid = np.linspace(0.0, 0.2, 12)  # m
+
+        sim = ct.CounterflowPremixedFlame(gas=gas, grid=initial_grid)
+
+        # set the properties at the inlets
+        sim.reactants.mdot = 0.12  # kg/m^2/s
+        sim.reactants.X = comp
+        sim.reactants.T = T_in
+        sim.products.mdot = 0.06  # kg/m^2/s
+
+        sim.flame.set_steady_tolerances(default=[1.0e-5, 1.0e-11])
+        sim.flame.set_transient_tolerances(default=[1.0e-5, 1.0e-11])
+        sim.set_initial_guess()  # assume adiabatic equilibrium products
+
+        sim.energy_enabled = False
+        sim.solve(loglevel=0, refine_grid=False)
+
+        sim.set_refine_criteria(ratio=3, slope=0.2, curve=0.4, prune=0.02)
+        sim.energy_enabled = True
+        self.assertFalse(sim.radiation_enabled)
+        sim.solve(loglevel=0, refine_grid=True)
+
+        data = np.empty((sim.flame.n_points, gas.n_species + 4))
+        data[:,0] = sim.grid
+        data[:,1] = sim.u
+        data[:,2] = sim.V
+        data[:,3] = sim.T
+        data[:,4:] = sim.Y.T
 
         if saveReference:
             np.savetxt(self.referenceFile, data, '%11.6e', ', ')

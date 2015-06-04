@@ -7,14 +7,13 @@
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
 
-#include "cantera/base/vec_functions.h"
-#include "cantera/base/ctml.h"
+#include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/Elements.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/ValueCache.h"
 
 namespace Cantera
 {
-class SpeciesThermo;
 
 /**
  * @defgroup phases Models of Phases of Matter
@@ -28,26 +27,11 @@ class SpeciesThermo;
  * support thermodynamic calculations (see \ref thermoprops).
  */
 
-//!  Exception class to indicate a fixed set of elements.
+//! Class Phase is the base class for phases of matter, managing the species and elements in a phase, as well as the
+//! independent variables of temperature, mass density, species mass/mole fraction,
+//! and other generalized forces and intrinsic properties (such as electric potential)
+//! that define the thermodynamic state.
 /*!
- *   This class is used to warn the user when the number of elements
- *   are changed after at least one species is defined.
- */
-class ElementsFrozen : public CanteraError
-{
-public:
-    //! Constructor for class
-    //! @param func Function where the error occurred.
-    ElementsFrozen(const std::string& func)
-        : CanteraError(func, "Elements cannot be added after species.") {}
-};
-
-//! Base class for phases of matter
-/*!
- *
- * Class Phase manages the species and elements in a phase, as well as the
- * independent variables of temperature, mass density, and species mass/mole
- * fraction that define the thermodynamic state.
  *
  * Class Phase provides information about the elements and species in a
  * phase - names, index numbers (location in arrays), atomic or molecular
@@ -90,9 +74,18 @@ public:
  * The first two methods of naming may not yield a unique species within
  * complicated assemblies of %Cantera Phases.
  *
- * @todo Make the concept of saving state vectors more general, so that it can
+ * @todo
+ * Make the concept of saving state vectors more general, so that it can
  * handle other cases where there are additional internal state variables, such
  * as the voltage, a potential energy, or a strain field.
+ *
+ * Specify that the input mole, mass, and volume fraction vectors must sum to one on entry to the set state routines.
+ * Non-conforming mole/mass fraction vectors are not thermodynamically consistent.
+ * Moreover, unless we do this, the calculation of Jacobians will be altered whenever the treatment of non-conforming mole
+ * fractions is changed. Add setState functions corresponding to specifying mole numbers, which is actually what
+ * is being done (well one of the options, there are many) when non-conforming mole fractions are input.
+ * Note, we realize that most numerical Jacobian and some analytical Jacobians use non-conforming calculations.
+ * These can easily be changed to the set mole number setState functions.
  *
  * @ingroup phases
  */
@@ -128,7 +121,7 @@ public:
      *
      *  @param xmlPhase Reference to the XML node corresponding to the phase
      */
-    void setXMLdata(XML_Node& xmlPhase);   
+    void setXMLdata(XML_Node& xmlPhase);
 
     /*! @name Name and ID
      * Class Phase contains two strings that identify a phase. The ID is the
@@ -424,7 +417,16 @@ public:
 
     //! Get the mole fractions by name.
     //!     @param[out] x composition map containing the species mole fractions.
+    //!     @deprecated To be removed after Cantera 2.2. use
+    //!         `compositionMap getMoleFractionsByName(double threshold)`
+    //!         instead.
     void getMoleFractionsByName(compositionMap& x) const;
+
+    //! Get the mole fractions by name.
+    //!     @param threshold   Exclude species with mole fractions less than or
+    //!                        equal to this threshold.
+    //!     @return Map of species names to mole fractions
+    compositionMap getMoleFractionsByName(double threshold=0.0) const;
 
     //! Return the mole fraction of a single species
     //!     @param  k  species index
@@ -435,6 +437,12 @@ public:
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
     doublereal moleFraction(const std::string& name) const;
+
+    //! Get the mass fractions by name.
+    //!     @param threshold   Exclude species with mass fractions less than or
+    //!                        equal to this threshold.
+    //!     @return Map of species names to mass fractions
+    compositionMap getMassFractionsByName(double threshold=0.0) const;
 
     //! Return the mass fraction of a single species
     //!     @param  k species index
@@ -490,14 +498,21 @@ public:
     virtual void setMassFractions_NoNorm(const doublereal* const y);
 
     //! Get the species concentrations (kmol/m^3).
-    //!     @param[out] c Array of species concentrations Length must be
-    //!                   greater than or equal to the number of species.
+    /*!
+     *    @param[out] c The vector of species concentrations. Units are kmol/m^3. The length of
+     *                  the vector must be greater than or equal to the number of species within the phase.
+     */
     void getConcentrations(doublereal* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
-    //!     @param  k Index of species
+    /*!
+     *    @param[in] k	 Index of the species within the phase.
+     *
+     *    @return Returns the concentration of species k (kmol m-3).
+     */
     doublereal concentration(const size_t k) const;
+
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -510,6 +525,41 @@ public:
     //!                     concentration in kmol/m2. The length of the vector
     //!                     is the number of species in the phase.
     virtual void setConcentrations(const doublereal* const conc);
+
+    //! Elemental mass fraction of element m
+    /*!
+     *  The elemental mass fraction \f$Z_{\mathrm{mass},m}\f$ of element \f$m\f$
+     *  is defined as
+     *  \f[
+     *      Z_{\mathrm{mass},m} = \sum_k \frac{a_{m,k} M_m}{M_k} Y_k
+     *  \f]
+     *  with \f$a_{m,k}\f$ being the number of atoms of element \f$m\f$ in
+     *  species \f$k\f$, \f$M_m\f$ the atomic weight of element \f$m\f$,
+     *  \f$M_k\f$ the molecular weight of species \f$k\f$, and \f$Y_k\f$
+     *  the mass fraction of species \f$k\f$.
+     *
+     *  @param[in] m Index of the element within the phase. If m is outside
+     *               the valid range, an exception will be thrown.
+     *
+     *  @return the elemental mass fraction of element m.
+     */
+    doublereal elementalMassFraction(const size_t m) const;
+
+    //! Elemental mole fraction of element m
+    /*!
+     *  The elemental mole fraction \f$Z_{\mathrm{mole},m}\f$ of element \f$m\f$
+     *  is defined as
+     *  \f[
+     *      Z_{\mathrm{mole},m} = \sum_k \frac{a_{m,k}}{\sum_j a_{j,k}} X_k
+     *  \f]
+     *  with \f$a_{m,k}\f$ being the number of atoms of element \f$m\f$ in
+     *  species \f$k\f$and \f$X_k\f$ the mole fraction of species \f$k\f$.
+     *
+     *  @param[in] m Index of the element within the phase. If m is outside the
+     *               valid range, an exception will be thrown.
+     *  @return the elemental mole fraction of element m.
+     */
+    doublereal elementalMoleFraction(const size_t m) const;
 
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
@@ -598,10 +648,14 @@ public:
     //!     @return mole-fraction-weighted mean of Q
     doublereal mean_X(const doublereal* const Q) const;
 
+    //! @copydoc Phase::mean_X(const doublereal* const Q) const
+    doublereal mean_X(const vector_fp& Q) const;
+
     //! Evaluate the mass-fraction-weighted mean of an array Q.
     //! \f[ \sum_k Y_k Q_k \f]
     //!     @param[in] Q  Array of species property values in mass units.
     //!     @return The mass-fraction-weighted mean of Q.
+    //! @deprecated Unused. To be removed after Cantera 2.2.
     doublereal mean_Y(const doublereal* const Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
@@ -616,6 +670,7 @@ public:
     //! Evaluate \f$ \sum_k X_k \log Q_k \f$.
     //!     @param Q Vector of length m_kk to take the log average of
     //!     @return The indicated sum.
+    //! @deprecated Unused. To be removed after Cantera 2.2.
     doublereal sum_xlogQ(doublereal* const Q) const;
     //@}
 
@@ -631,10 +686,21 @@ public:
     //! Add an element.
     //!     @param symbol Atomic symbol std::string.
     //!     @param weight Atomic mass in amu.
-    void addElement(const std::string& symbol, doublereal weight=-12345.0);
+    //!     @param atomicNumber Atomic number of the element (unitless)
+    //!     @param entropy298 Entropy of the element at 298 K and 1 bar in its
+    //!         most stable form. The default is the value ENTROPY298_UNKNOWN,
+    //!         which is interpreted as an unknown, and if used will cause
+    //!         %Cantera to throw an error.
+    //!     @param elem_type Specifies the type of the element constraint
+    //!         equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+    //!     @return index of the element added
+    size_t addElement(const std::string& symbol, doublereal weight=-12345.0,
+                      int atomicNumber=0, doublereal entropy298=ENTROPY298_UNKNOWN,
+                      int elem_type=CT_ELEM_TYPE_ABSPOS);
 
     //! Add an element from an XML specification.
     //!     @param e Reference to the XML_Node where the element is described.
+    //! @deprecated. To be removed after Cantera 2.2.
     void addElement(const XML_Node& e);
 
     //! Add an element, checking for uniqueness
@@ -649,6 +715,7 @@ public:
     //! error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+    //! @deprecated. Equivalent to addElement. To be removed after Cantera 2.2.
     void addUniqueElement(const std::string& symbol, doublereal weight=-12345.0,
                           int atomicNumber = 0,
                           doublereal entropy298 = ENTROPY298_UNKNOWN,
@@ -658,16 +725,20 @@ public:
     //! The uniqueness is checked by comparing the string symbol. If not unique,
     //! nothing is done.
     //!     @param e Reference to the XML_Node where the element is described.
+    //! @deprecated. To be removed after Cantera 2.2.
     void addUniqueElement(const XML_Node& e);
 
     //! Add all elements referenced in an XML_Node tree
     //!     @param phase Reference to the root XML_Node of a phase
+    //! @deprecated. To be removed after Cantera 2.2.
     void addElementsFromXML(const XML_Node& phase);
 
     //! Prohibit addition of more elements, and prepare to add species.
+    //! @deprecated. To be removed after Cantera 2.2.
     void freezeElements();
 
     //! True if freezeElements has been called.
+    //! @deprecated. To be removed after Cantera 2.2.
     bool elementsFrozen();
 
     //! Add an element after elements have been frozen, checking for uniqueness
@@ -681,11 +752,19 @@ public:
     //! if used will cause Cantera to throw an error.
     //!     @param elem_type Specifies the type of the element constraint
     //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+    //! @deprecated. Equivalent to addElement. To be removed after Cantera 2.2.
     size_t addUniqueElementAfterFreeze(const std::string& symbol,
                                        doublereal weight, int atomicNumber,
                                        doublereal entropy298 = ENTROPY298_UNKNOWN,
                                        int elem_type = CT_ELEM_TYPE_ABSPOS);
 
+    //! Add a Species to this Phase. Returns `true` if the species was
+    //! successfully added, or `false` if the species was ignored.
+    //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
+    virtual bool addSpecies(shared_ptr<Species> spec);
+
+    //! @deprecated Use AddSpecies(shared_ptr<Species> spec) instead. To be
+    //! removed after Cantera 2.2.
     void addSpecies(const std::string& name, const doublereal* comp,
                     doublereal charge = 0.0, doublereal size = 1.0);
 
@@ -697,11 +776,40 @@ public:
     //! species.
     //!     @param charge  Charge of the species. Defaults to zero.
     //!     @param size    Size of the species (meters). Defaults to 1 meter.
+    //! @deprecated Use addSpecies(shared_ptr<Species> spec) instead. To be
+    //!     removed after Cantera 2.2.
     void addUniqueSpecies(const std::string& name, const doublereal* comp,
                           doublereal charge = 0.0,
                           doublereal size = 1.0);
+
+    //! Return the Species object for the named species.
+    shared_ptr<Species> species(const std::string& name) const;
+
+    //! Return the Species object for species whose index is *k*.
+    shared_ptr<Species> species(size_t k) const;
+
+    //! Set behavior when adding a species containing undefined elements to just
+    //! skip the species.
+    void ignoreUndefinedElements();
+
+    //! Set behavior when adding a species containing undefined elements to add
+    //! those elements to the phase.
+    void addUndefinedElements();
+
+    //! Set the behavior when adding a species containing undefined elements to
+    //! throw an exception. This is the default behavior.
+    void throwUndefinedElements();
+
+    struct UndefElement { enum behavior {
+        error, ignore, add
+    }; };
+
     //!@} end group adding species and elements
 
+    //!  Returns a bool indicating whether the object is ready for use
+    /*!
+     *  @return returns true if the object is ready for calculation, false otherwise.
+     */
     virtual bool ready() const;
 
     //! Return the State Mole Fraction Number
@@ -710,6 +818,11 @@ public:
     }
 
 protected:
+    //! Cached for saved calculations within each ThermoPhase.
+    /*!
+     *   For more information on how to use this, see examples within the source code and documentation
+     *   for this within ValueCache class itself.
+     */
     mutable ValueCache m_cache;
 
     //! Set the molecular weight of a single species to a given value
@@ -737,6 +850,11 @@ protected:
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
 
+    std::map<std::string, shared_ptr<Species> > m_species;
+
+    //! Flag determining behavior when adding species with an undefined element
+    UndefElement::behavior m_undefinedElementBehavior;
+
 private:
     XML_Node* m_xml; //!< XML node containing the XML info for this phase
 
@@ -762,7 +880,12 @@ private:
     //! weight of mixture.
     mutable vector_fp m_ym;
 
-    mutable vector_fp m_y; //!< species mass fractions
+    //! Mass fractions of the species
+    /*!
+     *   Note, this vector
+     *   Length is m_kk
+     */
+    mutable vector_fp m_y;
 
     vector_fp m_molwts; //!< species molecular weights (kg kmol-1)
 
@@ -772,11 +895,11 @@ private:
     //! this int is incremented.
     int m_stateNum;
 
-    //! If this is true, then no elements may be added to the object.
-    bool m_elementsFrozen;
-
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
+
+    //! Map of species names to indices
+    std::map<std::string, size_t> m_speciesIndices;
 
     size_t m_mm; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
@@ -786,6 +909,15 @@ private:
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
+
+public:
+    //! Overflow behavior of real number calculations involving this thermo object
+    /*!
+     *   The default is THROWON_OVERFLOW_CTRB
+     *   Which throws an error in debug mode, but silently changes the answer in non-debug mode
+     *   @deprecated To be removed after Cantera 2.2.
+     */
+    enum CT_RealNumber_Range_Behavior realNumberRangeBehavior_;
 
 };
 

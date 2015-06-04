@@ -300,6 +300,17 @@ public:
      */
     XML_Node* get_XML_File(const std::string& file, int debug=0) ;
 
+    //! Read a CTI or CTML string and fill up an XML tree.
+    /*!
+     *  Return a pointer to the XML tree corresponding to the specified
+     *  CTI or XML string. If the given string has been processed before,
+     *  the cached XML tree will be returned. Otherwise, the XML tree
+     *  will be generated and stored in the cache.
+     *  @param text    CTI or CTML string
+     *  @return        Root of the corresponding XML tree
+     */
+    XML_Node* get_XML_from_string(const std::string& text);
+
     //! Close an XML File
     /*!
      * Close a file that is opened by this application object
@@ -401,8 +412,10 @@ protected:
     std::map<std::string, std::string>     options;
     //! Current value of tmp_dir
     std::string tmp_dir;
-    //! Current vector of xml file trees that have been previously parsed
-    std::map<std::string, XML_Node*> xmlfiles;
+    //! Current vector of XML file trees that have been previously parsed
+    //! The second element of the value is used to store the last-modified time
+    //! for the file, to enable change detection.
+    std::map<std::string, std::pair<XML_Node*, int> > xmlfiles;
     //! Vector of deprecation warnings that have been emitted (to suppress duplicates)
     std::set<std::string> warnings;
 

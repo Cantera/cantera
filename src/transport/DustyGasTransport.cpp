@@ -8,7 +8,6 @@
  *  See file License.txt for licensing information
  */
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/base/stringUtils.h"
 
@@ -18,12 +17,7 @@ namespace Cantera
 {
 DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
     Transport(thermo),
-    m_mw(0),
-    m_dk(0),
     m_temp(-1.0),
-    m_multidiff(0,0),
-    m_spwork(0),
-    m_spwork2(0),
     m_gradP(0.0),
     m_knudsen_ok(false),
     m_bulk_ok(false),
@@ -37,13 +31,7 @@ DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
 }
 
 DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
-    Transport(),
-    m_mw(0),
-    m_dk(0),
     m_temp(-1.0),
-    m_multidiff(0,0),
-    m_spwork(0),
-    m_spwork2(0),
     m_gradP(0.0),
     m_knudsen_ok(false),
     m_bulk_ok(false),

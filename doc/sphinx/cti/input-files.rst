@@ -1,4 +1,4 @@
-.. py:currentmodule:: ctml_writer
+.. py:currentmodule:: cantera.ctml_writer
 
 .. _sec-input-files:
 
@@ -42,7 +42,7 @@ The fields of an entry are specified in the form ``<field_name> = <value>``, and
 be listed on one line, or extend across several. For example, two entries for
 graphite are shown below. The first is compact::
 
-    stoichiometric_solid(name='graphite', species='C(gr)', elements='C', density=(2.2, 'g/cm3')))
+    stoichiometric_solid(name='graphite', species='C(gr)', elements='C', density=(2.2, 'g/cm3'))
 
 and the second is formatted to be easier to read::
 
@@ -161,6 +161,18 @@ incorrect and would generate an error when processed::
     element(39.948, "Ar")                    # error
     element(symbol="Ar", 39.948)             # error
 
+Validation
+----------
+
+Normally, Cantera will make some checks for errors in the definitions of species
+and reactions, such as checking for duplicate reactions. To slightly speed up
+processing (if a mechanism has previously been validated), or in case of
+spurious validation errors, validation can be disabled using the
+:func:`validate` function. For example, to disable validation of reactions, add
+the following to the CTI file::
+
+    validate(reactions='no')
+
 .. _sec-dimensions:
 
 Dimensional Values
@@ -214,7 +226,8 @@ length, which are set with a units directive::
     units(length = 'cm', quantity = 'molec')
     interface(name = 'Si-100',
               site_density = 1.0e15, # molecules/cm2 (default units)
-              ...)
+              # ...
+              )
 
 The second version uses a different default unit system, but overrides the
 default units by specifying an explicit units string for the site density::
@@ -222,7 +235,8 @@ default units by specifying an explicit units string for the site density::
     units(length = 'cm', quantity = 'mol')
     interface(name = 'Si-100',
               site_density = (1.0e15, 'molec/cm2') # override default units
-              ...)
+              # ...
+              )
 
 The second version is equivalent to the first, but would be very different if
 the units of the site density were not specified!
@@ -268,19 +282,9 @@ to construct the object representing the phase or interface in the
 application. While this is the net effect, it is actually a two-step
 process. When a function like importPhase is called to import a phase definition
 from a file, a preprocessor runs automatically to read the input file and create
-a data file that contains the same information but in an XML-based format called
+a string that contains the same information but in an XML-based format called
 CTML. After the preprocessor finishes, Cantera imports the phase definition from
-the CTML data file.
-
-The CTML file is saved in the same directory as the input file, and has the same
-name but with the extension changed to ``.xml``. If the input file has the name
-``propane.cti``, for example, then the CTML file will be placed in the same
-directory with name ``propane.xml``. If you like, once the CTML file has been
-created, you can specify it rather than the ``.cti`` input file in calls to
-importPhase (or similar functions). This is slightly faster, since the
-preprocessing step can be skipped. It also allows Cantera simulations to be run
-on systems that do not have Python, which Cantera uses in the preprocessing step
-but does not require to read CTML files.
+this CTML data.
 
 Two File Formats
 ----------------
@@ -347,7 +351,7 @@ by hand, but is much easier to parse, particularly since it is not necessary to
 write a custom parser---virtually any standard XML parser, of which there are
 many, can be used to read the CTML data.
 
-So in general files that are easy for knowledgable users (you) to write are more
+So in general files that are easy for knowledgeable users (you) to write are more
 difficult for machines to parse, because they make use of high-level
 application-specific knowledge and conventions to simplify the
 notation. Conversely, files that are designed to be easily parsed are tedious to
@@ -357,7 +361,7 @@ machines, and provide a preprocessor to convert the human-friendly format to the
 machine-friendly one.
 
 Preprocessor Internals: the ``ctml_writer`` Module
--------------------------------------------------
+--------------------------------------------------
 
 If you are interested in seeing the internals of how the preprocessing works,
 take a look at file ``ctml_writer.py`` in the Cantera Python package. Or simply
@@ -379,8 +383,10 @@ conversion by running::
 
     ctml_writer phasedefs.cti
 
-Of course, most of the time creation of the CTML file will happen behind the
-scenes, and you will not need to be concerned with CTML files at all.
+This can be used to generate XML input files for use on systems where the
+Cantera Python package is not installed. Of course, most of the time creation of
+the CTML file will happen behind the scenes, and you will not need to be
+concerned with CTML files at all.
 
 Error Handling
 ==============
@@ -476,7 +482,7 @@ the definition is modified to declare these additional elements::
 it may be imported successfully.
 
 Errors of this type do not have to be fatal, as long as you tell Cantera how you
-want to handle them. You can, for example, instruct Cantera to quitely skip
+want to handle them. You can, for example, instruct Cantera to quietly skip
 importing any species that contain undeclared elements, instead of flagging them
 as errors. You can also specify that reactions containing undeclared species
 (also usually an error) should be skipped. This allows you to very easily

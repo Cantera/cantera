@@ -36,6 +36,12 @@ class TestReactor(utilities.CanteraTest):
         self.w = ct.Wall(self.r1, self.r2, **kwargs)
         return self.w
 
+    def test_verbose(self):
+        self.make_reactors(independent=False, n_reactors=1)
+        self.assertFalse(self.net.verbose)
+        self.net.verbose = True
+        self.assertTrue(self.net.verbose)
+
     def test_insert(self):
         R = self.reactorClass()
         with self.assertRaises(Exception):
@@ -49,6 +55,13 @@ class TestReactor(utilities.CanteraTest):
 
         self.assertNear(R.T, 300)
         self.assertEqual(len(R.kinetics.net_production_rates), g.n_species)
+
+    def test_volume(self):
+        R = self.reactorClass(volume=11)
+        self.assertEqual(R.volume, 11)
+
+        R.volume = 9
+        self.assertEqual(R.volume, 9)
 
     def test_names(self):
         self.make_reactors()
@@ -512,6 +525,19 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaises(NotImplementedError):
             copy.copy(self.net)
 
+    def test_invalid_property(self):
+        self.make_reactors()
+        for x in (self.r1, self.net):
+            with self.assertRaises(AttributeError):
+                x.foobar = 300
+            with self.assertRaises(AttributeError):
+                x.foobar
+
+    def test_bad_kwarg(self):
+        self.reactorClass(name='ok')
+        with self.assertRaises(TypeError):
+            r1 = self.reactorClass(foobar=3.14)
+
 
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
@@ -743,7 +769,7 @@ class TestFlowReactor(utilities.CanteraTest):
             self.assertNear(v0, r.speed)
             self.assertNear(r.distance, v0 * t)
 
-    @unittest.skipUnless(ct._have_sundials(),
+    @unittest.skipUnless(ct.__sundials_version__,
                          "Disabled until there is an interface for setting the "
                          "max_err_test_fails parameter for the old CVODE")
     def test_reacting(self):
@@ -794,12 +820,10 @@ class TestWallKinetics(utilities.CanteraTest):
         self.make_reactors()
         self.w.left.kinetics = self.interface
 
-        C = np.zeros(self.interface.n_species)
-        C[0] = 0.3
-        C[4] = 0.7
-
-        self.w.left.coverages = C
-        self.assertArrayNear(self.w.left.coverages, C)
+        self.w.left.coverages = {'c6HH':0.3, 'c6HM':0.7}
+        self.assertNear(self.w.left.coverages[0], 0.3)
+        self.assertNear(self.w.left.coverages[1], 0.0)
+        self.assertNear(self.w.left.coverages[4], 0.7)
         self.net.advance(1e-5)
         C_left = self.w.left.coverages
 
@@ -809,8 +833,9 @@ class TestWallKinetics(utilities.CanteraTest):
 
         self.make_reactors()
         self.w.right.kinetics = self.interface
-        self.w.right.coverages = C
-        self.assertArrayNear(self.w.right.coverages, C)
+        self.w.right.coverages = 'c6HH:0.3, c6HM:0.7'
+        self.assertNear(self.w.right.coverages[0], 0.3)
+        self.assertNear(self.w.right.coverages[4], 0.7)
         self.assertEqual(self.w.left.kinetics, None)
         with self.assertRaises(Exception):
             self.w.left.coverages
@@ -873,7 +898,7 @@ class TestWallKinetics(utilities.CanteraTest):
         self.assertFalse(bool(bad), bad)
 
 
-@unittest.skipUnless(ct._have_sundials(),
+@unittest.skipUnless(ct.__sundials_version__,
                      "Sensitivity calculations require Sundials")
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):
@@ -1157,7 +1182,7 @@ class CombustorTestImplementation(object):
 
         # create the combustor, and fill it in initially with a diluent
         self.gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
-        self.combustor = ct.IdealGasReactor(self.gas, volume=1.0)
+        self.combustor = ct.IdealGasReactor(self.gas)
 
         # create a reservoir for the exhaust
         self.exhaust = ct.Reservoir(self.gas)

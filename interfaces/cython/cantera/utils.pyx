@@ -7,8 +7,11 @@ CxxSetLogger(_logger)
 cdef string stringify(x):
     """ Converts Python strings to std::string. """
     # This method works with both Python 2.x and 3.x.
-    tmp = bytes(x.encode())
-    return string(tmp)
+    if isinstance(x, bytes):
+        return string(<bytes>x)
+    else:
+        tmp = bytes(x.encode())
+        return string(tmp)
 
 cdef pystr(string x):
     cdef bytes s = x.c_str()
@@ -23,11 +26,26 @@ def add_directory(directory):
     """ Add a directory to search for Cantera data files. """
     CxxAddDirectory(stringify(directory))
 
-def _have_sundials():
-    return bool(get_sundials_version())
+if get_sundials_version():
+    __sundials_version__ = '.'.join(str(get_sundials_version()))
+else:
+    __sundials_version__ = None
 
 __version__ = pystr(get_cantera_version())
 
 def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()
+
+cdef Composition comp_map(X) except *:
+    if isinstance(X, (str, unicode, bytes)):
+        return parseCompString(stringify(X))
+
+    # assume X is dict-like
+    cdef Composition m
+    for species,value in X.items():
+        m[stringify(species)] = value
+    return m
+
+cdef comp_map_to_dict(Composition m):
+    return {pystr(species):value for species,value in m.items()}

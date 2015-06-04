@@ -1,7 +1,7 @@
 /**
  * @file MaskellSolidSolnPhase.h Header file for a solid solution model
  * following Maskell, Shaw, and Tye. Electrochimica Acta 1982
- * 
+ *
  * This class inherits from the Cantera class ThermoPhase and implements a
  * non-ideal solid solution model with incompressible thermodynamics.
  */
@@ -14,11 +14,7 @@
 #ifndef CT_MASKELLSOLIDSOLNPHASE_H
 #define CT_MASKELLSOLIDSOLNPHASE_H
 
-#include "mix_defs.h"
-#include "ThermoPhase.h"
 #include "VPStandardStateTP.h"
-#include "ThermoFactory.h"
-#include "SpeciesThermo.h"
 
 namespace Cantera
 {
@@ -231,7 +227,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
@@ -274,16 +270,9 @@ public:
 
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
+    //@}
 
 private:
-    /**
-     * Value of the reference pressure for all species in this phase.
-     * The T dependent polynomials are evaluated at the reference
-     * pressure. Note, because this is a single value, all species
-     * are required to have the same reference pressure.
-     */
-    doublereal m_Pref;
-
     /**
      * m_Pcurrent = The current pressure
      * Since the density isn't a function of pressure, but only of the
@@ -298,19 +287,19 @@ private:
     void _updateThermo() const;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     /**
      * Vector containing the species reference constant pressure
      * heat capacities at T = m_tlast
      */
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //!  Vector containing the species reference Gibbs functions at T = m_tlast
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Vector containing the species reference entropies at T = m_tlast
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
     //! Value of the enthalpy change on mixing due to protons changing from type B to type A configurations.
     doublereal h_mixing;

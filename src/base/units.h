@@ -162,9 +162,7 @@ private:
 
     //! Units class constructor, containing the default mappings between
     //! strings and units.
-    Unit() :
-        m_u(),
-        m_act_u() {
+    Unit() {
 
         // unity
         m_u["1"] = 1.0;

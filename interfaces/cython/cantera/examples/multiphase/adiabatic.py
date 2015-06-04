@@ -25,27 +25,17 @@ mix_phases = [(gas, 1.0), (carbon, 0.0)]
 # gaseous fuel species
 fuel_species = 'CH4'
 
-# air composition
-air_N2_O2_ratio = 3.76
-
 # equivalence ratio range
-phi_min = 0.3
-phi_max = 3.5
 npoints = 50
+phi = np.linspace(0.3, 3.5, npoints)
 
 ##############################################################################
 
 mix = ct.Mixture(mix_phases)
 
 # create some arrays to hold the data
-phi = np.zeros(npoints)
 tad = np.zeros(npoints)
 xeq = np.zeros((mix.n_species,npoints))
-
-# find fuel, nitrogen, and oxygen indices
-ifuel = gas.species_index(fuel_species)
-io2 = gas.species_index('O2')
-in2 = gas.species_index('N2')
 
 if gas.n_atoms(fuel_species,'O') > 0 or gas.n_atoms(fuel_species,'N') > 0:
     raise "Error: only hydrocarbon fuels are supported."
@@ -53,12 +43,7 @@ if gas.n_atoms(fuel_species,'O') > 0 or gas.n_atoms(fuel_species,'N') > 0:
 stoich_O2 = gas.n_atoms(fuel_species,'C') + 0.25*gas.n_atoms(fuel_species,'H')
 
 for i in range(npoints):
-    phi[i] = phi_min + (phi_max - phi_min)*i/(npoints - 1)
-    X = np.zeros(gas.n_species)
-    X[ifuel] = phi[i]
-    X[io2] = stoich_O2
-    X[in2] = stoich_O2*air_N2_O2_ratio
-
+    X = {fuel_species: phi[i] / stoich_O2, 'O2': 1.0, 'N2': 3.76}
     # set the gas state
     gas.TPX = T, P, X
 

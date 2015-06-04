@@ -12,17 +12,12 @@
 #ifndef CT_PDSS_WATER_H
 #define CT_PDSS_WATER_H
 
-#include "cantera/base/ct_defs.h"
 #include "PDSS.h"
-#include "VPStandardStateTP.h"
 #include "WaterPropsIAPWS.h"
- #include "WaterProps.h"
+#include "WaterProps.h"
 
 namespace Cantera
 {
-class WaterPropsIAPWS;
-class WaterProps;
-
 //!  Class for the liquid water pressure dependent
 //!  standard state
 /*!
@@ -116,13 +111,13 @@ public:
     PDSS_Water(VPStandardStateTP* tp, int spindex, const XML_Node& speciesNode,
                const XML_Node& phaseRef, bool spInstalled);
 
-    //! Duplication routine for objects which inherit from %PDSS
+    //! Duplication routine for objects which inherit from PDSS
     /*!
-     *  This virtual routine can be used to duplicate %PDSS  objects
-     *  inherited from %PDSS even if the application only has
-     *  a pointer to %PDSS to work with.
+     *  This virtual routine can be used to duplicate PDSS  objects
+     *  inherited from PDSS even if the application only has
+     *  a pointer to PDSS to work with.
      *
-     * @return returns a pointer to the base %PDSS object type
+     * @return returns a pointer to the base PDSS object type
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 
@@ -236,7 +231,7 @@ public:
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      *
      * @param spindex     Species index within the phase
@@ -250,7 +245,7 @@ public:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, int spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!Initialization of a PDSS object using an xml tree
+    //!Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the
      * object.

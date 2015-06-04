@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <algorithm>
 
 /**
  * Namespace for the Cantera kernel.
@@ -48,8 +49,6 @@ namespace Cantera
 
 //! Pi
 const doublereal Pi = 3.14159265358979323846;
-//! sqrt(Pi)
-const doublereal SqrtPi = std::sqrt(Pi);
 
 /*!
  *   @name Variations of the Gas Constant
@@ -123,17 +122,6 @@ const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104,
           HT = -110, HS = -111, XP = -112, XT = -113;
 //@}
 
-//! 1/3
-const doublereal OneThird = 1.0/3.0;
-//! 5/16
-const doublereal FiveSixteenths = 5.0/16.0;
-//! sqrt(10)
-const doublereal SqrtTen = std::sqrt(10.0);
-//! sqrt(8)
-const doublereal SqrtEight = std::sqrt(8.0);
-//! sqrt(2)
-const doublereal SqrtTwo = std::sqrt(2.0);
-
 //! smallest number to compare to zero.
 const doublereal SmallNumber = 1.e-300;
 //! largest number to compare to inf.
@@ -159,6 +147,11 @@ const doublereal Tiny = 1.e-20;
  * to species.
  */
 typedef std::map<std::string, doublereal> compositionMap;
+
+//! Map from string names to doubles. Used for defining species mole/mass
+//! fractions, elemental compositions, and reaction stoichiometries.
+typedef std::map<std::string, doublereal> Composition;
+
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
 typedef std::vector<double>        vector_fp;

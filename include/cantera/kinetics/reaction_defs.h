@@ -19,20 +19,24 @@ const int NONE = 0;
 
 //@{
 
-/**
- * A reaction with a rate coefficient that depends only on
+//! A reaction with a rate coefficient that depends only on temperature and voltage
+//! that also obeys mass-action kinetics.
+/*!
+ *  Here mass-action kinetics is defined as the reaction orders being equal to
+ *  the reaction's stoichiometry.
+ *
  * temperature. Example: O + OH <-> O2 + H
  */
 const int ELEMENTARY_RXN = 1;
 
 /**
- * A reaction that requires a third-body collision partner. Example:
+ * A gas-phase reaction that requires a third-body collision partner. Example:
  * O2 + M <-> O + O + M
  */
 const int THREE_BODY_RXN = 2;
 
 /**
- * The general form for an association or dissociation reaction, with a
+ * The general form for a gas-phase association or dissociation reaction, with a
  * pressure-dependent rate. Example: CH3 + H (+M) <-> CH4 (+M)
  */
 const int FALLOFF_RXN    = 4;
@@ -46,7 +50,7 @@ const int FALLOFF_RXN    = 4;
 const int PLOG_RXN = 5;
 
 /**
- * A general pressure-dependent reaction where k(T,P) is defined in terms of
+ * A general gas-phase pressure-dependent reaction where k(T,P) is defined in terms of
  * a bivariate Chebyshev polynomial.
  */
 const int CHEBYSHEV_RXN = 6;
@@ -61,17 +65,45 @@ const int CHEMACT_RXN    = 8;
 
 /**
  * A reaction occurring on a surface.
+ *  NOTE: This is a bit ambiguous, and will be taken out in the future
+ *        The dimensionality of the interface is a separate concept from the type
+ *        of the reaction.
  */
 const int SURFACE_RXN    = 20;
 
+//! A reaction occurring on an interface, e.g a surface or edge.
+const int INTERFACE_RXN = 20;
+
+//!  This is a surface reaction that is formulated using the Butler-Volmer
+//!  formulation and using concentrations instead of activity concentrations
+//!  for its exchange current density formula.
+const int BUTLERVOLMER_NOACTIVITYCOEFFS_RXN = 25;
+
+//!  This is a surface reaction that is formulated using the Butler-Volmer
+//!  formulation. Note the B-V equations can be derived from the forward
+//!  and reverse rate constants for a single step reaction. However, there
+//!  are some advantages to using the formulation directly.
+const int BUTLERVOLMER_RXN = 26;
+
+//!  This is a surface reaction that is formulated using the affinity
+//!  representation, common in the geochemistry community.
+//!  This is generally a global non-mass action reaction with an additional functional
+//!  form dependence on delta G of reaction.
+const int SURFACEAFFINITY_RXN = 27;
+
+
+
+
 /**
- * A reaction occurring at a one-dimensional interface between two
- * surface phases.
+ * A reaction occurring at a one-dimensional interface between two surface phases.
+ *  NOTE: This is a bit ambiguous, and will be taken out in the future
+ *        The dimensionality of the interface is a separate concept from the type
+ *        of the reaction.
  */
 const int EDGE_RXN  = 22;
 
 /**
- * A global reaction. These may have non-integral reaction orders,
+ * A global reaction. These may have non-mass action reaction orders,
  * and are not allowed to be reversible.
  */
 const int GLOBAL_RXN     = 30;
@@ -103,10 +135,8 @@ const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
  */
 //@{
 const int SIMPLE_FALLOFF = 100;
-const int TROE3_FALLOFF = 110;
-const int TROE4_FALLOFF = 111;
-const int SRI3_FALLOFF  = 112;
-const int SRI5_FALLOFF  = 113;
+const int TROE_FALLOFF = 110;
+const int SRI_FALLOFF  = 112;
 //@}
 }
 

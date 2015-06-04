@@ -1,15 +1,205 @@
-cdef enum Thermasis:
+import warnings
+
+cdef enum ThermoBasis:
     mass_basis = 0
     molar_basis = 1
 
 
-cdef stdmap[string,double] comp_map(dict X) except *:
-    cdef stdmap[string,double] m
-    cdef str species
-    cdef float val
-    for species,value in X.items():
-        m[stringify(species)] = value
-    return m
+cdef class Species:
+    """
+    A class which stores data about a single chemical species that may be
+    needed to add it to a `Solution` or `Interface` object (and to the
+    underlying `ThermoPhase` and `Transport` objects).
+
+    :param name:
+        A string giving the name of the species, e.g. ``'CH4'``
+    :param composition:
+        The elemental composition of the species, given either as a dict or a
+        composition string, e.g. ``{'C':1, 'H':4}`` or ``'C:1, H:4'``.
+    :param charge:
+        The electrical charge, in units of the elementary charge. Default 0.0.
+    :param size:
+        The effective size [m] of the species. Default 1.0.
+    :param init:
+        Used internally when wrapping :ct:`Species` objects returned from C++
+
+    Example: creating an ideal gas phase with a single species::
+
+        ch4 = ct.Species('CH4', 'C:1, H:4')
+        ch4.thermo = ct.ConstantCp(300, 1000, 101325,
+                                   (300, -7.453347e7, 1.865912e5, 3.576053e4))
+        tran = ct.GasTransportData()
+        tran.set_customary_units('nonlinear', 3.75, 141.40, 0.0, 2.60, 13.00)
+        ch4.transport = tran
+        gas = ct.Solution(thermo='IdealGas', species=[ch4])
+
+    The static methods `fromCti`, `fromXml`, `listFromFile`, `listFromCti`, and
+    `listFromXml` can be used to create `Species` objects from existing
+    definitions in the CTI or XML formats. All of the following will produce a
+    list of 53 `Species` objects containing the species defined in the GRI 3.0
+    mechanism::
+
+        S = ct.Species.listFromFile('gri30.cti')
+        S = ct.Species.listFromCti(open('path/to/gri30.cti').read())
+        S = ct.Species.listFromXml(open('path/to/gri30.xml').read())
+
+    """
+    def __cinit__(self, *args, init=True, **kwargs):
+        if init:
+            self._species.reset(new CxxSpecies())
+            self.species = self._species.get()
+
+    def __init__(self, name=None, composition=None, charge=None, size=None,
+                 *args, init=True, **kwargs):
+        if not init:
+            return
+
+        if name is not None:
+            self.species.name = stringify(name)
+
+        if composition is not None:
+            self.species.composition = comp_map(composition)
+
+        if charge is not None:
+            self.species.charge = charge
+
+        if size is not None:
+            self.species.size = size
+
+    cdef _assign(self, shared_ptr[CxxSpecies] other):
+        self._species = other
+        self.species = self._species.get()
+
+    @staticmethod
+    def fromCti(text):
+        """
+        Create a Species object from its CTI string representation.
+        """
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        assert cxx_species.size() == 1, cxx_species.size()
+        species = Species(init=False)
+        species._assign(cxx_species[0])
+        return species
+
+    @staticmethod
+    def fromXml(text):
+        """
+        Create a Species object from its XML string representation.
+        """
+        cxx_species = CxxNewSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        species = Species(init=False)
+        species._assign(cxx_species)
+        return species
+
+    @staticmethod
+    def listFromFile(filename):
+        """
+        Create a list of Species objects from all of the species defined in a
+        CTI or XML file.
+
+        Directories on Cantera's input file path will be searched for the
+        specified file.
+
+        In the case of an XML file, the ``<species>`` nodes are assumed to be
+        children of the ``<speciesData>`` node in a document with a ``<ctml>``
+        root node, as in the XML files produced by conversion from CTI files.
+        """
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFile(stringify(filename))))
+        species = []
+        for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    @staticmethod
+    def listFromXml(text):
+        """
+        Create a list of Species objects from all the species defined in an XML
+        string. The ``<species>`` nodes are assumed to be children of the
+        ``<speciesData>`` node in a document with a ``<ctml>`` root node, as in
+        the XML files produced by conversion from CTI files.
+        """
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        species = []
+        for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    @staticmethod
+    def listFromCti(text):
+        """
+        Create a list of Species objects from all the species defined in a CTI
+        string.
+        """
+        # Currently identical to listFromXml since get_XML_from_string is able
+        # to distinguish between CTI and XML.
+        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        species = []
+        for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    property name:
+        """ The name of the species. """
+        def __get__(self):
+            return pystr(self.species.name)
+
+    property composition:
+        """
+        A dict containing the elemental composition of the species. Keys are
+        element names; values are the corresponding atomicities.
+        """
+        def __get__(self):
+            return comp_map_to_dict(self.species.composition)
+
+    property charge:
+        """
+        The electrical charge on the species, in units of the elementary charge.
+        """
+        def __get__(self):
+            return self.species.charge
+
+    property size:
+        """ The effective size [m] of the species. """
+        def __get__(self):
+            return self.species.size
+
+    property thermo:
+        """
+        Get/Set the species reference-state thermodynamic data, as an instance
+        of class `SpeciesThermo`.
+        """
+        def __get__(self):
+            if self.species.thermo.get() != NULL:
+                return wrapSpeciesThermo(self.species.thermo)
+            else:
+                return None
+
+        def __set__(self, SpeciesThermo spthermo):
+            self.species.thermo = spthermo._spthermo
+
+    property transport:
+        """
+        Get/Set the species transport parameters, as an instance of class
+        `GasTransportData`.
+        """
+        def __get__(self):
+            if self.species.transport.get() != NULL:
+                data = GasTransportData(init=False)
+                data._assign(self.species.transport)
+                return data
+            else:
+                return None
+        def __set__(self, GasTransportData tran):
+            self.species.transport = tran._data
+
+    def __repr__(self):
+        return '<Species {}>'.format(self.name)
 
 
 cdef class ThermoPhase(_SolutionBase):
@@ -22,6 +212,7 @@ cdef class ThermoPhase(_SolutionBase):
     Class `ThermoPhase` is not usually instantiated directly. It is used
     as a base class for classes `Solution` and `Interface`.
     """
+    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
@@ -98,7 +289,8 @@ cdef class ThermoPhase(_SolutionBase):
             return 1.0
 
     def equilibrate(self, XY, solver='auto', double rtol=1e-9,
-                    int maxsteps=1000, int maxiter=100, int loglevel=0):
+                    int maxsteps=1000, int maxiter=100, int estimate_equil=0,
+                    int loglevel=0):
         """
         Set to a state of chemical equilibrium holding property pair
         *XY* constant.
@@ -116,7 +308,7 @@ cdef class ThermoPhase(_SolutionBase):
             * 'gibbs' - a slower but more robust Gibbs minimization solver
             * 'vcs' - the VCS non-ideal equilibrium solver
             * "auto" - The element potential solver will be tried first, then
-              if it fails the gibbs solver will be tried.
+              if it fails the Gibbs solver will be tried.
         :param rtol:
             the relative error tolerance.
         :param maxsteps:
@@ -126,26 +318,33 @@ cdef class ThermoPhase(_SolutionBase):
             For the Gibbs minimization solver, this specifies the number of
             'outer' iterations on T or P when some property pair other
             than TP is specified.
+        :param estimate_equil:
+            Integer indicating whether the solver should estimate its own
+            initial condition. If 0, the initial mole fraction vector in the
+            ThermoPhase object is used as the initial condition. If 1, the
+            initial mole fraction vector is used if the element abundances are
+            satisfied. If -1, the initial mole fraction vector is thrown out,
+            and an estimate is formulated.
         :param loglevel:
             Set to a value > 0 to write diagnostic output.
             """
-        cdef int iSolver
         if isinstance(solver, int):
-            iSolver = solver
-        elif solver == 'auto':
-            iSolver = -1
-        elif solver == 'element_potential':
-            iSolver = 0
-        elif solver == 'gibbs':
-            iSolver = 1
-        elif solver == 'vcs':
-            iSolver = 2
-        else:
-            raise ValueError('Invalid equilibrium solver specified')
+            warnings.warn('ThermoPhase.equilibrate: Using integer solver '
+                'flags is deprecated, and will be disabled after Cantera 2.2.')
+            if solver == -1:
+                solver = 'auto'
+            elif solver == 0:
+                solver = 'element_potential'
+            elif solver == 1:
+                solver = 'gibbs'
+            elif solver == 2:
+                solver = 'vcs'
+            else:
+                raise ValueError('Invalid equilibrium solver specified: '
+                    '"{0}"'.format(solver))
 
-        XY = XY.upper()
-        equilibrate(deref(self.thermo), stringify(XY).c_str(),
-                    iSolver, rtol, maxsteps, maxiter, loglevel)
+        self.thermo.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
+                                maxsteps, maxiter, estimate_equil, loglevel)
 
     ####### Composition, species, and elements ########
 
@@ -160,7 +359,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such element is present, an exception is thrown.
         """
-        if isinstance(element, (str, unicode)):
+        if isinstance(element, (str, unicode, bytes)):
             index = self.thermo.elementIndex(stringify(element))
         elif isinstance(element, (int, float)):
             index = <int>element
@@ -214,7 +413,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such species is present, an exception is thrown.
         """
-        if isinstance(species, (str, unicode)):
+        if isinstance(species, (str, unicode, bytes)):
             index = self.thermo.speciesIndex(stringify(species))
         elif isinstance(species, (int, float)):
             index = <int>species
@@ -225,6 +424,24 @@ cdef class ThermoPhase(_SolutionBase):
             raise ValueError('No such species.')
 
         return index
+
+    def species(self, k=None):
+        """
+        Return the `Species` object for species *k*, where *k* is either the
+        species index or the species name. If *k* is not specified, a list of
+        all species objects is returned.
+        """
+        if k is None:
+            return [self.species(i) for i in range(self.n_species)]
+
+        s = Species(init=False)
+        if isinstance(k, (str, unicode, bytes)):
+            s._assign(self.thermo.species(stringify(k)))
+        elif isinstance(k, (int, float)):
+            s._assign(self.thermo.species(<int>k))
+        else:
+            raise TypeError("Argument must be a string or a number")
+        return s
 
     def n_atoms(self, species, element):
         """
@@ -270,7 +487,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property Y:
         """
-        Get/Set the species mass fractions. Can be set as an array, as a dict,
+        Get/Set the species mass fractions. Can be set as an array, as a dictionary,
         or as a string. Always returns an array::
 
             >>> phase.Y = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
@@ -282,7 +499,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMassFractions)
         def __set__(self, Y):
-            if isinstance(Y, (str, unicode)):
+            if isinstance(Y, (str, unicode, bytes)):
                 self.thermo.setMassFractionsByName(stringify(Y))
             elif isinstance(Y, dict):
                 self.thermo.setMassFractionsByName(comp_map(Y))
@@ -291,7 +508,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     property X:
         """
-        Get/Set the species mole fractions. Can be set as an array, as a dict,
+        Get/Set the species mole fractions. Can be set as an array, as a dictionary,
         or as a string. Always returns an array::
 
             >>> phase.X = [0.1, 0, 0, 0.4, 0, 0, 0, 0, 0.5]
@@ -303,7 +520,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMoleFractions)
         def __set__(self, X):
-            if isinstance(X, (str, unicode)):
+            if isinstance(X, (str, unicode, bytes)):
                 self.thermo.setMoleFractionsByName(stringify(X))
             elif isinstance(X, dict):
                 self.thermo.setMoleFractionsByName(comp_map(X))
@@ -316,6 +533,45 @@ cdef class ThermoPhase(_SolutionBase):
             return self._getArray1(thermo_getConcentrations)
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
+
+    def elemental_mass_fraction(self, m):
+        r"""
+        Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
+        :math:`m` as defined by:
+
+        .. math:: Z_{\mathrm{mass},m} = \sum_k \frac{a_{m,k} M_m}{M_k} Y_k
+
+        with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
+        species :math:`k`, :math:`M_m` the atomic weight of element :math:`m`,
+        :math:`M_k` the molecular weight of species :math:`k`, and :math:`Y_k`
+        the mass fraction of species :math:`k`.
+
+        :param m:
+            Base element, may be specified by name or by index.
+
+        >>> phase.elemental_mass_fraction('H')
+        1.0
+        """
+        return self.thermo.elementalMassFraction(self.element_index(m))
+
+    def elemental_mole_fraction(self, m):
+        r"""
+        Get the elemental mole fraction :math:`Z_{\mathrm{mole},m}` of element
+        :math:`m` as defined by:
+
+        .. math:: Z_{\mathrm{mole},m} = \sum_k \frac{a_{m,k}}{\sum_j a_{j,k}} X_k
+
+        with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
+        species :math:`k` and :math:`X_k` the mole fraction of species
+        :math:`k`.
+
+        :param m:
+            Base element, may be specified by name or by index.
+
+        >>> phase.elemental_mole_fraction('H')
+        1.0
+        """
+        return self.thermo.elementalMoleFraction(self.element_index(m))
 
     def set_unnormalized_mass_fractions(self, Y):
         """
@@ -342,6 +598,14 @@ cdef class ThermoPhase(_SolutionBase):
         else:
             raise ValueError("Array has incorrect length")
         self.thermo.setMoleFractions_NoNorm(&data[0])
+
+    def mass_fraction_dict(self, double threshold=0.0):
+        Y = self.thermo.getMassFractionsByName(threshold)
+        return {pystr(item.first):item.second for item in Y}
+
+    def mole_fraction_dict(self, double threshold=0.0):
+        X = self.thermo.getMoleFractionsByName(threshold)
+        return {pystr(item.first):item.second for item in X}
 
     ######## Read-only thermodynamic properties ########
 
@@ -889,6 +1153,10 @@ cdef class InterfacePhase(ThermoPhase):
                 return data
 
         def __set__(self, theta):
+            if isinstance(theta, (dict, str, unicode, bytes)):
+                self.surf.setCoveragesByName(comp_map(theta))
+                return
+
             if len(theta) != self.n_species:
                 raise ValueError("Array has incorrect length")
             cdef np.ndarray[np.double_t, ndim=1] data = \
@@ -902,20 +1170,33 @@ cdef class PureFluid(ThermoPhase):
     or a fluid beyond its critical point.
     """
     property X:
-        """Vapor fraction (quality)."""
+        """
+        Get/Set vapor fraction (quality). Can be set only when in the two-phase
+        region.
+        """
         def __get__(self):
             return self.thermo.vaporFraction()
+        def __set__(self, X):
+            if (self.P >= self.critical_pressure or
+                abs(self.P-self.P_sat)/self.P > 1e-4):
+                raise ValueError('Cannot set vapor quality outside the'
+                                 'two-phase region')
+            self.thermo.setState_Psat(self.P, X)
 
     property TX:
         """Get/Set the temperature and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.T, self.X
         def __set__(self, values):
-            self.thermo.setState_Tsat(values[0], values[1])
+            T = values[0] if values[0] is not None else self.T
+            X = values[1] if values[1] is not None else self.X
+            self.thermo.setState_Tsat(T, X)
 
     property PX:
         """Get/Set the pressure and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.P, self.X
         def __set__(self, values):
-            self.thermo.setState_Psat(values[0], values[1])
+            P = values[0] if values[0] is not None else self.P
+            X = values[1] if values[1] is not None else self.X
+            self.thermo.setState_Psat(P, X)

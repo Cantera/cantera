@@ -1,6 +1,12 @@
 function s = char(p)
-% CHAR -
+% CHAR  Get the formatted string to display the function.
+% s = char(p)
+% :param p:
+%     Instance of class :mat:func:`Func`
+% :return:
+%     Formatted string displaying the function
 %
+
 if strcmp(p.typ,'sum')
     s = ['(' char(p.f1) ') + (' char(p.f2) ')'];
 elseif strcmp(p.typ,'diff')
@@ -44,17 +50,17 @@ else
             end
             d = d - 1;
         end
-    elseif strcmp(p.typ,'gaussian')
+    elseif strcmp(p.typ, 'gaussian')
         s = ['Gaussian(' num2str(p.coeffs(1)) ',' ...
             num2str(p.coeffs(2)) ',' ...
             num2str(p.coeffs(3)) ')'];
-    elseif strcmp(p.typ,'fourier')
-        c = reshape(p.coeffs, [],2);
-        Ao = c(1,1);
-        w = c(1,2);
-        A = c(2:end,1);
-        B = c(2:end,2);
-        N = size(c,1)-1;
+    elseif strcmp(p.typ, 'fourier')
+        c = reshape(p.coeffs, [], 2);
+        Ao = c(1, 1);
+        w = c(1, 2);
+        A = c(2:end, 1);
+        B = c(2:end, 2);
+        N = size(c, 1) - 1;
         if Ao ~= 0
             s = num2str(Ao/2);
         else

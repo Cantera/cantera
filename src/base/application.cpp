@@ -1,21 +1,20 @@
 //! @file application.cpp
 #include "application.h"
 
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/xml.h"
 #include "units.h"
 
 #include <fstream>
 #include <sstream>
-#include <functional>
 
 using std::string;
 using std::endl;
 
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <sys/stat.h>
 #endif
 
 #ifdef _MSC_VER
@@ -49,9 +48,25 @@ static mutex_t app_mutex;
 //! Mutex for controlling access to XML file storage
 static mutex_t xml_mutex;
 
+static int get_modified_time(const std::string& path) {
+#ifdef _WIN32
+    HANDLE hFile = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_WRITE,
+                              NULL, OPEN_EXISTING, 0, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        throw CanteraError("get_modified_time", "Couldn't open file:" + path);
+    }
+    FILETIME modified;
+    GetFileTime(hFile, NULL, NULL, &modified);
+    CloseHandle(hFile);
+    return static_cast<int>(modified.dwLowDateTime);
+#else
+    struct stat attrib;
+    stat(path.c_str(), &attrib);
+    return static_cast<int>(attrib.st_mtime);
+#endif
+}
+
 Application::Messages::Messages() :
-    errorMessage(0),
-    errorRoutine(0),
     logwriter(0)
 {
     // install a default logwriter that writes to standard
@@ -154,12 +169,8 @@ void Application::ThreadMessages::removeThreadMessages()
 #endif // THREAD_SAFE_CANTERA
 
 Application::Application() :
-    inputDirs(0),
     stop_on_error(false),
-    options(),
-    xmlfiles(),
-    m_suppress_deprecation_warnings(false),
-    pMessenger()
+    m_suppress_deprecation_warnings(false)
 {
 #if !defined( THREAD_SAFE_CANTERA )
     pMessenger = std::auto_ptr<Messages>(new Messages());
@@ -184,11 +195,11 @@ Application* Application::Instance()
 
 Application::~Application()
 {
-    std::map<std::string, XML_Node*>::iterator pos;
+    std::map<std::string, std::pair<XML_Node*, int> >::iterator pos;
     for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
-        pos->second->unlock();
-        delete pos->second;
-        pos->second = 0;
+        pos->second.first->unlock();
+        delete pos->second.first;
+        pos->second.first = 0;
     }
 }
 
@@ -224,115 +235,82 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
     ScopedLock xmlLock(xml_mutex);
     std::string path = "";
     path = findInputFile(file);
-#ifdef _WIN32
-    // RFB: For Windows make the path POSIX compliant so code looking for directory
-    // separators is simpler.  Just look for '/' not both '/' and '\\'
-    std::replace_if(path.begin(), path.end(),
-                    std::bind2nd(std::equal_to<char>(), '\\'), '/') ;
-#endif
+    int mtime = get_modified_time(path);
 
-    string ff = path;
-    if (xmlfiles.find(path)
-            == xmlfiles.end()) {
-        /*
-         * Check whether or not the file is XML. If not, it will
-         * be first processed with the preprocessor. We determine
-         * whether it is an XML file by looking at the file extension.
-         */
-        string::size_type idot = path.rfind('.');
-        string ext;
-        if (idot != string::npos) {
-            ext = path.substr(idot, path.size());
-        } else {
-            ext = "";
-            idot = path.size();
-        }
-        if (ext != ".xml" && ext != ".ctml") {
-            /*
-             * We will assume that we are trying to open a cti file.
-             * First, determine the name of the xml file, ff, derived from
-             * the cti file.
-             * In all cases, we will write the xml file to the current
-             * directory.
-             */
-            string::size_type islash = path.rfind('/');
-            if (islash != string::npos) {
-                ff = string("./")+path.substr(islash+1,idot-islash - 1) + ".xml";
-            } else {
-                ff = string("./")+path.substr(0,idot) + ".xml";
-            }
-            if (debug > 0) {
-                writelog("get_XML_File(): Expected location of xml file = " +
-                         ff + "\n");
-            }
-            /*
-             * Do a search of the existing XML trees to determine if we have
-             * already processed this file. If we have, return a pointer to
-             * the processed xml tree.
-             */
-            if (xmlfiles.find(ff) != xmlfiles.end()) {
-                if (debug > 0) {
-                    writelog("get_XML_File(): File, " + ff +
-                             ", was previously read." +
-                             " Retrieving the stored xml tree.\n");
-                }
-                return xmlfiles[ff];
-            }
-            /*
-             * Ok, we didn't find the processed XML tree. Do the conversion from cti
-             */
-            string phase_xml = ctml::ct2ctml_string(path);
-            XML_Node* x = new XML_Node("doc");
-            std::stringstream s(phase_xml);
-            x->build(s);
-            x->lock();
-            xmlfiles[ff] = x;
-            return x;
-        } else {
-            ff = path;
-        }
-        /*
-         * Take the XML file ff, open it, and process it, creating an
-         * XML tree, and then adding an entry in the map. We will store
-         * the absolute pathname as the key for this map.
-         */
-        std::ifstream s(ff.c_str());
-
-        XML_Node* x = new XML_Node("doc");
-        if (s) {
-            x->build(s);
-            x->lock();
-            xmlfiles[ff] = x;
-        } else {
-            string estring = "cannot open "+ff+" for reading.";
-            estring += "Note, this error indicates a possible configuration problem.";
-            throw CanteraError("get_XML_File", estring);
+    if (xmlfiles.find(path) != xmlfiles.end()) {
+        // Already have a parsed XML tree for this file cached. Check the
+        // last-modified time.
+        std::pair<XML_Node*, int> cache = xmlfiles[path];
+        if (cache.second == mtime) {
+            return cache.first;
         }
     }
-
     /*
-     * Return the XML node pointer. At this point, we are sure that the
-     * lookup operation in the return statement will return a valid
-     * pointer.
+     * Check whether or not the file is XML (based on the file extension). If
+     * not, it will be first processed with the preprocessor.
      */
-    return xmlfiles[ff];
+    string::size_type idot = path.rfind('.');
+    string ext;
+    if (idot != string::npos) {
+        ext = path.substr(idot, path.size());
+    } else {
+        ext = "";
+    }
+    XML_Node* x = new XML_Node("doc");
+    if (ext != ".xml" && ext != ".ctml") {
+        // Assume that we are trying to open a cti file. Do the conversion to XML.
+        std::stringstream phase_xml(ct2ctml_string(path));
+        x->build(phase_xml);
+    } else {
+        std::ifstream s(path.c_str());
+        if (s) {
+            x->build(s);
+        } else {
+            throw CanteraError("get_XML_File",
+                "cannot open "+file+" for reading.\n"
+                "Note, this error indicates a possible configuration problem.");
+        }
+    }
+    x->lock();
+    xmlfiles[path] = std::make_pair(x, mtime);
+    return x;
+}
+
+XML_Node* Application::get_XML_from_string(const std::string& text)
+{
+    ScopedLock xmlLock(xml_mutex);
+    std::pair<XML_Node*, int>& entry = xmlfiles[text];
+    if (entry.first) {
+        // Return existing cached XML tree
+        return entry.first;
+    }
+    std::stringstream s;
+    size_t start = text.find_first_not_of(" \t\r\n");
+    if (text.substr(start,1) == "<") {
+        s << text;
+    } else {
+        s << ct_string2ctml_string(text.substr(start));
+    }
+    entry.first = new XML_Node();
+    entry.first->build(s);
+    return entry.first;
 }
 
 void Application::close_XML_File(const std::string& file)
 {
     ScopedLock xmlLock(xml_mutex);
     if (file == "all") {
-        std::map<string, XML_Node*>::iterator
+        std::map<string, std::pair<XML_Node*, int> >::iterator
         b = xmlfiles.begin(),
         e = xmlfiles.end();
         for (; b != e; ++b) {
-            b->second->unlock();
-            delete b->second;
+            b->second.first->unlock();
+            delete b->second.first;
             xmlfiles.erase(b->first);
         }
     } else if (xmlfiles.find(file) != xmlfiles.end()) {
-        xmlfiles[file]->unlock();
-        delete xmlfiles[file];
+        xmlfiles[file].first->unlock();
+        delete xmlfiles[file].first;
         xmlfiles.erase(file);
     }
 }
@@ -432,15 +410,14 @@ void Application::setDefaultDirectories()
 
 #ifdef _WIN32
     // Under Windows, the Cantera setup utility records the installation
-    // directory in the registry. Data files are stored in the 'data' and
-    // 'templates' subdirectories of the main installation directory.
+    // directory in the registry. Data files are stored in the 'data'
+    // subdirectory of the main installation directory.
 
     std::string installDir;
-    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera 2.0",
+    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera 2.2",
                           "InstallDir", installDir, "");
     if (installDir != "") {
         dirs.push_back(installDir + "data");
-        dirs.push_back(installDir + "templates");
 
         // Scripts for converting mechanisms to CTI and CMTL are installed in
         // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
@@ -462,13 +439,26 @@ void Application::setDefaultDirectories()
     dirs.push_back("/Applications/Cantera/data");
 #endif
 
-    //
-    // if environment variable CANTERA_DATA is defined, then add
-    // it to the search path
-    //
+    // if environment variable CANTERA_DATA is defined, then add it to the
+    // search path. CANTERA_DATA may include multiple directory, separated by
+    // the OS-dependent path separator (in the same manner as the PATH
+    // environment variable).
+#ifdef _WIN32
+    std::string pathsep = ";";
+#else
+    std::string pathsep = ":";
+#endif
+
     if (getenv("CANTERA_DATA") != 0) {
-        string datadir = string(getenv("CANTERA_DATA"));
-        dirs.push_back(datadir);
+        string s = string(getenv("CANTERA_DATA"));
+        size_t start = 0;
+        size_t end = s.find(pathsep);
+        while(end != npos) {
+            dirs.push_back(s.substr(start, end-start));
+            start = end + 1;
+            end = s.find(pathsep, start);
+        }
+        dirs.push_back(s.substr(start,end));
     }
 
     // CANTERA_DATA is defined in file config.h. This file is written
@@ -484,20 +474,20 @@ void Application::setDefaultDirectories()
 void Application::addDataDirectory(const std::string& dir)
 {
     ScopedLock dirLock(dir_mutex);
-    if (inputDirs.size() == 0) {
+    if (inputDirs.empty()) {
         setDefaultDirectories();
     }
     string d = stripnonprint(dir);
-    size_t m, n = inputDirs.size();
 
-    // don't add if already present
-    for (m = 0; m < n; m++) {
-        if (d == inputDirs[m]) {
-            return;
-        }
+    // Remove any existing entry for this directory
+    std::vector<string>::iterator iter = std::find(inputDirs.begin(),
+                                                   inputDirs.end(), d);
+    if (iter != inputDirs.end()) {
+        inputDirs.erase(iter);
     }
 
-    inputDirs.push_back(d);
+    // Insert this directory at the beginning of the search path
+    inputDirs.insert(inputDirs.begin(), d);
 }
 
 std::string Application::findInputFile(const std::string& name)
@@ -507,6 +497,17 @@ std::string Application::findInputFile(const std::string& name)
     string::size_type ibslash = name.find('\\');
     string inname;
     std::vector<string>& dirs = inputDirs;
+
+    // Expand "~/" to user's home directory, if possible
+    if (name.find("~/") == 0) {
+        char* home = getenv("HOME"); // POSIX systems
+        if (!home) {
+            home = getenv("USERPROFILE"); // Windows systems
+        }
+        if (home) {
+            return home + name.substr(1, npos);
+        }
+    }
 
     if (islash == string::npos && ibslash == string::npos) {
         size_t nd = dirs.size();

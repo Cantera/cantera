@@ -7,7 +7,6 @@
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/zeroD/ReactorNet.h"
 
@@ -17,18 +16,19 @@ using namespace std;
 
 namespace Cantera
 {
-Reactor::Reactor() : ReactorBase(),
+Reactor::Reactor() :
     m_kin(0),
     m_vdot(0.0),
     m_Q(0.0),
+    m_mass(0.0),
     m_chem(false),
     m_energy(true),
+    m_nv(0),
     m_nsens(npos)
 {}
 
 void Reactor::getInitialConditions(double t0, size_t leny, double* y)
 {
-    m_init = true;
     if (m_thermo == 0) {
         cout << "Error: reactor is empty." << endl;
         return;
@@ -67,6 +67,10 @@ void Reactor::getSurfaceInitialConditions(double* y)
 
 void Reactor::initialize(doublereal t0)
 {
+    if (!m_thermo || !m_kin) {
+        throw CanteraError("Reactor::initialize", "Reactor contents not set"
+                " for reactor '" + m_name + "'.");
+    }
     m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
@@ -98,7 +102,6 @@ void Reactor::initialize(doublereal t0)
     }
     m_work.resize(maxnt);
     std::sort(m_pnum.begin(), m_pnum.end());
-    m_init = true;
 }
 
 size_t Reactor::nSensParams()
@@ -138,20 +141,32 @@ void Reactor::updateState(doublereal* y)
     m_thermo->setMassFractions_NoNorm(y+3);
 
     if (m_energy) {
-        // Use Newton's method to determine the mixture temperature. Tight
-        // tolerances are required both for Jacobian evaluation and for
+        // Use a damped Newton's method to determine the mixture temperature.
+        // Tight tolerances are required both for Jacobian evaluation and for
         // sensitivity analysis to work correctly.
 
         doublereal U = y[2];
         doublereal T = temperature();
         double dT = 100;
+        double dUprev = 1e10;
+        double dU = 1e10;
 
         int i = 0;
+        double damp = 1.0;
         while (abs(dT / T) > 10 * DBL_EPSILON) {
+            dUprev = dU;
             m_thermo->setState_TR(T, m_mass / m_vol);
             double dUdT = m_thermo->cv_mass() * m_mass;
-            dT = (m_thermo->intEnergy_mass() * m_mass - U) / dUdT;
-            dT = std::min(dT, 0.5 * T);
+            dU = m_thermo->intEnergy_mass() * m_mass - U;
+            dT = dU / dUdT;
+            // Reduce the damping coefficient if the magnitude of the error
+            // isn't decreasing
+            if (std::abs(dU) < std::abs(dUprev)) {
+                damp = 1.0;
+            } else {
+                damp *= 0.8;
+            }
+            dT = std::min(dT, 0.5 * T) * damp;
             T -= dT;
             i++;
             if (i > 100) {

@@ -1,7 +1,7 @@
 /**
  *  @file  PhaseCombo_Interaction.h
  *   Header for intermediate ThermoPhase object for phases which
- *   employ the Margules gibbs free energy formulation and eliminates the ideal mixing term.
+ *   employ the Margules Gibbs free energy formulation and eliminates the ideal mixing term.
  *  (see \ref thermoprops
  *    and class \link Cantera::PhaseCombo_Interaction PhaseCombo_Interaction\endlink).
  */
@@ -25,12 +25,12 @@ namespace Cantera
  */
 
 //!  PhaseCombo_Interaction is a derived class of GibbsExcessVPSSTP that employs
-//!  the Margules approximation for the excess gibbs free energy while eliminating
+//!  the Margules approximation for the excess Gibbs free energy while eliminating
 //!  the entropy of mixing term.
 /*!
  *  PhaseCombo_Interaction derives from class GibbsExcessVPSSTP which is derived from VPStandardStateTP,
  *  and overloads the virtual methods defined there with ones that
- *  use expressions appropriate for the Margules Excess gibbs free energy approximation.
+ *  use expressions appropriate for the Margules Excess Gibbs free energy approximation.
  *  The reader should refer to the MargulesVPSSTP class for information on that class.
  *  This class in addition adds a term to the activity coefficient that eliminates the
  *  ideal solution mixing term within the chemical potential. This is a very radical thing
@@ -60,7 +60,7 @@ namespace Cantera
  *
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *  All species are defined to have standard states that depend upon both
@@ -78,7 +78,7 @@ namespace Cantera
  * Each of the interactions are binary interactions involving two of the species in the phase, denoted, <I>Ai</I>
  * and <I>Bi</I>.
  * This is the generalization of the Margules formulation for a phase
- * that has more than 2 species. The second term in the excess gibbs free energy is a negation of the
+ * that has more than 2 species. The second term in the excess Gibbs free energy is a negation of the
  *  ideal solution's mixing term.
  *
  *      \f[
@@ -154,7 +154,7 @@ namespace Cantera
  *
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
@@ -224,7 +224,7 @@ namespace Cantera
  *             \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
  *   \f]
  *
- *  %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
+ *  Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
  *  using the second and third part of the above expression as a definition for the concentration
  *  equilibrium constant.
  *
@@ -260,7 +260,7 @@ namespace Cantera
  * <HR>
  *
  * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new %PhaseCombo_Interaction object may be created by the following code
+ * for %Cantera. A new PhaseCombo_Interaction object may be created by the following code
  * snippet:
  *
  * @code
@@ -345,7 +345,7 @@ public:
     PhaseCombo_Interaction();
 
     //! Construct and initialize a PhaseCombo_Interaction ThermoPhase object
-    //! directly from an xml input file
+    //! directly from an XML input file
     /*!
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
@@ -368,6 +368,7 @@ public:
      *  @param testProb Hard-coded value. Only the value of 1 is used. It's
      *                  for a LiKCl system -> test to predict the eutectic and
      *                  liquidus correctly.
+     *  @deprecated To be removed after Cantera 2.2.
      */
     PhaseCombo_Interaction(int testProb);
 
@@ -385,7 +386,7 @@ public:
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -743,51 +744,51 @@ protected:
     size_t numBinaryInteractions_;
 
     //! Enthalpy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_HE_b_ij;
 
     //! Enthalpy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_HE_c_ij;
 
     //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_HE_d_ij;
 
     //! Entropy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_SE_b_ij;
 
     //! Entropy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_SE_c_ij;
 
     //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_SE_d_ij;
 
     //! Enthalpy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_b_ij;
 
     //! Enthalpy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_c_ij;
 
     //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_d_ij;
 
     //! Entropy term for the binary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_b_ij;
 
     //! Entropy term for the ternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_c_ij;
 
     //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess gibbs free energy expression
+    //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_d_ij;
 
     //! vector of species indices representing species A in the interaction

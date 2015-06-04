@@ -3,11 +3,8 @@
  *  Mixture-averaged transport properties.
  */
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/PecosTransport.h"
-#include "cantera/base/utilities.h"
 #include "cantera/transport/TransportParams.h"
-#include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/IdealGasPhase.h"
 
@@ -23,13 +20,14 @@ PecosTransport::PecosTransport() :
     m_temp(-1.0),
     m_logt(0.0)
 {
+    warn_deprecated("class PecosTransport", "To be removed after Cantera 2.2");
 }
 
 bool PecosTransport::initGas(GasTransportParams& tr)
 {
     // constant substance attributes
     m_thermo = tr.thermo;
-    m_nsp   = m_thermo->nSpecies();
+    m_nsp   = static_cast<int>(m_thermo->nSpecies());
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
@@ -539,7 +537,7 @@ void PecosTransport::updateViscosity_T()
             // m_wratjk(j,k)!
             factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
             m_phi(k,j) = factor1*factor1 /
-                         (SqrtEight * m_wratkj1(j,k));
+                         (sqrt(8.0) * m_wratkj1(j,k));
             m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
         }
     }

@@ -1,7 +1,14 @@
-function a = setTemperature(a,t)
-% SETTEMPERATURE  Set the temperature [K].
+function setTemperature(tp,t)
+% SETTEMPERATURE  Set the temperature.
+% setTemperature(tp,t)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     class derived from ThermoPhase)
+% :param t:
+%     Temperature. Units: K
 %
+
 if (t <= 0)
-    error('the temperature must be positive');
+    error('The temperature must be positive.');
 end
-phase_set(a.tp_id,1,t);
+phase_set(tp.tp_id, 1, t);

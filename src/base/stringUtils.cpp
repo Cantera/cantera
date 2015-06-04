@@ -17,7 +17,6 @@
 
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/global.h"
 #include "cantera/base/ctml.h"
 
 #include <sstream>
@@ -140,38 +139,34 @@ compositionMap parseCompString(const std::string& ss,
     for (size_t k = 0; k < names.size(); k++) {
         x[names[k]] = 0.0;
     }
-    std::string s = ss;
-    std::string num;
-    do {
-        size_t ibegin = s.find_first_not_of(", ;\n\t");
-        if (ibegin != std::string::npos) {
-            s = s.substr(ibegin,s.size());
-            size_t icolon = s.find(':');
-            size_t iend = s.find_first_of(", ;\n\t");
-            if (icolon != std::string::npos) {
-                std::string name = stripws(s.substr(0, icolon));
-                if (iend != std::string::npos) {
-                    num = s.substr(icolon+1, iend-icolon-1);
-                    s = s.substr(iend+1, s.size());
-                } else {
-                    num = s.substr(icolon+1, s.size());
-                    s = "";
-                }
-                if (x.find(name) == x.end()) {
-                    throw CanteraError("parseCompString",
-                                       "unknown species " + name);
-                }
-                x[name] = fpValueCheck(num);
-            } else {
-                s = "";
-            }
+
+    size_t start = 0;
+    size_t stop = 0;
+    while (stop < ss.size()) {
+        size_t colon = ss.find(':', start);
+        if (colon == npos) {
+            break;
         }
-    } while (s != "");
+        size_t valstart = ss.find_first_not_of(" \t\n", colon+1);
+        stop = ss.find_first_of(", ;\n\t", valstart);
+        std::string name = stripws(ss.substr(start, colon-start));
+        if (!names.empty() && x.find(name) == x.end()) {
+            throw CanteraError("parseCompString",
+                "unknown species '" + name + "'");
+        }
+        x[name] = fpValueCheck(ss.substr(valstart, stop-colon-1));
+        start = ss.find_first_not_of(", ;\n\t", stop+1);
+    }
+    if (stop != npos && !stripws(ss.substr(stop)).empty()) {
+        throw CanteraError("parseCompString", "Found non-key:value data "
+            "in composition string: '" + ss.substr(stop) + "'");
+    }
     return x;
 }
 
 void split(const std::string& ss, std::vector<std::string>& w)
 {
+    warn_deprecated("split", "To be removed after Cantera 2.2.");
     std::string s = ss;
     std::string::size_type ibegin, iend;
     std::string name, num, nm;
@@ -194,6 +189,7 @@ void split(const std::string& ss, std::vector<std::string>& w)
 int fillArrayFromString(const std::string& str,
                         doublereal* const a, const char delim)
 {
+    warn_deprecated("fillArrayFromString", "To be removed after Cantera 2.2.");
     std::string::size_type iloc;
     int count = 0;
     std::string num;
@@ -244,7 +240,7 @@ doublereal fpValue(const std::string& val)
     ss >> rval;
     return rval;
 }
-//========================================================================================================================
+
 doublereal fpValueCheck(const std::string& val)
 {
     std::string str = stripws(val);
@@ -290,7 +286,7 @@ doublereal fpValueCheck(const std::string& val)
     }
     return fpValue(str);
 }
-//=====================================================================================================================
+
 std::string logfileName(const std::string& infile)
 {
     warn_deprecated("logfileName", "To be removed after Cantera 2.2.");
@@ -298,7 +294,7 @@ std::string logfileName(const std::string& infile)
     logfile += ".log";
     return logfile;
 }
-//====================================================================================================================
+
 std::string wrapString(const std::string& s, const int len)
 {
     int count=0;
@@ -317,7 +313,7 @@ std::string wrapString(const std::string& s, const int len)
     }
     return r;
 }
-//======================================================================================================================
+
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
     std::string s = stripws(nameStr);

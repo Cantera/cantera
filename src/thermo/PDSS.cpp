@@ -9,14 +9,8 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS.h"
-
-#include "cantera/thermo/ThermoFactory.h"
-#include "cantera/thermo/SpeciesThermo.h"
-
 #include "cantera/thermo/VPStandardStateTP.h"
 
 namespace Cantera
@@ -158,10 +152,6 @@ PDSS& PDSS::operator=(const PDSS& b)
     return *this;
 }
 
-PDSS::~PDSS()
-{
-}
-
 PDSS* PDSS::duplMyselfAsPDSS() const
 {
     return new PDSS(*this);
@@ -301,29 +291,23 @@ doublereal PDSS::molarVolume_ref() const
 
 doublereal PDSS::enthalpyDelp_mole() const
 {
-    doublereal RT = m_temp * GasConstant;
-    doublereal tmp = enthalpy_RT_ref();
-    return enthalpy_mole() - RT * tmp;
+    return enthalpy_mole() - m_temp * GasConstant * enthalpy_RT_ref();
 }
 
 doublereal PDSS::entropyDelp_mole() const
 {
-    doublereal tmp = entropy_R_ref();
-    return entropy_mole() - GasConstant * tmp;
+    return entropy_mole() - GasConstant * entropy_R_ref();
 
 }
 
 doublereal PDSS::gibbsDelp_mole() const
 {
-    doublereal RT = m_temp * GasConstant;
-    doublereal tmp = gibbs_RT_ref();
-    return gibbs_mole() - RT * tmp;
+    return gibbs_mole() - m_temp * GasConstant * gibbs_RT_ref();
 }
 
 doublereal PDSS::cpDelp_mole() const
 {
-    doublereal tmp = cp_R_ref();
-    return cp_mole() - GasConstant * tmp;
+    return cp_mole() - GasConstant * cp_R_ref();
 }
 
 doublereal PDSS::pressure() const

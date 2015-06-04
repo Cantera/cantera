@@ -39,7 +39,7 @@ public:
     GeneralMatrix& operator=(const GeneralMatrix& right);
 
     //! Destructor. Does nothing.
-    virtual ~GeneralMatrix();
+    virtual ~GeneralMatrix() {}
 
     //! Duplicator member function
     /*!
@@ -76,7 +76,7 @@ public:
     /*!
      * we set m_factored to 2 to indicate the matrix is now QR factored
      *
-     * @return  Returns the info variable from lapack
+     * @return  Returns the info variable from LAPACK
      */
     virtual int factorQR() {
         throw NotImplementedError("GeneralMatrix::factorQR");
@@ -136,7 +136,7 @@ public:
 
     //! Solves the Ax = b system returning x in the b spot.
     /*!
-     *  @param b    Vector for the rhs of the equation system
+     *  @param b    Vector for the RHS of the equation system
      *  @param nrhs Number of right-hand sides to solve, default 1
      *  @param ldb  Leading dimension of the right-hand side array.
      *              Defaults to nRows()
@@ -178,6 +178,7 @@ public:
     /*!
      *  This differs from the assignment operator as no resizing is done and memcpy() is used.
      *  @param y Array to be copied
+     *  @deprecated To be removed after Cantera 2.2.
      */
     virtual void copyData(const GeneralMatrix& y) = 0;
 
@@ -203,7 +204,7 @@ public:
      */
     virtual doublereal* const* colPts() = 0;
 
-    //! Check to see if we have any zero rows in the jacobian
+    //! Check to see if we have any zero rows in the Jacobian
     /*!
      *  This utility routine checks to see if any rows are zero.
      *  The smallest row is returned along with the largest coefficient in that row
@@ -214,7 +215,7 @@ public:
      */
     virtual size_t checkRows(doublereal& valueSmall) const = 0;
 
-    //! Check to see if we have any zero columns in the jacobian
+    //! Check to see if we have any zero columns in the Jacobian
     /*!
      *  This utility routine checks to see if any columns are zero.
      *  The smallest column is returned along with the largest coefficient in that column

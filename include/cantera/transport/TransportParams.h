@@ -1,6 +1,6 @@
 /**
  *  @file TransportParams.h
- *  Class that holds the data that is read in from the xml file, and which is used for
+ *  Class that holds the data that is read in from the XML file, and which is used for
  *  processing of the transport object
  *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
  */
@@ -21,7 +21,7 @@ class TransportParams
 {
 public:
     TransportParams();
-    virtual ~TransportParams();
+    virtual ~TransportParams() {}
 
     //! Local storage of the number of species
     size_t nsp_;
@@ -58,6 +58,8 @@ public:
 //! gases with a kinetic theory of gases derived transport model.
 /*!
  * This structure is used by TransportFactory object.
+ * @deprecated Unused. Mostly merged into class GasTransport. This class will be
+ *     removed after Cantera 2.2.
  */
 class GasTransportParams : public TransportParams
 {
@@ -218,11 +220,11 @@ public:
 
     //! The effective dipole moment for (i,j) collisions
     /*!
-     *  tr.dipoleMoment has units of Debye's. A Debye is 10-18 cm3/2 erg1/2
+     *  dipoleMoment has units of Debye. A Debye is 3.335e-30 C-m
      *
-     *    tr.dipole(i,i) = 1.e-25 * SqrtTen * trdat.dipoleMoment;
+     *    tr.dipole(i,i) = 1.e-21 / lightSpeed * dipoleMoment;
      *    tr.dipole(i,j) = sqrt(tr.dipole(i,i)*tr.dipole(j,j));
-     *  Units are  in Debye  (note, no kmol -> this is a per molecule amount)
+     *  (note, no kmol -> this is a per molecule amount)
      *
      *  Length nsp * nsp. This is a symmetric matrix.
      */
@@ -231,11 +233,19 @@ public:
     //! Matrix containing the reduced dipole moment of the interaction between two species
     /*!
      *  This is the reduced dipole moment of the interaction between two species
-     *        0.5 * tr.dipole(i,j)*tr.dipole(i,j)  (epsilon(i,j) * d * d * d);
+     *        0.5 * tr.dipole(i,j)^2 / (4 * Pi * epsilon_0 * epsilon(i,j) * d^3);
      *
      *  Length nsp * nsp .This is a symmetric matrix
      */
     DenseMatrix delta;
+
+    //! Pitzer acentric factor
+    /*!
+     * Length is the number of species in the phase.
+     * Unitless
+     */
+    vector_fp w_ac;
+
 };
 
 } // End of namespace Cantera

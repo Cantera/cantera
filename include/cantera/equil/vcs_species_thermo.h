@@ -11,7 +11,7 @@
 
 #include <cstdlib>
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 class vcs_VolPhase;
@@ -77,41 +77,23 @@ public:
     //!  defaults to 1.01325E5 = 1 atm
     double SS0_Pref;
 
-    //! Pointer to a list of parameters that is malloced for complicated
-    //! reference state calculation.
-    void* SS0_Params;
-
     //! Integer value representing the star state model.
     int SSStar_Model;
 
-    //! Pointer to a list of parameters that is malloced for complicated
-    //! reference star state calculation.
-    void* SSStar_Params;
-
-    //! Integer value representing the activity coefficient model These are
-    //! defined in vcs_VolPhase.h and start with VCS_AC_...
-    int Activity_Coeff_Model;
-
-    //! Pointer to a list of parameters that is malloced for activity
-    //! coefficient models.
-    void* Activity_Coeff_Params;
-
     //! Models for the standard state volume of each species
     int SSStar_Vol_Model;
-
-    //! Pointer to a list of parameters that is malloced for volume models
-    void* SSStar_Vol_Params;
 
     //! parameter that is used in the VCS_SSVOL_CONSTANT model.
     double SSStar_Vol0;
 
     //! If true, this object will call Cantera to do its member calculations.
+    //! @deprecated Will always behave as if 'true' after Cantera 2.2
     bool UseCanteraCalls;
 
     int m_VCS_UnitsFormat;
 
     VCS_SPECIES_THERMO(size_t indexPhase, size_t indexSpeciesPhase);
-    virtual ~VCS_SPECIES_THERMO();
+    virtual ~VCS_SPECIES_THERMO() {}
 
     VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b);
     VCS_SPECIES_THERMO& operator=(const VCS_SPECIES_THERMO& b);

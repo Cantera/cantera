@@ -1,13 +1,16 @@
 cdef class _SolutionBase:
-    def __cinit__(self, infile='', phaseid='', phases=(), source=None):
+    def __cinit__(self, infile='', phaseid='', phases=(), origin=None,
+                  source=None, thermo=None, species=(), kinetics=None,
+                  reactions=(), **kwargs):
         # Shallow copy of an existing Solution (for slicing support)
         cdef _SolutionBase other
-        if source is not None:
-            other = <_SolutionBase?>source
+        if origin is not None:
+            other = <_SolutionBase?>origin
 
             # keep a reference to the parent to prevent the underlying
             # C++ objects from being deleted
-            self.parent = other
+            self.parent = origin
+            self.is_slice = True
 
             self.thermo = other.thermo
             self.kinetics = other.kinetics
@@ -17,8 +20,33 @@ cdef class _SolutionBase:
             self._selected_species = other._selected_species.copy()
             return
 
-        # Instantiate a set of new Cantera C++ objects
-        rootNode = getCtmlTree(stringify(infile))
+        self.is_slice = False
+
+        if infile or source:
+            self._init_cti_xml(infile, phaseid, phases, source)
+        elif thermo and species:
+            self._init_parts(thermo, species, kinetics, phases, reactions)
+        else:
+            raise ValueError("Arguments are insufficient to define a phase")
+
+        # Initialization of transport is deferred to Transport.__init__
+        self.transport = NULL
+
+        self._selected_species = np.ndarray(0, dtype=np.integer)
+
+    def __init__(self, *args, **kwargs):
+        if isinstance(self, Transport):
+            assert self.transport is not NULL
+
+    def _init_cti_xml(self, infile, phaseid, phases, source):
+        """
+        Instantiate a set of new Cantera C++ objects from a CTI or XML
+        phase definition
+        """
+        if infile:
+            rootNode = CxxGetXmlFile(stringify(infile))
+        elif source:
+            rootNode = CxxGetXmlFromString(stringify(source))
 
         # Get XML data
         cdef XML_Node* phaseNode
@@ -48,17 +76,37 @@ cdef class _SolutionBase:
         else:
             self.kinetics = NULL
 
-        # Initialization of transport is deferred to Transport.__init__
-        self.transport = NULL
+    def _init_parts(self, thermo, species, kinetics, phases, reactions):
+        """
+        Instantiate a set of new Cantera C++ objects based on a string defining
+        the model type and a list of Species objects.
+        """
+        self.thermo = newThermoPhase(stringify(thermo))
+        self.thermo.addUndefinedElements()
+        cdef Species S
+        for S in species:
+            self.thermo.addSpecies(S._species)
+        self.thermo.initThermo()
 
-        self._selected_species = np.ndarray(0, dtype=np.integer)
+        if not kinetics:
+            kinetics = "none"
 
-    def __init__(self, *args, **kwargs):
-        if isinstance(self, Transport):
-            assert self.transport is not NULL
+        cdef ThermoPhase phase
+        cdef Reaction reaction
+        if isinstance(self, Kinetics):
+            self.kinetics = CxxNewKinetics(stringify(kinetics))
+            self.kinetics.addPhase(deref(self.thermo))
+            for phase in phases:
+                self.kinetics.addPhase(deref(phase.thermo))
+            self.kinetics.init()
+            self.kinetics.skipUndeclaredThirdBodies(True)
+            for reaction in reactions:
+                self.kinetics.addReaction(reaction._reaction)
+            self.kinetics.finalize()
+
 
     def __getitem__(self, selection):
-        copy = self.__class__(source=self)
+        copy = self.__class__(origin=self)
         if isinstance(selection, slice):
             selection = range(selection.start or 0,
                               selection.stop or self.n_species,
@@ -84,7 +132,7 @@ cdef class _SolutionBase:
 
     def __dealloc__(self):
         # only delete the C++ objects if this is the parent object
-        if self.parent is None:
+        if not self.is_slice:
             del self.thermo
             del self.kinetics
             del self.transport

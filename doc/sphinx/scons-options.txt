@@ -325,25 +325,6 @@ of this file is:
     of installing into the local filesystem.
     - default: ''
 
-* legacy_headers: [ yes | no ]
-    Create symbolic links for headers that were installed to the
-    'kernel' subdirectory in previous versions of Cantera.
-    - default: 'no'
-
-* graphvisdir: [ /path/to/graphvisdir ]
-    The directory location of the graphviz program, dot. dot is used for
-    creating the documentation, and for making reaction path diagrams.
-    If "dot" is in your path, you can leave this unspecified. NOTE:
-    Matlab comes with a stripped-down version of 'dot'. If 'dot' is on
-    your path, make sure it is not the Matlab version!
-    - default: ''
-
-* rpfont: [ string ]
-    The font to use in reaction path diagrams. This must be a font name
-    recognized by the 'dot' program. On linux systems, this should be
-    lowercase 'helvetica'.
-    - default: 'Helvetica'
-
 * cantera_version: [ string ]
     - default: '2.0.0b1'
 

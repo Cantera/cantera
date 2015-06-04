@@ -188,7 +188,7 @@ public:
 
     //! Molar Gibbs function for the solution: Units J/kmol.
     /*!
-     * Returns the gibbs free energy of the solution per mole of the solution.
+     * Returns the Gibbs free energy of the solution per mole of the solution.
      *
      * \f[
      * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
@@ -383,6 +383,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;

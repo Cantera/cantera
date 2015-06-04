@@ -18,9 +18,9 @@
  */
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/utilities.h"
 
-#include <iomanip>
-#include <cstdio>
 #include <fstream>
 
 using namespace std;
@@ -29,7 +29,6 @@ namespace Cantera
 {
 
 MolalityVPSSTP::MolalityVPSSTP() :
-    VPStandardStateTP(),
     m_indexSolvent(0),
     m_pHScalingType(PHSCALE_PITZER),
     m_indexCLM(npos),
@@ -46,7 +45,6 @@ MolalityVPSSTP::MolalityVPSSTP() :
 }
 
 MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
-    VPStandardStateTP(),
     m_indexSolvent(b.m_indexSolvent),
     m_pHScalingType(b.m_pHScalingType),
     m_indexCLM(b.m_indexCLM),
@@ -54,7 +52,7 @@ MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
     m_Mnaught(b.m_Mnaught),
     m_molalities(b.m_molalities)
 {
-    *this = operator=(b);
+    *this = b;
 }
 
 MolalityVPSSTP& MolalityVPSSTP::operator=(const MolalityVPSSTP& b)
@@ -182,18 +180,16 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
      *         neutrals so that the existing mole fractions are
      *         preserved.
      */
-    size_t kk = nSpecies();
     /*
      * Get a vector of mole fractions
      */
-    vector_fp mf(kk, 0.0);
+    vector_fp mf(m_kk, 0.0);
     getMoleFractions(DATA_PTR(mf));
-    double xmolS = mf[m_indexSolvent];
-    double xmolSmin = std::max(xmolS, m_xmolSolventMIN);
-    for (size_t k = 0; k < kk; k++) {
-        compositionMap::const_iterator iter = mMap.find(speciesName(k));
-        if (iter != mMap.end() && iter->second > 0.0) {
-            mf[k] = iter->second * m_Mnaught * xmolSmin;
+    double xmolSmin = std::max(mf[m_indexSolvent], m_xmolSolventMIN);
+    for (size_t k = 0; k < m_kk; k++) {
+        double mol_k = getValue(mMap, speciesName(k), 0.0);
+        if (mol_k > 0) {
+            mf[k] = mol_k * m_Mnaught * xmolSmin;
         }
     }
     /*
@@ -204,7 +200,7 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
     size_t largeNeg = npos;
     double cNeg = 0.0;
     double sum = 0.0;
-    for (size_t k = 0; k < kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         double ch = charge(k);
         if (mf[k] > 0.0) {
             if (ch > 0.0) {
@@ -241,11 +237,11 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
 
     }
     sum = 0.0;
-    for (size_t k = 0; k < kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         sum += mf[k];
     }
     sum = 1.0/sum;
-    for (size_t k = 0; k < kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         mf[k] *= sum;
     }
     setMoleFractions(DATA_PTR(mf));
@@ -318,9 +314,8 @@ doublereal MolalityVPSSTP::osmoticCoefficient() const
         sum += std::max(m_molalities[k], 0.0);
     }
     double oc = 1.0;
-    double lac = log(act[m_indexSolvent]);
     if (sum > 1.0E-200) {
-        oc = - lac / (m_Mnaught * sum);
+        oc = - log(act[m_indexSolvent]) / (m_Mnaught * sum);
     }
     return oc;
 }
@@ -336,6 +331,9 @@ void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
 
 void MolalityVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("MolalityVPSSTP::getUnitsStandardConc",
+                "To be removed after Cantera 2.2.");
+
     for (int i = 0; i < sizeUA; i++) {
         if (i == 0) {
             uA[0] = 1.0;
@@ -367,12 +365,12 @@ void MolalityVPSSTP::setToEquilState(const doublereal* lambda_RT)
 void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
 {
     VPStandardStateTP::setStateFromXML(state);
-    string comp = ctml::getChildValue(state,"soluteMolalities");
+    string comp = getChildValue(state,"soluteMolalities");
     if (comp != "") {
         setMolalitiesByName(comp);
     }
     if (state.hasChild("pressure")) {
-        double p = ctml::getFloat(state, "pressure", "pressure");
+        double p = getFloat(state, "pressure", "pressure");
         setPressure(p);
     }
 }
@@ -428,9 +426,8 @@ size_t MolalityVPSSTP::findCLMIndex() const
     size_t eCl = npos;
     size_t eE = npos;
     size_t ne = nElements();
-    string sn;
     for (size_t e = 0; e < ne; e++) {
-        sn = elementName(e);
+        string sn = elementName(e);
         if (sn == "Cl" || sn == "CL") {
             eCl = e;
             break;
@@ -441,7 +438,7 @@ size_t MolalityVPSSTP::findCLMIndex() const
         return npos;
     }
     for (size_t e = 0; e < ne; e++) {
-        sn = elementName(e);
+        string sn = elementName(e);
         if (sn == "E" || sn == "e") {
             eE = e;
             break;
@@ -468,7 +465,7 @@ size_t MolalityVPSSTP::findCLMIndex() const
                 }
             }
         }
-        sn = speciesName(k);
+        string sn = speciesName(k);
         if (sn != "Cl-" && sn != "CL-") {
             continue;
         }
@@ -483,7 +480,6 @@ size_t MolalityVPSSTP::findCLMIndex() const
 //   been identified.
 void  MolalityVPSSTP::initLengths()
 {
-    m_kk = nSpecies();
     m_molalities.resize(m_kk);
 }
 
@@ -524,13 +520,12 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
         sprintf(p, "         potential    %12.6g  V\n", phi);
         s += p;
 
-        size_t kk = nSpecies();
-        vector_fp x(kk);
-        vector_fp molal(kk);
-        vector_fp mu(kk);
-        vector_fp muss(kk);
-        vector_fp acMolal(kk);
-        vector_fp actMolal(kk);
+        vector_fp x(m_kk);
+        vector_fp molal(m_kk);
+        vector_fp mu(m_kk);
+        vector_fp muss(m_kk);
+        vector_fp acMolal(m_kk);
+        vector_fp actMolal(m_kk);
         getMoleFractions(&x[0]);
         getMolalities(&molal[0]);
         getChemPotentials(&mu[0]);
@@ -592,7 +587,7 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
             sprintf(p, "                     -------------  "
                     "  ------------     ------------  ------------    ------------\n");
             s += p;
-            for (size_t k = 0; k < kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] > threshold) {
                     if (x[k] > SmallNumber) {
                         sprintf(p, "%18s  %12.6g     %12.6g     %12.6g   %12.6g   %12.6g\n",
@@ -614,7 +609,7 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
             sprintf(p, "                     -------------"
                     "     ------------\n");
             s += p;
-            for (size_t k = 0; k < kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] > threshold) {
                     sprintf(p, "%18s   %12.6g     %12.6g\n",
                             speciesName(k).c_str(), x[k], molal[k]);

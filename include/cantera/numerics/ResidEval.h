@@ -9,6 +9,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/utilities.h"
 
 #include <cstdio>
 
@@ -49,11 +50,7 @@ public:
         m_constrain[k] = flag;
     }
     int constraint(const int k) const {
-        std::map<int,int>::const_iterator i = m_constrain.find(k);
-        if (i != m_constrain.end()) {
-            return i->second;
-        }
-        return c_NONE;
+        return getValue(m_constrain, k, c_NONE);
     }
 
     //! Initialization function

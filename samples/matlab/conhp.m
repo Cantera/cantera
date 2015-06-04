@@ -1,4 +1,4 @@
-function dydt = conhp(t,y,gas,mw) %#ok<INUSL>
+function dydt = conhp(t, y, gas, mw) %#ok<INUSL>
 % CONHP ODE system for a constant-pressure, adiabatic reactor.
 %
 %    Function CONHP evaluates the system of ordinary differential
@@ -10,6 +10,7 @@ function dydt = conhp(t,y,gas,mw) %#ok<INUSL>
 % Set the state of the gas, based on the current solution vector.
 setMassFractions(gas, y(2:end), 'nonorm');
 set(gas, 'T', y(1), 'P', pressure(gas));
+nsp = nSpecies(gas);
 
 % energy equation
 wdot = netProdRates(gas);
@@ -18,11 +19,10 @@ tdot = - temperature(gas) * gasconstant * enthalpies_RT(gas)' ...
 
 % set up column vector for dydt
 dydt = [ tdot
-    zeros(53,1) ];
+    zeros(nsp, 1) ];
 
 % species equations
 rrho = 1.0/density(gas);
-nsp = nSpecies(gas);
 for i = 1:nsp
     dydt(i+1) = rrho*mw(i)*wdot(i);
 end

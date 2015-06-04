@@ -9,9 +9,7 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
@@ -21,14 +19,12 @@
 #include <cstdio>
 
 using namespace std;
-using namespace Cantera;
-
 namespace {
 enum stages {MAIN, EQUILIB_CHECK, ELEM_ABUND_CHECK,
              RECHECK_DELETED, RETURN_A, RETURN_B};
 }
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 void VCS_SOLVE::checkDelta1(double* const dsLocal,
@@ -79,7 +75,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
      *    Initialize and set up all counters
      */
     vcs_counters_init(0);
-    Cantera::clockWC ticktock;
+    clockWC ticktock;
 
     /*
      *  Malloc temporary space for usage in this routine and in
@@ -487,9 +483,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
      */
     std::vector<size_t> phasePopPhaseIDs(0);
     size_t iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
-    /*
-     *
-     */
     if (iphasePop != npos) {
         int soldel = vcs_popPhaseRxnStepSizes(iphasePop);
         if (soldel == 3) {
@@ -1741,7 +1734,7 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
         }
 
         /*
-         * get the diagonal of the activity coefficient jacobian
+         * get the diagonal of the activity coefficient Jacobian
          */
         s = m_np_dLnActCoeffdMolNum(kspec,kspec) / (m_tPhaseMoles_old[iph]);
         /*
@@ -1897,8 +1890,10 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
      *     -> This zeroes w[kspec] and modifies m_tPhaseMoles_old[]
      */
     const int retn = vcs_zero_species(kspec);
-    AssertThrowMsg(retn, "VCS_SOLVE::vcs_delete_species",
-        "Failed to delete a species!");
+    if (!retn) {
+        throw CanteraError("VCS_SOLVE::vcs_delete_species",
+                           "Failed to delete a species!");
+    }
     /*
      *    Decrement the minor species counter if the current species is
      *    a minor species
@@ -2446,7 +2441,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
     }
 
     /* *************************************************** */
-    /* **** FIT PCJ2822ARABOLA ********************************* */
+    /* **** FIT PARABOLA ********************************* */
     /* *************************************************** */
     double al = 1.0;
     if (fabs(s1 -s2) > 1.0E-200) {
@@ -2522,7 +2517,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     size_t juse = npos;
     size_t jlose = npos;
     double* scrxn_ptr;
-    Cantera::clockWC tickTock;
+    clockWC tickTock;
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   ");
         for (size_t i=0; i<77; i++) {
@@ -2576,7 +2571,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     /*
      *     Use a temporary work array for the mole numbers, aw[]
      */
-    std::copy(m_molNumSpecies_old.begin(), 
+    std::copy(m_molNumSpecies_old.begin(),
               m_molNumSpecies_old.begin() + m_numSpeciesTot, aw);
     /*
      * Take out the Voltage unknowns from consideration
@@ -2767,7 +2762,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
              */
             sa[jr] = 0.0;
             for (size_t ml = 0; ml < m_numElemConstraints; ++ml) {
-                sa[jr] += SQUARE(sm[ml + jr*m_numElemConstraints]);
+                sa[jr] += pow(sm[ml + jr*m_numElemConstraints], 2);
             }
             /* **************************************************** */
             /* **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT ********** */
@@ -2826,7 +2821,7 @@ L_END_LOOP:
      *  coefficients. CX + B = 0
      *      C will be an nc x nc matrix made up of the formula
      * vectors for the components.
-     *      n rhs's will be solved for. Thus, B is an nc x n
+     *      n RHS's will be solved for. Thus, B is an nc x n
      * matrix.
      *
      * BIG PROBLEM 1/21/99:
@@ -3630,7 +3625,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
         }
     }
 
-    double RT = m_temperature * Cantera::GasConstant;
+    double RT = m_temperature * GasConstant;
     printf("   ---  CHEMICAL POT TABLE (J/kmol) Name PhID     MolFR     ChemoSS   "
            "   logMF       Gamma       Elect       extra       ElectrChem\n");
     printf("   ");
@@ -3668,7 +3663,7 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
             printf("   ---           ");
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3s", Cantera::int2str(iphase).c_str());
+        printf(" %-3s", int2str(iphase).c_str());
         printf(" % -12.4e", mfValue);
         printf(" % -12.4e", m_SSfeSpecies[kspec] * RT);
         printf(" % -12.4e", log(mfValue) * RT);
@@ -4091,7 +4086,7 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
         tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
     }
-    double RT = m_temperature * Cantera::GasConstant;
+    double RT = m_temperature * GasConstant;
     bool zeroedPhase = false;
     if (m_debug_print_lvl >= 2) {
         plogf("   --- DELTA_G TABLE  Components:");
@@ -4170,10 +4165,10 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
             feFull += log(actCoeff_ptr[kspec]) + log(mfValue);
         }
         printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3s", Cantera::int2str(iphase).c_str());
+        printf(" %-3s", int2str(iphase).c_str());
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             printf("    NA       ");
-        } else { 
+        } else {
             printf(" % -12.4e", molNumSpecies[kspec]);
         }
         printf(" % -12.4e", mfValue);

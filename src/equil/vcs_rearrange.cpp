@@ -9,9 +9,8 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 int VCS_SOLVE::vcs_rearrange()
 {

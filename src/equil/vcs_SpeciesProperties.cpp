@@ -1,15 +1,11 @@
 /**
  * @file vcs_SpeciesProperties.cpp
  */
-#include "cantera/equil/vcs_defs.h"
 #include "cantera/equil/vcs_SpeciesProperties.h"
-#include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
-#include "cantera/equil/vcs_internal.h"
 
 using namespace std;
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
@@ -24,10 +20,6 @@ vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
     SurfaceSpecies(0),
     VolPM(0.0),
     ReferenceMoleFraction(1.0E-6)
-{
-}
-
-vcs_SpeciesProperties::~vcs_SpeciesProperties()
 {
 }
 

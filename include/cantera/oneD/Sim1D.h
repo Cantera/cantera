@@ -6,7 +6,6 @@
 #define CT_SIM1D_H
 
 #include "OneDim.h"
-#include "cantera/numerics/funcs.h"
 
 namespace Cantera
 {
@@ -26,7 +25,7 @@ public:
      *  but is not meant to be used in most applications.  Use the next
      *  constructor
      */
-    Sim1D();
+    Sim1D() {}
 
     /**
      * Standard constructor.

@@ -15,16 +15,13 @@
 #ifndef CT_VPSSMGR_H
 #define CT_VPSSMGR_H
 
-#include "cantera/base/ct_defs.h"
 #include "mix_defs.h"
 #include "cantera/base/global.h"
 
 namespace Cantera
 {
 
-class SpeciesThermoInterpType;
 class VPStandardStateTP;
-class XML_Node;
 class SpeciesThermo;
 class PDSS;
 /**
@@ -90,18 +87,18 @@ class PDSS;
  *
  *     - ThermoPhase
  *          - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink
- *                 This is a pointer to a %SpeciesThermo manager class that
+ *                 This is a pointer to a SpeciesThermo manager class that
  *                 handles the reference %state Thermodynamic calculations.
- *     - VPStandardStateTP (inherits from %ThermoPhase)
+ *     - VPStandardStateTP (inherits from ThermoPhase)
  *          - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink
- *                 %SpeciesThermo manager handling reference %state Thermodynamic calculations.
+ *                 SpeciesThermo manager handling reference %state Thermodynamic calculations.
  *                  may or may not be used by the VPSSMgr class. For species
  *                  which don't have a reference state class defined, a default
  *                  class, called STITbyPDSS which is installed into the SpeciesThermo
  *                  class, actually calculates reference state
  *                  thermo by calling a PDSS object.
  *          - \link Cantera::VPStandardStateTP::m_VPSS_ptr m_VPSS_ptr\endlink
- *                  This is a pointer to a %VPSSMgr class which handles the
+ *                  This is a pointer to a VPSSMgr class which handles the
  *                  standard %state thermo calculations. It may
  *                  or may not use the pointer, m_spthermo, in its calculations.
  *
@@ -182,7 +179,7 @@ class PDSS;
  *    <\phase>
  *  @endcode
  *
- *  The "General" option will cause the VPSSMgr_General %VPSSMgr class to be
+ *  The "General" option will cause the VPSSMgr_General VPSSMgr class to be
  *  used. In this manager, the calculations are all handled at the PDSS object
  *  level. This is completely general, but, may be significantly slower.
  *
@@ -240,7 +237,7 @@ class VPSSMgr
 public:
     //! Constructor
     /*!
-     * @param vptp_ptr Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr Pointer to the Variable pressure ThermoPhase object
      *                 This object must have already been malloced.
      * @param spth     Pointer to the optional SpeciesThermo object
      *                 that will handle the calculation of the reference
@@ -249,7 +246,7 @@ public:
     VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spth = 0);
 
     //! Destructor
-    virtual ~VPSSMgr();
+    virtual ~VPSSMgr() {}
 
     //! Copy Constructor
     VPSSMgr(const VPSSMgr& right);
@@ -409,7 +406,7 @@ public:
     }
 
     /*!
-     *  Returns the vector of the gibbs function of the reference state at the
+     *  Returns the vector of the Gibbs function of the reference state at the
      *  current temperature of the solution and the reference pressure for the
      *  species. units = J/kmol
      *
@@ -707,6 +704,8 @@ public:
      */
     virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 
+    //!@}
+
 protected:
     //! Number of species in the phase
     size_t m_kk;
@@ -823,7 +822,7 @@ protected:
      */
     mutable vector_fp      mPDSS_cp0_R;
 
-    //! species reference gibbs free energies - used by individual PDSS objects
+    //! species reference Gibbs free energies - used by individual PDSS objects
     /**
      * Vector containing the species reference Gibbs functions
      * at T = m_tlast  and P = p_ref.
@@ -858,7 +857,7 @@ protected:
      */
     mutable vector_fp      mPDSS_cpss_R;
 
-    //! species standard state gibbs free energies - used by individual PDSS objects
+    //! species standard state Gibbs free energies - used by individual PDSS objects
     /**
      * Vector containing the species standard state Gibbs functions
      * at T = m_tlast  and P = p_ref.

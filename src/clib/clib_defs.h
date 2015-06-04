@@ -4,7 +4,6 @@
 #ifndef CTC_DEFS_H
 #define CTC_DEFS_H
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 #include <iostream>

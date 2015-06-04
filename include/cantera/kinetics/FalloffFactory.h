@@ -9,85 +9,13 @@
 #ifndef CT_NEWFALLOFF_H
 #define CT_NEWFALLOFF_H
 
-#include "cantera/base/ct_defs.h"
-#include "reaction_defs.h"
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/ct_thread.h"
+#include "cantera/base/smart_ptr.h"
+#include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
 {
-
-/**
- *     @defgroup falloffGroup  Falloff Parameterizations
- *    This section describes the parameterizations used
- *    to describe the fall-off in reaction rate constants
- *    due to intermolecular energy transfer.
- *
- *    @ingroup chemkinetics
- */
-
-/**
- * Base class for falloff function calculators. Each instance of a subclass of
- * Falloff computes one falloff function. This base class implements the
- * trivial falloff function F = 1.0.
- *
- * @ingroup falloffGroup
- */
-class Falloff
-{
-public:
-    //! Default constructor is empty
-    Falloff() {}
-
-    //! default destructor is empty
-    virtual ~Falloff() {}
-
-    /**
-     * Initialize. Must be called before any other method is invoked.
-     *
-     * @param c Vector of coefficients of the parameterization. The number and
-     *     meaning of these coefficients is subclass-dependent.
-     */
-    virtual void init(const vector_fp& c) {}
-
-    /**
-     * Update the temperature-dependent portions of the falloff
-     * function, if any. This method evaluates temperature-dependent
-     * intermediate results and stores them in the 'work' array.
-     * If not overloaded, the default behavior is to do nothing.
-     * @param T Temperature [K].
-     * @param work storage space for intermediate results.
-     */
-    virtual void updateTemp(doublereal T, doublereal* work) const {}
-
-    /**
-     * The falloff function. This is defined so that the
-     * rate coefficient is
-     *
-     * \f[  k = F(Pr)\frac{Pr}{1 + Pr}. \f]
-     *
-     * Here \f$ Pr \f$ is the reduced pressure, defined by
-     *
-     * \f[
-     * Pr = \frac{k_0 [M]}{k_\infty}.
-     * \f]
-     *
-     * @param pr reduced pressure (dimensionless).
-     * @param work array of size workSize() containing cached
-     *             temperature-dependent intermediate results from a prior call
-     *             to updateTemp.
-     *
-     * @return Returns the value of the falloff function \f$ F \f$ defined above
-     */
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
-        return 1.0;
-    }
-
-    //! The size of the work array required.
-    virtual size_t workSize() {
-        return 0;
-    }
-};
 
 /**
  * Factory class to construct falloff function calculators.
@@ -108,7 +36,7 @@ public:
      * on all subsequent calls, a pointer to the existing factory is returned.
      */
     static FalloffFactory* factory() {
-        ScopedLock lock(falloff_mutex) ;
+        ScopedLock lock(falloff_mutex);
         if (!s_factory) {
             s_factory = new FalloffFactory;
         }
@@ -141,8 +69,11 @@ private:
     FalloffFactory() {}
 
     //!  Mutex for use when calling the factory
-    static mutex_t falloff_mutex ;
+    static mutex_t falloff_mutex;
 };
+
+//! @copydoc FalloffFactory::newFalloff
+shared_ptr<Falloff> newFalloff(int type, const vector_fp& c);
 
 }
 #endif

@@ -1,7 +1,7 @@
 /**
  *  @file PseudoBinaryVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
- *   employ gibbs excess free energy based formulations
+ *   employ Gibbs excess free energy based formulations
  *  (see \ref thermoprops
  * and class \link Cantera::PseudoBinaryVPSSTP PseudoBinaryVPSSTP\endlink).
  *
@@ -61,6 +61,8 @@ namespace Cantera
  *  The way that it collects the cation and anion based mole numbers
  *  is via holding two extra ThermoPhase objects. These
  *  can include standard states for salts.
+ *
+ *  @deprecated Incomplete and untested. To be removed after Cantera 2.2.
  */
 class PseudoBinaryVPSSTP : public GibbsExcessVPSSTP
 {
@@ -90,7 +92,7 @@ public:
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -179,11 +181,6 @@ public:
      */
     void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    //! returns a summary of the state of the phase as a string
-    /*!
-     * @param show_thermo If true, extra information is printed out
-     *                    about the thermodynamic state of the system.
-     */
     virtual std::string report(bool show_thermo=true,
                                doublereal threshold=1e-14) const;
 

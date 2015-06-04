@@ -12,6 +12,7 @@
 #include "cantera/numerics/solveProb.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 namespace Cantera
@@ -31,6 +32,7 @@ solveProb::solveProb(ResidEval* resid) :
     m_maxstep(1000),
     m_ioflag(0)
 {
+    warn_deprecated("class solveProb", "To be removed after Cantera 2.2.");
     m_neq =   m_residFunc->nEquations();
 
     // Dimension solution vector
@@ -56,10 +58,6 @@ solveProb::solveProb(ResidEval* resid) :
         m_JacCol[k] = m_Jac.ptrColumn(k);
     }
 
-}
-
-solveProb::~solveProb()
-{
 }
 
 int solveProb::solve(int ifunc, doublereal time_scale,
@@ -187,13 +185,13 @@ int solveProb::solve(int ifunc, doublereal time_scale,
             }
         } else {
             /* make steady state calc a step of 1 million seconds to
-               prevent singular jacobians for some pathological cases */
+               prevent singular Jacobians for some pathological cases */
             inv_t = 1.0e-6;
         }
         deltaT = 1.0/inv_t;
 
         /*
-         * Call the routine to numerically evaluation the jacobian
+         * Call the routine to numerically evaluation the Jacobian
          * and residual for the current iteration.
          */
         resjac_eval(m_JacCol, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
@@ -217,7 +215,7 @@ int solveProb::solve(int ifunc, doublereal time_scale,
         if (m_ioflag > 1) {
             printIterationHeader(m_ioflag, damp, inv_t, t_real, iter, do_time);
             /*
-             *    Print out the residual and jacobian
+             *    Print out the residual and Jacobian
              */
             printResJac(m_ioflag, m_neq, m_Jac, DATA_PTR(m_resid),
                         DATA_PTR(m_wtResid), resid_norm);
@@ -620,7 +618,7 @@ void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale,
             printf("\n   SOLVEPROB Called to calculate steady state residual\n");
             printf("           from a good initial guess\n");
         } else if (ifunc == SOLVEPROB_JACOBIAN)  {
-            printf("\n   SOLVEPROB Called to calculate steady state jacobian\n");
+            printf("\n   SOLVEPROB Called to calculate steady state Jacobian\n");
             printf("           from a good initial guess\n");
         } else if (ifunc == SOLVEPROB_TRANSIENT) {
             printf("\n   SOLVEPROB Called to integrate surface in time\n");
@@ -701,7 +699,7 @@ void solveProb::print_header(int ioflag, int ifunc, doublereal time_scale,
                "------------------------------------\n");
     }
 }
-//================================================================================================
+
 void solveProb::printIteration(int ioflag, doublereal damp, size_t label_d,
                                size_t label_t,
                                doublereal inv_t, doublereal t_real, int iter,

@@ -10,19 +10,45 @@
 
 #include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
-
+#include "cantera/kinetics/RxnMolChange.h"
+#include "Reaction.h"
 #include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
-#include "ReactionStoichMgr.h"
 
 namespace Cantera
 {
 
-// forward references
-class ReactionData;
-class ThermoPhase;
+// forward declarations
 class SurfPhase;
 class ImplicitSurfChem;
+class RxnMolChange;
+
+//! forward orders
+//! @deprecated Incomplete implementation to be removed after Cantera 2.2.
+class RxnOrders {
+
+  public:
+   //! constructors
+   RxnOrders() {}
+
+   RxnOrders(const RxnOrders &right);
+
+   ~RxnOrders() {}
+
+   RxnOrders& operator=(const RxnOrders &right);
+
+   //! Fill in the structure with the array.
+   /*!
+    *  @param[in] Size of length kinetic species. The entries the values of the orders
+    */
+   int fill(const vector_fp& fullForwardOrders);
+
+   //! ID's of the kinetic species
+   std::vector<size_t> kinSpeciesIDs_;
+
+   //! Orders of the kinetic species
+   vector_fp kinSpeciesOrders_;
+};
 
 //!  A kinetics manager for heterogeneous reaction mechanisms. The
 //!  reactions are assumed to occur at a 2D interface between two 3D phases.
@@ -68,7 +94,7 @@ public:
      * @param thermo The optional parameter may be used to initialize
      *               the object with one ThermoPhase object.
      *               HKM Note -> Since the interface kinetics
-     *               object will probably require multiple thermophase
+     *               object will probably require multiple ThermoPhase
      *               objects, this is probably not a good idea
      *               to have this parameter.
      */
@@ -77,7 +103,7 @@ public:
     /// Destructor.
     virtual ~InterfaceKinetics();
 
-    //! Copy Constructor for the %Kinetics object.
+    //! Copy Constructor
     InterfaceKinetics(const InterfaceKinetics& right);
 
     //! Assignment operator
@@ -97,16 +123,29 @@ public:
     //! @name Reaction Rates Of Progress
     //! @{
 
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
-    virtual void getRevRatesOfProgress(doublereal* revROP);
-    virtual void getNetRatesOfProgress(doublereal* netROP);
-
+    //! Equilibrium constant for all reactions including the voltage term
+    /*!
+     *   Kc = exp(deltaG/RT)
+     *
+     *   where deltaG is the electrochemical potential difference between
+     *   products minus reactants.
+     */
     virtual void getEquilibriumConstants(doublereal* kc);
 
     /** values needed to convert from exchange current density to surface reaction rate.
      */
     void updateExchangeCurrentQuantities();
 
+    //! Return the vector of values for the reaction Gibbs free energy change.
+    /*!
+     * (virtual from Kinetics.h)
+     * These values depend upon the concentration of the solution.
+     *
+     *  units = J kmol-1
+     *
+     * @param deltaG  Output vector of  deltaG's for reactions Length: m_ii.
+     *                If 0, this updates the internally stored values only.
+     */
     virtual void getDeltaGibbs(doublereal* deltaG);
 
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
@@ -118,28 +157,8 @@ public:
     virtual void getDeltaSSEntropy(doublereal* deltaS);
 
     //! @}
-    //! @name Species Production Rates
-    //! @{
-
-    virtual void getCreationRates(doublereal* cdot);
-    virtual void getDestructionRates(doublereal* ddot);
-    virtual void getNetProductionRates(doublereal* net);
-
-    //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
-
-    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-        return m_rrxn[k][i];
-    }
-
-    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-        return m_prxn[k][i];
-    }
-
-    virtual int reactionType(size_t i) const {
-        return m_index[i].first;
-    }
 
     virtual void getActivityConcentrations(doublereal* const conc);
 
@@ -168,10 +187,6 @@ public:
         }
     }
 
-    virtual std::string reactionString(size_t i) const {
-        return m_rxneqn[i];
-    }
-
     virtual void getFwdRateConstants(doublereal* kfwd);
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
@@ -196,6 +211,8 @@ public:
 
     virtual void init();
     virtual void addReaction(ReactionData& r);
+    virtual bool addReaction(shared_ptr<Reaction> r);
+    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     virtual void finalize();
     virtual bool ready() const;
     //! @}
@@ -204,7 +221,7 @@ public:
     /*!
      *  This is actually the guts of the functionality of the object
      */
-    void updateROP();
+    virtual void updateROP();
 
     //! Update properties that depend on temperature
     /*!
@@ -275,15 +292,16 @@ public:
      */
     virtual void updateMu0();
 
+    //! Number of reactions in the mechanism
+    /*!
+     *  @deprecated This is a duplicate of Kinetics::nReactions()
+     */
     size_t reactionNumber() const {
+        warn_deprecated("InterfaceKinetics::reactionNumber",
+            "To be removed after Cantera 2.2. Duplicate of nReactions().");
         return m_ii;
     }
 
-    void addElementaryReaction(ReactionData& r);
-    //void addGlobalReaction(const ReactionData& r);
-    void installReagents(const ReactionData& r);
-
-    
     //! Update the equilibrium constants and stored electrochemical potentials
     //! in molar units for all reversible reactions and for all species.
     /*!
@@ -293,33 +311,31 @@ public:
      */
     void updateKc();
 
-    //! Write values into m_index
-    /*!
-     * @param rxnNumber reaction number
-     * @param type      reaction type
-     * @param loc       location ??
-     */
-    void registerReaction(size_t rxnNumber, int type, size_t loc) {
-        m_index[rxnNumber] = std::pair<int, size_t>(type, loc);
-    }
-
-    //! Apply corrections for interfacial charge transfer reactions
+    //! Apply modifications for the forward reaction rate for interfacial charge transfer reactions
     /*!
      * For reactions that transfer charge across a potential difference,
      * the activation energies are modified by the potential difference.
      * (see, for example, ...). This method applies this correction.
      *
-     * @param kf  Vector of forward reaction rate constants on which to have
-     *            the correction applied
+     * @param kfwd  Vector of forward reaction rate constants on which to have
+     *              the voltage correction applied
      */
-    void applyButlerVolmerCorrection(doublereal* const kf);
+    void applyVoltageKfwdCorrection(doublereal* const kfwd);
 
     //! When an electrode reaction rate is optionally specified in terms of its
-    //! exchange current density, adjust to standard reaction rate form.
-    /**
-     * For a reaction rate that was given in units of Amps/m2 (exchange current
+    //! exchange current density, adjust kfwd to the standard reaction rate constant form and units.
+    //! When the BV reaction types are used, keep the  exchange current density form.
+    /*!
+     *  For a reaction rate constant that was given in units of Amps/m2 (exchange current
      *  density formulation with iECDFormulation == true), convert the rate to
      *  kmoles/m2/s.
+     *
+     *  For a reaction rate constant that was given in units of kmol/m2/sec when the
+     *  reaction type is a Butler-Volmer form, convert it to exchange current density
+     *  form (amps/m2).
+     *
+     * @param kfwd  Vector of forward reaction rate constants, given in either
+     *              normal form or in exchange current density form.
      */
     void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
@@ -375,7 +391,17 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
+    virtual void determineFwdOrdersBV(ReactionData& rdata, vector_fp& fwdFullorders);
+    virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
+
 protected:
+    //! Build a SurfaceArrhenius object from a Reaction, taking into account
+    //! the possible sticking coefficient form and coverage dependencies
+    //! @param i  Reaction number. Set to npos if this reaction is replacing
+    //!           an existing rate constant.
+    //! @param r  Reaction object containing rate coefficient parameters
+    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction& r);
+
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 
@@ -395,27 +421,11 @@ protected:
 
     bool m_redo_rates;
 
-    /**
-     * Vector of information about reactions in the mechanism.
-     * The key is the reaction index (0 < i < m_ii).
-     * The first pair is the reactionType of the reaction.
-     * The second pair is ...
-     */
-    mutable std::map<size_t, std::pair<int, size_t> > m_index;
-
     //! Vector of irreversible reaction numbers
     /*!
      * vector containing the reaction numbers of irreversible reactions.
      */
     std::vector<size_t> m_irrev;
-
-    //! Stoichiometric manager for the reaction mechanism
-    /*!
-     *  This is the manager for the kinetics mechanism that handles turning
-     *  reaction extents into species production rates and also handles
-     *  turning thermo properties into reaction thermo properties.
-     */
-    ReactionStoichMgr m_rxnstoich;
 
     //! Number of irreversible reactions in the mechanism
     size_t m_nirrev;
@@ -423,38 +433,7 @@ protected:
     //! Number of reversible reactions in the mechanism
     size_t m_nrev;
 
-    //!  m_rrxn is a vector of maps, containing the reactant
-    //!  stoichiometric coefficient information
-    /*!
-     *  m_rrxn has a length equal to the total number of species in the
-     *  kinetics object. For each species, there exists a map, with the
-     *  reaction number being the key, and the reactant stoichiometric
-     *  coefficient for the species being the value.
-     *
-     *  HKM -> mutable because search sometimes creates extra
-     *         entries. To be fixed in future...
-     */
-    mutable std::vector<std::map<size_t, doublereal> >     m_rrxn;
-
-    //!  m_prxn is a vector of maps, containing the reactant
-    //!  stoichiometric coefficient information
-    /**
-     *  m_prxn is a vector of maps. m_prxn has a length equal to the total
-     *  number of species in the kinetics object. For each species, there
-     *  exists a map, with the reaction number being the key, and the product
-     *  stoichiometric coefficient for the species being the value.
-     */
-    mutable std::vector<std::map<size_t, doublereal> >     m_prxn;
-
-    //! String expression for each rxn
-    /*!
-     * Vector of strings of length m_ii, the number of
-     * reactions, containing the string expressions for each reaction
-     * (e.g., reactants <=> product1 + product2)
-     */
-    std::vector<std::string> m_rxneqn;
-
-    //! an array of generalized concentrations for each species
+    //! Array of concentrations for each species in the kinetics mechanism
     /*!
      * An array of generalized concentrations \f$ C_k \f$ that are defined
      * such that \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
@@ -468,6 +447,20 @@ protected:
      */
     vector_fp m_conc;
 
+    //! Array of activity concentrations for each species in the kinetics object
+    /*!
+     * An array of activity concentrations \f$ Ca_k \f$ that are defined
+     * such that \f$ a_k = Ca_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
+     * concentration. These activity concentrations are used by this
+     * kinetics manager class to compute the forward and reverse rates of
+     * elementary reactions. The "units" for the concentrations of each phase
+     * depend upon the implementation of kinetics within that phase. The order
+     * of the species within the vector is based on the order of listed
+     * ThermoPhase objects in the class, and the order of the species within
+     * each ThermoPhase class.
+     */
+    vector_fp m_actConc;
+
     //! Vector of standard state chemical potentials for all species
     /*!
      * This vector contains a temporary vector of standard state chemical
@@ -477,6 +470,14 @@ protected:
      */
     vector_fp m_mu0;
 
+    //! Vector of chemical potentials for all species
+    /*!
+     * This vector contains a vector of chemical potentials for all of the species in the kinetics object
+     *
+     * Length = m_kk. Units = J/kmol.
+     */
+    vector_fp m_mu;
+
     //! Vector of standard state electrochemical potentials modified by
     //! a standard concentration term.
     /*!
@@ -484,7 +485,7 @@ protected:
      * potentials + RTln(Cs) for all of the species in the kinetics object
      *
      * In order to get the units correct for the concentration equilibrium
-     * constant, each species needs to have an 
+     * constant, each species needs to have an
      * RT ln(Cs)  added to its contribution to the equilibrium constant
      * Cs is the standard concentration for the species. Frequently, for
      * solid species, Cs is equal to 1. However, for gases Cs is P/RT.
@@ -509,12 +510,14 @@ protected:
      */
     vector_fp m_pot;
 
-    //! Vector temporary
+    //! Storage for the net electric energy change due to reaction.
     /*!
      * Length is number of reactions. It's used to store the
-     * voltage contribution to the activation energy.
+     * net electric potential energy change due to the reaction.
+     *
+     *  deltaElectricEnergy_[jrxn] = sum_i ( F V_i z_i nu_ij)
      */
-    vector_fp m_rwork;
+    vector_fp deltaElectricEnergy_;
 
     //! Vector of raw activation energies for the reactions
     /*!
@@ -529,26 +532,74 @@ protected:
     //! Pointer to the Implicit surface chemistry object
     /*!
      * Note this object is owned by this InterfaceKinetics object. It may only
-     * be used to solve this single InterfaceKinetics objects's surface
+     * be used to solve this single InterfaceKinetics object's surface
      * problem uncoupled from other surface phases.
      */
     ImplicitSurfChem* m_integrator;
 
+    //! Electrochemical transfer coefficient for the forward direction
+    /*!
+     *   Electrochemical transfer coefficient for all reactions that have transfer reactions
+     *   the reaction is given by  m_ctrxn[i]
+     */
     vector_fp m_beta;
 
     //! Vector of reaction indexes specifying the id of the current transfer
     //! reactions in the mechanism
     /*!
      *  Vector of reaction indices which involve current transfers. This provides
-     *  an index into the m_beta array.
+     *  an index into the m_beta and m_ctrxn_BVform array.
      *
      *        irxn = m_ctrxn[i]
      */
     std::vector<size_t> m_ctrxn;
 
-    //! Vector of booleans indicating whether the charge transfer reaction may
-    //! be described by an exchange current density expression
+    //! Vector of Reactions which follow the Butler-Volmer methodology for specifying the
+    //! exchange current density first. Then, the other forms are specified based on this form.
+    /*!
+     *     Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *
+     *    m_ctrxn_BVform[i] = 0;  This means that the irxn reaction is calculated via the standard forward
+     *                            and reverse reaction rates
+     *    m_ctrxn_BVform[i] = 1;  This means that the irxn reaction is calculated via the BV format
+     *                            directly.
+     *    m_ctrxn_BVform[i] = 2;  this means that the irxn reaction is calculated via the BV format
+     *                            directly, using concentrations instead of activity concentrations.
+     */
+    std::vector<size_t> m_ctrxn_BVform;
+
+    //! Vector of booleans indicating whether the charge transfer reaction rate constant
+    //! is described by an exchange current density rate constant expression
+    /*!
+     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *
+     *   m_ctrxn_ecdf[irxn] = 0   This means that the rate coefficient calculator will calculate
+     *                            the rate constant as a chemical forward rate constant, a standard format.
+     *   m_ctrxn_ecdf[irxn] = 1   this means that the rate coefficient calculator will calculate
+     *                            the rate constant as an exchange current density rate constant expression.
+     */
     vector_int m_ctrxn_ecdf;
+
+    //! Vector of booleans indicating whether the charge transfer reaction rate constant
+    //! is described by an exchange current density rate constant expression
+    /*!
+     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *
+     *   Some reactions have zero in this list, those that don't need special treatment.
+     *   @deprecated To be removed after Cantera 2.2.
+     */
+    std::vector<RxnOrders*> m_ctrxn_ROPOrdersList_;
+
+    //! Reaction Orders for the case where the forwards rate of progress is being calculated.
+    /*!
+     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
+     *
+     *   Some reactions have zero in this list, indicating that the calculation isn't necessary.
+     *   @deprecated To be removed after Cantera 2.2.
+     */
+    std::vector<RxnOrders*> m_ctrxn_FwdOrdersList_;
+
+    vector_fp m_ctrxn_resistivity_;
 
     //! Vector of standard concentrations
     /*!
@@ -557,19 +608,29 @@ protected:
      */
     vector_fp m_StandardConc;
 
-    //!  Vector of delta G^0, the standard state gibbs free energies for each reaction
+    //!  Vector of delta G^0, the standard state Gibbs free energies for each reaction
     /*!
      *    Length is the number of reactions
      *    units are Joule kmol-1
      */
     vector_fp m_deltaG0;
+
+    //! Vector of deltaG[] of reaction, the delta Gibbs free energies for each reaction
+    /*!
+     *    Length is the number of reactions
+     *    units are Joule kmol-1
+     */
+    vector_fp m_deltaG;
+
+    //! Vector of the products of the standard concentrations of the reactants
+    /*!
+     *   Units vary wrt what the units of the standard concentrations are
+     *   Length = number of reactions.
+     */
     vector_fp m_ProdStanConcReac;
 
     doublereal m_logp0;
     doublereal m_logc0;
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_ropnet;
 
     bool m_ROP_ok;
 
@@ -578,17 +639,6 @@ protected:
 
     //! Current log of the temperature
     doublereal m_logtemp;
-
-    vector_fp m_rfn;
-
-    //! Equilibrium constant for all reactions including the voltage term
-    /*!
-     *   Kc = exp(deltaG/RT)
-     *
-     *   where deltaG is the electrochemical potential difference between
-     *   products minus reactants.
-     */
-    vector_fp m_rkcn;
 
     //! Boolean indicating whether mechanism has been finalized
     bool m_finalized;
@@ -614,7 +664,7 @@ protected:
     //! Boolean flag indicating whether any reaction in the mechanism
     //! is described by an exchange current density expression
     /*!
-     *  If this is true, the standard state gibbs free energy of the reaction
+     *  If this is true, the standard state Gibbs free energy of the reaction
      *  and the product of the reactant standard concentrations must be
      *  precalculated in order to calculate the rate constant.
      */
@@ -633,7 +683,7 @@ protected:
     /*!
      *  Vector of booleans indicating whether a phase exists or not. We use
      *  this to set the ROP's so that unphysical things don't happen.
-     *  For example, a reaction can't go in the forwards direction if a 
+     *  For example, a reaction can't go in the forwards direction if a
      *  phase in which a reactant is present doesn't exist. Because InterfaceKinetics
      *  deals with intrinsic quantities only normally, nowhere else is this extrinsic
      *  concept introduced except here.
@@ -667,6 +717,13 @@ protected:
      *  participates in reaction j as a product.
      */
     std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
+
+    //! Pairs of (reaction index, total order) for sticking reactions, which are
+    //! needed to compute the dependency of the rate constant on the site
+    //! density.
+    std::vector<std::pair<size_t, double> > m_sticking_orders;
+
+    void applyStickingCorrection(double* kf);
 
     int m_ioFlag;
 };

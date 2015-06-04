@@ -9,12 +9,11 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 
 #include "cantera/base/clockWC.h"
 
-namespace VCSnonideal
+namespace Cantera
 {
 
 static char pprefix[20] = "   --- vcs_inest: ";
@@ -321,7 +320,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
 int VCS_SOLVE::vcs_inest_TP()
 {
     int retn = 0;
-    Cantera::clockWC tickTock;
+    clockWC tickTock;
 
     if (m_doEstimateEquil > 0) {
         /*

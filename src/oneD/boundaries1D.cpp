@@ -4,6 +4,8 @@
 // Copyright 2002-3  California Institute of Technology
 
 #include "cantera/oneD/Inlet1D.h"
+#include "cantera/oneD/OneDim.h"
+#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -85,7 +87,7 @@ void Inlet1D::setMoleFractions(const std::string& xin)
     }
 }
 
-void Inlet1D::setMoleFractions(doublereal* xin)
+void Inlet1D::setMoleFractions(const doublereal* xin)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xin);
@@ -199,7 +201,8 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         // specified.  Set mdot equal to rho*u, and also set
         // lambda to zero.
         if (!m_flow->fixed_mdot()) {
-            r[0] = m_flow->density(0)*xb[0] - x[0];
+            m_mdot = m_flow->density(0)*xb[0];
+            r[0] = m_mdot - x[0];
             rb[3] = xb[3];
         }
     }
@@ -224,10 +227,10 @@ XML_Node& Inlet1D::save(XML_Node& o, const doublereal* const soln)
     XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","inlet");
     for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k]);
+        addFloat(inlt, componentName(k), s[k]);
     }
     for (size_t k=0; k < m_nsp; k++) {
-        ctml::addFloat(inlt, "massFraction", m_yin[k], "",
+        addFloat(inlt, "massFraction", m_yin[k], "",
                        m_flow->phase().speciesName(k));
     }
     return inlt;
@@ -236,8 +239,8 @@ XML_Node& Inlet1D::save(XML_Node& o, const doublereal* const soln)
 void Inlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    soln[0] = m_mdot = ctml::getFloat(dom, "mdot", "massflowrate");
-    soln[1] = m_temp = ctml::getFloat(dom, "temperature", "temperature");
+    soln[0] = m_mdot = getFloat(dom, "mdot", "massflowrate");
+    soln[1] = m_temp = getFloat(dom, "temperature", "temperature");
 
     m_yin.assign(m_nsp, 0.0);
 
@@ -493,7 +496,7 @@ void OutletRes1D::setMoleFractions(const std::string& xres)
     }
 }
 
-void OutletRes1D::setMoleFractions(doublereal* xres)
+void OutletRes1D::setMoleFractions(const doublereal* xres)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xres);
@@ -603,9 +606,9 @@ XML_Node& OutletRes1D::save(XML_Node& o, const doublereal* const soln)
 {
     XML_Node& outlt = Domain1D::save(o, soln);
     outlt.addAttribute("type","outletres");
-    ctml::addFloat(outlt, "temperature", m_temp, "K");
+    addFloat(outlt, "temperature", m_temp, "K");
     for (size_t k=0; k < m_nsp; k++) {
-        ctml::addFloat(outlt, "massFraction", m_yres[k], "",
+        addFloat(outlt, "massFraction", m_yres[k], "",
                        m_flow->phase().speciesName(k));
     }
     return outlt;
@@ -614,7 +617,7 @@ XML_Node& OutletRes1D::save(XML_Node& o, const doublereal* const soln)
 void OutletRes1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    m_temp = ctml::getFloat(dom, "temperature");
+    m_temp = getFloat(dom, "temperature");
 
     m_yres.assign(m_nsp, 0.0);
     for (size_t i = 0; i < dom.nChildren(); i++) {
@@ -693,7 +696,7 @@ XML_Node& Surf1D::save(XML_Node& o, const doublereal* const soln)
     XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","surface");
     for (size_t k = 0; k < nComponents(); k++) {
-        ctml::addFloat(inlt, componentName(k), s[k]);
+        addFloat(inlt, componentName(k), s[k]);
     }
     return inlt;
 }
@@ -701,7 +704,7 @@ XML_Node& Surf1D::save(XML_Node& o, const doublereal* const soln)
 void Surf1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    soln[0] = m_temp = ctml::getFloat(dom, "temperature", "temperature");
+    soln[0] = m_temp = getFloat(dom, "temperature", "temperature");
     resize(1,1);
 }
 
@@ -823,9 +826,9 @@ XML_Node& ReactingSurf1D::save(XML_Node& o, const doublereal* const soln)
     const doublereal* s = soln + loc();
     XML_Node& dom = Domain1D::save(o, soln);
     dom.addAttribute("type","surface");
-    ctml::addFloat(dom, "temperature", s[0], "K");
+    addFloat(dom, "temperature", s[0], "K");
     for (size_t k=0; k < m_nsp; k++) {
-        ctml::addFloat(dom, "coverage", s[k+1], "",
+        addFloat(dom, "coverage", s[k+1], "",
                        m_sphase->speciesName(k));
     }
     return dom;
@@ -835,7 +838,7 @@ void ReactingSurf1D::restore(const XML_Node& dom, doublereal* soln,
                              int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    soln[0] = m_temp = ctml::getFloat(dom, "temperature");
+    soln[0] = m_temp = getFloat(dom, "temperature");
 
     m_fixed_cov.assign(m_nsp, 0.0);
     for (size_t i = 0; i < dom.nChildren(); i++) {

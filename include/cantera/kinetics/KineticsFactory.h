@@ -8,7 +8,6 @@
 #define KINETICS_FACTORY_H
 
 #include "Kinetics.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/ct_thread.h"
 
@@ -52,8 +51,8 @@ public:
      * progress of the reactions and for calculating the source terms for
      * species.
      *
-     * @param phase An XML_Node that contains the xml data describing the
-     *              phase. Of particular note to this routine is the child xml
+     * @param phase An XML_Node that contains the XML data describing the
+     *              phase. Of particular note to this routine is the child XML
      *              element called "kinetics". The element has one attribute
      *              called "model", with a string value. The value of this
      *              string is used to decide which kinetics manager is used to
@@ -64,8 +63,7 @@ public:
      *
      * @return Pointer to the new kinetics manager.
      */
-    virtual Kinetics* newKinetics(XML_Node& phase,
-                                  std::vector<ThermoPhase*> th);
+    virtual Kinetics* newKinetics(XML_Node& phase, std::vector<ThermoPhase*> th);
 
     /**
      * Return a new, empty kinetics manager.

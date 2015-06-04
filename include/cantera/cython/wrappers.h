@@ -27,11 +27,22 @@ public:
         }
     }
 
+    virtual void writeendl() {
+        PySys_WriteStdout("%s", "\n");
+    }
+
     virtual void error(const std::string& msg) {
         std::string err = "raise Exception('''"+msg+"''')";
         PyRun_SimpleString(err.c_str());
     }
 };
+
+// Function for assigning elements of Array2D, since Cython has trouble
+// with assigning to the reference returned by operator()
+void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
+{
+    array(i,j) = value;
+}
 
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \

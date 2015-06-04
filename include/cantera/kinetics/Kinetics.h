@@ -10,15 +10,18 @@
 #ifndef CT_KINETICS_H
 #define CT_KINETICS_H
 
-#include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "StoichManager.h"
 #include "cantera/thermo/mix_defs.h"
+#include "cantera/base/global.h"
+#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
 
 // forward references
 class ReactionData;
+class Reaction;
 
 /**
  * @defgroup chemkinetics Chemical Kinetics
@@ -402,9 +405,7 @@ public:
      * @param fwdROP  Output vector containing forward rates
      *                of progress of the reactions. Length: m_ii.
      */
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP) {
-        throw NotImplementedError("Kinetics::getFwdRatesOfProgress");
-    }
+    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
 
     //!  Return the Reverse rates of progress of the reactions
     /*!
@@ -414,9 +415,7 @@ public:
      * @param revROP  Output vector containing reverse rates
      *                of progress of the reactions. Length: m_ii.
      */
-    virtual void getRevRatesOfProgress(doublereal* revROP) {
-        throw NotImplementedError("Kinetics::getRevRatesOfProgress");
-    }
+    virtual void getRevRatesOfProgress(doublereal* revROP);
 
     /**
      * Net rates of progress.  Return the net (forward - reverse) rates of
@@ -425,15 +424,17 @@ public:
      *
      * @param netROP  Output vector of the net ROP. Length: m_ii.
      */
-    virtual void getNetRatesOfProgress(doublereal* netROP) {
-        throw NotImplementedError("Kinetics::getNetRatesOfProgress");
-    }
+    virtual void getNetRatesOfProgress(doublereal* netROP);
 
     //! Return a vector of Equilibrium constants.
     /*!
      *  Return the equilibrium constants of the reactions in concentration
      *  units in array kc, which must be dimensioned at least as large as the
      *  total number of reactions.
+     *
+     * \f[
+     *       Kc_i = exp [ \Delta G_{ss,i} ] prod(Cs_k) exp(\sum_k \nu_{k,i} F \phi_n) ]
+     * \f]
      *
      * @param kc   Output vector containing the equilibrium constants.
      *             Length: m_ii.
@@ -447,7 +448,7 @@ public:
      * property values \f$ z_k, k = 1, \dots, K \f$, return the
      * array of reaction values
      * \f[
-     * \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
+     *    \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
      * \f]
      * For example, if this method is called with the array of
      * standard-state molar Gibbs free energies for the species,
@@ -459,12 +460,23 @@ public:
      * @param deltaProperty Output vector of deltaRxn. Length: m_ii.
      */
     virtual void getReactionDelta(const doublereal* property,
-                                  doublereal* deltaProperty) {
-        throw NotImplementedError("Kinetics::getReactionDelta");
-    }
+                                  doublereal* deltaProperty);
 
-    //! Return the vector of values for the reaction gibbs free energy change.
+    /**
+     * Given an array of species properties 'g', return in array 'dg' the
+     * change in this quantity in the reversible reactions. Array 'g' must
+     * have a length at least as great as the number of species, and array
+     * 'dg' must have a length as great as the total number of reactions.
+     * This method only computes 'dg' for the reversible reactions, and the
+     * entries of 'dg' for the irreversible reactions are unaltered. This is
+     * primarily designed for use in calculating reverse rate coefficients
+     * from thermochemistry for reversible reactions.
+     */
+    virtual void getRevReactionDelta(const doublereal* g, doublereal* dg);
+
+    //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
+     * (virtual from Kinetics.h)
      * These values depend upon the concentration of the solution.
      *
      *  units = J kmol-1
@@ -515,7 +527,7 @@ public:
 
     /**
      * Return the vector of values for the reaction standard state
-     * gibbs free energy change.  These values don't depend upon
+     * Gibbs free energy change.  These values don't depend upon
      * the concentration of the solution.
      *
      *  units = J kmol-1
@@ -563,9 +575,7 @@ public:
      *
      * @param cdot   Output vector of creation rates. Length: m_kk.
      */
-    virtual void getCreationRates(doublereal* cdot) {
-        throw NotImplementedError("Kinetics::getCreationRates");
-    }
+    virtual void getCreationRates(doublereal* cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -574,9 +584,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
-    virtual void getDestructionRates(doublereal* ddot) {
-        throw NotImplementedError("Kinetics::getDestructionRates");
-    }
+    virtual void getDestructionRates(doublereal* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return
@@ -586,9 +594,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
-    virtual void getNetProductionRates(doublereal* wdot) {
-        throw NotImplementedError("Kinetics::getNetProductionRates");
-    }
+    virtual void getNetProductionRates(doublereal* wdot);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -600,19 +606,14 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
-        throw NotImplementedError("Kinetics::reactantStoichCoeff");
-    }
-
+    virtual double reactantStoichCoeff(size_t k, size_t i) const;
     /**
      * Stoichiometric coefficient of species k as a product in reaction i.
      *
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal productStoichCoeff(size_t k, size_t i) const {
-        throw NotImplementedError("Kinetics::productStoichCoeff");
-    }
+    virtual double productStoichCoeff(size_t k, size_t i) const;
 
     //! Reactant order of species k in reaction i.
     /*!
@@ -654,8 +655,11 @@ public:
      * index numbers for reaction i.
      *
      * @param i  reaction index
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual const std::vector<size_t>& reactants(size_t i) const {
+        warn_deprecated("Kinetics::reactants",
+                        "To be removed after Cantera 2.2.");
         return m_reactants[i];
     }
 
@@ -664,8 +668,11 @@ public:
      * index numbers for reaction i.
      *
      * @param i reaction index
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual const std::vector<size_t>& products(size_t i) const {
+        warn_deprecated("Kinetics::products",
+                        "To be removed after Cantera 2.2.");
         return m_products[i];
     }
 
@@ -677,7 +684,7 @@ public:
      * @param i   reaction index
      */
     virtual int reactionType(size_t i) const {
-        throw NotImplementedError("Kinetics::reactionType");
+        return m_rxntype[i];
     }
 
     /**
@@ -696,18 +703,18 @@ public:
      *
      * @param i   reaction index
      */
-    virtual std::string reactionString(size_t i) const {
-        throw NotImplementedError("Kinetics::reactionStd::String");
+    const std::string& reactionString(size_t i) const {
+        return m_rxneqn[i];
     }
 
     //! Returns a string containing the reactants side of the reaction equation.
-    virtual std::string reactantString(size_t i) const {
-        throw NotImplementedError("Kinetics::reactionString");
+    const std::string& reactantString(size_t i) const {
+        return m_reactantStrings[i];
     }
 
     //! Returns a string containing the products side of the reaction equation.
-    virtual std::string productString(size_t i) const {
-        throw NotImplementedError("Kinetics::productString");
+    const std::string& productString(size_t i) const {
+        return m_productStrings[i];
     }
 
     /**
@@ -782,21 +789,71 @@ public:
 
     /**
      * Add a single reaction to the mechanism. This routine
-     * must be called after init() and before finalize().
+     * must be called after init() and before finalize(). Derived classes
+     * should call the base class method in addition to handling their
+     * own specialized behavior.
      *
      * @param r      Reference to the ReactionData object for the reaction
      *               to be added.
      */
-    virtual void addReaction(ReactionData& r) {
-        throw NotImplementedError("Kinetics::addReaction");
+    virtual void addReaction(ReactionData& r);
+
+    /**
+     * Add a single reaction to the mechanism. Derived classes should call the
+     * base class method in addition to handling their own specialized behavior.
+     *
+     * @param r      Pointer to the Reaction object to be added.
+     * @return `true` if the reaction is added or `false` if it was skipped
+     */
+    virtual bool addReaction(shared_ptr<Reaction> r);
+
+    /**
+     * Modify the rate expression associated with a reaction. The
+     * stoichiometric equation, type of the reaction, reaction orders, third
+     * body efficiencies, reversibility, etc. must be unchanged.
+     *
+     * @param i    Index of the reaction to be modified
+     * @param rNew Reaction with the new rate expressions
+     */
+    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
+
+    /**
+     * Return the Reaction object for reaction *i*.
+     */
+    shared_ptr<Reaction> reaction(size_t i);
+
+    //! Determine behavior when adding a new reaction that contains species not
+    //! defined in any of the phases associated with this kinetics manager. If
+    //! set to true, the reaction will silently be ignored. If false, (the
+    //! default) an exception will be raised.
+    void skipUndeclaredSpecies(bool skip) {
+        m_skipUndeclaredSpecies = skip;
     }
 
+    //! Determine behavior when adding a new reaction that contains third-body
+    //! efficiencies for species not defined in any of the phases associated
+    //! with this kinetics manager. If set to true, the given third-body
+    //! efficiency will be ignored. If false, (the default) an exception will be
+    //! raised.
+    void skipUndeclaredThirdBodies(bool skip) {
+        m_skipUndeclaredThirdBodies = skip;
+    }
+
+    //! @deprecated To be removed after Cantera 2.2. No longer called as part
+    //!     of addReaction.
+    virtual void installReagents(const ReactionData& r) {
+        throw NotImplementedError("Kinetics::installReagents");
+    }
+
+    virtual void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
+                               const std::vector<grouplist_t>& p);
+
     virtual const std::vector<grouplist_t>& reactantGroups(size_t i) {
-        return m_dummygroups;
+        return m_rgroups[i];
     }
 
     virtual const std::vector<grouplist_t>& productGroups(size_t i) {
-        return m_dummygroups;
+        return m_pgroups[i];
     }
 
     //@}
@@ -824,7 +881,7 @@ public:
      *  @param i  index of the reaction
      *  @param f  value of the multiplier.
      */
-    void setMultiplier(size_t i, doublereal f) {
+    virtual void setMultiplier(size_t i, doublereal f) {
         m_perturb[i] = f;
     }
 
@@ -847,6 +904,15 @@ public:
         return false;
     }
 
+    //! Check for duplicate reactions.
+    /**
+     * If `throw_err` is true, then an exception will be thrown if any unmarked
+     * duplicate reactions are found. Otherwise, the indices of the first pair
+     * of duplicate reactions found will be returned. If no duplicate reactions
+     * are found, returns `(npos, npos)`.
+     */
+    virtual std::pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
+
     /*!
      * Takes as input an array of properties for all species in the mechanism
      * and copies those values belonging to a particular phase to the output
@@ -861,6 +927,53 @@ public:
                      doublereal* phase_data);
 
 protected:
+    //! Cache for saved calculations within each Kinetics object.
+    ValueCache m_cache;
+
+    // Update internal rate-of-progress variables #m_ropf and #m_ropr.
+    virtual void updateROP() {
+        throw NotImplementedError("Kinetics::updateROP");
+    }
+
+    //! Check whether `r1` and `r2` represent duplicate stoichiometries
+    //! This function returns a ratio if two reactions are duplicates of
+    //! one another, and 0.0 otherwise.
+    /*!
+     *  `r1` and `r2` are maps of species key to stoichiometric coefficient, one
+     *  for each reaction, where the species key is `1+k` for reactants and
+     *  `-1-k` for products and `k` is the species index.
+     *
+     *  @return 0.0 if the stoichiometries are not multiples of one another
+     *    Otherwise, it returns the ratio of the stoichiometric coefficients.
+     *
+     * @ingroup kineticsmgr
+     */
+    double checkDuplicateStoich(std::map<int, double>& r1,
+                                std::map<int, double>& r2) const;
+
+    //! Check that the specified reaction is balanced (same number of atoms for
+    //! each element in the reactants and products). Raises an exception if the
+    //! reaction is not balanced.
+    void checkReactionBalance(const Reaction& R);
+
+    //! @name Stoichiometry management
+    /*!
+     *  These objects and functions handle turning reaction extents into species
+     *  production rates and also handle turning thermo properties into reaction
+     *  thermo properties.
+     */
+    //@{
+
+    //! Stoichiometry manager for the reactants for each reaction
+    StoichManagerN m_reactantStoich;
+
+    //! Stoichiometry manager for the products of reversible reactions
+    StoichManagerN m_revProductStoich;
+
+    //! Stoichiometry manager for the products of irreversible reactions
+    StoichManagerN m_irrevProductStoich;
+    //@}
+
     //! Number of reactions in the mechanism
     size_t m_ii;
 
@@ -872,6 +985,9 @@ protected:
     /// progress vector. It is initialized to one.
     vector_fp m_perturb;
 
+    //! Vector of Reaction objects represented by this Kinetics manager
+    std::vector<shared_ptr<Reaction> > m_reactions;
+
     /**
      * This is a vector of vectors containing the reactants for
      * each reaction. The outer vector is over the number of
@@ -882,6 +998,7 @@ protected:
      * stoichiometric coefficient.
      * NOTE: These vectors will be wrong if there are real
      *       stoichiometric coefficients in the expression.
+     * @deprecated To be removed after Cantera 2.2.
      */
     std::vector<std::vector<size_t> > m_reactants;
 
@@ -895,8 +1012,31 @@ protected:
      * coefficient.
      * NOTE: These vectors will be wrong if there are real
      *       stoichiometric coefficients in the expression.
+     * @deprecated To be removed after Cantera 2.2.
      */
     std::vector<std::vector<size_t> > m_products;
+
+    //!  m_rrxn is a vector of maps, containing the reactant
+    //!  stoichiometric coefficient information
+    /*!
+     *  m_rrxn has a length equal to the total number of species in the
+     *  kinetics object. For each species, there exists a map, with the
+     *  reaction number being the key, and the reactant stoichiometric
+     *  coefficient for the species being the value.
+     */
+    std::vector<std::map<size_t, doublereal> > m_rrxn;
+
+    //!  m_prxn is a vector of maps, containing the reactant
+    //!  stoichiometric coefficient information
+    /**
+     *  m_prxn is a vector of maps. m_prxn has a length equal to the total
+     *  number of species in the kinetics object. For each species, there
+     *  exists a map, with the reaction number being the key, and the product
+     *  stoichiometric coefficient for the species being the value.
+     */
+    std::vector<std::map<size_t, doublereal> > m_prxn;
+
+    std::vector<int> m_rxntype;
 
     //! m_thermo is a vector of pointers to ThermoPhase objects that are
     //! involved with this kinetics operator
@@ -923,7 +1063,7 @@ protected:
     std::vector<size_t>  m_start;
 
     /**
-     * Mapping of the phase id, i.e., the id attribute in the xml
+     * Mapping of the phase id, i.e., the id attribute in the XML
      * phase element to the position of the phase within the
      * kinetics object.  Positions start with the value of 1. The
      * member function, phaseIndex() decrements by one before
@@ -945,9 +1085,39 @@ protected:
     //! number of spatial dimensions of lowest-dimensional phase.
     size_t m_mindim;
 
+    //! Representation of each reaction equation
+    std::vector<std::string> m_rxneqn;
+
+    //! Representation of the reactant side of each reaction equation
+    std::vector<std::string> m_reactantStrings;
+
+    //! Representation of the product side of each reaction equation
+    std::vector<std::string> m_productStrings;
+
+    //! Forward rate constant for each reaction
+    vector_fp m_rfn;
+
+    //! Reciprocal of the equilibrium constant in concentration units
+    vector_fp m_rkcn;
+
+    //! Forward rate-of-progress for each reaction
+    vector_fp m_ropf;
+
+    //! Reverse rate-of-progress for each reaction
+    vector_fp m_ropr;
+
+    //! Net rate-of-progress for each reaction
+    vector_fp m_ropnet;
+
+    //! @see skipUndeclaredSpecies()
+    bool m_skipUndeclaredSpecies;
+
+    //! @see skipUndeclaredThirdBodies()
+    bool m_skipUndeclaredThirdBodies;
+
 private:
-    //! Vector of group lists
-    std::vector<grouplist_t> m_dummygroups;
+    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
+    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
 };
 
 }

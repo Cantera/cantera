@@ -13,14 +13,12 @@
  */
 
 #include "cantera/thermo/VPSSMgr_IdealGas.h"
-#include "cantera/base/utilities.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS_IdealGas.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {
@@ -94,19 +92,20 @@ VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 {
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (ss) {
-        std::string model = (*ss)["model"];
-        if (model != "ideal_gas") {
-            throw CanteraError("VPSSMgr_IdealGas::initThermoXML",
+        if (ss->attrib("model") != "ideal_gas") {
+            throw CanteraError("VPSSMgr_IdealGas::createInstallPDSS",
                                "standardState model for species isn't "
-                               "ideal_gas: " + speciesNode.name());
+                               "ideal_gas: " + speciesNode["name"]);
         }
     }
     if (m_Vss.size() < k+1) {
         m_Vss.resize(k+1, 0.0);
     }
 
-    SpeciesThermoFactory* f = SpeciesThermoFactory::factory();
-    f->installThermoForSpecies(k, speciesNode,(ThermoPhase*) m_vptp_ptr, *m_spthermo, phaseNode_ptr);
+    shared_ptr<SpeciesThermoInterpType> stit(
+        newSpeciesThermoInterpType(speciesNode.child("thermo")));
+    stit->validate(speciesNode["name"]);
+    m_spthermo->install_STIT(k, stit);
 
     PDSS* kPDSS = new PDSS_IdealGas(m_vptp_ptr, k, speciesNode,
                                     *phaseNode_ptr, true);

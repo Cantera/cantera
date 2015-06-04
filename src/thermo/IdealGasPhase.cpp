@@ -5,10 +5,8 @@
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
  */
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/base/vec_functions.h"
 
 using namespace std;
 
@@ -71,12 +69,12 @@ ThermoPhase* IdealGasPhase::duplMyselfAsThermoPhase() const
 
 doublereal IdealGasPhase::entropy_mole() const
 {
-    return GasConstant * (mean_X(&entropy_R_ref()[0]) - sum_xlogx() - std::log(pressure() / m_spthermo->refPressure()));
+    return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx() - std::log(pressure() / m_spthermo->refPressure()));
 }
 
 doublereal IdealGasPhase::cp_mole() const
 {
-    return GasConstant * mean_X(&cp_R_ref()[0]);
+    return GasConstant * mean_X(cp_R_ref());
 }
 
 doublereal IdealGasPhase::cv_mole() const
@@ -86,6 +84,7 @@ doublereal IdealGasPhase::cv_mole() const
 
 doublereal IdealGasPhase::cv_tr(doublereal atomicity) const
 {
+    warn_deprecated("IdealGasPhase::cv_tr", "To be removed after Cantera 2.2.");
     // k is the species number
     int dum = 0;
     int type = m_spthermo->reportType();
@@ -106,17 +105,19 @@ doublereal IdealGasPhase::cv_tr(doublereal atomicity) const
 
 doublereal IdealGasPhase::cv_trans() const
 {
+    warn_deprecated("IdealGasPhase::cv_trans", "To be removed after Cantera 2.2.");
     return 1.5 * GasConstant;
 }
 
 doublereal IdealGasPhase::cv_rot(double atom) const
 {
+    warn_deprecated("IdealGasPhase::cv_rot", "To be removed after Cantera 2.2.");
     return std::max(cv_tr(atom) - cv_trans(), 0.);
 }
 
 doublereal IdealGasPhase::cv_vib(const int k, const doublereal T) const
 {
-
+    warn_deprecated("IdealGasPhase::cv_vib", "To be removed after Cantera 2.2.");
     // k is the species number
     int dum = 0;
     int type = m_spthermo->reportType();
@@ -141,8 +142,7 @@ doublereal IdealGasPhase::cv_vib(const int k, const doublereal T) const
 
 doublereal IdealGasPhase::standardConcentration(size_t k) const
 {
-    double p = pressure();
-    return p / (GasConstant * temperature());
+    return pressure() / (GasConstant * temperature());
 }
 
 void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
@@ -168,10 +168,9 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 void IdealGasPhase::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
-    doublereal xx;
     doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(SmallNumber, moleFraction(k));
+        double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] += rt * (log(xx));
     }
 }
@@ -186,12 +185,11 @@ void IdealGasPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     const vector_fp& _s = entropy_R_ref();
-    doublereal r = GasConstant;
-    scale(_s.begin(), _s.end(), sbar, r);
+    scale(_s.begin(), _s.end(), sbar, GasConstant);
     doublereal logp = log(pressure() / m_spthermo->refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         doublereal xx = std::max(SmallNumber, moleFraction(k));
-        sbar[k] += r * (-logp - log(xx));
+        sbar[k] += GasConstant * (-logp - log(xx));
     }
 }
 
@@ -329,6 +327,7 @@ void IdealGasPhase::getStandardVolumes_ref(doublereal* vol) const
 
 void IdealGasPhase::initThermo()
 {
+    ThermoPhase::initThermo();
     m_p0 = refPressure();
     m_h0_RT.resize(m_kk);
     m_g0_RT.resize(m_kk);
@@ -340,7 +339,6 @@ void IdealGasPhase::initThermo()
 
 void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
 {
-    double tmp, tmp2;
     const vector_fp& grt = gibbs_RT_ref();
 
     /*
@@ -353,11 +351,11 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
      */
     doublereal pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        tmp = -grt[k] + mu_RT[k];
+        double tmp = -grt[k] + mu_RT[k];
         if (tmp < -600.) {
             m_pp[k] = 0.0;
         } else if (tmp > 300.0) {
-            tmp2 = tmp / 300.;
+            double tmp2 = tmp / 300.;
             tmp2 *= tmp2;
             m_pp[k] = m_p0 * exp(300.) * tmp2;
         } else {

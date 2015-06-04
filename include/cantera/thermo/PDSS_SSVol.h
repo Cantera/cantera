@@ -17,9 +17,6 @@
 
 namespace Cantera
 {
-class XML_Node;
-class VPStandardStateTP;
-
 //! Class for pressure dependent standard states that uses a standard state volume
 //! model of some sort.
 /*!
@@ -60,7 +57,7 @@ class VPStandardStateTP;
  *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
  *    \f]
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  * The standard molar Gibbs free energy for species <I>k</I> is determined from
  * the enthalpy and entropy expressions
@@ -69,8 +66,8 @@ class VPStandardStateTP;
  *            G^o_k(T,P) = H^o_k(T,P) - S^o_k(T,P)
  *       \f]
  *
- * The enthalpy is calculated mostly from the %SpeciesThermo object's enthalpy
- * evalulator. The dependence on pressure originates from the Maxwell relation
+ * The enthalpy is calculated mostly from the SpeciesThermo object's enthalpy
+ * evaluator. The dependence on pressure originates from the Maxwell relation
  *
  *       \f[
  *            {\left(\frac{dH^o_k}{dP}\right)}_T = T  {\left(\frac{dS^o_k}{dP}\right)}_T + V^o_k
@@ -81,8 +78,8 @@ class VPStandardStateTP;
  *            {\left(\frac{dH^o_k}{dP}\right)}_T =  V^o_k -  T  {\left(\frac{dV^o_k}{dT}\right)}_P
  *       \f]
  *
- * The entropy is calculated mostly from the %SpeciesThermo objects entropy
- * evalulator. The dependence on pressure originates from the Maxwell relation:
+ * The entropy is calculated mostly from the SpeciesThermo objects entropy
+ * evaluator. The dependence on pressure originates from the Maxwell relation:
  *
  *       \f[
  *              {\left(\frac{dS^o_k}{dP}\right)}_T =  - {\left(\frac{dV^o_k}{dT}\right)}_P
@@ -199,7 +196,7 @@ public:
     PDSS_SSVol(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                const XML_Node& phaseRef, bool spInstalled);
 
-    //! Copy Constructur
+    //! Copy Constructor
     /*!
      * @param b Object to be copied
      */
@@ -207,7 +204,7 @@ public:
 
     //! Assignment operator
     /*!
-     * @param b Object to be copeid
+     * @param b Object to be copied
      */
     PDSS_SSVol& operator=(const PDSS_SSVol& b);
 
@@ -237,12 +234,12 @@ public:
     virtual doublereal entropy_R_ref() const;
     virtual doublereal cp_R_ref() const;
     virtual doublereal molarVolume_ref() const;
+    //! @}
 
 private:
     //! Does the internal calculation of the volume
     void calcMolarVolume() const;
 
-    //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
@@ -268,7 +265,7 @@ private:
      * This routine is a precursor to constructPDSSXML(XML_Node*)
      * routine, which does most of the work.
      *
-     * @param vptp_ptr    Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      *
      * @param spindex     Species index within the phase
@@ -282,7 +279,7 @@ private:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!  Initialization of a PDSS object using an xml tree
+    //!  Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the object.
      *
@@ -291,7 +288,7 @@ private:
      *     - getStuff from species Part of XML file
      *     - initThermoXML(phaseNode)      (cascade)
      *
-     * @param vptp_ptr   Pointer to the Variable pressure %ThermoPhase object
+     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
      *
      * @param spindex    Species index within the phase

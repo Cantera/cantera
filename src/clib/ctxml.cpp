@@ -13,10 +13,9 @@
 
 using namespace std;
 using namespace Cantera;
-using namespace ctml;
 
 typedef Cabinet<XML_Node, false> XmlCabinet;
-template<> XmlCabinet* XmlCabinet::__storage = 0;
+template<> XmlCabinet* XmlCabinet::s_storage = 0;
 
 extern "C" {
 
@@ -115,7 +114,7 @@ extern "C" {
     int xml_preprocess_and_build(int i, const char* file, int debug)
     {
         try {
-            get_CTML_Tree(&XmlCabinet::item(i), file, debug);
+            XmlCabinet::item(i) = *get_XML_File(file);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

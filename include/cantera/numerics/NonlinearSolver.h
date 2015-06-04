@@ -53,9 +53,9 @@ namespace Cantera
 #define  NSOLN_RETN_FAIL_STEPTOOSMALL -1
 //! The nonlinear problem didn't solve the problem
 #define  NSOLN_RETN_FAIL_DAMPSTEP  -2
-//!  The nonlinear problem's jacobian is singular
+//!  The nonlinear problem's Jacobian is singular
 #define  NSOLN_RETN_MATRIXINVERSIONERROR   -3
-//!  The nonlinear problem's jacobian formation produced an error
+//!  The nonlinear problem's Jacobian formation produced an error
 #define  NSOLN_RETN_JACOBIANFORMATIONERROR   -4
 //!  The nonlinear problem's base residual produced an error
 #define  NSOLN_RETN_RESIDUALFORMATIONERROR   -5
@@ -66,9 +66,9 @@ namespace Cantera
 
 //@{
 ///  @name  Constant which determines the type of the Jacobian
-//! The jacobian will be calculated from a numerical method
+//! The Jacobian will be calculated from a numerical method
 #define NSOLN_JAC_NUM 1
-//! The jacobian is calculated from an analytical function
+//! The Jacobian is calculated from an analytical function
 #define NSOLN_JAC_ANAL 2
 //@}
 
@@ -121,13 +121,14 @@ namespace Cantera
  *  @endcode
  *
  *  @ingroup numerics
+ *  @deprecated Unused. To be removed after Cantera 2.2.
  */
 class NonlinearSolver
 {
 public:
     //! Default constructor
     /*!
-     * @param func   Residual and jacobian evaluator function object
+     * @param func   Residual and Jacobian evaluator function object
      */
     NonlinearSolver(ResidJacEval* func);
 
@@ -215,9 +216,9 @@ public:
      *  current values of the solution vector, m_y_n, and the solution time
      *  derivative, m_ydot_n. The Jacobian is not recomputed.
      *
-     *  A factored jacobian is reused, if available. If a factored jacobian
-     *  is not available, then the jacobian is factored. Before factoring,
-     *  the jacobian is row and column-scaled. Column scaling is not
+     *  A factored Jacobian is reused, if available. If a factored Jacobian
+     *  is not available, then the Jacobian is factored. Before factoring,
+     *  the Jacobian is row and column-scaled. Column scaling is not
      *  recomputed. The row scales are recomputed here, after column
      *  scaling has been implemented.
      *
@@ -227,14 +228,14 @@ public:
      *  @param delta_y        return value of the raw change in y
      *  @param jac            Jacobian
      *
-     *  @return Returns the result code from lapack. A zero means success.
+     *  @return Returns the result code from LAPACK. A zero means success.
      *          Anything else indicates a failure.
      */
     int doNewtonSolve(const doublereal time_curr, const doublereal* const y_curr,
                       const doublereal* const ydot_curr, doublereal* const delta_y,
                       GeneralMatrix& jac);
 
-    //! Compute the newton step, either by direct newton's or by solving a
+    //! Compute the Newton step, either by direct Newton's or by solving a
     //! close problem that is represented by a Hessian
     /*!
      * This is algorith A.6.5.1 in Dennis / Schnabel
@@ -246,9 +247,9 @@ public:
      * solution vector, m_y_n, and the solution time derivative, m_ydot_n.
      * The Jacobian is not recomputed.
      *
-     *  A factored jacobian is reused, if available. If a factored jacobian
-     *  is not available, then the jacobian is factored. Before factoring,
-     *  the jacobian is row and column-scaled. Column scaling is not
+     *  A factored Jacobian is reused, if available. If a factored Jacobian
+     *  is not available, then the Jacobian is factored. Before factoring,
+     *  the Jacobian is row and column-scaled. Column scaling is not
      *  recomputed. The row scales are recomputed here, after column
      *  scaling has been implemented.
      *
@@ -261,7 +262,7 @@ public:
      * ---------------
      *  internal m_resid      Stored residual is used as input
      *
-     *  @return Returns the result code from lapack. A zero means success. Anything
+     *  @return Returns the result code from LAPACK. A zero means success. Anything
      *          else indicates a failure.
      */
     int doAffineNewtonSolve(const doublereal* const y_curr, const doublereal* const ydot_curr,
@@ -348,9 +349,9 @@ public:
      *               couldn't possibly be representative if the
      *               variable is changed by a lot. (true for
      *               nonlinear systems, false for linear systems)
-     *  Maximum increase in variable in any one newton iteration:
+     *  Maximum increase in variable in any one Newton iteration:
      *   factor of 2
-     *  Maximum decrease in variable in any one newton iteration:
+     *  Maximum decrease in variable in any one Newton iteration:
      *   factor of 5
      *
      *   @param y         Current solution value of the old step
@@ -385,18 +386,18 @@ public:
      */
     void calc_ydot(const int order, const doublereal* const y_curr, doublereal* const ydot_curr) const;
 
-    //! Function called to evaluate the jacobian matrix and the current
+    //! Function called to evaluate the Jacobian matrix and the current
     //! residual vector at the current time step
     /*!
      *  @param J  Jacobian matrix to be filled in
      *  @param f   Right hand side. This routine returns the current
-     *             value of the rhs (output), so that it does
+     *             value of the RHS (output), so that it does
      *             not have to be computed again.
      *  @param time_curr Current time
      *  @param CJ  inverse of the value of deltaT
      *  @param y    value of the solution vector
      *  @param ydot  value of the time derivative of the solution vector
-     *  @param num_newt_its Number of newton iterations
+     *  @param num_newt_its Number of Newton iterations
      *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
@@ -428,12 +429,12 @@ public:
                                  doublereal* const ydot_current);
 
     //! Return the factor by which the undamped Newton step 'step0'
-    //!  must be multiplied in order to keep the update within the bounds of an accurate jacobian.
+    //!  must be multiplied in order to keep the update within the bounds of an accurate Jacobian.
     /*!
      *  The idea behind these is that the Jacobian couldn't possibly be representative, if the
      *  variable is changed by a lot. (true for nonlinear systems, false for linear systems)
-     *  Maximum increase in variable in any one newton iteration: factor of 1.5
-     *  Maximum decrease in variable in any one newton iteration: factor of 2
+     *  Maximum increase in variable in any one Newton iteration: factor of 1.5
+     *  Maximum decrease in variable in any one Newton iteration: factor of 2
      *
      *  @param y   Initial value of the solution vector
      *  @param step0  initial proposed step size
@@ -500,8 +501,8 @@ public:
      *                    converged value of the solution derivative.
      *  @param CJ        Inverse of the value of deltaT
      *  @param time_curr  Current value of the time
-     *  @param jac        Matrix that will be used to store the jacobian
-     *  @param num_newt_its Number of newton iterations taken
+     *  @param jac        Matrix that will be used to store the Jacobian
+     *  @param num_newt_its Number of Newton iterations taken
      *  @param num_linear_solves Number of linear solves taken
      *  @param num_backtracks Number of backtracking steps taken
      *  @param loglevelInput  Input log level determines the amount of printing.
@@ -678,9 +679,9 @@ public:
      */
     void setResidualTols(double residRtol, double* residAtol, int residNormHandling = 2);
 
-    //! Set the value of the maximum # of newton iterations
+    //! Set the value of the maximum # of Newton iterations
     /*!
-     *  @param maxNewtIts   Maximum number of newton iterations
+     *  @param maxNewtIts   Maximum number of Newton iterations
      */
     void setMaxNewtIts(const int maxNewtIts);
 
@@ -715,7 +716,7 @@ public:
      *
      *  The theoretical linearized residual decline
      *  The actual residual decline in the steepest descent direction determined by numerical differencing
-     *  The actual residual decline in the newton direction determined by numerical differencing
+     *  The actual residual decline in the Newton direction determined by numerical differencing
      *
      *  This routine doesn't need to be called for the solution of the nonlinear problem.
      *
@@ -784,7 +785,7 @@ public:
      * @param ydot_n_1 INPUT      First trial value of the derivative of the solution vector
      * @param stepNorm_1        OUTPUT   Norm of the vector step_1
      * @param stepNorm_2        OUTPUT   Estimated norm of the vector step_2
-     * @param jac        INPUT    jacobian
+     * @param jac        INPUT    Jacobian
      * @param num_backtracks OUTPUT  number of backtracks taken in the current damping step
      *
      *  @return  1 Successful step was taken. The predicted residual norm is less than one
@@ -839,7 +840,7 @@ public:
      *  @param alpha  Relative distance along the particular curve.
      *
      *  @return Returns the expected value of the residual at that point according to the quadratic model.
-     *          The residual at the newton point will always be zero.
+     *          The residual at the Newton point will always be zero.
      */
     doublereal expectedResidLeg(int leg, doublereal alpha) const;
 
@@ -890,7 +891,7 @@ public:
      */
 private:
 
-    //! Pointer to the residual and jacobian evaluator for the
+    //! Pointer to the residual and Jacobian evaluator for the
     //! function
     /*!
      *   See ResidJacEval.h for an evaluator.
@@ -943,13 +944,13 @@ private:
     //! Weights for normalizing the values of the residuals
     /*!
      *  These are computed if row scaling, m_rowScaling, is turned on. They are calculated currently as the
-     *  sum of the absolute values of the rows of the jacobian.
+     *  sum of the absolute values of the rows of the Jacobian.
      */
     std::vector<doublereal> m_rowScales;
 
     //! Weights for normalizing the values of the residuals
     /*!
-     *  They are calculated as the  sum of the absolute values of the jacobian
+     *  They are calculated as the  sum of the absolute values of the Jacobian
      *  multiplied by the solution weight function.
      *  This is carried out in scaleMatrix().
      */
@@ -988,7 +989,7 @@ private:
     //! Norm of the solution update created by the iteration in its raw, undamped form, using the solution norm
     doublereal m_normDeltaSoln_Newton;
 
-    //! Norm of the distance to the cauchy point using the solution norm
+    //! Norm of the distance to the Cauchy point using the solution norm
     doublereal m_normDeltaSoln_CP;
 
     //! Norm of the residual for a trial calculation which may or may not be used
@@ -1043,15 +1044,15 @@ private:
     //! Number of local linear solves done during the current iteration
     int m_numLocalLinearSolves;
 
-    //! Total number of newton iterations
+    //! Total number of Newton iterations
     int m_numTotalNewtIts;
 
 public:
-    //! Minimum number of newton iterations to use
+    //! Minimum number of Newton iterations to use
     int m_min_newt_its;
 private:
 
-    //! Maximum number of newton iterations
+    //! Maximum number of Newton iterations
     int maxNewtIts_;
 
     //! Jacobian formation method
@@ -1122,9 +1123,9 @@ private:
     //! Scale factor for turning residual norms into solution norms
     doublereal m_ScaleSolnNormToResNorm;
 
-    //! Copy of the jacobian that doesn't get overwritten when the inverse is determined
+    //! Copy of the Jacobian that doesn't get overwritten when the inverse is determined
     /*!
-     *  The jacobian stored here is the raw matrix, before any row or column scaling is carried out
+     *  The Jacobian stored here is the raw matrix, before any row or column scaling is carried out
      */
     Cantera::GeneralMatrix* jacCopyPtr_;
 
@@ -1138,7 +1139,7 @@ private:
     //!  Steepest descent direction. This is also the distance to the Cauchy Point
     std::vector<doublereal> deltaX_CP_;
 
-    //! Newton Step - This is the newton step determined from the straight Jacobian
+    //! Newton Step - This is the Newton step determined from the straight Jacobian
     /*
      *  Newton step for the current step only
      */
@@ -1245,7 +1246,7 @@ private:
     //! Expected DResid_dS for the Newton path - output variable
     doublereal ResidDecreaseNewtExp_;
 
-    //! Actual DResid_dS for the newton path - output variable
+    //! Actual DResid_dS for the Newton path - output variable
     doublereal ResidDecreaseNewt_;
 
     /*******************************************************************************************

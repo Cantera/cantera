@@ -9,11 +9,8 @@
 #ifndef CT_IMPSURFCHEM_H
 #define CT_IMPSURFCHEM_H
 
-#include "cantera/numerics/FuncEval.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/thermo/SurfPhase.h"
-#include "solveSP.h"
 
 namespace Cantera
 {
@@ -248,7 +245,7 @@ protected:
     size_t m_numTotalSpecies;
 
     std::vector<vector_int> pLocVec;
-    //! Pointer to the cvode integrator
+    //! Pointer to the CVODE integrator
     Integrator* m_integ;
     doublereal m_atol, m_rtol;   // tolerances
     doublereal m_maxstep; //!< max step size

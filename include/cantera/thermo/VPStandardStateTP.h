@@ -21,10 +21,6 @@
 
 namespace Cantera
 {
-
-class XML_Node;
-class PDSS;
-
 /**
  * @ingroup thermoprops
  *
@@ -53,14 +49,12 @@ class PDSS;
  *   Put some teeth into this level by overloading the setDensity() function. It should
  *   now throw an exception. Instead, setPressure routines should calculate the
  *   solution density and then call State:setDensity() directly.
- *
- *  @nosubgrouping
  */
 class VPStandardStateTP : public ThermoPhase
 {
 
 public:
-    //! @name Constructors and Duplicators for %VPStandardStateTP
+    //! @name Constructors and Duplicators for VPStandardStateTP
 
     /// Constructor.
     VPStandardStateTP();
@@ -267,6 +261,53 @@ public:
      */
     virtual void setPressure(doublereal p);
 
+    //! Set the temperature and pressure at the same time
+    /*!
+     *  Note this function triggers a reevaluation of the standard
+     *  state quantities.
+     *
+     *  @param T  temperature (kelvin)
+     *  @param pres pressure (pascal)
+     */
+    virtual void setState_TP(doublereal T, doublereal pres);
+
+    //! Returns the current pressure of the phase
+    /*!
+     *  The pressure is an independent variable in this phase. Its current value
+     *  is stored in the object VPStandardStateTP.
+     *
+     * @return return the pressure in pascals.
+     */
+    doublereal pressure() const {
+        return m_Pcurrent;
+    }
+
+    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
+    /*!
+     *
+     * If m_useTmpStandardStateStorage is true,
+     * this function must be called for every call to functions in this
+     * class. It checks to see whether the temperature or pressure has changed and
+     * thus the ss thermodynamics functions for all of the species
+     * must be recalculated.
+     *
+     * This function is responsible for updating the following internal members,
+     * when  m_useTmpStandardStateStorage is true.
+     *
+     *  -  m_hss_RT;
+     *  -  m_cpss_R;
+     *  -  m_gss_RT;
+     *  -  m_sss_R;
+     *  -  m_Vss
+     *
+     *  If m_useTmpStandardStateStorage is not true, this function may be
+     *  required to be called by child classes to update internal member data.
+     *
+     */
+    virtual void updateStandardStateThermo() const;
+
+    //@}
+
 protected:
     /**
      * Calculate the density of the mixture using the partial
@@ -292,30 +333,6 @@ protected:
      *       member of the ThermoPhase base class.
      */
     virtual void calcDensity();
-
-public:
-    //! Set the temperature and pressure at the same time
-    /*!
-     *  Note this function triggers a reevaluation of the standard
-     *  state quantities.
-     *
-     *  @param T  temperature (kelvin)
-     *  @param pres pressure (pascal)
-     */
-    virtual void setState_TP(doublereal T, doublereal pres);
-
-    //! Returns the current pressure of the phase
-    /*!
-     *  The pressure is an independent variable in this phase. Its current value
-     *  is stored in the object VPStandardStateTP.
-     *
-     * @return return the pressure in pascals.
-     */
-    doublereal pressure() const {
-        return m_Pcurrent;
-    }
-
-protected:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
@@ -343,31 +360,6 @@ protected:
 
 public:
 
-    //! Updates the standard state thermodynamic functions at the current T and P of the solution.
-    /*!
-     *
-     * If m_useTmpStandardStateStorage is true,
-     * this function must be called for every call to functions in this
-     * class. It checks to see whether the temperature or pressure has changed and
-     * thus the ss thermodynamics functions for all of the species
-     * must be recalculated.
-     *
-     * This function is responsible for updating the following internal members,
-     * when  m_useTmpStandardStateStorage is true.
-     *
-     *  -  m_hss_RT;
-     *  -  m_cpss_R;
-     *  -  m_gss_RT;
-     *  -  m_sss_R;
-     *  -  m_Vss
-     *
-     *  If m_useTmpStandardStateStorage is not true, this function may be
-     *  required to be called by child classes to update internal member data.
-     *
-     */
-    virtual void updateStandardStateThermo() const;
-
-    //@}
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
     /*!
      *  There are also temporary
@@ -415,7 +407,7 @@ protected:
 public:
     /*!
      *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
+     *  Gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *
@@ -499,6 +491,8 @@ public:
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    using Phase::addSpecies;
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
     //! set the VPSS Mgr
     /*!
@@ -516,15 +510,6 @@ public:
 
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;
-
-private:
-    //!  @internal Initialize the internal lengths in this object.
-    /*!
-     * Note this is not a virtual function.
-     */
-    void initLengths();
-
-    //@}
 
 protected:
 

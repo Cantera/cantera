@@ -6,9 +6,8 @@ Tutorial
 Getting Started
 ---------------
 
-Start by creating a new Python script (filename ending with ".py") in the text editor of your choice.
-
-Put the following statement at the top of your script to import the Cantera Python module::
+Start by opening an interactive Python session, e.g. by running `IPython
+<http://ipython.org/>`_. Import the Cantera Python module by running::
 
     >>> import cantera as ct
 
@@ -43,58 +42,7 @@ You should see something like this::
                               X                 Y          Chem. Pot. / RT
                         -------------     ------------     ------------
                    H2              1                1         -15.7173
-                    H              0                0
-                    O              0                0
-                   O2              0                0
-                   OH              0                0
-                  H2O              0                0
-                  HO2              0                0
-                 H2O2              0                0
-                    C              0                0
-                   CH              0                0
-                  CH2              0                0
-               CH2(S)              0                0
-                  CH3              0                0
-                  CH4              0                0
-                   CO              0                0
-                  CO2              0                0
-                  HCO              0                0
-                 CH2O              0                0
-                CH2OH              0                0
-                 CH3O              0                0
-                CH3OH              0                0
-                  C2H              0                0
-                 C2H2              0                0
-                 C2H3              0                0
-                 C2H4              0                0
-                 C2H5              0                0
-                 C2H6              0                0
-                 HCCO              0                0
-                CH2CO              0                0
-                HCCOH              0                0
-                    N              0                0
-                   NH              0                0
-                  NH2              0                0
-                  NH3              0                0
-                  NNH              0                0
-                   NO              0                0
-                  NO2              0                0
-                  N2O              0                0
-                  HNO              0                0
-                   CN              0                0
-                  HCN              0                0
-                 H2CN              0                0
-                 HCNN              0                0
-                 HCNO              0                0
-                 HOCN              0                0
-                 HNCO              0                0
-                  NCO              0                0
-                   N2              0                0
-                   AR              0                0
-                 C3H7              0                0
-                 C3H8              0                0
-               CH2CHO              0                0
-               CH3CHO              0                0
+        [  +52 minor]              0                0
 
 What you have just done is to create an object, `gas1` that implements GRI-
 Mech 3.0, the 53-species, 325-reaction natural gas combustion mechanism
@@ -144,7 +92,7 @@ uses SI units). After this statement, calling ``gas1()`` results in::
                               X                 Y          Chem. Pot. / RT
                         -------------     ------------     ------------
                    H2              1                1         -17.9775
-                        (other species not shown)
+        [  +52 minor]              0                0
 
 Notice that the temperature has been changed as requested, but the pressure
 has changed too. The density and composition have not.
@@ -206,59 +154,10 @@ results in::
 
                               X                 Y          Chem. Pot. / RT
                         -------------     ------------     ------------
-                   H2              0                0
-                    H              0                0
-                    O              0                0
                    O2       0.190114         0.220149         -28.7472
-                   OH              0                0
-                  H2O              0                0
-                  HO2              0                0
-                 H2O2              0                0
-                    C              0                0
-                   CH              0                0
-                  CH2              0                0
-               CH2(S)              0                0
-                  CH3              0                0
                   CH4       0.095057        0.0551863          -35.961
-                   CO              0                0
-                  CO2              0                0
-                  HCO              0                0
-                 CH2O              0                0
-                CH2OH              0                0
-                 CH3O              0                0
-                CH3OH              0                0
-                  C2H              0                0
-                 C2H2              0                0
-                 C2H3              0                0
-                 C2H4              0                0
-                 C2H5              0                0
-                 C2H6              0                0
-                 HCCO              0                0
-                CH2CO              0                0
-                HCCOH              0                0
-                    N              0                0
-                   NH              0                0
-                  NH2              0                0
-                  NH3              0                0
-                  NNH              0                0
-                   NO              0                0
-                  NO2              0                0
-                  N2O              0                0
-                  HNO              0                0
-                   CN              0                0
-                  HCN              0                0
-                 H2CN              0                0
-                 HCNN              0                0
-                 HCNO              0                0
-                 HOCN              0                0
-                 HNCO              0                0
-                  NCO              0                0
                    N2       0.714829         0.724665         -25.6789
-                   AR              0                0
-                 C3H7              0                0
-                 C3H8              0                0
-               CH2CHO              0                0
-               CH3CHO              0                0
+        [  +50 minor]              0                0
 
 The composition above was specified using a string. The format is a comma-
 separated list of ``<species name>:<relative mole numbers>`` pairs. The mole
@@ -280,11 +179,11 @@ When setting the state, you can control what properties are held constant by
 passing the special value `None` to the property setter. For example, to
 change the specific volume to 2.1 m^3/kg while holding entropy constant::
 
-    >>> gas.SV = None, 2.1
+    >>> gas1.SV = None, 2.1
 
 Or to set the mass fractions while holding temperature and pressure constant::
 
-    >>> gas.TPX = None, None, 'CH4:1.0, O2:0.5'
+    >>> gas1.TPX = None, None, 'CH4:1.0, O2:0.5'
 
 Working With Mechanism Files
 ----------------------------
@@ -302,10 +201,11 @@ Files\\Cantera\\data`` on Windows or ``/usr/local/cantera/data/`` on
 Unix/Linux/Mac OS X machines, depending on how you installed Cantera and the
 options you specified.
 
-If for some reason Cantera has difficulty finding where these files are on
-your system, set environment variable ``CANTERA_DATA`` to the directory where
-they are located. Alternatively, you can call function `add_directory` to add
-a directory to the Cantera search path::
+If for some reason Cantera has difficulty finding where these files are on your
+system, set environment variable ``CANTERA_DATA`` to the directory or
+directories (separated using ``;`` on Windows or ``:`` on other operating
+systems) where they are located. Alternatively, you can call function
+`add_directory` to add a directory to the Cantera search path::
 
     >>> ct.add_directory('/usr/local/cantera/my_data_files')
 
@@ -323,12 +223,6 @@ two bulk phases and the interface between them from file ``diamond.cti``::
 
 Note that the bulk (i.e., 3D or homogeneous) phases that participate in the
 surface reactions must also be passed as arguments to `Interface`.
-
-When Cantera reads a ``.cti`` input file, wherever it is located, it always
-writes a file of the same name but with extension ``.xml`` *in the local
-directory*. If you happen to have some other file by that name, it will be
-overwritten. Once the XML file is created, you can use it instead of the
-``.cti`` file, which will result in somewhat faster startup.
 
 Converting CK-format files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -358,7 +252,7 @@ within the Python interpreter as well.
 Suppose you have created a Cantera object and want to know what methods are
 available for it, and get help on using the methods::
 
-    >>> g = Cantera.Solution('gri30.xml')
+    >>> g = ct.Solution('gri30.xml')
 
 To get help on the Python class that this object is an instance of::
 
@@ -443,3 +337,90 @@ Cantera uses a damped Newton method to solve these equations, and does a few
 other things to generate a good starting guess and to produce a reasonably
 robust algorithm. If you want to know more about the details, look at the on-
 line documented source code of Cantera C++ class 'ChemEquil.h'.
+
+Chemical Kinetics
+-----------------
+
+`Solution` objects are also `Kinetics` objects, and provide all of the methods
+necessary to compute the thermodynamic quantities associated with each reaction,
+reaction rates, and species creation and destruction rates. They also provide
+methods to inspect the quantities that define each reaction such as the rate
+constants and the stoichiometric coefficients. The rate calculation functions
+are used extensively within Cantera's :ref:`reactor network model
+<sec-cython-zerodim>` and :ref:`1D flame model <sec-cython-onedim>`.
+
+Information about individual reactions that is independent of the thermodynamic
+state can be obtained by accessing `Reaction` objects with the
+`Kinetics.reaction` method::
+
+    >>> g = ct.Solution('gri30.cti')
+    >>> r = g.reaction(2) # get a Reaction object
+    >>> r
+    <ElementaryReaction: H2 + O <=> H + OH>
+
+    >>> r.reactants
+    {'H2': 1.0, 'O': 1.0}
+    >>> r.products
+    {'H': 1.0, 'OH': 1.0}
+    >>> r.rate
+    Arrhenius(A=38.7, b=2.7, E=2.61918e+07)
+
+If we are interested in only certain types of reactions, we can use this
+information to filter the full list of reactions to find the just the ones of
+interest. For example, here we find the indices of just those reactions which
+convert `CO` into `CO2`::
+
+    >>> II = [i for i,r in enumerate(g.reactions())
+              if 'CO' in r.reactants and 'CO2' in r.products]
+    >>> for i in II:
+    ...     print(g.reaction(i).equation)
+    CO + O (+M) <=> CO2 (+M)
+    CO + O2 <=> CO2 + O
+    CO + OH <=> CO2 + H
+    CO + HO2 <=> CO2 + OH
+
+(Actually, we should also include reactions where the reaction is written such
+that ``CO2`` is a reactant and ``CO`` is a product, but for this example, we'll
+just stick to this smaller set of reactions.) Now, let's set the composition to
+an interesting equilibrium state::
+
+    >>> g.TPX = 300, 101325, {'CH4':0.6, 'O2':1.0, 'N2':3.76}
+    >>> g.equilibrate('HP')
+
+We can verify that this is an equilibrium state by seeing that the net reaction
+rates are essentially zero::
+
+    >>> g.net_rates_of_progress[II]
+    array([  4.06576e-20,  -5.50571e-21,   0.00000e+00,  -4.91279e-20])
+
+Now, let's see what happens if we decrease the temperature of the mixture::
+
+    >>> g.TP = g.T-100, None
+    >>> g.net_rates_of_progress[II]
+    array([  3.18645e-05,   5.00490e-08,   1.05965e-01,   2.89503e-06])
+
+All of the reaction rates are positive, favoring the formation of ``CO2`` from
+``CO``, with the third reaction, ``CO + OH <=> CO2 + H`` proceeding the fastest.
+If we look at the enthalpy change associated with each of these reactions::
+
+    >>> g.delta_enthalpy[II]
+    array([ -5.33035e+08,  -2.23249e+07,  -8.76650e+07,  -2.49170e+08])
+
+we see that the change is negative in each case, indicating a net release of
+thermal energy. The total heat release rate can be computed either from the
+reaction rates::
+
+    >>> np.dot(g.net_rates_of_progress, g.delta_enthalpy)
+    -58013370.720881931
+
+or from the species production rates::
+
+    >>> np.dot(g.net_production_rates, g.partial_molar_enthalpies)
+    -58013370.720881805
+
+The contribution from just the selected reactions is:
+
+    >>> np.dot(g.net_rates_of_progress[II], g.delta_enthalpy[II])
+    -9307123.2625651453
+
+Or about 16% of the total heat release rate.

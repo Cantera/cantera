@@ -1,26 +1,25 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/NasaPoly1.h"
+#include "cantera/IdealGasMix.h"
 
 namespace Cantera
 {
 
-// CO2 low-temperature polynomial from GRI 3.0. Note that this order is
-// different from the order used by CHEMKIN, with the 1/T and log(T)
-// coefficients appearing first.
-static double coeffs[] = {-4.83719697e+04,
-                          9.90105222e+00,
-                          2.35677352e+00,
+// CO2 low-temperature polynomial from GRI 3.0
+static double coeffs[] = {2.35677352e+00,
                           8.98459677e-03,
                           -7.12356269e-06,
                           2.45919022e-09,
                           -1.43699548e-13,
+                          -4.83719697e+04,
+                          9.90105222e+00,
                          };
 
 class NasaPoly1Test : public testing::Test
 {
 public:
     NasaPoly1Test()
-        : poly(0, 200.0, 1000.0, 101325.0, coeffs)
+        : poly(200.0, 1000.0, 101325.0, coeffs)
         , tpow_(6) {
     }
 protected:
@@ -108,11 +107,46 @@ TEST_F(NasaPoly1Test, updatePropertiesTemp)
     EXPECT_DOUBLE_EQ(s_R1, s_R2);
 }
 
+
+TEST(Nasa9Test, Nasa9Thermo) {
+    IdealGasMix g("../data/gasNASA9.xml", "nasa9");
+    size_t nsp = g.nSpecies();
+    double pres = 1.0E5;
+    vector_fp Xset(nsp, 0.0);
+    Xset[0] = 0.5;
+    Xset[1] = 0.5;
+
+    vector_fp cp_R(nsp, 0.0);
+    vector_fp H_RT(nsp, 0.0);
+    vector_fp S_R(nsp, 0.0);
+
+    double T0 = 300.0;
+    double dT = 199.0;
+    double abstol = 1e-7;
+
+    for (size_t i = 0; i < 15; i++) {
+        g.setState_TPX(T0 + i*dT, pres, &Xset[0]);
+        g.getEntropy_R(&S_R[0]);
+        g.getCp_R(&cp_R[0]);
+        g.getEnthalpy_RT(&H_RT[0]);
+
+        EXPECT_NEAR(cp_R[0], cp_R[1], abstol);
+        EXPECT_NEAR(cp_R[0], cp_R[2], abstol);
+        EXPECT_NEAR(H_RT[0], H_RT[1], abstol);
+        EXPECT_NEAR(H_RT[0], H_RT[2], abstol);
+        EXPECT_NEAR(S_R[0], S_R[1], abstol);
+        EXPECT_NEAR(S_R[0], S_R[2], abstol);
+    }
+}
+
+
 } // namespace Cantera
 
 int main(int argc, char** argv)
 {
     printf("Running main() from nasapoly.cpp\n");
     testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+    int result = RUN_ALL_TESTS();
+    Cantera::appdelete();
+    return result;
 }

@@ -8,12 +8,9 @@
  */
 #ifndef CT_GENERALSPECIESTHERMO_H
 #define CT_GENERALSPECIESTHERMO_H
-#include "cantera/base/ct_defs.h"
+
 #include "SpeciesThermoMgr.h"
-#include "NasaPoly1.h"
-#include "Nasa9Poly1.h"
-#include "StatMech.h"
-#include "speciesThermoTypes.h"
+#include "SpeciesThermoInterpType.h"
 
 namespace Cantera
 {
@@ -46,9 +43,6 @@ public:
      */
     GeneralSpeciesThermo& operator=(const GeneralSpeciesThermo& b);
 
-    //! Destructor
-    virtual ~GeneralSpeciesThermo();
-
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const ;
 
     //! Install a new species thermodynamic property
@@ -76,15 +70,16 @@ public:
      * @param refPressure standard-state pressure for this parameterization.
      * @see speciesThermoTypes.h
      *
-     * @todo Create a factory method for SpeciesThermoInterpType.
-     *       That's basically what we are doing here.
+     * @deprecated Use newSpeciesThermoInterpType and
+     *     GeneralSpeciesThermo::install_STIT. To be removed after Cantera 2.2.
      */
     virtual void install(const std::string& name, size_t index, int type,
                          const doublereal* c,
                          doublereal minTemp, doublereal maxTemp,
                          doublereal refPressure);
 
-    virtual void install_STIT(SpeciesThermoInterpType* stit_ptr);
+    virtual void install_STIT(size_t index,
+                              shared_ptr<SpeciesThermoInterpType> stit_ptr);
 
     //! Install a PDSS object to handle the reference state thermodynamics
     //! calculation
@@ -135,34 +130,33 @@ private:
      * @return pointer to the SpeciesThermoInterpType object.
      */
     SpeciesThermoInterpType* provideSTIT(size_t k);
+    const SpeciesThermoInterpType* provideSTIT(size_t k) const;
 
 protected:
+    typedef std::pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
+    typedef std::map<int, std::vector<index_STIT> > STIT_map;
+    typedef std::map<int, std::vector<double> > tpoly_map;
     /**
-     * This is the main unknown in the object. It is
-     * a list of pointers to type SpeciesThermoInterpType.
-     * Note, this object owns the objects, so they are deleted
-     * in the destructor of this object.
-     *   Note, that in some instances, m_sp[k] = 0, e.g., no
-     * SpeciesThermoInterpType is installed for one or more
-     * species. These cases must be handled by the calling
-     * routine.
+     * This is the main data structure, which contains the
+     * SpeciesThermoInterpType objects, sorted by the parameterization type.
+     * `m_sp[i]` is the vector of [species index, STIT] pairs which use
+     * parameterization `i`.
      */
-    std::vector<SpeciesThermoInterpType*> m_sp;
+    STIT_map m_sp;
+
+    //! Temperature polynomials for each thermo parameterization
+    mutable tpoly_map m_tpoly;
+
+    std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature
-    doublereal                         m_tlow_max;
+    doublereal m_tlow_max;
 
     //! Minimum value of the highest temperature
-    doublereal                         m_thigh_min;
+    doublereal m_thigh_min;
 
     //! reference pressure (Pa)
-    doublereal                         m_p0;
-
-    /**
-     * Internal variable indicating the length of the
-     * number of species in the phase.
-     */
-    size_t m_kk;
+    doublereal m_p0;
 
     //! Make the class VPSSMgr a friend because we need to access
     //! the function provideSTIT()

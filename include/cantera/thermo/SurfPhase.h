@@ -46,7 +46,7 @@ namespace Cantera
  *       \f]
  *
  *   Also, the standard state chemical potentials, entropy, and heat capacities
- *   are independent of pressure. The standard state gibbs free energy is obtained
+ *   are independent of pressure. The standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * <b> Specification of Solution Thermodynamic Properties </b>
@@ -76,7 +76,7 @@ namespace Cantera
  *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)
  *       \f]
  *
- * <b> %Application within %Kinetics Managers </b>
+ * <b> %Application within Kinetics Managers </b>
  *
  * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
  * the actual concentration, \f$ C^s_k \f$, and is given by the following
@@ -148,7 +148,7 @@ public:
      *  @param n0 Site Density of the Surface Phase
      *            Units: kmol m-2.
      */
-    SurfPhase(doublereal n0 = 0.0);
+    SurfPhase(doublereal n0 = 1.0);
 
     //! Construct and initialize a SurfPhase ThermoPhase object
     //! directly from an ASCII input file
@@ -187,13 +187,13 @@ public:
      */
     SurfPhase& operator=(const SurfPhase& right);
 
-    //! Duplicator from the %ThermoPhase parent class
+    //! Duplicator from the ThermoPhase parent class
     /*
-     * Given a pointer to a %ThermoPhase object, this function will
-     * duplicate the %ThermoPhase object and all underlying structures.
+     * Given a pointer to a ThermoPhase object, this function will
+     * duplicate the ThermoPhase object and all underlying structures.
      * This is basically a wrapper around the copy constructor.
      *
-     * @return returns a pointer to a %ThermoPhase
+     * @return returns a pointer to a ThermoPhase
      */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
@@ -367,7 +367,7 @@ public:
      * @param thermoData   Reference to an XML_Node named thermo
      *                     containing the equation-of-state data. The
      *                     XML_Node is within the phase XML_Node describing
-     *                     the %SurfPhase object.
+     *                     the SurfPhase object.
      *
      * An example of the contents of the thermoData XML_Node is provided
      * below. The units attribute is used to supply the units of the
@@ -383,20 +383,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& thermoData);
 
     //! Initialize the SurfPhase object after all species have been set up
-    /*!
-     * @internal Initialize.
-     *
-     * This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called from ThermoPhase::initThermoXML(),
-     * which is called from importPhase(),
-     * just prior to returning from function importPhase().
-     */
     virtual void initThermo();
 
     //! Set the initial state of the Surface Phase from an XML_Node
@@ -434,7 +420,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -475,13 +461,6 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //! Return the thermodynamic pressure (Pa).
-    /*!
-     *  This method must be overloaded in derived classes. Since the
-     *  mass density, temperature, and mass fractions are stored,
-     *  this method should use these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
-     *  Y_K) \f$.
-     */
     virtual doublereal pressure() const {
         return m_press;
     }
@@ -489,14 +468,6 @@ public:
     //! Set the internally stored pressure (Pa) at constant
     //! temperature and composition
     /*!
-     *   This method must be reimplemented in derived classes, where it
-     *   may involve the solution of a nonlinear equation. Within %Cantera,
-     *   the independent variable is the density. Therefore, this function
-     *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition iare held constant during this process.
-     *
-     *  This base class function will print an error, if not overwritten.
-     *
      *  @param p input Pressure (Pa)
      */
     virtual void setPressure(doublereal p) {
@@ -580,6 +551,9 @@ public:
      */
     void setCoveragesByName(const std::string& cov);
 
+    //! Set the coverages from a map of name:value pairs
+    void setCoveragesByName(const compositionMap& cov);
+
     //! Return a vector of surface coverages
     /*!
      * Get the coverages.
@@ -608,7 +582,7 @@ protected:
     //! Temporary storage for the reference state heat capacities
     mutable vector_fp      m_cp0;
 
-    //! Temporary storage for the reference state gibbs energies
+    //! Temporary storage for the reference state Gibbs energies
     mutable vector_fp      m_mu0;
 
     //! Temporary work array

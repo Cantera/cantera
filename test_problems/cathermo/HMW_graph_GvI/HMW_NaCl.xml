@@ -116,7 +116,7 @@
                                        
     <species name="Na+">
       <!-- Na+ (aq) standard state based on the unity molality convention
-           The shomate polynomial was created from the SUPCRT92
+           The Shomate polynomial was created from the SUPCRT92
            J. Phys Chem Ref article, and the CODATA recommended
            values. DelHf(298.15) = -240.34 kJ/gmol
                        S(298.15) = 58.45 J/gmolK
@@ -206,7 +206,7 @@
 
     <species name="OH-">
       <!-- OH- (aq) standard state based on the unity molality convention
-           The shomate polynomial was created with data from the SUPCRT92
+           The Shomate polynomial was created with data from the SUPCRT92
            J. Phys Chem Ref article, and from the CODATA recommended
            values. DelHf(298.15) = -230.015 kJ/gmol
                        S(298.15) = -10.90 J/gmolK

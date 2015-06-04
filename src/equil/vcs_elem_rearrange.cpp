@@ -10,13 +10,11 @@
  */
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 
-using namespace Cantera;
-
-namespace VCSnonideal
+namespace Cantera
 {
 
 int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
@@ -137,7 +135,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
              */
             sa[jr] = 0.0;
             for (size_t ml = 0; ml < ncomponents; ++ml) {
-                sa[jr] += SQUARE(sm[ml + jr*ncomponents]);
+                sa[jr] += pow(sm[ml + jr*ncomponents], 2);
             }
             /* **************************************************** */
             /* **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT ********** */

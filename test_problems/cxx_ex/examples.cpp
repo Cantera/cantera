@@ -1,7 +1,7 @@
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/global.h"
 
 #include <iostream>
+#include <cstdlib>
 
 using namespace Cantera;
 using namespace std;

@@ -1,10 +1,10 @@
 /**
  *  @file HMWSoln.h
- *    Headers for the %HMWSoln ThermoPhase object, which models concentrated
+ *    Headers for the HMWSoln ThermoPhase object, which models concentrated
  *    electrolyte solutions
  *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
  *
- * Class %HMWSoln represents a concentrated liquid electrolyte phase which
+ * Class HMWSoln represents a concentrated liquid electrolyte phase which
  * obeys the Pitzer formulation for nonideality using molality-based
  * standard states.
  */
@@ -17,7 +17,7 @@
 #define CT_HMWSOLN_H
 
 #include "MolalityVPSSTP.h"
-#include "electrolytes.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {
@@ -79,10 +79,9 @@ namespace Cantera
 //@}
 
 class WaterProps;
-class PDSS_Water;
 
 /**
- * Class %HMWSoln represents a dilute or concentrated liquid electrolyte
+ * Class HMWSoln represents a dilute or concentrated liquid electrolyte
  * phase which obeys the Pitzer formulation for nonideality.
  *
  * As a prerequisite to the specification of thermodynamic quantities,
@@ -90,7 +89,7 @@ class PDSS_Water;
  * electroneutrality condition.
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  * The solvent is assumed to be liquid water. A real model for liquid
@@ -144,14 +143,14 @@ class PDSS_Water;
  *
  *
  * The solute standard state heat capacity and entropy are independent
- * of pressure. The solute standard state gibbs free energy is obtained
+ * of pressure. The solute standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * The vector Phase::m_speciesSize[] is used to hold the
  * base values of species sizes. These are defined as the
  * molar volumes of species at infinite dilution at 300 K and 1 atm
  * of water. m_speciesSize are calculated during the initialization of the
- * %HMWSoln object and are then not touched.
+ * HMWSoln object and are then not touched.
  *
  * The current model assumes that an incompressible molar volume for
  * all solutes. The molar volume for the water solvent, however,
@@ -298,8 +297,8 @@ class PDSS_Water;
  *
  *  <H3> Specification of the Excess Gibbs Free Energy </H3>
  *
- *  Pitzer's formulation may best be represented as a specification of the excess gibbs
- *  free energy, \f$ G^{ex} \f$, defined as the deviation of the total gibbs free energy from
+ *  Pitzer's formulation may best be represented as a specification of the excess Gibbs
+ *  free energy, \f$ G^{ex} \f$, defined as the deviation of the total Gibbs free energy from
  *  that of an ideal molal solution.
  *     \f[
  *         G = G^{id} + G^{ex}
@@ -578,7 +577,7 @@ class PDSS_Water;
  *  below the critical temperature of water.
  *  They found a temperature functional form for fitting the 3 following
  *  coefficients that describe the Pitzer parameterization for a single salt
- *  to be adequate to describe how the excess gibbs free energy values for
+ *  to be adequate to describe how the excess Gibbs free energy values for
  *  the binary salt changes with respect to temperature.
  *  The following functional form
  *  was used to fit the temperature dependence of the Pitzer Coefficients
@@ -615,10 +614,10 @@ class PDSS_Water;
  *  Therefore,
  *  a formalism wherein all of the coefficients in the base theory have
  *  temperature dependencies associated with them has been implemented
- *  within the  %HMWSoln object. Much of the formalism, however,
+ *  within the  HMWSoln object. Much of the formalism, however,
  *  has been unexercised.
  *
- *  In the %HMWSoln object, the temperature dependence of the Pitzer
+ *  In the HMWSoln object, the temperature dependence of the Pitzer
  *  parameters are specified in the following way.
  *
  *    - PIZTER_TEMP_CONSTANT      - string name "CONSTANT"
@@ -875,7 +874,7 @@ class PDSS_Water;
  * <H3> Specification of the Debye-Huckel Constant </H3>
  *
  *  In the equations above, the formula for  \f$  A_{Debye} \f$
- *  is needed. The %HMWSoln object uses two methods for specifying these quantities.
+ *  is needed. The HMWSoln object uses two methods for specifying these quantities.
  *  The default method is to assume that \f$  A_{Debye} \f$  is a constant, given
  *  in the initialization process, and stored in the
  *  member double, m_A_Debye. Optionally, a full water treatment may be employed that makes
@@ -923,7 +922,7 @@ class PDSS_Water;
  *   </activityCoefficients>
  * @endcode
  *
- * An example of a variable value implementation within the %HMWSoln object is given below.
+ * An example of a variable value implementation within the HMWSoln object is given below.
  * The model attribute, "water", triggers the full implementation.
  *
  * @code
@@ -1002,7 +1001,7 @@ class PDSS_Water;
  *  s_update_dlnMolalityActCoeff_dP().
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  * For the time being, we have set the standard concentration for all solute
@@ -1102,7 +1101,7 @@ class PDSS_Water;
  * @endcode
  *
  *
- * A new %HMWSoln object may be created by  the following code snippets:
+ * A new HMWSoln object may be created by  the following code snippets:
  *
  * @code
  *      HMWSoln *HMW = new HMWSoln("HMW_NaCl.xml", "NaCl_electrolyte");
@@ -1274,37 +1273,6 @@ public:
      */
     HMWSoln& operator=(const HMWSoln& right);
 
-    //! This is a special constructor, used to replicate test problems
-    //! during the initial verification of the object
-    /*!
-     *  test problems:
-     *  1 = NaCl problem - 5 species - the thermo is read in from an XML file
-     *
-     *      speci   molality                        charge
-     *      Cl-     6.0954          6.0997E+00      -1
-     *      H+      1.0000E-08      2.1628E-09      1
-     *      Na+     6.0954E+00      6.0997E+00      1
-     *      OH-     7.5982E-07      1.3977E-06     -1
-     *
-     *      HMW_params____beta0MX__beta1MX__beta2MX__CphiMX_____alphaMX__thetaij
-     *      10
-     *      1  2          0.1775  0.2945   0.0      0.00080    2.0      0.0
-     *      1  3          0.0765  0.2664   0.0      0.00127    2.0      0.0
-     *      1  4          0.0     0.0      0.0      0.0        0.0     -0.050
-     *      2  3          0.0     0.0      0.0      0.0        0.0      0.036
-     *      2  4          0.0     0.0      0.0      0.0        0.0      0.0
-     *      3  4          0.0864  0.253    0.0      0.0044     2.0      0.0
-     *
-     *      Triplet_interaction_parameters_psiaa'_or_psicc'
-     *      2
-     *      1  2  3   -0.004
-     *      1  3  4   -0.006
-     *
-     * @param testProb Hard -coded test problem to instantiate.
-     *                 Current valid values are 1.
-     */
-    HMWSoln(int testProb);
-
     //! Destructor.
     virtual ~HMWSoln();
 
@@ -1340,7 +1308,7 @@ public:
      * about the species, including their reference state thermodynamic
      * polynomials. We then freeze the state of the species.
      *
-     * Then, we read the species molar volumes from the xml tree to finish the
+     * Then, we read the species molar volumes from the XML tree to finish the
      * initialization.
      *
      * @param phaseNode This object must be the phase node of a complete XML tree
@@ -1686,7 +1654,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -1702,6 +1670,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -2062,7 +2031,7 @@ public:
     //!  pressure, and solution concentration.
     /*!
      *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
-     *  classes which derive from %MolalityVPSSTP. This function takes over from the
+     *  classes which derive from MolalityVPSSTP. This function takes over from the
      *  molar-based activity coefficient calculation, getActivityCoefficients(), in
      *  derived classes.
      *

@@ -22,13 +22,10 @@
 #define CT_TRANSPORTBASE_H
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {
 
-class TransportParams;
-class GasTransportParams;
 class LiquidTransportParams;
 class SolidTransportData;
 
@@ -45,6 +42,7 @@ const int cMulticomponent      = 200;
 const int CK_Multicomponent    = 202;
 const int cMixtureAveraged     = 210;
 const int CK_MixtureAveraged   = 211;
+const int cHighP               = 270;
 const int cSolidTransport      = 300;
 const int cDustyGasTransport   = 400;
 const int cUserTransport       = 500;
@@ -106,7 +104,7 @@ const VelocityBasis VB_SPECIES_3 = 3;
  *  if called.
  *
  * <HR>
- * <H2> Relationship of the %Transport class to the ThermoPhase Class </H2>
+ * <H2> Relationship of the Transport class to the ThermoPhase Class </H2>
  * <HR>
  *
  *   This section describes how calculations are carried out within
@@ -175,7 +173,7 @@ public:
      */
     Transport(thermo_t* thermo=0, size_t ndim = 1);
 
-    virtual ~Transport();
+    virtual ~Transport() {}
     Transport(const Transport& right);
     Transport&  operator=(const Transport& right);
 
@@ -318,7 +316,7 @@ public:
      *  The self diffusion coefficient is the diffusion coefficient of a tracer
      *  species at the current temperature and composition of the species.
      *  Therefore, the dilute limit of transport is assumed for the tracer
-     *  species. The effective formula may be calculated from the stefan-maxwell
+     *  species. The effective formula may be calculated from the Stefan-Maxwell
      *  formulation by adding another row for the tracer species, assigning all
      *  D's to be equal to the respective species D's, and then taking the limit
      *  as the tracer species mole fraction goes to zero. The corresponding flux
@@ -374,7 +372,7 @@ public:
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
      *   This function returns the mobilities. In some formulations
-     *   this is equal to the normal mobility multiplied by faraday's constant.
+     *   this is equal to the normal mobility multiplied by Faraday's constant.
      *
      *   Frequently, but not always, the mobility is calculated from the
      *   diffusion coefficient using the Einstein relation
@@ -714,26 +712,24 @@ public:
         return m_velocityBasis;
     }
 
-    friend class TransportFactory;
-
-protected:
-
     /**
      * @name Transport manager construction
-     * These methods are used internally during construction.
+     * These methods are used during construction.
      * @{
      */
 
-    //! Called by TransportFactory to set parameters.
+    //! Initialize a transport manager
     /*!
-     *  This is called by classes that use the gas phase parameter
-     *  list to initialize themselves.
+     *  This routine sets up a transport manager. It calculates the collision
+     *  integrals and populates species-dependent data structures.
      *
-     *   @param tr Reference to the parameter list that will be used
-     *             to initialize the class
+     *  @param thermo  Pointer to the ThermoPhase object
+     *  @param mode    Chemkin compatible mode or not. This alters the
+     *                 specification of the collision integrals. defaults to no.
+     *  @param log_level Defaults to zero, no logging
      */
-    virtual bool initGas(GasTransportParams& tr) {
-        throw NotImplementedError("Transport::initGas");
+    virtual void init(thermo_t* thermo, int mode=0, int log_level=0) {
+        throw NotImplementedError("Transport::init");
     }
 
     //! Called by TransportFactory to set parameters.
@@ -748,7 +744,6 @@ protected:
         throw NotImplementedError("Transport::initLiquid");
     }
 
-public:
     //! Called by TransportFactory to set parameters.
     /*!
      *  This is called by classes that use the solid phase parameter
@@ -769,7 +764,7 @@ public:
      *  same order. The idea here is to allow copy constructors and duplicators
      *  to work. In order for them to work, we need a method to switch the
      *  internal pointer within the Transport object after the duplication
-     *  takes place.  Also, different thermodynamic instanteations of the same
+     *  takes place.  Also, different thermodynamic instantiations of the same
      *  species should also work.
      *
      *   @param   thermo  Reference to the ThermoPhase object that

@@ -16,19 +16,15 @@
 #define CT_REDLICHKWONGMFTP_H
 
 #include "MixtureFugacityTP.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {
-
-class XML_Node;
-
 /**
  * @ingroup thermoprops
  *
  *  This class can handle either an ideal solution or an ideal gas approximation
  *  of a phase.
- *
- *  @nosubgrouping
  */
 class RedlichKwongMFTP : public MixtureFugacityTP
 {
@@ -65,6 +61,7 @@ public:
      *
      * @param testProb Hard -coded test problem to instantiate.
      *                 Current valid values are 1.
+     *  @deprecated To be removed after Cantera 2.2.
      */
     RedlichKwongMFTP(int testProb);
 
@@ -163,8 +160,7 @@ protected:
 protected:
     //! Set the temperature (K)
     /*!
-     * Overwritten setTemperature(double) from State.h. This
-     * function sets the temperature, and makes sure that
+     * This function sets the temperature, and makes sure that
      * the value propagates to underlying objects
      *
      * @param temp Temperature in kelvin
@@ -202,7 +198,7 @@ protected:
     /*!
      * This is useful when the normalization
      * condition is being handled by some other means, for example
-     * by a constraint equation as part of a larger set ofequations.
+     * by a constraint equation as part of a larger set of equations.
      *
      * @param x  Input vector of mole fractions. Length is m_kk.
      */
@@ -265,7 +261,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -283,6 +279,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(double* uA, int k = 0, int sizeUA = 6) const;
 
@@ -373,6 +370,12 @@ public:
 
     /// Critical pressure (Pa).
     virtual doublereal critPressure() const;
+
+    /// Critical volume (m3/kmol)
+    virtual doublereal critVolume() const;
+
+    // Critical compressibility (unitless)
+    virtual doublereal critCompressibility() const;
 
     /// Critical density (kg/m3).
     virtual doublereal critDensity() const;

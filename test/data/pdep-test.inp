@@ -1,3 +1,5 @@
+! Generic mechanism header
+! This line contains a non-unicode character () that should just be ignored.
 ELEMENTS
 H  C
 END

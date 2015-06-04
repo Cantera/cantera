@@ -17,13 +17,13 @@
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/base/vec_functions.h"
+#include "cantera/base/xml.h"
 
 using namespace std;
 
 namespace Cantera
 {
-class SpeciesThermo;
-
 VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spthermo) :
     m_kk(0),
     m_vptp_ptr(vptp_ptr),
@@ -40,10 +40,6 @@ VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spthermo) :
         throw CanteraError("VPSSMgr",
                            "null pointer for VPStandardStateTP is not permissible");
     }
-}
-
-VPSSMgr::~VPSSMgr()
-{
 }
 
 VPSSMgr::VPSSMgr(const VPSSMgr& right) :
@@ -150,8 +146,7 @@ VPSSMgr::getStandardChemPotentials(doublereal* mu) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_gss_RT.begin(), m_gss_RT.end(), mu);
-        doublereal _rt = GasConstant * m_tlast;
-        scale(mu, mu+m_kk, mu, _rt);
+        scale(mu, mu+m_kk, mu, GasConstant * m_tlast);
     } else {
         throw NotImplementedError("VPSSMgr::getStandardChemPotentials");
     }
@@ -192,9 +187,8 @@ VPSSMgr::getIntEnergy_RT(doublereal* urt) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_hss_RT.begin(), m_hss_RT.end(), urt);
-        doublereal pRT = m_plast / (GasConstant * m_tlast);
         for (size_t k = 0; k < m_kk; k++) {
-            urt[k] -= pRT * m_Vss[k];
+            urt[k] -= m_plast / (GasConstant * m_tlast) * m_Vss[k];
         }
     } else {
         throw NotImplementedError("VPSSMgr::getEntropy_RT");
@@ -255,8 +249,7 @@ VPSSMgr::getGibbs_ref(doublereal* g) const
 {
     if (m_useTmpRefStateStorage) {
         std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
-        doublereal _rt = GasConstant * m_tlast;
-        scale(g, g+m_kk, g, _rt);
+        scale(g, g+m_kk, g, GasConstant * m_tlast);
     } else {
         throw NotImplementedError("VPSSMgr::getGibbs_ref");
     }
@@ -401,9 +394,9 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
 void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,
                                const XML_Node* phaseNode_ptr)
 {
-
-    SpeciesThermoFactory*  f = SpeciesThermoFactory::factory();
-    f->installThermoForSpecies(k, s, m_vptp_ptr, *m_spthermo, phaseNode_ptr);
+    shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(s.child("thermo")));
+    stit->validate(s["name"]);
+    m_spthermo->install_STIT(k, stit);
     if (m_p0 < 0.0) {
         m_p0 = m_spthermo->refPressure(k);
     }
@@ -419,8 +412,7 @@ PDSS* VPSSMgr::createInstallPDSS(size_t k, const XML_Node& s,
 doublereal VPSSMgr::minTemp(size_t k) const
 {
     if (k != npos) {
-        const PDSS* kPDSS = m_vptp_ptr->providePDSS(k);
-        return kPDSS->minTemp();
+        return m_vptp_ptr->providePDSS(k)->minTemp();
     }
     return m_minTemp;
 }
@@ -428,8 +420,7 @@ doublereal VPSSMgr::minTemp(size_t k) const
 doublereal VPSSMgr::maxTemp(size_t k) const
 {
     if (k != npos) {
-        const PDSS* kPDSS = m_vptp_ptr->providePDSS(k);
-        return kPDSS->maxTemp();
+        return m_vptp_ptr->providePDSS(k)->maxTemp();
     }
     return m_maxTemp;
 }
@@ -437,8 +428,7 @@ doublereal VPSSMgr::maxTemp(size_t k) const
 doublereal VPSSMgr::refPressure(size_t k) const
 {
     if (k != npos) {
-        const PDSS* kPDSS = m_vptp_ptr->providePDSS(k);
-        return kPDSS->refPressure();
+        return m_vptp_ptr->providePDSS(k)->refPressure();
     }
     return m_p0;
 }

@@ -254,6 +254,16 @@ def export_species(filename, fmt = 'CSV'):
     _valfmt = fmt
 
 def validate(species = 'yes', reactions = 'yes'):
+    """
+    Enable or disable validation of species and reactions.
+
+    :param species:
+        Set to ``'yes'`` (default) or ``'no'``.
+    :param reactions:
+        Set to ``'yes'`` (default) or ``'no'``. This controls duplicate reaction checks
+        and validation of rate expressions for some reaction types.
+
+    """
     global _valsp
     global _valrxn
     _valsp = species
@@ -273,7 +283,7 @@ def is_local_species(name):
     return 0
 
 def dataset(nm):
-    "Set the dataset name. Invoke this to change the name of the xml file."
+    "Set the dataset name. Invoke this to change the name of the XML file."
     global _name
     _name = nm
 
@@ -406,7 +416,7 @@ def getReactionSpecies(s):
     >>> {'CH3':1, 'H':3.7, 'O2':5.2}
     """
 
-    # Normalize formatting of falloff third bodies so that there is always as
+    # Normalize formatting of falloff third bodies so that there is always a
     # space following the '+', e.g. '(+M)' -> '(+ M)'
     s = s.replace(' (+', ' (+ ')
 
@@ -934,7 +944,7 @@ class gas_transport(transport):
     """
     def __init__(self, geom = 'nonlin',
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, acentric_factor = 0.0):
+                 polar = 0.0, rot_relax = 0.0, acentric_factor = None):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -985,7 +995,6 @@ class Arrhenius(rate_expression):
                  b = 0.0,
                  E = 0.0,
                  coverage = [],
-                 rate_type = '',
                  n = None):
         """
         :param A:
@@ -997,10 +1006,11 @@ class Arrhenius(rate_expression):
             The temperature exponent. Dimensionless. Default: 0.0.
         :param E:
             Activation energy. Default: 0.0.
-        :param coverage:
-
-        :param rate_type:
-
+        :param coverage: For a single coverage dependency, a list with four
+            elements: the species name followed by the three coverage
+            parameters. For multiple coverage dependencies, a list of lists
+            containing the individual sets of coverage parameters. Only used for
+            surface and edge reactions.
         :param n:
             The temperature exponent. Dimensionless. Default: 0.0. Deprecated usage
             provided for compatibility.
@@ -1019,44 +1029,32 @@ class Arrhenius(rate_expression):
                 "b = XXX.")
 
         self._c = [A, b, E]
-        self._type = rate_type
 
         if coverage:
             if isinstance(coverage[0], str):
                 self._cov = [coverage]
             else:
                 self._cov = coverage
+            for cov in self._cov:
+                if len(cov) != 4:
+                    raise CTI_Error("Incorrect number of coverage parameters")
         else:
             self._cov = None
 
 
-    def build(self, p, units_factor = 1.0,
-              gas_species = [], name = '', rxn_phase = None):
-
-        a = p.addChild('Arrhenius')
-        if name: a['name'] = name
-
-        # check for sticking probability
-        if self._type:
-            a['type'] = self._type
-            if self._type == 'stick':
-                ngas = len(gas_species)
-                if ngas != 1:
-                    raise CTI_Error("""
-Sticking probabilities can only be used for reactions with one gas-phase
-reactant, but this reaction has """+str(ngas)+': '+str(gas_species))
-                else:
-                    a['species'] = gas_species[0]
-                    units_factor = 1.0
-
+    def build(self, p, name='', a=None):
+        if a is None:
+            a = p.addChild('Arrhenius')
+        if name:
+            a['name'] = name
 
         # if a pure number is entered for A, multiply by the conversion
         # factor to SI and write it to CTML as a pure number. Otherwise,
         # pass it as-is through to CTML with the unit string.
         if isnum(self._c[0]):
-            addFloat(a,'A',self._c[0]*units_factor, fmt = '%14.6E')
+            addFloat(a,'A',self._c[0]*self.unit_factor, fmt = '%14.6E')
         elif len(self._c[0]) == 2 and self._c[0][1] == '/site':
-            addFloat(a,'A',self._c[0][0]/rxn_phase._sitedens,
+            addFloat(a,'A',self._c[0][0]/self.rxn_phase._sitedens,
                      fmt = '%14.6E')
         else:
             addFloat(a,'A',self._c[0], fmt = '%14.6E')
@@ -1078,9 +1076,19 @@ reactant, but this reaction has """+str(ngas)+': '+str(gas_species))
                 c.addChild('m', repr(cov[2]))
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
-def stick(A = 0.0, b = 0.0, E = 0.0, coverage = []):
-    return Arrhenius(A = A, b = b, E = E, coverage = coverage, rate_type = 'stick')
+class stick(Arrhenius):
+    def build(self, p, name=''):
+        a = p.addChild('Arrhenius')
+        a['type'] = 'stick'
+        ngas = len(self.gas_species)
+        if ngas != 1:
+            raise CTI_Error("Sticking probabilities can only be used for "
+                "reactions with one gas-phase reactant, but this reaction has "
+                + str(ngas) + ': ' + str(self.gas_species))
 
+        a['species'] = self.gas_species[0]
+        self.unit_factor = 1.0
+        Arrhenius.build(self, p, name, a)
 
 def getPairs(s):
     toks = s.split()
@@ -1112,8 +1120,13 @@ class reaction(object):
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
-        :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+        :param order:
+            Override the default reaction orders implied by the reactant
+            stoichiometric coefficients. Given as a string of key:value pairs,
+            e.g. ``"CH4:0.25 O2:1.5"``.
+        :param options: Processing options, as described in
+            :ref:`sec-reaction-options`. May be one or more (as a list) of the
+            following: 'skip', 'duplicate', 'negative_A', 'negative_orders'.
         """
         self._id = id
         self._e = equation
@@ -1175,21 +1188,27 @@ class reaction(object):
             nm = -999
             nl = -999
 
-            mindim = 4
-            for ph in _phases:
-                if ph.has_species(s):
-                    nm, nl = ph.conc_dim()
-                    if ph.is_ideal_gas():
-                        self._igspecies.append(s)
-                    if not ph in rxnph:
-                        rxnph.append(ph)
-                        self._dims[ph._dim] += 1
-                        if ph._dim < mindim:
-                            self._rxnphase = ph
-                            mindim = ph._dim
-                    break
-            if nm == -999:
-                raise CTI_Error("species "+s+" not found")
+            if _phases:
+                mindim = 4
+                for ph in _phases:
+                    if ph.has_species(s):
+                        nm, nl = ph.conc_dim()
+                        if ph.is_ideal_gas():
+                            self._igspecies.append(s)
+                        if not ph in rxnph:
+                            rxnph.append(ph)
+                            self._dims[ph._dim] += 1
+                            if ph._dim < mindim:
+                                self._rxnphase = ph
+                                mindim = ph._dim
+                        break
+                if nm == -999:
+                    raise CTI_Error("species "+s+" not found")
+            else:
+                # If no phases are defined, assume all reactants are in bulk
+                # phases
+                nm = 1
+                nl = -3
 
             self.mdim += nm*ns
             self.ldim += nl*ns
@@ -1202,11 +1221,12 @@ class reaction(object):
         else:
             r['reversible'] = 'no'
 
-        for s in self._options:
-            if s == 'duplicate':
-                r['duplicate'] = 'yes'
-            elif s == 'negative_A':
-                r['negative_A'] = 'yes'
+        if 'duplicate' in self._options:
+            r['duplicate'] = 'yes'
+        if 'negative_A' in self._options:
+            r['negative_A'] = 'yes'
+        if 'negative_orders' in self._options:
+            r['negative_orders'] = 'yes'
 
         ee = self._e.replace('<','[').replace('>',']')
         r.addChild('equation',ee)
@@ -1270,8 +1290,11 @@ class reaction(object):
                 k = kf
             else:
                 k = Arrhenius(A = kf[0], b = kf[1], E = kf[2])
-            k.build(kfnode, self.unit_factor(), gas_species = self._igspecies,
-                    name = nm, rxn_phase = self._rxnphase)
+            if isinstance(kf, stick):
+                kf.gas_species = self._igspecies
+                kf.rxn_phase = self._rxnphase
+            k.unit_factor = self.unit_factor()
+            k.build(kfnode, name=nm)
 
             if self._type == 'falloff':
                 # set values for low-pressure rate coeff if falloff rxn
@@ -1321,8 +1344,8 @@ class three_body_reaction(reaction):
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
-        :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+        :param options: Processing options, as described in
+            :ref:`sec-reaction-options`.
         """
         reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
@@ -1410,7 +1433,7 @@ class falloff_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+            Processing options, as described in :ref:`sec-reaction-options`.
         """
         kf2 = (kf, kf0)
         reaction.__init__(self, equation, kf2, id, '', options)
@@ -1453,7 +1476,7 @@ class chemically_activated_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+            Processing options, as described in :ref:`sec-reaction-options`.
         """
         reaction.__init__(self, equation, (kLow, kHigh), id, '', options)
         self._type = 'chemAct'
@@ -1583,7 +1606,7 @@ class surface_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-phase-options`.
+            Processing options, as described in :ref:`sec-reaction-options`.
         """
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
@@ -2609,20 +2632,30 @@ class Lindemann(object):
 #get_atomic_wts()
 validate()
 
-def convert(filename, outName=None):
-
+def convert(filename=None, outName=None, text=None):
     import os
-    base = os.path.basename(filename)
-    root, _ = os.path.splitext(base)
-    dataset(root)
+    if filename is not None:
+        filename = os.path.expanduser(filename)
+        base = os.path.basename(filename)
+        root, _ = os.path.splitext(base)
+        dataset(root)
+    elif outName is None:
+        outName = 'STDOUT'
+
     try:
-        with open(filename, 'rU') as f:
-            code = compile(f.read(), filename, 'exec')
-            exec(code)
+        if filename is not None:
+            with open(filename, 'rU') as f:
+                code = compile(f.read(), filename, 'exec')
+        else:
+            code = compile(text, '<string>', 'exec')
+        exec(code)
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
-        text = open(filename, 'rU').readlines()
+        if filename:
+            text = open(filename, 'rU').readlines()
+        else:
+            text = text.split('\n')
         _printerr('%s in "%s" on line %i:\n' % (err.__class__.__name__,
                                                 err.filename,
                                                 err.lineno))
@@ -2637,7 +2670,11 @@ def convert(filename, outName=None):
     except Exception as err:
         import traceback
 
-        text = open(filename, 'rU').readlines()
+        if filename:
+            text = open(filename, 'rU').readlines()
+        else:
+            text = text.split('\n')
+            filename = '<string>'
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
         if tb[-1][0] == filename:

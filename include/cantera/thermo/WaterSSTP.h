@@ -1,6 +1,6 @@
 /**
  *  @file WaterSSTP.h
- * Declares a %ThermoPhase class consisting of  pure water (see \ref thermoprops
+ * Declares a ThermoPhase class consisting of  pure water (see \ref thermoprops
  * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*
@@ -27,7 +27,7 @@ class WaterProps;
  *  J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
  * <HR>
- * <H2> Specification of Species Standard %State Properties </H2>
+ * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
  *
  *   The offsets used in the steam tables are different than NIST's.
@@ -64,7 +64,7 @@ class WaterProps;
  *   So(1bar) = S(P0) + RT ln(1bar/P0)
  *
  * <HR>
- * <H2> %Application within %Kinetics Managers </H2>
+ * <H2> %Application within Kinetics Managers </H2>
  * <HR>
  *
  *   This is unimplemented.
@@ -74,7 +74,7 @@ class WaterProps;
  * <HR>
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new %WaterSSTP object may be created by
+ * for %Cantera. However, a new WaterSSTP object may be created by
  * the following code snippets, combined with an XML file given in the
  * XML example section.
  *
@@ -205,21 +205,21 @@ public:
     //! @name Properties of the Standard State of the Species in the Solution
     //! @{
 
-    //!  Get the gibbs function for the species
+    //!  Get the Gibbs function for the species
     //!  standard states at the current T and P of the solution.
     /*!
      * @param gss Vector of length m_kk, which on return
      *           will contain the
-     *           standard state gibbs function for species <I>k</I>.
+     *           standard state Gibbs function for species <I>k</I>.
      */
     virtual void getStandardChemPotentials(doublereal* gss) const;
 
-    //!Get the nondimensional gibbs function for the species
+    //!Get the nondimensional Gibbs function for the species
     //! standard states at the current T and P of the solution.
     /*!
      * @param grt Vector of length m_kk, which on return
      *           will contain the nondimensional
-     *           standard state gibbs function for species <I>k</I>
+     *           standard state Gibbs function for species <I>k</I>
      */
     virtual void getGibbs_RT(doublereal* grt) const;
 
@@ -288,7 +288,7 @@ public:
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
     /*!
-     *  Returns the vector of the gibbs function of the reference state at the
+     *  Returns the vector of the Gibbs function of the reference state at the
      *  current temperature of the solution and the reference pressure for the
      *  species. units = J/kmol
      *
@@ -402,23 +402,6 @@ public:
      *             with the correct id.
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
-    //! Initialize the ThermoPhase object after all species have been set up
-    /*!
-     * @internal Initialize.
-     *
-     * This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called from ThermoPhase::initThermoXML(),
-     * which is called from importPhase(),
-     * just prior to returning from function importPhase().
-     */
-    virtual void initThermo();
 
     //! Set equation of state parameter values from XML entries.
     /*!

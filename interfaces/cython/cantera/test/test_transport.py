@@ -43,6 +43,53 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(all(self.phase.multi_diff_coeffs.flat >= 0.0))
         self.assertTrue(all(self.phase.thermal_diff_coeffs.flat != 0.0))
 
+class TestTransportGeometryFlags(utilities.CanteraTest):
+    phase_data = """
+units(length="cm", time="s", quantity="mol", act_energy="cal/mol")
+
+ideal_gas(name="test",
+    elements="O  H",
+    species="H2  H  H2O",
+    initial_state=state(temperature=300.0, pressure=OneAtm),
+    transport='Mix'
+)
+
+species(name="H2",
+    atoms=" H:2 ",
+    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
+    transport=gas_transport(
+                geom="{H2}",
+                diam=2.92, well_depth=38.00, polar=0.79, rot_relax=280.00)
+)
+
+species(name="H",
+    atoms=" H:1 ",
+    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
+    transport=gas_transport(
+                geom="{H}",
+                diam=2.05, well_depth=145.00)
+)
+species(name="H2O",
+    atoms=" H:2  O:1 ",
+    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
+    transport=gas_transport(
+                geom="{H2O}",
+                diam=2.60, well_depth=572.40, dipole=1.84, rot_relax=4.00)
+)
+"""
+    def test_bad_geometry(self):
+        ct.Solution(source=self.phase_data.format(H='atom',
+                                                  H2='linear',
+                                                  H2O='nonlinear'))
+        bad = [{'H':'linear', 'H2':'linear', 'H2O':'nonlinear'},
+               {'H':'nonlinear', 'H2':'linear', 'H2O':'nonlinear'},
+               {'H':'atom', 'H2':'atom', 'H2O':'nonlinear'},
+               {'H':'atom', 'H2':'nonlinear', 'H2O':'nonlinear'},
+               {'H':'atom', 'H2':'linear', 'H2O':'atom'}]
+        for geoms in bad:
+            with self.assertRaises(RuntimeError):
+                ct.Solution(source=self.phase_data.format(**geoms))
+
 
 class TestDustyGas(utilities.CanteraTest):
     def setUp(self):
@@ -84,3 +131,29 @@ class TestDustyGas(utilities.CanteraTest):
 
         # Not sure why the following condition is not satisfied:
         # self.assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
+
+
+class TestTransportData(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.gas = ct.Solution('h2o2.xml')
+        cls.gas.X = 'H2O:0.6, H2:0.4'
+
+    def test_read(self):
+        tr = self.gas.species('H2').transport
+        self.assertEqual(tr.geometry, 'linear')
+        self.assertNear(tr.diameter, 2.92e-10)
+        self.assertNear(tr.well_depth, 38.0 * ct.boltzmann)
+        self.assertNear(tr.polarizability, 0.79e-30)
+        self.assertNear(tr.rotational_relaxation, 280)
+
+    def test_set_customary_units(self):
+        tr1 = ct.GasTransportData()
+        tr1.set_customary_units('nonlinear', 2.60, 572.40, 1.84, 0.0, 4.00)
+        tr2 = self.gas.species('H2O').transport
+        self.assertEqual(tr1.geometry, tr2.geometry)
+        self.assertNear(tr1.diameter, tr2.diameter)
+        self.assertNear(tr1.well_depth, tr2.well_depth)
+        self.assertNear(tr1.dipole, tr2.dipole)
+        self.assertNear(tr1.polarizability, tr2.polarizability)
+        self.assertNear(tr1.rotational_relaxation, tr2.rotational_relaxation)

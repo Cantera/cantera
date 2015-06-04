@@ -10,14 +10,9 @@
 // Cantera includes
 #include "TransportBase.h"
 #include "cantera/numerics/DenseMatrix.h"
-#include "TransportParams.h"
-#include "LiquidTransportParams.h"
 
 namespace Cantera
 {
-
-class LiquidTransportParams;
-
 //! Class AqueousTransport implements mixture-averaged transport
 //! properties for brine phases.
 /*!
@@ -82,7 +77,7 @@ class LiquidTransportParams;
  *       \sum_i \mathbf{j}_i = 0
  *  \f]
  *
- *  When there are charged species, we replace the rhs with the
+ *  When there are charged species, we replace the RHS with the
  *  gradient of the electrochemical potential to obtain the
  *  modified equation
  *
@@ -102,6 +97,7 @@ class LiquidTransportParams;
  *  In the second part, a mixing rule is applied, based on the
  *  Wilkes correlation, to yield the mixture viscosity.
  * @ingroup tranprops
+ * @deprecated Non-functional. To be removed after Cantera 2.2.
  */
 class AqueousTransport : public Transport
 {
@@ -439,10 +435,10 @@ private:
      */
     DenseMatrix m_wratkj1;
 
-    //! RHS to the stefan-maxwell equation
+    //! RHS to the Stefan-Maxwell equation
     Array2D   m_B;
 
-    //! Matrix for the stefan maxwell equation.
+    //! Matrix for the Stefan-Maxwell equation.
     DenseMatrix m_A;
 
     //! Internal storage for the species LJ well depth

@@ -6,12 +6,9 @@
 //  Copyright 2003  California Institute of Technology
 
 #include "cantera/thermo/Elements.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 
-using namespace ctml;
 using namespace std;
 
 namespace Cantera
@@ -211,6 +208,9 @@ Elements::Elements() :
     m_elem_type(0),
     numSubscribers(0)
 {
+    warn_deprecated("class Elements",
+        "Functionality is now part of class Phase. "
+        "To be removed after Cantera 2.2.");
 }
 
 /*
@@ -232,7 +232,7 @@ Elements::Elements(const Elements& right) :
     m_elementsFrozen(false),
     numSubscribers(0)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 Elements& Elements::operator=(const Elements& right)
@@ -515,7 +515,7 @@ void Elements::addElementsFromXML(const XML_Node& phase)
     // get the declared element names
     if (! phase.hasChild("elementArray")) {
         throw CanteraError("Elements::addElementsFromXML",
-                           "phase xml node doesn't have \"elementArray\" XML Node");
+                           "phase XML node doesn't have \"elementArray\" XML Node");
     }
     XML_Node& elements = phase.child("elementArray");
     vector<string> enames;
@@ -528,14 +528,12 @@ void Elements::addElementsFromXML(const XML_Node& phase)
     }
 
     XML_Node* doc = get_XML_File(element_database);
-    XML_Node* dbe = &doc->child("ctml/elementData");
+    XML_Node* dbe = &doc->child("elementData");
 
     XML_Node& root = phase.root();
     XML_Node* local_db = 0;
-    if (root.hasChild("ctml")) {
-        if (root.child("ctml").hasChild("elementData")) {
-            local_db = &root.child("ctml/elementData");
-        }
+    if (root.hasChild("elementData")) {
+        local_db = &root.child("elementData");
     }
 
     int nel = static_cast<int>(enames.size());

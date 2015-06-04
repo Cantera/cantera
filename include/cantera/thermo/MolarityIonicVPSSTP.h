@@ -1,7 +1,7 @@
 /**
  *  @file MolarityIonicVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
- *   employ gibbs excess free energy based formulations
+ *   employ Gibbs excess free energy based formulations
  *  (see \ref thermoprops
  * and class \link Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
  *
@@ -103,7 +103,7 @@ public:
 
     //! Duplication routine for objects which inherit from  ThermoPhase.
     /*!
-     *  This virtual routine can be used to duplicate thermophase objects
+     *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
      *  a pointer to ThermoPhase to work with.
      */
@@ -342,14 +342,9 @@ protected:
     //! Vector of cation indices in the mixture
     std::vector<size_t> cationList_;
 
-    //! Number of cations in the mixture
-    size_t numCationSpecies_;
-
     std::vector<size_t> anionList_;
-    size_t numAnionSpecies_;
 
     std::vector<size_t> passThroughList_;
-    size_t numPassThroughSpecies_;
     size_t neutralPBindexStart;
 
     mutable std::vector<doublereal> moleFractionsTmp_;

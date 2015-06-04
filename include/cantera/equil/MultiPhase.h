@@ -8,7 +8,6 @@
 #ifndef CT_MULTIPHASE_H
 #define CT_MULTIPHASE_H
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/thermo/ThermoPhase.h"
 
@@ -65,7 +64,7 @@ public:
 
     //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
     //! (i.e. responsibility for destroying) the phase objects.
-    virtual ~MultiPhase();
+    virtual ~MultiPhase() {}
 
     MultiPhase& operator=(const MultiPhase& right);
 
@@ -351,6 +350,39 @@ public:
     doublereal equilibrate(int XY, doublereal err = 1.0e-9,
                            int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
 
+    //! Equilibrate a MultiPhase object
+    /*!
+     *  Set this mixture to chemical equilibrium by calling one of Cantera's
+     *  equilibrium solvers. The XY parameter indicates what two thermodynamic
+     *  quantities are to be held constant during the equilibration process.
+     *
+     *  @param XY      String representation of what two properties are being
+     *                 held constant
+     *  @param solver  Name of the solver to be used to equilibrate the phase.
+     *      If solver = 'vcs', the vcs_MultiPhaseEquil solver will be used. If
+     *      solver = 'gibbs', the MultiPhaseEquil solver will be used. If solver
+     *      = 'auto', the 'vcs' solver will be tried first, followed by the
+     *      'gibbs' solver if the first one fails.
+     *  @param rtol      Relative tolerance
+     *  @param max_steps Maximum number of steps to take to find the solution
+     *  @param max_iter  The maximum number of outer temperature or pressure
+     *      iterations to take when T and/or P is not held fixed.
+     *  @param estimate_equil integer indicating whether the solver should
+     *      estimate its own initial condition. If 0, the initial mole fraction
+     *      vector in the ThermoPhase object is used as the initial condition.
+     *      If 1, the initial mole fraction vector is used if the element
+     *      abundances are satisfied. If -1, the initial mole fraction vector is
+     *      thrown out, and an estimate is formulated.
+     *  @param log_level  loglevel Controls amount of diagnostic output.
+     *      log_level=0 suppresses diagnostics, and increasingly-verbose
+     *      messages are written as loglevel increases.
+     *
+     * @ingroup equilfunctions
+     */
+    void equilibrate(const std::string& XY, const std::string& solver="auto",
+                     double rtol=1e-9, int max_steps=50000, int max_iter=100,
+                     int estimate_equil=0, int log_level=0);
+
     /// Set the temperature [K].
     /*!
      * @param T   value of the temperature (Kelvin)
@@ -536,6 +568,22 @@ public:
 private:
     //! Calculate the element abundance vector
     void calcElemAbundances() const;
+
+    //! Set the mixture to a state of chemical equilibrium using the
+    //! MultiPhaseEquil solver.
+    /*!
+     *  @param XY   Integer flag specifying properties to hold fixed.
+     *  @param err  Error tolerance for \f$\Delta \mu/RT \f$ for all reactions.
+     *              Also used as the relative error tolerance for the outer
+     *              loop.
+     *  @param maxsteps Maximum number of steps to take in solving the fixed
+     *                  TP problem.
+     *  @param maxiter Maximum number of "outer" iterations for problems holding
+     *                 fixed something other than (T,P).
+     *  @param loglevel Level of diagnostic output
+     */
+    double equilibrate_MultiPhaseEquil(int XY, doublereal err, int maxsteps,
+                                       int maxiter, int loglevel);
 
     //! Vector of the number of moles in each phase.
     /*!
@@ -750,7 +798,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  * @param[out] orderVectorElements Output vector containing the order of the
  *         elements that is necessary for calculation of the formula matrix.
  *
- *  @ingroup equilfunctions
+ * @ingroup equilfunctions
+ * @deprecated - The return value for this function is deprecated. After
+ *               Cantera 2.2, this function will return void.
  */
 size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                      MultiPhase* mphase,

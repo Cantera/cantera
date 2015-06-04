@@ -7,9 +7,9 @@
 
 #include "cantera/kinetics/ReactionStoichMgr.h"
 
-#include "cantera/kinetics/StoichManager.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/Reaction.h"
 
 #include <fstream>
 
@@ -19,11 +19,9 @@ namespace Cantera
 {
 ReactionStoichMgr::ReactionStoichMgr()
 {
+    warn_deprecated("class ReactionStoichMgr",
+        "To be removed after Cantera 2.2.");
     m_dummy.resize(10,1.0);
-}
-
-ReactionStoichMgr::~ReactionStoichMgr()
-{
 }
 
 ReactionStoichMgr::ReactionStoichMgr(const  ReactionStoichMgr& right) :
@@ -60,11 +58,64 @@ void ReactionStoichMgr::add(size_t rxn, const std::vector<size_t>& reactants,
     }
 }
 
+// Add the reaction into the stoichiometric manager
 void ReactionStoichMgr::add(size_t rxn, const ReactionData& r)
 {
-
+    size_t k;
     std::vector<size_t> rk;
     doublereal frac;
+    doublereal oo, os, of;
+    bool doGlobal = false;
+    std::vector<size_t> extReactants = r.reactants;
+    vector_fp extRStoich = r.rstoich;
+    vector_fp extROrder = r.rorder;
+
+    //
+    //  If we have a complete global reaction then we need to do something more complete
+    //  than the previous treatment.  Basically we will use the reactant manager to calculate the
+    //  global forward reaction rate of progress.
+    //
+    if (r.forwardFullOrder_.size() > 0) {
+	//
+	// Trigger a treatment where the order of the reaction and the stoichiometry
+	// are treated as different.
+	//
+	doGlobal = true;
+	size_t nsp = r.forwardFullOrder_.size();
+	//
+	// Set up a signal vector to indicate whether the species has been added into 
+	// the input vectors for the stoich manager
+	//
+	vector_int kHandled(nsp, 0);
+	//
+	//  Loop over the reactants which are also nonzero stoichioemtric entries
+	//  making sure the forwardFullOrder_ entries take precedence over rorder entries
+	//  
+	for (size_t kk = 0; kk < r.reactants.size(); kk++) {
+	    k = r.reactants[kk];
+	    os = r.rstoich[kk];
+	    oo = r.rorder[kk];
+	    of = r.forwardFullOrder_[k];
+	    if (of != oo) {
+		extROrder[kk] = of;
+	    }
+	    kHandled[k] = 1;
+	}
+	for (k = 0; k < nsp; k++) {
+	    of = r.forwardFullOrder_[k];
+	    if (of != 0.0) {
+		if (kHandled[k] == 0) {
+		    //
+		    // Add extra entries to reactant inputs. Set their reactant stoichiometric entries to zero.
+		    //
+		    extReactants.push_back(k);
+		    extROrder.push_back(of);
+		    extRStoich.push_back(0.0);
+		}
+	    }
+	}
+    }
+    
     bool isfrac = false;
     for (size_t n = 0; n < r.reactants.size(); n++) {
         size_t ns = size_t(r.rstoich[n]);
@@ -77,12 +128,22 @@ void ReactionStoichMgr::add(size_t rxn, const ReactionData& r)
         }
     }
 
-    // if the reaction has fractional stoichiometric coefficients
-    // or specified reaction orders, then add it in a general reaction
-    if (isfrac || r.global || rk.size() > 3) {
-        m_reactants.add(rxn, r.reactants, r.rorder, r.rstoich);
+    //
+    //  If the reaction is non-mass action add it in in a general way
+    //  Reactants get extra terms for the forward reaction rate of progress
+    //  that may have zero stoichiometries.
+    //
+    if (doGlobal) {
+	m_reactants.add(rxn, extReactants, extROrder, extRStoich);
     } else {
-        m_reactants.add(rxn, rk);
+	//
+	//  this is confusing. The only issue should be whether rorder is different than rstoich!
+	//
+	if (isfrac || r.global || rk.size() > 3) {
+	    m_reactants.add(rxn, r.reactants, r.rorder, r.rstoich);
+	} else {
+	    m_reactants.add(rxn, rk);
+	}
     }
 
     std::vector<size_t> pk;
@@ -99,20 +160,23 @@ void ReactionStoichMgr::add(size_t rxn, const ReactionData& r)
     }
 
     if (r.reversible) {
-        if (isfrac && !r.isReversibleWithFrac) {
-            throw CanteraError("ReactionStoichMgr::add",
-                               "Fractional product stoichiometric coefficients only allowed "
-                               "\nfor irreversible reactions and most reversible reactions");
-        }
+	//
+	//  this is confusing. The only issue should be whether porder is different than pstoich!
+	//
         if (pk.size() > 3 || r.isReversibleWithFrac) {
             m_revproducts.add(rxn, r.products, r.porder, r.pstoich);
         } else {
             m_revproducts.add(rxn, pk);
         }
-    } else if (isfrac || pk.size() > 3) {
-        m_irrevproducts.add(rxn, r.products, r.porder,  r.pstoich);
     } else {
-        m_irrevproducts.add(rxn, pk);
+	//
+	//  this is confusing. The only issue should be whether porder is different than pstoich!
+	//
+	if (isfrac || pk.size() > 3) {
+	    m_irrevproducts.add(rxn, r.products, r.porder, r.pstoich);
+	} else {
+	    m_irrevproducts.add(rxn, pk);
+	}
     }
 }
 

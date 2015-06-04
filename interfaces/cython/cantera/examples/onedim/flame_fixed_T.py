@@ -4,44 +4,7 @@ multicomponent transport properties and a specified temperature profile.
 """
 
 import cantera as ct
-
-
-# read temperature vs. position data from a file.
-# The file is assumed to have one z, T pair per line, separated by a comma.
-def getTempData(filename):
-    # open the file containing the temperature data for reading
-    lines = open(filename).readlines()
-
-    # check for unix/Windows/Mac line ending problems
-    if len(lines) == 1:
-        print('Warning: only one line found.')
-        print('Possible text file line-ending problem?')
-        print('The one line found is: ', lines[0])
-
-    z = []
-    T = []
-
-    for line in lines:
-        if line[0] == '#':   # use '#' as the comment character
-            continue
-
-        try:
-            zval, tval = line.split(',')
-            z.append(float(zval))
-            T.append(float(tval))
-        except Exception:
-            pass
-
-    print('read {0} temperature values.'.format(len(z)))
-
-    # convert z values into non-dimensional relative positions.
-    n = len(z)
-    zmax = z[n-1]
-    for i in range(n):
-        z[i] = z[i]/zmax
-
-    return z,T
-
+import numpy as np
 
 ################################################################
 # parameter values
@@ -50,10 +13,8 @@ tburner = 373.7  # burner temperature
 mdot = 0.04  # kg/m^2/s
 comp = 'CH4:0.65, O2:1, N2:3.76'  # premixed gas composition
 
-# The solution domain is chosen to be 1 cm, and a point very near the
-# downstream boundary is added to help with the zero-gradient boundary
-# condition at this boundary.
-initial_grid = [0.0, 0.0025, 0.005, 0.0075, 0.0099, 0.01]  # m
+# The solution domain is chosen to be 1 cm
+initial_grid = np.linspace(0.0, 0.01, 6) # m
 
 tol_ss = [1.0e-5, 1.0e-9]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-5, 1.0e-4]  # [rtol atol] for time stepping
@@ -74,13 +35,13 @@ gas.TPX = tburner, p, comp
 # create the BurnerFlame object.
 f = ct.BurnerFlame(gas=gas, grid=initial_grid)
 
-# set the properties at the burner
+# set the mass flow rate at the burner
 f.burner.mdot = mdot
-f.burner.X = comp
-f.burner.T = tburner
 
-# read in the fixed temperature profile
-[zloc, tvalues] = getTempData('tdata.dat')
+# read temperature vs. position data from a file.
+# The file is assumed to have one z, T pair per line, separated by a comma.
+zloc, tvalues = np.genfromtxt('tdata.dat', delimiter=',', comments='#').T
+zloc /= max(zloc)
 
 # set the temperature profile to the values read in
 f.flame.set_fixed_temp_profile(zloc, tvalues)

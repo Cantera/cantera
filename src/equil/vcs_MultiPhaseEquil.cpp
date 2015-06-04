@@ -9,25 +9,20 @@
  */
 
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
 
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/IdealMolalSoln.h"
-#include "cantera/equil/ChemEquil.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
 
 #include <cstdio>
 
-using namespace Cantera;
 using namespace std;
 
-namespace VCSnonideal
+namespace Cantera
 {
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
     m_vprob(0, 0, 0),
@@ -36,7 +31,7 @@ vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
 {
 }
 
-vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(Cantera::MultiPhase* mix, int printLvl) :
+vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(MultiPhase* mix, int printLvl) :
     m_vprob(mix->nSpecies(), mix->nElements(), mix->nPhases()),
     m_mix(0),
     m_printLvl(printLvl)
@@ -531,7 +526,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     size_t kGlob = 0;
     for (size_t ip = 0; ip < m_vprob.NPhase; ip++) {
         double phaseMole = 0.0;
-        Cantera::ThermoPhase& tref = m_mix->phase(ip);
+        ThermoPhase& tref = m_mix->phase(ip);
         for (size_t k = 0; k < tref.nSpecies(); k++, kGlob++) {
             phaseMole += m_vprob.w[kGlob];
         }
@@ -627,7 +622,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         size_t istart = m_mix->speciesIndex(0, iphase);
-        Cantera::ThermoPhase& tref = m_mix->phase(iphase);
+        ThermoPhase& tref = m_mix->phase(iphase);
         size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
@@ -652,7 +647,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         size_t istart = m_mix->speciesIndex(0, iphase);
-        Cantera::ThermoPhase& tref = m_mix->phase(iphase);
+        ThermoPhase& tref = m_mix->phase(iphase);
         string phaseName = tref.name();
         vcs_VolPhase* volP = m_vprob.VPhaseList[iphase];
         double TMolesPhase = volP->totalMoles();
@@ -755,8 +750,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
  * HKM -> Work on transferring the current value of the voltages into the
  *        equilibrium problem.
  */
-int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
-                          VCSnonideal::VCS_PROB* vprob)
+int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 {
     VCS_SPECIES_THERMO* ts_ptr = 0;
 
@@ -789,9 +783,9 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
 
         /*
-         * Get the thermophase object - assume volume phase
+         * Get the ThermoPhase object - assume volume phase
          */
-        Cantera::ThermoPhase* tPhase = &(mphase->phase(iphase));
+        ThermoPhase* tPhase = &(mphase->phase(iphase));
         size_t nelem = tPhase->nElements();
 
         /*
@@ -1017,8 +1011,6 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
                     ts_ptr->SSStar_Model = VCS_SSSTAR_CONSTANT;
                     ts_ptr->SSStar_Vol_Model  = VCS_SSVOL_CONSTANT;
                 }
-                ts_ptr->Activity_Coeff_Model  = VCS_AC_CONSTANT;
-                ts_ptr->Activity_Coeff_Params = NULL;
             } else {
                 if (vprob->m_printLvl > 2) {
                     plogf("vcs_Cantera_convert: Species Type %d not known \n",
@@ -1037,7 +1029,6 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
              */
             if (gasPhase) {
                 ts_ptr->SSStar_Vol_Model = VCS_SSVOL_IDEALGAS;
-                ts_ptr->SSStar_Vol_Params = NULL;
                 ts_ptr->SSStar_Vol0 = 82.05 * 273.15 / 1.0;
 
             } else {
@@ -1073,7 +1064,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
 
         VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
         /*
-         * Now, calculate a sample naught gibbs free energy calculation
+         * Now, calculate a sample naught Gibbs free energy calculation
          * at the specified temperature.
          */
         double R = vcsUtil_gasConstant(vprob->m_VCS_UnitsFormat);
@@ -1148,8 +1139,7 @@ int  vcs_Cantera_to_vprob(Cantera::MultiPhase* mphase,
     return VCS_SUCCESS;
 }
 
-int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
-                             VCSnonideal::VCS_PROB* vprob)
+int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 {
     size_t totNumPhases = mphase->nPhases();
     size_t kT = 0;
@@ -1164,7 +1154,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
     vprob->Vol       = mphase->volume();
 
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
-        Cantera::ThermoPhase* tPhase = &(mphase->phase(iphase));
+        ThermoPhase* tPhase = &(mphase->phase(iphase));
         vcs_VolPhase* volPhase = vprob->VPhaseList[iphase];
         /*
          * Set the electric potential of the volume phase from the
@@ -1272,7 +1262,7 @@ int vcs_Cantera_update_vprob(Cantera::MultiPhase* mphase,
     return VCS_SUCCESS;
 }
 
-void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, Cantera::vector_fp& nu)
+void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, vector_fp& nu)
 {
     size_t nsp = m_vsolve.m_numSpeciesTot;
     nu.resize(nsp, 0.0);

@@ -2,9 +2,7 @@
  *  Copyright 2002 California Institute of Technology
  */
 
-#include "cantera/equilibrium.h"
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/equil/vcs_internal.h"
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -36,7 +34,7 @@ int main(int argc, char** argv)
     int numFail = 0;
     int printLvl = 1;
     string inputFile = "HMW_NaCl.xml";
-    VCSnonideal::vcs_timing_print_lvl = 0;
+    vcs_timing_print_lvl = 0;
 
     /*
      * Process the command line arguments
@@ -83,7 +81,6 @@ int main(int argc, char** argv)
 
 
     try {
-        int retnSub;
         int estimateEquil = 0;
         double T = 298.15;
         double pres = OneAtm;
@@ -97,7 +94,7 @@ int main(int argc, char** argv)
         Xmol[iH2OL] = 1.0;
         hmw.setState_TPX(T, pres, DATA_PTR(Xmol));
 
-        ThermoPhase* gas = newPhase("gas.xml", "");
+        ThermoPhase* gas = newPhase("gas.xml");
 
         kk = gas->nSpecies();
         Xmol.resize(kk, 0.0);
@@ -122,20 +119,8 @@ int main(int argc, char** argv)
 
 
         try {
-            retnSub = vcs_equilibrate(*mp, "TP", estimateEquil, printLvl);
-
+            mp->equilibrate("TP", "vcs", 1e-9, 50000, 100, estimateEquil, printLvl);
             cout << *mp;
-            if (retnSub != 1) {
-                cerr << "ERROR: MultiEquil equilibration step failed at "
-                     << " T    = " << T
-                     << " Pres = " << pres
-                     << endl;
-                cout << "ERROR: MultiEquil equilibration step failed at "
-                     << " T    = " << T
-                     << " Pres = " << pres
-                     << endl;
-                exit(-1);
-            }
             numSucc++;
         } catch (CanteraError& err) {
             cout << *mp;

@@ -12,18 +12,7 @@ temp = 1500.0
 pres = ct.one_atm
 
 gri3.TPX = temp, pres, 'CH4:0.1, O2:2, N2:7.52'
-r = ct.IdealGasReactor(gri3)
-
-air = ct.Solution('air.xml')
-air.TP = temp, pres
-env = ct.Reservoir(air)
-
-# Define a wall between the reactor and the environment, and make it flexible,
-# so that the pressure in the reactor is held at the environment pressure.
-w = ct.Wall(r, env)
-w.expansion_rate_coeff = 1.0e6  # set expansion parameter. dV/dt = KA(P_1 - P_2)
-w.area = 1.0
-
+r = ct.IdealGasConstPressureReactor(gri3, name='R1')
 sim = ct.ReactorNet([r])
 
 # enable sensitivity with respect to the rates of the first 10

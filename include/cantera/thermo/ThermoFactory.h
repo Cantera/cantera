@@ -1,6 +1,6 @@
 /**
  *  @file ThermoFactory.h
- *     Headers for the factory class that can create known %ThermoPhase objects
+ *     Headers for the factory class that can create known ThermoPhase objects
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  *
  */
@@ -24,8 +24,8 @@ class VPSSMgr;
 /*!
  *  @addtogroup thermoprops
  *
- *  Standard %ThermoPhase objects may be instantiated by calling
- *  the main %Cantera factory class for %ThermoPhase objects; This class is called ThermoFactory.
+ *  Standard ThermoPhase objects may be instantiated by calling
+ *  the main %Cantera factory class for ThermoPhase objects; This class is called ThermoFactory.
  */
 //@{
 
@@ -102,7 +102,7 @@ private:
 //!  Create a new thermo manager instance.
 /*!
  * @param model   String to look up the model against
- * @param f       ThermoFactor instance to use in matching the string
+ * @param f       ThermoFactory instance to use in matching the string
  *
  * @return
  *   Returns a pointer to a new ThermoPhase instance matching the
@@ -133,7 +133,7 @@ std::string eosTypeString(int ieos, int length = 100);
 //! tree.
 /*!
  * This routine first looks up the identity of the model for the solution
- * thermodynamics in the model attribute of the thermo child of the xml phase
+ * thermodynamics in the model attribute of the thermo child of the XML phase
  * node. Then, it does a string lookup using Cantera's internal ThermoPhase
  * Factory routines on the model to figure out what ThermoPhase derived class
  * should be assigned. It creates a new instance of that class, and then calls
@@ -161,9 +161,9 @@ ThermoPhase* newPhase(XML_Node& phase);
  * @return
  *   Returns an initialized ThermoPhase object.
  */
-ThermoPhase* newPhase(const std::string& infile, std::string id);
+ThermoPhase* newPhase(const std::string& infile, std::string id="");
 
-//! Import a phase information into an empty thermophase object
+//! Import a phase information into an empty ThermoPhase object
 /*!
  *   Here we read an XML description of the thermodynamic information
  *   for a phase. At the end of this routine, the phase should
@@ -173,7 +173,7 @@ ThermoPhase* newPhase(const std::string& infile, std::string id);
  *   variable parameterizations for the specification of the
  *   species standard states, the equation of state, and the
  *   specification of other nonidealities. Below, a description
- *   is presented of the main algorithm for bringing up a %ThermoPhase
+ *   is presented of the main algorithm for bringing up a ThermoPhase
  *   object, with care to present points where customizations
  *   occur.
  *
@@ -218,17 +218,24 @@ ThermoPhase* newPhase(const std::string& infile, std::string id);
  *             the species in the phase.
  * @param th   Pointer to the ThermoPhase object which will
  *             handle the thermodynamics for this phase.
- *             We initialize part of the Thermophase object
+ *             We initialize part of the ThermoPhase object
  *             here, especially for those objects which are
  *             part of the Cantera Kernel.
  *
  * @param spfactory species Thermo factory pointer, if
  *                  available. If not available, one will be
  *                  created.
- *
+ * @deprecated the 'spfactory' argument is unused and will be removed after
+ *     Cantera 2.2.
  * @ingroup thermoprops
+ *
+ * @deprecated: The return value of this function is always 'true'. After
+ * Cantera 2.2, this function will return 'void'.
  */
 bool importPhase(XML_Node& phase, ThermoPhase* th, SpeciesThermoFactory* spfactory = 0);
+
+//! Add the elements given in an XML_Node tree to the specified phase
+void installElements(Phase& th, const XML_Node& phaseNode);
 
 //! Install a species into a ThermoPhase object, which defines
 //! the phase thermodynamics and speciation.
@@ -267,7 +274,8 @@ bool importPhase(XML_Node& phase, ThermoPhase* th, SpeciesThermoFactory* spfacto
  *                state thermo properties
  * @param factory Pointer to the SpeciesThermoFactory .
  *              (defaults to 0)
- *
+ * @deprecated Use newSpecies and addSpecies. For VPStandardStateTP phases, call
+ *     createInstallPDSS as well. To be removed after Cantera 2.2.
  * @return
  *  Returns true if everything is ok, false otherwise.
  */

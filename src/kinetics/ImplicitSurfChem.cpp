@@ -7,8 +7,8 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/kinetics/ImplicitSurfChem.h"
-#include "cantera/numerics/Integrator.h"
 #include "cantera/kinetics/solveSP.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 
@@ -16,7 +16,6 @@ namespace Cantera
 {
 
 ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
-    FuncEval(),
     m_nsurf(0),
     m_nv(0),
     m_numBulkPhases(0),

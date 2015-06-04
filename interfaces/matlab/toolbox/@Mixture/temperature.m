@@ -1,4 +1,10 @@
-function n = temperature(self)
-% TEMPERATURE - temperature (K)
+function t = temperature(self)
+% TEMPERATURE  Get the temperature of a mixture.
+% t = temperature(self)
+% :param self:
+%     Instance of class :mat:func:`Mixture`
+% :return:
+%     Temperature (K)
 %
-n = mixturemethods(25, mix_hndl(self));
+
+t = mixturemethods(25, mix_hndl(self));

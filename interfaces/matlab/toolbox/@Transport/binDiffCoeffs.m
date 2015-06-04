@@ -1,9 +1,13 @@
 function v = binDiffCoeffs(a)
-%BINDIFFCOEFFS  Binary diffusion coefficients (m^2/s).
+% BINDIFFCOEFFS  Get the binary diffusion coefficents.
+% v = binDiffCoeffs(a)
+% :param a:
+%     Instance of class :mat:func:`Transport` (or another
+%     object derived from Transport)
+%     for which binary diffusion coefficients are desired.
+% :return:
+%     A matrix of binary diffusion coefficients.
+%     The matrix is symmetric: d(i,j) = d(j,i). Units: m**2/s
 %
-%      d = binDiffCoeffs(gas)
-%
-%      returns the matrix of binary diffusion coefficients in array
-%      d. The matrix is symmetric: d(i,j) = d(j,i).
-%
+
 v = trans_get(a.id, 21, nSpecies(a.th));

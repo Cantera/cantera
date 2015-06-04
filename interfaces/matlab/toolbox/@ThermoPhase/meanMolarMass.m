@@ -1,7 +1,10 @@
-function wtm = meanMolarMass(p)
-% MEANMOLARMASS - Mean molar mass [kg/kmol].
+function mmm = meanMolarMass(tp)
+% MEANMOLARMASS  Get the mean molecular weight.
+% wtm = meanMolarMass(tp)
+% Deprecated in favor of :mat:func:`meanMolecularWeight`
 %
-%   The mean molar mass is the mole-fraction-weighted sum of the
-%   molar masses of the individual species in the phase.
+% See also: :mat:func:`meanMolecularWeight`
 %
-wtm = phase_get(p.tp_id,4);
+
+warning('Deprecated in favor of meanMolecularWeight.m')
+mmm = meanMolecularWeight(tp);

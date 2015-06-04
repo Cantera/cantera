@@ -6,12 +6,13 @@
 #ifndef CT_RXN_STOICH
 #define CT_RXN_STOICH
 
-#include "cantera/base/ct_defs.h"
 #include "cantera/kinetics/StoichManager.h"
+
 namespace Cantera
 {
 
 class ReactionData;
+class Reaction;
 
 /**
  * Reaction mechanism stoichiometry manager. This is an internal class used
@@ -51,7 +52,8 @@ class ReactionData;
  *     Vector of K species destruction rates.
  * - \f$ W = C - D \f$
  *     Vector of K species net production rates.
- *
+ * @deprecated Unused; Functionality merged into class Kinetics. To be removed
+ *     after Cantera 2.2.
  */
 class ReactionStoichMgr
 {
@@ -60,14 +62,15 @@ public:
     ReactionStoichMgr();
 
     /// Destructor.
-    virtual ~ReactionStoichMgr();
+    virtual ~ReactionStoichMgr() {}
 
     ReactionStoichMgr(const ReactionStoichMgr& right);
 
     ReactionStoichMgr& operator=(const ReactionStoichMgr& right);
 
-    /**
-     * Add a reaction with mass-action kinetics. Vectors
+    
+    //! Add a reaction with mass-action kinetics. 
+    /*!Vectors
      * 'reactants' and 'products' contain the integer species
      * indices of the reactants and products, respectively.  Note
      * that if more than one molecule of a given species is
@@ -86,11 +89,11 @@ public:
      *   - reactants: (2, 2)   [ note repeated index ]
      *   - products:  (1)
      *
-     * @param rxn Reaction number. This number will be used as the index
-     * into the rate of progress vector in the methods below.
-     * @param reactants vector of integer reactant indices
-     * @param products vector of integer product indices
-     * @param reversible true if the reaction is reversible, false otherwise
+     * @param rxn           Reaction number. This number will be used as the index
+     *                      into the rate of progress vector in the methods below.
+     * @param reactants     Vector of integer reactant indices
+     * @param products      Vector of integer product indices
+     * @param reversible    True if the reaction is reversible, false otherwise
      */
     virtual void add(size_t rxn, const std::vector<size_t>& reactants,
                      const std::vector<size_t>& products, bool reversible);
@@ -196,13 +199,19 @@ public:
      */
     virtual void multiplyRevProducts(const doublereal* c, doublereal* r);
 
+    //! @deprecated To be removed after Cantera 2.2
     virtual void write(const std::string& filename);
 
 protected:
+    //! @deprecated To be removed after Cantera 2.2
     void writeCreationRates(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeDestructionRates(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeNetProductionRates(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiplyReactants(std::ostream& f);
+    //! @deprecated To be removed after Cantera 2.2
     void writeMultiplyRevProducts(std::ostream& f);
     StoichManagerN m_reactants;
     StoichManagerN m_revproducts;

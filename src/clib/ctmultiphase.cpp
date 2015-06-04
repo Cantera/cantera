@@ -5,17 +5,14 @@
 #include "ctmultiphase.h"
 
 // Cantera includes
-#include "cantera/equil/equil.h"
 #include "cantera/equil/MultiPhase.h"
-#include "cantera/equil/MultiPhaseEquil.h"
-#include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "Cabinet.h"
 
 using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<MultiPhase> mixCabinet;
-template<> mixCabinet* mixCabinet::__storage = 0;
+template<> mixCabinet* mixCabinet::s_storage = 0;
 
 extern "C" {
 
@@ -33,6 +30,16 @@ extern "C" {
     {
         try {
             mixCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int mix_clear()
+    {
+        try {
+            mixCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -297,8 +304,9 @@ extern "C" {
                                int maxiter, int loglevel)
     {
         try {
-            return equilibrate(mixCabinet::item(i), XY,
-                               rtol, maxsteps, maxiter, loglevel);
+            mixCabinet::item(i).equilibrate(XY, "auto", rtol, maxsteps, maxiter,
+                                            0, loglevel);
+            return 0;
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -309,9 +317,20 @@ extern "C" {
                                    int maxsteps, int maxiter, int loglevel)
     {
         try {
-            int retn = vcs_equilibrate(mixCabinet::item(i), XY, estimateEquil, printLvl, solver,
-                                       rtol, maxsteps, maxiter, loglevel);
-            return (double) retn;
+            string ssolver;
+            if (solver < 0) {
+                ssolver = "auto";
+            } else if (solver == 1) {
+                ssolver = "gibbs";
+            } else if (solver == 2) {
+                ssolver = "vcs";
+            } else {
+                throw CanteraError("mix_vcs_equilibrate",
+                    "Invalid equilibrium solver specified.");
+            }
+            mixCabinet::item(i).equilibrate(XY, ssolver, rtol, maxsteps,
+                                            maxiter, estimateEquil, loglevel);
+            return 0;
         } catch (...) {
             return handleAllExceptions(ERR, ERR);
         }

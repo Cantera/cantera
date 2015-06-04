@@ -1,10 +1,9 @@
 //! @file Wall.cpp
 #include "cantera/zeroD/Wall.h"
-#include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/numerics/Func1.h"
-#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
@@ -99,6 +98,26 @@ void Wall::setCoverages(int leftright, const doublereal* cov)
         copy(cov, cov + m_nsp[0], m_leftcov.begin());
     } else {
         copy(cov, cov + m_nsp[1], m_rightcov.begin());
+    }
+}
+
+void Wall::setCoverages(int leftright, const compositionMap& cov)
+{
+    m_surf[leftright]->setCoveragesByName(cov);
+    if (leftright == 0) {
+        m_surf[0]->getCoverages(&m_leftcov[0]);
+    } else {
+        m_surf[1]->getCoverages(&m_rightcov[0]);
+    }
+}
+
+void Wall::setCoverages(int leftright, const std::string& cov)
+{
+    m_surf[leftright]->setCoveragesByName(cov);
+    if (leftright == 0) {
+        m_surf[0]->getCoverages(&m_leftcov[0]);
+    } else {
+        m_surf[1]->getCoverages(&m_rightcov[0]);
     }
 }
 

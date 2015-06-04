@@ -14,21 +14,19 @@
 #ifndef CT_FIXEDCHEMPOTSSTP_H
 #define CT_FIXEDCHEMPOTSSTP_H
 
-#include "mix_defs.h"
 #include "SingleSpeciesTP.h"
-#include "SpeciesThermo.h"
 
 namespace Cantera
 {
 
-//!  Class %FixedChemPotSSTP represents a stoichiometric (fixed
+//!  Class FixedChemPotSSTP represents a stoichiometric (fixed
 //!   composition)  incompressible substance.
 /*!
  * This class internally changes the independent degree of freedom from
  * density to pressure. This is necessary because the phase is
  * incompressible. It uses a zero volume approximation.
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It uses a single value for the chemical potential which is assumed to be constant
@@ -48,7 +46,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> Application within %Kinetics Managers </b>
+ * <b> Application within Kinetics Managers </b>
  *
  * The standard concentration is equal to 1.0. This means that the
  * kinetics operator works on an (activities basis). Since this
@@ -71,7 +69,7 @@ namespace Cantera
  * <b> Instantiation of the Class </b>
  *
  * This phase may be instantiated by calling the default ThermoFactory routine
- * for %Cantera. This new %FixedChemPotSSTP object must then have a standalone xml file
+ * for %Cantera. This new FixedChemPotSSTP object must then have a standalone XML file
  * description an example of which is given below.
  *
  * It may also be created by the following code snippets. The code
@@ -183,7 +181,7 @@ public:
     //! Special constructor for the FixecChemPotSSTP class setting an element chemical
     //! potential directly
     /*!
-     *  This will create a %FixedChemPotSSTP consisting of a single species with the
+     *  This will create a FixedChemPotSSTP consisting of a single species with the
      *  stoichiometry of one of the specified atom. It will have a chemical potential
      *  that is given by the second argument.
      *
@@ -332,7 +330,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -350,6 +348,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -393,7 +392,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -447,10 +446,6 @@ public:
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
 
-    //@}
-    /// @name Thermodynamic Values for the Species Reference State
-    ///
-
     /*!
      *  Returns the vector of nondimensional
      *  enthalpies of the reference state at the current temperature
@@ -479,7 +474,7 @@ public:
 
     /*!
      *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
+     *  Gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *
@@ -519,18 +514,7 @@ public:
      */
     virtual void getCp_R_ref(doublereal* cprt) const;
 
-    /*
-     * @internal Initialize. This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called just prior to returning
-     * from function importPhase().
-     */
-    virtual void initThermo();
+    //@}
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 

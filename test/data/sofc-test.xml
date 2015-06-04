@@ -1,0 +1,441 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase gas     -->
+  <phase dim="3" id="gas">
+    <elementArray datasrc="elements.xml">H O N</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">H2 H2O N2 O2</speciesArray>
+    <state>
+      <temperature units="K">1073.15</temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <moleFractions>H2:0.95, H2O:0.05</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="Mix"/>
+  </phase>
+
+  <!-- phase metal     -->
+  <phase dim="3" id="metal">
+    <elementArray datasrc="elements.xml">E</elementArray>
+    <speciesArray datasrc="#species_data">electron</speciesArray>
+    <state>
+      <temperature units="K">1073.15</temperature>
+      <moleFractions>electron:1.0</moleFractions>
+    </state>
+    <thermo model="Metal">
+      <density units="kg/m3">9.0</density>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- phase oxide_bulk     -->
+  <phase dim="3" id="oxide_bulk">
+    <elementArray datasrc="elements.xml">O E</elementArray>
+    <speciesArray datasrc="#species_data">Ox VO**</speciesArray>
+    <state>
+      <temperature units="K">1073.15</temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <moleFractions>Ox:0.95 VO**:0.05</moleFractions>
+    </state>
+    <thermo model="Incompressible">
+      <density units="g/cm3">0.7</density>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- phase metal_surface     -->
+  <phase dim="2" id="metal_surface">
+    <elementArray datasrc="elements.xml">H O</elementArray>
+    <speciesArray datasrc="#species_data">(m)  H(m) O(m) OH(m) H2O(m) </speciesArray>
+    <reactionArray datasrc="#reaction_data">
+      <include max="metal-*" min="metal-*"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">973.0</temperature>
+      <coverages>(m):0.5 H(m):0.5</coverages>
+    </state>
+    <thermo model="Surface">
+      <site_density units="mol/cm2">2.6e-09</site_density>
+    </thermo>
+    <kinetics model="Interface"/>
+    <transport model="None"/>
+    <phaseArray>gas</phaseArray>
+  </phase>
+
+  <!-- phase oxide_surface     -->
+  <phase dim="2" id="oxide_surface">
+    <elementArray datasrc="elements.xml">O  H  E</elementArray>
+    <speciesArray datasrc="#species_data">(ox) O''(ox) OH'(ox) H2O(ox)</speciesArray>
+    <reactionArray datasrc="#reaction_data">
+      <include max="oxide-*" min="oxide-*"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">1073.15</temperature>
+      <coverages>O''(ox):2.0, (ox):0.0</coverages>
+    </state>
+    <thermo model="Surface">
+      <site_density units="mol/cm2">2e-09</site_density>
+    </thermo>
+    <kinetics model="Interface"/>
+    <transport model="None"/>
+    <phaseArray>gas oxide_bulk</phaseArray>
+  </phase>
+
+  <!-- phase tpb     -->
+  <phase dim="1" id="tpb">
+    <elementArray datasrc="elements.xml">H O</elementArray>
+    <speciesArray datasrc="#species_data">(tpb)</speciesArray>
+    <reactionArray datasrc="#reaction_data">
+      <include max="edge-*" min="edge-*"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">1073.15</temperature>
+      <coverages>(tpb):1.0 </coverages>
+    </state>
+    <thermo model="Edge">
+      <site_density units="mol/cm">5e-17</site_density>
+    </thermo>
+    <kinetics model="Edge"/>
+    <transport model="None"/>
+    <phaseArray>metal metal_surface oxide_surface</phaseArray>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species electron    -->
+    <species name="electron">
+      <atomArray>E:1 </atomArray>
+      <charge>-1</charge>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kcal/mol">0.0</h0>
+           <s0 units="J/mol/K">0.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species VO**    -->
+    <species name="VO**">
+      <atomArray/>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">0.0</h0>
+           <s0 units="J/mol/K">0.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species Ox    -->
+    <species name="Ox">
+      <atomArray>E:2 O:1 </atomArray>
+      <charge>-2</charge>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-170.0</h0>
+           <s0 units="J/K/mol">50.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species (m)    -->
+    <species name="(m)">
+      <atomArray/>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">0.0</h0>
+           <s0 units="J/mol/K">0.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species H(m)    -->
+    <species name="H(m)">
+      <atomArray>H:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-35.0</h0>
+           <s0 units="J/mol/K">37.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species O(m)    -->
+    <species name="O(m)">
+      <atomArray>O:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-220.0</h0>
+           <s0 units="J/mol/K">37.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species OH(m)    -->
+    <species name="OH(m)">
+      <atomArray>H:1 O:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-198.0</h0>
+           <s0 units="J/mol/K">102.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species H2O(m)    -->
+    <species name="H2O(m)">
+      <atomArray>H:2 O:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-281.0</h0>
+           <s0 units="J/mol/K">123.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species O''(ox)    -->
+    <species name="O''(ox)">
+      <atomArray>E:2 O:1 </atomArray>
+      <charge>-2</charge>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-170.0</h0>
+           <s0 units="J/K/mol">50.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species OH'(ox)    -->
+    <species name="OH'(ox)">
+      <atomArray>H:1 E:1 O:1 </atomArray>
+      <charge>-1</charge>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-220.0</h0>
+           <s0 units="J/mol/K">87.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species (ox)    -->
+    <species name="(ox)">
+      <atomArray/>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">0.0</h0>
+           <s0 units="J/mol/K">0.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species H2O(ox)    -->
+    <species name="H2O(ox)">
+      <atomArray>H:2 O:1 </atomArray>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="kJ/mol">-265.0</h0>
+           <s0 units="J/mol/K">98.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+
+    <!-- species (tpb)    -->
+    <species name="(tpb)">
+      <atomArray/>
+      <thermo>
+        <const_cp Tmax="5000.0" Tmin="100.0">
+           <t0 units="K">298.15</t0>
+           <h0 units="J/mol">0.0</h0>
+           <s0 units="J/mol/K">0.0</s0>
+           <cp0 units="J/mol/K">0.0</cp0>
+        </const_cp>
+      </thermo>
+    </species>
+  </speciesData>
+  <reactionData id="reaction_data">
+
+    <!-- reaction metal-rxn1    -->
+    <reaction reversible="yes" type="surface" id="metal-rxn1">
+      <equation>H2 + (m) + (m) [=] H(m) + H(m)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="H2">
+           <A>1.000000E-01</A>
+           <b>0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2:1.0 (m):2</reactants>
+      <products>H(m):2.0</products>
+    </reaction>
+
+    <!-- reaction metal-rxn2    -->
+    <reaction reversible="yes" type="surface" id="metal-rxn2">
+      <equation>O2 + (m) + (m) [=] O(m) + O(m)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="O2">
+           <A>1.000000E-01</A>
+           <b>0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O2:1.0 (m):2</reactants>
+      <products>O(m):2.0</products>
+    </reaction>
+
+    <!-- reaction metal-rxn3    -->
+    <reaction reversible="yes" type="surface" id="metal-rxn3">
+      <equation>H2O + (m) [=] H2O(m)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="H2O">
+           <A>1.000000E+00</A>
+           <b>0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2O:1.0 (m):1</reactants>
+      <products>H2O(m):1.0</products>
+    </reaction>
+
+    <!-- reaction metal-rxn4    -->
+    <reaction reversible="yes" type="surface" id="metal-rxn4">
+      <equation>H(m) + O(m) [=] OH(m) + (m)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.000000E+21</A>
+           <b>0</b>
+           <E units="kJ/mol">100.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H(m):1.0 O(m):1</reactants>
+      <products>OH(m):1.0 (m):1</products>
+    </reaction>
+
+    <!-- reaction metal-rxn5    -->
+    <reaction reversible="yes" type="surface" id="metal-rxn5">
+      <equation>H(m) + OH(m) [=] H2O(m) + (m)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.000000E+19</A>
+           <b>0</b>
+           <E units="kJ/mol">40.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H(m):1.0 OH(m):1</reactants>
+      <products>H2O(m):1.0 (m):1</products>
+    </reaction>
+
+    <!-- reaction metal-rxn6    -->
+    <reaction reversible="yes" type="surface" id="metal-rxn6">
+      <equation>OH(m) + OH(m) [=] H2O(m) + O(m)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.000000E+20</A>
+           <b>0</b>
+           <E units="kJ/mol">100.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>OH(m):2.0</reactants>
+      <products>H2O(m):1.0 O(m):1</products>
+    </reaction>
+
+    <!-- reaction oxide-vac    -->
+    <reaction reversible="yes" type="surface" id="oxide-vac">
+      <equation>(ox) + Ox [=] VO** + O''(ox)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>5.000000E+05</A>
+           <b>0.0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>(ox):1.0 Ox:1</reactants>
+      <products>O''(ox):1 VO**:1.0</products>
+    </reaction>
+
+    <!-- reaction oxide-water    -->
+    <reaction reversible="yes" type="surface" id="oxide-water">
+      <equation>H2O(ox) [=] H2O + (ox)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+14</A>
+           <b>0.0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2O(ox):1.0</reactants>
+      <products>H2O:1.0 (ox):1</products>
+    </reaction>
+
+    <!-- reaction oxide-oh    -->
+    <reaction reversible="yes" type="surface" id="oxide-oh">
+      <equation>H2O(ox) + O''(ox) [=] OH'(ox) + OH'(ox)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+13</A>
+           <b>0.0</b>
+           <E units="kJ/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2O(ox):1.0 O''(ox):1</reactants>
+      <products>OH'(ox):2.0</products>
+    </reaction>
+
+    <!-- reaction edge-f2    -->
+    <reaction reversible="yes" type="edge" id="edge-f2">
+      <equation>H(m) + O''(ox) [=] (m) + electron + OH'(ox)</equation>
+      <rateCoeff>
+        <electrochem beta="0.5"/>
+        <Arrhenius>
+           <A>5.000000E+10</A>
+           <b>0.0</b>
+           <E units="kJ/mol">120.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O''(ox):1 H(m):1.0</reactants>
+      <products>OH'(ox):1 electron:1 (m):1.0</products>
+    </reaction>
+
+    <!-- reaction edge-f3    -->
+    <reaction reversible="yes" type="edge" id="edge-f3">
+      <equation>O(m) + (ox) + 2 electron [=] (m) + O''(ox)</equation>
+      <rateCoeff>
+        <electrochem beta="0.5"/>
+        <Arrhenius>
+           <A>5.000000E+10</A>
+           <b>0.0</b>
+           <E units="kJ/mol">120.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>(ox):1 O(m):1.0 electron:2.0</reactants>
+      <products>O''(ox):1 (m):1.0</products>
+    </reaction>
+  </reactionData>
+</ctml>

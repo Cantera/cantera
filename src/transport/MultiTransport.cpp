@@ -8,10 +8,7 @@
  */
 
 #include "cantera/transport/MultiTransport.h"
-#include "cantera/base/utilities.h"
-#include "cantera/transport/TransportParams.h"
 #include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -29,9 +26,9 @@ namespace Cantera
  */
 inline doublereal Frot(doublereal tr, doublereal sqtr)
 {
-    const doublereal c1 = 0.5*SqrtPi*Pi;
+    const doublereal c1 = 0.5*sqrt(Pi)*Pi;
     const doublereal c2 = 0.25*Pi*Pi + 2.0;
-    const doublereal c3 = SqrtPi*Pi;
+    const doublereal c3 = sqrt(Pi)*Pi;
     return 1.0 + c1*sqtr + c2*tr + c3*sqtr*tr;
 }
 
@@ -42,23 +39,9 @@ MultiTransport::MultiTransport(thermo_t* thermo)
 {
 }
 
-bool MultiTransport::initGas(GasTransportParams& tr)
+void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
-    GasTransport::initGas(tr);
-
-    // copy polynomials and parameters into local storage
-    m_poly       = tr.poly;
-    m_astar_poly = tr.astar_poly;
-    m_bstar_poly = tr.bstar_poly;
-    m_cstar_poly = tr.cstar_poly;
-    m_om22_poly  = tr.omega22_poly;
-    m_zrot       = tr.zrot;
-    m_crot       = tr.crot;
-    m_eps        = tr.eps;
-    m_sigma      = tr.sigma;
-    m_alpha      = tr.alpha;
-    m_dipole     = tr.dipole;
-    m_zrot       = tr.zrot;
+    GasTransport::init(thermo, mode, log_level);
 
     // the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp);
@@ -94,7 +77,7 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     //        int j;
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
-            m_log_eps_k(i,j) = log(tr.epsilon(i,j)/Boltzmann);
+            m_log_eps_k(i,j) = log(m_epsilon(i,j)/Boltzmann);
             m_log_eps_k(j,i) = m_log_eps_k(i,j);
         }
     }
@@ -105,12 +88,9 @@ bool MultiTransport::initGas(GasTransportParams& tr)
     const doublereal kb298 = Boltzmann * 298.0;
     m_sqrt_eps_k.resize(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
-        m_sqrt_eps_k[k] = sqrt(tr.eps[k]/Boltzmann);
-        m_frot_298[k] = Frot(tr.eps[k]/kb298,
-                             m_sqrt_eps_k[k]/sq298);
+        m_sqrt_eps_k[k] = sqrt(m_eps[k]/Boltzmann);
+        m_frot_298[k] = Frot(m_eps[k]/kb298, m_sqrt_eps_k[k]/sq298);
     }
-
-    return true;
 }
 
 doublereal MultiTransport::thermalConductivity()
@@ -501,12 +481,12 @@ void MultiTransport::updateThermal_T()
             z = m_logt - m_log_eps_k(i,j);
             ipoly = m_poly[i][j];
             if (m_mode == CK_Mode) {
-                m_om22(i,j) = poly6(z, DATA_PTR(m_om22_poly[ipoly]));
+                m_om22(i,j) = poly6(z, DATA_PTR(m_omega22_poly[ipoly]));
                 m_astar(i,j) = poly6(z, DATA_PTR(m_astar_poly[ipoly]));
                 m_bstar(i,j) = poly6(z, DATA_PTR(m_bstar_poly[ipoly]));
                 m_cstar(i,j) = poly6(z, DATA_PTR(m_cstar_poly[ipoly]));
             } else {
-                m_om22(i,j) = poly8(z, DATA_PTR(m_om22_poly[ipoly]));
+                m_om22(i,j) = poly8(z, DATA_PTR(m_omega22_poly[ipoly]));
                 m_astar(i,j) = poly8(z, DATA_PTR(m_astar_poly[ipoly]));
                 m_bstar(i,j) = poly8(z, DATA_PTR(m_bstar_poly[ipoly]));
                 m_cstar(i,j) = poly8(z, DATA_PTR(m_cstar_poly[ipoly]));
@@ -543,7 +523,9 @@ void MultiTransport::updateThermal_T()
      *       Chemkin has traditionally subtracted 1.5 here (SAND86-8246).
      *       The original Dixon-Lewis paper subtracted 1.5 here.
      */
-    const vector_fp& cp = ((IdealGasPhase*)m_thermo)->cp_R_ref();
+    vector_fp cp(m_thermo->nSpecies());
+    m_thermo->getCp_R_ref(&cp[0]);
+
     for (size_t k = 0; k < m_nsp; k++) {
         m_cinternal[k] = cp[k] - 2.5;
     }

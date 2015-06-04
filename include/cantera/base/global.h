@@ -27,14 +27,6 @@ namespace Cantera
 class XML_Node;
 class Logger;
 
-//! Declaration for whether the Debug mode is turned on within Cantera
-/*!
- *  Turn on the mode by using the following compile time syntax
- *
- *       scons debug_verbose=True build
- */
-extern const int g_DEBUG_MODE;
-
 //! Return the number of errors that have been encountered so far
 /*!
  * @ingroup errorhandling
@@ -66,39 +58,45 @@ void popError();
  * for input files along a path that includes platform-specific default
  * locations, and possibly user-specified locations.
  *
- * The current directory (".") is always searched first. Then, on Windows
- * platforms, if environment variable COMMONPROGRAMFILES is set (which it
- * should be on Win XP or Win 2000), then directories under this one will be
- * added to the search path. The %Cantera Windows installer installs data
- * files to this location.
+ * The current directory (".") is always searched first. Then, on Windows, the
+ * registry is checked to find the Cantera installation directory, and the
+ * 'data' subdirectory of the installation directory will be added to the search
+ * path.
  *
  * On the Mac, directory '/Applications/Cantera/data' is added to the
  * search path.
  *
- * On any platform, if environment variable CANTERA_DATA is set to a
- * directory name, then this directory is added to the search path.
+ * On any platform, if environment variable CANTERA_DATA is set to a directory
+ * name or a list of directory names separated with the OS-dependent path
+ * separator (i.e. ";" on Windows, ":" elsewhere), then these directories will
+ * be added to the search path.
  *
  * Finally, the location where the data files were installed when
  * %Cantera was built is added to the search path.
  *
  * Additional directories may be added by calling function addDirectory.
  *
- * There are two different types of input files within %Cantera:
- *  - ctml: This is an xml file laid out in such a way that %Cantera can
- *          interpret the contents.
- *  - cti:  A human-readable ascii format for information that %Cantera
- *          will read.
+ * There are currently two different types of input files within %Cantera:
+ *  - CTI: A human-readable input file written using Python syntax which
+ *    defines species, phases, and reactions, and contains thermodynamic,
+ *    chemical kinetic, and transport data needed by %Cantera. Some options for
+ *    non-ideal equations of state available in the CTML format have not yet
+ *    been implemented for the CTI format.
  *
- * %Cantera can take its input from both types of files. However, given a file
- * in cti format, the initial operation that %Cantera will perform is to
- * translate the cti file into a ctml file. The translation is carried out via
- * a system call to a python interpreter program that actually carries out the
- * translation. In general, a new ctml file is created by the translation that
- * is written to the current local directory. The ctml file is then read back
- * into %Cantera as the input.
+ *  - CTML: This is an XML file laid out in such a way that %Cantera can
+ *    interpret the contents directly. Given a file in CTI format, %Cantera will
+ *    convert the CTI file into the CTML format on-the-fly using a Python script
+ *    (ctml_writer). This process is done in-memory without writing any new
+ *    files to disk. Explicit use of the CTML format is not recommended unless
+ *    using features not available in CTI or working on a computer where Python
+ *    is not available.
+ *
+ * %Cantera provides a converter (ck2cti) for converting Chemkin-format
+ * gas-phase mechanisms to the CTI format.
  *
  * Other input routines in other modules:
  *   @see importKinetics()
+ *
  * @{
  */
 
@@ -203,6 +201,9 @@ doublereal actEnergyToSI(const std::string& unit);
 //! @copydoc Application::get_XML_File
 XML_Node* get_XML_File(const std::string& file, int debug = 0);
 
+//! @copydoc Application::get_XML_from_string
+XML_Node* get_XML_from_string(const std::string& text);
+
 //! @copydoc Application::close_XML_File
 void close_XML_File(const std::string& file);
 
@@ -215,15 +216,15 @@ void close_XML_File(const std::string& file);
  *
  * @param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
- *                pound character is the file name of an xml
+ *                pound character is the file name of an XML
  *                file to carry out the search. The string after
  *                the # character is the ID attribute
- *                of the xml element to search for.
+ *                of the XML element to search for.
  *                The string is interpreted as a file string if
  *                no # character is in the string.
  *
  * @param root    If the file string is empty, searches for the
- *                xml element with matching ID attribute are
+ *                XML element with matching ID attribute are
  *                carried out from this XML node.
  *
  * @return
@@ -240,21 +241,21 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
  * XML element name and the ID attribute of the XML element.
  * An exact match of both is usually required. However, the
  * ID attribute may be set to "", in which case the first
- * xml element with the correct element name will be returned.
+ * XML element with the correct element name will be returned.
  *
  * @param nameTarget This is the XML element name to look for.
  *
  * @param file_ID This is a concatenation of two strings separated
  *                by the "#" character. The string before the
- *                pound character is the file name of an xml
+ *                pound character is the file name of an XML
  *                file to carry out the search. The string after
  *                the # character is the ID attribute
- *                of the xml element to search for.
+ *                of the XML element to search for.
  *                The string is interpreted as a file string if
  *                no # character is in the string.
  *
  * @param root    If the file string is empty, searches for the
- *                xml element with matching ID attribute are
+ *                XML element with matching ID attribute are
  *                carried out from this XML node.
  *
  * @return
@@ -269,6 +270,11 @@ template <class T>
 inline T clip(const T& value, const T& lower, const T& upper)
 {
     return std::max(lower, std::min(upper, value));
+}
+
+//! Sign of a number. Returns -1 if x < 0, 1 if x > 0 and 0 if x == 0.
+template <typename T> int sign(T x) {
+    return (T(0) < x) - (x < T(0));
 }
 
 }

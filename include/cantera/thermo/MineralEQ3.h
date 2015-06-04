@@ -15,21 +15,18 @@
 #ifndef CT_MINERALEQ3_H
 #define CT_MINERALEQ3_H
 
-#include "mix_defs.h"
-#include "SingleSpeciesTP.h"
-#include "SpeciesThermo.h"
 #include "StoichSubstanceSSTP.h"
 
 namespace Cantera
 {
 
-//!  Class %MineralEQ3 represents a stoichiometric (fixed
+//!  Class MineralEQ3 represents a stoichiometric (fixed
 //!   composition)  incompressible substance based on EQ3's parameterization
 /*!
  *  This class inherits from SingleSpeciesSSTP class.
  *  EQ's parameterization is mapped onto the Shomate polynomial class.
  *
- * <b> Specification of Species Standard %State Properties </b>
+ * <b> Specification of Species Standard State Properties </b>
  *
  *  This class inherits from SingleSpeciesTP.
  *  It is assumed that the reference state thermodynamics may be
@@ -64,7 +61,7 @@ namespace Cantera
  *       \f]
  *
  * The standard state heat capacity and entropy are independent
- * of pressure. The standard state gibbs free energy is obtained
+ * of pressure. The standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
  * <b> Specification of Solution Thermodynamic Properties </b>
@@ -72,7 +69,7 @@ namespace Cantera
  *  All solution properties are obtained from the standard state
  *  species functions, since there is only one species in the phase.
  *
- * <b> %Application within %Kinetics Managers </b>
+ * <b> %Application within Kinetics Managers </b>
  *
  * The standard concentration is equal to 1.0. This means that the
  * kinetics operator works on an (activities basis). Since this
@@ -98,7 +95,7 @@ class MineralEQ3 : public StoichSubstanceSSTP
 {
 public:
     //! Default constructor for the StoichSubstanceSSTP class
-    MineralEQ3();
+    MineralEQ3() {}
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an ASCII input file
@@ -262,7 +259,7 @@ public:
      * units are needed. Usually, MKS units are assumed throughout
      * the program and in the XML input files.
      *
-     * The base %ThermoPhase class assigns the default quantities
+     * The base ThermoPhase class assigns the default quantities
      * of (kmol/m3) for all species.
      * Inherited classes are responsible for overriding the default
      * values if necessary.
@@ -280,6 +277,7 @@ public:
      * @param k species index. Defaults to 0.
      * @param sizeUA output int containing the size of the vector.
      *        Currently, this is equal to 6.
+     * @deprecated To be removed after Cantera 2.2.
      */
     virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
                                       int sizeUA = 6) const;
@@ -307,7 +305,7 @@ public:
     //! Get the nondimensional Gibbs functions for the species
     //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state gibbs free energies
+     * @param grt  Output vector of nondimensional standard state Gibbs free energies
      *             Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const;
@@ -350,21 +348,6 @@ public:
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
     //! @}
-
-    //! Internal initialization required after all species have
-    //! been added
-    /*!
-     * @internal Initialize. This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called just prior to returning
-     * from function importPhase().
-     */
-    virtual void initThermo();
 
     //! Initialize the phase parameters from an XML file.
     /*!

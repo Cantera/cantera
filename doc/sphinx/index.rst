@@ -24,6 +24,7 @@ Documentation
    :maxdepth: 2
 
    faq
+   Installation Instructions <install>
    Compiliation Instructions <compiling>
    language-interfaces
    cti/index
@@ -31,8 +32,9 @@ Documentation
    cython/index
    matlab/index
    cxx-guide/index
+   glossary
 
-   Cantera Development Homepage <http://cantera.googlecode.com>
+   Cantera Development Homepage <https://github.com/Cantera/cantera>
 
 * **C++ Documentation**
 

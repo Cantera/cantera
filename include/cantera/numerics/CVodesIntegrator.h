@@ -7,9 +7,7 @@
 #define CT_CVODESWRAPPER_H
 
 #include "cantera/numerics/Integrator.h"
-#include "cantera/numerics/FuncEval.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/ct_defs.h"
 
 #ifdef HAS_SUNDIALS
 
@@ -39,7 +37,7 @@ class CVodesIntegrator : public Integrator
 {
 public:
     /**
-     *  Constructor. Default settings: dense jacobian, no user-supplied
+     *  Constructor. Default settings: dense Jacobian, no user-supplied
      *  Jacobian function, Newton iteration.
      */
     CVodesIntegrator();
@@ -55,7 +53,7 @@ public:
     virtual double& solution(size_t k);
     virtual double* solution();
     virtual int nEquations() const {
-        return m_neq;
+        return static_cast<int>(m_neq);
     }
     virtual int nEvals() const;
     virtual void setMaxOrder(int n) {
@@ -72,7 +70,7 @@ public:
         m_mlower = N_Lower;
     }
     virtual int nSensParams() {
-        return m_np;
+        return static_cast<int>(m_np);
     }
     virtual double sensitivity(size_t k, size_t p);
 
@@ -81,6 +79,9 @@ public:
     //! This information can be used to identify which variables are
     //! responsible for integrator failures or unexpected small timesteps.
     virtual std::string getErrorInfo(int N);
+
+    //! Error message information provide by CVodes
+    std::string m_error_message;
 
 protected:
     //! Applies user-specified options to the underlying CVODES solver. Called
@@ -115,6 +116,7 @@ private:
     //! Indicates whether the sensitivities stored in m_yS have been updated
     //! for at the current integrator time.
     bool m_sens_ok;
+
 };
 
 }    // namespace

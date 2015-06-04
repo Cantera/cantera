@@ -2,14 +2,7 @@
  *  @file TransportBase.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/transport/LiquidTransport.h"
-#include "cantera/base/ctexceptions.h"
-
-#include "cantera/base/utilities.h"
-#include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/transport/TransportFactory.h"
-#include "cantera/base/stringUtils.h"
+#include "cantera/transport/TransportBase.h"
 
 using namespace std;
 
@@ -50,10 +43,6 @@ Transport& Transport::operator=(const Transport& right)
 Transport* Transport::duplMyselfAsTransport() const
 {
     return new Transport(*this);
-}
-
-Transport::~Transport()
-{
 }
 
 bool Transport::ready()

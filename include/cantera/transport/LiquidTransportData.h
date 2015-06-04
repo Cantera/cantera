@@ -6,7 +6,6 @@
 #define CT_LIQUIDTRANSPORTDATA_H
 
 #include "TransportBase.h"
-#include "cantera/base/FactoryBase.h"
 #include "LTPspecies.h"
 
 namespace Cantera

@@ -1,9 +1,11 @@
 function adddir(d)
-% ADDDIR  Add a directory to the Cantera search path.
+% ADDDIR  Add a directory to the search path.
+% adddir(d)
+% Adds directory ``d`` to the set of directories where Cantera looks for
+% input and data files.
 %
-%     adddir('directory')
+% :param d:
+%     Path to add to the MATLAB search path.
 %
-%   adds 'directory' to the set of directories where Cantera looks for
-%   input and data files.
-%
-ctmethods(0,3,d);
+
+ctmethods(0, 3, d);

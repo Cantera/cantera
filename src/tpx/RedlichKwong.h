@@ -14,7 +14,7 @@ class RedlichKwong : public Substance
 
 public:
 
-    RedlichKwong() : Substance() {
+    RedlichKwong() {
         setParameters(1.0, 1.0, 1.0);
         m_name = "Redlich-Kwong";
         m_formula = "-";

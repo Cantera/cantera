@@ -31,9 +31,10 @@ reaction mechanism, and a few surface reaction mechanisms.  These files are kept
 in the ``data`` subdirectory within the Cantera installation directory.
 
 If for some reason Cantera has difficulty finding where these files are on your
-system, set environment variable ``CANTERA_DATA`` to the directory where they
-are located. Alternatively, you can call function ``addDirectory`` to add a
-directory to the Cantera search path::
+system, set environment variable ``CANTERA_DATA`` to the directory or
+directories (separated using ``;`` on Windows or ``:`` on other operating
+systems) where they are located. Alternatively, you can call function
+`add_directory` to add a directory to the Cantera search path::
 
     addDirectory('/usr/local/cantera/my_data_files');
 
@@ -54,22 +55,6 @@ two bulk phases and the interface between them from file ``diamond.cti``::
 
 Note that the bulk (i.e., 3D) phases that participate in the surface reactions
 must also be passed as arguments to importInterface.
-
-CTML files
-----------
-
-Note that when Cantera reads a ``.cti`` input file, wherever it is located, it
-always writes a file of the same name but with extension ``.xml`` *in the local
-directory*. If you happen to have some other file by that name, it will be
-overwritten. Once the XML file is created, you can use it instead of the
-``.cti`` file, which will result in somewhat faster startup::
-
-    gas4 = importPhase('gri30.xml','gri30');
-
-Interfaces can be imported from XML files too::
-
-    diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...
-                                     gas2, diamond);
 
 Converting CK-format files
 --------------------------

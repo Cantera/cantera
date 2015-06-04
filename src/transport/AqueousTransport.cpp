@@ -3,14 +3,8 @@
  *  Transport properties for aqueous systems
  */
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/AqueousTransport.h"
-
-#include "cantera/base/utilities.h"
-#include "cantera/transport/TransportParams.h"
 #include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/transport/TransportFactory.h"
-
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
@@ -42,6 +36,8 @@ AqueousTransport::AqueousTransport() :
     m_debug(false),
     m_nDim(1)
 {
+    warn_deprecated("class AqueousTransport",
+        "Non-functional. To be removed after Cantera 2.2.");
 }
 
 bool AqueousTransport::initLiquid(LiquidTransportParams& tr)
@@ -430,7 +426,7 @@ void AqueousTransport::updateViscosity_T()
             // m_wratjk(j,k)!
             factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
             m_phi(k,j) = factor1*factor1 /
-                         (SqrtEight * m_wratkj1(j,k));
+                         (sqrt(8.0) * m_wratkj1(j,k));
             m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
         }
     }

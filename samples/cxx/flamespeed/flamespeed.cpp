@@ -1,25 +1,21 @@
 /*!
  * @file flamespeed.cpp
  * C++ demo program to compute flame speeds using GRI-Mech.
- *
- * @todo This demo compiles but does not run correctly.
  */
 
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Inlet1D.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/equilibrium.h"
 #include "cantera/transport.h"
 
 using namespace Cantera;
 using std::cout;
 using std::endl;
 
-int flamespeed(int np, void* p)
+int flamespeed(double phi)
 {
     try {
-        int i;
         IdealGasMix gas("gri30.cti","gri30_mix");
 
         doublereal temp = 300.0; // K
@@ -27,25 +23,15 @@ int flamespeed(int np, void* p)
         doublereal uin=0.3; //m/sec
 
         gas.setState_TPX(temp, pressure, "CH4:1.0, O2:2.0, N2:7.52");
-        int nsp = gas.nSpecies();
+        size_t nsp = gas.nSpecies();
 
-        vector_fp x;
-        x.resize(nsp);
-
-        double phi = 0.0;
-        if (np > 0) {
-            phi = *(double*)(p);
-        }
-        if (phi == 0.0) {
-            cout << "Enter phi: ";
-            std::cin >> phi;
-        }
+        vector_fp x(nsp);
 
         doublereal C_atoms=1.0;
         doublereal H_atoms=4.0;
         doublereal ax=C_atoms+H_atoms/4.0;
         doublereal fa_stoic=1.0/(4.76*ax);
-        for (int k=0; k<nsp; k++) {
+        for (size_t k=0; k<nsp; k++) {
             if (k==gas.speciesIndex("CH4")) {
                 x[k]=1.0;
             } else if (k==gas.speciesIndex("O2")) {
@@ -60,37 +46,31 @@ int flamespeed(int np, void* p)
         gas.setState_TPX(temp,pressure,DATA_PTR(x));
         doublereal rho_in=gas.density();
 
-        double* yin=new double[nsp];
-        gas.getMassFractions(yin);
+        vector_fp yin(nsp);
+        gas.getMassFractions(&yin[0]);
 
         try {
-            equilibrate(gas,"HP");
+            gas.equilibrate("HP");
         } catch (CanteraError& err) {
             std::cout << err.what() << std::endl;
         }
-        double* yout=new double[nsp];
-        gas.getMassFractions(yout);
+        vector_fp yout(nsp);
+        gas.getMassFractions(&yout[0]);
         doublereal rho_out = gas.density();
         doublereal Tad=gas.temperature();
         cout << phi<<' '<<Tad<<endl;
-
-        //double Tin=temp;
-        //double Tout=Tad;
-        //double breakpt=0.2;
-
 
         //=============  build each domain ========================
 
 
         //-------- step 1: create the flow -------------
 
-        //AxiStagnFlow flow(&gas);
         FreeFlame flow(&gas);
 
         // create an initial grid
         int nz=5;
         doublereal lz=0.02;
-        doublereal* z=new double[nz+1];
+        vector_fp z(nz+1);
         doublereal dz=lz/((doublereal)(nz-1));
         for (int iz=0; iz<nz; iz++) {
             z[iz]=((doublereal)iz)*dz;
@@ -99,13 +79,13 @@ int flamespeed(int np, void* p)
         z[nz]=lz*1.05;
         nz++;
 
-        flow.setupGrid(nz, z);
+        flow.setupGrid(nz, &z[0]);
 
         // specify the objects to use to compute kinetic rates and
         // transport properties
 
-        Transport* trmix = newTransportMgr("Mix", &gas);
-        Transport* trmulti = newTransportMgr("Multi", &gas);
+        std::auto_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
+        std::auto_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
 
         flow.setTransport(*trmix);
         flow.setKinetics(gas);
@@ -131,8 +111,6 @@ int flamespeed(int np, void* p)
         domains.push_back(&inlet);
         domains.push_back(&flow);
         domains.push_back(&outlet);
-
-        //    OneDim flamesim(domains);
 
         Sim1D flame(domains);
 
@@ -164,7 +142,7 @@ int flamespeed(int np, void* p)
         value[2]=Tad;
         flame.setInitialGuess("T",locs,value);
 
-        for (i=0; i<nsp; i++) {
+        for (size_t i=0; i<nsp; i++) {
             value[0]=yin[i];
             value[1]=yout[i];
             value[2]=yout[i];
@@ -181,17 +159,11 @@ int flamespeed(int np, void* p)
         double ratio=10.0;
         double slope=0.2;
         double curve=0.02;
-        double prune=-0.00005;
 
-        flame.setRefineCriteria(flowdomain,ratio,slope,curve,prune);
+        flame.setRefineCriteria(flowdomain,ratio,slope,curve);
 
         int loglevel=1;
         bool refine_grid = true;
-
-        /* Solve species*/
-        //flow.fixTemperature();
-        //refine_grid=false;
-        //flame.solve(loglevel,refine_grid);
 
         /* Solve freely propagating flame*/
 
@@ -265,10 +237,10 @@ int flamespeed(int np, void* p)
     return 0;
 }
 
-#ifndef CXX_DEMO
 int main()
 {
-    return flamespeed(0, 0);
+    double phi;
+    cout << "Enter phi: ";
+    std::cin >> phi;
+    return flamespeed(phi);
 }
-#endif
-

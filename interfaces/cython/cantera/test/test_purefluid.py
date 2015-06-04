@@ -26,6 +26,22 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(self.water.T, 500)
         self.assertNear(self.water.X, 0.8)
 
+    def test_set_X(self):
+        self.water.TX = 500, 0.0
+        p = self.water.P
+        self.water.X = 0.8
+        self.assertNear(self.water.P, p)
+        self.assertNear(self.water.T, 500)
+        self.assertNear(self.water.X, 0.8)
+
+        self.water.TP = 650, 101325
+        with self.assertRaises(Exception):
+            self.water.X = 0.1
+
+        self.water.TP = 300, 101325
+        with self.assertRaises(Exception):
+            self.water.X = 0.3
+
     def test_set_minmax(self):
         self.water.TP = self.water.min_temp, 101325
         self.assertNear(self.water.T, self.water.min_temp)

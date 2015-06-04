@@ -8,20 +8,9 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
-#include "cantera/equil/vcs_prob.h"
-#include "cantera/equil/vcs_internal.h"
-#include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_species_thermo.h"
-#include "cantera/equil/vcs_SpeciesProperties.h"
-#include "cantera/equil/vcs_VolPhase.h"
-#include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/equil.h"
 
 #include "cantera/base/stringUtils.h"
-#include "cantera/thermo/mix_defs.h"
-#include "cantera/thermo/speciesThermoTypes.h"
-#include "cantera/thermo/IdealSolidSolnPhase.h"
-#include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/equil/ChemEquil.h"
 
 using namespace std;
@@ -34,6 +23,8 @@ int vcs_equilibrate(thermo_t& s, const char* XY,
                     doublereal rtol, int maxsteps, int maxiter,
                     int loglevel)
 {
+    warn_deprecated("vcs_equilibrate", "Use ThermoPhase::equilibrate instead. "
+        "To be removed after Cantera 2.2.");
     MultiPhase* m = 0;
     int retn = 1;
 
@@ -118,6 +109,8 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
                       int estimateEquil, int printLvl, int solver,
                       doublereal tol, int maxsteps, int maxiter, int loglevel)
 {
+    warn_deprecated("vcs_equilibrate_1", "Use MultiPhase::equilibrate instead. "
+        "To be removed after Cantera 2.2.");
     static int counter = 0;
     int retn = 1;
 
@@ -127,7 +120,7 @@ int vcs_equilibrate_1(MultiPhase& s, int ixy,
 
     if (solver == 2) {
         try {
-            VCSnonideal::vcs_MultiPhaseEquil* eqsolve =  new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
+            vcs_MultiPhaseEquil* eqsolve =  new vcs_MultiPhaseEquil(&s, printLvlSub);
             int err = eqsolve->equilibrate(ixy, estimateEquil, printLvlSub, tol, maxsteps, loglevel);
             if (err != 0) {
                 retn = -1;
@@ -174,7 +167,7 @@ int vcs_determine_PhaseStability(MultiPhase& s, int iphase,
 
     s.init();
     try {
-        VCSnonideal::vcs_MultiPhaseEquil* eqsolve = new VCSnonideal::vcs_MultiPhaseEquil(&s, printLvlSub);
+        vcs_MultiPhaseEquil* eqsolve = new vcs_MultiPhaseEquil(&s, printLvlSub);
         iStab = eqsolve->determine_PhaseStability(iphase, funcStab, printLvlSub, loglevel);
         // hard code a csv output file.
         if (printLvl > 0) {

@@ -3,9 +3,8 @@
 Chemical Equilibrium Example Program
 ************************************
 
-In the program below, the `equilibrate` function is called to set the gas to a
-state of chemical equilibrium, holding the temperature and pressure fixed. This
-function is declared in the `equilibrium.h` header file.
+In the program below, the `equilibrate` method is called to set the gas to a
+state of chemical equilibrium, holding the temperature and pressure fixed.
 
 .. literalinclude:: demoequil.cpp
    :language: c++
@@ -54,10 +53,5 @@ this is true in the output above---the chemical potential of H2 is exactly
 twice that of H, the chemical potential for OH is the sum of the values for H
 and O, the value for H2O2 is twice as large as the value for OH, and so on.
 
-We'll see later how the :ct:`equilibrate <Cantera::equilibrate(thermo_t&, const
-char*, int, doublereal, int, int, int)>` function really works. For now, though,
-the important points are these:
-
-- The `equilibrate` procedure operates on an object, setting its state to a
-  chemical equilibrium state.
-- To use `equilibrate`, you need to include the `equilibrium.h` header file.
+We'll see later how the :ct:`equilibrate <Cantera::ThermoPhase::equilibrate>`
+function really works.

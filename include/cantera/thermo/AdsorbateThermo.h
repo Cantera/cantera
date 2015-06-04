@@ -12,7 +12,6 @@
 #define CT_ADSORBATE_H
 
 #include "SpeciesThermoInterpType.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -42,10 +41,27 @@ public:
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
+     * @deprecated Use the constructor which does not require the species index.
+     *     To be removed after Cantera 2.2.
      */
     Adsorbate(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
               const doublereal* coeffs)
         : SpeciesThermoInterpType(n, tlow, thigh, pref)
+    {
+        m_nFreqs = int(coeffs[0]);
+        m_be = coeffs[1];
+        m_freq.resize(m_nFreqs);
+        std::copy(coeffs+2, coeffs + 2 + m_nFreqs, m_freq.begin());
+    }
+
+    //! Full Constructor
+    /*!
+     * @param tlow      output - Minimum temperature
+     * @param thigh     output - Maximum temperature
+     * @param pref      output - reference pressure (Pa).
+     */
+    Adsorbate(double tlow, double thigh, double pref, const double* coeffs)
+        : SpeciesThermoInterpType(tlow, thigh, pref)
     {
         m_nFreqs = int(coeffs[0]);
         m_be = coeffs[1];
@@ -65,21 +81,6 @@ public:
     duplMyselfAsSpeciesThermoInterpType() const {
         Adsorbate* np = new Adsorbate(*this);
         return (SpeciesThermoInterpType*) np;
-    }
-
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c, doublereal minTemp_, doublereal maxTemp_,
-                         doublereal refPressure_) {
-        m_be = c[1];
-        m_nFreqs = int(c[0]);
-        for (size_t n = 0; n < m_nFreqs; n++) {
-            m_freq[n] = c[n+2];
-        }
-        m_index = index;
-
-        m_lowT  = minTemp_;
-        m_highT = maxTemp_;
-        m_Pref = refPressure_;
     }
 
     virtual int reportType() const {

@@ -1,8 +1,11 @@
-function a = thermalExpansionCoeff(p)
-% THERMALEXPANSIONCOEFF - Thermal Expansion Coefficient [1/K]
+function a = thermalExpansionCoeff(tp)
+% THERMALEXPANSIONCOEFF  Get the thermal expansion coefficient.
+% a = thermalExpansionCoeff(tp)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     class derived from ThermoPhase)
+% :return:
+%     Thermal Expansion Coefficient. Units: 1/K
 %
-%   a = thermalExpansionCoeff(p)
-%       Return the thermal expansion coefficient of ThermoPhase p
-%       in units of 1/K
-%
-a = thermo_get(p.tp_id,27);
+
+a = thermo_get(tp.tp_id, 27);

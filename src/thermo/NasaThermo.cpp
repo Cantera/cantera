@@ -3,7 +3,6 @@
  */
 #include "NasaThermo.h"
 
-#include "cantera/base/utilities.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/numerics/ctlapack.h"
 
@@ -15,9 +14,12 @@ NasaThermo::NasaThermo() :
     m_tlow_max(0.0),
     m_thigh_min(1.e30),
     m_p0(-1.0),
-    m_ngroups(0) {
+    m_ngroups(0)
+{
+    warn_deprecated("class NasaThermo", "To be removed after "
+        "Cantera 2.2. Use GeneralSpeciesThermo instead.");
     m_t.resize(6);
-    }
+}
 
 NasaThermo::NasaThermo(const NasaThermo& right) :
     ID(NASA),
@@ -25,7 +27,7 @@ NasaThermo::NasaThermo(const NasaThermo& right) :
     m_thigh_min(1.e30),
     m_p0(-1.0),
     m_ngroups(0) {
-    *this = operator=(right);
+    *this = right;
 }
 
 NasaThermo& NasaThermo::operator=(const NasaThermo& right)
@@ -37,6 +39,7 @@ NasaThermo& NasaThermo::operator=(const NasaThermo& right)
         return *this;
     }
 
+    SpeciesThermo::operator=(right);
     m_high           = right.m_high;
     m_low            = right.m_low;
     m_index          = right.m_index;
@@ -60,6 +63,12 @@ void NasaThermo::install(const std::string& name, size_t index, int type,
                          doublereal min_temp, doublereal max_temp,
                          doublereal ref_pressure)
 {
+    if (type != NASA) {
+        throw CanteraError("NasaThermo::install",
+                           "Incompatible thermo parameterization: Got " +
+                           int2str(type) + " but " + int2str(NASA) +
+                           " was expected.");
+    }
     m_name[index] = name;
     int imid = int(c[0]);       // midpoint temp converted to integer
     int igrp = m_index[imid];   // has this value been seen before?
@@ -109,6 +118,7 @@ void NasaThermo::install(const std::string& name, size_t index, int type,
         throw CanteraError("install()", "species have different reference pressures");
     }
     m_p0 = ref_pressure;
+    markInstalled(index);
 }
 
 void NasaThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
@@ -121,8 +131,8 @@ void NasaThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
     m_t[4] = 1.0/t;
     m_t[5] = log(t);
 
-    size_t grp = m_group_map[k];
-    size_t pos = m_posInGroup_map[k];
+    size_t grp = getValue(m_group_map, k);
+    size_t pos = getValue(m_posInGroup_map, k);
     const std::vector<NasaPoly1> &mlg = m_low[grp-1];
     const NasaPoly1* nlow = &(mlg[pos]);
 
@@ -139,8 +149,6 @@ void NasaThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
 void NasaThermo::update(doublereal t, doublereal* cp_R,
                         doublereal* h_RT, doublereal* s_R) const
 {
-    int i;
-
     // load functions of temperature into m_t vector
     m_t[0] = t;
     m_t[1] = t*t;
@@ -151,7 +159,7 @@ void NasaThermo::update(doublereal t, doublereal* cp_R,
 
     // iterate over the groups
     std::vector<NasaPoly1>::const_iterator _begin, _end;
-    for (i = 0; i != m_ngroups; i++) {
+    for (int i = 0; i != m_ngroups; i++) {
         if (t > m_tmid[i]) {
             _begin  = m_high[i].begin();
             _end    = m_high[i].end();
@@ -173,8 +181,8 @@ void NasaThermo::reportParams(size_t index, int& type,
 {
     type = reportType(index);
     if (type == NASA) {
-        size_t grp = m_group_map[index];
-        size_t pos = m_posInGroup_map[index];
+        size_t grp = getValue(m_group_map, index);
+        size_t pos = getValue(m_posInGroup_map, index);
         const std::vector<NasaPoly1> &mlg = m_low[grp-1];
         const std::vector<NasaPoly1> &mhg = m_high[grp-1];
         const NasaPoly1* lowPoly  = &(mlg[pos]);
@@ -187,46 +195,46 @@ void NasaThermo::reportParams(size_t index, int& type,
         lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
                                   c + 1);
         if (n != index) {
-            throw CanteraError("  ", "confused");
+            throw CanteraError("NasaThermo::reportParams", "Index mismatch");
         }
         if (itype != NASA1) {
-            throw CanteraError("  ", "confused");
+            throw CanteraError("NasaThermo::reportParams",
+                               "Thermo type mismatch for low-T polynomial");
         }
         highPoly->reportParameters(n, itype, ttemp, maxTemp, refPressure,
                                    c + 8);
         if (n != index) {
-            throw CanteraError("  ", "confused");
+            throw CanteraError("NasaThermo::reportParams", "Index mismatch");
         }
         if (itype != NASA1) {
-            throw CanteraError("  ", "confused");
+            throw CanteraError("NasaThermo::reportParams",
+                               "Thermo type mismatch for high-T polynomial");
         }
     } else {
-        throw CanteraError(" ", "confused");
+        throw CanteraError("NasaThermo::reportParams", "Thermo type mismatch");
     }
 }
 
 doublereal NasaThermo::reportOneHf298(const size_t k) const
 {
-    size_t grp = m_group_map[k];
-    size_t pos = m_posInGroup_map[k];
+    size_t grp = getValue(m_group_map, k);
+    size_t pos = getValue(m_posInGroup_map, k);
     const std::vector<NasaPoly1> &mlg = m_low[grp-1];
     const NasaPoly1* nlow = &(mlg[pos]);
     doublereal tmid = nlow->maxTemp();
-    double h;
     if (298.15 <= tmid) {
-        h = nlow->reportHf298(0);
+        return nlow->reportHf298(0);
     } else {
         const std::vector<NasaPoly1> &mhg = m_high[grp-1];
         const NasaPoly1* nhigh = &(mhg[pos]);
-        h = nhigh->reportHf298(0);
+        return nhigh->reportHf298(0);
     }
-    return h;
 }
 
 void NasaThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
-    size_t grp = m_group_map[k];
-    size_t pos = m_posInGroup_map[k];
+    size_t grp = getValue(m_group_map, k);
+    size_t pos = getValue(m_posInGroup_map, k);
     std::vector<NasaPoly1> &mlg = m_low[grp-1];
     NasaPoly1* nlow = &(mlg[pos]);
     std::vector<NasaPoly1> &mhg = m_high[grp-1];
@@ -254,14 +262,14 @@ doublereal NasaThermo::cp_R(double t, const doublereal* c)
 }
 
 doublereal NasaThermo::enthalpy_RT(double t, const doublereal* c) {
-    return c[2] + 0.5*c[3]*t + OneThird*c[4]*t*t
+    return c[2] + 0.5*c[3]*t + 1.0/3.0*c[4]*t*t
            + 0.25*c[5]*t*t*t + 0.2*c[6]*t*t*t*t
            + c[0]/t;
 }
 
 doublereal NasaThermo::entropy_R(double t, const doublereal* c) {
     return c[2]*log(t) + c[3]*t + 0.5*c[4]*t*t
-           + OneThird*c[5]*t*t*t + 0.25*c[6]*t*t*t*t
+           + 1.0/3.0*c[5]*t*t*t + 0.25*c[6]*t*t*t*t
            + c[1];
 }
 

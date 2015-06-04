@@ -123,7 +123,7 @@ public:
      */
     doublereal dfind(doublereal p_red, doublereal tau, doublereal deltaGuess);
 
-    //! Calculate the dimensionless gibbs free energy
+    //! Calculate the dimensionless Gibbs free energy
     doublereal gibbs_RT() const;
 
     //! Calculate the dimensionless enthalpy, h/RT

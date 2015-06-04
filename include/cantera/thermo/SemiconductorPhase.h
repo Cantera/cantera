@@ -9,6 +9,7 @@
 
 #include "mix_defs.h"
 #include "ThermoPhase.h"
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
@@ -32,7 +33,7 @@ public:
     SemiconductorPhase(std::string infile, std::string id="");
 
     SemiconductorPhase(const SemiconductorPhase& right) {
-        *this = operator=(right);
+        *this = right;
     }
 
     SemiconductorPhase& operator=(const SemiconductorPhase& right) {
@@ -66,15 +67,15 @@ public:
 
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Semiconductor");
-        doublereal rho = ctml::getFloat(eosdata, "density", "-");
+        doublereal rho = getFloat(eosdata, "density", "-");
         setDensity(rho);
-        m_bandgap = ctml::getFloat(eosdata, "bandgap", "-");
-        doublereal e_mass = ctml::getFloat(eosdata, "electron_mass", "-");
-        doublereal h_mass = ctml::getFloat(eosdata, "hole_mass", "-");
-        doublereal e_donor = ctml::getFloat(eosdata, "donor_energy", "-");
-        doublereal n_donor = ctml::getFloat(eosdata, "donor_concentration", "-");
-        doublereal e_acceptor = ctml::getFloat(eosdata, "acceptor_energy", "-");
-        doublereal n_acceptor = ctml::getFloat(eosdata, "acceptor_concentration", "-");
+        m_bandgap = getFloat(eosdata, "bandgap", "-");
+        doublereal e_mass = getFloat(eosdata, "electron_mass", "-");
+        doublereal h_mass = getFloat(eosdata, "hole_mass", "-");
+        doublereal e_donor = getFloat(eosdata, "donor_energy", "-");
+        doublereal n_donor = getFloat(eosdata, "donor_concentration", "-");
+        doublereal e_acceptor = getFloat(eosdata, "acceptor_energy", "-");
+        doublereal n_acceptor = getFloat(eosdata, "acceptor_concentration", "-");
         setEffectiveMasses(e_mass, h_mass);
         setDonorDoping(n_donor, e_donor);
         setAcceptorDoping(n_acceptor, e_acceptor);

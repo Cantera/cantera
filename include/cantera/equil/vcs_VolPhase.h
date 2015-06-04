@@ -18,17 +18,6 @@
 namespace Cantera
 {
 class ThermoPhase;
-}
-
-namespace VCSnonideal
-{
-// Models for the species activity coefficients
-#define VCS_AC_CONSTANT       0
-//#define VCS_AC_DEBYE_HUCKEL   23
-//#define VCS_AC_REGULAR_SOLN   25
-//#define VCS_AC_MARGULES       300
-#define VCS_AC_UNK_CANTERA    -1
-#define VCS_AC_UNK            -2
 
 //! Models for the standard state volume of each species
 #define VCS_SSVOL_IDEALGAS    0
@@ -218,7 +207,7 @@ public:
      * The results are held internally within the object.
      *
      * @param kspec   Species number (within the phase)
-     * @return Gstar[kspec] returns the gibbs free energy for the
+     * @return Gstar[kspec] returns the Gibbs free energy for the
      *         standard state of the kth species.
      */
     double GStar_calc_one(size_t kspec) const;
@@ -227,7 +216,7 @@ public:
     //! of a species, return a value for one species
     /*!
      *  @param kspec   species index
-     *  @return return value of the gibbs free energy
+     *  @return return value of the Gibbs free energy
      */
     double G0_calc_one(size_t kspec) const;
 
@@ -281,19 +270,19 @@ public:
      */
     void setState_T(const double temperature_Kelvin);
 
-    // Downloads the ln ActCoeff jacobian into the VCS version of the
-    // ln ActCoeff jacobian.
+    // Downloads the ln ActCoeff Jacobian into the VCS version of the
+    // ln ActCoeff Jacobian.
     /*
      *   This is essentially a scatter operation.
      *
-     *  @param LnAcJac_VCS jacobian parameter
+     *  @param LnAcJac_VCS Jacobian parameter
      *   The Jacobians are actually d( lnActCoeff) / d (MolNumber);
      *   dLnActCoeffdMolNumber(k,j)
      *
      *      j = id of the species mole number
      *      k = id of the species activity coefficient
      */
-    void sendToVCS_LnActCoeffJac(Cantera::Array2D& LnACJac_VCS);
+    void sendToVCS_LnActCoeffJac(Array2D& LnACJac_VCS);
 
     //! Set the pointer for Cantera's ThermoPhase parameter
     /*!
@@ -303,13 +292,13 @@ public:
      * @param tp_ptr Pointer to the ThermoPhase object corresponding
      *               to this phase.
      */
-    void setPtrThermoPhase(Cantera::ThermoPhase* tp_ptr);
+    void setPtrThermoPhase(ThermoPhase* tp_ptr);
 
     //! Return a const ThermoPhase pointer corresponding to this phase
     /*!
      *  @return pointer to the ThermoPhase.
      */
-    const Cantera::ThermoPhase* ptrThermoPhase() const;
+    const ThermoPhase* ptrThermoPhase() const;
 
     //! Return the total moles in the phase
     /*!
@@ -493,16 +482,16 @@ public:
      * Also decide whether we need a new charge neutrality element in the
      * phase to enforce a charge neutrality constraint.
      *
-     * @param tPhase Pointer to the thermophase object
+     * @param tPhase Pointer to the ThermoPhase object
      */
-    size_t transferElementsFM(const Cantera::ThermoPhase* const tPhase);
+    size_t transferElementsFM(const ThermoPhase* const tPhase);
 
     //! Get a constant form of the Species Formula Matrix
     /*!
      *  Returns a `double**` pointer such that `fm[e][f]` is the formula
      *  matrix entry for element `e` for species `k`
      */
-    const Cantera::Array2D& getFormulaMatrix() const;
+    const Array2D& getFormulaMatrix() const;
 
     //! Returns the type of the species unknown
     /*!
@@ -683,7 +672,7 @@ private:
      *  FormulaMatrix(kspec,j) = Formula Matrix for the species
      *  Number of elements, j, in the kspec species
      */
-    Cantera::Array2D m_formulaMatrix;
+    Array2D m_formulaMatrix;
 
     //! Type of the species unknown
     /*!
@@ -757,13 +746,14 @@ private:
 
     //!  If this is true, then calculations are actually performed within
     //!  Cantera
+    //!  @deprecated Will be implicitly 'true' after Cantera 2.2.
     bool m_useCanteraCalls;
 
     /**
      *  If we are using Cantera, this is the pointer to the ThermoPhase
      *  object. If not, this is null.
      */
-    Cantera::ThermoPhase* TP_ptr;
+    ThermoPhase* TP_ptr;
 
     //!  Total mols in the phase. units are kmol
     double v_totalMoles;
@@ -842,7 +832,7 @@ private:
      * - j = id of the species mole number
      * - k = id of the species activity coefficient
      */
-    mutable Cantera::Array2D np_dLnActCoeffdMolNumber;
+    mutable Array2D np_dLnActCoeffdMolNumber;
 
     //! Status
     /*!

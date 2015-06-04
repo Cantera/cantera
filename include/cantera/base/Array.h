@@ -7,8 +7,6 @@
 #ifndef CT_ARRAY_H
 #define CT_ARRAY_H
 
-#include "ct_defs.h"
-#include "ctexceptions.h"
 #include "utilities.h"
 
 #include <iostream>
@@ -130,8 +128,10 @@ public:
     /*!
      *  This differs from the assignment operator as no resizing is done and memcpy() is used.
      *  @param y Array to be copied
+     *  @deprecated To be removed after Cantera 2.2.
      */
     void copyData(const Array2D& y) {
+        warn_deprecated("Array2D::copyData", "To be removed after Cantera 2.2.");
         size_t n = sizeof(doublereal) * m_nrows * m_ncols;
         (void) memcpy(DATA_PTR(m_data), y.ptrColumn(0), n);
     }
@@ -284,7 +284,7 @@ public:
 
     //! Returns a changeable reference to position in the matrix
     /*!
-     * This is a key entry. Returns a reference to the matrixes (i,j)
+     * This is a key entry. Returns a reference to the matrix's (i,j)
      * element. This may be used as an L value.
      *
      * @param i   The row index

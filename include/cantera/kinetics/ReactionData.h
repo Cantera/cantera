@@ -7,29 +7,48 @@
 #define CT_REACTION_DATA_H
 
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
 
 //! Intermediate class which stores data about a reaction and its rate
 //! parameterization before adding the reaction to a Kinetics object.
+/*!
+ *  All data in this class is public.
+ *  @deprecated Use class Reaction and its children. To be removed after
+ *      Cantera 2.2.
+ */
 class ReactionData
 {
 public:
-    ReactionData() {
-        reactionType = ELEMENTARY_RXN;
-        validate = false;
-        number = 0;
-        rxn_number = 0;
-        reversible = true;
-        rateCoeffType = ARRHENIUS_REACTION_RATECOEFF_TYPE;
-        falloffType = NONE;
-        error = 0;
-        equation = "";
-        default_3b_eff = 1.0;
-        global = false;
-        isReversibleWithFrac = false;
-        beta = 0.0;
+    ReactionData() :
+        reactionType(ELEMENTARY_RXN),
+        validate(false),
+        number(0),
+        rxn_number(0),
+        filmResistivity(0.0),
+        equilibriumConstantPower(1.0),
+        affinityPower(1.0),
+        reversible(true),
+        duplicate(false),
+        rateCoeffType(ARRHENIUS_REACTION_RATECOEFF_TYPE),
+        falloffType(NONE),
+        error(0),
+        equation(""),
+        default_3b_eff(1.0),
+        global(false),
+        isReversibleWithFrac(false),
+        beta(0.0),
+        chebTmin(-1.0),
+        chebTmax(-1.0),
+        chebPmin(-1.0),
+        chebPmax(-1.0),
+        chebDegreeT(0),
+        chebDegreeP(0)
+    {
+        warn_deprecated("class ReactionData",
+            "To be removed after Cantera 2.2.");
     }
 
     virtual ~ReactionData() {}
@@ -45,20 +64,40 @@ public:
     std::vector<size_t> products; //!< Indices of product species
 
     //! Reaction order with respect to each reactant species, in the order
-    //! given by #reactants. Usually the same as the stoichiometric
-    //! coefficients.
+    //! given by #reactants. Usually the same as the stoichiometric coefficients.
+    /*!
+     *  Length is equal to the number of reactants defined in the reaction
+     *  The order of species is given by the reactants vectors.
+     */
     vector_fp rorder;
 
     //! Reaction order of the reverse reaction with respect to each product
-    //! species, in the order given by #products. Usually the same as the
-    //! stoichiometric coefficients.
+    //! species, in the order given by #products. Usually the same as the stoichiometric coefficients.
+    /*!
+     *  Length is equal to the number of products defined in the reaction.
+     *  The order of species is given by the products vectors.
+     */
     vector_fp porder;
 
-    //! Reactant stoichiometric coefficients, in the order given by
-    //! #reactants.
+    //! Reaction order for the forward direction of the reaction
+    /*!
+     *  Length is equal to the number of kinetic species defined in the kinetics object
+     *  The order of species is given by kinetics species vector.
+     */
+    vector_fp forwardFullOrder_;
+
+    //! Reactant stoichiometric coefficients, in the order given by #reactants.
+    /*!
+     *  Length is equal to the number of products defined in the reaction.
+     *  The order of species is given by the products vectors.
+     */
     vector_fp rstoich;
 
     //! Product stoichiometric coefficients, in the order given by #products.
+    /*!
+     *  Length is equal to the number of products defined in the reaction.
+     *  The order of species is given by the products vectors.
+     */
     vector_fp pstoich;
 
     std::vector<grouplist_t> rgroups; //!< Optional data used in reaction path diagrams
@@ -71,6 +110,28 @@ public:
     //! duplicate reaction detection. Key is `-1-k` for reactants, `1+k` for
     //! products.
     std::map<int, doublereal> net_stoich;
+
+    //! Film Resistivity value
+    /*!
+     *  Only valid for Butler-Volmer formulations.
+     *  Units are in ohms m2.
+     *  default = 0.0 ohms m2
+     */
+    doublereal filmResistivity;
+
+    //! Power of the equilibrium constant within the Affinity representation
+    /*!
+     *  Only valid for Affinity representation.
+     *  default = 1.0
+     */
+    doublereal equilibriumConstantPower;
+
+    //! Power of the "One minus Affinity" term within the Affinity representation
+    /*!
+     *   Only value for Affinity representation
+     *   default = 1.0
+     */
+    doublereal affinityPower;
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible;
@@ -136,7 +197,8 @@ public:
     //! phases with unity activities.
     bool isReversibleWithFrac;
 
-    doublereal beta; //!< for electrochemical reactions
+    //! Forward value of the apparent Electrochemical transfer coefficient
+    doublereal beta;
 
     //! Arrhenius parameters for P-log reactions.
     //! The keys are the pressures corresponding to each Arrhenius expression.
@@ -156,12 +218,7 @@ public:
 
     //! Get the actual third-body efficiency for species *k*
     double efficiency(size_t k) const {
-        std::map<size_t, doublereal>::const_iterator iter = thirdBodyEfficiencies.find(k);
-        if (iter != thirdBodyEfficiencies.end()) {
-            return iter->second;
-        } else {
-            return default_3b_eff;
-        }
+        return getValue(thirdBodyEfficiencies, k, default_3b_eff);
     }
 };
 }

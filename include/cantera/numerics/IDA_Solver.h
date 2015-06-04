@@ -9,13 +9,12 @@
 #define CT_IDA_SOLVER_H
 
 #include "DAE_Solver.h"
-#include "cantera/base/ctexceptions.h"
 
 #if HAS_SUNDIALS
 
 #include "sundials/sundials_nvector.h"
 
-// These constants are defined internally in the ida package, ida.c
+// These constants are defined internally in the IDA package, ida.c
 #define IDA_NN  0
 #define IDA_SS  1
 #define IDA_SV  2
@@ -44,7 +43,7 @@ public:
 
     //! Constructor.
     /*!
-     * Default settings: dense jacobian, no user-supplied Jacobian function, Newton iteration.
+     * Default settings: dense Jacobian, no user-supplied Jacobian function, Newton iteration.
      *
      * @param f    Function that will supply the time dependent residual to be solved
      */
@@ -96,13 +95,13 @@ public:
     virtual double getCurrentStepFromIDA();
 
 
-    //! Set the form of the jacobian
+    //! Set the form of the Jacobian
     /*!
      *
-     *   @param formJac  Form of the jacobian
+     *   @param formJac  Form of the Jacobian
      *
-     *                   0 numerical jacobian
-     *                   1 analytical jacobian given by the evalJacobianDP() function
+     *                   0 numerical Jacobian
+     *                   1 analytical Jacobian given by the evalJacobianDP() function
      */
     virtual void setJacobianType(int formJac);
 
@@ -111,7 +110,7 @@ public:
 
     //! Set the maximum number of nonlinear iterations on a timestep
     /*!
-     * @param n  Set the max iterations. The default is 4, which seems awefully low to me.
+     * @param n  Set the max iterations. The default is 4, which seems awfully low to me.
      */
     virtual void setMaxNonlinIterations(int n);
 
@@ -250,7 +249,7 @@ protected:
     //! Maximum value of the timestep allowed
     doublereal m_hmax;
 
-    //! Minimum value of the timestep allowd
+    //! Minimum value of the timestep allowed
     doublereal m_hmin;
 
     //! Value of the initial time step
@@ -262,12 +261,12 @@ protected:
     //!  maximum time step order of the method
     int m_maxord;
 
-    //! Form of the jacobian
+    //! Form of the Jacobian
     /*!
-     *  0 numerical jacobian created by ida
-     *  1 analytical jacobian. Must have populated the evalJacobianDP()
+     *  0 numerical Jacobian created by IDA
+     *  1 analytical Jacobian. Must have populated the evalJacobianDP()
      *    function in the ResidJacEval class.
-     *  2 numerical jacobian formed by the ResidJacEval class (unimplemented)
+     *  2 numerical Jacobian formed by the ResidJacEval class (unimplemented)
      */
     int m_formJac;
 

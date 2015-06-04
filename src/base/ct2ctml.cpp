@@ -5,24 +5,21 @@
  */
 // Copyright 2001-2005  California Institute of Technology
 
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
 #include "../../ext/libexecstream/exec-stream.h"
 
 #include <fstream>
 #include <sstream>
+#include <functional>
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-using namespace Cantera;
 using namespace std;
 
-namespace ctml
+namespace Cantera
 {
 
 //! return the full path to the Python interpreter.
@@ -79,8 +76,17 @@ void ct2ctml(const char* file, const int debug)
     out << xml;
 }
 
-std::string ct2ctml_string(const std::string& file)
+static std::string call_ctml_writer(const std::string& text, bool isfile)
 {
+    std::string file, arg;
+    if (isfile) {
+        file = text;
+        arg = "r'" + text + "'";
+    } else {
+        file = "<string>";
+        arg = "text=r'''" + text + "'''";
+    }
+
 #ifdef HAS_NO_PYTHON
     /*
      *  Section to bomb out if python is not
@@ -108,7 +114,7 @@ std::string ct2ctml_string(const std::string& file)
                     "except ImportError:\n"
                     "    print('sys.path: ' + repr(sys.path) + '\\n', file=sys.stderr)\n"
                     "    raise\n"
-                    "ctml_writer.convert(r'" + file + "', 'STDOUT')\n"
+                    "ctml_writer.convert(" + arg + ", outName='STDOUT')\n"
                     "sys.exit(0)\n");
 
         python.start(pypath(), args.begin(), args.end());
@@ -169,6 +175,15 @@ std::string ct2ctml_string(const std::string& file)
     return python_output;
 }
 
+std::string ct2ctml_string(const std::string& file)
+{
+    return call_ctml_writer(file, true);
+}
+
+std::string ct_string2ctml_string(const std::string& cti)
+{
+    return call_ctml_writer(cti, false);
+}
 
 void ck2cti(const std::string& in_file, const std::string& thermo_file,
             const std::string& transport_file, const std::string& id_tag)
@@ -259,48 +274,21 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
     }
 }
 
-void get_CTML_Tree(Cantera::XML_Node* rootPtr, const std::string& file, const int debug)
+void get_CTML_Tree(XML_Node* rootPtr, const std::string& file, const int debug)
 {
-    std::string ext = "";
-
-    // find the input file on the Cantera search path
-    std::string inname = findInputFile(file);
-    writelog("Found file: "+inname+"\n", debug);
-
-    if (inname == "") {
-        throw CanteraError("get_CTML_Tree", "file "+file+" not found");
-    }
-
-    /*
-     * Check whether or not the file is XML. If not, it will be first
-     * processed with the preprocessor.
-     */
-    std::string::size_type idot = inname.rfind('.');
-    if (idot != string::npos) {
-        ext = inname.substr(idot, inname.size());
-    }
-    if (ext != ".xml" && ext != ".ctml") {
-        string phase_xml = ctml::ct2ctml_string(inname);
-        stringstream s(phase_xml);
-        rootPtr->build(s);
-        return;
-    }
-
-    writelog("Attempting to parse xml file " + inname + "\n", debug);
-    ifstream fin(inname.c_str());
-    if (!fin) {
-        throw
-        CanteraError("get_CTML_Tree",
-                     "XML file " + inname + " not found");
-    }
-    rootPtr->build(fin);
-    fin.close();
+    warn_deprecated("get_CTML_Tree", "To be removed after Cantera 2.2. "
+            "Use get_XML_File instead.");
+    XML_Node* src = get_XML_File(file);
+    src->copy(rootPtr);
 }
 
-Cantera::XML_Node getCtmlTree(const std::string& file)
+XML_Node getCtmlTree(const std::string& file)
 {
-    Cantera::XML_Node root;
-    get_CTML_Tree(&root, file);
+    warn_deprecated("getCtmlTree", "To be removed after Cantera 2.2. "
+            "Use get_XML_File instead.");
+    XML_Node root;
+    XML_Node* src = get_XML_File(file);
+    src->copy(&root);
     return root;
 }
 

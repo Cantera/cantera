@@ -6,12 +6,12 @@
  */
 
 #include "cantera/transport/LTPspecies.h"
+#include "cantera/base/ctml.h"
+
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {
-
 //! Exception thrown if an error is encountered while reading the transport database.
 class LTPError : public CanteraError
 {
@@ -26,7 +26,7 @@ public:
     }
 };
 
-//! Parses the xml element called Arrhenius.
+//! Parses the XML element called Arrhenius.
 /*!
  * The Arrhenius expression is
  *    \f[
@@ -87,10 +87,6 @@ LTPspecies& LTPspecies::operator=(const LTPspecies& right)
 LTPspecies* LTPspecies::duplMyselfAsLTPspecies() const
 {
     return new LTPspecies(*this);
-}
-
-LTPspecies::~LTPspecies()
-{
 }
 
 doublereal LTPspecies::getSpeciesTransProp()
@@ -172,7 +168,6 @@ LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node& propNode, const std::
 }
 
 LTPspecies_Arrhenius::LTPspecies_Arrhenius(const LTPspecies_Arrhenius& right)
-    : LTPspecies()
 {
     *this = right;
 }

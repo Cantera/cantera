@@ -13,7 +13,6 @@
     </state>
     <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
-    <transport model="None"/>
   </phase>
 
   <!-- phase notair     -->
@@ -28,7 +27,6 @@
     <note>This phase contains no Argon.</note>
     <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
-    <transport model="None"/>
   </phase>
 
   <!-- species definitions     -->

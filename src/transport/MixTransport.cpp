@@ -4,12 +4,7 @@
  */
 // copyright 2001 California Institute of Technology
 
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/MixTransport.h"
-
-#include "cantera/base/utilities.h"
-#include "cantera/transport/TransportParams.h"
-#include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -17,8 +12,6 @@ using namespace std;
 namespace Cantera
 {
 MixTransport::MixTransport() :
-    m_condcoeffs(0),
-    m_cond(0),
     m_lambda(0.0),
     m_spcond_ok(false),
     m_condmix_ok(false),
@@ -28,8 +21,6 @@ MixTransport::MixTransport() :
 
 MixTransport::MixTransport(const MixTransport& right) :
     GasTransport(right),
-    m_condcoeffs(0),
-    m_cond(0),
     m_lambda(0.0),
     m_spcond_ok(false),
     m_condmix_ok(false),
@@ -45,7 +36,6 @@ MixTransport&  MixTransport::operator=(const MixTransport& right)
     }
     GasTransport::operator=(right);
 
-    m_condcoeffs = right.m_condcoeffs;
     m_cond = right.m_cond;
     m_lambda = right.m_lambda;
     m_spcond_ok = right.m_spcond_ok;
@@ -60,27 +50,15 @@ Transport* MixTransport::duplMyselfAsTransport() const
     return new MixTransport(*this);
 }
 
-bool MixTransport::initGas(GasTransportParams& tr)
+void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
-    GasTransport::initGas(tr);
-
-    m_eps = tr.eps;
-    m_sigma = tr.sigma;
-    m_alpha = tr.alpha;
-    m_dipole = tr.dipole;
-    m_zrot = tr.zrot;
-    m_crot = tr.crot;
-
-    // copy polynomials and parameters into local storage
-    m_condcoeffs = tr.condcoeffs;
+    GasTransport::init(thermo, mode, log_level);
 
     m_cond.resize(m_nsp);
 
     // set flags all false
     m_spcond_ok = false;
     m_condmix_ok = false;
-
-    return true;
 }
 
 void MixTransport::getMobilities(doublereal* const mobil)

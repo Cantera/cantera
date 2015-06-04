@@ -7,9 +7,6 @@
 #include "cantera/base/utilities.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
-
-#include <cstdio>
 
 using namespace std;
 
@@ -215,14 +212,6 @@ double MMCollisionInt::cstar_table[39*8] = {
     0.94863, 0.9487,0.9489,0.9491,0.9493,0.9491,0.9483,0.9476,
     0.94444, 0.94444,0.94444,0.94444,0.94444,0.94444,0.94444,0.94444
 };
-
-MMCollisionInt::MMCollisionInt()
-{
-}
-
-MMCollisionInt::~MMCollisionInt()
-{
-}
 
 void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
 {

@@ -7,16 +7,9 @@
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
  * U.S. Government retains certain rights in this software.
  */
-#include "cantera/base/ct_defs.h"
-
-#include "cantera/base/xml.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_Water.h"
-
 #include "cantera/thermo/WaterPropsIAPWS.h"
-#include "cantera/thermo/ThermoFactory.h"
-#include "cantera/thermo/WaterProps.h"
-#include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/stringUtils.h"
 
 #include <fstream>
@@ -220,26 +213,22 @@ void PDSS_Water::constructSet()
 
 doublereal PDSS_Water::enthalpy_mole() const
 {
-    doublereal h = m_sub.enthalpy();
-    return h + EW_Offset;
+    return m_sub.enthalpy() + EW_Offset;
 }
 
 doublereal PDSS_Water::intEnergy_mole() const
 {
-    doublereal u = m_sub.intEnergy();
-    return u + EW_Offset;
+    return m_sub.intEnergy() + EW_Offset;
 }
 
 doublereal PDSS_Water::entropy_mole() const
 {
-    doublereal s = m_sub.entropy();
-    return s + SW_Offset;
+    return m_sub.entropy() + SW_Offset;
 }
 
 doublereal PDSS_Water::gibbs_mole() const
 {
-    doublereal g = m_sub.Gibbs();
-    return g + EW_Offset - SW_Offset*m_temp;
+    return m_sub.Gibbs() + EW_Offset - SW_Offset*m_temp;
 }
 
 doublereal PDSS_Water::cp_mole() const
@@ -304,9 +293,8 @@ doublereal PDSS_Water::molarVolume_ref() const
 
 doublereal PDSS_Water::pressure() const
 {
-    doublereal p = m_sub.pressure();
-    m_pres = p;
-    return p;
+    m_pres = m_sub.pressure();
+    return m_pres;
 }
 
 void PDSS_Water::setPressure(doublereal p)
@@ -395,8 +383,7 @@ doublereal PDSS_Water::density() const
 void PDSS_Water::setTemperature(doublereal temp)
 {
     m_temp = temp;
-    doublereal dd = m_dens;
-    m_sub.setState_TR(temp, dd);
+    m_sub.setState_TR(temp, m_dens);
 }
 
 void PDSS_Water::setState_TP(doublereal temp, doublereal pres)

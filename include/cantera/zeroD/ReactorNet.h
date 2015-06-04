@@ -150,8 +150,19 @@ public:
     //! the values in the solution vector *y*.
     void updateState(doublereal* y);
 
-    //! Return the sensitivity of the *k*-th solution component with
-    //! respect to the *p*-th sensitivity parameter.
+    //! Return the sensitivity of the *k*-th solution component with respect to
+    //! the *p*-th sensitivity parameter.
+    /*!
+     *  The normalized sensitivity coefficient \f$ S_{ki} \f$ of solution
+     *  variable \f$ y_k \f$ with respect to sensitivity parameter \f$ p_i \f$
+     *  is defined as:
+     *
+     *  \f[ S_{ki} = \frac{p_i}{y_k} \frac{\partial y_k}{\partial p_i} \f]
+     *
+     *  For reaction sensitivities, the parameter is a multiplier on the forward
+     *  rate constant (and implicitly on the reverse rate constant for
+     *  reversible reactions).
+     */
     double sensitivity(size_t k, size_t p) {
         if (!m_init) {
             initialize();
@@ -161,6 +172,7 @@ public:
 
     //! Return the sensitivity of the component named *component* with respect to
     //! the *p*-th sensitivity parameter.
+    //! @copydetails ReactorNet::sensitivity(size_t, size_t)
     double sensitivity(const std::string& component, size_t p, int reactor=0) {
         size_t k = globalComponentIndex(component, reactor);
         return sensitivity(k, p);
@@ -218,15 +230,6 @@ public:
     }
 
 protected:
-    void connect(size_t i, size_t j) {
-        m_connect[j*m_reactors.size() + i] = 1;
-        m_connect[i*m_reactors.size() + j] = 1;
-    }
-
-    bool connected(size_t i, size_t j) {
-        return (m_connect[m_reactors.size()*i + j] == 1);
-    }
-
     /**
      * Initialize the reactor network. Called automatically the first time
      * advance or step is called.
@@ -264,7 +267,6 @@ protected:
     //! output.
     std::vector<size_t> m_sensIndex;
 
-    vector_int m_connect;
     vector_fp m_ydot;
 
     std::vector<bool> m_iown;

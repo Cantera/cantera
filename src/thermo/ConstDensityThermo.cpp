@@ -6,24 +6,16 @@
  */
 
 //  Copyright 2002 California Institute of Technology
-#include "cantera/base/ct_defs.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ConstDensityThermo.h"
-#include "cantera/thermo/SpeciesThermo.h"
-
-using namespace ctml;
+#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
 
-ConstDensityThermo::ConstDensityThermo()
-{
-}
-
-
 ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo& right)
 {
-    *this = operator=(right);
+    *this = right;
 }
 
 ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& right)
@@ -56,19 +48,17 @@ doublereal ConstDensityThermo::enthalpy_mole() const
 {
     doublereal p0 = m_spthermo->refPressure();
     return GasConstant * temperature() *
-           mean_X(&enthalpy_RT()[0])
-           + (pressure() - p0)/molarDensity();
+           mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
 }
 
 doublereal ConstDensityThermo::entropy_mole() const
 {
-    return GasConstant * (mean_X(&entropy_R()[0]) -
-                          sum_xlogx());
+    return GasConstant * (mean_X(entropy_R()) - sum_xlogx());
 }
 
 doublereal ConstDensityThermo::cp_mole() const
 {
-    return GasConstant * mean_X(&cp_R()[0]);
+    return GasConstant * mean_X(cp_R());
 }
 
 doublereal ConstDensityThermo::cv_mole() const
@@ -107,11 +97,10 @@ void ConstDensityThermo::getChemPotentials(doublereal* mu) const
 {
     doublereal vdp = (pressure() - m_spthermo->refPressure())/
                      molarDensity();
-    doublereal xx;
     doublereal rt = temperature() * GasConstant;
     const vector_fp& g_RT = gibbs_RT();
     for (size_t k = 0; k < m_kk; k++) {
-        xx = std::max(SmallNumber, moleFraction(k));
+        double xx = std::max(SmallNumber, moleFraction(k));
         mu[k] = rt*(g_RT[k] + log(xx)) + vdp;
     }
 }
@@ -124,7 +113,7 @@ void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const
 
 void ConstDensityThermo::initThermo()
 {
-    m_kk = nSpecies();
+    ThermoPhase::initThermo();
     m_h0_RT.resize(m_kk);
     m_g0_RT.resize(m_kk);
     m_cp0_R.resize(m_kk);

@@ -7,7 +7,6 @@
  *   pointers are passed to or from the calling application.
  */
 // Cantera includes
-#include "cantera/equil/equil.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -15,7 +14,6 @@
 #include "cantera/kinetics/importKinetics.h"
 #include "clib/Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/thermo/PureFluidPhase.h"
 
 #include "clib/clib_defs.h"
 
@@ -560,7 +558,7 @@ extern "C" {
     status_t th_equil_(const integer* n, char* XY, ftnlen lenxy)
     {
         try {
-            equilibrate(*_fth(n), f2string(XY,lenxy).c_str());
+            _fth(n)->equilibrate(f2string(XY,lenxy));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1067,7 +1065,6 @@ extern "C" {
             thermo_t* t = _fth(ith);
             Kinetics* k = _fkin(ikin);
 
-            Kinetics& kin = *k;
             XML_Node* x, *r=0;
             if (root) {
                 r = &root->root();
@@ -1083,9 +1080,9 @@ extern "C" {
                 return 0;
             }
             importPhase(*x, t);
-            kin.addPhase(*t);
-            kin.init();
-            installReactionArrays(*x, kin, x->id());
+            k->addPhase(*t);
+            k->init();
+            installReactionArrays(*x, *k, x->id());
             t->setState_TP(300.0, OneAtm);
             if (r) {
                 if (&x->root() != &r->root()) {

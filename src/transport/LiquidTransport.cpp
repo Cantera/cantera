@@ -2,12 +2,7 @@
  *  @file LiquidTransport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/LiquidTransport.h"
-
-#include "cantera/base/utilities.h"
-#include "cantera/transport/LiquidTransportParams.h"
-#include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
@@ -33,8 +28,6 @@ LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
     m_lambda(-1.0),
     m_viscmix(-1.0),
     m_ionCondmix(-1.0),
-    m_mobRatMix(0),
-    m_selfDiffMix(0),
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
@@ -76,8 +69,6 @@ LiquidTransport::LiquidTransport(const LiquidTransport& right) :
     m_lambda(-1.0),
     m_viscmix(-1.0),
     m_ionCondmix(-1.0),
-    m_mobRatMix(0),
-    m_selfDiffMix(0),
     m_visc_mix_ok(false),
     m_visc_temp_ok(false),
     m_visc_conc_ok(false),
@@ -220,7 +211,7 @@ LiquidTransport::~LiquidTransport()
     delete m_lambdaMixModel;
     delete m_diffMixModel;
 }
-//=============================================================================================================================
+
 bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 {
     //
@@ -232,7 +223,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_nsp2 = m_nsp*m_nsp;
     //
     //  Resize the local storage according to the number of species
-    // 
+    //
     m_mw.resize(m_nsp, 0.0);
     m_viscSpecies.resize(m_nsp, 0.0);
     m_viscTempDep_Ns.resize(m_nsp, 0);
@@ -941,7 +932,7 @@ void LiquidTransport::update_Grad_lnAC()
     doublereal grad_T;
     for (size_t k = 0; k < m_nDim; k++) {
         grad_T = m_Grad_T[k];
-        const int start = m_nsp*k;
+        size_t start = m_nsp*k;
         m_thermo->getdlnActCoeffds(grad_T, &(m_Grad_X[start]), &(m_Grad_lnAC[start]));
         for (size_t i = 0; i < m_nsp; i++)
             if (m_molefracs[i] < 1.e-15) {

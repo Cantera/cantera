@@ -7,9 +7,7 @@
 // Cantera includes
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowReactor.h"
-#include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/ReactorNet.h"
-#include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/ReactorFactory.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/zeroD/flowControllers.h"
@@ -26,10 +24,10 @@ typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 
-template<> ReactorCabinet* ReactorCabinet::__storage = 0;
-template<> NetworkCabinet* NetworkCabinet::__storage = 0;
-template<> FlowDeviceCabinet* FlowDeviceCabinet::__storage = 0;
-template<> WallCabinet* WallCabinet::__storage = 0;
+template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
+template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
+template<> FlowDeviceCabinet* FlowDeviceCabinet::s_storage = 0;
+template<> WallCabinet* WallCabinet::s_storage = 0;
 
 extern "C" {
 
@@ -653,6 +651,19 @@ extern "C" {
     {
         try {
             WallCabinet::item(i).addSensitivityReaction(lr, rxn);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int clear_reactors()
+    {
+        try {
+            ReactorCabinet::clear();
+            NetworkCabinet::clear();
+            FlowDeviceCabinet::clear();
+            WallCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

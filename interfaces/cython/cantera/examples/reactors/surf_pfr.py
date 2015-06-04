@@ -70,80 +70,72 @@ cov = surf.coverages
 
 print('    distance       X_CH4        X_H2        X_CO')
 
+# create a new reactor
+gas.TDY = TDY
+r = ct.IdealGasReactor(gas, energy='off')
+r.volume = rvol
+
+# create a reservoir to represent the reactor immediately upstream. Note
+# that the gas object is set already to the state of the upstream reactor
+upstream = ct.Reservoir(gas, name='upstream')
+
+# create a reservoir for the reactor to exhaust into. The composition of
+# this reservoir is irrelevant.
+downstream = ct.Reservoir(gas, name='downstream')
+
+# use a 'Wall' object to implement the reacting surface in the reactor.
+# Since walls have to be installed between two reactors/reservoirs, we'll
+# install it between the upstream reservoir and the reactor.  The area is
+# set to the desired catalyst area in the reactor, and surface reactions
+# are included only on the side facing the reactor.
+w = ct.Wall(upstream, r, A=cat_area, kinetics=[None, surf])
+
+# The mass flow rate into the reactor will be fixed by using a
+# MassFlowController object.
+m = ct.MassFlowController(upstream, r, mdot=mass_flow_rate)
+
+# We need an outlet to the downstream reservoir. This will determine the
+# pressure in the reactor. The value of K will only affect the transient
+# pressure difference.
+v = ct.PressureController(r, downstream, master=m, K=1e-5)
+
+sim = ct.ReactorNet([r])
+sim.max_err_test_fails = 12
+
+# set relative and absolute tolerances on the simulation
+sim.rtol = 1.0e-9
+sim.atol = 1.0e-21
+
 for n in range(NReactors):
-    surf.TP = TDY[0], ct.one_atm
-    surf.coverages = cov
-
-    # create a new reactor
-    gas.TDY = TDY
-    r = ct.IdealGasReactor(gas, energy='off')
-    r.volume = rvol
-
-    # create a reservoir to represent the reactor immediately upstream. Note
-    # that the gas object is set already to the state of the upstream reactor
-    upstream = ct.Reservoir(gas, name='upstream')
-
-    # create a reservoir for the reactor to exhaust into. The composition of
-    # this reservoir is irrelevant.
-    downstream = ct.Reservoir(gas, name='downstream')
-
-    # use a 'Wall' object to implement the reacting surface in the reactor.
-    # Since walls have to be installed between two reactors/reserviors, we'll
-    # install it between the upstream reservoir and the reactor.  The area is
-    # set to the desired catalyst area in the reactor, and surface reactions
-    # are included only on the side facing the reactor.
-    w = ct.Wall(upstream, r, A=cat_area, kinetics=[None, surf])
-
-    # We need a valve between the reactor and the downstream reservoir. This
-    # will determine the pressure in the reactor. Set K large enough that the
-    # pressure difference is very small.
-    v = ct.Valve(r, downstream, K=1e-4)
-
-    # The mass flow rate into the reactor will be fixed by using a
-    # MassFlowController object.
-    m = ct.MassFlowController(upstream, r, mdot=mass_flow_rate)
-
-    sim = ct.ReactorNet([r])
-    sim.max_err_test_fails = 12
-
-    # set relative and absolute tolerances on the simulation
-    sim.rtol = 1.0e-9
-    sim.atol = 1.0e-21
-
-    T_start, rho_start, Y_start = r.thermo.TDY
-    cov_start = surf.coverages
-    V_start = r.volume
-
-    Tu_start, rhou_start, Yu_start = upstream.thermo.TDY
+    # Set the state of the reservoir to match that of the previous reactor
+    gas.TDY = r.thermo.TDY
+    upstream.syncState()
 
     time = 0
     all_done = False
+    sim.set_initial_time(0) # forces reinitialization
     while not all_done:
         time += dt
         sim.advance(time)
 
-        # check whether surface coverages are in steady state. This will be
-        # the case if the creation and destruction rates for a surface (but
-        # not gas) species are equal.
-        all_done = True
+        if time > 10 * dt:
+            # check whether surface coverages are in steady state. This will be
+            # the case if the creation and destruction rates for a surface (but
+            # not gas) species are equal.
+            all_done = True
 
-        # Note: netProduction = creation - destruction. By supplying the
-        # surface object as an argument, only the values for the surface
-        # species are returned by these methods
-        sdot = surf.get_net_production_rates(surf)
-        cdot = surf.get_creation_rates(surf)
-        ddot = surf.get_destruction_rates(surf)
+            # Note: netProduction = creation - destruction. By supplying the
+            # surface object as an argument, only the values for the surface
+            # species are returned by these methods
+            sdot = surf.get_net_production_rates(surf)
+            cdot = surf.get_creation_rates(surf)
+            ddot = surf.get_destruction_rates(surf)
 
-        for ks in range(surf.n_species):
-            ratio = abs(sdot[ks]/(cdot[ks] + ddot[ks]))
-            if ratio > 1.0e-9 or time < 10*dt:
-                all_done = False
-
-    # Save the reactor and surface states, in preparation for the simulation
-    # of the next reactor downstream, where this object will set the inlet
-    # conditions and the initial surface coverages
-    TDY = r.thermo.TDY
-    cov = surf.coverages
+            for ks in range(surf.n_species):
+                ratio = abs(sdot[ks]/(cdot[ks] + ddot[ks]))
+                if ratio > 1.0e-9:
+                    all_done = False
+                    break
 
     dist = n * rlen * 1.0e3   # distance in mm
 

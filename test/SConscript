@@ -5,19 +5,35 @@ from xml.etree import ElementTree
 Import('env','build','install')
 localenv = env.Clone()
 
+# Where possible, link tests against the shared libraries to minimize the sizes
+# of the resulting binaries.
+if localenv['OS'] == 'Linux':
+    cantera_libs = localenv['cantera_shared_libs']
+else:
+    cantera_libs = localenv['cantera_libs']
+
 localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
                  LIBPATH='#build/lib')
-localenv.Append(LIBS=['gtest'] + localenv['cantera_libs'],
+localenv.Append(LIBS=['gtest'] + cantera_libs,
                 CCFLAGS=env['warning_flags'])
+
+# Turn of optimization to speed up compilation
+ccflags = localenv['CCFLAGS']
+for optimize_flag in ('-O3', '-O2', '/O2'):
+    if optimize_flag in ccflags:
+        ccflags.remove(optimize_flag)
+localenv['CCFLAGS'] = ccflags
 
 localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 
 PASSED_FILES = {}
 
 # Needed for Intel runtime libraries when compiling with ICC
-if 'LD_LIBRARY_PATH' in os.environ:
-    localenv['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
-
+# Add build/lib in order to find Cantera shared library
+if localenv['ENV'].get('LD_LIBRARY_PATH'):
+    localenv['ENV']['LD_LIBRARY_PATH'] += os.pathsep + Dir('#build/lib').abspath
+else:
+    localenv['ENV']['LD_LIBRARY_PATH'] = Dir('#build/lib').abspath
 
 def addTestProgram(subdir, progName, env_vars={}):
     """
@@ -47,15 +63,18 @@ def addTestProgram(subdir, progName, env_vars={}):
             # Determine individual test status
             results = ElementTree.parse(resultsFile)
             for test in results.findall('.//testcase'):
-                testName = ': '.join((progName, test.get('name')))
+                testName = '{0}: {1}.{2}'.format(progName, test.get('classname'),
+                                                 test.get('name'))
                 if test.findall('failure'):
                     testResults.failed[testName] = 1
                 else:
                     testResults.passed[testName] = 1
         else:
-            # Total failure of the test program - unable to determine status
-            # of individual tests
-            testResults.failed[passedFile.name] = program
+            # Total failure of the test program - unable to determine status of
+            # individual tests. This is potentially very bad, so it counts as
+            # more than one failure.
+            testResults.failed[passedFile.name +
+                ' ***no results for entire test suite***'] = 100
 
     testenv = localenv.Clone()
     testenv['ENV'].update(env_vars)
@@ -65,6 +84,7 @@ def addTestProgram(subdir, progName, env_vars={}):
     PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
     run_program = testenv.Command(passedFile, program, gtestRunner)
+    env.Depends(run_program, testenv.get('cantera_shlib', ()))
     Alias('test', run_program)
     Alias('test-%s' % progName, run_program)
     env['testNames'].append(progName)
@@ -110,8 +130,10 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
                     failures += 1
 
         if code and failures == 0:
-            # Failure, but unable to determine status of individual tests
-            testResults.failed[testname] = True
+            # Failure, but unable to determine status of individual tests. This
+            # gets counted as many failures.
+            testResults.failed[testname +
+                ' ***no results for entire test suite***'] = 100
 
     testenv = localenv.Clone()
     passedFile = File(pjoin(subdir, '%s.passed' % testname))
@@ -159,13 +181,13 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
         print results
         print '------ end Matlab test results ------'
         if 'FAILED' in results:
-            testResults.failed[passedFile.name] = True
+            testResults.failed[passedFile.name] = 1
         else:
-            testResults.passed[passedFile.name] = True
+            testResults.passed[passedFile.name] = 1
             open(target[0].path, 'w').write(time.asctime()+'\n')
 
     testenv = localenv.Clone()
-    passedFile = File(pjoin('matlab', '%s.passed' % (script)))
+    passedFile = File('matlab/%s.passed' % (script))
     PASSED_FILES[testName] = str(passedFile)
     testResults.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
@@ -194,8 +216,10 @@ else:
 
 
 # Instantiate tests
+addTestProgram('general', 'general', env_vars=python_env_vars)
 addTestProgram('thermo', 'thermo', env_vars=python_env_vars)
-addTestProgram('kinetics', 'kinetics')
+addTestProgram('kinetics', 'kinetics', env_vars=python_env_vars)
+addTestProgram('transport', 'transport', env_vars=python_env_vars)
 
 python_subtests = ['']
 test_root = '#interfaces/cython/cantera/test'
@@ -203,11 +227,11 @@ for f in mglob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
 def make_python_tests(version):
-    # Create test aliases for individual test modules (e.g. test-cython2-thermo;
+    # Create test aliases for individual test modules (e.g. test-python2-thermo;
     # not run as part of the main suite) and a single test runner with all the
-    # tests (test-cython2) for the main suite.
+    # tests (test-python2) for the main suite.
     for subset in python_subtests:
-        name = 'cython%i-' %version + subset if subset else 'cython%i' % version
+        name = 'python%i-' %version + subset if subset else 'python%i' % version
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,

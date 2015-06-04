@@ -1,6 +1,6 @@
 /**
  *  @file SingleSpeciesTP.h
- *  Header for the %SingleSpeciesTP class, which is a filter class for %ThermoPhase,
+ *  Header for the SingleSpeciesTP class, which is a filter class for ThermoPhase,
  *  that eases the construction of single species phases
  *  ( see \ref thermoprops and class \link Cantera::SingleSpeciesTP SingleSpeciesTP\endlink).
  *
@@ -30,7 +30,7 @@ namespace Cantera
  *  thermodynamic functions or the equation of state of the
  *  phase. Therefore it's an incomplete description of
  *  the thermodynamics. The complete description must be
- *  made in a derived class of %SingleSpeciesTP.
+ *  made in a derived class of SingleSpeciesTP.
  *
  *  Several different groups of thermodynamic functions are resolved
  *  at this level by this class. For example, All partial molar property
@@ -63,8 +63,6 @@ namespace Cantera
  *  Its SingleSpeciesTP::initThermo()
  *  member does check that one and only one species has been defined
  *  to occupy the phase.
- *
- *  \nosubgrouping
  */
 class SingleSpeciesTP : public ThermoPhase
 {
@@ -97,7 +95,7 @@ public:
     /**
      * Returns the equation of state type flag.
      * This is a modified base class.
-     * Therefore, if not overridden in derivied classes,
+     * Therefore, if not overridden in derived classes,
      * this call will throw an exception.
      */
     virtual int eosType() const;
@@ -350,7 +348,7 @@ public:
 
     /*!
      *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
+     *  Gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *

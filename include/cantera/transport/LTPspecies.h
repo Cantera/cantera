@@ -7,7 +7,6 @@
 #define CT_LTPSPECIES_H
 
 #include "TransportBase.h"
-#include "cantera/base/FactoryBase.h"
 
 namespace Cantera
 {
@@ -106,7 +105,7 @@ public:
     LTPspecies& operator=(const LTPspecies& right);
 
     //! Destructor
-    virtual ~LTPspecies();
+    virtual ~LTPspecies() {}
 
     //! Duplication routine
     /*!
@@ -118,7 +117,7 @@ public:
 
     //! Returns the vector of standard state species transport property
     /*!
-     *  The standard state species transport property 
+     *  The standard state species transport property
      *  is returned.  Any temperature and composition dependence will be
      *  adjusted internally according to the information provided by the
      *  subclass object.
@@ -234,7 +233,7 @@ public:
 
     //! Returns the standard state species transport property
     /*!
-     *  The standard species transport property 
+     *  The standard species transport property
      *  is returned.  Any temperature and composition dependence will be
      *  adjusted internally according to the information provided.
      */
@@ -249,7 +248,7 @@ public:
  * \f[
  *      x = A T^b \exp( - E / RT )
  * \f]
- * where A, b, and E are passed in the xml input file.
+ * where A, b, and E are passed in the XML input file.
  *
  * As an example of the input required for LTPspecies_Arrhenius
  * consider the following XML fragment

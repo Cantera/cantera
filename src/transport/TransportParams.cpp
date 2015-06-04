@@ -1,6 +1,6 @@
 /**
  *  @file TransportParams.cpp
- *  Class that holds the data that is read in from the xml file, and which is used for
+ *  Class that holds the data that is read in from the XML file, and which is used for
  *  processing of the transport object
  *  (see \ref tranprops and \link Cantera::TransportParams TransportParams \endlink).
  */
@@ -21,10 +21,6 @@ TransportParams::TransportParams() :
     tmin(10.),
     mode_(0),
     log_level(-1)
-{
-}
-
-TransportParams::~TransportParams()
 {
 }
 
@@ -51,6 +47,8 @@ GasTransportParams::GasTransportParams() :
     dipole(0, 0),
     delta(0, 0)
 {
+    warn_deprecated("class GasTransportParams",
+                    "To be removed after Cantera 2.2.");
 }
 
 } // End of namespace Cantera

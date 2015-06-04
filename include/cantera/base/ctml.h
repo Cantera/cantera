@@ -11,16 +11,10 @@
 
 #include "ct_defs.h"
 #include "xml.h"
-#include "Array.h"
 
-//! The ctml namespace adds functionality to the XML object, by providing
-//! standard functions that read, write, and interpret XML files and
-//! object trees.
-/*!
- *  Standardization of reads and write from Cantera files occur here.
- */
-namespace ctml
+namespace Cantera
 {
+class Array2D;
 
 //! const Specifying the CTML version number
 /*!
@@ -67,7 +61,7 @@ const std::string CTML_Version = "1.4.1";
  *       and codify that. unitsString shouldn't be here, since it's an int.
  *       typeString should be codified as to its usage.
  */
-void addInteger(Cantera::XML_Node& node, const std::string& titleString,
+void addInteger(XML_Node& node, const std::string& titleString,
                 const int value, const std::string& unitsString="",
                 const std::string& typeString="");
 
@@ -108,16 +102,16 @@ void addInteger(Cantera::XML_Node& node, const std::string& titleString,
  *   @param typeString    String type. This is an optional parameter. The default
  *                        is to have an empty string.
  *   @param minval        Minimum allowed value of the float. The default is the
- *                        special double, Cantera::Undef, which means to ignore the
+ *                        special double, Undef, which means to ignore the
  *                        entry.
  *   @param maxval        Maximum allowed value of the float. The default is the
- *                        special double, Cantera::Undef, which means to ignore the
+ *                        special double, Undef, which means to ignore the
  *                        entry.
  */
-void addFloat(Cantera::XML_Node& node, const std::string& titleString,
+void addFloat(XML_Node& node, const std::string& titleString,
               const doublereal value, const std::string& unitsString="",
-              const std::string& typeString="", const doublereal minval = Cantera::Undef,
-              const doublereal maxval = Cantera::Undef);
+              const std::string& typeString="", const doublereal minval=Undef,
+              const doublereal maxval=Undef);
 
 //!  This function adds a child node with the name, "floatArray", with a value
 //!  consisting of a comma separated list of floats
@@ -157,17 +151,17 @@ void addFloat(Cantera::XML_Node& node, const std::string& titleString,
  *                        is to have an empty string.
  *   @param minval        Minimum allowed value of the int. This is an optional
  *                        parameter. The default is the
- *                        special double, Cantera::Undef, which means to ignore the
+ *                        special double, Undef, which means to ignore the
  *                        entry.
  *   @param maxval        Maximum allowed value of the int. This is an optional
  *                        parameter. The default is the special double,
- *                        Cantera::Undef, which means to ignore the entry.
+ *                        Undef, which means to ignore the entry.
  */
-void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
-                   const size_t n,  const doublereal* const values,
+void addFloatArray(XML_Node& node, const std::string& titleString,
+                   const size_t n, const doublereal* const values,
                    const std::string& unitsString="", const std::string& typeString="",
-                   const doublereal minval = Cantera::Undef,
-                   const doublereal maxval = Cantera::Undef);
+                   const doublereal minval=Undef,
+                   const doublereal maxval=Undef);
 
 //! This function adds a child node with the name given by the first parameter
 //! with a value consisting of a comma separated list of floats
@@ -207,16 +201,16 @@ void addFloatArray(Cantera::XML_Node& node,  const std::string& titleString,
  *                    is to have an empty string.
  * @param minval      Minimum allowed value of the int. This is an optional
  *                    parameter. The default is the special double,
- *                    Cantera::Undef, which means to ignore the entry.
+ *                    Undef, which means to ignore the entry.
  * @param maxval      Maximum allowed value of the int. This is an optional
  *                    parameter. The default is the special double,
- *                    Cantera::Undef, which means to ignore the entry.
+ *                    Undef, which means to ignore the entry.
  */
-void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, const size_t n,
+void addNamedFloatArray(XML_Node& parentNode, const std::string& name, const size_t n,
                         const doublereal* const vals, const std::string units = "",
                         const std::string type = "",
-                        const doublereal minval = Cantera::Undef,
-                        const doublereal maxval = Cantera::Undef);
+                        const doublereal minval=Undef,
+                        const doublereal maxval=Undef);
 
 //! This function adds a child node with the name string with a string value
 //! to the current node
@@ -244,7 +238,7 @@ void addNamedFloatArray(Cantera::XML_Node& parentNode, const std::string& name, 
  * @param titleString String name of the title attribute
  * @param typeString  String type. This is an optional parameter.
  */
-void addString(Cantera::XML_Node& node,  const std::string& titleString,
+void addString(XML_Node& node, const std::string& titleString,
                const std::string& valueString, const std::string& typeString="");
 
 //! This function reads the current node or a  child node of the current node
@@ -297,7 +291,7 @@ void addString(Cantera::XML_Node& node,  const std::string& titleString,
  *                      The default value for the node name is floatArray
  * @return              Returns the number of floats read into v.
  */
-size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
+size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
                      const bool convert=true, const std::string& unitsString="",
                      const std::string& nodeName = "floatArray");
 
@@ -310,7 +304,7 @@ size_t getFloatArray(const Cantera::XML_Node& node, std::vector<doublereal> & v,
  * @param node   Node to get the value from
  * @param v      Output vector containing the string tokens
  */
-void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v);
+void getStringArray(const XML_Node& node, std::vector<std::string>& v);
 
 //! This routine is used to interpret the value portions of XML
 //! elements that contain colon separated pairs.
@@ -331,7 +325,7 @@ void getStringArray(const Cantera::XML_Node& node, std::vector<std::string>& v);
  *  @param m    Output Map containing the pairs of values found
  *              in the XML Node
  */
-void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m);
+void getMap(const XML_Node& node, std::map<std::string, std::string>& m);
 
 //! This function interprets the value portion of an XML element
 //! as a series of "Pairs" separated by white space.
@@ -361,7 +355,7 @@ void getMap(const Cantera::XML_Node& node, std::map<std::string, std::string>& m
  *
  *  @return Returns the number of pairs found
  */
-int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key,
+int getPairs(const XML_Node& node, std::vector<std::string>& key,
              std::vector<std::string>& val);
 
 //! This function interprets the value portion of an XML element
@@ -401,10 +395,10 @@ int getPairs(const Cantera::XML_Node& node, std::vector<std::string>& key,
  * @param matrixSymmetric  If true entries are made so that the matrix
  *                      is always symmetric. Default is false.
  */
-void getMatrixValues(const Cantera::XML_Node& node,
+void getMatrixValues(const XML_Node& node,
                      const std::vector<std::string>& keyStringRow,
                      const std::vector<std::string>& keyStringCol,
-                     Cantera::Array2D& returnValues, const bool convert = true,
+                     Array2D& returnValues, const bool convert = true,
                      const bool matrixSymmetric = false);
 
 //!  Get a vector of integer values from a child element.
@@ -438,7 +432,7 @@ void getMatrixValues(const Cantera::XML_Node& node,
  *   @param node     Current XML node to get the values from
  *   @param v        Output map of the results.
  */
-void getIntegers(const Cantera::XML_Node& node, std::map<std::string,int>& v);
+void getIntegers(const XML_Node& node, std::map<std::string,int>& v);
 
 //! Get a floating-point value from a child element.
 /*!
@@ -471,7 +465,7 @@ void getIntegers(const Cantera::XML_Node& node, std::map<std::string,int>& v);
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
  */
-doublereal getFloat(const Cantera::XML_Node& parent, const std::string& name,
+doublereal getFloat(const XML_Node& parent, const std::string& name,
                     const std::string& type="");
 
 //! Get a floating-point value from the current XML element
@@ -505,7 +499,7 @@ doublereal getFloat(const Cantera::XML_Node& parent, const std::string& name,
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
  */
-doublereal getFloatCurrent(const Cantera::XML_Node& currXML, const std::string& type="");
+doublereal getFloatCurrent(const XML_Node& currXML, const std::string& type="");
 
 //!  Get an optional floating-point value from a child element.
 /*!
@@ -538,7 +532,7 @@ doublereal getFloatCurrent(const Cantera::XML_Node& currXML, const std::string& 
  *
  * @return returns true if the child element named "name" exists
  */
-bool getOptionalFloat(const Cantera::XML_Node& parent, const std::string& name,
+bool getOptionalFloat(const XML_Node& parent, const std::string& name,
                       doublereal& fltRtn, const std::string& type="");
 
 //! Get an integer value from a child element.
@@ -566,7 +560,7 @@ bool getOptionalFloat(const Cantera::XML_Node& parent, const std::string& name,
  * @param parent reference to the XML_Node object of the parent XML element
  * @param name   Name of the XML child element
  */
-int getInteger(const Cantera::XML_Node& parent, const std::string& name);
+int getInteger(const XML_Node& parent, const std::string& name);
 
 //! Get a floating-point value from a child element with a defined units field
 /*!
@@ -600,7 +594,7 @@ int getInteger(const Cantera::XML_Node& parent, const std::string& name);
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
  */
-doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
+doublereal getFloatDefaultUnits(const XML_Node& parent,
                                 const std::string& name,
                                 const std::string& defaultUnits,
                                 const std::string& type="toSI");
@@ -632,7 +626,7 @@ doublereal getFloatDefaultUnits(const Cantera::XML_Node& parent,
  * @param modelName  On return this contains the contents of the model attribute
  * @return True if the nodeName XML node exists. False otherwise.
  */
-bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeName,
+bool getOptionalModel(const XML_Node& parent, const std::string& nodeName,
                       std::string& modelName);
 
 //! Search the child nodes of the current node for an XML Node with a Title
@@ -643,7 +637,7 @@ bool getOptionalModel(const Cantera::XML_Node& parent, const std::string& nodeNa
  * @return  Returns a pointer to the matched child node. Returns 0 if no node
  *          is found.
  */
-Cantera::XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& title);
+XML_Node* getByTitle(const XML_Node& node, const std::string& title);
 
 //! This function reads a child node with the name string with a specific
 //! title attribute named titleString
@@ -676,7 +670,7 @@ Cantera::XML_Node* getByTitle(const Cantera::XML_Node& node, const std::string& 
  * @param typeString    String type. This is an optional output variable. It
  *                      is filled with the attribute "type" of the XML entry.
  */
-void getString(const Cantera::XML_Node& node, const std::string& titleString,
+void getString(const XML_Node& node, const std::string& titleString,
                std::string& valueString, std::string& typeString);
 
 //! This function attempts to read a named child node and returns with the
@@ -719,11 +713,11 @@ void getString(const Cantera::XML_Node& node, const std::string& titleString,
  *         It is filled with the attribute "type" of the XML entry.
  * @deprecated To be removed after Cantera 2.2.
  */
-void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameString, std::string& valueString,
+void getNamedStringValue(const XML_Node& node, const std::string& nameString, std::string& valueString,
                          std::string& typeString);
 
 //! This function reads a child node with the name, nameString, and returns
-//! its xml value as the return string
+//! its XML value as the return string
 /*!
  * If the child XML_node named "name" doesn't exist, the empty string is returned.
  *
@@ -745,7 +739,7 @@ void getNamedStringValue(const Cantera::XML_Node& node, const std::string& nameS
  * @param nameString Name of the child XML_Node to read the value from.
  * @return           String value of the child XML_Node
  */
-std::string getChildValue(const Cantera::XML_Node& parent,
+std::string getChildValue(const XML_Node& parent,
                           const std::string& nameString);
 
 //! Read an ctml file from a file and fill up an XML tree
@@ -756,14 +750,16 @@ std::string getChildValue(const Cantera::XML_Node& parent,
  *  @param node    Root of the tree
  *  @param file    Name of the file
  *  @param debug   Turn on debugging printing
+ *  @deprecated    To be removed after Cantera 2.2. Use get_XML_File() instead.
  */
-void get_CTML_Tree(Cantera::XML_Node* node, const std::string& file,
+void get_CTML_Tree(XML_Node* node, const std::string& file,
                    const int debug = 0);
 
 //! Read an ctml file from a file and fill up an XML tree.
 //!   @param file    Name of the file
 //!   @return        Root of the tree
-Cantera::XML_Node getCtmlTree(const std::string& file);
+//!   @deprecated    To be removed after Cantera 2.2. Use get_XML_File() instead.
+XML_Node getCtmlTree(const std::string& file);
 
 //! Convert a cti file into a ctml file
 /*!
@@ -777,11 +773,20 @@ void ct2ctml(const char* file, const int debug = 0);
 //! Get a string with the ctml representation of a cti file.
 /*!
  *  @param   file    Path to the input file in CTI format
- *  @return  String containing the xml representation of the input file
+ *  @return  String containing the XML representation of the input file
  *
  *  @ingroup inputfiles
  */
 std::string ct2ctml_string(const std::string& file);
+
+//! Get a string with the ctml representation of a cti input string.
+/*!
+ *  @param   cti    String containing the cti representation
+ *  @return  String containing the XML representation of the input
+ *
+ *  @ingroup inputfiles
+ */
+std::string ct_string2ctml_string(const std::string& cti);
 
 //! Convert a Chemkin-format mechanism into a CTI file.
 /*!
@@ -793,6 +798,10 @@ std::string ct2ctml_string(const std::string& file);
 void ck2cti(const std::string& in_file, const std::string& thermo_file="",
             const std::string& transport_file="",
             const std::string& id_tag="gas");
+
 }
+
+// namespace alias for backward compatibility
+namespace ctml = Cantera;
 
 #endif

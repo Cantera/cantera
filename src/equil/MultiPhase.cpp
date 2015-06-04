@@ -3,13 +3,12 @@
  * Definitions for the \link Cantera::MultiPhase MultiPhase\endlink
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
+
+#include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/equil/MultiPhaseEquil.h"
-
-#include "cantera/thermo/ThermoPhase.h"
-#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -41,10 +40,6 @@ MultiPhase::MultiPhase(const MultiPhase& right) :
     m_Tmax(100000.0)
 {
     operator=(right);
-}
-
-MultiPhase::~MultiPhase()
-{
 }
 
 MultiPhase& MultiPhase::operator=(const MultiPhase& right)
@@ -431,10 +426,7 @@ void MultiPhase::setMolesByName(const compositionMap& xMap)
     size_t kk = nSpecies();
     vector_fp moles(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
-        compositionMap::const_iterator iter = xMap.find(speciesName(k));
-        if (iter != xMap.end() && iter->second > 0.0) {
-            moles[k] = iter->second;
-        }
+        moles[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
     }
     setMoles(DATA_PTR(moles));
 }
@@ -566,8 +558,18 @@ doublereal MultiPhase::volume() const
     return sum;
 }
 
-doublereal MultiPhase::equilibrate(int XY, doublereal err,
-                                   int maxsteps, int maxiter, int loglevel)
+double MultiPhase::equilibrate(int XY, doublereal err, int maxsteps,
+                               int maxiter, int loglevel)
+{
+    warn_deprecated("MultiPhase::equilibrate(int XY, ...)",
+        "Use MultiPhase::equilibrate(string XY, ...) instead. To be removed "
+        "after Cantera 2.2.");
+    return equilibrate_MultiPhaseEquil(XY, err, maxsteps, maxiter, loglevel);
+}
+
+double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
+                                               int maxsteps, int maxiter,
+                                               int loglevel)
 {
     bool strt = false;
     doublereal dt;
@@ -671,7 +673,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 }
             }
         }
-        throw CanteraError("MultiPhase::equilibrate",
+        throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "No convergence for T");
     } else if (XY == SP) {
         s0 = entropy();
@@ -718,7 +720,7 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
                 }
             }
         }
-        throw CanteraError("MultiPhase::equilibrate",
+        throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "No convergence for T");
     } else if (XY == TV) {
         doublereal v0 = volume();
@@ -746,9 +748,75 @@ doublereal MultiPhase::equilibrate(int XY, doublereal err,
     }
 
     else {
-        throw CanteraError("MultiPhase::equilibrate","unknown option");
+        throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
+                           "unknown option");
     }
     return -1.0;
+}
+
+void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
+                             double rtol, int max_steps, int max_iter,
+                             int estimate_equil, int log_level)
+{
+    // Save the initial state so that it can be restored in case one of the
+    // solvers fails
+    vector_fp initial_moleFractions = m_moleFractions;
+    vector_fp initial_moles = m_moles;
+    double initial_T = m_temp;
+    double initial_P = m_press;
+
+    int ixy = _equilflag(XY.c_str());
+    if (solver == "auto" || solver == "vcs") {
+        try {
+            writelog("Trying VCS equilibrium solver\n", log_level);
+            vcs_MultiPhaseEquil eqsolve(this, log_level-1);
+            int ret = eqsolve.equilibrate(ixy, estimate_equil, log_level-1,
+                                          rtol, max_steps);
+            if (ret) {
+                throw CanteraError("MultiPhase::equilibrate",
+                    "VCS solver failed. Return code: " + int2str(ret));
+            }
+            writelog("VCS solver succeeded\n", log_level);
+            return;
+        } catch (std::exception& err) {
+            writelog("VCS solver failed.\n", log_level);
+            writelog(err.what(), log_level);
+            m_moleFractions = initial_moleFractions;
+            m_moles = initial_moles;
+            m_temp = initial_T;
+            m_press = initial_P;
+            updatePhases();
+            if (solver == "auto") {
+            } else {
+                throw;
+            }
+        }
+    }
+
+    if (solver == "auto" || solver == "gibbs") {
+        try {
+            writelog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
+                     log_level);
+            equilibrate_MultiPhaseEquil(ixy, rtol, max_steps, max_iter,
+                                        log_level-1);
+            writelog("MultiPhaseEquil solver succeeded\n", log_level);
+            return;
+        } catch (std::exception& err) {
+            writelog("MultiPhaseEquil solver failed.\n", log_level);
+            writelog(err.what(), log_level);
+            m_moleFractions = initial_moleFractions;
+            m_moles = initial_moles;
+            m_temp = initial_T;
+            m_press = initial_P;
+            updatePhases();
+            throw;
+        }
+    }
+
+    if (solver != "auto") {
+        throw CanteraError("MultiPhase::equilibrate",
+            "Invalid solver specified: '" + solver + "'");
+    }
 }
 
 #ifdef MULTIPHASE_DEVEL
@@ -762,8 +830,7 @@ void importFromXML(string infile, string id)
     if (x.name() != "multiphase")
         throw CanteraError("MultiPhase::importFromXML",
                            "Current XML_Node is not a multiphase element.");
-    vector<XML_Node*> phases;
-    x.getChildren("phase",phases);
+    vector<XML_Node*> phases = x.getChildren("phase");
     int np = phases.size();
     int n;
     ThermoPhase* p;

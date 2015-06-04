@@ -69,6 +69,7 @@ public:
  * otherwise simply returns the pointer to the existing
  * instance.
  *
+ * @deprecated To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly
  * @ingroup thermoprops
  */
 class SpeciesThermoFactory : public FactoryBase
@@ -99,6 +100,8 @@ public:
      *  @param type the integer type to be created.
      *  @return  Returns the pointer to the newly allocated species property
      *           manager for the reference state
+     * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+     *     directly.
      */
     SpeciesThermo* newSpeciesThermo(int type) const;
 
@@ -107,8 +110,10 @@ public:
      *  @param stype  String name for the species thermo type
      *  @return       Returns the pointer to the newly malloced species
      *                property manager for the reference state
+     * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+     *     directly.
      */
-    SpeciesThermo* newSpeciesThermoManager(std::string& stype) const;
+    SpeciesThermo* newSpeciesThermoManager(const std::string& stype) const;
 
     //! Create a new species property manager for the reference
     //! state for a group of species
@@ -121,6 +126,7 @@ public:
      *                        nodes that will be in the phase
      * @return  Returns the pointer to the newly malloced species property
      *          manager for the reference state
+     * @deprecated To be removed after Cantera 2.2.
      */
     SpeciesThermo* newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const;
 
@@ -130,7 +136,7 @@ public:
      * @param k             Species number
      * @param speciesNode   Reference to the XML node specifying the species
      *                      standard state information
-     * @param th_ptr        Pointer to the %ThermoPhase object for the species
+     * @param th_ptr        Pointer to the ThermoPhase object for the species
      * @param spthermo      Species reference state thermo manager
      * @param phaseNode_ptr Optional pointer to the XML phase information for
      *                      the phase in which the species resides
@@ -146,7 +152,7 @@ public:
      * VPStandardStateTP object.
      *
      * This serves to install the species into vpss_ptr, create a PDSS file. We also
-     * read the xml database to extract the constants for these steps.
+     * read the XML database to extract the constants for these steps.
      *
      * @param k             species number
      * @param speciesNode   Reference to the XML node specifying the species
@@ -157,6 +163,8 @@ public:
      * @param spthermo_ptr  Species reference state thermo manager
      * @param phaseNode_ptr Optional Pointer to the XML phase information for
      *                      the phase in which the species resides
+     * @deprecated To be removed after Cantera 2.2. Call
+     *     VPStandardStateTP::createInstallVPSS directly instead.
      */
     void installVPThermoForSpecies(size_t k, const XML_Node& speciesNode,
                                    VPStandardStateTP* vp_ptr,
@@ -169,7 +177,7 @@ private:
     //! Pointer to the sole instance of this class, which is static
     static SpeciesThermoFactory* s_factory;
 
-    //! Decl of the static mutex variable that locks the %SpeciesThermo factory singleton
+    //! Decl of the static mutex variable that locks the SpeciesThermo factory singleton
     static mutex_t species_thermo_mutex;
 
     //! Constructor. This is made private, so that only the static
@@ -199,6 +207,8 @@ private:
  * @param type         Species thermo type.
  * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
  *                     Defaults to NULL.
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+ *     directly.
  */
 SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
 
@@ -215,8 +225,10 @@ SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f=0);
  * @param stype       String specifying the species thermo type
  * @param f           Pointer to a SpeciesThermoFactory. optional parameter.
  *                    Defaults to NULL.
+ * @deprecated To be removed after Cantera 2.2. Use GeneralSpeciesThermo
+ *     directly.
  */
-SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
+SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
                                    SpeciesThermoFactory* f=0);
 
 //! Function to return SpeciesThermo manager
@@ -232,12 +244,47 @@ SpeciesThermo* newSpeciesThermoMgr(std::string& stype,
  *                       will be in the phase
  * @param f              Pointer to a SpeciesThermoFactory. optional
  *                       parameter. Defaults to NULL.
+ * @deprecated To be removed after Cantera 2.2.
  */
 SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spDataNodeList,
                                    SpeciesThermoFactory* f=0);
 
+
+//! Create a new SpeciesThermoInterpType object given a corresponding constant.
+/*!
+ *  @param type A constant specifying the type to be created
+ *  @param tlow The lowest temperature at which the parameterization is valid
+ *  @param thigh The highest temperature at which the parameterization is valid
+ *  @param pref The reference pressure for the parameterization
+ *  @param coeffs The array of coefficients for the parameterization
+ *  @return       Returns the pointer to the newly allocated
+ *                SpeciesThermoInterpType object
+ */
+SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
+    double thigh, double pref, const double* coeffs);
+
+//! Create a new SpeciesThermoInterpType object given a string
+/*!
+ *  @param type String name for the species thermo type
+ *  @param tlow The lowest temperature at which the parameterization is valid
+ *  @param thigh The highest temperature at which the parameterization is valid
+ *  @param pref The reference pressure for the parameterization
+ *  @param coeffs The array of coefficients for the parameterization
+ *  @return       Returns the pointer to the newly allocated
+ *                SpeciesThermoInterpType object
+ */
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
+    double tlow, double thigh, double pref, const double* coeffs);
+
+//! Create a new SpeciesThermoInterpType object from XML_Node
+/*!
+ *  @param thermoNode 'thermo' XML_Node (child of the 'species' node) with child
+ *      nodes representing parameterizations for one or more temperature ranges
+ *  @return       Returns the pointer to the newly allocated
+ *                SpeciesThermoInterpType object
+ */
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
+
 }
 
 #endif
-
-

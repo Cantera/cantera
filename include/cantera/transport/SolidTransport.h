@@ -12,7 +12,6 @@
 
 #include "LTPspecies.h"
 #include "TransportBase.h"
-#include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {

@@ -12,9 +12,7 @@
  */
 
 #include "cantera/thermo/VPStandardStateTP.h"
-#include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/base/stringUtils.h"
 
 using namespace std;
 
@@ -25,7 +23,6 @@ namespace Cantera
  * Default constructor
  */
 VPStandardStateTP::VPStandardStateTP() :
-    ThermoPhase(),
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),
@@ -35,7 +32,6 @@ VPStandardStateTP::VPStandardStateTP() :
 }
 
 VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
-    ThermoPhase(),
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),
@@ -72,8 +68,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
         }
         m_PDSS_storage.resize(m_kk);
         for (size_t k = 0; k < m_kk; k++) {
-            PDSS* ptmp = b.m_PDSS_storage[k];
-            m_PDSS_storage[k] = ptmp->duplMyselfAsPDSS();
+            m_PDSS_storage[k] = b.m_PDSS_storage[k]->duplMyselfAsPDSS();
         }
 
         /*
@@ -95,8 +90,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
          *  so it occurs after m_VPSS_ptr is set.
          */
         for (size_t k = 0; k < m_kk; k++) {
-            PDSS* ptmp = m_PDSS_storage[k];
-            ptmp->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
+            m_PDSS_storage[k]->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
         }
         /*
          *  Ok, the VPSSMgr object is ready for business.
@@ -107,7 +101,7 @@ VPStandardStateTP::operator=(const VPStandardStateTP& b)
     }
     return *this;
 }
-//====================================================================================================================
+
 VPStandardStateTP::~VPStandardStateTP()
 {
     for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
@@ -154,13 +148,12 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
     m_VPSS_ptr->getEnthalpy_RT(hrt);
 }
 
-//================================================================================================
 void VPStandardStateTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
     m_Tlast_ss += 0.0001234;
 }
-//================================================================================================
+
 void VPStandardStateTP::getEntropy_R(doublereal* srt) const
 {
     updateStandardStateThermo();
@@ -252,7 +245,6 @@ void VPStandardStateTP::getStandardVolumes_ref(doublereal* vol) const
 
 void VPStandardStateTP::initThermo()
 {
-    initLengths();
     ThermoPhase::initThermo();
     m_VPSS_ptr->initThermo();
     for (size_t k = 0; k < m_kk; k++) {
@@ -268,16 +260,12 @@ void VPStandardStateTP::setVPSSMgr(VPSSMgr* vp_ptr)
     m_VPSS_ptr = vp_ptr;
 }
 
-/*
- * Initialize the internal lengths.
- *       (this is not a virtual function)
- */
-void VPStandardStateTP::initLengths()
+bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)
 {
-    m_kk = nSpecies();
-
+    // Specifically skip ThermoPhase::addSpecies since the Species object
+    // doesn't have an associated SpeciesThermoInterpType object
+    return Phase::addSpecies(spec);
 }
-
 
 void VPStandardStateTP::setTemperature(const doublereal temp)
 {
@@ -352,10 +340,6 @@ VPStandardStateTP::providePDSS(size_t k) const
 
 void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-    // initialize the lengths in the current object and then call the parent
-    // routine.
-    VPStandardStateTP::initLengths();
-
     for (size_t k = 0; k < m_kk; k++) {
         PDSS* kPDSS = m_PDSS_storage[k];
         AssertTrace(kPDSS != 0);

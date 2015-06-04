@@ -10,18 +10,23 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/equil/ChemEquil.h"
+#include "cantera/equil/MultiPhase.h"
+#include "cantera/base/ctml.h"
+#include "cantera/base/vec_functions.h"
 
 #include <iomanip>
 #include <fstream>
 
 using namespace std;
-using namespace ctml;
 
 namespace Cantera
 {
 
 ThermoPhase::ThermoPhase() :
-    m_spthermo(0), m_speciesData(0),
+    m_spthermo(new GeneralSpeciesThermo()), m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
@@ -39,7 +44,7 @@ ThermoPhase::~ThermoPhase()
 }
 
 ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
-    m_spthermo(0),
+    m_spthermo(new GeneralSpeciesThermo()),
     m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
@@ -49,7 +54,7 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     /*
      * Call the assignment operator
      */
-    *this = operator=(right);
+    *this = right;
 }
 
 ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
@@ -249,8 +254,6 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     double Ttop = Tnew;
     double Hbot = Hnew;
     double Tbot = Tnew;
-    double Told = Tnew;
-    double Hold = Hnew;
 
     bool ignoreBounds = false;
     // Unstable phases are those for which
@@ -264,8 +267,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
 
     // Newton iteration
     for (int n = 0; n < 500; n++) {
-        Told = Tnew;
-        Hold = Hnew;
+        double Told = Tnew;
+        double Hold = Hnew;
         double cpd = Cpnew;
         if (cpd < 0.0) {
             unstablePhase = true;
@@ -451,8 +454,6 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     double Ttop = Tnew;
     double Sbot = Snew;
     double Tbot = Tnew;
-    double Told = Tnew;
-    double Sold = Snew;
 
     bool ignoreBounds = false;
     // Unstable phases are those for which
@@ -464,8 +465,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 
     // Newton iteration
     for (int n = 0; n < 500; n++) {
-        Told = Tnew;
-        Sold = Snew;
+        double Told = Tnew;
+        double Sold = Snew;
         double cpd = Cpnew;
         if (cpd < 0.0) {
             unstablePhase = true;
@@ -585,6 +586,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 
 void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 {
+    warn_deprecated("ThermoPhase::getUnitsStandardConc",
+                    "To be removed after Cantera 2.2.");
     for (int i = 0; i < sizeUA; i++) {
         if (i == 0) {
             uA[0] = 1.0;
@@ -609,6 +612,11 @@ void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
 
 void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
 {
+    if (!dynamic_cast<GeneralSpeciesThermo*>(spthermo)) {
+        warn_deprecated("ThermoPhase::setSpeciesThermo",
+                        "Use of SpeciesThermo classes other than "
+                        "GeneralSpeciesThermo is deprecated.");
+    }
     if (m_spthermo) {
         if (m_spthermo != spthermo) {
             delete m_spthermo;
@@ -629,40 +637,20 @@ SpeciesThermo& ThermoPhase::speciesThermo(int k)
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
-    if (inputFile.size() == 0) {
-        throw CanteraError("ThermoPhase::initThermoFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("initThermoFile","could not open "
-                           +path+" for reading.");
-    }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
-    XML_Node* fxml = new XML_Node();
-    fxml->build(fin);
+    XML_Node* fxml = get_XML_File(inputFile);
     XML_Node* fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
-        throw CanteraError("ThermoPhase::initThermo",
+        throw CanteraError("ThermoPhase::initThermoFile",
                            "ERROR: Can not find phase named " +
                            id + " in file named " + inputFile);
     }
-    bool m_ok = importPhase(*fxml_phase, this);
-    if (!m_ok) {
-        throw CanteraError("ThermoPhase::initThermoFile","importPhase failed ");
-    }
-    delete fxml;
+    importPhase(*fxml_phase, this);
 }
 
 void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     if (phaseNode.hasChild("state")) {
-        XML_Node& stateNode = phaseNode.child("state");
-        setStateFromXML(stateNode);
+        setStateFromXML(phaseNode.child("state"));
     }
     setReferenceComposition(0);
 }
@@ -694,10 +682,25 @@ void ThermoPhase::initThermo()
         throw CanteraError("ThermoPhase::initThermo()",
                            "Number of species is equal to zero");
     }
+    // Check to see that all of the species thermo objects have been initialized
+    if (!m_spthermo->ready(m_kk)) {
+        throw CanteraError("ThermoPhase::initThermo()",
+                           "Missing species thermo data");
+    }
     xMol_Ref.resize(m_kk, 0.0);
 }
 void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
 {
+}
+
+bool ThermoPhase::addSpecies(shared_ptr<Species> spec)
+{
+    bool added = Phase::addSpecies(spec);
+    if (added) {
+        spec->thermo->validate(spec->name);
+        m_spthermo->install_STIT(m_kk-1, spec->thermo);
+    }
+    return added;
 }
 
 void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
@@ -739,6 +742,54 @@ void ThermoPhase::setStateFromXML(const XML_Node& state)
     if (state.hasChild("density")) {
         double rho = getFloat(state, "density", "density");
         setDensity(rho);
+    }
+}
+
+void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
+                              double rtol, int max_steps, int max_iter,
+                              int estimate_equil, int log_level)
+{
+
+    if (solver == "auto" || solver == "element_potential") {
+        vector_fp initial_state;
+        saveState(initial_state);
+        writelog("Trying ChemEquil solver\n", log_level);
+        try {
+            ChemEquil E;
+            E.options.maxIterations = max_steps;
+            E.options.relTolerance = rtol;
+            bool use_element_potentials = (estimate_equil == 0);
+            int ret = E.equilibrate(*this, XY.c_str(), use_element_potentials, log_level-1);
+            if (ret < 0) {
+                throw CanteraError("ThermoPhase::equilibrate",
+                    "ChemEquil solver failed. Return code: " + int2str(ret));
+            }
+            setElementPotentials(E.elementPotentials());
+            writelog("ChemEquil solver succeeded\n", log_level);
+            return;
+        } catch (std::exception& err) {
+            writelog("ChemEquil solver failed.\n", log_level);
+            writelog(err.what(), log_level);
+            restoreState(initial_state);
+            if (solver == "auto") {
+            } else {
+                throw;
+            }
+        }
+    }
+
+    if (solver == "auto" || solver == "vcs" || solver == "gibbs") {
+        MultiPhase M;
+        M.addPhase(this, 1.0);
+        M.init();
+        M.equilibrate(XY, solver, rtol, max_steps, max_iter,
+                      estimate_equil, log_level);
+        return;
+    }
+
+    if (solver != "auto") {
+        throw CanteraError("ThermoPhase::equilibrate",
+            "Invalid solver specified: '" + solver + "'");
     }
 }
 
@@ -901,10 +952,9 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
 
-        size_t kk = nSpecies();
-        vector_fp x(kk);
-        vector_fp y(kk);
-        vector_fp mu(kk);
+        vector_fp x(m_kk);
+        vector_fp y(m_kk);
+        vector_fp mu(m_kk);
         getMoleFractions(&x[0]);
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
@@ -920,7 +970,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             sprintf(p, "                     -------------     "
                     "------------     ------------\n");
             s += p;
-            for (size_t k = 0; k < kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] >= threshold) {
                     if (x[k] > SmallNumber) {
                         sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
@@ -943,7 +993,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             sprintf(p, "                     -------------"
                     "     ------------\n");
             s += p;
-            for (size_t k = 0; k < kk; k++) {
+            for (size_t k = 0; k < m_kk; k++) {
                 if (x[k] >= threshold) {
                     sprintf(p, "%18s   %12.6g     %12.6g\n",
                             speciesName(k).c_str(), x[k], y[k]);

@@ -1,11 +1,29 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map as stdmap
+from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
 
 import numpy as np
 cimport numpy as np
+
+ctypedef stdmap[string,double] Composition
+
+cdef extern from "<map>" namespace "std":
+    cdef cppclass multimap[T, U]:
+        cppclass iterator:
+            pair[T, U]& operator*() nogil
+            iterator operator++() nogil
+            iterator operator--() nogil
+            bint operator==(iterator) nogil
+            bint operator!=(iterator) nogil
+        multimap() nogil except +
+        U& operator[](T&) nogil
+        iterator begin() nogil
+        iterator end() nogil
+        pair[iterator, bint] insert(pair[T, U]) nogil
+        iterator find(T&) nogil
 
 cdef extern from "cantera/base/xml.h" namespace "Cantera":
     cdef cppclass XML_Node:
@@ -13,13 +31,15 @@ cdef extern from "cantera/base/xml.h" namespace "Cantera":
         XML_Node* findID(string)
         int nChildren()
 
-cdef extern from "cantera/base/ctml.h" namespace "ctml":
-    XML_Node getCtmlTree(string) except +
+cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
+    cdef Composition parseCompString(string) except +
 
 cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAddDirectory "Cantera::addDirectory" (string)
     cdef size_t CxxNpos "Cantera::npos"
     cdef void CxxAppdelete "Cantera::appdelete" ()
+    cdef XML_Node* CxxGetXmlFile "Cantera::get_XML_File" (string) except +
+    cdef XML_Node* CxxGetXmlFromString "Cantera::get_XML_from_string" (string) except +
 
 cdef extern from "cantera/thermo/mix_defs.h":
     cdef int thermo_type_ideal_gas "Cantera::cIdealGas"
@@ -39,6 +59,44 @@ cdef extern from "cantera/cython/funcWrapper.h":
         CxxFunc1(callback_wrapper, void*)
         double eval(double) except +translate_exception
 
+cdef extern from "cantera/base/smart_ptr.h":
+    cppclass shared_ptr "Cantera::shared_ptr" [T]:
+        T* get()
+        void reset(T*)
+
+cdef extern from "cantera/base/Array.h" namespace "Cantera":
+    cdef cppclass CxxArray2D "Cantera::Array2D":
+        CxxArray2D()
+        CxxArray2D(size_t, size_t)
+        void resize(size_t, size_t)
+        double operator()(size_t, size_t)
+
+cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
+    cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
+        CxxSpeciesThermo()
+        int reportType()
+        void updatePropertiesTemp(double, double*, double*, double*) except +
+
+cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
+    cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\
+        (int, double, double, double, double*) except +
+
+cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
+    cdef cppclass CxxTransportData "Cantera::TransportData"
+
+    cdef cppclass CxxSpecies "Cantera::Species":
+        CxxSpecies()
+        CxxSpecies(string, Composition)
+        shared_ptr[CxxSpeciesThermo] thermo
+        shared_ptr[CxxTransportData] transport
+
+        string name
+        Composition composition
+        double charge
+        double size
+
+    cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (XML_Node&)
+    cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (XML_Node&)
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
@@ -55,6 +113,12 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double maxTemp() except +
         double refPressure() except +
         cbool getElementPotentials(double*) except +
+        void equilibrate(string, string, double, int, int, int, int) except +
+
+        # initialization
+        void addUndefinedElements() except +
+        cbool addSpecies(shared_ptr[CxxSpecies]) except +
+        void initThermo() except +
 
         # basic thermodynamic properties
         double temperature() except +
@@ -75,6 +139,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # species properties
         size_t nSpecies()
+        shared_ptr[CxxSpecies] species(string) except +
+        shared_ptr[CxxSpecies] species(size_t) except +
         size_t speciesIndex(string) except +
         string speciesName(size_t) except +
         double nAtoms(size_t, size_t) except +
@@ -85,19 +151,23 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # composition
         void setMassFractionsByName(string) except +
-        void setMassFractionsByName(stdmap[string,double]&) except +
+        void setMassFractionsByName(Composition&) except +
         void setMassFractions_NoNorm(double*) except +
+        Composition getMassFractionsByName(double)
         double massFraction(size_t) except +
         double massFraction(string) except +
 
         void setMoleFractionsByName(string) except +
-        void setMoleFractionsByName(stdmap[string,double]&) except +
+        void setMoleFractionsByName(Composition&) except +
         void setMoleFractions_NoNorm(double*) except +
         void getMoleFractions(double*) except +
+        Composition getMoleFractionsByName(double)
         double moleFraction(size_t) except +
         double moleFraction(string) except +
 
         double concentration(size_t) except +
+        double elementalMassFraction(size_t) except +
+        double elementalMoleFraction(size_t) except +
 
         # state setters
         void setState_TR(double, double) except +
@@ -144,10 +214,118 @@ cdef extern from "cantera/thermo/SurfPhase.h":
     cdef cppclass CxxSurfPhase "Cantera::SurfPhase":
         CxxSurfPhase()
         double siteDensity()
-        void setSiteDensity(double)
+        void setSiteDensity(double) except +
         void setCoverages(double*) except +
+        void setCoveragesByName(Composition&) except +
         void getCoverages(double*) except +
 
+
+cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
+    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +
+    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +
+
+    cdef cppclass CxxArrhenius "Cantera::Arrhenius":
+        CxxArrhenius()
+        CxxArrhenius(double, double, double)
+        double updateRC(double, double)
+        double preExponentialFactor()
+        double temperatureExponent()
+        double activationEnergy_R()
+
+    cdef cppclass CxxReaction "Cantera::Reaction":
+        # Note, this default constructor doesn't actually exist. The declaration
+        # is required by a Cython bug which should be resolved in Cython 0.22.
+        CxxReaction()
+        CxxReaction(int)
+
+        string reactantString()
+        string productString()
+        string equation()
+        void validate() except +
+        int reaction_type
+        Composition reactants
+        Composition products
+        Composition orders
+        string id
+        cbool reversible
+        cbool duplicate
+        cbool allow_nonreactant_orders
+        cbool allow_negative_orders
+
+    cdef cppclass CxxElementaryReaction "Cantera::ElementaryReaction" (CxxReaction):
+        CxxElementaryReaction()
+        CxxArrhenius rate
+        cbool allow_negative_pre_exponential_factor
+
+    cdef cppclass CxxThirdBody "Cantera::ThirdBody":
+        CxxThirdBody()
+        CxxThirdBody(double)
+        double efficiency(string)
+        Composition efficiencies
+        double default_efficiency
+
+    cdef cppclass CxxThreeBodyReaction "Cantera::ThreeBodyReaction" (CxxElementaryReaction):
+        CxxThreeBodyReaction()
+        CxxThirdBody third_body
+
+    cdef cppclass CxxFalloff "Cantera::Falloff":
+        CxxFalloff()
+        void updateTemp(double, double*)
+        double F(double, double*)
+        size_t workSize()
+
+        size_t nParameters()
+        int getType()
+        void getParameters(double*)
+
+    cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
+        CxxFalloffReaction()
+
+        CxxArrhenius low_rate
+        CxxArrhenius high_rate
+        CxxThirdBody third_body
+        shared_ptr[CxxFalloff] falloff
+
+    cdef cppclass CxxChemicallyActivatedReaction "Cantera::ChemicallyActivatedReaction" (CxxFalloffReaction):
+        CxxChemicallyActivatedReaction()
+
+    cdef cppclass CxxPlog "Cantera::Plog":
+        CxxPlog(multimap[double,CxxArrhenius])
+        vector[pair[double,CxxArrhenius]] rates()
+        void update_C(double*)
+        double updateRC(double, double)
+
+    cdef cppclass CxxPlogReaction "Cantera::PlogReaction" (CxxReaction):
+        CxxPlog rate
+
+    cdef cppclass CxxChebyshevRate "Cantera::ChebyshevRate":
+        CxxChebyshevRate(double, double, double, double, CxxArray2D)
+        double Tmin()
+        double Tmax()
+        double Pmin()
+        double Pmax()
+        size_t nPressure()
+        size_t nTemperature()
+        vector[double]& coeffs()
+        void update_C(double*)
+        double updateRC(double, double)
+
+    cdef cppclass CxxChebyshevReaction "Cantera::ChebyshevReaction" (CxxReaction):
+        CxxChebyshevRate rate
+
+    cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
+        CxxCoverageDependency(double, double, double)
+        double a
+        double E
+        double m
+
+    cdef cppclass CxxInterfaceReaction "Cantera::InterfaceReaction" (CxxElementaryReaction):
+        stdmap[string, CxxCoverageDependency] coverage_deps
+        cbool is_sticking_coefficient
+        string sticking_species
+
+cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":
+    cdef shared_ptr[CxxFalloff] CxxNewFalloff "Cantera::newFalloff" (int, vector[double]) except +
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
@@ -159,9 +337,18 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         int reactionPhaseIndex()
         int phaseIndex(string)
         int kineticsSpeciesIndex(int, int)
+        int kineticsSpeciesIndex(string)
 
         CxxThermoPhase& thermo(int)
 
+        void addPhase(CxxThermoPhase&) except +
+        void init() except +
+        void skipUndeclaredThirdBodies(cbool)
+        void addReaction(shared_ptr[CxxReaction]) except +
+        void finalize() except +
+        void modifyReaction(int, shared_ptr[CxxReaction]) except +
+
+        shared_ptr[CxxReaction] reaction(size_t) except +
         cbool isReversible(int) except +
         int reactionType(int) except +
         string reactionString(int) except +
@@ -202,11 +389,31 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
         void getMolarFluxes(double*, double*, double, double*) except +
 
 
+cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
+    cdef cppclass CxxTransportData "Cantera::TransportData":
+        CxxTransportData()
+
+    cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
+        CxxGasTransportData()
+        CxxGasTransportData(string, double, double, double, double, double, double)
+        void setCustomaryUnits(string, double, double, double, double, double, double)
+
+        string geometry
+        double diameter
+        double well_depth
+        double dipole
+        double polarizability
+        double rotational_relaxation
+        double acentric_factor
+
+
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
         CxxMultiPhase()
         void addPhase(CxxThermoPhase*, double) except +
         void init() except +
+
+        void equilibrate(string, string, double, int, int, int, int) except +
 
         size_t nSpecies()
         size_t nElements()
@@ -239,12 +446,6 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         double gibbs() except +
         double cp() except +
         double volume() except +
-
-cdef extern from "cantera/equil/equil.h" namespace "Cantera":
-    int equilibrate(CxxThermoPhase&, char*, int, double, int, int, int) except +
-
-cdef extern from "cantera/equil/vcs_MultiPhaseEquil.h" namespace "Cantera":
-    int vcs_equilibrate(CxxMultiPhase&, char*, int, int, int, double, int, int, int) except +
 
 
 cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
@@ -299,6 +500,7 @@ cdef extern from "cantera/zeroD/Wall.h":
         void setHeatFlux(CxxFunc1*)
         void setKinetics(CxxKinetics*, CxxKinetics*)
         void setCoverages(int, double*)
+        void setCoverages(int, Composition&) except +
         void syncCoverages(int)
         double vdot(double)
         double Q(double)
@@ -356,9 +558,11 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +
     cdef CxxThermoPhase* newPhase(XML_Node&) except +
+    cdef CxxThermoPhase* newThermoPhase(string) except +
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +
+    cdef CxxKinetics* CxxNewKinetics "Cantera::newKineticsMgr" (string) except +
 
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +
@@ -432,8 +636,11 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setTransport(CxxTransport&, cbool) except +
         void setTransport(CxxTransport&) except +
         void setPressure(double)
+        void enableRadiation(cbool)
+        cbool radiationEnabled()
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
+        void setBoundaryEmissivities(double, double)
         void solveEnergyEqn()
         void fixTemperature()
         cbool doEnergy(size_t)
@@ -462,6 +669,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void save(string, string, string, int) except +
         void restore(string, string, int) except +
         void writeStats(int) except +
+        void clearStats()
         int domainIndex(string) except +
         double value(size_t, size_t, size_t) except +
         double workValue(size_t, size_t, size_t) except +
@@ -518,6 +726,9 @@ cdef extern from "cantera/cython/wrappers.h":
         pass
 
     cdef void CxxSetLogger "setLogger" (CxxPythonLogger*)
+
+    # workaround for Cython assignment limitations
+    cdef void CxxArray2D_set(CxxArray2D, size_t, size_t, double)
 
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
@@ -583,6 +794,22 @@ ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +
 
 # classes
+cdef class Species:
+    cdef shared_ptr[CxxSpecies] _species
+    cdef CxxSpecies* species
+
+    cdef _assign(self, shared_ptr[CxxSpecies] other)
+
+cdef class SpeciesThermo:
+    cdef shared_ptr[CxxSpeciesThermo] _spthermo
+    cdef CxxSpeciesThermo* spthermo
+    cdef _assign(self, shared_ptr[CxxSpeciesThermo] other)
+
+cdef class GasTransportData:
+    cdef shared_ptr[CxxTransportData] _data
+    cdef CxxGasTransportData* data
+    cdef _assign(self, shared_ptr[CxxTransportData] other)
+
 cdef class _SolutionBase:
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics
@@ -590,6 +817,7 @@ cdef class _SolutionBase:
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
+    cdef cbool is_slice
 
 cdef class ThermoPhase(_SolutionBase):
     cdef double _mass_factor(self)
@@ -601,6 +829,19 @@ cdef class ThermoPhase(_SolutionBase):
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
+
+cdef class Reaction:
+    cdef shared_ptr[CxxReaction] _reaction
+    cdef CxxReaction* reaction
+    cdef _assign(self, shared_ptr[CxxReaction] other)
+
+cdef class Arrhenius:
+    cdef CxxArrhenius* rate
+    cdef Reaction reaction # parent reaction, to prevent garbage collection
+
+cdef class Falloff:
+    cdef shared_ptr[CxxFalloff] _falloff
+    cdef CxxFalloff* falloff
 
 cdef class Kinetics(_SolutionBase):
     pass
@@ -743,3 +984,5 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
+cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
+cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction)

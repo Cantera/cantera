@@ -86,7 +86,7 @@ public:
      * @param resid         Value of the residual that is computed (output)
      * @param evalType      Type of the residual being computed (defaults to Base_ResidEval)
      * @param id_x          Index of the variable that is being numerically differenced to find
-     *                      the jacobian (defaults to -1, which indicates that no variable is being
+     *                      the Jacobian (defaults to -1, which indicates that no variable is being
      *                      differenced or that the residual doesn't take this issue into account)
      * @param delta_x       Value of the delta used in the numerical differencing
      *
@@ -186,7 +186,7 @@ public:
      * @param t             Time                    (input)
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
-     * @param delta_y       Value of the delta to be used in calculating the numerical jacobian
+     * @param delta_y       Value of the delta to be used in calculating the numerical Jacobian
      * @param solnWeights   Value of the solution weights that are used in determining convergence (default = 0)
      *
      * @return Returns a flag to indicate that operation is successful.
@@ -245,7 +245,7 @@ public:
 
     //! Multiply the matrix by another matrix that leads to better conditioning
     /*!
-     *  Provide a left sided matrix that will multiply the current jacobian, after scaling
+     *  Provide a left sided matrix that will multiply the current Jacobian, after scaling
      *  and lead to a better conditioned system.
      *  This routine is called just before the matrix is factored.
      *
@@ -255,9 +255,9 @@ public:
      *  New problem:
      *      M (J delta_x) = - M Resid
      *
-     *  @param    matrix     Pointer to the current jacobian (if zero, it's already been factored)
+     *  @param    matrix     Pointer to the current Jacobian (if zero, it's already been factored)
      *  @param    nrows      offsets for the matrix
-     *  @param    rhs        residual vector. This also needs to be lhs multiplied by M
+     *  @param    rhs        residual vector. This also needs to be LHS multiplied by M
      *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
@@ -266,13 +266,13 @@ public:
     virtual int  matrixConditioning(doublereal* const matrix, const int nrows,
                                     doublereal* const rhs);
 
-    //! Calculate an analytical jacobian and the residual at the current time and values.
+    //! Calculate an analytical Jacobian and the residual at the current time and values.
     /*!
      *  Only called if the jacFormation method is set to analytical
      *
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
-     * @param cj            Coefficient of yprime used in the evaluation of the jacobian
+     * @param cj            Coefficient of yprime used in the evaluation of the Jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param J             Reference to the SquareMatrix object to be calculated (output)
@@ -286,13 +286,13 @@ public:
                              const doublereal* const y, const doublereal* const ydot,
                              GeneralMatrix& J, doublereal* const resid);
 
-    //! Calculate an analytical jacobian and the residual at the current time and values.
+    //! Calculate an analytical Jacobian and the residual at the current time and values.
     /*!
      *  Only called if the jacFormation method is set to analytical
      *
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
-     * @param cj            Coefficient of yprime used in the evaluation of the jacobian
+     * @param cj            Coefficient of yprime used in the evaluation of the Jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param jacobianColPts   Pointer  to the vector of pts to columns of the SquareMatrix

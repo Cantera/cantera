@@ -6,11 +6,9 @@
 #include "ctonedim.h"
 
 // Cantera includes
-#include "cantera/base/config.h"
 #include "cantera/oneD/Sim1D.h"
-#include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/Inlet1D.h"
-#include "cantera/numerics/DenseMatrix.h"
+#include "cantera/transport/TransportBase.h"
 #include "Cabinet.h"
 
 #include <fstream>
@@ -20,8 +18,8 @@ using namespace Cantera;
 
 typedef Cabinet<Sim1D> SimCabinet;
 typedef Cabinet<Domain1D> DomainCabinet;
-template<> SimCabinet* SimCabinet::__storage = 0;
-template<> DomainCabinet* DomainCabinet::__storage = 0;
+template<> SimCabinet* SimCabinet::s_storage = 0;
+template<> DomainCabinet* DomainCabinet::s_storage = 0;
 
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;

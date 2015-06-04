@@ -1,5 +1,7 @@
 import numpy as np
 import sys
+import os
+import warnings
 
 _ver = sys.version_info[:2]
 if  _ver < (2,7) or (3,0) <= _ver < (3,2):
@@ -30,6 +32,24 @@ class CanteraTest(unittest.TestCase):
 
         for a,b in zip(A.flat, B.flat):
             self.assertNear(a,b, rtol, atol, msg)
+
+    def compare(self, data, reference_file):
+        """
+        Compare an array with a reference data file, or generate the reference
+        file if it does not exist.
+        """
+        data = np.array(data)
+        if os.path.exists(reference_file):
+            # Compare with existing output file
+            ref = np.genfromtxt(reference_file)
+            self.assertEqual(data.shape, ref.shape)
+            for i in range(ref.shape[0]):
+                self.assertArrayNear(ref[i], data[i])
+        else:
+            # Generate the output file for the first time
+            warnings.warn('Generating test data file:' +
+                          os.path.abspath(reference_file))
+            np.savetxt(reference_file, data, fmt='%.10e')
 
 
 def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):
@@ -84,12 +104,19 @@ def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):
             xerr = abserr / (abs(slope[j]) + atol)
 
             if abserr > atol and relerr > rtol and xerr > xtol:
-                bad.append(template.format(reference[0][j], i, a, b, abserr, relerr, xerr))
+                bad.append((reference[0][j], i, a, b, abserr, relerr, xerr))
+
+    footer = []
+    maxrows = 10
+    if len(bad) > maxrows:
+        bad.sort(key=lambda row: -row[5])
+        footer += ['Plus {0} more points exceeding error thresholds.'.format(len(bad)-maxrows)]
+        bad = bad[:maxrows]
 
     if bad:
         header = ['Failed series comparisons:',
                   'coordinate  comp.  reference val    test value    abs. err   rel. err    pos. err',
                   '----------  ---   --------------  --------------  ---------  ---------  ---------']
-        return '\n'.join(header + bad)
+        return '\n'.join(header + [template.format(*row) for row in bad] + footer)
     else:
         return None

@@ -14,15 +14,10 @@
 #define CT_MIXTUREFUGACITYTP_H
 
 #include "ThermoPhase.h"
-#include "VPSSMgr.h"
 #include "cantera/numerics/ResidEval.h"
 
 namespace Cantera
 {
-
-class XML_Node;
-class PDSS;
-
 //! Various states of the Fugacity object. In general there can be multiple liquid
 //! objects for a single phase identified with each species.
 
@@ -70,13 +65,11 @@ class PDSS;
  *  multiple phases of the fluid in equilibrium with each other. This has yet to be resolved.
  *
  *  This class is usually used for non-ideal gases.
- *
- *  @nosubgrouping
  */
 class MixtureFugacityTP : public ThermoPhase
 {
 public:
-    //! @name Constructors and Duplicators for %MixtureFugacityTP
+    //! @name Constructors and Duplicators for MixtureFugacityTP
     //! @{
 
     //! Constructor.
@@ -503,7 +496,7 @@ protected:
 public:
     /*!
      *  Returns the vector of the
-     *  gibbs function of the reference state at the current temperature
+     *  Gibbs function of the reference state at the current temperature
      *  of the solution and the reference pressure for the species.
      *  units = J/kmol
      *
@@ -751,15 +744,12 @@ public:
      */
     doublereal calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
                              doublereal& molarVolLiquid);
-    
+
 public:
     //! Calculate the saturation pressure at the current mixture content for the given temperature
     /*!
-     *   @param TKelvin         (input) Temperature (Kelvin)
-     *   @param molarVolGas     (return) Molar volume of the gas
-     *   @param molarVolLiquid  (return) Molar volume of the liquid
-     *
-     *   @return          Returns the saturation pressure at the given temperature
+     *   @param TKelvin   Temperature (Kelvin)
+     *   @return          The saturation pressure at the given temperature
      */
     virtual doublereal satPressure(doublereal TKelvin);
 
@@ -840,7 +830,7 @@ protected:
     //! Temporary storage for dimensionless reference state heat capacities
     mutable vector_fp      m_cp0_R;
 
-    //! Temporary storage for dimensionless reference state gibbs energies
+    //! Temporary storage for dimensionless reference state Gibbs energies
     mutable vector_fp      m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies

@@ -2,7 +2,6 @@
  * @file BasisOptimize.cpp Functions which calculation optimized basis of the
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/numerics/ctlapack.h"
 
@@ -25,16 +24,6 @@ int BasisOptimize_print_lvl = 0;
  *                            2 left aligned
  */
 static void print_stringTrunc(const char* str, int space, int alignment);
-
-//! Finds the location of the maximum component in a vector *x*
-/*!
- *  @param x  Vector to search
- *  @param j  j <= i < n : i is the range of indices to search in *x*
- *  @param n  Length of the vector
- *
- *  @return  index of the greatest value on *x* searched
- */
-static size_t amax(double* x, size_t j, size_t n);
 
 size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                               MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
@@ -167,7 +156,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
              *    for the largest remaining species. Return its identity.
              *    kk is the raw number. k is the orderVectorSpecies index.
              */
-            kk = amax(DATA_PTR(molNum), 0, nspecies);
+            kk = max_element(molNum.begin(), molNum.end()) - molNum.begin();
             for (j = 0; j < nspecies; j++) {
                 if (orderVectorSpecies[j] == kk) {
                     k = j;
@@ -289,7 +278,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
      *      C will be an nc x nc matrix made up of the formula
      * vectors for the components. Each component's formula
      * vector is a column. The rows are the elements.
-     *      n rhs's will be solved for. Thus, B is an nc x n
+     *      n RHS's will be solved for. Thus, B is an nc x n
      * matrix.
      *
      * BIG PROBLEM 1/21/99:
@@ -432,28 +421,6 @@ static void print_stringTrunc(const char* str, int space, int alignment)
     }
 }
 
-/*
- * Finds the location of the maximum component in a double vector
- * INPUT
- *    x(*) - Vector to search
- *    j <= i < n     : i is the range of indices to search in X(*)
- *
- * RETURN
- *    return index of the greatest value on X(*) searched
- */
-static size_t amax(double* x, size_t j, size_t n)
-{
-    size_t largest = j;
-    double big = x[j];
-    for (size_t i = j + 1; i < n; ++i) {
-        if (x[i] > big) {
-            largest = i;
-            big = x[i];
-        }
-    }
-    return largest;
-}
-
 size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                               MultiPhase* mphase,
                               std::vector<size_t>& orderVectorSpecies,
@@ -563,11 +530,10 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
             if (k == nelements) {
                 // When we are here, there is an error usually.
                 // We haven't found the number of elements necessary.
-                // This is signalled by returning jr != nComponents.
                 if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                     writelogf("Error exit: returning with nComponents = %d\n", jr);
                 }
-                return jr;
+                throw CanteraError("ElemRearrange", "Required number of elements not found.");
             }
 
             /*

@@ -1,7 +1,11 @@
-function g_RT = gibbs_RT(p)
-% GIBBS_RT - Species non-dimensional Gibbs free energies.
+function g_RT = gibbs_RT(tp)
+% GIBBS_RT  Get the non-dimensional Gibbs function.
+% g_RT = gibbs_RT(tp)
+% :param tp:
+%     Instance of class :mat:func:`ThermoPhase` (or another
+%     object that derives from ThermoPhase)
+% :return:
+%     Vector of non-dimensional Gibbs functions of the species.
 %
-%        This method returns an array containing the pure species
-%        standard-state Gibbs free energies.
-%
-g_RT = enthalpies_RT(p) - entropies_R(p);
+
+g_RT = enthalpies_RT(tp) - entropies_R(tp);

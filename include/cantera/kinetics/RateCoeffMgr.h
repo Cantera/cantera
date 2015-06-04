@@ -7,12 +7,7 @@
 #ifndef CT_RATECOEFF_MGR_H
 #define CT_RATECOEFF_MGR_H
 
-#include "cantera/base/utilities.h"
 #include "RxnRates.h"
-
-#include "cantera/base/ct_defs.h"
-#include "cantera/base/ctexceptions.h"
-#include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
@@ -47,7 +42,25 @@ public:
         // Install a rate calculator and return the index of the calculator.
         m_rxn.push_back(rxnNumber);
         m_rates.push_back(R(rdata));
+        m_indices[rxnNumber] = m_rxn.size() - 1;
         return m_rates.size() - 1;
+    }
+
+    /**
+     * Install a rate coefficient calculator.
+     * @param rxnNumber the reaction number
+     * @param rate rate coefficient specification for the reaction
+     */
+    void install(size_t rxnNumber, const R& rate) {
+        m_rxn.push_back(rxnNumber);
+        m_rates.push_back(rate);
+        m_indices[rxnNumber] = m_rxn.size() - 1;
+    }
+
+    //! Replace an existing rate coefficient calculator
+    void replace(size_t rxnNumber, const R& rate) {
+        size_t i = m_indices[rxnNumber];
+        m_rates[i] = rate;
     }
 
     /**
@@ -88,6 +101,9 @@ public:
 protected:
     std::vector<R>             m_rates;
     std::vector<size_t>           m_rxn;
+
+    //! map reaction number to index in m_rxn / m_rates
+    std::map<size_t, size_t> m_indices;
 };
 
 }
