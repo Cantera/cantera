@@ -14,13 +14,14 @@ Windows
 =======
 
 Windows installers are provided for stable versions of Cantera. These
-installation instructions are for Cantera 2.1.1.
+installation instructions are for Cantera 2.2.0.
 
 1. **Choose your Python version and architecture**
 
-   - On Windows, Cantera supports Python 2.7 and Python 3.3. Python 3.3 is
-     recommended unless you need to use legacy code that does not work with
-     Python 3. You can install both Cantera Python modules simultaneously.
+   - On Windows, Cantera supports Python 2.7 and Python 3.3, and Python 3.4.
+     Python 3.4 is recommended unless you need to use legacy code that does not
+     work with Python 3. You can install multiple Cantera Python modules
+     simultaneously.
 
    - Cantera supports both 32- and 64- bit Python installations.
 
@@ -39,7 +40,7 @@ installation instructions are for Cantera 2.1.1.
    - Go to `python.org <https://www.python.org/>`_.
 
      - *64-bit*: Download the most recent "Windows X86-64 MSI Installer" for
-       Python *X.Y* (i.e. prefer 3.3.5 to 3.3.4, but not 3.4.1).
+       Python *X.Y* (i.e. prefer 3.4.3 to 3.4.2, but not 3.5.0).
      - *32-bit*: Download the most recent "Windows x86 MSI Installer" for
        Python *X.Y*.
 
@@ -65,7 +66,7 @@ installation instructions are for Cantera 2.1.1.
    - From a administrative command prompt, run `get-pip.py` with the copy of
      Python you plan on use with Cantera, e.g.::
 
-         c:\python33\python.exe "%USERPROFILE%\Downloads\get-pip.py"
+         c:\python34\python.exe "%USERPROFILE%\Downloads\get-pip.py"
 
 4. **Install Numpy**
 
@@ -74,15 +75,15 @@ installation instructions are for Cantera 2.1.1.
 
    - Download the most recent release (distributed as a "wheel" archive) of the
      1.x series for Python *X.Y* that matches your Python architecture. The
-     binaries for Cantera 2.1.1 require Numpy 1.8.0 or newer, e.g. In the
+     binaries for Cantera 2.2.0 require Numpy 1.8.0 or newer, e.g. In the
      filename, the digits after "cp" indicate the Python version, e.g.
-     ``numpy‑1.8.2+mkl‑cp33‑none‑win_amd64.whl`` is the installer for 64-bit
-     Python 3.3.
+     ``numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl`` is the installer for 64-bit
+     Python 3.4.
 
    - From an administrative command prompt, install the downloaded wheel using
      pip, e.g.::
 
-         c:\python33\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp33‑none‑win_amd64.whl"
+         c:\python34\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl"
 
 5. **Remove old versions of Cantera**
 
@@ -94,13 +95,13 @@ installation instructions are for Cantera 2.1.1.
 
 6. **Install Cantera**
 
-   - Go to the `Cantera Downloads
-     <https://sourceforge.net/projects/cantera/files/cantera/2.1.1/>`_ page.
+   - Go to the `Cantera Releases <https://github.com/Cantera/cantera/releases>`_
+     page.
 
-     - *64-bit*: Download **Cantera-2.1.1-x64.msi** and
-       **Cantera-Python-2.1.1-x64-pyX.Y.msi**.
-     - *32-bit*: Download **Cantera-2.1.1-x86.msi** and
-       **Cantera-Python-2.1.1-x86-pyX.Y.msi**.
+     - *64-bit*: Download **Cantera-2.2.0-x64.msi** and
+       **Cantera-Python-2.2.0-x64-pyX.Y.msi**.
+     - *32-bit*: Download **Cantera-2.2.0-x86.msi** and
+       **Cantera-Python-2.2.0-x86-pyX.Y.msi**.
 
    - If you are only using the Python module, you do not need to download and
      install the base package.
@@ -306,19 +307,16 @@ Ubuntu
 ======
 
 Ubuntu packages are provided for recent versions of Ubuntu using a Personal
-Package Archive (PPA). As of Cantera 2.1.2, packages are available for Ubuntu
-12.04 LTS (Precise Pangolin), Ubuntu 14.04 LTS (Trusty Tahr), and Ubuntu 14.10
-(Utopic Unicorn). To see which Ubuntu releases and Cantera versions are
-currently available, visit https://launchpad.net/~speth/+archive/ubuntu/cantera
+Package Archive (PPA). As of Cantera 2.2.0, packages are available for Ubuntu
+Ubuntu 14.04 LTS (Trusty Tahr), Ubuntu 14.10 (Utopic Unicorn), and Ubuntu 15.04
+(Vivid Vervet). To see which Ubuntu releases and Cantera versions are currently
+available, visit https://launchpad.net/~speth/+archive/ubuntu/cantera
 
 The available packages are:
 
-- ``cantera-python`` - The Cantera Python module for Python 2. For Ubuntu 12.04,
-  this is the "legacy" Python module. For Ubuntu 14.04 and newer, this is the
-  "new" Python module.
+- ``cantera-python`` - The Cantera Python module for Python 2.
 
-- ``cantera-python3`` - The Cantera Python module for Python 3. Only available
-  for Ubuntu 14.04 and newer.
+- ``cantera-python3`` - The Cantera Python module for Python 3.
 
 - ``cantera-dev`` - Libraries and header files for compiling your own C++ and
   Fortran 90 programs that use Cantera.
