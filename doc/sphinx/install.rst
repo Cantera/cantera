@@ -220,10 +220,6 @@ you can skip any steps which have already been completed.
 
    * The following options are supported:
 
-     ``--devel``
-         Installs Cantera with additional patches that will be included in the
-         next maintenance release.
-
      ``--HEAD``
          Installs the current development version of Cantera.
 
@@ -234,7 +230,7 @@ you can skip any steps which have already been completed.
    * These options are specified as additional arguments to the ``brew install``
      command, e.g.::
 
-         brew install cantera --devel --with-matlab=/Applications/MATLAB_R2014a.app/
+         brew install cantera --HEAD --with-matlab=/Applications/MATLAB_R2014a.app/
 
    * If something goes wrong with the Homebrew install, re-run the command with
      the ``-v`` flag to get more verbose output that may help identify the
