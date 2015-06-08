@@ -935,9 +935,10 @@ if env['python_package'] == 'new':
     env['python_package'] = 'full' # Allow 'new' as a synonym for 'full'
 warnNoPython = False
 
+# The directory within the source tree which will contain the Python 2 module
+env['pythonpath_build2'] = Dir('build/python2').abspath
+
 if env['python_package'] in ('full','default'):
-    # The directory within the source tree which will contain the Python 2 module
-    env['pythonpath_build2'] = Dir('build/python2').abspath
     if 'PYTHONPATH' in env['ENV']:
         env['pythonpath_build2'] += os.path.pathsep + env['ENV']['PYTHONPATH']
 
