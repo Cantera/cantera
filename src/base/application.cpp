@@ -306,8 +306,8 @@ void Application::close_XML_File(const std::string& file)
         for (; b != e; ++b) {
             b->second.first->unlock();
             delete b->second.first;
-            xmlfiles.erase(b->first);
         }
+        xmlfiles.clear();
     } else if (xmlfiles.find(file) != xmlfiles.end()) {
         xmlfiles[file].first->unlock();
         delete xmlfiles[file].first;
