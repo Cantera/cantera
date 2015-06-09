@@ -28,7 +28,7 @@ Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
 void Bdry1D::_init(size_t n)
 {
     if (m_index == npos) {
-        throw CanteraError("Bdry1D",
+        throw CanteraError("Bdry1D::_init",
                            "install in container before calling init.");
     }
 
@@ -49,7 +49,7 @@ void Bdry1D::_init(size_t n)
             m_left_nsp = m_left_nv - 4;
             m_phase_left = &m_flow_left->phase();
         } else
-            throw CanteraError("Bdry1D::init",
+            throw CanteraError("Bdry1D::_init",
                                "Boundary domains can only be "
                                "connected on the left to flow domains, not type "+int2str(r.domainType())
                                + " domains.");
@@ -66,7 +66,7 @@ void Bdry1D::_init(size_t n)
             m_right_nsp = m_right_nv - 4;
             m_phase_right = &m_flow_right->phase();
         } else
-            throw CanteraError("Bdry1D::init",
+            throw CanteraError("Bdry1D::_init",
                                "Boundary domains can only be "
                                "connected on the right to flow domains, not type "+int2str(r.domainType())
                                + " domains.");

@@ -162,7 +162,7 @@ public:
         if (n < data.size()) {
             return *data[n];
         } else {
-            throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(n));
+            throw Cantera::CanteraError("Cabinet::item","index out of range"+Cantera::int2str(n));
         }
     }
 

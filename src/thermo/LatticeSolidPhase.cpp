@@ -448,7 +448,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
             }
         }
         if (!found) {
-            throw CanteraError("", "not found");
+            throw CanteraError("LatticeSolidPhase::setParametersFromXML", "not found");
         }
     }
 

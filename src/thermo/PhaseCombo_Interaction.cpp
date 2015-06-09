@@ -139,7 +139,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(int testProb)  :
                            "Unable to find Li2Fe1S2(S)");
     }
     m_pSpecies_B_ij[0] = iLi2;
-    throw CanteraError("", "unimplemented");
+    throw CanteraError("PhaseCombo_Interaction test1 constructor", "unimplemented");
 }
 
 /*
@@ -665,7 +665,7 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag() const
         dlnActCoeffdlnX_diag_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
         dlnActCoeffdlnX_diag_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
     }
-    throw CanteraError("", "unimplemented");
+    throw CanteraError("PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag", "unimplemented");
 }
 
 void PhaseCombo_Interaction::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const

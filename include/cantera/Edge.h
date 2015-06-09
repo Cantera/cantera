@@ -23,7 +23,7 @@ public:
 
         XML_Node* x = get_XML_Node("#"+id, m_r);
         if (!x) {
-            throw CanteraError("Edge","error in get_XML_Node");
+            throw CanteraError("Edge::Edge","error in get_XML_Node");
         }
 
         importPhase(*x, this);

@@ -18,7 +18,7 @@ public:
             id = "";
         }
         m_ok = buildSolutionFromXML(*m_r, id, "phase", this, 0);
-        if (!m_ok) throw CanteraError("Metal",
+        if (!m_ok) throw CanteraError("Metal::Metal",
                                           "buildSolutionFromXML returned false");
     }
 

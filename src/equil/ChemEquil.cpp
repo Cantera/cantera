@@ -174,7 +174,7 @@ void ChemEquil::update(const thermo_t& s)
         for (size_t k = 0; k < m_kk; k++) {
             m_elementmolefracs[m] += nAtoms(k,m) * m_molefractions[k];
             if (m_molefractions[k] < 0.0) {
-                throw CanteraError("update",
+                throw CanteraError("ChemEquil::update",
                                    "negative mole fraction for "+s.speciesName(k)+
                                    ": "+fp2str(m_molefractions[k]));
             }

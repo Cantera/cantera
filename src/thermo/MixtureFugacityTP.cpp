@@ -745,12 +745,12 @@ int MixtureFugacityTP::phaseState(bool checkState) const
 
 doublereal MixtureFugacityTP::densSpinodalLiquid() const
 {
-    throw CanteraError("", "unimplemented");
+    throw CanteraError("MixtureFugacityTP::densSpinodalLiquid", "unimplemented");
 }
 
 doublereal MixtureFugacityTP::densSpinodalGas() const
 {
-    throw CanteraError("", "unimplemented");
+    throw CanteraError("MixtureFugacityTP::densSpinodalGas", "unimplemented");
 }
 
 doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)

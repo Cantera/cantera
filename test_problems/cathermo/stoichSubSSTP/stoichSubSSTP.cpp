@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
         size_t nsp = solid->nSpecies();
         if (nsp != 1) {
-            throw CanteraError("","Should just be one species");
+            throw CanteraError("main","Should just be one species");
         }
         string sName;
 

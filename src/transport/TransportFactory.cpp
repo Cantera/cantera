@@ -127,7 +127,7 @@ LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, const std::string& 
         ltps = new LTPspecies_ExpT(trNode, name, tp_ind, thermo);
         break;
     default:
-        throw CanteraError("newLTP","unknown transport model: " + model);
+        throw CanteraError("TransportFactory::newLTP","unknown transport model: " + model);
         ltps = new LTPspecies(&trNode, name, tp_ind, thermo);
     }
     return ltps;

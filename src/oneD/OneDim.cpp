@@ -404,7 +404,7 @@ void OneDim::save(const std::string& fname, std::string id,
     }
     ofstream s(fname.c_str());
     if (!s) {
-        throw CanteraError("save","could not open file "+fname);
+        throw CanteraError("OneDim::save","could not open file "+fname);
     }
     root.write(s);
     s.close();

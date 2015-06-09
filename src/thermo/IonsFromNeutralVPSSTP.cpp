@@ -590,11 +590,13 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
                 if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
                     //! Check to see if we have in fact found the inverse.
                     if (anionList_[0] != k) {
-                        throw CanteraError("", "neutral molecule calc error");
+                        throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
+                                           "neutral molecule calc error");
                     } else {
                         //! For the single anion case, we will allow some slippage
                         if (fabs(moleFractionsTmp_[k]) > 1.0E-5) {
-                            throw CanteraError("", "neutral molecule calc error - anion");
+                            throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
+                                               "neutral molecule calc error - anion");
                         }
                     }
                 }
@@ -614,18 +616,18 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
 
     case  cIonSolnType_SINGLECATION:
 
-        throw CanteraError("eosType", "Unknown type");
+        throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
 
         break;
 
     case  cIonSolnType_MULTICATIONANION:
 
-        throw CanteraError("eosType", "Unknown type");
+        throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
         break;
 
     default:
 
-        throw CanteraError("eosType", "Unknown type");
+        throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
         break;
 
     }
@@ -688,11 +690,13 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
                 //! Check to see if we have in fact found the inverse.
                 if (anionList_[0] != k) {
-                    throw CanteraError("", "neutral molecule calc error");
+                    throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
+                                       "neutral molecule calc error");
                 } else {
                     //! For the single anion case, we will allow some slippage
                     if (fabs(moleFractionsTmp_[k]) > 1.0E-5) {
-                        throw CanteraError("", "neutral molecule calc error - anion");
+                        throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
+                                           "neutral molecule calc error - anion");
                     }
                 }
             }
@@ -714,18 +718,21 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
 
     case  cIonSolnType_SINGLECATION:
 
-        throw CanteraError("eosType", "Unknown type");
+        throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
+                           "Unknown type");
 
         break;
 
     case  cIonSolnType_MULTICATIONANION:
 
-        throw CanteraError("eosType", "Unknown type");
+        throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
+                           "Unknown type");
         break;
 
     default:
 
-        throw CanteraError("eosType", "Unknown type");
+        throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
+                           "Unknown type");
         break;
 
     }

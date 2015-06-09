@@ -441,7 +441,7 @@ void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
 {
     size_t k, ik;
     if (omega < 0.0) {
-        throw CanteraError("step","negative omega");
+        throw CanteraError("MultiPhaseEquil::step","negative omega");
     }
 
     for (ik = 0; ik < m_nel; ik++) {

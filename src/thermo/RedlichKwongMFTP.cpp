@@ -103,7 +103,8 @@ RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
         infile = "co2_redlichkwong.xml";
         id_ = "carbondioxide";
     } else {
-        throw CanteraError("", "test prob = 1 only");
+        throw CanteraError("RedlichKwongMFTP::RedlichKwongMFTP(int testProb)",
+                           "test prob = 1 only");
     }
     XML_Node* root = get_XML_File(infile);
     if (id_ == "-") {
@@ -213,7 +214,7 @@ doublereal RedlichKwongMFTP::cp_mole() const
 
 doublereal RedlichKwongMFTP::cv_mole() const
 {
-    throw CanteraError("", "unimplemented");
+    throw CanteraError("RedlichKwongMFTP::cv_mole", "unimplemented");
     return cp_mole() - GasConstant;
 }
 
@@ -850,7 +851,7 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
                     m_formTempParam = 1;
                 }
             } else {
-                throw CanteraError("", "unknown model");
+                throw CanteraError("RedlichKwongMFTP::readXMLPureFluid", "unknown model");
             }
 
             getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
@@ -941,7 +942,7 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
                     m_formTempParam = 1;
                 }
             } else {
-                throw CanteraError("", "unknown model");
+                throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "unknown model");
             }
 
             getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");

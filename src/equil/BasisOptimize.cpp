@@ -324,7 +324,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
     vector_int ipiv(nComponents);
     ct_dgetrf(nComponents, nComponents, &sm[0], ne, &ipiv[0], info);
     if (info) {
-        throw CanteraError("basopt", "factorization returned an error condition");
+        throw CanteraError("BasisOptimize", "factorization returned an error condition");
     }
     ct_dgetrs(ctlapack::NoTranspose, nComponents, nNonComponents, &sm[0], ne,
               &ipiv[0], &formRxnMatrix[0], ne, info);

@@ -552,7 +552,7 @@ double ElectrodeKinetics::calcForwardROP_BV(size_t irxn, size_t iBeta, double io
     int iECDFormulation = m_ctrxn_ecdf[iBeta];
 
     if (!iECDFormulation) {
-	throw CanteraError("", "not handled yet");
+	throw CanteraError("ElectrodeKinetics::calcForwardROP_BV", "not handled yet");
     }
     //
     //  Calculate the forward chemical and modify the forward reaction rate coefficient 
@@ -611,7 +611,7 @@ double ElectrodeKinetics::calcForwardROP_BV(size_t irxn, size_t iBeta, double io
     } else {
 #ifdef DEBUG_MODE
 	if (ioc > 0) {
-	    throw CanteraError(" ", "ioc should be less than zero here");
+	    throw CanteraError("ElectrodeKinetics::calcForwardROP_BV", "ioc should be less than zero here");
 	}
 #endif
 	double exp2 = -nu * nStoich * Faraday * (1.0 - beta) / (rt);
@@ -645,7 +645,7 @@ double ElectrodeKinetics::calcForwardROP_BV_NoAct(size_t irxn, size_t iBeta, dou
     int iECDFormulation = m_ctrxn_ecdf[iBeta];
 
     if (!iECDFormulation) {
-	throw CanteraError("", "not handled yet");
+	throw CanteraError("ElectrodeKinetics::calcForwardROP_BV_NoAct", "not handled yet");
     }
     //
     //  Calculate the forward chemical and modify the forward reaction rate coefficient 
@@ -712,7 +712,7 @@ double ElectrodeKinetics::calcForwardROP_BV_NoAct(size_t irxn, size_t iBeta, dou
     } else {
 #ifdef DEBUG_MODE
 	if (ioc > 0) {
-	    throw CanteraError(" ", "ioc should be less than zero here");
+	    throw CanteraError("ElectrodeKinetics::calcForwardROP_BV_NoAct", "ioc should be less than zero here");
 	}
 #endif
 	double exp2 = -nu * nStoich * Faraday * (1.0 - beta) / (rt);
