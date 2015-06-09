@@ -214,8 +214,16 @@ doublereal RedlichKwongMFTP::cp_mole() const
 
 doublereal RedlichKwongMFTP::cv_mole() const
 {
-    throw CanteraError("RedlichKwongMFTP::cv_mole", "unimplemented");
-    return cp_mole() - GasConstant;
+    _updateReferenceStateThermo();
+    doublereal TKelvin = temperature();
+    doublereal sqt = sqrt(TKelvin);
+    doublereal mv = molarVolume();
+    doublereal vpb = mv + m_b_current;
+    doublereal cvref = GasConstant * (mean_X(m_cp0_R) - 1.0);
+    doublereal dadt = da_dt();
+    doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
+    return (cvref - 1.0/(2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv)*fac
+            +1.0/(m_b_current * sqt) * log(vpb/mv)*(-0.5*dadt));
 }
 
 doublereal RedlichKwongMFTP::pressure() const
