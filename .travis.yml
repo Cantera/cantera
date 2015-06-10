@@ -1,0 +1,7 @@
+language: cpp
+before_script:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y python-dev python-numpy-dev cython gfortran libsundials-serial-dev liblapack-dev libblas-dev libboost-thread-dev python3-dev python3-numpy-dev
+script:
+  - scons build VERBOSE=y blas_lapack_libs=lapack,blas build_thread_safe=y boost_thread_lib=boost_thread optimize=n
+  - scons test
