@@ -378,6 +378,7 @@ class TestReactor(utilities.CanteraTest):
         # (constant T) we can compare with an analytical solution for
         # the mass of each reactor as a function of time
         self.make_reactors(P1=10*ct.one_atm)
+        self.net.rtol = 1e-11
         self.r1.energy_enabled = False
         self.r2.energy_enabled = False
         valve = ct.Valve(self.r1, self.r2)

@@ -249,7 +249,10 @@ protected:
     vector_fp m_atol;
     doublereal m_rtol, m_rtolsens;
     doublereal m_atols, m_atolsens;
+
+    //! Maximum integrator internal timestep. Default of 0.0 means infinity.
     doublereal m_maxstep;
+
     int m_maxErrTestFails;
     bool m_verbose;
     size_t m_ntotpar;
