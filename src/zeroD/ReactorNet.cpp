@@ -124,12 +124,16 @@ void ReactorNet::advance(doublereal time)
 
 double ReactorNet::step(doublereal time)
 {
+    if (time != -999) {
+        warn_deprecated("ReactorNet::step(t)", "The argument to this function"
+            " is deprecated and will be removed after Cantera 2.3.");
+    }
     if (!m_init) {
         initialize();
     } else if (!m_integrator_init) {
         reinitialize();
     }
-    m_time = m_integ->step(time);
+    m_time = m_integ->step(m_time + 1.0);
     updateState(m_integ->solution());
     return m_time;
 }

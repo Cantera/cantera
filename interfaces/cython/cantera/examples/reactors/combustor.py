@@ -81,7 +81,7 @@ outfile = open('combustor.csv','w')
 csvwriter = csv.writer(outfile)
 
 while tnow < tfinal:
-    tnow = sim.step(tfinal)
+    tnow = sim.step()
     tres = combustor.mass/v.mdot(tnow)
     Tnow = combustor.T
     if abs(Tnow - Tprev) > 1.0 or tnow-tprev > 2e-2:

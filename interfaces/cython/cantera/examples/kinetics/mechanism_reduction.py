@@ -31,7 +31,7 @@ t = 0.0
 # Rmax is the maximum relative reaction rate at any timestep
 Rmax = np.zeros(gas.n_reactions)
 while t < 0.02:
-    t = sim.step(1.0)
+    t = sim.step()
     tt.append(1000 * t)
     TT.append(r.T)
     rnet = abs(gas.net_rates_of_progress)
@@ -73,7 +73,7 @@ for i,N in enumerate([40,50,60,70,80]):
     tt = []
     TT = []
     while t < 0.02:
-        t = sim.step(1.0)
+        t = sim.step()
         tt.append(1000 * t)
         TT.append(r.T)
 

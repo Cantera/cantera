@@ -1,6 +1,6 @@
 function t = step(r, tout)
 % STEP  Take one internal time step.
-% t = step(r, tout)
+% t = step(r)
 % The integrator used to integrate the ODEs (CVODE) takes
 % variable-size steps, chosen so that a specified error
 % tolerance is maintained. At times when the solution is rapidly
@@ -19,7 +19,7 @@ function t = step(r, tout)
 %     t = 0.0
 %     tout = 0.1
 %     while t < tout
-%        t = step(r, tout)
+%        t = step(r)
 %        ,,,
 %        <commands to save desired variables>
 %        ...
@@ -29,12 +29,11 @@ function t = step(r, tout)
 %
 % :param r:
 %     Instance of class :mat:func:`ReactorNet`
-% :param tout:
-%     End time that the integrator should take one internal time
-%     step towards. This end time may not be reached, or may be
-%     exceeded by the internal time step.
 % :return:
 %     Network time after the internal time step. Units: s
 %
+if nargin == 1
+    tout = -999;
+end
 
 t = reactornetmethods(21, reactornet_hndl(r), tout);

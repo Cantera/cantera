@@ -107,9 +107,10 @@ public:
      */
     void advance(doublereal time);
 
-    //! Advance the state of all reactors in time. Take a single timestep
-    //! toward *time*.
-    double step(doublereal time);
+    //! Advance the state of all reactors in time.
+    //! @deprecated The *time* argument to this function is deprecated and will
+    //!     be removed after Cantera 2.3.
+    double step(doublereal time=-999);
 
     //@}
 

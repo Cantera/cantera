@@ -764,10 +764,14 @@ cdef class ReactorNet:
         """
         self.net.advance(t)
 
-    def step(self, double t):
+    def step(self, double t=-999):
         """
-        Take a single internal time step toward time *t* [s]. The time after
-        taking the step is returned.
+        Take a single internal time step. The time after taking the step is
+        returned.
+
+        .. deprecated:: 2.2
+            The argument *t* is deprecated and will be removed after
+            Cantera 2.3.
         """
         return self.net.step(t)
 

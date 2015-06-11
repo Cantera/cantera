@@ -363,7 +363,7 @@ class TestReactionPath(utilities.CanteraTest):
         net = ct.ReactorNet([r])
         T = r.T
         while T < 1900:
-            net.step(1.0)
+            net.step()
             T = r.T
 
         for element in ['N','C','H','O']:

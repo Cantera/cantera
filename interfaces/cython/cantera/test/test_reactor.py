@@ -77,7 +77,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_component_index(self):
         self.make_reactors(n_reactors=1)
-        self.net.step(1.0)
+        self.net.step()
 
         N0 = self.net.n_vars - self.gas1.n_species
         for i, name in enumerate(self.gas1.species_names):
@@ -122,7 +122,7 @@ class TestReactor(utilities.CanteraTest):
 
         while t < tEnd:
             tPrev = t
-            t = self.net.step(tEnd)
+            t = self.net.step()
             self.assertTrue(t - tPrev <= 1.0001 * dt_max)
             self.assertNear(t, self.net.time)
 
@@ -160,7 +160,7 @@ class TestReactor(utilities.CanteraTest):
             t = 0
 
             while t < tEnd:
-                t = self.net.step(tEnd)
+                t = self.net.step()
                 nSteps += 1
 
             return nSteps
@@ -426,7 +426,7 @@ class TestReactor(utilities.CanteraTest):
 
         t = 0
         while t < 1.0:
-            t = self.net.step(1.0)
+            t = self.net.step()
             p1 = self.r1.thermo.P
             p2 = self.r2.thermo.P
             self.assertNear(mdot(p1-p2), valve.mdot(t))
@@ -452,7 +452,7 @@ class TestReactor(utilities.CanteraTest):
 
         t = 0
         while t < 1.0:
-            t = self.net.step(1.0)
+            t = self.net.step()
             self.assertNear(mdot(t), mfc.mdot(t))
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
             self.assertNear(mdot(t) + 1e-5 * dP, pc.mdot(t))
@@ -585,7 +585,7 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         i = 0
         while t < tf:
             i += 1
-            t = self.net.step(tf)
+            t = self.net.step()
             times.append(t)
             T.append(self.combustor.T)
         return times, T
@@ -706,7 +706,7 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.create_reactors(add_surf=True)
         for (gas,net,iface,r) in ((self.gas1, self.net1, self.interface1, self.r1),
                                   (self.gas2, self.net2, self.interface2, self.r2)):
-            net.step(1.0)
+            net.step()
 
             N0 = net.n_vars - gas.n_species - iface.n_species
             N1 = net.n_vars - iface.n_species
@@ -765,7 +765,7 @@ class TestFlowReactor(utilities.CanteraTest):
         v0 = r.speed
         self.assertNear(v0, 10 / r.density)
         while t < 10.0:
-            t = net.step(10.0)
+            t = net.step()
 
             self.assertNear(v0, r.speed)
             self.assertNear(r.distance, v0 * t)
@@ -792,7 +792,7 @@ class TestFlowReactor(utilities.CanteraTest):
             t1 = net.time
             x1 = r.distance
 
-            t = net.step(1.0)
+            t = net.step()
 
             v = (r.distance - x1) / (net.time - t1)
             self.assertNear(r.speed, v, 1e-3)
@@ -952,7 +952,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
         for T in (901, 905, 910, 950, 1500):
             while r2.T < T:
-                net.step(1.0)
+                net.step()
 
             S = net.sensitivities()
 
@@ -984,7 +984,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
         def integrate(r, net):
             while r.T < 910:
-                net.step(1.0)
+                net.step()
             return net.sensitivities()
 
         r1,net1 = setup()
@@ -1215,7 +1215,7 @@ class CombustorTestImplementation(object):
         tfinal = 0.25
         self.data = []
         while tnow < tfinal:
-            tnow = self.sim.step(tfinal)
+            tnow = self.sim.step()
             self.data.append([tnow, self.combustor.T] +
                              list(self.combustor.thermo.X))
 
@@ -1280,7 +1280,7 @@ class WallTestImplementation(object):
         tfinal = 0.01
         self.data = []
         while tnow < tfinal:
-            tnow = self.sim.step(tfinal)
+            tnow = self.sim.step()
             self.data.append([tnow,
                               self.r1.T, self.r2.T,
                               self.r1.thermo.P, self.r2.thermo.P,
