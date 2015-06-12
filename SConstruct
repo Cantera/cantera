@@ -535,8 +535,9 @@ config_options = [
         defaults.boostLibDir, PathVariable.PathAccept),
     ('boost_thread_lib',
      """A comma-separated list containing the names of the libraries needed to
-        link to Boost.Thread.""",
-     'boost_thread'),
+        link to Boost.Thread. Autodetection will be attempted if this is left
+        blank.""",
+     ''),
     ('boost_windows_libs',
      """Comma-separated list containing the names of the Boost libraries
         required to link Cantera programs on Windows. These libraries will be
@@ -817,7 +818,8 @@ else:
     config_error("Couldn't find a working shared_ptr implementation.")
 
 import SCons.Conftest, SCons.SConf
-ret = SCons.Conftest.CheckLib(SCons.SConf.CheckContext(conf),
+context = SCons.SConf.CheckContext(conf)
+ret = SCons.Conftest.CheckLib(context,
                               ['sundials_cvodes'],
                               header='#include "cvodes/cvodes.h"',
                               language='C++',
@@ -918,6 +920,39 @@ env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
 env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
+
+env['boost_libs'] = []
+if env['build_thread_safe']:
+    env['use_boost_libs'] = True
+
+    # Figure out what needs to be linked for Boost Thread support. Varies with
+    # OS and Boost version.
+    boost_ok = False
+    if env['boost_thread_lib']:
+        boost_lib_choices = [env['boost_thread_lib'].split(',')]
+    else:
+        boost_lib_choices = [[''], ['boost_system'],
+                             ['boost_thread', 'boost_system']]
+    for bt in boost_lib_choices:
+        header= "#define BOOST_ALL_NO_LIB\n#include <boost/thread/thread.hpp>"
+        call = "boost::mutex foo; boost::mutex::scoped_lock bar(foo);"
+
+        ans = SCons.Conftest.CheckLib(context,
+                                      [bt[0]],
+                                      header=header,
+                                      language='C++',
+                                      call=call,
+                                      extra_libs=bt[1:] if len(bt)>1 else None,
+                                      autoadd=False)
+        if not ans:
+            boost_ok = True
+            print 'Linking Boost.Thread with the following libraries: {0}'.format(
+                ', '.join(bt) or '<none>')
+            if bt[0] and env.subst('$CXX') != 'cl':
+                env['boost_libs'] = bt
+            break
+else:
+    env['use_boost_libs'] = False
 
 env = conf.Finish()
 
@@ -1250,14 +1285,6 @@ config_h = env.Command('include/cantera/base/config.h',
                        ConfigBuilder(configh))
 env.AlwaysBuild(config_h)
 env['config_h_target'] = config_h
-
-env['boost_libs'] = []
-if env['build_thread_safe']:
-    env['use_boost_libs'] = True
-    if env['CC'] != 'cl':
-        env['boost_libs'].extend(listify(env['boost_thread_lib']))
-else:
-    env['use_boost_libs'] = False
 
 # *********************
 # *** Build Cantera ***

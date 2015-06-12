@@ -5,5 +5,5 @@ before_script:
   - wget https://github.com/msabramo/cython/releases/download/0.19.1/Cython-0.19.1-cp27-none-linux_x86_64.whl
   - sudo pip install Cython-0.19.1-cp27-none-linux_x86_64.whl
 script:
-  - scons build VERBOSE=y python_package=full python3_package=n blas_lapack_libs=lapack,blas build_thread_safe=y boost_thread_lib=boost_thread optimize=n
+  - scons build VERBOSE=y python_package=full python3_package=n blas_lapack_libs=lapack,blas build_thread_safe=y optimize=n
   - scons test
