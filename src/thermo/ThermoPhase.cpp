@@ -180,6 +180,42 @@ void ThermoPhase::setState_TP(doublereal t, doublereal p)
     setPressure(p);
 }
 
+void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
+{
+        setMoleFractions(x);
+        setState_RP(rho, p);
+}
+
+void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMap& x)
+{
+    setMoleFractionsByName(x);
+    setState_RP(rho,p);
+}
+
+void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& x)
+{
+    setMoleFractionsByName(x);
+    setState_RP(rho,p);
+}
+
+void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y)
+{
+    setMassFractions(y);
+    setState_RP(rho,p);
+}
+
+void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const compositionMap& y)
+{
+    setMassFractionsByName(y);
+    setState_RP(rho,p);
+}
+
+void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& y)
+{
+    setMassFractionsByName(y);
+    setState_RP(rho,p);
+}
+
 void ThermoPhase::setState_PX(doublereal p, doublereal* x)
 {
     setMoleFractions(x);
