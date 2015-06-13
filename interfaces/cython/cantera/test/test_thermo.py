@@ -295,6 +295,13 @@ class TestThermoPhase(utilities.CanteraTest):
         self.phase.SVY = s1, v1, Y1
         check_state(T1, rho1, Y1)
 
+        self.phase.TDY = T0, rho0, Y0
+        self.phase.DPX = rho1, P1, X1
+        check_state(T1, rho1, Y1)
+
+        self.phase.TDY = T0, rho0, Y0
+        self.phase.DPY = rho1, P1, Y1
+        check_state(T1, rho1, Y1)
 
     def test_setState_mass(self):
         self.check_setters(T1 = 500.0, rho1 = 1.5,
@@ -378,6 +385,20 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(S, self.phase.s)
         self.assertNear(V, self.phase.v)
         self.assertArrayNear(X, self.phase.X)
+
+        D,P,X = self.phase.DPX
+        self.assertNear(D, self.phase.density)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(X, self.phase.X)
+
+        D,P,Y = self.phase.DPY
+        self.assertNear(D, self.phase.density)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(Y, self.phase.Y)
+
+        D,P = self.phase.DP
+        self.assertNear(D, self.phase.density)
+        self.assertNear(P, self.phase.P)
 
     def test_getState_mass(self):
         self.phase.TDY = 350.0, 0.7, 'H2:0.1, H2O2:0.1, AR:0.8'
