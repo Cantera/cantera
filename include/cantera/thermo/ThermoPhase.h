@@ -279,23 +279,6 @@ public:
         throw NotImplementedError("ThermoPhase::pressure");
     }
 
-    //! Set the internally stored pressure (Pa) at constant
-    //! temperature and composition
-    /*!
-     *   This method must be reimplemented in derived classes, where it
-     *   may involve the solution of a nonlinear equation. Within %Cantera,
-     *   the independent variable is the density. Therefore, this function
-     *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition are held constant during this process.
-     *
-     *  This base class function will print an error, if not overwritten.
-     *
-     *  @param p input Pressure (Pa)
-     */
-    virtual void setPressure(doublereal p) {
-        throw NotImplementedError("ThermoPhase::setPressure");
-    }
-
     //! Returns  the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
@@ -944,6 +927,23 @@ public:
      * @{
      */
 
+    //! Set the internally stored pressure (Pa) at constant
+    //! temperature and composition
+    /*!
+     *   This method must be reimplemented in derived classes, where it
+     *   may involve the solution of a nonlinear equation. Within %Cantera,
+     *   the independent variable is the density. Therefore, this function
+     *   solves for the density that will yield the desired input pressure.
+     *   The temperature and composition are held constant during this process.
+     *
+     *  This base class function will print an error, if not overwritten.
+     *
+     *  @param p input Pressure (Pa)
+     */
+    virtual void setPressure(doublereal p) {
+        throw NotImplementedError("ThermoPhase::setPressure");
+    }
+
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
      * Note, the mole fractions are set first before the pressure is set.
@@ -1034,6 +1034,7 @@ public:
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
+
     virtual void setState_PX(doublereal p, doublereal* x);
 
     //! Set the internally stored pressure (Pa) and mass fractions.
