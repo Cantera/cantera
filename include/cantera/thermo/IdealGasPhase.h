@@ -508,6 +508,28 @@ public:
         setDensity(p * meanMolecularWeight() / (GasConstant * temperature()));
     }
 
+    //! Set the density and pressure at constant composition.
+    /*!
+     *  Units: kg/m^3, Pa
+     *  This method is implemented by setting the density to the input
+     *  value and setting the temperature to
+     * \f[
+     * T = \frac{P \overline W}{\hat R \rho}.
+     * \f]
+     *
+     * @param rho Density (kg/m^3)
+     * @param p Pressure (Pa)
+     */
+    virtual void setState_RP(doublereal rho, doublereal p)
+    {
+        if (p <= 0) {
+            throw CanteraError("IdealGasPhase::setState_RP",
+                               "pressure must be positive");
+        }
+        setDensity(rho);
+        setTemperature(p * meanMolecularWeight() / (GasConstant * rho));
+    }
+
     //! Returns  the isothermal compressibility. Units: 1/Pa.
     /**
      * The isothermal compressibility is defined as
