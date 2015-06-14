@@ -295,6 +295,13 @@ class TestThermoPhase(utilities.CanteraTest):
         self.phase.SVY = s1, v1, Y1
         check_state(T1, rho1, Y1)
 
+        self.phase.TDY = T0, rho0, Y0
+        self.phase.DPX = rho1, P1, X1
+        check_state(T1, rho1, Y1)
+
+        self.phase.TDY = T0, rho0, Y0
+        self.phase.DPY = rho1, P1, Y1
+        check_state(T1, rho1, Y1)
 
     def test_setState_mass(self):
         self.check_setters(T1 = 500.0, rho1 = 1.5,
@@ -360,8 +367,64 @@ class TestThermoPhase(utilities.CanteraTest):
             x.foobar
 
     def check_getters(self):
+        T,D,X = self.phase.TDX
+        self.assertNear(T, self.phase.T)
+        self.assertNear(D, self.phase.density)
+        self.assertArrayNear(X, self.phase.X)
+
+        T,D,Y = self.phase.TDY
+        self.assertNear(T, self.phase.T)
+        self.assertNear(D, self.phase.density)
+        self.assertArrayNear(Y, self.phase.Y)
+
+        T,D = self.phase.TD
+        self.assertNear(T, self.phase.T)
+        self.assertNear(D, self.phase.density)
+
         T,P,X = self.phase.TPX
         self.assertNear(T, self.phase.T)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(X, self.phase.X)
+
+        T,P,Y = self.phase.TPY
+        self.assertNear(T, self.phase.T)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(Y, self.phase.Y)
+
+        T,P = self.phase.TP
+        self.assertNear(T, self.phase.T)
+        self.assertNear(P, self.phase.P)
+
+        H,P,X = self.phase.HPX
+        self.assertNear(H, self.phase.h)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(X, self.phase.X)
+
+        H,P,Y = self.phase.HPY
+        self.assertNear(H, self.phase.h)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(Y, self.phase.Y)
+
+        H,P = self.phase.HP
+        self.assertNear(H, self.phase.h)
+        self.assertNear(P, self.phase.P)
+
+        U,V,X = self.phase.UVX
+        self.assertNear(U, self.phase.u)
+        self.assertNear(V, self.phase.v)
+        self.assertArrayNear(X, self.phase.X)
+
+        U,V,Y = self.phase.UVY
+        self.assertNear(U, self.phase.u)
+        self.assertNear(V, self.phase.v)
+        self.assertArrayNear(Y, self.phase.Y)
+
+        U,V = self.phase.UV
+        self.assertNear(U, self.phase.u)
+        self.assertNear(V, self.phase.v)
+
+        S,P,X = self.phase.SPX
+        self.assertNear(S, self.phase.s)
         self.assertNear(P, self.phase.P)
         self.assertArrayNear(X, self.phase.X)
 
@@ -370,14 +433,37 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(P, self.phase.P)
         self.assertArrayNear(Y, self.phase.Y)
 
-        U,V = self.phase.UV
-        self.assertNear(U, self.phase.u)
-        self.assertNear(V, self.phase.v)
+        S,P = self.phase.SP
+        self.assertNear(S, self.phase.s)
+        self.assertNear(P, self.phase.P)
 
         S,V,X = self.phase.SVX
         self.assertNear(S, self.phase.s)
         self.assertNear(V, self.phase.v)
         self.assertArrayNear(X, self.phase.X)
+
+        S,V,Y = self.phase.SVY
+        self.assertNear(S, self.phase.s)
+        self.assertNear(V, self.phase.v)
+        self.assertArrayNear(Y, self.phase.Y)
+
+        S,V = self.phase.SV
+        self.assertNear(S, self.phase.s)
+        self.assertNear(V, self.phase.v)
+
+        D,P,X = self.phase.DPX
+        self.assertNear(D, self.phase.density)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(X, self.phase.X)
+
+        D,P,Y = self.phase.DPY
+        self.assertNear(D, self.phase.density)
+        self.assertNear(P, self.phase.P)
+        self.assertArrayNear(Y, self.phase.Y)
+
+        D,P = self.phase.DP
+        self.assertNear(D, self.phase.density)
+        self.assertNear(P, self.phase.P)
 
     def test_getState_mass(self):
         self.phase.TDY = 350.0, 0.7, 'H2:0.1, H2O2:0.1, AR:0.8'

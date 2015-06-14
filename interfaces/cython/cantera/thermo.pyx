@@ -886,6 +886,35 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_UV(U / self._mass_factor(),
                                     V / self._mass_factor())
 
+    property DP:
+        def __get__(self):
+            return self.density, self.P
+        def __set__(self, values):
+            assert len(values) == 2
+            D = values[0] if values[0] is not None else self.density
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_RP(D*self._mass_factor(), P)
+
+    property DPX:
+        def __get__(self):
+            return self.density, self.P, self.X
+        def __set__(self, values):
+            assert len(values) == 3
+            D = values[0] if values[0] is not None else self.density
+            P = values[1] if values[1] is not None else self.P
+            self.X = values[2]
+            self.thermo.setState_RP(D*self._mass_factor(), P)
+
+    property DPY:
+        def __get__(self):
+            return self.density, self.P, self.Y
+        def __set__(self, values):
+            assert len(values) == 3
+            D = values[0] if values[0] is not None else self.density
+            P = values[1] if values[1] is not None else self.P
+            self.Y = values[2]
+            self.thermo.setState_RP(D*self._mass_factor(), P)
+
     property HP:
         """Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa]."""
         def __get__(self):
