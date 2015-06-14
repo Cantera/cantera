@@ -37,33 +37,6 @@ Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     processCoeffs(coeffs);
 }
 
-Mu0Poly::Mu0Poly(const Mu0Poly& b)
-    : SpeciesThermoInterpType(b),
-      m_numIntervals(b.m_numIntervals),
-      m_H298(b.m_H298),
-      m_t0_int(b.m_t0_int),
-      m_mu0_R_int(b.m_mu0_R_int),
-      m_h0_R_int(b.m_h0_R_int),
-      m_s0_R_int(b.m_s0_R_int),
-      m_cp0_R_int(b.m_cp0_R_int)
-{
-}
-
-Mu0Poly& Mu0Poly::operator=(const Mu0Poly& b)
-{
-    if (&b != this) {
-        SpeciesThermoInterpType::operator=(b);
-        m_numIntervals = b.m_numIntervals;
-        m_H298         = b.m_H298;
-        m_t0_int       = b.m_t0_int;
-        m_mu0_R_int    = b.m_mu0_R_int;
-        m_h0_R_int     = b.m_h0_R_int;
-        m_s0_R_int     = b.m_s0_R_int;
-        m_cp0_R_int    = b.m_cp0_R_int;
-    }
-    return *this;
-}
-
 SpeciesThermoInterpType*
 Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
 {

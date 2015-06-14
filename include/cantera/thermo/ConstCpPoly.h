@@ -85,12 +85,6 @@ public:
      */
     ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
 
-    //! copy constructor
-    ConstCpPoly(const ConstCpPoly&);
-
-    //! Assignment operator
-    ConstCpPoly& operator=(const ConstCpPoly&);
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 

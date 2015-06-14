@@ -69,18 +69,9 @@ public:
         std::copy(coeffs+2, coeffs + 2 + m_nFreqs, m_freq.begin());
     }
 
-    /// Copy Constructor
-    Adsorbate(const Adsorbate& b) :
-        m_be(b.m_be) {
-        m_nFreqs = b.m_nFreqs;
-        std::copy(b.m_freq.begin(), b.m_freq.begin() + m_nFreqs,
-                  m_freq.begin());
-    }
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
-        Adsorbate* np = new Adsorbate(*this);
-        return (SpeciesThermoInterpType*) np;
+        return new Adsorbate(*this);
     }
 
     virtual int reportType() const {

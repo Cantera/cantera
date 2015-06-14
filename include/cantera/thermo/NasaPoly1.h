@@ -87,32 +87,9 @@ public:
     {
     }
 
-    //! copy constructor
-    /*!
-     * @param b object to be copied
-     */
-    NasaPoly1(const NasaPoly1& b) :
-        SpeciesThermoInterpType(b),
-        m_coeff(b.m_coeff)
-    {
-    }
-
-    //! assignment operator
-    /*!
-     * @param b object to be copied
-     */
-    NasaPoly1& operator=(const NasaPoly1& b) {
-        if (&b != this) {
-            SpeciesThermoInterpType::operator=(b);
-            m_coeff = b.m_coeff;
-        }
-        return *this;
-    }
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
-        NasaPoly1* np = new NasaPoly1(*this);
-        return (SpeciesThermoInterpType*) np;
+        return new NasaPoly1(*this);
     }
 
     virtual int reportType() const {

@@ -42,29 +42,6 @@ ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
     m_logt0 = log(m_t0);
 }
 
-ConstCpPoly::ConstCpPoly(const ConstCpPoly& b) :
-    SpeciesThermoInterpType(b),
-    m_t0(b.m_t0),
-    m_cp0_R(b.m_cp0_R),
-    m_h0_R(b.m_h0_R),
-    m_s0_R(b.m_s0_R),
-    m_logt0(b.m_logt0)
-{
-}
-
-ConstCpPoly& ConstCpPoly::operator=(const ConstCpPoly& b)
-{
-    if (&b != this) {
-        m_t0    = b.m_t0;
-        m_cp0_R = b.m_cp0_R;
-        m_h0_R  = b.m_h0_R;
-        m_s0_R  = b.m_s0_R;
-        m_logt0 = b.m_logt0;
-        SpeciesThermoInterpType::operator=(b);
-    }
-    return *this;
-}
-
 SpeciesThermoInterpType*
 ConstCpPoly::duplMyselfAsSpeciesThermoInterpType() const
 {

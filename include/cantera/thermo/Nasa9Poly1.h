@@ -98,18 +98,6 @@ public:
      */
     Nasa9Poly1(double tlow, double thigh, double pref, const double* coeffs);
 
-    //! copy constructor
-    /*!
-     * @param b object to be copied
-     */
-    Nasa9Poly1(const Nasa9Poly1& b);
-
-    //! assignment operator
-    /*!
-     * @param b object to be copied
-     */
-    Nasa9Poly1& operator=(const Nasa9Poly1& b);
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 

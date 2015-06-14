@@ -131,12 +131,6 @@ public:
      */
     Mu0Poly(double tlow, double thigh, double pref, const double* coeffs);
 
-    //! Copy constructor
-    Mu0Poly(const Mu0Poly&);
-
-    //! Assignment operator
-    Mu0Poly& operator=(const Mu0Poly&);
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const;
 

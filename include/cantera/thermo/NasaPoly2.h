@@ -93,33 +93,6 @@ public:
         m_coeff(coeffs, coeffs + 15) {
     }
 
-    //! Copy Constructor
-    /*!
-     * @param b object to be copied.
-     */
-    NasaPoly2(const NasaPoly2& b) :
-        SpeciesThermoInterpType(b),
-        m_midT(b.m_midT),
-        mnp_low(b.mnp_low),
-        mnp_high(b.mnp_high),
-        m_coeff(b.m_coeff) {
-    }
-
-    //! Assignment operator
-    /*!
-     * @param b object to be copied.
-     */
-    NasaPoly2& operator=(const NasaPoly2& b) {
-        if (&b != this) {
-            SpeciesThermoInterpType::operator=(b);
-            m_midT   = b.m_midT;
-            m_coeff  = b.m_coeff;
-            mnp_low  = b.mnp_low;
-            mnp_high = b.mnp_high;
-        }
-        return *this;
-    }
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
         NasaPoly2* np = new NasaPoly2(*this);

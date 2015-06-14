@@ -106,32 +106,9 @@ public:
     {
     }
 
-    //! copy constructor
-    /*!
-     * @param b object to be copied
-     */
-    ShomatePoly(const ShomatePoly& b) :
-        SpeciesThermoInterpType(b),
-        m_coeff(b.m_coeff)
-    {
-    }
-
-    //! Assignment operator
-    /*!
-     * @param  b
-     */
-    ShomatePoly& operator=(const ShomatePoly& b) {
-        if (&b != this) {
-            SpeciesThermoInterpType::operator=(b);
-            m_coeff = b.m_coeff;
-        }
-        return *this;
-    }
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
-        ShomatePoly* sp = new ShomatePoly(*this);
-        return (SpeciesThermoInterpType*) sp;
+        return new ShomatePoly(*this);
     }
 
     virtual int reportType() const {
@@ -361,38 +338,9 @@ public:
     {
     }
 
-    //! Copy constructor
-    /*!
-     * @param b object to be copied.
-     */
-    ShomatePoly2(const ShomatePoly2& b) :
-        SpeciesThermoInterpType(b),
-        m_midT(b.m_midT),
-        msp_low(b.msp_low),
-        msp_high(b.msp_high),
-        m_coeff(b.m_coeff)
-    {
-    }
-
-    //! Assignment operator
-    /*!
-     * @param b object to be copied.
-     */
-    ShomatePoly2& operator=(const ShomatePoly2& b) {
-        if (&b != this) {
-            SpeciesThermoInterpType::operator=(b);
-            m_midT   = b.m_midT;
-            m_coeff  = b.m_coeff;
-            msp_low =  b.msp_low;
-            msp_high = b.msp_high;
-        }
-        return *this;
-    }
-
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const {
-        ShomatePoly2* sp = new ShomatePoly2(*this);
-        return (SpeciesThermoInterpType*) sp;
+        return new ShomatePoly2(*this);
     }
 
     virtual int reportType() const {

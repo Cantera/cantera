@@ -36,23 +36,7 @@ Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
 {
 }
 
-Nasa9Poly1::Nasa9Poly1(const Nasa9Poly1& b) :
-    SpeciesThermoInterpType(b),
-    m_coeff(b.m_coeff)
-{
-}
-
-Nasa9Poly1& Nasa9Poly1::operator=(const Nasa9Poly1& b)
-{
-    if (&b != this) {
-        SpeciesThermoInterpType::operator=(b);
-        m_coeff = b.m_coeff;
-    }
-    return *this;
-}
-
-SpeciesThermoInterpType*
-Nasa9Poly1::duplMyselfAsSpeciesThermoInterpType() const
+SpeciesThermoInterpType* Nasa9Poly1::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new Nasa9Poly1(*this);
 }
