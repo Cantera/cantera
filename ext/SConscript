@@ -3,7 +3,6 @@ from buildutils import *
 Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
 
-
 def prep_default(env):
     localenv = env.Clone()
 
@@ -48,11 +47,8 @@ def prep_gtest(env):
                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
     return localenv
 
-# libs is a list of length 3
-#     0 subdir for execution
-#     1 file extension
-#     2 function pointer
-# (subdir, (file extensions), prepfunction)
+
+# each element of libs is: (subdir, (file extensions), prepfunction)
 libs = [('libexecstream', ['cpp'], prep_default)]
 
 if env['build_with_f2c']:
@@ -85,22 +81,12 @@ else:
 if env['use_sundials'] == 'n':
     libs.append(('cvode/source', ['c'], prep_sundials))
 
-
 for subdir, extensions, prepFunction in libs:
-
-    if env['VERBOSE']:
-        print 'INFO 2: Prep the environment for ', subdir,
-        print ' with extensions ', extensions,
-        print ' by calling func ', prepFunction.__name__
-
     localenv = prepFunction(env)
-
     objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
     libraryTargets.extend(objects)
 
-# Google Test: Used internally for Cantera unit tests. Optionally, the headers
-# and compiled library can be installed alongside Cantera using the scons
-# option 'install_gtest=y'.
+# Google Test: Used internally for Cantera unit tests.
 localenv = prep_gtest(env)
 gtest = build(localenv.Library('../lib/gtest',
-                              source=['gtest/src/gtest-all.cc']))
+                               source=['gtest/src/gtest-all.cc']))

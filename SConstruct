@@ -578,7 +578,7 @@ config_options = [
         will be renamed to have a "_shared" extension added to their base name.
         If not, the base names will be the same as the static libraries.
         In some cases this simplifies subsequent linking environments with
-        static libaries and avoids a bug with using valgrind with
+        static libraries and avoids a bug with using valgrind with
         the -static linking flag.""",
         True),
     EnumVariable(
@@ -858,8 +858,8 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
         env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
                 '#include "sundials/sundials_config.h"', 'C++')
 
-    #In the case where a user is trying to link Cantera to an exteral BLAS/LAPACK
-    #library, but Sundials was configured without this support, print a Warning.
+    # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
+    # library, but Sundials was configured without this support, print a Warning.
     if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
         print ('WARNING: External BLAS/LAPACK has been specified for Cantera '
                'but Sundials was built without this support.')
@@ -1346,9 +1346,6 @@ for xml in mglob(env, 'data/inputs', 'xml'):
         build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
 
 if addInstallActions:
-    if env['VERBOSE']:
-       print 'INFO 2: addInstallActions script started'
-
     # Put headers in place
     headerBase = 'include/cantera'
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
@@ -1414,7 +1411,7 @@ linkSharedLibs.extend(env['boost_libs'])
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs
 env['cantera_shared_libs'] = linkSharedLibs
-if env['renamed_shared_libraries'] == False :
+if not env['renamed_shared_libraries']:
     env['cantera_shared_libs'] = linkLibs
 
 # Add targets from the SConscript files in the various subdirectories

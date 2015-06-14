@@ -5,7 +5,7 @@ localenv = env.Clone()
 localenv.Prepend(CPPPATH=['#include', '#src', 'shared'])
 localenv.Append(CCFLAGS=env['warning_flags'])
 
-# Turn of optimization to speed up compilation
+# Turn off optimization to speed up compilation
 ccflags = localenv['CCFLAGS']
 for optimize_flag in ('-O3', '-O2', '/O2'):
     if optimize_flag in ccflags:
@@ -61,7 +61,6 @@ class Test(object):
             self.artifacts = [self.artifacts]
         self.comparisons = kwargs.get('comparisons') or ()
         self.tolerance = kwargs.get('tolerance') or 1e-5 # error tolerance for CSV comparison
-        # self.tolerance = kwargs.get('tolerance') or 1e-7 # error tolerance for CSV comparison
         self.threshold = kwargs.get('threshold') or 1e-14 # error threshold for CSV comparison
 
         # ignore lines starting with specified strings when comparing output files
@@ -268,7 +267,6 @@ if haveConverters:
     Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
          options='noxNeg.cti', artifacts=negA_name)
 
-#CompileAndTest('pecosTransport', 'PecosTransport', 'pecosTransport', 'output_blessed.txt')
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 if haveConverters:
     CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
@@ -277,16 +275,6 @@ CompileAndTest('simpleTransport', 'simpleTransport', 'simpleTransport',
                'output_blessed.txt')
 CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
                'stoichSolidKinetics', 'output_blessed.txt')
-# CompileAndTest('statmech_test', 'statmech_test',
-#                'statmech_test', 'output_blessed.txt')
-# CompileAndTest('statmech_properties', 'statmech_properties',
-#                'statmech_properties', 'output_blessed.txt')
-# CompileAndTest('statmech_test_poly', 'statmech_test_poly',
-#                'statmech_test_poly', 'output_blessed.txt')
-# CompileAndTest('statmech_transport', 'statmech_transport',
-#                'statmech_transport', 'output_blessed.txt')
-# CompileAndTest('statmech_test_Fe', 'statmech',
-#                'statmech_test_Fe', 'output_blessed.txt')
 CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
                arguments='haca2.xml',

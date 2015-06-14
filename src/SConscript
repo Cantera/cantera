@@ -66,10 +66,9 @@ if localenv['OS'] in ('Darwin', 'Windows', 'Cygwin'):
         localenv.Append(LIBS=localenv['boost_libs'],
                         LIBPATH=localenv['boost_lib_dir'])
 
-# Build the Cantera shared library using the correct name
+# Build the Cantera shared library
 if localenv['layout'] != 'debian':
-    # Define the name according to the environmental variable
-    if localenv['renamed_shared_libraries'] == True:
+    if localenv['renamed_shared_libraries']:
         sharedName = '../lib/cantera_shared'
     else:
         sharedName = '../lib/cantera'

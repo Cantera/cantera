@@ -101,9 +101,7 @@ if not localenv['build_with_f2c']:
 else:
     localenv['mak_syslibs'] = ''
 
-print 'making Cantera.mak'
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
-print 'posted making Cantera.mak'
 install('$inst_incdir', mak)
 
 # Generate cantera.pc for use with pkg-config
