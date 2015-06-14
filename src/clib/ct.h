@@ -73,6 +73,7 @@ extern "C" {
     CANTERA_CAPI int th_getEntropies_R(int n, size_t lenm, double* s_r);
     CANTERA_CAPI int th_getCp_R(int n, size_t lenm, double* cp_r);
     CANTERA_CAPI int th_setElectricPotential(int n, double v);
+    CANTERA_CAPI int th_set_RP(int n, double* vals);
     CANTERA_CAPI int th_set_HP(int n, double* vals);
     CANTERA_CAPI int th_set_UV(int n, double* vals);
     CANTERA_CAPI int th_set_SV(int n, double* vals);

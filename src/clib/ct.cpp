@@ -535,6 +535,16 @@ extern "C" {
         }
     }
 
+    int th_set_RP(int n, double* vals)
+    {
+        try{
+            ThermoCabinet::item(n).setState_RP(vals[0], vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int th_set_HP(int n, double* vals)
     {
         try {
