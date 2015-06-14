@@ -14,7 +14,7 @@ import itertools
 import SCons.Errors
 import SCons
 import SCons.Node.FS
-from distutils.version import LooseVersion
+from distutils.version import LooseVersion, StrictVersion
 import distutils.sysconfig
 
 class DefineDict(object):

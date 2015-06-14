@@ -638,6 +638,12 @@ for arg in ARGUMENTS:
         print 'Encountered unexpected command line argument: %r' % arg
         sys.exit(0)
 
+# Require a StrictVersion-compatible version
+ctversion = StrictVersion(env['cantera_version'])
+# MSI versions do not support pre-release tags
+env['cantera_msi_version'] = '.'.join(str(x) for x in ctversion.version)
+env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
+
 # Print values of all build options:
 print "Configuration variables read from 'cantera.conf' and command line:"
 for line in open('cantera.conf'):
@@ -1611,6 +1617,8 @@ if 'msi' in COMMAND_LINE_TARGETS:
     def build_wxs(target, source, env):
         import wxsgen
         wxs = wxsgen.WxsGenerator(env['stage_dir'],
+                                  short_version=env['cantera_short_version'],
+                                  full_version=env['cantera_msi_version'],
                                   x64=env['TARGET_ARCH']=='amd64',
                                   includeMatlab=env['matlab_toolbox']=='y')
         wxs.make_wxs(str(target[0]))

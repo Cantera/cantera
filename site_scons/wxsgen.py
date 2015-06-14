@@ -3,20 +3,23 @@ import uuid
 import xml.etree.ElementTree as et
 
 class WxsGenerator(object):
-    def __init__(self, stageDir, includeMatlab=False, x64=False):
+    def __init__(self, stageDir, short_version, full_version,
+                 includeMatlab=False, x64=False):
         self.prefix = stageDir
         self.x64 = x64
         self.includeMatlab = includeMatlab
+        self.short_version = short_version
+        self.full_version = full_version
 
         # Use separate UUIDs for 64- and 32-bit components
         if self.x64:
             self.CANTERA_UUID = uuid.UUID('F707EB9E-3723-11E1-A99F-525400631BAF')
             self.pfilesName = 'ProgramFiles64Folder'
-            self.productName = 'Cantera 2.2 (64-bit)'
+            self.productName = 'Cantera {0} (64-bit)'.format(self.short_version)
         else:
             self.CANTERA_UUID = uuid.UUID('1B36CAF0-279D-11E1-8979-001FBC085391')
             self.pfilesName = 'ProgramFilesFolder'
-            self.productName = 'Cantera 2.2 (32-bit)'
+            self.productName = 'Cantera {0} (32-bit)'.format(self.short_version)
 
     def Directory(self, parent, Id, Name):
         return et.SubElement(parent, 'Directory',
@@ -76,14 +79,14 @@ class WxsGenerator(object):
                                      UpgradeCode='2340BEE1-279D-11E1-A4AA-001FBC085391',
                                      Language='1033',
                                      Codepage='1252',
-                                     Version='2.2.0',
+                                     Version=self.full_version,
                                      Manufacturer='Cantera Developers'))
 
         fields = {'Platform': 'x64'} if self.x64 else {}
         package = et.SubElement(product, "Package",
                                 dict(Id='*',
                                      Keywords='Installer',
-                                     Description="Cantera 2.2 Installer",
+                                     Description="Cantera {0} Installer".format(self.short_version),
                                      InstallerVersion='310',
                                      Languages='1033',
                                      Compressed='yes',
@@ -146,7 +149,7 @@ class WxsGenerator(object):
         # Registry entries
         reg_options = dict(ForceCreateOnInstall="yes", ForceDeleteOnUninstall="yes",
                            Id='CanteraRegRoot', Root='HKLM',
-                           Key='Software\\Cantera\\Cantera 2.2')
+                           Key='Software\\Cantera\\Cantera {0}'.format(self.short_version))
         reg_key = self.addRegistryKey(core, product, options=reg_options)
         et.SubElement(reg_key, 'RegistryValue', dict(Type='string',
                                                      Name='InstallDir',
