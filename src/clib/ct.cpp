@@ -535,6 +535,25 @@ extern "C" {
         }
     }
 
+    int th_set_RP(int n, double* vals)
+    {
+        try{
+            if (vals[0] < 0.0)
+                throw CanteraError("th_set_RP",
+                                   "density cannot be negative");
+            if (vals[1] < 0.0)
+                throw CanteraError("th_set_RP",
+                                   "pressure cannot be negative");
+            ThermoCabinet::item(n).setState_RP(vals[0], vals[1]);
+            if (ThermoCabinet::item(n).temperature() < 0.0)
+                throw CanteraError("th_set_RP",
+                                   "temperature cannot be negative");
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int th_set_HP(int n, double* vals)
     {
         try {

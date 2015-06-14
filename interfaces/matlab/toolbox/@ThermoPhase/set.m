@@ -170,6 +170,8 @@ elseif ntot == 2
     elseif nt == 1 && np == 1
         setTemperature(tp, tval);
         setPressure(tp, pval);
+    elseif np == 1 && nv == 1
+        setDensityPressure(tp, 1.0/vval, pval)
     elseif nt == 1 && nq == 1
         setState_Tsat(tp, [tval,qval]);
     elseif np == 1 && nq == 1
