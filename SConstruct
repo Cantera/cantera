@@ -1231,6 +1231,7 @@ else:
 # **************************************
 
 configh['CANTERA_VERSION'] = quoted(env['cantera_version'])
+configh['CANTERA_SHORT_VERSION'] = quoted(env['cantera_short_version'])
 
 # Conditional defines
 def cdefine(definevar, configvar, comp=True, value=1):

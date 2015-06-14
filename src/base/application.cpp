@@ -414,7 +414,7 @@ void Application::setDefaultDirectories()
     // subdirectory of the main installation directory.
 
     std::string installDir;
-    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera 2.2",
+    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera " CANTERA_SHORT_VERSION,
                           "InstallDir", installDir, "");
     if (installDir != "") {
         dirs.push_back(installDir + "data");
