@@ -965,6 +965,13 @@ class Parser(object):
                        for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
                                      (3,15,30), (3,30,45), (3,45,60)]]
 
+        # Duplicate the valid set of coefficients if only one range is provided
+        if all(c == 0 for c in coeffs_low) and Tmin == Tint:
+            coeffs_low = coeffs_high
+        elif all(c == 0 for c in coeffs_high) and Tmax == Tint:
+            coeffs_high = coeffs_low
+
+
         composition = self.parseComposition(lines[0][24:44], 4, 5)
 
         # Non-standard extended elemental composition data may be located beyond
