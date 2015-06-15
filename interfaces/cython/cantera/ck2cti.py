@@ -951,23 +951,19 @@ class Parser(object):
 
         # Extract the NASA polynomial coefficients
         # Remember that the high-T polynomial comes first!
+        Tmin = fortFloat(lines[0][45:55])
+        Tmax = fortFloat(lines[0][55:65])
         try:
-            Tmin = fortFloat(lines[0][45:55])
-            Tmax = fortFloat(lines[0][55:65])
-            try:
-                Tint = fortFloat(lines[0][65:75])
-            except ValueError:
-                Tint = TintDefault
+            Tint = fortFloat(lines[0][65:75])
+        except ValueError:
+            Tint = TintDefault
 
-            coeffs_high = [fortFloat(lines[i][j:k])
-                           for i,j,k in [(1,0,15), (1,15,30), (1,30,45), (1,45,60),
-                                         (1,60,75), (2,0,15), (2,15,30)]]
-            coeffs_low = [fortFloat(lines[i][j:k])
-                           for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
-                                         (3,15,30), (3,30,45), (3,45,60)]]
-
-        except (IndexError, ValueError) as err:
-            raise InputParseError('Error while reading thermo entry for species {0}:\n{1}'.format(species, err))
+        coeffs_high = [fortFloat(lines[i][j:k])
+                       for i,j,k in [(1,0,15), (1,15,30), (1,30,45), (1,45,60),
+                                     (1,60,75), (2,0,15), (2,15,30)]]
+        coeffs_low = [fortFloat(lines[i][j:k])
+                       for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
+                                     (3,15,30), (3,30,45), (3,45,60)]]
 
         composition = self.parseComposition(lines[0][24:44], 4, 5)
 
@@ -1540,6 +1536,7 @@ class Parser(object):
                     if line is not None and not contains(line, 'END'):
                         TintDefault = float(line.split()[1])
                     thermo = []
+                    current = []
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
                         if line.strip()[:4].upper() in ('REAC', 'TRAN'):
@@ -1549,10 +1546,22 @@ class Parser(object):
                             tokens.pop()
                             break
 
+                        if comment:
+                            current.append('!'.join((line, comment)))
+                        else:
+                            current.append(line)
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
                             thermo.append(line)
                             if line[79] == '4':
-                                label, thermo, comp, note = self.readThermoEntry(thermo, TintDefault)
+                                try:
+                                    label, thermo, comp, note = self.readThermoEntry(thermo, TintDefault)
+                                except Exception as e:
+                                    print('Error while reading thermo entry '
+                                        'starting on line {0}:\n"""\n{1}\n"""'.format(
+                                            self.line_number-len(current)+1,
+                                            ''.join(current).rstrip()))
+                                    raise
+
                                 if label not in self.speciesDict:
                                     if skipUndeclaredSpecies:
                                         logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
@@ -1577,6 +1586,7 @@ class Parser(object):
                                     species.note = note
 
                                 thermo = []
+                                current = []
                         line, comment = readline()
 
                 elif tokens[0].upper().startswith('REAC'):
