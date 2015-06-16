@@ -228,8 +228,6 @@ CompileAndTest('ChemEquil_ionizedGas',
                'ChemEquil_ionizedGas', 'ionizedGasEquil',
                'output_blessed.txt',
                comparisons=[('table_blessed.csv', 'table.csv')])
-CompileAndTest('ChemEquil_red1',
-               'ChemEquil_red1', 'basopt_red1', 'output_blessed.txt')
 #CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 CompileAndTest('cxx_ex', 'cxx_ex', 'cxx_examples', 'output_blessed.txt',
                comparisons=[('eq1_blessed.csv', 'eq1.csv'),

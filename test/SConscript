@@ -218,6 +218,7 @@ else:
 # Instantiate tests
 addTestProgram('general', 'general', env_vars=python_env_vars)
 addTestProgram('thermo', 'thermo', env_vars=python_env_vars)
+addTestProgram('equil', 'equil', env_vars=python_env_vars)
 addTestProgram('kinetics', 'kinetics', env_vars=python_env_vars)
 addTestProgram('transport', 'transport', env_vars=python_env_vars)
 
