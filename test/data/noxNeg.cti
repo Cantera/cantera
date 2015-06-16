@@ -1,0 +1,61 @@
+units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
+
+ideal_gas(name = "air",
+      elements = " O  H N  Ar ",
+      species = """ gri30: O  O2  N  NO  NO2  N2O  N2  NH  H H2O NH2 AR """,
+      reactions = "all",
+      transport = "Mix",
+      initial_state = state(temperature = 900.0,
+                        pressure = OneAtm, mole_fractions = 'O2:0.21, N2:0.78, AR:0.01')    )
+
+#-------------------------------------------------------------------------------
+#  Reeaction 77
+#  10.5, 9 (a)
+#  Miller & Melius, 24th Symp. on Comb., 1992.
+reaction(  "NH + NO <=> N2O + H",  [2.94000E+14, -0.4, 0],
+         options = ["duplicate"])
+#  Reaction 78
+reaction(  "NH + NO <=> N2O + H",  [-2.16000E+13, -0.23, 0],
+         options = ["negative_A", "duplicate"])
+
+# Second Reaction:
+#  Reaction 90
+#  10.6, 9 (b)
+#  Glarborg et al., Int. J. Chem. Kinet., 26, 421, 1994.
+reaction(  "NH2 + NO <=> N2 + H2O",  [1.30000E+16, -1.25, 0],
+         options = ["duplicate"])
+
+#  Reaction 91
+reaction(  "NH2 + NO <=> N2 + H2O",  [-2.80000E+13, -0.55, 0],
+         options = ["negative_A", "duplicate"])
+
+#-------------------------------------------------------------------------------
+
+#  Reaction 1
+three_body_reaction( "2 O + M <=> O2 + M",   [1.20000E+17, -1, 0],
+         efficiencies = " AR:0.83 ")
+
+#  Reaction 2
+reaction( "N + NO <=> N2 + O",   [2.70000E+13, 0, 355])
+
+#  Reaction 3
+reaction( "N + O2 <=> NO + O",   [9.00000E+09, 1, 6500])
+
+#  Reaction 4
+reaction( "N2O + O <=> N2 + O2",   [1.40000E+12, 0, 10810])
+
+#  Reaction 5
+reaction( "N2O + O <=> 2 NO",   [2.90000E+13, 0, 23150])
+
+#  Reaction 6
+falloff_reaction( "N2O (+ M) <=> N2 + O (+ M)", 
+         kf = [7.91000E+10, 0, 56020],
+         kf0   = [6.37000E+14, 0, 56640],
+         efficiencies = " AR:0.625 ")
+
+#  Reaction 7
+three_body_reaction( "NO + O + M <=> NO2 + M",   [1.06000E+20, -1.41, 0],
+         efficiencies = " AR:0.7 ")
+
+#  Reaction 8
+reaction( "NO2 + O <=> NO + O2",   [3.90000E+12, 0, -240])

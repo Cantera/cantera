@@ -257,16 +257,6 @@ CompileAndTest('mixGasTransport',
 CompileAndTest('multiGasTransport',
                'multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
 
-negA = localenv.Program('negATest/negATest',
-                           mglob(env, 'negATest', 'cpp'),
-                           LIBS=cantera_libs)
-negA_name = negA[0].name
-Test('negA-xml', 'negATest', negA, 'negATest_blessed.out',
-     options='noxNeg_blessed.xml', artifacts=negA_name)
-if haveConverters:
-    Test('negA-cti', 'negATest', negA, 'negATest_blessed.out',
-         options='noxNeg.cti', artifacts=negA_name)
-
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 if haveConverters:
     CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
