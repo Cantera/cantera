@@ -59,6 +59,16 @@ cdef class SpeciesThermo:
         self.spthermo.updatePropertiesTemp(T, &cp_r, &h_rt, &s_r)
         return s_r * gas_constant
 
+    def report_parameters(self):
+        """Returns a tuple containing the species index, parameterization type, min temperature (K), max temperature (K), reference Pressure (Pa), and list of the coefficients of this parameterization"""
+        cdef size_t index = 0
+        cdef int type = 0
+        cdef double min_t = 0, max_t = 0, ref_p = 0
+        cdef np.ndarray[np.double_t, ndim=1] coeffs = np.empty((self.n_coeffs,))
+        self.spthermo.reportParameters(index, type, min_t, max_t, ref_p, &coeffs[0])
+        return index, type, min_t, max_t, ref_p, coeffs
+
+
 
 cdef class ConstantCp(SpeciesThermo):
     r"""
