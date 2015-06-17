@@ -887,3 +887,33 @@ class TestSpeciesThermo(utilities.CanteraTest):
             self.assertAlmostEqual(st.cp(T), self.gas.cp_mole)
             self.assertAlmostEqual(st.h(T), self.gas.enthalpy_mole)
             self.assertAlmostEqual(st.s(T), self.gas.entropy_mole)
+
+    def test_report(self):
+        st = ct.NasaPoly2(300, 3500, 101325,
+                [1000.0, 3.03399249E+00, 2.17691804E-03, -1.64072518E-07,
+                 -9.70419870E-11, 1.68200992E-14, -3.00042971E+04, 4.96677010E+00,
+                 4.19864056E+00, -2.03643410E-03, 6.52040211E-06, -5.48797062E-09,
+                 1.77197817E-12, -3.02937267E+04, -8.49032208E-01])
+        index, parameterization, t_min, t_max, \
+            p_ref, array = st.report_parameters()
+        self.assertEqual(index, 0)
+        self.assertEqual(parameterization, st.derived_type)
+        self.assertEqual(t_min, 300)
+        self.assertEqual(t_max, 3500)
+        self.assertEqual(p_ref, 101325)
+        self.assertEqual(array[0], 1000.0)
+        self.assertEqual(array[1], 3.03399249E+00)
+        self.assertEqual(array[2], 2.17691804E-03)
+        self.assertEqual(array[3], -1.64072518E-07)
+        self.assertEqual(array[4], -9.70419870E-11)
+        self.assertEqual(array[5], 1.68200992E-14)
+        self.assertEqual(array[6], -3.00042971E+04)
+        self.assertEqual(array[7], 4.96677010E+00)
+        self.assertEqual(array[8], 4.19864056E+00)
+        self.assertEqual(array[9], -2.03643410E-03)
+        self.assertEqual(array[10], 6.52040211E-06)
+        self.assertEqual(array[11], -5.48797062E-09)
+        self.assertEqual(array[12], 1.77197817E-12)
+        self.assertEqual(array[13], -3.02937267E+04)
+        self.assertEqual(array[14], -8.49032208E-01)
+

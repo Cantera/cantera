@@ -75,6 +75,7 @@ cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
         CxxSpeciesThermo()
         int reportType()
+        void reportParameters(size_t&, int&, double&, double&, double&, double* const)
         void updatePropertiesTemp(double, double*, double*, double*) except +
 
 cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
