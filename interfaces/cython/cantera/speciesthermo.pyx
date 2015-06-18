@@ -39,6 +39,35 @@ cdef class SpeciesThermo:
         self._spthermo = other
         self.spthermo = self._spthermo.get()
 
+    property min_temp:
+        """ Minimum temperature [K] at which the parameterization is valid."""
+        def __get__(self):
+            return self.spthermo.minTemp()
+
+    property max_temp:
+        """ Maximum temperature [K] at which the parameterization is valid."""
+        def __get__(self):
+            return self.spthermo.maxTemp()
+
+    property reference_pressure:
+        """ Reference pressure [Pa] for the parameterization."""
+        def __get__(self):
+            return self.spthermo.refPressure()
+
+    property coeffs:
+        """ Array of coefficients for the parameterization. The length of this
+        array and the meaning of each element depends on the specific
+        parameterization."""
+        def __get__(self):
+            cdef size_t index = 0
+            cdef int thermo_type = 0
+            cdef double T_low = 0, T_high = 0, P_ref = 0
+            N = self.n_coeffs
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty((N,))
+            self.spthermo.reportParameters(index, thermo_type, T_low,
+                T_high, P_ref, &data[0])
+            return data
+
     def cp(self, T):
         """
         Molar heat capacity at constant pressure [J/kmol/K] at temperature *T*.
