@@ -17,25 +17,21 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
     m_out->addInlet(*this);
 
     // construct adapters between inlet and outlet species
-    ThermoPhase* mixin = &m_in->contents();
-    ThermoPhase* mixout = &m_out->contents();
-    if (mixin == 0 || mixout == 0) {
-        throw CanteraError("FlowDevice::install", "Can't install flow device "
-            "until reactor contents have been assigned.");
-    }
+    const ThermoPhase& mixin = m_in->contents();
+    const ThermoPhase& mixout = m_out->contents();
 
-    m_nspin = mixin->nSpecies();
-    m_nspout = mixout->nSpecies();
+    m_nspin = mixin.nSpecies();
+    m_nspout = mixout.nSpecies();
     std::string nm;
     size_t ki, ko;
     for (ki = 0; ki < m_nspin; ki++) {
-        nm = mixin->speciesName(ki);
-        ko = mixout->speciesIndex(nm);
+        nm = mixin.speciesName(ki);
+        ko = mixout.speciesIndex(nm);
         m_in2out.push_back(ko);
     }
     for (ko = 0; ko < m_nspout; ko++) {
-        nm = mixout->speciesName(ko);
-        ki = mixin->speciesIndex(nm);
+        nm = mixout.speciesName(ko);
+        ki = mixin.speciesIndex(nm);
         m_out2in.push_back(ki);
     }
     return true;

@@ -133,10 +133,18 @@ public:
 
     //! return a reference to the contents.
     thermo_t& contents() {
+        if (!m_thermo) {
+            throw CanteraError("ReactorBase::contents",
+                               "Reactor contents not defined.");
+        }
         return *m_thermo;
     }
 
     const thermo_t& contents() const {
+        if (!m_thermo) {
+            throw CanteraError("ReactorBase::contents",
+                               "Reactor contents not defined.");
+        }
         return *m_thermo;
     }
 
