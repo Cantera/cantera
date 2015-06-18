@@ -9,7 +9,7 @@ namespace Cantera
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
     if (m_in || m_out) {
-        return false;
+        throw CanteraError("FlowDevice::install", "Already installed");
     }
     m_in =  &in;
     m_out = &out;
@@ -20,7 +20,8 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
     ThermoPhase* mixin = &m_in->contents();
     ThermoPhase* mixout = &m_out->contents();
     if (mixin == 0 || mixout == 0) {
-        return false;
+        throw CanteraError("FlowDevice::install", "Can't install flow device "
+            "until reactor contents have been assigned.");
     }
 
     m_nspin = mixin->nSpecies();
