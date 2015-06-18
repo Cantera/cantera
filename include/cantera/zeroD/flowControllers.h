@@ -54,7 +54,7 @@ public:
     }
 
     virtual bool ready() {
-        return FlowDevice::ready() && m_master != 0;
+        return FlowDevice::ready() && m_master != 0 && m_coeffs.size() == 1;
     }
 
     void setMaster(FlowDevice* master) {
@@ -62,6 +62,10 @@ public:
     }
 
     virtual void updateMassFlowRate(doublereal time) {
+        if (!ready()) {
+            throw CanteraError("PressureController::updateMassFlowRate",
+                "Device is not ready; some parameters have not been set.");
+        }
         doublereal master_mdot = m_master->massFlowRate(time);
         m_mdot = master_mdot + m_coeffs[0]*(in().pressure() -
                                             out().pressure());
@@ -72,7 +76,8 @@ protected:
     FlowDevice* m_master;
 };
 
-//! Supply a mass flow rate that is a function of the pressure drop across the valve. 
+//! Supply a mass flow rate that is a function of the pressure drop across the
+//! valve.
 /*!
  * The default behavior is a linearly proportional to the pressure difference.
  * Note that real valves do not have this behavior, so this class does not
@@ -86,11 +91,15 @@ public:
     }
 
     virtual bool ready() {
-        return FlowDevice::ready() && m_coeffs.size() >= 1;
+        return FlowDevice::ready() && (m_coeffs.size() == 1 || m_func);
     }
 
     /// Compute the currrent mass flow rate, based on the pressure difference.
     virtual void updateMassFlowRate(doublereal time) {
+        if (!ready()) {
+            throw CanteraError("Valve::updateMassFlowRate",
+                "Device is not ready; some parameters have not been set.");
+        }
         double delta_P = in().pressure() - out().pressure();
         if (m_func) {
             m_mdot = m_func->eval(delta_P);

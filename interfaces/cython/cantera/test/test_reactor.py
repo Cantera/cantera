@@ -457,6 +457,25 @@ class TestReactor(utilities.CanteraTest):
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
             self.assertNear(mdot(t) + 1e-5 * dP, pc.mdot(t))
 
+    def test_pressure_controller_errors(self):
+        self.make_reactors()
+        res = ct.Reservoir(self.gas1)
+        mfc = ct.MassFlowController(res, self.r1, mdot=0.6)
+
+        p = ct.PressureController(self.r1, self.r2, master=mfc, K=0.5)
+
+        with self.assertRaises(RuntimeError):
+            p = ct.PressureController(self.r1, self.r2, K=0.5)
+            p.mdot(0.0)
+
+        with self.assertRaises(RuntimeError):
+            p = ct.PressureController(self.r1, self.r2, master=mfc)
+            p.mdot(0.0)
+
+        with self.assertRaises(RuntimeError):
+            p = ct.PressureController(self.r1, self.r2)
+            p.mdot(0.0)
+
     def test_set_initial_time(self):
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         self.net.rtol = 1e-12
