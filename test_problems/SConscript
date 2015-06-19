@@ -72,7 +72,7 @@ class Test(object):
 
         testResults.tests[self.testName] = self
         run = self.run(localenv)
-        localenv.Alias('test-run', run)
+        localenv.Depends(env['test_results'], run)
         localenv.Alias('test-clean', self.clean(localenv))
         localenv.Alias('test-%s' % self.testName, run)
         env['testNames'].append(self.testName)
@@ -280,10 +280,6 @@ CompileAndTest('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi',
                'latticeSolid_LiSi', 'output_blessed.txt',
                artifacts=['vcs_equilibrate_res.csv'])
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
-
-finish_tests = localenv.Command('finish_tests', [], testResults.printReport)
-localenv.Depends(finish_tests, 'test-run')
-Alias('test', finish_tests)
 
 # Force explicitly-named tests to run even if SCons thinks they're up to date
 for command in COMMAND_LINE_TARGETS:

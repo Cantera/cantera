@@ -1636,6 +1636,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
 ### Tests ###
 if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     env['testNames'] = []
+    env['test_results'] = env.Command('test_results', [], testResults.printReport)
 
     # Tests written using the gtest framework, the Python unittest module,
     # or the Matlab xunit package.
@@ -1650,6 +1651,8 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         for name in env['testNames']:
             print 'test-%s' % name
         sys.exit(0)
+
+    Alias('test', env['test_results'])
 
 ### Dump (debugging SCons)
 if 'dump' in COMMAND_LINE_TARGETS:

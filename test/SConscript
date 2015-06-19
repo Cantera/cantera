@@ -85,7 +85,7 @@ def addTestProgram(subdir, progName, env_vars={}):
     testResults.tests[passedFile.name] = program
     run_program = testenv.Command(passedFile, program, gtestRunner)
     env.Depends(run_program, testenv.get('cantera_shlib', ()))
-    Alias('test', run_program)
+    env.Depends(env['test_results'], run_program)
     Alias('test-%s' % progName, run_program)
     env['testNames'].append(progName)
     if os.path.exists(passedFile.abspath):
@@ -145,7 +145,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             dep = File(pjoin(subdir, dep))
         testenv.Depends(run_program, dep)
     if not optional:
-        Alias('test', run_program)
+        testenv.Depends(env['test_results'], run_program)
         testResults.tests[passedFile.name] = True
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
@@ -198,7 +198,7 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
             dep = File(pjoin('matlab', dep))
         testenv.Depends(run_program, dep)
 
-    Alias('test', run_program)
+    testenv.Depends(testenv['test_results'], run_program)
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % ('matlab', script),
                                             [], [Delete(passedFile.abspath)]))
