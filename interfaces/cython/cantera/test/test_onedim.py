@@ -241,7 +241,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
-        filename = 'onedim-fixed-T.xml'
+        filename = 'onedim-fixed-T{0}.xml'.format(utilities.python_version)
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -302,7 +302,7 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = 'onedim-add-species.xml'
+        filename = 'onedim-add-species{0}.xml'.format(utilities.python_version)
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -330,7 +330,7 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = 'onedim-add-species.xml'
+        filename = 'onedim-add-species{0}.xml'.format(utilities.python_version)
         if os.path.exists(filename):
             os.remove(filename)
 
