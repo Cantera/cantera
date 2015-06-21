@@ -169,7 +169,6 @@ void Application::ThreadMessages::removeThreadMessages()
 #endif // THREAD_SAFE_CANTERA
 
 Application::Application() :
-    stop_on_error(false),
     m_suppress_deprecation_warnings(false)
 {
 #if !defined( THREAD_SAFE_CANTERA )

@@ -215,8 +215,7 @@ public:
 
     //! Destructor for class deletes global data
     /*!
-     * Delete any open XML trees, the logwriter, and
-     * the XML log, if any.
+     *  Deletes any open XML trees.
      */
     virtual ~Application();
 
@@ -396,22 +395,7 @@ protected:
 
     //! Current vector of input directories to search for input files
     std::vector<std::string> inputDirs;
-    //! Current list of error messages
-    //vector<string> errorMessage;
-    //! Current list of warning messages
-    //vector<string> warning;
-    //! Current error Routine
-    //vector<string> errorRoutine;
-    //! Last error message
-    //string msglog;
-    //! Current line length
-    // size_t linelen;
-    //! Current value of stop_on_error
-    bool stop_on_error;
-    //! Current map of options
-    std::map<std::string, std::string>     options;
-    //! Current value of tmp_dir
-    std::string tmp_dir;
+
     //! Current vector of XML file trees that have been previously parsed
     //! The second element of the value is used to store the last-modified time
     //! for the file, to enable change detection.
@@ -420,9 +404,6 @@ protected:
     std::set<std::string> warnings;
 
     bool m_suppress_deprecation_warnings;
-
-    //! Current pointer to the logwriter
-    //Logger* logwriter;
 
 #if defined(THREAD_SAFE_CANTERA)
     ThreadMessages   pMessenger ;
