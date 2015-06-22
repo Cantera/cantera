@@ -771,7 +771,7 @@ public:
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
-            if (fmod(stoich[n], 1.0) || fmod(order[n], 1.0)) {
+            if (fmod(stoich[n], 1.0) || stoich[n] != order[n]) {
                 frac = true;
                 break;
             }
