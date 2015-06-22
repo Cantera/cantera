@@ -64,15 +64,7 @@ CANTERA_SUNDIALS_LIBS=@mak_sundials_libdir@ @mak_sundials_libs@
 #         BLAS LAPACK LINKAGE
 ###############################################################################
 
-CANTERA_have_blas_lapack_dir=@mak_have_blas_lapack_dir@
-
-ifeq ($(CANTERA_have_blas_lapack_dir), 1)
 CANTERA_BLAS_LAPACK_LIBS=@blas_lapack_dir@ @mak_blas_lapack_libs@
-CANTERA_BLAS_LAPACK_LIBS_DEP=  @mak_blas_lapack_libs_dep@
-else
-CANTERA_BLAS_LAPACK_LIBS=@mak_blas_lapack_libs@
-CANTERA_BLAS_LAPACK_LIBS_DEP=$(CANTERA_INSTALL_DIR)/lib/libctlapack.a $(CANTERA_INSTALL_DIR)/lib/libctblas.a
-endif
 
 ###############################################################################
 #      COMBINATIONS OF INCLUDES AND LIBS
@@ -94,9 +86,7 @@ CANTERA_LIBS=$(CANTERA_CORE_LIBS) \
 CANTERA_TOTAL_LIBS=$(CANTERA_LIBS)
 
 CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
-                        $(CANTERA_SUNDIALS_LIBS_DEP) \
-                        $(CANTERA_BLAS_LAPACK_LIBS_DEP)
-
+                        $(CANTERA_SUNDIALS_LIBS_DEP)
 
 CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) \
                      $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
