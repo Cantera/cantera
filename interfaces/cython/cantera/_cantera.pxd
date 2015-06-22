@@ -512,7 +512,7 @@ cdef extern from "cantera/zeroD/Wall.h":
 cdef extern from "cantera/zeroD/flowControllers.h":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
         CxxFlowDevice()
-        double massFlowRate(double)
+        double massFlowRate(double) except +
         cbool install(CxxReactorBase&, CxxReactorBase&)
         void setFunction(CxxFunc1*)
         void setParameters(int, double*)
