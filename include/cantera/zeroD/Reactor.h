@@ -142,8 +142,9 @@ public:
     std::vector<std::pair<void*, int> > getSensitivityOrder() const;
 
     //! Return the index in the solution vector for this reactor of the
-    //! component named *nm*. Possible values for *nm* are "m", "V", "T", the
-    //! name of a homogeneous phase species, or the name of a surface species.
+    //! component named *nm*. Possible values for *nm* are "mass", "volume",
+    //! "int_energy", the name of a homogeneous phase species, or the name of a
+    //! surface species.
     virtual size_t componentIndex(const std::string& nm) const;
 
 protected:

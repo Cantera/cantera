@@ -139,8 +139,18 @@ size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
     if (k != npos) {
         return k + 2;
     } else if (nm == "m" || nm == "mass") {
+        if (nm == "m") {
+            warn_deprecated("IdealGasConstPressureReactor::componentIndex(\"m\")",
+                "Using the name 'm' for mass is deprecated, and will be "
+                "disabled after Cantera 2.3. Use 'mass' instead.");
+        }
         return 0;
     } else if (nm == "T" || nm == "temperature") {
+        if (nm == "T") {
+            warn_deprecated("IdealGasConstPressureReactor::componentIndex(\"T\")",
+                "Using the name 'T' for temperature is deprecated, and will be "
+                "disabled after Cantera 2.3. Use 'temperature' instead.");
+        }
         return 1;
     } else {
         return npos;

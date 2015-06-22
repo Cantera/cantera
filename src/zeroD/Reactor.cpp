@@ -382,10 +382,25 @@ size_t Reactor::componentIndex(const string& nm) const
     if (k != npos) {
         return k + 3;
     } else if (nm == "m" || nm == "mass") {
+        if (nm == "m") {
+            warn_deprecated("Reactor::componentIndex(\"m\")",
+                "Using the name 'm' for mass is deprecated, and will be "
+                "disabled after Cantera 2.3. Use 'mass' instead.");
+        }
         return 0;
     } else if (nm == "V" || nm == "volume") {
+        if (nm == "V") {
+            warn_deprecated("Reactor::componentIndex(\"V\")",
+                "Using the name 'V' for volume is deprecated, and will be "
+                "disabled after Cantera 2.3. Use 'volume' instead.");
+        }
         return 1;
     } else if (nm == "U" || nm == "int_energy") {
+        if (nm == "U") {
+            warn_deprecated("Reactor::componentIndex(\"U\")",
+                "Using the name 'U' for internal energy is deprecated, and "
+                "will be disabled after Cantera 2.3. Use 'int_energy' instead.");
+        }
         return 2;
     } else {
         return npos;

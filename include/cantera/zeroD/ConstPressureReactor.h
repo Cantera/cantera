@@ -39,8 +39,9 @@ public:
     virtual void updateState(doublereal* y);
 
     //! Return the index in the solution vector for this reactor of the
-    //! component named *nm*. Possible values for *nm* are "m", "H", the name
-    //! of a homogeneous phase species, or the name of a surface species.
+    //! component named *nm*. Possible values for *nm* are "mass", "enthalpy",
+    //! the name of a homogeneous phase species, or the name of a surface
+    //! species.
     virtual size_t componentIndex(const std::string& nm) const;
 };
 
