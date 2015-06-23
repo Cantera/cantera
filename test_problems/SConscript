@@ -220,8 +220,6 @@ CompileAndTest('ISSPTester2', 'cathermo/VPissp',
                'ISSPTester2', 'output_blessed.txt')
 CompileAndTest('wtWater', 'cathermo/wtWater',
                'wtWater', 'output_blessed.txt')
-CompileAndTest('ChemEquil_gri_pairs',
-               'ChemEquil_gri_pairs', 'gri_pairs', 'output_blessed.txt')
 CompileAndTest('ChemEquil_ionizedGas',
                'ChemEquil_ionizedGas', 'ionizedGasEquil',
                'output_blessed.txt',

@@ -100,10 +100,10 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
     ASSERT_EQ(1, (int) nc);
 }
 
-class GriMatrix : public testing::Test
+class GriEquilibriumTest : public testing::Test
 {
 public:
-    GriMatrix() : gas("gri30.xml", "gri30") {
+    GriEquilibriumTest() : gas("gri30.xml", "gri30") {
         X.resize(gas.nSpecies());
         Yelem.resize(gas.nElements());
     };
@@ -114,12 +114,9 @@ public:
         }
     }
 
-    void check(double T, double P) {
-        EXPECT_CLOSE(gas.temperature(), T, 1e-9);
-        EXPECT_CLOSE(gas.pressure(), P, 1e-9);
-
+    void check(double tol=1e-8) {
         for (size_t i = 0; i < gas.nElements(); i++) {
-            EXPECT_CLOSE(Yelem[i], gas.elementalMassFraction(i), 1e-8);
+            EXPECT_CLOSE(Yelem[i], gas.elementalMassFraction(i), tol);
         }
 
         vector_fp mu(gas.nSpecies());
@@ -145,13 +142,27 @@ public:
         }
     }
 
+    IdealGasPhase gas;
+    vector_fp X;
+    vector_fp Yelem;
+};
+
+class GriMatrix : public GriEquilibriumTest
+{
+public:
+    void check_TP(double T, double P) {
+        EXPECT_CLOSE(gas.temperature(), T, 1e-9);
+        EXPECT_CLOSE(gas.pressure(), P, 1e-9);
+        check();
+    }
+
     void check_CH4_N2(const std::string& solver) {
         for (int i = 0; i < 5; i++) {
             double T = 500 + 300 * i;
             gas.setState_TPX(T, OneAtm, "CH4:3, N2:2");
             save_elemental_mole_fractions();
             gas.equilibrate("TP", solver);
-            check(T, OneAtm);
+            check_TP(T, OneAtm);
         }
     }
 
@@ -161,7 +172,7 @@ public:
             gas.setState_TPX(T, OneAtm, "O2:3, N2:2");
             save_elemental_mole_fractions();
             gas.equilibrate("TP", solver);
-            check(T, OneAtm);
+            check_TP(T, OneAtm);
         }
     }
 
@@ -171,7 +182,7 @@ public:
             gas.setState_TPX(T, OneAtm, "CH4:3, O2:3, N2:4");
             save_elemental_mole_fractions();
             gas.equilibrate("TP", solver);
-            check(T, OneAtm);
+            check_TP(T, OneAtm);
         }
     }
 
@@ -188,15 +199,11 @@ public:
                     gas.setState_TPX(T, P, "CH4:1, O2:1");
                     save_elemental_mole_fractions();
                     gas.equilibrate("TP", solver);
-                    check(T, P);
+                    check_TP(T, P);
                 }
             }
         }
     }
-
-    IdealGasPhase gas;
-    vector_fp X;
-    vector_fp Yelem;
 };
 
 TEST_F(GriMatrix, ChemEquil_CH4_N2) { check_CH4_N2("element_potential"); }
@@ -211,6 +218,82 @@ TEST_F(GriMatrix, VcsNonideal_CH4_N2) { check_CH4_N2("vcs"); }
 TEST_F(GriMatrix, VcsNonideal_O2_N2) { check_O2_N2("vcs"); }
 TEST_F(GriMatrix, VcsNonideal_CH4_O2_N2) { check_CH4_O2_N2("vcs"); }
 TEST_F(GriMatrix, VcsNonideal_CH4_O2) { check_CH4_O2("vcs"); }
+
+// Test for equilibrium at property pairs other than T and P, which require
+// nested iterations.
+class PropertyPairs : public GriEquilibriumTest
+{
+public:
+    void check_HP(const std::string& solver) {
+        gas.setState_TPX(500, 1e5, "CH4:0.3, O2:0.3, N2:0.4");
+        double h0 = gas.enthalpy_mass();
+        save_elemental_mole_fractions();
+        gas.equilibrate("HP", solver);
+        EXPECT_NEAR(h0, gas.enthalpy_mass(), 1e-3);
+        EXPECT_NEAR(1e5, gas.pressure(), 1e-3);
+        check();
+    }
+
+    void check_SP(const std::string& solver) {
+        gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
+        double s0 = gas.entropy_mass();
+        save_elemental_mole_fractions();
+        gas.equilibrate("SP", solver);
+        EXPECT_NEAR(s0, gas.entropy_mass(), 1e-4);
+        EXPECT_NEAR(3e5, gas.pressure(), 1e-3);
+        check();
+    }
+
+    void check_SV(const std::string& solver) {
+        gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
+        double s0 = gas.entropy_mass();
+        double rho0 = gas.density();
+        save_elemental_mole_fractions();
+        gas.equilibrate("SV", solver);
+        EXPECT_NEAR(s0, gas.entropy_mass(), 1e-4);
+        EXPECT_NEAR(rho0, gas.density(), 1e-5);
+        check();
+    }
+
+    void check_TV(const std::string& solver) {
+        gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
+        double rho0 = gas.density();
+        save_elemental_mole_fractions();
+        gas.equilibrate("TV", solver, 1e-11);
+        EXPECT_NEAR(rho0, gas.density(), 1e-5);
+        EXPECT_NEAR(500, gas.temperature(), 1e-4);
+        // @todo Figure out why looser tolerances are required for MultiPhase
+        //     solver
+        check(5e-8);
+    }
+
+    void check_UV(const std::string& solver) {
+        gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
+        double u0 = gas.intEnergy_mass();
+        double rho0 = gas.density();
+        save_elemental_mole_fractions();
+        gas.equilibrate("UV", solver);
+        EXPECT_NEAR(u0, gas.intEnergy_mass(), 1e-4);
+        EXPECT_NEAR(rho0, gas.density(), 1e-5);
+        check();
+    }
+};
+
+TEST_F(PropertyPairs, ChemEquil_HP) { check_HP("element_potential"); }
+TEST_F(PropertyPairs, MultiPhase_HP) { check_HP("gibbs"); }
+TEST_F(PropertyPairs, VcsNonideal_HP) { check_HP("vcs"); }
+TEST_F(PropertyPairs, ChemEquil_SP) { check_SP("element_potential"); }
+TEST_F(PropertyPairs, MultiPhase_SP) { check_SP("gibbs"); }
+TEST_F(PropertyPairs, VcsNonideal_SP) { check_SP("vcs"); }
+TEST_F(PropertyPairs, ChemEquil_SV) { check_SV("element_potential"); }
+// TEST_F(PropertyPairs, MultiPhase_SV) { check_SV("gibbs"); } // not implemented
+TEST_F(PropertyPairs, VcsNonideal_SV) { check_SV("vcs"); }
+TEST_F(PropertyPairs, ChemEquil_TV) { check_TV("element_potential"); }
+TEST_F(PropertyPairs, MultiPhase_TV) { check_TV("gibbs"); }
+TEST_F(PropertyPairs, VcsNonideal_TV) { check_TV("vcs"); }
+TEST_F(PropertyPairs, ChemEquil_UV) { check_UV("element_potential"); }
+// TEST_F(PropertyPairs, MultiPhase_UV) { check_UV("gibbs"); } // not implemented
+TEST_F(PropertyPairs, VcsNonideal_UV) { check_UV("vcs"); }
 
 int main(int argc, char** argv)
 {
