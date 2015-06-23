@@ -317,8 +317,10 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             pmoles[0] = m_mix->phaseMoles(0);
             double Tmoles = pmoles[0];
             double SperMole = Snow/Tmoles;
-            plogf("T = %g, Snow = %g ,Tmoles = %g,  SperMole = %g\n",
-                  Tnow, Snow, Tmoles, SperMole);
+            if (printLvl > 0) {
+                plogf("T = %g, Snow = %g ,Tmoles = %g,  SperMole = %g\n",
+                      Tnow, Snow, Tmoles, SperMole);
+            }
 
             // the equilibrium entropy monotonically increases with T;
             // if the current value is below the target, then we know the
