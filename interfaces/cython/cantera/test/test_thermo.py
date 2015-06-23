@@ -161,9 +161,7 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaises(ValueError):
             self.phase.set_unnormalized_mass_fractions([1,2,3])
 
-    @unittest.expectedFailure
     def test_setCompositionDict_bad1(self):
-        # Non-existent species should raise an exception
         with self.assertRaises(Exception):
             self.phase.X = {'H2':1.0, 'HCl':3.0}
 

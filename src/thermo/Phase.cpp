@@ -376,15 +376,22 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
     vector_fp mf(m_kk, 0.0);
-    for (size_t k = 0; k < m_kk; k++) {
-        mf[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
+    for (compositionMap::const_iterator iter = xMap.begin();
+         iter != xMap.end();
+         ++iter) {
+        try {
+            mf[getValue(m_speciesIndices, iter->first)] = iter->second;
+        } catch (std::out_of_range&) {
+            throw CanteraError("Phase::setMoleFractionsByName",
+                               "Unknown species '" + iter->first + "'");
+        }
     }
     setMoleFractions(&mf[0]);
 }
 
 void Phase::setMoleFractionsByName(const std::string& x)
 {
-    setMoleFractionsByName(parseCompString(x, speciesNames()));
+    setMoleFractionsByName(parseCompString(x));
 }
 
 void Phase::setMassFractions(const doublereal* const y)
@@ -415,15 +422,22 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
 void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
     vector_fp mf(m_kk, 0.0);
-    for (size_t k = 0; k < m_kk; k++) {
-        mf[k] = std::max(getValue(yMap, speciesName(k), 0.0), 0.0);
+    for (compositionMap::const_iterator iter = yMap.begin();
+         iter != yMap.end();
+         ++iter) {
+        try {
+            mf[getValue(m_speciesIndices, iter->first)] = iter->second;
+        } catch (std::out_of_range&) {
+            throw CanteraError("Phase::setMassFractionsByName",
+                               "Unknown species '" + iter->first + "'");
+        }
     }
     setMassFractions(&mf[0]);
 }
 
 void Phase::setMassFractionsByName(const std::string& y)
 {
-    setMassFractionsByName(parseCompString(y, speciesNames()));
+    setMassFractionsByName(parseCompString(y));
 }
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
