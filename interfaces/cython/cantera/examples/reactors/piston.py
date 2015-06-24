@@ -35,7 +35,16 @@ r1 = ct.IdealGasReactor(gas1)
 r1.volume = 0.5
 r2 = ct.IdealGasReactor(gas2)
 r2.volume = 0.1
-w = ct.Wall(r1, r2, K=1.0e3)
+
+# The wall is held fixed until t = 0.1 s, then released to allow the pressure to
+# equilibrate.
+def v(t):
+    if t < 0.1:
+        return 0.0
+    else:
+        return (r1.thermo.P - r2.thermo.P) * 1e-4
+
+w = ct.Wall(r1, r2, velocity=v)
 
 net = ct.ReactorNet([r1, r2])
 
@@ -48,11 +57,12 @@ v = []
 xco = []
 xh2 = []
 
-for n in range(30):
-    time = (n+1)*0.002
+for n in range(200):
+    time = (n+1)*0.001
     net.advance(time)
-    print(fmt % (time, r1.T, r2.T, r1.volume, r2.volume,
-                 r1.volume + r2.volume, r2.thermo['CO'].X[0]))
+    if n % 4 == 3:
+        print(fmt % (time, r1.T, r2.T, r1.volume, r2.volume,
+                     r1.volume + r2.volume, r2.thermo['CO'].X[0]))
 
     tim.append(time * 1000)
     t1.append(r1.T)
