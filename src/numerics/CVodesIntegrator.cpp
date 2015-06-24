@@ -67,14 +67,14 @@ extern "C" {
         try {
             double* ydata = NV_DATA_S(y); //N_VDATA(y);
             double* ydotdata = NV_DATA_S(ydot); //N_VDATA(ydot);
-            Cantera::FuncData* d = (Cantera::FuncData*)f_data;
-            Cantera::FuncEval* f = d->m_func;
+            FuncData* d = (FuncData*)f_data;
+            FuncEval* f = d->m_func;
             if (d->m_pars.size() == 0) {
                 f->eval(t, ydata, ydotdata, NULL);
             } else {
                 f->eval(t, ydata, ydotdata, DATA_PTR(d->m_pars));
             }
-        } catch (Cantera::CanteraError& err) {
+        } catch (CanteraError& err) {
             std::cerr << err.what() << std::endl;
             return 1; // possibly recoverable error
         } catch (...) {

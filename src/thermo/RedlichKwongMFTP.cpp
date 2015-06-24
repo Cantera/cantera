@@ -1420,7 +1420,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         doublereal val = acos(tmp);
         doublereal theta = val / 3.0;
 
-        doublereal oo = 2. * Cantera::Pi / 3.;
+        doublereal oo = 2. * Pi / 3.;
         doublereal alpha = xN + 2. * delta * cos(theta);
 
         doublereal beta = xN + 2. * delta * cos(theta + oo);

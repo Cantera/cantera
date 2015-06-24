@@ -267,7 +267,7 @@ void clear_FENV();
  * @ingroup errorhandling
  */
 #ifndef AssertTrace
-#  define AssertTrace(expr)  ((expr) ? (void) 0 : throw Cantera::CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
+#  define AssertTrace(expr)  ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
 #endif
 
 //!  Assertion must be true or an error is thrown
@@ -280,7 +280,7 @@ void clear_FENV();
  * @ingroup errorhandling
  */
 #ifndef AssertThrow
-#  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure, std::string("failed assert: ") + #expr))
+#  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw CanteraError(procedure, std::string("failed assert: ") + #expr))
 #endif
 
 //!  Assertion must be true or an error is thrown
@@ -298,7 +298,7 @@ void clear_FENV();
  * @ingroup errorhandling
  */
 #ifndef AssertThrowMsg
-#  define AssertThrowMsg(expr, procedure, message)  ((expr) ? (void) 0 : throw Cantera::CanteraError(procedure + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
+#  define AssertThrowMsg(expr, procedure, message)  ((expr) ? (void) 0 : throw CanteraError(procedure + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
 #endif
 
 #endif

@@ -1127,10 +1127,10 @@ private:
     /*!
      *  The Jacobian stored here is the raw matrix, before any row or column scaling is carried out
      */
-    Cantera::GeneralMatrix* jacCopyPtr_;
+    GeneralMatrix* jacCopyPtr_;
 
     //! Hessian
-    Cantera::GeneralMatrix* HessianPtr_;
+    GeneralMatrix* HessianPtr_;
 
     /*********************************************************************************************
      *      VARIABLES ASSOCIATED WITH STEPS AND ASSOCIATED DOUBLE DOGLEG PARAMETERS

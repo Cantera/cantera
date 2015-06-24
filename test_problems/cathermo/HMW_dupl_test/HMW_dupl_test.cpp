@@ -27,7 +27,7 @@ int main(int argc, char** argv)
         /*
          * Load in and initialize the
          */
-        Cantera::ThermoPhase* solid = newPhase("NaCl_Solid.xml","NaCl(S)");
+        ThermoPhase* solid = newPhase("NaCl_Solid.xml","NaCl(S)");
 
 
         size_t nsp = HMW->nSpecies();
@@ -274,14 +274,14 @@ int main(int argc, char** argv)
         hmwtbDupl = 0;
         delete solid;
         solid = 0;
-        Cantera::appdelete();
+        appdelete();
 
 
         return retn;
 
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
-        Cantera::appdelete();
+        appdelete();
         return -1;
     }
 }

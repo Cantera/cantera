@@ -709,7 +709,7 @@ private:
  *  @param x  Reference to a MultiPhase
  *  @return returns a reference to the ostream
  */
-inline std::ostream& operator<<(std::ostream& s, Cantera::MultiPhase& x)
+inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
 {
     size_t ip;
     for (ip = 0; ip < x.nPhases(); ip++) {

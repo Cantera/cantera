@@ -34,7 +34,7 @@ public:
      *  @param kinPtr   Pointer to the kinetics base class
      *  @param irxn     Specific reaction index.
      */
-    RxnMolChange(Cantera::Kinetics* kinPtr, int irxn);
+    RxnMolChange(Kinetics* kinPtr, int irxn);
 
     //! Destructor
     ~RxnMolChange() {}
@@ -44,7 +44,7 @@ public:
      *  @param kinPtr   Pointer to the kinetics base class
      *  @param egr      Specific reaction index.
      */
-    RxnMolChange(Cantera::Kinetics* kinPtr, Cantera::ExtraGlobalRxn* egr);
+    RxnMolChange(Kinetics* kinPtr, ExtraGlobalRxn* egr);
 
     //! Vector of mole changes for each phase in the Kinetics object due to the current reaction
     /*!
@@ -92,7 +92,7 @@ public:
     int m_nPhases;
 
     //!  Shallow pointer pointing to the kinetics object
-    Cantera::Kinetics* m_kinBase;
+    Kinetics* m_kinBase;
 
     //! Reaction number within the kinetics object
     /*!
@@ -111,7 +111,7 @@ public:
     /*!
      *  This is 0, if the class refers to a single reaction in the kinetics object
      */
-    Cantera::ExtraGlobalRxn* m_egr;
+    ExtraGlobalRxn* m_egr;
 };
 }
 

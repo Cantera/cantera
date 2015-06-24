@@ -267,7 +267,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 
     //for each species, assign viscosity model and coefficients
     for (size_t k = 0; k < m_nsp; k++) {
-        Cantera::LiquidTransportData& ltd = tr.LTData[k];
+        LiquidTransportData& ltd = tr.LTData[k];
         m_viscTempDep_Ns[k] =  ltd.viscosity;
         ltd.viscosity = 0;
         m_ionCondTempDep_Ns[k] =  ltd.ionConductivity;
@@ -297,7 +297,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_diffTempDep_Ns.resize(m_nsp, 0);
     //for each species, assign viscosity model and coefficients
     for (size_t k = 0; k < m_nsp; k++) {
-        Cantera::LiquidTransportData& ltd = tr.LTData[k];
+        LiquidTransportData& ltd = tr.LTData[k];
         if (ltd.speciesDiffusivity != 0) {
             cout << "Warning: diffusion coefficient data for "
                  << m_thermo->speciesName(k)

@@ -16,10 +16,10 @@ using namespace std;
 
 #include <cstdio>
 
-int Cantera::ChemEquil_print_lvl = 0;
 
 namespace Cantera
 {
+int ChemEquil_print_lvl = 0;
 
 int _equilflag(const char* xy)
 {

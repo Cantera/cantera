@@ -103,7 +103,7 @@ int solveProb::solve(int ifunc, doublereal time_scale,
 
 #ifdef DEBUG_SOLVEPROB
 #ifdef DEBUG_SOLVEPROB_TIME
-    Cantera::clockWC wc;
+    clockWC wc;
     if (m_ioflag) {
         t1 = wc.secondsWC();
     }

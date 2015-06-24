@@ -92,7 +92,7 @@ public:
     //! Set a function of a single variable that is used in determining the
     //! mass flow rate through the device. The meaning of this function
     //! depends on the parameterization of the derived type.
-    void setFunction(Cantera::Func1* f);
+    void setFunction(Func1* f);
 
     //! Set the fixed mass flow rate (kg/s) through the flow device.
     void setMassFlowRate(doublereal mdot) {
@@ -101,7 +101,7 @@ public:
 
 protected:
     doublereal m_mdot;
-    Cantera::Func1* m_func;
+    Func1* m_func;
     vector_fp m_coeffs;
     int m_type;
 

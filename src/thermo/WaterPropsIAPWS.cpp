@@ -126,11 +126,11 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
                      */
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
-                    throw Cantera::CanteraError("WaterPropsIAPWS::density",
-                                                "Unstable Branch finder is untested");
+                    throw CanteraError("WaterPropsIAPWS::density",
+                                       "Unstable Branch finder is untested");
                 } else {
-                    throw Cantera::CanteraError("WaterPropsIAPWS::density",
-                                                "unknown state: " + Cantera::int2str(phase));
+                    throw CanteraError("WaterPropsIAPWS::density",
+                                       "unknown state: " + int2str(phase));
                 }
             }
         } else {
@@ -187,11 +187,11 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
                      */
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
-                    throw Cantera::CanteraError("WaterPropsIAPWS::density",
-                                                "Unstable Branch finder is untested");
+                    throw CanteraError("WaterPropsIAPWS::density",
+                                       "Unstable Branch finder is untested");
                 } else {
-                    throw Cantera::CanteraError("WaterPropsIAPWS::density",
-                                                "unknown state: " + Cantera::int2str(phase));
+                    throw CanteraError("WaterPropsIAPWS::density",
+                                       "unknown state: " + int2str(phase));
                 }
             }
         } else {
@@ -314,18 +314,18 @@ void  WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
 
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
     if (densLiq <= 0.0) {
-        throw Cantera::CanteraError("WaterPropsIAPWS::corr",
-                                    "Error occurred trying to find liquid density at (T,P) = "
-                                    + Cantera::fp2str(temperature) + "  " + Cantera::fp2str(pressure));
+        throw CanteraError("WaterPropsIAPWS::corr",
+                           "Error occurred trying to find liquid density at (T,P) = "
+                           + fp2str(temperature) + "  " + fp2str(pressure));
     }
     setState_TR(temperature, densLiq);
     doublereal gibbsLiqRT =  m_phi->gibbs_RT();
 
     densGas = density(temperature, pressure, WATER_GAS, densGas);
     if (densGas <= 0.0) {
-        throw Cantera::CanteraError("WaterPropsIAPWS::corr",
-                                    "Error occurred trying to find gas density at (T,P) = "
-                                    + Cantera::fp2str(temperature) + "  " + Cantera::fp2str(pressure));
+        throw CanteraError("WaterPropsIAPWS::corr",
+                           "Error occurred trying to find gas density at (T,P) = "
+                           + fp2str(temperature) + "  " + fp2str(pressure));
     }
     setState_TR(temperature, densGas);
     doublereal gibbsGasRT = m_phi->gibbs_RT();
@@ -339,18 +339,18 @@ void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
 
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
     if (densLiq <= 0.0) {
-        throw Cantera::CanteraError("WaterPropsIAPWS::corr1",
-                                    "Error occurred trying to find liquid density at (T,P) = "
-                                    + Cantera::fp2str(temperature) + "  " + Cantera::fp2str(pressure));
+        throw CanteraError("WaterPropsIAPWS::corr1",
+                           "Error occurred trying to find liquid density at (T,P) = "
+                           + fp2str(temperature) + "  " + fp2str(pressure));
     }
     setState_TR(temperature, densLiq);
     doublereal prL = m_phi->phiR();
 
     densGas = density(temperature, pressure, WATER_GAS, densGas);
     if (densGas <= 0.0) {
-        throw Cantera::CanteraError("WaterPropsIAPWS::corr1",
-                                    "Error occurred trying to find gas density at (T,P) = "
-                                    + Cantera::fp2str(temperature) + "  " + Cantera::fp2str(pressure));
+        throw CanteraError("WaterPropsIAPWS::corr1",
+                           "Error occurred trying to find gas density at (T,P) = "
+                           + fp2str(temperature) + "  " + fp2str(pressure));
     }
     setState_TR(temperature, densGas);
     doublereal prG = m_phi->phiR();
@@ -397,8 +397,8 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState)
     } else if (waterState == WATER_GAS) {
         setState_TR(temperature, densGas);
     } else {
-        throw Cantera::CanteraError("WaterPropsIAPWS::psat",
-                                    "unknown water state input: " + Cantera::int2str(waterState));
+        throw CanteraError("WaterPropsIAPWS::psat",
+                           "unknown water state input: " + int2str(waterState));
     }
     return p;
 }
@@ -525,8 +525,8 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     }
 
     if (!conv) {
-        throw Cantera::CanteraError(" WaterPropsIAPWS::densSpinodalWater()",
-                                    " convergence failure");
+        throw CanteraError("WaterPropsIAPWS::densSpinodalWater()",
+                           "convergence failure");
     }
     // Restore the original delta
     delta = delta_save;
@@ -617,8 +617,8 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     }
 
     if (!conv) {
-        throw Cantera::CanteraError(" WaterPropsIAPWS::densSpinodalSteam()",
-                                    " convergence failure");
+        throw CanteraError("WaterPropsIAPWS::densSpinodalSteam()",
+                           "convergence failure");
     }
     // Restore the original delta
     delta = delta_save;

@@ -53,19 +53,18 @@ class PDSS_Water;
  *
  * Whether charge neutrality is necessary for a phase is also specified within
  * the ThermoPhase object, by the function call
- * ThermoPhase::chargeNeutralityNecessary(). Note, that it is not necessary
- * for the IdealGas phase, currently. However, it is necessary for liquid
- * phases such as Cantera::DebyeHuckel and Cantera::HMWSoln for the proper
- * specification of the chemical potentials.
+ * ThermoPhase::chargeNeutralityNecessary(). Note, that it is not necessary for
+ * the IdealGas phase, currently. However, it is necessary for liquid phases
+ * such as DebyeHuckel and HMWSoln for the proper specification of the chemical
+ * potentials.
  *
  * This equation, when applied to the \f$ \zeta_k \f$ equation described
  * above, results in a zero net change in the effective Gibbs free energy of
  * the phase. However, specific charged species in the phase may increase or
  * decrease their electrochemical potentials, which will have an effect on
  * interfacial reactions involving charged species, when there is a potential
- * drop between phases. This effect is used within the
- * Cantera::InterfaceKinetics and Cantera::EdgeKinetics kinetics objects
- * classes.
+ * drop between phases. This effect is used within the InterfaceKinetics and
+ * EdgeKinetics kinetics objects classes.
  *
  * <H3> Electrothermochemical Properties of Phases of Matter. </H3>
  *

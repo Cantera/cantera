@@ -782,7 +782,7 @@ protected:
 
     //@}
 
-    class spinodalFunc : public Cantera::ResidEval
+    class spinodalFunc : public ResidEval
     {
     public:
         spinodalFunc(MixtureFugacityTP* tp);

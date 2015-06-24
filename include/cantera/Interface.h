@@ -12,11 +12,10 @@ namespace Cantera
 {
 //! An interface between multiple bulk phases.
 /*!
- * This class is defined mostly for convenience. It inherits both from
- * Cantera::SurfPhase and Cantera::InterfaceKinetics. It therefore
- * represents a surface phase, and also acts as the kinetics
- * manager to manage reactions occurring on the surface, possibly
- * involving species from other phases.
+ * This class is defined mostly for convenience. It inherits both from SurfPhase
+ * and InterfaceKinetics. It therefore represents a surface phase, and also acts
+ * as the kinetics manager to manage reactions occurring on the surface,
+ * possibly involving species from other phases.
  */
 class Interface :
     public SurfPhase,
@@ -35,21 +34,21 @@ public:
      *                           surface phase
      */
     Interface(const std::string& infile, std::string id,
-              std::vector<Cantera::ThermoPhase*> otherPhases) :
+              std::vector<ThermoPhase*> otherPhases) :
         m_ok(false),
         m_r(0) {
-        m_r = Cantera::get_XML_File(infile);
+        m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";
         }
 
-        Cantera::XML_Node* x = Cantera::get_XML_Node("#"+id, m_r);
+        XML_Node* x = get_XML_Node("#"+id, m_r);
         if (!x) {
-            throw Cantera::CanteraError("Interface","error in get_XML_Node");
+            throw CanteraError("Interface","error in get_XML_Node");
         }
-        Cantera::importPhase(*x, this);
+        importPhase(*x, this);
         otherPhases.push_back(this);
-        Cantera::importKinetics(*x, otherPhases, this);
+        importKinetics(*x, otherPhases, this);
         m_ok = true;
     }
 
@@ -58,8 +57,8 @@ public:
      *  @param ii   Interface object to be copied.
      */
     Interface(const Interface& ii) :
-        Cantera::SurfPhase(ii),
-        Cantera::InterfaceKinetics(ii),
+        SurfPhase(ii),
+        InterfaceKinetics(ii),
         m_ok(ii.m_ok),
         m_r(ii.m_r) {
     }
@@ -72,8 +71,8 @@ public:
         if (this == &right) {
             return *this;
         }
-        Cantera::SurfPhase::operator=(right);
-        Cantera::InterfaceKinetics::operator=(right);
+        SurfPhase::operator=(right);
+        InterfaceKinetics::operator=(right);
         m_ok = right.m_ok;
         m_r = right.m_r;
         return *this;
@@ -98,7 +97,7 @@ protected:
 
     //! XML_Node pointer to the XML File object that contains the Surface and the Interfacial Reaction object
     //! description
-    Cantera::XML_Node* m_r;
+    XML_Node* m_r;
 };
 
 //! Import an instance of class Interface from a specification in an input file.
@@ -107,7 +106,7 @@ protected:
  */
 inline Interface* importInterface(const std::string& infile,
                                   const std::string& id,
-                                  std::vector<Cantera::ThermoPhase*> phases)
+                                  std::vector<ThermoPhase*> phases)
 {
     return new Interface(infile, id, phases);
 }

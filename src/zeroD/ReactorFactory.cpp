@@ -65,8 +65,8 @@ ReactorBase* ReactorFactory::newReactor(int ir)
     case IdealGasConstPressureReactorType:
         return new IdealGasConstPressureReactor();
     default:
-        throw Cantera::CanteraError("ReactorFactory::newReactor",
-                                    "unknown reactor type!");
+        throw CanteraError("ReactorFactory::newReactor",
+                           "unknown reactor type!");
     }
     return 0;
 }

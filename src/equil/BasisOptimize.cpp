@@ -5,13 +5,11 @@
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/numerics/ctlapack.h"
 
-using namespace Cantera;
 using namespace std;
 
 namespace Cantera
 {
 int BasisOptimize_print_lvl = 0;
-}
 
 //! Print a string within a given space limit.
 /*!
@@ -25,10 +23,10 @@ int BasisOptimize_print_lvl = 0;
  */
 static void print_stringTrunc(const char* str, int space, int alignment);
 
-size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
-                              MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
-                              std::vector<size_t>& orderVectorElements,
-                              vector_fp& formRxnMatrix)
+size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
+                     std::vector<size_t>& orderVectorSpecies,
+                     std::vector<size_t>& orderVectorElements,
+                     vector_fp& formRxnMatrix)
 {
     size_t  j, jj, k=0, kk, l, i, jl, ml;
     bool lindep;
@@ -329,7 +327,7 @@ size_t Cantera::BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
     ct_dgetrs(ctlapack::NoTranspose, nComponents, nNonComponents, &sm[0], ne,
               &ipiv[0], &formRxnMatrix[0], ne, info);
 
-    if (DEBUG_MODE_ENABLED && Cantera::BasisOptimize_print_lvl >= 1) {
+    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
         writelog("   ---\n");
         writelogf("   ---  Number of Components = %d\n", nComponents);
         writelog("   ---  Formula Matrix:\n");
@@ -421,10 +419,10 @@ static void print_stringTrunc(const char* str, int space, int alignment)
     }
 }
 
-size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
-                              MultiPhase* mphase,
-                              std::vector<size_t>& orderVectorSpecies,
-                              std::vector<size_t>& orderVectorElements)
+size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
+                     MultiPhase* mphase,
+                     std::vector<size_t>& orderVectorSpecies,
+                     std::vector<size_t>& orderVectorElements)
 {
     size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
 
@@ -630,4 +628,6 @@ size_t Cantera::ElemRearrange(size_t nComponents, const vector_fp& elementAbunda
          */
     } while (jr < (nComponents-1));
     return nComponents;
+}
+
 }

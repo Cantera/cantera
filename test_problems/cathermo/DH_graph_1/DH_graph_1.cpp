@@ -69,7 +69,7 @@ int main(int argc, char** argv)
         /*
          * This delete the file logger amongst other things.
          */
-        Cantera::appdelete();
+        appdelete();
 
         return retn;
 

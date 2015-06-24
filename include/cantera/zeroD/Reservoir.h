@@ -20,7 +20,7 @@ public:
     }
     virtual void initialize(doublereal t0 = 0.0) {}
 
-    void insert(Cantera::ThermoPhase& contents) {
+    void insert(ThermoPhase& contents) {
         setThermoMgr(contents);
     }
 };

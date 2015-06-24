@@ -20,7 +20,7 @@ namespace Cantera
  *  a network of reactors (Reactor, ConstPressureReactor) connected by various
  *  means, e.g. Wall, MassFlowController, Valve, PressureController.
  */
-class ReactorNet : public Cantera::FuncEval
+class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();

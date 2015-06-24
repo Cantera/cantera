@@ -40,7 +40,6 @@
 
 
 using namespace std;
-using namespace Cantera;
 
 namespace Cantera {
 

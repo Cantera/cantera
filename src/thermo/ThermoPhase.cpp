@@ -725,7 +725,7 @@ void ThermoPhase::initThermo()
     }
     xMol_Ref.resize(m_kk, 0.0);
 }
-void ThermoPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
+void ThermoPhase::installSlavePhases(XML_Node* phaseNode)
 {
 }
 

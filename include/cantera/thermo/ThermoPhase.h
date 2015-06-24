@@ -1518,7 +1518,7 @@ public:
      *
      *  @param phaseNode   XML Element for the phase
      */
-    virtual void installSlavePhases(Cantera::XML_Node* phaseNode);
+    virtual void installSlavePhases(XML_Node* phaseNode);
 
     //! Set the equation of state parameters
     /*!

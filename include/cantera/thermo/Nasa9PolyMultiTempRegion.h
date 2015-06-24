@@ -50,7 +50,7 @@ public:
      *  Note, after the constructor, we will own the underlying
      *  Nasa9Poly1 objects and be responsible for owning them.
      */
-    Nasa9PolyMultiTempRegion(std::vector<Cantera::Nasa9Poly1*> &regionPts);
+    Nasa9PolyMultiTempRegion(std::vector<Nasa9Poly1*> &regionPts);
 
     //! Copy constructor
     /*!

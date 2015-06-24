@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-        Cantera::IdealSolnGasVPSS gg("silane.xml", "silane");
+        IdealSolnGasVPSS gg("silane.xml", "silane");
         ThermoPhase* g = &gg;
         //ThermoPhase *g = newPhase("silane.xml", "silane");
         cout.precision(4);

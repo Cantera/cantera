@@ -88,7 +88,7 @@ extern "C" {
             }
             return FuncCabinet::add(r);
         } catch (...) {
-            return Cantera::handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 
@@ -168,7 +168,7 @@ extern "C" {
             copyString(FuncCabinet::item(i).write(arg), nm, lennm);
             return 0;
         } catch (...) {
-            return Cantera::handleAllExceptions(-1, ERR);
+            return handleAllExceptions(-1, ERR);
         }
     }
 

@@ -192,7 +192,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
 
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
-        Cantera::LiquidTransportData& ltd = tr.LTData[k];
+        LiquidTransportData& ltd = tr.LTData[k];
         m_coeffVisc_Ns[k] = ltd.viscosity;
         ltd.viscosity = 0;
     }
@@ -206,7 +206,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
 
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
-        Cantera::LiquidTransportData& ltd = tr.LTData[k];
+        LiquidTransportData& ltd = tr.LTData[k];
         m_coeffLambda_Ns[k] = ltd.thermalCond;
         ltd.thermalCond = 0;
     }
@@ -222,7 +222,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
 
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
-        Cantera::LiquidTransportData& ltd = tr.LTData[k];
+        LiquidTransportData& ltd = tr.LTData[k];
         m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
         ltd.speciesDiffusivity = 0;
 

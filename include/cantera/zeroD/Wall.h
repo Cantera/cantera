@@ -83,8 +83,8 @@ public:
     //! Set the emissivity.
     void setEmissivity(doublereal epsilon) {
         if (epsilon > 1.0 || epsilon < 0.0)
-            throw Cantera::CanteraError("Wall::setEmissivity",
-                                        "emissivity must be between 0.0 and 1.0");
+            throw CanteraError("Wall::setEmissivity",
+                               "emissivity must be between 0.0 and 1.0");
         m_emiss = epsilon;
     }
 
@@ -93,7 +93,7 @@ public:
     }
 
     //! Set the wall velocity to a specified function of time
-    void setVelocity(Cantera::Func1* f=0) {
+    void setVelocity(Func1* f=0) {
         if (f) {
             m_vf = f;
         }
@@ -110,7 +110,7 @@ public:
     }
 
     //! Specify the heat flux function \f$ q_0(t) \f$.
-    void setHeatFlux(Cantera::Func1* q) {
+    void setHeatFlux(Func1* q) {
         m_qf = q;
     }
 
@@ -140,18 +140,18 @@ public:
     //! Specify the heterogeneous reaction mechanisms for each side of the
     //! wall. Passing a null pointer indicates that there is no reaction
     //! mechanism for the corresponding wall surface.
-    void setKinetics(Cantera::Kinetics* leftMechanism,
-                     Cantera::Kinetics* rightMechanism);
+    void setKinetics(Kinetics* leftMechanism,
+                     Kinetics* rightMechanism);
 
     //! Return a pointer to the surface phase object for the left
     //! (`leftright=0`) or right (`leftright=1`) wall surface.
-    Cantera::SurfPhase* surface(int leftright) {
+    SurfPhase* surface(int leftright) {
         return m_surf[leftright];
     }
 
     //! Return a pointer to the surface kinetics object for the left
     //! (`leftright=0`) or right (`leftright=1`) wall surface.
-    Cantera::Kinetics* kinetics(int leftright) {
+    Kinetics* kinetics(int leftright) {
         return m_chem[leftright];
     }
 
@@ -190,17 +190,17 @@ public:
 protected:
     ReactorBase* m_left;
     ReactorBase* m_right;
-    Cantera::Kinetics* m_chem[2];
-    Cantera::SurfPhase* m_surf[2];
+    Kinetics* m_chem[2];
+    SurfPhase* m_surf[2];
     size_t m_nsp[2];
     doublereal m_area, m_k, m_rrth;
     doublereal m_emiss;
-    Cantera::Func1* m_vf;
-    Cantera::Func1* m_qf;
-    Cantera::vector_fp m_leftcov, m_rightcov;
+    Func1* m_vf;
+    Func1* m_qf;
+    vector_fp m_leftcov, m_rightcov;
 
     std::vector<size_t> m_pleft, m_pright;
-    Cantera::vector_fp m_leftmult_save, m_rightmult_save;
+    vector_fp m_leftmult_save, m_rightmult_save;
 };
 
 }

@@ -26,7 +26,7 @@ public:
     LiquidTransportParams& operator=(const LiquidTransportParams& right);
 
     //! Species transport parameters
-    std::vector<Cantera::LiquidTransportData> LTData;
+    std::vector<LiquidTransportData> LTData;
 
     //! Object that specifies the viscosity interaction for the mixture
     LiquidTranInteraction* viscosity;

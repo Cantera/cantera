@@ -460,7 +460,7 @@ void LTI_Pairwise_Interaction::setParameters(LiquidTransportParams& trParam)
     m_diagonals.resize(nsp, 0);
 
     for (size_t k = 0; k < nsp; k++) {
-        Cantera::LiquidTransportData& ltd = trParam.LTData[k];
+        LiquidTransportData& ltd = trParam.LTData[k];
         if (ltd.speciesDiffusivity) {
             m_diagonals[k] = ltd.speciesDiffusivity;
         }
@@ -537,7 +537,7 @@ void LTI_StefanMaxwell_PPN::setParameters(LiquidTransportParams& trParam)
     }
 
     for (size_t k = 0; k < nsp; k++) {
-        Cantera::LiquidTransportData& ltd = trParam.LTData[k];
+        LiquidTransportData& ltd = trParam.LTData[k];
         m_ionCondSpecies[k]   =  ltd.ionConductivity;
         for (size_t j = 0; j < nsp2; j++) {
             m_mobRatSpecies[j][k] = ltd.mobilityRatio[j];
@@ -683,7 +683,7 @@ void LTI_StokesEinstein::setParameters(LiquidTransportParams& trParam)
     m_viscosity.resize(nsp, 0);
     m_hydroRadius.resize(nsp, 0);
     for (size_t k = 0; k < nsp; k++) {
-        Cantera::LiquidTransportData& ltd = trParam.LTData[k];
+        LiquidTransportData& ltd = trParam.LTData[k];
         m_viscosity[k]   =  ltd.viscosity;
         m_hydroRadius[k] =  ltd.hydroRadius;
     }

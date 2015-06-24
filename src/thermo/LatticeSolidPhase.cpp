@@ -325,7 +325,7 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
     }
 }
 
-void LatticeSolidPhase::installSlavePhases(Cantera::XML_Node* phaseNode)
+void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
 {
     size_t kk = 0;
     size_t kstart = 0;

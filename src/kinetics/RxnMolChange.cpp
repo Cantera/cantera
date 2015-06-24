@@ -23,12 +23,11 @@
 #include <iostream>
 #include <new>
 
-using namespace Cantera;
 using namespace std;
 
 namespace Cantera {
 
-RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
+RxnMolChange::RxnMolChange(Kinetics* kinPtr, int irxn) :
     m_nPhases(0),
     m_kinBase(kinPtr),
     m_iRxn(irxn),
@@ -55,7 +54,7 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
 
     for (int kKin = 0; kKin < m_kk; kKin++) {
         iph = static_cast<int>(m_kinBase->speciesPhaseIndex(kKin));
-        Cantera::ThermoPhase& tpRef = m_kinBase->thermo(iph);
+        ThermoPhase& tpRef = m_kinBase->thermo(iph);
         int kLoc = kKin - static_cast<int>(m_kinBase->kineticsSpeciesIndex(0, iph));
         double rsc = m_kinBase->reactantStoichCoeff(kKin, irxn);
         double psc = m_kinBase->productStoichCoeff(kKin, irxn);
@@ -70,7 +69,7 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
     }
 
     for (iph = 0; iph < m_nPhases; iph++) {
-        Cantera::ThermoPhase& tpRef = m_kinBase->thermo(iph);
+        ThermoPhase& tpRef = m_kinBase->thermo(iph);
         m_phaseDims[iph] = static_cast<int>(tpRef.nDim());
         m_phaseTypes[iph] = tpRef.eosType();
         if (m_phaseChargeChange[iph] != 0.0) {
@@ -82,17 +81,17 @@ RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, int irxn) :
     }
 
     if (m_ChargeTransferInRxn) {
-        Cantera::InterfaceKinetics* iK = dynamic_cast<Cantera::InterfaceKinetics*>(kinPtr);
+        InterfaceKinetics* iK = dynamic_cast<InterfaceKinetics*>(kinPtr);
         if (iK) {
             m_beta = iK->electrochem_beta(irxn);
         } else {
-            throw Cantera::CanteraError("RxnMolChange", "unknown condition on charge");
+            throw CanteraError("RxnMolChange", "unknown condition on charge");
         }
     }
 
 }
 
-RxnMolChange::RxnMolChange(Cantera::Kinetics* kinPtr, Cantera::ExtraGlobalRxn* egr) :
+RxnMolChange::RxnMolChange(Kinetics* kinPtr, ExtraGlobalRxn* egr) :
     m_nPhases(0),
     m_kinBase(kinPtr),
     m_iRxn(-1),

@@ -66,7 +66,7 @@ std::ostream& Group::fmt(std::ostream& s,
     return s;
 }
 
-std::ostream& operator<<(std::ostream& s, const Cantera::Group& g)
+std::ostream& operator<<(std::ostream& s, const Group& g)
 {
     if (g.valid()) {
         s << g.m_comp;
