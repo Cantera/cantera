@@ -1305,13 +1305,9 @@ public:
     bool getElementPotentials(doublereal* lambda) const;
 
     //@}
-
-
-    //---------------------------------------------------------
     /// @name Critical State Properties.
-    /// These methods are only implemented by some subclasses, and may
-    /// be moved out of ThermoPhase at a later date.
-
+    /// These methods are only implemented by subclasses that implement
+    /// liquid-vapor equations of state.
     //@{
 
     /// Critical temperature (K).
@@ -1343,9 +1339,8 @@ public:
 
     /** @name Saturation Properties.
      *
-     * These methods are only implemented by subclasses that
-     * implement full liquid-vapor equations of state. They may be
-     * moved out of ThermoPhase at a later date.
+     *  These methods are only implemented by subclasses that implement full
+     *  liquid-vapor equations of state.
      */
     //@{
 

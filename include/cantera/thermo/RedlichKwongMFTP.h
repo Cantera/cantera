@@ -361,8 +361,6 @@ public:
 
     //@}
     /// @name Critical State Properties.
-    /// These methods are only implemented by some subclasses, and may
-    /// be moved out of ThermoPhase at a later date.
     //@{
 
     /// Critical temperature (K).
