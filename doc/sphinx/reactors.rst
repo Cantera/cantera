@@ -10,7 +10,7 @@ A Cantera Reactor represents the simplest form of a chemically reacting system. 
 
 Reactors can in interact with the surrounding environment in multiple ways:
 
-    - Expansion/compression work: By moving the walls of the reactor, its volume can be changed and expansion or compression work can be done to the system.
+    - Expansion/compression work: By moving the walls of the reactor, its volume can be changed and expansion or compression work can be done by or on the system, i.e., the Reactor.
     - Heat transfer: An arbitrary heat transfer rate can be defined to cross the boundaries of the reactor.
     - Mass transfer: The reactor can have multiple inlets and outlets. For the inlets, arbitrary states can be defined. Through the outlets, fluid with the current state of the reactor exits the reactor.
     - Surface interaction: One or multiple walls can influence the chemical reactions in the reactor. This is not just restricted to catalytic reactions, but mass transfer between the surface and the fluid can also be modeled.
@@ -234,6 +234,8 @@ The advantage of reactor networks obviously is that multiple reactors can be int
 
  A heterogeneous reaction mechanism may be specified for one or both of the wall surfaces. The mechanism object (typically an instance of class Interface) must be constructed so that it is properly linked to the object representing the fluid in the reactor the surface in question faces. The surface temperature on each side is taken to be equal to the temperature of the reactor it faces.
 
+ Source: `Python <cython/zerodim.html#wall>`_ | `C++ <../../doxygen/html/classCantera_1_1Wall.html>`_
+
 - **Valve**: A valve is a flow devices with mass flow rate that is a function of the pressure drop across it. The default behavior is linear:
 
  .. math:: \dot m = K_v (P_1 - P_2)
@@ -264,7 +266,7 @@ Time Integration
 
 Cantera provides an ODE solver for solving the stiff equations of reacting systems. If installed in combination with SUNDIALS, their optimized solver is used. Starting off the current state of the system, it can be advanced in time by two methods:
 
-- ``step``\ `(\Delta t_{\rm max-estimate})`: The step method computes the state of the system at the a priori unspecified time `t_{\rm new}`. The time `t_{\rm new}` is internally computed so that all states of the system only change within a (specifiable) band of absolute and relative tolerances. Additionally, the time step must not be larger than a predefined maximum time step `\Delta t_{\rm max}`. `\Delta t_{\rm max-estimate}` is used to estimate `\Delta t_{\rm max}` for the very first time step and is ignored in subsequent calls. The new time `t_{\rm new}` is returned by this function.
+- ``step()``: The step method computes the state of the system at the a priori unspecified time `t_{\rm new}`. The time `t_{\rm new}` is internally computed so that all states of the system only change within a (specifiable) band of absolute and relative tolerances. Additionally, the time step must not be larger than a predefined maximum time step `\Delta t_{\rm max}`. The new time `t_{\rm new}` is returned by this function.
 
 - ``advance``\ `(t_{\rm new})`: This method computes the state of the system at time `t_{\rm new}`, where `t_{\rm new}` describes the absolute time from the initial time of the system. By calling this method in a for loop for pre-defined times, the state of the system is obtained for exactly the times specified. Internally, several ``step()`` calls are typically performed to reach the accurate state at time `t_{\rm new}`.
 
