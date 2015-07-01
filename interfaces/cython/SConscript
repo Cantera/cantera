@@ -18,7 +18,7 @@ def configure_python(env, python_command):
                         "print(numpy.get_include())"))
     info = getCommandOutput(python_command, '-c', script)
     module_ext, inc, pylib, prefix, py_version, numpy_include = info.splitlines()[-6:]
-    env.Append(CPPPATH=[inc, numpy_include, Dir('#include')])
+    env.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
     env.Prepend(LIBS=env['cantera_libs'])
     if env['OS'] == 'Darwin':
         env.Append(LINKFLAGS='-undefined dynamic_lookup')
