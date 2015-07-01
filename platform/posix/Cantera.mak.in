@@ -64,7 +64,7 @@ CANTERA_SUNDIALS_LIBS=@mak_sundials_libdir@ @mak_sundials_libs@
 #         BLAS LAPACK LINKAGE
 ###############################################################################
 
-CANTERA_BLAS_LAPACK_LIBS=@blas_lapack_dir@ @mak_blas_lapack_libs@
+CANTERA_BLAS_LAPACK_LIBS=-L@blas_lapack_dir@ @mak_blas_lapack_libs@
 
 ###############################################################################
 #      COMBINATIONS OF INCLUDES AND LIBS
