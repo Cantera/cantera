@@ -23,7 +23,7 @@ These values are the same as those in the Cantera C++ header file ct_defs.h.
 
 .. data:: planck
 
-   Planck constant (J/s)
+   Planck constant (J-s)
 
 .. data:: stefan_boltzmann
 
