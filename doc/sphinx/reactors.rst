@@ -6,19 +6,41 @@
 Reactors and Reactor Networks
 *****************************
 
-A Cantera Reactor represents the simplest form of a chemically reacting system. It corresponds to an extensive thermodynamic control volume `V`, in which all state variables are homogeneously distributed. The system is generally unsteady, i.e. all states are functions of time. In particular, transient state changes due to chemical reactions are possible. However, thermodynamic equilibrium is assumed to be present throughout the reactor at all instants of time.
+A Cantera Reactor represents the simplest form of a chemically reacting system. 
+It corresponds to an extensive thermodynamic control volume `V`, in which all 
+state variables are homogeneously distributed. The system is generally 
+unsteady, i.e. all states are functions of time. In particular, transient state 
+changes due to chemical reactions are possible. However, thermodynamic (but not
+necessarily chemical) equilibrium is assumed to be present throughout the 
+reactor at all instants of 
+time.
 
-Reactors can in interact with the surrounding environment in multiple ways:
+Reactors can interact with the surrounding environment in multiple ways:
 
-    - Expansion/compression work: By moving the walls of the reactor, its volume can be changed and expansion or compression work can be done by or on the system, i.e., the Reactor.
-    - Heat transfer: An arbitrary heat transfer rate can be defined to cross the boundaries of the reactor.
-    - Mass transfer: The reactor can have multiple inlets and outlets. For the inlets, arbitrary states can be defined. Through the outlets, fluid with the current state of the reactor exits the reactor.
-    - Surface interaction: One or multiple walls can influence the chemical reactions in the reactor. This is not just restricted to catalytic reactions, but mass transfer between the surface and the fluid can also be modeled.
+    - Expansion/compression work: By moving the walls of the reactor, its 
+volume can be changed and expansion or compression work can be done by or on 
+the system, i.e., the Reactor.
+    - Heat transfer: An arbitrary heat transfer rate can be defined to cross 
+the boundaries of the reactor.
+    - Mass transfer: The reactor can have multiple inlets and outlets. For the 
+inlets, arbitrary states can be defined. Through the outlets, fluid with the 
+current state of the reactor exits the reactor.
+    - Surface interaction: One or multiple walls can influence the chemical 
+reactions in the reactor. This is not just restricted to catalytic reactions, 
+but mass transfer between the surface and the fluid can also be modeled.
 
-All of these interactions do not have to be constant, but can vary as a function of time or state. For example, heat transfer can be described as a function of the temperature difference between the reactor and the environment, or the wall movement can be modeled depending on the pressure difference. Typically, interactions of the reactor with the environment are defined on one or multiple *walls*, *inlets*, and *outlets*.
+All of these interactions do not have to be constant, but can vary as a 
+function of time or state. For example, heat transfer can be described as a 
+function of the temperature difference between the reactor and the environment, 
+or the wall movement can be modeled depending on the pressure difference. 
+Typically, interactions of the reactor with the environment are defined on one 
+or multiple *walls*, *inlets*, and *outlets*.
 
 
-In addition to single reactors, Cantera is also able to interconnect reactors into a *Reactor Network*. Each reactor in a network may be connected so that the contents of one reactor flow into another. Reactors may also be in contact with one another or the environment via walls which move or conduct heat.
+In addition to single reactors, Cantera is also able to interconnect reactors 
+into a *Reactor Network*. Each reactor in a network may be connected so that 
+the contents of one reactor flow into another. Reactors may also be in contact 
+with one another or the environment via walls which move or conduct heat.
 
 
 Governing Equations for Single Reactors
@@ -27,12 +49,17 @@ Governing Equations for Single Reactors
 The state variables for Cantera's general reactor model are
 
     - `m`, the mass of the reactor's contents (in kg)
+    - `V`, the reactor volume (in m\ :sup:`3`) (not a state variable for 
+*Constant Pressure Reactor* and *Ideal Gas Constant Pressure Reactor*)
+    - A state variable describing the energy of the system, depending on the 
+configuration (see `Energy Conservation`_ for further explanation):
+        - General *Reactor*: `U`, the total internal energy of the reactors 
+contents (in J)
+        - *Constant Pressure Reactor*: `H`, the total enthalpy of the reactors 
+contents (in J)
+        - *Ideal Gas Reactor* and *Ideal Gas Constant Pressure Reactor*: `T`, 
+the temperature (in K)
     - `Y_k`, the mass fractions for each species (dimensionless)
-    - `V`, the reactor volume (in m\ :sup:`3`) (not a state variable for *Constant Pressure Reactor* and *Ideal Gas Constant Pressure Reactor*)
-    - A state variable describing the energy of the system, depending on the configuration (see `Energy Conservation`_ for further explanation):
-        - General *Reactor*: `U`, the total internal energy of the reactors contents (in J)
-        - *Constant Pressure Reactor*: `H`, the total enthalpy of the reactors contents (in J)
-        - *Ideal Gas Reactor* and *Ideal Gas Constant Pressure Reactor*: `T`, the temperature (in K)
 
 Mass Conservation
 -----------------
@@ -88,15 +115,19 @@ where `f_w = \pm 1` indicates the facing of the wall, `A_w` is the surface
 area of the wall, and `v_w(t)` is the velocity of the wall as a function of
 time.
 
-For *Constant Pressure Reactor* and *Ideal Gas Constant Pressure Reactor*, the volume is not a state variable, but instead takes on whatever value is consistent with holding the pressure constant.
+For *Constant Pressure Reactor* and *Ideal Gas Constant Pressure Reactor*, the 
+volume is not a state variable, but instead takes on whatever value is 
+consistent with holding the pressure constant.
 
 
 Energy Conservation
 -------------------
 
-The solution of the energy equation can be enabled or disabled by changing the ``energy_enabled`` flag. It is enabled by default.
+The solution of the energy equation can be enabled or disabled by changing the 
+``energy_enabled`` flag. It is enabled by default.
 
-The implemented formulation of the energy equation depends on which reactor model is used.
+The implemented formulation of the energy equation depends on which reactor 
+model is used.
 
 Standard Reactor
 ****************
@@ -135,7 +166,10 @@ Noting that `dp/dt = 0` and substituting into the energy equation yields:
 Ideal Gas Reactor
 *****************
 
-In case of the Ideal Gas Reactor Model, the reactor temperature `T` is used instead of the total internal energy `U` as a state variable. For an ideal gas, we can rewrite the total internal energy in terms of the mass fractions and temperature:
+In case of the Ideal Gas Reactor Model, the reactor temperature `T` is used 
+instead of the total internal energy `U` as a state variable. For an ideal gas, 
+we can rewrite the total internal energy in terms of the mass fractions and 
+temperature:
 
 .. math::
 
@@ -195,7 +229,9 @@ The total rate of heat transfer through all walls is:
 where `f_w = \pm 1` indicates the facing of the wall.
 
 In case of surface reactions, there is a net generation (or
-destruction) of homogeneous phase species at the wall. The molar rate of production for each species `k` on wall `w` is `\dot{s}_{k,w}` (in kmol/s/m\ :sup:`2`). The total (mass) production rate for species `k` on all walls is:
+destruction) of homogeneous phase species at the wall. The molar rate of 
+production for each species `k` on wall `w` is `\dot{s}_{k,w}` (in kmol/s/m\ 
+:sup:`2`). The total (mass) production rate for species `k` on all walls is:
 
 .. math::
 
@@ -212,51 +248,100 @@ each wall. The net mass flux from all walls is then:
 Reactor Networks and Devices
 ============================
 
-While reactors by themselves just define the above governing equations of the reactor, the time integration is performed in reactor networks. A reactor network is therefore necessary even if only a single reactor is considered.
+While reactors by themselves just define the above governing equations of the 
+reactor, the time integration is performed in reactor networks. A reactor 
+network is therefore necessary even if only a single reactor is considered.
 
-The advantage of reactor networks obviously is that multiple reactors can be interconnected. Not only mass flow from one reactor into another can be realized, but also heat can be transferred, or the wall between reactors can move. To set up a network, the following components can be defined in addition to the reactors previously mentioned:
+The advantage of reactor networks obviously is that multiple reactors can be 
+interconnected. Not only mass flow from one reactor into another can be 
+realized, but also heat can be transferred, or the wall between reactors can 
+move. To set up a network, the following components can be defined in addition 
+to the reactors previously mentioned:
 
-- **Reservoir**: A reservoir can be thought of as an infinitely large volume, in which all states are predefined and never change from their initial values. Typically, it represents a vessel to define temperature and composition of a stream of mass flowing into a reactor, or the ambient fluid surrounding the reactor network. Besides, the fluid flow finally finally exiting a reactor network has to flow into a reservoir. In the latter case, the state of the reservoir (except pressure) is irrelevant.
+- **Reservoir**: A reservoir can be thought of as an infinitely large volume, 
+in which all states are predefined and never change from their initial values. 
+Typically, it represents a vessel to define temperature and composition of a 
+stream of mass flowing into a reactor, or the ambient fluid surrounding the 
+reactor network. Besides, the fluid flow finally finally exiting a reactor 
+network has to flow into a reservoir. In the latter case, the state of the 
+reservoir (except pressure) is irrelevant.
 
-- **Wall**: A wall separates two reactors, or a reactor and a reservoir. A wall has a finite area, may conduct or radiate heat between the two reactors on either side, and may move like a piston.
+- **Wall**: A wall separates two reactors, or a reactor and a reservoir. A wall 
+has a finite area, may conduct or radiate heat between the two reactors on 
+either side, and may move like a piston.
 
- Walls are stateless objects in Cantera, meaning that no differential equation is integrated to determine any wall property. Since it is the wall (piston) velocity that enters the energy equation, this means that it is the velocity, not the acceleration or displacement, that is specified. The wall velocity is computed from
+ Walls are stateless objects in Cantera, meaning that no differential equation 
+is integrated to determine any wall property. Since it is the wall (piston) 
+velocity that enters the energy equation, this means that it is the velocity, 
+not the acceleration or displacement, that is specified. The wall velocity is 
+computed from
 
  .. math:: v = K(P_{\rm left} - P_{\rm right}) + v_0(t),
 
- where :math:`K` is a non-negative constant, and :math:`v_0(t)` is a specified function of time. The velocity is positive if the wall is moving to the right.
+ where :math:`K` is a non-negative constant, and :math:`v_0(t)` is a specified 
+function of time. The velocity is positive if the wall is moving to the right.
 
  The heat flux through the wall is computed from
 
- .. math:: q = U(T_{\rm left} - T_{\rm right}) + \epsilon\sigma (T_{\rm left}^4 - T_{\rm right}^4) + q_0(t),
+ .. math:: q = U(T_{\rm left} - T_{\rm right}) + \epsilon\sigma (T_{\rm left}^4 
+- T_{\rm right}^4) + q_0(t),
 
- where :math:`U` is the overall heat transfer coefficient for conduction/convection, and :math:`\epsilon` is the emissivity. The function :math:`q_0(t)` is a specified function of time. The heat flux is positive when heat flows from the reactor on the left to the reactor on the right.
+ where :math:`U` is the overall heat transfer coefficient for 
+conduction/convection, and :math:`\epsilon` is the emissivity. The function 
+:math:`q_0(t)` is a specified function of time. The heat flux is positive when 
+heat flows from the reactor on the left to the reactor on the right.
 
- A heterogeneous reaction mechanism may be specified for one or both of the wall surfaces. The mechanism object (typically an instance of class Interface) must be constructed so that it is properly linked to the object representing the fluid in the reactor the surface in question faces. The surface temperature on each side is taken to be equal to the temperature of the reactor it faces.
+ A heterogeneous reaction mechanism may be specified for one or both of the 
+wall surfaces. The mechanism object (typically an instance of class Interface) 
+must be constructed so that it is properly linked to the object representing 
+the fluid in the reactor the surface in question faces. The surface temperature 
+on each side is taken to be equal to the temperature of the reactor it faces.
 
- Source: `Python <cython/zerodim.html#wall>`_ | `C++ <../../doxygen/html/classCantera_1_1Wall.html>`_
+ Source: `Python <cython/zerodim.html#wall>`_ | `C++ 
+<../../doxygen/html/classCantera_1_1Wall.html>`_
 
-- **Valve**: A valve is a flow devices with mass flow rate that is a function of the pressure drop across it. The default behavior is linear:
+- **Valve**: A valve is a flow devices with mass flow rate that is a function 
+of the pressure drop across it. The default behavior is linear:
 
  .. math:: \dot m = K_v (P_1 - P_2)
 
- if :math:`P_1 > P_2.` Otherwise, :math:`\dot m = 0`. However, an arbitrary function can also be specified, such that
+ if :math:`P_1 > P_2.` Otherwise, :math:`\dot m = 0`. However, an arbitrary 
+function can also be specified, such that
 
  .. math:: \dot m = F(P_1 - P_2)
 
- if :math:`P_1 > P_2`, or :math:`\dot m = 0` otherwise. It is never possible for the flow to reverse and go from the downstream to the upstream reactor/reservoir through a line containing a Valve object.
+ if :math:`P_1 > P_2`, or :math:`\dot m = 0` otherwise. It is never possible 
+for the flow to reverse and go from the downstream to the upstream 
+reactor/reservoir through a line containing a Valve object.
 
- Valve objects are often used between an upstream reactor and a downstream reactor or reservoir to maintain them both at nearly the same pressure. By setting the constant :math:`K_v` to a sufficiently large value, very small pressure differences will result in flow between the reactors that counteracts the pressure difference.
+ Valve objects are often used between an upstream reactor and a downstream 
+reactor or reservoir to maintain them both at nearly the same pressure. By 
+setting the constant :math:`K_v` to a sufficiently large value, very small 
+pressure differences will result in flow between the reactors that counteracts 
+the pressure difference.
 
-- **Mass Flow Controller**: A mass flow controller maintains a specified mass flow rate independent of upstream and downstream conditions. The equation used to compute the mass flow rate is
+- **Mass Flow Controller**: A mass flow controller maintains a specified mass 
+flow rate independent of upstream and downstream conditions. The equation used 
+to compute the mass flow rate is
 
  .. math:: \dot m = \max(\dot m_0, 0.0)
 
- where :math:`\dot m_0` is either a constant value or a function of time. Note that if :math:`\dot m_0 < 0`, the mass flow rate will be set to zero, since reversal of the flow direction is not allowed.
+ where :math:`\dot m_0` is either a constant value or a function of time. Note 
+that if :math:`\dot m_0 < 0`, the mass flow rate will be set to zero, since 
+reversal of the flow direction is not allowed.
 
- Unlike a real mass flow controller, a MassFlowController object will maintain the flow even if the downstream pressure is greater than the upstream pressure. This allows simple implementation of loops, in which exhaust gas from a reactor is fed back into it through an inlet. But note that this capability should be used with caution, since no account is taken of the work required to do this.
+ Unlike a real mass flow controller, a MassFlowController object will maintain 
+the flow even if the downstream pressure is greater than the upstream pressure. 
+This allows simple implementation of loops, in which exhaust gas from a reactor 
+is fed back into it through an inlet. But note that this capability should be 
+used with caution, since no account is taken of the work required to do this.
 
-- **Pressure Controller**: A pressure controller is designed to be used in conjunction with another 'master' flow controller, typically a MassFlowController. The master flow controller is installed on the inlet of the reactor, and the corresponding PressureController is installed on on outlet of the reactor. The PressureController mass flow rate is equal to the master mass flow rate, plus a small correction dependent on the pressure difference:
+- **Pressure Controller**: A pressure controller is designed to be used in 
+conjunction with another 'master' flow controller, typically a 
+MassFlowController. The master flow controller is installed on the inlet of the 
+reactor, and the corresponding PressureController is installed on on outlet of 
+the reactor. The PressureController mass flow rate is equal to the master mass 
+flow rate, plus a small correction dependent on the pressure difference:
 
  .. math:: \dot m = \dot m_{\rm master} + K_v(P_1 - P_2).
 
@@ -264,17 +349,42 @@ The advantage of reactor networks obviously is that multiple reactors can be int
 Time Integration
 ----------------
 
-Cantera provides an ODE solver for solving the stiff equations of reacting systems. If installed in combination with SUNDIALS, their optimized solver is used. Starting off the current state of the system, it can be advanced in time by two methods:
+Cantera provides an ODE solver for solving the stiff equations of reacting 
+systems. If installed in combination with SUNDIALS, their optimized solver is 
+used. Starting off the current state of the system, it can be advanced in time 
+by two methods:
 
-- ``step()``: The step method computes the state of the system at the a priori unspecified time `t_{\rm new}`. The time `t_{\rm new}` is internally computed so that all states of the system only change within a (specifiable) band of absolute and relative tolerances. Additionally, the time step must not be larger than a predefined maximum time step `\Delta t_{\rm max}`. The new time `t_{\rm new}` is returned by this function.
+- ``step()``: The step method computes the state of the system at the a priori 
+unspecified time `t_{\rm new}`. The time `t_{\rm new}` is internally computed 
+so that all states of the system only change within a (specifiable) band of 
+absolute and relative tolerances. Additionally, the time step must not be 
+larger than a predefined maximum time step `\Delta t_{\rm max}`. The new time 
+`t_{\rm new}` is returned by this function.
 
-- ``advance``\ `(t_{\rm new})`: This method computes the state of the system at time `t_{\rm new}`, where `t_{\rm new}` describes the absolute time from the initial time of the system. By calling this method in a for loop for pre-defined times, the state of the system is obtained for exactly the times specified. Internally, several ``step()`` calls are typically performed to reach the accurate state at time `t_{\rm new}`.
+- ``advance``\ `(t_{\rm new})`: This method computes the state of the system at 
+time `t_{\rm new}`, where `t_{\rm new}` describes the absolute time from the 
+initial time of the system. By calling this method in a for loop for 
+pre-defined times, the state of the system is obtained for exactly the times 
+specified. Internally, several ``step()`` calls are typically performed to 
+reach the accurate state at time `t_{\rm new}`.
 
-The use of the ``advance`` method in a loop has the advantage that it produces results corresponding to a predefined time series. These are associated with a predefined memory consumption and well comparable between simulation runs with different parameters. However, some detail (e.g. a fast ignition process) might not be resolved in the output data due to the typically large time steps.
+The use of the ``advance`` method in a loop has the advantage that it produces 
+results corresponding to a predefined time series. These are associated with a 
+predefined memory consumption and well comparable between simulation runs with 
+different parameters. However, some detail (e.g. a fast ignition process) might 
+not be resolved in the output data due to the typically large time steps.
 
-The ``step`` method results in much more data points because of the small timesteps needed. Additionally, the absolute time has to be kept tracked of manually.
+The ``step`` method results in much more data points because of the small 
+timesteps needed. Additionally, the absolute time has to be kept tracked of 
+manually.
 
-Even though Cantera comes pre-defined with typical parameters for tolerances and the maximum internal time step, the solution sometimes diverges. This is typically due to a too large value of the maximum time step. By reducing this value, convergence can often be achieved. However, this results in larger computation times. When computing reactor networks with variable time scales, the time step can also be changed on the fly (see also example `ic_engine.py <cython/examples/reactors_ic_engine.html>`_.).
+Even though Cantera comes pre-defined with typical parameters for tolerances 
+and the maximum internal time step, the solution sometimes diverges. This is 
+typically due to a too large value of the maximum time step. By reducing this 
+value, convergence can often be achieved. However, this results in larger 
+computation times. When computing reactor networks with variable time scales, 
+the time step can also be changed on the fly (see also example `ic_engine.py 
+<cython/examples/reactors_ic_engine.html>`_.).
 
 
 Sensitivity Analysis
@@ -286,23 +396,35 @@ TBD
 General Usage in Cantera
 ========================
 
-In Cantera, the following steps are typically necessary to investigate a reactor network:
+In Cantera, the following steps are typically necessary to investigate a 
+reactor network:
 
-1. Define ``Solution`` objects for the fluids to be flowing through your reactor network.
+1. Define ``Solution`` objects for the fluids to be flowing through your 
+reactor network.
 
-2. Define the reactor type(s) and reservoir(s) that describe your system. Chose Ideal Gas (Constant Pressure) Reactor(s) if you only consider ideal gas phases.
+2. Define the reactor type(s) and reservoir(s) that describe your system. Chose 
+Ideal Gas (Constant Pressure) Reactor(s) if you only consider ideal gas phases.
 
-3. *Optional:* Set up the boundary conditions and flow devices between reactors or reservoirs.
+3. *Optional:* Set up the boundary conditions and flow devices between reactors 
+or reservoirs.
 
 4. Define a reactor network which contains all the reactors previously created.
 
-5. Advance the simulation in time, typically in a for- or while-loop. Note that only the current state is stored in Cantera by default. If you want to observe the transient states, you manually have to keep track of them.
+5. Advance the simulation in time, typically in a for- or while-loop. Note that 
+only the current state is stored in Cantera by default. If you want to observe 
+the transient states, you manually have to keep track of them.
 
 6. Analyze the data.
 
-Note that Cantera always solves a transient problem. If you are interested in steady-state conditions, you can run your simulation for a long time until the states are converged (see e.g. example `surf_pfr.py <cython/examples/reactors_surf_pfr.html>`_, `combustor.py <cython/examples/reactors_combustor.html>`_).
+Note that Cantera always solves a transient problem. If you are interested in 
+steady-state conditions, you can run your simulation for a long time until the 
+states are converged (see e.g. example `surf_pfr.py 
+<cython/examples/reactors_surf_pfr.html>`_, `combustor.py 
+<cython/examples/reactors_combustor.html>`_).
 
-Cantera comes with a broad variety of well-commented example scrips for reactor networks. Please refer to them for further information (`Python <cython/examples.html>`_, `Matlab <matlab/examples.html>`_).
+Cantera comes with a broad variety of well-commented example scrips for reactor 
+networks. Please refer to them for further information (`Python 
+<cython/examples.html>`_, `Matlab <matlab/examples.html>`_).
 
 
 Common Reactor Types and their Implementation in Cantera
@@ -312,35 +434,72 @@ Common Reactor Types and their Implementation in Cantera
 Batch Reactor at Constant Volume or at Constant Pressure
 --------------------------------------------------------
 
-If you are interested in how a homogeneous chemical composition changes in time when it is left to its own, a simple batch reactor can be used. Two versions are commonly considered: A rigid vessel with fixed volume but variable pressure, or a system idealized at constant pressure but varying volume.
+If you are interested in how a homogeneous chemical composition changes in time 
+when it is left to its own, a simple batch reactor can be used. Two versions 
+are commonly considered: A rigid vessel with fixed volume but variable 
+pressure, or a system idealized at constant pressure but varying volume.
 
-In Cantera, such a simulation can be performed very easily. The initial state of the solution can be specified by composition and a set of thermodynamic parameters (like temperature and pressure) as a standard Cantera solution object. Upon its base, a general (Ideal Gas) Reactor or an (Ideal Gas) Constant Pressure Reactor can be created, depending on if a constant volume or constant pressure batch reactor should be considered, respectively. The behavior of the solution in time can be simulated as a very simple Reactor Network containing only the formerly created reactor.
+In Cantera, such a simulation can be performed very easily. The initial state 
+of the solution can be specified by composition and a set of thermodynamic 
+parameters (like temperature and pressure) as a standard Cantera solution 
+object. Upon its base, a general (Ideal Gas) Reactor or an (Ideal Gas) Constant 
+Pressure Reactor can be created, depending on if a constant volume or constant 
+pressure batch reactor should be considered, respectively. The behavior of the 
+solution in time can be simulated as a very simple Reactor Network containing 
+only the formerly created reactor.
 
-An example for such a Batch Reactor is `reactor1.py <cython/examples/reactors_reactor1.html>`_.
+An example for such a Batch Reactor is `reactor1.py 
+<cython/examples/reactors_reactor1.html>`_.
 
 
 Continuously Stirred Tank Reactor
 ---------------------------------
 
-In literature, Continuously Stirred Tank Reactors (CSTR) are often used to perform basic computations like blowout limits in combustion systems. They are also often referred to as Well-Stirred Reactor (WSR), or Perfectly Stirred Reactor (PSR), or Longwell Reactor.
+A Continuously Stirred Tank Reactor (CSTR), also often referred to as 
+Well-Stirred Reactor (WSR), Perfectly Stirred Reactor (PSR), or Longwell 
+Reactor, is essentially a single Cantera reactor with an inlet, an outlet, and 
+constant volume. Therefore, the `Governing Equations for Single Reactors`_ 
+defined above apply accordingly.
 
-A CSTR assumes a confined volume in which the fluid is homogeneous at all points. A stream of reactants enter the confinement at a steady mass flow rate `\dot{m}`. The reactor is assumed to be steady. Therefore, the identical mass flow rate `\dot{m}` of products have to exit the confinement. The mass contained in the confinement `m` divided by the mass flow rate `\dot{m}` defines the mean residence time of the fluid in the confinement.
+Historically, CSTRs have often been considered to operate at steady state. In 
+this case, the mass flow rate `\dot{m}` is constant and equal at inlet and 
+outlet. The mass contained in the confinement `m` divided by `\dot{m}` defines 
+the mean residence time of the fluid in the confinement.
 
-The description is almost identical to the definition of a general Cantera reactor with a fixed volume. Therefore, the equations given in `Governing Equations for Single Reactors`_ apply, except that all unsteady terms are zero.
+At steady state, the time derivatives in the governing equations become zero, 
+and the system of ordinary differential equations can be reduced to a set of 
+coupled nonlinear algebraic equations. A Newton solver could be used to solve 
+this system of equations. However, a sophisticated implementation might be 
+required to account for the strong nonlinearities and the presence of multiple 
+solutions.
 
-Due to the assumption of a steady problem, the system of ordinary differential equations can be reduced to a set of coupled nonlinear algebraic equations. A Newton solver could be used to solve this system of equations. However, a sophisticated implementation might be required to account for stiffness.
+Cantera does not have such a Newton solver implemented. Instead, steady CSTRs 
+are simulated by considering a time-dependent constant volume reactor with 
+specified in- and outflow conditions. Starting off at an initial solution, the 
+reactor network containing this reactor is advanced in time until the state of 
+the solution is converged. An example for this procedure is `combustor.py 
+<cython/examples/reactors_combustor.html>`_.
 
-Cantera does not have such a Newton solver implemented. Instead, CSTR are simulated by considering a time-dependent constant volume reactor with specified in- and outflow conditions. Starting off at an initial solution, the reactor network containing this reactor is advanced in time until the state of the solution is converged. An example for this procedure is `combustor.py <cython/examples/reactors_combustor.html>`_.
-
-A problem can be the ignition of a CSTR: If the reactants are not reactive enough, the simulation can result in the trivial solution that inflow and outflow states are identical. To solve this problem, either the reactor can be initialized with a high temperature and/or radical concentration, or a reactive species like atomic hydrogen can be temporarily injected to start the reactions. See `combustor.py <cython/examples/reactors_combustor.html>`_ for an example.
+A problem can be the ignition of a CSTR: If the reactants are not reactive 
+enough, the simulation can result in the trivial solution that inflow and 
+outflow states are identical. To solve this problem, either the reactor can be 
+initialized with a high temperature and/or radical concentration, or a reactive 
+species like atomic hydrogen can be temporarily injected to start the 
+reactions. See `combustor.py <cython/examples/reactors_combustor.html>`_ for an 
+example.
 
 
 Plug-Flow Reactor
 -----------------
 
-A Plug-Flow Reactor (PFR) represents a steady-state channel with a cross-sectional area `A`. Typically an ideal gas flows through it at a constant mass flow rate `\dot{m}`. Perpendicular to the flow direction, the gas is considered to be completely homogeneous. In the axial direction `z`, the states of the gas is allowed to change. However, all diffusion processes are neglected.
+A Plug-Flow Reactor (PFR) represents a steady-state channel with a 
+cross-sectional area `A`. Typically an ideal gas flows through it at a constant 
+mass flow rate `\dot{m}`. Perpendicular to the flow direction, the gas is 
+considered to be completely homogeneous. In the axial direction `z`, the states 
+of the gas is allowed to change. However, all diffusion processes are neglected.
 
-Plug-Flow Reactors are often used to simulate ignition delay times, emission formation, and catalytic processes.
+Plug-Flow Reactors are often used to simulate ignition delay times, emission 
+formation, and catalytic processes.
 
 The governing equations of Plug-Flow Reactors are [KCG2003]_:
 
@@ -348,7 +507,8 @@ The governing equations of Plug-Flow Reactors are [KCG2003]_:
 
  .. math:: \frac{d(\rho u A)}{dz} =  P' \sum_k \dot{s}_k W_k
 
- where `u` is the axial velocity in (m/s) and `P'` is the chemically active channel perimeter in (m) (chemically active perimeter per unit length).
+ where `u` is the axial velocity in (m/s) and `P'` is the chemically active 
+channel perimeter in (m) (chemically active perimeter per unit length).
 
 - Continuity equation of species `k`:
 
@@ -362,42 +522,77 @@ The governing equations of Plug-Flow Reactors are [KCG2003]_:
      - P' \sum_k h_k \dot{s}_k W_k
      + U P (T_w - T)
 
- where `U` is the heat transfer coefficient in (W/m/K), `P` is the perimeter of the duct in (m), and `T_w` is the wall temperature in (K). Kinetic and potential energies are neglected.
+ where `U` is the heat transfer coefficient in (W/m/K), `P` is the perimeter of 
+the duct in (m), and `T_w` is the wall temperature in (K). Kinetic and 
+potential energies are neglected.
 
 - Momentum conservation in the axial direction:
 
  .. math:: \rho u A \frac{d u}{d z} + u P' \sum_k \dot{s}_k W_k =
      - \frac{d (p A)}{dz} - \tau_w P
 
- where `\tau_w` is the wall friction coefficient (which might be computed from Reynolds number based correlations).
+ where `\tau_w` is the wall friction coefficient (which might be computed from 
+Reynolds number based correlations).
 
-Even though this problem extends geometrically in one direction, it can be modeled via zero-dimensional reactors: Due to the neglecting of diffusion, downstream parts of the reactor have no influence on upstream parts. Therefore, PFRs can be modeled by marching from the beginning to the end of the reactor.
+Even though this problem extends geometrically in one direction, it can be 
+modeled via zero-dimensional reactors: Due to the neglecting of diffusion, 
+downstream parts of the reactor have no influence on upstream parts. Therefore, 
+PFRs can be modeled by marching from the beginning to the end of the reactor.
 
-Cantera does not (yet) provide dedicated class to solve the PFR equations (The ``FlowReactor`` class is currently under development). However, there are two ways to simulate a PFR with the reactor elements previously presented. Both rely on the assumption that pressure is approximately constant throughout the Plug-Flow Reactor and that there is no friction. The momentum conservation equation is thus neglected.
-
-
-PFR Modeling as a Series of CSTRs
-*********************************
-
-The Plug-Flow Reactor is spatially discretized into a large number of axially distributed volumes. These volumes are modeled to be steady-state CSTRs.
-
-In cantera, it is sufficient to consider a single reactor and march it forward in time, because there is no information traveling upstream. The mass flow rate `\dot{m}` through the PFR enters the reactor from an upstream reservoir. For the first reactor, the reservoir conditions are the inflow boundary conditions of the PFR. By performing a time integration as described in `Continuously Stirred Tank Reactor`_ until the state of the reactor is converged, the steady-state CSTR solution is computed. The state of the CSTR is the inlet boundary condition for the next CSTR downstream.
-
-An example for this procedure can be found in `pfr.py <cython/examples/reactors_pfr.html>`_ and `surf_pfr.py <cython/examples/reactors_surf_pfr.html>`_.
+Cantera does not (yet) provide dedicated class to solve the PFR equations (The 
+``FlowReactor`` class is currently under development). However, there are two 
+ways to simulate a PFR with the reactor elements previously presented. Both 
+rely on the assumption that pressure is approximately constant throughout the 
+Plug-Flow Reactor and that there is no friction. The momentum conservation 
+equation is thus neglected.
 
 
 PFR Modeling by Considering a Lagrangian Reactor
 ************************************************
 
-A Plug-Flow Reactor can also be described from a Lagrangian point of view: An unsteady fluid particle is considered which travels along the axial streamline through the PFR. Since there is no information traveling upstream, the state change of the fluid particle can be computed by a forward (upwind) integration in time. Using the continuity equation, the speed of the particle can be derived. By integrating the velocity in time, the temporal information can be translated into the spatial resolution of the PFR.
+A Plug-Flow Reactor can also be described from a Lagrangian point of view: An 
+unsteady fluid particle is considered which travels along the axial streamline 
+through the PFR. Since there is no information traveling upstream, the state 
+change of the fluid particle can be computed by a forward (upwind) integration 
+in time. Using the continuity equation, the speed of the particle can be 
+derived. By integrating the velocity in time, the temporal information can be 
+translated into the spatial resolution of the PFR.
 
-An example for this procedure can be found in `pfr.py <cython/examples/reactors_pfr.html>`_.
+An example for this procedure can be found in `pfr.py 
+<cython/examples/reactors_pfr.html>`_.
+
+
+PFR Modeling as a Series of CSTRs
+*********************************
+
+The Plug-Flow Reactor is spatially discretized into a large number of axially 
+distributed volumes. These volumes are modeled to be steady-state CSTRs.
+
+The only reason to use this approach as opposed to the Lagrangian one is if you 
+need to include surface reactions, because the system of equations ends up 
+being a DAE system instead of an ODE system.
+
+In Cantera, it is sufficient to consider a single reactor and march it forward 
+in time, because there is no information traveling upstream. The mass flow rate 
+`\dot{m}` through the PFR enters the reactor from an upstream reservoir. For 
+the first reactor, the reservoir conditions are the inflow boundary conditions 
+of the PFR. By performing a time integration as described in `Continuously 
+Stirred Tank Reactor`_ until the state of the reactor is converged, the 
+steady-state CSTR solution is computed. The state of the CSTR is the inlet 
+boundary condition for the next CSTR downstream.
+
+An example for this procedure can be found in `pfr.py 
+<cython/examples/reactors_pfr.html>`_ and `surf_pfr.py 
+<cython/examples/reactors_surf_pfr.html>`_.
 
 
 Advanced Concepts
 =================
 
-In some cases, Cantera's solver is insufficient to describe a certain configuration. In this situation, Cantera can still be used to provide chemical and thermodynamic computations, but external ODE solvers can be applied. See example `custom.py <cython/examples/reactors_custom.html>`_.
+In some cases, Cantera's solver is insufficient to describe a certain 
+configuration. In this situation, Cantera can still be used to provide chemical 
+and thermodynamic computations, but external ODE solvers can be applied. See 
+example `custom.py <cython/examples/reactors_custom.html>`_.
 
 
 Literature
@@ -405,6 +600,8 @@ Literature
 
 For further reading, the following books are recommended:
 
-.. [KCG2003] Kee, Coltrin, Glarborg: *Chemically Reacting Flow*. Wiley-Interscience, 2003
+.. [KCG2003] Kee, Coltrin, Glarborg: *Chemically Reacting Flow*. 
+Wiley-Interscience, 2003
 
-.. [Tur2000] Turns: *An Introduction to Combustion: Concepts and Applications*, McGraw Hill, 2000
+.. [Tur2000] Turns: *An Introduction to Combustion: Concepts and Applications*, 
+McGraw Hill, 2000

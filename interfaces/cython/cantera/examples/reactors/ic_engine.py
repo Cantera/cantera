@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Simulation of a (gaseous) Diesel internal combustion engine.
+Simulation of a (gaseous) Diesel-type internal combustion engine.
 
-The reaction mechanism used is the Madison n-heptane reaction mechansim. It
-can be downloaded from https://www.erc.wisc.edu/chemicalreaction.php
-(Caution: use uppercase species names!)
+The use of pure propane as fuel requires an unrealistically high compression
+ratio.
 
-@author: Thomas Fiala, Lehrstuhl für Thermodynamik, TU München
 """
 
 import cantera as ct
@@ -18,7 +16,7 @@ import numpy as np
 
 f = 3000. / 60.  # engine speed [1/s] (3000 rpm)
 V_H = .5e-3  # displaced volume [m**3]
-epsilon = 17.  # compression ratio [-]
+epsilon = 50.  # compression ratio [-]
 d_piston = 0.083  # piston diameter [m]
 
 # turbocharger temperature, pressure, and composition
@@ -32,7 +30,7 @@ p_outlet = 1.2e5  # Pa
 # fuel properties (gaseous!)
 T_injector = 300.  # K
 p_injector = 1600e5  # Pa
-comp_injector = 'NC7H16:1'
+comp_injector = 'C3H8:1'
 
 # ambient properties
 T_ambient = 300.  # K
@@ -42,7 +40,7 @@ comp_ambient = 'O2:1, N2:3.76'
 # Reaction mechanism name
 # Madison n-heptane reaction mechansim (uppercase species names)
 # from: https://www.erc.wisc.edu/chemicalreaction.php
-reaction_mechanism = 'madison.xml'
+reaction_mechanism = 'gri30.xml'
 
 # Inlet valve friction coefficient, open and close timings
 inlet_valve_coeff = 1.e-6
@@ -57,7 +55,7 @@ outlet_close = 18. / 180. * np.pi
 # Fuel mass, injector open and close timings
 injector_open = 350. / 180. * np.pi
 injector_close = 365. / 180. * np.pi
-injector_mass = 2.5e-5  # kg
+injector_mass = 3.2e-5  # kg
 injector_t_open = (injector_close - injector_open) / 2. / np.pi / f
 
 # Simulation time and resolution
@@ -67,15 +65,7 @@ sim_n_timesteps = 100000.
 ###################################################################
 
 # load Madison reaction mechanism
-try:
-    gas = ct.Solution(reaction_mechanism)
-except RuntimeError as e:
-    print(e.message)
-    print('The Madison n-heptane mechanism can be downloaded from:\n' +
-          'https://www.erc.wisc.edu/chemicalreaction.php\n\n' +
-          '**************************************************************' +
-          '*********\n')
-    raise
+gas = ct.Solution(reaction_mechanism)
 
 # define initial state
 gas.TPX = T_inlet, p_inlet, comp_inlet
@@ -246,7 +236,8 @@ plt.figure()
 plt.clf()
 plt.plot(t, species_X[:, gas.species_index('O2')], label='O2')
 plt.plot(t, species_X[:, gas.species_index('CO2')], label='CO2')
-plt.plot(t, species_X[:, gas.species_index('NC7H16')] * 10, label='NC7H16 x10')
+plt.plot(t, species_X[:, gas.species_index('CO')], label='CO')
+plt.plot(t, species_X[:, gas.species_index('C3H8')] * 10, label='C3H9 x10')
 plt.legend(loc=0)
 plt.ylabel('$X_i$ [-]')
 plt.xlabel('$\phi$ [deg]')
