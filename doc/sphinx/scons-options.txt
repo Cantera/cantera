@@ -1,5 +1,3 @@
-scons: Reading SConscript files ...
-
         **************************************************
         *   Configuration options for building Cantera   *
         **************************************************
@@ -9,11 +7,10 @@ build process. They should be given in the form:
 
     scons build option1=value1 option2=value2
 
-Variables set in this way will be stored in the 'cantera.conf' file
-and reused automatically on subsequent invocations of
-scons. Alternatively, the configuration options can be entered
-directly into 'cantera.conf' before running 'scons build'. The format
-of this file is:
+Variables set in this way will be stored in the 'cantera.conf' file and reused
+automatically on subsequent invocations of scons. Alternatively, the
+configuration options can be entered directly into 'cantera.conf' before
+running 'scons build'. The format of this file is:
 
     option1 = 'value1'
     option2 = 'value2'
@@ -21,13 +18,15 @@ of this file is:
         **************************************************
 
 * msvc_version: [ string ]
-    Version of Visual Studio to use. The default is the same version
-    that was used to compile the installed version of Python.
-    - default: '9.0'
+    Version of Visual Studio to use. The default is the newest installed
+    version. Specify '9.0' for Visual Studio 2008; '10.0' for Visual
+    Studio 2010; '11.0' for Visual Studio 2012; or '12.0' for Visual
+    Studio 2013.
+    - default: ''
 
 * target_arch: [ string ]
     Target architecture. The default is the same architecture as the
-    installed version of Python
+    installed version of Python.
     - default: 'amd64'
 
 * toolchain: [ msvc | mingw | intel ]
@@ -36,16 +35,15 @@ of this file is:
 
 * CXX: [ string ]
     The C++ compiler to use.
-    - default: 'g++'
+    - default: '$CC'
 
 * CC: [ string ]
-    The C compiler to use. This is only used to compile CVODE and the
-    Python extension module.
-    - default: 'gcc'
+    The C compiler to use. This is only used to compile CVODE.
+    - default: 'cl'
 
 * prefix: [ /path/to/prefix ]
     Set this to the directory where Cantera should be installed.
-    - default: '/usr/local'
+    - default: 'C:\\Program Files\\Cantera'
 
 * python_package: [ new | full | minimal | none | default ]
     If you plan to work in Python, or you want to use the graphical
@@ -53,7 +51,7 @@ of this file is:
     Package. If, on the other hand, you will only use Cantera from some
     other language (e.g. MATLAB or Fortran 90/95) and only need Python
     to process .cti files, then you only need a 'minimal' subset of the
-    package (actually, only one file). The default behavior is to build
+    package (actually, only two files). The default behavior is to build
     the Python package if the required prerequisites (numpy) are
     installed.
     - default: 'default'
@@ -62,7 +60,7 @@ of this file is:
     Cantera needs to know where to find the Python interpreter. If
     PYTHON_CMD is not set, then the configuration process will use the
     same Python interpreter being used by SCons.
-    - default: '/usr/bin/python'
+    - default: 'c:\\Python27\\python.exe'
 
 * python_array_home: [ /path/to/python_array_home ]
     If numpy was installed using the --home option, set this to the home
@@ -74,13 +72,14 @@ of this file is:
     an alternate location. On Unix-like systems, the default is the same
     as the $prefix option. If this option is set to the empty string
     (the default on Windows), then the Package will be installed to the
-    system default 'site-packages' directory.
-    - default: '$prefix'
+    system default 'site-packages' directory. To install to the current
+    user's site-packages directory, use 'python_prefix=USER'.
+    - default: ''
 
 * python3_package: [ y | n | default ]
     Controls whether or not the Python 3 module will be built. By
     default, the module will be built if the Python 3 interpreter can be
-    found
+    found.
     - default: 'default'
 
 * python3_cmd: [ /path/to/python3_cmd ]
@@ -90,7 +89,7 @@ of this file is:
 
 * python3_array_home: [ /path/to/python3_array_home ]
     "If numpy was installed to a custom location (e.g. using the --home
-    option, set this to the directory for numpy
+    option, set this to the directory for numpy.
     - default: ''
 
 * python3_prefix: [ /path/to/python3_prefix ]
@@ -98,8 +97,9 @@ of this file is:
     to an alternate location. On Unix-like systems, the default is the
     same as the $prefix option. If this option is set to the empty
     string (the default on Windows), then the Package will be installed
-    to the system default 'site-packages' directory.
-    - default: '$prefix'
+    to the system default 'site-packages' directory. To install to the
+    current user's site-packages directory, use 'python3_prefix=USER'.
+    - default: ''
 
 * matlab_toolbox: [ y | n | default ]
     This variable controls whether the Matlab toolbox will be built. If
@@ -123,13 +123,13 @@ of this file is:
     if one is found.
     - default: 'default'
 
-* F90: [ /path/to/F90 ]
-    The Fortran 90 compiler. If unspecified, the builder will look for a
-    compatible compiler (gfortran, ifort, g95) in the $PATH.
+* FORTRAN: [ /path/to/FORTRAN ]
+    The Fortran (90) compiler. If unspecified, the builder will look for
+    a compatible compiler (gfortran, ifort, g95) in the $PATH.
     - default: ''
 
-* F90FLAGS: [ string ]
-    Compilation options for the Fortran 90 compiler.
+* FORTRANFLAGS: [ string ]
+    Compilation options for the Fortran (90) compiler.
     - default: '-O3'
 
 * debug_verbose: [ yes | no ]
@@ -143,32 +143,16 @@ of this file is:
     - default: 'no'
 
 * doxygen_docs: [ yes | no ]
-    Build HTML documentation for the C++ interface using Doxygen
+    Build HTML documentation for the C++ interface using Doxygen.
     - default: 'no'
 
 * sphinx_docs: [ yes | no ]
-    Build HTML documentation for the Python module using Sphinx
+    Build HTML documentation for the Python module using Sphinx.
     - default: 'no'
 
-* with_lattice_solid: [ yes | no ]
-    Include thermodynamic model for lattice solids in the Cantera
-    kernel.
-    - default: 'yes'
 * sphinx_cmd: [ /path/to/sphinx_cmd ]
-    Command to use for building the Sphinx documentation
+    Command to use for building the Sphinx documentation.
     - default: 'sphinx-build'
-
-* with_h298modify_capability: [ yes | no ]
-    Enable changing the 298K heats of formation directly via the C++
-    layer.
-    - default: 'no'
-
-* with_html_log_files: [ yes | no ]
-    write HTML log files. Some multiphase equilibrium procedures can
-    write copious diagnostic log messages. Set this to 'n' to disable
-    this capability. (results in slightly faster equilibrium
-    calculations)
-    - default: 'yes'
 
 * use_sundials: [ default | y | n ]
     Cantera uses the CVODE or CVODES ODE integrator to time-integrate
@@ -182,8 +166,9 @@ of this file is:
     will be used if you have it, and if not the older CVODE will be
     used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
     Note that sensitivity analysis with Cantera requires use of
-    sundials. See: http://www.llnl.gov/CASC/sundials
+    sundials. See: http://www.llnl.gov/CASC/sundials.
     - default: 'default'
+    - actual: 'y'
 
 * sundials_include: [ /path/to/sundials_include ]
     The directory where the Sundials header files are installed. This
@@ -197,6 +182,16 @@ of this file is:
     needed if the libraries are installed in a standard location, e.g.
     /usr/lib.
     - default: ''
+
+* sundials_license: [ /path/to/sundials_license ]
+    Path to the sundials LICENSE file. Needed so that it can be included
+    when bundling Sundials.
+    - default: ''
+
+* install_sundials: [ yes | no ]
+    Determines whether Sundials library and header files are installed
+    alongside Cantera. Intended for use when installing on Windows.
+    - default: 'yes'
 
 * blas_lapack_libs: [ string ]
     Cantera comes with Fortran (or C) versions of those parts of BLAS
@@ -226,37 +221,37 @@ of this file is:
 * env_vars: [ string ]
     Environment variables to propagate through to SCons. Either the
     string "all" or a comma separated list of variable names, e.g.
-    'LD_LIBRARY_PATH,HOME'
-    - default: ''
+    'LD_LIBRARY_PATH,HOME'.
+    - default: 'LD_LIBRARY_PATH,PYTHONPATH'
 
 * cxx_flags: [ string ]
     Compiler flags passed to the C++ compiler only.
-    - default: '-ftemplate-depth-128'
+    - default: '/EHsc'
 
 * cc_flags: [ string ]
     Compiler flags passed to both the C and C++ compilers, regardless of
     optimization level
-    - default: '-Wall -Wno-deprecated-declarations'
+    - default: '/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS'
 
 * thread_flags: [ string ]
-    Compiler and linker flags for POSIX multithreading support
-    - default: '-pthread'
+    Compiler and linker flags for POSIX multithreading support.
+    - default: ''
 
 * optimize: [ yes | no ]
     Enable extra compiler optimizations specified by the
     "optimize_flags" variable, instead of the flags specified by the
-    "debug_flags" variable
+    "debug_flags" variable.
     - default: 'yes'
 
 * optimize_flags: [ string ]
     Additional compiler flags passed to the C/C++ compiler when
     optimize=yes.
-    - default: '-O3 -DNDEBUG -finline-functions -Wno-inline'
+    - default: '/O2'
 
 * no_optimize_flags: [ string ]
     Additional compiler flags passed to the C/C++ compiler when
     optimize=no.
-    - default: '-O0 -fno-inline'
+    - default: '/Od /Ob0'
 
 * debug: [ yes | no ]
     Enable compiler debugging symbols.
@@ -265,7 +260,8 @@ of this file is:
 * debug_flags: [ string ]
     Additional compiler flags passed to the C/C++ compiler when
     debug=yes.
-    - default: '-g'
+    - default: '/Zi /Fd${TARGET}.pdb'
+    - actual: '/Zi /Fd.pdb'
 
 * no_debug_flags: [ string ]
     Additional compiler flags passed to the C/C++ compiler when
@@ -273,11 +269,27 @@ of this file is:
     - default: ''
 
 * debug_linker_flags: [ string ]
-    Additional options passed to the linker when debug=yes
-    - default: ''
+    Additional options passed to the linker when debug=yes.
+    - default: '/DEBUG'
 
 * no_debug_linker_flags: [ string ]
-    Additional options passed to the linker when debug=yes
+    Additional options passed to the linker when debug=no.
+    - default: ''
+
+* warning_flags: [ string ]
+    Additional compiler flags passed to the C/C++ compiler to enable
+    extra warnings. Used only when compiling source code that part of
+    Cantera (e.g. excluding code in the 'ext' directory).
+    - default: '/W3'
+
+* extra_inc_dirs: [ string ]
+    Additional directories to search for header files (colon-separated
+    list).
+    - default: ''
+
+* extra_lib_dirs: [ string ]
+    Additional directories to search for libraries (colon-separated
+    list).
     - default: ''
 
 * build_thread_safe: [ yes | no ]
@@ -289,16 +301,23 @@ of this file is:
     - default: 'no'
 
 * boost_inc_dir: [ /path/to/boost_inc_dir ]
-    Location of the Boost header files
-    - default: '/usr/include'
+    Location of the Boost header files.
+    - default: ''
 
 * boost_lib_dir: [ /path/to/boost_lib_dir ]
-    Directory containing the Boost.Thread library
-    - default: '/usr/lib'
+    Directory containing the Boost.Thread library.
+    - default: ''
 
 * boost_thread_lib: [ string ]
-    The name of the Boost.Thread library.
-    - default: 'boost_thread'
+    A comma-separated list containing the names of the libraries needed
+    to link to Boost.Thread.
+    - default: ''
+
+* boost_windows_libs: [ string ]
+    Comma-separated list containing the names of the Boost libraries
+    required to link Cantera programs on Windows. These libraries will
+    be copied to the Cantera installation directory.
+    - default: 'thread,system,date_time,chrono'
 
 * build_with_f2c: [ yes | no ]
     For external procedures written in Fortran 77, both the original F77
@@ -309,7 +328,7 @@ of this file is:
 
 * F77: [ string ]
     Compiler used to build the external Fortran 77 procedures from the
-    Fortran source code
+    Fortran source code.
     - default: 'gfortran'
 
 * F77FLAGS: [ string ]
@@ -325,6 +344,29 @@ of this file is:
     of installing into the local filesystem.
     - default: ''
 
+* VERBOSE: [ yes | no ]
+    Create verbose output about what scons is doing.
+    - default: 'no'
+
+* renamed_shared_libraries: [ yes | no ]
+    If this option is turned on, the shared libraries that are created
+    will be renamed to have a "_shared" extension added to their base
+    name. If not, the base names will be the same as the static
+    libraries. In some cases this simplifies subsequent linking
+    environments with static libraries and avoids a bug with using
+    valgrind with the -static linking flag.
+    - default: 'yes'
+
+* layout: [ standard | compact | debian ]
+    The layout of the directory structure. 'standard' installs files to
+    several subdirectories under 'prefix', e.g. $prefix/bin,
+    $prefix/include/cantera, $prefix/lib. This layout is best used in
+    conjunction with 'prefix'='/usr/local'. 'compact' puts all installed
+    files in the subdirectory define by 'prefix'. This layout is best
+    for with a prefix like '/opt/cantera'. 'debian' installs to the
+    stage directory in a layout used for generating Debian packages.
+    - default: 'compact'
+
 * cantera_version: [ string ]
-    - default: '2.0.0b1'
+    - default: '2.2.0'
 
