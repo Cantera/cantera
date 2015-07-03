@@ -362,11 +362,11 @@ larger than a predefined maximum time step `\Delta t_{\rm max}`. The new time
 `t_{\rm new}` is returned by this function.
 
 - ``advance``\ `(t_{\rm new})`: This method computes the state of the system at 
-time `t_{\rm new}`, where `t_{\rm new}` describes the absolute time from the 
-initial time of the system. By calling this method in a for loop for 
-pre-defined times, the state of the system is obtained for exactly the times 
-specified. Internally, several ``step()`` calls are typically performed to 
-reach the accurate state at time `t_{\rm new}`.
+time `t_{\rm new}`. `t_{\rm new}` describes the absolute time from the initial 
+time of the system. By calling this method in a for loop for pre-defined times, 
+the state of the system is obtained for exactly the times specified. 
+Internally, several ``step()`` calls are typically performed to reach the 
+accurate state at time `t_{\rm new}`.
 
 The use of the ``advance`` method in a loop has the advantage that it produces 
 results corresponding to a predefined time series. These are associated with a 
@@ -379,12 +379,12 @@ timesteps needed. Additionally, the absolute time has to be kept tracked of
 manually.
 
 Even though Cantera comes pre-defined with typical parameters for tolerances 
-and the maximum internal time step, the solution sometimes diverges. This is 
-typically due to a too large value of the maximum time step. By reducing this 
-value, convergence can often be achieved. However, this results in larger 
-computation times. When computing reactor networks with variable time scales, 
-the time step can also be changed on the fly (see also example `ic_engine.py 
-<cython/examples/reactors_ic_engine.html>`_.).
+and the maximum internal time step, the solution sometimes diverges. To solve 
+this problem, three parameters can be tuned: The absolute time stepping 
+tolerances, the relative time stepping tolerances, and the maximum time step. A 
+reduction of the latter value is particularly useful when dealing with abrupt 
+changes in the boundary conditions (e.g. opening/closing valves, see also 
+example `ic_engine.py <cython/examples/reactors_ic_engine.html>`_).
 
 
 Sensitivity Analysis
@@ -461,10 +461,10 @@ Reactor, is essentially a single Cantera reactor with an inlet, an outlet, and
 constant volume. Therefore, the `Governing Equations for Single Reactors`_ 
 defined above apply accordingly.
 
-Historically, CSTRs have often been considered to operate at steady state. In 
-this case, the mass flow rate `\dot{m}` is constant and equal at inlet and 
-outlet. The mass contained in the confinement `m` divided by `\dot{m}` defines 
-the mean residence time of the fluid in the confinement.
+Steady state solutions to CSTRs are often of interest. In this case, the mass 
+flow rate `\dot{m}` is constant and equal at inlet and outlet. The mass 
+contained in the confinement `m` divided by `\dot{m}` defines the mean 
+residence time of the fluid in the confinement.
 
 At steady state, the time derivatives in the governing equations become zero, 
 and the system of ordinary differential equations can be reduced to a set of 
@@ -482,11 +482,10 @@ the solution is converged. An example for this procedure is `combustor.py
 
 A problem can be the ignition of a CSTR: If the reactants are not reactive 
 enough, the simulation can result in the trivial solution that inflow and 
-outflow states are identical. To solve this problem, either the reactor can be 
-initialized with a high temperature and/or radical concentration, or a reactive 
-species like atomic hydrogen can be temporarily injected to start the 
-reactions. See `combustor.py <cython/examples/reactors_combustor.html>`_ for an 
-example.
+outflow states are identical. To solve this problem, the reactor can be 
+initialized with a high temperature and/or radical concentration. A good 
+approach is to use the equilibrium composition of the reactants (which can be 
+computed using Cantera's ``equilibrate`` function) as an initial guess.
 
 
 Plug-Flow Reactor

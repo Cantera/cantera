@@ -38,8 +38,6 @@ p_ambient = 1e5  # Pa
 comp_ambient = 'O2:1, N2:3.76'
 
 # Reaction mechanism name
-# Madison n-heptane reaction mechansim (uppercase species names)
-# from: https://www.erc.wisc.edu/chemicalreaction.php
 reaction_mechanism = 'gri30.xml'
 
 # Inlet valve friction coefficient, open and close timings
@@ -64,7 +62,7 @@ sim_n_timesteps = 100000.
 
 ###################################################################
 
-# load Madison reaction mechanism
+# load reaction mechanism
 gas = ct.Solution(reaction_mechanism)
 
 # define initial state
@@ -152,8 +150,7 @@ for n1, t_i in enumerate(t):
             raise 'Error: Refinement limit reached'
         try:
             sim.advance(t_i)
-            continue
-        except:
+        except Exception:
             sim.set_max_time_step(1e-6 * 10. ** -n2)
             n_last_refinement = n1
     # coarsen time step if too long ago
@@ -237,7 +234,7 @@ plt.clf()
 plt.plot(t, species_X[:, gas.species_index('O2')], label='O2')
 plt.plot(t, species_X[:, gas.species_index('CO2')], label='CO2')
 plt.plot(t, species_X[:, gas.species_index('CO')], label='CO')
-plt.plot(t, species_X[:, gas.species_index('C3H8')] * 10, label='C3H9 x10')
+plt.plot(t, species_X[:, gas.species_index('C3H8')] * 10, label='C3H8 x10')
 plt.legend(loc=0)
 plt.ylabel('$X_i$ [-]')
 plt.xlabel('$\phi$ [deg]')
