@@ -887,6 +887,7 @@ cdef class ThermoPhase(_SolutionBase):
                                     V / self._mass_factor())
 
     property DP:
+        """Get/Set density [kg/m^3] and pressure [Pa]."""
         def __get__(self):
             return self.density, self.P
         def __set__(self, values):
@@ -896,6 +897,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_RP(D*self._mass_factor(), P)
 
     property DPX:
+        """Get/Set density [kg/m^3], pressure [Pa], and mole fractions."""
         def __get__(self):
             return self.density, self.P, self.X
         def __set__(self, values):
@@ -906,6 +908,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_RP(D*self._mass_factor(), P)
 
     property DPY:
+        """Get/Set density [kg/m^3], pressure [Pa], and mass fractions."""
         def __get__(self):
             return self.density, self.P, self.Y
         def __set__(self, values):
