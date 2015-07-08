@@ -167,6 +167,10 @@ public:
         if (!m_init) {
             initialize();
         }
+        if (p >= m_sensIndex.size()) {
+            throw IndexError("ReactorNet::sensitivity",
+                             "m_sensIndex", p, m_sensIndex.size()-1);
+        }
         return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
     }
 
