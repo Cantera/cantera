@@ -353,6 +353,19 @@ class TestFreeFlame(utilities.CanteraTest):
             k1 = gas1.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
 
+    def test_write_csv(self):
+        filename = 'onedim-write_csv{0}.csv'.format(utilities.python_version)
+        if os.path.exists(filename):
+            os.remove(filename)
+
+        self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech='h2o2.xml')
+        self.sim.write_csv(filename)
+        data = np.genfromtxt(filename, delimiter=',', skiprows=1)
+        self.assertArrayNear(data[:,0], self.sim.grid)
+        self.assertArrayNear(data[:,3], self.sim.T)
+        k = self.gas.species_index('H2')
+        self.assertArrayNear(data[:,5+k], self.sim.X[k,:])
+
     def test_refine_criteria_boundscheck(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
         good = [3.0, 0.1, 0.2, 0.05]
