@@ -1,5 +1,6 @@
 import numpy as np
 from ._cantera import *
+import csv as _csv
 
 try:
     # Python 2.7 or 3.2+
@@ -265,7 +266,7 @@ class FlameBase(Sim1D):
         V = self.V
 
         csvfile = open(filename, 'w')
-        writer = csv.writer(csvfile)
+        writer = _csv.writer(csvfile)
         writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)',
                          'T (K)', 'rho (kg/m3)'] + self.gas.species_names)
         for n in range(self.flame.n_points):
