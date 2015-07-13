@@ -150,7 +150,7 @@ private:
 ////////////////////// Convenience functions ////////////////////
 //
 //  These functions allow using a different factory class that
-//  derives from SpeciesThermoFactory.
+//  derives from VPSSMgrFactory.
 //
 //////////////////////////////////////////////////////////////////
 
@@ -163,12 +163,12 @@ private:
  * and return the proper species property manager to use.
  *
  *  These functions allow using a different factory class that
- *  derives from SpeciesThermoFactory.
+ *  derives from VPSSMgrFactory.
  *
  * @param type         Species thermo type.
  * @param vp_ptr       Variable pressure standard state ThermoPhase object
  *                     that will be the owner.
- * @param f            Pointer to a SpeciesThermoFactory. optional parameter.
+ * @param f            Pointer to a VPSSMgrFactory. optional parameter.
  *                     Defaults to NULL.
  */
 VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
@@ -181,14 +181,14 @@ VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
  * and return the proper species property manager to use.
  *
  *  These functions allow using a different factory class that
- *  derives from SpeciesThermoFactory.
+ *  derives from VPSSMgrFactory.
  *
  * @param vp_ptr         Variable pressure standard state ThermoPhase object
  *                       that will be the owner.
  * @param phaseNode_ptr  Pointer to the ThermoPhase phase XML Node
  * @param spDataNodeList This vector contains a list
  *                       of species XML nodes that will be in the phase
- * @param f              Pointer to a SpeciesThermoFactory. optional
+ * @param f              Pointer to a VPSSMgrFactory. optional
  *                       parameter. Defaults to NULL.
  */
 VPSSMgr* newVPSSMgr(VPStandardStateTP* vp_ptr,

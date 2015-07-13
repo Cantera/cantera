@@ -252,7 +252,7 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     try {
         getVPSSMgrTypes(spDataNodeList, inasaIG, inasaCV, ishomateIG, ishomateCV,
                         isimpleIG, isimpleCV, iwater, itpx, ihptx, iother);
-    } catch (UnknownSpeciesThermoModel) {
+    } catch (UnknownVPSSMgrModel) {
         iother = 1;
         popError();
     }
