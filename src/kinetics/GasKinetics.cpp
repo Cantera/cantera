@@ -240,33 +240,6 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
     }
 }
 
-void GasKinetics::addReaction(ReactionData& r)
-{
-    switch (r.reactionType) {
-    case ELEMENTARY_RXN:
-        addElementaryReaction(r);
-        break;
-    case THREE_BODY_RXN:
-        addThreeBodyReaction(r);
-        break;
-    case FALLOFF_RXN:
-    case CHEMACT_RXN:
-        addFalloffReaction(r);
-        break;
-    case PLOG_RXN:
-        addPlogReaction(r);
-        break;
-    case CHEBYSHEV_RXN:
-        addChebyshevReaction(r);
-        break;
-    default:
-        throw CanteraError("GasKinetics::addReaction", "Invalid reaction type specified");
-    }
-
-    // operations common to all reaction types
-    BulkKinetics::addReaction(r);
-}
-
 bool GasKinetics::addReaction(shared_ptr<Reaction> r)
 {
     // operations common to all reaction types
@@ -297,50 +270,6 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
             "Unknown reaction type specified: " + int2str(r->reaction_type));
     }
     return true;
-}
-
-void GasKinetics::addFalloffReaction(ReactionData& r)
-{
-    // install high and low rate coeff calculators
-    // and add constant terms to high and low rate coeff value vectors
-    m_falloff_high_rates.install(m_nfall, r);
-    m_rfn_high.push_back(r.rateCoeffParameters[0]);
-    std::swap(r.rateCoeffParameters, r.auxRateCoeffParameters);
-    m_falloff_low_rates.install(m_nfall, r);
-    m_rfn_low.push_back(r.rateCoeffParameters[0]);
-
-    // add this reaction number to the list of falloff reactions
-    m_fallindx.push_back(nReactions());
-    m_rfallindx[nReactions()] = m_nfall;
-
-    // install the enhanced third-body concentration calculator for this
-    // reaction
-    m_falloff_concm.install(m_nfall, r.thirdBodyEfficiencies,
-                            r.default_3b_eff);
-
-    // install the falloff function calculator for this reaction
-    m_falloffn.install(m_nfall, r.falloffType, r.reactionType,
-                       r.falloffParameters);
-
-    // increment the falloff reaction counter
-    ++m_nfall;
-}
-
-void GasKinetics::addThreeBodyReaction(ReactionData& r)
-{
-    m_rates.install(nReactions(), r);
-    m_3b_concm.install(nReactions(), r.thirdBodyEfficiencies,
-                       r.default_3b_eff);
-}
-
-void GasKinetics::addPlogReaction(ReactionData& r)
-{
-    m_plog_rates.install(nReactions(), r);
-}
-
-void GasKinetics::addChebyshevReaction(ReactionData& r)
-{
-    m_cheb_rates.install(nReactions(), r);
 }
 
 void GasKinetics::addFalloffReaction(FalloffReaction& r)

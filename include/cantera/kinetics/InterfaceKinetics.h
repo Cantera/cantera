@@ -210,7 +210,6 @@ public:
     virtual void addPhase(thermo_t& thermo);
 
     virtual void init();
-    virtual void addReaction(ReactionData& r);
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     virtual void finalize();
@@ -291,16 +290,6 @@ public:
      *  Virtual because it is overwritten when dealing with experimental open circuit voltage overrides
      */
     virtual void updateMu0();
-
-    //! Number of reactions in the mechanism
-    /*!
-     *  @deprecated This is a duplicate of Kinetics::nReactions()
-     */
-    size_t reactionNumber() const {
-        warn_deprecated("InterfaceKinetics::reactionNumber",
-            "To be removed after Cantera 2.2. Duplicate of nReactions().");
-        return m_ii;
-    }
 
     //! Update the equilibrium constants and stored electrochemical potentials
     //! in molar units for all reversible reactions and for all species.
@@ -391,7 +380,6 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
-    virtual void determineFwdOrdersBV(ReactionData& rdata, vector_fp& fwdFullorders);
     virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
 
 protected:

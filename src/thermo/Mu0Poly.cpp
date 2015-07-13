@@ -19,16 +19,6 @@ Mu0Poly::Mu0Poly() : m_numIntervals(0),
 {
 }
 
-Mu0Poly::Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
-                 doublereal pref,
-                 const doublereal* coeffs) :
-    SpeciesThermoInterpType(n, tlow, thigh, pref),
-    m_numIntervals(0),
-    m_H298(0.0)
-{
-    processCoeffs(coeffs);
-}
-
 Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref),
     m_numIntervals(0),
@@ -57,9 +47,9 @@ void  Mu0Poly::updateProperties(const doublereal* tt,  doublereal* cp_R,
     }
     double T1 = m_t0_int[j];
     double cp_Rj = m_cp0_R_int[j];
-    cp_R[m_index] = cp_Rj;
-    h_RT[m_index] = (m_h0_R_int[j] + (T - T1) * cp_Rj)/T;
-    s_R[m_index]  = m_s0_R_int[j] + cp_Rj * (log(T/T1));
+    *cp_R = cp_Rj;
+    *h_RT = (m_h0_R_int[j] + (T - T1) * cp_Rj)/T;
+    *s_R  = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
 void Mu0Poly::updatePropertiesTemp(const doublereal T,
@@ -75,7 +65,7 @@ void Mu0Poly::reportParameters(size_t& n, int& type,
                                doublereal& pref,
                                doublereal* const coeffs) const
 {
-    n = m_index;
+    n = 0;
     type = MU0_INTERP;
     tlow = m_lowT;
     thigh = m_highT;

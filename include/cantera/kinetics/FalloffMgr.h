@@ -34,24 +34,6 @@ public:
     /*
      * @param rxn Index of the falloff reaction. This will be used to
      *     determine which array entry is modified in method pr_to_falloff.
-     * @param falloffType of falloff function to install.
-     * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
-     * @param c vector of coefficients for the falloff function.
-     * @deprecated Use install(size_t, int, shared_ptr<Falloff>). To be removed
-     *     after Cantera 2.2.
-     */
-    void install(size_t rxn, int falloffType, int reactionType,
-                 const vector_fp& c) {
-        warn_deprecated("FalloffMgr::install(size_t, int, int, const vector_fp&)",
-            "Use install(size_t, int, shared_ptr<Falloff>). To be removed after Cantera 2.2.");
-        shared_ptr<Falloff> f(m_factory->newFalloff(falloffType,c));
-        install(rxn, reactionType, f);
-    }
-
-    //! Install a new falloff function calculator.
-    /*
-     * @param rxn Index of the falloff reaction. This will be used to
-     *     determine which array entry is modified in method pr_to_falloff.
      * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
      * @param f The falloff function.
      */

@@ -477,60 +477,6 @@ public:
     virtual void setParametersFromXML(const XML_Node& eosdata);
 };
 
-//!  Class %electrodeElectron represents an electron in a
-//!  metal using the Standard hydrogen reference electrode
-/*!
- *  The class is based on the electron have a chemical potential
- *  equal to one-half of the entropy of the H2 gas at 1 bar.
- *
- *  @deprecated Deprecated in favor of class MetalSHEelectrons. To be removed
- *      after Cantera 2.2.
- */
-class electrodeElectron : public StoichSubstanceSSTP
-{
-public:
-    //! Default constructor for the electrodeElectron class
-    electrodeElectron();
-
-    //! Construct and initialize a electrodeElectron ThermoPhase object
-    //! directly from an ASCII input file
-    /*!
-     * @param infile name of the input file
-     * @param id     name of the phase id in the file.
-     *               If this is blank, the first phase in the file is used.
-     */
-    electrodeElectron(const std::string& infile, std::string id = "");
-
-    //! Construct and initialize a electrodeElectron ThermoPhase object
-    //! directly from an XML database
-    /*!
-     *  @param phaseRef XML node pointing to a electrodeElectron description
-     *  @param id       Id of the phase.
-     */
-    electrodeElectron(XML_Node& phaseRef, const std::string& id = "");
-
-    //! Copy constructor
-    /*!
-     * @param right Object to be copied
-     */
-    electrodeElectron(const electrodeElectron&  right);
-
-    //! Assignment operator
-    /*!
-     * @param right Object to be copied
-     */
-    electrodeElectron& operator=(const electrodeElectron& right);
-
-    //! Destructor
-    virtual ~electrodeElectron() {}
-
-    void setParametersFromXML(const XML_Node& eosdata);
-
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
-    void setParameters(int n, doublereal* const c);
-};
-
 }
 
 #endif

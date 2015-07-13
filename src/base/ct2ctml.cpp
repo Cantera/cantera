@@ -274,22 +274,4 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
     }
 }
 
-void get_CTML_Tree(XML_Node* rootPtr, const std::string& file, const int debug)
-{
-    warn_deprecated("get_CTML_Tree", "To be removed after Cantera 2.2. "
-            "Use get_XML_File instead.");
-    XML_Node* src = get_XML_File(file);
-    src->copy(rootPtr);
-}
-
-XML_Node getCtmlTree(const std::string& file)
-{
-    warn_deprecated("getCtmlTree", "To be removed after Cantera 2.2. "
-            "Use get_XML_File instead.");
-    XML_Node root;
-    XML_Node* src = get_XML_File(file);
-    src->copy(&root);
-    return root;
-}
-
 }

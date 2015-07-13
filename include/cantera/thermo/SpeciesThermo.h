@@ -67,37 +67,18 @@ class SpeciesThermoInterpType;
  *
  *  Usually, all of the species in a phase are installed into a SpeciesThermo
  *  class. However, there is no requirement that a SpeciesThermo
- *  object handles all of the species in a phase. There are
- *  two member functions that are called to install each species into
- *  the SpeciesThermo.
- *  One routine is called \link SpeciesThermo::install() install()\endlink.
- *  It is called with the index of the species in the phase,
- *  an integer type delineating
- *  the SpeciesThermoInterpType object, and a listing of the
- *  parameters for that parameterization. A factory routine is called based
- *  on the integer type.  The other routine is called
- *  \link SpeciesThermo::install_STIT() install_STIT()\endlink.
- *  It accepts as an argument a pointer to an already formed
- *  SpeciesThermoInterpType object.
+ *  object handles all of the species in a phase. The member function
+ *  \link SpeciesThermo::install_STIT() install_STIT()\endlink
+ *  is called to install each species into the SpeciesThermo object.
  *
  *  The following classes inherit from SpeciesThermo. Each of these classes
  *  handle multiple species, usually all of the species in a phase. However,
  *  there is no requirement that a SpeciesThermo object handles all of the
  *  species in a phase.
  *
- *   - NasaThermo          in file NasaThermo.h
- *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient NASA Polynomial format.
- *   - ShomateThermo       in file ShomateThermo.h
- *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient Shomate Polynomial format.
- *   - SimpleThermo        in file SimpleThermo.h
- *      - This is a one-zone constant heat capacity model.
  *   - GeneralSpeciesThermo in file GeneralSpeciesThermo.h
  *      - This is a general model. Each species is handled separately
  *        via a vector over SpeciesThermoInterpType classes.
- *   - SpeciesThermoDuo      in file SpeciesThermoMgr.h
- *      - This is a combination of two SpeciesThermo types.
  *
  * The class SpeciesThermoInterpType is a pure virtual base class for
  * calculation of thermodynamic functions for a single species
@@ -128,12 +109,6 @@ class SpeciesThermoInterpType;
  *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
  *      - This is a multiple zone model, consisting of the 9
  *        coefficient NASA Polynomial format in each zone.
- *
- * In particular the NasaThermo SpeciesThermo-derived model has been
- * optimized for execution speed. It's the main-stay of gas phase computations
- * involving large numbers of species in a phase. It combines the calculation
- * of each species, which individually have NasaPoly2 representations, to
- * minimize the computational time.
  *
  * The GeneralSpeciesThermo SpeciesThermo object is completely general. It
  * does not try to coordinate the individual species calculations at all and
@@ -169,34 +144,6 @@ public:
      *  SpeciesThermo to work with.
      */
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const = 0;
-
-    //! Install a new species thermodynamic property
-    //! parameterization for one species.
-    /*!
-     * @see speciesThermoTypes.h
-     *
-     * @param name      Name of the species
-     * @param index     The 'update' method will update the property
-     *                  values for this species
-     *                  at position i index in the property arrays.
-     * @param type      int flag specifying the type of parameterization to be
-     *                 installed.
-     * @param c        vector of coefficients for the parameterization.
-     *                 This vector is simply passed through to the
-     *                 parameterization constructor.
-     * @param minTemp  minimum temperature for which this parameterization
-     *                 is valid.
-     * @param maxTemp  maximum temperature for which this parameterization
-     *                 is valid.
-     * @param refPressure standard-state pressure for this
-     *                    parameterization.
-     * @deprecated Use newSpeciesThermoInterpType and
-     *     GeneralSpeciesThermo::install_STIT. To be removed after Cantera 2.2.
-     */
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure)=0;
 
     //! Install a new species thermodynamic property
     //! parameterization for one species.

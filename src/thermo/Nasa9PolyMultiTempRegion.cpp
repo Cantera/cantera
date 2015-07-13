@@ -37,13 +37,8 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPt
     m_lowT = m_regionPts[0]->minTemp();
     m_highT = m_regionPts[m_numTempRegions-1]->maxTemp();
     m_Pref = m_regionPts[0]->refPressure();
-    m_index = m_regionPts[0]->speciesIndex();
     for (size_t i = 0; i < m_numTempRegions; i++) {
         m_lowerTempBounds[i] = m_regionPts[i]->minTemp();
-        if (m_regionPts[i]->speciesIndex() != m_index) {
-            throw CanteraError("Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion",
-                               "m_index inconsistency");
-        }
         if (fabs(m_regionPts[i]->refPressure() - m_Pref) > 0.0001) {
             throw CanteraError("Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion",
                                "refPressure inconsistency");
@@ -113,13 +108,6 @@ int Nasa9PolyMultiTempRegion::reportType() const
     return NASA9MULTITEMP;
 }
 
-void Nasa9PolyMultiTempRegion::setIndex(size_t index) {
-    SpeciesThermoInterpType::setIndex(index);
-    for (size_t i = 0; i < m_numTempRegions; i++) {
-        m_regionPts[i]->setIndex(index);
-    }
-}
-
 void Nasa9PolyMultiTempRegion::updateTemperaturePoly(double T, double* T_poly) const
 {
     T_poly[0]  = T;
@@ -168,7 +156,7 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
         doublereal& pref,
         doublereal* const coeffs) const
 {
-    n = m_index;
+    n = 0;
     type = NASA9MULTITEMP;
     tlow = m_lowT;
     thigh = m_highT;

@@ -416,13 +416,6 @@ public:
     //@{
 
     //! Get the mole fractions by name.
-    //!     @param[out] x composition map containing the species mole fractions.
-    //!     @deprecated To be removed after Cantera 2.2. use
-    //!         `compositionMap getMoleFractionsByName(double threshold)`
-    //!         instead.
-    void getMoleFractionsByName(compositionMap& x) const;
-
-    //! Get the mole fractions by name.
     //!     @param threshold   Exclude species with mole fractions less than or
     //!                        equal to this threshold.
     //!     @return Map of species names to mole fractions
@@ -698,89 +691,10 @@ public:
                       int atomicNumber=0, doublereal entropy298=ENTROPY298_UNKNOWN,
                       int elem_type=CT_ELEM_TYPE_ABSPOS);
 
-    //! Add an element from an XML specification.
-    //!     @param e Reference to the XML_Node where the element is described.
-    //! @deprecated. To be removed after Cantera 2.2.
-    void addElement(const XML_Node& e);
-
-    //! Add an element, checking for uniqueness
-    //! The uniqueness is checked by comparing the string symbol. If not
-    //! unique, nothing is done.
-    //!     @param symbol  String symbol of the element
-    //!     @param weight  Atomic weight of the element (kg kmol-1).
-    //!     @param atomicNumber Atomic number of the element (unitless)
-    //!     @param entropy298 Entropy of the element at 298 K and 1 bar in its
-    //! most stable form. The default is the value ENTROPY298_UNKNOWN, which is
-    //! interpreted as an unknown, and if used will cause %Cantera to throw an
-    //! error.
-    //!     @param elem_type Specifies the type of the element constraint
-    //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
-    //! @deprecated. Equivalent to addElement. To be removed after Cantera 2.2.
-    void addUniqueElement(const std::string& symbol, doublereal weight=-12345.0,
-                          int atomicNumber = 0,
-                          doublereal entropy298 = ENTROPY298_UNKNOWN,
-                          int elem_type = CT_ELEM_TYPE_ABSPOS);
-
-    //! Add an element, checking for uniqueness
-    //! The uniqueness is checked by comparing the string symbol. If not unique,
-    //! nothing is done.
-    //!     @param e Reference to the XML_Node where the element is described.
-    //! @deprecated. To be removed after Cantera 2.2.
-    void addUniqueElement(const XML_Node& e);
-
-    //! Add all elements referenced in an XML_Node tree
-    //!     @param phase Reference to the root XML_Node of a phase
-    //! @deprecated. To be removed after Cantera 2.2.
-    void addElementsFromXML(const XML_Node& phase);
-
-    //! Prohibit addition of more elements, and prepare to add species.
-    //! @deprecated. To be removed after Cantera 2.2.
-    void freezeElements();
-
-    //! True if freezeElements has been called.
-    //! @deprecated. To be removed after Cantera 2.2.
-    bool elementsFrozen();
-
-    //! Add an element after elements have been frozen, checking for uniqueness
-    //! The uniqueness is checked by comparing the string symbol. If not
-    //! unique, nothing is done.
-    //!     @param symbol String symbol of the element
-    //!     @param weight Atomic weight of the element (kg kmol-1).
-    //!     @param atomicNumber Atomic number of the element (unitless)
-    //!     @param entropy298 Entropy of the element at 298 K and 1 bar in its
-    //! most stable form. The default is the value ENTROPY298_UNKNOWN, which
-    //! if used will cause Cantera to throw an error.
-    //!     @param elem_type Specifies the type of the element constraint
-    //! equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
-    //! @deprecated. Equivalent to addElement. To be removed after Cantera 2.2.
-    size_t addUniqueElementAfterFreeze(const std::string& symbol,
-                                       doublereal weight, int atomicNumber,
-                                       doublereal entropy298 = ENTROPY298_UNKNOWN,
-                                       int elem_type = CT_ELEM_TYPE_ABSPOS);
-
     //! Add a Species to this Phase. Returns `true` if the species was
     //! successfully added, or `false` if the species was ignored.
     //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
     virtual bool addSpecies(shared_ptr<Species> spec);
-
-    //! @deprecated Use AddSpecies(shared_ptr<Species> spec) instead. To be
-    //! removed after Cantera 2.2.
-    void addSpecies(const std::string& name, const doublereal* comp,
-                    doublereal charge = 0.0, doublereal size = 1.0);
-
-    //! Add a species to the phase, checking for uniqueness of the name
-    //! This routine checks for uniqueness of the string name. It only adds the
-    //! species if it is unique.
-    //!     @param name    String name of the species
-    //!     @param comp    Array containing the elemental composition of the
-    //! species.
-    //!     @param charge  Charge of the species. Defaults to zero.
-    //!     @param size    Size of the species (meters). Defaults to 1 meter.
-    //! @deprecated Use addSpecies(shared_ptr<Species> spec) instead. To be
-    //!     removed after Cantera 2.2.
-    void addUniqueSpecies(const std::string& name, const doublereal* comp,
-                          doublereal charge = 0.0,
-                          doublereal size = 1.0);
 
     //! Return the Species object for the named species.
     shared_ptr<Species> species(const std::string& name) const;

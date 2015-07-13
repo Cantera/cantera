@@ -9,7 +9,7 @@
 #ifndef CT_GENERALSPECIESTHERMO_H
 #define CT_GENERALSPECIESTHERMO_H
 
-#include "SpeciesThermoMgr.h"
+#include "SpeciesThermo.h"
 #include "SpeciesThermoInterpType.h"
 
 namespace Cantera
@@ -44,39 +44,6 @@ public:
     GeneralSpeciesThermo& operator=(const GeneralSpeciesThermo& b);
 
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const ;
-
-    //! Install a new species thermodynamic property
-    //! parameterization for one species.
-    /*!
-     * Install a SpeciesThermoInterpType object for the species, index.
-     * This routine contains an internal list of  SpeciesThermoInterpType
-     * objects that it knows about. A factory-type lookup is done
-     * to create the object.
-     *
-     * @param name      Name of the species
-     * @param index     The 'update' method will update the property
-     *                  values for this species
-     *                  at position i index in the property arrays.
-     * @param type      int flag specifying the type of parameterization to be
-     *                 installed.
-     * @param c        vector of coefficients for the parameterization.
-     *                 This vector is simply passed through to the
-     *                 parameterization constructor. Its length depends upon
-     *                 the parameterization.
-     * @param minTemp  minimum temperature for which this parameterization
-     *                 is valid.
-     * @param maxTemp  maximum temperature for which this parameterization
-     *                 is valid.
-     * @param refPressure standard-state pressure for this parameterization.
-     * @see speciesThermoTypes.h
-     *
-     * @deprecated Use newSpeciesThermoInterpType and
-     *     GeneralSpeciesThermo::install_STIT. To be removed after Cantera 2.2.
-     */
-    virtual void install(const std::string& name, size_t index, int type,
-                         const doublereal* c,
-                         doublereal minTemp, doublereal maxTemp,
-                         doublereal refPressure);
 
     virtual void install_STIT(size_t index,
                               shared_ptr<SpeciesThermoInterpType> stit_ptr);

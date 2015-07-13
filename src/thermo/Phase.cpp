@@ -531,18 +531,6 @@ const vector_fp& Phase::molecularWeights() const
     return m_molwts;
 }
 
-void Phase::getMoleFractionsByName(compositionMap& x) const
-{
-    warn_deprecated("void Phase::getMoleFractionsByName(compositionMap&)",
-                    "To be removed after Cantera 2.2. Use"
-                    " 'compositionMap getMoleFractionsByName(double threshold)'"
-                    " instead");
-    x.clear();
-    for (size_t k = 0; k < m_kk; k++) {
-        x[speciesName(k)] = Phase::moleFraction(k);
-    }
-}
-
 compositionMap Phase::getMoleFractionsByName(double threshold) const
 {
     compositionMap comp;
@@ -778,79 +766,6 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
     return m_mm-1;
 }
 
-void Phase::addElement(const XML_Node& e)
-{
-    warn_deprecated("Phase::addElement(XML_Node&)",
-                    "To be removed after Cantera 2.2.");
-    doublereal weight = 0.0;
-    if (e.hasAttrib("atomicWt")) {
-        weight = fpValue(stripws(e["atomicWt"]));
-    }
-    int anum = 0;
-    if (e.hasAttrib("atomicNumber")) {
-        anum = atoi(stripws(e["atomicNumber"]).c_str());
-    }
-    string symbol = e["name"];
-    doublereal entropy298 = ENTROPY298_UNKNOWN;
-    if (e.hasChild("entropy298")) {
-        XML_Node& e298Node = e.child("entropy298");
-        if (e298Node.hasAttrib("value")) {
-            entropy298 = fpValueCheck(stripws(e298Node["value"]));
-        }
-    }
-    if (weight != 0.0) {
-        addElement(symbol, weight, anum, entropy298);
-    } else {
-        addElement(symbol);
-    }
-}
-
-void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
-                             int atomic_number, doublereal entropy298,
-                             int elem_type)
-{
-    warn_deprecated("Phase::addUniqueElement",
-                    "Equivalent to Phase::addElement. "
-                    "To be removed after Cantera 2.2.");
-    addElement(symbol, weight, atomic_number, entropy298, elem_type);
-}
-
-void Phase::addUniqueElement(const XML_Node& e)
-{
-    warn_deprecated("Phase::addUniqueElement",
-                    "To be removed after Cantera 2.2.");
-    addElement(e);
-}
-
-void Phase::addElementsFromXML(const XML_Node& phase)
-{
-    warn_deprecated("Phase::addElementsFromXML",
-                    "Use 'addElements' function. "
-                    "To be removed after Cantera 2.2.");
-    installElements(*this, phase);
-}
-
-void Phase::freezeElements()
-{
-    warn_deprecated("Phase::freezeElements", "To be removed after Cantera 2.2.");
-}
-
-bool Phase::elementsFrozen()
-{
-    warn_deprecated("Phase::elementsFrozen", "To be removed after Cantera 2.2.");
-    return false;
-}
-
-size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
-        doublereal weight, int atomicNumber,
-        doublereal entropy298, int elem_type)
-{
-    warn_deprecated("Phase::addUniqueElementAfterFreeze",
-                    "Equivalent to Phase::addElement. "
-                    "To be removed after Cantera 2.2");
-    return addElement(symbol, weight, atomicNumber, entropy298, elem_type);
-}
-
 bool Phase::addSpecies(shared_ptr<Species> spec) {
     m_species[spec->name] = spec;
     vector_fp comp(nElements());
@@ -935,54 +850,6 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
         m_ym.push_back(0.0);
     }
     return true;
-}
-
-void Phase::addSpecies(const std::string& name_, const doublereal* comp,
-                       doublereal charge_, doublereal size_)
-{
-    warn_deprecated("Phase::addSpecies(string, double*, double, double)",
-        "Use AddSpecies(shared_ptr<Species> spec) instead. To be removed "
-        "after Cantera 2.2.");
-    compositionMap cmap;
-    for (size_t i = 0; i < nElements(); i++) {
-        if (comp[i]) {
-            cmap[elementName(i)] = comp[i];
-        }
-    }
-    shared_ptr<Species> sp(new Species(name_, cmap, charge_, size_));
-    Phase::addSpecies(sp);
-}
-
-void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
-                             doublereal charge_, doublereal size_)
-{
-    warn_deprecated("Phase::addUniqueSpecies",
-        "Use AddSpecies(shared_ptr<Species> spec) instead. To be removed "
-        "after Cantera 2.2.");
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_speciesNames[k] == name_) {
-            // We have found a match. Do some compatibility checks.
-            for (size_t i = 0; i < m_mm; i++) {
-                if (comp[i] != m_speciesComp[k * m_mm + i]) {
-                    throw CanteraError("addUniqueSpecies",
-                                       "Duplicate species have different "
-                                       "compositions: " + name_);
-                }
-            }
-            if (charge_ != m_speciesCharge[k]) {
-                throw CanteraError("addUniqueSpecies",
-                                   "Duplicate species have different "
-                                   "charges: " + name_);
-            }
-            if (size_ != m_speciesSize[k]) {
-                throw CanteraError("addUniqueSpecies",
-                                   "Duplicate species have different "
-                                   "sizes: " + name_);
-            }
-            return;
-        }
-    }
-    addSpecies(name_, comp, charge_, size_);
 }
 
 shared_ptr<Species> Phase::species(const std::string& name) const

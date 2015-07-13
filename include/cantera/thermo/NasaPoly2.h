@@ -56,26 +56,6 @@ public:
 
     //! Full Constructor
     /*!
-     * @param n         Species index
-     * @param tlow      output - Minimum temperature
-     * @param thigh     output - Maximum temperature
-     * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the parameters for
-     *                  the standard state [Tmid, 7 low-T coeffs, 7 high-T coeffs]
-     * @deprecated Use constructor without species index. To be removed after
-     *     Cantera 2.2.
-     */
-    NasaPoly2(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-              const doublereal* coeffs) :
-        SpeciesThermoInterpType(n, tlow, thigh, pref),
-        m_midT(coeffs[0]),
-        mnp_low(n, tlow, coeffs[0], pref, coeffs +1),
-        mnp_high(n, tlow, thigh, pref, coeffs + 8),
-        m_coeff(coeffs, coeffs + 15) {
-    }
-
-    //! Full Constructor
-    /*!
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
@@ -101,12 +81,6 @@ public:
 
     virtual int reportType() const {
         return NASA2;
-    }
-
-    virtual void setIndex(size_t index) {
-        SpeciesThermoInterpType::setIndex(index);
-        mnp_low.setIndex(index);
-        mnp_high.setIndex(index);
     }
 
     virtual size_t temperaturePolySize() const { return 6; }
@@ -159,7 +133,7 @@ public:
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
-        n = m_index;
+        n = 0;
         type = NASA2;
         tlow = m_lowT;
         thigh = m_highT;
@@ -177,16 +151,12 @@ public:
             h = mnp_high.reportHf298(0);
         }
         if (h298) {
-            h298[m_index] = h;
+            *h298 = h;
         }
         return h;
     }
 
     void modifyOneHf298(const size_t k, const doublereal Hf298New) {
-        if (k != m_index) {
-            return;
-        }
-
         doublereal h298now = reportHf298(0);
         doublereal delH = Hf298New - h298now;
         double h = mnp_low.reportHf298(0);

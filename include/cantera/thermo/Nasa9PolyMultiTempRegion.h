@@ -72,8 +72,6 @@ public:
 
     virtual int reportType() const;
 
-    virtual void setIndex(size_t index);
-
     virtual size_t temperaturePolySize() const { return 7; }
     virtual void updateTemperaturePoly(double T, double* T_poly) const;
 

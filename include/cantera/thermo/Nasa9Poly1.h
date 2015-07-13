@@ -74,20 +74,6 @@ public:
     //! Empty constructor
     Nasa9Poly1();
 
-    //! constructor used in templated instantiations
-    /*!
-     * @param n            Species index
-     * @param tlow         Minimum temperature
-     * @param thigh        Maximum temperature
-     * @param pref         reference pressure (Pa).
-     * @param coeffs       Vector of coefficients used to set the
-     *                     parameters for the standard state.
-     * @deprecated  Use the constructor whic hdoes not require the species
-     *     index. To be removed after Cantera 2.2.
-     */
-    Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-               const doublereal* coeffs);
-
     //! Normal constructor
     /*!
      * @param tlow         Minimum temperature

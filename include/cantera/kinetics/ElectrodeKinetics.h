@@ -75,10 +75,6 @@ public:
      */
     virtual void updateROP();
 
-    virtual void determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders);
-
-    //void addGlobalReaction(ReactionData& r);
-
     double calcForwardROP_BV(size_t irxn, size_t iBeta, double ioc, double nStoich, double nu, doublereal ioNet);
 
     double calcForwardROP_BV_NoAct(size_t irxn, size_t iBeta,  double ioc, double nStoich, double nu, doublereal ioNet);

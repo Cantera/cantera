@@ -8,6 +8,9 @@
 
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -76,31 +79,6 @@ GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
     return new GeneralSpeciesThermo(*this);
 }
 
-void GeneralSpeciesThermo::install(const std::string& name,
-                                   size_t index,
-                                   int type,
-                                   const doublereal* c,
-                                   doublereal minTemp_,
-                                   doublereal maxTemp_,
-                                   doublereal refPressure_)
-{
-    warn_deprecated("GeneralSpeciesThermo::install",
-            "Use newSpeciesThermoInterpType and "
-            "GeneralSpeciesThermo::install_STIT instead");
-    if (minTemp_ <= 0.0) {
-        throw CanteraError("GeneralSpeciesThermo::install",
-                           "T_min must be positive");
-    }
-
-    /*
-     * Create the necessary object
-     */
-    shared_ptr<SpeciesThermoInterpType> sp(newSpeciesThermoInterpType(type,
-        minTemp_, maxTemp_, refPressure_, c));
-    sp->validate(name);
-    install_STIT(index, sp);
-}
-
 void GeneralSpeciesThermo::install_STIT(size_t index,
                                         shared_ptr<SpeciesThermoInterpType> stit_ptr)
 {
@@ -126,7 +104,7 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
-    shared_ptr<SpeciesThermoInterpType> stit_ptr(new STITbyPDSS(k, vpssmgr_ptr, PDSS_ptr));
+    shared_ptr<SpeciesThermoInterpType> stit_ptr(new STITbyPDSS(vpssmgr_ptr, PDSS_ptr));
     install_STIT(k, stit_ptr);
 }
 

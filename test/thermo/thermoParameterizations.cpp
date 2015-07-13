@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/speciesThermoTypes.h"
-#include "cantera/thermo/SimpleThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
+#include "cantera/base/stringUtils.h"
 #include "thermo_data.h"
 
 using namespace Cantera;

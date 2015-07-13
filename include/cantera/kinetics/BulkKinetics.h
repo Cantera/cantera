@@ -34,7 +34,6 @@ public:
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
 
-    virtual void addReaction(ReactionData& r);
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void init();
     virtual void finalize();
@@ -44,7 +43,6 @@ public:
 
 
 protected:
-    virtual void addElementaryReaction(ReactionData& r);
     virtual void addElementaryReaction(ElementaryReaction& r);
     virtual void modifyElementaryReaction(size_t i, ElementaryReaction& rNew);
 

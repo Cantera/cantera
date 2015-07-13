@@ -19,8 +19,6 @@
 namespace Cantera
 {
 
-// forward references
-class ReactionData;
 class Reaction;
 
 /**
@@ -788,17 +786,6 @@ public:
     virtual void finalize();
 
     /**
-     * Add a single reaction to the mechanism. This routine
-     * must be called after init() and before finalize(). Derived classes
-     * should call the base class method in addition to handling their
-     * own specialized behavior.
-     *
-     * @param r      Reference to the ReactionData object for the reaction
-     *               to be added.
-     */
-    virtual void addReaction(ReactionData& r);
-
-    /**
      * Add a single reaction to the mechanism. Derived classes should call the
      * base class method in addition to handling their own specialized behavior.
      *
@@ -837,12 +824,6 @@ public:
     //! raised.
     void skipUndeclaredThirdBodies(bool skip) {
         m_skipUndeclaredThirdBodies = skip;
-    }
-
-    //! @deprecated To be removed after Cantera 2.2. No longer called as part
-    //!     of addReaction.
-    virtual void installReagents(const ReactionData& r) {
-        throw NotImplementedError("Kinetics::installReagents");
     }
 
     virtual void installGroups(size_t irxn, const std::vector<grouplist_t>& r,

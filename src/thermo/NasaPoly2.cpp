@@ -6,13 +6,10 @@ namespace Cantera {
 
 void NasaPoly2::validate(const std::string& name)
 {
-    size_t offset = mnp_low.speciesIndex();
     double cp_low, h_low, s_low;
     double cp_high, h_high, s_high;
-    mnp_low.updatePropertiesTemp(m_midT, &cp_low - offset,
-                                 &h_low - offset, &s_low - offset);
-    mnp_high.updatePropertiesTemp(m_midT, &cp_high - offset,
-                                  &h_high - offset, &s_high - offset);
+    mnp_low.updatePropertiesTemp(m_midT, &cp_low, &h_low, &s_low);
+    mnp_high.updatePropertiesTemp(m_midT, &cp_high, &h_high, &s_high);
 
     double delta = cp_low - cp_high;
     if (fabs(delta/(fabs(cp_low)+1.0E-4)) > 0.001) {

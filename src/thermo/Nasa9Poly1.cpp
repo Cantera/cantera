@@ -21,14 +21,6 @@ Nasa9Poly1::Nasa9Poly1()
     m_Pref = 1.0e5;
 }
 
-Nasa9Poly1::Nasa9Poly1(size_t n, doublereal tlow, doublereal thigh,
-                       doublereal pref,
-                       const doublereal* coeffs) :
-    SpeciesThermoInterpType(n, tlow, thigh, pref),
-    m_coeff(coeffs, coeffs + 9)
-{
-}
-
 Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
                        const double* coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref),
@@ -77,11 +69,10 @@ void Nasa9Poly1::updateProperties(const doublereal* tt,
     doublereal sdivR  = -0.5*ct0  - ct1 + tt[6]*ct2  + ct3  + 0.5*ct4
                         + 1.0/3.0*ct5 + 0.25*ct6 + m_coeff[8];
 
-    // return the computed properties in the location in the output
-    // arrays for this species
-    cp_R[m_index] = cpdivR;
-    h_RT[m_index] = hdivRT;
-    s_R[m_index] = sdivR;
+    // return the computed properties for this species
+    *cp_R = cpdivR;
+    *h_RT = hdivRT;
+    *s_R = sdivR;
 }
 
 void Nasa9Poly1::updatePropertiesTemp(const doublereal temp,
@@ -98,7 +89,7 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
                                   doublereal& pref,
                                   doublereal* const coeffs) const
 {
-    n = m_index;
+    n = 0;
     type = NASA9;
     tlow = m_lowT;
     thigh = m_highT;

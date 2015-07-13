@@ -6,7 +6,6 @@
 
 // known transport models
 #include "cantera/transport/MultiTransport.h"
-#include "cantera/transport/PecosTransport.h"
 #include "cantera/transport/MixTransport.h"
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/DustyGasTransport.h"
@@ -59,7 +58,6 @@ TransportFactory::TransportFactory()
     m_models["Simple"] = cSimpleTransport;
     m_models["User"] = cUserTransport;
     m_models["HighP"] = cHighP;
-    m_models["Pecos"] = cPecosTransport;
     m_models["None"] = None;
     for (map<string, int>::iterator iter = m_models.begin();
             iter != m_models.end();
@@ -275,15 +273,6 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
         transportModel = phaseNode.child("transport").attrib("model");
     }
     return newTransport(transportModel, phase,log_level);
-}
-
-void TransportFactory::initTransport(Transport* tr, thermo_t* thermo,
-                                     int mode, int log_level)
-{
-    warn_deprecated("TransportFactory::initTransport",
-                    "To be removed after Cantera 2.2. This initialization is "
-                    "now handled directly by GasTransport::init");
-    tr->init(thermo);
 }
 
 void TransportFactory::setupLiquidTransport(thermo_t* thermo, int log_level,

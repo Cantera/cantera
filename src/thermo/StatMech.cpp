@@ -6,6 +6,7 @@
 // Copyright 2007  Sandia National Laboratories
 
 #include "cantera/thermo/StatMech.h"
+#include "cantera/base/ctexceptions.h"
 #include <iostream>
 
 namespace Cantera
@@ -18,7 +19,7 @@ StatMech::StatMech(int n, doublereal tlow, doublereal thigh,
                    doublereal pref,
                    const doublereal* coeffs,
                    const std::string& my_name) :
-    SpeciesThermoInterpType(n, tlow, thigh, pref),
+    SpeciesThermoInterpType(tlow, thigh, pref),
     sp_name(my_name)
 {
     // should error on zero -- cannot take ln(0)
@@ -591,9 +592,9 @@ void StatMech::updateProperties(const doublereal* tt,
 
     // return the computed properties in the location in the output
     // arrays for this species
-    cp_R[m_index] = cpdivR;
-    h_RT[m_index] = hdivRT;
-    s_R [m_index] = sdivR;
+    *cp_R = cpdivR;
+    *h_RT = hdivRT;
+    *s_R  = sdivR;
 }
 
 void StatMech::updatePropertiesTemp(const doublereal temp,
@@ -612,7 +613,7 @@ void StatMech::reportParameters(size_t& n, int& type,
 {
     species* s;
 
-    n = m_index;
+    n = 0;
     type = STAT;
     tlow = m_lowT;
     thigh = m_highT;

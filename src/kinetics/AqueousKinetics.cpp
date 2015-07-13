@@ -148,15 +148,6 @@ void AqueousKinetics::getFwdRateConstants(doublereal* kfwd)
     }
 }
 
-void AqueousKinetics::addReaction(ReactionData& r)
-{
-    if (r.reactionType == ELEMENTARY_RXN) {
-        addElementaryReaction(r);
-    }
-
-    BulkKinetics::addReaction(r);
-}
-
 bool AqueousKinetics::addReaction(shared_ptr<Reaction> r)
 {
     bool added = BulkKinetics::addReaction(r);

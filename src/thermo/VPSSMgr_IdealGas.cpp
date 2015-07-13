@@ -15,8 +15,8 @@
 #include "cantera/thermo/VPSSMgr_IdealGas.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/thermo/PDSS_IdealGas.h"
-#include "cantera/thermo/SpeciesThermoInterpType.h"
 
 using namespace std;
 

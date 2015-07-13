@@ -742,25 +742,6 @@ void getNamedStringValue(const XML_Node& node, const std::string& nameString, st
 std::string getChildValue(const XML_Node& parent,
                           const std::string& nameString);
 
-//! Read an ctml file from a file and fill up an XML tree
-/*!
- *  This is the main routine that reads a ctml file and puts it into
- *  an XML_Node tree
- *
- *  @param node    Root of the tree
- *  @param file    Name of the file
- *  @param debug   Turn on debugging printing
- *  @deprecated    To be removed after Cantera 2.2. Use get_XML_File() instead.
- */
-void get_CTML_Tree(XML_Node* node, const std::string& file,
-                   const int debug = 0);
-
-//! Read an ctml file from a file and fill up an XML tree.
-//!   @param file    Name of the file
-//!   @return        Root of the tree
-//!   @deprecated    To be removed after Cantera 2.2. Use get_XML_File() instead.
-XML_Node getCtmlTree(const std::string& file);
-
 //! Convert a cti file into a ctml file
 /*!
  *  @param   file    Pointer to the file

@@ -670,7 +670,7 @@ inline static void _writeMultiply(InputIter begin, InputIter end,
  * This class handles operations involving the stoichiometric
  * coefficients on one side of a reaction (reactant or product) for
  * a set of reactions comprising a reaction mechanism. This class is
- * used by class ReactionStoichMgr, which contains three instances
+ * used by class Kinetics, which contains three instances
  * of this class (one to handle operations on the reactions, one for
  * the products of reversible reactions, and one for the products of
  * irreversible reactions).

@@ -18,9 +18,6 @@
 namespace Cantera
 {
 
-class SpeciesThermoFactory;
-class VPSSMgr;
-
 /*!
  *  @addtogroup thermoprops
  *
@@ -225,65 +222,13 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  * @param spfactory species Thermo factory pointer, if
  *                  available. If not available, one will be
  *                  created.
- * @deprecated the 'spfactory' argument is unused and will be removed after
- *     Cantera 2.2.
  * @ingroup thermoprops
  *
- * @deprecated: The return value of this function is always 'true'. After
- * Cantera 2.2, this function will return 'void'.
  */
-bool importPhase(XML_Node& phase, ThermoPhase* th, SpeciesThermoFactory* spfactory = 0);
+void importPhase(XML_Node& phase, ThermoPhase* th);
 
 //! Add the elements given in an XML_Node tree to the specified phase
 void installElements(Phase& th, const XML_Node& phaseNode);
-
-//! Install a species into a ThermoPhase object, which defines
-//! the phase thermodynamics and speciation.
-/*!
- *  This routine first gathers the information from the Species XML
- *  tree and calls addUniqueSpecies() to add it to the
- *  ThermoPhase object, p.
- *  This information consists of:
- *         ecomp[] = element composition of species.
- *         chgr    = electric charge of species
- *         name    = string name of species
- *         sz      = size of the species
- *                 (option double used a lot in thermo)
- *
- *  Then, the routine processes the "thermo" XML element and
- *  calls underlying utility routines to read the XML elements
- *  containing the thermodynamic information for the reference
- *  state of the species. Failures or lack of information trigger
- *  an "UnknownSpeciesThermoModel" exception being thrown.
- *
- * @param k     Species Index in the phase
- * @param s     XML_Node containing the species data for this species.
- * @param p     Reference to the ThermoPhase object.
- * @param spthermo_ptr Reference to the SpeciesThermo object, where
- *              the standard state thermo properties for this
- *              species will be installed.
- * @param rule  Parameter that handles what to do with species
- *              who have elements that aren't declared.
- *              Check that all elements in the species
- *              exist in 'p'. If rule != 0, quietly skip
- *              this species if some elements are undeclared;
- *              otherwise, throw an exception
- * @param phaseNode_ptr Pointer to the XML_Node for this phase
- *              (defaults to 0)
- * @param vpss_ptr pointer to the Manager that calculates standard
- *                state thermo properties
- * @param factory Pointer to the SpeciesThermoFactory .
- *              (defaults to 0)
- * @deprecated Use newSpecies and addSpecies. For VPStandardStateTP phases, call
- *     createInstallPDSS as well. To be removed after Cantera 2.2.
- * @return
- *  Returns true if everything is ok, false otherwise.
- */
-bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
-                    SpeciesThermo* spthermo_ptr, int rule,
-                    XML_Node* phaseNode_ptr = 0,
-                    VPSSMgr* vpss_ptr = 0,
-                    SpeciesThermoFactory* factory = 0);
 
 //!  Search an XML tree for species data.
 /*!
@@ -295,8 +240,6 @@ bool installSpecies(size_t k, const XML_Node& s, thermo_t& p,
  * @param kname String containing the name of the species.
  * @param phaseSpeciesData   Pointer to the XML speciesData element
  *              containing the species data for that phase.
- *
- *
  */
 const XML_Node* speciesXML_Node(const std::string& kname,
                                 const XML_Node* phaseSpeciesData);
@@ -306,5 +249,3 @@ const XML_Node* speciesXML_Node(const std::string& kname,
 }
 
 #endif
-
-

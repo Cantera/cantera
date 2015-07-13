@@ -115,19 +115,6 @@ void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
     }
 }
 
-void BulkKinetics::addReaction(ReactionData& r)
-{
-    Kinetics::addReaction(r);
-    m_dn.push_back(accumulate(r.pstoich.begin(), r.pstoich.end(), 0.0) -
-                   accumulate(r.rstoich.begin(), r.rstoich.end(), 0.0));
-
-    if (r.reversible) {
-        m_revindex.push_back(nReactions());
-    } else {
-        m_irrev.push_back(nReactions());
-    }
-}
-
 bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
 {
     bool added = Kinetics::addReaction(r);
@@ -154,11 +141,6 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         m_irrev.push_back(nReactions()-1);
     }
     return true;
-}
-
-void BulkKinetics::addElementaryReaction(ReactionData& r)
-{
-    m_rates.install(nReactions(), r);
 }
 
 void BulkKinetics::addElementaryReaction(ElementaryReaction& r)

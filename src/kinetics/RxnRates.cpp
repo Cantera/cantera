@@ -13,18 +13,6 @@ Arrhenius::Arrhenius()
 {
 }
 
-Arrhenius::Arrhenius(const ReactionData& rdata)
-    : m_b(rdata.rateCoeffParameters[1])
-    , m_E(rdata.rateCoeffParameters[2])
-    , m_A(rdata.rateCoeffParameters[0])
-{
-    if (m_A  <= 0.0) {
-        m_logA = -1.0E300;
-    } else {
-        m_logA = std::log(m_A);
-    }
-}
-
 Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
     : m_b(b)
     , m_E(E)
@@ -63,31 +51,6 @@ SurfaceArrhenius::SurfaceArrhenius(double A, double b, double Ta)
 {
 }
 
-SurfaceArrhenius::SurfaceArrhenius(const ReactionData& rdata)
-    : m_b(rdata.rateCoeffParameters[1])
-    , m_E(rdata.rateCoeffParameters[2])
-    , m_A(rdata.rateCoeffParameters[0])
-    , m_acov(0.0)
-    , m_ecov(0.0)
-    , m_mcov(0.0)
-    , m_ncov(0)
-    , m_nmcov(0)
-{
-    if (m_A <= 0.0) {
-        m_logA = -1.0E300;
-    } else {
-        m_logA = std::log(m_A);
-    }
-
-    const vector_fp& data = rdata.rateCoeffParameters;
-    if (data.size() >= 7) {
-        for (size_t n = 3; n < data.size()-3; n += 4) {
-            addCoverageDependence(size_t(data[n]), data[n+1],
-                                  data[n+2], data[n+3]);
-        }
-    }
-}
-
 void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
                                doublereal m, doublereal e) {
         m_ncov++;
@@ -101,80 +64,6 @@ void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
         }
     }
 
-ExchangeCurrent::ExchangeCurrent()
-    : m_logA(-1.0E300)
-    , m_b(0.0)
-    , m_E(0.0)
-    , m_A(0.0)
-{
-    warn_deprecated("class ExchangeCurrent", "Duplicate of class Arrhenius."
-        " To be removed after Cantera 2.2.");
-}
-
-ExchangeCurrent::ExchangeCurrent(const ReactionData& rdata)
-    : m_b(rdata.rateCoeffParameters[1])
-    , m_E(rdata.rateCoeffParameters[2])
-    , m_A(rdata.rateCoeffParameters[0])
-{
-    warn_deprecated("class ExchangeCurrent", "Duplicate of class Arrhenius."
-        " To be removed after Cantera 2.2.");
-    if (m_A  <= 0.0) {
-        m_logA = -1.0E300;
-    } else {
-        m_logA = std::log(m_A);
-    }
-}
-
-ExchangeCurrent::ExchangeCurrent(doublereal A, doublereal b, doublereal E)
-    : m_b(b)
-    , m_E(E)
-    , m_A(A)
-{
-    warn_deprecated("class ExchangeCurrent", "Duplicate of class Arrhenius."
-        " To be removed after Cantera 2.2.");
-    if (m_A  <= 0.0) {
-        m_logA = -1.0E300;
-    } else {
-        m_logA = std::log(m_A);
-    }
-}
-
-Plog::Plog(const ReactionData& rdata)
-    : logP_(-1000)
-    , logP1_(1000)
-    , logP2_(-1000)
-    , rDeltaP_(-1.0)
-{
-    typedef std::multimap<double, vector_fp>::const_iterator iter_t;
-
-    size_t j = 0;
-    // Insert intermediate pressures
-    rates_.reserve(rdata.plogParameters.size());
-    for (iter_t iter = rdata.plogParameters.begin();
-            iter != rdata.plogParameters.end();
-            iter++) {
-        double logp = std::log(iter->first);
-        if (pressures_.empty() || pressures_.rbegin()->first != logp) {
-            // starting a new group
-            pressures_[logp] = std::make_pair(j, j+1);
-        } else {
-            // another rate expression at the same pressure
-            pressures_[logp].second = j+1;
-        }
-
-        j++;
-        rates_.push_back(Arrhenius(iter->second[0], iter->second[1],
-                                   iter->second[2]));
-    }
-
-    // Duplicate the first and last groups to handle P < P_0 and P > P_N
-    pressures_.insert(std::make_pair(-1000.0, pressures_.begin()->second));
-    pressures_.insert(std::make_pair(1000.0, pressures_.rbegin()->second));
-
-    if (rdata.validate) {
-        validate(rdata.equation);
-    }
-}
 
 Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     : logP_(-1000)
@@ -244,26 +133,6 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
     return R;
 }
 
-ChebyshevRate::ChebyshevRate(const ReactionData& rdata)
-    : Tmin_(rdata.chebTmin)
-    , Tmax_(rdata.chebTmax)
-    , Pmin_(rdata.chebPmin)
-    , Pmax_(rdata.chebPmax)
-    , nP_(rdata.chebDegreeP)
-    , nT_(rdata.chebDegreeT)
-    , chebCoeffs_(rdata.chebCoeffs)
-    , dotProd_(rdata.chebDegreeT)
-{
-    double logPmin = std::log10(rdata.chebPmin);
-    double logPmax = std::log10(rdata.chebPmax);
-    double TminInv = 1.0 / rdata.chebTmin;
-    double TmaxInv = 1.0 / rdata.chebTmax;
-
-    TrNum_ = - TminInv - TmaxInv;
-    TrDen_ = 1.0 / (TmaxInv - TminInv);
-    PrNum_ = - logPmin - logPmax;
-    PrDen_ = 1.0 / (logPmax - logPmin);
-}
 
 ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
                              const Array2D& coeffs)

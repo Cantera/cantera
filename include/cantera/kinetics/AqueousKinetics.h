@@ -55,7 +55,6 @@ public:
     //! Update the equilibrium constants in molar units.
     void updateKc();
 
-    virtual void addReaction(ReactionData& r);
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
 };

@@ -24,31 +24,4 @@ TransportParams::TransportParams() :
 {
 }
 
-GasTransportParams::GasTransportParams() :
-    TransportParams(),
-    visccoeffs(0),
-    condcoeffs(0),
-    diffcoeffs(0),
-    poly(0),
-    omega22_poly(0),
-    astar_poly(0),
-    bstar_poly(0),
-    cstar_poly(0),
-    zrot(0),
-    crot(0),
-    polar(0),
-    alpha(0),
-    fitlist(0),
-    eps(0),
-    sigma(0),
-    reducedMass(0, 0),
-    diam(0, 0),
-    epsilon(0, 0),
-    dipole(0, 0),
-    delta(0, 0)
-{
-    warn_deprecated("class GasTransportParams",
-                    "To be removed after Cantera 2.2.");
-}
-
 } // End of namespace Cantera

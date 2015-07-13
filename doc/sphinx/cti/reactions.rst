@@ -58,9 +58,6 @@ which is defined with an :class:`Arrhenius` entry::
     rate_coeff = Arrhenius(A=1.0e13, b=0, E=(7.3, 'kcal/mol'))
     rate_coeff = Arrhenius(1.0e13, 0, (7.3, 'kcal/mol'))
 
-Note: the usage of ``n`` as the temperature exponent has been deprecated. It is
-still available in version 2.2 but will be removed.
-
 As a shorthand, if the ``rate_coeff`` field is assigned a sequence of three numbers, these are assumed to be :math:`(A, b, E)` in the modified Arrhenius function::
 
     rate_coeff = [1.0e13, 0, (7.3, 'kcal/mol')] # equivalent to above

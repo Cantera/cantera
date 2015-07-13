@@ -40,7 +40,6 @@ namespace Cantera
  + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
  * \f]
  *
- * This class is designed specifically for use by class NasaThermo.
  * @ingroup spthermo
  */
 class NasaPoly1 : public SpeciesThermoInterpType
@@ -49,29 +48,6 @@ public:
     //! Empty constructor
     NasaPoly1()
         : m_coeff(7, 0.0) {}
-
-    //! constructor used in templated instantiations
-    /*!
-     * @param n       Species index
-     * @param tlow    Minimum temperature
-     * @param thigh   Maximum temperature
-     * @param pref    reference pressure (Pa).
-     * @param coeffs  Vector of coefficients used to set the parameters for the
-     *                standard state, in the order [a5,a6,a0,a1,a2,a3,a4]
-     * @deprecated  Use the constructor which does not take species index. To be
-     *     removed after Cantera 2.2.
-     */
-    NasaPoly1(size_t n, doublereal tlow, doublereal thigh, doublereal pref,
-              const doublereal* coeffs) :
-        SpeciesThermoInterpType(n, tlow, thigh, pref),
-        m_coeff(7)
-    {
-        for (size_t i = 0; i < 5; i++) {
-            m_coeff[i] = coeffs[i+2];
-        }
-        m_coeff[5] = coeffs[0];
-        m_coeff[6] = coeffs[1];
-    }
 
     //! Normal constructor
     /*!
@@ -142,11 +118,10 @@ public:
         s = ct0*tt[5] + ct1 + 0.5*ct2 + 1.0/3.0*ct3
             +0.25*ct4 + m_coeff[6];           // last term is a6
 
-        // return the computed properties in the location in the output
-        // arrays for this species
-        cp_R[m_index] = cp;
-        h_RT[m_index] = h;
-        s_R[m_index] = s;
+        // return the computed properties for this species
+        *cp_R = cp;
+        *h_RT = h;
+        *s_R = s;
         //writelog("NASA1: for species "+int2str(m_index)+", h_RT = "+
         //    fp2str(h)+"\n");
     }
@@ -163,7 +138,7 @@ public:
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
-        n = m_index;
+        n = 0;
         type = NASA1;
         tlow = m_lowT;
         thigh = m_highT;
@@ -195,15 +170,12 @@ public:
 
         double h = h_RT * GasConstant * temp;
         if (h298) {
-            h298[m_index] = h;
+            *h298 = h;
         }
         return h;
     }
 
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
-        if (k != m_index) {
-            return;
-        }
         double hcurr = reportHf298(0);
         double delH = Hf298New - hcurr;
         m_coeff[5] += (delH) / GasConstant;

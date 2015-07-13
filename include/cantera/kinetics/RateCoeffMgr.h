@@ -28,27 +28,6 @@ public:
     /**
      * Install a rate coefficient calculator.
      * @param rxnNumber the reaction number
-     * @param rdata rate coefficient specification for the reaction
-     */
-    size_t install(size_t rxnNumber, const ReactionData& rdata) {
-        /*
-        * Check to see if the current reaction rate type is the same as the
-        * type of this class. If not, throw an error condition.
-        */
-        if (rdata.rateCoeffType != R::type())
-            throw CanteraError("Rate1::install",
-                               "incorrect rate coefficient type: "+int2str(rdata.rateCoeffType) + ". Was Expecting type: "+ int2str(R::type()));
-
-        // Install a rate calculator and return the index of the calculator.
-        m_rxn.push_back(rxnNumber);
-        m_rates.push_back(R(rdata));
-        m_indices[rxnNumber] = m_rxn.size() - 1;
-        return m_rates.size() - 1;
-    }
-
-    /**
-     * Install a rate coefficient calculator.
-     * @param rxnNumber the reaction number
      * @param rate rate coefficient specification for the reaction
      */
     void install(size_t rxnNumber, const R& rate) {

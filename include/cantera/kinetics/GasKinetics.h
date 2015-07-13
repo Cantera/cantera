@@ -52,7 +52,6 @@ public:
     //! @name Reaction Mechanism Setup Routines
     //! @{
     virtual void init();
-    virtual void addReaction(ReactionData& r);
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     virtual void finalize();
@@ -110,11 +109,6 @@ protected:
     //!@}
 
     void processFalloffReactions();
-
-    void addThreeBodyReaction(ReactionData& r);
-    void addFalloffReaction(ReactionData& r);
-    void addPlogReaction(ReactionData& r);
-    void addChebyshevReaction(ReactionData& r);
 
     void addThreeBodyReaction(ThreeBodyReaction& r);
     void addFalloffReaction(FalloffReaction& r);

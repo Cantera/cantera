@@ -222,13 +222,6 @@ public:
      */
     std::string value() const;
 
-    //! Overloaded parenthesis operator returns the value of the Node
-    /*!
-     *  @return  Returns the value of the node as a string.
-     *  @deprecated Use value() instead.
-     */
-    std::string operator()() const;
-
     //! Return the value of an XML child node as a string
     /*!
      *  @param cname  Name of the child node to the current
@@ -558,18 +551,6 @@ public:
      *  @return         Returns the pointer to the XML node that fits the criteria
      */
     XML_Node* findByName(const std::string& nm, int depth = 100000);
-
-    //! Get a vector of pointers to XML_Node containing all of the children
-    //! of the current node which matches the input name
-    /*!
-     *  @param name   Name of the XML_Node children to search on
-     *
-     * @param children  output vector of pointers to XML_Node children
-     *                  with the matching name
-     * @deprecated To be removed after Cantera 2.2. Use the version that returns
-     *     the vector of child nodes
-     */
-    void getChildren(const std::string& name, std::vector<XML_Node*>& children) const;
 
     //! Get a vector of pointers to XML_Node containing all of the children
     //! of the current node which match the given name

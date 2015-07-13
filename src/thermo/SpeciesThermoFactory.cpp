@@ -1,187 +1,32 @@
 /**
  *  @file SpeciesThermoFactory.cpp
- *    Definitions for factory to build instances of classes that manage the
- *    standard-state thermodynamic properties of a set of species
- *    (see \ref spthermo and class \link Cantera::SpeciesThermoFactory SpeciesThermoFactory\endlink);
+ *    Definitions for factory functions to build instances of classes that
+ *    manage the standard-state thermodynamic properties of a set of species
+ *    (see \ref spthermo);
  */
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/thermo/SpeciesThermoFactory.h"
-
 #include "cantera/thermo/SpeciesThermo.h"
-#include "NasaThermo.h"
-#include "ShomateThermo.h"
-#include "cantera/thermo/SimpleThermo.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/Mu0Poly.h"
 #include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
 #include "cantera/thermo/StatMech.h"
 #include "cantera/thermo/NasaPoly2.h"
+#include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/AdsorbateThermo.h"
-#include "cantera/thermo/SpeciesThermoMgr.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-
 #include "cantera/base/ctml.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 
 namespace Cantera
 {
-SpeciesThermoFactory* SpeciesThermoFactory::s_factory = 0;
-mutex_t SpeciesThermoFactory::species_thermo_mutex;
-
-//! Examine the types of species thermo parameterizations,
-//! and return a flag indicating the type of reference state thermo manager
-//! that will be needed in order to evaluate them all.
-/*!
- *
- *  @param spDataNodeList    This vector contains a list
- *                           of species XML nodes that will be in the phase
- *  @param has_nasa          Return int that indicates whether the phase has a NASA polynomial form for one of its species
- *  @param has_shomate       Return int that indicates whether the phase has a SHOMATE polynomial form for one of its species
- *  @param has_simple        Return int that indicates whether the phase has a SIMPLE polynomial form for one of its species
- *  @param has_other         Return int that indicates whether the phase has a form for one of its species that is not one of the ones listed above.
- *
- * @todo Make sure that spDadta_node is species Data XML node by checking its name is speciesData
- * @deprecated
- */
-static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
-                                  int& has_nasa, int& has_shomate, int& has_simple,
-                                  int& has_other)
-{
-    for (size_t n = 0; n < spDataNodeList.size(); n++) {
-        XML_Node* spNode = spDataNodeList[n];
-        if (spNode->hasChild("standardState")) {
-            string mname = spNode->child("standardState")["model"];
-            if (mname == "water" || mname == "waterIAPWS") {
-                has_other = 1;
-                continue;
-            }
-        }
-        if (spNode->hasChild("thermo")) {
-            const XML_Node& th = spNode->child("thermo");
-            if (th.hasChild("NASA")) {
-                has_nasa = 1;
-            } else if (th.hasChild("Shomate")) {
-                has_shomate = 1;
-            } else if (th.hasChild("MinEQ3")) {
-                has_shomate = 1;
-            } else if (th.hasChild("const_cp")) {
-                has_simple = 1;
-            } else if (th.hasChild("poly")) {
-                if (th.child("poly")["order"] == "1") {
-                    has_simple = 1;
-                } else throw CanteraError("newSpeciesThermo",
-                                              "poly with order > 1 not yet supported");
-            } else if (th.hasChild("Mu0")) {
-                has_other = 1;
-            } else if (th.hasChild("NASA9")) {
-                has_other = 1;
-            } else if (th.hasChild("NASA9MULTITEMP")) {
-                has_other = 1;
-            } else if (th.hasChild("adsorbate")) {
-                has_other = 1;
-            } else {
-                has_other = 1;
-            }
-        } else {
-            throw CanteraError("getSpeciesThermoTypes:",
-                               spNode->attrib("name") + " is missing the thermo XML node");
-        }
-    }
-}
-
-SpeciesThermoFactory* SpeciesThermoFactory::factory()
-{
-    warn_deprecated("class SpeciesThermoFactory",
-                    "To be removed after Cantera 2.2.");
-    ScopedLock lock(species_thermo_mutex);
-    if (!s_factory) {
-        s_factory = new SpeciesThermoFactory;
-    }
-    return s_factory;
-}
-
-void SpeciesThermoFactory::deleteFactory()
-{
-    ScopedLock lock(species_thermo_mutex);
-    delete s_factory;
-    s_factory = 0;
-}
-
-SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(std::vector<XML_Node*> & spDataNodeList) const
-{
-    warn_deprecated("SpeciesThermoFactory::newSpeciesThermo",
-        "To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly.");
-    int inasa = 0, ishomate = 0, isimple = 0, iother = 0;
-    try {
-        getSpeciesThermoTypes(spDataNodeList, inasa, ishomate, isimple, iother);
-    } catch (UnknownSpeciesThermoModel) {
-        iother = 1;
-        popError();
-    }
-    if (iother) {
-        return new GeneralSpeciesThermo();
-    }
-    return newSpeciesThermo(NASA*inasa
-                            + SHOMATE*ishomate + SIMPLE*isimple);
-}
-
-SpeciesThermo* SpeciesThermoFactory::newSpeciesThermo(int type) const
-{
-    warn_deprecated("SpeciesThermoFactory::newSpeciesThermo",
-        "To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly.");
-    switch (type) {
-    case NASA:
-        return new NasaThermo;
-    case SHOMATE:
-        return new ShomateThermo;
-    case SIMPLE:
-        return new SimpleThermo;
-    case NASA + SHOMATE:
-        return new SpeciesThermoDuo<NasaThermo, ShomateThermo>;
-    case NASA + SIMPLE:
-        return new SpeciesThermoDuo<NasaThermo, SimpleThermo>;
-    case SHOMATE + SIMPLE:
-        return new SpeciesThermoDuo<ShomateThermo, SimpleThermo>;
-    default:
-        throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermo",
-                                   type);
-        return 0;
-    }
-}
-
-SpeciesThermo* SpeciesThermoFactory::newSpeciesThermoManager(const std::string& stype) const
-{
-    warn_deprecated("SpeciesThermoFactory::newSpeciesThermo",
-        "To be removed after Cantera 2.2. Use class GeneralSpeciesThermo directly.");
-    std::string ltype = lowercase(stype);
-    if (ltype == "nasa") {
-        return new NasaThermo;
-    } else if (ltype == "shomate") {
-        return new ShomateThermo;
-    } else if (ltype ==  "simple" || ltype == "constant_cp") {
-        return new SimpleThermo;
-    } else if (ltype ==  "nasa_shomate_duo") {
-        return new SpeciesThermoDuo<NasaThermo, ShomateThermo>;
-    } else if (ltype ==  "nasa_simple_duo") {
-        return new SpeciesThermoDuo<NasaThermo, SimpleThermo>;
-    } else if (ltype ==  "shomate_simple_duo") {
-        return new SpeciesThermoDuo<ShomateThermo, SimpleThermo>;
-    } else if (ltype ==   "general") {
-        return new GeneralSpeciesThermo();
-    } else if (ltype ==  "") {
-        return (SpeciesThermo*) 0;
-    } else {
-        throw UnknownSpeciesThermo("SpeciesThermoFactory::newSpeciesThermoManager",
-                                   stype);
-    }
-    return (SpeciesThermo*) 0;
-}
 
 SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
     double thigh, double pref, const double* coeffs)
@@ -561,37 +406,7 @@ static SpeciesThermoInterpType* newAdsorbateThermoFromXML(const XML_Node& f)
     coeffs[0] = static_cast<double>(freqs.size());
     coeffs[1] = getFloat(f, "binding_energy", "toSI");
     copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
-    return new Adsorbate(0, tmin, tmax, pref, &coeffs[0]);
-}
-
-void SpeciesThermoFactory::installThermoForSpecies
-(size_t k, const XML_Node& speciesNode, ThermoPhase* th_ptr,
- SpeciesThermo& spthermo, const XML_Node* phaseNode_ptr) const
-{
-    shared_ptr<SpeciesThermoInterpType> stit(
-        newSpeciesThermoInterpType(speciesNode.child("thermo")));
-    stit->validate(speciesNode["name"]);
-    spthermo.install_STIT(k, stit);
-}
-
-void SpeciesThermoFactory::installVPThermoForSpecies(size_t k,
-    const XML_Node& speciesNode,
-    VPStandardStateTP* vp_ptr,
-    VPSSMgr* vpssmgr_ptr,
-    SpeciesThermo* spthermo_ptr,
-    const XML_Node* phaseNode_ptr) const
-{
-    warn_deprecated("SpeciesThermoFactory::installVPThermoForSpecies",
-                    "Call VPStandardStateTP::createInstallPDSS directly.");
-    // Call the VPStandardStateTP object to install the pressure dependent species
-    // standard state into the object.
-    //
-    // We don't need to pass spthermo_ptr down, because it's already installed
-    // into vp_ptr.
-    //
-    // We don't need to pass vpssmgr_ptr down, because it's already installed
-    // into vp_ptr.
-    vp_ptr->createInstallPDSS(k, speciesNode,  phaseNode_ptr);
+    return new Adsorbate(tmin, tmax, pref, &coeffs[0]);
 }
 
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
@@ -626,7 +441,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
     std::string model = lowercase(thermo["model"]);
     if (model == "mineraleq3") {
         if (thermoType != "mineq3") {
-            throw CanteraError("SpeciesThermoFactory::installThermoForSpecies",
+            throw CanteraError("newSpeciesThermoInterpType",
                                "confused: expected MinEQ3");
         }
         return newShomateForMineralEQ3(*tp[0]);
@@ -653,38 +468,6 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
         throw CanteraError("newSpeciesThermoInterpType",
             "Unknown species thermo model '" + thermoType + "'.");
     }
-}
-
-SpeciesThermo* newSpeciesThermoMgr(int type, SpeciesThermoFactory* f)
-{
-    warn_deprecated("newSpeciesThermoMgr", "To be removed after Cantera 2.2. "
-        "Use class GeneralSpeciesThermo directly.");
-    if (f == 0) {
-        f = SpeciesThermoFactory::factory();
-    }
-    return f->newSpeciesThermo(type);
-}
-
-SpeciesThermo* newSpeciesThermoMgr(const std::string& stype,
-                                   SpeciesThermoFactory* f)
-{
-    warn_deprecated("newSpeciesThermoMgr", "To be removed after Cantera 2.2. "
-        "Use class GeneralSpeciesThermo directly.");
-    if (f == 0) {
-        f = SpeciesThermoFactory::factory();
-    }
-    return f->newSpeciesThermoManager(stype);
-}
-
-SpeciesThermo* newSpeciesThermoMgr(std::vector<XML_Node*> spData_nodes,
-                                   SpeciesThermoFactory* f)
-{
-    warn_deprecated("newSpeciesThermoMgr", "To be removed after Cantera 2.2. "
-        "Use class GeneralSpeciesThermo directly.");
-    if (f == 0) {
-        f = SpeciesThermoFactory::factory();
-    }
-    return f->newSpeciesThermo(spData_nodes);
 }
 
 }

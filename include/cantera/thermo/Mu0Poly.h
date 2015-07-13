@@ -74,37 +74,6 @@ public:
     //! Constructor
     Mu0Poly();
 
-    //! Constructor used in templated instantiations
-    /*!
-     * In the constructor, we calculate and store the
-     * piecewise linear approximation to the thermodynamic
-     * functions.
-     *
-     * @param n            Species index
-     * @param tlow         Minimum temperature
-     * @param thigh        Maximum temperature
-     * @param pref         reference pressure (Pa).
-     * @param coeffs       Vector of coefficients used to set the
-     *                     parameters for the standard state for species n.
-     *                     There are \f$ 2+npoints*2 \f$ coefficients, where
-     *                     \f$ npoints \f$ are the number of temperature points.
-     *                     Their identity is further broken down:
-     *            - coeffs[0] = number of points (integer)
-     *            - coeffs[1]  = \f$ h^o(298.15 K) \f$ (J/kmol)
-     *            - coeffs[2]  = \f$ T_1 \f$  (Kelvin)
-     *            - coeffs[3]  = \f$ \mu^o(T_1) \f$ (J/kmol)
-     *            - coeffs[4]  = \f$ T_2 \f$  (Kelvin)
-     *            - coeffs[5]  = \f$ \mu^o(T_2) \f$ (J/kmol)
-     *            - coeffs[6]  = \f$ T_3 \f$  (Kelvin)
-     *            - coeffs[7]  = \f$ \mu^o(T_3) \f$ (J/kmol)
-     *            - ........
-     *            .
-     * @deprecated Use the constructor which does not require the species index.
-     *     To be removed after Cantera 2.2.
-     */
-    Mu0Poly(size_t n, doublereal tlow, doublereal thigh,
-            doublereal pref, const doublereal* coeffs);
-
     //! Normal constructor
     /*!
      * In the constructor, we calculate and store the piecewise linear

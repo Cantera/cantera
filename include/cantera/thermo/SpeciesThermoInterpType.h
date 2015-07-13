@@ -160,11 +160,6 @@ class SpeciesThermoInterpType
 public:
     SpeciesThermoInterpType();
 
-    //! @deprecated Use the constructor without the species index. To be removed
-    //! after Cantera 2.2.
-    SpeciesThermoInterpType(size_t n, doublereal tlow,
-                            doublereal thigh, doublereal pref);
-
     SpeciesThermoInterpType(double tlow, double thigh, double pref);
 
     SpeciesThermoInterpType(const SpeciesThermoInterpType& b);
@@ -197,17 +192,6 @@ public:
 
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const = 0;
-
-    //! Returns an integer representing the species index
-    //! @deprecated
-    virtual size_t speciesIndex() const {
-        return m_index;
-    }
-
-    //! @deprecated
-    virtual void setIndex(size_t index) {
-      m_index = index;
-    }
 
     //! Number of terms in the temperature polynomial for this parameterization
     virtual size_t temperaturePolySize() const { return 1; }
@@ -316,8 +300,6 @@ protected:
     doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;
-    //! species index @deprecated
-    size_t m_index;
 };
 
 //! Class for the thermodynamic manager for an individual species' reference
@@ -338,22 +320,6 @@ class STITbyPDSS : public SpeciesThermoInterpType
 public:
     //! Constructor
     STITbyPDSS();
-
-    //! Main Constructor
-    /*!
-     *  @param speciesIndex species index for this object. Note, this must
-     *         agree with what was internally set before.
-     *
-     *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state
-     *      manager that owns the PDSS object that will handle calls for this
-     *      object
-     *
-     *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for
-     *      this object
-     *  @deprecated Use the constructor which does not require the species
-     *      index. To be removed after Cantera 2.2.
-     */
-    STITbyPDSS(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
 
     //! Main Constructor
     /*!

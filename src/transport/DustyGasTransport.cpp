@@ -96,30 +96,6 @@ void DustyGasTransport::setThermo(thermo_t& thermo)
     m_gastran->setThermo(thermo);
 }
 
-void DustyGasTransport::setParameters(const int type, const int k, const doublereal* const p)
-{
-    warn_deprecated("DustyGasTransport::setParameters", "To be removed after Cantera 2.2");
-    switch (type) {
-    case 0:
-        setPorosity(p[0]);
-        break;
-    case 1:
-        setTortuosity(p[0]);
-        break;
-    case 2:
-        setMeanPoreRadius(p[0]);
-        break;
-    case 3:
-        setMeanParticleDiameter(p[0]);
-        break;
-    case 4:
-        setPermeability(p[0]);
-        break;
-    default:
-        throw CanteraError("DustyGasTransport::init", "unknown parameter");
-    }
-}
-
 void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
 {
 

@@ -419,10 +419,10 @@ static void print_stringTrunc(const char* str, int space, int alignment)
     }
 }
 
-size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
-                     MultiPhase* mphase,
-                     std::vector<size_t>& orderVectorSpecies,
-                     std::vector<size_t>& orderVectorElements)
+void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
+                   MultiPhase* mphase,
+                   std::vector<size_t>& orderVectorSpecies,
+                   std::vector<size_t>& orderVectorElements)
 {
     size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
 
@@ -627,7 +627,6 @@ size_t ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
          *      jr is counted from 0, via the C convention.
          */
     } while (jr < (nComponents-1));
-    return nComponents;
 }
 
 }

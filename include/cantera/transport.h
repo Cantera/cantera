@@ -13,7 +13,6 @@
 #include "transport/DustyGasTransport.h"
 #include "transport/MultiTransport.h"
 #include "transport/MixTransport.h"
-#include "transport/PecosTransport.h"
 #include "transport/LiquidTransport.h"
 #include "transport/HighPressureGasTransport.h"
 #endif

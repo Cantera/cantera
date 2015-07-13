@@ -6,7 +6,6 @@
 
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
-#include "cantera/kinetics/ReactionData.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -764,123 +763,6 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
     getReactionDelta(DATA_PTR(m_grt), deltaS);
 }
 
-void InterfaceKinetics::addReaction(ReactionData& r)
-{
-    int reactionType = r.reactionType;
-
-    // Install rate coeff calculator
-    if (r.cov.size() > 3) {
-        m_has_coverage_dependence = true;
-    }
-    for (size_t m = 0; m < r.cov.size(); m++) {
-        r.rateCoeffParameters.push_back(r.cov[m]);
-    }
-
-    /*
-     * Temporarily change the reaction rate coefficient type to surface arrhenius.
-     * This is what is expected. We'll handle exchange current types below by hand.
-     */
-    int reactionRateCoeffType_orig = r.rateCoeffType;
-    if (r.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
-        r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-    if (r.rateCoeffType == ARRHENIUS_REACTION_RATECOEFF_TYPE) {
-        r.rateCoeffType = SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE;
-    }
-    /*
-     * Install the reaction rate into the vector of reactions handled by this class
-     */
-    m_rates.install(m_ii, r);
-
-    /*
-     * Change the reaction rate coefficient type back to its original value
-     */
-    r.rateCoeffType = reactionRateCoeffType_orig;
-
-    // Store activation energy
-    m_E.push_back(r.rateCoeffParameters[2]);
-
-    if (r.beta > 0.0) {
-        m_has_electrochem_rxns = true;
-        m_beta.push_back(r.beta);
-        m_ctrxn.push_back(m_ii);
-        if (r.rateCoeffType == EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE) {
-            m_has_exchange_current_density_formulation = true;
-            m_ctrxn_ecdf.push_back(1);
-        } else {
-            m_ctrxn_ecdf.push_back(0);
-        }
-        m_ctrxn_resistivity_.push_back(r.filmResistivity);
-
-        if (reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
-            reactionType == BUTLERVOLMER_RXN ||
-            reactionType == SURFACEAFFINITY_RXN ||
-            reactionType == GLOBAL_RXN) {
-            //   Specify alternative forms of the electrochemical reaction
-            if (r.reactionType == BUTLERVOLMER_RXN) {
-                m_ctrxn_BVform.push_back(1);
-            } else if (r.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN) {
-                m_ctrxn_BVform.push_back(2);
-            } else {
-                // set the default to be the normal forward / reverse calculation method
-                m_ctrxn_BVform.push_back(0);
-            }
-            if (r.forwardFullOrder_.size() > 0) {
-                RxnOrders* ro = new RxnOrders();
-                ro->fill(r.forwardFullOrder_);
-                m_ctrxn_ROPOrdersList_.push_back(ro);
-                m_ctrxn_FwdOrdersList_.push_back(0);
-
-                // Fill in the Fwd Orders dependence here for B-V reactions
-                if (r.reactionType == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
-                    r.reactionType == BUTLERVOLMER_RXN) {
-                    vector_fp fwdFullorders(m_kk, 0.0);
-                    determineFwdOrdersBV(r, fwdFullorders);
-                    RxnOrders* ro = new RxnOrders();
-                    ro->fill(fwdFullorders);
-                    m_ctrxn_FwdOrdersList_[m_ii] = ro;
-                }
-            } else {
-                m_ctrxn_ROPOrdersList_.push_back(0);
-                m_ctrxn_FwdOrdersList_.push_back(0);
-            }
-
-        } else {
-            m_ctrxn_BVform.push_back(0);
-            m_ctrxn_ROPOrdersList_.push_back(0);
-            m_ctrxn_FwdOrdersList_.push_back(0);
-            if (r.filmResistivity > 0.0) {
-                throw CanteraError("InterfaceKinetics::addReaction()",
-                                   "film resistivity set for elementary reaction");
-            }
-        }
-    }
-
-    if (r.reversible) {
-        m_revindex.push_back(nReactions());
-        m_nrev++;
-    } else {
-        m_irrev.push_back(nReactions());
-        m_nirrev++;
-    }
-    Kinetics::addReaction(r);
-
-    m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
-    m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));
-
-    size_t i = m_ii - 1;
-    for (size_t ik = 0; ik < r.reactants.size(); ik++) {
-        size_t k = r.reactants[ik];
-        size_t p = speciesPhaseIndex(k);
-        m_rxnPhaseIsReactant[i][p] = true;
-    }
-    for (size_t ik = 0; ik < r.products.size(); ik++) {
-        size_t k = r.products[ik];
-        size_t p = speciesPhaseIndex(k);
-        m_rxnPhaseIsProduct[i][p] = true;
-    }
-}
-
 bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
 {
     size_t i = nReactions();
@@ -1256,39 +1138,6 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
         m_phaseIsStable[iphase] = true;
     } else {
         m_phaseIsStable[iphase] = false;
-    }
-}
-
-void InterfaceKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders)
-{
-    //   Start out with the full ROP orders vector.
-    //   This vector will have the BV exchange current density orders in it.
-    fwdFullorders = rdata.forwardFullOrder_;
-
-    //   forward and reverse beta values
-    double betaf = rdata.beta;
-
-    //   Loop over the reactants doing away with the BV terms.
-    //   This should leave the reactant terms only, even if they are non-mass action.
-    for (size_t j = 0; j < rdata.reactants.size(); j++) {
-        size_t kkin =  rdata.reactants[j];
-        double oo = rdata.rstoich[j];
-        fwdFullorders[kkin] += betaf * oo;
-        // just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
-        if (abs(fwdFullorders[kkin]) < 0.00001) {
-            fwdFullorders[kkin] = 0.0;
-        }
-    }
-
-    //   Loop over the products doing away with the BV terms.
-    //   This should leave the reactant terms only, even if they are non-mass action.
-    for (size_t j = 0; j < rdata.products.size(); j++) {
-        size_t kkin =  rdata.products[j];
-        double oo = rdata.pstoich[j];
-        fwdFullorders[kkin] -= betaf * oo;
-        if (abs(fwdFullorders[kkin]) < 0.00001) {
-            fwdFullorders[kkin] = 0.0;
-        }
     }
 }
 

@@ -313,8 +313,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
     }
 }
 
-bool importPhase(XML_Node& phase, ThermoPhase* th,
-                 SpeciesThermoFactory* spfactory)
+void importPhase(XML_Node& phase, ThermoPhase* th)
 {
     // Check the the supplied XML node in fact represents a phase.
     if (phase.name() != "phase") {
@@ -490,8 +489,6 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     // that requires the XML phase object
     std::string id = "";
     th->initThermoXML(phase, id);
-
-    return true;
 }
 
 void installElements(Phase& th, const XML_Node& phaseNode)
@@ -557,23 +554,6 @@ void installElements(Phase& th, const XML_Node& phaseNode)
             th.addElement(symbol);
         }
     }
-}
-
-bool installSpecies(size_t k, const XML_Node& s, thermo_t& th,
-                    SpeciesThermo* spthermo_ptr, int rule,
-                    XML_Node* phaseNode_ptr,
-                    VPSSMgr* vpss_ptr,
-                    SpeciesThermoFactory* factory)
-{
-    warn_deprecated("installSpecies", "Use newSpecies and addSpecies. For"
-        " VPStandardStateTP phases, call createInstallPDSS as well."
-        " To be removed after Cantera 2.2.");
-    th.addSpecies(newSpecies(s));
-    VPStandardStateTP* vp_ptr = dynamic_cast<VPStandardStateTP*>(&th);
-    if (vp_ptr) {
-        vp_ptr->createInstallPDSS(k, s, phaseNode_ptr);
-    }
-    return true;
 }
 
 const XML_Node* speciesXML_Node(const std::string& kname,

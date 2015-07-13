@@ -471,13 +471,6 @@ std::string XML_Node::value() const
     return m_value;
 }
 
-std::string XML_Node::operator()() const
-{
-    warn_deprecated("XML_Node::operator()",
-                    "To be removed after Cantera 2.2. Use XML_Node::value().");
-    return m_value;
-}
-
 doublereal  XML_Node::fp_value() const
 {
     return fpValueCheck(m_value);
@@ -909,18 +902,6 @@ void XML_Node::unlock()
     m_locked = false;
     for (size_t i = 0; i < m_children.size(); i++) {
         m_children[i]->unlock();
-    }
-}
-
-void XML_Node::getChildren(const std::string& nm,
-                           std::vector<XML_Node*>& children_) const
-{
-    warn_deprecated("XML_Node::getChildren", "To be removed after Cantera 2.2."
-                    "Use overload that returns the vector of XML_Node pointers.");
-    for (size_t i = 0; i < nChildren(); i++) {
-        if (child(i).name() == nm) {
-            children_.push_back(&child(i));
-        }
     }
 }
 

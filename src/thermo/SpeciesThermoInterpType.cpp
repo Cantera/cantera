@@ -14,23 +14,8 @@ namespace Cantera
 SpeciesThermoInterpType::SpeciesThermoInterpType() :
     m_lowT(0.0),
     m_highT(0.0),
-    m_Pref(0.0),
-    m_index(0)
+    m_Pref(0.0)
 {
-}
-
-SpeciesThermoInterpType::SpeciesThermoInterpType(size_t n, doublereal tlow,
-                                                 doublereal thigh,
-                                                 doublereal pref) :
-    m_lowT(tlow),
-    m_highT(thigh),
-    m_Pref(pref),
-    m_index(n)
-{
-    warn_deprecated("Constructor SpeciesThermoInterpType(size_t n, ...)",
-        "Use the constructor which does not take a species index."
-        " Applies to all classes derived from SpeciesThermoInterpType."
-        " To be removed after Cantera 2.2.");
 }
 
 SpeciesThermoInterpType::SpeciesThermoInterpType(double tlow,
@@ -38,16 +23,14 @@ SpeciesThermoInterpType::SpeciesThermoInterpType(double tlow,
                                                  double pref) :
     m_lowT(tlow),
     m_highT(thigh),
-    m_Pref(pref),
-    m_index(0)
+    m_Pref(pref)
 {
 }
 
 SpeciesThermoInterpType::SpeciesThermoInterpType(const SpeciesThermoInterpType &b) :
     m_lowT(b.m_lowT),
     m_highT(b.m_highT),
-    m_Pref(b.m_Pref),
-    m_index(b.m_index)
+    m_Pref(b.m_Pref)
 {
 }
 
@@ -75,15 +58,6 @@ void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
 
 STITbyPDSS::STITbyPDSS()
 {
-    m_index = npos;
-}
-
-STITbyPDSS::STITbyPDSS(size_t k, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
-    SpeciesThermoInterpType(),
-    m_vpssmgr_ptr(vpssmgr_ptr),
-    m_PDSS_ptr(PDSS_ptr)
-{
-    m_index = k;
 }
 
 STITbyPDSS::STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
@@ -109,8 +83,6 @@ STITbyPDSS::duplMyselfAsSpeciesThermoInterpType() const
 void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr,
                              PDSS* PDSS_ptr)
 {
-    AssertThrow(speciesIndex == m_index,
-                "STITbyPDSS::initAllPtrs internal confusion");
     m_vpssmgr_ptr = vpssmgr_ptr;
     m_PDSS_ptr = PDSS_ptr;
 }
@@ -149,11 +121,9 @@ void  STITbyPDSS::updatePropertiesTemp(const doublereal temp,
                                        doublereal* s_R) const
 {
     m_PDSS_ptr->setTemperature(temp);
-    AssertThrowMsg(m_index != npos, "STITbyPDSS::updatePropertiesTemp",
-                   "object was probably not installed correctly");
-    h_RT[m_index] = m_PDSS_ptr->enthalpy_RT_ref();
-    cp_R[m_index] = m_PDSS_ptr->cp_R_ref();
-    s_R[m_index]  = m_PDSS_ptr->entropy_R_ref();
+    *h_RT = m_PDSS_ptr->enthalpy_RT_ref();
+    *cp_R = m_PDSS_ptr->cp_R_ref();
+    *s_R  = m_PDSS_ptr->entropy_R_ref();
 }
 
 void  STITbyPDSS::reportParameters(size_t& index, int& type,
@@ -161,10 +131,10 @@ void  STITbyPDSS::reportParameters(size_t& index, int& type,
                                    doublereal& refPressure,
                                    doublereal* const coeffs) const
 {
-    index = m_index;
+    index = 0;
     type = PDSS_TYPE;
-    minTemp = m_vpssmgr_ptr->minTemp(m_index);
-    maxTemp = m_vpssmgr_ptr->maxTemp(m_index);
+    minTemp = m_vpssmgr_ptr->minTemp();
+    maxTemp = m_vpssmgr_ptr->maxTemp();
     refPressure = m_PDSS_ptr->refPressure();
 }
 

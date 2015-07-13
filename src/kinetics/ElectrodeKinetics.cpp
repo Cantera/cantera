@@ -484,55 +484,6 @@ void ElectrodeKinetics::updateROP()
 }
 //==================================================================================================================
 //
-//  This version of takes the electrons out of the reaction rate expression
-//  (note: with proper specification of the phase, this shouldn't make a numerical difference (power of 1).
-//         But it certainly is a complication and unneeded work)
-//   (TODO:  probably can take stoichiometric solids out of the reaction order expression as well.
-//           They all contribute powers of 1 as well)
-//
-void ElectrodeKinetics::determineFwdOrdersBV(ReactionData& rdata, std::vector<doublereal>& fwdFullorders)
-{
-    //
-    //   Start out with the full ROP orders vector.
-    //   This vector will have the BV exchange current density orders in it.
-    //
-    fwdFullorders = rdata.forwardFullOrder_;
-    //
-    //   forward and reverse beta values
-    //
-    double betaf = rdata.beta;
-    //double betar = 1.0 - betaf;
-    //
-    //   Loop over the reactants doing away the BV terms.
-    //   This should leave the reactant terms only, even if they are non-mass action.
-    //
-    for (size_t j = 0; j < rdata.reactants.size(); j++) {
-	size_t kkin =  rdata.reactants[j];
-	double oo = rdata.rstoich[j];
-	if (kkin != kElectronIndex_) {
-	    fwdFullorders[kkin] += betaf * oo;
-	    if (abs(fwdFullorders[kkin]) < 0.00001) {
-		fwdFullorders[kkin] = 0.0;
-	    }
-	} else {
-	    fwdFullorders[kkin] = 0.0;
-	}
-    }
-    for (size_t j = 0; j < rdata.products.size(); j++) {
-	size_t kkin =  rdata.products[j];
-	double oo = rdata.pstoich[j];
-	if (kkin != kElectronIndex_) {
-	    fwdFullorders[kkin] -= betaf * oo;
-	    if (abs(fwdFullorders[kkin]) < 0.00001) {
-		fwdFullorders[kkin] = 0.0;
-	    }
-	} else {
-	    fwdFullorders[kkin] = 0.0;
-	}
-    }
-}
-//==================================================================================================================
-//
 //  When the BV form is used we still need to go backwards to calculate the forward rate of progress.
 //  This routine does that
 //

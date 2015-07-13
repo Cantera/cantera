@@ -994,8 +994,7 @@ class Arrhenius(rate_expression):
                  A = 0.0,
                  b = 0.0,
                  E = 0.0,
-                 coverage = [],
-                 n = None):
+                 coverage = []):
         """
         :param A:
             The pre-exponential coefficient. Required input. If entered without
@@ -1011,22 +1010,7 @@ class Arrhenius(rate_expression):
             parameters. For multiple coverage dependencies, a list of lists
             containing the individual sets of coverage parameters. Only used for
             surface and edge reactions.
-        :param n:
-            The temperature exponent. Dimensionless. Default: 0.0. Deprecated usage
-            provided for compatibility.
         """
-        if n is not None and b != 0.0:
-            raise CTI_Error("n and b cannot both be specified for the "
-                            "temperature exponent. Specify one or the other.")
-        elif n is not None and b == 0.0:
-            b = n
-            _printerr(
-                "Warning: Usage of n to specify the temperature exponent is "
-                "deprecated and will be removed in a future version. Use b "
-                "to specify the temperature exponent by keyword. Please check "
-                "your cti file for places where the temperature exponent of "
-                "the reaction rate is set by n = XXX and change them to "
-                "b = XXX.")
 
         self._c = [A, b, E]
 

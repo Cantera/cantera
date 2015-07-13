@@ -20,6 +20,7 @@
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace std;
 
