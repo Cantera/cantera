@@ -2,9 +2,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "application.h"
 
-#ifdef HAVE_FENV_H
-#include <fenv.h>
-#endif
 #include <sstream>
 
 namespace Cantera
@@ -77,23 +74,6 @@ std::string IndexError::getMessage() const
     ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
        " outside valid range of 0 to " << (mmax_) << ".";
     return ss.str();
-}
-
-bool check_FENV_OverUnder_Flow() {
-#ifdef HAVE_FENV_H
-     fexcept_t ff;
-     fegetexceptflag(&ff, FE_OVERFLOW || FE_UNDERFLOW || FE_INVALID);
-     if (ff) {
-        return true;
-     }
-#endif
-     return false;
-};
-
-void clear_FENV() {
-#ifdef HAVE_FENV_H
-     feclearexcept(FE_ALL_EXCEPT);
-#endif
 }
 
 } // namespace Cantera

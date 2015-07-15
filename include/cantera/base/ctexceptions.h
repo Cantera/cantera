@@ -190,17 +190,6 @@ public:
     }
 };
 
-//! Quick check on whether there has been an underflow or overflow condition in the floating point unit
-/*!
- *    @return Returns true if there has been such a condition and it has not been cleared. returns false
- *            if there hasn't been an overflow, underflow or invalid condition.
- */
-bool check_FENV_OverUnder_Flow();
-
-//! Clear all the flags for floating-point exceptions
-void clear_FENV();
-
-
 //! Provides a line number
 #define XSTR_TRACE_LINE(s) STR_TRACE_LINE(s)
 

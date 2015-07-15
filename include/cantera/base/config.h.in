@@ -84,8 +84,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 %(USE_GLOBAL_ISNAN)s
 %(USE_UNDERSCORE_ISNAN)s
 
-%(HAS_FENV_H)s
-
 // This define is needed to account for the variability for how
 // static variables in templated classes are defined. Right now
 // this is only turned on for the SunPro compiler on Solaris.

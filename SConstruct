@@ -789,12 +789,6 @@ configh = {}
 
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
-#
-# Check to see if the compiler supports C99 fenv.h
-#      Apparently, the only compiler not to is MS visual before 2013
-#
-env['HAS_FENV_H'] = conf.CheckCHeader('fenv.h', '""')
-
 env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 
 env['HAS_GLOBAL_ISNAN'] = conf.CheckStatement('::isnan(1.0)', '#include <cmath>')
@@ -1280,12 +1274,6 @@ else:
 cdefine('USE_GLOBAL_ISNAN', 'HAS_GLOBAL_ISNAN')
 cdefine('USE_STD_ISNAN', 'HAS_STD_ISNAN')
 cdefine('USE_UNDERSCORE_ISNAN', 'HAS_UNDERSCORE_ISNAN')
-
-#  this turns on HAS_FENV_H
-if env['HAS_FENV_H']:
-    configh['HAS_FENV_H'] = 1
-else:
-    configh['HAS_FENV_H'] = None
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',
