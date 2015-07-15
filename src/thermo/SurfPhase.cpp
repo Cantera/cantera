@@ -288,9 +288,6 @@ void SurfPhase::setCoverages(const doublereal* theta)
         sum += theta[k];
     }
     if (sum <= 0.0) {
-        for (size_t k = 0; k < m_kk; k++) {
-            cout << "theta(" << k << ") = " << theta[k] << endl;
-        }
         throw CanteraError("SurfPhase::setCoverages",
                            "Sum of Coverage fractions is zero or negative");
     }
