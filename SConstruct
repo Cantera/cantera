@@ -1442,8 +1442,6 @@ if env['python3_package'] == 'y' or env['python_package'] == 'full':
 if env['python_package'] == 'minimal':
     SConscript('interfaces/python_minimal/SConscript')
 
-SConscript('build/src/apps/SConscript')
-
 if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')

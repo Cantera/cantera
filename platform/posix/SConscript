@@ -5,6 +5,10 @@ from buildutils import *
 Import('env', 'build', 'install')
 localenv = env.Clone()
 
+# Copy man pages
+if env['INSTALL_MANPAGES']:
+    install('$inst_mandir', mglob(localenv, '#platform/posix/man', '*'))
+
 ### Generate customized scripts ###
 
 # 'setup_cantera'
