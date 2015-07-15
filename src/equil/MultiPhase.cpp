@@ -558,15 +558,6 @@ doublereal MultiPhase::volume() const
     return sum;
 }
 
-double MultiPhase::equilibrate(int XY, doublereal err, int maxsteps,
-                               int maxiter, int loglevel)
-{
-    warn_deprecated("MultiPhase::equilibrate(int XY, ...)",
-        "Use MultiPhase::equilibrate(string XY, ...) instead. To be removed "
-        "after Cantera 2.2.");
-    return equilibrate_MultiPhaseEquil(XY, err, maxsteps, maxiter, loglevel);
-}
-
 double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                                                int maxsteps, int maxiter,
                                                int loglevel)

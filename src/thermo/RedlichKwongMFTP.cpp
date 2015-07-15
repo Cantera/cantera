@@ -86,37 +86,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     importPhase(*xphase, this);
 }
 
-RedlichKwongMFTP::RedlichKwongMFTP(int testProb) :
-    m_standardMixingRules(0),
-    m_formTempParam(0),
-    m_b_current(0.0),
-    m_a_current(0.0),
-    NSolns_(0),
-    dpdV_(0.0),
-    dpdT_(0.0)
-{
-    warn_deprecated("RedlichKwongMFTP::RedlichKwongMFTP(int testProb)",
-        "To be removed after Cantera 2.2");
-    std::string infile = "co2_redlichkwong.xml";
-    std::string id_;
-    if (testProb == 1) {
-        infile = "co2_redlichkwong.xml";
-        id_ = "carbondioxide";
-    } else {
-        throw CanteraError("RedlichKwongMFTP::RedlichKwongMFTP(int testProb)",
-                           "test prob = 1 only");
-    }
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("newPhase", "Couldn't find phase named \"" + id_ + "\" in file, " + infile);
-    }
-    importPhase(*xphase, this);
-}
-
 RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
     m_standardMixingRules(0),
     m_formTempParam(0),
@@ -309,36 +278,6 @@ doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 {
     getStandardVolumes(DATA_PTR(m_tmpV));
     return 1.0 / m_tmpV[k];
-}
-
-void RedlichKwongMFTP::getUnitsStandardConc(double* uA, int, int sizeUA) const
-{
-    warn_deprecated("RedlichKwongMFTP::getUnitsStandardConc",
-                "To be removed after Cantera 2.2.");
-
-    //int eos = eosType();
-
-    for (int i = 0; i < sizeUA; i++) {
-        if (i == 0) {
-            uA[0] = 1.0;
-        }
-        if (i == 1) {
-            uA[1] = -static_cast<int>(nDim());
-        }
-        if (i == 2) {
-            uA[2] = 0.0;
-        }
-        if (i == 3) {
-            uA[3] = 0.0;
-        }
-        if (i == 4) {
-            uA[4] = 0.0;
-        }
-        if (i == 5) {
-            uA[5] = 0.0;
-        }
-    }
-
 }
 
 void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const

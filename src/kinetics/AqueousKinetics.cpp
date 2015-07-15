@@ -12,7 +12,6 @@
 
 #include "cantera/kinetics/AqueousKinetics.h"
 #include "cantera/kinetics/Reaction.h"
-#include "cantera/base/vec_functions.h"
 
 using namespace std;
 

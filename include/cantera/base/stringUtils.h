@@ -95,48 +95,6 @@ std::string lowercase(const std::string& s);
 compositionMap parseCompString(const std::string& ss,
         const std::vector<std::string>& names=std::vector<std::string>());
 
-//! Parse a composition string into individual key:composition pairs
-/*!
- *  @param ss   original string consisting of multiple key:composition
- *              pairs on multiple lines
- *  @param w    Output vector consisting of single key:composition
- *              items in each index.
- *  @deprecated Unused. To be removed after Cantera 2.2.
- */
-void split(const std::string& ss, std::vector<std::string>& w);
-
-//! Interpret a string as a list of floats, and convert it to a vector
-//! of floats
-/*!
- *   @param str     String input vector
- *   @param a       Output pointer to a vector of floats
- *   @param delim   character delimiter. Defaults to a space
- *   @return        Returns the number of floats found and converted
- *  @deprecated Unused. To be removed after Cantera 2.2.
- */
-int fillArrayFromString(const std::string& str, doublereal* const a,
-                        const char delim = ' ');
-
-//! Generate a logfile name based on an input file name
-/*!
- *  It tries to find the basename. Then, it appends a .log to it.
- *
- *  @param infile      Input file name
- *  @return Returns a logfile name
- *  @deprecated Unused function to be removed after Cantera 2.2.
- */
-std::string logfileName(const std::string& infile);
-
-//! Get the file name without the path or extension
-/*!
- *   @param fullPath   Input file name consisting
- *                     of the full file name
- *
- *  @return Returns the basename
- *  @deprecated Unused function to be removed after Cantera 2.2.
- */
-std::string getBaseName(const std::string& fullPath);
-
 //! Translate a string into one integer value
 /*!
  *  No error checking is done on the conversion. The c stdlib function

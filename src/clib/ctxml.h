@@ -18,7 +18,6 @@ extern "C" {
     CANTERA_CAPI int xml_del(int i);
     CANTERA_CAPI int xml_clear();
     CANTERA_CAPI int xml_copy(int i);
-    CANTERA_CAPI int xml_assign(int i, int j);
     CANTERA_CAPI int xml_build(int i, const char* file);
     CANTERA_CAPI int xml_preprocess_and_build(int i, const char* file, int debug);
     CANTERA_CAPI int xml_attrib(int i, const char* key, char* value);

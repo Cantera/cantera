@@ -52,19 +52,6 @@ public:
      */
     RedlichKwongMFTP(XML_Node& phaseRef, const std::string& id = "");
 
-    //!  This is a special constructor, used to replicate test problems
-    //!  during the initial verification of the object
-    /*!
-     *  test problems:
-     *    1:     Pure CO2 problem
-     *           input file = CO2_RedlickKwongMFTP.xml
-     *
-     * @param testProb Hard -coded test problem to instantiate.
-     *                 Current valid values are 1.
-     *  @deprecated To be removed after Cantera 2.2.
-     */
-    RedlichKwongMFTP(int testProb);
-
     //! Copy Constructor
     /*!
      * Copy constructor for the object. Constructed object will be a clone of this object, but will
@@ -250,38 +237,6 @@ public:
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
     virtual doublereal standardConcentration(size_t k=0) const;
-
-    //! Returns the units of the standard and generalized concentrations.
-    /*!
-     * Note they have the same units, as their
-     * ratio is defined to be equal to the activity of the kth
-     * species in the solution, which is unitless.
-     *
-     * This routine is used in print out applications where the
-     * units are needed. Usually, MKS units are assumed throughout
-     * the program and in the XML input files.
-     *
-     * The base ThermoPhase class assigns the default quantities
-     * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default
-     * values if necessary.
-     *
-     * @param uA Output vector containing the units:
-     *
-     *     uA[0] = kmol units - default  = 1
-     *     uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                   dimensions in the Phase class.
-     *     uA[2] = kg   units - default  = 0;
-     *     uA[3] = Pa(pressure) units - default = 0;
-     *     uA[4] = Temperature units - default = 0;
-     *     uA[5] = time units - default = 0
-     *
-     * @param k species index. Defaults to 0.
-     * @param sizeUA output int containing the size of the vector.
-     *        Currently, this is equal to 6.
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    virtual void getUnitsStandardConc(double* uA, int k = 0, int sizeUA = 6) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.

@@ -164,69 +164,6 @@ compositionMap parseCompString(const std::string& ss,
     return x;
 }
 
-void split(const std::string& ss, std::vector<std::string>& w)
-{
-    warn_deprecated("split", "To be removed after Cantera 2.2.");
-    std::string s = ss;
-    std::string::size_type ibegin, iend;
-    std::string name, num, nm;
-    do {
-        ibegin = s.find_first_not_of(", ;\n\t");
-        if (ibegin != std::string::npos) {
-            s = s.substr(ibegin,s.size());
-            iend = s.find_first_of(", ;\n\t");
-            if (iend != std::string::npos) {
-                w.push_back(s.substr(0, iend));
-                s = s.substr(iend+1, s.size());
-            } else {
-                w.push_back(s.substr(0, s.size()));
-                return;
-            }
-        }
-    } while (s != "");
-}
-
-int fillArrayFromString(const std::string& str,
-                        doublereal* const a, const char delim)
-{
-    warn_deprecated("fillArrayFromString", "To be removed after Cantera 2.2.");
-    std::string::size_type iloc;
-    int count = 0;
-    std::string num;
-    std::string s = str;
-    while (s.size() > 0) {
-        iloc = s.find(delim);
-        if (iloc > 0) {
-            num = s.substr(0, iloc);
-            s = s.substr(iloc+1,s.size());
-        } else {
-            num = s;
-            s = "";
-        }
-        a[count] = fpValueCheck(num);
-        count++;
-    }
-    return count;
-}
-
-std::string getBaseName(const std::string& path)
-{
-    warn_deprecated("getBaseName", "To be removed after Cantera 2.2.");
-    std::string file;
-    size_t idot = path.find_last_of('.');
-    size_t islash = path.find_last_of('/');
-    if (idot > 0 && idot < path.size()) {
-        if (islash > 0 && islash < idot) {
-            file = path.substr(islash+1, idot-islash-1);
-        } else {
-            file = path.substr(0,idot);
-        }
-    } else {
-        file = path;
-    }
-    return file;
-}
-
 int intValue(const std::string& val)
 {
     return std::atoi(stripws(val).c_str());
@@ -285,14 +222,6 @@ doublereal fpValueCheck(const std::string& val)
         }
     }
     return fpValue(str);
-}
-
-std::string logfileName(const std::string& infile)
-{
-    warn_deprecated("logfileName", "To be removed after Cantera 2.2.");
-    std::string logfile = getBaseName(infile);
-    logfile += ".log";
-    return logfile;
 }
 
 std::string wrapString(const std::string& s, const int len)

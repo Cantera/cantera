@@ -160,25 +160,6 @@ void getString(const XML_Node& node, const std::string& titleString, std::string
     }
 }
 
-void getNamedStringValue(const XML_Node& node, const std::string& nameString, std::string& valueString,
-                         std::string& typeString)
-{
-    warn_deprecated("getNamedStringValue", "To be removed after Cantera 2.2");
-    valueString = "";
-    typeString = "";
-    if (node.hasChild(nameString)) {
-        XML_Node& xc = node.child(nameString);
-        valueString = xc.value();
-        typeString = xc["type"];
-    } else {
-        XML_Node* s = getByTitle(node, nameString);
-        if (s && s->name() == "string") {
-            valueString = s->value();
-            typeString = s->attrib("type");
-        }
-    }
-}
-
 void getIntegers(const XML_Node& node,
                  std::map<std::string, int>& v)
 {

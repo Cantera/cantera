@@ -673,49 +673,6 @@ XML_Node* getByTitle(const XML_Node& node, const std::string& title);
 void getString(const XML_Node& node, const std::string& titleString,
                std::string& valueString, std::string& typeString);
 
-//! This function attempts to read a named child node and returns with the
-//! contents in the value string. title attribute named "titleString"
-/*!
- * This function will read a child node to the current XML node, with the name
- * "string". It must have a title attribute, named titleString, and the body
- * of the XML node will be read into the valueString output argument.
- *
- * If the child node is not found then the empty string is returned.
- *
- * Example:
- *
- * Code snippet:
- *     @code
- *     const XML_Node &node;
- *     std::string valueString;
- *     std::string typeString;
- *     std::string nameString = "timeIncrement";
- *     getString(XML_Node& node, nameString, valueString, valueString, typeString);
- *     @endcode
- *
- * Reads the following the snippet in the XML file:
- *
- *     <nameString type="typeString">
- *       valueString
- *     <\nameString>
- *
- * or alternatively as a retrofit and special case, it also reads the
- * following case:
- *
- *     <string title="nameString" type="typeString">
- *       valueString
- *     <\string>
- *
- * @param node              Reference to the XML_Node object of the parent XML element
- * @param[in] nameString    Name of the XML Node
- * @param[out] valueString  Value string that is found in the child node.
- * @param[out] typeString   String type. This is an optional output variable.
- *         It is filled with the attribute "type" of the XML entry.
- * @deprecated To be removed after Cantera 2.2.
- */
-void getNamedStringValue(const XML_Node& node, const std::string& nameString, std::string& valueString,
-                         std::string& typeString);
-
 //! This function reads a child node with the name, nameString, and returns
 //! its XML value as the return string
 /*!

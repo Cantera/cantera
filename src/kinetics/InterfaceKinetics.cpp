@@ -43,13 +43,6 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
 InterfaceKinetics::~InterfaceKinetics()
 {
     delete m_integrator;
-
-    for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
-        delete m_ctrxn_ROPOrdersList_[i];
-    }
-    for (size_t i = 0; i <  m_ctrxn_FwdOrdersList_.size(); i++) {
-        delete m_ctrxn_FwdOrdersList_[i];
-    }
 }
 
 InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right)
@@ -112,24 +105,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_rxnPhaseIsReactant   = right.m_rxnPhaseIsReactant;
     m_rxnPhaseIsProduct    = right.m_rxnPhaseIsProduct;
     m_ioFlag               = right.m_ioFlag;
-
-    for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
-        delete m_ctrxn_ROPOrdersList_[i];
-    }
-    m_ctrxn_ROPOrdersList_  = right.m_ctrxn_ROPOrdersList_;
-    for (size_t i = 0; i <  m_ctrxn_ROPOrdersList_.size(); i++) {
-        RxnOrders* ro = right.m_ctrxn_ROPOrdersList_[i];
-        m_ctrxn_ROPOrdersList_[i] = new RxnOrders(*ro);
-    }
-
-    for (size_t i = 0; i <  m_ctrxn_FwdOrdersList_.size(); i++) {
-        delete m_ctrxn_FwdOrdersList_[i];
-    }
-    m_ctrxn_FwdOrdersList_  = right.m_ctrxn_FwdOrdersList_;
-    for (size_t i = 0; i <  m_ctrxn_FwdOrdersList_.size(); i++) {
-        RxnOrders* ro = right.m_ctrxn_FwdOrdersList_[i];
-        m_ctrxn_FwdOrdersList_[i] = new RxnOrders(*ro);
-    }
 
     return *this;
 }
@@ -816,29 +791,10 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
                      ++iter) {
                     orders[kineticsSpeciesIndex(iter->first)] = iter->second;
                 }
-                RxnOrders* ro = new RxnOrders();
-                ro->fill(orders);
-                m_ctrxn_ROPOrdersList_.push_back(ro);
-                m_ctrxn_FwdOrdersList_.push_back(0);
-
-                // Fill in the Fwd Orders dependence here for B-V reactions
-                if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
-                    r.reaction_type == BUTLERVOLMER_RXN) {
-                    vector_fp fwdFullorders(m_kk, 0.0);
-                    determineFwdOrdersBV(*re, fwdFullorders);
-                    RxnOrders* ro = new RxnOrders();
-                    ro->fill(fwdFullorders);
-                    m_ctrxn_FwdOrdersList_[i] = ro;
-                }
-            } else {
-                m_ctrxn_ROPOrdersList_.push_back(0);
-                m_ctrxn_FwdOrdersList_.push_back(0);
             }
 
         } else {
             m_ctrxn_BVform.push_back(0);
-            m_ctrxn_ROPOrdersList_.push_back(0);
-            m_ctrxn_FwdOrdersList_.push_back(0);
             if (re->film_resistivity > 0.0) {
                 throw CanteraError("InterfaceKinetics::addReaction()",
                                    "film resistivity set for elementary reaction");
@@ -1248,37 +1204,6 @@ void EdgeKinetics::finalize()
     }
 
     m_finalized = true;
-}
-
-RxnOrders::RxnOrders(const RxnOrders& right) :
-    kinSpeciesIDs_(right.kinSpeciesIDs_),
-    kinSpeciesOrders_(right.kinSpeciesOrders_)
-{
-}
-
-RxnOrders& RxnOrders::operator=(const RxnOrders& right)
-{
-    if (this == &right) {
-        return *this;
-    }
-    kinSpeciesIDs_    = right.kinSpeciesIDs_;
-    kinSpeciesOrders_ = right.kinSpeciesOrders_;
-    return *this;
-}
-
-int RxnOrders::fill(const std::vector<doublereal>& fullForwardOrders)
-{
-    int nzeroes = 0;
-    kinSpeciesIDs_.clear();
-    kinSpeciesOrders_.clear();
-    for (size_t k = 0; k < fullForwardOrders.size(); ++k) {
-        if (fullForwardOrders[k] != 0.0) {
-            kinSpeciesIDs_.push_back(k);
-            kinSpeciesOrders_.push_back(fullForwardOrders[k]);
-            ++nzeroes;
-        }
-    }
-    return nzeroes;
 }
 
 }

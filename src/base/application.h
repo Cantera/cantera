@@ -134,20 +134,6 @@ protected:
         //! Write an end of line character to the screen and flush output
         void writelogendl();
 
-        //! Write an error message and quit.
-        /*!
-         *  The default behavior is to write to the standard error stream, and
-         *  then call exit(). Note that no end-of-line character is appended
-         *  to the message, and so if one is desired it must be included in
-         *  the string. Note that this default behavior will terminate the
-         *  application Cantera is invoked from (MATLAB, Excel, etc.) If this
-         *  is not desired, then derive a class and reimplement this method.
-         *
-         * @param msg    Error message to be written to cerr.
-         * @deprecated To be removed after Cantera 2.2
-         */
-        void logerror(const std::string& msg) ;
-
         //! Install a logger.
         /*!
          *  Called by the language interfaces to install an appropriate logger.
@@ -331,11 +317,6 @@ public:
     //! Write an endl to the screen and flush output
     void writelogendl() {
         pMessenger->writelogendl();
-    }
-
-     //! @copydoc Messages::logerror
-    void logerror(const std::string& msg) {
-        pMessenger->logerror(msg);
     }
 
     //! Print a warning indicating that *method* is deprecated. Additional

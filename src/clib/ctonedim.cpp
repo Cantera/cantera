@@ -454,22 +454,6 @@ extern "C" {
         }
     }
 
-
-    int stflow_solveSpeciesEqs(int i, int flag)
-    {
-        try {
-            if (flag > 0) {
-                DomainCabinet::get<StFlow>(i).solveSpecies(npos);
-            } else {
-                DomainCabinet::get<StFlow>(i).fixSpecies(npos);
-            }
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-
     int stflow_solveEnergyEqn(int i, int flag)
     {
         try {

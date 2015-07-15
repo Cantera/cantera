@@ -123,12 +123,6 @@ void Application::Messages::setLogger(Logger* _logwriter)
     logwriter = _logwriter;
 }
 
-void Application::Messages::logerror(const std::string& msg)
-{
-    Cantera::warn_deprecated("Application::Messages::logerror");
-    logwriter->error(msg) ;
-}
-
 void Application::Messages::writelog(const std::string& msg)
 {
     logwriter->write(msg);

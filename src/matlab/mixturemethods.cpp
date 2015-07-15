@@ -46,9 +46,6 @@ void mixturemethods(int nlhs, mxArray* plhs[],
         case 2:
             iok = mix_copy(i);
             break;
-        case 3:
-            iok = mix_assign(i, int(v));
-            break;
         case 4:
             checkNArgs(5, nrhs);
             moles = getDouble(prhs[4]);

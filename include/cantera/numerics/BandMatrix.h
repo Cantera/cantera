@@ -270,14 +270,6 @@ public:
      */
     virtual doublereal* const* colPts();
 
-    //! Copy the data from one array into another without doing any checking
-    /*!
-     *  This differs from the assignment operator as no resizing is done and memcpy() is used.
-     *  @param y Array to be copied
-     *  @deprecated To be removed after Cantera 2.2.
-     */
-    virtual void copyData(const GeneralMatrix& y);
-
     //! Check to see if we have any zero rows in the Jacobian
     /*!
      *  This utility routine checks to see if any rows are zero.

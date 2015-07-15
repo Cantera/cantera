@@ -151,46 +151,13 @@ void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
 void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
 {
     getLnActivityCoefficients(ac);
-    //
-    // Protect against or inform about roundoff when taking exponentials
-    //
-    if ((DEBUG_MODE_ENABLED && realNumberRangeBehavior_ == THROWON_OVERFLOW_DEBUGMODEONLY_CTRB) ||
-            (realNumberRangeBehavior_ == THROWON_OVERFLOW_CTRB)) {
-        for (size_t k = 0; k < m_kk; k++) {
-            if (ac[k] > 700.) {
-                throw CanteraError("GibbsExcessVPSSTP::getActivityCoefficients()",
-                                   "activity coefficient for " + int2str(k) + " is overflowing: ln(ac) = " + fp2str(ac[k]));
-            } else if (ac[k] < -700.) {
-                throw CanteraError("GibbsExcessVPSSTP::getActivityCoefficients()",
-                                   "activity coefficient for " + int2str(k) + " is underflowing: ln(ac) = " + fp2str(ac[k]));
-            } else {
-                ac[k] = exp(ac[k]);
-            }
-        }
-    } else if (realNumberRangeBehavior_ == CHANGE_OVERFLOW_CTRB) {
-        for (size_t k = 0; k < m_kk; k++) {
-            if (ac[k] > 700.) {
-                ac[k] = exp(700.0);
-            } else if (ac[k] < -700.) {
-                ac[k] = exp(-700.0);
-            } else {
-                ac[k] = exp(ac[k]);
-            }
-        }
-    } else {
-        for (size_t k = 0; k < m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
+        if (ac[k] > 700.) {
+            ac[k] = exp(700.0);
+        } else if (ac[k] < -700.) {
+            ac[k] = exp(-700.0);
+        } else {
             ac[k] = exp(ac[k]);
-        }
-        if (realNumberRangeBehavior_ == FENV_CHECK_CTRB) {
-#ifdef HAVE_FENV_H
-            if (check_FENV_OverUnder_Flow()) {
-                throw CanteraError("GibbsExcessVPSSTP::getActivityCoefficients()",
-                                   "activity coefficient is over/underflowing");
-            }
-#else
-            throw CanteraError("GibbsExcessVPSSTP::getActivityCoefficients()",
-                               "realNumberRangeBehavior_ == FENV_CHECK_CTRB not supported by compiler");
-#endif
         }
     }
 }
@@ -228,36 +195,6 @@ double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
                            "(MF sum - 1) exceeded tolerance of 1.0E-9:" + fp2str(norm));
     }
     return norm;
-}
-
-void GibbsExcessVPSSTP::getUnitsStandardConc(double* uA, int k, int sizeUA) const
-{
-    warn_deprecated("GibbsExcessVPSSTP::getUnitsStandardConc",
-                    "To be removed after Cantera 2.2.");
-    //
-    // We assume here that the units of the standard concentration is unitless. In other words activities are
-    // used unchanged in kinetics expressions. This may be changed in implementations of child classes.
-    //
-    for (int i = 0; i < sizeUA; i++) {
-        if (i == 0) {
-            uA[0] = 0.0;
-        }
-        if (i == 1) {
-            uA[1] = 0.0;
-        }
-        if (i == 2) {
-            uA[2] = 0.0;
-        }
-        if (i == 3) {
-            uA[3] = 0.0;
-        }
-        if (i == 4) {
-            uA[4] = 0.0;
-        }
-        if (i == 5) {
-            uA[5] = 0.0;
-        }
-    }
 }
 
 void GibbsExcessVPSSTP::initThermo()

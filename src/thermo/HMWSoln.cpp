@@ -624,32 +624,6 @@ doublereal HMWSoln::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-void HMWSoln::getUnitsStandardConc(double* uA, int k, int sizeUA) const
-{
-    warn_deprecated("HMWSoln::getUnitsStandardConc",
-                    "To be removed after Cantera 2.2.");
-    for (int i = 0; i < sizeUA; i++) {
-        if (i == 0) {
-            uA[0] = 1.0;
-        }
-        if (i == 1) {
-            uA[1] = -int(nDim());
-        }
-        if (i == 2) {
-            uA[2] = 0.0;
-        }
-        if (i == 3) {
-            uA[3] = 0.0;
-        }
-        if (i == 4) {
-            uA[4] = 0.0;
-        }
-        if (i == 5) {
-            uA[5] = 0.0;
-        }
-    }
-}
-
 void HMWSoln::getActivities(doublereal* ac) const
 {
     updateStandardStateThermo();

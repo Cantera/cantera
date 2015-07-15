@@ -22,7 +22,7 @@
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/GeneralSpeciesThermo.h"
-#include "cantera/base/vec_functions.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 

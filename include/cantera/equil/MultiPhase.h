@@ -335,21 +335,6 @@ public:
         return m_temp;
     }
 
-    //! Set the mixture to a state of chemical equilibrium.
-    /*!
-     *  @param XY   Integer flag specifying properties to hold fixed.
-     *  @param err  Error tolerance for \f$\Delta \mu/RT \f$ for all
-     *              reactions. Also used as the relative error tolerance for
-     *              the outer loop.
-     *  @param maxsteps Maximum number of steps to take in solving the fixed
-     *                  TP problem.
-     *  @param maxiter Maximum number of "outer" iterations for problems
-     *                 holding fixed something other than (T,P).
-     *  @param loglevel Level of diagnostic output
-     */
-    doublereal equilibrate(int XY, doublereal err = 1.0e-9,
-                           int maxsteps = 1000, int maxiter = 200, int loglevel = -99);
-
     //! Equilibrate a MultiPhase object
     /*!
      *  Set this mixture to chemical equilibrium by calling one of Cantera's

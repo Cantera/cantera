@@ -48,7 +48,6 @@ const int cDustyGasTransport   = 400;
 const int cUserTransport       = 500;
 const int cFtnTransport        = 600;
 const int cLiquidTransport     = 700;
-const int cAqueousTransport    = 750;
 const int cSimpleTransport     = 770;
 const int cRadiativeTransport  = 800;
 const int cWaterTransport      = 721;

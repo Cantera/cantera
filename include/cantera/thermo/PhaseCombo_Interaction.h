@@ -363,15 +363,6 @@ public:
      */
     PhaseCombo_Interaction(XML_Node& phaseRef, const std::string& id = "");
 
-    //! Special constructor for a hard-coded problem
-    /*!
-     *  @param testProb Hard-coded value. Only the value of 1 is used. It's
-     *                  for a LiKCl system -> test to predict the eutectic and
-     *                  liquidus correctly.
-     *  @deprecated To be removed after Cantera 2.2.
-     */
-    PhaseCombo_Interaction(int testProb);
-
     //! Copy constructor
     /*!
      * @param b class to be copied

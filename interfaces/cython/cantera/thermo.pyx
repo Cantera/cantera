@@ -328,21 +328,6 @@ cdef class ThermoPhase(_SolutionBase):
         :param loglevel:
             Set to a value > 0 to write diagnostic output.
             """
-        if isinstance(solver, int):
-            warnings.warn('ThermoPhase.equilibrate: Using integer solver '
-                'flags is deprecated, and will be disabled after Cantera 2.2.')
-            if solver == -1:
-                solver = 'auto'
-            elif solver == 0:
-                solver = 'element_potential'
-            elif solver == 1:
-                solver = 'gibbs'
-            elif solver == 2:
-                solver = 'vcs'
-            else:
-                raise ValueError('Invalid equilibrium solver specified: '
-                    '"{0}"'.format(solver))
-
         self.thermo.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
                                 maxsteps, maxiter, estimate_equil, loglevel)
 

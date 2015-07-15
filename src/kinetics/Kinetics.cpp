@@ -53,8 +53,6 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
     m_reactions = right.m_reactions;
-    m_reactants         = right.m_reactants;
-    m_products          = right.m_products;
     m_rrxn = right.m_rrxn;
     m_prxn = right.m_prxn;
     m_rxntype = right.m_rxntype;
@@ -613,7 +611,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         rstoich.push_back(iter->second);
         m_rrxn[k][irxn] = iter->second;
     }
-    m_reactants.push_back(rk);
 
     for (Composition::const_iterator iter = r->products.begin();
          iter != r->products.end();
@@ -623,7 +620,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         pstoich.push_back(iter->second);
         m_prxn[k][irxn] = iter->second;
     }
-    m_products.push_back(pk);
 
     // The default order for each reactant is its stoichiometric coefficient,
     // which can be overridden by entries in the Reaction.orders map. rorder[i]

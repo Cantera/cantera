@@ -11,7 +11,6 @@ int xml_get_XML_File(const char* file, int debug);
 int xml_del(int i);
 int xml_clear();
 int xml_copy(int i);
-int xml_assign(int i, int j);
 int xml_build(int i, const char* file);
 int xml_preprocess_and_build(int i, const char* file, int debug);
 int xml_attrib(int i, const char* key, char* value);

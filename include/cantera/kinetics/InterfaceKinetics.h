@@ -10,7 +10,6 @@
 
 #include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
-#include "cantera/kinetics/RxnMolChange.h"
 #include "Reaction.h"
 #include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
@@ -21,34 +20,6 @@ namespace Cantera
 // forward declarations
 class SurfPhase;
 class ImplicitSurfChem;
-class RxnMolChange;
-
-//! forward orders
-//! @deprecated Incomplete implementation to be removed after Cantera 2.2.
-class RxnOrders {
-
-  public:
-   //! constructors
-   RxnOrders() {}
-
-   RxnOrders(const RxnOrders &right);
-
-   ~RxnOrders() {}
-
-   RxnOrders& operator=(const RxnOrders &right);
-
-   //! Fill in the structure with the array.
-   /*!
-    *  @param[in] Size of length kinetic species. The entries the values of the orders
-    */
-   int fill(const vector_fp& fullForwardOrders);
-
-   //! ID's of the kinetic species
-   std::vector<size_t> kinSpeciesIDs_;
-
-   //! Orders of the kinetic species
-   vector_fp kinSpeciesOrders_;
-};
 
 //!  A kinetics manager for heterogeneous reaction mechanisms. The
 //!  reactions are assumed to occur at a 2D interface between two 3D phases.
@@ -567,25 +538,6 @@ protected:
      *                            the rate constant as an exchange current density rate constant expression.
      */
     vector_int m_ctrxn_ecdf;
-
-    //! Vector of booleans indicating whether the charge transfer reaction rate constant
-    //! is described by an exchange current density rate constant expression
-    /*!
-     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
-     *
-     *   Some reactions have zero in this list, those that don't need special treatment.
-     *   @deprecated To be removed after Cantera 2.2.
-     */
-    std::vector<RxnOrders*> m_ctrxn_ROPOrdersList_;
-
-    //! Reaction Orders for the case where the forwards rate of progress is being calculated.
-    /*!
-     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
-     *
-     *   Some reactions have zero in this list, indicating that the calculation isn't necessary.
-     *   @deprecated To be removed after Cantera 2.2.
-     */
-    std::vector<RxnOrders*> m_ctrxn_FwdOrdersList_;
 
     vector_fp m_ctrxn_resistivity_;
 

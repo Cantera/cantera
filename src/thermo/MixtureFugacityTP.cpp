@@ -13,7 +13,6 @@
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/vec_functions.h"
 
 using namespace std;
 

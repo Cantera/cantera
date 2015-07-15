@@ -649,32 +649,6 @@ public:
     }
 
     /**
-     * Returns a read-only reference to the vector of reactant
-     * index numbers for reaction i.
-     *
-     * @param i  reaction index
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    virtual const std::vector<size_t>& reactants(size_t i) const {
-        warn_deprecated("Kinetics::reactants",
-                        "To be removed after Cantera 2.2.");
-        return m_reactants[i];
-    }
-
-    /**
-     * Returns a read-only reference to the vector of product
-     * index numbers for reaction i.
-     *
-     * @param i reaction index
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    virtual const std::vector<size_t>& products(size_t i) const {
-        warn_deprecated("Kinetics::products",
-                        "To be removed after Cantera 2.2.");
-        return m_products[i];
-    }
-
-    /**
      * Flag specifying the type of reaction. The legal values and
      * their meaning are specific to the particular kinetics
      * manager.
@@ -968,34 +942,6 @@ protected:
 
     //! Vector of Reaction objects represented by this Kinetics manager
     std::vector<shared_ptr<Reaction> > m_reactions;
-
-    /**
-     * This is a vector of vectors containing the reactants for
-     * each reaction. The outer vector is over the number of
-     * reactions, m_ii.  The inner vector is a list of species
-     * indices. If the stoichiometric coefficient for a reactant
-     * is greater than one, then the reactant is listed
-     * contiguously in the vector a number of times equal to its
-     * stoichiometric coefficient.
-     * NOTE: These vectors will be wrong if there are real
-     *       stoichiometric coefficients in the expression.
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    std::vector<std::vector<size_t> > m_reactants;
-
-    /**
-     * This is a vector of vectors containing the products for
-     * each reaction. The outer vector is over the number of
-     * reactions, m_ii.  The inner vector is a list of species
-     * indices. If the stoichiometric coefficient for a product is
-     * greater than one, then the reactant is listed contiguously
-     * in the vector a number of times equal to its stoichiometric
-     * coefficient.
-     * NOTE: These vectors will be wrong if there are real
-     *       stoichiometric coefficients in the expression.
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    std::vector<std::vector<size_t> > m_products;
 
     //!  m_rrxn is a vector of maps, containing the reactant
     //!  stoichiometric coefficient information

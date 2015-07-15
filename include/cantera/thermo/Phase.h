@@ -644,13 +644,6 @@ public:
     //! @copydoc Phase::mean_X(const doublereal* const Q) const
     doublereal mean_X(const vector_fp& Q) const;
 
-    //! Evaluate the mass-fraction-weighted mean of an array Q.
-    //! \f[ \sum_k Y_k Q_k \f]
-    //!     @param[in] Q  Array of species property values in mass units.
-    //!     @return The mass-fraction-weighted mean of Q.
-    //! @deprecated Unused. To be removed after Cantera 2.2.
-    doublereal mean_Y(const doublereal* const Q) const;
-
     //!  The mean molecular weight. Units: (kg/kmol)
     doublereal meanMolecularWeight() const {
         return m_mmw;
@@ -660,11 +653,6 @@ public:
     //! @return The indicated sum. Dimensionless.
     doublereal sum_xlogx() const;
 
-    //! Evaluate \f$ \sum_k X_k \log Q_k \f$.
-    //!     @param Q Vector of length m_kk to take the log average of
-    //!     @return The indicated sum.
-    //! @deprecated Unused. To be removed after Cantera 2.2.
-    doublereal sum_xlogQ(doublereal* const Q) const;
     //@}
 
     //! @name Adding Elements and Species
@@ -823,16 +811,6 @@ private:
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
-
-public:
-    //! Overflow behavior of real number calculations involving this thermo object
-    /*!
-     *   The default is THROWON_OVERFLOW_CTRB
-     *   Which throws an error in debug mode, but silently changes the answer in non-debug mode
-     *   @deprecated To be removed after Cantera 2.2.
-     */
-    enum CT_RealNumber_Range_Behavior realNumberRangeBehavior_;
-
 };
 
 }

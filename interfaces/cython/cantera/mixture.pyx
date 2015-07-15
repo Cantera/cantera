@@ -315,18 +315,5 @@ cdef class Mixture:
             process. 0 indicates no output, while larger numbers produce
             successively more verbose information.
         """
-        if isinstance(solver, int):
-            warnings.warn('Mixture.equilibrate: Using integer solver flags is '
-                'deprecated, and will be disabled after Cantera 2.2.')
-            if solver == -1:
-                solver = 'auto'
-            elif solver == 1:
-                solver = 'gibbs'
-            elif solver == 2:
-                solver = 'vcs'
-            else:
-                raise ValueError('Unrecognized equilibrium solver '
-                                 'specified: "{0}"'.format(solver))
-
         self.mix.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
                              max_steps, max_iter, estimate_equil, log_level)

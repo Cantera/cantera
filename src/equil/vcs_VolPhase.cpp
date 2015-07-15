@@ -37,7 +37,6 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_existence(VCS_PHASE_EXIST_NO),
     m_MFStartIndex(0),
     IndSpecies(0),
-    m_useCanteraCalls(false),
     TP_ptr(0),
     v_totalMoles(0.0),
     m_phiVarIndex(npos),
@@ -80,7 +79,6 @@ vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
     m_isIdealSoln(b.m_isIdealSoln),
     m_existence(b.m_existence),
     m_MFStartIndex(b.m_MFStartIndex),
-    m_useCanteraCalls(b.m_useCanteraCalls),
     TP_ptr(b.TP_ptr),
     v_totalMoles(b.v_totalMoles),
     creationMoleNumbers_(0),
@@ -152,7 +150,6 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
             ListSpeciesPtr[k] =
                 new vcs_SpeciesProperties(*(b.ListSpeciesPtr[k]));
         }
-        m_useCanteraCalls   = b.m_useCanteraCalls;
         /*
          * Do a shallow copy of the ThermoPhase object pointer.
          * We don't duplicate the object.
@@ -302,12 +299,7 @@ void vcs_VolPhase::_updateActCoeff() const
         m_UpToDate_AC = true;
         return;
     }
-    if (m_useCanteraCalls) {
-        TP_ptr->getActivityCoefficients(VCS_DATA_PTR(ActCoeff));
-    } else {
-        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                "deprecated and will not work after Cantera 2.2.");
-    }
+    TP_ptr->getActivityCoefficients(VCS_DATA_PTR(ActCoeff));
     m_UpToDate_AC = true;
 }
 
@@ -321,20 +313,7 @@ double vcs_VolPhase::AC_calc_one(size_t kspec) const
 
 void vcs_VolPhase::_updateG0() const
 {
-    if (m_useCanteraCalls) {
-        TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
-    } else {
-        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                        "deprecated and will not work after Cantera 2.2.");
-        double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            size_t kglob = IndSpecies[k];
-            vcs_SpeciesProperties* sProp = ListSpeciesPtr[k];
-            VCS_SPECIES_THERMO* sTherm = sProp->SpeciesThermo;
-            SS0ChemicalPotential[k] =
-                R * (sTherm->G0_R_calc(kglob, Temp_));
-        }
-    }
+    TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
     m_UpToDate_G0 = true;
 }
 
@@ -348,20 +327,7 @@ double vcs_VolPhase::G0_calc_one(size_t kspec) const
 
 void vcs_VolPhase::_updateGStar() const
 {
-    if (m_useCanteraCalls) {
-        TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
-    } else {
-        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                        "deprecated and will not work after Cantera 2.2.");
-        double R = vcsUtil_gasConstant(p_VCS_UnitsFormat);
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            size_t kglob = IndSpecies[k];
-            vcs_SpeciesProperties* sProp = ListSpeciesPtr[k];
-            VCS_SPECIES_THERMO* sTherm = sProp->SpeciesThermo;
-            StarChemicalPotential[k] =
-                R * (sTherm->GStar_R_calc(kglob, Temp_, Pres_));
-        }
-    }
+    TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
     m_UpToDate_GStar = true;
 }
 
@@ -392,13 +358,8 @@ void vcs_VolPhase::setMoleFractions(const double* const xmol)
 
 void vcs_VolPhase::_updateMoleFractionDependencies()
 {
-    if (m_useCanteraCalls) {
-        if (TP_ptr) {
-            TP_ptr->setState_PX(Pres_, &(Xmol_[m_MFStartIndex]));
-        }
-    } else {
-        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                "deprecated and will not work after Cantera 2.2.");
+    if (TP_ptr) {
+        TP_ptr->setState_PX(Pres_, &(Xmol_[m_MFStartIndex]));
     }
     if (!m_isIdealSoln) {
         m_UpToDate_AC = false;
@@ -625,12 +586,7 @@ void vcs_VolPhase::sendToVCS_GStar(double* const gstar) const
 void vcs_VolPhase::setElectricPotential(const double phi)
 {
     m_phi = phi;
-    if (m_useCanteraCalls) {
-        TP_ptr->setElectricPotential(m_phi);
-    } else {
-    warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                    "deprecated and will not work after Cantera 2.2.");
-}
+    TP_ptr->setElectricPotential(m_phi);
     // We have changed the state variable. Set uptodate flags to false
     m_UpToDate_AC = false;
     m_UpToDate_VolStar = false;
@@ -650,13 +606,8 @@ void vcs_VolPhase::setState_TP(const double temp, const double pres)
             return;
         }
     }
-    if (m_useCanteraCalls) {
-        TP_ptr->setElectricPotential(m_phi);
-        TP_ptr->setState_TP(temp, pres);
-    } else {
-    warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                    "deprecated and will not work after Cantera 2.2.");
-    }
+    TP_ptr->setElectricPotential(m_phi);
+    TP_ptr->setState_TP(temp, pres);
     Temp_ = temp;
     Pres_ = pres;
     m_UpToDate_AC      = false;
@@ -673,18 +624,7 @@ void vcs_VolPhase::setState_T(const double temp)
 
 void vcs_VolPhase::_updateVolStar() const
 {
-    if (m_useCanteraCalls) {
-        TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
-    } else {
-        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                        "deprecated and will not work after Cantera 2.2.");
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            size_t kglob = IndSpecies[k];
-            vcs_SpeciesProperties* sProp = ListSpeciesPtr[k];
-            VCS_SPECIES_THERMO* sTherm = sProp->SpeciesThermo;
-            StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp_, Pres_));
-        }
-    }
+    TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
     m_UpToDate_VolStar = true;
 }
 
@@ -698,22 +638,7 @@ double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
 
 double vcs_VolPhase::_updateVolPM() const
 {
-    if (m_useCanteraCalls) {
-        TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
-    } else {
-        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                        "deprecated and will not work after Cantera 2.2.");
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            size_t kglob = IndSpecies[k];
-            vcs_SpeciesProperties* sProp = ListSpeciesPtr[k];
-            VCS_SPECIES_THERMO* sTherm = sProp->SpeciesThermo;
-            StarMolarVol[k] = (sTherm->VolStar_calc(kglob, Temp_, Pres_));
-        }
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            PartialMolarVol[k] = StarMolarVol[k];
-        }
-    }
-
+    TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
     m_totalVol = 0.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         m_totalVol += PartialMolarVol[k] * Xmol_[k];
@@ -834,54 +759,46 @@ void vcs_VolPhase::sendToVCS_LnActCoeffJac(Array2D& np_LnACJac_VCS)
 void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
 {
     TP_ptr = tp_ptr;
-    if (TP_ptr) {
-        m_useCanteraCalls = true;
-        Temp_ = TP_ptr->temperature();
-        Pres_ = TP_ptr->pressure();
-        setState_TP(Temp_, Pres_);
-        p_VCS_UnitsFormat = VCS_UNITS_MKS;
-        m_phi = TP_ptr->electricPotential();
-        size_t nsp = TP_ptr->nSpecies();
-        size_t nelem = TP_ptr->nElements();
-        if (nsp !=  m_numSpecies) {
-            if (m_numSpecies != 0) {
-                plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
-            }
-            resize(VP_ID_, nsp, nelem, PhaseName.c_str());
+    Temp_ = TP_ptr->temperature();
+    Pres_ = TP_ptr->pressure();
+    setState_TP(Temp_, Pres_);
+    p_VCS_UnitsFormat = VCS_UNITS_MKS;
+    m_phi = TP_ptr->electricPotential();
+    size_t nsp = TP_ptr->nSpecies();
+    size_t nelem = TP_ptr->nElements();
+    if (nsp !=  m_numSpecies) {
+        if (m_numSpecies != 0) {
+            plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
         }
-        TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol_));
-        creationMoleNumbers_ = Xmol_;
-        _updateMoleFractionDependencies();
+        resize(VP_ID_, nsp, nelem, PhaseName.c_str());
+    }
+    TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol_));
+    creationMoleNumbers_ = Xmol_;
+    _updateMoleFractionDependencies();
 
-        /*
-         *  figure out ideal solution tag
-         */
-        if (nsp == 1) {
-            m_isIdealSoln = true;
-        } else {
-            int eos = TP_ptr->eosType();
-            switch (eos) {
-            case cIdealGas:
-            case cIncompressible:
-            case cSurf:
-            case cMetal:
-            case cStoichSubstance:
-            case cSemiconductor:
-            case cLatticeSolid:
-            case cLattice:
-            case cEdge:
-            case cIdealSolidSolnPhase:
-                m_isIdealSoln = true;
-                break;
-            default:
-                m_isIdealSoln = false;
-            };
-        }
+    /*
+     *  figure out ideal solution tag
+     */
+    if (nsp == 1) {
+        m_isIdealSoln = true;
     } else {
-        m_useCanteraCalls = false;
-        warn_deprecated("m_useCanteraCalls", "Setting this flag to 'false' is "
-                "deprecated and will not work after Cantera 2.2.");
-
+        int eos = TP_ptr->eosType();
+        switch (eos) {
+        case cIdealGas:
+        case cIncompressible:
+        case cSurf:
+        case cMetal:
+        case cStoichSubstance:
+        case cSemiconductor:
+        case cLatticeSolid:
+        case cLattice:
+        case cEdge:
+        case cIdealSolidSolnPhase:
+            m_isIdealSoln = true;
+            break;
+        default:
+            m_isIdealSoln = false;
+        };
     }
 }
 
@@ -988,11 +905,6 @@ std::string string16_EOSType(int EOSType)
 bool vcs_VolPhase::isIdealSoln() const
 {
     return m_isIdealSoln;
-}
-
-bool vcs_VolPhase::usingCanteraCalls() const
-{
-    return m_useCanteraCalls;
 }
 
 size_t vcs_VolPhase::phiVarIndex() const

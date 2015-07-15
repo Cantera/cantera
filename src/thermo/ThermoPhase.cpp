@@ -15,7 +15,6 @@
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/vec_functions.h"
 
 #include <iomanip>
 #include <fstream>
@@ -617,32 +616,6 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         throw CanteraError("setState_SPorSV (SV)", ErrString);
     } else {
         throw CanteraError("setState_SPorSV (SP)", ErrString);
-    }
-}
-
-void ThermoPhase::getUnitsStandardConc(double* uA, int k, int sizeUA) const
-{
-    warn_deprecated("ThermoPhase::getUnitsStandardConc",
-                    "To be removed after Cantera 2.2.");
-    for (int i = 0; i < sizeUA; i++) {
-        if (i == 0) {
-            uA[0] = 1.0;
-        }
-        if (i == 1) {
-            uA[1] = -int(nDim());
-        }
-        if (i == 2) {
-            uA[2] = 0.0;
-        }
-        if (i == 3) {
-            uA[3] = 0.0;
-        }
-        if (i == 4) {
-            uA[4] = 0.0;
-        }
-        if (i == 5) {
-            uA[5] = 0.0;
-        }
     }
 }
 

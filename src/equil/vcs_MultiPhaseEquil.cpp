@@ -868,10 +868,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
                 plogf("Unknown Cantera EOS to VCSnonideal: %d\n", eos);
             }
             VolPhase->m_eqnState = VCS_EOS_UNK_CANTERA;
-            if (!VolPhase->usingCanteraCalls()) {
-                throw CanteraError("vcs_Cantera_to_vprob",
-                                   "vcs functions asked for, but unimplemented");
-            }
             break;
         }
 
@@ -982,7 +978,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
              *  Transfer the thermo specification of the species
              *              vprob->SpeciesThermo[]
              */
-            ts_ptr->UseCanteraCalls = VolPhase->usingCanteraCalls();
             ts_ptr->m_VCS_UnitsFormat = VolPhase->p_VCS_UnitsFormat;
             /*
              * Add lookback connectivity into the thermo object first
@@ -1020,10 +1015,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
                 }
                 ts_ptr->SS0_Model = VCS_SS0_NOTHANDLED;
                 ts_ptr->SSStar_Model = VCS_SSSTAR_NOTHANDLED;
-                if (!(ts_ptr->UseCanteraCalls)) {
-                    throw CanteraError("vcs_Cantera_to_vprob",
-                                       "Cantera calls not being used -> aborting");
-                }
             }
 
             /*

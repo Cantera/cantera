@@ -16,7 +16,7 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/vec_functions.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -192,39 +192,6 @@ doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
         }
         return 0.0;
 
-    }
-}
-
-void IdealSolnGasVPSS::getUnitsStandardConc(double* uA, int, int sizeUA) const
-{
-    warn_deprecated("IdealSolnGasVPSS::getUnitsStandardConc",
-                "To be removed after Cantera 2.2.");
-
-    if (eosType() == cIdealSolnGasPhase0) {
-        for (int i = 0; i < sizeUA; i++) {
-            uA[i] = 0.0;
-        }
-    } else {
-        for (int i = 0; i < sizeUA; i++) {
-            if (i == 0) {
-                uA[0] = 1.0;
-            }
-            if (i == 1) {
-                uA[1] = -int(nDim());
-            }
-            if (i == 2) {
-                uA[2] = 0.0;
-            }
-            if (i == 3) {
-                uA[3] = 0.0;
-            }
-            if (i == 4) {
-                uA[4] = 0.0;
-            }
-            if (i == 5) {
-                uA[5] = 0.0;
-            }
-        }
     }
 }
 

@@ -279,11 +279,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             nv = mxGetM(prhs[4])*mxGetN(prhs[4]);
             iok = stflow_setFixedTempProfile(dom, np, pos, nv, temp);
             break;
-        case 65:
-            checkNArgs(4, nrhs);
-            flag = getInt(prhs[3]);
-            iok = stflow_solveSpeciesEqs(dom, flag);
-            break;
         case 66:
             checkNArgs(4, nrhs);
             flag = getInt(prhs[3]);

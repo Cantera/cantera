@@ -123,8 +123,6 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_wdot.resize(m_nsp,m_points, 0.0);
     m_do_energy.resize(m_points,false);
     m_qdotRadiation.resize(m_points, 0.0);
-
-    m_fixedy.resize(m_nsp, m_points);
     m_fixedtemp.resize(m_points);
 
     m_dz.resize(m_points-1);
@@ -203,7 +201,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 
 void StFlow::_finalize(const doublereal* x)
 {
-    size_t k, j;
+    size_t j;
     doublereal zz, tt;
     size_t nz = m_zfix.size();
     bool e = m_do_energy[0];
@@ -214,9 +212,6 @@ void StFlow::_finalize(const doublereal* x)
             zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
             tt = linearInterp(zz, m_zfix, m_tfix);
             m_fixedtemp[j] = tt;
-        }
-        for (k = 0; k < m_nsp; k++) {
-            setMassFraction(j, k, Y(x, k, j));
         }
     }
     if (e) {

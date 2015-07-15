@@ -12,7 +12,6 @@
 #include "cantera/thermo/Mu0Poly.h"
 #include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
-#include "cantera/thermo/StatMech.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/ConstCpPoly.h"
@@ -350,29 +349,6 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
     }
 }
 
-/**
- * Create a stat mech based property solver for a species
- * @deprecated
- */
-static StatMech* newStatMechThermoFromXML(XML_Node& f)
-{
-    doublereal tmin = fpValue(f["Tmin"]);
-    doublereal tmax = fpValue(f["Tmax"]);
-    doublereal pref = OneAtm;
-    if (f.hasAttrib("P0")) {
-        pref = fpValue(f["P0"]);
-    }
-    if (f.hasAttrib("Pref")) {
-        pref = fpValue(f["Pref"]);
-    }
-
-    // set properties
-    tmin = 0.1;
-    vector_fp coeffs(1);
-    coeffs[0] = 0.0;
-    return new StatMech(0, tmin, tmax, pref, &coeffs[0], "");
-}
-
 //! Create an Adsorbate polynomial thermodynamic property parameterization for a
 //! species
 /*!
@@ -457,8 +433,6 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
         return newNasa9ThermoFromXML(tp);
     } else if (thermoType == "adsorbate") {
         return newAdsorbateThermoFromXML(*tp[0]);
-    } else if (thermoType == "statmech") {
-        return newStatMechThermoFromXML(*tp[0]);
     } else if (model == "hkft" || model == "ionfromneutral") {
         // Some PDSS species use the 'thermo' node, but don't specify a
         // SpeciesThermoInterpType parameterization. This function needs to just

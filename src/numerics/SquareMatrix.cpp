@@ -306,12 +306,6 @@ doublereal* SquareMatrix::ptrColumn(size_t j)
     return Array2D::ptrColumn(j);
 }
 
-void  SquareMatrix::copyData(const GeneralMatrix& y)
-{
-    const SquareMatrix* yy_ptr = dynamic_cast<const SquareMatrix*>(& y);
-    Array2D::copyData(*yy_ptr);
-}
-
 size_t  SquareMatrix::nRows() const
 {
     return m_nrows;

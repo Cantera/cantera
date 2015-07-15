@@ -124,26 +124,9 @@ public:
         m_do_energy[j] = false;
     }
 
-    /*!
-     * Set the mass fraction fixed point for species k at grid point j, and
-     * disable the species equation so that the solution will be held to this
-     * value. Note: in practice, the species are hardly ever held fixed.
-     */
-    void setMassFraction(size_t j, size_t k, doublereal y) {
-        m_fixedy(k,j) = y;
-        m_do_species[k] = true;
-    }
-
     //! The fixed temperature value at point j.
     doublereal T_fixed(size_t j) const {
         return m_fixedtemp[j];
-    }
-
-    //! The fixed mass fraction value of species k at point j.
-    //! @deprecated Unused. To be removed after Cantera 2.2.
-    doublereal Y_fixed(size_t k, size_t j) const {
-        warn_deprecated("StFlow::Y_fixed", "To be removed after Cantera 2.2.");
-        return m_fixedy(k,j);
     }
 
     // @}
@@ -253,42 +236,8 @@ public:
         }
     }
 
-    //! @deprecated Species equations are always solved. To be removed after
-    //! Cantera 2.2.
-    bool doSpecies(size_t k) {
-        warn_deprecated("StFlow::doSpecies", "To be removed after Cantera 2.2.");
-        return m_do_species[k];
-    }
     bool doEnergy(size_t j) {
         return m_do_energy[j];
-    }
-
-    //! @deprecated Species equations are always solved. To be removed after
-    //! Cantera 2.2.
-    void solveSpecies(size_t k=npos) {
-        warn_deprecated("StFlow::solveSpecies", "To be removed after Cantera 2.2.");
-        if (k == npos) {
-            for (size_t i = 0; i < m_nsp; i++) {
-                m_do_species[i] = true;
-            }
-        } else {
-            m_do_species[k] = true;
-        }
-        needJacUpdate();
-    }
-
-    //! @deprecated Species equations are always solved. To be removed after
-    //! Cantera 2.2.
-    void fixSpecies(size_t k=npos) {
-        warn_deprecated("StFlow::fixSpecies", "To be removed after Cantera 2.2.");
-        if (k == npos) {
-            for (size_t i = 0; i < m_nsp; i++) {
-                m_do_species[i] = false;
-            }
-        } else {
-            m_do_species[k] = false;
-        }
-        needJacUpdate();
     }
 
     void integrateChem(doublereal* x,doublereal dt);
@@ -534,7 +483,6 @@ protected:
     vector_fp m_qdotRadiation;
 
     // fixed T and Y values
-    Array2D   m_fixedy; //!< @deprecated
     vector_fp m_fixedtemp;
     vector_fp m_zfix;
     vector_fp m_tfix;

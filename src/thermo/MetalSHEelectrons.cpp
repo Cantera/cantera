@@ -156,17 +156,6 @@ doublereal MetalSHEelectrons::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void MetalSHEelectrons::getUnitsStandardConc(doublereal* uA, int k,
-                                             int sizeUA) const
-{
-    warn_deprecated("MetalSHEelectrons::getUnitsStandardConc",
-            "To be removed after Cantera 2.2.");
-
-    for (int i = 0; i < 6; i++) {
-        uA[i] = 0;
-    }
-}
-
 /*
  * Properties of the Standard State of the Species in the Solution
  */

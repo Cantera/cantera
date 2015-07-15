@@ -57,7 +57,6 @@ extern "C" {
     CANTERA_CAPI double stflow_pressure(int i);
     CANTERA_CAPI int stflow_setFixedTempProfile(int i, size_t n, double* pos,
             size_t m, double* temp);
-    CANTERA_CAPI  int stflow_solveSpeciesEqs(int i, int flag);
     CANTERA_CAPI int stflow_solveEnergyEqn(int i, int flag);
 
     CANTERA_CAPI int sim1D_clear();

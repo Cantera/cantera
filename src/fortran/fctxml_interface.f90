@@ -24,11 +24,6 @@ interface
         integer, intent(in) :: i
     end function fxml_copy
 
-    integer function fxml_assign(i, j)
-        integer, intent(in) :: i
-        integer, intent(in) :: j
-    end function fxml_assign
-
     integer function fxml_preprocess_and_build(i, file)
         integer, intent(in) :: i
         character*(*), intent(in) :: file

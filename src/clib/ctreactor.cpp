@@ -62,15 +62,6 @@ extern "C" {
         }
     }
 
-    int reactor_assign(int i, int j)
-    {
-        try {
-            return ReactorCabinet::assign(i,j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int reactor_setInitialVolume(int i, double v)
     {
         try {
@@ -244,15 +235,6 @@ extern "C" {
     {
         try {
             return NetworkCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactornet_assign(int i, int j)
-    {
-        try {
-            return NetworkCabinet::assign(i,j);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -499,15 +481,6 @@ extern "C" {
     {
         try {
             return WallCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_assign(int i, int j)
-    {
-        try {
-            return WallCabinet::assign(i,j);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

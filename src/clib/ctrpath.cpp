@@ -51,15 +51,6 @@ extern "C" {
         }
     }
 
-    int rdiag_assign(int i, int j)
-    {
-        try {
-            return DiagramCabinet::assign(i,j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int rdiag_detailed(int i)
     {
         try {

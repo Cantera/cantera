@@ -174,14 +174,6 @@ public:
      */
     virtual doublereal operator()(size_t i, size_t j) const = 0;
 
-    //! Copy the data from one array into another without doing any checking
-    /*!
-     *  This differs from the assignment operator as no resizing is done and memcpy() is used.
-     *  @param y Array to be copied
-     *  @deprecated To be removed after Cantera 2.2.
-     */
-    virtual void copyData(const GeneralMatrix& y) = 0;
-
     //! Return an iterator pointing to the first element
     /*!
      *  We might drop this later

@@ -7,7 +7,7 @@
  */
 
 #include "cantera/oneD/MultiNewton.h"
-#include "cantera/base/vec_functions.h"
+#include "cantera/base/utilities.h"
 
 #include <cstdio>
 #include <ctime>

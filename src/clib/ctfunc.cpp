@@ -122,15 +122,6 @@ extern "C" {
         }
     }
 
-    int func_assign(int i, int j)
-    {
-        try {
-            return FuncCabinet::assign(i,j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     double func_value(int i, double t)
     {
         try {

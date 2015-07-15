@@ -59,20 +59,6 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
     return largest;
 }
 
-int vcs_max_int(const int* vector, int length)
-{
-    warn_deprecated("vcs_max_int", "Unused. To be removed after Cantera 2.2.");
-    int retn;
-    if (vector == NULL || length <= 0) {
-        return 0;
-    }
-    retn = vector[0];
-    for (int i = 1; i < length; i++) {
-        retn = std::max(retn, vector[i]);
-    }
-    return retn;
-}
-
 double vcsUtil_gasConstant(int mu_units)
 {
     switch (mu_units) {

@@ -412,39 +412,6 @@ public:
      */
     virtual doublereal logStandardConc(size_t k) const;
 
-    /**
-     * Returns the units of the standard and general concentrations
-     * Note they have the same units, as their divisor is
-     * defined to be equal to the activity of the kth species
-     * in the solution, which is unitless.
-     *
-     * This routine is used in print out applications where the
-     * units are needed. Usually, MKS units are assumed throughout
-     * the program and in the XML input files.
-     *
-     * @param uA Output vector containing the units:
-     *
-     *     uA[0] = kmol units - default  = 1
-     *     uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                   dimensions in the Phase class.
-     *     uA[2] = kg   units - default  = 0;
-     *     uA[3] = Pa(pressure) units - default = 0;
-     *     uA[4] = Temperature units - default = 0;
-     *     uA[5] = time units - default = 0
-     *
-     * @param k species index. Defaults to 0.
-     * @param sizeUA output int containing the size of the vector.
-     *        Currently, this is equal to 6.
-     *
-     *  For EOS types other than cIdealSolidSolnPhase0, the default
-     *  kmol/m3 holds for standard concentration units. For
-     *  cIdealSolidSolnPhase0 type, the standard concentration is
-     *  unitless.
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    virtual void getUnitsStandardConc(double* uA, int k = 0,
-                                      int sizeUA = 6) const;
-
     //! Get the array of species activity coefficients
     /*!
      * @param ac output vector of activity coefficients. Length: m_kk

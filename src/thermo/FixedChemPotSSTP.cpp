@@ -186,16 +186,6 @@ doublereal FixedChemPotSSTP::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void FixedChemPotSSTP::getUnitsStandardConc(doublereal* uA, int k,
-                                            int sizeUA) const
-{
-    warn_deprecated("FixedChemPotSSTP::getUnitsStandardConc",
-                    "To be removed after Cantera 2.2.");
-    for (int i = 0; i < 6; i++) {
-        uA[i] = 0;
-    }
-}
-
 /*
  *  ---- Partial Molar Properties of the Solution ----
  */

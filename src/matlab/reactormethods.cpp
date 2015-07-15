@@ -42,9 +42,6 @@ void reactormethods(int nlhs, mxArray* plhs[],
         case 2:
             iok = reactor_copy(i);
             break;
-        case 3:
-            iok = reactor_assign(i,int(v));
-            break;
         case 4:
             iok = reactor_setInitialVolume(i, v);
             break;

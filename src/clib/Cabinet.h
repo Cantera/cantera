@@ -98,26 +98,6 @@ public:
     }
 
     /**
-     * Assign one object (index j) to another (index i).  This method
-     * is not used currently, and may be removed from the class in the
-     * future.
-     * @deprecated To be removed after Cantera 2.2
-     */
-    static int assign(int i, int j) {
-        Cantera::warn_deprecated("Cabinet::assign",
-            "To be removed after Cantera 2.2.");
-        dataRef data = getData();
-        try {
-            M* src = data[j];
-            M* dest = data[i];
-            *dest = *src;
-            return 0;
-        } catch (...) {
-            return Cantera::handleAllExceptions(-1, -999);
-        }
-    }
-
-    /**
      * Delete all objects but the first.
      */
     static int clear() {

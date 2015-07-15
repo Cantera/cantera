@@ -81,67 +81,6 @@ PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
     return new PhaseCombo_Interaction(*this);
 }
 
-PhaseCombo_Interaction::PhaseCombo_Interaction(int testProb)  :
-    GibbsExcessVPSSTP(),
-    numBinaryInteractions_(0),
-    formMargules_(0),
-    formTempModel_(0)
-{
-    warn_deprecated("PhaseCombo_Interaction::PhaseCombo_Interaction(int testProb)",
-        "To be removed after Cantera 2.2");
-
-    initThermoFile("PhaseCombo_Interaction.xml", "");
-
-
-    numBinaryInteractions_ = 1;
-
-    m_HE_b_ij.resize(1);
-    m_HE_c_ij.resize(1);
-    m_HE_d_ij.resize(1);
-
-    m_SE_b_ij.resize(1);
-    m_SE_c_ij.resize(1);
-    m_SE_d_ij.resize(1);
-
-    m_VHE_b_ij.resize(1);
-    m_VHE_c_ij.resize(1);
-    m_VHE_d_ij.resize(1);
-
-    m_VSE_b_ij.resize(1);
-    m_VSE_c_ij.resize(1);
-    m_VSE_d_ij.resize(1);
-
-    m_pSpecies_A_ij.resize(1);
-    m_pSpecies_B_ij.resize(1);
-
-
-
-    m_HE_b_ij[0] = -17570E3;
-    m_HE_c_ij[0] = -377.0E3;
-    m_HE_d_ij[0] = 0.0;
-
-    m_SE_b_ij[0] = -7.627E3;
-    m_SE_c_ij[0] =  4.958E3;
-    m_SE_d_ij[0] =  0.0;
-
-
-    size_t iLiT = speciesIndex("LiTFe1S2(S)");
-    if (iLiT == npos) {
-        throw CanteraError("PhaseCombo_Interaction test1 constructor",
-                           "Unable to find LiTFe1S2(S)");
-    }
-    m_pSpecies_A_ij[0] = iLiT;
-
-
-    size_t iLi2 = speciesIndex("Li2Fe1S2(S)");
-    if (iLi2 == npos) {
-        throw CanteraError("PhaseCombo_Interaction test1 constructor",
-                           "Unable to find Li2Fe1S2(S)");
-    }
-    m_pSpecies_B_ij[0] = iLi2;
-    throw CanteraError("PhaseCombo_Interaction test1 constructor", "unimplemented");
-}
-
 /*
  *  -------------- Utilities -------------------------------
  */

@@ -24,14 +24,6 @@ using namespace std;
 namespace Cantera
 {
 
-ReactionRules::ReactionRules() :
-    skipUndeclaredSpecies(false),
-    skipUndeclaredThirdBodies(false),
-    allowNegativeA(false)
-{
-}
-
-
 bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                            std::string default_phase, bool check_for_duplicates)
 {

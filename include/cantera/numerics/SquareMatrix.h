@@ -89,9 +89,6 @@ public:
         return Array2D::operator()(i, j);
     }
 
-    //! @deprecated To be removed after Cantera 2.2.
-    virtual void copyData(const GeneralMatrix& y);
-
     virtual doublereal operator()(size_t i, size_t j) const {
         return Array2D::operator()(i, j);
     }

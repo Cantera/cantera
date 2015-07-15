@@ -56,19 +56,6 @@ public:
     }
 
     /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     * Note, this function should never be called for negative A values.
-     * If it does then it will produce a negative overflow result, and
-     * a zero net forwards reaction rate, instead of a negative reaction
-     * rate constant that is the expected result.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return m_logA + m_b*logT - m_E*recipT;
-    }
-
-    /**
      * Update the value of the natural logarithm of the rate constant.
      */
     doublereal updateLog(doublereal logT, doublereal recipT) const {
@@ -86,18 +73,6 @@ public:
         return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
-    //! @deprecated. To be removed after Cantera 2.2
-    void writeUpdateRHS(std::ostream& s) const {
-        s << " exp(" << m_logA;
-        if (m_b != 0.0) {
-            s << " + " << m_b << " * tlog";
-        }
-        if (m_E != 0.0) {
-            s << " - " << m_E << " * rt";
-        }
-        s << ");" << std::endl;
-    }
-
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
     double preExponentialFactor() const {
@@ -113,11 +88,6 @@ public:
     //! activation temperature) [K]
     doublereal activationEnergy_R() const {
         return m_E;
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return false;
     }
 
 protected:
@@ -178,18 +148,6 @@ public:
     }
 
     /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     * This calculation is not safe for negative values of
-     * the preexponential.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return m_logA + m_acov + m_b*logT
-               - (m_E + m_ecov)*recipT + m_mcov;
-    }
-
-    /**
      * Update the value the rate constant.
      *
      * This function returns the actual value of the rate constant.
@@ -203,11 +161,6 @@ public:
 
     doublereal activationEnergy_R() const {
         return m_E + m_ecov;
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return true;
     }
 
 protected:
@@ -263,14 +216,6 @@ public:
     }
 
     /**
-     * Update the value of the logarithm of the rate constant.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return std::log(updateRC(logT, recipT));
-    }
-
-    /**
      * Update the value the rate constant.
      *
      * This function returns the actual value of the rate constant.
@@ -298,16 +243,6 @@ public:
         }
 
         return std::exp(log_k1 + (log_k2-log_k1) * (logP_-logP1_) * rDeltaP_);
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    doublereal activationEnergy_R() const {
-        throw CanteraError("Plog::activationEnergy_R", "Not implemented");
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return false;
     }
 
     //! Check to make sure that the rate expression is finite over a range of
@@ -387,14 +322,6 @@ public:
     }
 
     /**
-     * Update the value of the base-10 logarithm of the rate constant.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return std::log10(updateRC(logT, recipT));
-    }
-
-    /**
      * Update the value the rate constant.
      *
      * This function returns the actual value of the rate constant.
@@ -412,16 +339,6 @@ public:
             Cn = Cnp1;
         }
         return std::pow(10, logk);
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    doublereal activationEnergy_R() const {
-        return 0.0;
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return false;
     }
 
     //! Minimum valid temperature [K]

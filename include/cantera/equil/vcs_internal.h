@@ -108,110 +108,6 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
                               int varID, void* fptrPassthrough,
                               int* err);
 
-//! One dimensional root finder
-/*!
- *  This root finder will find the root of a one dimensional equation
- *  \f[
- *     f(x) = 0
- *  \f]
- *  where x is a bounded quantity: \f$ x_{min} < x < x_max \f$
- *
- *  The function to be minimized must have the following call structure:
- *
- *  @code
- *  typedef double (*VCS_FUNC_PTR)(double xval, double Vtarget,
- *                                 int varID, void *fptrPassthrough,
- *                                 int *err);  @endcode
- *
- *  xval is the current value of the x variable. Vtarget is the requested
- *  value of f(x), usually 0. varID is an integer that is passed through.
- *  fptrPassthrough is a void pointer that is passed through. err is a return
- *  error indicator. err = 0 is the norm. anything else is considered a fatal
- *  error. The return value of the function is the current value of f(xval).
- *
- *  @param xmin  Minimum permissible value of the x variable
- *  @param xmax  Maximum permissible value of the x parameter
- *  @param itmax Maximum number of iterations
- *  @param func  function pointer, pointing to the function to be
- *               minimized
- *  @param fptrPassthrough Pointer to void that gets passed through
- *                         the rootfinder, unchanged, to the func.
- *  @param FuncTargVal Target value of the function. This is usually set
- *                     to zero.
- *  @param varID       Variable ID. This is usually set to zero.
- *  @param xbest Pointer to the initial value of x on input. On output
- *               This contains the root value.
- *  @param printLvl Print level of the routine.
- *
- * Following is a nontrial example for vcs_root1d() in which the position of a
- * cylinder floating on the water is calculated.
- *
- * @code
- * #include <cmath>
- * #include <cstdlib>
- *
- * #include "equil/vcs_internal.h"
- *
- * const double g_cgs = 980.;
- * const double mass_cyl = 0.066;
- * const double diam_cyl = 0.048;
- * const double rad_cyl = diam_cyl / 2.0;
- * const double len_cyl  = 5.46;
- * const double vol_cyl  = Pi * diam_cyl * diam_cyl / 4 * len_cyl;
- * const double rho_cyl = mass_cyl / vol_cyl;
- * const double rho_gas = 0.0;
- * const double rho_liq = 1.0;
- * const double sigma = 72.88;
- * // Contact angle in radians
- * const double alpha1 = 40.0 / 180. * Pi;
- *
- * double func_vert(double theta1, double h_2, double rho_c) {
- *   double f_grav = - Pi * rad_cyl * rad_cyl * rho_c * g_cgs;
- *   double tmp = rad_cyl * rad_cyl * g_cgs;
- *   double tmp1 = theta1 + sin(theta1) * cos(theta1) - 2.0 * h_2 / rad_cyl * sin(theta1);
- *   double f_buoy = tmp * (Pi * rho_gas + (rho_liq - rho_gas) * tmp1);
- *   double f_sten = 2 * sigma * sin(theta1 + alpha1 - Pi);
- *   return f_grav +  f_buoy +  f_sten;
- * }
- * double calc_h2_farfield(double theta1) {
- *   double rhs = sigma * (1.0 + cos(alpha1 + theta1));
- *   rhs *= 2.0;
- *   rhs = rhs / (rho_liq - rho_gas) / g_cgs;
- *   double sign = -1.0;
- *   if (alpha1 + theta1 < Pi) sign = 1.0;
- *   double res = sign * sqrt(rhs);
- *   return res + rad_cyl * cos(theta1);
- * }
- * double funcZero(double xval, double Vtarget, int varID, void *fptrPassthrough, int *err) {
- *   double theta = xval;
- *   double h2 = calc_h2_farfield(theta);
- *   return func_vert(theta, h2, rho_cyl);
- * }
- * int main () {
- *   double thetamax = Pi;
- *   double thetamin = 0.0;
- *   int maxit = 1000;
- *   int iconv;
- *   double thetaR = Pi/2.0;
- *   int printLvl = 4;
- *
- *   iconv =  vcsUtil_root1d(thetamin, thetamax, maxit,
- *                           funcZero,
- *                           (void *) 0, 0.0, 0,
- *                           &thetaR, printLvl);
- *   printf("theta = %g\n", thetaR);
- *   double h2Final = calc_h2_farfield(thetaR);
- *   printf("h2Final = %g\n", h2Final);
- *   return 0;
- * }
- * @endcode
- * @deprecated Unused. To be removed after Cantera 2.2.
- */
-int vcsUtil_root1d(double xmin, double xmax, size_t itmax, VCS_FUNC_PTR func,
-                   void* fptrPassthrough,
-                   double FuncTargVal, int varID, double* xbest,
-                   int printLvl = 0);
-
 //! determine the l2 norm of a vector of doubles
 /*!
  * @param vec vector of doubles
@@ -231,16 +127,6 @@ double vcs_l2norm(const std::vector<double> vec);
  *             j <= i < n
  */
 size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
-
-//! Returns the maximum integer in a list
-/*!
- *  @param vector pointer to a vector of ints
- *  @param length length of the integer vector
- *
- * @return returns the max integer value in the list
- * @deprecated Unused. To be removed after Cantera 2.2.
- */
-int vcs_max_int(const int* vector, int length);
 
 //! Returns a const char string representing the type of the
 //! species given by the first argument

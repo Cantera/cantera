@@ -55,15 +55,6 @@ extern "C" {
         }
     }
 
-    int mix_assign(int i, int j)
-    {
-        try {
-            return mixCabinet::assign(i,j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int mix_addPhase(int i, int j, double moles)
     {
         try {

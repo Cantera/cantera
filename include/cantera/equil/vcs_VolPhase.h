@@ -362,9 +362,6 @@ public:
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
 
-    //! Returns whether the object is using cantera calls.
-    bool usingCanteraCalls() const;
-
     //! Return the index of the species that represents the
     //! the voltage of the phase
     size_t phiVarIndex() const;
@@ -743,11 +740,6 @@ private:
      * The index into this vector is the species index within the phase.
      */
     std::vector<vcs_SpeciesProperties*> ListSpeciesPtr;
-
-    //!  If this is true, then calculations are actually performed within
-    //!  Cantera
-    //!  @deprecated Will be implicitly 'true' after Cantera 2.2.
-    bool m_useCanteraCalls;
 
     /**
      *  If we are using Cantera, this is the pointer to the ThermoPhase

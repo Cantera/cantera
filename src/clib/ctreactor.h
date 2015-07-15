@@ -10,7 +10,6 @@ extern "C" {
     CANTERA_CAPI int reactor_new(int type);
     CANTERA_CAPI int reactor_del(int i);
     CANTERA_CAPI int reactor_copy(int i);
-    CANTERA_CAPI int reactor_assign(int i, int j);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
     CANTERA_CAPI int reactor_setThermoMgr(int i, int n);
@@ -30,7 +29,6 @@ extern "C" {
     CANTERA_CAPI int reactornet_new();
     CANTERA_CAPI int reactornet_del(int i);
     CANTERA_CAPI int reactornet_copy(int i);
-    CANTERA_CAPI int reactornet_assign(int i, int j);
     CANTERA_CAPI int reactornet_setInitialTime(int i, double t);
     CANTERA_CAPI int reactornet_setMaxTimeStep(int i, double maxstep);
     CANTERA_CAPI int reactornet_setTolerances(int i, double rtol, double atol);
@@ -56,7 +54,6 @@ extern "C" {
     CANTERA_CAPI int wall_new(int type);
     CANTERA_CAPI int wall_del(int i);
     CANTERA_CAPI int wall_copy(int i);
-    CANTERA_CAPI int wall_assign(int i, int j);
     CANTERA_CAPI int wall_install(int i, int n, int m);
     CANTERA_CAPI int wall_setkinetics(int i, int n, int m);
     CANTERA_CAPI double wall_vdot(int i, double t);

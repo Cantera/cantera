@@ -172,9 +172,6 @@ void writelogendl();
 void writeline(char repeat, size_t count,
                bool endl_after=true, bool endl_before=false);
 
-//! @copydoc Application::Messages::logerror
-void error(const std::string& msg);
-
 //! @copydoc Application::warn_deprecated
 void warn_deprecated(const std::string& method, const std::string& extra="");
 

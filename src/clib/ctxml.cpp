@@ -84,15 +84,6 @@ extern "C" {
         }
     }
 
-    int xml_assign(int i, int j)
-    {
-        try {
-            return XmlCabinet::assign(i,j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int xml_build(int i, const char* file)
     {
         try {

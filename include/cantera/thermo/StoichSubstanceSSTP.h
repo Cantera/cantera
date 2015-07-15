@@ -312,39 +312,6 @@ public:
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
 
-    //! Returns the units of the standard and generalized concentrations.
-    /*!
-     * Note they have the same units, as their
-     * ratio is defined to be equal to the activity of the kth
-     * species in the solution, which is unitless.
-     *
-     * This routine is used in print out applications where the
-     * units are needed. Usually, MKS units are assumed throughout
-     * the program and in the XML input files.
-     *
-     * The base ThermoPhase class assigns the default quantities
-     * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default
-     * values if necessary.
-     *
-     * @param uA Output vector containing the units
-     *
-     *     uA[0] = kmol units - default  = 1
-     *     uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                   dimensions in the Phase class.
-     *     uA[2] = kg   units - default  = 0;
-     *     uA[3] = Pa(pressure) units - default = 0;
-     *     uA[4] = Temperature units - default = 0;
-     *     uA[5] = time units - default = 0
-     *
-     * @param k species index. Defaults to 0.
-     * @param sizeUA output int containing the size of the vector.
-     *        Currently, this is equal to 6.
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
-                                      int sizeUA = 6) const;
-
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{

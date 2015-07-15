@@ -97,15 +97,6 @@ extern "C" {
         }
     }
 
-    status_t fxml_assign_(const integer* i, const integer* j)
-    {
-        try {
-            return XmlCabinet::assign(*i,*j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     status_t fxml_attrib_(const integer* i, const char* key, char* value,
                           ftnlen keylen, ftnlen valuelen)
     {

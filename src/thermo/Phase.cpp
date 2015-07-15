@@ -6,7 +6,7 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/thermo/Phase.h"
-#include "cantera/base/vec_functions.h"
+#include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -27,8 +27,7 @@ Phase::Phase() :
     m_mmw(0.0),
     m_stateNum(-1),
     m_mm(0),
-    m_elem_type(0),
-    realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
+    m_elem_type(0)
 {
 }
 
@@ -43,8 +42,7 @@ Phase::Phase(const Phase& right) :
     m_mmw(0.0),
     m_stateNum(-1),
     m_mm(0),
-    m_elem_type(0),
-    realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
+    m_elem_type(0)
 {
     // Use the assignment operator to do the actual copying
     operator=(right);
@@ -106,8 +104,6 @@ Phase& Phase::operator=(const Phase& right)
     }
     m_id    = right.m_id;
     m_name  = right.m_name;
-    realNumberRangeBehavior_ = right.realNumberRangeBehavior_;
-
     return *this;
 }
 
@@ -692,21 +688,9 @@ doublereal Phase::mean_X(const vector_fp& Q) const
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
 }
 
-doublereal Phase::mean_Y(const doublereal* const Q) const
-{
-    warn_deprecated("Phase::mean_Y", "To be removed after Cantera 2.2.");
-    return dot(m_y.begin(), m_y.end(), Q);
-}
-
 doublereal Phase::sum_xlogx() const
 {
     return m_mmw* Cantera::sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
-}
-
-doublereal Phase::sum_xlogQ(doublereal* Q) const
-{
-    warn_deprecated("Phase::sum_xlogQ", "To be removed after Cantera 2.2.");
-    return m_mmw * Cantera::sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
 }
 
 size_t Phase::addElement(const std::string& symbol, doublereal weight,

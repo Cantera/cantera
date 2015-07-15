@@ -66,10 +66,6 @@ void xmlmethods(int nlhs, mxArray* plhs[],
         case 2:
             iok = xml_copy(i);
             break;
-        case 3:
-            j = getInt(prhs[3]);
-            iok = xml_assign(i,j);
-            break;
         case 4:
             file = getString(prhs[3]);
             iok = xml_build(i, file);

@@ -69,12 +69,6 @@ void writeline(char repeat, size_t count, bool endl_after, bool endl_before)
     }
 }
 
-void error(const std::string& msg)
-{
-    warn_deprecated("error", "To be removed after Cantera 2.2");
-    app()->logerror(msg);
-}
-
 void warn_deprecated(const std::string& method, const std::string& extra)
 {
     app()->warn_deprecated(method, extra);

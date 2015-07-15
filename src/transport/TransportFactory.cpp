@@ -11,7 +11,6 @@
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/transport/SimpleTransport.h"
 #include "cantera/transport/LiquidTransport.h"
-#include "cantera/transport/AqueousTransport.h"
 #include "cantera/transport/HighPressureGasTransport.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/transport/SolidTransportData.h"
@@ -54,7 +53,6 @@ TransportFactory::TransportFactory()
     m_models["CK_Multi"] = CK_Multicomponent;
     m_models["CK_Mix"] = CK_MixtureAveraged;
     m_models["Liquid"] = cLiquidTransport;
-    m_models["Aqueous"] = cAqueousTransport;
     m_models["Simple"] = cSimpleTransport;
     m_models["User"] = cUserTransport;
     m_models["HighP"] = cHighP;
@@ -250,11 +248,6 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         break;
     case cLiquidTransport:
         tr = new LiquidTransport(phase, ndim);
-        initLiquidTransport(tr, phase, log_level);
-        tr->setThermo(*phase);
-        break;
-    case cAqueousTransport:
-        tr = new AqueousTransport;
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
         break;

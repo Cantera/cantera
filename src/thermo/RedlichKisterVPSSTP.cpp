@@ -46,49 +46,6 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
-RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)  :
-    numBinaryInteractions_(0),
-    formRedlichKister_(0),
-    formTempModel_(0)
-{
-    warn_deprecated("RedlichKisterVPSSTP::RedlichKisterVPSSTP(int testProb)",
-        "To be removed after Cantera 2.2");
-
-    initThermoFile("LiKCl_liquid.xml", "");
-    numBinaryInteractions_ = 1;
-
-    m_HE_m_ij.resize(0);
-    m_SE_m_ij.resize(0);
-
-    vector_fp he(2);
-    he[0] = 0.0;
-    he[1] = 0.0;
-    vector_fp se(2);
-    se[0] = 0.0;
-    se[1] = 0.0;
-
-    m_HE_m_ij.push_back(he);
-    m_SE_m_ij.push_back(se);
-    m_N_ij.push_back(1);
-    m_pSpecies_A_ij.resize(1);
-    m_pSpecies_B_ij.resize(1);
-
-    size_t iLiLi = speciesIndex("LiLi");
-    if (iLiLi == npos) {
-        throw CanteraError("RedlichKisterVPSSTP test1 constructor",
-                           "Unable to find LiLi");
-    }
-    m_pSpecies_A_ij[0] = iLiLi;
-
-
-    size_t iVLi = speciesIndex("VLi");
-    if (iVLi == npos) {
-        throw CanteraError("RedlichKisterVPSSTP test1 constructor",
-                           "Unable to find VLi");
-    }
-    m_pSpecies_B_ij[0] = iVLi;
-}
-
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :
     numBinaryInteractions_(0),
     formRedlichKister_(0),

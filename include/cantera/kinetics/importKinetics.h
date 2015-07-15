@@ -19,16 +19,6 @@
 namespace Cantera
 {
 
-//! Rules for parsing and installing reactions
-//! @deprecated Unused. To be removed after Cantera 2.2.
-struct ReactionRules {
-    ReactionRules();
-    bool skipUndeclaredSpecies;
-    bool skipUndeclaredThirdBodies;
-    bool allowNegativeA;
-};
-
-
 //!  Install information about reactions into the kinetics object, kin.
 /*!
  *  At this point, parent usually refers to the phase XML element.
