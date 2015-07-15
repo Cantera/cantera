@@ -645,15 +645,19 @@ doublereal Phase::elementalMassFraction(const size_t m) const
 doublereal Phase::elementalMoleFraction(const size_t m) const
 {
     checkElementIndex(m);
-    doublereal Z_n = 0.0;
-    for (size_t k = 0; k != m_kk; ++k) {
-        double nTotalAtoms = 0;
-        for (size_t l = 0; l != m_mm; ++l) {
-            nTotalAtoms += nAtoms(k, l);
+    double denom = 0;
+    for (size_t k = 0; k < m_kk; k++) {
+        double atoms = 0;
+        for (size_t j = 0; j < nElements(); j++) {
+            atoms += nAtoms(k, j);
         }
-        Z_n += nAtoms(k, m) / nTotalAtoms * moleFraction(k);
+        denom += atoms * moleFraction(k);
     }
-    return Z_n;
+    doublereal numerator = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        numerator += nAtoms(k, m) * moleFraction(k);
+    }
+    return numerator / denom;
 }
 
 doublereal Phase::molarDensity() const
