@@ -45,9 +45,3 @@ Web Resources
    http://groups.google.com/group/cantera-users
 
    This site has a message board for discussions amongst Cantera users.
-
-5. *The Cantera Developers Group*
-
-   http://groups.google.com/group/cantera-dev
-
-   Limited access site where developers can discuss development ideas.
