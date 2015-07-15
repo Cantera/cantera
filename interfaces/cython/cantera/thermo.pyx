@@ -542,13 +542,15 @@ cdef class ThermoPhase(_SolutionBase):
     def elemental_mole_fraction(self, m):
         r"""
         Get the elemental mole fraction :math:`Z_{\mathrm{mole},m}` of element
-        :math:`m` as defined by:
+        :math:`m` (the number of atoms of element m divided by the total number
+        of atoms) as defined by:
 
-        .. math:: Z_{\mathrm{mole},m} = \sum_k \frac{a_{m,k}}{\sum_j a_{j,k}} X_k
+        .. math:: Z_{\mathrm{mole},m} = \frac{\sum_k a_{m,k} X_k}
+                                             {\sum_k \sum_j a_{j,k} X_k}
 
         with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
-        species :math:`k` and :math:`X_k` the mole fraction of species
-        :math:`k`.
+        species :math:`k`, :math:`\sum_j` being a sum over all elements, and
+        :math:`X_k` being the mole fraction of species :math:`k`.
 
         :param m:
             Base element, may be specified by name or by index.

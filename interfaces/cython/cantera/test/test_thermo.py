@@ -65,14 +65,30 @@ class TestThermoPhase(utilities.CanteraTest):
 
         mO = self.phase.element_index('O')
         self.assertEqual(Zo, self.phase.elemental_mole_fraction(mO))
-        self.assertNear(Zo, 0.5/3 + 0.5)
-        self.assertNear(Zh, 0.5*2/3)
+        self.assertNear(Zo, (0.5 + 1) / (0.5*3 + 0.5*2))
+        self.assertNear(Zh, (2*0.5) / (0.5*3 + 0.5*2))
         self.assertEqual(Zar, 0.0)
 
         with self.assertRaises(ValueError):
             self.phase.elemental_mole_fraction('C')
         with self.assertRaises(ValueError):
             self.phase.elemental_mole_fraction(5)
+
+    def test_elemental_mass_mole_fraction(self):
+        # expected relationship between elmental mass and mole fractions
+        comps = ['H2O:0.5, O2:0.5', 'H2:0.1, O2:0.4, H2O2:0.3, AR:0.2',
+                 'O2:0.1, H2:0.9']
+        for comp in comps:
+            self.phase.X = comp
+
+            denom = sum(self.phase.elemental_mole_fraction(i)
+                        * self.phase.atomic_weight(i)
+                        for i in range(self.phase.n_elements))
+
+            for i in range(self.phase.n_elements):
+                self.assertNear(self.phase.elemental_mass_fraction(i),
+                                self.phase.elemental_mole_fraction(i)
+                                * self.phase.atomic_weight(i) / denom)
 
     def test_weights(self):
         atomic_weights = self.phase.atomic_weights
