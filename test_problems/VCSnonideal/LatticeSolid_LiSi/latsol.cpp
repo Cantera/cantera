@@ -12,7 +12,6 @@ using namespace Cantera;
 
 void testProblem()
 {
-    suppress_deprecation_warnings();
     double T = 273.15 + 352.0;
     vcs_timing_print_lvl = 0;
 
@@ -21,7 +20,7 @@ void testProblem()
                                                    "Li7Si3_and_Interstitials(S)"));
     std::auto_ptr<ThermoPhase> Li_liq(newPhase("Li_Liquid.xml", "Li(L)"));
     FixedChemPotSSTP LiFixed("Li", -2.3E7);
-    MargulesVPSSTP salt(1);
+    MargulesVPSSTP salt("LiKCl_liquid.xml", "MoltenSalt_electrolyte");
 
     // set states
     vector_fp x(salt.nSpecies(), 0);
