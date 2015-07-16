@@ -13,6 +13,7 @@
 
 #include "cantera/IdealGasMix.h"    // defines class IdealGasMix
 #include "cantera/transport.h"      // transport properties
+#include <cstdio>
 
 // All Cantera kernel names are in namespace Cantera. You can either
 // reference everything as Cantera::<name>, or include the following

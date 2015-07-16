@@ -19,7 +19,6 @@ void runexample()
 
     // use reaction mechanism GRI-Mech 3.0
     IdealGasMix gas("gri30.cti", "gri30");
-    int nsp = gas.nSpecies();
 
     // create a reservoir for the fuel inlet, and set to pure methane.
     Reservoir fuel_in;
@@ -105,7 +104,6 @@ void runexample()
     double tfinal = 1.0;
     double tnow = 0.0;
     double tres;
-    int k;
 
     std::ofstream f("combustor_cxx.csv");
     std::vector<size_t> k_out;
