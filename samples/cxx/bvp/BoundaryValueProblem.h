@@ -6,6 +6,7 @@
 #define BVP_H
 
 #include "cantera/onedim.h"
+#include <fstream>
 
 /// Namespace for the boundary value problem package.
 namespace BVP
@@ -113,18 +114,19 @@ public:
      *  @param n Component number.
      *  @param c Component parameter values
      */
-    void setComponent(int n, Component& c) {
+    void setComponent(size_t n, Component& c) {
         if (m_sim == 0) {
             start();
         }
-        if (n < 0 || n >= m_nv) {
+        if (n >= m_nv) {
             throw Cantera::CanteraError("BoundaryValueProblem::setComponent",
                                         "Illegal solution component number");
         }
         // set the upper and lower bounds for this component
         setBounds(n, c.lower, c.upper);
         // set the error tolerances
-        setTolerances(n, c.rtol, c.atol);
+        setSteadyTolerances(c.rtol, c.atol, n);
+        setTransientTolerances(c.rtol, c.atol, n);
         // specify whether this component should be considered in
         // refining the grid
         m_refiner->setActive(n, c.refine);
@@ -209,7 +211,7 @@ protected:
      * True if n is the index of the left-most grid point (zero),
      * false otherwise.
      */
-    bool isLeft(int n) const {
+    bool isLeft(size_t n) const {
         return (n == 0);
     }
 
@@ -217,7 +219,7 @@ protected:
      * True if \a n is the index of the right-most grid point, false
      * otherwise.
      */
-    bool isRight(int n) const {
+    bool isRight(size_t n) const {
         return (n == nPoints() - 1);
     }
 
