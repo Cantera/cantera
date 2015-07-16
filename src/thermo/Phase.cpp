@@ -378,7 +378,7 @@ void Phase::setMoleFractionsByName(const compositionMap& xMap)
             mf[getValue(m_speciesIndices, iter->first)] = iter->second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMoleFractionsByName",
-                               "Unknown species '" + iter->first + "'");
+                               "Unknown species '{}'", iter->first);
         }
     }
     setMoleFractions(&mf[0]);
@@ -424,7 +424,7 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
             mf[getValue(m_speciesIndices, iter->first)] = iter->second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMassFractionsByName",
-                               "Unknown species '" + iter->first + "'");
+                               "Unknown species '{}'", iter->first);
         }
     }
     setMassFractions(&mf[0]);
@@ -717,7 +717,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
         size_t m = iter - m_elementNames.begin();
         if (m_atomicWeights[m] != weight) {
             throw CanteraError("Phase::addElement",
-                "Duplicate elements (" + symbol + ") have different weights");
+                "Duplicate elements ({}) have different weights", symbol);
         } else {
             // Ignore attempt to add duplicate element with the same weight
             return m;
@@ -773,8 +773,8 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
             case UndefElement::error:
             default:
                 throw CanteraError("Phase::addSpecies",
-                                   "Species '" + spec->name + "' contains an "
-                                   "undefined element '" + iter->first + "'.");
+                    "Species '{}' contains an undefined element '{}'.",
+                    spec->name, iter->first);
             }
         }
         comp[m] = iter->second;

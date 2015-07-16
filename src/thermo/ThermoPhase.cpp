@@ -257,13 +257,13 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         doublereal v = p;
         if (v < 1.0E-300) {
             throw CanteraError("setState_HPorUV (UV)",
-                               "Input specific volume is too small or negative. v = " + fp2str(v));
+                               "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
             throw CanteraError("setState_HPorUV (HP)",
-                               "Input pressure is too small or negative. p = " + fp2str(p));
+                               "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
     }
@@ -410,23 +410,28 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
      */
     string ErrString =  "No convergence in 500 iterations\n";
     if (doUV) {
-        ErrString += "\tTarget Internal Energy  = " + fp2str(Htarget) + "\n";
-        ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Internal Energy = " + fp2str(Hnew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Internal Energy  = {}\n"
+            "\tCurrent Specific Volume = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Internal Energy = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Htarget, v, Tinit, Tnew, Hnew, dt);
     } else {
-        ErrString += "\tTarget Enthalpy         = " + fp2str(Htarget) + "\n";
-        ErrString += "\tCurrent Pressure        = " + fp2str(p) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Enthalpy        = " + fp2str(Hnew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Enthalpy         = {}\n"
+            "\tCurrent Pressure        = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Enthalpy        = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Htarget, p, Tinit, Tnew, Hnew, dt);
     }
     if (unstablePhase) {
-        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
-                     + fp2str(Tunstable) + "\n";
+        ErrString += fmt::format(
+            "\t  - The phase became unstable (Cp < 0) T_unstable_last = {}\n",
+            Tunstable);
     }
     if (doUV) {
         throw CanteraError("setState_HPorUV (UV)", ErrString);
@@ -456,13 +461,13 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         v = p;
         if (v < 1.0E-300) {
             throw CanteraError("setState_SPorSV (SV)",
-                               "Input specific volume is too small or negative. v = " + fp2str(v));
+                "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
             throw CanteraError("setState_SPorSV (SP)",
-                               "Input pressure is too small or negative. p = " + fp2str(p));
+                "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
     }
@@ -593,23 +598,27 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
      */
     string ErrString =  "No convergence in 500 iterations\n";
     if (doSV) {
-        ErrString += "\tTarget Entropy          = " + fp2str(Starget) + "\n";
-        ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Entropy          = " + fp2str(Snew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Entropy          = {}\n"
+            "\tCurrent Specific Volume = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Entropy         = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Starget, v, Tinit, Tnew, Snew, dt);
     } else {
-        ErrString += "\tTarget Entropy          = " + fp2str(Starget) + "\n";
-        ErrString += "\tCurrent Pressure        = " + fp2str(p) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Entropy         = " + fp2str(Snew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Entropy          = {}\n"
+            "\tCurrent Pressure        = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Entropy         = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Starget, p, Tinit, Tnew, Snew, dt);
     }
     if (unstablePhase) {
-        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
-                     + fp2str(Tunstable) + "\n";
+        ErrString += fmt::format("\t  - The phase became unstable (Cp < 0) T_unstable_last = {}\n",
+                     Tunstable);
     }
     if (doSV) {
         throw CanteraError("setState_SPorSV (SV)", ErrString);
@@ -647,8 +656,8 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
     XML_Node* fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
         throw CanteraError("ThermoPhase::initThermoFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
+                           "ERROR: Can not find phase named {} in file"
+                           " named {}", id, inputFile);
     }
     importPhase(*fxml_phase, this);
 }
@@ -772,7 +781,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
             int ret = E.equilibrate(*this, XY.c_str(), use_element_potentials, log_level-1);
             if (ret < 0) {
                 throw CanteraError("ThermoPhase::equilibrate",
-                    "ChemEquil solver failed. Return code: " + int2str(ret));
+                    "ChemEquil solver failed. Return code: {}", ret);
             }
             setElementPotentials(E.elementPotentials());
             debuglog("ChemEquil solver succeeded\n", log_level);
@@ -799,7 +808,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
 
     if (solver != "auto") {
         throw CanteraError("ThermoPhase::equilibrate",
-            "Invalid solver specified: '" + solver + "'");
+                           "Invalid solver specified: '{}'", solver);
     }
 }
 
