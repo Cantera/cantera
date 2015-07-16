@@ -173,10 +173,6 @@ void GeneralSpeciesThermo::reportParams(size_t index, int& type,
     if (sp) {
         sp->reportParameters(n, type, minTemp_, maxTemp_,
                              refPressure_, c);
-        if (n != index) {
-            throw CanteraError("GeneralSpeciesThermo::reportParams",
-                               "Internal error encountered");
-        }
     } else {
         type = -1;
     }
