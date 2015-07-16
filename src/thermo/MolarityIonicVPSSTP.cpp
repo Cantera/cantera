@@ -393,25 +393,19 @@ void MolarityIonicVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 
 std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
-    char p[800];
-    string s = "";
+    fmt::MemoryWriter b;
     try {
         if (name() != "") {
-            sprintf(p, " \n  %s:\n", name().c_str());
-            s += p;
+            b.write("\n  {}:\n", name().c_str());
         }
-        sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
-        s += p;
-        sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
-        s += p;
-        sprintf(p, "           density    %12.6g  kg/m^3\n", density());
-        s += p;
-        sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
-        s += p;
+        b.write("\n");
+        b.write("       temperature    {:12.6g}  K\n", temperature());
+        b.write("          pressure    {:12.6g}  Pa\n", pressure());
+        b.write("           density    {:12.6g}  kg/m^3\n", density());
+        b.write("  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
 
         doublereal phi = electricPotential();
-        sprintf(p, "         potential    %12.6g  V\n", phi);
-        s += p;
+        b.write("         potential    {:12.6g}  V\n", phi);
 
         vector_fp x(m_kk);
         vector_fp molal(m_kk);
@@ -426,41 +420,31 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) 
         getActivities(&actMolal[0]);
 
         if (show_thermo) {
-            sprintf(p, " \n");
-            s += p;
-            sprintf(p, "                          1 kg            1 kmol\n");
-            s += p;
-            sprintf(p, "                       -----------      ------------\n");
-            s += p;
-            sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n",
+            b.write("\n");
+            b.write("                          1 kg            1 kmol\n");
+            b.write("                       -----------      ------------\n");
+            b.write("          enthalpy    {:12.6g}     {:12.4g}     J\n",
                     enthalpy_mass(), enthalpy_mole());
-            s += p;
-            sprintf(p, "   internal energy    %12.6g     %12.4g     J\n",
+            b.write("   internal energy    {:12.6g}     {:12.4g}     J\n",
                     intEnergy_mass(), intEnergy_mole());
-            s += p;
-            sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n",
+            b.write("           entropy    {:12.6g}     {:12.4g}     J/K\n",
                     entropy_mass(), entropy_mole());
-            s += p;
-            sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n",
+            b.write("    Gibbs function    {:12.6g}     {:12.4g}     J\n",
                     gibbs_mass(), gibbs_mole());
-            s += p;
-            sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n",
+            b.write(" heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
                     cp_mass(), cp_mole());
-            s += p;
             try {
-                sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
+                b.write(" heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-                s += p;
             } catch (CanteraError& e) {
                 e.save();
-                sprintf(p, " heat capacity c_v    <not implemented>       \n");
-                s += p;
+                b.write(" heat capacity c_v    <not implemented>\n");
             }
         }
     } catch (CanteraError& e) {
         e.save();
     }
-    return s;
+    return b.str();
 }
 
 }

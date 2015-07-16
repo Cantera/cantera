@@ -908,57 +908,41 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
 
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
-    char p[800];
-    string s = "";
+    fmt::MemoryWriter b;
     try {
         if (name() != "") {
-            sprintf(p, " \n  %s:\n", name().c_str());
-            s += p;
+            b.write("\n  {}:\n", name());
         }
-        sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
-        s += p;
-        sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
-        s += p;
-        sprintf(p, "           density    %12.6g  kg/m^3\n", density());
-        s += p;
-        sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
-        s += p;
+        b.write("\n");
+        b.write("       temperature    {:12.6g}  K\n", temperature());
+        b.write("          pressure    {:12.6g}  Pa\n", pressure());
+        b.write("           density    {:12.6g}  kg/m^3\n", density());
+        b.write("  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
 
         doublereal phi = electricPotential();
         if (phi != 0.0) {
-            sprintf(p, "         potential    %12.6g  V\n", phi);
-            s += p;
+            b.write("         potential    {:12.6g}  V\n", phi);
         }
         if (show_thermo) {
-            sprintf(p, " \n");
-            s += p;
-            sprintf(p, "                          1 kg            1 kmol\n");
-            s += p;
-            sprintf(p, "                       -----------      ------------\n");
-            s += p;
-            sprintf(p, "          enthalpy    %12.5g     %12.4g     J\n",
+            b.write("\n");
+            b.write("                          1 kg            1 kmol\n");
+            b.write("                       -----------      ------------\n");
+            b.write("          enthalpy    {:12.5g}     {:12.4g}     J\n",
                     enthalpy_mass(), enthalpy_mole());
-            s += p;
-            sprintf(p, "   internal energy    %12.5g     %12.4g     J\n",
+            b.write("   internal energy    {:12.5g}     {:12.4g}     J\n",
                     intEnergy_mass(), intEnergy_mole());
-            s += p;
-            sprintf(p, "           entropy    %12.5g     %12.4g     J/K\n",
+            b.write("           entropy    {:12.5g}     {:12.4g}     J/K\n",
                     entropy_mass(), entropy_mole());
-            s += p;
-            sprintf(p, "    Gibbs function    %12.5g     %12.4g     J\n",
+            b.write("    Gibbs function    {:12.5g}     {:12.4g}     J\n",
                     gibbs_mass(), gibbs_mole());
-            s += p;
-            sprintf(p, " heat capacity c_p    %12.5g     %12.4g     J/K\n",
+            b.write(" heat capacity c_p    {:12.5g}     {:12.4g}     J/K\n",
                     cp_mass(), cp_mole());
-            s += p;
             try {
-                sprintf(p, " heat capacity c_v    %12.5g     %12.4g     J/K\n",
+                b.write(" heat capacity c_v    {:12.5g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-                s += p;
             } catch (CanteraError& err) {
                 err.save();
-                sprintf(p, " heat capacity c_v    <not implemented>       \n");
-                s += p;
+                b.write(" heat capacity c_v    <not implemented>       \n");
             }
         }
 
@@ -971,23 +955,21 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         int nMinor = 0;
         doublereal xMinor = 0.0;
         doublereal yMinor = 0.0;
+        b.write("\n");
         if (show_thermo) {
-            sprintf(p, " \n                           X     "
-                    "            Y          Chem. Pot. / RT    \n");
-            s += p;
-            sprintf(p, "                     -------------     "
+            b.write("                           X     "
+                    "            Y          Chem. Pot. / RT\n");
+            b.write("                     -------------     "
                     "------------     ------------\n");
-            s += p;
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
                     if (abs(x[k]) > SmallNumber) {
-                        sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
-                                speciesName(k).c_str(), x[k], y[k], mu[k]/RT());
+                        b.write("{:>18s}   {:12.6g}     {:12.6g}     {:12.6g}\n",
+                                speciesName(k), x[k], y[k], mu[k]/RT());
                     } else {
-                        sprintf(p, "%18s   %12.6g     %12.6g     \n",
-                                speciesName(k).c_str(), x[k], y[k]);
+                        b.write("{:>18s}   {:12.6g}     {:12.6g}\n",
+                                speciesName(k), x[k], y[k]);
                     }
-                    s += p;
                 } else {
                     nMinor++;
                     xMinor += x[k];
@@ -995,17 +977,12 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                 }
             }
         } else {
-            sprintf(p, " \n                           X     "
-                    "            Y\n");
-            s += p;
-            sprintf(p, "                     -------------"
-                    "     ------------\n");
-            s += p;
+            b.write("                           X                 Y\n");
+            b.write("                     -------------     ------------\n");
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
-                    sprintf(p, "%18s   %12.6g     %12.6g\n",
-                            speciesName(k).c_str(), x[k], y[k]);
-                    s += p;
+                    b.write("{:>18s}   {:12.6g}     {:12.6g}\n",
+                            speciesName(k), x[k], y[k]);
                 } else {
                     nMinor++;
                     xMinor += x[k];
@@ -1014,14 +991,13 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
         if (nMinor) {
-            sprintf(p, "     [%+5i minor]   %12.6g     %12.6g\n",
+            b.write("     [{:+5d} minor]   {:12.6g}     {:12.6g}\n",
                     nMinor, xMinor, yMinor);
-            s += p;
         }
     } catch (CanteraError& err) {
         err.save();
     }
-    return s;
+    return b.str();
 }
 
 void ThermoPhase::reportCSV(std::ofstream& csvFile) const

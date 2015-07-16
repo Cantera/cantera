@@ -8,6 +8,7 @@
 #define CT_STRINGUTILS_H
 
 #include "ct_defs.h"
+#include "cantera/ext/format.h"
 
 #include <string>
 
