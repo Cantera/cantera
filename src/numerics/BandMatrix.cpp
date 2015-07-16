@@ -423,10 +423,4 @@ doublereal* const* BandMatrix::colPts()
     return &(m_colPtrs[0]);
 }
 
-void BandMatrix::useFactorAlgorithm(int fAlgorithm)
-{
-//    useQR_ = fAlgorithm;
-}
-
-
 }
