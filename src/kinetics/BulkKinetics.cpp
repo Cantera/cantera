@@ -104,12 +104,12 @@ void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
 
     if (doIrreversible) {
         getEquilibriumConstants(&m_ropnet[0]);
-        for (size_t i = 0; i < m_ii; i++) {
+        for (size_t i = 0; i < nReactions(); i++) {
             krev[i] /=  m_ropnet[i];
         }
     } else {
         // m_rkcn[] is zero for irreversible reactions
-        for (size_t i = 0; i < m_ii; i++) {
+        for (size_t i = 0; i < nReactions(); i++) {
             krev[i] *= m_rkcn[i];
         }
     }
@@ -168,7 +168,7 @@ void BulkKinetics::finalize()
 
     // Guarantee that these arrays can be converted to double* even in the
     // special case where there are no reactions defined.
-    if (!m_ii) {
+    if (!nReactions()) {
         m_perturb.resize(1, 1.0);
         m_ropf.resize(1, 0.0);
         m_ropr.resize(1, 0.0);

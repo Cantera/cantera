@@ -16,7 +16,6 @@ using namespace std;
 namespace Cantera
 {
 Kinetics::Kinetics() :
-    m_ii(0),
     m_kk(0),
     m_thermo(0),
     m_surfphase(npos),
@@ -49,7 +48,6 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_reactantStoich = right.m_reactantStoich;
     m_revProductStoich = right.m_revProductStoich;
     m_irrevProductStoich = right.m_irrevProductStoich;
-    m_ii                = right.m_ii;
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
     m_reactions = right.m_reactions;
@@ -94,15 +92,15 @@ int Kinetics::type() const
 
 void Kinetics::checkReactionIndex(size_t i) const
 {
-    if (i >= m_ii) {
-        throw IndexError("checkReactionIndex", "reactions", i, m_ii-1);
+    if (i >= nReactions()) {
+        throw IndexError("checkReactionIndex", "reactions", i, nReactions()-1);
     }
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
 {
-    if (m_ii > ii) {
-        throw ArraySizeError("checkReactionArraySize", ii, m_ii);
+    if (nReactions() > ii) {
+        throw ArraySizeError("checkReactionArraySize", ii, nReactions());
     }
 }
 
@@ -452,7 +450,7 @@ void Kinetics::getNetRatesOfProgress(doublereal* netROP)
 
 void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
 {
-    fill(deltaProp, deltaProp + m_ii, 0.0);
+    fill(deltaProp, deltaProp + nReactions(), 0.0);
     // products add
     m_revProductStoich.incrementReactions(prop, deltaProp);
     m_irrevProductStoich.incrementReactions(prop, deltaProp);
@@ -462,7 +460,7 @@ void Kinetics::getReactionDelta(const double* prop, double* deltaProp)
 
 void Kinetics::getRevReactionDelta(const double* prop, double* deltaProp)
 {
-    fill(deltaProp, deltaProp + m_ii, 0.0);
+    fill(deltaProp, deltaProp + nReactions(), 0.0);
     // products add
     m_revProductStoich.incrementReactions(prop, deltaProp);
     // reactants subtract
@@ -652,7 +650,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         m_irrevProductStoich.add(irxn, pk, pstoich, pstoich);
     }
 
-    incrementRxnCount();
     m_reactions.push_back(r);
     m_rxneqn.push_back(r->equation());
     m_reactantStrings.push_back(r->reactantString());
@@ -663,6 +660,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     m_ropf.push_back(0.0);
     m_ropr.push_back(0.0);
     m_ropnet.push_back(0.0);
+    m_perturb.push_back(1.0);
     return true;
 }
 

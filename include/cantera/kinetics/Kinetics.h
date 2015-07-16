@@ -189,7 +189,7 @@ public:
 
     //! Number of reactions in the reaction mechanism.
     size_t nReactions() const {
-        return m_ii;
+        return m_reactions.size();
     }
 
     //! Check that the specified reaction index is in range
@@ -401,7 +401,7 @@ public:
      * least as large as the total number of reactions.
      *
      * @param fwdROP  Output vector containing forward rates
-     *                of progress of the reactions. Length: m_ii.
+     *                of progress of the reactions. Length: nReactions().
      */
     virtual void getFwdRatesOfProgress(doublereal* fwdROP);
 
@@ -411,7 +411,7 @@ public:
      * dimensioned at least as large as the total number of reactions.
      *
      * @param revROP  Output vector containing reverse rates
-     *                of progress of the reactions. Length: m_ii.
+     *                of progress of the reactions. Length: nReactions().
      */
     virtual void getRevRatesOfProgress(doublereal* revROP);
 
@@ -420,7 +420,7 @@ public:
      * progress in array netROP, which must be dimensioned at least as large
      * as the total number of reactions.
      *
-     * @param netROP  Output vector of the net ROP. Length: m_ii.
+     * @param netROP  Output vector of the net ROP. Length: nReactions().
      */
     virtual void getNetRatesOfProgress(doublereal* netROP);
 
@@ -435,7 +435,7 @@ public:
      * \f]
      *
      * @param kc   Output vector containing the equilibrium constants.
-     *             Length: m_ii.
+     *             Length: nReactions().
      */
     virtual void getEquilibriumConstants(doublereal* kc) {
         throw NotImplementedError("Kinetics::getEquilibriumConstants");
@@ -455,7 +455,7 @@ public:
      * reaction.
      *
      * @param property Input vector of property value. Length: m_kk.
-     * @param deltaProperty Output vector of deltaRxn. Length: m_ii.
+     * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
     virtual void getReactionDelta(const doublereal* property,
                                   doublereal* deltaProperty);
@@ -479,7 +479,8 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaG  Output vector of  deltaG's for reactions Length: m_ii.
+     * @param deltaG  Output vector of  deltaG's for reactions Length:
+     *     nReactions().
      */
     virtual void getDeltaGibbs(doublereal* deltaG) {
         throw NotImplementedError("Kinetics::getDeltaGibbs");
@@ -493,7 +494,8 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaM  Output vector of  deltaM's for reactions Length: m_ii.
+     * @param deltaM  Output vector of  deltaM's for reactions Length:
+     *     nReactions().
      */
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
         throw NotImplementedError("Kinetics::getDeltaElectrochemPotentials");
@@ -505,7 +507,8 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaH  Output vector of deltaH's for reactions Length: m_ii.
+     * @param deltaH  Output vector of deltaH's for reactions Length:
+     *     nReactions().
      */
     virtual void getDeltaEnthalpy(doublereal* deltaH) {
         throw NotImplementedError("Kinetics::getDeltaEnthalpy");
@@ -517,7 +520,8 @@ public:
      *
      *  units = J kmol-1 Kelvin-1
      *
-     * @param deltaS  Output vector of deltaS's for reactions Length: m_ii.
+     * @param deltaS  Output vector of deltaS's for reactions Length:
+     *     nReactions().
      */
     virtual void getDeltaEntropy(doublereal* deltaS) {
         throw NotImplementedError("Kinetics::getDeltaEntropy");
@@ -530,7 +534,8 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaG  Output vector of ss deltaG's for reactions Length: m_ii.
+     * @param deltaG  Output vector of ss deltaG's for reactions Length:
+     *     nReactions().
      */
     virtual void getDeltaSSGibbs(doublereal* deltaG) {
         throw NotImplementedError("Kinetics::getDeltaSSGibbs");
@@ -543,7 +548,8 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaH  Output vector of ss deltaH's for reactions Length: m_ii.
+     * @param deltaH  Output vector of ss deltaH's for reactions Length:
+     *     nReactions().
      */
     virtual void getDeltaSSEnthalpy(doublereal* deltaH) {
         throw NotImplementedError("Kinetics::getDeltaSSEnthalpy");
@@ -556,7 +562,8 @@ public:
      *
      *  units = J kmol-1 Kelvin-1
      *
-     * @param deltaS  Output vector of ss deltaS's for reactions Length: m_ii.
+     * @param deltaS  Output vector of ss deltaS's for reactions Length:
+     *     nReactions().
      */
     virtual void getDeltaSSEntropy(doublereal* deltaS) {
         throw NotImplementedError("Kinetics::getDeltaSSEntropy");
@@ -695,7 +702,7 @@ public:
      * length is the number of reactions. units depends on many issues.
      *
      * @param kfwd    Output vector containing the forward reaction rate
-     *                constants. Length: m_ii.
+     *                constants. Length: nReactions().
      */
     virtual void getFwdRateConstants(doublereal* kfwd) {
         throw NotImplementedError("Kinetics::getFwdRateConstants");
@@ -843,15 +850,6 @@ public:
     //@}
 
     /**
-     * Increment the number of reactions in the mechanism by one.
-     * @todo Should be protected?
-     */
-    void incrementRxnCount() {
-        m_ii++;
-        m_perturb.push_back(1.0);
-    }
-
-    /**
      * Returns true if the kinetics manager has been properly
      * initialized and finalized.
      */
@@ -928,9 +926,6 @@ protected:
     //! Stoichiometry manager for the products of irreversible reactions
     StoichManagerN m_irrevProductStoich;
     //@}
-
-    //! Number of reactions in the mechanism
-    size_t m_ii;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.

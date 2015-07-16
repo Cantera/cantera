@@ -127,7 +127,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     getReactionDelta(&m_grt[0], &m_rkcn[0]);
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (size_t i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-m_rkcn[i]*rrt + m_dn[i]*m_logStandConc);
     }
 
@@ -199,7 +199,7 @@ void GasKinetics::updateROP()
     // for reversible reactions, multiply ropr by concentration products
     m_revProductStoich.multiply(&m_conc[0], &m_ropr[0]);
 
-    for (size_t j = 0; j != m_ii; ++j) {
+    for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
 
@@ -235,7 +235,7 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
     // multiply by perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
-    for (size_t i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < nReactions(); i++) {
         kfwd[i] = m_ropf[i];
     }
 }

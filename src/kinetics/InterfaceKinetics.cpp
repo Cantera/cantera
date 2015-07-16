@@ -294,11 +294,11 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
     updateMu0();
     doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
 
-    std::fill(kc, kc + m_ii, 0.0);
+    std::fill(kc, kc + nReactions(), 0.0);
 
     getReactionDelta(DATA_PTR(m_mu0_Kc), kc);
 
-    for (size_t i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-kc[i]*rrt);
     }
 }
@@ -333,7 +333,7 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
     getReactionDelta(DATA_PTR(m_mu0), DATA_PTR(m_deltaG0));
 
     //  Calculate the product of the standard concentrations of the reactants
-    for (size_t i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < nReactions(); i++) {
         m_ProdStanConcReac[i] = 1.0;
     }
     m_reactantStoich.multiply(DATA_PTR(m_StandardConc), DATA_PTR(m_ProdStanConcReac));
@@ -463,7 +463,7 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
     getFwdRateConstants(krev);
     if (doIrreversible) {
         getEquilibriumConstants(&m_ropnet[0]);
-        for (size_t i = 0; i < m_ii; i++) {
+        for (size_t i = 0; i < nReactions(); i++) {
             krev[i] /= m_ropnet[i];
         }
     } else {
@@ -506,7 +506,7 @@ void InterfaceKinetics::updateROP()
 
     //  Fix up these calculations for cases where the above formalism doesn't hold
     double OCV = 0.0;
-    for (size_t jrxn = 0; jrxn != m_ii; ++jrxn) {
+    for (size_t jrxn = 0; jrxn != nReactions(); ++jrxn) {
         int reactionType = m_rxntype[jrxn];
         if (reactionType == BUTLERVOLMER_RXN) {
             //
@@ -543,7 +543,7 @@ void InterfaceKinetics::updateROP()
         }
     }
 
-    for (size_t j = 0; j != m_ii; ++j) {
+    for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
 
@@ -553,7 +553,7 @@ void InterfaceKinetics::updateROP()
      *  phases that are stoichiometric phases containing one species with a unity activity
      */
     if (m_phaseExistsCheck) {
-        for (size_t j = 0; j != m_ii; ++j) {
+        for (size_t j = 0; j != nReactions(); ++j) {
             if ((m_ropr[j] >  m_ropf[j]) && (m_ropr[j] > 0.0)) {
                 for (size_t p = 0; p < nPhases(); p++) {
                     if (m_rxnPhaseIsProduct[j][p]) {
@@ -624,7 +624,7 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
     // Use the stoichiometric manager to find deltaG for each reaction.
     getReactionDelta(DATA_PTR(m_mu), DATA_PTR(m_deltaG));
     if (deltaG != 0 && (DATA_PTR(m_deltaG) != deltaG)) {
-        for (size_t j = 0; j < m_ii; ++j) {
+        for (size_t j = 0; j < nReactions(); ++j) {
             deltaG[j] = m_deltaG[j];
         }
     }
@@ -967,7 +967,7 @@ void InterfaceKinetics::init()
 void InterfaceKinetics::finalize()
 {
     Kinetics::finalize();
-    size_t safe_reaction_size = std::max<size_t>(m_ii, 1);
+    size_t safe_reaction_size = std::max<size_t>(nReactions(), 1);
     deltaElectricEnergy_.resize(safe_reaction_size);
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("InterfaceKinetics::finalize",
@@ -992,7 +992,7 @@ void InterfaceKinetics::finalize()
 
     // Guarantee that these arrays can be converted to double* even in the
     // special case where there are no reactions defined.
-    if (!m_ii) {
+    if (!nReactions()) {
         m_perturb.resize(1, 1.0);
         m_ropf.resize(1, 0.0);
         m_ropr.resize(1, 0.0);
@@ -1170,7 +1170,7 @@ void EdgeKinetics::finalize()
     //  handled by the InterfaceKinetics::finalize() call.
     Kinetics::finalize();
 
-    size_t safe_reaction_size = std::max<size_t>(m_ii, 1);
+    size_t safe_reaction_size = std::max<size_t>(nReactions(), 1);
     deltaElectricEnergy_.resize(safe_reaction_size);
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("EdgeKinetics::finalize",
@@ -1195,7 +1195,7 @@ void EdgeKinetics::finalize()
 
     // Guarantee that these arrays can be converted to double* even in the
     // special case where there are no reactions defined.
-    if (!m_ii) {
+    if (!nReactions()) {
         m_perturb.resize(1, 1.0);
         m_ropf.resize(1, 0.0);
         m_ropr.resize(1, 0.0);

@@ -114,8 +114,8 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaG  Output vector of  deltaG's for reactions Length: m_ii.
-     *                If 0, this updates the internally stored values only.
+     * @param deltaG  Output vector of  deltaG's for reactions Length:
+     *     nReactions(). If 0, this updates the internally stored values only.
      */
     virtual void getDeltaGibbs(doublereal* deltaG);
 
