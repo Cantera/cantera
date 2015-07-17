@@ -270,26 +270,7 @@ public:
         msp_low.updateTemperaturePoly(T, T_poly);
     }
 
-    //! Update the properties for this species, given a temperature polynomial
-    /*!
-     * This method is called with a pointer to an array containing the
-     * functions of temperature needed by this  parameterization, and three
-     * pointers to arrays where the computed property values should be
-     * written. This method updates only one value in each array.
-     *
-     * Temperature Polynomial:
-     *   - `tt[0] = t`
-     *   - `tt[1] = t*t`
-     *   - `tt[2] = m_t[1]*t`
-     *   - `tt[3] = m_t[2]*t`
-     *   - `tt[4] = 1.0/t`
-     *   - `tt[5] = std::log(t)`
-     *
-     * @param tt      vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
-     */
+    //! @copydoc ShomatePoly::updateProperties
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const {
