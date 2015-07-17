@@ -72,8 +72,11 @@ public:
      */
     ShomatePoly(double tlow, double thigh, double pref, const double* coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
-        m_coeff(coeffs, coeffs + 7)
+        m_coeff(7)
     {
+        for (size_t i = 0; i < 7; i++) {
+            m_coeff[i] = coeffs[i] * 1000 / GasConstant;
+        }
     }
 
     virtual SpeciesThermoInterpType*
@@ -85,7 +88,7 @@ public:
         return SHOMATE;
     }
 
-    virtual size_t temperaturePolySize() const { return 7; }
+    virtual size_t temperaturePolySize() const { return 6; }
 
     virtual void updateTemperaturePoly(double T, double* T_poly) const {
         doublereal tt = 1.e-3*T;
@@ -94,8 +97,7 @@ public:
         T_poly[2] = T_poly[1] * tt;
         T_poly[3] = 1.0/T_poly[1];
         T_poly[4] = std::log(tt);
-        T_poly[5] = 1.0/GasConstant;
-        T_poly[6] = 1.0/(GasConstant * T);
+        T_poly[5] = 1.0/tt;
     }
 
     //! Update the properties for this species, given a temperature polynomial
@@ -105,14 +107,13 @@ public:
      * pointers to arrays where the computed property values should be
      * written. This method updates only one value in each array.
      *
-     *   - `tt` is T/1000.
-     *   - `m_t[0] = tt`
-     *   - `m_t[1] = tt*tt`
-     *   - `m_t[2] = m_t[1]*tt`
-     *   - `m_t[3] = 1.0/m_t[1]`
-     *   - `m_t[4] = log(tt)`
-     *   - `m_t[5] = 1.0/GasConstant`
-     *   - `m_t[6] = 1.0/(GasConstant * T)`
+     *   - `t` is T/1000.
+     *   - `t[0] = t`
+     *   - `t[1] = t*t`
+     *   - `t[2] = t[1]*t`
+     *   - `t[3] = 1.0/t[1]`
+     *   - `t[4] = log(t)`
+     *   - `t[5] = 1.0/t;
      *
      * @param tt      Vector of temperature polynomials
      * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
@@ -128,32 +129,18 @@ public:
         doublereal Ct2    = m_coeff[2]*tt[1];
         doublereal Dt3    = m_coeff[3]*tt[2];
         doublereal Etm2   = m_coeff[4]*tt[3];
-        doublereal F      = m_coeff[5];
+        doublereal Ftm1   = m_coeff[5]*tt[5];
         doublereal G      = m_coeff[6];
 
-        doublereal cp, h, s;
-        cp = A + Bt + Ct2 + Dt3 + Etm2;
-        h = tt[0]*(A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2) + F;
-        s = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
-
-        /*
-         *  Shomate polynomials parameterizes assuming units of
-         *  J/(gmol*K) for cp_r and s_R and kJ/(gmol) for h.
-         *  However, Cantera assumes default MKS units of
-         *  J/(kmol*K). This requires us to multiply cp and s
-         *  by 1.e3 and h by 1.e6, before we then nondimensionalize
-         *  the results by dividing by (GasConstant * T),
-         *  where GasConstant has units of J/(kmol * K).
-         */
-        *cp_R = 1.e3 * cp * tt[5];
-        *h_RT = 1.e6 * h  * tt[6];
-        *s_R  = 1.e3 * s  * tt[5];
+        *cp_R = A + Bt + Ct2 + Dt3 + Etm2;
+        *h_RT = A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2 + Ftm1;
+        *s_R = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
     }
 
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const {
-        double tPoly[7];
+        double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
@@ -168,7 +155,7 @@ public:
         thigh = m_highT;
         pref = m_Pref;
         for (int i = 0; i < 7; i++) {
-            coeffs[i] = m_coeff[i];
+            coeffs[i] = m_coeff[i] * GasConstant / 1000;
         }
     }
 
@@ -178,36 +165,21 @@ public:
      *                 parameters for the standard state.
      */
     virtual void modifyParameters(doublereal* coeffs) {
-        if (m_coeff.size() != 7) {
-            throw CanteraError("modifyParameters",
-                               "modifying something that hasn't been initialized");
+        for (size_t i = 0; i < 7; i++) {
+            m_coeff[i] = coeffs[i] * 1000 / GasConstant;
         }
-        std::copy(coeffs, coeffs + 7, m_coeff.begin());
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
-        double tPoly[7];
-        updateTemperaturePoly(298.15, tPoly);
-        doublereal A      = m_coeff[0];
-        doublereal Bt     = m_coeff[1]*tPoly[0];
-        doublereal Ct2    = m_coeff[2]*tPoly[1];
-        doublereal Dt3    = m_coeff[3]*tPoly[2];
-        doublereal Etm2   = m_coeff[4]*tPoly[3];
-        doublereal F      = m_coeff[5];
-
-        doublereal h = tPoly[0]*(A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2) + F;
-
-        double hh =  1.e6 * h;
-        if (h298) {
-            *h298 = 1.e6 * h;
-        }
-        return hh;
+        double cp_R, h_RT, s_R;
+        updatePropertiesTemp(298.15, &cp_R, &h_RT, &s_R);
+        return h_RT * GasConstant * 298.15;
     }
 
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         doublereal hnow = reportHf298();
         doublereal delH = Hf298New - hnow;
-        m_coeff[5] += delH / 1.0E6;
+        m_coeff[5] += delH / (1e3 * GasConstant);
     }
 
 protected:

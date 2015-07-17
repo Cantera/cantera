@@ -103,3 +103,30 @@ TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
     EXPECT_DOUBLE_EQ(p2.entropy_mass(), p.entropy_mass());
     EXPECT_DOUBLE_EQ(p2.cp_mass(), p.cp_mass());
 }
+
+TEST(Shomate, modifyParameters)
+{
+    ShomatePoly2 S1(200, 6000, 101325, co2_shomate_coeffs);
+    ShomatePoly2 S2(200, 6000, 101325, co_shomate_coeffs);
+
+    S2.modifyParameters((double*) co2_shomate_coeffs);
+    double cp1, cp2, h1, h2, s1, s2;
+    S1.updatePropertiesTemp(500, &cp1, &h1, &s1);
+    S2.updatePropertiesTemp(500, &cp2, &h2, &s2);
+    EXPECT_DOUBLE_EQ(cp1, cp2);
+    EXPECT_DOUBLE_EQ(h1, h2);
+    EXPECT_DOUBLE_EQ(s1, s2);
+}
+
+TEST(Shomate, modifyOneHf298)
+{
+    ShomatePoly2 S(200, 6000, 101325, co2_shomate_coeffs);
+
+    EXPECT_NEAR(-393.5224e6, S.reportHf298(), 1e4);
+    double Htest = -400e6;
+    S.modifyOneHf298(npos, Htest);
+    double cp, h, s;
+    S.updatePropertiesTemp(298.15, &cp, &h, &s);
+    EXPECT_DOUBLE_EQ(Htest, h * 298.15 * GasConstant);
+    EXPECT_DOUBLE_EQ(Htest, S.reportHf298());
+}
