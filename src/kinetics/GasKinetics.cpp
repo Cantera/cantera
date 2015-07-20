@@ -151,7 +151,7 @@ void GasKinetics::processFalloffReactions()
     m_falloffn.pr_to_falloff(&pr[0], work);
 
     for (size_t i = 0; i < m_nfall; i++) {
-        if (m_rxntype[m_fallindx[i]] == FALLOFF_RXN) {
+        if (reactionType(m_fallindx[i]) == FALLOFF_RXN) {
             pr[i] *= m_rfn_high[i];
         } else { // CHEMACT_RXN
             pr[i] *= m_rfn_low[i];

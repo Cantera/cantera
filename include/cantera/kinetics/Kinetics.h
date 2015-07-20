@@ -13,13 +13,12 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "StoichManager.h"
 #include "cantera/thermo/mix_defs.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/base/global.h"
 #include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
-
-class Reaction;
 
 /**
  * @defgroup chemkinetics Chemical Kinetics
@@ -663,7 +662,7 @@ public:
      * @param i   reaction index
      */
     virtual int reactionType(size_t i) const {
-        return m_rxntype[i];
+        return m_reactions[i]->reaction_type;
     }
 
     /**
@@ -937,8 +936,6 @@ protected:
 
     //! Vector of Reaction objects represented by this Kinetics manager
     std::vector<shared_ptr<Reaction> > m_reactions;
-
-    std::vector<int> m_rxntype;
 
     //! m_thermo is a vector of pointers to ThermoPhase objects that are
     //! involved with this kinetics operator

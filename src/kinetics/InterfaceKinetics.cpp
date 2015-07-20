@@ -507,8 +507,7 @@ void InterfaceKinetics::updateROP()
     //  Fix up these calculations for cases where the above formalism doesn't hold
     double OCV = 0.0;
     for (size_t jrxn = 0; jrxn != nReactions(); ++jrxn) {
-        int reactionType = m_rxntype[jrxn];
-        if (reactionType == BUTLERVOLMER_RXN) {
+        if (reactionType(jrxn) == BUTLERVOLMER_RXN) {
             //
             // OK, the reaction rate constant contains the current density rate constant calculation
             // the rxnstoich calculation contained the dependence of the current density on the activity concentrations

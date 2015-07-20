@@ -51,7 +51,6 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
     m_reactions = right.m_reactions;
-    m_rxntype = right.m_rxntype;
 
     m_thermo            = right.m_thermo; //  DANGER -> shallow pointer copy
 
@@ -652,7 +651,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     m_rxneqn.push_back(r->equation());
     m_reactantStrings.push_back(r->reactantString());
     m_productStrings.push_back(r->productString());
-    m_rxntype.push_back(r->reaction_type);
     m_rfn.push_back(0.0);
     m_rkcn.push_back(0.0);
     m_ropf.push_back(0.0);
