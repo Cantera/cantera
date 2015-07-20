@@ -150,12 +150,10 @@ void VCS_PROB::resizeElements(size_t nel, int force)
 void VCS_PROB::set_gai()
 {
     gai.assign(gai.size(), 0.0);
-    double* ElemAbund = VCS_DATA_PTR(gai);
-
     for (size_t j = 0; j < ne; j++) {
         for (size_t kspec = 0; kspec < nspecies; kspec++) {
             if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                ElemAbund[j] += FormulaMatrix(kspec,j) * w[kspec];
+                gai[j] += FormulaMatrix(kspec,j) * w[kspec];
             }
         }
     }
@@ -371,7 +369,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         vcs_VolPhase* volP = VPhaseList[iphase];
         size_t nSpeciesPhase = volP->nSpecies();
         volPM.resize(nSpeciesPhase, 0.0);
-        volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
+        volP->sendToVCS_VolPM(&volPM[0]);
 
         double TMolesPhase = volP->totalMoles();
         double VolPhaseVolumes = 0.0;
@@ -399,7 +397,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         const ThermoPhase* tp = volP->ptrThermoPhase();
         string phaseName = volP->PhaseName;
         size_t nSpeciesPhase = volP->nSpecies();
-        volP->sendToVCS_VolPM(VCS_DATA_PTR(volPM));
+        volP->sendToVCS_VolPM(&volPM[0]);
         double TMolesPhase = volP->totalMoles();
         activity.resize(nSpeciesPhase, 0.0);
         ac.resize(nSpeciesPhase, 0.0);
@@ -410,12 +408,12 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         molalities.resize(nSpeciesPhase, 0.0);
 
         int actConvention = tp->activityConvention();
-        tp->getActivities(VCS_DATA_PTR(activity));
-        tp->getActivityCoefficients(VCS_DATA_PTR(ac));
-        tp->getStandardChemPotentials(VCS_DATA_PTR(mu0));
+        tp->getActivities(&activity[0]);
+        tp->getActivityCoefficients(&ac[0]);
+        tp->getStandardChemPotentials(&mu0[0]);
 
-        tp->getPartialMolarVolumes(VCS_DATA_PTR(volPM));
-        tp->getChemPotentials(VCS_DATA_PTR(mu));
+        tp->getPartialMolarVolumes(&volPM[0]);
+        tp->getChemPotentials(&mu[0]);
         double VolPhaseVolumes = 0.0;
         for (size_t k = 0; k < nSpeciesPhase; k++) {
             VolPhaseVolumes += volPM[k] * mf[istart + k];
@@ -425,9 +423,9 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
 
         if (actConvention == 1) {
             const MolalityVPSSTP* mTP = static_cast<const MolalityVPSSTP*>(tp);
-            tp->getChemPotentials(VCS_DATA_PTR(mu));
-            mTP->getMolalities(VCS_DATA_PTR(molalities));
-            tp->getChemPotentials(VCS_DATA_PTR(mu));
+            tp->getChemPotentials(&mu[0]);
+            mTP->getMolalities(&molalities[0]);
+            tp->getChemPotentials(&mu[0]);
 
             if (iphase == 0) {
                 fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "
@@ -480,7 +478,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
             /*
              * Check consistency: These should be equal
              */
-            tp->getChemPotentials(VCS_DATA_PTR(m_gibbsSpecies)+istart);
+            tp->getChemPotentials(&m_gibbsSpecies[0]+istart);
             for (size_t k = 0; k < nSpeciesPhase; k++) {
                 if (!vcs_doubleEqual(m_gibbsSpecies[istart+k], mu[k])) {
                     fclose(FP);

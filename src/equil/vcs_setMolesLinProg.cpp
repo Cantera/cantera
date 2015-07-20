@@ -76,7 +76,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                 plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
                 plogf(" --- seMolesLinProg  Call vcs_elcorr to attempt fix\n");
             }
-            retn = vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
+            retn = vcs_elcorr(&sm[0], &wx[0]);
             if (retn >= 2) {
                 abundancesOK = false;
             } else {
@@ -90,8 +90,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
          *  coefficient matrix, based on the current composition, m_molNumSpecies_old[]
          *  We also calculate sc[][], the reaction matrix.
          */
-        retn = vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
-                          VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
+        retn = vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
                           test, &usedZeroedSpecies);
         if (retn != VCS_SUCCESS) {
             return retn;

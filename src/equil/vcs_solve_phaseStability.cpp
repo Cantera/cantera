@@ -152,7 +152,7 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     std::vector<double> wx(m_numElemConstraints, 0.0);
 
 
-    vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
+    vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
                test, &usedZeroedSpecies);
     vcs_evaluate_speciesType();
 

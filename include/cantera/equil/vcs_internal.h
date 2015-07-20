@@ -14,9 +14,6 @@
 #include "cantera/base/global.h"
 namespace Cantera
 {
-//! Points to the data in a std::vector<> object
-#define VCS_DATA_PTR(vvv) (&(vvv[0]))
-
 //! define this Cantera function to replace printf
 /*!
  * We can replace this with printf easily

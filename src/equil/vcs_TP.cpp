@@ -71,7 +71,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* vph = m_VolPhaseList[iph];
         vph->setState_TP(m_temperature, m_pressurePA);
-        vph->sendToVCS_GStar(VCS_DATA_PTR(m_SSfeSpecies));
+        vph->sendToVCS_GStar(&m_SSfeSpecies[0]);
     }
 
     if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {

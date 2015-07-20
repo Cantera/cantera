@@ -883,7 +883,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
 
     vcs_tmoles();
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA,
-                              VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_PMVolumeSpecies));
+                              &m_molNumSpecies_old[0], &m_PMVolumeSpecies[0]);
 
     for (size_t i = 0; i < m_numSpeciesTot; ++i) {
         /*
@@ -922,7 +922,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         pubPhase->setElectricPotential(vPhase->electricPotential());
         double sumMoles = pubPhase->totalMolesInert();
         pubPhase->setMoleFractionsState(vPhase->totalMoles(),
-                                        VCS_DATA_PTR(vPhase->moleFractions()),
+                                        &vPhase->moleFractions()[0],
                                         VCS_STATECALC_TMP);
         const std::vector<double> & mfVector = pubPhase->moleFractions();
         for (size_t k = 0; k < pubPhase->nSpecies(); k++) {

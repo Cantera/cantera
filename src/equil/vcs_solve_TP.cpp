@@ -371,8 +371,7 @@ int VCS_SOLVE::solve_tp_component_calc(bool& allMinorZeroedSpecies)
 {
     double test = -1.0e-10;
     bool usedZeroedSpecies;
-    int retn = vcs_basopt(false, VCS_DATA_PTR(m_aw), VCS_DATA_PTR(m_sa),
-                          VCS_DATA_PTR(m_sm), VCS_DATA_PTR(m_ss),
+    int retn = vcs_basopt(false, &m_aw[0], &m_sa[0], &m_sm[0], &m_ss[0],
                           test, &usedZeroedSpecies);
     if (retn != VCS_SUCCESS) {
         return retn;
@@ -395,7 +394,7 @@ int VCS_SOLVE::solve_tp_component_calc(bool& allMinorZeroedSpecies)
             plogf("   --- Element Abundance check failed");
             plogendl();
         }
-        vcs_elcorr(VCS_DATA_PTR(m_sm), VCS_DATA_PTR(m_wx));
+        vcs_elcorr(&m_sm[0], &m_wx[0]);
         vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
         vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
         // Update the phase objects with the contents of the soln vector
@@ -974,8 +973,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             }
 
             if (DEBUG_MODE_ENABLED) {
-                checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies),
-                            VCS_DATA_PTR(m_deltaPhaseMoles), kspec+1);
+                checkDelta1(&m_deltaMolNumSpecies[0],
+                            &m_deltaPhaseMoles[0], kspec+1);
             }
             /*
              *          Branch point for returning -
@@ -1062,8 +1061,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             par = 1.0;
         }
         if (DEBUG_MODE_ENABLED) {
-            checkDelta1(VCS_DATA_PTR(m_deltaMolNumSpecies),
-                        VCS_DATA_PTR(m_deltaPhaseMoles), m_numSpeciesTot);
+            checkDelta1(&m_deltaMolNumSpecies[0],
+                        &m_deltaPhaseMoles[0], m_numSpeciesTot);
         }
 
         /*
@@ -1114,11 +1113,11 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         /* *************************************************************** */
         if (printDetails) {
             plogf("   --- Total Old       Dimensionless Gibbs Free Energy = %20.13E\n",
-                  vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old),
-                                  VCS_DATA_PTR(m_tPhaseMoles_old)));
+                  vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
+                                  &m_tPhaseMoles_old[0]));
             plogf("   --- Total tentative Dimensionless Gibbs Free Energy = %20.13E",
-                  vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_new),
-                                  VCS_DATA_PTR(m_tPhaseMoles_new)));
+                  vcs_Total_Gibbs(&m_molNumSpecies_new[0], &m_feSpecies_new[0],
+                                  &m_tPhaseMoles_new[0]));
             plogendl();
         }
 
@@ -1149,8 +1148,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             }
             writeline(' ', 26, false);
             plogf("Norms of Delta G():%14.6E%14.6E\n",
-                  l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
-                  l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
+                  l2normdg(&m_deltaGRxn_old[0]),
+                  l2normdg(&m_deltaGRxn_new[0]));
             plogf("   Total kmoles of gas    = %15.7E\n", m_tPhaseMoles_old[0]);
             if ((m_numPhases > 1) && (!(m_VolPhaseList[1])->m_singleSpecies)) {
                 plogf("   Total kmoles of liquid = %15.7E\n", m_tPhaseMoles_old[1]);
@@ -1158,8 +1157,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 plogf("   Total kmoles of liquid = %15.7E\n", 0.0);
             }
             plogf("   Total New Dimensionless Gibbs Free Energy = %20.13E\n",
-                  vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_new),
-                                  VCS_DATA_PTR(m_tPhaseMoles_new)));
+                  vcs_Total_Gibbs(&m_molNumSpecies_new[0], &m_feSpecies_new[0],
+                                  &m_tPhaseMoles_new[0]));
             plogf(" -----------------------------------------------------");
             plogendl();
         }
@@ -1209,8 +1208,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         plogf("   ---");
         writeline(' ', 56, false);
         plogf("Norms of Delta G():%14.6E%14.6E",
-              l2normdg(VCS_DATA_PTR(m_deltaGRxn_old)),
-              l2normdg(VCS_DATA_PTR(m_deltaGRxn_new)));
+              l2normdg(&m_deltaGRxn_old[0]),
+              l2normdg(&m_deltaGRxn_new[0]));
         plogendl();
 
         plogf("   ---           Phase_Name    KMoles(after update)\n");
@@ -1223,11 +1222,11 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         plogf("   ");
         writeline('-', 103);
         plogf("   --- Total Old Dimensionless Gibbs Free Energy = %20.13E\n",
-              vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old),
-                              VCS_DATA_PTR(m_tPhaseMoles_old)));
+              vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
+                              &m_tPhaseMoles_old[0]));
         plogf("   --- Total New Dimensionless Gibbs Free Energy = %20.13E",
-              vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_new), VCS_DATA_PTR(m_feSpecies_new),
-                              VCS_DATA_PTR(m_tPhaseMoles_new)));
+              vcs_Total_Gibbs(&m_molNumSpecies_new[0], &m_feSpecies_new[0],
+                              &m_tPhaseMoles_new[0]));
         plogendl();
         if (DEBUG_MODE_ENABLED && m_VCount->Its > 550) {
             plogf("   --- Troublesome solve");
@@ -1298,9 +1297,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     if (justDeletedMultiPhase) {
         bool usedZeroedSpecies;
         double test = -1.0e-10;
-        int retn = vcs_basopt(false, VCS_DATA_PTR(m_aw), VCS_DATA_PTR(m_sa),
-                              VCS_DATA_PTR(m_sm), VCS_DATA_PTR(m_ss), test,
-                              &usedZeroedSpecies);
+        int retn = vcs_basopt(false, &m_aw[0], &m_sa[0], &m_sm[0], &m_ss[0],
+                              test, &usedZeroedSpecies);
         if (retn != VCS_SUCCESS) {
             throw CanteraError("VCS_SOLVE::solve_tp_inner",
                                "BASOPT returned with an error condition");
@@ -1324,7 +1322,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             plogf(" - failed -> redoing element abundances.");
             plogendl();
         }
-        vcs_elcorr(VCS_DATA_PTR(m_sm), VCS_DATA_PTR(m_wx));
+        vcs_elcorr(&m_sm[0], &m_wx[0]);
         vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
         vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
         vcs_deltag(0, true,  VCS_STATECALC_OLD);
@@ -1603,7 +1601,7 @@ void VCS_SOLVE::solve_tp_elem_abund_check(size_t& iti, int& stage, bool& lec,
     rangeErrorFound = 0;
     if (! vcs_elabcheck(1)) {
         bool ncBefore = vcs_elabcheck(0);
-        vcs_elcorr(VCS_DATA_PTR(m_sm), VCS_DATA_PTR(m_wx));
+        vcs_elcorr(&m_sm[0], &m_wx[0]);
         bool ncAfter = vcs_elabcheck(0);
         bool neAfter = vcs_elabcheck(1);
         /*
@@ -1885,9 +1883,8 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
     /*
      *       Adjust the total moles in a phase downwards.
      */
-    Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
-                                 VCS_DATA_PTR(m_molNumSpecies_old),
-                                 VCS_DATA_PTR(m_tPhaseMoles_old));
+    Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD, &m_molNumSpecies_old[0],
+                                 &m_tPhaseMoles_old[0]);
 
     /*
      *    Adjust the current number of active species and reactions counters
@@ -1946,8 +1943,8 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 
     vcs_VolPhase* Vphase = m_VolPhaseList[iph];
     Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
-                                 VCS_DATA_PTR(m_molNumSpecies_old),
-                                 VCS_DATA_PTR(m_tPhaseMoles_old));
+                                 &m_molNumSpecies_old[0],
+                                 &m_tPhaseMoles_old[0]);
     /*
      *   We may have popped a multispecies phase back
      *   into existence. If we did, we have to check
@@ -2139,7 +2136,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
 
 int VCS_SOLVE::vcs_recheck_deleted()
 {
-    double* xtcutoff = VCS_DATA_PTR(m_TmpPhase);
+    vector_fp& xtcutoff = m_TmpPhase;
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   --- Start rechecking deleted species in multispec phases\n");
     }
@@ -2276,7 +2273,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
                 m_molNumSpecies_new[kspec] = VCS_DELETE_MINORSPECIES_CUTOFF * 1.0E-10;
             }
             if (!Vphase->m_singleSpecies) {
-                Vphase->sendToVCS_ActCoeff(VCS_STATECALC_NEW, VCS_DATA_PTR(m_actCoeffSpecies_new));
+                Vphase->sendToVCS_ActCoeff(VCS_STATECALC_NEW, &m_actCoeffSpecies_new[0]);
             }
             m_feSpecies_new[kspec] = (m_SSfeSpecies[kspec] + log(m_actCoeffSpecies_new[kspec]) - m_lnMnaughtSpecies[kspec]
                                       + m_chargeSpecies[kspec] * m_Faraday_dim * m_phasePhi[iph]);
@@ -2356,7 +2353,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
 
 bool VCS_SOLVE::vcs_globStepDamp()
 {
-    double* dptr = VCS_DATA_PTR(m_deltaGRxn_new);
+    double* dptr = &m_deltaGRxn_new[0];
 
     /* *************************************************** */
     /* **** CALCULATE SLOPE AT END OF THE STEP  ********** */
@@ -2374,7 +2371,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
     /* **** CALCULATE ORIGINAL SLOPE ********************* */
     /* ************************************************** */
     double s1 = 0.0;
-    dptr = VCS_DATA_PTR(m_deltaGRxn_old);
+    dptr = &m_deltaGRxn_old[0];
     for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         size_t kspec = irxn + m_numComponents;
         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -2432,7 +2429,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
         m_deltaGRxn_tmp = m_deltaGRxn_new;
     }
 
-    dptr = VCS_DATA_PTR(m_molNumSpecies_new);
+    dptr = &m_molNumSpecies_new[0];
     for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
         m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] +
                                      al * m_deltaMolNumSpecies[kspec];
@@ -2461,7 +2458,7 @@ bool VCS_SOLVE::vcs_globStepDamp()
      */
     vcs_deltag(0, false, VCS_STATECALC_NEW);
 
-    dptr = VCS_DATA_PTR(m_deltaGRxn_new);
+    dptr = &m_deltaGRxn_new[0];
     s2 = 0.0;
     for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         size_t kspec = irxn + m_numComponents;
@@ -3339,15 +3336,15 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     double* feSpecies=0;
     double* molNum=0;
     if (stateCalc == VCS_STATECALC_OLD) {
-        feSpecies = VCS_DATA_PTR(m_feSpecies_old);
-        tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
-        actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
-        molNum = VCS_DATA_PTR(m_molNumSpecies_old);
+        feSpecies = &m_feSpecies_old[0];
+        tPhMoles_ptr = &m_tPhaseMoles_old[0];
+        actCoeff_ptr = &m_actCoeffSpecies_old[0];
+        molNum = &m_molNumSpecies_old[0];
     } else if (stateCalc == VCS_STATECALC_NEW) {
-        feSpecies = VCS_DATA_PTR(m_feSpecies_new);
-        tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
-        actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
-        molNum = VCS_DATA_PTR(m_molNumSpecies_new);
+        feSpecies = &m_feSpecies_new[0];
+        tPhMoles_ptr = &m_tPhaseMoles_new[0];
+        actCoeff_ptr = &m_actCoeffSpecies_new[0];
+        molNum = &m_molNumSpecies_new[0];
     } else if (DEBUG_MODE_ENABLED) {
         throw CanteraError("VCS_SOLVE::vcs_dfe",
                 "Subroutine vcs_dfe called with bad stateCalc value: "+
@@ -3376,12 +3373,12 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         plogendl();
     }
 
-    double* tlogMoles = VCS_DATA_PTR(m_TmpPhase);
+    double* tlogMoles = &m_TmpPhase[0];
     /*
      * Might as well recalculate the phase mole vector
      * and compare to the stored one. They should be correct.
      */
-    double* tPhInertMoles = VCS_DATA_PTR(TPhInertMoles);
+    double* tPhInertMoles = &TPhInertMoles[0];
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         tlogMoles[iph] = tPhInertMoles[iph];
 
@@ -3423,7 +3420,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
         Vphase->updateFromVCS_MoleNumbers(stateCalc);
         if (!Vphase->m_singleSpecies) {
-            Vphase->sendToVCS_ActCoeff(stateCalc, VCS_DATA_PTR(actCoeff_ptr));
+            Vphase->sendToVCS_ActCoeff(stateCalc, &actCoeff_ptr[0]);
         }
         m_phasePhi[iphase] = Vphase->electricPotential();
     }
@@ -3574,15 +3571,15 @@ void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
     double mfValue = 1.0;
     bool zeroedPhase = false;
 
-    const double* molNum = VCS_DATA_PTR(m_molNumSpecies_old);
-    const double* actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    const double* molNum = &m_molNumSpecies_old[0];
+    const double* actCoeff_ptr = &m_actCoeffSpecies_old[0];
     if (stateCalc == VCS_STATECALC_NEW) {
-        actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
-        molNum = VCS_DATA_PTR(m_molNumSpecies_new);
+        actCoeff_ptr = &m_actCoeffSpecies_new[0];
+        molNum = &m_molNumSpecies_new[0];
     }
 
-    double* tMoles = VCS_DATA_PTR(m_TmpPhase);
-    const double* tPhInertMoles = VCS_DATA_PTR(TPhInertMoles);
+    double* tMoles = &m_TmpPhase[0];
+    const double* tPhInertMoles = &TPhInertMoles[0];
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         tMoles[iph] = tPhInertMoles[iph];
     }
@@ -3756,12 +3753,12 @@ void VCS_SOLVE::vcs_updateVP(const int vcsState)
         vcs_VolPhase* Vphase = m_VolPhaseList[i];
         if (vcsState == VCS_STATECALC_OLD) {
             Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
-                                         VCS_DATA_PTR(m_molNumSpecies_old),
-                                         VCS_DATA_PTR(m_tPhaseMoles_old));
+                                         &m_molNumSpecies_old[0],
+                                         &m_tPhaseMoles_old[0]);
         } else if (vcsState == VCS_STATECALC_NEW) {
             Vphase->setMolesFromVCSCheck(VCS_STATECALC_NEW,
-                                         VCS_DATA_PTR(m_molNumSpecies_new),
-                                         VCS_DATA_PTR(m_tPhaseMoles_new));
+                                         &m_molNumSpecies_new[0],
+                                         &m_tPhaseMoles_new[0]);
         } else if (DEBUG_MODE_ENABLED) {
             throw CanteraError("VCS_SOLVE::vcs_updateVP",
                                "wrong stateCalc value: " + int2str(vcsState));
@@ -3856,15 +3853,15 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
     double* molNumSpecies;
     double* actCoeffSpecies;
     if (vcsState == VCS_STATECALC_NEW) {
-        deltaGRxn     = VCS_DATA_PTR(m_deltaGRxn_new);
-        feSpecies     = VCS_DATA_PTR(m_feSpecies_new);
-        molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_new);
-        actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_new);
+        deltaGRxn     = &m_deltaGRxn_new[0];
+        feSpecies     = &m_feSpecies_new[0];
+        molNumSpecies = &m_molNumSpecies_new[0];
+        actCoeffSpecies = &m_actCoeffSpecies_new[0];
     } else if (vcsState == VCS_STATECALC_OLD) {
-        deltaGRxn     = VCS_DATA_PTR(m_deltaGRxn_old);
-        feSpecies     = VCS_DATA_PTR(m_feSpecies_old);
-        molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_old);
-        actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_old);
+        deltaGRxn     = &m_deltaGRxn_old[0];
+        feSpecies     = &m_feSpecies_old[0];
+        molNumSpecies = &m_molNumSpecies_old[0];
+        actCoeffSpecies = &m_actCoeffSpecies_old[0];
     } else {
         throw CanteraError("VCS_SOLVE::vcs_deltag", "bad vcsState");
     }
@@ -4035,17 +4032,17 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
 
 void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 {
-    double* deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
-    double* feSpecies = VCS_DATA_PTR(m_feSpecies_old);
-    double* molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_old);
-    const double* tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_old);
-    const double* actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_old);
+    double* deltaGRxn = &m_deltaGRxn_old[0];
+    double* feSpecies = &m_feSpecies_old[0];
+    double* molNumSpecies = &m_molNumSpecies_old[0];
+    const double* tPhMoles_ptr = &m_tPhaseMoles_old[0];
+    const double* actCoeff_ptr = &m_actCoeffSpecies_old[0];
     if (stateCalc == VCS_STATECALC_NEW) {
-        deltaGRxn     = VCS_DATA_PTR(m_deltaGRxn_new);
-        feSpecies     = VCS_DATA_PTR(m_feSpecies_new);
-        molNumSpecies = VCS_DATA_PTR(m_molNumSpecies_new);
-        actCoeff_ptr = VCS_DATA_PTR(m_actCoeffSpecies_new);
-        tPhMoles_ptr = VCS_DATA_PTR(m_tPhaseMoles_new);
+        deltaGRxn     = &m_deltaGRxn_new[0];
+        feSpecies     = &m_feSpecies_new[0];
+        molNumSpecies = &m_molNumSpecies_new[0];
+        actCoeff_ptr = &m_actCoeffSpecies_new[0];
+        tPhMoles_ptr = &m_tPhaseMoles_new[0];
     }
     double RT = m_temperature * GasConstant;
     bool zeroedPhase = false;
@@ -4171,13 +4168,13 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
     double* deltaGRxn=0;
     double* actCoeffSpecies=0;
     if (stateCalc == VCS_STATECALC_NEW) {
-        feSpecies = VCS_DATA_PTR(m_feSpecies_new);
-        deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_new);
-        actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_new);
+        feSpecies = &m_feSpecies_new[0];
+        deltaGRxn = &m_deltaGRxn_new[0];
+        actCoeffSpecies = &m_actCoeffSpecies_new[0];
     } else if (stateCalc == VCS_STATECALC_OLD) {
-        feSpecies = VCS_DATA_PTR(m_feSpecies_old);
-        deltaGRxn = VCS_DATA_PTR(m_deltaGRxn_old);
-        actCoeffSpecies = VCS_DATA_PTR(m_actCoeffSpecies_old);
+        feSpecies = &m_feSpecies_old[0];
+        deltaGRxn = &m_deltaGRxn_old[0];
+        actCoeffSpecies = &m_actCoeffSpecies_old[0];
     } else if (DEBUG_MODE_ENABLED) {
         throw CanteraError("VCS_SOLVE::vcs_deltag_Phase", "bad stateCalc");
     }

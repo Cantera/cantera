@@ -146,8 +146,8 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     /* ********************************************************** */
     /* **** ESTIMATE REACTION ADJUSTMENTS *********************** */
     /* ********************************************************** */
-    double* xtphMax = VCS_DATA_PTR(m_TmpPhase);
-    double* xtphMin = VCS_DATA_PTR(m_TmpPhase2);
+    vector_fp& xtphMax = m_TmpPhase;
+    vector_fp& xtphMin = m_TmpPhase2;
     m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         xtphMax[iph] = log(m_tPhaseMoles_new[iph] * 1.0E32);
@@ -364,8 +364,7 @@ int VCS_SOLVE::vcs_inest_TP()
         plogendl();
     }
     double test = -1.0E20;
-    vcs_inest(VCS_DATA_PTR(aw), VCS_DATA_PTR(sa), VCS_DATA_PTR(sm),
-              VCS_DATA_PTR(ss), test);
+    vcs_inest(&aw[0], &sa[0], &sm[0], &ss[0], test);
     /*
      *  Calculate the elemental abundances
      */
@@ -388,7 +387,7 @@ int VCS_SOLVE::vcs_inest_TP()
             plogf("%sCall vcs_elcorr to attempt fix", pprefix);
             plogendl();
         }
-        vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(aw));
+        vcs_elcorr(&sm[0], &aw[0]);
         rangeCheck  = vcs_elabcheck(1);
         if (!vcs_elabcheck(0)) {
             plogf("%sInitial guess still fails element abundance equations\n",
@@ -428,8 +427,8 @@ int VCS_SOLVE::vcs_inest_TP()
 
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
-              vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_new),
-                              VCS_DATA_PTR(m_tPhaseMoles_old)));
+              vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_new[0],
+                              &m_tPhaseMoles_old[0]));
         plogendl();
     }
 

@@ -46,7 +46,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
      * top of the loop, when necessary
      */
     if (m_useActCoeffJac) {
-        vcs_CalcLnActCoeffJac(VCS_DATA_PTR(m_molNumSpecies_old));
+        vcs_CalcLnActCoeffJac(&m_molNumSpecies_old[0]);
     }
     /************************************************************************
      ******** LOOP OVER THE FORMATION REACTIONS *****************************
@@ -672,14 +672,14 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char*
     const int MAXITS = 10;
     double dx = dx_orig;
     double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
-    double* molNumBase = VCS_DATA_PTR(m_molNumSpecies_old);
-    double* acBase = VCS_DATA_PTR(m_actCoeffSpecies_old);
-    double* ac = VCS_DATA_PTR(m_actCoeffSpecies_new);
+    vector_fp& molNumBase = m_molNumSpecies_old;
+    vector_fp& acBase = m_actCoeffSpecies_old;
+    vector_fp& ac = m_actCoeffSpecies_new;
     /*
      * Calculate the deltaG value at the dx = 0.0 point
      */
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
-    double deltaGOrig = deltaG_Recalc_Rxn(VCS_STATECALC_OLD, irxn, molNumBase, acBase, VCS_DATA_PTR(m_feSpecies_old));
+    double deltaGOrig = deltaG_Recalc_Rxn(VCS_STATECALC_OLD, irxn, &molNumBase[0], &acBase[0], &m_feSpecies_old[0]);
     double forig = fabs(deltaGOrig) + 1.0E-15;
     if (deltaGOrig > 0.0) {
         if (dx_orig > 0.0) {
@@ -713,8 +713,8 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char*
     }
     vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
 
-    double deltaG1 = deltaG_Recalc_Rxn(VCS_STATECALC_NEW, irxn, VCS_DATA_PTR(m_molNumSpecies_new),
-                                       ac, VCS_DATA_PTR(m_feSpecies_new));
+    double deltaG1 = deltaG_Recalc_Rxn(VCS_STATECALC_NEW, irxn, &m_molNumSpecies_new[0],
+                                       &ac[0], &m_feSpecies_new[0]);
 
     /*
      * If deltaG hasn't switched signs when going the full distance
@@ -752,8 +752,8 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char*
             m_molNumSpecies_new[k] = molNumBase[k] + sc_irxn[k] * dx;
         }
         vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
-        double deltaG = deltaG_Recalc_Rxn(VCS_STATECALC_NEW, irxn, VCS_DATA_PTR(m_molNumSpecies_new),
-                                          ac, VCS_DATA_PTR(m_feSpecies_new));
+        double deltaG = deltaG_Recalc_Rxn(VCS_STATECALC_NEW, irxn, &m_molNumSpecies_new[0],
+                                          &ac[0], &m_feSpecies_new[0]);
         /*
          * If deltaG hasn't switched signs when going the full distance
          * then we are heading in the appropriate direction, and

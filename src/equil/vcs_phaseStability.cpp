@@ -535,7 +535,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     doublereal dirProdOld = 0.0;
 
     // get the activity coefficients
-    Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, VCS_DATA_PTR(m_actCoeffSpecies_new));
+    Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
 
     // Get the stored estimate for the composition of the phase if
     // it gets created
@@ -619,12 +619,12 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
              * Feed the newly formed estimate of the mole fractions back into the
              * ThermoPhase object
              */
-            Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), VCS_STATECALC_PHASESTABILITY);
+            Vphase->setMoleFractionsState(0.0, &X_est[0], VCS_STATECALC_PHASESTABILITY);
 
             /*
              *   get the activity coefficients
              */
-            Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, VCS_DATA_PTR(m_actCoeffSpecies_new));
+            Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
 
             /*
              * First calculate altered chemical potentials for component species
@@ -784,12 +784,12 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 	    /*
 	     *  Save the final optimized stated back into the VolPhase object for later use
 	     */
-            Vphase->setMoleFractionsState(0.0, VCS_DATA_PTR(X_est), VCS_STATECALC_PHASESTABILITY);
+            Vphase->setMoleFractionsState(0.0, &X_est[0], VCS_STATECALC_PHASESTABILITY);
 	    /*
 	     * Save fracDelta for later use to initialize the problem better
 	     *  @TODO  creationGlobalRxnNumbers needs to be calculated here and stored.
 	     */
-            Vphase->setCreationMoleNumbers(VCS_DATA_PTR(fracDelta_new), creationGlobalRxnNumbers);
+            Vphase->setCreationMoleNumbers(&fracDelta_new[0], creationGlobalRxnNumbers);
         }
 
 

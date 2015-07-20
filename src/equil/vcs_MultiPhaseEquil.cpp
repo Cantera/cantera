@@ -610,9 +610,9 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     }
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
-    double* mf = VCS_DATA_PTR(m_vprob.mf);
+    vector_fp& mf = m_vprob.mf;
 #ifdef DEBUG_MODE
-    double* fe = VCS_DATA_PTR(m_vprob.m_gibbsSpecies);
+    double* fe = &m_vprob.m_gibbsSpecies[0]);
 #endif
     std::vector<double> VolPM;
     std::vector<double> activity;
@@ -627,7 +627,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         ThermoPhase& tref = m_mix->phase(iphase);
         size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
-        tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
+        tref.getPartialMolarVolumes(&VolPM[0]);
         vcs_VolPhase* volP = m_vprob.VPhaseList[iphase];
 
         double TMolesPhase = volP->totalMoles();
@@ -664,12 +664,12 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         molalities.resize(nSpecies, 0.0);
 
         int actConvention = tref.activityConvention();
-        tref.getActivities(VCS_DATA_PTR(activity));
-        tref.getActivityCoefficients(VCS_DATA_PTR(ac));
-        tref.getStandardChemPotentials(VCS_DATA_PTR(mu0));
+        tref.getActivities(&activity[0]);
+        tref.getActivityCoefficients(&ac[0]);
+        tref.getStandardChemPotentials(&mu0[0]);
 
-        tref.getPartialMolarVolumes(VCS_DATA_PTR(VolPM));
-        tref.getChemPotentials(VCS_DATA_PTR(mu));
+        tref.getPartialMolarVolumes(&VolPM[0]);
+        tref.getChemPotentials(&mu[0]);
         double VolPhaseVolumes = 0.0;
         for (size_t k = 0; k < nSpecies; k++) {
             VolPhaseVolumes += VolPM[k] * mf[istart + k];
@@ -680,8 +680,8 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
         if (actConvention == 1) {
             MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(&tref);
-            mTP->getMolalities(VCS_DATA_PTR(molalities));
-            tref.getChemPotentials(VCS_DATA_PTR(mu));
+            mTP->getMolalities(&molalities[0]);
+            tref.getChemPotentials(&mu[0]);
 
             if (iphase == 0) {
                 fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "
@@ -1027,7 +1027,7 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             } else {
                 std::vector<double> phaseTermCoeff(nSpPhase, 0.0);
                 int nCoeff;
-                tPhase->getParameters(nCoeff, VCS_DATA_PTR(phaseTermCoeff));
+                tPhase->getParameters(nCoeff, &phaseTermCoeff[0]);
                 ts_ptr->SSStar_Vol_Model = VCS_SSVOL_CONSTANT;
                 ts_ptr->SSStar_Vol0 = phaseTermCoeff[k];
             }
@@ -1055,7 +1055,7 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             }
         }
 
-        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
+        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &vprob->w[0]);
         /*
          * Now, calculate a sample naught Gibbs free energy calculation
          * at the specified temperature.
@@ -1181,7 +1181,7 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             size_t kglob = volPhase->spGlobalIndexVCS(kphi);
             vprob->w[kglob] = tPhase->electricPotential();
         }
-        volPhase->setMolesFromVCS(VCS_STATECALC_OLD, VCS_DATA_PTR(vprob->w));
+        volPhase->setMolesFromVCS(VCS_STATECALC_OLD, &vprob->w[0]);
         if ((nSpPhase == 1) && (volPhase->phiVarIndex() == 0)) {
             volPhase->setExistence(VCS_PHASE_EXIST_ALWAYS);
         } else if (volPhase->totalMoles() > 0.0) {

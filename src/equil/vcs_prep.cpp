@@ -149,7 +149,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
      *     reaction matrix.
      */
     std::vector<double> awSpace(m_numSpeciesTot + (m_numElemConstraints + 2)*(m_numElemConstraints), 0.0);
-    double* aw = VCS_DATA_PTR(awSpace);
+    double* aw = &awSpace[0];
     if (aw == NULL) {
         plogf("vcs_prep_oneTime: failed to get memory: global bailout\n");
         return VCS_NOMEMORY;
@@ -180,7 +180,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
      *   The elements might need to be rearranged.
      */
     awSpace.resize(m_numElemConstraints + (m_numElemConstraints + 2)*(m_numElemConstraints), 0.0);
-    aw = VCS_DATA_PTR(awSpace);
+    aw = &awSpace[0];
     sa = aw + m_numElemConstraints;
     sm = sa + m_numElemConstraints;
     ss = sm + (m_numElemConstraints)*(m_numElemConstraints);

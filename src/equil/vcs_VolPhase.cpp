@@ -299,7 +299,7 @@ void vcs_VolPhase::_updateActCoeff() const
         m_UpToDate_AC = true;
         return;
     }
-    TP_ptr->getActivityCoefficients(VCS_DATA_PTR(ActCoeff));
+    TP_ptr->getActivityCoefficients(&ActCoeff[0]);
     m_UpToDate_AC = true;
 }
 
@@ -313,7 +313,7 @@ double vcs_VolPhase::AC_calc_one(size_t kspec) const
 
 void vcs_VolPhase::_updateG0() const
 {
-    TP_ptr->getGibbs_ref(VCS_DATA_PTR(SS0ChemicalPotential));
+    TP_ptr->getGibbs_ref(&SS0ChemicalPotential[0]);
     m_UpToDate_G0 = true;
 }
 
@@ -327,7 +327,7 @@ double vcs_VolPhase::G0_calc_one(size_t kspec) const
 
 void vcs_VolPhase::_updateGStar() const
 {
-    TP_ptr->getStandardChemPotentials(VCS_DATA_PTR(StarChemicalPotential));
+    TP_ptr->getStandardChemPotentials(&StarChemicalPotential[0]);
     m_UpToDate_GStar = true;
 }
 
@@ -438,18 +438,18 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         AssertThrowMsg(m_owningSolverObject, "vcs_VolPhase::setMolesFromVCS",
                        "shouldn't be here");
         if (stateCalc == VCS_STATECALC_OLD) {
-            molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old);
+            molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_old[0];
         } else if (stateCalc == VCS_STATECALC_NEW) {
-            molesSpeciesVCS = VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new);
+            molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_new[0];
         } else if (DEBUG_MODE_ENABLED) {
             throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");        }
     } else if (DEBUG_MODE_ENABLED && m_owningSolverObject) {
         if (stateCalc == VCS_STATECALC_OLD) {
-            if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_old)) {
+            if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_old[0]) {
                 throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
             }
         } else if (stateCalc == VCS_STATECALC_NEW) {
-            if (molesSpeciesVCS != VCS_DATA_PTR(m_owningSolverObject->m_molNumSpecies_new)) {
+            if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_new[0]) {
                 throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
             }
         }
@@ -624,7 +624,7 @@ void vcs_VolPhase::setState_T(const double temp)
 
 void vcs_VolPhase::_updateVolStar() const
 {
-    TP_ptr->getStandardVolumes(VCS_DATA_PTR(StarMolarVol));
+    TP_ptr->getStandardVolumes(&StarMolarVol[0]);
     m_UpToDate_VolStar = true;
 }
 
@@ -638,7 +638,7 @@ double vcs_VolPhase::VolStar_calc_one(size_t kspec) const
 
 double vcs_VolPhase::_updateVolPM() const
 {
-    TP_ptr->getPartialMolarVolumes(VCS_DATA_PTR(PartialMolarVol));
+    TP_ptr->getPartialMolarVolumes(&PartialMolarVol[0]);
     m_totalVol = 0.0;
     for (size_t k = 0; k < m_numSpecies; k++) {
         m_totalVol += PartialMolarVol[k] * Xmol_[k];
@@ -730,7 +730,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
      * -> Just wanted to make sure that cantera is in sync
      *    with VolPhase after this call.
      */
-    setMoleFractions(VCS_DATA_PTR(Xmol_Base));
+    setMoleFractions(&Xmol_Base[0]);
     _updateMoleFractionDependencies();
     _updateActCoeff();
 }
@@ -772,7 +772,7 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
         }
         resize(VP_ID_, nsp, nelem, PhaseName.c_str());
     }
-    TP_ptr->getMoleFractions(VCS_DATA_PTR(Xmol_));
+    TP_ptr->getMoleFractions(&Xmol_[0]);
     creationMoleNumbers_ = Xmol_;
     _updateMoleFractionDependencies();
 

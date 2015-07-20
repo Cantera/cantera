@@ -35,7 +35,7 @@ int VCS_SOLVE::vcs_report(int iconv)
      *       the magnitude of the mole fraction vector.
      */
     for (size_t l = m_numComponents; l < m_numSpeciesRdc; ++l) {
-        size_t k = vcs_optMax(VCS_DATA_PTR(xy), 0, l, m_numSpeciesRdc);
+        size_t k = vcs_optMax(&xy[0], 0, l, m_numSpeciesRdc);
         if (k != l) {
             std::swap(xy[k], xy[l]);
             std::swap(sortindex[k], sortindex[l]);
@@ -77,7 +77,7 @@ int VCS_SOLVE::vcs_report(int iconv)
      */
     vcs_tmoles();
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA,
-                              VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_PMVolumeSpecies));
+                              &m_molNumSpecies_old[0], &m_PMVolumeSpecies[0]);
 
     plogf("\t\tTemperature  = %15.2g Kelvin\n", m_temperature);
     plogf("\t\tPressure     = %15.5g Pa \n", m_pressurePA);
@@ -227,13 +227,13 @@ int VCS_SOLVE::vcs_report(int iconv)
                 throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
             }
         }
-        vcs_elabPhase(iphase, VCS_DATA_PTR(gaPhase));
+        vcs_elabPhase(iphase, &gaPhase[0]);
         for (size_t j = 0; j < m_numElemConstraints; j++) {
             plogf(" %10.3g", gaPhase[j]);
             gaTPhase[j] += gaPhase[j];
         }
-        gibbsPhase = vcs_GibbsPhase(iphase, VCS_DATA_PTR(m_molNumSpecies_old),
-                                    VCS_DATA_PTR(m_feSpecies_old));
+        gibbsPhase = vcs_GibbsPhase(iphase, &m_molNumSpecies_old[0],
+                                    &m_feSpecies_old[0]);
         gibbsTotal += gibbsPhase;
         plogf(" | %18.11E |\n", gibbsPhase);
     }
@@ -257,8 +257,8 @@ int VCS_SOLVE::vcs_report(int iconv)
      *        energy of zero
      */
 
-    double g = vcs_Total_Gibbs(VCS_DATA_PTR(m_molNumSpecies_old), VCS_DATA_PTR(m_feSpecies_old),
-                               VCS_DATA_PTR(m_tPhaseMoles_old));
+    double g = vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
+                               &m_tPhaseMoles_old[0]);
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
     if (inertYes) {
         plogf("\t\t(Inert species have standard free energy of zero)\n");
