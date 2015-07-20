@@ -684,15 +684,4 @@ shared_ptr<Reaction> Kinetics::reaction(size_t i)
     return m_reactions[i];
 }
 
-
-void Kinetics::installGroups(size_t irxn, const vector<grouplist_t>& r,
-                             const vector<grouplist_t>& p)
-{
-    if (!r.empty()) {
-        writelog("installing groups for reaction "+int2str(irxn));
-        m_rgroups[irxn] = r;
-        m_pgroups[irxn] = p;
-    }
-}
-
 }

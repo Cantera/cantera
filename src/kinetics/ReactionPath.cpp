@@ -449,56 +449,13 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
             }
         }
 
-        size_t nr = r.size();
-        size_t np = p.size();
-
         Group b0, b1, bb;
 
         vector<string>& e = m_elementSymbols;
 
-        const vector<grouplist_t>& rgroups = s.reactantGroups(i);
-        const vector<grouplist_t>& pgroups = s.productGroups(i);
-
         if (m_determinate[i]) {
             logfile << " ... OK." << endl;
-        }
-
-        else if (rgroups.size() > 0) {
-            logfile << " ... specified groups." << endl;
-            size_t nrg = rgroups.size();
-            size_t npg = pgroups.size();
-            size_t kr, kp, ngrpr, ngrpp;
-            Group gr, gp;
-
-            if (nrg != nr || npg != np) {
-                return -1;
-            }
-
-            // loop over reactants
-            for (size_t igr = 0; igr < nrg; igr++) {
-                kr = r[igr];
-                ngrpr = rgroups[igr].size();
-
-                // loop over products
-                for (size_t igp = 0; igp < npg; igp++) {
-                    kp = p[igp];
-                    ngrpp = pgroups[igp].size();
-
-                    // loop over pairs of reactant and product groups
-                    for (size_t kgr = 0; kgr < ngrpr; kgr++) {
-                        gr = Group(rgroups[igr][kgr]);
-                        for (size_t kgp = 0; kgp < ngrpp; kgp++) {
-                            gp = Group(pgroups[igp][kgp]);
-                            if (gr == gp) {
-                                m_transfer[i][kr][kp] = gr;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        else if (nrnet == 2 && npnet == 2) {
+        } else if (nrnet == 2 && npnet == 2) {
             // indices for the two reactants
             size_t kr0 = m_reac[i][0];
             size_t kr1 = m_reac[i][1];

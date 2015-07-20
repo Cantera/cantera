@@ -806,17 +806,6 @@ public:
         m_skipUndeclaredThirdBodies = skip;
     }
 
-    virtual void installGroups(size_t irxn, const std::vector<grouplist_t>& r,
-                               const std::vector<grouplist_t>& p);
-
-    virtual const std::vector<grouplist_t>& reactantGroups(size_t i) {
-        return m_rgroups[i];
-    }
-
-    virtual const std::vector<grouplist_t>& productGroups(size_t i) {
-        return m_pgroups[i];
-    }
-
     //@}
     //! @name Altering Reaction Rates
     /*!
