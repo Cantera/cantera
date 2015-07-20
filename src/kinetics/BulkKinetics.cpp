@@ -156,8 +156,6 @@ void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction& rNew)
 void BulkKinetics::init()
 {
     m_kk = thermo().nSpecies();
-    m_rrxn.resize(m_kk);
-    m_prxn.resize(m_kk);
     m_conc.resize(m_kk);
     m_grt.resize(m_kk);
 }

@@ -115,10 +115,10 @@ public:
      *   - `t[4] = log(t)`
      *   - `t[5] = 1.0/t;
      *
-     * @param tt      Vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
+     * @param[in] tt           Array of evaluated temperature functions
+     * @param[out] cp_R    Dimensionless heat capacity
+     * @param[out] h_RT    Dimensionless enthalpy
+     * @param[out] s_R     Dimensionless entropy
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,

@@ -952,8 +952,6 @@ void InterfaceKinetics::init()
     for (size_t n = 0; n < nPhases(); n++) {
         m_kk += thermo(n).nSpecies();
     }
-    m_rrxn.resize(m_kk);
-    m_prxn.resize(m_kk);
     m_actConc.resize(m_kk);
     m_conc.resize(m_kk);
     m_mu0.resize(m_kk);

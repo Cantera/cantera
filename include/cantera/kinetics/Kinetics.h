@@ -938,26 +938,6 @@ protected:
     //! Vector of Reaction objects represented by this Kinetics manager
     std::vector<shared_ptr<Reaction> > m_reactions;
 
-    //!  m_rrxn is a vector of maps, containing the reactant
-    //!  stoichiometric coefficient information
-    /*!
-     *  m_rrxn has a length equal to the total number of species in the
-     *  kinetics object. For each species, there exists a map, with the
-     *  reaction number being the key, and the reactant stoichiometric
-     *  coefficient for the species being the value.
-     */
-    std::vector<std::map<size_t, doublereal> > m_rrxn;
-
-    //!  m_prxn is a vector of maps, containing the reactant
-    //!  stoichiometric coefficient information
-    /**
-     *  m_prxn is a vector of maps. m_prxn has a length equal to the total
-     *  number of species in the kinetics object. For each species, there
-     *  exists a map, with the reaction number being the key, and the product
-     *  stoichiometric coefficient for the species being the value.
-     */
-    std::vector<std::map<size_t, doublereal> > m_prxn;
-
     std::vector<int> m_rxntype;
 
     //! m_thermo is a vector of pointers to ThermoPhase objects that are

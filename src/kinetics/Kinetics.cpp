@@ -51,8 +51,6 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
     m_reactions = right.m_reactions;
-    m_rrxn = right.m_rrxn;
-    m_prxn = right.m_prxn;
     m_rxntype = right.m_rxntype;
 
     m_thermo            = right.m_thermo; //  DANGER -> shallow pointer copy
@@ -422,12 +420,14 @@ size_t Kinetics::speciesPhaseIndex(size_t k)
 
 double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const
 {
-    return getValue(m_rrxn[kSpec], irxn, 0.0);
+    return getValue(m_reactions[irxn]->reactants, kineticsSpeciesName(kSpec),
+                    0.0);
 }
 
 double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
 {
-    return getValue(m_prxn[kSpec], irxn, 0.0);
+    return getValue(m_reactions[irxn]->products, kineticsSpeciesName(kSpec),
+                    0.0);
 }
 
 void Kinetics::getFwdRatesOfProgress(doublereal* fwdROP)
@@ -607,7 +607,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         size_t k = kineticsSpeciesIndex(iter->first);
         rk.push_back(k);
         rstoich.push_back(iter->second);
-        m_rrxn[k][irxn] = iter->second;
     }
 
     for (Composition::const_iterator iter = r->products.begin();
@@ -616,7 +615,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
         size_t k = kineticsSpeciesIndex(iter->first);
         pk.push_back(k);
         pstoich.push_back(iter->second);
-        m_prxn[k][irxn] = iter->second;
     }
 
     // The default order for each reactant is its stoichiometric coefficient,
