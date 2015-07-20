@@ -681,18 +681,18 @@ public:
      *
      * @param i   reaction index
      */
-    const std::string& reactionString(size_t i) const {
-        return m_rxneqn[i];
+    std::string reactionString(size_t i) const {
+        return m_reactions[i]->equation();
     }
 
     //! Returns a string containing the reactants side of the reaction equation.
-    const std::string& reactantString(size_t i) const {
-        return m_reactantStrings[i];
+    std::string reactantString(size_t i) const {
+        return m_reactions[i]->reactantString();
     }
 
     //! Returns a string containing the products side of the reaction equation.
-    const std::string& productString(size_t i) const {
-        return m_productStrings[i];
+    std::string productString(size_t i) const {
+        return m_reactions[i]->productString();
     }
 
     /**
@@ -983,15 +983,6 @@ protected:
 
     //! number of spatial dimensions of lowest-dimensional phase.
     size_t m_mindim;
-
-    //! Representation of each reaction equation
-    std::vector<std::string> m_rxneqn;
-
-    //! Representation of the reactant side of each reaction equation
-    std::vector<std::string> m_reactantStrings;
-
-    //! Representation of the product side of each reaction equation
-    std::vector<std::string> m_productStrings;
 
     //! Forward rate constant for each reaction
     vector_fp m_rfn;

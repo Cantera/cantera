@@ -59,9 +59,6 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_surfphase         = right.m_surfphase;
     m_rxnphase          = right.m_rxnphase;
     m_mindim            = right.m_mindim;
-    m_rxneqn            = right.m_rxneqn;
-    m_reactantStrings   = right.m_reactantStrings;
-    m_productStrings    = right.m_productStrings;
     m_rgroups = right.m_rgroups;
     m_pgroups = right.m_pgroups;
     m_rfn = right.m_rfn;
@@ -648,9 +645,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     }
 
     m_reactions.push_back(r);
-    m_rxneqn.push_back(r->equation());
-    m_reactantStrings.push_back(r->reactantString());
-    m_productStrings.push_back(r->productString());
     m_rfn.push_back(0.0);
     m_rkcn.push_back(0.0);
     m_ropf.push_back(0.0);
