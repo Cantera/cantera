@@ -54,7 +54,6 @@ int main(int argc, char** argv)
 
         size_t i1 = HMW->speciesIndex("Na+");
         size_t i2 = HMW->speciesIndex("Cl-");
-        //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 1; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -136,7 +135,6 @@ int main(int argc, char** argv)
             mu0_NaCl = mu0_RT[0] * RT * 1.0E-6;
 
             HMW->getGibbs_RT(mu0_RT);
-            //double mu0_water = mu0_RT[0] * RT * 1.0E-6;
             mu0_Naplus = mu0_RT[i1] * RT * 1.0E-6;
             mu0_Clminus = mu0_RT[i2] * RT * 1.0E-6;
             Delta_G0 = (mu0_Naplus + mu0_Clminus) - mu0_NaCl;
@@ -202,13 +200,6 @@ int main(int argc, char** argv)
                    }
             */
             double pbar = pres * 1.0E-5;
-
-            //if (extraCols && T == 323.15) {
-            //  for (int k = 0; k < nsp; k++) {
-            //    printf("mus_kJ/gmol - %s -  %14.8g %14.8g %g\n",
-            //    HMW->speciesName(k).c_str(), mu0_RT[k], mu[k], Xmol[k]);
-            //  }
-            //}
 
             printf("%10g, %10g, %12g, %12g, %12g, %12g, %12g, %12g, %14.9g, %14.9g",
                    T, pbar, Aphi, Delta_G0, Delta_G, Gibbs0_kgWater, Gibbs_kgWater, G_ex_kgWater,

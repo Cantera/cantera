@@ -154,7 +154,6 @@ protected:
     // L matrix quantities
     DenseMatrix  m_Lmatrix;
     SquareMatrix m_aa;
-    //DenseMatrix m_Lmatrix;
     vector_fp m_a;
     vector_fp m_b;
 

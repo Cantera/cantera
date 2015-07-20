@@ -16,7 +16,6 @@ int main(int argc, char** argv)
         IdealGasMix g("silane.xml", "silane");
         g.setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");
         g.equilibrate("TP");
-        //cout << g;
         return 0;
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;

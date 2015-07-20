@@ -653,7 +653,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         string phaseName = tref.name();
         vcs_VolPhase* volP = m_vprob.VPhaseList[iphase];
         double TMolesPhase = volP->totalMoles();
-        //AssertTrace(TMolesPhase == m_mix->phaseMoles(iphase));
         size_t nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);
         ac.resize(nSpecies, 0.0);
@@ -1162,7 +1161,6 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
          *    Loop through each species in the current phase
          */
         size_t nSpPhase = tPhase->nSpecies();
-        // volPhase->TMoles = 0.0;
         tmpMoles.resize(nSpPhase);
         for (size_t k = 0; k < nSpPhase; k++) {
             tmpMoles[k] = mphase->speciesMoles(kT);

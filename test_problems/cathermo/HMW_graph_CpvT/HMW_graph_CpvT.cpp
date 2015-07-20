@@ -48,7 +48,6 @@ int main(int argc, char** argv)
 
         size_t i1 = HMW->speciesIndex("Na+");
         size_t i2 = HMW->speciesIndex("Cl-");
-        //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 0; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -118,11 +117,6 @@ int main(int argc, char** argv)
                 T = TTable.T[i];
             }
             /*
-             * RT is in units of J/kmolK
-             */
-            //double RT = GasConstant * T;
-
-            /*
              * Make sure we are at the saturation pressure or above.
              */
             pres = std::max(HMW->satPressure(T), OneAtm);
@@ -160,8 +154,6 @@ int main(int argc, char** argv)
             Cp_H2O     = pmCp[0]  * 1.0E-6;
             Cp_Naplus  = pmCp[i1] * 1.0E-6;
             Cp_Clminus = pmCp[i2] * 1.0E-6;
-
-            //double Delta_Cp_Salt = Cp_NaCl - (Cp_Naplus + Cp_Clminus);
 
             double molarCp = HMW->cp_mole() * 1.0E-6;
 

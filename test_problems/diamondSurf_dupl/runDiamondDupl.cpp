@@ -46,7 +46,6 @@ int main(int argc, char** argv)
 
         XML_Node* const xs = xc->findNameID("phase", "diamond_100");
         ThermoPhase* diamond100TP = newPhase(*xs);
-        //SurfPhase *diamond100TP = new SurfPhase(*xs);
         int nsp_d100 = diamond100TP->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 

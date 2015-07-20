@@ -259,8 +259,6 @@ protected:
     vector_fp m_concSpecies;
     vector_fp m_concSpeciesSave;
 
-    //std::vector<vector_fp> m_vectorConcKinSpecies;
-    //std::vector<vector_fp> m_vectorNetSpeciesProdRate;
     /**
      * Index into the species vector of the kinetics manager,
      * pointing to the first species from the surrounding medium.

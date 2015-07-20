@@ -180,7 +180,6 @@ public:
     //! Call after one or more grids has been refined.
     void resize();
 
-    //void setTransientMask();
     vector_int& transientMask() {
         return m_mask;
     }

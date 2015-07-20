@@ -74,13 +74,7 @@ public:
     double ldens();
 
 protected:
-
     double m_tcrit, m_pcrit, m_mw, m_a, m_b;
-    //double m_tmin, m_tmax;
-    //string m_name, m_formula;
-
-private:
-
 };
 }
 

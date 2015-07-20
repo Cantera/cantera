@@ -1277,7 +1277,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     doublereal ratio1 = 3.0 * an * cn / (bn * bn);
     doublereal ratio2 = pres * b / (GasConstant * TKelvin);
     if (fabs(ratio1) < 1.0E-7) {
-        //printf("NicholsSolve(): Alternative solution (p = %g T = %g)\n", pres, TKelvin);
         doublereal ratio3 = a / (GasConstant * sqt) * pres / (GasConstant * TKelvin);
         if (fabs(ratio2) < 1.0E-5 && fabs(ratio3) < 1.0E-5) {
             doublereal zz = 1.0;

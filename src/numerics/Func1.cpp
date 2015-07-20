@@ -216,7 +216,6 @@ string Func1::write(const std::string& arg) const
 
 string Pow1::write(const std::string& arg) const
 {
-    //cout << "Pow1" << endl;
     string c  = "";
     if (m_c == 0.5) {
         return "\\sqrt{" + arg + "}";

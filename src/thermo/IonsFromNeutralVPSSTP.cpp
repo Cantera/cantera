@@ -135,7 +135,6 @@ IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
     IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
     muNeutralMolecule_          = b.muNeutralMolecule_;
-    //  gammaNeutralMolecule_       = b.gammaNeutralMolecule_;
     lnActCoeff_NeutralMolecule_ = b.lnActCoeff_NeutralMolecule_;
     dlnActCoeffdT_NeutralMolecule_ = b.dlnActCoeffdT_NeutralMolecule_;
     dlnActCoeffdlnX_diag_NeutralMolecule_ = b.dlnActCoeffdlnX_diag_NeutralMolecule_;
@@ -1057,10 +1056,6 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         }
         return;
     }
-
-    //    static vector_fp dlnActCoeff_NeutralMolecule(numNeutMolSpec);
-    //    static vector_fp dX_NeutralMolecule(numNeutMolSpec);
-
 
     getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule_));
 

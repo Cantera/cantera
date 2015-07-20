@@ -48,7 +48,6 @@ int main(int argc, char** argv)
 
         size_t i1 = HMW->speciesIndex("Na+");
         size_t i2 = HMW->speciesIndex("Cl-");
-        //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 1; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -156,8 +155,6 @@ int main(int argc, char** argv)
             H_H2O     = pmEnth[0]  * 1.0E-6;
             H_Naplus  = pmEnth[i1] * 1.0E-6;
             H_Clminus = pmEnth[i2] * 1.0E-6;
-            //double Delta_H_Salt   = H_NaCl - (H_Naplus + H_Clminus);
-            //double Lfunc = HMW->relative_enthalpy() * 1.0E-6;
             molarEnth = HMW->enthalpy_mole() * 1.0E-6;
 
             double Delta_Hs = (Xmol[0]  * H_H2O +

@@ -137,9 +137,6 @@ int main()
             double d = w->density();
             double mw = w->molecularWeight(0);
             double vbar = mw/d;
-            // not implemented
-            //w.getPartialMolarVolumes(&vbar);
-
             printf("%10g %10g %12g %13.4g %13.4g\n", temp, press*1.0E-5,
                    psat*1.0E-5, d, vbar);
 

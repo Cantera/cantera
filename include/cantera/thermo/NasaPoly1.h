@@ -122,8 +122,6 @@ public:
         *cp_R = cp;
         *h_RT = h;
         *s_R = s;
-        //writelog("NASA1: for species "+int2str(m_index)+", h_RT = "+
-        //    fp2str(h)+"\n");
     }
 
     virtual void updatePropertiesTemp(const doublereal temp,

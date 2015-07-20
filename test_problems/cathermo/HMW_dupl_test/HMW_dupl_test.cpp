@@ -47,7 +47,6 @@ int main(int argc, char** argv)
 
         size_t i1 = HMW->speciesIndex("Na+");
         size_t i2 = HMW->speciesIndex("Cl-");
-        //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 0; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -73,7 +72,6 @@ int main(int argc, char** argv)
         ThermoPhase* hmwtb = (ThermoPhase*)HMW;
 
         ThermoPhase* hmwtbDupl = hmwtb->duplMyselfAsThermoPhase();
-        //ThermoPhase *hmwtbDupl = 0;
         HMWSoln* HMW1 = HMW;
         HMWSoln* HMW2 = dynamic_cast<HMWSoln*>(hmwtbDupl);
 
@@ -130,11 +128,6 @@ int main(int argc, char** argv)
                 } else {
                     T = TTable.T[i];
                 }
-                /*
-                 * RT is in units of J/kmolK
-                 */
-                //double RT = GasConstant * T;
-
                 /*
                  * Make sure we are at the saturation pressure or above.
                  */
@@ -206,7 +199,6 @@ int main(int argc, char** argv)
 
 
                 double Aphi = HMW->A_Debye_TP(T, pres) / 3.0;
-                //double AL = HMW->ADebye_L(T,pres);
                 double AJ = HMW->ADebye_J(T, pres);
 
                 for (size_t k = 0; k < nsp; k++) {

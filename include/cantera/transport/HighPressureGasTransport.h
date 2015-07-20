@@ -39,7 +39,6 @@ public:
         if (m_mode == CK_Mode) {
             throw CanteraError("HighPressureGasTransport::model",
                                "CK_Mode not accepted");
-            //return cHighP;
         } else {
             return cHighP;
         }
@@ -79,8 +78,6 @@ protected:
     virtual doublereal Zcrit_i(size_t i);
 
     vector_fp store(size_t i, size_t nsp);
-
-    //virtual doublereal CT_i(doublereal T_0);
 
     virtual doublereal FQ_i(doublereal Q, doublereal Tr, doublereal MW);
 

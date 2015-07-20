@@ -1678,8 +1678,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     const double* alpha2MX =  DATA_PTR(m_Alpha2MX_ij);
 
     const double* psi_ijk =  DATA_PTR(m_Psi_ijk);
-    //n = k + j * m_kk + i * m_kk * m_kk;
-
 
     double* gamma_Unscaled = DATA_PTR(m_gamma_tmp);
     /*

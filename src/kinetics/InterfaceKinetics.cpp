@@ -499,30 +499,12 @@ void InterfaceKinetics::updateROP()
             //
             // Calculate the overpotential of the reaction
             //
-            //    double nStoichElectrons = - rmc->m_phaseChargeChange[metalPhaseRS_];
             double nStoichElectrons=1;
-            //*nStoich = nStoichElectrons;
-
-
-
             getDeltaGibbs(0);
 
             if (nStoichElectrons != 0.0) {
                 OCV = m_deltaG[jrxn]/Faraday/ nStoichElectrons;
             }
-
-            /*
-
-            double exp1 = nu * nStoich * beta / rtdf
-            double exp2 = -nu * nStoich * Faraday * (1.0 - beta) / (GasConstant * temp);
-            double val = io * (exp(exp1) - exp(exp2));
-
-            doublereal BVterm = exp(exp1  ) - exp(exp2);
-            m_ropnet[j] = m_ropf[j] * BVterm
-            m_ropf[j] =
-                //
-            m_ropr[j] =  m_ropnet[j] - m_ropf[j];
-            */
         }
     }
 

@@ -58,8 +58,6 @@ int equil_example1(int job)
     }
 
     // create a gas mixture, and set its state
-
-    //IdealGasMix gas("silane.cti", "silane");
     IdealGasMix gas("silane.xml", "silane");
     size_t nsp = gas.nSpecies();
 

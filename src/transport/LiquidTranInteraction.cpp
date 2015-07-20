@@ -176,7 +176,6 @@ LiquidTranInteraction& LiquidTranInteraction::operator=(const LiquidTranInteract
         m_model     = right.m_model;
         m_property  = right.m_property;
         m_thermo    = right.m_thermo;
-        //m_trParam   = right.m_trParam;
         m_Aij       = right.m_Aij;
         m_Bij       = right.m_Bij;
         m_Eij       = right.m_Eij;

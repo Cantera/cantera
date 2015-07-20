@@ -308,8 +308,6 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
      * we haven't touched m_tlast or m_plast, so some calculations may still
      * need to be done at the ThermoPhase object level.
      */
-    //setTemperature(t);
-    //setPressure(pres);
     calcDensity();
 }
 

@@ -373,7 +373,6 @@ public:
 
     virtual void _getInitialSoln(doublereal* x) {
         x[0] = m_temp;
-        //m_kin->advanceCoverages(1.0);
         m_sphase->getCoverages(x+1);
     }
 

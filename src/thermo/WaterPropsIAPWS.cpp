@@ -208,7 +208,6 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
 
     delta = deltaGuess;
     m_phi->tdpolycalc(tau, delta);
-    //  setState_TR(temperature, rhoguess);
 
     doublereal delta_retn = m_phi->dfind(p_red, tau, deltaGuess);
     doublereal density_retn;

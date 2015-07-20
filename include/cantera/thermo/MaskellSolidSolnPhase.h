@@ -85,20 +85,6 @@ public:
      */
     virtual doublereal entropy_mole() const;
 
-    /**
-     * Molar heat capacity at constant pressure of the solution.
-     * Units: J/kmol/K.
-     */
-    //virtual doublereal cp_mole() const;
-
-    /**
-     * Molar heat capacity at constant volume of the solution.
-     * Units: J/kmol/K.
-     */
-    //virtual doublereal cv_mole() const {
-    //    return cp_mole();
-    //}
-
     //@}
     /** @name Mechanical Equation of State Properties
      *

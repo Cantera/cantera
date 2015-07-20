@@ -215,8 +215,6 @@ doublereal DebyeHuckel::cp_mole() const
 doublereal DebyeHuckel::cv_mole() const
 {
     throw NotImplementedError("DebyeHuckel::cv_mole");
-    //getPartialMolarCv(m_tmpV.begin());
-    //return mean_X(m_tmpV.begin());
 }
 
 //

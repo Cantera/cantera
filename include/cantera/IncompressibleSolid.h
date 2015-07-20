@@ -30,11 +30,6 @@ public:
         return m_ok;
     }
 
-    //friend std::ostream& operator<<(std::ostream& s, IdealGasMix& mix) {
-    //    std::string r = report(mix, true);
-    //    s << r;
-    //    return s;
-
 protected:
     bool m_ok;
     XML_Node* m_r;

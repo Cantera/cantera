@@ -257,7 +257,6 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
             throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
                                "wrong SS mode: " + model);
         }
-        //VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
         delete m_waterSS;
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
 

@@ -74,7 +74,6 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
 
     // precompute and store log(epsilon_ij/k_B)
     m_log_eps_k.resize(m_nsp, m_nsp);
-    //        int j;
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             m_log_eps_k(i,j) = log(m_epsilon(i,j)/Boltzmann);

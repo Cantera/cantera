@@ -131,11 +131,6 @@ void calc(double temp, double Iionic)
 
     double molecWeight = 18.01528;
 
-    //double RT = GasConst * temp * 1.0E-3;
-    //double IdealMixing = 2.0 * RT * m * (log(m) - 1.0);
-    //printf("   IdealMixing = %20.13g kJ/kg_water\n", IdealMixing);
-
-
     double xo = 1.0 / (molecWeight/1000. * 2 * m + 1.0);
     printf(" no = %g\n", xo);
 }

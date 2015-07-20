@@ -107,8 +107,6 @@ public:
 
     void setTimeStep(doublereal stepsize, size_t n, integer* tsteps);
 
-    //void setMaxTimeStep(doublereal tmax) { m_maxtimestep = tmax; }
-
     void solve(int loglevel = 0, bool refine_grid = true);
 
     void eval(doublereal rdt=-1.0, int count = 1) {

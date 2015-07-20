@@ -143,7 +143,6 @@ extern "C" {
             break;
         default:
             mexPrintf("iclass = %d",iclass);
-            //mexErrMsgTxt("unknown class");
         }
     }
 }

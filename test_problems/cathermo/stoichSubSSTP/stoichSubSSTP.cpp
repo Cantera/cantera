@@ -21,13 +21,6 @@ int main(int argc, char** argv)
         XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
         StoichSubstanceSSTP* solid = new StoichSubstanceSSTP(*xm);
 
-        /*
-         * Load in and initialize the
-         */
-        //string nacl_s = "NaCl_Solid.xml";
-        //string id = "NaCl(S)";
-        //Cantera::ThermoPhase *solid = Cantera::newPhase(nacl_s, id);
-
         size_t nsp = solid->nSpecies();
         if (nsp != 1) {
             throw CanteraError("main","Should just be one species");

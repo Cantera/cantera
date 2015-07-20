@@ -17,7 +17,6 @@ int main(int argc, char** argv)
         double pres = 1.0E5;
         g.setState_TPX(1000.1, pres, "O2:0.4, N2:0.6");
         g.equilibrate("TP", "auto");
-        //cout << g;
         double enth = g.enthalpy_mass();
         printf(" enth = %g\n", enth);
         enth -= 2.0E2;
@@ -26,7 +25,6 @@ int main(int argc, char** argv)
         g.equilibrate("HP", "auto");
         enth = g.enthalpy_mass();
         printf(" enth = %g\n", enth);
-        //cout << g;
 
 
         return 0;

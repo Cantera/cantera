@@ -41,7 +41,6 @@ const int cSurf = 3;
 
 /// A metal phase.
 const int cMetal = 4;          //  MetalPhase in MetalPhase.h
-//    const int cSolidCompound = 5;  //  SolidCompound in SolidCompound.h
 const int cStoichSubstance = 5; // StoichSubstance.h
 const int cSemiconductor = 7;
 

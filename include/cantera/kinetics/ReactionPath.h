@@ -326,7 +326,6 @@ protected:
     std::vector<std::vector<int> > m_groups;
     std::vector<Group> m_sgroup;
     std::vector<std::string> m_elementSymbols;
-    //        std::map<int, int> m_warn;
     std::map<size_t, std::map<size_t, std::map<size_t, Group> > >  m_transfer;
     std::vector<bool> m_determinate;
     Array2D m_atoms;

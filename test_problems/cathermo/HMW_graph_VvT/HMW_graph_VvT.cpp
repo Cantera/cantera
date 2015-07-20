@@ -31,8 +31,6 @@ int main(int argc, char** argv)
 
 
         size_t nsp = HMW->nSpecies();
-        //double acMol[100];
-        //double act[100];
         double mf[100];
         double moll[100];
         HMW->getMoleFractions(mf);
@@ -45,7 +43,6 @@ int main(int argc, char** argv)
 
         size_t i1 = HMW->speciesIndex("Na+");
         size_t i2 = HMW->speciesIndex("Cl-");
-        //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 0; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -114,11 +111,6 @@ int main(int argc, char** argv)
                 T = TTable.T[i];
             }
             /*
-             * RT is in units of J/kmolK
-             */
-            //double RT = GasConstant * T;
-
-            /*
              * Make sure we are at the saturation pressure or above.
              */
             pres = std::max(HMW->satPressure(T), OneAtm);
@@ -147,7 +139,6 @@ int main(int argc, char** argv)
             double dd = solid->density();
             double MW_NaCl = solid->meanMolecularWeight();
             V_NaCl = MW_NaCl / dd;
-            //printf("V_NaCl = %g , V0_NaCl = %g %g\n", V_NaCl, V0_NaCl, 1.0/solid->molarDensity());
 
             /*
              * Get the partial molar volumes
@@ -157,17 +148,12 @@ int main(int argc, char** argv)
             V_Naplus  = pmV[i1];
             V_Clminus = pmV[i2];
 
-
-            //double Delta_V_Salt = V_NaCl - (V_Naplus + V_Clminus);
-
             /*
              * Calculate the molar volume of solution
              */
             double dsoln = HMW->density();
             meanMW = HMW->meanMolecularWeight();
             double molarV = meanMW / dsoln;
-            //double md = HMW->molarDensity();
-            //printf("compare %g %g\n", molarV, 1.0/md);
 
             /*
              * Calculate the delta volume of solution for the reaction
@@ -196,7 +182,6 @@ int main(int argc, char** argv)
             double phiV = Vex / Xmol[i1];
 
             double Aphi = HMW->A_Debye_TP(T, pres) / 3.0;
-            //double AL = HMW->ADebye_L(T,pres);
             double Av = HMW->ADebye_V(T, pres) * 1.0E3;
 
             molarV0 = 0.0;

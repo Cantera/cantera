@@ -317,7 +317,6 @@ int main(int argc, char** argv)
         /*
          *  Solve the Equation system
          */
-        //iKin_ptr->advanceCoverages(100.);
         iKin_ptr->solvePseudoSteadyStateProblem();
 
         /*

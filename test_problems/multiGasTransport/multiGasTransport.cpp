@@ -190,7 +190,6 @@ int main(int argc, char** argv)
 
         vector_fp specMob(nsp, 0.0);
 
-        //tranMix->getMobilities(DATA_PTR(specMob));
         printf(" Dump of the species mobilities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);

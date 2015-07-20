@@ -36,7 +36,6 @@ public:
         return ((up() - m_energy_offset) - fp())/T + m_entropy_offset;
     }
     double Psat();
-    //    double dPsatdT();
 private:
     double ldens();
 };

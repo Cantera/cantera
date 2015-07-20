@@ -73,31 +73,6 @@ public:
      *  shallow pointer that should be zero during destructor
      */
     LTPspecies* defectActivity;
-
-protected:
-    //protected members of SolidTransportData are analogous to those found in TransportParams
-
-    //! Local storage of the number of species
-    //    int nsp_;
-
-    //!  Pointer to the ThermoPhase object
-    //    thermo_t* thermo;
-
-    //! Local storage of the molecular weights of the species
-    /*!
-     *  Length is nsp_ and units are kg kmol-1.
-     */
-    //    vector_fp mw;
-
-    //! Maximum temperatures for parameter fits
-    //    doublereal tmax;
-
-    //! Minimum temperatures for parameter fits
-    //    doublereal tmin;
-
-    //! Log level
-    //    int log_level;
-
 };
 
 }

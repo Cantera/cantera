@@ -153,7 +153,6 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     m_indexRxnToSpecies.resize(nspecies0, 0);
 
     /* Initialize all species to be major species */
-    //m_rxnStatus.resize(nspecies0, 1);
     m_speciesStatus.resize(nspecies0, 1);
 
     m_SSPhase.resize(2*nspecies0, 0);
@@ -595,7 +594,6 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      *  Define all species to be major species, initially.
      */
     for (size_t i = 0; i < nspecies; i++) {
-        // m_rxnStatus[i] = VCS_SPECIES_MAJOR;
         m_speciesStatus[i] = VCS_SPECIES_MAJOR;
     }
     /*
@@ -903,9 +901,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
             pub->w[i] = m_molNumSpecies_old[k1];
         } else {
             pub->w[i] = 0.0;
-            // plogf("voltage species = %g\n", m_molNumSpecies_old[k1]);
         }
-        //pub->mf[i] = m_molNumSpecies_new[k1];
         pub->m_gibbsSpecies[i] = m_feSpecies_old[k1];
         pub->VolPM[i] = m_PMVolumeSpecies[k1];
     }

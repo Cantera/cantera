@@ -416,10 +416,6 @@ private:
      */
     std::vector<size_t>              m_numBulkSpecies;
 
-    //std::vector<int>              m_bulkKinObjID;
-    //std::vector<int>              m_bulkKinObjPhaseID;
-
-
     //! Total number of species in all bulk phases.
     /*!
      *  This is also the number of bulk equations to solve when bulk equation

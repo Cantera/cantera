@@ -291,7 +291,6 @@ void Empty1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
-    //        integer *db;
 
     r[0] = x[0];
     diag[0] = 0;

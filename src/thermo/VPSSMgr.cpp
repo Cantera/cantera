@@ -279,7 +279,6 @@ void
 VPSSMgr::getStandardVolumes_ref(doublereal* vol) const
 {
     getStandardVolumes(vol);
-    //err("getStandardVolumes_ref");
 }
 
 /*****************************************************************/

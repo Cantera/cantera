@@ -22,12 +22,10 @@ class FalloffMgr
 {
 public:
     //! Constructor.
-    FalloffMgr(/*FalloffFactory* f = 0*/) :
+    FalloffMgr() :
         m_worksize(0) {
-        //if (f == 0)
         m_factory = FalloffFactory::factory();   // RFB:TODO This raw pointer should be encapsulated
         // because accessing a 'Singleton Factory'
-        //else m_factory = f;
     }
 
     //! Install a new falloff function calculator.

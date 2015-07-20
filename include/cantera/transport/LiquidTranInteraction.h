@@ -136,7 +136,6 @@ public:
     }
 
     virtual void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
-        //mat = m_Dij;
         throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
@@ -150,8 +149,6 @@ protected:
 
     //! pointer to thermo object to get current temperature
     thermo_t* m_thermo;
-
-    //LiquidTransportParams* m_trParam;
 
     //! Matrix of interaction coefficients for polynomial in molefraction*weight of
     //! speciesA (no temperature dependence, dimensionless)
@@ -180,12 +177,6 @@ class LTI_Solvent : public LiquidTranInteraction
 {
 public:
     LTI_Solvent(TransportPropertyType tp_ind = TP_UNKNOWN);
-
-    //! Copy constructor
-    //    LTI_Solvent( const LTI_Solvent &right );
-
-    //! Assignment operator
-    //    LTI_Solvent& operator=( const LTI_Solvent &right );
 
     //! Return the mixture transport property value.
     /**
@@ -219,12 +210,6 @@ public:
         LiquidTranInteraction(tp_ind) {
         m_model = LTI_MODEL_MOLEFRACS;
     }
-
-    //! Copy constructor
-    //    LTI_MoleFracs( const LTI_MoleFracs &right );
-
-    //! Assignment operator
-    //    LTI_MoleFracs& operator=( const LTI_MoleFracs &right );
 
     //! Return the mixture transport property value.
     /**
@@ -261,12 +246,6 @@ public:
         LiquidTranInteraction(tp_ind) {
         m_model = LTI_MODEL_MASSFRACS;
     }
-
-    //! Copy constructor
-    //    LTI_MassFracs( const LTI_MassFracs &right );
-
-    //! Assignment operator
-    //    LTI_MassFracs& operator=( const LTI_MassFracs &right );
 
     //! Return the mixture transport property value.
     /**
@@ -333,12 +312,6 @@ public:
         m_model = LTI_MODEL_LOG_MOLEFRACS;
     }
 
-    //! Copy constructor
-    //    LTI_Log_MoleFracs( const LTI_Log_MoleFracs &right );
-
-    //! Assignment operator
-    //    LTI_Log_MoleFracs& operator=( const LTI_Log_MoleFracs &right );
-
     //! Return the mixture transport property value.
     /**
      * Takes the separate species transport properties as input (this method
@@ -385,12 +358,6 @@ public:
         LiquidTranInteraction(tp_ind) {
         m_model = LTI_MODEL_PAIRWISE_INTERACTION;
     }
-
-    //! Copy constructor
-    //    LTI_Pairwise_Interaction( const LTI_Pairwise_Interaction &right );
-
-    //! Assignment operator
-    //    LTI_Pairwise_Interaction& operator=( const LTI_Pairwise_Interaction &right );
 
     void setParameters(LiquidTransportParams& trParam) ;
 
@@ -492,12 +459,6 @@ public:
         m_model = LTI_MODEL_STEFANMAXWELL_PPN;
     }
 
-    //! Copy constructor
-    //    LTI_StefanMaxwell_PPN( const LTI_StefanMaxwell_PPN &right );
-
-    //! Assignment operator
-    //    LTI_StefanMaxwell_PPN& operator=( const LTI_StefanMaxwell_PPN &right );
-
     void setParameters(LiquidTransportParams& trParam) ;
 
     //! Return the mixture transport property value.
@@ -538,12 +499,6 @@ public:
         m_model = LTI_MODEL_STOKES_EINSTEIN;
     }
 
-    //! Copy constructor
-    //    LTI_StokesEinstein( const LTI_StokesEinstein &right );
-
-    //! Assignment operator
-    //    LTI_StokesEinstein& operator=( const LTI_StokesEinstein &right );
-
     void setParameters(LiquidTransportParams& trParam);
 
     //! Return the mixture transport property value.
@@ -582,12 +537,6 @@ public:
         LiquidTranInteraction(tp_ind) {
         m_model = LTI_MODEL_MOLEFRACS_EXPT;
     }
-
-    //! Copy constructor
-    //    LTI_MoleFracs_ExpT( const LTI_MoleFracs_ExpT &right );
-
-    //! Assignment operator
-    //    LTI_MoleFracs_ExpT& operator=( const LTI_MoleFracs_ExpT &right );
 
     //! Return the mixture transport property value.
     /**

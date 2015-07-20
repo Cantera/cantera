@@ -1028,8 +1028,7 @@ extern "C" {
     status_t ctgetcanteraerror_(char* buf, ftnlen buflen)
     {
         try {
-            std::string e; // = "<no error>";
-            //if (nErrors() > 0)
+            std::string e;
             e = lastErrorMessage();
             int n = std::min((int) e.size(), buflen-1);
             copy(e.begin(), e.begin() + n, buf);

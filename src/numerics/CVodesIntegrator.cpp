@@ -65,8 +65,8 @@ extern "C" {
                           void* f_data)
     {
         try {
-            double* ydata = NV_DATA_S(y); //N_VDATA(y);
-            double* ydotdata = NV_DATA_S(ydot); //N_VDATA(ydot);
+            double* ydata = NV_DATA_S(y);
+            double* ydotdata = NV_DATA_S(ydot);
             FuncData* d = (FuncData*)f_data;
             FuncEval* f = d->m_func;
             if (d->m_pars.size() == 0) {

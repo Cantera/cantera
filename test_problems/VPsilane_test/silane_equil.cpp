@@ -17,10 +17,8 @@ int main(int argc, char** argv)
     try {
         IdealSolnGasVPSS gg("silane.xml", "silane");
         ThermoPhase* g = &gg;
-        //ThermoPhase *g = newPhase("silane.xml", "silane");
         cout.precision(4);
         g->setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");
-        //g.setState_TPX(1500.0, 1.0132E5, "SIH4:0.01, H2:0.99");
         g->equilibrate("TP");
         cout << g->report(true, 0.0) << endl;
         return 0;

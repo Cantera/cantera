@@ -1606,7 +1606,6 @@ public:
 
     //! Tentative value of the mole number vector. It's also used to store the
     //! mole fraction vector.
-    //std::vector<double> wt;
     std::vector<double> m_molNumSpecies_new;
 
     //! Delta G(irxn) for the noncomponent species in the mechanism.

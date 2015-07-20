@@ -140,9 +140,7 @@ public:
         }
         for (size_t n = 0; n < m_nmcov; n++) {
             k = m_msp[n];
-            // changed n to k, dgg 1/22/04
             th = std::max(theta[k], Tiny);
-            //                th = fmaxx(theta[n], Tiny);
             m_mcov += m_mc[n]*std::log(th);
         }
     }

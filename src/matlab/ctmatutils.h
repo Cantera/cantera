@@ -2,7 +2,6 @@
 #define CT_MATUTILS_H
 
 const double Undef = -999.123;
-//const double DERR = -999.999;
 
 #include <string>
 

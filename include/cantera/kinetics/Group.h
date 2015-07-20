@@ -49,14 +49,12 @@ public:
      * Decrement the atom numbers by those in group 'other'.
      */
     void operator-=(const Group& other) {
-        verifyInputs(*this, other);
         for (size_t m = 0; m < m_comp.size(); m++) {
             m_comp[m] -= other.m_comp[m];
         }
         validate();
     }
     void operator+=(const Group& other) {
-        verifyInputs(*this, other);
         for (size_t m = 0; m < m_comp.size(); m++) {
             m_comp[m] += other.m_comp[m];
         }
@@ -69,7 +67,6 @@ public:
         validate();
     }
     bool operator==(const Group& other) const {
-        verifyInputs(*this, other);
         for (size_t m = 0; m < m_comp.size(); m++) {
             if (m_comp[m] != other.m_comp[m]) {
                 return false;
@@ -78,27 +75,15 @@ public:
         return true;
     }
     friend Group operator-(const Group& g1, const Group& g2) {
-        verifyInputs(g1, g2);
         Group diff(g1);
         diff -= g2;
         return diff;
     }
     friend Group operator+(const Group& g1, const Group& g2) {
-        verifyInputs(g1, g2);
         Group sum(g1);
         sum += g2;
         return sum;
     }
-    friend void verifyInputs(const Group& g1, const Group& g2) {
-        //             if (Debug::on) {
-        //                 if (g1.size() != g2.size()) {
-        //                     cerr << "Group: size mismatch!" << std::endl;
-        //                     cerr << " group 1 = " << g1 << std::endl;
-        //                     cerr << " group 2 = " << g2 << std::endl;
-        //                 }
-        //             }
-    }
-
     /*!
      * A group is 'valid' if all of its nonzero atom numbers have
      * the same sign, either positive or negative. This method

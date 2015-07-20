@@ -60,9 +60,6 @@ public:
     virtual ~Integrator() {
     }
 
-    /** Set or reset the number of equations. */
-    //virtual void resize(int n)=0;
-
     //!  Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance

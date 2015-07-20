@@ -29,7 +29,6 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     suppress_deprecation_warnings();
-    //  int solver = 2;
     int numSucc = 0;
     int numFail = 0;
     int printLvl = 1;
