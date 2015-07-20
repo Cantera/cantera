@@ -367,20 +367,6 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
             }
         }
         // Debug against formula in literature
-#ifdef DEBUG_MODE_NOT
-        double lnA = 0.0;
-        double lnB = 0.0;
-        double polyk = 1.0;
-        double fac = 2.0 * XA - 1.0;
-        for (int m = 0; m < N; m++) {
-            doublereal A_ge = (he_vec[m] - T * se_vec[m]) / (GasConstant * T);
-            lnA += A_ge * oneMXA * oneMXA * polyk * (1.0 + 2.0 * XA * m / fac);
-            lnB += A_ge * XA * XA * polyk * (1.0 - 2.0 * oneMXA * m / fac);
-            polyk *= fac;
-        }
-        // This gives the same result as above
-#endif
-
     }
 
 }

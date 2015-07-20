@@ -14,9 +14,6 @@
 namespace Cantera
 {
 
-#define DAE_DEVEL
-#ifdef DAE_DEVEL
-
 class Jacobian
 {
 public:
@@ -268,8 +265,6 @@ private:
  *     @return       Returns a point to the instantiated DAE_Solver object
  */
 DAE_Solver* newDAE_Solver(const std::string& itype, ResidJacEval& f);
-
-#endif
 
 }
 

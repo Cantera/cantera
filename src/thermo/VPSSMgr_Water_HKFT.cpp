@@ -163,12 +163,6 @@ void VPSSMgr_Water_HKFT::_updateRefStateThermo() const
         m_s0_R[k]   = ps->entropy_mole() / GasConstant;
         m_g0_RT[k]  = ps->gibbs_RT();
         m_h0_RT[k]  = m_g0_RT[k] + m_s0_R[k];
-#ifdef DEBUG_MODE_NOT
-        double h = ps->enthalpy_RT();
-        if (fabs(m_h0_RT[k] - h) > 1.0E-4) {
-            printf(" VPSSMgr_Water_HKFT::_updateRefStateThermo:: we have a discrepancy\n");
-        }
-#endif
         m_V0[k]     = ps->molarVolume();
 
     }

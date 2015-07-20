@@ -810,36 +810,6 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
     }
 }
 
-#ifdef MULTIPHASE_DEVEL
-void importFromXML(string infile, string id)
-{
-    XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
-    }
-    XML_Node* x = get_XML_Node(string("#")+id, root);
-    if (x.name() != "multiphase")
-        throw CanteraError("MultiPhase::importFromXML",
-                           "Current XML_Node is not a multiphase element.");
-    vector<XML_Node*> phases = x.getChildren("phase");
-    int np = phases.size();
-    int n;
-    ThermoPhase* p;
-    for (n = 0; n < np; n++) {
-        XML_Node& ph = *phases[n];
-        srcfile = infile;
-        if (ph.hasAttrib("src")) {
-            srcfile = ph["src"];
-        }
-        idstr =  ph["id"];
-        p = newPhase(srcfile, idstr);
-        if (p) {
-            addPhase(p, ph.value());
-        }
-    }
-}
-#endif
-
 void MultiPhase::setTemperature(const doublereal T)
 {
     if (!m_init) {

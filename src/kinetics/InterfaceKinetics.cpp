@@ -367,9 +367,6 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
      *   The treatment below is numerically more stable, however.
      */
     doublereal eamod;
-#ifdef DEBUG_KIN_MODE
-    doublereal ea;
-#endif
     for (size_t i = 0; i < m_beta.size(); i++) {
         size_t irxn = m_ctrxn[i];
 
@@ -378,19 +375,6 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
         if (m_ctrxn_BVform[i] == 0) {
             eamod = m_beta[i] * deltaElectricEnergy_[irxn];
             if (eamod != 0.0) {
-#ifdef DEBUG_KIN_MODE
-                ea = GasConstant * m_E[irxn];
-                if (eamod + ea < 0.0) {
-                    writelog("Warning: act energy mod too large!\n");
-                    writelog("  Delta phi = "+fp2str(deltaElectricEnergy_[irxn]/Faraday)+"\n");
-                    writelog("  Delta Ea = "+fp2str(eamod)+"\n");
-                    writelog("  Ea = "+fp2str(ea)+"\n");
-                    for (n = 0; n < np; n++) {
-                        writelog("Phase "+int2str(n)+": phi = "
-                                 +fp2str(m_phi[n])+"\n");
-                    }
-                }
-#endif
                 doublereal rt = GasConstant*thermo(0).temperature();
                 doublereal rrt = 1.0/rt;
                 kf[irxn] *= exp(-eamod*rrt);

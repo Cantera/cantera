@@ -98,9 +98,6 @@ int main(int argc, char** argv)
         printf("          against analytical formula in L_standalone program.\n");
         printf("          (comparison against Eq. 12, Silvester and Pitzer)\n");
 
-#ifdef DEBUG_HKM
-        FILE* ttt = fopen("table.csv","w");
-#endif
         /*
          * Create a Table of NaCl Enthalpy Properties as a Function
          * of the Temperature
@@ -115,10 +112,6 @@ int main(int argc, char** argv)
                "   kJ/gmolSalt,"
                "   kJ/gmolSalt,   kJ/gmolSoln,   kJ/gmolSalt,"
                "   kJ/gmolSalt,       kJ/gmol,    kJ/gmol\n");
-#ifdef DEBUG_HKM
-        fprintf(ttt,"T, Pres, A_L/RT, Delta_H0, Delta_Hs, phiL\n");
-        fprintf(ttt,"Kelvin, bar, sqrt(kg/gmol), kJ/gmolSalt, kJ/gmolSalt,   kJ/gmolSalt\n");
-#endif
         for (i = 0; i < TTable.NPoints + 1; i++) {
             if (i == TTable.NPoints) {
                 T = 323.15;
@@ -208,10 +201,6 @@ int main(int argc, char** argv)
                        LrelMol,
                        molarEnth , molarEnth0);
 
-#ifdef DEBUG_HKM
-                fprintf(ttt,"%g, %g, %g, %g, %g, %g\n",
-                        T, pres*1.0E-5, AL/RT, Delta_H0s, Delta_Hs, phiL);
-#endif
             }
 
         }
@@ -236,11 +225,6 @@ int main(int argc, char** argv)
         delete solid;
         solid = 0;
         Cantera::appdelete();
-
-#ifdef DEBUG_HKM
-        fclose(ttt);
-#endif
-
         return retn;
 
     } catch (CanteraError& err) {

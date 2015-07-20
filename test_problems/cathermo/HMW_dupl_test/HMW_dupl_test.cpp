@@ -92,15 +92,6 @@ int main(int argc, char** argv)
             double Cp0_NaCl = 0.0, Cp0_Naplus = 0.0, Cp0_Clminus = 0.0, Delta_Cp0s = 0.0, Cp0_H2O = 0.0;
             double Cp_NaCl = 0.0, Cp_Naplus = 0.0, Cp_Clminus = 0.0, Cp_H2O = 0.0;
             double molarCp0;
-#ifdef DEBUG_HKM
-            FILE* ttt;
-            if (itherms ==0) {
-                ttt = fopen("table1.csv","w");
-            } else {
-                ttt = fopen("table2.csv","w");
-            }
-
-#endif
             printf("A_J/R: Comparison to Pitzer's book, p. 99, can be made.\n");
             printf("        Agreement is within 12 pc \n");
             printf("\n");
@@ -133,11 +124,6 @@ int main(int argc, char** argv)
                    "   kJ/gmolSalt,"
                    "   kJ/gmolSalt,   kJ/gmolSoln,   kJ/gmolSalt,"
                    "       kJ/gmol,    kJ/gmol\n");
-#ifdef DEBUG_HKM
-            fprintf(ttt,"T, Pres, A_J/R, Delta_Cp0, Delta_Cps, J, phiJ\n");
-            fprintf(ttt,"Kelvin, bar, sqrt(kg/gmol), kJ/gmolSalt, kJ/gmolSalt, kJ/gmolSoln,"
-                    "kJ/gmolSalt\n");
-#endif
             for (i = 0; i < TTable.NPoints + 1; i++) {
                 if (i == TTable.NPoints) {
                     T = 323.15;
@@ -237,10 +223,6 @@ int main(int argc, char** argv)
                            "%13.5f, %13.5f, %13.5f, %13.5f\n",
                            T, pres*1.0E-5,  Aphi, AJ/GasConstant, Delta_Cp0s, Delta_Cps,
                            J, phiJ, molarCp , molarCp0);
-#ifdef DEBUG_HKM
-                    fprintf(ttt,"%g, %g, %g, %g, %g, %g, %g\n",
-                            T, pres*1.0E-5, AJ/GasConstant, Delta_Cp0s, Delta_Cps, J, phiJ);
-#endif
                 }
 
             }
@@ -261,10 +243,6 @@ int main(int argc, char** argv)
             printf(" NaCl(s)");
             printf("%13.5f               %13.5f %13.5f %13.5f\n", 1.0,
                    Cp0_NaCl , Cp_NaCl,  Cp_NaCl - Cp0_NaCl);
-
-#ifdef DEBUG_HKM
-            fclose(ttt);
-#endif
 
         }
 

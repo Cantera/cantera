@@ -944,25 +944,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                         }
                     }
                 }
-
-#ifdef VCS_LINE_SEARCH
-                /*********************************************************************/
-                /*** LINE SEARCH ALGORITHM FOR MAJOR SPECIES IN NON-IDEAL PHASES *****/
-                /*********************************************************************/
-                /*
-                 * Skip the line search if we are birthing a species
-                 */
-                if ((dx != 0.0) &&
-                        (m_molNumSpecies_old[kspec] > 0.0) &&
-                        (doPhaseDeleteIph == -1) &&
-                        (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
-                    double dx_old = dx;
-
-                    dx = vcs_line_search(irxn, dx_old, ANOTE);
-                    vcs_setFlagsVolPhases(false, VCS_STATECALC_NEW);
-                }
-                m_deltaMolNumSpecies[kspec] = dx;
-#endif
             } /* End of Loop on ic[irxn] -> the type of species */
             /***********************************************************************/
             /****** CALCULATE KMOLE NUMBER CHANGE FOR THE COMPONENT BASIS **********/
@@ -1394,19 +1375,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 forceComponentCalc = 1;
                 return;
             }
-#ifdef DEBUG_NOT
-            if (m_speciesStatus[l] == VCS_SPECIES_ZEROEDMS && m_molNumSpecies_old[j] == 0.0 && m_stoichCoeffRxnMatrix(j,i) != 0.0 && dg[i] < 0.0) {
-                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                    plogf("   --- Get a new basis because %s", m_speciesName[l].c_str());
-                    plogf(" has dg < 0.0 and comp %s has zero mole num",
-                          m_speciesName[j].c_str());
-                    plogf(" and share nonzero stoic: %-9.1f",
-                          m_stoichCoeffRxnMatrix(j,i));
-                    plogendl();
-                }
-                return;
-            }
-#endif
         }
     }
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
@@ -4063,13 +4031,6 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
             }
         }
     }
-
-
-#ifdef DEBUG_NOT
-    for (irxn = 0; irxn < m_numRxnRdc; ++irxn) {
-        checkFinite(deltaGRxn[irxn]);
-    }
-#endif
 }
 
 void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)

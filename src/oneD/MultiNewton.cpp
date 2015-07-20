@@ -186,18 +186,9 @@ void MultiNewton::step(doublereal* x, doublereal* step,
     size_t iok;
     size_t sz = r.size();
     r.eval(npos, x, step);
-#undef DEBUG_STEP
-#ifdef DEBUG_STEP
-    vector_fp ssave(sz, 0.0);
-    for (size_t n = 0; n < sz; n++) {
-        step[n] = -step[n];
-        ssave[n] = step[n];
-    }
-#else
     for (size_t n = 0; n < sz; n++) {
         step[n] = -step[n];
     }
-#endif
 
     iok = jac.solve(step, step);
 
@@ -223,21 +214,6 @@ void MultiNewton::step(doublereal* x, doublereal* step,
     } else if (int(iok) < 0)
         throw CanteraError("MultiNewton::step",
                            "iok = "+int2str(iok));
-
-#ifdef DEBUG_STEP
-    bool ok = false;
-    Domain1D* d;
-    if (!ok) {
-        for (size_t n = 0; n < sz; n++) {
-            d = r.pointDomain(n);
-            int nvd = d->nComponents();
-            int pt = (n - d->loc())/nvd;
-            cout << "step: " << pt << "  " <<
-                 r.pointDomain(n)->componentName(n - d->loc() - nvd*pt)
-                 << "    " << x[n] << "     " << ssave[n] << "   " << step[n] << endl;
-        }
-    }
-#endif
 }
 
 doublereal MultiNewton::boundStep(const doublereal* x0,

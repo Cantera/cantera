@@ -212,15 +212,6 @@ doublereal PDSS_HKFT::enthalpy_mole() const
 {
     // Ok we may change this evaluation method in the future.
     doublereal h = gibbs_mole() + m_temp * entropy_mole();
-
-#ifdef DEBUG_MODE_NOT
-    doublereal h2 = enthalpy_mole2();
-    if (fabs(h - h2) > 1.0E-1) {
-        printf("we are here, h = %g, h2 = %g, k = %d, T = %g, P = %g p0 = %g\n",
-               h, h2, m_spindex, m_temp, m_pres,
-               m_p0);
-    }
-#endif
     return h;
 }
 
@@ -302,15 +293,6 @@ doublereal PDSS_HKFT::cp_mole() const
 
     doublereal d2relepsilondT2 = m_waterProps->relEpsilon(m_temp, m_pres, 2);
 
-#ifdef DEBUG_MODE_NOT
-    doublereal d1 = m_waterProps->relEpsilon(m_temp, m_pres, 1);
-    doublereal d2 = m_waterProps->relEpsilon(m_temp + 0.0001, m_pres, 1);
-    doublereal d3 = (d2 - d1) / 0.0001;
-    if (fabs(d2relepsilondT2 - d3) > 1.0E-6) {
-        printf("we are here\n");
-    }
-#endif
-
     doublereal X = d2relepsilondT2 / (relepsilon* relepsilon) - 2.0 * relepsilon * Y * Y;
 
     doublereal Z = -1.0 / relepsilon;
@@ -328,17 +310,6 @@ doublereal PDSS_HKFT::cp_mole() const
     // Convert to Joules / kmol
     doublereal Cp = Cp_calgmol * 1.0E3 * 4.184;
 
-#ifdef DEBUG_MODE_NOT
-    double e1 = enthalpy_mole();
-    m_temp = m_temp - 0.001;
-    double e2 = enthalpy_mole();
-    m_temp = m_temp + 0.001;
-    double cpd = (e1 - e2) / 0.001;
-    if (fabs(Cp - cpd) > 10.0) {
-        printf("Cp difference : raw: %g, delta: %g, k = %d, T = %g, m_pres = %g\n",
-               Cp, cpd, m_spindex, m_temp, m_pres);
-    }
-#endif
     return Cp;
 }
 
@@ -1017,22 +988,6 @@ doublereal PDSS_HKFT::gstar(const doublereal temp, const doublereal pres, const 
     doublereal gval = g(temp, pres, ifunc);
     doublereal fval = f(temp, pres, ifunc);
     double res = gval - fval;
-#ifdef DEBUG_MODE_NOT
-    if (ifunc == 2) {
-        double gval1  = g(temp, pres, 1);
-        double fval1  = f(temp, pres, 1);
-        double gval2  = g(temp + 0.001, pres, 1);
-        double fval2  = f(temp + 0.001, pres, 1);
-        double gvalT  = (gval2 - gval1) / 0.001;
-        double fvalT  = (fval2 - fval1) / 0.001;
-        if (fabs(gvalT - gval) > 1.0E-9) {
-            printf("we are here\n");
-        }
-        if (fabs(fvalT - fval) > 1.0E-9) {
-            printf("we are here\n");
-        }
-    }
-#endif
     return res;
 }
 

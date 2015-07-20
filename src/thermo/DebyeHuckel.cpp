@@ -722,16 +722,8 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 double dens = m_waterSS->density();
                 double mw = m_waterSS->molecularWeight();
                 m_speciesSize[0] = mw / dens;
-#ifdef DEBUG_MODE_NOT
-                cout << "Solvent species " << sss[k] << " has volume " <<
-                     m_speciesSize[k] << endl;
-#endif
             } else if (modelString == "constant_incompressible") {
                 m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSi");
-#ifdef DEBUG_MODE_NOT
-                cout << "species " << sss[k] << " has volume " <<
-                     m_speciesSize[k] << endl;
-#endif
             } else {
                 throw CanteraError("DebyeHuckel::initThermoXML",
                                    "Solvent SS Model \"" + modelStringa +
@@ -744,10 +736,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                                    "\" is not known");
             }
             m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
-#ifdef DEBUG_MODE_NOT
-            cout << "species " << sss[k] << " has volume " <<
-                 m_speciesSize[k] << endl;
-#endif
         }
 
     }
@@ -777,9 +765,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 }
             } else {
                 m_A_Debye = getFloat(acNode, "A_Debye");
-#ifdef DEBUG_HKM_NOT
-                cout << "A_Debye = " << m_A_Debye << endl;
-#endif
             }
         }
 
@@ -797,9 +782,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          */
         if (acNode.hasChild("B_Debye")) {
             m_B_Debye = getFloat(acNode, "B_Debye");
-#ifdef DEBUG_HKM_NOT
-            cout << "B_Debye = " << m_B_Debye << endl;
-#endif
         }
 
         /*
@@ -813,9 +795,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                                    "B_dot entry in the wrong DH form");
             }
             double bdot_common = getFloat(acNode, "B_dot");
-#ifdef DEBUG_HKM_NOT
-            cout << "B_dot = " << bdot_common << endl;
-#endif
             /*
              * Set B_dot parameters for charged species
              */
@@ -834,10 +813,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          */
         if (acNode.hasChild("maxIonicStrength")) {
             m_maxIionicStrength = getFloat(acNode, "maxIonicStrength");
-#ifdef DEBUG_HKM_NOT
-            cout << "m_maxIionicStrength = "
-                 <<m_maxIionicStrength << endl;
-#endif
         }
 
         /*
@@ -1405,12 +1380,6 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
                     - z_k * z_k * numTmp / (1.0 + denomTmp);
                 for (size_t j = 0; j < m_kk; j++) {
                     double beta =   m_Beta_ij.value(k, j);
-#ifdef DEBUG_HKM_NOT
-                    if (beta != 0.0) {
-                        printf("b: k = %d, j = %d, betakj = %g\n",
-                               k, j, beta);
-                    }
-#endif
                     m_lnActCoeffMolal[k] += 2.0 * m_molalities[j] * beta;
                 }
             }

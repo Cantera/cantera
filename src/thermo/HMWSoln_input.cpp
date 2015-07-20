@@ -1312,10 +1312,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 double dens = m_waterSS->density();
                 double mw = m_waterSS->molecularWeight();
                 m_speciesSize[0] = mw / dens;
-#ifdef DEBUG_HKM_NOT
-                cout << "Solvent species " << sss[k] << " has volume " <<
-                     m_speciesSize[k] << endl;
-#endif
             } else {
                 m_waterSS = providePDSS(0);
                 m_waterSS->setState_TP(300., OneAtm);
@@ -1331,10 +1327,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
             if (modelString ==  "constant_incompressible") {
                 m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
-#ifdef DEBUG_HKM_NOT
-                cout << "species " << sss[k] << " has volume " <<
-                     m_speciesSize[k] << endl;
-#endif
             }
             // HKM Note, have to fill up m_speciesSize[] for HKFT species
         }
@@ -1382,9 +1374,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             if (m_form_A_Debye == A_DEBYE_CONST) {
                 m_A_Debye = getFloat(acNode, "A_Debye");
             }
-#ifdef DEBUG_HKM_NOT
-            cout << "A_Debye = " << m_A_Debye << endl;
-#endif
         }
 
         /*
@@ -1392,10 +1381,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          */
         if (acNode.hasChild("maxIonicStrength")) {
             m_maxIionicStrength = getFloat(acNode, "maxIonicStrength");
-#ifdef DEBUG_HKM_NOT
-            cout << "m_maxIionicStrength = "
-                 <<m_maxIionicStrength << endl;
-#endif
         }
 
 

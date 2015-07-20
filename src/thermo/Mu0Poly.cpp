@@ -235,18 +235,6 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
             }
         }
     }
-#ifdef DEBUG_HKM_NOT
-    printf("    Temp     mu0(J/kmol)   cp0(J/kmol/K)   "
-           " h0(J/kmol)   s0(J/kmol/K) \n");
-    for (i = 0; i < nPoints; i++) {
-        printf("%12.3g %12.5g %12.5g %12.5g %12.5g\n",
-               m_t0_int[i],  m_mu0_R_int[i] * GasConstant,
-               m_cp0_R_int[i]* GasConstant,
-               m_h0_R_int[i]* GasConstant,
-               m_s0_R_int[i]* GasConstant);
-        fflush(stdout);
-    }
-#endif
 }
 
 }

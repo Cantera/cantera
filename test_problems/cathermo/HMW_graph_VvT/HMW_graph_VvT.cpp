@@ -75,9 +75,6 @@ int main(int argc, char** argv)
         double V0_NaCl = 0.0, V0_Naplus = 0.0, V0_Clminus = 0.0, Delta_V0s = 0.0, V0_H2O = 0.0;
         double V_NaCl = 0.0, V_Naplus = 0.0, V_Clminus = 0.0, V_H2O = 0.0;
         double molarV0;
-#ifdef DEBUG_HKM
-        FILE* ttt = fopen("table.csv","w");
-#endif
         printf("A_V   : Comparison to Pitzer's book, p. 99, can be made.\n");
         printf("        Agreement to 3  sig digits \n");
         printf("\n");
@@ -110,11 +107,6 @@ int main(int argc, char** argv)
                "cm**3/gmolSalt,"
                "cm**3/gmolSalt,cm**3/gmolSoln,cm**3/gmolSalt,"
                "cm**3/gmol,   cm**3/gmol\n");
-#ifdef DEBUG_HKM
-        fprintf(ttt,"T, Pres, A_V, Vex, phiV, MolarV, MolarV0\n");
-        fprintf(ttt,"Kelvin, bar, sqrt(kg/gmol)cm3/gmol, cm3/gmolSoln, cm3/gmolSalt, kJ/gmolSoln,"
-                "kJ/gmolSoln\n");
-#endif
         for (i = 0; i < TTable.NPoints + 1; i++) {
             if (i == TTable.NPoints) {
                 T = 323.15;
@@ -217,10 +209,6 @@ int main(int argc, char** argv)
                        "%13.5g, %13.4g, %13.4g, %13.4g\n",
                        T, pres*1.0E-5,  Aphi, Av, Delta_V0s*1.0E3, Delta_Vs*1.0E3,
                        Vex*1.0E3, phiV*1.0E3, molarV*1.0E3 , molarV0*1.0E3);
-#ifdef DEBUG_HKM
-                fprintf(ttt,"%g, %g, %g, %g, %g, %g, %g\n",
-                        T, pres*1.0E-5, Av, Vex*1.0E3, phiV*1.0E3, molarV*1.0E3 , molarV0*1.0E3);
-#endif
             }
 
         }
@@ -253,9 +241,6 @@ int main(int argc, char** argv)
         delete solid;
         solid = 0;
         Cantera::appdelete();
-#ifdef DEBUG_HKM
-        fclose(ttt);
-#endif
         return retn;
 
     } catch (CanteraError& err) {

@@ -675,33 +675,6 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             dy[jNeut] += dx[icat] * temp;
             y_[jNeut] += moleFractions_[icat] * temp;
         }
-#ifdef DEBUG_MODE_NOT
-        //check dy sum to zero
-        for (size_t k = 0; k < m_kk; k++) {
-            moleFractionsTmp_[k] = dx[k];
-        }
-        for (jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
-            for (size_t k = 0; k < m_kk; k++) {
-                fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
-                moleFractionsTmp_[k] -= fmij * dy[jNeut];
-            }
-        }
-        for (size_t k = 0; k < m_kk; k++) {
-            if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
-                //! Check to see if we have in fact found the inverse.
-                if (anionList_[0] != k) {
-                    throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
-                                       "neutral molecule calc error");
-                } else {
-                    //! For the single anion case, we will allow some slippage
-                    if (fabs(moleFractionsTmp_[k]) > 1.0E-5) {
-                        throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
-                                           "neutral molecule calc error - anion");
-                    }
-                }
-            }
-        }
-#endif
         // Normalize the Neutral Molecule mole fractions
         sumy = 0.0;
         sumdy = 0.0;
