@@ -213,6 +213,11 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
 void ReactorNet::registerSensitivityReaction(void* reactor,
         size_t reactionIndex, const std::string& name, int leftright)
 {
+    if (m_integrator_init) {
+        throw CanteraError("ReactorNet::registerSensitivityReaction",
+                           "Sensitivity reactions cannot be added after the"
+                           "integrator has been initialized.");
+    }
     std::pair<void*, int> R = std::make_pair(reactor, leftright);
     if (m_sensOrder.count(R) &&
             m_sensOrder[R].count(reactionIndex)) {
