@@ -141,9 +141,9 @@ polynomial:
     \frac{c_p^0(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
 
     \frac{h^0(T)}{RT} = a_0 + \frac{a1}{2}T + \frac{a_2}{3} T^2 +
-                        \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4 + a_5
+                        \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4 + \frac{a_5}{T}
 
-    \frac{s^0(T)}{R} = a_o \ln T + a_1 T + \frac{a_2}{2} T^2 + \frac{a_3}{3} T^3 +
+    \frac{s^0(T)}{R} = a_0 \ln T + a_1 T + \frac{a_2}{2} T^2 + \frac{a_3}{3} T^3 +
                        \frac{a_4}{4} T^4 + a_6
 
 Note that this is the "old" NASA polynomial form, used in the original NASA
