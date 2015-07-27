@@ -76,7 +76,7 @@ ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
     /*
      * Call the base class assignment operator
      */
-    (void)Phase::operator=(right);
+    Phase::operator=(right);
 
     /*
      * Pointer to the species thermodynamic property manager

@@ -857,7 +857,7 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
             }
         }
         if (!dc) {
-            (void) node_dest->addChild(sc->name());
+            node_dest->addChild(sc->name());
             dc = vsc[ndc];
         }
         sc->copyUnion(dc);
@@ -883,7 +883,7 @@ void XML_Node::copy(XML_Node* const node_dest) const
         sc = m_children[n];
         size_t ndc = node_dest->nChildren();
         // Here is where we do a malloc of the child node.
-        (void) node_dest->addChild(sc->name());
+        node_dest->addChild(sc->name());
         dc = vsc[ndc];
         sc->copy(dc);
     }

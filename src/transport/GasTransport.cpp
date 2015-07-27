@@ -99,7 +99,7 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     return *this;
 }
 
-void GasTransport::update_T(void)
+void GasTransport::update_T()
 {
     double T = m_thermo->temperature();
     if (T == m_temp) {

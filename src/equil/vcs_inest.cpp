@@ -85,7 +85,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
      *      coefficient matrix
      */
     bool conv;
-    (void) vcs_basopt(false, aw, sa, sm, ss, test, &conv);
+    vcs_basopt(false, aw, sa, sm, ss, test, &conv);
 
     /* ***************************************************************** */
     /* **** CALCULATE TOTAL MOLES,                    ****************** */

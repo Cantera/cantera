@@ -142,7 +142,7 @@ void VCS_SOLVE::vcs_nondim_TP()
     }
 }
 
-void VCS_SOLVE::vcs_redim_TP(void)
+void VCS_SOLVE::vcs_redim_TP()
 {
     if (m_unitsState != VCS_DIMENSIONAL_G) {
         m_unitsState = VCS_DIMENSIONAL_G;

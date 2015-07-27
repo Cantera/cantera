@@ -563,7 +563,7 @@ void vcs_VolPhase::sendToVCS_ActCoeff(const int vcsStateStatus,
 double vcs_VolPhase::sendToVCS_VolPM(double* const VolPM) const
 {
     if (!m_UpToDate_VolPM) {
-        (void) _updateVolPM();
+        _updateVolPM();
     }
     for (size_t k = 0; k < m_numSpecies; k++) {
         size_t kglob = IndSpecies[k];

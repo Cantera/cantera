@@ -863,7 +863,7 @@ public:
      *
      *  NOTE: currently this routine is not used.
      */
-    int  vcs_rxn_adj_cg(void);
+    int  vcs_rxn_adj_cg();
 
     //!  Calculates the diagonal contribution to the Hessian due to
     //!  the dependence of the activity coefficients on the mole numbers.
@@ -1359,7 +1359,7 @@ private:
                    double* const ss, double test);
 
     //!  Calculate the status of single species phases.
-    void vcs_SSPhase(void);
+    void vcs_SSPhase();
 
     //! This function recalculates the deltaG for reaction, irxn
     /*!

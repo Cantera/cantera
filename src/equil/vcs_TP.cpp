@@ -82,7 +82,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
     return VCS_SUCCESS;
 }
 
-void  VCS_SOLVE::vcs_fePrep_TP(void)
+void VCS_SOLVE::vcs_fePrep_TP()
 {
     for (size_t i = 0; i < m_numSpeciesTot; ++i) {
         /*

@@ -1352,7 +1352,7 @@ void HMWSoln::calcMolalitiesCropped() const
 
 }
 
-void HMWSoln::counterIJ_setup(void) const
+void HMWSoln::counterIJ_setup() const
 {
     m_CounterIJ.resize(m_kk * m_kk);
     int counter = 0;
