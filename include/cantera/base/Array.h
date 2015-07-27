@@ -237,14 +237,7 @@ public:
 
     //! Set all of the entries to zero
     void zero() {
-        size_t nn = m_nrows * m_ncols;
-        if (nn > 0) {
-            /*
-             * Using memset is the fastest way to zero a contiguous
-             * section of memory.
-             */
-            (void) memset((void*) &m_data[0], 0, nn * sizeof(doublereal));
-        }
+        m_data.assign(m_data.size(), 0.0);
     }
 
     //! Allows setting elements using the syntax A(i,j) = x.

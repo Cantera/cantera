@@ -91,16 +91,7 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
 
 void SquareMatrix::zero()
 {
-    size_t n = nRows();
-    if (n > 0) {
-        size_t nn = n * n;
-        double* sm = &m_data[0];
-        /*
-         * Using memset is the fastest way to zero a contiguous
-         * section of memory.
-         */
-        (void) memset((void*) sm, 0, nn * sizeof(double));
-    }
+    m_data.assign(m_data.size(), 0.0);
 }
 
 void SquareMatrix::resize(size_t n, size_t m, doublereal v)
