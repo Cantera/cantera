@@ -329,7 +329,7 @@ XML_Node::XML_Node(const std::string& nm, XML_Node* const parent_) :
     if (!parent_) {
         m_root = this;
     } else {
-        m_root = &(parent_->root());
+        m_root = &parent_->root();
     }
 }
 

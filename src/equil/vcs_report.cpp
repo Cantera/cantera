@@ -127,7 +127,7 @@ int VCS_SOLVE::vcs_report(int iconv)
                 plogf(" Inert Gas Species        ");
             } else {
                 plogf(" Inert Species in phase %16s ",
-                      (m_VolPhaseList[i])->PhaseName.c_str());
+                      m_VolPhaseList[i]->PhaseName.c_str());
             }
             plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i] * molScale,
                   TPhInertMoles[i] /  m_tPhaseMoles_old[i], 0.0);
@@ -207,7 +207,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" |                     |\n");
     plogf("                  | Element   |");
     for (size_t j = 0; j < m_numElemConstraints; j++) {
-        plogf(" %10.10s", (m_elementName[j]).c_str());
+        plogf(" %10.10s", m_elementName[j].c_str());
     }
     plogf(" |                     |\n");
     plogf("    PhaseName     |KMolTarget |");
@@ -268,7 +268,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("         Actual                    Target         Type      ElActive\n");
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         writeline(' ', 26, false);
-        plogf("%-2.2s", (m_elementName[i]).c_str());
+        plogf("%-2.2s", m_elementName[i].c_str());
         plogf("%20.12E  %20.12E", m_elemAbundances[i]*molScale, m_elemAbundancesGoal[i]*molScale);
         plogf("   %3d     %3d\n", m_elType[i], m_elementActive[i]);
     }

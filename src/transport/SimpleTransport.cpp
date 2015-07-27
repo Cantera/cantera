@@ -226,11 +226,11 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
         ltd.speciesDiffusivity = 0;
 
-        if (!(m_coeffDiff_Ns[k])) {
+        if (!m_coeffDiff_Ns[k]) {
             if (ltd.hydroRadius) {
                 m_coeffHydroRadius_Ns[k] = (ltd.hydroRadius)->duplMyselfAsLTPspecies();
             }
-            if (!(m_coeffHydroRadius_Ns[k])) {
+            if (!m_coeffHydroRadius_Ns[k]) {
                 throw CanteraError("SimpleTransport::initLiquid",
                                    "Neither diffusivity nor hydroradius is set for species " + spName);
             }

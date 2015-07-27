@@ -86,19 +86,19 @@ Phase& Phase::operator=(const Phase& right)
      * in each object
      */
     if (m_xml) {
-        XML_Node* rroot = &(m_xml->root());
+        XML_Node* rroot = &m_xml->root();
         delete rroot;
         m_xml = 0;
     }
     if (right.m_xml) {
-        XML_Node *rroot = &(right.m_xml->root());
+        XML_Node *rroot = &right.m_xml->root();
         XML_Node *root_xml = new XML_Node();
-        (rroot)->copy(root_xml);
+        rroot->copy(root_xml);
         m_xml = findXMLPhase(root_xml, right.m_xml->id());
         if (!m_xml) {
           throw CanteraError("Phase::operator=()", "Confused: Couldn't find original phase " + right.m_xml->id());
         }
-        if (&(m_xml->root()) != root_xml) {
+        if (&m_xml->root() != root_xml) {
           throw CanteraError("Phase::operator=()", "confused: root changed");
         }
     }
@@ -110,7 +110,7 @@ Phase& Phase::operator=(const Phase& right)
 Phase::~Phase()
 {
     if (m_xml) {
-        XML_Node* xroot = &(m_xml->root());
+        XML_Node* xroot = &m_xml->root();
         delete xroot;
     }
     m_xml = 0;
@@ -123,11 +123,11 @@ XML_Node& Phase::xml() const
 
 void Phase::setXMLdata(XML_Node& xmlPhase)
 {
-    XML_Node* xroot = &(xmlPhase.root());
+    XML_Node* xroot = &xmlPhase.root();
     XML_Node *root_xml = new XML_Node();
-    (xroot)->copy(root_xml);
+    xroot->copy(root_xml);
     if (m_xml) {
-       XML_Node *rOld = &(m_xml->root());
+       XML_Node *rOld = &m_xml->root();
        delete rOld;
        m_xml = 0;
     }
@@ -135,7 +135,7 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
     if (!m_xml) {
         throw CanteraError("Phase::setXMLdata()", "XML 'phase' node not found");
     }
-    if (&(m_xml->root()) != root_xml) {
+    if (&m_xml->root() != root_xml) {
         throw CanteraError("Phase::setXMLdata()", "Root XML node not found");
     }
 }
@@ -298,7 +298,7 @@ std::string Phase::speciesSPName(int k) const
 void Phase::saveState(vector_fp& state) const
 {
     state.resize(nSpecies() + 2);
-    saveState(state.size(),&(state[0]));
+    saveState(state.size(), &state[0]);
 }
 void Phase::saveState(size_t lenstate, doublereal* state) const
 {

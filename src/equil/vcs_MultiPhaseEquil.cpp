@@ -786,7 +786,7 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         /*
          * Get the ThermoPhase object - assume volume phase
          */
-        ThermoPhase* tPhase = &(mphase->phase(iphase));
+        ThermoPhase* tPhase = &mphase->phase(iphase);
         size_t nelem = tPhase->nElements();
 
         /*
@@ -1146,7 +1146,7 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
     vprob->Vol       = mphase->volume();
 
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
-        ThermoPhase* tPhase = &(mphase->phase(iphase));
+        ThermoPhase* tPhase = &mphase->phase(iphase);
         vcs_VolPhase* volPhase = vprob->VPhaseList[iphase];
         /*
          * Set the electric potential of the volume phase from the

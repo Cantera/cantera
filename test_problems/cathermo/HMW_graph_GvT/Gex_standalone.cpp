@@ -119,7 +119,7 @@ void calc(double temp, double Iionic)
     printf(" diff = %20.14g\n", diff);
     double xo = 1.0 / (molecWeight/1000. * 2 * m + 1.0);
     printf(" no = %g\n", xo);
-    double tmp = diff / (RT);
+    double tmp = diff / RT;
     double actCoefWater = exp(tmp) / xo;
     printf("actCoefWater = %g\n", actCoefWater);
 }

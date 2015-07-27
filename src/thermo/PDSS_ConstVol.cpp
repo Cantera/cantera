@@ -121,7 +121,7 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
 
     XML_Node& speciesList = fxml_phase->child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
-                                         &(fxml_phase->root()));
+                                         &fxml_phase->root());
     const XML_Node* s =  speciesDB->findByAttr("name", tp->speciesName(spindex));
 
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);

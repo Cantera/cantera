@@ -344,7 +344,7 @@ public:
      *  @return  Returns a pointer to the top of the column
      */
     doublereal* ptrColumn(size_t j) {
-        return &(m_data[m_nrows*j]);
+        return &m_data[m_nrows*j];
     }
 
     //! Return a const pointer to the top of column j, columns are contiguous
@@ -355,7 +355,7 @@ public:
      *  @return  Returns a const pointer to the top of the column
      */
     const doublereal* ptrColumn(size_t j) const {
-        return &(m_data[m_nrows*j]);
+        return &m_data[m_nrows*j];
     }
 
 protected:

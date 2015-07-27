@@ -512,7 +512,7 @@ void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &t
     toVec.resize(is);
     for (size_t i = 0; i < is; i++) {
         if (fromVec[i]) {
-            toVec[i] = new D(*(fromVec[i]));
+            toVec[i] = new D(*fromVec[i]);
         } else {
             toVec[i] = 0;
         }

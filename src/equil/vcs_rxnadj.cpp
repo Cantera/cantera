@@ -406,7 +406,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                 }
                 m_deltaMolNumSpecies[kspec] = 1.0e-10;
                 m_speciesStatus[kspec] = VCS_SPECIES_MAJOR;
-                --(m_numRxnMinorZeroed);
+                --m_numRxnMinorZeroed;
             } else {
                 if (DEBUG_MODE_ENABLED) {
                     sprintf(ANOTE, "MultSpec: still dead DG = %11.3E", m_deltaGRxn_new[irxn]);
@@ -463,7 +463,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                 }
             }
             for (size_t j = 0; j < m_numPhases; j++) {
-                if (!(m_VolPhaseList[j])->m_singleSpecies) {
+                if (!m_VolPhaseList[j]->m_singleSpecies) {
                     if (m_tPhaseMoles_old[j] > 0.0) {
                         s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                     }

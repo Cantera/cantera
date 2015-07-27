@@ -57,7 +57,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
             throw CanteraError("solveSP",
                                "InterfaceKinetics object has no surface phase");
         }
-        ThermoPhase* tp = &(m_kin->thermo(surfPhaseIndex));
+        ThermoPhase* tp = &m_kin->thermo(surfPhaseIndex);
         SurfPhase* sp = dynamic_cast<SurfPhase*>(tp);
         if (!sp) {
             throw CanteraError("solveSP",

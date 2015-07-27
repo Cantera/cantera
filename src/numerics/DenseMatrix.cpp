@@ -26,7 +26,7 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
     m_colPts.resize(m);
     if (!m_data.empty()) {
         for (size_t j = 0; j < m; j++) {
-            m_colPts[j] = &(m_data[m_nrows*j]);
+            m_colPts[j] = &m_data[m_nrows*j];
         }
     }
 }
@@ -40,7 +40,7 @@ DenseMatrix::DenseMatrix(const DenseMatrix& y) :
     m_colPts.resize(m_ncols);
     if (!m_data.empty()) {
         for (size_t j = 0; j < m_ncols; j++) {
-            m_colPts[j] = &(m_data[m_nrows*j]);
+            m_colPts[j] = &m_data[m_nrows*j];
         }
     }
 }
@@ -54,7 +54,7 @@ DenseMatrix& DenseMatrix::operator=(const DenseMatrix& y)
     m_ipiv = y.ipiv();
     m_colPts.resize(m_ncols);
     for (size_t j = 0; j < m_ncols; j++) {
-        m_colPts[j] = &(m_data[m_nrows*j]);
+        m_colPts[j] = &m_data[m_nrows*j];
     }
     m_useReturnErrorCode = y.m_useReturnErrorCode;
     m_printLevel = y.m_printLevel;
@@ -68,19 +68,19 @@ void DenseMatrix::resize(size_t n, size_t m, doublereal v)
     m_colPts.resize(m_ncols);
     if (!m_data.empty()) {
         for (size_t j = 0; j < m_ncols; j++) {
-            m_colPts[j] = &(m_data[m_nrows*j]);
+            m_colPts[j] = &m_data[m_nrows*j];
         }
     }
 }
 
 doublereal*   const* DenseMatrix::colPts()
 {
-    return &(m_colPts[0]);
+    return &m_colPts[0];
 }
 
 const doublereal*   const* DenseMatrix::const_colPts() const
 {
-    return &(m_colPts[0]);
+    return &m_colPts[0];
 }
 
 void DenseMatrix::mult(const double* b, double* prod) const

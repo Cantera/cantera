@@ -1274,7 +1274,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN()", "dynamic cast failed");
     }
     size_t nsp_ge = geThermo->nSpecies();
-    geThermo->getdlnActCoeffdlnN(nsp_ge, &(dlnActCoeffdlnN_NeutralMolecule_(0,0)));
+    geThermo->getdlnActCoeffdlnN(nsp_ge, &dlnActCoeffdlnN_NeutralMolecule_(0,0));
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:

@@ -216,7 +216,7 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         rb[2] -= x[1]; // T
         rb[0] += x[0]; // u
         for (size_t k = 1; k < m_nsp; k++) {
-            rb[4+k] += x[0]*(m_yin[k]);
+            rb[4+k] += x[0]*m_yin[k];
         }
     }
 }

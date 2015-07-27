@@ -1644,7 +1644,7 @@ void  HMWSoln::calcIMSCutoffParams_()
                       (IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
         double tmp = IMS_afCut_ + IMS_X_o_cutoff_*(IMS_bfCut_ + IMS_dfCut_ *IMS_X_o_cutoff_);
         double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
-        IMS_efCut_ = - eterm * (tmp);
+        IMS_efCut_ = - eterm * tmp;
         if (fabs(IMS_efCut_ - oldV) < 1.0E-14) {
             converged = true;
         }
@@ -1667,7 +1667,7 @@ void  HMWSoln::calcIMSCutoffParams_()
                       (IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
         double tmp = IMS_agCut_ + IMS_X_o_cutoff_*(IMS_bgCut_ + IMS_dgCut_ *IMS_X_o_cutoff_);
         double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
-        IMS_egCut_ = - eterm * (tmp);
+        IMS_egCut_ = - eterm * tmp;
         if (fabs(IMS_egCut_ - oldV) < 1.0E-14) {
             converged = true;
         }
@@ -1702,7 +1702,7 @@ void  HMWSoln::calcMCCutoffParams_()
         MC_dpCut_ = damp * MC_dpCutNew + (1-damp) * MC_dpCut_;
         double tmp = MC_apCut_ + MC_X_o_cutoff_*(MC_bpCut_ + MC_dpCut_ * MC_X_o_cutoff_);
         double eterm = std::exp(- MC_X_o_cutoff_ / MC_cpCut_);
-        MC_epCut_ = - eterm * (tmp);
+        MC_epCut_ = - eterm * tmp;
         double diff = MC_epCut_ - oldV;
         if (fabs(diff) < 1.0E-14) {
             converged = true;

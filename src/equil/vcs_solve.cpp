@@ -688,7 +688,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      *  Use the object's assignment operator
      */
     for (size_t iph = 0; iph < nph; iph++) {
-        *(m_VolPhaseList[iph]) = *(pub->VPhaseList[iph]);
+        *m_VolPhaseList[iph] = *pub->VPhaseList[iph];
         /*
          * Fix up the species thermo pointer in the vcs_SpeciesThermo object
          * It should point to the species thermo pointer in the private

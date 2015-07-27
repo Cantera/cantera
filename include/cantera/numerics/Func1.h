@@ -350,8 +350,8 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
         m_parent   = 0;
@@ -413,8 +413,8 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
         m_parent   = 0;
@@ -475,8 +475,8 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
         m_parent   = 0;
@@ -538,7 +538,7 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
+        m_f1 = &m_f1->duplicate();
         m_f1->setParent(this);
         m_parent   = 0;
         return *this;
@@ -614,7 +614,7 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
+        m_f1 = &m_f1->duplicate();
         m_f1->setParent(this);
         m_parent   = 0;
         return *this;
@@ -675,8 +675,8 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
         m_parent   = 0;
@@ -743,8 +743,8 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
         m_parent   = 0;
@@ -1038,7 +1038,7 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_func = &(right.m_func->duplicate());
+        m_func = &right.m_func->duplicate();
         return *this;
     }
 

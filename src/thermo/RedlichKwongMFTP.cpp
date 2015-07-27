@@ -1130,7 +1130,7 @@ void  RedlichKwongMFTP::pressureDerivatives() const
     doublereal dadt = da_dt();
     doublereal fac = dadt - m_a_current/(2.0 * TKelvin);
 
-    dpdT_ = (GasConstant / (vmb) - fac / (sqt *  mv * vpb));
+    dpdT_ = (GasConstant / vmb - fac / (sqt *  mv * vpb));
 }
 
 void RedlichKwongMFTP::updateMixingExpressions()

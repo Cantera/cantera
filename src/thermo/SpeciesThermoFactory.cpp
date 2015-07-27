@@ -393,7 +393,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
     const std::vector<XML_Node*>& tpWC = thermo.children();
     std::vector<XML_Node*> tp;
     for (size_t i = 0; i < tpWC.size(); i++) {
-        if (!(tpWC[i])->isComment()) {
+        if (!tpWC[i]->isComment()) {
             tp.push_back(tpWC[i]);
         }
     }

@@ -374,7 +374,7 @@ void MargulesVPSSTP::s_update_lnActCoeff() const
 void MargulesVPSSTP::s_update_dlnActCoeff_dT() const
 {
     doublereal invT = 1.0 / temperature();
-    doublereal invRTT = 1.0 / (GasConstant)*invT*invT;
+    doublereal invRTT = 1.0 / GasConstant*invT*invT;
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {

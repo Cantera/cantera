@@ -304,7 +304,7 @@ void SurfPhase::setCoverages(const doublereal* theta)
 void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
 {
     for (size_t k = 0; k < m_kk; k++) {
-        m_work[k] = m_n0*theta[k]/(size(k));
+        m_work[k] = m_n0*theta[k]/size(k);
     }
     /*
      * Call the Phase:: class function

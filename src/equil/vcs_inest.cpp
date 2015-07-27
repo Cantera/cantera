@@ -53,7 +53,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                     tmp +=  m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                 }
                 plogf("%s     ", pprefix);
-                plogf("   %-9.9s", (m_elementName[j]).c_str());
+                plogf("   %-9.9s", m_elementName[j].c_str());
                 plogf(" %12.3g %12.3g\n", m_elemAbundancesGoal[j], tmp);
             }
         }
@@ -436,7 +436,7 @@ int VCS_SOLVE::vcs_inest_TP()
      * Record time
      */
     m_VCount->T_Time_inest += tickTock.secondsWC();
-    (m_VCount->T_Calls_Inest)++;
+    m_VCount->T_Calls_Inest++;
     return retn;
 }
 

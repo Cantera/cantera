@@ -76,7 +76,7 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
      * Solve the factored system
      */
     ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(nRows()),
-              nrhs, &(*(begin())), static_cast<int>(nRows()),
+              nrhs, &*begin(), static_cast<int>(nRows()),
               DATA_PTR(ipiv()), b, ldb, info);
     if (info != 0) {
         if (m_printLevel) {
@@ -128,11 +128,11 @@ int SquareMatrix::factor()
     if (useQR_) {
         return factorQR();
     }
-    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, 0);
+    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &*begin(), m_nrows, 0);
     integer n = static_cast<int>(nRows());
     int info=0;
     m_factored = 1;
-    ct_dgetrf(n, n, &(*(begin())), static_cast<int>(nRows()), DATA_PTR(ipiv()), info);
+    ct_dgetrf(n, n, &*begin(), static_cast<int>(nRows()), DATA_PTR(ipiv()), info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::factor(): DGETRS returned INFO = %d\n", info);
@@ -155,11 +155,11 @@ int SquareMatrix::factorQR()
         tau.resize(m_nrows, 0.0);
         work.resize(8 * m_nrows, 0.0);
     }
-    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work));
+    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &*begin(), m_nrows, DATA_PTR(work));
     int info = 0;
     m_factored = 2;
     size_t lwork = work.size();
-    ct_dgeqrf(m_nrows, m_nrows, &(*(begin())), m_nrows, DATA_PTR(tau), DATA_PTR(work), lwork, info);
+    ct_dgeqrf(m_nrows, m_nrows, &*begin(), m_nrows, DATA_PTR(tau), DATA_PTR(work), lwork, info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::factorQR(): DGEQRF returned INFO = %d\n", info);
@@ -199,7 +199,7 @@ int SquareMatrix::solveQR(doublereal* b)
     /*
      * Solve the factored system
      */
-    ct_dormqr(ctlapack::Left, ctlapack::Transpose, m_nrows, 1, m_nrows, &(*(begin())), m_nrows, DATA_PTR(tau), b, m_nrows,
+    ct_dormqr(ctlapack::Left, ctlapack::Transpose, m_nrows, 1, m_nrows, &*begin(), m_nrows, DATA_PTR(tau), b, m_nrows,
               DATA_PTR(work), lwork, info);
     if (info != 0) {
         if (m_printLevel) {
@@ -216,7 +216,7 @@ int SquareMatrix::solveQR(doublereal* b)
 
     char dd = 'N';
 
-    ct_dtrtrs(ctlapack::UpperTriangular, ctlapack::NoTranspose, &dd, m_nrows, 1,  &(*(begin())), m_nrows, b,
+    ct_dtrtrs(ctlapack::UpperTriangular, ctlapack::NoTranspose, &dd, m_nrows, 1,  &*begin(), m_nrows, b,
               m_nrows, info);
     if (info != 0) {
         if (m_printLevel) {
@@ -245,7 +245,7 @@ doublereal SquareMatrix::rcond(doublereal anorm)
     }
 
     int rinfo = 0;
-    rcond = ct_dgecon('1', m_nrows, &(*(begin())), m_nrows, anorm, DATA_PTR(work),
+    rcond = ct_dgecon('1', m_nrows, &*begin(), m_nrows, anorm, DATA_PTR(work),
                       DATA_PTR(iwork_), rinfo);
     if (rinfo != 0) {
         if (m_printLevel) {
@@ -278,7 +278,7 @@ doublereal SquareMatrix::rcondQR()
     }
 
     int rinfo = 0;
-    rcond =  ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &(*(begin())), m_nrows, DATA_PTR(work),
+    rcond =  ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &*begin(), m_nrows, DATA_PTR(work),
                        DATA_PTR(iwork_), rinfo);
     if (rinfo != 0) {
         if (m_printLevel) {

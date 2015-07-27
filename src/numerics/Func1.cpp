@@ -67,7 +67,7 @@ Func1& Func1::derivative() const
 
 bool Func1::isIdentical(Func1& other) const
 {
-    if ((ID() != other.ID()) || (m_c != other.m_c)) {
+    if (ID() != other.ID() || m_c != other.m_c) {
         return false;
     }
     if (m_f1) {

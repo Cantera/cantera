@@ -69,13 +69,13 @@ doublereal LatticeSolidPhase::minTemp(size_t k) const
     if (k != npos) {
         for (size_t n = 0; n < m_nlattice; n++) {
             if (lkstart_[n+1] < k) {
-                return (m_lattice[n])->minTemp(k-lkstart_[n]);
+                return m_lattice[n]->minTemp(k-lkstart_[n]);
             }
         }
     }
     doublereal mm = 1.0E300;
     for (size_t n = 0; n < m_nlattice; n++) {
-        double ml = (m_lattice[n])->minTemp();
+        double ml = m_lattice[n]->minTemp();
         mm = std::min(mm, ml);
     }
     return mm;
@@ -92,7 +92,7 @@ doublereal LatticeSolidPhase::maxTemp(size_t k) const
     }
     doublereal mm = -1.0E300;
     for (size_t n = 0; n < m_nlattice; n++) {
-        double ml = (m_lattice[n])->maxTemp();
+        double ml = m_lattice[n]->maxTemp();
         mm = std::max(mm, ml);
     }
     return mm;
@@ -233,7 +233,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
          * get the same answer.
          */
         if (DEBUG_MODE_ENABLED) {
-            m_lattice[n]->getMoleFractions(&(m_x[strt]));
+            m_lattice[n]->getMoleFractions(&m_x[strt]);
             for (size_t k = 0; k < nsp; k++) {
                 if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
                     throw CanteraError("LatticeSolidPhase::getMoleFractions()",
@@ -440,7 +440,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
         double val = fpValueCheck(pval[i]);
         bool found = false;
         for (size_t j = 0; j < m_nlattice; j++) {
-            ThermoPhase& tp = *(m_lattice[j]);
+            ThermoPhase& tp = *m_lattice[j];
             string idj = tp.id();
             if (idj == pnam[i]) {
                 theta_[j] = val;

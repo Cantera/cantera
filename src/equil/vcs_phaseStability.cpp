@@ -752,7 +752,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 }
                 if (delFrac[k] < 0.0) {
                     if (2.0 * damp * (-delFrac[k]) > fracDelta_old[k]) {
-                        damp = fracDelta_old[k] / (2.0 * (-delFrac[k]));
+                        damp = fracDelta_old[k] / (2.0 * -delFrac[k]);
                     }
                 }
                 if (delFrac[k] > 0.0) {
@@ -763,7 +763,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             }
             damp = std::max(damp, 0.000001);
             for (size_t k = 0; k < nsp; k++) {
-                fracDelta_new[k] = fracDelta_old[k] + damp * (delFrac[k]);
+                fracDelta_new[k] = fracDelta_old[k] + damp * delFrac[k];
             }
 
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {

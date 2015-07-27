@@ -43,7 +43,7 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     m_colPtrs.resize(n);
     size_t ldab = (2*kl + ku + 1);
     for (size_t j = 0; j < n; j++) {
-        m_colPtrs[j] = &(data[ldab * j]);
+        m_colPtrs[j] = &data[ldab * j];
     }
 }
 
@@ -63,7 +63,7 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     m_colPtrs.resize(m_n);
     size_t ldab = (2 *m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
-        m_colPtrs[j] = &(data[ldab * j]);
+        m_colPtrs[j] = &data[ldab * j];
     }
 }
 
@@ -82,7 +82,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     m_colPtrs.resize(m_n);
     size_t ldab = (2 * m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
-        m_colPtrs[j] = &(data[ldab * j]);
+        m_colPtrs[j] = &data[ldab * j];
     }
     return *this;
 }
@@ -99,7 +99,7 @@ void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v)
     m_colPtrs.resize(m_n);
     size_t ldab = (2 * m_kl + m_ku + 1);
     for (size_t j = 0; j < n; j++) {
-        m_colPtrs[j] = &(data[ldab * j]);
+        m_colPtrs[j] = &data[ldab * j];
     }
     m_factored = false;
 }
@@ -420,7 +420,7 @@ doublereal* BandMatrix::ptrColumn(size_t j)
 
 doublereal* const* BandMatrix::colPts()
 {
-    return &(m_colPtrs[0]);
+    return &m_colPtrs[0];
 }
 
 }

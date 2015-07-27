@@ -717,7 +717,7 @@ int MixtureFugacityTP::phaseState(bool checkState) const
         double pp = psatEst(tmid);
         double mmw = meanMolecularWeight();
         double molVolLiqTmid = liquidVolEst(tmid, pp);
-        double molVolGasTmid = GasConstant * tmid / (pp);
+        double molVolGasTmid = GasConstant * tmid / pp;
         double densLiqTmid = mmw / molVolLiqTmid;
         double densGasTmid = mmw / molVolGasTmid;
         double densMidTmid = 0.5 * (densLiqTmid + densGasTmid);

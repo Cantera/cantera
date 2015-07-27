@@ -304,7 +304,7 @@ void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
     m_sub->setState_TR(T, dd);
 
     doublereal s = m_sub->entropy();
-    *sr = (s + SW_Offset)/ (GasConstant);
+    *sr = (s + SW_Offset)/ GasConstant;
     dd = m_sub->density(T, p, waterState, dens);
 
 }
@@ -325,7 +325,7 @@ void WaterSSTP::getCp_R_ref(doublereal* cpr) const
         throw CanteraError("setPressure", "error");
     }
     doublereal cp = m_sub->cp();
-    *cpr = cp / (GasConstant);
+    *cpr = cp / GasConstant;
     dd = m_sub->density(T, p, waterState, dens);
 }
 

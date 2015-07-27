@@ -113,7 +113,7 @@ void IdealGasPhase::getChemPotentials(doublereal* mu) const
     doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] += rt * (log(xx));
+        mu[k] += rt * log(xx);
     }
 }
 
