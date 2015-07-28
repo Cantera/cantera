@@ -81,7 +81,7 @@ public:
         std::string::size_type k;
         char action = '-';
 
-        while (1 > 0) {
+        while (true) {
 
             // get token consisting of all characters up to the next
             // dash, slash, or the end of the string

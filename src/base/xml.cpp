@@ -144,7 +144,7 @@ static string::size_type findUnbackslashed(const std::string& s, const char q,
     string::size_type iloc, icurrent, len;
     icurrent = istart;
     len = s.size();
-    while (1) {
+    while (true) {
         iloc = s.find(q, icurrent);
         if (iloc == string::npos || iloc == 0) {
             return iloc;
@@ -215,7 +215,7 @@ void XML_Reader::parseTag(const std::string& tag, std::string& name,
         }
 
         // get attributes
-        while (1) {
+        while (true) {
             iloc = s.find('=');
             if (iloc == string::npos) {
                 break;
@@ -245,13 +245,13 @@ std::string XML_Reader::readTag(std::map<std::string, std::string>& attribs)
     string name, tag = "";
     bool incomment = false;
     char ch  = '-';
-    while (1) {
+    while (true) {
         if (m_s.eof() || (getchr(ch), ch == '<')) {
             break;
         }
     }
     char ch1 = ' ', ch2 = ' ';
-    while (1) {
+    while (true) {
         if (m_s.eof()) {
             tag = "EOF";
             break;
@@ -292,7 +292,7 @@ std::string XML_Reader::readValue()
     char ch, lastch;
     ch = '\n';
     bool front = true;
-    while (1) {
+    while (true) {
         if (m_s.eof()) {
             break;
         }
@@ -923,7 +923,7 @@ XML_Node& XML_Node::child(const std::string& aloc) const
     string loc = aloc;
     std::multimap<std::string,XML_Node*>::const_iterator i;
 
-    while (1) {
+    while (true) {
         iloc = loc.find('/');
         if (iloc != string::npos) {
             cname = loc.substr(0,iloc);
@@ -984,7 +984,7 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
             string vv = m_value;
             string::size_type ieol = vv.find('\n');
             if (ieol != string::npos) {
-                while (1 > 0) {
+                while (true) {
                     ieol = vv.find('\n');
                     if (ieol != string::npos) {
                         if (ieol == 0) {

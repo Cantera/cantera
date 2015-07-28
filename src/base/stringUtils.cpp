@@ -341,7 +341,7 @@ void tokenizeString(const std::string& oval,
     std::string val(oval);
     std::string::size_type ibegin, iend;
     v.clear();
-    while (1 > 0) {
+    while (true) {
         ibegin = findFirstNotOfWS(val);
         if (ibegin != std::string::npos) {
             val = val.substr(ibegin,val.size());

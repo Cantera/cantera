@@ -338,7 +338,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     int j0 = jac.nEvals();
     int nJacReeval = 0;
 
-    while (1 > 0) {
+    while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
             writelog("\nMaximum Jacobian age reached ("+int2str(m_maxAge)+")\n", loglevel);
