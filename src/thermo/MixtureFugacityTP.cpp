@@ -38,8 +38,7 @@ MixtureFugacityTP::MixtureFugacityTP(const MixtureFugacityTP& b) :
     MixtureFugacityTP::operator=(b);
 }
 
-MixtureFugacityTP&
-MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
+MixtureFugacityTP& MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
 {
     if (&b != this) {
         /*

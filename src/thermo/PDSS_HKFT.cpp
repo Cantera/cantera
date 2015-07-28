@@ -367,14 +367,12 @@ doublereal  PDSS_HKFT::molarVolume() const
     return molVol_calgmolPascal * 4.184 * 1.0E3;
 }
 
-doublereal
-PDSS_HKFT::density() const
+doublereal PDSS_HKFT::density() const
 {
     return m_mw / molarVolume();
 }
 
-doublereal
-PDSS_HKFT::gibbs_RT_ref() const
+doublereal PDSS_HKFT::gibbs_RT_ref() const
 {
     doublereal m_psave = m_pres;
     m_pres = m_waterSS->pref_safe(m_temp);
@@ -383,8 +381,7 @@ PDSS_HKFT::gibbs_RT_ref() const
     return ee;
 }
 
-doublereal
-PDSS_HKFT::enthalpy_RT_ref() const
+doublereal PDSS_HKFT::enthalpy_RT_ref() const
 {
     doublereal m_psave = m_pres;
     m_pres = m_waterSS->pref_safe(m_temp);
@@ -393,8 +390,7 @@ PDSS_HKFT::enthalpy_RT_ref() const
     return hh;
 }
 
-doublereal
-PDSS_HKFT::entropy_R_ref() const
+doublereal PDSS_HKFT::entropy_R_ref() const
 {
     doublereal m_psave = m_pres;
     m_pres = m_waterSS->pref_safe(m_temp);
@@ -403,8 +399,7 @@ PDSS_HKFT::entropy_R_ref() const
     return ee;
 }
 
-doublereal
-PDSS_HKFT::cp_R_ref() const
+doublereal PDSS_HKFT::cp_R_ref() const
 {
     doublereal m_psave = m_pres;
     m_pres = m_waterSS->pref_safe(m_temp);
@@ -413,8 +408,7 @@ PDSS_HKFT::cp_R_ref() const
     return ee;
 }
 
-doublereal
-PDSS_HKFT::molarVolume_ref() const
+doublereal PDSS_HKFT::molarVolume_ref() const
 {
     doublereal m_psave = m_pres;
     m_pres = m_waterSS->pref_safe(m_temp);

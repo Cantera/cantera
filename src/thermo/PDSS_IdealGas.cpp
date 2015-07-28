@@ -110,57 +110,47 @@ void PDSS_IdealGas::initThermo()
     m_maxTemp = m_spthermo->maxTemp(m_spindex);
 }
 
-doublereal
-PDSS_IdealGas::enthalpy_RT() const
+doublereal PDSS_IdealGas::enthalpy_RT() const
 {
     return m_h0_RT_ptr[m_spindex];
 }
 
-doublereal
-PDSS_IdealGas::intEnergy_mole() const
+doublereal PDSS_IdealGas::intEnergy_mole() const
 {
     return (m_h0_RT_ptr[m_spindex] - 1.0) * GasConstant * m_temp;
 }
 
-doublereal
-PDSS_IdealGas::entropy_R() const
+doublereal PDSS_IdealGas::entropy_R() const
 {
     return m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
 }
 
-doublereal
-PDSS_IdealGas::gibbs_RT() const
+doublereal PDSS_IdealGas::gibbs_RT() const
 {
     return m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
 }
 
-doublereal
-PDSS_IdealGas::cp_R() const
+doublereal PDSS_IdealGas::cp_R() const
 {
     return m_cp0_R_ptr[m_spindex];
 }
 
-doublereal
-PDSS_IdealGas::molarVolume() const
+doublereal PDSS_IdealGas::molarVolume() const
 {
     return GasConstant * m_temp / m_pres;
 }
 
-
-doublereal
-PDSS_IdealGas::density() const
+doublereal PDSS_IdealGas::density() const
 {
     return m_pres * m_mw / (GasConstant * m_temp);
 }
 
-doublereal
-PDSS_IdealGas::cv_mole() const
+doublereal PDSS_IdealGas::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
 
-doublereal
-PDSS_IdealGas::gibbs_RT_ref() const
+doublereal PDSS_IdealGas::gibbs_RT_ref() const
 {
     return m_g0_RT_ptr[m_spindex];
 }
@@ -185,7 +175,7 @@ doublereal PDSS_IdealGas::molarVolume_ref() const
     return GasConstant * m_temp / m_p0;
 }
 
-doublereal  PDSS_IdealGas::pressure() const
+doublereal PDSS_IdealGas::pressure() const
 {
     throw CanteraError("PDSS_IdealGas::pressure()", "unimplemented");
 }

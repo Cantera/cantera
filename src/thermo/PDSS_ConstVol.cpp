@@ -144,57 +144,48 @@ void PDSS_ConstVol::initThermo()
     m_Vss_ptr[m_spindex] = m_constMolarVolume;
 }
 
-doublereal
-PDSS_ConstVol::enthalpy_RT() const
+doublereal PDSS_ConstVol::enthalpy_RT() const
 {
     return m_hss_RT_ptr[m_spindex];
 }
 
-doublereal
-PDSS_ConstVol::intEnergy_mole() const
+doublereal PDSS_ConstVol::intEnergy_mole() const
 {
     doublereal pV = (m_pres * m_Vss_ptr[m_spindex]);
     return m_h0_RT_ptr[m_spindex] * GasConstant * m_temp - pV;
 }
 
-doublereal
-PDSS_ConstVol::entropy_R() const
+doublereal PDSS_ConstVol::entropy_R() const
 {
     return m_sss_R_ptr[m_spindex];
 }
 
-doublereal
-PDSS_ConstVol::gibbs_RT() const
+doublereal PDSS_ConstVol::gibbs_RT() const
 {
     return m_gss_RT_ptr[m_spindex];
 }
 
-doublereal
-PDSS_ConstVol::cp_R() const
+doublereal PDSS_ConstVol::cp_R() const
 {
     return m_cpss_R_ptr[m_spindex];
 }
 
-doublereal
-PDSS_ConstVol::cv_mole() const
+doublereal PDSS_ConstVol::cv_mole() const
 {
     return (cp_mole() -  m_V0_ptr[m_spindex]);
 }
 
-doublereal
-PDSS_ConstVol::molarVolume() const
+doublereal PDSS_ConstVol::molarVolume() const
 {
     return m_Vss_ptr[m_spindex];
 }
 
-doublereal
-PDSS_ConstVol::density() const
+doublereal PDSS_ConstVol::density() const
 {
     return m_mw / m_Vss_ptr[m_spindex];
 }
 
-doublereal
-PDSS_ConstVol::gibbs_RT_ref() const
+doublereal PDSS_ConstVol::gibbs_RT_ref() const
 {
     return m_g0_RT_ptr[m_spindex];
 }

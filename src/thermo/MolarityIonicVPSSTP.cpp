@@ -83,8 +83,7 @@ MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b
     return *this;
 }
 
-ThermoPhase*
-MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MolarityIonicVPSSTP(*this);
 }

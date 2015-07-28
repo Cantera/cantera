@@ -52,15 +52,13 @@ VPSSMgr_Water_ConstVol::operator=(const VPSSMgr_Water_ConstVol& b)
     return *this;
 }
 
-VPSSMgr*
-VPSSMgr_Water_ConstVol::duplMyselfAsVPSSMgr() const
+VPSSMgr* VPSSMgr_Water_ConstVol::duplMyselfAsVPSSMgr() const
 {
     return new VPSSMgr_Water_ConstVol(*this);
 }
 
-void
-VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr,
-                                    SpeciesThermo* sp_ptr)
+void VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr,
+                                         SpeciesThermo* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));
@@ -70,8 +68,7 @@ VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr,
     }
 }
 
-void
-VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
+void VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     // Everything should be OK except for the water SS
     m_p0 = m_waterSS->pref_safe(m_tlast);
@@ -85,8 +82,7 @@ VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
     copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 }
 
-void
-VPSSMgr_Water_ConstVol::getGibbs_RT_ref(doublereal* grt) const
+void VPSSMgr_Water_ConstVol::getGibbs_RT_ref(doublereal* grt) const
 {
     // Everything should be OK except for the water SS
     m_p0 = m_waterSS->pref_safe(m_tlast);
@@ -100,8 +96,7 @@ VPSSMgr_Water_ConstVol::getGibbs_RT_ref(doublereal* grt) const
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
 }
 
-void
-VPSSMgr_Water_ConstVol::getGibbs_ref(doublereal* g) const
+void VPSSMgr_Water_ConstVol::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
@@ -109,8 +104,7 @@ VPSSMgr_Water_ConstVol::getGibbs_ref(doublereal* g) const
     }
 }
 
-void
-VPSSMgr_Water_ConstVol::getEntropy_R_ref(doublereal* sr) const
+void VPSSMgr_Water_ConstVol::getEntropy_R_ref(doublereal* sr) const
 {
     // Everything should be OK except for the water SS
     m_p0 = m_waterSS->pref_safe(m_tlast);
@@ -124,8 +118,7 @@ VPSSMgr_Water_ConstVol::getEntropy_R_ref(doublereal* sr) const
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
 }
 
-void
-VPSSMgr_Water_ConstVol::getCp_R_ref(doublereal* cpr) const
+void VPSSMgr_Water_ConstVol::getCp_R_ref(doublereal* cpr) const
 {
     // Everything should be OK except for the water SS
     m_p0 = m_waterSS->pref_safe(m_tlast);
@@ -139,8 +132,7 @@ VPSSMgr_Water_ConstVol::getCp_R_ref(doublereal* cpr) const
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
-void
-VPSSMgr_Water_ConstVol::getStandardVolumes_ref(doublereal* vol) const
+void VPSSMgr_Water_ConstVol::getStandardVolumes_ref(doublereal* vol) const
 {
     // Everything should be OK except for the water SS
     m_p0 = m_waterSS->pref_safe(m_tlast);
@@ -198,8 +190,8 @@ void VPSSMgr_Water_ConstVol::initThermo()
     VPSSMgr::initThermo();
 }
 
-void
-VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode,
+                                           const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 
@@ -235,9 +227,8 @@ VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id
     }
 }
 
-PDSS*
-VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
-        const XML_Node* const phaseNode_ptr)
+PDSS* VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k,
+        const XML_Node& speciesNode, const XML_Node* const phaseNode_ptr)
 {
     PDSS* kPDSS = 0;
     // Will have to do something for water

@@ -134,15 +134,13 @@ void VPSSMgr_General::getGibbs_ref(doublereal* g) const
     }
 }
 
-void
-VPSSMgr_General::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void VPSSMgr_General::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 }
 
-PDSS*
-VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
-                                const XML_Node* const phaseNode_ptr, bool& doST)
+PDSS* VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
+        const XML_Node* const phaseNode_ptr, bool& doST)
 {
     PDSS* kPDSS = 0;
     doST = true;
@@ -205,9 +203,8 @@ VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
     return kPDSS;
 }
 
-PDSS*
-VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
-                                   const XML_Node* const phaseNode_ptr)
+PDSS* VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
+                                         const XML_Node* const phaseNode_ptr)
 {
     bool doST;
     PDSS* kPDSS = returnPDSS_ptr(k, speciesNode, phaseNode_ptr, doST);

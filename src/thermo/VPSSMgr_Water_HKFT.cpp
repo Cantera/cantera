@@ -60,28 +60,24 @@ VPSSMgr_Water_HKFT::operator=(const VPSSMgr_Water_HKFT& b)
     return *this;
 }
 
-VPSSMgr*
-VPSSMgr_Water_HKFT::duplMyselfAsVPSSMgr() const
+VPSSMgr* VPSSMgr_Water_HKFT::duplMyselfAsVPSSMgr() const
 {
     return new VPSSMgr_Water_HKFT(*this);
 }
 
-void
-VPSSMgr_Water_HKFT::getEnthalpy_RT_ref(doublereal* hrt) const
+void VPSSMgr_Water_HKFT::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     updateRefStateThermo();
     copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 }
 
-void
-VPSSMgr_Water_HKFT::getGibbs_RT_ref(doublereal* grt) const
+void VPSSMgr_Water_HKFT::getGibbs_RT_ref(doublereal* grt) const
 {
     updateRefStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
 }
 
-void
-VPSSMgr_Water_HKFT::getGibbs_ref(doublereal* g) const
+void VPSSMgr_Water_HKFT::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
@@ -89,22 +85,19 @@ VPSSMgr_Water_HKFT::getGibbs_ref(doublereal* g) const
     }
 }
 
-void
-VPSSMgr_Water_HKFT::getEntropy_R_ref(doublereal* sr) const
+void VPSSMgr_Water_HKFT::getEntropy_R_ref(doublereal* sr) const
 {
     updateRefStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
 }
 
-void
-VPSSMgr_Water_HKFT::getCp_R_ref(doublereal* cpr) const
+void VPSSMgr_Water_HKFT::getCp_R_ref(doublereal* cpr) const
 {
     updateRefStateThermo();
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
-void
-VPSSMgr_Water_HKFT::getStandardVolumes_ref(doublereal* vol) const
+void VPSSMgr_Water_HKFT::getStandardVolumes_ref(doublereal* vol) const
 {
     updateRefStateThermo();
     copy(m_V0.begin(), m_V0.end(), vol);
@@ -200,8 +193,8 @@ void VPSSMgr_Water_HKFT::initThermo()
 }
 
 
-void
-VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode,
+                                       const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 
@@ -232,9 +225,8 @@ VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode, const std::string& id)
     }
 }
 
-PDSS*
-VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
-                                      const XML_Node* const phaseNode_ptr)
+PDSS* VPSSMgr_Water_HKFT::createInstallPDSS(size_t k,
+        const XML_Node& speciesNode, const XML_Node* const phaseNode_ptr)
 {
     PDSS* kPDSS = 0;
 
@@ -287,9 +279,8 @@ VPSSMgr_Water_HKFT::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     return kPDSS;
 }
 
-void
-VPSSMgr_Water_HKFT::initAllPtrs(VPStandardStateTP* vp_ptr,
-                                    SpeciesThermo* sp_ptr)
+void VPSSMgr_Water_HKFT::initAllPtrs(VPStandardStateTP* vp_ptr,
+                                     SpeciesThermo* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));

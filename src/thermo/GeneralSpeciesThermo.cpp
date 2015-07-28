@@ -73,8 +73,7 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     return *this;
 }
 
-SpeciesThermo*
-GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
+SpeciesThermo* GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
 {
     return new GeneralSpeciesThermo(*this);
 }

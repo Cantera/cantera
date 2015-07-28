@@ -57,8 +57,7 @@ VPSSMgr::VPSSMgr(const VPSSMgr& right) :
     *this = right;
 }
 
-VPSSMgr&
-VPSSMgr::operator=(const VPSSMgr& right)
+VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
 {
     if (&right == this) {
         return *this;
@@ -141,8 +140,7 @@ void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
 
 // Standard States
 
-void
-VPSSMgr::getStandardChemPotentials(doublereal* mu) const
+void VPSSMgr::getStandardChemPotentials(doublereal* mu) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_gss_RT.begin(), m_gss_RT.end(), mu);
@@ -152,8 +150,7 @@ VPSSMgr::getStandardChemPotentials(doublereal* mu) const
     }
 }
 
-void
-VPSSMgr::getGibbs_RT(doublereal* grt) const
+void VPSSMgr::getGibbs_RT(doublereal* grt) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_gss_RT.begin(), m_gss_RT.end(), grt);
@@ -162,8 +159,7 @@ VPSSMgr::getGibbs_RT(doublereal* grt) const
     }
 }
 
-void
-VPSSMgr::getEnthalpy_RT(doublereal* hrt) const
+void VPSSMgr::getEnthalpy_RT(doublereal* hrt) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_hss_RT.begin(), m_hss_RT.end(), hrt);
@@ -172,8 +168,7 @@ VPSSMgr::getEnthalpy_RT(doublereal* hrt) const
     }
 }
 
-void
-VPSSMgr::getEntropy_R(doublereal* sr) const
+void VPSSMgr::getEntropy_R(doublereal* sr) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_sss_R.begin(), m_sss_R.end(), sr);
@@ -182,8 +177,7 @@ VPSSMgr::getEntropy_R(doublereal* sr) const
     }
 }
 
-void
-VPSSMgr::getIntEnergy_RT(doublereal* urt) const
+void VPSSMgr::getIntEnergy_RT(doublereal* urt) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_hss_RT.begin(), m_hss_RT.end(), urt);
@@ -195,8 +189,7 @@ VPSSMgr::getIntEnergy_RT(doublereal* urt) const
     }
 }
 
-void
-VPSSMgr::getCp_R(doublereal* cpr) const
+void VPSSMgr::getCp_R(doublereal* cpr) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_cpss_R.begin(), m_cpss_R.end(), cpr);
@@ -205,8 +198,7 @@ VPSSMgr::getCp_R(doublereal* cpr) const
     }
 }
 
-void
-VPSSMgr::getStandardVolumes(doublereal* vol) const
+void VPSSMgr::getStandardVolumes(doublereal* vol) const
 {
     if (m_useTmpStandardStateStorage) {
         std::copy(m_Vss.begin(), m_Vss.end(), vol);
@@ -214,8 +206,7 @@ VPSSMgr::getStandardVolumes(doublereal* vol) const
         throw NotImplementedError("VPSSMgr::getStandardVolumes");
     }
 }
-const vector_fp&
-VPSSMgr::getStandardVolumes() const
+const vector_fp& VPSSMgr::getStandardVolumes() const
 {
     if (!m_useTmpStandardStateStorage) {
         throw NotImplementedError("VPSSMgr::getStandardVolumes");
@@ -224,8 +215,7 @@ VPSSMgr::getStandardVolumes() const
 }
 
 /*****************************************************************/
-void
-VPSSMgr::getEnthalpy_RT_ref(doublereal* hrt) const
+void VPSSMgr::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     if (m_useTmpRefStateStorage) {
         std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
@@ -234,8 +224,7 @@ VPSSMgr::getEnthalpy_RT_ref(doublereal* hrt) const
     }
 }
 
-void
-VPSSMgr::getGibbs_RT_ref(doublereal* grt) const
+void VPSSMgr::getGibbs_RT_ref(doublereal* grt) const
 {
     if (m_useTmpRefStateStorage) {
         std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
@@ -244,8 +233,7 @@ VPSSMgr::getGibbs_RT_ref(doublereal* grt) const
     }
 }
 
-void
-VPSSMgr::getGibbs_ref(doublereal* g) const
+void VPSSMgr::getGibbs_ref(doublereal* g) const
 {
     if (m_useTmpRefStateStorage) {
         std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
@@ -255,8 +243,7 @@ VPSSMgr::getGibbs_ref(doublereal* g) const
     }
 }
 
-void
-VPSSMgr::getEntropy_R_ref(doublereal* sr) const
+void VPSSMgr::getEntropy_R_ref(doublereal* sr) const
 {
     if (m_useTmpRefStateStorage) {
         std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
@@ -265,8 +252,7 @@ VPSSMgr::getEntropy_R_ref(doublereal* sr) const
     }
 }
 
-void
-VPSSMgr::getCp_R_ref(doublereal* cpr) const
+void VPSSMgr::getCp_R_ref(doublereal* cpr) const
 {
     if (m_useTmpRefStateStorage) {
         std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
@@ -275,8 +261,7 @@ VPSSMgr::getCp_R_ref(doublereal* cpr) const
     }
 }
 
-void
-VPSSMgr::getStandardVolumes_ref(doublereal* vol) const
+void VPSSMgr::getStandardVolumes_ref(doublereal* vol) const
 {
     getStandardVolumes(vol);
 }
@@ -345,14 +330,12 @@ void VPSSMgr::_updateRefStateThermo() const
 
 /*****************************************************************/
 
-void
-VPSSMgr::initThermo()
+void VPSSMgr::initThermo()
 {
     initLengths();
 }
 
-void
-VPSSMgr::initLengths()
+void VPSSMgr::initLengths()
 {
     m_kk = m_vptp_ptr->nSpecies();
     m_h0_RT.resize(m_kk, 0.0);

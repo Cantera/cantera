@@ -200,10 +200,9 @@ VPSSMgrFactory::VPSSMgr_StringConversion(const std::string& ssModel) const
     return type;
 }
 
-VPSSMgr*
-VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
-                           XML_Node* phaseNode_ptr,
-                           std::vector<XML_Node*> & spDataNodeList)
+VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
+                                    XML_Node* phaseNode_ptr,
+                                    std::vector<XML_Node*> & spDataNodeList)
 {
 
     std::string ssManager;
@@ -285,8 +284,8 @@ VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 
 // I don't think this is currently used. However, this is a virtual
 // function where additional capabilities may be added.
-VPSSMgr*
-VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP* vp_ptr)
+VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type,
+                                    VPStandardStateTP* vp_ptr)
 {
     SpeciesThermo& spthermoRef = vp_ptr->speciesThermo();
     switch (type) {

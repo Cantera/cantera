@@ -206,8 +206,7 @@ void PDSS_IonsFromNeutral::initThermo()
     m_maxTemp = m_spthermo->maxTemp(m_spindex);
 }
 
-doublereal
-PDSS_IonsFromNeutral::enthalpy_RT() const
+doublereal PDSS_IonsFromNeutral::enthalpy_RT() const
 {
     neutralMoleculePhase_->getEnthalpy_RT(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -218,14 +217,12 @@ PDSS_IonsFromNeutral::enthalpy_RT() const
     return val;
 }
 
-doublereal
-PDSS_IonsFromNeutral::intEnergy_mole() const
+doublereal PDSS_IonsFromNeutral::intEnergy_mole() const
 {
     return (m_h0_RT_ptr[m_spindex] - 1.0) * GasConstant * m_temp;
 }
 
-doublereal
-PDSS_IonsFromNeutral::entropy_R() const
+doublereal PDSS_IonsFromNeutral::entropy_R() const
 {
     neutralMoleculePhase_->getEntropy_R(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -239,8 +236,7 @@ PDSS_IonsFromNeutral::entropy_R() const
     return val;
 }
 
-doublereal
-PDSS_IonsFromNeutral::gibbs_RT() const
+doublereal PDSS_IonsFromNeutral::gibbs_RT() const
 {
     neutralMoleculePhase_->getGibbs_RT(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -254,8 +250,7 @@ PDSS_IonsFromNeutral::gibbs_RT() const
     return val;
 }
 
-doublereal
-PDSS_IonsFromNeutral::cp_R() const
+doublereal PDSS_IonsFromNeutral::cp_R() const
 {
     neutralMoleculePhase_->getCp_R(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -266,8 +261,7 @@ PDSS_IonsFromNeutral::cp_R() const
     return val;
 }
 
-doublereal
-PDSS_IonsFromNeutral::molarVolume() const
+doublereal PDSS_IonsFromNeutral::molarVolume() const
 {
     neutralMoleculePhase_->getStandardVolumes(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -278,14 +272,12 @@ PDSS_IonsFromNeutral::molarVolume() const
     return val;
 }
 
-doublereal
-PDSS_IonsFromNeutral::density() const
+doublereal PDSS_IonsFromNeutral::density() const
 {
     return (m_pres * m_mw / (GasConstant * m_temp));
 }
 
-doublereal
-PDSS_IonsFromNeutral::gibbs_RT_ref() const
+doublereal PDSS_IonsFromNeutral::gibbs_RT_ref() const
 {
     neutralMoleculePhase_->getGibbs_RT_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
@@ -366,7 +358,7 @@ void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
     m_temp = temp;
 }
 
-void  PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
+void PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
 {
 }
 

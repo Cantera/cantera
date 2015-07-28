@@ -33,8 +33,7 @@ LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
     *this = right;
 }
 
-LatticeSolidPhase&
-LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
+LatticeSolidPhase& LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);

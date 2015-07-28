@@ -80,15 +80,13 @@ void VPSSMgr_IdealGas::_updateStandardStateThermo()
     }
 }
 
-void
-VPSSMgr_IdealGas::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void VPSSMgr_IdealGas::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 }
 
-PDSS*
-VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
-                                    const XML_Node* const phaseNode_ptr)
+PDSS* VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
+                                          const XML_Node* const phaseNode_ptr)
 {
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (ss) {

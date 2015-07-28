@@ -96,8 +96,7 @@ void VPSSMgr_ConstVol::initThermo()
     VPSSMgr::initThermo();
 }
 
-void
-VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
 
@@ -125,9 +124,8 @@ VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
     }
 }
 
-PDSS*
-VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
-                                    const XML_Node* const phaseNode_ptr)
+PDSS* VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
+                                          const XML_Node* const phaseNode_ptr)
 {
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {

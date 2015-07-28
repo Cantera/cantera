@@ -76,8 +76,7 @@ MargulesVPSSTP& MargulesVPSSTP::operator=(const MargulesVPSSTP& b)
     return *this;
 }
 
-ThermoPhase*
-MargulesVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* MargulesVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new MargulesVPSSTP(*this);
 }

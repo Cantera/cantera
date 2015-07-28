@@ -152,8 +152,7 @@ IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP()
     }
 }
 
-ThermoPhase*
-IonsFromNeutralVPSSTP::duplMyselfAsThermoPhase() const
+ThermoPhase* IonsFromNeutralVPSSTP::duplMyselfAsThermoPhase() const
 {
     return new IonsFromNeutralVPSSTP(*this);
 }

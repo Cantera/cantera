@@ -82,8 +82,7 @@ MetalSHEelectrons::~MetalSHEelectrons()
     delete xdef_;
 }
 
-MetalSHEelectrons&
-MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
+MetalSHEelectrons& MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
 {
     if (&right != this) {
         SingleSpeciesTP::operator=(right);

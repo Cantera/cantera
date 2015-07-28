@@ -27,8 +27,7 @@ Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     processCoeffs(coeffs);
 }
 
-SpeciesThermoInterpType*
-Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
+SpeciesThermoInterpType* Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
 {
     return new Mu0Poly(*this);
 }

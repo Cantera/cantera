@@ -41,8 +41,7 @@ VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
     VPStandardStateTP::operator=(b);
 }
 
-VPStandardStateTP&
-VPStandardStateTP::operator=(const VPStandardStateTP& b)
+VPStandardStateTP& VPStandardStateTP::operator=(const VPStandardStateTP& b)
 {
     if (&b != this) {
         /*
@@ -313,9 +312,8 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
 
 
 
-void
-VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
-                                     const XML_Node* phaseNode_ptr)
+void VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
+                                          const XML_Node* phaseNode_ptr)
 {
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1,0);
@@ -324,14 +322,12 @@ VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
     m_PDSS_storage[k] = m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr);
 }
 
-PDSS*
-VPStandardStateTP::providePDSS(size_t k)
+PDSS* VPStandardStateTP::providePDSS(size_t k)
 {
     return m_PDSS_storage[k];
 }
 
-const PDSS*
-VPStandardStateTP::providePDSS(size_t k) const
+const PDSS* VPStandardStateTP::providePDSS(size_t k) const
 {
     return m_PDSS_storage[k];
 }

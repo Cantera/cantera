@@ -118,8 +118,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP&  right)
     *this = right;
 }
 
-FixedChemPotSSTP&
-FixedChemPotSSTP::operator=(const FixedChemPotSSTP& right)
+FixedChemPotSSTP& FixedChemPotSSTP::operator=(const FixedChemPotSSTP& right)
 {
     if (&right != this) {
         SingleSpeciesTP::operator=(right);

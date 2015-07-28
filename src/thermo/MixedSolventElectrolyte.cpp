@@ -80,8 +80,7 @@ MixedSolventElectrolyte::operator=(const MixedSolventElectrolyte& b)
     return *this;
 }
 
-ThermoPhase*
-MixedSolventElectrolyte::duplMyselfAsThermoPhase() const
+ThermoPhase* MixedSolventElectrolyte::duplMyselfAsThermoPhase() const
 {
     return new MixedSolventElectrolyte(*this);
 }

@@ -75,8 +75,7 @@ PhaseCombo_Interaction& PhaseCombo_Interaction::operator=(const PhaseCombo_Inter
     return *this;
 }
 
-ThermoPhase*
-PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
+ThermoPhase* PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
 {
     return new PhaseCombo_Interaction(*this);
 }
