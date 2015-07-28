@@ -1567,7 +1567,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     getMoleFractions(DATA_PTR(mf));
     bool notDone = true;
 
-    do {
+    while (notDone) {
         double sum = 0.0;
         size_t kMaxC = npos;
         double MaxC = 0.0;
@@ -1626,7 +1626,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         } else {
             notDone = false;
         }
-    } while (notDone);
+    }
 }
 
 void  HMWSoln::calcIMSCutoffParams_()

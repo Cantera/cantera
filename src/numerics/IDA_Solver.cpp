@@ -528,13 +528,13 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
 
 int IDA_Solver::solve(double tout)
 {
-    double tretn;
+    double tretn = tout - 1000;
     int flag;
     flag = IDASetStopTime(m_ida_mem, tout);
     if (flag != IDA_SUCCESS) {
         throw IDA_Err(" IDA error encountered.");
     }
-    do {
+    while (tretn < tout) {
         if (tout <= m_tcurrent) {
             throw IDA_Err(" tout <= tcurrent");
         }
@@ -552,7 +552,7 @@ int IDA_Solver::solve(double tout)
         }
         m_tcurrent = tretn;
         m_deltat = m_tcurrent - m_told;
-    } while (tretn < tout);
+    };
 
     if (flag != IDA_SUCCESS && flag != IDA_TSTOP_RETURN) {
         throw IDA_Err(" IDA error encountered.");

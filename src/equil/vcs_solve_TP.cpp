@@ -2478,7 +2478,6 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                           double ss[], double test, bool* const usedZeroedSpecies)
 {
     size_t k;
-    bool lindep;
     size_t juse = npos;
     size_t jlose = npos;
     double* scrxn_ptr;
@@ -2547,16 +2546,15 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
         }
     }
 
-    size_t jr = npos;
+    size_t jr = 0;
     /*
      *   Top of a loop of some sort based on the index JR. JR is the
      *   current number of component species found.
      */
-    do {
-        ++jr;
+    while (jr < ncTrial) {
         /* - Top of another loop point based on finding a linearly */
         /* - independent species */
-        do {
+        while (true) {
             /*
              *    Search the remaining part of the mole fraction vector, AW,
              *    for the largest remaining species. Return its identity in K.
@@ -2732,8 +2730,10 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             /* **************************************************** */
             /* **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT ********** */
             /* **************************************************** */
-            lindep = (sa[jr] < 1.0e-6);
-        } while (lindep);
+            if (sa[jr] > 1.0e-6) {
+              break;
+            }
+        }
         /* ****************************************** */
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
@@ -2768,12 +2768,9 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
         /* - entry point from up above */
 L_END_LOOP:
         ;
-        /*
-         *      If we haven't found enough components, go back
-         *      and find some more. (nc -1 is used below, because
-         *      jr is counted from 0, via the C convention.
-         */
-    } while (jr < (ncTrial-1));
+        // If we haven't found enough components, go back and find some more.
+        jr++;
+    }
 
     if (doJustComponents) {
         goto L_CLEANUP;

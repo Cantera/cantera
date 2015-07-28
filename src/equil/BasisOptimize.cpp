@@ -29,7 +29,6 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                      vector_fp& formRxnMatrix)
 {
     size_t  j, jj, k=0, kk, l, i, jl, ml;
-    bool lindep;
     std::string ename;
     std::string sname;
     /*
@@ -139,16 +138,15 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     }
     double molSave = 0.0;
 
-    size_t jr = npos;
+    size_t jr = 0;
     /*
      *   Top of a loop of some sort based on the index JR. JR is the
      *   current number of component species found.
      */
-    do {
-        ++jr;
+    while (jr < nComponents) {
         /* - Top of another loop point based on finding a linearly */
         /* - independent species */
-        do {
+        while (true) {
             /*
              *    Search the remaining part of the mole number vector, molNum
              *    for the largest remaining species. Return its identity.
@@ -233,12 +231,10 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             /* **************************************************** */
             /* **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT ********** */
             /* **************************************************** */
-            if (sa[jr] < 1.0e-6) {
-                lindep = true;
-            } else {
-                lindep = false;
+            if (sa[jr] > 1.0e-6) {
+                break;
             }
-        } while (lindep);
+        }
         /* ****************************************** */
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
@@ -255,13 +251,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             std::swap(orderVectorSpecies[jr], orderVectorSpecies[k]);
         }
 
-        /*
-         *      If we haven't found enough components, go back
-         *      and find some more. (nc -1 is used below, because
-         *      jr is counted from 0, via the C convention.
-         */
-    } while (jr < (nComponents-1));
-
+        // If we haven't found enough components, go back and find some more
+        jr++;
+    }
 
     if (! doFormRxn) {
         return nComponents;
@@ -426,7 +418,6 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
 {
     size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
 
-    bool lindep = false;
     size_t nelements = mphase->nElements();
     std::string ename;
     /*
@@ -495,14 +486,13 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
      *        Top of a loop of some sort based on the index JR. JR is the
      *       current number independent elements found.
      */
-    jr = npos;
-    do {
-        ++jr;
+    jr = 0;
+    while (jr < nComponents) {
         /*
          *     Top of another loop point based on finding a linearly
          *     independent element
          */
-        do {
+        while (true) {
             /*
              *    Search the element vector. We first locate elements that
              *    are present in any amount. Then, we locate elements that
@@ -597,12 +587,10 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
             /* **************************************************** */
             /* **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT ********** */
             /* **************************************************** */
-            if (sa[jr] < 1.0e-6) {
-                lindep = true;
-            } else {
-                lindep = false;
+            if (sa[jr] > 1.0e-6) {
+                break;
             }
-        } while (lindep);
+        }
         /* ****************************************** */
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
@@ -621,12 +609,9 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
             std::swap(orderVectorElements[jr], orderVectorElements[k]);
         }
 
-        /*
-         *      If we haven't found enough components, go back
-         *      and find some more. (nc -1 is used below, because
-         *      jr is counted from 0, via the C convention.
-         */
-    } while (jr < (nComponents-1));
+        // If we haven't found enough components, go back and find some more
+        jr++;
+    };
 }
 
 }

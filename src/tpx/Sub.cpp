@@ -88,8 +88,8 @@ double Substance::Tsat(double p)
     if (T >= Tcrit()) {
         T = 0.5*(Tcrit() - Tmin());
     }
-    double dp;
-    do {
+    double dp = 10*tol;
+    while (fabs(dp) > tol) {
         if (T > Tcrit()) {
             T = Tcrit() - 0.001;
         }
@@ -109,7 +109,7 @@ double Substance::Tsat(double p)
             T = Tsave;
             throw TPX_Error("Substance::Tsat", "No convergence");
         }
-    } while (fabs(dp) > tol);
+    }
     double tsat = T;
     T = Tsave;
     return tsat;

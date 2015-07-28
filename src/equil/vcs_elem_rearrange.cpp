@@ -37,9 +37,9 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
      *        Use a temporary work array for the element numbers
      *        Also make sure the value of test is unique.
      */
-    bool lindep = false;
+    bool lindep = true;
     double test = -1.0E10;
-    do {
+    while (lindep) {
         lindep = false;
         for (size_t i = 0; i < m_numElemConstraints; ++i) {
             test -= 1.0;
@@ -48,21 +48,20 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                 lindep = true;
             }
         }
-    } while (lindep);
+    }
 
     /*
      *        Top of a loop of some sort based on the index JR. JR is the
      *       current number independent elements found.
      */
-    size_t jr = npos;
-    do {
-        ++jr;
+    size_t jr = 0;
+    while (jr < ncomponents) {
         size_t k;
         /*
          *     Top of another loop point based on finding a linearly
          *     independent species
          */
-        do {
+        while (true) {
             /*
              *    Search the remaining part of the mole fraction vector, AW,
              *    for the largest remaining species. Return its identity in K.
@@ -140,12 +139,10 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
             /* **************************************************** */
             /* **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT ********** */
             /* **************************************************** */
-            if (sa[jr] < 1.0e-6) {
-                lindep = true;
-            } else {
-                lindep = false;
+            if (sa[jr] > 1.0e-6) {
+                break;
             }
-        } while (lindep);
+        }
         /* ****************************************** */
         /* **** REARRANGE THE DATA ****************** */
         /* ****************************************** */
@@ -162,12 +159,9 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
             std::swap(aw[jr], aw[k]);
         }
 
-        /*
-         *      If we haven't found enough components, go back
-         *      and find some more. (nc -1 is used below, because
-         *      jr is counted from 0, via the C convention.
-         */
-    } while (jr < (ncomponents-1));
+        // If we haven't found enough components, go back and find some more.
+        jr++;
+    }
     return VCS_SUCCESS;
 }
 

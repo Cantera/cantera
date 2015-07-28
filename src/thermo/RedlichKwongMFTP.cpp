@@ -956,7 +956,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
 
     bool foundLiq = false;
     int m = 0;
-    do {
+    while (m < 100 && !foundLiq) {
 
         int nsol = NicholsSolve(TKelvin, pres, atmp, btmp, Vroot);
 
@@ -970,7 +970,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
         } else {
             foundLiq = true;
         }
-    } while ((m < 100) && (!foundLiq));
+    }
 
     if (foundLiq) {
         v = Vroot[0];

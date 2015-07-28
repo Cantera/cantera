@@ -381,7 +381,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     // ---------------------------------------------------------------------------------------------
     //                MAIN LOOP
     // ---------------------------------------------------------------------------------------------
-    do {
+    while (!converged && its < itmax) {
         /*
          *    Find an estimate of the next point, xnew, to try based on
          *    a linear approximation from the last two points.
@@ -910,7 +910,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             }
         }
-    } while (! converged && its < itmax);
+    }
 
 done:
     if (converged) {
