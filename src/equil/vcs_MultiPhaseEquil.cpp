@@ -210,10 +210,9 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                     Tlow = Tnow;
                     Hlow = Hnow;
                 }
-            }
-            // the current enthalpy is greater than the target; therefore the
-            // current temperature is too high. Set the high bounds.
-            else {
+            } else {
+                // the current enthalpy is greater than the target; therefore the
+                // current temperature is too high. Set the high bounds.
                 if (Tnow < Thigh) {
                     Thigh = Tnow;
                     Hhigh = Hnow;
@@ -340,10 +339,9 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                         }
                     }
                 }
-            }
-            // the current enthalpy is greater than the target; therefore the
-            // current temperature is too high. Set the high bounds.
-            else {
+            } else {
+                // the current enthalpy is greater than the target; therefore the
+                // current temperature is too high. Set the high bounds.
                 if (Tnow < Thigh) {
                     Thigh = Tnow;
                     Shigh = Snow;

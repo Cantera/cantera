@@ -855,9 +855,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 converged = 1;
                 rfT.reasoning += "NormalConvergence";
                 retn = ROOTFIND_SUCCESS;
-            }
-
-            else if (fabs(slope) > 1.0E-100) {
+            } else if (fabs(slope) > 1.0E-100) {
                 double xdels = fabs(fnew / slope);
                 if (xdels < deltaXConverged_ * 0.3) {
                     converged = 1;

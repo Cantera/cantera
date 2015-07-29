@@ -33,9 +33,7 @@ void funcmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    else {
+    } else {
         int nn = 0;
         double t;
         double v = 0.0;

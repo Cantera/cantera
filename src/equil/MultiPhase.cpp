@@ -585,9 +585,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
             throw err;
         }
         return err;
-    }
-
-    else if (XY == HP) {
+    } else if (XY == HP) {
         h0 = enthalpy();
         Tlow = 0.5*m_Tmin;      // lower bound on T
         Thigh = 2.0*m_Tmax;     // upper bound on T
@@ -610,10 +608,9 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                         Tlow = m_temp;
                         Hlow = hnow;
                     }
-                }
-                // the current enthalpy is greater than the target; therefore the
-                // current temperature is too high.
-                else {
+                } else {
+                    // the current enthalpy is greater than the target; therefore the
+                    // current temperature is too high.
                     if (m_temp < Thigh) {
                         Thigh = m_temp;
                         Hhigh = hnow;
@@ -649,9 +646,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                     strt = false;
                 }
 
-            }
-
-            catch (CanteraError& err) {
+            } catch (CanteraError& err) {
                 err.save();
                 if (!strt) {
                     strt = true;
@@ -699,9 +694,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                 if (dta < 100.0) {
                     strt = false;
                 }
-            }
-
-            catch (CanteraError& err) {
+            } catch (CanteraError& err) {
                 err.save();
                 if (!strt) {
                     strt = true;
@@ -736,9 +729,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
             dVdP = (volume() - vnow)/(0.01*pnow);
             setPressure(pnow + 0.5*(v0 - vnow)/dVdP);
         }
-    }
-
-    else {
+    } else {
         throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "unknown option");
     }

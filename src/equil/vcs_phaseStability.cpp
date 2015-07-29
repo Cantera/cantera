@@ -80,9 +80,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                     if (foundJrxn) {
                         return true;
                     }
-                }
-                // Second we are here if the component is a reactant in the reaction, and the reaction goes backwards.
-                else if (m_stoichCoeffRxnMatrix(kspec,jrxn) < 0.0) {
+                } else if (m_stoichCoeffRxnMatrix(kspec,jrxn) < 0.0) {
+                    // Second we are here if the component is a reactant in the reaction, and the reaction goes backwards.
                     foundJrxn = true;
                     size_t jspec = jrxn + m_numComponents;
                     if (m_molNumSpecies_old[jspec] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {

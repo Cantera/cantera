@@ -71,11 +71,8 @@ void reactornetmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    // options that return a value of type 'double'
-
-    else if (job < 40) {
+    } else if (job < 40) {
+        // options that return a value of type 'double'
         switch (job) {
         case 21:
             r = reactornet_step(i, v);

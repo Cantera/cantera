@@ -276,12 +276,11 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
         info = m_Jac.factor();
         if (info==0) {
             m_Jac.solve(&m_resid[0]);
-        }
-        /*
-         *    Force convergence if residual is small to avoid
-         *    "nan" results from the linear solve.
-         */
-        else {
+        } else {
+            /*
+             *    Force convergence if residual is small to avoid
+             *    "nan" results from the linear solve.
+             */
             if (m_ioflag) {
                 printf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
                        resid_norm, info);

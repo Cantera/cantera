@@ -508,9 +508,8 @@ void Kinetics::addPhase(thermo_t& thermo)
     if (m_thermo.size() > 0) {
         m_start.push_back(m_start.back()
                           + m_thermo.back()->nSpecies());
-    }
-    // otherwise start at 0
-    else {
+    } else {
+        // otherwise start at 0
         m_start.push_back(0);
     }
 

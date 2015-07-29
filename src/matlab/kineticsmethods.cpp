@@ -29,10 +29,8 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
         double* h = mxGetPr(plhs[0]);
         *h = vv;
         return;
-    }
-
-    // methods
-    else if (job > 0) {
+    } else if (job > 0) {
+        // methods
         int isp = 1;
         if (job < 5 || job > 6) {
             checkNArgs(4,nrhs);
@@ -147,10 +145,7 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
                 reportError();
             }
         }
-    }
-
-    else {
-
+    } else {
         // set attributes
         int iok = -1;
         job = -job;

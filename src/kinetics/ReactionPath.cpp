@@ -330,9 +330,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                 }
             }
         }
-    }
-
-    else {
+    } else {
         for (size_t i = 0; i < nPaths(); i++) {
             p = path(i);
             flmax = std::max(p->flow(), flmax);
@@ -862,16 +860,13 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                     f = g[kkr][kkp].nAtoms(m);
                                 }
                             }
-                        }
-
-                        // no ambiguity about where the m-atoms come
-                        // from or go to. Either all reactant m atoms
-                        // end up in one product, or only one reactant
-                        // contains all the m-atoms. In either case,
-                        // the number of atoms transferred is given by
-                        // the same expression.
-
-                        else {
+                        } else {
+                            // no ambiguity about where the m-atoms come
+                            // from or go to. Either all reactant m atoms
+                            // end up in one product, or only one reactant
+                            // contains all the m-atoms. In either case,
+                            // the number of atoms transferred is given by
+                            // the same expression.
                             f = m_atoms(kkp,m) * m_atoms(kkr,m) / m_elatoms(m, i);
                         }
 

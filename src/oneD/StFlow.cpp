@@ -378,9 +378,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
                     -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
             }
             rsd[index(c_offset_Y, 0)] = 1.0 - sum;
-        }
-
-        else if (j == m_points - 1) {
+        } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
 
         } else { // interior points
@@ -983,9 +981,7 @@ void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
         rsd[index(c_offset_U,j)] =
             - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
             - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
-    }
-
-    else if (grid(j) == m_zfixed) {
+    } else if (grid(j) == m_zfixed) {
         if (m_do_energy[j]) {
             rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
         } else {

@@ -349,11 +349,9 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
                 dt *= 1.5;
             }
             dt = std::min(dt, m_tmax);
-        }
-
-        // No solution could be found with this time step.
-        // Decrease the stepsize and try again.
-        else {
+        } else {
+            // No solution could be found with this time step.
+            // Decrease the stepsize and try again.
             writelog("...failure.\n", loglevel);
             dt *= m_tfactor;
             if (dt < m_tmin)

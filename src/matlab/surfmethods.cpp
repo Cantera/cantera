@@ -60,10 +60,8 @@ void surfmethods(int nlhs, mxArray* plhs[],
         double* h = mxGetPr(plhs[0]);
         *h = double(iok);
         return;
-    }
-
-    // return array parameters
-    else if (job < 200) {
+    } else if (job < 200) {
+        // return array parameters
         nsp = phase_nSpecies(surf);
         std::vector<double> x(nsp);
         iok = -1;

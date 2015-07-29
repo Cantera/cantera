@@ -205,10 +205,8 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
             r[0] = m_mdot - x[0];
             rb[3] = xb[3];
         }
-    }
-
-    // right inlet.
-    else {
+    } else {
+        // right inlet.
         size_t boffset = m_flow->nComponents();
         xb = x - boffset;
         rb = r - boffset;

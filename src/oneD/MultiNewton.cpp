@@ -379,18 +379,14 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         // step, and try again.
         if (m == 0) {
             copy(x1, x1 + m_n, m_x.begin());
-        }
-
-        // convergence
-        else if (m == 1) {
+        } else if (m == 1) {
+            // convergence
             jac.setAge(0); // for efficient sensitivity analysis
             break;
-        }
-
-        // If dampStep fails, first try a new Jacobian if an old
-        // one was being used. If it was a new Jacobian, then
-        // return -1 to signify failure.
-        else if (m < 0) {
+        } else if (m < 0) {
+            // If dampStep fails, first try a new Jacobian if an old
+            // one was being used. If it was a new Jacobian, then
+            // return -1 to signify failure.
             if (jac.age() > 1) {
                 forceNewJac = true;
                 if (nJacReeval > 3) {

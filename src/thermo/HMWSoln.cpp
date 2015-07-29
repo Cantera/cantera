@@ -4925,11 +4925,10 @@ void HMWSoln::calc_thetas(int z1, int z2,
     if (z1*z2 < 0) {
         *etheta = 0.0;
         *etheta_prime = 0.0;
-    }
-    /*
-     * Actually calculate the interaction.
-     */
-    else {
+    } else {
+        /*
+         * Actually calculate the interaction.
+         */
         double f1 = (double)i / (2.0  * j);
         double f2 = (double)j / (2.0  * i);
         *etheta = elambda[i*j] - f1*elambda[j*j] - f2*elambda[i*i];
@@ -5007,9 +5006,8 @@ void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
             }
             IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
         }
-    }
-    // Exponentials - trial 2
-    else if (IMS_typeCutoff_ == 2) {
+    } else if (IMS_typeCutoff_ == 2) {
+        // Exponentials - trial 2
         if (xmolSolvent > IMS_X_o_cutoff_) {
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= 0.0;

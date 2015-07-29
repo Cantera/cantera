@@ -36,10 +36,8 @@ static void thermoset(int nlhs, mxArray* plhs[],
         default:
             mexErrMsgTxt("unknown attribute.");
         }
-    }
-
-    // property pairs
-    else if (job < 40) {
+    } else if (job < 40) {
+        // property pairs
         if ((m == 2 && n == 1) || (m == 1 && n == 2)) {
             switch (job) {
             case 20:
@@ -69,10 +67,8 @@ static void thermoset(int nlhs, mxArray* plhs[],
         } else {
             mexErrMsgTxt("wrong size");
         }
-    }
-
-    // equilibrate
-    else if (job == 50) {
+    } else if (job == 50) {
+        // equilibrate
         char* xy = getString(prhs[3]);
         int solver = getInt(prhs[4]);
         double rtol = getDouble(prhs[5]);
@@ -230,9 +226,7 @@ static void thermoget(int nlhs, mxArray* plhs[],
             mexErrMsgTxt("unknown attribute");
             return;
         }
-    }
-
-    else {
+    } else {
         mexErrMsgTxt("unknown attribute");
     }
 }

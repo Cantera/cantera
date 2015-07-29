@@ -73,21 +73,18 @@ public:
         if (n == 0) {
             if (isLeft(j)) { // here we specify zeta(0) = 0
                 return zeta(x,j);
-            } else
+            } else {
                 // this implements d(zeta)/dz = u
-            {
                 return (zeta(x,j) - zeta(x,j-1))/(z(j)-z(j-1)) - u(x,j);
             }
-        }
-        // if n = 1, then return the residual for the second ODE
-        else {
+        } else {
+            // if n = 1, then return the residual for the second ODE
             if (isLeft(j)) { // here we specify u(0) = 0
                 return u(x,j);
             } else if (isRight(j)) { // and here we specify u(L) = 1
                 return u(x,j) - 1.0;
-            } else
+            } else {
                 // this implements the 2nd ODE
-            {
                 return cdif2(x,1,j) + 0.5*zeta(x,j)*centralFirstDeriv(x,1,j);
             }
         }

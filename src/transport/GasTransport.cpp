@@ -555,10 +555,8 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
                 m_cstar_poly.push_back(cc);
                 m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
                 fitlist.push_back(dstar);
-            }
-
-            // delta* found in fitlist, so just point to this polynomial
-            else {
+            } else {
+                // delta* found in fitlist, so just point to this polynomial
                 m_poly[i][j] = static_cast<int>((dptr - fitlist.begin()));
             }
             m_poly[j][i] = m_poly[i][j];
@@ -719,25 +717,26 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
 
         writelog("\nPolynomial fits for conductivity:\n");
-        if (m_mode == CK_Mode)
+        if (m_mode == CK_Mode) {
             writelog("log(conductivity) fit to cubic polynomial in log(T)");
-        else {
+        } else {
             writelogf("conductivity/sqrt(T) fit to "
                       "polynomial of degree %d in log(T)", degree);
         }
-        if (m_log_level >= 2)
+        if (m_log_level >= 2) {
             for (size_t k = 0; k < m_nsp; k++) {
                 writelog(m_thermo->speciesName(k) + ": [" +
                          vec2str(m_condcoeffs[k]) + "]\n");
             }
+        }
         writelogf("Maximum conductivity absolute error:  %12.6g\n", mxerr_cond);
         writelogf("Maximum conductivity relative error:  %12.6g\n", mxrelerr_cond);
 
         // fit the binary diffusion coefficients for each species pair
         writelogf("\nbinary diffusion coefficients:\n");
-        if (m_mode == CK_Mode)
+        if (m_mode == CK_Mode) {
             writelog("log(D) fit to cubic polynomial in log(T)");
-        else {
+        } else {
             writelogf("D/T**(3/2) fit to polynomial of degree %d in log(T)",degree);
         }
     }

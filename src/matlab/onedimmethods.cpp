@@ -105,10 +105,8 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    // methods
-    else if (job < 40) {
+    } else if (job < 40) {
+        // methods
         int k;
 
         switch (job) {
@@ -185,9 +183,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    else if (job < 50) {
+    } else if (job < 50) {
         int iok = -1;
         int buflen, icomp;
         char* output_buf;
@@ -208,10 +204,8 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             mexErrMsgTxt("error or unknown method.");
             return;
         }
-    }
-
+    } else {
     // set parameters
-    else {
         int iok = -1;
         double lower, upper, rtol, atol, *grid, *pos, *values,
                mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts,

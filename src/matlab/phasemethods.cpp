@@ -45,10 +45,8 @@ void phasemethods(int nlhs, mxArray* plhs[],
             default:
                 mexErrMsgTxt("Unknown job number");
             }
-        }
-
-        // set array attributes
-        else if (mjob < 30) {
+        } else if (mjob < 30) {
+            // set array attributes
             if ((m == nsp && n == 1) || (m == 1 && n == nsp)) {
                 int norm = 1;
                 switch (mjob) {
@@ -72,10 +70,8 @@ void phasemethods(int nlhs, mxArray* plhs[],
             } else {
                 mexErrMsgTxt("wrong array size");
             }
-        }
-
-        // set attributes from a string
-        else {
+        } else {
+            // set attributes from a string
             int status;
             mwSize buflen;
             char* input_buf;
@@ -107,11 +103,8 @@ void phasemethods(int nlhs, mxArray* plhs[],
                 mexErrMsgTxt("expected a string.");
             }
         }
-    }
-
-    else if (job < 20) {
+    } else if (job < 20) {
         double threshold;
-
         switch (job) {
         case 0:
             vv = (double) newThermoFromXML(ph);
@@ -166,9 +159,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
         double* h = mxGetPr(plhs[0]);
         *h = vv;
         return;
-    }
-
-    else if (job < 30) {
+    } else if (job < 30) {
         iok = 0;
         size_t nsp = phase_nSpecies(ph);
         std::vector<double> x(nsp);
@@ -199,9 +190,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
             mexErrMsgTxt("unknown attribute");
             return;
         }
-    }
-
-    else if (job < 40) {
+    } else if (job < 40) {
         iok = 0;
         size_t nel = phase_nElements(ph);
         std::vector<double> x(nel);
@@ -226,9 +215,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
             mexErrMsgTxt("unknown attribute");
             return;
         }
-    }
-
-    else if (job < 50) {
+    } else if (job < 50) {
         iok = -1;
         int ksp, mel;
         int buflen;

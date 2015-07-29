@@ -1019,8 +1019,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                     nMinor, xMinor, yMinor);
             s += p;
         }
-    }
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
         err.save();
     }
     return s;

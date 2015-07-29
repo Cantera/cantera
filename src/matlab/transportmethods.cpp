@@ -72,9 +72,7 @@ void transportmethods(int nlhs, mxArray* plhs[],
         default:
             mexErrMsgTxt("unknown Transport method");
         }
-    }
-
-    else if (job < 30) {
+    } else if (job < 30) {
         nsp = getInt(prhs[3]);
         plhs[0] = mxCreateNumericMatrix(nsp,nsp,mxDOUBLE_CLASS,mxREAL);
         h = mxGetPr(plhs[0]);
@@ -88,10 +86,8 @@ void transportmethods(int nlhs, mxArray* plhs[],
         default:
             mexErrMsgTxt("unknown Transport method");
         }
-    }
-
-    // set parameters
-    else if (job < 40) {
+    } else if (job < 40) {
+        // set parameters
         double* params;
         int typ, k;
         switch (job) {

@@ -77,12 +77,8 @@ void mixturemethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-
-    // options that return a value of type 'double'
-
-    else if (job < 40) {
+    } else if (job < 40) {
+        // options that return a value of type 'double'
         switch (job) {
         case 19:
             r = (double) mix_nPhases(i);
@@ -143,11 +139,8 @@ void mixturemethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    // species properties
-    else if (job < 60) {
-
+    } else if (job < 60) {
+        // species properties
         int iok = 0;
         mwSize nsp = (mwSize) mix_nSpecies(i);
         std::vector<double> x(nsp);

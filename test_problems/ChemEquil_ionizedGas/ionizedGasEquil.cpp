@@ -81,9 +81,7 @@ int main(int argc, char** argv)
         }
         delete gas;
         fclose(FF);
-    }
-
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
         return -1;
     }

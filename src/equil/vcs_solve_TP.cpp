@@ -1482,8 +1482,7 @@ void VCS_SOLVE::solve_tp_equilib_check(bool& allMinorZeroedSpecies,
             plogf(" MAJOR SPECIES CONVERGENCE achieved");
             plogendl();
         }
-    }
-    else if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf(" MAJOR SPECIES CONVERGENCE achieved "
               "(because there are no major species)");
         plogendl();
@@ -2755,8 +2754,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             }
             vcs_switch_pos(false, jr, k);
             std::swap(aw[jr], aw[k]);
-        }
-        else if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
             plogf("   ---   %-12.12s", m_speciesName[k].c_str());
             if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("(Volts = %9.2g) remains            ", m_molNumSpecies_old[k]);
@@ -4201,11 +4199,10 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                 deltaGRxn[irxn] += m_stoichCoeffRxnMatrix(kcomp,irxn) * feSpecies[kcomp];
             }
         }
-    }
-    /*
-     * Multispecies Phase
-     */
-    else {
+    } else {
+        /*
+         * Multispecies Phase
+         */
         bool zeroedPhase = true;
 
         for (size_t irxn = 0; irxn < irxnl; ++irxn) {

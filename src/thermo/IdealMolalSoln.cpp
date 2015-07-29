@@ -696,10 +696,8 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             }
             IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
         }
-    }
-
-    // Exponentials - trial 2
-    else if (IMS_typeCutoff_ == 2) {
+    } else if (IMS_typeCutoff_ == 2) {
+        // Exponentials - trial 2
         if (xmolSolvent > IMS_X_o_cutoff_) {
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= 0.0;
