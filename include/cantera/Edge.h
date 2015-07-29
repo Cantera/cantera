@@ -42,8 +42,6 @@ public:
 protected:
     bool m_ok;
     XML_Node* m_r;
-
-private:
 };
 }
 

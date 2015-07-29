@@ -121,8 +121,6 @@ public:
         setDensity(rho);
     }
 
-protected:
-
 private:
     doublereal m_press;
 };

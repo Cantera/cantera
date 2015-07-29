@@ -489,7 +489,6 @@ protected:
     //! Dimensionless entropy at the (mtlast, m_p0)
     mutable vector_fp       m_s0_R;
 
-protected:
     /**
      * @internal
      *        This crucial internal routine calls the species thermo

@@ -689,7 +689,6 @@ private:
 
     vector_fp m_fluxes;
 
-private:
     //! Boolean indicating that the top-level mixture viscosity is current
     /*!
      *  This is turned false for every change in T, P, or C.

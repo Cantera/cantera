@@ -175,7 +175,6 @@ private:
      */
     void updateCond_T();
 
-private:
     //! vector of species thermal conductivities (W/m /K)
     /*!
      *  These are used in wilke's rule to calculate the viscosity of the

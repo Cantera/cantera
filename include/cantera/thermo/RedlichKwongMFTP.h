@@ -144,7 +144,6 @@ protected:
      */
     virtual void calcDensity();
 
-protected:
     //! Set the temperature (K)
     /*!
      * This function sets the temperature, and makes sure that
@@ -429,7 +428,6 @@ private:
      */
     void readXMLCrossFluid(XML_Node& pureFluidParam);
 
-private:
     //!  @internal Initialize the internal lengths in this object.
     /*!
      * Note this is not a virtual function and only handles this object
@@ -473,7 +471,6 @@ public:
      */
     virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
 
-public:
     //!  Calculates the density given the temperature and the pressure and a guess at the density.
     /*!
      * Note, below T_c, this is a multivalued function. We do not cross the vapor dome in this.

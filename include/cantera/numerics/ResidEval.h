@@ -170,9 +170,6 @@ protected:
      */
     std::vector<int> m_alg;
     std::map<int, int> m_constrain;
-
-private:
-
 };
 
 }

@@ -132,7 +132,6 @@ private:
      */
     virtual void initSolidTransport(Transport* tr, thermo_t* thermo, int log_level=0);
 
-private:
     //! Static instance of the factor -> This is the only instance of this
     //! object allowed
     static TransportFactory* s_factory;

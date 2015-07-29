@@ -204,8 +204,6 @@ public:
         return cos(m_c * t);
     }
     virtual Func1& derivative() const;
-
-protected:
 };
 
 /// exp
@@ -239,9 +237,6 @@ public:
     }
 
     virtual Func1& derivative() const;
-
-protected:
-
 };
 
 /// pow
@@ -274,9 +269,6 @@ public:
         return pow(t, m_c);
     }
     virtual Func1& derivative() const;
-
-protected:
-
 };
 
 /**
@@ -507,8 +499,6 @@ public:
     virtual int order() const {
         return 1;
     }
-
-protected:
 };
 
 /**
@@ -584,7 +574,6 @@ public:
     virtual int order() const {
         return 0;
     }
-protected:
 };
 
 /**
@@ -641,8 +630,6 @@ public:
     virtual int order() const {
         return 0;
     }
-
-protected:
 };
 
 
@@ -710,8 +697,6 @@ public:
     virtual int order() const {
         return 1;
     }
-
-protected:
 };
 
 /**
@@ -779,8 +764,6 @@ public:
     virtual int order() const {
         return 2;
     }
-
-protected:
 };
 
 //
@@ -837,7 +820,6 @@ public:
 
 protected:
     doublereal m_A, m_t0, m_tau;
-private:
 };
 
 
@@ -1059,8 +1041,6 @@ public:
 
 protected:
     Func1* m_func;
-
-private:
 };
 
 }

@@ -61,8 +61,6 @@ protected:
     bool m_ok;
     XML_Node* m_r;
     std::string m_id;
-
-private:
 };
 }
 

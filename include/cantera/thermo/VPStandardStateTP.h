@@ -451,7 +451,6 @@ public:
     virtual void getStandardVolumes_ref(doublereal* vol) const;
     //@}
 
-public:
     //! @name Initialization Methods - For Internal use (VPStandardState)
     /*!
      * The following methods are used in the process of constructing
@@ -536,8 +535,6 @@ protected:
     doublereal m_P0;
 
     // -> suggest making this private!
-protected:
-
     //! Pointer to the VPSS manager that calculates all of the standard state
     //! info efficiently.
     mutable VPSSMgr* m_VPSS_ptr;

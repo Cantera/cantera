@@ -48,7 +48,6 @@ protected:
     virtual ~XML_Error() throw() {
     }
 
-protected:
     //! Line number of the file
     int m_line;
 

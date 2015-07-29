@@ -117,8 +117,6 @@ public:
         return m_bandgap;
     }
 
-protected:
-
 private:
     doublereal m_press;
     doublereal m_emass;
