@@ -177,7 +177,7 @@ int main(int argc, char** argv)
             double Gibbs0_kgWater = molarGibbs0 / (Xmol[0] * Mo);
 
             double osm1 = HMW->osmoticCoefficient();
-            osm1 = osm1 - 1.0;
+            osm1 -= 1.0;
             /*
             * Need the gas constant in kJ/gmolK
             */

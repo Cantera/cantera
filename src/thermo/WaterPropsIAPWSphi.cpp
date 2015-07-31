@@ -1039,7 +1039,7 @@ doublereal  WaterPropsIAPWSphi::dfind(doublereal  p_red, doublereal  tau, double
         /*
          * updated the reduced density value
          */
-        dd = dd + deldd;
+        dd += deldd;
         if (fabs(deldd/dd) < 1.0E-14) {
             conv = true;
             break;

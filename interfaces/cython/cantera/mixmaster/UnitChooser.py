@@ -57,11 +57,11 @@ class UnitVar(Frame):
                             value=each,
                             command=self.update,
                             ).grid(column=c, row=r, sticky=W)
-                r=r+1
+                r += 1
                 if (r>10):
                     r=0
-                    c=c+1
-                    r=r+1
+                    c += 1
+                    r += 1
 
         b=Button(self.new,text='OK',command=self.finished, default=ACTIVE)
         b.grid(column=c, row=r)

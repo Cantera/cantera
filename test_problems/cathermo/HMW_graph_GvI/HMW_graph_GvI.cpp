@@ -82,7 +82,7 @@ int main(int argc, char** argv)
                     if (Is > 6.146) {
                         Is = 6.146;
                         doneSp = true;
-                        i = i - 1;
+                        i--;
                     }
                 }
                 moll[i1] = Is;

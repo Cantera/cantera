@@ -84,7 +84,7 @@ class NewFlowFrame(Frame):
 ##                      k = s.index
 ##                      if row > 15:
 ##                              row = 0
-##                              col = col + 2
+##                              col += 2
 ##                              l = Label(self.entries,text='Species')
 ##                              l.grid(column=col,row=row,sticky=E+W)
 ##                              e1 = Entry(self.entries)
@@ -92,7 +92,7 @@ class NewFlowFrame(Frame):
 ##                              e1['textvariable'] = self.var
 ##                              e1.config(state=DISABLED)
 ##                              e1.config(bg='lightyellow',relief=RIDGE)
-##                              row = row + 1
+##                              row += 1
 
 ##                      spname = s.name
 ##                      val = self.comp[k]
@@ -110,8 +110,8 @@ class NewFlowFrame(Frame):
 ##                      if showit:
 ##                              l.grid(column= col ,row=row,sticky=E)
 ##                              entry1.grid(column=col+1,row=row)
-##                              n=n+1
-##                              row = row + 1
+##                              n+=1
+##                              row += 1
 ##                 if self.c.hide.get():
 ##                  b=Button(self.entries,height=1,command=self.maximize)
 ##              else:

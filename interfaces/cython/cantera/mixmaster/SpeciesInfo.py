@@ -50,7 +50,7 @@ class SpeciesInfo(Label):
                                .grid(row=0,column=0,sticky=N+W)
         for el, c in self.sp.composition():
             Label(self.eframe,text=repr(int(c))+' '+el).grid(row=0,column=r)
-            r = r + 1
+            r += 1
 
 
         # thermodynamic properties
@@ -73,7 +73,7 @@ class SpeciesInfo(Label):
             p.grid(row=r,column=1,sticky=W)
             p.v.config(state=DISABLED,bg='lightgray')
             self.prop.append(p)
-            r = r + 1
+            r += 1
 
         tmin = self.sp.minTemp
         tmax = self.sp.maxTemp
@@ -100,7 +100,7 @@ class SpeciesInfo(Label):
             self.cpdata.append((t,self.sp.cp_R(t)))
             self.hdata.append((t,self.sp.enthalpy_RT(t)))
             self.sdata.append((t,self.sp.entropy_R(t)))
-            t = t + n
+            t += n
 
         # specific heat
 
@@ -210,8 +210,8 @@ class SpeciesInfo(Label):
             ymax = ymax*1.1
             dy = abs(ymax - ymin)
         else:
-            ymin = ymin - 0.1*dy
-            ymax = ymax + 0.1*dy
+            ymin -= 0.1*dy
+            ymax += 0.1*dy
             dy = abs(ymax - ymin)
 
         p10 = math.floor(math.log10(0.1*dy))
@@ -220,7 +220,7 @@ class SpeciesInfo(Label):
         i = 0
         while dy/fctr > 5:
             fctr = mm[i % 3]*fctr
-            i = i + 1
+            i += 1
         ymin = fctr*math.floor(ymin/fctr)
         ymax = fctr*(math.floor(ymax/fctr + 1))
         return (ymin, ymax, fctr)
@@ -241,7 +241,7 @@ class SpeciesInfo(Label):
                 plot.join([(tmax - 0.05*(tmax - tmin), ytick, 'gray')])
                 plot.last_points = []
 
-            ytick = ytick + dtick
+            ytick += dtick
 
     def finished(self,event=None):
         self.new.destroy()

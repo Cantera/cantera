@@ -94,7 +94,7 @@ class ControlWindow(Frame):
         i = 0
         for f in funcs:
             filemenu.add_command(label=f[0], command=f[1])
-            i = i + 1
+            i += 1
         filebutton['menu']=filemenu
         return filemenu
 

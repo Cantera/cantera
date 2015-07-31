@@ -54,7 +54,7 @@ class EditFrame(Frame):
             x = Label(self.eframe,text=el,fg='darkblue')
             x.grid(column = n, row=0)
             self.element_labels.append(x)
-            n = n + 1
+            n += 1
         b=Button(self.eframe,text='Element',command=self.chooseElements, default=ACTIVE)
         b.grid(column=0, row=1, columnspan=10)
 
@@ -77,7 +77,7 @@ class EditFrame(Frame):
                                              onvalue = 1, offvalue = 0) )
             self.spcheck[i].grid(row = r, column = c, sticky = N+W)
             self.spcheck[i].bind("<Button-3>", self.editSpecies)
-            c = c + 1
+            c += 1
             if c > 4:
                 c, r = 0, r + 1
 
@@ -106,7 +106,7 @@ class EditFrame(Frame):
         i = 0
         for el in self.app.mech.elementNames():
             self.addEntry(elframe,el,i,0,self.mech.nAtoms(sp, el))
-            i = i + 1
+            i += 1
 
         # thermo
         thframe = Frame(e)
@@ -194,6 +194,6 @@ class EditFrame(Frame):
             x = Label(self.eframe,text=el.symbol(),fg='darkblue')
             x.grid(column = n, row=0)
             self.element_labels.append(x)
-            n = n + 1
+            n += 1
 
         self.app.makeWindows()

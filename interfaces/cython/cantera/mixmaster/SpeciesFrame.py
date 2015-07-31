@@ -48,9 +48,9 @@ class SpeciesFrame(Frame):
             self.c[el].pack()
             self.c[el].bind("<Button-1>",self.setColors)
             self.species[el].grid(row= rw, column = col,sticky=W+N+E+S)
-            col = col + 1
+            col += 1
             if col > ncol:
-                rw = rw + 1
+                rw += 1
                 col = 0
         Label(self.entries,text='select the species to be included, and then press OK.\nTo view the properties of the selected species, press Display ').grid(row=0, column=2, columnspan=10, sticky=W)
 
@@ -144,7 +144,7 @@ class SpeciesFrame(Frame):
 ##                                                row=n,
 ##                                                sticky=W,
 ##                                                padx=10)
-##             n = n + 1
+##             n += 1
 
 
 # utility functions

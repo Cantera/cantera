@@ -338,8 +338,8 @@ class DataFrame(Frame):
             ymax = ymax*1.1
             dy = abs(ymax - ymin)
         else:
-            ymin = ymin - 0.1*dy
-            ymax = ymax + 0.1*dy
+            ymin -= 0.1*dy
+            ymax += 0.1*dy
             dy = abs(ymax - ymin)
 
         p10 = math.floor(math.log10(0.1*dy))
@@ -348,7 +348,7 @@ class DataFrame(Frame):
         i = 0
         while dy/fctr > 5:
             fctr = mm[i % 3]*fctr
-            i = i + 1
+            i += 1
         ymin = fctr*math.floor(ymin/fctr)
         ymax = fctr*(math.floor(ymax/fctr + 1))
         return (ymin, ymax, fctr)

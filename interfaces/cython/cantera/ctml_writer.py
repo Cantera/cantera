@@ -149,7 +149,7 @@ class XMLnode(object):
             if value[0] != ' ':
                 value = ' '+value
             if value[-1] != ' ':
-                value = value+' '
+                value += ' '
         s.append(value+'-->')
 
     def write_attribs(self, s):
@@ -2176,7 +2176,7 @@ class lattice_solid(phase):
         for lat in lattices:
             _sp = ""
             for spp in lat._species:
-                _sp = _sp + spp
+                _sp += spp
             s = _sp.split()
             for sp in s:
                 if not sp in slist:

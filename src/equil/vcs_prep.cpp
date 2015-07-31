@@ -225,7 +225,7 @@ bool VCS_SOLVE::vcs_wellPosed(VCS_PROB* vprob)
 {
     double sum = 0.0;
     for (size_t e = 0; e < vprob->ne; e++) {
-        sum = sum + vprob->gai[e];
+        sum += vprob->gai[e];
     }
     if (sum < 1.0E-20) {
         plogf("vcs_wellPosed: Element abundance is close to zero\n");

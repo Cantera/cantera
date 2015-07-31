@@ -58,7 +58,7 @@ class PeriodicTable(Frame):
             self.c[el].pack()
             self.c[el].bind("<Button-1>",self.setColors)
             self.element[el].grid(row=_pos[el][0]-1, column = _pos[el][1]-1,sticky=W+N+E+S)
-            n = n + 1
+            n += 1
         Label(self.entries,text='select the elements to be included, and then press OK.\nTo view the properties of the selected elements, press Display ').grid(row=0, column=2, columnspan=10, sticky=W)
 
 
@@ -153,7 +153,7 @@ class ElementPropertyFrame(Frame):
                                                    row=n,
                                                    sticky=W,
                                                    padx=10)
-            n = n + 1
+            n += 1
 
 
 # utility functions

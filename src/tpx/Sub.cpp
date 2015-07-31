@@ -41,7 +41,7 @@ double Substance::dPsdT()
 {
     double tsave = T;
     double ps1 = Ps();
-    T = T + DeltaT;
+    T += DeltaT;
     double dpdt = (Ps() - ps1)/DeltaT;
     T = tsave;
     return dpdt;
@@ -103,7 +103,7 @@ double Substance::Tsat(double p)
         if (dta > dtm) {
             dt = dt*dtm/dta;
         }
-        T = T + dt;
+        T += dt;
         LoopCount++;
         if (LoopCount > 100) {
             T = Tsave;

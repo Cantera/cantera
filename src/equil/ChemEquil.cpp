@@ -531,7 +531,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
                 dt = 0.5*((t0) + tmaxPhase) - t0;
             }
             // update the T estimate
-            t0 = t0 + dt;
+            t0 += dt;
             if (t0 <= tminPhase || t0 >= tmaxPhase || t0 < 100.0) {
                 throw CanteraError("ChemEquil::equilibrate", "T out of bounds");
             }

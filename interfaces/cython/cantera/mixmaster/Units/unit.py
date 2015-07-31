@@ -103,9 +103,9 @@ class unit(object):
             exponent = self.derivation[i]
             if exponent == 0: continue
             if exponent == 1:
-                str = str + " %s" % (self._labels[i])
+                str += " %s" % (self._labels[i])
             else:
-                str = str + " %s^%d" % (self._labels[i], exponent)
+                str += " %s^%d" % (self._labels[i], exponent)
 
         return str
 

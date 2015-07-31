@@ -214,7 +214,7 @@ class MixtureFrame(Frame):
             k = s.index
             if row > 25:
                 row = 0
-                col = col + 2
+                col += 2
                 l = Label(self.entries,text='Species')
                 l.grid(column=col,row=row,sticky=E+W)
                 e1 = Entry(self.entries)
@@ -222,7 +222,7 @@ class MixtureFrame(Frame):
                 e1['textvariable'] = self.var
                 e1.config(state=DISABLED)
                 e1.config(bg='lightyellow',relief=RIDGE)
-                row = row + 1
+                row += 1
 
             spname = s.name
             val = self.comp[k]
@@ -240,8 +240,8 @@ class MixtureFrame(Frame):
             if showit:
                 l.grid(column= col ,row=row,sticky=E)
                 entry1.grid(column=col+1,row=row)
-                n=n+1
-                row = row + 1
+                n += 1
+                row += 1
             if equil == 1:
                 entry1.config(state=DISABLED,bg='lightgray')
 ##                 if self.c.hide.get():
