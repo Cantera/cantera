@@ -176,7 +176,6 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
         }
         index += 11;
     }
-
 }
 
 void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs)

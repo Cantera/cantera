@@ -1,14 +1,12 @@
 % DIFFFLAME - A non-premixed opposed-jet flame.
 %
 %
- 
+
 help diffflame
 disp('press any key to begin the simulation');
 pause
 
-
 t0 = cputime;  % record the starting time
-
 
 % parameter values
 p          =   oneatm;              % pressure
@@ -29,11 +27,10 @@ tol_ts    = [1.0e-3 1.0e-9];        % [rtol atol] for time stepping
 
 loglevel  = 1;                      % amount of diagnostic output (0
                                     % to 5)
-				    
-refine_grid = 1;                    % 1 to enable refinement, 0 to
-                                    % disable 				   
 
-				   
+refine_grid = 1;                    % 1 to enable refinement, 0 to
+                                    % disable
+
 %%%%%%%%%%%%%%%% create the gas object %%%%%%%%%%%%%%%%%%%%%%%%
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
@@ -44,16 +41,12 @@ gas = GRI30('Mix')
 % set its state to that of the  fuel (arbitrary)
 set(gas,'T', tin, 'P', p, 'X', comp2);
 
-
-
 %%%%%%%%%%%%%%%% create the flow object %%%%%%%%%%%%%%%%%%%%%%%
 
 f = AxisymmetricFlow(gas,'flow');
 
 set(f, 'P', p, 'grid', initial_grid);
 set(f, 'tol', tol_ss, 'tol-time', tol_ts);
-
-
 
 %%%%%%%%%%%%%%% create the air inlet %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -63,21 +56,18 @@ set(f, 'tol', tol_ss, 'tol-time', tol_ts);
 inlet_o = Inlet('air_inlet');
 set(inlet_o, 'T', tin, 'MassFlux', mdot_o, 'X', comp1);
 
-
-
 %%%%%%%%%%%%%% create the fuel inlet %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+%
 %
 inlet_f = Inlet('fuel_inlet');
 set(inlet_f, 'T', tin, 'MassFlux', mdot_f, 'X', comp2);
 
-
 %%%%%%%%%%%%% create the flame object  %%%%%%%%%%%%
 %
 % Once the component parts have been created, they can be assembled
-% to create the flame object. Function npflame_init (in Cantera/1D) 
+% to create the flame object. Function npflame_init (in Cantera/1D)
 % sets up the initial guess for the solution using a Burke-Schumann
-% flame. 
+% flame.
 %
 fl = npflame_init(gas, inlet_f, f, inlet_o, 'C2H6', 'O2', 3.5);
 
@@ -87,7 +77,6 @@ fl = npflame_init(gas, inlet_f, f, inlet_o, 'C2H6', 'O2', 3.5);
 
 % solve with fixed temperature profile first
 solve(fl, loglevel, 0); %refine_grid);
-
 
 %%%%%%%%%%%% enable the energy equation %%%%%%%%%%%%%%%%%%%%%
 %
@@ -99,16 +88,13 @@ solve(fl, loglevel, 0); %refine_grid);
 enableEnergy(f);
 setRefineCriteria(fl, 2, 200.0, 0.1, 0.2);
 solve(fl, loglevel, refine_grid);
-saveSoln(fl,'c2h6.xml','energy',['solution with energy' ...
-		    ' equation']);
-
+saveSoln(fl,'c2h6.xml','energy',['solution with energy equation']);
 
 %%%%%%%%%% show statistics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 writeStats(fl);
 elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g',elapsed);
 disp(e);
-
 
 %%%%%%%%%% make plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -131,4 +117,3 @@ title('Radial Velocity / Radius [s^-1]');
 subplot(2,3,6);
 plotSolution(fl, 'flow', 'u');
 title('Axial Velocity [m/s]');
-

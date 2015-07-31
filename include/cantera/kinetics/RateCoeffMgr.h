@@ -19,9 +19,7 @@ namespace Cantera
 template<class R>
 class Rate1
 {
-
 public:
-
     Rate1() {}
     virtual ~Rate1() {}
 

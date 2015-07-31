@@ -6,7 +6,6 @@
 #include "clib/ct.h"
 
 using namespace std;
-
 using namespace Cantera;
 
 void surfmethods(int nlhs, mxArray* plhs[],
@@ -22,15 +21,12 @@ void surfmethods(int nlhs, mxArray* plhs[],
 
     // set parameters
     if (job < 100) {
-
         switch (job) {
-
         case 1:
             checkNArgs(4, nrhs);
             vv = getDouble(prhs[3]);
             iok = surf_setsitedensity(surf, vv);
             break;
-
         case 3:
             checkNArgs(4, nrhs);
             ptr = mxGetPr(prhs[3]);
@@ -43,13 +39,11 @@ void surfmethods(int nlhs, mxArray* plhs[],
                 mexErrMsgTxt("wrong array size for coverages");
             }
             break;
-
         case 5:
             checkNArgs(4, nrhs);
             str = getString(prhs[3]);
             iok = surf_setcoveragesbyname(surf, str);
             break;
-
         default:
             mexErrMsgTxt("unknown job");
         }

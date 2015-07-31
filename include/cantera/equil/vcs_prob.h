@@ -298,7 +298,6 @@ public:
      *  @param elNameNew New name of the element
      *  @param elType    Type of the element
      *  @param elactive  boolean indicating whether the element is active
-     *
      *  @return returns the index number of the new element
      */
     size_t addElement(const char* elNameNew, int elType, int elactive);

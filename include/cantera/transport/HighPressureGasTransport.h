@@ -27,7 +27,6 @@ namespace Cantera
 class HighPressureGasTransport : public MultiTransport
 {
 protected:
-
     //! default constructor
     /*!
      *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
@@ -68,7 +67,6 @@ public:
     friend class TransportFactory;
 
 protected:
-
     virtual doublereal Tcrit_i(size_t i);
 
     virtual doublereal Pcrit_i(size_t i);

@@ -312,7 +312,6 @@ void Application::close_XML_File(const std::string& file)
 long int Application::readStringRegistryKey(const std::string& keyName, const std::string& valueName,
         std::string& value, const std::string& defaultValue)
 {
-
     HKEY key;
     long open_error = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_READ, &key);
     if (open_error != ERROR_SUCCESS) {
@@ -405,7 +404,6 @@ void Application::setDefaultDirectories()
     // Under Windows, the Cantera setup utility records the installation
     // directory in the registry. Data files are stored in the 'data'
     // subdirectory of the main installation directory.
-
     std::string installDir;
     readStringRegistryKey("SOFTWARE\\Cantera\\Cantera " CANTERA_SHORT_VERSION,
                           "InstallDir", installDir, "");
@@ -426,9 +424,7 @@ void Application::setDefaultDirectories()
 #endif
 
 #ifdef DARWIN
-    //
     // add a default data location for Mac OS X
-    //
     dirs.push_back("/Applications/Cantera/data");
 #endif
 

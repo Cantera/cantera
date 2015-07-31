@@ -25,14 +25,14 @@ stoichiometric_solid(name = 'diamond',
                      species = 'C(d)')
 
 species(name = 'C(d)',
-        atoms = 'C:1')   #no thermo needed (rxn is ireversible) 
+        atoms = 'C:1')   #no thermo needed (rxn is ireversible)
 
 
 #------------- the diamond surface -------------------------------------
 
 ideal_interface(name = 'diamond_100',
-	        elements = ' H C ',
-	        species = 'c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B',
+                elements = ' H C ',
+                species = 'c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B',
                 reactions = 'all',
                 phases = 'gas diamond',
                 site_density = (3.0E-9, 'mol/cm2'),
@@ -105,5 +105,3 @@ surface_reaction( 'c6H*       <=> c6*H',            [1.0E8,  0.0, 0.0]) #t
 # reaction to add new carbon atom to bulk and regenerate a new site
 #
 surface_reaction( 'c6B       <=> c6HH + C(d)',      [1.0E9,  0.0, 0.0]) #u
-
-

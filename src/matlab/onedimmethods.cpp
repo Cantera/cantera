@@ -16,19 +16,16 @@ void onedimmethods(int nlhs, mxArray* plhs[],
     double* dom_ids, *h;
     int indx = 0;
     char* nm;
-
     int dom;
     dom = getInt(prhs[1]);
-
     int idom, icomp, localPoint;
     if (job < 10) {
         int ph, kin, tr, itype;
         size_t sz, nd;
 
         switch (job) {
-
-            // construct a new stagnation flow instance
         case 1:
+            // construct a new stagnation flow instance
             checkNArgs(7, nrhs);
             ph = getInt(prhs[3]);
             kin = getInt(prhs[4]);
@@ -36,40 +33,34 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             itype = getInt(prhs[6]);
             indx = stflow_new(ph, kin, tr, itype);
             break;
-
-            // construct a new Inlet1D instance
         case 2:
+            // construct a new Inlet1D instance
             checkNArgs(3, nrhs);
             indx = inlet_new();
             break;
-
-            // construct a new Surf1D instance
         case 3:
+            // construct a new Surf1D instance
             checkNArgs(3, nrhs);
             indx = surf_new();
             break;
-
-            // construct a new Symm1D instance
         case 4:
+            // construct a new Symm1D instance
             checkNArgs(3, nrhs);
             indx = symm_new();
             break;
-
-            // construct a new Outlet1D instance
         case 5:
+            // construct a new Outlet1D instance
             checkNArgs(3, nrhs);
             indx = outlet_new();
             break;
-
-            // construct a new ReactingSurf1D instance
         case 6:
+            // construct a new ReactingSurf1D instance
             checkNArgs(4, nrhs);
             indx = reactingsurf_new();
             reactingsurf_setkineticsmgr(indx, getInt(prhs[3]));
             break;
-
-            // construct a new Sim1D instance
         case 8: {
+            // construct a new Sim1D instance
             checkNArgs(5, nrhs);
             nd = getInt(prhs[3]);
             dom_ids = mxGetPr(prhs[4]);
@@ -387,7 +378,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             onoff = getInt(prhs[3]);
             iok = reactingsurf_enableCoverageEqs(dom, onoff);
             break;
-
         default:
             mexPrintf(" job = %d ",job);
             mexErrMsgTxt("unknown parameter");

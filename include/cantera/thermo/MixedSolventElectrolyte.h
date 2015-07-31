@@ -31,7 +31,6 @@ namespace Cantera
 //!  MixedSolventElectrolyte is a derived class of GibbsExcessVPSSTP that employs
 //!  the DH and local Marguless approximations for the excess Gibbs free energy
 /*!
- *
  * MixedSolventElectrolyte derives from class GibbsExcessVPSSTP which is derived
  * from VPStandardStateTP,
  * and overloads the virtual methods defined there with ones that
@@ -57,7 +56,6 @@ namespace Cantera
  *  density to pressure. The variable m_Pcurrent contains the current value of the
  *  pressure within the phase.
  *
- *
  * <HR>
  * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
@@ -68,7 +66,6 @@ namespace Cantera
  *  that the species are in pure component states at the temperature
  *  and pressure of the solution.  I don't think it prevents, however,
  *  some species from being dilute in the solution.
- *
  *
  * <HR>
  * <H2> Specification of Solution Thermodynamic Properties </H2>
@@ -187,7 +184,6 @@ namespace Cantera
  *      C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
  *   \f]
  *
- *
  *  \f$ C_j^a \f$ is the activity concentration of species j, and
  *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C^s \f$
  *  is the standard concentration. \f$ a_j \f$ is
@@ -254,7 +250,6 @@ namespace Cantera
  *  \f$k^{-1} \f$ has units of s-1.
  *
  *  @ingroup thermoprops
- *
  */
 class MixedSolventElectrolyte : public MolarityIonicVPSSTP
 {

@@ -13,7 +13,6 @@
 
 #include "SingleSpeciesTP.h"
 
-
 namespace Cantera
 {
 

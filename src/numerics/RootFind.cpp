@@ -187,7 +187,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     int doFinalFuncCall = 0;
     doublereal x1, x2, xnew, f1, f2, fnew, slope;
     doublereal deltaX2 = 0.0, deltaXnew = 0.0;
-
     int posStraddle = 0;
     int retn = ROOTFIND_FAILEDCONVERGENCE;
     int foundPosF = 0;
@@ -302,7 +301,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     /*
      * Now, this is actually a tricky part of the algorithm - Find the x value for
      * the second point. It's tricky because we don't have a valid idea of the scale of x yet
-     *
      */
     rfT.reasoning = "Second Point: ";
     if (x1 == 0.0) {
@@ -338,8 +336,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         fnorm = 0.5*(fabs(f1) + fabs(f2)) + fabs(m_funcTargetValue) + m_atolf;
     }
     fnoise = 1.0E-100;
-
-
     if (f2 > fnoise) {
         if (!foundPosF) {
             foundPosF = 1;
@@ -362,7 +358,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     rfT.fval = f2;
     rfT.foundPos = foundPosF;
     rfT.foundNeg = foundNegF;
-
 
     /*
      *  See if we have already achieved a straddle
@@ -499,8 +494,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         }
         /*
          *  OK, we have an estimate xnew.
-         *
-         *
          *  Put heuristic bounds on the step jump
          */
         if ((xnew > x1 && xnew < x2) || (xnew < x1 && xnew > x2)) {
@@ -865,7 +858,6 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             }
 
-
             /*
              *  Check for excess convergence in the x coordinate
              */
@@ -998,9 +990,7 @@ done:
                 rfT.reasoning += "CONVERGENCE: NormalEnding -> Last point used";
             }
         } else {
-
             *xbest = x2;
-
             rfT.xval = *xbest;
             rfT.fval = f2;
             rfT.delX = fabs(x2 - x1);

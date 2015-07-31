@@ -148,10 +148,8 @@ double oxygen::up()
     for (int i=0; i<14; i++) {
         sum += (C(i,rt,rt2) - T*Cprime(i,rt,rt2,rt3))*I(i,egrho);
     }
-
     sum += (((0.25*Goxy[6]*T + Goxy[5]/3.0)*T + 0.5*Goxy[4])*T + Goxy[3])*T + Goxy[2]*log(T)
            - (Goxy[1] + 0.5*Goxy[0]*rt)*rt + Goxy[7]*beta/(exp(beta*rt) - 1.0) + u0;
-
     return sum + m_energy_offset;
 }
 
@@ -167,7 +165,6 @@ double oxygen::sp()
     for (int i=0; i<14; i++) {
         sum -= Cprime(i,rt,rt2,rt3)*I(i,egrho);
     }
-
     sum += (((Goxy[6]/3.0)*T + 0.5*Goxy[5])*T + Goxy[4])*T + Goxy[3]*log(T)
            -((Goxy[0]*rt/3.0 + 0.5*Goxy[1])*rt + Goxy[2])*rt
            + Goxy[7]*(beta*rt + beta*rt/(exp(beta*rt) - 1.0)

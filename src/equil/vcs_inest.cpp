@@ -321,7 +321,6 @@ int VCS_SOLVE::vcs_inest_TP()
 {
     int retn = 0;
     clockWC tickTock;
-
     if (m_doEstimateEquil > 0) {
         /*
          *  Calculate the elemental abundances

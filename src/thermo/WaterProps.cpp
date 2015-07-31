@@ -132,7 +132,6 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
                                 - 2.0*tmp1 * t4t4/(t3t3*tmp3));
         return d2rhodT2;
     }
-
     return rho;
 }
 
@@ -153,7 +152,6 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
     doublereal eps1000 = U1 * exp(U2 * T + U3 * T2);
     doublereal C = U4 + U5/(U6 + T);
     doublereal B = U7 + U8/T + U9 * T;
-
     doublereal Pbar = P_pascal * 1.0E-5;
     doublereal tmpBpar = B + Pbar;
     doublereal tmpB1000 = B + 1000.0;
@@ -163,11 +161,8 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
     if (ifunc == 1 || ifunc == 2) {
         doublereal tmpC = U6 + T;
         doublereal dCdT = - U5/(tmpC * tmpC);
-
         doublereal dBdT = - U8/(T * T) + U9;
-
         doublereal deps1000dT = eps1000 * (U2 + 2.0 * U3 * T);
-
         doublereal dltmpdT = (dBdT/tmpBpar - dBdT/tmpB1000);
         if (ifunc == 1) {
             return deps1000dT + dCdT * ltmp + C * dltmpdT;
@@ -175,10 +170,8 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
         doublereal T3     = T2 * T;
         doublereal d2CdT2 = - 2.0 * dCdT / tmpC;
         doublereal d2BdT2 =   2.0 * U8 / (T3);
-
         doublereal d2ltmpdT2 = (d2BdT2*(1.0/tmpBpar - 1.0/tmpB1000) +
                                 dBdT*dBdT*(1.0/(tmpB1000*tmpB1000) - 1.0/(tmpBpar*tmpBpar)));
-
         doublereal d2eps1000dT2 = (deps1000dT * (U2 + 2.0 * U3 * T) + eps1000  * (2.0 * U3));
 
         if (ifunc == 2) {
@@ -191,10 +184,8 @@ doublereal WaterProps::relEpsilon(doublereal T, doublereal P_pascal,
         doublereal dltmpdP   = 1.0E-5 / tmpBpar;
         return C * dltmpdP;
     }
-
     return epsRel;
 }
-
 
 doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
 {
@@ -214,10 +205,8 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
     doublereal tmp3 = tmp2 * sqrt(tmp2);
     doublereal A_Debye = tmp * tmp3 / (8.0 * Pi);
 
-
     /*
      *  dAdT = - 3/2 Ad/T + 1/2 Ad/dw d(dw)/dT - 3/2 Ad/eps d(eps)/dT
-     *
      *  dAdT = - 3/2 Ad/T - 1/2 Ad/Vw d(Vw)/dT - 3/2 Ad/eps d(eps)/dT
      */
     if (ifunc == 1 || ifunc == 2) {
@@ -244,20 +233,16 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
              *    it again.
              */
             doublereal d2AdT2 = 1.5 / T * (A_Debye/T - dAdT);
-
             doublereal d2epsRelWaterdT2 = relEpsilon(T, P, 2);
-
             d2AdT2 += 1.5 * (- dAdT * depsRelWaterdT / epsRelWater
                              - A_Debye / epsRelWater *
                              (d2epsRelWaterdT2 - depsRelWaterdT * depsRelWaterdT / epsRelWater));
-
             doublereal deltaT = -0.1;
             doublereal Tdel = T + deltaT;
             doublereal cte_del =  coeffThermalExp_IAPWS(Tdel, P);
             doublereal dctedT = (cte_del - cte) / Tdel;
             doublereal contrib3 = 0.5 * (-(dAdT * cte) -(A_Debye * dctedT));
             d2AdT2 += contrib3;
-
             return d2AdT2;
         }
     }
@@ -266,26 +251,19 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
      *                          (e e/(epsilon R T))^3/2
      *
      *  dAdP =  + 1/2 Ad/dw d(dw)/dP - 3/2 Ad/eps d(eps)/dP
-     *
      *  dAdP =  - 1/2 Ad/Vw d(Vw)/dP - 3/2 Ad/eps d(eps)/dP
-     *
      *  dAdP =  + 1/2 Ad * kappa  - 3/2 Ad/eps d(eps)/dP
      *
      *  where kappa = - 1/Vw d(Vw)/dP_T (isothermal compressibility)
      */
     if (ifunc == 3) {
-
         doublereal dAdP = 0.0;
-
         doublereal depsRelWaterdP = relEpsilon(T, P, 3);
         dAdP -=  A_Debye * (1.5 * depsRelWaterdP / epsRelWater);
-
         doublereal kappa = isothermalCompressibility_IAPWS(T,P);
         dAdP += A_Debye * (0.5 * kappa);
-
         return dAdP;
     }
-
     return A_Debye;
 }
 
@@ -349,7 +327,6 @@ doublereal WaterProps::viscosityWater() const
     doublereal tbar = temp / TStar;
     doublereal tbar2 = tbar * tbar;
     doublereal tbar3 = tbar2 * tbar;
-
     doublereal mu0bar = std::sqrt(tbar) / (H[0] + H[1]/tbar + H[2]/tbar2 + H[3]/tbar3);
 
     doublereal tfac1 = 1.0 / tbar - 1.0;
@@ -388,7 +365,6 @@ doublereal WaterProps::viscosityWater() const
     }
 
     doublereal mubar = mu0bar * mu1bar * mu2bar;
-
     return mubar * muStar;
 }
 
@@ -441,9 +417,7 @@ doublereal WaterProps::thermalConductivityWater() const
                       Lji[5][0]*rfac5 + Lji[5][1]*tfac1*rfac5  + Lji[5][2]*tfac2*rfac5
                      );
     doublereal  lambda1bar = exp(rhobar * sum);
-
     doublereal mu0bar = std::sqrt(tbar) / (H[0] + H[1]/tbar + H[2]/tbar2 + H[3]/tbar3);
-
     doublereal tfac5 = tfac4 * tfac1;
     doublereal rfac6 = rfac5 * rfac1;
 
@@ -455,7 +429,6 @@ doublereal WaterProps::thermalConductivityWater() const
            Hij[1][5]*tfac1*rfac5 + Hij[3][6]*tfac3*rfac6
           );
     doublereal mu1bar = std::exp(rhobar * sum);
-
     doublereal t2r2 = tbar * tbar / (rhobar * rhobar);
     doublereal drhodp =  1.0 / m_waterIAPWS->dpdrho();
     drhodp *= presStar / rhoStar;
@@ -475,13 +448,10 @@ doublereal WaterProps::thermalConductivityWater() const
      *            - tau delta (phi0_dt() + phiR_dt())
      */
     doublereal beta = m_waterIAPWS->coeffPresExp();
-
     doublereal dpdT_const_rho = beta * GasConstant * dens / 18.015268;
     dpdT_const_rho *= Tstar /  presstar;
-
     doublereal  lambda2bar = 0.0013848 / (mu0bar * mu1bar) * t2r2 * dpdT_const_rho * dpdT_const_rho *
                              xsipow * sqrt(rhobar) * exp(-18.66*temp2 - rho4);
-
     return (lambda0bar * lambda1bar + lambda2bar) * lambdastar;
 }
 

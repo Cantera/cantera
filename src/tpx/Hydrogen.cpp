@@ -169,7 +169,6 @@ double hydrogen::up()
             sum += Ghydro[i+12] * T2 * icv(i, x, log(x));
         }
     }
-
     return sum + m_energy_offset;
 }
 
@@ -198,7 +197,6 @@ double hydrogen::sp()
             sum += Ghydro[i+12] / (i + 1) * pow(xlg, i+1);
         }
     }
-
     return sum + m_entropy_offset;
 }
 

@@ -1,6 +1,5 @@
 /**
  *  @file ReactionPath.h
- *
  *  Classes for reaction path analysis.
  */
 
@@ -95,9 +94,8 @@ public:
     virtual ~Path() {}
 
     /**
-     * Add a reaction to the path. Increment the flow from this
-     * reaction, the total flow, and the flow associated with this
-     * label.
+     * Add a reaction to the path. Increment the flow from this reaction, the
+     * total flow, and the flow associated with this label.
      */
     void addReaction(size_t rxnNumber, doublereal value,
                      const std::string& label = "");

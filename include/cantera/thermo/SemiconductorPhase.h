@@ -26,9 +26,7 @@ const int cHole = 1;
  */
 class SemiconductorPhase : public ThermoPhase
 {
-
 public:
-
     SemiconductorPhase() {}
     SemiconductorPhase(std::string infile, std::string id="");
 
@@ -56,14 +54,12 @@ public:
         return cSemiconductor;
     }
 
-
     virtual void setPressure(doublereal pres) {
         m_press = pres;
     }
     virtual doublereal  pressure() const {
         return m_press;
     }
-
 
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Semiconductor");

@@ -272,27 +272,18 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
         sum = std::max(0.0, PBMoleFractions_[0]);
         for (size_t k = 1; k < numPBSpecies_; k++) {
             sum += PBMoleFractions_[k];
-
         }
         for (size_t k = 0; k < numPBSpecies_; k++) {
             PBMoleFractions_[k] /= sum;
         }
-
         break;
     }
     case PBTYPE_SINGLECATION:
         throw CanteraError("eosType", "Unknown type");
-
-        break;
-
     case PBTYPE_MULTICATIONANION:
         throw CanteraError("eosType", "Unknown type");
-
-        break;
     default:
         throw CanteraError("eosType", "Unknown type");
-        break;
-
     }
 }
 
@@ -390,7 +381,6 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
         }
     }
 
-
     /*
      * Go down the chain
      */
@@ -436,7 +426,6 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) 
         getStandardChemPotentials(&muss[0]);
         getActivities(&actMolal[0]);
 
-
         if (show_thermo) {
             sprintf(p, " \n");
             s += p;
@@ -469,7 +458,6 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) 
                 s += p;
             }
         }
-
     } catch (CanteraError& e) {
         e.save();
     }

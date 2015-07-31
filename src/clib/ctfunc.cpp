@@ -92,7 +92,6 @@ extern "C" {
         }
     }
 
-
     int func_del(int i)
     {
         try {
@@ -162,5 +161,4 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
 }

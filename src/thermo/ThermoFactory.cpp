@@ -21,14 +21,11 @@
 #include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/PhaseCombo_Interaction.h"
-
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
-
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
-
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/SemiconductorPhase.h"
 
@@ -42,17 +39,14 @@
 #include "cantera/thermo/MineralEQ3.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
-
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/LatticePhase.h"
-
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/MixedSolventElectrolyte.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
-
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -102,7 +96,6 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
     }
 
     switch (ieos) {
-
     case cIdealGas:
         return new IdealGasPhase;
     case cIncompressible:
@@ -397,7 +390,6 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
 
     // loop over the speciesArray elements
     for (size_t jsp = 0; jsp < sparrays.size(); jsp++) {
-
         const XML_Node& speciesArray = *sparrays[jsp];
 
         // If the speciesArray element has a child element

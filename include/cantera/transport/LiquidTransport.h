@@ -65,7 +65,6 @@ namespace Cantera
  *  and quantities like the electric current are computed
  *  based on a combined electrochemical potential.
  *
- *
  *  @ingroup tranprops
  */
 class LiquidTransport : public Transport
@@ -1081,7 +1080,6 @@ private:
      *  of LTPspecies held in m_lambdaTempDep_Ns.
      *
      *   Length = number of species
-     *
      */
     vector_fp  m_lambdaSpecies;
 

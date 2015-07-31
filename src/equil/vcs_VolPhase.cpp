@@ -227,7 +227,6 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
         m_singleSpecies = false;
     }
 
-
     IndSpecies.resize(nspecies, npos);
 
     if (ListSpeciesPtr.size() >= m_numSpecies) {
@@ -263,7 +262,6 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     ActCoeff.resize(nspecies, 1.0);
     np_dLnActCoeffdMolNumber.resize(nspecies, nspecies, 0.0);
 
-
     m_speciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
     m_UpToDate            = false;
     m_vcsStateStatus      = VCS_STATECALC_OLD;
@@ -273,23 +271,17 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     m_UpToDate_GStar      = false;
     m_UpToDate_G0         = false;
 
-
     elemResize(numElem);
-
 }
 
 void vcs_VolPhase::elemResize(const size_t numElemConstraints)
 {
-
     m_elementNames.resize(numElemConstraints);
-
     m_elementActive.resize(numElemConstraints+1, 1);
     m_elementType.resize(numElemConstraints, VCS_ELEM_TYPE_ABSPOS);
     m_formulaMatrix.resize(m_numSpecies, numElemConstraints, 0.0);
-
     m_elementNames.resize(numElemConstraints, "");
     m_elemGlobalIndex.resize(numElemConstraints, npos);
-
     m_numElemConstraints = numElemConstraints;
 }
 
@@ -381,7 +373,6 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
         const double* const moleFractions,
         const int vcsStateStatus)
 {
-
     if (totalMoles != 0.0) {
         // There are other ways to set the mole fractions when VCS_STATECALC
         // is set to a normal settting.
@@ -426,7 +417,6 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
         }
     }
     _updateMoleFractionDependencies();
-
 }
 
 void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
@@ -1079,7 +1069,6 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
      */
     elemResize(ne);
 
-
     if (ChargeNeutralityElement != npos) {
         m_elementType[ChargeNeutralityElement] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
     }
@@ -1120,13 +1109,10 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
             ne++;
             elemResize(ne);
         }
-
     }
 
     m_formulaMatrix.resize(ns, ne, 0.0);
-
     m_speciesUnknownType.resize(ns, VCS_SPECIES_TYPE_MOLNUM);
-
     elemResize(ne);
 
     size_t e = 0;
@@ -1163,7 +1149,6 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
             m_formulaMatrix(k,ChargeNeutralityElement) = tPhase->charge(k);
         }
     }
-
 
     /*
      * Here, we figure out what is the species types are

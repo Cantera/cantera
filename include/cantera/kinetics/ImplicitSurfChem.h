@@ -104,7 +104,6 @@ public:
      *
      * @param ifuncOverride One of the values defined in @ref solvesp_methods.
      *     The default is -1, which means that the program will decide.
-     *
      * @param timeScaleOverride When a pseudo transient is
      *             selected this value can be used to override
      *             the default time scale for integration which

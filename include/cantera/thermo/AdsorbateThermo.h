@@ -29,7 +29,6 @@ namespace Cantera
 class Adsorbate : public SpeciesThermoInterpType
 {
 public:
-
     //! Empty constructor
     Adsorbate() :
         m_nFreqs(0) {
@@ -116,7 +115,6 @@ protected:
     doublereal _entropy_R(double T) const {
         return _energy_RT(T) - _free_energy_RT(T);
     }
-
 };
 
 }

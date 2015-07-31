@@ -15,7 +15,7 @@ module cantera_kinetics
       type(phase_t), intent(in), optional :: neighbor2
       type(phase_t), intent(in), optional :: neighbor3
       type(phase_t), intent(in), optional :: neighbor4
-      integer :: missing 
+      integer :: missing
       missing = -1
 
       if (present(neighbor1)) then

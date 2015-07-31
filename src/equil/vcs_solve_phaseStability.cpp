@@ -16,7 +16,6 @@ namespace Cantera
 
 int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStable)
 {
-
     /*
      *  ifunc determines the problem type
      */
@@ -30,9 +29,7 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
     size_t nspecies0 = vprob->nspecies + 10;
     size_t nelements0 = vprob->ne;
     size_t nphase0 = vprob->NPhase;
-
     vcs_initSizes(nspecies0, nelements0, nphase0);
-
 
     if (ifunc < 0 || ifunc > 2) {
         plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
@@ -63,7 +60,6 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
         return retn;
     }
 
-
     /*
      *         This function is called to copy the current problem
      *         into the current object's data structure.
@@ -74,7 +70,6 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
               retn);
         return retn;
     }
-
 
     /*
      *        Prep the problem data for this particular instantiation of
@@ -122,7 +117,6 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
      */
     iStab  = vcs_solve_phaseStability(iphase, ifunc, feStable, printLvl);
 
-
     /*
      *        Redimensionalize the free energies using
      *        the reverse of vcs_nondim to add back units.
@@ -147,10 +141,8 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
     std::vector<double> ss(m_numElemConstraints, 0.0);
     std::vector<double> sa(m_numElemConstraints, 0.0);
-
     std::vector<double> aw(m_numSpeciesTot, 0.0);
     std::vector<double> wx(m_numElemConstraints, 0.0);
-
 
     vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
                test, &usedZeroedSpecies);

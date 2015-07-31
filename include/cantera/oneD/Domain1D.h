@@ -400,7 +400,6 @@ public:
      * the start of its variables in the global solution vector.
      */
     void locate() {
-
         if (m_left) {
             // there is a domain on the left, so the first grid point
             // in this domain is one more than the last one on the left

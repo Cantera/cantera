@@ -35,8 +35,7 @@ const int ConstFuncType = 110;
 class TimesConstant1;
 
 /**
- * Base class for 'functor' classes that evaluate a function of
- * one variable.
+ * Base class for 'functor' classes that evaluate a function of one variable.
  */
 class Func1
 {
@@ -85,7 +84,6 @@ public:
 
     virtual std::string write(const std::string& arg) const;
 
-
     //! accessor function for the stored constant
     doublereal c() const;
 
@@ -101,14 +99,11 @@ public:
     //! Return the order of the function, if it makes sense
     virtual int order() const;
 
-
     Func1& func1_dup() const;
-
 
     Func1& func2_dup() const;
 
     Func1* parent() const;
-
 
     void setParent(Func1* p);
 
@@ -135,7 +130,6 @@ Func1& newPlusConstFunction(Func1& f1, doublereal c);
 class Sin1 : public Func1
 {
 public:
-
     Sin1(doublereal omega = 1.0) :
         Func1() {
         m_c = omega;
@@ -312,7 +306,6 @@ public:
 };
 
 
-
 /**
  * Sum of two functions.
  */
@@ -434,7 +427,6 @@ public:
     }
 
     virtual std::string write(const std::string& arg) const;
-
 };
 
 
@@ -766,10 +758,8 @@ public:
     }
 };
 
-//
 // The functors below are the old-style ones. They still work,
 // but can't do derivatives.
-//
 
 /**
  * A Gaussian.
@@ -851,7 +841,6 @@ public:
         m_parent   = 0;
         return *this;
     }
-
 
     virtual Func1& duplicate() const {
         Poly1* np = new Poly1(*this);
@@ -1044,6 +1033,5 @@ protected:
 };
 
 }
-
 
 #endif

@@ -67,7 +67,6 @@ void VPSSMgr_IdealGas::getStandardVolumes(doublereal* vol) const
 
 void VPSSMgr_IdealGas::_updateStandardStateThermo()
 {
-
     doublereal pp = log(m_plast / m_p0);
     doublereal v = temperature() *GasConstant /m_plast;
 

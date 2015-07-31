@@ -180,7 +180,6 @@ namespace Cantera
  *         \exp(\frac{\mu^{o}_l - \mu^{o}_j - \mu^{o}_k}{R T} )
  * \f]
  *
- *
  * %Kinetics managers will calculate the concentration equilibrium constant, \f$ K_c \f$,
  * using the second and third part of the above expression as a definition for the concentration
  * equilibrium constant.
@@ -864,8 +863,7 @@ protected:
     //! Temporary storage for the reference state entropies at the current temperature
     mutable vector_fp m_s0_R;
 
-    //! String name for the species which represents a vacancy
-    //! in the lattice
+    //! String name for the species which represents a vacancy in the lattice
     /*!
      *  This string is currently unused
      */

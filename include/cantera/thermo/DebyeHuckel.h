@@ -63,7 +63,6 @@ class PDSS_Water;
  * the \f$ \triangle \f$ symbol. The reference state symbol is now
  *  \f$ \triangle, ref \f$.
  *
- *
  *  It is assumed that the reference state thermodynamics may be
  *  obtained by a pointer to a populated species thermodynamic property
  *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
@@ -133,7 +132,6 @@ class PDSS_Water;
  *
  * Individual activity coefficients of ions can not be independently measured. Instead,
  * only binary pairs forming electroneutral solutions can be measured.
-
  *
  *  <H3> Ionic Strength </H3>
  *
@@ -243,7 +241,6 @@ class PDSS_Water;
  * assumed for the Debye-Huckel term. The model is set by the
  * internal parameter #m_formDH. We will now describe each category in its own section.
  *
- *
  *  <H3> Debye-Huckel Dilute Limit </H3>
  *
  *  DHFORM_DILUTE_LIMIT = 0
@@ -263,7 +260,6 @@ class PDSS_Water;
  *  \f[
  *       \ln(a_o) = \frac{X_o - 1.0}{X_o} + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2}
  *  \f]
- *
  *
  *  <H3> Bdot Formulation </H3>
  *
@@ -297,7 +293,6 @@ class PDSS_Water;
  * Additionally, Helgeson's formulation for the water activity is offered as an
  * alternative.
  *
- *
  *  <H3> Bdot Formulation with Uniform Size Parameter in the Denominator </H3>
  *
  *  DHFORM_BDOT_AUNIFORM = 2
@@ -316,7 +311,6 @@ class PDSS_Water;
  *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2} \sigma( B_{Debye} a \sqrt{I} )
  *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
  *  \f]
- *
  *
  *  <H3> Beta_IJ formulation </H3>
  *
@@ -593,8 +587,6 @@ class PDSS_Water;
   <elementArray datasrc="elements.xml"> O H Na Cl </elementArray>
 </phase>
 @endverbatim
- *
- *
  */
 class DebyeHuckel : public MolalityVPSSTP
 {
@@ -1075,7 +1067,6 @@ public:
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
-     *
      * @param pressure Pressure (Pa). Defaults to -1, in which
      *                    case the pressure of the phase is assumed.
      */
@@ -1092,7 +1083,6 @@ public:
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
-     *
      * @param pressure Pressure (Pa). Defaults to -1, in which
      *                    case the pressure of the phase is assumed.
      */
@@ -1109,7 +1099,6 @@ public:
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
-     *
      * @param pressure Pressure (Pa). Defaults to -1, in which
      *                    case the pressure of the phase is assumed.
      */
@@ -1126,7 +1115,6 @@ public:
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
-     *
      * @param pressure Pressure (Pa). Defaults to -1, in which
      *                    case the pressure of the phase is assumed.
      */
@@ -1249,7 +1237,6 @@ protected:
     double m_maxIionicStrength;
 
 public:
-
     /**
      * If true, then the fixed for of Helgeson's activity
      * for water is used instead of the rigorous form
@@ -1259,7 +1246,6 @@ public:
      */
     bool m_useHelgesonFixedForm;
 protected:
-
     //! Stoichiometric ionic strength on the molality scale
     mutable double m_IionicMolalityStoich;
 

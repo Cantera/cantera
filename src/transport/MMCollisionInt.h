@@ -50,14 +50,11 @@ private:
     doublereal fitDelta(int table, int ntstar, int degree, doublereal* c);
 
     std::vector<vector_fp>  m_o22poly;
-
     std::vector<vector_fp>  m_apoly;
     std::vector<vector_fp>  m_bpoly;
-
     std::vector<vector_fp>  m_cpoly;
 
     static doublereal delta[8];
-
     static doublereal tstar22[37];
 
     //! Table of omega22 values from MM
@@ -82,7 +79,6 @@ private:
     vector_fp  m_logTemp;
 
     int m_nmin;
-
     int m_nmax;
 
     //! loglevel

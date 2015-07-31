@@ -116,7 +116,6 @@ IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
 
     GibbsExcessVPSSTP::operator=(b);
 
-
     ionSolnType_                = b.ionSolnType_;
     numNeutralMoleculeSpecies_  = b.numNeutralMoleculeSpecies_;
     indexSpecialSpecies_        = b.indexSpecialSpecies_;
@@ -127,11 +126,9 @@ IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
     cationList_                 = b.cationList_;
     anionList_                  = b.anionList_;
     passThroughList_            = b.passThroughList_;
-
     y_                          = b.y_;
     dlnActCoeff_NeutralMolecule_ = b.dlnActCoeff_NeutralMolecule_;
     dX_NeutralMolecule_         = b.dX_NeutralMolecule_;
-
     IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
     moleFractionsTmp_           = b.moleFractionsTmp_;
     muNeutralMolecule_          = b.muNeutralMolecule_;
@@ -159,7 +156,6 @@ ThermoPhase* IonsFromNeutralVPSSTP::duplMyselfAsThermoPhase() const
 
 void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::string id_)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("MargulesVPSSTP:constructPhaseFile",
                            "input file is null");
@@ -203,8 +199,6 @@ void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string i
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-
-
 
     /*
      * Make sure that the thermo model is IonsFromNeutralMolecule
@@ -338,7 +332,6 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
         break;
     case cIonSolnType_SINGLEANION:
         neutralMoleculePhase_->getLnActivityCoefficients(DATA_PTR(lnActCoeff_NeutralMolecule_));
-
         fact2 = 2.0 * RT_ * log(2.0);
 
         // Do the cation list
@@ -519,7 +512,6 @@ void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal* const mf) const
     for (size_t k = 0; k < m_kk; k++) {
         mf[k] /= sum;
     }
-
 }
 
 void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
@@ -544,7 +536,6 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
     }
 
     switch (ionSolnType_) {
-
     case cIonSolnType_PASSTHROUGH:
         for (size_t k = 0; k < m_kk; k++) {
             NeutralMolecMoleFractions_[k] = moleFractions_[k];
@@ -609,25 +600,17 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
         for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
             NeutralMolecMoleFractions_[k] /= sum;
         }
-
         break;
 
     case  cIonSolnType_SINGLECATION:
-
         throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
-
         break;
-
     case  cIonSolnType_MULTICATIONANION:
-
         throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
         break;
-
     default:
-
         throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
         break;
-
     }
 }
 
@@ -636,7 +619,6 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
     doublereal sumy, sumdy;
 
     //check sum dx = 0
-
     //! Zero the vector we are trying to find.
     for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
         y_[k] = 0.0;
@@ -688,24 +670,17 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
         break;
 
     case  cIonSolnType_SINGLECATION:
-
         throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
                            "Unknown type");
-
         break;
-
     case  cIonSolnType_MULTICATIONANION:
-
         throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
                            "Unknown type");
         break;
-
     default:
-
         throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
                            "Unknown type");
         break;
-
     }
 }
 
@@ -771,11 +746,9 @@ void  IonsFromNeutralVPSSTP::initLengths()
     dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, numNeutralMoleculeSpecies_, 0.0);
-
     y_.resize(numNeutralMoleculeSpecies_, 0.0);
     dlnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
     dX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
-
 }
 
 //!  Return the factor overlap
@@ -829,8 +802,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-
-
 
     /*
      * Make sure that the thermo model is IonsFromNeutralMolecule
@@ -899,7 +870,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         }
     }
 
-
     size_t nElementsN =  neutralMoleculePhase_->nElements();
     const std::vector<std::string>&  elnamesVN = neutralMoleculePhase_->elementNames();
     std::vector<double> elemVectorN(nElementsN);
@@ -939,7 +909,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         }
         fm_neutralMolec_ions_[indexSpecialSpecies_  + jNeut * m_kk ] += fac;
 
-
         for (size_t k = 0; k < m_kk; k++) {
             for (size_t m = 0; m < nElementsI; m++) {
                 elemVectorI[m] = nAtoms(k, m);
@@ -954,7 +923,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                         if (mName == eName) {
                             elemVectorN[m] -= fac * elemVectorI[mi];
                         }
-
                     }
                 }
                 bool notTaken = true;
@@ -980,8 +948,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                                    "Simple formula matrix generation failed");
             }
         }
-
-
     }
     /*
      * This includes the setStateFromXML calls
@@ -1006,7 +972,6 @@ void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const
     case cIonSolnType_PASSTHROUGH:
         break;
     case cIonSolnType_SINGLEANION:
-
         // Do the cation list
         for (size_t k = 0; k < cationList_.size(); k++) {
             //! Get the id for the next cation
@@ -1039,7 +1004,6 @@ void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff", "Unimplemented type");
         break;
     }
-
 }
 
 void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
@@ -1059,14 +1023,12 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
     getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule_));
 
     // All mole fractions returned to normal
-
     geThermo->getdlnActCoeffds(dTds, DATA_PTR(dX_NeutralMolecule_), DATA_PTR(dlnActCoeff_NeutralMolecule_));
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
         break;
     case cIonSolnType_SINGLEANION:
-
         // Do the cation list
         for (size_t k = 0; k < cationList_.size(); k++) {
             //! Get the id for the next cation
@@ -1099,7 +1061,6 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffds", "Unimplemented type");
         break;
     }
-
 }
 
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
@@ -1119,7 +1080,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
     case cIonSolnType_PASSTHROUGH:
         break;
     case cIonSolnType_SINGLEANION:
-
         // Do the cation list
         for (size_t k = 0; k < cationList_.size(); k++) {
             //! Get the id for the next cation
@@ -1152,7 +1112,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffdT", "Unimplemented type");
         break;
     }
-
 }
 
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
@@ -1172,7 +1131,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
     case cIonSolnType_PASSTHROUGH:
         break;
     case cIonSolnType_SINGLEANION:
-
         // Do the cation list
         for (size_t k = 0; k < cationList_.size(); k++) {
             //! Get the id for the next cation
@@ -1205,7 +1163,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnX_diag()", "Unimplemented type");
         break;
     }
-
 }
 
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
@@ -1225,7 +1182,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
     case cIonSolnType_PASSTHROUGH:
         break;
     case cIonSolnType_SINGLEANION:
-
         // Do the cation list
         for (size_t k = 0; k < cationList_.size(); k++) {
             //! Get the id for the next cation
@@ -1258,7 +1214,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
         throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN_diag()", "Unimplemented type");
         break;
     }
-
 }
 
 void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
@@ -1279,7 +1234,6 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
     case cIonSolnType_PASSTHROUGH:
         break;
     case cIonSolnType_SINGLEANION:
-
         // Do the cation list
         for (size_t k = 0; k < cationList_.size(); k++) {
             for (size_t m = 0; m < cationList_.size(); m++) {
@@ -1323,13 +1277,11 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
                 dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut);
             }
 
-
             for (size_t m = 0; m < cationList_.size(); m++) {
                 mcat = cationList_[m];
                 mNeut = fm_invert_ionForNeutral[mcat];
                 dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut,mNeut);
             }
-
         }
         break;
 

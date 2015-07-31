@@ -33,9 +33,7 @@ namespace Cantera
  */
 class ResidData
 {
-
 public:
-
     ResidData(ResidJacEval* f, IDA_Solver* s, int npar = 0) {
         m_func = f;
         m_solver = s;
@@ -345,9 +343,6 @@ void IDA_Solver::init(doublereal t0)
     m_ida_mem = IDACreate();
 
     int flag = 0;
-
-
-
     if (m_itol == IDA_SV) {
         flag = IDAInit(m_ida_mem, ida_resid, m_t0, m_y, m_ydot);
         if (flag != IDA_SUCCESS) {
@@ -481,7 +476,6 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doubl
         throw IDA_Err("IDACalcIC failed: error = " + int2str(flag));
     }
 
-
     flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
@@ -511,7 +505,6 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDACalcIC failed: error = " + int2str(flag));
     }
-
 
     flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {

@@ -91,9 +91,6 @@ const int BUTLERVOLMER_RXN = 26;
 //!  form dependence on delta G of reaction.
 const int SURFACEAFFINITY_RXN = 27;
 
-
-
-
 /**
  * A reaction occurring at a one-dimensional interface between two surface phases.
  *  NOTE: This is a bit ambiguous, and will be taken out in the future

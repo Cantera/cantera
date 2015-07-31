@@ -78,7 +78,6 @@ FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     chemPot_(0.0)
 {
-
     std::string pname = Ename + "Fixed";
     setID(pname);
     setName(pname);

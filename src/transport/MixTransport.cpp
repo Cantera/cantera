@@ -53,7 +53,6 @@ Transport* MixTransport::duplMyselfAsTransport() const
 void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     GasTransport::init(thermo, mode, log_level);
-
     m_cond.resize(m_nsp);
 
     // set flags all false
@@ -74,7 +73,6 @@ doublereal MixTransport::thermalConductivity()
 {
     update_T();
     update_C();
-
     if (!m_spcond_ok) {
         updateCond_T();
     }
@@ -103,13 +101,10 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 {
     update_T();
     update_C();
-
     getMixDiffCoeffs(DATA_PTR(m_spwork));
-
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
-
     vector_fp sum(ndim,0.0);
     for (size_t n = 0; n < ndim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -147,10 +142,8 @@ void MixTransport::update_C()
     // signal that concentration-dependent quantities will need to
     // be recomputed before use, and update the local mole
     // fractions.
-
     m_visc_ok = false;
     m_condmix_ok = false;
-
     m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
 
     // add an offset to avoid a pure species condition

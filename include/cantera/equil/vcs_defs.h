@@ -15,7 +15,6 @@ namespace Cantera
 {
 /*!
  *      ERROR CODES
- *
  */
 //@{
 #define VCS_SUCCESS             0
@@ -30,7 +29,6 @@ namespace Cantera
 
 /*!
  * @name  Type of the underlying equilibrium solve
- *
  * @{
  */
 
@@ -93,7 +91,6 @@ namespace Cantera
 
 /*!
  *  @name  State of Dimensional Units for Gibbs free energies
- *
  * @{
  */
 //! nondimensional
@@ -336,7 +333,6 @@ namespace Cantera
 
 /*!
  * @name  Types of Species Unknowns in the problem
- *
  * @{
  */
 //! Unknown refers to mole number of a single species

@@ -129,7 +129,6 @@ public:
     virtual  PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                      const XML_Node* const phaseNode_ptr);
 
-
     virtual PDSS_enumType reportPDSSType(int index = -1) const ;
     virtual VPSSMgr_enumType reportVPSSMgrType() const ;
     virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);

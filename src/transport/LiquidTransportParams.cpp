@@ -103,7 +103,6 @@ LiquidTransportParams&  LiquidTransportParams::operator=(const LiquidTransportPa
     compositionDepTypeDefault_ = right.compositionDepTypeDefault_;
 
     throw CanteraError("LiquidTransportParams(const LiquidTransportParams &right)", "not tested");
-
     return *this;
 }
 

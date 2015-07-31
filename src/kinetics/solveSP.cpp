@@ -69,7 +69,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
         size_t nsp = sp->nSpecies();
         m_nSpeciesSurfPhase.push_back(nsp);
         m_numTotSurfSpecies += nsp;
-
     }
     /*
      * We rely on ordering to figure things out
@@ -89,15 +88,12 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     }
     m_maxTotSpecies = std::max(m_maxTotSpecies, m_neq);
 
-
     m_netProductionRatesSave.resize(m_maxTotSpecies, 0.0);
     m_numEqn1.resize(m_maxTotSpecies, 0.0);
     m_numEqn2.resize(m_maxTotSpecies, 0.0);
     m_XMolKinSpecies.resize(m_maxTotSpecies, 0.0);
     m_CSolnSave.resize(m_neq, 0.0);
-
     m_spSurfLarge.resize(m_numSurfPhases, 0);
-
     m_kinSpecIndex.resize(m_numTotSurfSpecies + m_numTotBulkSpeciesSS, 0);
     m_kinObjIndex.resize(m_numTotSurfSpecies + m_numTotBulkSpeciesSS, 0);
     m_eqnIndexStartSolnPhase.resize(m_numSurfPhases + m_numBulkPhasesSS, 0);
@@ -149,7 +145,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     doublereal  resid_norm;
     doublereal inv_t = 0.0;
     doublereal t_real = 0.0, update_norm = 1.0E6;
-
     bool do_time = false, not_converged = true;
     m_ioflag = std::min(m_ioflag, 1);
 
@@ -234,7 +229,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
             /*
              *   Check end condition
              */
-
             if (ifunc == SFLUX_TRANSIENT) {
                 tmp = t_real + 1.0/inv_t;
                 if (tmp > time_scale) {
@@ -313,7 +307,6 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
          *    between 0 and 1, and not allow too large a change (factor of 2)
          *    in any unknown.
          */
-
         damp = calc_damping(DATA_PTR(m_CSolnSP), DATA_PTR(m_resid), m_neq, &label_d);
 
         /*
@@ -462,7 +455,6 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
          * HKM Should do it here for all kinetics objects so that
          *     bulk will eventually work.
          */
-
         if (do_time) {
             kindexSP = 0;
             for (isp = 0; isp < m_numSurfPhases; isp++) {
@@ -618,15 +610,12 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
     const doublereal APPROACH = 0.80;
     doublereal    damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
-
     *label = -1;
 
     for (size_t i = 0; i < dim; i++) {
-
         /*
          * Calculate the new suggested new value of x[i]
          */
-
         xnew = x[i] - damp * dxneg[i];
 
         /*
@@ -634,7 +623,6 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
          *   - Only going to allow x[i] to converge to zero by a
          *     single order of magnitude at a time
          */
-
         xtop = 1.0 - 0.1*fabs(1.0-x[i]);
         xbot = fabs(x[i]*0.1) - 1.0e-16;
         if (xnew > xtop)  {
@@ -653,7 +641,6 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
      * Only allow the damping parameter to increase by a factor of three each
      * iteration. Heuristic to avoid oscillations in the value of damp
      */
-
     if (damp > damp_old*3) {
         damp = damp_old*3;
         *label = -1;
@@ -663,7 +650,6 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
      *      Save old value of the damping parameter for use
      *      in subsequent calls.
      */
-
     damp_old = damp;
     return damp;
 
@@ -750,9 +736,7 @@ doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
         size_t surfIndex = m_kin->surfacePhaseIndex();
         kstart = m_kin->kineticsSpeciesIndex(0, surfIndex);
         ThermoPhase& THref = m_kin->thermo(surfIndex);
-
         m_kin->getNetProductionRates(DATA_PTR(m_numEqn1));
-
         sden = THref.molarDensity();
         for (k = 0; k < nsp; k++, kindexSP++) {
             size_t kspindex = kstart + k;

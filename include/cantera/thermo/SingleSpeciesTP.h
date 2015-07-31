@@ -3,7 +3,6 @@
  *  Header for the SingleSpeciesTP class, which is a filter class for ThermoPhase,
  *  that eases the construction of single species phases
  *  ( see \ref thermoprops and class \link Cantera::SingleSpeciesTP SingleSpeciesTP\endlink).
- *
  */
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
@@ -14,7 +13,6 @@
 #define CT_SINGLESPECIESTP_H
 
 #include "ThermoPhase.h"
-
 
 namespace Cantera
 {

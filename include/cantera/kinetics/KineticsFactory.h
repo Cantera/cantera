@@ -60,7 +60,6 @@ public:
      * @param th    Vector of phases. The first phase is the phase in which
      *              the reactions occur, and the subsequent phases (if any)
      *              are e.g. bulk phases adjacent to a reacting surface.
-     *
      * @return Pointer to the new kinetics manager.
      */
     virtual Kinetics* newKinetics(XML_Node& phase, std::vector<ThermoPhase*> th);

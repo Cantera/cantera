@@ -1,8 +1,8 @@
 % SURFREACTOR Zero-dimensional reactor with surface chemistry
-% 
+%
 %    This example illustrates how to use class 'Reactor' for
 %    zero-dimensional simulations including both homogeneous and
-%    heterogeneous chemistry. 
+%    heterogeneous chemistry.
 
 help surfreactor
 
@@ -60,9 +60,9 @@ for n = 1:100
   t = t + dt;
   advance(network, t);
   tim(n) = t;
-  temp(n) = temperature(r);  
+  temp(n) = temperature(r);
   pres(n) = pressure(r) - p0;
-  cov(n,:) = coverages(surf)'; 
+  cov(n,:) = coverages(surf)';
   x(n,:) = moleFraction(gas,names);
 end
 disp(['CPU time = ' num2str(cputime - t0)]);

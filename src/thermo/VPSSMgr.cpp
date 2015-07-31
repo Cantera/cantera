@@ -95,7 +95,6 @@ VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
     m_gss_RT                      = right.m_gss_RT;
     m_sss_R                       = right.m_sss_R;
     m_Vss                         = right.m_Vss;
-
     mPDSS_h0_RT                   = right.mPDSS_h0_RT;
     mPDSS_cp0_R                   = right.mPDSS_cp0_R;
     mPDSS_g0_RT                   = right.mPDSS_g0_RT;
@@ -122,7 +121,6 @@ void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
     m_spthermo = sp_ptr;
 
     // Take care of STITTbyPDSS objects
-
     // Go see if the SpeciesThermo type is a GeneralSpeciesThermo
     GeneralSpeciesThermo* gst = dynamic_cast<GeneralSpeciesThermo*>(sp_ptr);
     if (gst) {
@@ -135,7 +133,6 @@ void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
             }
         }
     }
-
 }
 
 // Standard States
@@ -326,7 +323,6 @@ void VPSSMgr::_updateRefStateThermo() const
         }
     }
 }
-
 
 /*****************************************************************/
 

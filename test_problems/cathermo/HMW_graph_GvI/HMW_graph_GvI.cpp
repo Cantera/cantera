@@ -12,7 +12,6 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-
     int retn = 0;
     size_t i;
     string commandFile;

@@ -140,7 +140,6 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
              */
             rhoguess = pressure * M_water / (Rgas * temperature);
         }
-
     }
     doublereal p_red = pressure * M_water / (Rgas * temperature * Rho_c);
     deltaGuess = rhoguess / Rho_c;
@@ -159,8 +158,6 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
          * a duplication. However, let's just be sure.
          */
         setState_TR(temperature, density_retn);
-
-
     } else {
         density_retn = -1.0;
     }
@@ -201,7 +198,6 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
              */
             rhoguess = pressure * M_water / (Rgas * temperature);
         }
-
     }
     doublereal p_red = pressure * M_water / (Rgas * temperature * Rho_c);
     deltaGuess = rhoguess / Rho_c;
@@ -310,7 +306,6 @@ doublereal WaterPropsIAPWS::Gibbs() const
 void  WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
     doublereal& densLiq, doublereal& densGas, doublereal& delGRT)
 {
-
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
     if (densLiq <= 0.0) {
         throw CanteraError("WaterPropsIAPWS::corr",
@@ -335,7 +330,6 @@ void  WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
 void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
     doublereal& densLiq, doublereal& densGas, doublereal& pcorr)
 {
-
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
     if (densLiq <= 0.0) {
         throw CanteraError("WaterPropsIAPWS::corr1",
@@ -353,10 +347,8 @@ void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
     }
     setState_TR(temperature, densGas);
     doublereal prG = m_phi->phiR();
-
     doublereal rhs = (prL - prG) + log(densLiq/densGas);
     rhs /= (1.0/densGas - 1.0/densLiq);
-
     pcorr = rhs * Rgas * temperature / M_water;
 }
 
@@ -435,7 +427,6 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
                     iState = WATER_UNSTABLEGAS;
                 }
                 delta = deltaSave;
-
                 m_phi->tdpolycalc(tau, delta);
             }
         }
@@ -456,7 +447,6 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     doublereal p = psat_est(temperature);
     doublereal rho_low = 0.0;
     doublereal rho_high = 1000;
-
     doublereal densSatLiq = density_const(p, WATER_LIQUID);
     doublereal dens_old = densSatLiq;
     delta = dens_old / Rho_c;
@@ -500,7 +490,6 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
             dens_est = 0.5 * (rho_high + dens_new);
         }
 
-
         dens_old = dens_new;
         dpdrho_old = dpdrho_new;
         dens_new = dens_est;
@@ -530,7 +519,6 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     // Restore the original delta
     delta = delta_save;
     m_phi->tdpolycalc(tau, delta);
-
     return dens_new;
 }
 
@@ -547,7 +535,6 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     doublereal p = psat_est(temperature);
     doublereal rho_low = 0.0;
     doublereal rho_high = 1000;
-
     doublereal densSatGas = density_const(p, WATER_GAS);
     doublereal dens_old = densSatGas;
     delta = dens_old / Rho_c;
@@ -568,7 +555,6 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
         rho_low = std::max(rho_low, dens_new);
     }
     bool conv = false;
-
     for (int it = 0; it < 50; it++) {
         doublereal slope = (dpdrho_new - dpdrho_old)/(dens_new - dens_old);
         if (slope >= 0.0) {
@@ -592,11 +578,9 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
             dens_est = 0.5 * (rho_high + dens_new);
         }
 
-
         dens_old = dens_new;
         dpdrho_old = dpdrho_new;
         dens_new = dens_est;
-
         delta = dens_new / Rho_c;
         m_phi->tdpolycalc(tau, delta);
         dpdrho_new = dpdrho();
@@ -622,7 +606,6 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     // Restore the original delta
     delta = delta_save;
     m_phi->tdpolycalc(tau, delta);
-
     return dens_new;
 }
 

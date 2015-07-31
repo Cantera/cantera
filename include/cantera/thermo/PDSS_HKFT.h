@@ -214,7 +214,6 @@ public:
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const;
-
     //@}
 
 private:
@@ -247,7 +246,6 @@ private:
      * The output of this is in units of Angstroms
      *
      * @param temp Temperature (K)
-     *
      * @param ifunc     parameters specifying the desired information
      *                 - 0 function value
      *                 - 1 derivative wrt temperature
@@ -261,7 +259,6 @@ private:
      * the output of this is unitless
      *
      * @param temp Temperature (K)
-     *
      * @param ifunc     parameters specifying the desired information
      *                 - 0 function value
      *                 - 1 derivative wrt temperature
@@ -319,7 +316,6 @@ private:
      * stable state.
      *
      * @param  elemName  String. Only the first 3 characters are significant
-     *
      * @return value contains the Gibbs free energy for that element
      *
      * @exception CanteraError

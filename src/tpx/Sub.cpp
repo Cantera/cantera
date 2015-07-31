@@ -139,7 +139,6 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         set_T(x0);
         set_v(y0);
         break;
-
     case PropertyPair::HP:
         if (Lever(Pgiven, y0, x0, propertyFlag::H)) {
             return;
@@ -147,7 +146,6 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         set_xy(propertyFlag::H, propertyFlag::P,
                x0, y0, TolAbsH, TolAbsP, TolRel, TolRel);
         break;
-
     case PropertyPair::SP:
         if (Lever(Pgiven, y0, x0, propertyFlag::S)) {
             return;
@@ -155,7 +153,6 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         set_xy(propertyFlag::S, propertyFlag::P,
                x0, y0, TolAbsS, TolAbsP, TolRel, TolRel);
         break;
-
     case PropertyPair::PV:
         if (Lever(Pgiven, x0, y0, propertyFlag::V)) {
             return;
@@ -163,7 +160,6 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         set_xy(propertyFlag::P, propertyFlag::V,
                x0, y0, TolAbsP, TolAbsV, TolRel, TolRel);
         break;
-
     case PropertyPair::TP:
         if (x0 < Tcrit()) {
             set_T(x0);
@@ -178,12 +174,10 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         set_xy(propertyFlag::T, propertyFlag::P,
                x0, y0, TolAbsT, TolAbsP, TolRel, TolRel);
         break;
-
     case PropertyPair::UV:
         set_xy(propertyFlag::U, propertyFlag::V,
                x0, y0, TolAbsU, TolAbsV, TolRel, TolRel);
         break;
-
     case PropertyPair::ST:
         if (Lever(Tgiven, y0, x0, propertyFlag::S)) {
             return;
@@ -191,12 +185,10 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         set_xy(propertyFlag::S, propertyFlag::T,
                x0, y0, TolAbsS, TolAbsT, TolRel, TolRel);
         break;
-
     case PropertyPair::SV:
         set_xy(propertyFlag::S, propertyFlag::V,
                x0, y0, TolAbsS, TolAbsV, TolRel, TolRel);
         break;
-
     case PropertyPair::UP:
         if (Lever(Pgiven, y0, x0, propertyFlag::U)) {
             return;
@@ -204,22 +196,18 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         set_xy(propertyFlag::U, propertyFlag::P,
                x0, y0, TolAbsU, TolAbsP, TolRel, TolRel);
         break;
-
     case PropertyPair::VH:
         set_xy(propertyFlag::V, propertyFlag::H,
                x0, y0, TolAbsV, TolAbsH, TolRel, TolRel);
         break;
-
     case PropertyPair::TH:
         set_xy(propertyFlag::T, propertyFlag::H,
                x0, y0, TolAbsT, TolAbsH, TolRel, TolRel);
         break;
-
     case PropertyPair::SH:
         set_xy(propertyFlag::S, propertyFlag::H,
                x0, y0, TolAbsS, TolAbsH, TolRel, TolRel);
         break;
-
     case PropertyPair::PX:
         temp = Tsat(x0);
         if (y0 > 1.0 || y0 < 0.0) {
@@ -234,7 +222,6 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
             Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
         }
         break;
-
     case PropertyPair::TX:
         if (y0 > 1.0 || y0 < 0.0) {
             throw TPX_Error("Substance::Set",
@@ -248,7 +235,6 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
             Rho = 1.0/((1.0 - y0)/Rhf + y0/Rhv);
         }
         break;
-
     default:
         throw TPX_Error("Substance::Set", "Invalid input.");
     }
@@ -298,12 +284,10 @@ void Substance::update_sat()
 {
     if ((T != Tslast) && (T < Tcrit())) {
         double Rho_save = Rho;
-
         double pp = Psat();
         double lps = log(pp);
         // trial value = Psat from correlation
         int i;
-
         for (i = 0; i<20; i++) {
             if (i==0) {
                 Rho = ldens(); // trial value = liquid density
@@ -324,7 +308,6 @@ void Substance::update_sat()
             Rhv = Rho; // sat vapor density
             double gv = hp() - T*sp();
             double dg = gv - gf;
-
             if (Rhv > Rhf) {
                 std::swap(Rhv, Rhf);
                 dg = - dg;
@@ -335,7 +318,6 @@ void Substance::update_sat()
             }
             double dp = dg/(1.0/Rhv - 1.0/Rhf);
             double psold = pp;
-
             if (fabs(dp) > pp) {
                 lps -= dg/(pp*(1.0/Rhv - 1.0/Rhf));
                 pp = exp(lps);
@@ -457,7 +439,6 @@ void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
 
     double Xa = fabs(X);
     double Ya = fabs(Y);
-
     while (true) {
         double x_here = prop(ifx);
         double y_here = prop(ify);

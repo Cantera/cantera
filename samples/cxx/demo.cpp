@@ -25,7 +25,6 @@ using namespace Cantera;
 
 void demoprog()
 {
-
     printf("\n\n**** C++ Test Program ****\n\n");
 
     IdealGasMix gas("h2o2.cti","ohmech");
@@ -109,7 +108,6 @@ void demoprog()
 
 int main()
 {
-
     try {
         demoprog();
     } catch (CanteraError& err) {

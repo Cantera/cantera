@@ -136,9 +136,7 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
         }
     }
 
-
     vector_fp c(2 + 2 * numPoints);
-
     c[0] = static_cast<double>(numPoints);
     c[1] = h298;
     for (size_t i = 0; i < numPoints; i++) {

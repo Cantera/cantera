@@ -18,14 +18,12 @@ using namespace std;
 //     job = 0:   print a one-line description of the example.
 //     job = 1:   print a longer description
 //     job = 2:   print description, then run the example.
-//
 
 // Note: although this simulation can be done in C++, as shown here,
 // it is much easier in Python or Matlab!
 
 int kinetics_example1(int job)
 {
-
     try {
 
         cout << "Ignition simulation using class IdealGasMix "

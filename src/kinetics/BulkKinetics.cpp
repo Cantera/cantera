@@ -14,7 +14,6 @@ BulkKinetics::BulkKinetics(thermo_t* thermo) :
     }
 }
 
-
 Kinetics* BulkKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
 {
     BulkKinetics* kin = new BulkKinetics(*this);
@@ -30,7 +29,6 @@ bool BulkKinetics::isReversible(size_t i) {
         return false;
     }
 }
-
 
 void BulkKinetics::getDeltaGibbs(doublereal* deltaG)
 {

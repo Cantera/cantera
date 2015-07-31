@@ -31,7 +31,6 @@ typedef  double       doublereal;   // Fortran double precision
 typedef  int          integer;      // Fortran integer
 typedef  int          ftnlen;       // Fortran hidden string length type
 
-
 // Fortran compilers pass character strings in argument lists by
 // adding a hidden argument with the length of the string. Some
 // compilers add the hidden length argument immediately after the
@@ -41,7 +40,6 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // case for most unix Fortran compilers, but is (by default) false for
 // Visual Fortran under Windows.
 #define STRING_LEN_AT_END
-
 
 // Define this if Fortran adds a trailing underscore to names in object files.
 // For linux and most unix systems, this is the case.

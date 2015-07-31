@@ -58,7 +58,6 @@ public:
      * @param work array of size workSize() containing cached
      *             temperature-dependent intermediate results from a prior call
      *             to updateTemp.
-     *
      * @return Returns the value of the falloff function \f$ F \f$ defined above
      */
     virtual doublereal F(doublereal pr, const doublereal* work) const {

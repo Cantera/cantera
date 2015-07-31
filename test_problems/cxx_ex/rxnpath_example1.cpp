@@ -18,7 +18,6 @@ using std::endl;
 void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
                          IdealGasMix& gas, std::ostream& logfile, std::ostream& outfile)
 {
-
     // create a new empty diagram
     ReactionPathDiagram d;
 

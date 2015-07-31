@@ -31,9 +31,7 @@ void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
         return;
     }
     m_thermo->restoreState(m_state);
-
     m_thermo->getMassFractions(y+2);
-
     y[0] = 0.0; // distance
 
     // set the second component to the initial speed
@@ -48,13 +46,11 @@ void FlowReactor::initialize(doublereal t0)
 
 void FlowReactor::updateState(doublereal* y)
 {
-
     // Set the mass fractions and  density of the mixture.
     m_dist         = y[0];
     m_speed        = y[1];
     doublereal* mss = y + 2;
     m_thermo->setMassFractions(mss);
-
     doublereal rho = m_rho0 * m_speed0/m_speed;
 
     // assumes frictionless

@@ -15,9 +15,7 @@ int VCS_SOLVE::vcs_report(int iconv)
 {
     bool printActualMoles = true, inertYes = false;
     size_t nspecies = m_numSpeciesTot;
-
     char originalUnitsState = m_unitsState;
-
     std::vector<size_t> sortindex(nspecies,0);
     std::vector<double> xy(nspecies,0.0);
 
@@ -148,7 +146,6 @@ int VCS_SOLVE::vcs_report(int iconv)
             } else {
                 plogf("   Unknown");
             }
-
             plogf("\n");
         }
     }
@@ -256,7 +253,6 @@ int VCS_SOLVE::vcs_report(int iconv)
      *     -> Inert species are handled as if they had a standard free
      *        energy of zero
      */
-
     double g = vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
                                &m_tPhaseMoles_old[0]);
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);

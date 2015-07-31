@@ -386,7 +386,6 @@ protected:
 //! This class is only valid for a common anion mixture of two
 //! salts with cations of equal charge.  Hence the name _PPN.
 /**
- *
  * This class requres you specify
  *
  * 1 - ion conductivity
@@ -452,7 +451,6 @@ protected:
  */
 class LTI_StefanMaxwell_PPN : public LiquidTranInteraction
 {
-
 public:
     LTI_StefanMaxwell_PPN(TransportPropertyType tp_ind = TP_UNKNOWN) :
         LiquidTranInteraction(tp_ind) {

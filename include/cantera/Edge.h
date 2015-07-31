@@ -14,8 +14,8 @@ class Edge :
 {
 public:
     Edge(const std::string& infile, std::string id, std::vector<ThermoPhase*> phases)
-        : m_ok(false), m_r(0) {
-
+        : m_ok(false), m_r(0)
+    {
         m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";
@@ -44,6 +44,5 @@ protected:
     XML_Node* m_r;
 };
 }
-
 
 #endif

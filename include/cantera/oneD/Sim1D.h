@@ -18,7 +18,6 @@ namespace Cantera
 class Sim1D : public OneDim
 {
 public:
-
     //! Default constructor.
     /*!
      *  This constructor is provided to make the class default-constructible,
@@ -39,8 +38,7 @@ public:
     /**
      * @name Setting initial values
      *
-     * These methods are used to set the initial values of
-     * solution components.
+     * These methods are used to set the initial values of solution components.
      */
     //@{
 

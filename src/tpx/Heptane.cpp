@@ -157,15 +157,11 @@ double Heptane::up()
     for (i=1; i<=5; i++) {
         sum += G[i]*(pow(T,i) - pow(To,i))/double(i);
     }
-
     sum += G[0]*log(T/To);
-
     for (i=0; i<=6; i++) {
         sum += (C(i, Tinverse, T2inverse, T3inverse, T4inverse) - T*Cprime(i,T2inverse, T3inverse, T4inverse))*I(i,egrho, Gamma);
     }
-
     sum += u0;
-
     return sum + m_energy_offset;
 }
 
@@ -177,20 +173,15 @@ double Heptane::sp()
     double egrho = exp(-Gamma*Rho*Rho);
 
     double sum = 0.0;
-
     for (int i=2; i<=5; i++) {
         sum += G[i]*(pow(T,i-1) - pow(To,i-1))/double(i-1);
     }
-
     sum += G[1]*log(T/To);
     sum -= G[0]*(1.0/T - 1.0/To);
-
     for (int i=0; i<=6; i++) {
         sum -= Cprime(i,T2inverse, T3inverse, T4inverse)*I(i,egrho, Gamma);
     }
-
     sum += s0 - R*log(Rho);
-
     return sum + m_entropy_offset;
 }
 
@@ -203,11 +194,9 @@ double Heptane::Pp()
     double egrho = exp(-Gamma*Rho*Rho);
 
     double P = Rho*R*T;
-
     for (int i=0; i<=3; i++) {
         P += C(i,Tinverse, T2inverse, T3inverse, T4inverse)*H(i,egrho);
     }
-
     return P;
 }
 

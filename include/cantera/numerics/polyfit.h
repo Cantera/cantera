@@ -28,29 +28,23 @@ namespace Cantera
  *     point C.
  *
  *   @param n   The number of data points.
- *
  *   @param x   A set of grid points on which the data is specified.
  *              The array of values of the independent variable.  These
  *              values may appear in any order and need not all be
  *              distinct. There are n of them.
- *
  *   @param y  array of corresponding function values. There are n of them
- *
  *   @param w   array of positive values to be used as weights.  If
  *              W[0] is negative,  DPOLFT  will set all the weights
  *              to 1.0, which means unweighted least squares error
  *              will be minimized.  To minimize relative error, the
  *              user should set the weights to:  W(I) = 1.0/Y(I)**2,
  *              I = 1,...,N .
- *
  *   @param maxdeg  maximum degree to be allowed for polynomial fit.
  *                  MAXDEG  may be any non-negative integer less than  N.
  *                  Note -- MAXDEG  cannot be equal to  N-1  when a
  *                  statistical test is to be used for degree selection,
  *                  i.e., when input value of  EPS  is negative.
- *
  *   @param ndeg    output degree of the fit computed.
- *
  *   @param eps     Specifies the criterion to be used in determining
  *                  the degree of fit to be computed.
  *                  (1)  If  EPS  is input negative,  DPOLFT chooses the
@@ -70,12 +64,10 @@ namespace Cantera
  *                       fitted polynomial.  DPOLFT  will increase the
  *                       degree of fit until this criterion is met or
  *                       until the maximum degree is reached.
- *
  *  @param r    Output vector containing the first ndeg+1 Taylor coefficients
  *
  *                    P(X) = r[0] + r[1]*(X-C) + ... + r[ndeg] * (X-C)**ndeg
  *                   ( here C = 0.0)
- *
  *  @return Returned value is the value of the rms of the interpolated
  *          function at x.
  */
@@ -84,5 +76,3 @@ doublereal polyfit(int n, doublereal* x, doublereal* y, doublereal* w,
 
 }
 #endif
-
-

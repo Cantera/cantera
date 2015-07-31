@@ -70,7 +70,6 @@ public:
      * @param units_ String containing the units description
      */
     doublereal toSI(const std::string& units_) {
-
         // if dimensionless, return 1.0
         if (units_ == "") {
             return 1.0;
@@ -82,7 +81,6 @@ public:
         char action = '-';
 
         while (true) {
-
             // get token consisting of all characters up to the next
             // dash, slash, or the end of the string
             k = u.find_first_of("/-");
@@ -163,7 +161,6 @@ private:
     //! Units class constructor, containing the default mappings between
     //! strings and units.
     Unit() {
-
         // unity
         m_u["1"] = 1.0;
 

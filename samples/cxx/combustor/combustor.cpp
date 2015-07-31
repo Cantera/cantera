@@ -16,7 +16,6 @@ using namespace Cantera;
 
 void runexample()
 {
-
     // use reaction mechanism GRI-Mech 3.0
     IdealGasMix gas("gri30.cti", "gri30");
 
@@ -134,13 +133,11 @@ void runexample()
 
 int main()
 {
-
     try {
         runexample();
         return 0;
-    }
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         std::cout << " terminating... " << std::endl;
         appdelete();

@@ -104,7 +104,6 @@ class WaterProps;
  * the \f$ \triangle \f$ symbol. The reference state symbol is now
  *  \f$ \triangle, ref \f$.
  *
- *
  *  It is assumed that the reference state thermodynamics may be
  *  obtained by a pointer to a populated species thermodynamic property
  *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
@@ -140,7 +139,6 @@ class WaterProps;
  *       \f[
  *            u^\triangle_k(T,P) = h^{\triangle,ref}_k(T) - P_{ref} \tilde{v}_k
  *       \f]
- *
  *
  * The solute standard state heat capacity and entropy are independent
  * of pressure. The solute standard state Gibbs free energy is obtained
@@ -186,7 +184,6 @@ class WaterProps;
  * and pressure. After this convention is applied, all other standard state
  * properties of ionic species contain meaningful information.
  *
- *
  *  <H3> Ionic Strength </H3>
  *
  *  Most of the parameterizations within the model use the ionic strength
@@ -195,7 +192,6 @@ class WaterProps;
  *  \f[
  *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
  *  \f]
- *
  *
  * \f$ m_k \f$ is the molality of the kth species. \f$ z_k \f$ is the charge
  * of the kth species. Note, the ionic strength is a defined units quantity.
@@ -249,7 +245,6 @@ class WaterProps;
  *          </stoichIsMods>
  * @endcode
  *
- *
  *  Because we need the concept of a weakly associated acid in order to calculated
  *  \f$ I_s \f$ we need to
  *  catalog all species in the phase. This is done using the following categories:
@@ -289,11 +284,9 @@ class WaterProps;
  *         </electrolyteSpeciesType>
  * @endcode
  *
- *
  *  Much of the species electrolyte type information is inferred from other information in the
  *  input file. For example, as species which is charged is given the "chargedSpecies" default
  *  category. A neutral solute species is put into the "nonpolarNeutral" category by default.
- *
  *
  *  <H3> Specification of the Excess Gibbs Free Energy </H3>
  *
@@ -423,7 +416,6 @@ class WaterProps;
  *  ternary contributions, which can be independently measured in
  *  binary or ternary subsystems.
  *
- *
  *  <H3> Multicomponent Activity Coefficients for Solutes </H3>
  *
  *  The formulas for activity coefficients of solutes may be obtained by taking the
@@ -499,7 +491,6 @@ class WaterProps;
  *      \ln(\gamma_N^\triangle) = 2 \left( \sum_i m_i \lambda_{iN}\right)
  *  \f]
  *
- *
  *  <H3> Activity of the Water Solvent </H3>
  *
  *  The activity for the solvent water,\f$ a_o \f$, is not independent and must be
@@ -519,7 +510,6 @@ class WaterProps;
  *       \phi = - \frac{1}{\tilde{M}_o \sum_{i \neq o} m_i} \ln(a_o)
  *           = - \frac{n_o}{\sum_{i \neq o}n_i} \ln(a_o)
  *  \f]
- *
  *
  *  The result is the following
  *
@@ -561,7 +551,6 @@ class WaterProps;
  *  \f[
  *    \Phi^{\phi}_{a{a'}} = \Phi_{a{a'}} + I \frac{d\Phi_{a{a'}}}{dI}
  *  \f]
- *
  *
  *  <H3> Temperature and Pressure Dependence of the Pitzer Parameters </H3>
  *
@@ -682,7 +671,6 @@ class WaterProps;
  *  \f$ \beta^{(2)}_{MX} \f$, \f$ \Theta_{cc'} \f$,  \f$\Theta_{aa'} \f$,
  *  \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{ca{a'}} \f$.
  *
- *
  *  <H3> Like-Charged Binary Ion Parameters and the Mixing Parameters </H3>
  *
  *  The previous section contained the functions, \f$ \Phi_{c{c'}} \f$,
@@ -747,7 +735,6 @@ class WaterProps;
                 <Theta> 0.036 </Theta>
      </thetaCation>
    @endcode
- *
  *
  *  <H3> Ternary Pitzer Parameters </H3>
  *
@@ -870,7 +857,6 @@ class WaterProps;
      </activityCoefficients>
   @endverbatim
  *
- *
  * <H3> Specification of the Debye-Huckel Constant </H3>
  *
  *  In the equations above, the formula for  \f$  A_{Debye} \f$
@@ -932,7 +918,6 @@ class WaterProps;
  *         <!-- object description continues -->
  *   </activityCoefficients>
  * @endcode
- *
  *
  * <H3>  Temperature and Pressure Dependence of the Activity Coefficients </H3>
  *
@@ -1009,7 +994,6 @@ class WaterProps;
  * this phase equal to the default concentration of the solvent at the system temperature
  * and pressure multiplied by Mnaught (kg solvent / gmol solvent). The solvent
  * standard concentration is just equal to its standard state concentration.
- *
  *
  * This means that the
  * kinetics operator essentially works on an generalized concentration basis (kmol / m3),
@@ -1100,7 +1084,6 @@ class WaterProps;
  *      ThermoPhase *HMW = newPhase("HMW_NaCl.xml", "NaCl_electrolyte");
  * @endcode
  *
- *
  * A new HMWSoln object may be created by  the following code snippets:
  *
  * @code
@@ -1121,7 +1104,6 @@ class WaterProps;
  *    HMWSoln dhphase;
  *    importPhase(*xm, &dhphase);
  * @endcode
- *
  *
  * <HR>
  * <H2> XML Example </H2>
@@ -1216,17 +1198,11 @@ class WaterProps;
   </kinetics>
 </phase>
 @endverbatim
- *
- *
- *
  * @ingroup thermoprops
- *
  */
 class HMWSoln : public MolalityVPSSTP
 {
-
 public:
-
     //! Default Constructor
     HMWSoln();
 
@@ -1293,7 +1269,6 @@ public:
      * routine, which does most of the work.
      *
      * @param inputfile XML file containing the description of the phase
-     *
      * @param id  Optional parameter identifying the name of the
      *            phase. If none is given, the first XML
      *            phase element will be used.
@@ -1317,7 +1292,6 @@ public:
      *             point to an XML phase object, it must have
      *             sibling nodes "speciesData" that describe
      *             the species in the phase.
-     *
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
@@ -1701,7 +1675,6 @@ public:
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
-
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
     /*!
@@ -1860,7 +1833,6 @@ public:
      *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
-     *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
@@ -1877,7 +1849,6 @@ public:
      *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
-     *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
@@ -1895,7 +1866,6 @@ public:
      *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
-     *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
@@ -1914,7 +1884,6 @@ public:
      *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
-     *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
@@ -1934,7 +1903,6 @@ public:
      *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
-     *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
@@ -1953,7 +1921,6 @@ public:
      *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
-     *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
@@ -1970,7 +1937,6 @@ public:
      *
      * @param temperature  Temperature of the derivative calculation
      *                     or -1 to indicate the current temperature
-     *
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
@@ -2010,7 +1976,6 @@ public:
     void getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const;
 
 private:
-
     //! Apply the current phScale to a set of activity Coefficients
     /*!
      *  See the Eq3/6 Manual for a thorough discussion.
@@ -2067,7 +2032,6 @@ private:
     //@}
 
 private:
-
     /**
      * This is the form of the Pitzer parameterization
      * used in this model.

@@ -97,7 +97,6 @@ namespace Cantera
 class IdealMolalSoln : public MolalityVPSSTP
 {
 public:
-
     /// Constructor
     IdealMolalSoln();
 
@@ -386,8 +385,7 @@ public:
      * @param acMolality      Output Molality-based activity coefficients.
      *                        Length: m_kk.
      */
-    virtual void
-    getMolalityActivityCoefficients(doublereal* acMolality) const;
+    virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -477,7 +475,6 @@ public:
      *  @param vbar Output vector of partial molar volumes.
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-
 
     //! Partial molar heat capacity of the solution:. UnitsL J/kmol/K
     /*!

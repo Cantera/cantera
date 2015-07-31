@@ -200,7 +200,6 @@ void PDSS_IdealGas::setTemperature(doublereal temp)
                            m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
     m_g0_RT_ptr[m_spindex] =  m_h0_RT_ptr[m_spindex] -  m_s0_R_ptr[m_spindex];
     m_V0_ptr[m_spindex] = GasConstant * m_temp / m_p0;
-
     m_hss_RT_ptr[m_spindex]  = m_h0_RT_ptr[m_spindex];
     m_cpss_R_ptr[m_spindex]  = m_cp0_R_ptr[m_spindex];
     m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex] + log(m_pres/m_p0);

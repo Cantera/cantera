@@ -146,7 +146,6 @@ PDSS* VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
     doST = true;
     GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
 
-
     const XML_Node* const ss = speciesNode.findByName("standardState");
     if (!ss) {
         VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
@@ -176,7 +175,6 @@ PDSS* VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
                                "failed dynamic cast");
         }
         genSpthermo->installPDSShandler(k, kPDSS, this);
-
     } else if (model == "IonFromNeutral") {
         if (!genSpthermo) {
             throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
@@ -189,7 +187,6 @@ PDSS* VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
                                "new PDSS_IonsFromNeutral failed");
         }
         genSpthermo->installPDSShandler(k, kPDSS, this);
-
     } else if (model == "constant" || model == "temperature_polynomial" || model == "density_temperature_polynomial") {
         VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
         kPDSS = new PDSS_SSVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
@@ -215,7 +212,6 @@ PDSS* VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     m_kk = std::max(m_kk, k+1);
     m_minTemp = std::max(m_minTemp, kPDSS->minTemp());
     m_maxTemp = std::min(m_maxTemp, kPDSS->maxTemp());
-
     doublereal p0 = kPDSS->refPressure();
     if (k == 0) {
         m_p0 = p0;

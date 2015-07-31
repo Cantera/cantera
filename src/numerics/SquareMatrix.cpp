@@ -30,7 +30,6 @@ SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
     GeneralMatrix(0),
     a1norm_(0.0),
     useQR_(0)
-
 {
 }
 
@@ -163,8 +162,6 @@ int SquareMatrix::factorQR()
     if (lworkOpt > lwork) {
         work.resize(lworkOpt);
     }
-
-
     return info;
 }
 
@@ -206,7 +203,6 @@ int SquareMatrix::solveQR(doublereal* b)
     }
 
     char dd = 'N';
-
     ct_dtrtrs(ctlapack::UpperTriangular, ctlapack::NoTranspose, &dd, m_nrows, 1,  &*begin(), m_nrows, b,
               m_nrows, info);
     if (info != 0) {
@@ -217,13 +213,11 @@ int SquareMatrix::solveQR(doublereal* b)
             throw CELapackError("SquareMatrix::solveQR()", "DTRTRS returned INFO = " + int2str(info));
         }
     }
-
     return info;
 }
 
 doublereal SquareMatrix::rcond(doublereal anorm)
 {
-
     if (iwork_.size() < m_nrows) {
         iwork_.resize(m_nrows);
     }
@@ -256,7 +250,6 @@ doublereal SquareMatrix::oneNorm() const
 
 doublereal SquareMatrix::rcondQR()
 {
-
     if (iwork_.size() < m_nrows) {
         iwork_.resize(m_nrows);
     }

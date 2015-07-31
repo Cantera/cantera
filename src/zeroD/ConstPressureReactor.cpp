@@ -67,7 +67,6 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 2;
-
     m_thermo->restoreState(m_state);
     applySensitivity(params);
     evalWalls(time);

@@ -370,7 +370,6 @@ void SurfPhase::setParametersFromXML(const XML_Node& eosdata)
 
 void SurfPhase::setStateFromXML(const XML_Node& state)
 {
-
     double t;
     if (getOptionalFloat(state, "temperature", t, "temperature")) {
         setTemperature(t);

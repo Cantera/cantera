@@ -9,9 +9,7 @@ namespace tpx
 
 class leekesler : public Substance
 {
-
 public:
-
     leekesler(double tc = 1.0, double pc = 1.0,
               double wt = 1.0, int itype = 0) {
         Tcr = tc;
@@ -47,12 +45,10 @@ public:
     double ldens();
 
 protected:
-
     double Tcr, Pcr, Mw;
     int Isr;
 
 private:
-
     double W(int n, double egrho, double gamma);
     double I();
     double J();

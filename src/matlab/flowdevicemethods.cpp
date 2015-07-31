@@ -31,7 +31,6 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
 
     if (job < 20) {
         switch (job) {
-
         case 1:
             iok = flowdev_del(i);
             break;

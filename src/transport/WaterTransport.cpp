@@ -1,6 +1,5 @@
 //! @file WaterTransport.cpp
 #include "cantera/transport/WaterTransport.h"
-
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterSSTP.h"
@@ -46,13 +45,11 @@ void WaterTransport::initTP()
     // The expectation is that we have a VPStandardStateTP derived object
     VPStandardStateTP* vpthermo = dynamic_cast<VPStandardStateTP*>(m_thermo);
     if (!vpthermo) {
-
         WaterSSTP* wsstp = dynamic_cast<WaterSSTP*>(m_thermo);
         if (!wsstp) {
             throw CanteraError("WaterTransport::initTP()",
                                "Expectation is that ThermoPhase be a VPStandardStateTP");
         } else {
-
             m_sub = wsstp->getWater();
             AssertTrace(m_sub != 0);
             // Get a pointer to a changeable WaterProps object

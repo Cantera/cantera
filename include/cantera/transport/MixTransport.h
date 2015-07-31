@@ -161,7 +161,6 @@ public:
     virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
 
 private:
-
     //! Calculate the pressure from the ideal gas law
     doublereal pressure_ig() const {
         return (m_thermo->molarDensity() * GasConstant *

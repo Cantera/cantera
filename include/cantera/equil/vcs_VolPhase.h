@@ -493,7 +493,6 @@ public:
     //! Returns the type of the species unknown
     /*!
      * @param k species index
-     *
      * @return the SpeciesUnknownType[k] = type of species
      *      - Normal -> VCS_SPECIES_TYPE_MOLUNK (unknown is the mole number in
      *        the phase)
@@ -890,7 +889,6 @@ private:
 //! Return a string representing the equation of state
 /*!
  *  @param EOSType : integer value of the equation of state
- *
  * @return returns a string representing the EOS. The string is no more than 16 characters.
  */
 std::string string16_EOSType(int EOSType);

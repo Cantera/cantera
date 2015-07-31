@@ -79,7 +79,6 @@ extern "C" {
                 const integer* incX, const doublereal* beta, doublereal* y,
                 const integer* incY, ftnlen trsize);
 #else
-
     int _DGEMV_(const char* transpose, ftnlen trsize,
                 const integer* m, const integer* n, const doublereal* alpha,
                 const doublereal* a, const integer* lda, const doublereal* x,
@@ -92,18 +91,14 @@ extern "C" {
                  integer* info);
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-
     int _DGETRS_(const char* transpose, const integer* n,
                  const integer* nrhs, doublereal* a, const integer* lda,
                  integer* ipiv, doublereal* b, const integer* ldb,
                  integer* info, ftnlen trsize);
-
 #else
-
     int _DGETRS_(const char* transpose, ftnlen trsize, const integer* n,
                  const integer* nrhs, const doublereal* a, const integer* lda,
                  integer* ipiv, doublereal* b, const integer* ldb, integer* info);
-
 #endif
 
     int _DGETRI_(const integer* n, doublereal* a, const integer* lda,
@@ -189,7 +184,6 @@ extern "C" {
                  doublereal* b, const integer* ldb, integer* info);
 #endif
 
-
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     int _DGECON_(const char* norm, const integer* n,  doublereal* a, const integer* lda,
                  const doublereal* rnorm, const doublereal* rcond,
@@ -199,7 +193,6 @@ extern "C" {
                  const doublereal* rnorm, const doublereal* rcond,
                  doublereal* work, const integer* iwork, integer* info);
 #endif
-
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     int _DGBCON_(const char* norm, const integer* n, integer* kl, integer* ku, doublereal* ab, const integer* ldab,
@@ -433,7 +426,6 @@ inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans,
     info = f_info;
 }
 
-//!
 /*!
  *  @param work   Must be dimensioned equal to greater than 3N
  *  @param iwork  Must be dimensioned equal to or greater than N

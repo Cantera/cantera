@@ -41,7 +41,6 @@ DebyeHuckel::DebyeHuckel() :
     m_densWaterSS(1000.),
     m_waterProps(0)
 {
-
     m_npActCoeff.resize(3);
     m_npActCoeff[0] = 0.1127;
     m_npActCoeff[1] = -0.01049;
@@ -233,7 +232,6 @@ void DebyeHuckel::setPressure(doublereal p)
 
 void DebyeHuckel::setState_TP(doublereal t, doublereal p)
 {
-
     Phase::setTemperature(t);
     /*
      * Store the current pressure
@@ -256,7 +254,6 @@ void DebyeHuckel::setState_TP(doublereal t, doublereal p)
 void DebyeHuckel::calcDensity()
 {
     if (m_waterSS) {
-
         /*
          * Store the internal density of the water SS.
          * Note, we would have to do this for all other
@@ -735,7 +732,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
             m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
         }
-
     }
 
     /*
@@ -874,7 +870,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                     ++_b) {
                     size_t kk = speciesIndex(_b->first);
                     m_Aionic[kk] = fpValue(_b->second) * Afactor;
-
                 }
             }
         }
@@ -940,7 +935,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (acNodePtr) {
             if (acNodePtr->hasChild("stoichIsMods")) {
                 XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
-
                 map<std::string, std::string> msIs;
                 getMap(sIsNode, msIs);
                 for (map<std::string,std::string>::const_iterator _b = msIs.begin();
@@ -1022,7 +1016,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& stateNode = phaseNode.child("state");
         setStateFromXML(stateNode);
     }
-
 }
 
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
@@ -1362,7 +1355,6 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         }
         lnActivitySolvent -=
             m_Mnaught * log(10.0) * m_IionicMolality * tmp / 2.0;
-
         break;
 
     case DHFORM_BETAIJ:
@@ -1468,8 +1460,6 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
-
-
     double sqrtI  = sqrt(m_IionicMolality);
     double numdAdTTmp = dAdT * sqrtI;
     double denomTmp = m_B_Debye * sqrtI;
@@ -1494,7 +1484,6 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         }
 
         m_dlnActCoeffMolaldT[m_indexSolvent] = 0.0;
-
         coeff = 2.0 / 3.0 * dAdT * m_Mnaught * sqrtI;
         tmp = 0.0;
         if (denomTmp > 0.0) {
@@ -1573,8 +1562,6 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         throw CanteraError("DebyeHuckel::s_update_dlnMolalityActCoeff_dT",
                            "ERROR");
     }
-
-
 }
 
 void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
@@ -1595,8 +1582,6 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
-
-
     double sqrtI  = sqrt(m_IionicMolality);
     double numd2AdT2Tmp = d2AdT2 * sqrtI;
     double denomTmp = m_B_Debye * sqrtI;
@@ -1617,7 +1602,6 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
         }
 
         m_d2lnActCoeffMolaldT2[m_indexSolvent] = 0.0;
-
         coeff = 2.0 / 3.0 * d2AdT2 * m_Mnaught * sqrtI;
         tmp = 0.0;
         if (denomTmp > 0.0) {
@@ -1715,8 +1699,6 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
-
-
     double sqrtI  = sqrt(m_IionicMolality);
     double numdAdPTmp = dAdP * sqrtI;
     double denomTmp = m_B_Debye * sqrtI;
@@ -1742,7 +1724,6 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
         }
 
         m_dlnActCoeffMolaldP[m_indexSolvent] = 0.0;
-
         coeff = 2.0 / 3.0 * dAdP * m_Mnaught * sqrtI;
         tmp = 0.0;
         if (denomTmp > 0.0) {

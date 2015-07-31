@@ -2110,7 +2110,7 @@ class incompressible_solid(phase):
 
 
 class lattice(phase):
-    def __init__(self, 
+    def __init__(self,
                  name = '',
                  elements = '',
                  species = '',

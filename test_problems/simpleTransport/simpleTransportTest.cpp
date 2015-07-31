@@ -70,9 +70,7 @@ int main(int argc, char** argv)
 
         Cantera::appdelete();
         return 0;
-
     } catch (CanteraError) {
-
         showErrors();
         return -1;
     }

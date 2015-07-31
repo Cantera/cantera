@@ -214,16 +214,13 @@ LiquidTransport::~LiquidTransport()
 
 bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 {
-    //
     //  Transfer quantitities from the database to the Transport object
-    //
     m_thermo = tr.thermo;
     m_velocityBasis = tr.velocityBasis_;
     m_nsp   = m_thermo->nSpecies();
     m_nsp2 = m_nsp*m_nsp;
-    //
+
     //  Resize the local storage according to the number of species
-    //
     m_mw.resize(m_nsp, 0.0);
     m_viscSpecies.resize(m_nsp, 0.0);
     m_viscTempDep_Ns.resize(m_nsp, 0);
@@ -247,15 +244,13 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_lambdaTempDep_Ns.resize(m_nsp, 0);
     m_hydrodynamic_radius.resize(m_nsp, 0.0);
     m_radiusTempDep_Ns.resize(m_nsp, 0);
-    //
+
     //  Make a local copy of the molecular weights
-    //
     copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
-    //
+
     //  First populate mixing rules and indices
     //       (NOTE, we transfer pointers of malloced quantities. We zero out pointers so that
     //        we only have one copy of the malloced quantity)
-    //
     for (size_t k = 0; k < m_nsp; k++) {
         m_selfDiffMixModel[k] = tr.selfDiffusion[k];
         tr.selfDiffusion[k] = 0;
@@ -285,7 +280,6 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
         m_radiusTempDep_Ns[k] = ltd.hydroRadius;
         ltd.hydroRadius = 0;
     }
-
 
     /*
      *  Get the input Species Diffusivities
@@ -318,8 +312,6 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
      * species diffusivity and hydrodynamics radius (perhaps not needed in the
      * present class).
      */
-
-
     m_viscMixModel = tr.viscosity;
     tr.viscosity = 0;
 
@@ -342,9 +334,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     //It is updated in updateDiff_T()
     m_diffMixModel->getMatrixTransProp(m_bdiff);
 
-
     m_mode       = tr.mode_;
-
     m_massfracs.resize(m_nsp, 0.0);
     m_massfracs_tran.resize(m_nsp, 0.0);
     m_molefracs.resize(m_nsp, 0.0);
@@ -364,10 +354,8 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_Grad_T.resize(m_nDim, 0.0);
     m_Grad_V.resize(m_nDim, 0.0);
     m_Grad_mu.resize(m_nDim * m_nsp, 0.0);
-
     m_flux.resize(m_nsp, m_nDim, 0.0);
     m_Vdiff.resize(m_nsp, m_nDim, 0.0);
-
 
     // set all flags to false
     m_visc_mix_ok   = false;
@@ -388,7 +376,6 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_lambda_mix_ok  = false;
     m_diff_temp_ok   = false;
     m_diff_mix_ok  = false;
-
     return true;
 }
 
@@ -396,14 +383,11 @@ doublereal LiquidTransport::viscosity()
 {
     update_T();
     update_C();
-
     if (m_visc_mix_ok) {
         return m_viscmix;
     }
-
     ////// LiquidTranInteraction method
     m_viscmix = m_viscMixModel->getMixTransProp(m_viscTempDep_Ns);
-
     return m_viscmix;
 }
 
@@ -420,14 +404,11 @@ doublereal LiquidTransport::ionConductivity()
 {
     update_T();
     update_C();
-
     if (m_ionCond_mix_ok) {
         return m_ionCondmix;
     }
-
     ////// LiquidTranInteraction method
     m_ionCondmix = m_ionCondMixModel->getMixTransProp(m_ionCondTempDep_Ns);
-
     return m_ionCondmix;
 }
 
@@ -442,10 +423,8 @@ void LiquidTransport::getSpeciesIonConductivity(doublereal* ionCond)
 
 void LiquidTransport::mobilityRatio(doublereal* mobRat)
 {
-
     update_T();
     update_C();
-
     // LiquidTranInteraction method
     if (!m_mobRat_mix_ok) {
         for (size_t k = 0; k < m_nsp2; k++) {
@@ -509,20 +488,16 @@ void LiquidTransport::getSpeciesHydrodynamicRadius(doublereal* const radius)
         updateHydrodynamicRadius_T();
     }
     copy(m_hydrodynamic_radius.begin(), m_hydrodynamic_radius.end(), radius);
-
 }
 
 doublereal LiquidTransport::thermalConductivity()
 {
-
     update_T();
     update_C();
-
     if (!m_lambda_mix_ok) {
         m_lambda = m_lambdaMixModel->getMixTransProp(m_lambdaTempDep_Ns);
         m_cond_mix_ok = true;
     }
-
     return m_lambda;
 }
 
@@ -539,13 +514,11 @@ void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
         throw CanteraError("LiquidTransport::getBinaryDiffCoeffs",
                            "First argument does not correspond to number of species in model.\nDiff Coeff matrix may be misdimensioned");
     update_T();
-
     // if necessary, evaluate the binary diffusion coefficients
     // from the polynomial fits
     if (!m_diff_temp_ok) {
         updateDiff_T();
     }
-
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             d[ld*j + i] = 1.0 / m_bdiff(i,j);
@@ -612,7 +585,6 @@ doublereal LiquidTransport::getElectricConduct()
 
     vector_fp fluxes(m_nsp * m_nDim);
     doublereal current;
-
     getSpeciesFluxesExt(m_nDim, &fluxes[0]);
 
     //sum over species charges, fluxes, Faraday to get current
@@ -641,7 +613,6 @@ void LiquidTransport::getElectricCurrent(int ndim,
     set_Grad_V(grad_V);
 
     vector_fp fluxes(m_nsp * m_nDim);
-
     getSpeciesFluxesExt(ldf, &fluxes[0]);
 
     //sum over species charges, fluxes, Faraday to get current
@@ -705,7 +676,6 @@ void LiquidTransport::getSpeciesFluxesES(size_t ndim,
 void LiquidTransport::getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff)
 {
     stefan_maxwell_solve();
-
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             Vdiff[n*ldf + k] = m_Vdiff(k,n);
@@ -716,7 +686,6 @@ void LiquidTransport::getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff)
 void LiquidTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
 {
     stefan_maxwell_solve();
-
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             fluxes[n*ldf + k] = m_flux(k,n);
@@ -727,7 +696,6 @@ void LiquidTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
 void LiquidTransport::getMixDiffCoeffs(doublereal* const d)
 {
     stefan_maxwell_solve();
-
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (m_Grad_X[n*m_nsp + k] != 0.0) {
@@ -941,7 +909,6 @@ void LiquidTransport::update_Grad_lnAC()
                 m_Grad_lnAC[start+i] += m_Grad_X[start+i]/m_molefracs[i];
             }
     }
-
     return;
 }
 
@@ -966,9 +933,7 @@ void LiquidTransport::stefan_maxwell_solve()
     }
 
     double T = m_thermo->temperature();
-
     update_Grad_lnAC() ;
-
     m_thermo->getActivityCoefficients(DATA_PTR(m_actCoeff));
 
     /*
@@ -994,7 +959,6 @@ void LiquidTransport::stefan_maxwell_solve()
      *
      *  Note, we have broken the symmetry of the matrix here, due to
      *  considerations involving species concentrations going to zero.
-     *
      */
     for (size_t a = 0; a < m_nDim; a++) {
         for (size_t i = 0; i < m_nsp; i++) {
@@ -1021,12 +985,10 @@ void LiquidTransport::stefan_maxwell_solve()
      * Just for Note, m_A(i,j) refers to the ith row and jth column.
      * They are still fortran ordered, so that i varies fastest.
      */
-
     double condSum1;
     const doublereal invRT = 1.0 / (GasConstant * T);
     switch (m_nDim) {
     case 1:  /* 1-D approximation */
-
         m_B(0,0) = 0.0;
         //equation for the reference velocity
         for (size_t j = 0; j < m_nsp; j++) {
@@ -1060,7 +1022,6 @@ void LiquidTransport::stefan_maxwell_solve()
 
         //! invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
-
         condSum1 = 0;
         for (size_t i = 0; i < m_nsp; i++) {
             condSum1 -= Faraday*m_chargeSpecies[i]*m_B(i,0)*m_molefracs_tran[i]/vol;
@@ -1102,10 +1063,7 @@ void LiquidTransport::stefan_maxwell_solve()
 
         //! invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
-
-
         break;
-
     case 3:  /* 3-D approximation */
         m_B(0,0) = 0.0;
         m_B(0,1) = 0.0;
@@ -1144,7 +1102,6 @@ void LiquidTransport::stefan_maxwell_solve()
 
         //! invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
-
         break;
     default:
         printf("unimplemented\n");

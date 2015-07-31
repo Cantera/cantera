@@ -31,7 +31,6 @@ using namespace Cantera;
 /*****************************************************************/
 static void printUsage()
 {
-
 }
 
 void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)

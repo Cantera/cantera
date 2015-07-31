@@ -1,7 +1,6 @@
 //! @file OneDim.cpp
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/OneDim.h"
-
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctml.h"
 

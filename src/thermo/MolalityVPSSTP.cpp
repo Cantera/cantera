@@ -234,7 +234,6 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
                                    "unbalanced charges");
             }
         }
-
     }
     sum = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
@@ -367,12 +366,10 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string&
     setState_TP(t, p);
 }
 
-
 void MolalityVPSSTP::initThermo()
 {
     initLengths();
     VPStandardStateTP::initThermo();
-
     /*
      * The solvent defaults to species 0
      */
@@ -458,19 +455,14 @@ void  MolalityVPSSTP::initLengths()
 
 void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-
     initLengths();
     /*
      * The solvent defaults to species 0
      */
     setSolvent(0);
-
     VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
-/**
-  * Format a summary of the mixture state for output.
-  */
 std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
 {
     char p[800];

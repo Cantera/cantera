@@ -209,7 +209,6 @@ extern "C" {
         }
     }
 
-
     // reactor networks
 
     int reactornet_new()
@@ -454,9 +453,7 @@ extern "C" {
         }
     }
 
-
     /////////////    Walls   ///////////////////////
-
 
     int wall_new(int type)
     {

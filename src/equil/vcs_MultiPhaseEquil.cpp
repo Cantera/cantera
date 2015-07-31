@@ -11,7 +11,6 @@
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
-
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/speciesThermoTypes.h"
@@ -110,7 +109,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
         }
 
         Verr = fabs((Vtarget - Vnow)/Vtarget);
-
         if (Verr < err) {
             goto done;
         }
@@ -130,7 +128,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
                     Pnew = 3.0 * Pnow;
                 }
             }
-
         } else {
             m_mix->setPressure(Pnow*1.01);
             double dVdP = (m_mix->volume() - Vnow)/(0.01*Pnow);
@@ -141,7 +138,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
             if (Pnew > 1.7 * Pnow) {
                 Pnew = 1.7 * Pnow;
             }
-
         }
         m_mix->setPressure(Pnew);
     }
@@ -203,8 +199,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             // the equilibrium enthalpy monotonically increases with T;
             // if the current value is below the target, then we know the
             // current temperature is too low. Set the lower bounds.
-
-
             if (Hnow < Htarget) {
                 if (Tnow > Tlow) {
                     Tlow = Tnow;
@@ -256,7 +250,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 Tnew = 0.5*Tnow;
             }
             m_mix->setTemperature(Tnew);
-
         } catch (CanteraError err) {
             if (!estimateEquil) {
                 strt = -1;
@@ -268,7 +261,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 m_mix->setTemperature(Tnew);
             }
         }
-
     }
     throw CanteraError("MultiPhase::equilibrate_HP",
                        "No convergence for T");
@@ -304,7 +296,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
     int printLvlSub = std::max(printLvl - 1, 0);
 
     for (int n = 0; n < maxiter; n++) {
-
         // start with a loose error tolerance, but tighten it as we get
         // close to the final temperature
         try {
@@ -390,7 +381,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                 Tnew = 0.5*Tnow;
             }
             m_mix->setTemperature(Tnew);
-
         } catch (CanteraError err) {
             if (!estimateEquil) {
                 strt = -1;
@@ -402,7 +392,6 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                 m_mix->setTemperature(Tnew);
             }
         }
-
     }
     throw CanteraError("MultiPhase::equilibrate_SP",
                        "No convergence for T");
@@ -459,10 +448,8 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 {
     int maxit = maxsteps;
     clockWC tickTock;
-
     m_printLvl = printLvl;
     m_vprob.m_printLvl = printLvl;
-
 
     /*
      *     Extract the current state information
@@ -473,7 +460,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     if (res != 0) {
         plogf("problems\n");
     }
-
 
     // Set the estimation technique
     if (estimateEquil) {
@@ -654,17 +640,14 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         size_t nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);
         ac.resize(nSpecies, 0.0);
-
         mu0.resize(nSpecies, 0.0);
         mu.resize(nSpecies, 0.0);
         VolPM.resize(nSpecies, 0.0);
         molalities.resize(nSpecies, 0.0);
-
         int actConvention = tref.activityConvention();
         tref.getActivities(&activity[0]);
         tref.getActivityCoefficients(&ac[0]);
         tref.getStandardChemPotentials(&mu0[0]);
-
         tref.getPartialMolarVolumes(&VolPM[0]);
         tref.getChemPotentials(&mu[0]);
         double VolPhaseVolumes = 0.0;
@@ -673,7 +656,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         }
         VolPhaseVolumes *= TMolesPhase;
         vol += VolPhaseVolumes;
-
 
         if (actConvention == 1) {
             MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(&tref);
@@ -700,7 +682,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         mf[istart + k] * TMolesPhase,
                         VolPM[k],  VolPhaseVolumes);
             }
-
         } else {
             if (iphase == 0) {
                 fprintf(FP,"        Name,       Phase,  PhaseMoles,  Mole_Fract,  "
@@ -780,7 +761,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
      */
     int kT = 0;
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
-
         /*
          * Get the ThermoPhase object - assume volume phase
          */
@@ -812,7 +792,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
          *       ->TMolesInert = Inerts in the phase = 0.0 for cantera
          *       ->PhaseName  = Name of the phase
          */
-
         vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
         VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str(), 0.0);
         VolPhase->m_gasPhase = gasPhase;
@@ -885,7 +864,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
          * object into the vprob object.
          */
         vprob->addPhaseElements(VolPhase);
-
         VolPhase->setState_TP(vprob->T, vprob->PresPA);
         vector<double> muPhase(tPhase->nSpecies(),0.0);
         tPhase->getChemPotentials(&muPhase[0]);
@@ -920,7 +898,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
              * Transfer the type of unknown
              */
             vprob->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
-
             if (vprob->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
                 /*
                  *   Set the initial number of kmoles of the species
@@ -936,7 +913,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
                throw CanteraError(" vcs_Cantera_to_vprob() ERROR",
                                   "Unknown species type: " + int2str(vprob->SpeciesUnknownType[kT]));
              }
-
 
             /*
              * transfer chemical potential vector
@@ -988,7 +964,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             SpeciesThermo& sp = tPhase->speciesThermo();
 
             int spType = sp.reportType(k);
-
             if (spType == SIMPLE) {
                 double c[4];
                 double minTemp, maxTemp, refPressure;
@@ -1064,13 +1039,11 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ R;
             ts_ptr->SS0_TSave = vprob->T;
         }
-
     }
 
     /*
      *  Transfer initial element abundances to the vprob object.
      *  We have to find the mapping index from one to the other
-     *
      */
     vprob->gai.resize(vprob->ne, 0.0);
     vprob->set_gai();
@@ -1125,7 +1098,6 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         writeline('=', 80);
         plogf("\n");
     }
-
     return VCS_SUCCESS;
 }
 
@@ -1185,7 +1157,6 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         } else {
             volPhase->setExistence(VCS_PHASE_EXIST_NO);
         }
-
     }
     /*
      *  Transfer initial element abundances to the vprob object.
@@ -1211,7 +1182,6 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         plogf(" Initial_Estimated_kMols\n");
         for (size_t i = 0; i < vprob->nspecies; i++) {
             size_t iphase = vprob->PhaseID[i];
-
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
             plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
@@ -1247,7 +1217,6 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         writeline('=', 80);
         plogf("\n");
     }
-
     return VCS_SUCCESS;
 }
 
@@ -1269,7 +1238,6 @@ void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, vector_fp& nu)
         j = indSpecies[kc];
         nu[j] = m_vsolve.m_stoichCoeffRxnMatrix(kc,rxn);
     }
-
 }
 
 size_t vcs_MultiPhaseEquil::numComponents() const
@@ -1307,8 +1275,6 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
     if (res != 0) {
         plogf("problems\n");
     }
-
-
 
     // Check obvious bounds on the temperature and pressure
     // NOTE, we may want to do more here with the real bounds
@@ -1349,7 +1315,6 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
     double te = tickTock.secondsWC();
     if (printLvl > 0) {
         plogf("\n Results from vcs_PS:\n");
-
         plogf("\n");
         plogf("Temperature = %g Kelvin\n",  m_vprob.T);
         plogf("Pressure    = %g Pa\n", m_vprob.PresPA);

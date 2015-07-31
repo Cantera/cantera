@@ -4,7 +4,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef SPECIES_THERMO_TYPES_H
 #define SPECIES_THERMO_TYPES_H
 
@@ -68,5 +67,3 @@
 #define PDSS_TYPE 37
 
 #endif
-
-

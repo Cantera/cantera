@@ -31,7 +31,6 @@ void transportmethods(int nlhs, mxArray* plhs[],
         return;
     }
 
-
     if (job < 10) {
         switch (job) {
         case 0:
@@ -43,7 +42,7 @@ void transportmethods(int nlhs, mxArray* plhs[],
             break;
         case 2:
             vv = trans_thermalConductivity(n);
-	    break;
+            break;
         case 3:
             vv = trans_electricalConductivity(n);
             break;

@@ -326,7 +326,6 @@ public:
      *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state
      *      manager that owns the PDSS object that will handle calls for this
      *      object
-     *
      *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for
      *      this object
      */
@@ -348,11 +347,9 @@ public:
      *
      *  @param speciesIndex species index for this object. Note, this must
      *         agree with what was internally set before.
-     *
      *  @param vpssmgr_ptr  Pointer to the Variable pressure standard state
      *      manager that owns the PDSS object that will handle calls for this
      *      object
-     *
      *  @param PDSS_ptr     Pointer to the PDSS object that handles calls for
      *      this object
      */

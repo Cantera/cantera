@@ -85,7 +85,7 @@ void ResidJacEval::user_out(const int ifunc, const doublereal t,
     user_out2(ifunc, t, 0.0, y, ydot);
 }
 
-int ResidJacEval::evalTimeTrackingEqns(const doublereal t, 
+int ResidJacEval::evalTimeTrackingEqns(const doublereal t,
                                        const doublereal delta_t,
                                        const doublereal* y,
                                        const doublereal* ydot)
@@ -93,7 +93,7 @@ int ResidJacEval::evalTimeTrackingEqns(const doublereal t,
     return 1;
 }
 
-int ResidJacEval::calcDeltaSolnVariables(const doublereal t, 
+int ResidJacEval::calcDeltaSolnVariables(const doublereal t,
                                          const doublereal* const ySoln,
                                          const doublereal* const ySolnDot,
                                          doublereal* const deltaYSoln,
@@ -111,7 +111,7 @@ int ResidJacEval::calcDeltaSolnVariables(const doublereal t,
     return 1;
 }
 
-void ResidJacEval::calcSolnScales(const doublereal t, 
+void ResidJacEval::calcSolnScales(const doublereal t,
                                   const doublereal* const ysoln,
                                   const doublereal* const ysolnOld,
                                   doublereal* const ysolnScales)
@@ -151,7 +151,7 @@ int ResidJacEval::matrixConditioning(doublereal* const matrix, const int nrows,
 
 int ResidJacEval::evalResidNJ(const doublereal t, const doublereal deltaT,
                               const doublereal* y, const doublereal* ydot,
-                              doublereal* const resid, 
+                              doublereal* const resid,
                               const ResidEval_Type_Enum evalType,
                               const int id_x, const doublereal delta_x)
 {
@@ -176,7 +176,7 @@ int ResidJacEval::evalJacobian(const doublereal t, const doublereal delta_t,
 }
 
 int ResidJacEval::evalJacobianDP(const doublereal t, const doublereal delta_t,
-                                 const doublereal c_j, 
+                                 const doublereal c_j,
                                  const doublereal* const y,
                                  const doublereal* const ydot,
                                  doublereal* const* jac_colPts,

@@ -78,7 +78,6 @@ private:
     int m_nabs;
     double m_hmax, m_hmin;
     int m_maxsteps;
-
     vector_fp m_ropt;
     long int* m_iopt;
     void* m_data;

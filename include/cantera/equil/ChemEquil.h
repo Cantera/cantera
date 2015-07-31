@@ -63,7 +63,6 @@ class PropertyCalculator;
 
 /**
  * @defgroup equil Chemical Equilibrium
- *
  */
 
 /**
@@ -146,9 +145,7 @@ public:
      */
     EquilOpt options;
 
-
 protected:
-
     //! Pointer to the ThermoPhase object used to initialize this object.
     /*!
      *  This ThermoPhase object must be compatible with the ThermoPhase

@@ -6,7 +6,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_CONSTCPPOLY_H
 #define CT_CONSTCPPOLY_H
 

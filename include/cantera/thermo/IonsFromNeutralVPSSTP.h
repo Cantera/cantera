@@ -72,7 +72,6 @@ enum IonSolnType_enumType {
 class IonsFromNeutralVPSSTP : public GibbsExcessVPSSTP
 {
 public:
-
     //! @name Constructors
     //! @{
 
@@ -126,7 +125,6 @@ public:
     IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "",
                           ThermoPhase* neutralPhase = 0);
 
-
     //! Copy constructor
     /*!
      * @param b class to be copied
@@ -162,7 +160,6 @@ public:
      * routine, which does most of the work.
      *
      * @param inputFile XML file containing the description of the phase
-     *
      * @param id  Optional parameter identifying the name of the
      *            phase. If none is given, the first XML
      *            phase element will be used.
@@ -188,7 +185,6 @@ public:
      *             point to an XML phase object, it must have
      *             sibling nodes "speciesData" that describe
      *             the species in the phase.
-     *
      * @param id   ID of the phase. If nonnull, a check is done
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
@@ -297,17 +293,14 @@ public:
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *  \f]
      *
-     *
      *  @param sbar  Output vector of species partial molar entropies.
      *               Length: m_kk. Units: J/kmol/K
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
-
     //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
     //! a line in parameter space or along a line in physical space
     /*!
-     *
      * @param dTds           Input of temperature change along the path
      * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
      *                       Along the path length it must be the case that the mole fractions sum to one.
@@ -557,7 +550,6 @@ public:
      *             with the correct id.
      */
     void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
 
 private:
     //! Initialize lengths of local variables after all species have

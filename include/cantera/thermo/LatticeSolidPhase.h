@@ -96,7 +96,6 @@ namespace Cantera
  *  have been redefined to use this convention.
  *
  *  (This object is still under construction)
- *
  */
 class LatticeSolidPhase : public ThermoPhase
 {

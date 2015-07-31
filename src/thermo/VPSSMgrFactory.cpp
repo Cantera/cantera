@@ -65,7 +65,6 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                             int& has_hptx,
                             int& has_other)
 {
-
     string ssModel = "idealGas";
     for (size_t n = 0; n < spDataNodeList.size(); n++) {
         bool ifound = false;
@@ -204,7 +203,6 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
                                     XML_Node* phaseNode_ptr,
                                     std::vector<XML_Node*> & spDataNodeList)
 {
-
     std::string ssManager;
     std::string vpssManager;
 
@@ -243,7 +241,6 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
         return new VPSSMgr_ConstVol(vp_ptr, spth);
     }
 
-
     int inasaIG = 0, inasaCV = 0, ishomateIG = 0, ishomateCV = 0,
         isimpleIG = 0, isimpleCV = 0, iwater = 0, itpx = 0, iother = 0;
     int ihptx = 0;
@@ -278,7 +275,6 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
             return new VPSSMgr_ConstVol(vp_ptr, spth);
         }
     }
-
     return new VPSSMgr_General(vp_ptr, spth);
 }
 
@@ -318,7 +314,6 @@ VPSSMgr* newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP* vp_ptr,
     }
     return f->newVPSSMgr(type, vp_ptr);
 }
-
 
 VPSSMgr* newVPSSMgr(VPStandardStateTP* tp_ptr,
                     XML_Node* phaseNode_ptr,

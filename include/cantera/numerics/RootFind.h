@@ -126,7 +126,6 @@ namespace Cantera
  *
  *  @todo  Noise
  *  @todo  General Search to be done when all else fails
- *
  */
 class RootFind
 {
@@ -186,7 +185,6 @@ private:
      * @param x1  First number
      * @param x2  second number
      * @param factor  Multiplicative factor to multiple deltaX with
-     *
      * @return Returns a boolean indicating whether the two numbers are the same or not.
      */
     bool theSame(doublereal x2, doublereal x1, doublereal factor = 1.0) const;
@@ -209,7 +207,6 @@ public:
      *    @param   xbest   Returns the x that satisfies the function
      *                     On input, xbest should contain the best estimate of the solution.
      *                     An attempt to find the solution near xbest is made.
-     *
      *   @return:
      *    0  =  ROOTFIND_SUCCESS            Found function
      *   -1  =  ROOTFIND_FAILEDCONVERGENCE  Failed to find the answer
@@ -247,7 +244,6 @@ public:
 
     //! Set the print level from the rootfinder
     /*!
-     *
      *   0 -> absolutely nothing is printed for a single time step.
      *   1 -> One line summary per solve_nonlinear call
      *   2 -> short description, points of interest: Table of nonlinear solve - one line per iteration

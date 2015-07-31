@@ -34,7 +34,7 @@ for i = 1:31
    t(i) = minT + dT*(i-1);
    for j = 1:31
       xo2(j) = 0.99*(j-1)/30.0;
-      x = zeros(nSpecies(gas),1);      
+      x = zeros(nSpecies(gas),1);
       x(io2) = xo2(j);
       x(ih2) = 1.0 - xo2(j);
       set(gas,'T',t(i),'P',oneatm,'X',x);

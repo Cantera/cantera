@@ -52,11 +52,9 @@ protected:
     virtual void deleteFactory() = 0 ;
 
 private:
-
     //! statically held list of Factories.
     static std::vector<FactoryBase*> s_vFactoryRegistry ;
 };
 }
 
 #endif
-

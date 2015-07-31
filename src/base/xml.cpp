@@ -394,7 +394,6 @@ void XML_Node::clear()
 
     m_iscomment = false;
     m_linenum = 0;
-
 }
 
 void XML_Node::addComment(const std::string& comment)
@@ -670,7 +669,6 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
             }
         }
     }
-
     return scResult;
 }
 

@@ -50,11 +50,9 @@ public:
     //@}
 
 protected:
-
     virtual void _updateStandardStateThermo();
 
 public:
-
     /*! @name Initialization Methods - For Internal use
      * The following methods are used in the process of constructing the phase
      * and setting its parameters from a specification in an input file. They

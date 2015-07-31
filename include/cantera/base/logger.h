@@ -39,7 +39,6 @@ namespace Cantera
 class Logger
 {
 public:
-
     //! Constructor - empty
     Logger() {}
 

@@ -361,7 +361,6 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
     std::vector<double> mu(nspecies, 0.0);
     std::vector<double> mu0(nspecies, 0.0);
     std::vector<double> molalities(nspecies, 0.0);
-
     double vol = 0.0;
     size_t iK = 0;
     for (size_t iphase = 0; iphase < NPhase; iphase++) {
@@ -401,17 +400,14 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         double TMolesPhase = volP->totalMoles();
         activity.resize(nSpeciesPhase, 0.0);
         ac.resize(nSpeciesPhase, 0.0);
-
         mu0.resize(nSpeciesPhase, 0.0);
         mu.resize(nSpeciesPhase, 0.0);
         volPM.resize(nSpeciesPhase, 0.0);
         molalities.resize(nSpeciesPhase, 0.0);
-
         int actConvention = tp->activityConvention();
         tp->getActivities(&activity[0]);
         tp->getActivityCoefficients(&ac[0]);
         tp->getStandardChemPotentials(&mu0[0]);
-
         tp->getPartialMolarVolumes(&volPM[0]);
         tp->getChemPotentials(&mu[0]);
         double VolPhaseVolumes = 0.0;
@@ -447,7 +443,6 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
                         mf[istart + k] * TMolesPhase,
                         volPM[k],  VolPhaseVolumes);
             }
-
         } else {
             if (iphase == 0) {
                 fprintf(FP,"        Name,       Phase,  PhaseMoles,  Mole_Fract,  "

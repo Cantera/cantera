@@ -138,14 +138,12 @@ namespace Cantera
  *  term in the equation above is non-trivial. For example it's equal
  *  to 2.38 kcal gmol<SUP>-1</SUP> for water at 298 K.
  *
- *
  * In order to prevent a singularity, this class includes the concept of a minimum
  * value for the solvent mole fraction. All calculations involving the formulation
  * of activity coefficients and other non-ideal solution behavior adhere to
  * this concept of a minimal value for the solvent mole fraction. This makes sense
  * because these solution behavior were all designed and measured far away from
  * the zero solvent singularity condition and are not applicable in that limit.
- *
  *
  * This objects add a layer that supports molality. It inherits from VPStandardStateTP.
  *
@@ -179,7 +177,6 @@ namespace Cantera
  *   It's strictly an interfacial layer that writes the current mole fractions to the
  *   State object. When molalities are needed it recalculates the molalities from
  *   the State object's mole fraction vector.
- *
  *
  * @todo Make two solvent minimum fractions. One would be for calculation of the non-ideal
  *       factors. The other one would be for purposes of stoichiometry evaluation. the
@@ -677,7 +674,6 @@ public:
                                doublereal threshold=1e-14) const;
 
 protected:
-
     virtual void getCsvReportData(std::vector<std::string>& names,
                                   std::vector<vector_fp>& data) const;
 

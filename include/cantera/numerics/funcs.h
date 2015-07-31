@@ -25,7 +25,6 @@ namespace Cantera
  * @param x value of the x coordinate
  * @param xpts value of the grid points
  * @param fpts value of the interpolant at the grid points
- *
  * @return Returned value is the value of of the interpolated
  *         function at x.
  */

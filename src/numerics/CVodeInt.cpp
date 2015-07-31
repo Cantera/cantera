@@ -53,7 +53,6 @@ extern "C" {
         double* fydata = N_VDATA(fy);
         double* ewtdata = N_VDATA(ewt);
         double* ydot = N_VDATA(vtemp1);
-
         Cantera::FuncEval* func = (Cantera::FuncEval*)f_data;
 
         int i,j;

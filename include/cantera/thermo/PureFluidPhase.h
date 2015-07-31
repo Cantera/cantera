@@ -31,7 +31,6 @@ namespace Cantera
 class PureFluidPhase  : public ThermoPhase
 {
 public:
-
     //! Empty Base Constructor
     PureFluidPhase();
 
@@ -461,7 +460,6 @@ public:
                                doublereal threshold=1e-14) const;
 
 protected:
-
     //! Main call to the tpx level to set the state of the system
     /*!
      * @param n  Integer indicating which 2 thermo components are held constant

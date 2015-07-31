@@ -53,7 +53,6 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
         ntmax = std::max(nt, ntmax);
         m_specStartIndex.push_back(kinSpIndex);
         kinSpIndex += nsp;
-
         size_t nPhases = kinPtr->nPhases();
         vector_int pLocTmp(nPhases);
         size_t imatch = npos;
@@ -74,7 +73,6 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
             }
         }
         pLocVec.push_back(pLocTmp);
-
     }
     m_numTotalSpecies = m_nv + m_numTotalBulkSpecies;
     m_concSpecies.resize(m_numTotalSpecies, 0.0);
@@ -82,11 +80,8 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
 
     m_integ = newIntegrator("CVODE");
 
-
-
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator
-
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
     m_integ->setIterator(Newton_Iter);
@@ -245,7 +240,6 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     // Save the current solution
     copy(m_concSpecies.begin(), m_concSpecies.end(), m_concSpeciesSave.begin());
 
-
     int retn = m_surfSolver->solveSurfProb(ifunc, time_scale, TKelvin, PGas,
                                            reltol, atol);
     if (retn != 1) {
@@ -255,7 +249,6 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
         ifunc = SFLUX_INITIALIZE;
         retn = m_surfSolver->solveSurfProb(ifunc, time_scale, TKelvin, PGas,
                                            reltol, atol);
-
         if (retn != 1) {
             throw CanteraError("ImplicitSurfChem::solvePseudoSteadyStateProblem",
                                "solveSP return an error condition!");

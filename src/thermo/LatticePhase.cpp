@@ -1,11 +1,9 @@
 /**
- *
  *  @file LatticePhase.cpp
  *  Definitions for a simple thermodynamics model of a bulk phase
  *  derived from ThermoPhase,
  *  assuming a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
- *
  */
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -160,7 +158,6 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
         mu[k] = RT * (g_RT[k] + log(xx))
                 + delta_p * m_speciesMolarVolume[k];
     }
-
 }
 
 void LatticePhase::getPartialMolarEnthalpies(doublereal* hbar) const

@@ -35,7 +35,6 @@ void ctfunctions(int nlhs, mxArray* plhs[],
     char* output_buf = 0;
 
     switch (job) {
-
         // convert CK file to CTI
     case 1:
         if (nrhs < 8) {

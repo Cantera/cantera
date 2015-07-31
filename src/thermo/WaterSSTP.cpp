@@ -177,7 +177,6 @@ void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
     m_waterProps =  new WaterProps(m_sub);
 
-
     /*
      * We have to do something with the thermo function here.
      */
@@ -274,7 +273,6 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
     doublereal g = m_sub->Gibbs();
     *grt = (g + EW_Offset - SW_Offset*T)/ (GasConstant * T);
     dd = m_sub->density(T, p, waterState, dens);
-
 }
 
 void WaterSSTP::getGibbs_ref(doublereal* g) const
@@ -306,7 +304,6 @@ void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
     doublereal s = m_sub->entropy();
     *sr = (s + SW_Offset)/ GasConstant;
     dd = m_sub->density(T, p, waterState, dens);
-
 }
 
 void WaterSSTP::getCp_R_ref(doublereal* cpr) const

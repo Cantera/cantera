@@ -18,7 +18,6 @@
 
 namespace Cantera
 {
-
 /**
  * Class MaskellSolidSolnPhase represents a condensed phase
  * non-ideal solution with 2 species following the thermodynamic

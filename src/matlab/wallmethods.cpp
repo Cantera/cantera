@@ -12,7 +12,6 @@ void wallmethods(int nlhs, mxArray* plhs[],
     int m, iok = 0, n;
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
-
     double r = Undef;
     double v = Undef;
     if (nrhs > 3) {
@@ -107,4 +106,3 @@ void wallmethods(int nlhs, mxArray* plhs[],
         return;
     }
 }
-

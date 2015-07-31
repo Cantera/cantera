@@ -54,7 +54,6 @@ namespace Cantera
  *  density to pressure. The variable m_Pcurrent contains the current value of the
  *  pressure within the phase.
  *
- *
  * <HR>
  * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
@@ -65,7 +64,6 @@ namespace Cantera
  *  that the species are in pure component states at the temperature
  *  and pressure of the solution.  I don't think it prevents, however,
  *  some species from being dilute in the solution.
- *
  *
  * <HR>
  * <H2> Specification of Solution Thermodynamic Properties </H2>
@@ -187,7 +185,6 @@ namespace Cantera
  *      C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
  *   \f]
  *
- *
  *  \f$ C_j^a \f$ is the activity concentration of species j, and
  *  \f$ C_k^a \f$ is the activity concentration of species k. \f$ C^s \f$
  *  is the standard concentration. \f$ a_j \f$ is
@@ -254,7 +251,6 @@ namespace Cantera
  *  \f$k^{-1} \f$ has units of s-1.
  *
  *    @ingroup thermoprops
- *
  */
 class RedlichKisterVPSSTP : public GibbsExcessVPSSTP
 {
@@ -269,7 +265,6 @@ public:
     //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
     //! directly from an XML input file
     /*!
-     *
      * @param inputFile Name of the input file containing the phase XML data
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
@@ -507,7 +502,6 @@ public:
     //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
     //! a line in parameter space or along a line in physical space
     /*!
-     *
      * @param dTds           Input of temperature change along the path
      * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
      *                       Along the path length it must be the case that the mole fractions sum to one.

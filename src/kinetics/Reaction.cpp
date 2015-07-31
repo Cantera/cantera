@@ -531,7 +531,6 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     }
 
     getOptionalFloat(rxn_node, "filmResistivity", R.film_resistivity);
-
     setupInterfaceReaction(R, rxn_node);
 
     // For Butler Volmer reactions, install the orders for the exchange current
@@ -585,7 +584,6 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
                 double c = getValue(initial_orders, iter->first, iter->second);
                 R.orders[iter->first] += c * R.beta;
             }
-
         } else {
             throw CanteraError("setupElectrochemicalReaction", "unknown model "
                     "for reactionOrderFormulation XML_Node: '" +
@@ -619,38 +617,31 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         shared_ptr<ElementaryReaction> R(new ElementaryReaction());
         setupElementaryReaction(*R, rxn_node);
         return R;
-
     } else if (type == "threebody" || type == "three_body") {
         shared_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());
         setupThreeBodyReaction(*R, rxn_node);
         return R;
-
     } else if (type == "falloff") {
         shared_ptr<FalloffReaction> R(new FalloffReaction());
         setupFalloffReaction(*R, rxn_node);
         return R;
-
     } else if (type == "chemact" || type == "chemically_activated") {
         shared_ptr<ChemicallyActivatedReaction> R(new ChemicallyActivatedReaction());
         setupChemicallyActivatedReaction(*R, rxn_node);
         return R;
-
     } else if (type == "plog" || type == "pdep_arrhenius") {
         shared_ptr<PlogReaction> R(new PlogReaction());
         setupPlogReaction(*R, rxn_node);
         return R;
-
     } else if (type == "chebyshev") {
         shared_ptr<ChebyshevReaction> R(new ChebyshevReaction());
         setupChebyshevReaction(*R, rxn_node);
         return R;
-
     } else if (type == "interface" || type == "surface" || type == "edge" ||
                type == "global") {
         shared_ptr<InterfaceReaction> R(new InterfaceReaction());
         setupInterfaceReaction(*R, rxn_node);
         return R;
-
     } else if (type == "electrochemical" ||
                type == "butlervolmer_noactivitycoeffs" ||
                type == "butlervolmer" ||
@@ -658,7 +649,6 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         shared_ptr<ElectrochemicalReaction> R(new ElectrochemicalReaction());
         setupElectrochemicalReaction(*R, rxn_node);
         return R;
-
     } else {
         throw CanteraError("newReaction",
             "Unknown reaction type '" + rxn_node["type"] + "'");
@@ -670,7 +660,6 @@ std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node)
     std::vector<shared_ptr<Reaction> > all_reactions;
     std::vector<XML_Node*> reaction_nodes =
         node.child("reactionData").getChildren("reaction");
-
     for (std::vector<XML_Node*>::iterator iter = reaction_nodes.begin();
          iter != reaction_nodes.end();
          ++iter)

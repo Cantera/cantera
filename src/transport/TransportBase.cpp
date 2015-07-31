@@ -26,7 +26,6 @@ Transport::Transport(const Transport& right)
     m_velocityBasis = right.m_velocityBasis;
 }
 
-
 Transport& Transport::operator=(const Transport& right)
 {
     if (&right != this) {

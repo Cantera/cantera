@@ -77,7 +77,6 @@ public:
      *
      * Input:
      *   @param vprob Object containing the equilibrium Problem statement
-     *
      *   @param ifunc Determines the operation to be done: Valid values:
      *            0 -> Solve a new problem by initializing structures
      *                 first. An initial estimate may or may not have
@@ -90,14 +89,12 @@ public:
      *                 the VCS_PROB structure.
      *            2 -> Don't solve a problem. Destroy all the private
      *                 structures.
-     *
      *  @param ipr Printing of results
      *     ipr = 1 -> Print problem statement and final results to
      *                standard output
      *           0 -> don't report on anything
      *  @param ip1 Printing of intermediate results
      *     IP1 = 1 -> Print intermediate results.
-     *
      *  @param maxit  Maximum number of iterations for the algorithm
      *
      * Output:
@@ -122,7 +119,6 @@ public:
      *                      0 -> don't report on anything
      * @param printDetails  1 -> Print intermediate results.
      * @param maxit         Maximum number of iterations for the algorithm
-     *
      * @return
      *     * 0 = Equilibrium Achieved
      *     * 1 = Range space error encountered. The element abundance criteria
@@ -169,10 +165,8 @@ public:
      *
      * @param[in] doJustComponents  If true, the m_stoichCoeffRxnMatrix and
      *                              m_deltaMolNumPhase are not calculated.
-     *
      * @param[in] aw     Vector of mole fractions which will be used to construct an
      *                   optimal basis from.
-     *
      * @param[in] sa     Gram-Schmidt orthog work space (nc in length) sa[j]
      * @param[in] ss     Gram-Schmidt orthog work space (nc in length) ss[j]
      * @param[in] sm     QR matrix work space (nc*ne in length)         sm[i+j*ne]
@@ -222,7 +216,6 @@ public:
      *  All evaluations are done using the "old" version of the solution.
      *
      *  @param kspec   Species to be evaluated
-     *
      * @return Returns the calculated species type
      */
     int vcs_species_type(const size_t kspec) const;
@@ -354,9 +347,8 @@ public:
      * for the input mole vector z[] in the parameter list.
      * Nondimensionalization is achieved by division by RT.
      *
-     * Note, for multispecies phases which are currently zeroed out,
-     * the chemical potential is filled out with the standard chemical
-     * potential.
+     * Note, for multispecies phases which are currently zeroed out, the
+     * chemical potential is filled out with the standard chemical potential.
      *
      * For species in multispecies phases whose concentration is zero, we need
      * to set the mole fraction to a very low value. Its chemical potential is
@@ -462,7 +454,6 @@ public:
      * are increased.
      *
      * @param iphasePop  id of the phase, which is currently zeroed,
-     *
      * @return Returns true if the phase can come into existence
      *         and false otherwise.
      */
@@ -481,7 +472,6 @@ public:
     /*!
      * @param  phasePopPhaseIDs Vector containing the phase ids of the phases
      *         that will be popped this step.
-     *
      * @return returns the phase id of the phase that pops back into
      *         existence. Returns -1 if there are no phases
      */
@@ -495,7 +485,6 @@ public:
      * for species irxn + M, where M is the number of components.
      *
      * @param iphasePop  Phase id of the phase that will come into existence
-     *
      * @return  Returns an int representing the status of the step
      *            -  0 : normal return
      *            -  1 : A single species phase species has been zeroed out
@@ -523,7 +512,6 @@ public:
      * @param forceComponentCalc  integer flagging whether a component
      *                            recalculation needs to be carried out.
      * @param kSpecial            species number of phase being zeroed.
-     *
      * @return  Returns an int representing which phase may need to be zeroed
      */
     size_t vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial);
@@ -640,7 +628,6 @@ public:
      *     report on anything
      * @param printDetails  1 -> Print intermediate results.
      * @param maxit         Maximum number of iterations for the algorithm
-     *
      * @return
      * - 0 = Equilibrium Achieved
      * - 1 = Range space error encountered. The element abundance criteria are
@@ -676,7 +663,6 @@ public:
      * @param maxit  Maximum number of iterations for the algorithm
      * @param T    Value of the Temperature (Kelvin)
      * @param pres Value of the Pressure (units given by m_VCS_UnitsFormat variable
-     *
      * @return Returns an integer representing the success of the algorithm
      * * 0 = Equilibrium Achieved
      * * 1 = Range space error encountered. The element abundance criteria are
@@ -788,7 +774,6 @@ public:
      *
      * @param vprob   VCS_PROB pointer to the definition of the equilibrium
      *                problem
-     *
      * @return  If true, the problem is well-posed. If false, the problem
      *          is not well posed.
      */
@@ -903,7 +888,6 @@ public:
      *
      *  @param irxn     Reaction number
      *  @param dx_orig  Original step length
-     *
      *  @param ANOTE    Output character string stating the conclusions of the
      *                  line search
      *  @return         Returns the optimized step length found by the search
@@ -1052,7 +1036,6 @@ public:
      *  lots of special cases and problems with zeroing out species.
      *
      *  Still need to check out when we do loops over nc vs. ne.
-     *
      */
     int vcs_elcorr(double aa[], double x[]);
 
@@ -1176,7 +1159,6 @@ private:
      *   loop.
      *
      * @param iph Phase to be deleted
-     *
      * @return Returns whether the operation was successful or not
      */
     bool vcs_delete_multiphase(const size_t iph);
@@ -1189,7 +1171,6 @@ private:
      *  @param kspec The species index
      *  @param delta_ptr   pointer to the delta for the species. This may
      *                     change during the calculation
-     *
      *  @return
      *      1: succeeded without change of dx
      *      0: Had to adjust dx, perhaps to zero, in order to do the delta.
@@ -1223,7 +1204,6 @@ private:
      *   Also, if the phase exists, then we check to see if the species
      *   can have a mole number larger than  VCS_DELETE_SPECIES_CUTOFF
      *   (default value = 1.0E-32).
-     *
      */
     int vcs_recheck_deleted();
 
@@ -1253,7 +1233,6 @@ private:
      *  phases. It's an overkill for single species phases.
      *
      *  @param iphase Phase index number
-     *
      *  @return   Returns true if the phase is currently deleted
      *            but should be reinstated. Returns false otherwise.
      *
@@ -1382,7 +1361,6 @@ private:
      *         totalNumSpecies) Note this is only partially formed. Only
      *         species in phases that participate in the reaction will be
      *         updated
-     *
      * @return Returns the dimensionless deltaG of the reaction
      */
     double deltaG_Recalc_Rxn(const int stateCalc,

@@ -75,7 +75,6 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
     tr.defectDiffusivity = 0;
     m_defectActivity = tr.defectActivity;
     tr.defectActivity = 0;
-
     return true;
 }
 
@@ -83,7 +82,6 @@ void SolidTransport::setParameters(const int n, const int k, const doublereal* c
 {
     warn_deprecated("SolidTransport::setParameters");
     switch (n) {
-
     case 0:
         // set the Arrhenius parameters for the diffusion coefficient
         // of species k.
@@ -93,20 +91,16 @@ void SolidTransport::setParameters(const int n, const int k, const doublereal* c
         m_Ediff.push_back(p[2]);
         m_nmobile = m_sp.size();
         break;
-
     case 1:
         // set the thermal conductivity Arrhenius parameters.
         m_Alam = p[0];
         m_Nlam = p[2];
         m_Elam = p[2];
         break;
-
     default:
         ;
     }
-
     m_work.resize(m_thermo->nSpecies());
-
 }
 
 doublereal SolidTransport::ionConductivity()
@@ -164,7 +158,6 @@ void SolidTransport::getMobilities(doublereal* const mobil)
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         mobil[k] *= c1;
     }
-
 }
 
 void SolidTransport::getMixDiffCoeffs(doublereal* const d)

@@ -60,14 +60,12 @@ const int cDirect = 0;
 const int cKrylov = 1;
 
 
-
 /**
  * Wrapper for DAE solvers
  */
 class DAE_Solver
 {
 public:
-
     DAE_Solver(ResidJacEval& f) :
         m_resid(f),
         m_neq(f.nEquations()),
@@ -237,15 +235,12 @@ public:
     }
 
 protected:
-
     doublereal m_dummy;
-
     ResidJacEval& m_resid;
 
     //! Number of total equations in the system
     integer    m_neq;
     doublereal m_time;
-
 
 private:
     void warn(const std::string& msg) const {

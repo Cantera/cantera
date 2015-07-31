@@ -255,7 +255,7 @@ if localenv['python3_package'] == 'y':
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
                                dependencies=mglob(localenv, 'matlab', 'm'),
-			       env_vars=python_env_vars)
+                               env_vars=python_env_vars)
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
 

@@ -41,7 +41,6 @@ public:
 
     virtual void setMultiplier(size_t i, double f);
 
-
 protected:
     virtual void addElementaryReaction(ElementaryReaction& r);
     virtual void modifyElementaryReaction(size_t i, ElementaryReaction& rNew);

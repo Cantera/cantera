@@ -33,7 +33,6 @@ void printStates()
 
 int openRankine(int np, void* p)
 {
-
     double etap = 0.6;     // pump isentropic efficiency
     double etat = 0.8;     // turbine isentropic efficiency
     double phigh = 8.0e5;  // high pressure
@@ -76,7 +75,6 @@ int openRankine(int np, void* p)
 #ifndef CXX_DEMO
 int main()
 {
-
     try {
         return openRankine(0, 0);
     } catch (CanteraError& err) {

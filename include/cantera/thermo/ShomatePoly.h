@@ -123,7 +123,6 @@ public:
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const {
-
         doublereal A      = m_coeff[0];
         doublereal Bt     = m_coeff[1]*tt[0];
         doublereal Ct2    = m_coeff[2]*tt[1];

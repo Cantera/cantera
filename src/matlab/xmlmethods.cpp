@@ -41,7 +41,6 @@ void xmlmethods(int nlhs, mxArray* plhs[],
 {
     int j, m, iok = 0;
     char* file, *key, *val, *nm;
-
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
 

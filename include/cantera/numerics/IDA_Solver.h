@@ -40,7 +40,6 @@ class ResidData; // forward reference
 class IDA_Solver : public DAE_Solver
 {
 public:
-
     //! Constructor.
     /*!
      * Default settings: dense Jacobian, no user-supplied Jacobian function, Newton iteration.
@@ -97,9 +96,7 @@ public:
 
     //! Set the form of the Jacobian
     /*!
-     *
      *   @param formJac  Form of the Jacobian
-     *
      *                   0 numerical Jacobian
      *                   1 analytical Jacobian given by the evalJacobianDP() function
      */
@@ -136,7 +133,6 @@ public:
     //! Step the system to a final value of the time
     /*!
      *  @param tout  Final value of the time
-     *
      *  @return  Returns the IDASolve() return flag
      *
      *   The return values for IDASolve are described below.

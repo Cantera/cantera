@@ -138,12 +138,10 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
 
     std::vector<std::string> key;
     std::vector<std::string> val;
-
     numMult_ = getPairs(*nsm,  key, val);
     idNeutralMoleculeVec.resize(numMult_);
     factorVec.resize(numMult_);
     tmpNM.resize(neutralMoleculePhase_->nSpecies());
-
     for (size_t i = 0; i < numMult_; i++) {
         idNeutralMoleculeVec[i] = neutralMoleculePhase_->speciesIndex(key[i]);
         factorVec[i] =  fpValueCheck(val[i]);
@@ -180,7 +178,6 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
@@ -194,7 +191,6 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &fxml_phase->root());
     const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
-
     constructPDSSXML(tp, spindex, *s, *fxml_phase, id);
 }
 

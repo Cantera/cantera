@@ -17,7 +17,6 @@ SolidTransportData::SolidTransportData() :
     defectDiffusivity(0),
     defectActivity(0)
 {
-
 }
 
 SolidTransportData::SolidTransportData(const SolidTransportData& right) :

@@ -268,7 +268,6 @@ void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
         int delAK = 0;
         int delBK = 0;
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
 
@@ -280,10 +279,8 @@ void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
 
             double XA = moleFractions_[iA];
             double XB = moleFractions_[iB];
-
             double g0 = (m_VHE_b_ij[i] - T * m_VSE_b_ij[i]);
             double g1 = (m_VHE_c_ij[i] - T * m_VSE_c_ij[i]);
-
             vbar[iK] += XA*XB*(g0+g1*XB)+((delAK-XA)*XB+XA*(delBK-XB))*(g0+g1*XB)+XA*XB*(delBK-XB)*g1;
         }
     }
@@ -342,7 +339,6 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
              */
             if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
-
             }
         }
     }
@@ -351,8 +347,6 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
      * Go down the chain
      */
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
-
-
 }
 
 void PhaseCombo_Interaction::s_update_lnActCoeff() const
@@ -456,7 +450,6 @@ void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doub
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
-
             int delAK = 0;
             int delBK = 0;
 
@@ -468,13 +461,10 @@ void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doub
 
             double XA = moleFractions_[iA];
             double XB = moleFractions_[iB];
-
             double dXA = dXds[iA];
             double dXB = dXds[iB];
-
             double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / (GasConstant*T);
             double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / (GasConstant*T);
-
             dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
                                  + dlnActCoeffdT_Scaled_[iK]*dTds;
         }
@@ -487,7 +477,6 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
     dlnActCoeffdlnN_diag_.assign(m_kk, 0.0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
-
         double XK = moleFractions_[iK];
         /*
          *  We never sample the end of the mole fraction domains
@@ -503,7 +492,6 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
-
             int delAK = 0;
             int delBK = 0;
 
@@ -515,15 +503,12 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
 
             double XA = moleFractions_[iA];
             double XB = moleFractions_[iB];
-
             double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / (GasConstant*T);
             double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / (GasConstant*T);
-
             dlnActCoeffdlnN_diag_[iK] += 2*(delBK-XB)*(g0*(delAK-XA)+g1*(2*(delAK-XA)*XB+XA*(delBK-XB)));
         }
         dlnActCoeffdlnN_diag_[iK] = XK*dlnActCoeffdlnN_diag_[iK];
     }
-
 }
 
 void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
@@ -539,10 +524,8 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
          *  We never sample the end of the mole fraction domains
          */
         double xx = std::max(moleFractions_[iK], SmallNumber);
-
         for (size_t iM = 0; iM < m_kk; iM++) {
             double XM = moleFractions_[iM];
-
             if (xx > SmallNumber) {
                 double delKM = 0.0;
                 if (iK == iM) {
@@ -555,7 +538,6 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
             for (size_t i = 0; i <  numBinaryInteractions_; i++) {
                 size_t iA =  m_pSpecies_A_ij[i];
                 size_t iB =  m_pSpecies_B_ij[i];
-
                 double delAK = 0.0;
                 double delBK = 0.0;
                 double delAM = 0.0;
@@ -573,13 +555,10 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
 
                 double XA = moleFractions_[iA];
                 double XB = moleFractions_[iB];
-
                 double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / (GasConstant*T);
                 double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / (GasConstant*T);
-
                 dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
                 dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
-
             }
             dlnActCoeffdlnN_(iK,iM) = XM * dlnActCoeffdlnN_(iK,iM);
         }
@@ -648,7 +627,6 @@ void PhaseCombo_Interaction::resizeNumInteractions(const size_t num)
     m_VSE_b_ij.resize(num, 0.0);
     m_VSE_c_ij.resize(num, 0.0);
     m_VSE_d_ij.resize(num, 0.0);
-
     m_pSpecies_A_ij.resize(num, npos);
     m_pSpecies_B_ij.resize(num, npos);
 }

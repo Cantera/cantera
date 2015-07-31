@@ -211,7 +211,6 @@ public:
 class Symm1D : public Bdry1D
 {
 public:
-
     Symm1D() : Bdry1D() {
         m_type = cSymmType;
     }

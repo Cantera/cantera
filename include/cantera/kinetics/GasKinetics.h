@@ -1,6 +1,5 @@
 /**
  * @file GasKinetics.h
- *
  * @ingroup chemkinetics
  */
 
@@ -86,7 +85,7 @@ protected:
     //! Rate expressions for falloff reactions at the high-pressure limit
     Rate1<Arrhenius> m_falloff_high_rates;
 
-    FalloffMgr                          m_falloffn;
+    FalloffMgr m_falloffn;
 
     ThirdBodyCalc m_3b_concm;
     ThirdBodyCalc m_falloff_concm;

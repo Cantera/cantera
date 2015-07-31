@@ -47,7 +47,6 @@ static void getArrhenius(const XML_Node& node,
     b = getFloat(node, "b");
     E = getFloat(node, "E", "actEnergy");
     E /= GasConstant;
-
 }
 
 LTPspecies::LTPspecies(const XML_Node* const propNode, const std::string name,
@@ -67,7 +66,6 @@ LTPspecies::LTPspecies(const XML_Node* const propNode, const std::string name,
 
 LTPspecies::LTPspecies(const LTPspecies& right)
 {
-
     *this = right;
 }
 
@@ -97,7 +95,6 @@ doublereal LTPspecies::getSpeciesTransProp()
 bool LTPspecies::checkPositive() const
 {
     return (m_coeffs[0] > 0);
-
 }
 
 doublereal LTPspecies::getMixWeight() const
@@ -144,14 +141,12 @@ LTPspecies* LTPspecies_Const::duplMyselfAsLTPspecies() const
 doublereal LTPspecies_Const::getSpeciesTransProp()
 {
     return m_coeffs[0];
-
 }
 
 LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node& propNode, const std::string name,
         TransportPropertyType tp_ind,  const thermo_t* thermo) :
     LTPspecies(&propNode, name, tp_ind, thermo)
 {
-
     m_model = LTP_TD_ARRHENIUS;
     m_temp = 0.0;
     m_prop = 0.0;

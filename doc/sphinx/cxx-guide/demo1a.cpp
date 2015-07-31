@@ -6,7 +6,6 @@ using namespace Cantera;
 // can be called from the main program.
 void simple_demo()
 {
-
     // Create a new phase
     ThermoPhase* gas = newPhase("h2o2.cti","ohmech");
 
@@ -28,7 +27,6 @@ void simple_demo()
 // might be thrown
 int main()
 {
-
     try {
         simple_demo();
     } catch (CanteraError& err) {

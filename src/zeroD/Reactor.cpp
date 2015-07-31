@@ -137,20 +137,17 @@ void Reactor::updateState(doublereal* y)
     // species, and [K+3...] are the coverages of surface species on each wall.
     m_mass = y[0];
     m_vol = y[1];
-
     m_thermo->setMassFractions_NoNorm(y+3);
 
     if (m_energy) {
         // Use a damped Newton's method to determine the mixture temperature.
         // Tight tolerances are required both for Jacobian evaluation and for
         // sensitivity analysis to work correctly.
-
         doublereal U = y[2];
         doublereal T = temperature();
         double dT = 100;
         double dUprev = 1e10;
         double dU = 1e10;
-
         int i = 0;
         double damp = 1.0;
         while (abs(dT / T) > 10 * DBL_EPSILON) {
@@ -274,7 +271,6 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
         AssertFinite(ydot[i], "Reactor::evalEqs",
                      "ydot[" + int2str(i) + "] is not finite");
     }
-
     resetSensitivity(params);
 }
 
@@ -292,7 +288,6 @@ void Reactor::evalWalls(double t)
 double Reactor::evalSurfaces(double t, double* ydot)
 {
     const vector_fp& mw = m_thermo->molecularWeights();
-
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
     size_t loc = 0; // offset into ydot
     double mdot_surf = 0.0; // net mass flux from surface

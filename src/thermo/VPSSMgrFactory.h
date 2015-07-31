@@ -67,9 +67,7 @@ public:
  */
 class VPSSMgrFactory : public FactoryBase
 {
-
 public:
-
     //! Static method to return an instance of this class
     /*!
      * This class is implemented as a singleton -- one in which
@@ -146,14 +144,10 @@ private:
     VPSSMgrFactory() {}
 };
 
-
 ////////////////////// Convenience functions ////////////////////
-//
 //  These functions allow using a different factory class that
 //  derives from VPSSMgrFactory.
-//
 //////////////////////////////////////////////////////////////////
-
 
 //! Create a new species thermo manager instance, by specifying
 //! the type and (optionally) a pointer to the factory to use to create it.
@@ -195,7 +189,6 @@ VPSSMgr* newVPSSMgr(VPStandardStateTP* vp_ptr,
                     XML_Node* phaseNode_ptr,
                     std::vector<XML_Node*> & spDataNodeList,
                     VPSSMgrFactory* f=0);
-
 }
 
 #endif

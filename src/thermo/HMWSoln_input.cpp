@@ -133,7 +133,6 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
             }
         }
         if (nodeName == "beta1") {
-
             /*
              * Get the string containing all of the values
              */
@@ -199,7 +198,6 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 }
                 m_Beta2MX_ij[counter] = vParams[0];
             }
-
         }
         if (nodeName == "cphi") {
             /*
@@ -511,7 +509,6 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
                 m_Psi_ijk[n] = vParams[0];
             }
 
-
             // fill in the duplicate entries
             n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
             for (size_t j = 0; j < nParamsFound; j++) {
@@ -612,7 +609,6 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
             }
         }
         if (nodeName == "psi") {
-
             getFloatArray(xmlChild, vParams, false, "", stemp);
             size_t nParamsFound = vParams.size();
             n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
@@ -649,7 +645,6 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
                 m_Psi_ijk[n] = vParams[0];
             }
 
-
             // fill in the duplicate entries
             n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
             for (size_t j = 0; j < nParamsFound; j++) {
@@ -680,7 +675,6 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
-
         }
     }
 }
@@ -735,7 +729,6 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
                 }
                 m_Lambda_nj_coeff(0,nCount) = vParams[0];
                 m_Lambda_nj(iSpecies,jSpecies) = vParams[0];
-
             } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
@@ -745,7 +738,6 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
                 m_Lambda_nj_coeff(0,nCount) = vParams[0];
                 m_Lambda_nj_coeff(1,nCount) = vParams[1];
                 m_Lambda_nj(iSpecies, jSpecies) = vParams[0];
-
             } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
@@ -805,7 +797,6 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
                 }
                 m_Mu_nnn_coeff(0,iSpecies) = vParams[0];
                 m_Mu_nnn[iSpecies] = vParams[0];
-
             } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
@@ -814,7 +805,6 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
                 m_Mu_nnn_coeff(0, iSpecies) = vParams[0];
                 m_Mu_nnn_coeff(1, iSpecies) = vParams[1];
                 m_Mu_nnn[iSpecies] = vParams[0];
-
             } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
@@ -923,7 +913,6 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
                 }
                 m_Psi_ijk[n] = vParams[0];
             }
-
             // There are no duplicate entries
         }
     }
@@ -931,7 +920,6 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
 
 void HMWSoln::readXMLCroppingCoefficients(const XML_Node& acNode)
 {
-
     if (acNode.hasChild("croppingCoefficients")) {
         XML_Node& cropNode = acNode.child("croppingCoefficients");
         if (cropNode.hasChild("ln_gamma_k_min")) {
@@ -963,7 +951,6 @@ void HMWSoln::initThermo()
 
 void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
 {
-
     if (inputFile.size() == 0) {
         throw CanteraError("HMWSoln:constructPhaseFile",
                            "input file is null");
@@ -1101,7 +1088,6 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
         } else {
             m_TempPitzerRef = 273.15 + 25;
         }
-
     }
 
     /*
@@ -1209,7 +1195,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         } else {
             m_TempPitzerRef = 273.15 + 25;
         }
-
     }
 
     /*
@@ -1383,13 +1368,11 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             m_maxIionicStrength = getFloat(acNode, "maxIonicStrength");
         }
 
-
         /*
          * Look for parameters for the Ionic radius
          */
         if (acNode.hasChild("ionicRadius")) {
             XML_Node& irNode = acNode.child("ionicRadius");
-
             double Afactor = 1.0;
             if (irNode.hasAttrib("units")) {
                 string Aunits = irNode.attrib("units");
@@ -1403,7 +1386,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                     m_Aionic[k] = ad * Afactor;
                 }
             }
-
         }
 
         /*
@@ -1412,7 +1394,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          *     in each of the species SS databases.
          */
         std::vector<const XML_Node*> xspecies = speciesData();
-
         for (size_t k = 0; k < m_kk; k++) {
             size_t jmap = npos;
             string kname = speciesName(k);
@@ -1436,7 +1417,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (acNodePtr) {
             if (acNodePtr->hasChild("stoichIsMods")) {
                 XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
-
                 map<string, string> msIs;
                 getMap(sIsNode, msIs);
                 for (map<string,string>::const_iterator _b = msIs.begin();
@@ -1450,7 +1430,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 }
             }
         }
-
 
         /*
          * Loop through the children getting multiple instances of
@@ -1486,7 +1465,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
         // Go look up the optional Cropping parameters
         readXMLCroppingCoefficients(acNode);
-
     }
 
     /*
@@ -1562,7 +1540,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     /*
      * Lastly calculate the charge balance and then add stuff until the charges compensate
      */
-
     vector_fp mf(m_kk, 0.0);
     getMoleFractions(DATA_PTR(mf));
     bool notDone = true;
@@ -1579,7 +1556,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
         size_t kHp = speciesIndex("H+");
         size_t kOHm = speciesIndex("OH-");
-
 
         if (fabs(sum) > 1.0E-30) {
             if (kHp != npos) {

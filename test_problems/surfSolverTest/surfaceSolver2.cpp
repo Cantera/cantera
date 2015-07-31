@@ -21,7 +21,6 @@
 /*****************************************************************/
 static void printUsage()
 {
-
 }
 
 #include "cantera/Interface.h"

@@ -108,7 +108,6 @@ public:
     /*!
      *       The XML_Node for the phase contains all of the input data used to set
      *       up the model for the phase during its initialization.
-     *
      */
     XML_Node& xml() const;
 
@@ -274,7 +273,6 @@ public:
     //! Throws an exception if kk is less than nSpecies(). Used before calls
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t kk) const;
-
 
     //!@} end group Element and Species Information
 
@@ -500,12 +498,11 @@ public:
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
     /*!
-     *    @param[in] k	 Index of the species within the phase.
+     *    @param[in] k Index of the species within the phase.
      *
      *    @return Returns the concentration of species k (kmol m-3).
      */
     doublereal concentration(const size_t k) const;
-
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density

@@ -109,8 +109,8 @@ void phasemethods(int nlhs, mxArray* plhs[],
         case 0:
             vv = (double) newThermoFromXML(ph);
             break;
-            // floating-point attributes
         case 1:
+            // floating-point attributes
             vv = phase_temperature(ph);
             break;
         case 2:

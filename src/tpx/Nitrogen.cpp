@@ -152,13 +152,11 @@ double nitrogen::up()
     for (int i=0; i<14; i++) {
         sum += (C(i,rt,rt2) - T*Cprime(i,rt,rt2,rt3))*I(i,egrho);
     }
-
     sum += (((0.25*Gnn[6]*T + Gnn[5]/3.0)*T
              + 0.5*Gnn[4])*T + Gnn[3])*T + Gnn[2]*log(T)
            - (Gnn[1] + 0.5*Gnn[0]*rt)*rt
            + Gnn[7]*beta/(exp(beta*rt) - 1.0) + u0
            + m_energy_offset;
-
     return sum;
 }
 
@@ -174,7 +172,6 @@ double nitrogen::sp()
     for (int i=0; i<14; i++) {
         sum -= Cprime(i,rt,rt2,rt3)*I(i,egrho);
     }
-
     sum += (((Gnn[6]/3.0)*T + 0.5*Gnn[5])*T + Gnn[4])*T + Gnn[3]*log(T)
            -((Gnn[0]*rt/3.0 + 0.5*Gnn[1])*rt + Gnn[2])*rt
            + Gnn[7]*(beta*rt + beta*rt/(exp(beta*rt) - 1.0)

@@ -32,9 +32,7 @@ namespace Cantera
  */
 class BandMatrix : public GeneralMatrix
 {
-
 public:
-
     //! Base Constructor
     /*!
      * * Create an \c 0 by \c 0 matrix, and initialize all elements to \c 0.
@@ -91,7 +89,6 @@ public:
      *
      *  @param i  row
      *  @param j  column
-     *
      *  @return Returns a reference to the value of the matrix entry
      */
     doublereal& value(size_t i, size_t j);
@@ -101,7 +98,6 @@ public:
      *   This method does not  alter the array.
      *  @param i  row
      *  @param j  column
-     *
      *  @return Returns the value of the matrix entry
      */
     doublereal value(size_t i, size_t j) const;
@@ -110,7 +106,6 @@ public:
     /*!
      *  @param i  row
      *  @param j  column
-     *
      * @return  Returns the index of the matrix entry
      */
     size_t index(size_t i, size_t j) const;
@@ -122,7 +117,6 @@ public:
      *
      *   @param i  row
      *   @param j  column
-     *
      *   @return   Returns the value of the matrix entry
      */
     doublereal _value(size_t i, size_t j) const;
@@ -134,7 +128,6 @@ public:
      * @param iStruct OUTPUT Pointer to a vector of ints that describe the structure of the matrix.
      *    istruct[0] = kl
      *    istruct[1] = ku
-     *
      * @return  returns the number of rows and columns in the matrix.
      */
     virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const;
@@ -172,7 +165,6 @@ public:
     /*!
      *  @param b  INPUT RHS of the problem
      *  @param x  OUTPUT solution to the problem
-     *
      * @return Return a success flag
      *          0 indicates a success
      *         ~0  Some error occurred, see the LAPACK documentation
@@ -185,7 +177,6 @@ public:
      *               OUTPUT solution to the problem
      *  @param nrhs  Number of right hand sides to solve
      *  @param ldb   Leading dimension of `b`. Default is nColumns()
-     *
      * @return Return a success flag
      *          0 indicates a success
      *         ~0  Some error occurred, see the LAPACK documentation
@@ -223,7 +214,6 @@ public:
      *   The matrix must have been previously factored using the LU algorithm
      *
      * @param a1norm Norm of the matrix
-     *
      * @return  returns the inverse of the condition number
      */
     virtual doublereal rcond(doublereal a1norm);
@@ -255,7 +245,6 @@ public:
      *     double a_i_j = colP_j[kl + ku + i - j];
      *
      *  @param j   Value of the column
-     *
      *  @return  Returns a pointer to the top of the column
      */
     virtual doublereal* ptrColumn(size_t j);
@@ -276,7 +265,6 @@ public:
      *  The smallest row is returned along with the largest coefficient in that row
      *
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest row
-     *
      * @return index of the row that is most nearly zero
      */
     virtual size_t checkRows(doublereal& valueSmall) const;
@@ -287,13 +275,11 @@ public:
      *  The smallest column is returned along with the largest coefficient in that column
      *
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest column
-     *
      * @return index of the column that is most nearly zero
      */
     virtual size_t checkColumns(doublereal& valueSmall) const;
 
 protected:
-
     //! Matrix data
     vector_fp data;
 

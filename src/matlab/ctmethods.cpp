@@ -83,7 +83,6 @@ void initLogger()
     }
 }
 
-
 extern "C" {
 
     void mexFunction(int nlhs, mxArray* plhs[],

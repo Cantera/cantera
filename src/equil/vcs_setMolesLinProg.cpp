@@ -43,7 +43,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     // m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
     // -> This is already done coming into the routine.
     double dg_rt;
-
     int idir;
     double nu;
     double delta_xi, dxi_min = 1.0e10;
@@ -52,7 +51,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     int iter = 0;
     bool abundancesOK = true;
     bool usedZeroedSpecies;
-
     std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
     std::vector<double> ss(m_numElemConstraints, 0.0);
     std::vector<double> sa(m_numElemConstraints, 0.0);
@@ -70,7 +68,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     }
 
     while (redo) {
-
         if (!vcs_elabcheck(0)) {
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
@@ -107,7 +104,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
 
         // loop over all reactions
         for (irxn = 0; irxn < m_numRxnTot; irxn++) {
-
             // dg_rt is the Delta_G / RT value for the reaction
             ik = m_numComponents + irxn;
             dg_rt = m_SSfeSpecies[ik];
@@ -126,7 +122,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
 
             for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
                 nu = sc_irxn[jcomp];
-
                 // set max change in progress variable by
                 // non-negativity requirement
                 if (nu*idir < 0) {

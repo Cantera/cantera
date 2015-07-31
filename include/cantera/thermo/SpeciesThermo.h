@@ -130,7 +130,6 @@ class SpeciesThermoInterpType;
 class SpeciesThermo
 {
 public:
-
     //! Constructor
     SpeciesThermo() {}
 

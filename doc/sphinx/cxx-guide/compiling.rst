@@ -50,9 +50,9 @@ look like this::
     env = Environment()
 
     env.Append(CCFLAGS='-g',
-               CPPPATH=['/usr/local/cantera/include', 
+               CPPPATH=['/usr/local/cantera/include',
                         '/usr/local/sundials/include'],
-	       LIBS=['cantera', 'sundials_cvodes', 'sundials_ida', 
+               LIBS=['cantera', 'sundials_cvodes', 'sundials_ida',
                      'sundials_nvecserial', 'lapack', 'blas'],
                LIBPATH=['/usr/local/cantera/lib',
                         '/usr/local/sundials/lib'],

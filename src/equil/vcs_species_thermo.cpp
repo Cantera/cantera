@@ -20,7 +20,6 @@ namespace Cantera
 {
 VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
                                        size_t indexSpeciesPhase) :
-
     IndexPhase(indexPhase),
     IndexSpeciesPhase(indexSpeciesPhase),
     OwningPhase(0),

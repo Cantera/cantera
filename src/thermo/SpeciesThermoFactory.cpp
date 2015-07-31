@@ -94,7 +94,6 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
 {
     const XML_Node& f0 = *nodes[0];
     bool dualRange = (nodes.size() > 1);
-
     double tmin0 = fpValue(f0["Tmin"]);
     double tmax0 = fpValue(f0["Tmax"]);
 
@@ -192,16 +191,13 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
 
     double t = 298.15 / 1000.;
     double H298smFs = As * t + Bs * t * t / 2.0 - Es / t;
-
     double HcalcS = Hcalc / 1.0E6;
     double Fs = HcalcS - H298smFs;
-
     double S298smGs = As * log(t) + Bs * t - Es/(2.0*t*t);
     double ScalcS = e / 1.0E3;
     double Gs = ScalcS - S298smGs;
 
     double c0[7] = {As, Bs, Cs, Ds, Es, Fs, Gs};
-
     return newSpeciesThermoInterpType(SHOMATE1, tmin0, tmax0, p0, c0);
 }
 
@@ -302,7 +298,6 @@ static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
     doublereal p0 = OneAtm;
     return newSpeciesThermoInterpType(CONSTANT_CP, tmin, tmax, p0, &c[0]);
 }
-
 
 //! Create a NASA9 polynomial thermodynamic property parameterization for a
 //! species

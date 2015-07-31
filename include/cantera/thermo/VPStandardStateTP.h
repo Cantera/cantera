@@ -52,7 +52,6 @@ namespace Cantera
  */
 class VPStandardStateTP : public ThermoPhase
 {
-
 public:
     //! @name Constructors and Duplicators for VPStandardStateTP
 
@@ -224,7 +223,6 @@ public:
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-
     //! Get the molar volumes of each species in their standard
     //! states at the current
     //! <I>T</I> and <I>P</I> of the solution.
@@ -284,7 +282,6 @@ public:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
-     *
      * If m_useTmpStandardStateStorage is true,
      * this function must be called for every call to functions in this
      * class. It checks to see whether the temperature or pressure has changed and
@@ -302,7 +299,6 @@ public:
      *
      *  If m_useTmpStandardStateStorage is not true, this function may be
      *  required to be called by child classes to update internal member data.
-     *
      */
     virtual void updateStandardStateThermo() const;
 
@@ -354,12 +350,10 @@ protected:
      *  has changed. It automatically assumes that it has changed.
      *  If m_useTmpStandardStateStorage is not true, this function may be
      *  required to be called by child classes to update internal member data..
-     *
      */
     virtual void _updateStandardStateThermo() const;
 
 public:
-
     /// @name Thermodynamic Values for the Species Reference States (VPStandardStateTP)
     /*!
      *  There are also temporary
@@ -511,7 +505,6 @@ public:
     const PDSS* providePDSS(size_t k) const;
 
 protected:
-
     //! Current value of the pressure - state variable
     /*!
      *  Because we are now using the pressure as a state variable, we need to carry it

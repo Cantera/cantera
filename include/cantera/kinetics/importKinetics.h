@@ -86,14 +86,12 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  *
  * @param root pointer to the XML tree which will be searched to find the
  *             XML phase element.
- *
  * @param id   Name of the phase to be searched for.
  * @param nm   Name of the XML element. Should be "phase"
  * @param th   Pointer to a bare ThermoPhase object, which will be initialized
  *             by this operation.
  * @param kin  Pointer to a bare Kinetics object, which will be initialized
  *             by this operation to a homogeneous kinetics manager
- *
  * @return
  *    Returns true if all went well. If there are errors, it will return false.
  *

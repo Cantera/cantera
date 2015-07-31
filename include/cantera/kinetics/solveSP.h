@@ -146,7 +146,6 @@ public:
     /*!
      *  @param surfChemPtr  Pointer to the ImplicitSurfChem object that
      *                      defines the surface problem to be solved.
-     *
      *  @param bulkFunc     Integer representing how the bulk phases should be
      *                      handled. See @ref solvesp_bulkFunc. Currently,
      *                      only the default value of BULK_ETCH is supported.
@@ -176,17 +175,12 @@ public:
      *
      * @param ifunc Determines the type of solution algorithm to be used. See
      *                  @ref solvesp_methods for possible values.
-     *
      * @param time_scale  Time over which to integrate the surface equations,
      *                    where applicable
-     *
      * @param TKelvin     Temperature (kelvin)
-     *
      * @param PGas        Pressure (pascals)
-     *
      * @param reltol      Relative tolerance to use
      * @param abstol      absolute tolerance.
-     *
      * @return  Returns 1 if the surface problem is successfully solved.
      *          Returns -1 if the surface problem wasn't solved successfully.
      *          Note the actual converged solution is returned as part of the

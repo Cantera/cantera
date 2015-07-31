@@ -111,8 +111,7 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
  * Here \f$\epsilon_{r,n} \f$ is the relative error tolerance for
  * component n, and multiplies the average magnitude of
  * solution component n in the domain. The second term,
- * \f$\epsilon_{a,n}\f$, is the absolute error tolerance for component
- * n.
+ * \f$\epsilon_{a,n}\f$, is the absolute error tolerance for component n.
  */
 doublereal norm_square(const doublereal* x,
                        const doublereal* step, Domain1D& r)
@@ -191,7 +190,6 @@ void MultiNewton::step(doublereal* x, doublereal* step,
     }
 
     iok = jac.solve(step, step);
-
     // if iok is non-zero, then solve failed
     if (iok != 0) {
         iok--;
@@ -259,19 +257,15 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
         return -3;
     }
 
-
     //--------------------------------------------
     //           Attempt damped step
     //--------------------------------------------
 
     // damping coefficient starts at 1.0
     doublereal damp = 1.0;
-
     doublereal ff;
-
     size_t m;
     for (m = 0; m < NDAMP; m++) {
-
         ff = fbound*damp;
 
         // step the solution by the damped step size
@@ -301,7 +295,6 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
         // accept this damping coefficient. Also accept it if this
         // step would result in a converged solution. Otherwise,
         // decrease the damping coefficient and try again.
-
         if (s1 < 1.0 || s1 < s0) {
             break;
         }

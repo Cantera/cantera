@@ -1,6 +1,5 @@
 /**
  * @file PDSS_Water.cpp
- *
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
@@ -155,7 +154,6 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
@@ -179,9 +177,7 @@ void PDSS_Water::constructSet()
      * Set the baseline
      */
     doublereal T = 298.15;
-
     m_p0 = OneAtm;
-
     doublereal presLow = 1.0E-2;
     doublereal oneBar = 1.0E5;
     doublereal dens = 1.0E-9;

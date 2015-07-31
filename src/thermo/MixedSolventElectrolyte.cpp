@@ -338,7 +338,6 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::stri
              */
             if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
-
             }
         }
     }
@@ -347,8 +346,6 @@ void MixedSolventElectrolyte::initThermoXML(XML_Node& phaseNode, const std::stri
      * Go down the chain
      */
     MolarityIonicVPSSTP::initThermoXML(phaseNode, id_);
-
-
 }
 
 void MixedSolventElectrolyte::s_update_lnActCoeff() const
@@ -430,10 +427,8 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
     for (size_t iK = 0; iK < m_kk; iK++) {
         dlnActCoeffds[iK] = 0.0;
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
-
             int delAK = 0;
             int delBK = 0;
 
@@ -445,13 +440,10 @@ void  MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const dou
 
             double XA = moleFractions_[iA];
             double XB = moleFractions_[iB];
-
             double dXA = dXds[iA];
             double dXB = dXds[iB];
-
             double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
             double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-
             dlnActCoeffds[iK] += ((delBK-XB)*dXA + (delAK-XA)*dXB)*(g0+2*g1*XB) + (delBK-XB)*2*g1*XA*dXB
                                  + dlnActCoeffdT_Scaled_[iK]*dTds;
         }
@@ -462,17 +454,13 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
 {
     double T = temperature();
     double RT = GasConstant*T;
-
     dlnActCoeffdlnN_diag_.assign(m_kk, 0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
         double XK = moleFractions_[iK];
-
         for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
             size_t iA =  m_pSpecies_A_ij[i];
             size_t iB =  m_pSpecies_B_ij[i];
-
             int delAK = 0;
             int delBK = 0;
 
@@ -484,7 +472,6 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN_diag() const
 
             double XA = moleFractions_[iA];
             double XB = moleFractions_[iB];
-
             double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
             double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
 
@@ -498,7 +485,6 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 {
     double T = temperature();
     double RT = GasConstant*T;
-
     dlnActCoeffdlnN_.zero();
 
     /*
@@ -508,10 +494,8 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
         for (size_t iM = 0; iM < m_kk; iM++) {
             double XM = moleFractions_[iM];
             for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
                 size_t iA =  m_pSpecies_A_ij[i];
                 size_t iB =  m_pSpecies_B_ij[i];
-
                 double delAK = 0.0;
                 double delBK = 0.0;
                 double delAM = 0.0;
@@ -529,10 +513,8 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 
                 double XA = moleFractions_[iA];
                 double XB = moleFractions_[iB];
-
                 double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
                 double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-
                 dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
                 dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
             }
@@ -548,21 +530,16 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
     doublereal RT = GasConstant * T;
 
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
         size_t iA =  m_pSpecies_A_ij[i];
         size_t iB =  m_pSpecies_B_ij[i];
-
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
-
         double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
         double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-
         dlnActCoeffdlnX_diag_[iA] += XA*XB*(2*g1*-2*g0-6*g1*XB);
         dlnActCoeffdlnX_diag_[iB] += XA*XB*(2*g1*-2*g0-6*g1*XB);
     }
 }
-
 
 void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
@@ -606,10 +583,8 @@ void MixedSolventElectrolyte::resizeNumInteractions(const size_t num)
     m_VSE_b_ij.resize(num, 0.0);
     m_VSE_c_ij.resize(num, 0.0);
     m_VSE_d_ij.resize(num, 0.0);
-
     m_pSpecies_A_ij.resize(num, npos);
     m_pSpecies_B_ij.resize(num, npos);
-
 }
 
 void MixedSolventElectrolyte::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)

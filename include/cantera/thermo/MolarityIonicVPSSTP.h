@@ -53,11 +53,9 @@ namespace Cantera
  *  One of the ions must be a "special ion" in the sense that its' thermodynamic
  *  functions are set to zero, and the thermo functions of all other
  *  ions are based on a valuation relative to that special ion.
- *
  */
 class MolarityIonicVPSSTP : public GibbsExcessVPSSTP
 {
-
 public:
     /// Constructor
     /*!

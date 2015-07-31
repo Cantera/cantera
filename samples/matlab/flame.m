@@ -38,7 +38,6 @@ elseif isInlet(right)
   flametype = 3;
 end
 
-
 % create the container object
 f = Stack([left flow right]);
 
@@ -65,14 +64,13 @@ end
 zz = z(flow);
 dz = zz(end) - zz(1);
 setProfile(f, 2, {'u', 'V'}, [0.0            1.0
-	 	              mdot0/rho0     -mdot1/rho0
-  		              0.0            0.0]);
+                              mdot0/rho0     -mdot1/rho0
+                              0.0            0.0]);
 setProfile(f, 2, 'T', [0.0 z1 1.0; t0 2000.0 t1]);
 
 for n = 1:nSpecies(gas)
   nm = speciesName(gas,n);
-  if strcmp(nm,'H') | strcmp(nm,'OH') | strcmp(nm,'O') | ...
-  	strcmp(nm,'HO2')
+  if strcmp(nm,'H') | strcmp(nm,'OH') | strcmp(nm,'O') | strcmp(nm,'HO2')
     yint = 1.0*yeq(n);
   else
     yint = yeq(n);
@@ -83,8 +81,8 @@ for n = 1:nSpecies(gas)
     y1 = yeq(n);
   end
   setProfile(f, 2, nm, [0  z1   1
-		    massFraction(left, n)   yint  y1]);
+                        massFraction(left, n)   yint  y1]);
 end
 
-% set minimal grid refinement criteria 
+% set minimal grid refinement criteria
 setRefineCriteria(f, 2, 10.0, 0.8, 0.8);

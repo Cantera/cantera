@@ -33,6 +33,5 @@ if nargout == 0
    plot(out.x,out.y(1+ioh,:));
    xlabel('time');
    ylabel('Mass Fraction');
-   title('OH Mass Fraction');   
-   
+   title('OH Mass Fraction');
 end

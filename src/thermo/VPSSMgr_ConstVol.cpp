@@ -37,7 +37,6 @@ VPSSMgr_ConstVol::VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right) :
     *this = right;
 }
 
-
 VPSSMgr_ConstVol& VPSSMgr_ConstVol::operator=(const VPSSMgr_ConstVol& b)
 {
     if (&b == this) {
@@ -59,7 +58,6 @@ VPSSMgr* VPSSMgr_ConstVol::duplMyselfAsVPSSMgr() const
  */
 void VPSSMgr_ConstVol::_updateStandardStateThermo()
 {
-
     doublereal del_pRT = (m_plast - m_p0) / (GasConstant * m_tlast);
 
     for (size_t k = 0; k < m_kk; k++) {
@@ -99,7 +97,6 @@ void VPSSMgr_ConstVol::initThermo()
 void VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
-
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &phaseNode.root());

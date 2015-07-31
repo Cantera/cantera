@@ -1,6 +1,6 @@
 """
 This example demonstrates how Cantera can be used with the 'multiprocessing'
-module. 
+module.
 
 Because Cantera Python objects are built on top of C++ objects which cannot be
 passed between Python processes, it is necessary to set up the computation so
@@ -49,11 +49,11 @@ def parallel(mech, predicate, nProcs, nTemps):
     """
     P = ct.one_atm
     X = 'CH4:1.0, O2:1.0, N2:3.76'
-    pool = multiprocessing.Pool(processes=nProcs, 
-                                initializer=init_process, 
+    pool = multiprocessing.Pool(processes=nProcs,
+                                initializer=init_process,
                                 initargs=(mech,))
 
-    y = pool.map(predicate, 
+    y = pool.map(predicate,
                  zip(itertools.repeat(mech),
                      np.linspace(300, 900, nTemps),
                      itertools.repeat(P),
@@ -64,13 +64,13 @@ def serial(mech, predicate, nTemps):
     P = ct.one_atm
     X = 'CH4:1.0, O2:1.0, N2:3.76'
     init_process(mech)
-    y = map(predicate, 
+    y = map(predicate,
             zip(itertools.repeat(mech),
                 np.linspace(300, 900, nTemps),
                 itertools.repeat(P),
                 itertools.repeat(X)))
     return y
-    
+
 if __name__ == '__main__':
     # For functions where the work done in each subprocess is substantial,
     # significant speedup can be obtained using the multiprocessing module.

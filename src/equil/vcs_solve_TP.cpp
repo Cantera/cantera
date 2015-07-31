@@ -10,7 +10,6 @@
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
-
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
@@ -104,14 +103,12 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     /* ******************************************************* */
     /* **** Printout the initial conditions for problem ****** */
     /* ******************************************************* */
-
     if (print_lvl != 0) {
         plogf("VCS CALCULATION METHOD\n\n ");
         plogf("%s\n", m_title.c_str());
         plogf("\n\n%5d SPECIES\n%5d ELEMENTS\n", m_numSpeciesTot, m_numElemConstraints);
         plogf("%5d COMPONENTS\n", m_numComponents);
         plogf("%5d PHASES\n", m_numPhases);
-
         plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa ");
         plogf(" TEMPERATURE%19.3f K\n", m_temperature);
         vcs_VolPhase* Vphase = m_VolPhaseList[0];
@@ -216,7 +213,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
                 if (retn != VCS_SUCCESS) {
                     return retn;
                 }
-
                 it1 = 1;
                 forceComponentCalc = 0;
                 iti = 0;
@@ -232,7 +228,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
             solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
                            forceComponentCalc, stage, printDetails, ANOTE);
             lec = false;
-
         } else if (stage == EQUILIB_CHECK) {
             /*************************************************************************/
             /***************** EQUILIBRIUM CHECK FOR MAJOR SPECIES *******************/
@@ -240,7 +235,6 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
             solve_tp_equilib_check(allMinorZeroedSpecies, uptodate_minors,
                                    giveUpOnElemAbund, solveFail, iti, it1,
                                    maxit, stage, lec);
-
         } else if (stage == ELEM_ABUND_CHECK) {
             /* *************************************************** */
             /* **** CORRECT ELEMENTAL ABUNDANCES ***************** */
@@ -763,7 +757,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                      *       of all species.
                      */
                     size_t lnospec = vcs_delete_species(kspec);
-
                     if (lnospec) {
                         stage = RECHECK_DELETED;
                         break;
@@ -1127,7 +1120,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
          *       Print out the changes to the solution that FORCER produced
          */
         if (printDetails && forced) {
-
             plogf(" -----------------------------------------------------\n");
             plogf("   --- FORCER SUBROUTINE changed the solution:\n");
             plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
@@ -1167,7 +1159,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     /* *************************************************************** */
     /* **** ITERATION SUMMARY PRINTOUT SECTION *********************** */
     /* *************************************************************** */
-
     if (printDetails) {
         plogf("   ");
         writeline('-', 103);
@@ -1305,7 +1296,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         }
         vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
         vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesRdc);
-
         vcs_deltag(0, true, VCS_STATECALC_OLD);
         iti = 0;
         return;
@@ -1334,7 +1324,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     /*************************************************************************/
     /***************** CHECK FOR OPTIMUM BASIS *******************************/
     /*************************************************************************/
-
     for (size_t i = 0; i < m_numRxnRdc; ++i) {
         size_t l = m_indexRxnToSpecies[i];
         if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -1492,7 +1481,6 @@ void VCS_SOLVE::solve_tp_equilib_check(bool& allMinorZeroedSpecies,
     /*************************************************************************/
     /*************** EQUILIBRIUM CHECK FOR MINOR SPECIES *********************/
     /*************************************************************************/
-
     if (m_numRxnMinorZeroed != 0) {
         /*
          *       Calculate the chemical potential and reaction DeltaG
@@ -1713,13 +1701,10 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
          *   We then solve the resulting calculation:
          *
          *      gamma * x  = gamma_0 * x0 exp (-deltaG/RT);
-         *
-         *
          */
         a = clip(w_kspec * s, -1.0+1e-8, 100.0);
         tmp = clip(-dg_irxn / (1.0 + a), -200.0, 200.0);
         wTrial =  w_kspec * exp(tmp);
-
         molNum_kspec_new = wTrial;
 
         if (wTrial > 100. * w_kspec) {
@@ -1732,13 +1717,11 @@ double VCS_SOLVE::vcs_minor_alt_calc(size_t kspec, size_t irxn, bool* do_delete,
             } else {
                 molNum_kspec_new = wTrial;
             }
-
         } else if (1.0E10 * wTrial < w_kspec) {
             molNum_kspec_new= 1.0E-10 * w_kspec;
         } else {
             molNum_kspec_new = wTrial;
         }
-
 
         if ((molNum_kspec_new) < VCS_DELETE_MINORSPECIES_CUTOFF) {
             goto L_ZERO_SPECIES;
@@ -2086,7 +2069,6 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
         }
     }
 
-
     /*
      *   Loop over all of the inactive species in the phase:
      *   Right now we reinstate all species in a deleted multiphase.
@@ -2129,7 +2111,6 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
      * Upload the state to the VP object
      */
     Vphase->setTotalMoles(0.0);
-
     return successful;
 }
 
@@ -2218,7 +2199,6 @@ int VCS_SOLVE::vcs_recheck_deleted()
 
 bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
 {
-
     // Check first to see if the phase is in fact deleted
     const vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
     if (Vphase->exists() != VCS_PHASE_EXIST_NO) {
@@ -2263,7 +2243,6 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
      *  being sufficiently good. Note, we will recalculate everything at the end of the routine.
      */
     m_molNumSpecies_new = m_molNumSpecies_old;
-
     for (int cits = 0; cits < 3; cits++) {
         for (size_t kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
             size_t iph = m_phaseID[kspec];
@@ -2364,7 +2343,6 @@ bool VCS_SOLVE::vcs_globStepDamp()
             s2 += dptr[irxn] * m_deltaMolNumSpecies[kspec];
         }
     }
-
 
     /* *************************************************** */
     /* **** CALCULATE ORIGINAL SLOPE ********************* */
@@ -2603,7 +2581,6 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
              */
             if ((aw[k] != test) && aw[k] < VCS_DELETE_MINORSPECIES_CUTOFF) {
                 *usedZeroedSpecies = true;
-
                 double maxConcPossKspec = 0.0;
                 double maxConcPoss = 0.0;
                 size_t kfound = npos;
@@ -2657,7 +2634,6 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 }
                 k = kfound;
             }
-
 
             if (aw[k] == test) {
                 m_numComponents = jr;
@@ -2851,7 +2827,6 @@ L_END_LOOP:
     }
     for (k = 0; k < m_numSpeciesTot; k++) {
         if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-
             for (size_t j = 0; j < ncTrial; ++j) {
                 for (size_t i = 0; i < ncTrial; ++i) {
                     if (i == jlose) {
@@ -2885,7 +2860,6 @@ L_END_LOOP:
             }
         }
     }
-
 
     /*
      * Calculate the szTmp array for each formation reaction
@@ -2929,7 +2903,6 @@ L_END_LOOP:
             }
             plogf("\n");
         }
-
 
         /*
          *  Manual check on the satisfaction of the reaction matrix's ability
@@ -3081,10 +3054,7 @@ size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
 
 int VCS_SOLVE::vcs_species_type(const size_t kspec) const
 {
-
     // ---------- Treat special cases first ---------------------
-
-
     if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
         return  VCS_SPECIES_INTERFACIALVOLTAGE;
     }
@@ -3095,9 +3065,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
     int phaseExist = VPhase->exists();
 
     // ---------- Treat zeroed out species first ----------------
-
     if (m_molNumSpecies_old[kspec] <= 0.0) {
-
         if (m_tPhaseMoles_old[iph] <= 0.0) {
             if (!m_SSPhase[kspec]) {
                 return VCS_SPECIES_ZEROEDMS;
@@ -3134,8 +3102,6 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
         /*
          *     The Gibbs free energy for this species is such that
          *     it will pop back into existence.
-         */
-        /*
          *     -> An exception to this is if a needed regular element
          *        is also zeroed out. Then, don't pop the phase or the species back into
          *        existence.
@@ -3557,8 +3523,6 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
             }
         }
     }
-
-
 }
 
 void  VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
@@ -3782,7 +3746,6 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
             plogf(" %10.3g ", m_molNumSpecies_old[kspec]);
             const char* sString = vcs_speciesType_string(m_speciesStatus[kspec], 100);
             plogf("%s\n", sString);
-
         } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
             if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
                 switch (m_speciesStatus[kspec]) {
@@ -4019,7 +3982,6 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                         deltaGRxn[irxn] = 1.0 - poly;
                     }
                 }
-
             }
         }
     }
@@ -4081,12 +4043,10 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
     writeline('-', 132);
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-
         size_t irxn = npos;
         if (kspec >= m_numComponents) {
-	    irxn = kspec - m_numComponents;
-	}
-
+            irxn = kspec - m_numComponents;
+        }
         double mfValue = 1.0;
         size_t iphase = m_phaseID[kspec];
         const vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
@@ -4147,13 +4107,10 @@ void  VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
                 printf(" balanced");
             }
         }
-
         printf(" \n");
     }
-
     printf("   ");
     writeline('-', 132);
-
 }
 
 void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
@@ -4204,7 +4161,6 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
          * Multispecies Phase
          */
         bool zeroedPhase = true;
-
         for (size_t irxn = 0; irxn < irxnl; ++irxn) {
             size_t kspec = m_indexRxnToSpecies[irxn];
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -4237,7 +4193,6 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
          *  For small dg_i, the expression below becomes:
          *      1 - sum_i(exp(-dg_i)/AC_i) ~ sum_i((dg_i-1)/AC_i)  + 1
          *
-         *
          *  HKM -> The ratio of mole fractions at the reinstatement
          *         time should be equal to the normalized weighting
          *         of exp(-dg_i) / AC_i. This should be implemented.
@@ -4254,8 +4209,7 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
          *
          *         This can probably be solved by successive iteration.
          *         This should be implemented.
-         */
-        /*
+         *
          *      Calculate dg[] for each species in a zeroed multispecies phase.
          *      All of the dg[]'s will be equal. If dg[] is negative, then
          *      the phase will come back into existence.
@@ -4299,7 +4253,6 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
      */
     vcs_VolPhase* pv1 = m_VolPhaseList[m_phaseID[k1]];
     vcs_VolPhase* pv2 = m_VolPhaseList[m_phaseID[k2]];
-
     size_t kp1 = m_speciesLocalPhaseIndex[k1];
     size_t kp2 = m_speciesLocalPhaseIndex[k2];
     AssertThrowMsg(pv1->spGlobalIndexVCS(kp1) == k1, "VCS_SOLVE::vcs_switch_pos",
@@ -4345,8 +4298,6 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
     /*
      *     Handle the index pointer in the phase structures
      */
-
-
     if (ifunc) {
         /*
          * Find the Rxn indices corresponding to the two species

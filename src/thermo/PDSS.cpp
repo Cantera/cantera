@@ -297,7 +297,6 @@ doublereal PDSS::enthalpyDelp_mole() const
 doublereal PDSS::entropyDelp_mole() const
 {
     return entropy_mole() - GasConstant * entropy_R_ref();
-
 }
 
 doublereal PDSS::gibbsDelp_mole() const

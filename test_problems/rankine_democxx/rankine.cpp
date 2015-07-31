@@ -36,7 +36,6 @@ void printStates()
 
 int openRankine(int np, void* p)
 {
-
     double etap = 0.6;     // pump isentropic efficiency
     double etat = 0.8;     // turbine isentropic efficiency
     double phigh = 8.0e5;  // high pressure

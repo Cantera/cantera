@@ -13,7 +13,6 @@
  */
 
 #include "cantera/thermo/RedlichKwongMFTP.h"
-
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/numerics/RootFind.h"
@@ -203,9 +202,7 @@ doublereal RedlichKwongMFTP::pressure() const
     //  Get a copy of the private variables stored in the State object
     doublereal T = temperature();
     double molarV = meanMolecularWeight() / density();
-
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
-
     if (fabs(pp -m_Pcurrent) > 1.0E-5 * fabs(m_Pcurrent)) {
         throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
     }
@@ -218,7 +215,6 @@ void RedlichKwongMFTP::calcDensity()
     /*
      * Calculate the molarVolume of the solution (m**3 kmol-1)
      */
-
     const doublereal* const dtmp = moleFractdivMMW();
     getPartialMolarVolumes(DATA_PTR(m_tmpV));
     double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
@@ -376,10 +372,8 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
     doublereal TKelvin = temperature();
     doublereal mv = molarVolume();
     doublereal sqt = sqrt(TKelvin);
-
     doublereal vpb = mv + m_b_current;
     doublereal vmb = mv - m_b_current;
-
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -387,9 +381,6 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
-
-
-
     for (size_t k = 0; k < m_kk; k++) {
         dpdni_[k] = rt/vmb + rt * b_vec_Curr_[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
                     + m_a_current * b_vec_Curr_[k]/(sqt * mv * vpb * vpb);
@@ -407,17 +398,13 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
 
     pressureDerivatives();
     doublereal fac2 = mv + TKelvin * dpdT_ / dpdV_;
-
     for (size_t k = 0; k < m_kk; k++) {
         double hE_v = (mv * dpdni_[k] - rt -  b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
                        + 1.0 / (m_b_current * sqt) * log(vpb/mv) * m_tmpV[k]
                        +  b_vec_Curr_[k] / vpb / (m_b_current * sqt) * fac);
         hbar[k] = hbar[k] + hE_v;
-
-
         hbar[k] -= fac2 * dpdni_[k];
     }
-
 }
 
 void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
@@ -434,7 +421,6 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
         doublereal xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += r * (- log(xx));
     }
-
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -442,7 +428,6 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
-
     for (size_t k = 0; k < m_kk; k++) {
         m_tmpV[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -451,13 +436,10 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
         }
     }
 
-
     doublereal dadt = da_dt();
     doublereal fac = dadt -  m_a_current / (2.0 * TKelvin);
     doublereal vmb = mv - m_b_current;
     doublereal vpb = mv + m_b_current;
-
-
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -=(GasConstant * log(GasConstant * TKelvin / (refP * mv))
                    + GasConstant
@@ -500,7 +482,6 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
-
     for (size_t k = 0; k < m_kk; k++) {
         m_tmpV[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -512,26 +493,19 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
     doublereal TKelvin = temperature();
     doublereal sqt = sqrt(TKelvin);
     doublereal mv = molarVolume();
-
     doublereal rt = GasConstant * TKelvin;
-
     doublereal vmb = mv - m_b_current;
     doublereal vpb = mv + m_b_current;
-
     for (size_t k = 0; k < m_kk; k++) {
-
         doublereal num = (rt + rt * m_b_current/ vmb + rt * b_vec_Curr_[k] / vmb
                           + rt *  m_b_current * b_vec_Curr_[k] /(vmb * vmb)
                           - 2.0 * m_pp[k] / (sqt * vpb)
                           + m_a_current *  b_vec_Curr_[k] / (sqt * vpb * vpb)
                          );
-
         doublereal denom = (m_Pcurrent + rt * m_b_current/(vmb * vmb) - m_a_current / (sqt * vpb * vpb)
                            );
-
         vbar[k] = num / denom;
     }
-
 }
 
 doublereal RedlichKwongMFTP::critTemperature() const
@@ -563,7 +537,6 @@ doublereal RedlichKwongMFTP::critPressure() const
         }
     }
     calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-
     return pc;
 }
 
@@ -612,7 +585,6 @@ doublereal RedlichKwongMFTP::critDensity() const
         }
     }
     calcCriticalConditions(m_a_current, m_b_current, a0, aT, pc, tc, vc);
-
     double mmw = meanMolecularWeight();
     return mmw / vc;
 }
@@ -627,9 +599,7 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
 {
     double tmp, tmp2;
     _updateReferenceStateThermo();
-
     getGibbs_RT_ref(DATA_PTR(m_tmpV));
-
 
     /*
      * Within the method, we protect against inf results if the
@@ -744,7 +714,6 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
                     readXMLCrossFluid(xmlACChild);
                 }
             }
-
         }
     }
 
@@ -950,23 +919,18 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     double atmp;
     double btmp;
     calculateAB(TKelvin, atmp, btmp);
-
     doublereal pres = std::max(psatEst(TKelvin), presGuess);
     double Vroot[3];
-
     bool foundLiq = false;
     int m = 0;
     while (m < 100 && !foundLiq) {
-
         int nsol = NicholsSolve(TKelvin, pres, atmp, btmp, Vroot);
-
         if (nsol == 1 || nsol == 2) {
             double pc = critPressure();
             if (pres > pc) {
                 foundLiq = true;
             }
             pres *= 1.04;
-
         } else {
             foundLiq = true;
         }
@@ -983,7 +947,6 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
 
 doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, int phaseRequested, doublereal rhoguess)
 {
-
     /*
      *  It's necessary to set the temperature so that m_a_current is set correctly.
      */
@@ -1009,7 +972,6 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
              */
             rhoguess = presPa * mmw / (GasConstant * TKelvin);
         }
-
     }
 
     doublereal volguess = mmw / rhoguess;
@@ -1063,7 +1025,6 @@ doublereal  RedlichKwongMFTP::densSpinodalLiquid() const
 
     double vbest = 0.5 * (Vroot_[0]+Vroot_[1]);
     double funcNeeded = 0.0;
-
     int status = rf.solve(vmin, vmax, 100, funcNeeded, &vbest);
     if (status != ROOTFIND_SUCCESS) {
         throw CanteraError("  RedlichKwongMFTP::densSpinodalLiquid() ", "didn't converge");
@@ -1086,7 +1047,6 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
 
     double vbest = 0.5 * (Vroot_[1]+Vroot_[2]);
     double funcNeeded = 0.0;
-
     int status = rf.solve(vmin, vmax, 100, funcNeeded, &vbest);
     if (status != ROOTFIND_SUCCESS) {
         throw CanteraError("  RedlichKwongMFTP::densSpinodalGas() ", "didn't converge");
@@ -1123,13 +1083,11 @@ void  RedlichKwongMFTP::pressureDerivatives() const
     doublereal pres;
 
     dpdV_ = dpdVCalc(TKelvin, mv, pres);
-
     doublereal sqt = sqrt(TKelvin);
     doublereal vpb = mv + m_b_current;
     doublereal vmb = mv - m_b_current;
     doublereal dadt = da_dt();
     doublereal fac = dadt - m_a_current/(2.0 * TKelvin);
-
     dpdT_ = (GasConstant / vmb - fac / (sqt *  mv * vpb));
 }
 
@@ -1222,7 +1180,6 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, double
     doublereal sqrttc, f, dfdt, deltatc;
 
     if (m_formTempParam == 0) {
-
         tc = pow(tmp, pp);
     } else {
         tc = pow(tmp, pp);
@@ -1268,7 +1225,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     // Derive the center of the cubic, x_N
     doublereal xN = - bn /(3 * an);
 
-
     // Derive the value of delta**2. This is a key quantity that determines the number of turning points
     doublereal delta2 = (bn * bn - 3 * an * cn) / (9 * an * an);
     doublereal delta = 0.0;
@@ -1295,16 +1251,13 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     }
 
     int nSolnValues;
-
     double h2 = 4. * an * an * delta2 * delta2 * delta2;
     if (delta2 > 0.0) {
         delta = sqrt(delta2);
     }
 
     doublereal h = 2.0 * an * delta * delta2;
-
     doublereal yN = 2.0 * bn * bn * bn / (27.0 * an * an) - bn * cn / (3.0 * an) + dn;
-
     doublereal desc = yN * yN - h2;
 
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
@@ -1344,28 +1297,19 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         }
         doublereal p1 = pow(tmp1, 1./3.);
         doublereal p2 = pow(tmp2, 1./3.);
-
         doublereal alpha = xN + sgn1 * p1 + sgn2 * p2;
         Vroot[0] = alpha;
         Vroot[1] = 0.0;
         Vroot[2] = 0.0;
-
         tmp = an *  Vroot[0] * Vroot[0] * Vroot[0] + bn * Vroot[0] * Vroot[0] + cn  * Vroot[0] + dn;
-
     } else if (desc < 0.0) {
         doublereal tmp = - yN/h;
-
         doublereal val = acos(tmp);
         doublereal theta = val / 3.0;
-
         doublereal oo = 2. * Pi / 3.;
         doublereal alpha = xN + 2. * delta * cos(theta);
-
         doublereal beta = xN + 2. * delta * cos(theta + oo);
-
         doublereal gamma = xN + 2. * delta * cos(theta + 2.0 * oo);
-
-
         Vroot[0] = beta;
         Vroot[1] = gamma;
         Vroot[2] = alpha;
@@ -1426,7 +1370,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
             dresdV = 3.0 * an *  Vroot[i] * Vroot[i] + 2.0 * bn * Vroot[i] + cn;
             double del = - res / dresdV;
-
             Vroot[i] += del;
             if (fabs(del) / (fabs(Vroot[i]) + fabs(del)) < 1.0E-14) {
                 break;
@@ -1456,7 +1399,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
                 nSolnValues = -1;
             }
         }
-
     } else {
         if (nSolnValues == 2) {
             if (delta > 0.0) {

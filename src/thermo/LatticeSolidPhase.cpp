@@ -451,7 +451,6 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
             throw CanteraError("LatticeSolidPhase::setParametersFromXML", "not found");
         }
     }
-
 }
 
 void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298New)

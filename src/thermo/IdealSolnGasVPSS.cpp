@@ -96,7 +96,6 @@ doublereal IdealSolnGasVPSS::entropy_mole() const
 {
     updateStandardStateThermo();
     return GasConstant * (mean_X(m_VPSS_ptr->entropy_R()) - sum_xlogx());
-
 }
 
 doublereal IdealSolnGasVPSS::cp_mole() const
@@ -191,7 +190,6 @@ doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
             return 1.0/ vss[0];
         }
         return 0.0;
-
     }
 }
 

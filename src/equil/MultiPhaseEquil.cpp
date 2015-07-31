@@ -122,7 +122,6 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
 
     // Delta G / RT for each reaction
     m_deltaG_RT.resize(nFree(), 0.0);
-
     m_majorsp.resize(m_nsp);
     m_sortindex.resize(m_nsp,0);
     m_lastsort.resize(m_nel);
@@ -174,7 +173,6 @@ doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err,
 {
     int i;
     m_iter = 0;
-
     for (i = 0; i < maxsteps; i++) {
         stepComposition(loglevel-1);
         if (error() < err) {
@@ -213,12 +211,9 @@ void MultiPhaseEquil::finish()
 int MultiPhaseEquil::setInitialMoles(int loglevel)
 {
     size_t ik, j;
-
     double not_mu = 1.0e12;
-
     m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
     doublereal dg_rt;
-
     int idir;
     double nu;
     double delta_xi, dxi_min = 1.0e10;
@@ -226,7 +221,6 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
     int iter = 0;
 
     while (redo) {
-
         // choose a set of components based on the current
         // composition
         computeN();
@@ -403,11 +397,11 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
 
     // create stoichiometric coefficient matrix.
     for (size_t n = 0; n < m_nsp; n++) {
-        if (n < m_nel)
+        if (n < m_nel) {
             for (k = 0; k < nFree(); k++) {
                 m_N(n, k) = -m_A(n, k + m_nel);
             }
-        else {
+        } else {
             for (k = 0; k < nFree(); k++) {
                 m_N(n, k) = 0.0;
             }
@@ -480,7 +474,6 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
     // scale omega to keep the major species non-negative
     doublereal FCTR = 0.99;
     const doublereal MAJOR_THRESHOLD = 1.0e-12;
-
     doublereal omega = 1.0, omax, omegamax = 1.0;
     for (ik = 0; ik < m_nsp; ik++) {
         k = m_order[ik];
@@ -497,7 +490,6 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
         // goes away. First we'll determine an upper bound on omega,
         // such that all
         if (m_dsoln[k] == 1) {
-
             if ((m_moles[k] > MAJOR_THRESHOLD)  || (ik < m_nel)) {
                 if (m_moles[k] < MAJOR_THRESHOLD) {
                     m_force = true;
@@ -556,14 +548,12 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
     doublereal stoich, nmoles, csum, term1, fctr, rfctr;
     vector_fp nu;
     doublereal grad = 0.0;
-
     dxi.resize(nFree());
     computeN();
     doublereal not_mu = 1.0e12;
     m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu));
 
     for (j = 0; j < nFree(); j++) {
-
         // get stoichiometric vector
         getStoichVector(j, nu);
 
@@ -590,7 +580,6 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
         } else if (!m_solnrxn[j]) {
             fctr = 1.0;
         } else {
-
             // component sum
             csum = 0.0;
             for (k = 0; k < m_nel; k++) {
@@ -716,11 +705,9 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     size_t k;
     size_t istart;
     size_t nSpecies;
-
     double vol = 0.0;
     string sName;
     size_t nphase = m_np;
-
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
         throw CanteraError("MultiPhaseEquil::reportCSV", "Failure to open file");
@@ -729,14 +716,12 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     double pres = m_mix->pressure();
     vector<double> mf(m_nsp_mix, 1.0);
     vector<double> fe(m_nsp_mix, 0.0);
-
     std::vector<double> VolPM;
     std::vector<double> activity;
     std::vector<double> ac;
     std::vector<double> mu;
     std::vector<double> mu0;
     std::vector<double> molalities;
-
 
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
@@ -763,7 +748,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         istart =    m_mix->speciesIndex(0, iphase);
-
         ThermoPhase& tref = m_mix->phase(iphase);
         ThermoPhase* tp = &tref;
         tp->getMoleFractions(&mf[istart]);
@@ -772,17 +756,14 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);
         ac.resize(nSpecies, 0.0);
-
         mu0.resize(nSpecies, 0.0);
         mu.resize(nSpecies, 0.0);
         VolPM.resize(nSpecies, 0.0);
         molalities.resize(nSpecies, 0.0);
-
         int actConvention = tp->activityConvention();
         tp->getActivities(DATA_PTR(activity));
         tp->getActivityCoefficients(DATA_PTR(ac));
         tp->getStandardChemPotentials(DATA_PTR(mu0));
-
         tp->getPartialMolarVolumes(DATA_PTR(VolPM));
         tp->getChemPotentials(DATA_PTR(mu));
         double VolPhaseVolumes = 0.0;
@@ -816,7 +797,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         mf[istart + k] * TMolesPhase,
                         VolPM[k],  VolPhaseVolumes);
             }
-
         } else {
             if (iphase == 0) {
                 fprintf(FP,"        Name,       Phase,  PhaseMoles,  Mole_Fract,  "

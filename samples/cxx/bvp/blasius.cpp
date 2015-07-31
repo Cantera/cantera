@@ -3,7 +3,6 @@
 
 #include "BoundaryValueProblem.h"
 
-
 /**
  * This class solves the Blasius boundary value problem on the domain (0,L):
  * \f[
@@ -23,12 +22,9 @@
  */
 class Blasius : public BVP::BoundaryValueProblem
 {
-
 public:
-
     // This problem has two components (zeta and u)
     Blasius(int np, double L) : BVP::BoundaryValueProblem(2, np, 0.0, L) {
-
         // specify the component bounds, error tolerances, and names.
         BVP::Component A;
         A.lower = -200.0;
@@ -46,7 +42,6 @@ public:
         B.name = "u";
         setComponent(1, B);  // u will be component 1
     }
-
 
     // destructor
     virtual ~Blasius() {}
@@ -68,7 +63,6 @@ public:
     // conditions are specified. The solver will attempt to find a solution
     // x so that this function returns 0 for all n and j.
     virtual doublereal residual(doublereal* x, size_t n, size_t j) {
-
         // if n = 0, return the residual for the first ODE
         if (n == 0) {
             if (isLeft(j)) { // here we specify zeta(0) = 0
@@ -90,9 +84,7 @@ public:
         }
     }
 
-
 private:
-
     // for convenience only. Note that the compiler will inline these.
     double zeta(double* x, int j) {
         return value(x,0,j);
@@ -100,14 +92,11 @@ private:
     double u(double* x, int j) {
         return value(x,1,j);
     }
-
 };
-
 
 int main()
 {
     try {
-
         // Specify a problem on (0,10), with an initial uniform grid of
         // 6 points.
         Blasius eqs(6, 10.0);
@@ -121,5 +110,3 @@ int main()
         return -1;
     }
 }
-
-

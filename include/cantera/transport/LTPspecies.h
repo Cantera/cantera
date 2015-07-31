@@ -143,7 +143,6 @@ private:
     virtual void adjustCoeffsForComposition();
 
 protected:
-
     //! Species Name for the property that is being described
     std::string m_speciesName;
 
@@ -397,7 +396,6 @@ public:
     //! Assignment operator
     /*!
      *   @param right   Object to be copied
-     *
      *   @return returns a reference to the current object
      */
     LTPspecies_Poly& operator=(const LTPspecies_Poly& right);
@@ -481,7 +479,6 @@ public:
     //! Assignment operator
     /*!
      *   @param right   Object to be copied
-     *
      *   @return returns a reference to the current object
      */
     LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right);

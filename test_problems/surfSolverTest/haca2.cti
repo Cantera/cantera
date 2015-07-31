@@ -51,8 +51,8 @@ species(name = 'CB-CB3',
 # Site density taken from Frenklach/Wang p. 179.
 #
 ideal_interface(name = 'soot_interface',
-	        elements = 'O H C N Ar ',
-	        species = 'Csoot-* Csoot-H',
+                elements = 'O H C N Ar ',
+                species = 'Csoot-* Csoot-H',
                 reactions = 'all',
                 phases = 'gas soot',
                 site_density = (3.8E-9, 'mol/cm2'),
@@ -64,7 +64,7 @@ ideal_interface(name = 'soot_interface',
 # the reconstructed diamond (100) surface, 'J. Phys. Chem. vo. 97,
 # 23-28 (1993). reactions a - t are taken directly from Table II,
 # with thermochemistry from Table IV.
-# -> Thermo needs to be reviewed, as deltaG for reactions are 
+# -> Thermo needs to be reviewed, as deltaG for reactions are
 #    very important.
 #
 species(name = 'Csoot-*',
@@ -79,7 +79,7 @@ species(name = 'Csoot-H',
         thermo = const_cp(t0  = (1000., 'K'),
                           h0 = (11.4, 'kcal/mol'),
                           s0 = (21.0, 'cal/mol/K'),
-                          cp0 = (8.41, 'cal/mol/K')) )	
+                          cp0 = (8.41, 'cal/mol/K')) )
 #
 # Forward rate constant taken from Frenklach/Wang:
 surface_reaction( 'Csoot-H + H  => Csoot-* + H2',  [4.17E13, 0.0, 13.0])

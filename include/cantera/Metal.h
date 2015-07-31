@@ -11,8 +11,8 @@ namespace Cantera
 class Metal : public MetalPhase
 {
 public:
-    Metal(const std::string& infile, std::string id="") : m_ok(false), m_r(0) {
-
+    Metal(const std::string& infile, std::string id="") : m_ok(false), m_r(0)
+    {
         m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";
@@ -34,6 +34,5 @@ protected:
     XML_Node* m_r;
 };
 }
-
 
 #endif

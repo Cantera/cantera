@@ -123,7 +123,6 @@ double HFC134a::Pp()
            sum4 = 0.0, sum5 = 0.0;
     double tau = Tc/T;
     double delta = Rho/Roc;
-
     double phi0d = 1.0/delta;
 
     int i;
@@ -150,7 +149,6 @@ double HFC134a::Pp()
     double phird = sum1 + sum2 + sum3 + sum4 + sum5;
     return R*T*delta*delta*Roc*(phird + phi0d);
 }
-
 
 double HFC134a::Psat()
 {

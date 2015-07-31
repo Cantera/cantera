@@ -417,7 +417,6 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                    std::vector<size_t>& orderVectorElements)
 {
     size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
-
     size_t nelements = mphase->nElements();
     std::string ename;
     /*

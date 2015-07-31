@@ -7,7 +7,6 @@
 
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_DENSEMATRIX_H
 #define CT_DENSEMATRIX_H
 
@@ -26,7 +25,6 @@ namespace Cantera
  *
  */
 
-
 //! Exception thrown when an LAPACK error is encountered associated with inverting or solving a matrix
 /*!
  *  A named error condition is used so that the calling code may differentiate this type of error
@@ -35,7 +33,6 @@ namespace Cantera
 class CELapackError : public CanteraError
 {
 public:
-
     //! Constructor passes through to main Cantera error handler
     /*!
      *  @param routine  Name of calling routine
@@ -44,7 +41,6 @@ public:
     CELapackError(const std::string& routine, const std::string& msg) :
         CanteraError(routine + " LAPACK ERROR", msg) {
     }
-
 };
 
 //!  A class for full (non-sparse) matrices with Fortran-compatible

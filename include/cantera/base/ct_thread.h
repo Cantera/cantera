@@ -11,7 +11,6 @@
 #ifdef THREAD_SAFE_CANTERA
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-
 #endif
 
 namespace Cantera

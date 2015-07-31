@@ -181,8 +181,8 @@ void ThermoPhase::setState_TP(doublereal t, doublereal p)
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
 {
-        setMoleFractions(x);
-        setState_RP(rho, p);
+    setMoleFractions(x);
+    setState_RP(rho, p);
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMap& x)
@@ -484,7 +484,6 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
 
     double Snew = entropy_mass();
     double Cpnew = (doSV) ? cv_mass() : cp_mass();
-
     double Stop = Snew;
     double Ttop = Tnew;
     double Sbot = Snew;
@@ -758,7 +757,6 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
                               double rtol, int max_steps, int max_iter,
                               int estimate_equil, int log_level)
 {
-
     if (solver == "auto" || solver == "element_potential") {
         vector_fp initial_state;
         saveState(initial_state);
@@ -968,7 +966,6 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
         doublereal rt = GasConstant * temperature();
-
         int nMinor = 0;
         doublereal xMinor = 0.0;
         doublereal yMinor = 0.0;
@@ -1030,10 +1027,8 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     int tabS = 15;
     int tabM = 30;
     csvFile.precision(8);
-
     vector_fp X(nSpecies());
     getMoleFractions(&X[0]);
-
     std::vector<std::string> pNames;
     std::vector<vector_fp> data;
     getCsvReportData(pNames, data);

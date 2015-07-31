@@ -155,8 +155,7 @@ public:
      *   fractions into array \c x. The mole fractions are
      *   normalized to sum to one in each phase.
      *
-     *    @param x  vector of mole fractions.
-     *              Length = number of global species.
+     *    @param x  vector of mole fractions. Length = number of global species.
      */
     void getMoleFractions(doublereal* const x) const;
 
@@ -238,7 +237,6 @@ public:
      * @param phaseName      Phase Name
      *
      * @return returns the global index
-     *
      *  If the species or phase name is not recognized, this routine throws
      *  a CanteraError.
      */
@@ -318,10 +316,8 @@ public:
      *
      * @param not_mu Value of the chemical potential to set species in phases,
      *               for which the thermo data is not valid
-     *
      * @param mu    Vector of chemical potentials. length = Global species,
      *              units = J kmol-1
-     *
      * @param standard  If this method is called with \a standard set to true,
      *                  then the composition-independent standard chemical
      *                  potentials are returned instead of the composition-
@@ -442,7 +438,6 @@ public:
     //! Returns the phase index of the Kth "global" species
     /*!
      * @param kGlob Global species index.
-     *
      * @return Returns the index of the owning phase.
      */
     size_t speciesPhaseIndex(const size_t kGlob) const;
@@ -735,8 +730,7 @@ inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
  *         reaction matrix based on the calculated component species. If
  *         false, this step is skipped.
  * @param[out] usedZeroedSpecies = If true, then a species with a zero
- *         concentration was used as a component. The problem may be
- *         converged.
+ *         concentration was used as a component. The problem may be converged.
  * @param[out] formRxnMatrix
  * @return      The number of components.
  *

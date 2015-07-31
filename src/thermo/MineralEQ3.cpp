@@ -294,7 +294,6 @@ void MineralEQ3::convertDGFormation()
     /*
      * Ok let's get the element compositions and conversion factors.
      */
-
     doublereal totalSum = 0.0;
     for (size_t m = 0; m < nElements(); m++) {
         double na = nAtoms(0, m);

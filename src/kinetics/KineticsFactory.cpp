@@ -4,7 +4,6 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/kinetics/KineticsFactory.h"
-
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"

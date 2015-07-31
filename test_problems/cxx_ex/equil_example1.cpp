@@ -47,7 +47,6 @@ void plotEquilSoln(const std::string& fname, const std::string& fmt,
 
 int equil_example1(int job)
 {
-
     std::cout << "Chemical equilibrium." << std::endl;
     if (job > 0) {
         std::cout << "Equilibrium composition and pressure for a "

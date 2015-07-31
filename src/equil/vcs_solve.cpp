@@ -12,10 +12,8 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/equil/vcs_prob.h"
-
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
-
 #include "cantera/base/clockWC.h"
 
 using namespace std;
@@ -97,40 +95,30 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
      * filled with meaningful information.
      */
     m_stoichCoeffRxnMatrix.resize(nelements, nspecies0, 0.0);
-
     m_scSize.resize(nspecies0, 0.0);
     m_spSize.resize(nspecies0, 1.0);
-
     m_SSfeSpecies.resize(nspecies0, 0.0);
     m_feSpecies_new.resize(nspecies0, 0.0);
     m_molNumSpecies_old.resize(nspecies0, 0.0);
-
     m_speciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
-
     m_deltaMolNumPhase.resize(nphase0, nspecies0, 0.0);
     m_phaseParticipation.resize(nphase0, nspecies0, 0);
     m_phasePhi.resize(nphase0, 0.0);
-
     m_molNumSpecies_new.resize(nspecies0, 0.0);
-
     m_deltaGRxn_new.resize(nspecies0, 0.0);
     m_deltaGRxn_old.resize(nspecies0, 0.0);
     m_deltaGRxn_Deficient.resize(nspecies0, 0.0);
     m_deltaGRxn_tmp.resize(nspecies0, 0.0);
     m_deltaMolNumSpecies.resize(nspecies0, 0.0);
-
     m_feSpecies_old.resize(nspecies0, 0.0);
     m_elemAbundances.resize(nelements, 0.0);
     m_elemAbundancesGoal.resize(nelements, 0.0);
-
     m_tPhaseMoles_old.resize(nphase0, 0.0);
     m_tPhaseMoles_new.resize(nphase0, 0.0);
     m_deltaPhaseMoles.resize(nphase0, 0.0);
     m_TmpPhase.resize(nphase0, 0.0);
     m_TmpPhase2.resize(nphase0, 0.0);
-
     m_formulaMatrix.resize(nspecies0, nelements);
-
     TPhInertMoles.resize(nphase0, 0.0);
 
     /*
@@ -157,14 +145,10 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
 
     m_SSPhase.resize(2*nspecies0, 0);
     m_phaseID.resize(nspecies0, 0);
-
     m_numElemConstraints  = nelements;
-
     m_elementName.resize(nelements, std::string(""));
     m_speciesName.resize(nspecies0, std::string(""));
-
     m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
-
     m_elementActive.resize(nelements,  1);
     /*
      *    Malloc space for activity coefficients for all species
@@ -209,7 +193,6 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     }
 
     return;
-
 }
 
 VCS_SOLVE::~VCS_SOLVE()
@@ -262,7 +245,6 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
         size_t nspecies0 = vprob->nspecies + 10;
         size_t nelements0 = vprob->ne;
         size_t nphase0 = vprob->NPhase;
-
         vcs_initSizes(nspecies0, nelements0, nphase0);
 
         if (retn != 0) {
@@ -362,7 +344,6 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
      *
      * FILL IN
      */
-
     if (iconv < 0) {
         plogf("ERROR: FAILURE its = %d!\n", m_VCount->Its);
     } else if (iconv == 1) {
@@ -539,7 +520,6 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      * TPhMoles[]      -> Untouched here. These will be filled in vcs_prep.c
      * TPhMoles1[]
      * DelTPhMoles[]
-     *
      *
      * T, Pres, copy over here
      */
@@ -760,9 +740,7 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
     m_pressurePA = pub->PresPA;
     m_VCS_UnitsFormat = pub->m_VCS_UnitsFormat;
     m_doEstimateEquil = pub->iest;
-
     m_totalVol = pub->Vol;
-
     m_tolmaj = pub->tolmaj;
     m_tolmin = pub->tolmin;
     m_tolmaj2 = 0.01 * m_tolmaj;
@@ -863,7 +841,6 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
         vPhase->setElectricPotential(phi);
     }
 
-
     if (status_change) {
         vcs_SSPhase();
     }
@@ -871,14 +848,12 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
      *   Calculate the total number of moles in all phases.
      */
     vcs_tmoles();
-
     return retn;
 }
 
 int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
 {
     size_t k1 = 0;
-
     vcs_tmoles();
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA,
                               &m_molNumSpecies_old[0], &m_PMVolumeSpecies[0]);
@@ -949,12 +924,10 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
                             "We have an inconsistency in total moles, " +
                             fp2str(sumMoles) + " " + fp2str(pubPhase->totalMoles()));
         }
-
     }
 
     pub->m_Iterations            = m_VCount->Its;
     pub->m_NumBasisOptimizations = m_VCount->Basis_Opts;
-
     return VCS_SUCCESS;
 }
 

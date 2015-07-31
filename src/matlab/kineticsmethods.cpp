@@ -43,9 +43,7 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
 
         // get scalar attributes
         if (job < 10) {
-
             switch (job) {
-
             case 1:
                 vv = (double) kin_nReactions(kin);
                 break;
@@ -72,7 +70,6 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
             *h = vv;
             return;
         } else if (job < 20) {
-
             // get reaction array attributes
             mwSize nr = (mwSize) kin_nReactions(kin);
             plhs[0] = mxCreateNumericMatrix(nr,1,mxDOUBLE_CLASS,mxREAL);

@@ -158,7 +158,6 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* xb, *rb;
 
     // residual equations for the two local variables
-
     r[0] = m_mdot - x[0];
 
     // Temperature
@@ -167,7 +166,6 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     // both are algebraic constraints
     diag[0] = 0;
     diag[1] = 0;
-
 
     // if it is a left inlet, then the flow solution vector
     // starts 2 to the right in the global solution vector
@@ -543,7 +541,6 @@ void OutletRes1D::init()
 void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
                        integer* diagg, doublereal rdt)
 {
-
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
     }
@@ -580,7 +577,6 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 
     if (m_flow_left) {
-
         nc = m_flow_left->nComponents();
         xb = x - nc;
         rb = r - nc;

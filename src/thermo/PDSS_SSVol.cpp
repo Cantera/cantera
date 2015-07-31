@@ -35,7 +35,6 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp,
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
 {
-
     m_pdssType = cPDSS_SSVOL;
     constructPDSSFile(tp, spindex, inputFile, id);
 }
@@ -138,7 +137,6 @@ void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
@@ -152,7 +150,6 @@ void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &fxml_phase->root());
     const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
-
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 

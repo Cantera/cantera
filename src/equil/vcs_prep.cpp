@@ -18,7 +18,6 @@ namespace Cantera
 void VCS_SOLVE::vcs_SSPhase()
 {
     std::vector<int> numPhSpecies(m_numPhases, 0);
-
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         numPhSpecies[m_phaseID[kspec]]++;
     }

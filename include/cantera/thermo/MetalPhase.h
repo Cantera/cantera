@@ -18,13 +18,10 @@ namespace Cantera
  * @ingroup thermoprops
  *
  * Class MetalPhase represents electrons in a metal.
- *
  */
 class MetalPhase : public ThermoPhase
 {
-
 public:
-
     MetalPhase() {}
 
     MetalPhase(const MetalPhase& right) {

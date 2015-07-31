@@ -58,7 +58,6 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
     for (j = 0; j < m_points; j++) {
         nv = m_resid->nVars(j);
         for (n = 0; n < nv; n++) {
-
             // perturb x(n)
             xsave = x0[ipt];
             dx = m_atol + fabs(xsave)*m_rtol;
@@ -75,15 +74,13 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
                     mv = m_resid->nVars(i);
                     iloc = m_resid->loc(i);
                     for (m = 0; m < mv; m++) {
-                        value(m+iloc,ipt) = (m_r1[m+iloc]
-                                             - resid0[m+iloc])*rdx;
+                        value(m+iloc,ipt) = (m_r1[m+iloc] - resid0[m+iloc])*rdx;
                     }
                 }
             }
             x0[ipt] = xsave;
             ipt++;
         }
-
     }
 
     for (n = 0; n < m_size; n++) {

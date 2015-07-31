@@ -124,7 +124,6 @@ namespace Cantera
  */
 class Kinetics
 {
-
 public:
     /**
      * @name Constructors and General Information about Mechanism

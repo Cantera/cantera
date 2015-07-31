@@ -20,7 +20,6 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
 {
     // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
-
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
     for (size_t n = 0; n < m_nd; n++) {
@@ -78,7 +77,6 @@ doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 void Sim1D::setProfile(size_t dom, size_t comp,
                        const vector_fp& pos, const vector_fp& values)
 {
-
     Domain1D& d = domain(dom);
     doublereal z0 = d.zmin();
     doublereal z1 = d.zmax();
@@ -351,7 +349,6 @@ int Sim1D::refine(int loglevel)
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         for (size_t m = 0; m < npnow; m++) {
-
             if (r.keepPoint(m)) {
                 // add the current grid point to the new grid
                 znew.push_back(d.grid(m));
@@ -364,9 +361,7 @@ int Sim1D::refine(int loglevel)
                 // now check whether a new point is needed in the
                 // interval to the right of point m, and if so, add
                 // entries to znew and xnew for this new point
-
                 if (r.newPointNeeded(m) && m + 1 < npnow) {
-
                     // add new point at midpoint
                     zmid = 0.5*(d.grid(m) + d.grid(m+1));
                     znew.push_back(zmid);
@@ -422,11 +417,9 @@ int Sim1D::setFixedTemperature(doublereal t)
     size_t m1 = 0;
     std::vector<size_t> dsize;
 
-
     for (n = 0; n < m_nd; n++) {
         bool addnewpt=false;
         Domain1D& d = domain(n);
-
         size_t comp = d.nComponents();
 
         // loop over points in the current grid to determine where new point is needed.
@@ -478,8 +471,6 @@ int Sim1D::setFixedTemperature(doublereal t)
                     xnew.push_back(xmid);
                 }
             }
-
-
         }
         dsize.push_back(znew.size() - nstart);
     }
@@ -488,7 +479,6 @@ int Sim1D::setFixedTemperature(doublereal t)
     // vector xnew have been constructed, but the domains
     // themselves have not yet been modified.  Now update each
     // domain with the new grid.
-
     size_t gridstart = 0, gridsize;
     for (n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);
@@ -503,9 +493,7 @@ int Sim1D::setFixedTemperature(doublereal t)
 
     // resize the work array
     m_xnew.resize(xnew.size());
-
     copy(xnew.begin(), xnew.end(), m_xnew.begin());
-
     resize();
     finalize();
     return np;

@@ -126,11 +126,8 @@ public:
      *
      * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
-     *
      * @param spindex     Species index within the phase
-     *
      * @param inputFile   XML file containing the description of the phase
-     *
      * @param id          Optional parameter identifying the name of the
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
@@ -149,12 +146,9 @@ public:
      *
      * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
      *                   This object must have already been malloced.
-     *
      * @param spindex    Species index within the phase
-     *
      * @param phaseNode  Reference to the phase Information for the phase
      *                   that owns this species.
-     *
      * @param id         Optional parameter identifying the name of the
      *                   phase. If none is given, the first XML
      *                   phase element will be used.

@@ -2,8 +2,8 @@ units(length='cm', time='s', quantity='mol', act_energy='cal/mol')
 
 ideal_gas(name='gas',
           elements="Si H He",
-          species="""H2        H         HE        SIH4      SI        
-                     SIH       SIH2      SIH3      H3SISIH   SI2H6     
+          species="""H2        H         HE        SIH4      SI
+                     SIH       SIH2      SIH3      H3SISIH   SI2H6
                      H2SISIH2  SI3H8     SI2       SI3""",
           reactions='all',
           initial_state=state(temperature=300.0, pressure=OneAtm))

@@ -176,7 +176,6 @@ public:
     friend class TransportFactory;
 
 protected:
-
     //!  Initialization routine called by TransportFactory
     /*!
      *  The DustyGas model is a subordinate model to the gas phase transport model. Here we
@@ -218,7 +217,6 @@ private:
      *
      *  where \f$ \phi \f$ is the porosity of the media and \f$ \tau \f$ is
      *  the tortuosity of the media.
-     *
      */
     void updateBinaryDiffCoeffs();
 
@@ -343,7 +341,6 @@ private:
      * Note, this object owns the gastran object
      */
     Transport* m_gastran;
-
 };
 }
 #endif

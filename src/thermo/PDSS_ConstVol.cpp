@@ -109,7 +109,6 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
      * The phase object automatically constructs an XML object.
      * Use this object to store information.
      */
-
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
@@ -123,7 +122,6 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &fxml_phase->root());
     const XML_Node* s =  speciesDB->findByAttr("name", tp->speciesName(spindex));
-
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 
@@ -231,7 +229,6 @@ void PDSS_ConstVol::setTemperature(doublereal temp)
     m_cpss_R_ptr[m_spindex]  = m_cp0_R_ptr[m_spindex];
     m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex];
     m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
-
 }
 
 void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres)

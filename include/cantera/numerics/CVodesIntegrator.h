@@ -116,7 +116,6 @@ private:
     //! Indicates whether the sensitivities stored in m_yS have been updated
     //! for at the current integrator time.
     bool m_sens_ok;
-
 };
 
 }    // namespace

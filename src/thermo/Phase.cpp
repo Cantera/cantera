@@ -72,7 +72,6 @@ Phase& Phase::operator=(const Phase& right)
     m_speciesComp = right.m_speciesComp;
     m_speciesCharge = right.m_speciesCharge;
     m_speciesSize = right.m_speciesSize;
-
     m_mm             = right.m_mm;
     m_atomicWeights  = right.m_atomicWeights;
     m_atomicNumbers  = right.m_atomicNumbers;
@@ -735,7 +734,6 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
     } else {
         m_elem_type.push_back(elem_type);
     }
-
     m_mm++;
 
     // Update species compositions

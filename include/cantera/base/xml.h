@@ -52,7 +52,6 @@ public:
      *  @param aline     This is the input string to be searched
      *  @param rstring   Return value of the string that is found.
      *                   The quotes are stripped from the string.
-     *
      *  @return          Returns the integer position just after
      *                   the quoted string.
      */
@@ -103,7 +102,6 @@ public:
     //! Constructor for XML_Node, representing a tree structure
     /*!
      *  @param nm  Name of the node.
-     *
      *  @param parent   Pointer to the parent for this node in the tree.
      *                  A value of 0 indicates this is the top of the tree.
      */
@@ -128,7 +126,6 @@ public:
      * There is no copy made of the child node. The child node should not be deleted in the future
      *
      *  @param node  Reference to a child XML_Node object
-     *
      *  @return      Returns a reference to the added child node
      */
     XML_Node& mergeAsChild(XML_Node& node);
@@ -140,7 +137,6 @@ public:
      * A copy is made of the underlying tree
      *
      *  @param node  Reference to a child XML_Node object
-     *
      *  @return returns a reference to the added node
      */
     XML_Node& addChild(const XML_Node& node);
@@ -151,7 +147,6 @@ public:
      * The node will be blank except for the specified name.
      *
      *  @param sname    Name of the new child
-     *
      *  @return         Returns a reference to the added node
      */
     XML_Node& addChild(const std::string& sname);
@@ -182,7 +177,6 @@ public:
      *   @param   name       Name of the child XML_Node object
      *   @param   value      Value of the XML_Node - double.
      *   @param   fmt        Format of the output for value
-     *
      *   @return  Returns a reference to the created child XML_Node object
      */
     XML_Node& addChild(const std::string& name, const doublereal value,
@@ -298,7 +292,6 @@ public:
      * an attribute with that name.
      *
      * @param attr  attribute string to look up
-     *
      * @return  Returns a string representing the value of the attribute
      *          within the XML node. If there is no attribute
      *          with the given name, it returns the null string.
@@ -312,7 +305,6 @@ public:
      * string. If no match is found, the empty string is returned.
      *
      * @param attr  String containing the attribute to be searched for.
-     *
      * @return Returns  If a match is found, the attribute value is returned
      *                  as a string. If no match is found, the empty string is
      *                  returned.
@@ -359,7 +351,6 @@ public:
     //! Sets the pointer for the parent node of the current node
     /*!
      * @param p Pointer to the parent node
-     *
      * @return  Returns the pointer p
      */
     XML_Node* setParent(XML_Node* const p);
@@ -367,7 +358,6 @@ public:
     //! Tests whether the current node has a child node with a particular name
     /*!
      * @param ch  Name of the child node to test
-     *
      * @return Returns true if the child node exists, false otherwise.
      */
     bool hasChild(const std::string& ch) const;
@@ -375,7 +365,6 @@ public:
     //! Tests whether the current node has an attribute with a particular name
     /*!
      * @param a  Name of the attribute to test
-     *
      * @return Returns true if the attribute exists, false otherwise.
      */
     bool hasAttrib(const std::string& a) const;
@@ -398,8 +387,7 @@ public:
 
     //! Return the id attribute, if present
     /*!
-     * Returns the id attribute if present. If not
-     * it return the empty string
+     * Returns the id attribute if present. If not it return the empty string
      */
     std::string id() const;
 
@@ -413,7 +401,6 @@ public:
     /*!
      *  Each of the individual XML_Node child pointers, however,
      *  is to a changeable XML node object.
-     *
      */
     const std::vector<XML_Node*>& children() const;
 
@@ -450,7 +437,6 @@ public:
      *  @param nameTarget  Name of the XML Node that is being searched for
      *  @param idTarget    "id" attribute of the XML Node that the routine
      *                     looks for
-     *
      *  @return   Returns the pointer to the XML node that fits the criteria
      *
      * @internal
@@ -476,7 +462,6 @@ public:
      *                     looks for
      *  @param index       Integer describing the index. The index is an
      *                     attribute of the form index = "3"
-     *
      *  @return   Returns the pointer to the XML node that fits the criteria
      */
     XML_Node* findNameIDIndex(const std::string& nameTarget,
@@ -495,7 +480,6 @@ public:
      *  @param id       "id" attribute of the XML Node that the routine
      *                  looks for
      *  @param depth    Depth of the search.
-     *
      *  @return         Returns the pointer to the XML node that fits the criteria
      *
      * @internal
@@ -511,12 +495,10 @@ public:
      * the attribute, the pointer to the matching XML Node is returned. If
      * not, 0 is returned.
      *
-     *  @param attr     Attribute of the XML Node that the routine
-     *                  looks for
+     *  @param attr     Attribute of the XML Node that the routine looks for
      *  @param val      Value of the attribute
      *  @param depth    Depth of the search. A value of 1 means that only the
      *                  immediate children are searched.
-     *
      *  @return         Returns the pointer to the XML node that fits the criteria
      */
     XML_Node* findByAttr(const std::string& attr, const std::string& val,
@@ -532,7 +514,6 @@ public:
      *  @param nm       Name of the XML node
      *  @param depth    Depth of the search. A value of 1 means that only the
      *                  immediate children are searched.
-     *
      *  @return         Returns the pointer to the XML node that fits the criteria
      */
     const XML_Node* findByName(const std::string& nm, int depth = 100000) const;
@@ -547,7 +528,6 @@ public:
      *  @param nm       Name of the XML node
      *  @param depth    Depth of the search. A value of 1 means that only the
      *                  immediate children are searched.
-     *
      *  @return         Returns the pointer to the XML node that fits the criteria
      */
     XML_Node* findByName(const std::string& nm, int depth = 100000);
@@ -589,8 +569,7 @@ public:
 
     //! Return the root of the current XML_Node tree
     /*!
-     *  Returns a reference to the root of the current
-     *  XML tree
+     *  Returns a reference to the root of the current XML tree
      */
     XML_Node& root() const;
 

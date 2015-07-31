@@ -284,7 +284,6 @@ void VPStandardStateTP::calcDensity()
                               "but EOS for phase is not known");
 }
 
-
 void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
 {
     /*
@@ -309,8 +308,6 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
      */
     calcDensity();
 }
-
-
 
 void VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
                                           const XML_Node* phaseNode_ptr)
@@ -344,7 +341,6 @@ void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id
     m_VPSS_ptr->initThermoXML(phaseNode, id);
     ThermoPhase::initThermoXML(phaseNode, id);
 }
-
 
 VPSSMgr* VPStandardStateTP::provideVPSSMgr()
 {

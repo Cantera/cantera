@@ -28,9 +28,7 @@ namespace Cantera
  */
 class VPSSMgr_ConstVol : public VPSSMgr
 {
-
 public:
-
     //! Constructor
     /*!
      *  @param vp_ptr Pointer to the owning VPStandardStateTP  object
@@ -61,7 +59,6 @@ public:
     //@{
 
 protected:
-
     virtual void _updateStandardStateThermo();
 
     //@}

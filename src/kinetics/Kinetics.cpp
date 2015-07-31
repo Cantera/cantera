@@ -51,9 +51,7 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
     m_kk                = right.m_kk;
     m_perturb           = right.m_perturb;
     m_reactions = right.m_reactions;
-
     m_thermo            = right.m_thermo; //  DANGER -> shallow pointer copy
-
     m_start             = right.m_start;
     m_phaseindex        = right.m_phaseindex;
     m_surfphase         = right.m_surfphase;
@@ -74,7 +72,6 @@ Kinetics& Kinetics::operator=(const Kinetics& right)
 Kinetics* Kinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
 {
     Kinetics* ko = new Kinetics(*this);
-
     ko->assignShallowPointers(tpVector);
     return ko;
 }
@@ -150,8 +147,6 @@ void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
         }
         m_thermo[i] = tpVector[i];
     }
-
-
 }
 
 std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
@@ -183,7 +178,6 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 
         // Compare this reaction to others with similar participants
         vector<size_t>& related = participants[key];
-
         for (size_t m = 0; m < related.size(); m++) {
             Reaction& other = *m_reactions[related[m]];
             if (R.reaction_type != other.reaction_type) {
@@ -586,7 +580,6 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     }
 
     checkReactionBalance(*r);
-
     size_t irxn = nReactions(); // index of the new reaction
 
     // indices of reactant and product species within this Kinetics object

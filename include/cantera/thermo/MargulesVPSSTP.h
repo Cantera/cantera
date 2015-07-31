@@ -31,7 +31,6 @@ namespace Cantera
 //!  MargulesVPSSTP is a derived class of GibbsExcessVPSSTP that employs
 //!  the Margules approximation for the excess Gibbs free energy
 /*!
- *
  * MargulesVPSSTP derives from class GibbsExcessVPSSTP which is derived
  * from VPStandardStateTP,
  * and overloads the virtual methods defined there with ones that
@@ -57,7 +56,6 @@ namespace Cantera
  *  density to pressure. The variable m_Pcurrent contains the current value of the
  *  pressure within the phase.
  *
- *
  * <HR>
  * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
@@ -68,7 +66,6 @@ namespace Cantera
  *  that the species are in pure component states at the temperature
  *  and pressure of the solution.  I don't think it prevents, however,
  *  some species from being dilute in the solution.
- *
  *
  * <HR>
  * <H2> Specification of Solution Thermodynamic Properties </H2>
@@ -256,7 +253,6 @@ namespace Cantera
  */
 class MargulesVPSSTP : public GibbsExcessVPSSTP
 {
-
 public:
     //! Constructor
     /*!
@@ -427,7 +423,6 @@ public:
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
@@ -462,7 +457,6 @@ public:
      *
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of the
      *                         log Activity Coefficients. length = m_kk
-     *
      */
     virtual void getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const;
 
@@ -475,7 +469,6 @@ public:
      *
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
-     *
      */
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 

@@ -17,7 +17,6 @@ LiquidTransportData::LiquidTransportData() :
     electCond(0),
     speciesDiffusivity(0)
 {
-
 }
 
 LiquidTransportData::LiquidTransportData(const LiquidTransportData& right) :

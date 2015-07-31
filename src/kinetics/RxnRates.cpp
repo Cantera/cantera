@@ -52,18 +52,18 @@ SurfaceArrhenius::SurfaceArrhenius(double A, double b, double Ta)
 }
 
 void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
-                               doublereal m, doublereal e) {
-        m_ncov++;
-        m_sp.push_back(k);
-        m_ac.push_back(a);
-        m_ec.push_back(e);
-        if (m != 0.0) {
-            m_msp.push_back(k);
-            m_mc.push_back(m);
-            m_nmcov++;
-        }
+                               doublereal m, doublereal e)
+{
+    m_ncov++;
+    m_sp.push_back(k);
+    m_ac.push_back(a);
+    m_ec.push_back(e);
+    if (m != 0.0) {
+        m_msp.push_back(k);
+        m_mc.push_back(m);
+        m_nmcov++;
     }
-
+}
 
 Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     : logP_(-1000)

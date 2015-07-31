@@ -97,7 +97,6 @@ public:
      *   The matrix must have been previously factored using the LU algorithm
      *
      * @param a1norm Norm of the matrix
-     *
      * @return  returns the inverse of the condition number
      */
     virtual doublereal rcond(doublereal a1norm) = 0;
@@ -124,7 +123,6 @@ public:
     //! Return the size and structure of the matrix
     /*!
      * @param iStruct OUTPUT Pointer to a vector of ints that describe the structure of the matrix.
-     *
      * @return  returns the number of rows and columns in the matrix.
      */
     virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const = 0;
@@ -151,7 +149,6 @@ public:
     //! Return a pointer to the top of column j, columns are assumed to be contiguous in memory
     /*!
      *  @param j   Value of the column
-     *
      *  @return  Returns a pointer to the top of the column
      */
     virtual doublereal* ptrColumn(size_t j) = 0;
@@ -202,7 +199,6 @@ public:
      *  The smallest row is returned along with the largest coefficient in that row
      *
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest row
-     *
      * @return index of the row that is most nearly zero
      */
     virtual size_t checkRows(doublereal& valueSmall) const = 0;
@@ -213,7 +209,6 @@ public:
      *  The smallest column is returned along with the largest coefficient in that column
      *
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest column
-     *
      * @return index of the column that is most nearly zero
      */
     virtual size_t checkColumns(doublereal& valueSmall) const = 0;

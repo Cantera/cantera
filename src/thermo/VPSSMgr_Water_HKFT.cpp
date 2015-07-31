@@ -47,9 +47,7 @@ VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right) :
     *this = right;
 }
 
-
-VPSSMgr_Water_HKFT&
-VPSSMgr_Water_HKFT::operator=(const VPSSMgr_Water_HKFT& b)
+VPSSMgr_Water_HKFT& VPSSMgr_Water_HKFT::operator=(const VPSSMgr_Water_HKFT& b)
 {
     if (&b == this) {
         return *this;
@@ -192,12 +190,10 @@ void VPSSMgr_Water_HKFT::initThermo()
     VPSSMgr::initThermo();
 }
 
-
 void VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode,
                                        const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
-
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &phaseNode.root());
@@ -229,7 +225,6 @@ PDSS* VPSSMgr_Water_HKFT::createInstallPDSS(size_t k,
         const XML_Node& speciesNode, const XML_Node* const phaseNode_ptr)
 {
     PDSS* kPDSS = 0;
-
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
         throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
@@ -258,7 +253,6 @@ PDSS* VPSSMgr_Water_HKFT::createInstallPDSS(size_t k,
                                "failed dynamic cast");
         }
         genSpthermo->installPDSShandler(k, m_waterSS, this);
-
         kPDSS = m_waterSS;
     } else {
         if (ss->attrib("model") != "HKFT") {
@@ -268,7 +262,6 @@ PDSS* VPSSMgr_Water_HKFT::createInstallPDSS(size_t k,
         }
 
         kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
-
         GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
         if (!genSpthermo) {
             throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",

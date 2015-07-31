@@ -116,7 +116,6 @@ public:
      * @param t             Time                    (input)
      * @param ybase         Solution vector (input, output)
      * @param step          Proposed step in the solution that will be cropped
-     *
      * @return              Return the norm of the amount of filtering
      */
     virtual doublereal filterNewStep(const doublereal t, const doublereal* const ybase,
@@ -129,7 +128,6 @@ public:
      *
      * @param t             Time                    (input)
      * @param y             Solution vector (input, output)
-     *
      * @return              Return the norm of the amount of filtering
      */
     virtual doublereal filterSolnPrediction(const doublereal t, doublereal* const y);
@@ -150,7 +148,6 @@ public:
      * @param delta_t       The current value of the time step (input)
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
-     *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
@@ -165,7 +162,6 @@ public:
      *
      *  @return    If true, the the time stepping is stopped. If false, then time stepping is stopped if t >= tout
      *             Defaults to false.
-     *
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
      * @param y             Solution vector (input, do not modify)
@@ -188,7 +184,6 @@ public:
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param delta_y       Value of the delta to be used in calculating the numerical Jacobian
      * @param solnWeights   Value of the solution weights that are used in determining convergence (default = 0)
-     *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
@@ -219,7 +214,6 @@ public:
      *                          1  Called at the end of every successful time step
      *                         -1  Called at the end of every unsuccessful time step
      *                          2  Called at the end of every call to integrateRJE()
-     *
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
      * @param y             Solution vector (input, do not modify)
@@ -258,7 +252,6 @@ public:
      *  @param    matrix     Pointer to the current Jacobian (if zero, it's already been factored)
      *  @param    nrows      offsets for the matrix
      *  @param    rhs        residual vector. This also needs to be LHS multiplied by M
-     *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
@@ -277,7 +270,6 @@ public:
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param J             Reference to the SquareMatrix object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
-     *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
@@ -298,7 +290,6 @@ public:
      * @param jacobianColPts   Pointer  to the vector of pts to columns of the SquareMatrix
      *                         object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
-     *
      * @return Returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation

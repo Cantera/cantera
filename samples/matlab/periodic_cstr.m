@@ -34,13 +34,11 @@ OneAtm = 1.01325e5;
 
 set(gas,'T', 300.0, 'P', p, 'X', 'H2:2, O2:1');
 
-
 % create an upstream reservoir that will supply the reactor.  The
 % temperature, pressure, and composition of the upstream reservoir are
 % set to those of the 'gas' object at the time the reservoir is
 % created.
 upstream = Reservoir(gas);
-
 
 % Now set the gas to the initial temperature of the reactor, and create
 % the reactor object.
@@ -51,12 +49,10 @@ cstr = IdealGasReactor(gas);
 % fixed, so the initial volume is the volume at all later times.
 setInitialVolume(cstr, 10.0*1.0e-6);
 
-
 % We need to have heat loss to see the oscillations. Create a
 % reservoir to represent the environment, and initialize its
 % temperature to the reactor temperature.
 env = Reservoir(gas);
-
 
 % Create a heat-conducting wall between the reactor and the
 % environment. Set its area, and its overall heat transfer
@@ -68,7 +64,6 @@ install(w, cstr, env);
 setArea(w, 1.0);
 setHeatTransferCoeff(w, 0.02);
 
-
 % Connect the upstream reservoir to the reactor with a mass flow
 % controller (constant mdot). Set the mass flow rate to 1.25 sccm.
 sccm = 1.25;
@@ -78,10 +73,8 @@ mfc = MassFlowController;
 install(mfc, upstream, cstr);
 setMassFlowRate(mfc, mdot);
 
-
 % now create a downstream reservoir to exhaust into.
 downstream = Reservoir(gas);
-
 
 % connect the reactor to the downstream reservoir with a valve, and
 % set the coefficient sufficiently large to keep the reactor pressure
@@ -104,8 +97,8 @@ while tme < 300.0
     advance(network, tme);
     tm(n) = tme;
     y(1,n) = massFraction(cstr,'H2');
-    y(2,n) = massFraction(cstr,'O2');    
-    y(3,n) = massFraction(cstr,'H2O');    
+    y(2,n) = massFraction(cstr,'O2');
+    y(3,n) = massFraction(cstr,'H2O');
 end
 clf
 figure(1)

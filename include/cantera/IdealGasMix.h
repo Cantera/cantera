@@ -15,12 +15,11 @@ class IdealGasMix :
     public GasKinetics
 {
 public:
-
     IdealGasMix() : m_ok(false), m_r(0) {}
 
     IdealGasMix(const std::string& infile, std::string id_="") :
-        m_ok(false), m_r(0) {
-
+        m_ok(false), m_r(0)
+    {
         m_r = get_XML_File(infile);
         m_id = id_;
         if (id_ == "-") {
@@ -31,7 +30,6 @@ public:
         if (!m_ok) throw CanteraError("IdealGasMix",
                                           "Cantera::buildSolutionFromXML returned false");
     }
-
 
     IdealGasMix(XML_Node& root,
                 std::string id_) : m_ok(false), m_r(&root), m_id(id_) {
@@ -56,13 +54,11 @@ public:
         return s;
     }
 
-
 protected:
     bool m_ok;
     XML_Node* m_r;
     std::string m_id;
 };
 }
-
 
 #endif

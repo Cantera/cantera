@@ -314,7 +314,6 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     if (formString != "margules") {
         throw CanteraError("MargulesVPSSTP::initThermoXML",
                            "model name isn't Margules: " + formString);
-
     }
 
     /*
@@ -449,7 +448,6 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
 {
     double T = temperature();
     double RT = GasConstant*T;
-
     dlnActCoeffdlnN_diag_.assign(m_kk, 0.0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -492,10 +490,8 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
         for (size_t iM = 0; iM < m_kk; iM++) {
             double XM = moleFractions_[iM];
             for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-
                 size_t iA = m_pSpecies_A_ij[i];
                 size_t iB = m_pSpecies_B_ij[i];
-
                 double delAK = 0.0;
                 double delBK = 0.0;
                 double delAM = 0.0;
@@ -513,10 +509,8 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
 
                 double XA = moleFractions_[iA];
                 double XB = moleFractions_[iB];
-
                 double g0 = (m_HE_b_ij[i] - T * m_SE_b_ij[i]) / RT;
                 double g1 = (m_HE_c_ij[i] - T * m_SE_c_ij[i]) / RT;
-
                 dlnActCoeffdlnN_(iK,iM) += g0*((delAM-XA)*(delBK-XB)+(delAK-XA)*(delBM-XB));
                 dlnActCoeffdlnN_(iK,iM) += 2*g1*((delAM-XA)*(delBK-XB)*XB+(delAK-XA)*(delBM-XB)*XB+(delBM-XB)*(delBK-XB)*XA);
             }
@@ -619,10 +613,9 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         return;
     }
     string aspName = speciesName(aSpecies);
-    //
+
     //   @TODO Figure out what the original reason is for putting an error condition for charged species
     //         Seems OK to me.
-    //
     if (charge(aSpecies) != 0.0) {
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA has a charge: " + fp2str(charge(aSpecies)));
     }

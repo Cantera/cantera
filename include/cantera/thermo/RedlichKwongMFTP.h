@@ -333,7 +333,6 @@ public:
     virtual doublereal critDensity() const;
 
 public:
-
     //@}
     //! @name Initialization Methods - For Internal use
     /*!
@@ -386,7 +385,6 @@ public:
     //!   Initialize a ThermoPhase object, potentially reading activity
     //!   coefficient information from an XML database.
     /*!
-     *
      * This routine initializes the lengths in the current object and
      * then calls the parent routine.
      * This method is provided to allow
@@ -466,7 +464,6 @@ public:
      *  @param pres     Pressure in Pa. This is used as an initial guess. If the routine
      *                  needs to change the pressure to find a stable liquid state, the
      *                  new pressure is returned in this variable.
-     *
      *  @return Returns the estimate of the liquid volume.
      */
     virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
@@ -486,11 +483,8 @@ public:
      *                     a gas or liquid phase here, we will attempt to find a volume in that
      *                     part of the volume space, only, in this routine. A value of FLUID_UNDEFINED
      *                     means that we will accept anything.
-     *
      *   @param rhoguess   Guessed density of the fluid. A value of -1.0 indicates that there
      *                     is no guessed density
-     *
-     *
      *  @return   We return the density of the fluid at the requested phase. If we have not found any
      *            acceptable density we return a -1. If we have found an acceptable density at a
      *            different phase, we return a -2.
@@ -517,7 +511,6 @@ public:
      *
      * @param   TKelvin   temperature in kelvin
      * @param   molarVol  molar volume ( m3/kmol)
-     *
      * @return  Returns the pressure.
      */
     virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
@@ -528,9 +521,7 @@ public:
      *
      * @param   TKelvin   temperature in kelvin
      * @param   molarVol  molar volume ( m3/kmol)
-     *
      * @param   presCalc  Returns the pressure.
-     *
      *  @return  Returns the derivative of the pressure wrt the molar volume
      */
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
@@ -556,7 +547,6 @@ public:
      *  function.  It does use the stored mole fractions in the object.
      *
      *  @param temp  Temperature (TKelvin)
-     *
      *  @param aCalc (output)  Returns the a value
      *  @param bCalc (output)  Returns the b value.
      */

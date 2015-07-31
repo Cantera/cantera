@@ -10,10 +10,8 @@ void reactormethods(int nlhs, mxArray* plhs[],
                     int nrhs, const mxArray* prhs[])
 {
     int iok = 0, n;
-
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
-
     double r = Undef;
     double v = Undef;
     if (nrhs > 3) {
@@ -33,7 +31,6 @@ void reactormethods(int nlhs, mxArray* plhs[],
     }
 
     // options that do not return a value
-
     if (job < 20) {
         switch (job) {
         case 1:
@@ -106,4 +103,3 @@ void reactormethods(int nlhs, mxArray* plhs[],
         return;
     }
 }
-

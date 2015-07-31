@@ -1,9 +1,7 @@
 /**
  *  @file RxnRates.h
- *
  */
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef CT_RXNRATES_H
 #define CT_RXNRATES_H
@@ -26,7 +24,6 @@ class Array2D;
  *   \f[
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
- *
  */
 class Arrhenius
 {
@@ -148,9 +145,8 @@ public:
     /**
      * Update the value the rate constant.
      *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         return m_A * std::exp(std::log(10.0)*m_acov + m_b*logT -

@@ -61,10 +61,10 @@ approximated as constant, then the following definition could be used::
 
     species(name='C(gr)',
             atoms='C:1',
-	    thermo=const_cp(t0=298.15,
-	                    h0=0.0,
-			    s0=(5.6, 'J/mol/K'), # NIST
-			    cp0=(8.43, 'J/mol/K'))) # Taylor and Groot (1980)
+            thermo=const_cp(t0=298.15,
+                            h0=0.0,
+                            s0=(5.6, 'J/mol/K'), # NIST
+                            cp0=(8.43, 'J/mol/K'))) # Taylor and Groot (1980)
 
 Note that the thermo field is assigned an embedded entry of type
 :class:`const_cp`. Entries are stored as they are encountered when the file is
@@ -337,7 +337,7 @@ in the input file is translated by the preprocessor to the following CTML text:
       <equation>O + HCCO [=] H + 2 CO</equation>
       <rateCoeff>
         <Arrhenius>
-	  <A units="cm3/mol/s"> 1.000000E+14</A>
+          <A units="cm3/mol/s"> 1.000000E+14</A>
           <b>0</b>
           <E units="cal/mol">0.000000</E>
         </Arrhenius>
@@ -419,17 +419,17 @@ would terminate. ::
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
       File "/some/path/Cantera/importFromFile.py", line 18, in importPhase
-	return importPhases(file, [name], loglevel, debug)[0]
+        return importPhases(file, [name], loglevel, debug)[0]
       File "/some/path/Cantera/importFromFile.py", line 25, in importPhases
-	s.append(solution.Solution(src=file,id=nm,loglevel=loglevel,debug=debug))
+        s.append(solution.Solution(src=file,id=nm,loglevel=loglevel,debug=debug))
       File "/some/path/solution.py", line 39, in __init__
-	preprocess = 1, debug = debug)
+        preprocess = 1, debug = debug)
       File "/some/path/Cantera/XML.py", line 35, in __init__
-	self._xml_id = _cantera.xml_get_XML_File(src, debug)
+        self._xml_id = _cantera.xml_get_XML_File(src, debug)
     cantera.error:
 
     ************************************************
-		    Cantera Error!
+                    Cantera Error!
     ************************************************
 
     Procedure: ct2ctml

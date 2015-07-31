@@ -136,7 +136,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
      * the true number of reactions in the mechanism, itot.
      */
     kin.finalize();
-
     return true;
 }
 
@@ -166,7 +165,6 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     // they must be listed in a 'phaseArray' child
     // element. Homogeneous mechanisms do not need to include a
     // phaseArray element.
-
     vector<string> phase_ids;
     if (phase.hasChild("phaseArray")) {
         const XML_Node& pa = phase.child("phaseArray");
@@ -180,19 +178,16 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     // for each referenced phase, attempt to find its id among those
     // phases specified.
     bool phase_ok;
-
     string phase_id;
     string msg = "";
     for (int n = 0; n < np; n++) {
         phase_id = phase_ids[n];
         phase_ok = false;
-
         // loop over the supplied 'ThermoPhase' objects representing
         // phases, to find an object with the same id.
         for (int m = 0; m < nt; m++) {
             if (th[m]->id() == phase_id) {
                 phase_ok = true;
-
                 // if no phase with this id has been added to
                 //the kinetics manager yet, then add this one
                 if (k->phaseIndex(phase_id) == npos) {

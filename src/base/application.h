@@ -186,7 +186,6 @@ protected:
     } ;
 #endif
 
-
 protected:
     //! Constructor for class sets up the initial conditions
     //! Protected ctor access thru static member function Instance

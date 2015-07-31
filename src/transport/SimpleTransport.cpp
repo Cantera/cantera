@@ -104,7 +104,6 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
     m_Grad_T                              = right.m_Grad_T;
     m_Grad_P                              = right.m_Grad_P;
     m_Grad_V                              = right.m_Grad_V;
-
     m_diffSpecies                         = right.m_diffSpecies;
     m_viscSpecies                         = right.m_viscSpecies;
     m_condSpecies                         = right.m_condSpecies;
@@ -115,7 +114,6 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
     meanMolecularWeight_                  = right.meanMolecularWeight_;
     dens_                                 = right.dens_;
     m_chargeSpecies                       = right.m_chargeSpecies;
-
     m_temp                                = right.m_temp;
     m_press                               = right.m_press;
     m_lambda                              = right.m_lambda;
@@ -168,13 +166,11 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         XML_Node& transportNode = phaseNode.child("transport");
         string transportModel = transportNode.attrib("model");
         if (transportModel == "Simple") {
-
-	    compositionDepType_ = tr.compositionDepTypeDefault_;
-
+            compositionDepType_ = tr.compositionDepTypeDefault_;
         } else {
-	    throw CanteraError("SimpleTransport::initLiquid()",
-			       "transport model isn't the correct type: " + transportModel);
-	}
+            throw CanteraError("SimpleTransport::initLiquid()",
+                               "transport model isn't the correct type: " + transportModel);
+        }
     }
 
     // make a local copy of the molecular weights
@@ -187,9 +183,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_viscSpecies.resize(m_nsp);
     m_coeffVisc_Ns.clear();
     m_coeffVisc_Ns.resize(m_nsp);
-
     std::string spName = m_thermo->speciesName(0);
-
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
         LiquidTransportData& ltd = tr.LTData[k];
@@ -203,7 +197,6 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_condSpecies.resize(m_nsp);
     m_coeffLambda_Ns.clear();
     m_coeffLambda_Ns.resize(m_nsp);
-
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
         LiquidTransportData& ltd = tr.LTData[k];
@@ -215,17 +208,14 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
      *  Get the input species diffusivities
      */
     useHydroRadius_ = false;
-
     m_diffSpecies.resize(m_nsp);
     m_coeffDiff_Ns.clear();
     m_coeffDiff_Ns.resize(m_nsp);
-
     for (size_t k = 0; k < m_nsp; k++) {
         spName = m_thermo->speciesName(k);
         LiquidTransportData& ltd = tr.LTData[k];
         m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
         ltd.speciesDiffusivity = 0;
-
         if (!m_coeffDiff_Ns[k]) {
             if (ltd.hydroRadius) {
                 m_coeffHydroRadius_Ns[k] = (ltd.hydroRadius)->duplMyselfAsLTPspecies();
@@ -239,7 +229,6 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
 
     m_molefracs.resize(m_nsp);
     m_concentrations.resize(m_nsp);
-
     m_chargeSpecies.resize(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
         m_chargeSpecies[k] = m_thermo->charge(k);
@@ -255,13 +244,10 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     // set all flags to false
     m_visc_mix_ok   = false;
     m_visc_temp_ok  = false;
-
     m_cond_temp_ok = false;
     m_cond_mix_ok  = false;
-
     m_diff_temp_ok   = false;
     m_diff_mix_ok  = false;
-
     return true;
 }
 
@@ -383,7 +369,7 @@ doublereal SimpleTransport::thermalConductivity()
             }
         } else {
             throw CanteraError("SimpleTransport::thermalConductivity()",
-                               "Unknown compositionDepType"); 
+                               "Unknown compositionDepType");
         }
         m_cond_mix_ok = true;
     }
@@ -408,9 +394,7 @@ void SimpleTransport::getSpeciesVdiff(size_t ndim,
     set_Grad_X(grad_X);
     const doublereal* y  = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
-
     getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
-
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
@@ -432,9 +416,7 @@ void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
     set_Grad_V(grad_Phi);
     const doublereal* y  = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
-
     getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
-
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
@@ -465,12 +447,9 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
 
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y  = m_thermo->massFractions();
-
     doublereal concTotal = m_thermo->molarDensity();
 
     // Unroll wrt ndim
-
-
     if (doMigration_) {
         double FRT =  ElectronCharge / (Boltzmann * m_temp);
         for (size_t n = 0; n < m_nDim; n++) {
@@ -528,7 +507,6 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
             }
             fluxes[n*ldf + m_velocityBasis] = 0.0;
         }
-
     } else {
         throw CanteraError("SimpleTransport::getSpeciesFluxesExt()",
                            "unknown velocity basis");
@@ -575,12 +553,10 @@ bool SimpleTransport::update_C()
         return false;
     }
 
-
     // Mixture stuff needs to be evaluated
     m_visc_mix_ok = false;
     m_diff_mix_ok = false;
     m_cond_mix_ok = false;
-
     return true;
 }
 
@@ -651,10 +627,8 @@ bool SimpleTransport::update_T()
     // Set all of these flags to false
     m_visc_mix_ok = false;
     m_visc_temp_ok  = false;
-
     m_cond_temp_ok = false;
     m_cond_mix_ok = false;
-
     m_diff_mix_ok = false;
     m_diff_temp_ok = false;
 

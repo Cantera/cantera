@@ -273,7 +273,6 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
                            "Unspecified thermo model");
     }
 
-
     // Confirm that the phase only contains 2 species
     if (m_kk != 2) {
         throw CanteraError("MaskellSolidSolnPhase::initThermoXML",

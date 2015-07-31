@@ -9,7 +9,6 @@ using namespace Cantera;
 
 void demoprog()
 {
-
     printf("\n\n**** Testing modifying NASA polynomial coefficients ****\n\n");
 
     IdealGasMix gas("h2o2.cti","ohmech");
@@ -31,7 +30,6 @@ void demoprog()
     const int LOW_A6 = 6;
 
     for (n = 0; n < nsp; n++) {
-
         printf("\n\n %s (original):", gas.speciesName(n).c_str());
 
         // get the NASA coefficients in array c
@@ -76,7 +74,6 @@ void demoprog()
 
 int main()
 {
-
     try {
         demoprog();
     } catch (CanteraError& err) {

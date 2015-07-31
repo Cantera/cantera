@@ -155,7 +155,6 @@ doublereal GasTransport::viscosity()
 void GasTransport::updateViscosity_T()
 {
     doublereal vratiokj, wratiojk, factor1;
-
     if (!m_spvisc_ok) {
         updateSpeciesViscosities();
     }
@@ -420,7 +419,6 @@ void GasTransport::setupMM()
             double d = m_diam(i,j);
             m_delta(i,j) =  0.5 * m_dipole(i,j)*m_dipole(i,j)
                              / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
-
             makePolarCorrections(i, j, f_eps, f_sigma);
             m_diam(i,j) *= f_sigma;
             m_epsilon(i,j) *= f_eps;
@@ -497,10 +495,8 @@ void GasTransport::makePolarCorrections(size_t i, size_t j,
 
     // corrections to the effective diameter and well depth
     // if one is polar and one is non-polar
-
     size_t kp = (m_polar[i] ? i : j);     // the polar one
     size_t knp = (i == kp ? j : i);        // the nonpolar one
-
     double d3np, d3p, alpha_star, mu_p_star, xi;
     d3np = pow(m_sigma[knp],3);
     d3p  = pow(m_sigma[kp],3);
@@ -569,9 +565,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     int ndeg = 0;
     // number of points to use in generating fit data
     const size_t np = 50;
-
     int degree = (m_mode == CK_Mode ? 3 : 4);
-
     double dt = (m_thermo->maxTemp() - m_thermo->minTemp())/(np-1);
     vector_fp tlog(np), spvisc(np), spcond(np);
     vector_fp w(np), w2(np);
@@ -609,12 +603,10 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
-
             m_thermo->setTemperature(t);
             vector_fp cp_R_all(m_thermo->nSpecies());
             m_thermo->getCp_R_ref(&cp_R_all[0]);
             cp_R = cp_R_all[k];
-
             double tstar = Boltzmann * t/ m_eps[k];
             sqrt_T = sqrt(t);
             double om22 = integrals.omega22(tstar, m_delta(k,k));
@@ -633,15 +625,12 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             w_RT = mw[k]/(GasConstant * t);
             f_int = w_RT * diffcoeff/visc;
             cv_rot = m_crot[k];
-
             A_factor = 2.5 - f_int;
             B_factor = m_zrot[k] + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
             c1 = 2.0/Pi * A_factor/B_factor;
             cv_int = cp_R - 2.5 - cv_rot;
-
             f_rot = f_int * (1.0 + c1);
             f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
-
             cond = (visc/mw[k])*GasConstant*(f_trans * 1.5
                                                 + f_rot * cv_rot + f_int * cv_int);
 
@@ -715,7 +704,6 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     if (DEBUG_MODE_ENABLED && m_log_level) {
         writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
         writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
-
         writelog("\nPolynomial fits for conductivity:\n");
         if (m_mode == CK_Mode) {
             writelog("log(conductivity) fit to cubic polynomial in log(T)");
@@ -752,7 +740,6 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 double tstar = Boltzmann * t/eps;
                 sigma = m_diam(j,k);
                 om11 = integrals.omega11(tstar, m_delta(j,k));
-
                 diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j)) *
                             pow(Boltzmann * t, 1.5) /
                             (Pi * sigma * sigma * om11);
@@ -812,18 +799,15 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
     double wsum = w1 + w2;
     double wmwp = (w1 - w2)/wsum;
     double sqw12 = sqrt(w1*w2);
-
     double sig1 = m_sigma[k];
     double sig2 = m_sigma[j];
     double sig12 = 0.5*(m_sigma[k] + m_sigma[j]);
     double sigratio = sig1*sig1/(sig2*sig2);
     double sigratio2 = sig1*sig1/(sig12*sig12);
     double sigratio3 = sig2*sig2/(sig12*sig12);
-
     double tstar1 = Boltzmann * t / m_eps[k];
     double tstar2 = Boltzmann * t / m_eps[j];
     double tstar12 = Boltzmann * t / sqrt(m_eps[k] * m_eps[j]);
-
     double om22_1 = integrals.omega22(tstar1, m_delta(k,k));
     double om22_2 = integrals.omega22(tstar2, m_delta(j,j));
     double om11_12 = integrals.omega11(tstar12, m_delta(k,j));
@@ -836,7 +820,6 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
 
     cnst = (1.0/sigratio) * sqrt(2.0*w1/wsum) * 2.0*w2*w2/(wsum*w1);
     double p2 = cnst * om22_2 / om11_12;
-
     double p12 = 15.0 * wmwp*wmwp + 8.0*w1*w2*astar_12/(wsum*wsum);
 
     cnst = (2.0/(w2*wsum))*sqrt(2.0*w2/wsum)*sigratio2;
@@ -846,7 +829,6 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
     cnst = (2.0/(w1*wsum))*sqrt(2.0*w1/wsum)*sigratio3;
     double q2 = cnst*((2.5 - 1.2*bstar_12)*w2*w2 + 3.0*w1*w1
                + 1.6*w1*w2*astar_12);
-
     double q12 = wmwp*wmwp*15.0*(2.5 - 1.2*bstar_12)
           + 4.0*w1*w2*astar_12*(11.0 - 2.4*bstar_12)/(wsum*wsum)
           +  1.6*wsum*om22_1*om22_2/(om11_12*om11_12*sqw12)

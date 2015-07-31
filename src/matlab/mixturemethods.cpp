@@ -39,7 +39,6 @@ void mixturemethods(int nlhs, mxArray* plhs[],
     int maxiter, maxsteps, loglevel;
     if (job < 15) {
         switch (job) {
-
         case 1:
             iok = mix_del(i);
             break;
@@ -167,4 +166,3 @@ void mixturemethods(int nlhs, mxArray* plhs[],
         }
     }
 }
-

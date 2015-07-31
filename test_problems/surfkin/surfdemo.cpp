@@ -11,7 +11,6 @@ using namespace std;
 
 int main()
 {
-
     try {
         IdealGasMix gas("gri30.xml", "gri30");
         gas.setState_TPX(1200.0, OneAtm,

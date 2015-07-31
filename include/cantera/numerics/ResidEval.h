@@ -126,7 +126,6 @@ public:
     //! Return the number of equations in the equation system
     virtual int nEquations() const = 0;
 
-
     //!      Write out to a file or to standard output the current solution
     /*!
      *      ievent  is a description of the event that caused this
@@ -162,7 +161,6 @@ public:
     }
 
 protected:
-
     //! Mapping vector that stores whether a degree of freedom is a DAE or not
     /*!
      *   The first index is the equation number. The second index is 1 if it is a DAE,

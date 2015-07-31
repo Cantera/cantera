@@ -9,7 +9,6 @@
  */
 // Copyright 2001-2003  California Institute of Technology
 
-
 /**
  * @defgroup tranprops Transport Properties for Species in Phases
  *

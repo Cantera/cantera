@@ -41,7 +41,6 @@ namespace Cantera
  */
 class Tortuosity
 {
-
 public:
     //! Default constructor uses Bruggeman exponent of 1.5
     Tortuosity(double setPower = 1.5) : expBrug_(setPower) {
@@ -74,9 +73,7 @@ public:
 protected:
     //! Bruggeman exponent: power to which the tortuosity depends on the volume fraction
     double expBrug_ ;
-
 };
-
 
 
 /** This class implements transport coefficient corrections
@@ -85,7 +82,6 @@ protected:
  */
 class TortuosityPercolation : public  Tortuosity
 {
-
 public:
     //! Default constructor uses Bruggeman exponent of 1.5
     TortuosityPercolation(double percolationThreshold = 0.4, double conductivityExponent = 2.0) : percolationThreshold_(percolationThreshold), conductivityExponent_(conductivityExponent)  {
@@ -133,7 +129,6 @@ protected:
 };
 
 
-
 /** This class implements transport coefficient corrections
  * appropriate for porous media with a dispersed phase.
  * This model goes back to Maxwell.  The formula for the
@@ -150,7 +145,6 @@ protected:
  */
 class TortuosityMaxwell : public Tortuosity
 {
-
 public:
     //! Default constructor uses Bruggeman exponent of 1.5
     TortuosityMaxwell(double relativeConductivites = 0.0) : relativeConductivites_(relativeConductivites)  {
@@ -184,7 +178,6 @@ protected:
     //! Relative  conductivities of the dispersed and continuous phases,
     //! `relativeConductivites_` \f$ = \kappa_d / \kappa_0 \f$.
     double relativeConductivites_;
-
 };
 
 }

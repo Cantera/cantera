@@ -21,7 +21,6 @@ ReactorNet::ReactorNet() :
 
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator
-
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
     m_integ->setIterator(Newton_Iter);
@@ -150,7 +149,6 @@ void ReactorNet::eval(doublereal t, doublereal* y,
 {
     size_t n;
     size_t pstart = 0;
-
     updateState(y);
     for (n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->evalEqs(t, y + m_start[n],
@@ -168,7 +166,6 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
     //evaluate the unperturbed ydot
     eval(t, y, ydot, p);
     for (size_t n = 0; n < m_nv; n++) {
-
         // perturb x(n)
         ysave = y[n];
         dy = m_atol[n] + fabs(ysave)*m_rtol;

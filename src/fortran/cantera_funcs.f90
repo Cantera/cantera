@@ -24,7 +24,7 @@ module cantera_funcs
       else
          s = ctxml_child(root, 'phase')
       end if
-      
+
       self = newThermoPhase(s)
       call newKinetics(s, self)
 

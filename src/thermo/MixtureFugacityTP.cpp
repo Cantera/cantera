@@ -347,7 +347,6 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
      */
     getMoleFractions(DATA_PTR(moleFractions_));
 
-
     Phase::setTemperature(t);
     _updateReferenceStateThermo();
     // Depends on the mole fractions and the temperature
@@ -375,9 +374,6 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
                 throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
             }
         }
-
-
-
     } else if (forcedState_ == FLUID_GAS) {
         // Normal density calculation
         if (iState_ < FLUID_LIQUID_0) {
@@ -393,10 +389,7 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
             } else {
                 throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
             }
-
         }
-
-
     } else if (forcedState_ > FLUID_LIQUID_0) {
         if (iState_ >= FLUID_LIQUID_0) {
             double rhoNow = Phase::density();
@@ -411,7 +404,6 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
             } else {
                 throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
             }
-
         }
     }
 }
@@ -497,7 +489,6 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
              */
             rhoguess = presPa * mmw / (GasConstant * TKelvin);
         }
-
     }
 
     double molarVolBase = mmw / rhoguess;
@@ -524,13 +515,9 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
      *  The algorithm is taken from dfind()
      */
     for (int n = 0; n < 200; n++) {
-
         /*
          * Calculate the predicted reduced pressure, pred0, based on the
          * current tau and dd.
-         */
-
-        /*
          * Calculate the derivative of the predicted pressure
          * wrt the molar volume.
          *  This routine also returns the pressure, presBase
@@ -622,7 +609,6 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         molarVolLast = molarVolBase;
         molarVolBase += delMV;
 
-
         if (fabs(delMV/molarVolBase) < 1.0E-14) {
             conv = true;
             break;
@@ -634,9 +620,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         if (molarVolBase <= 0.0) {
             molarVolBase = std::min(1.0E-30, fabs(delMV*1.0E-4));
         }
-
     }
-
 
     /*
      * Check for convergence, and return 0.0 if it wasn't achieved.
@@ -672,7 +656,6 @@ int MixtureFugacityTP::spinodalFunc::evalSS(const doublereal t, const doublereal
 int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& densLiqGuess,
                              doublereal& densGasGuess, doublereal& liqGRT,  doublereal& gasGRT)
 {
-
     int retn = 0;
     doublereal densLiq = densityCalc(TKelvin, pres, FLUID_LIQUID_0, densLiqGuess);
     if (densLiq <= 0.0) {
@@ -736,7 +719,6 @@ int MixtureFugacityTP::phaseState(bool checkState) const
         } else {
             state = FLUID_UNSTABLE;
         }
-
     }
     return state;
 }
@@ -787,7 +769,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
     double pres;
     doublereal mw = meanMolecularWeight();
     if (TKelvin < critTemperature()) {
-
         pres = psatEst(TKelvin);
         // trial value = Psat from correlation
         doublereal volLiquid = liquidVolEst(TKelvin, pres);
@@ -895,11 +876,9 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         double RhoGas = RhoGasGood;
         double RhoLiquid = RhoLiquidGood;
 
-
         /*
          *  Now that we have found a good pressure we can proceed with the algorithm.
          */
-
         for (int i = 0; i < 20; i++) {
             int stab = corr0(TKelvin, pres, RhoLiquid, RhoGas, liqGRT, gasGRT);
             if (stab == 0) {
@@ -916,7 +895,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
                     }
                 }
                 pres += dp;
-
             } else if (stab == -1) {
                 delGRT = 1.0E6;
                 if (presLast > pres) {
@@ -936,7 +914,6 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             molarVolGas = mw / RhoGas;
             molarVolLiquid = mw / RhoLiquid;
 
-
             if (fabs(delGRT) < 1.0E-8) {
                 // converged
                 break;
@@ -947,10 +924,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         molarVolLiquid = mw / RhoLiquid;
         // Put the fluid in the desired end condition
         setState_TR(tempSave, densSave);
-
         return pres;
-
-
     } else {
         pres = critPressure();
         setState_TP(TKelvin, pres);

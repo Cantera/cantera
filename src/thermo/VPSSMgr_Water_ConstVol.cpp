@@ -194,7 +194,6 @@ void VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode,
                                            const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
-
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &phaseNode.root());
@@ -256,9 +255,7 @@ PDSS* VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k,
         genSpthermo->installPDSShandler(k, m_waterSS, this);
         kPDSS = m_waterSS;
     } else {
-
         VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
-
         const XML_Node* ss = speciesNode.findByName("standardState");
         if (!ss) {
             throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies",

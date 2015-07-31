@@ -28,17 +28,17 @@ amin = 1.e14;
 % compute values for a range of pressure ratios
 for r = 0.005:0.0025:0.995
    p = p0*r;
-   
+
    % set the state using (p,s0)
    set(gas,'P',p,'S',s0);
-   
+
    h = enthalpy_mass(gas);
    rho = density(gas);
-   
+
    v2 = 2.0*(h0 - h);      %   h + V^2/2 = h0
-   v = sqrt(v2);             
+   v = sqrt(v2);
    a(i) = mdot/(rho*v);    %   rho*v*A = constant
-   
+
    if a(i) < amin
       amin = a(i);
    end

@@ -10,7 +10,6 @@ static doublereal JoyceDixon(doublereal r)
     return log(r) + 1.0/sqrt(8.0)*r - (3.0/16.0 - sqrt(3.0)/9.0)*r*r;
 }
 
-
 SemiconductorPhase::SemiconductorPhase(std::string infile,
                                        std::string id_) {}
 
@@ -50,7 +49,6 @@ doublereal SemiconductorPhase::ec() const
 {
     return ev() + bandgap();
 }
-
 
 // private
 void SemiconductorPhase::initLengths()

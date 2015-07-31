@@ -645,7 +645,6 @@ protected:
      *  accurate value for the saturation pressure.
      *
      *  @param TKelvin  temperature in kelvin
-     *
      *  @return returns the estimated saturation pressure at the given temperature
      */
     virtual doublereal psatEst(doublereal TKelvin) const;
@@ -661,7 +660,6 @@ public:
      *  @param pres     Pressure in Pa. This is used as an initial guess. If the routine
      *                  needs to change the pressure to find a stable liquid state, the
      *                  new pressure is returned in this variable.
-     *
      *  @return Returns the estimate of the liquid volume.  If the liquid can't be found, this
      *          routine returns -1.
      */
@@ -685,7 +683,6 @@ public:
      *
      *   @param rhoguess   Guessed density of the fluid. A value of -1.0 indicates that there
      *                     is no guessed density
-     *
      *  @return   We return the density of the fluid at the requested phase. If we have not found any
      *            acceptable density we return a -1. If we have found an acceptable density at a
      *            different phase, we return a -2.
@@ -739,7 +736,6 @@ public:
      *   @param TKelvin         (input) Temperature (Kelvin)
      *   @param molarVolGas     (return) Molar volume of the gas
      *   @param molarVolLiquid  (return) Molar volume of the liquid
-     *
      *   @return          Returns the saturation pressure at the given temperature
      */
     doublereal calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
@@ -760,7 +756,6 @@ protected:
      *
      * @param   TKelvin   temperature in kelvin
      * @param   molarVol  molar volume ( m3/kmol)
-     *
      * @return  Returns the pressure.
      */
     virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
@@ -771,9 +766,7 @@ protected:
      *
      * @param   TKelvin   temperature in kelvin
      * @param   molarVol  molar volume ( m3/kmol)
-     *
      * @param   presCalc  Returns the pressure.
-     *
      *  @return  Returns the derivative of the pressure wrt the molar volume
      */
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;

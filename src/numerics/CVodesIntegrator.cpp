@@ -23,7 +23,6 @@ using namespace std;
 #include "cvodes/cvodes_diag.h"
 #include "cvodes/cvodes_spgmr.h"
 
-
 #define CV_SS 1
 #define CV_SV 2
 
@@ -51,7 +50,6 @@ public:
 };
 
 extern "C" {
-
     /**
      *  Function called by cvodes to evaluate ydot given y.  The CVODE
      *  integrator allows passing in a void* pointer to access
@@ -345,7 +343,6 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     applyOptions();
 }
 
-
 void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0  = t0;
@@ -354,7 +351,6 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
                               NV_DATA_S(m_y));
 
     int result;
-
     result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     if (result != CV_SUCCESS) {
         throw CVodesErr("CVodeReInit failed. result = "+int2str(result));

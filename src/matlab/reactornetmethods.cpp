@@ -12,7 +12,6 @@ void reactornetmethods(int nlhs, mxArray* plhs[],
     int iok = 0, n;
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
-
     double r = Undef;
     double v = Undef;
     double v2 = -1.0;
@@ -36,10 +35,8 @@ void reactornetmethods(int nlhs, mxArray* plhs[],
     }
 
     // options that do not return a value
-
     if (job < 20) {
         switch (job) {
-
         case 1:
             iok = reactornet_del(i);
             break;

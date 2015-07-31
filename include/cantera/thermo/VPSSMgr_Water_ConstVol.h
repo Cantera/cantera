@@ -60,7 +60,6 @@ private:
     //@}
 
 public:
-
     /*! @name Thermodynamic Values for the Species Reference States
      * There are also temporary variables for holding the species reference-
      * state values of Cp, H, S, and V at the last temperature and reference

@@ -228,13 +228,11 @@ void ReactionPathDiagram::exportToDot(ostream& s)
     }
 
     Path* p;
-
     size_t kbegin, kend, i1, i2, k1, k2;
     doublereal flx;
 
     // draw paths representing net flows
     if (flow_type == NetFlow) {
-
         // if no scale was specified, normalize
         // net flows by the maximum net flow
         if (scale <= 0.0) {
@@ -256,7 +254,6 @@ void ReactionPathDiagram::exportToDot(ostream& s)
         flmax = std::max(flmax, 1e-10);
 
         // loop over all unique pairs of nodes
-
         for (i1 = 0; i1 < nNodes(); i1++) {
             k1 = m_speciesNumber[i1];
             for (i2 = i1+1; i2 < nNodes(); i2++) {
@@ -270,7 +267,6 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                 if (flx != 0.0) {
                     // set beginning and end of the path based on the
                     // sign of the net flow
-
                     if (flx > 0.0) {
                         kbegin = k1;
                         kend = k2;
@@ -283,7 +279,6 @@ void ReactionPathDiagram::exportToDot(ostream& s)
 
                     // write out path specification if the net flow
                     // is greater than the threshold
-
                     if (flxratio >= threshold) {
                         // make nodes visible
                         node(kbegin)->visible  = true;
@@ -430,7 +425,6 @@ std::vector<size_t> ReactionPathDiagram::species()
 int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
 {
     m_groups.resize(m_nr);
-
     for (size_t i = 0; i < m_nr; i++) {           // loop over reactions
         logfile << endl << "Reaction " << i+1 << ": "
                 << s.reactionString(i);
@@ -448,7 +442,6 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
         }
 
         Group b0, b1, bb;
-
         vector<string>& e = m_elementSymbols;
 
         if (m_determinate[i]) {
@@ -515,7 +508,6 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
                 }
             }
 
-
             if (b1.valid()) {
                 if (b1.sign() > 0) {
                     group_a1 = &r0;
@@ -563,7 +555,6 @@ void ReactionPathBuilder::writeGroup(ostream& out, const Group& g)
 
 void ReactionPathBuilder::findElements(Kinetics& kin)
 {
-
     string ename;
     m_enamemap.clear();
     m_nel = 0;
@@ -636,11 +627,9 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 
     m_reac.resize(m_nr);
     m_prod.resize(m_nr);
-
     m_ropf.resize(m_nr);
     m_ropr.resize(m_nr);
     m_determinate.resize(m_nr);
-
     m_x.resize(m_ns);  // not currently used ?
     m_elatoms.resize(m_nel, m_nr);
 
@@ -649,10 +638,8 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     map<size_t, int> net;
 
     for (size_t i = 0; i < m_nr; i++) {
-
         // construct the lists of reactant and product indices, not
         // including molecules that appear on both sides.
-
         m_reac[i].clear();
         m_prod[i].clear();
         net.clear();
@@ -685,7 +672,6 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
         // excluding molecules that appear on both sides of the
         // reaction. We only need to compute this for the reactants,
         // since the elements are conserved.
-
         for (n = 0; n < nrnet; n++) {
             k = m_reac[i][n];
             for (size_t m = 0; m < m_nel; m++) {
@@ -704,7 +690,6 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
         m_sgroup[j] = Group(comp);
     }
 
-
     // determine whether or not the reaction is "determinate", meaning
     // that there is no ambiguity about which reactant is the source for
     // any element in any product. This is false if more than one
@@ -712,7 +697,6 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     // contains the element. In this case, additional information is
     // needed to determine the partitioning of the reactant atoms of
     // that element among the products.
-
     int nar, nap;
     for (size_t i = 0; i < m_nr; i++) {
         nr = m_reac[i].size();
@@ -765,12 +749,9 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
     doublereal f, ropf, ropr, fwd, rev;
     string fwdlabel, revlabel;
     map<size_t, int> warn;
-
     doublereal threshold = 0.0;
     bool fwd_incl, rev_incl, force_incl;
-
     size_t m = m_enamemap[element]-1;
-
     r.element = element;
     if (m == npos) {
         return -1;
@@ -803,7 +784,6 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
 
             for (size_t kr = 0; kr < nr; kr++) {
                 size_t kkr = m_reac[i][kr];
-
                 fwdlabel = reactionLabel(i, kr, nr, m_reac[i], s);
 
                 for (size_t kp = 0; kp < np; kp++) {
@@ -820,23 +800,19 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                         revlabel += " (+ M)";
                     }
 
-
                     // calculate the flow only for pairs that are
                     // not the same species, both contain atoms of
                     // element m, and both are allowed to appear in
                     // the diagram
-
                     if ((kkr != kkp) && (m_atoms(kkr,m) > 0
                                          &&  m_atoms(kkp,m) > 0)
                             && status[kkr] >= 0 && status[kkp] >= 0) {
-
                         // if neither species contains the full
                         // number of atoms of element m in the
                         // reaction, then we must consider the
                         // type of reaction to determine which
                         // reactant species was the source of a
                         // given m-atom in the product
-
                         if ((m_atoms(kkp,m) < m_elatoms(m, i)) &&
                                 (m_atoms(kkr,m) < m_elatoms(m, i))) {
                             map<size_t, map<size_t, Group> >& g = m_transfer[i];

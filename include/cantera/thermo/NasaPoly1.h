@@ -1,4 +1,3 @@
-
 /**
  *  @file NasaPoly1.h
  *  Header for a single-species standard state object derived

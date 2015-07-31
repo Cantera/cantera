@@ -51,14 +51,12 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
     /************************************************************************
      ******** LOOP OVER THE FORMATION REACTIONS *****************************
      ************************************************************************/
-
     for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
         if (DEBUG_MODE_ENABLED) {
             sprintf(ANOTE, "Normal Calc");
         }
 
         size_t kspec = m_indexRxnToSpecies[irxn];
-
         if (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) {
             m_deltaMolNumSpecies[kspec] = 0.0;
             if (DEBUG_MODE_ENABLED) {
@@ -113,14 +111,12 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                             }
                         }
                     }
-
                 } else {
                     if (DEBUG_MODE_ENABLED) {
                         sprintf(ANOTE, "MultSpec (%s): still dead DG = %11.3E", vcs_speciesType_string(m_speciesStatus[kspec], 15),
                                 m_deltaGRxn_new[irxn]);
                     }
                     m_deltaMolNumSpecies[kspec] = 0.0;
-
                 }
             } else {
                 /********************************************************************/
@@ -128,7 +124,6 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 /********************************************************************/
                 /*
                  *     First take care of cases where we want to bail out
-                 *
                  *
                  *     Don't bother if superconvergence has already been achieved
                  *     in this mode.
@@ -234,7 +229,6 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         }
                         m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
                     }
-
                 } else {
                     /* ************************************************************ */
                     /* **** REACTION IS ENTIRELY AMONGST SINGLE SPECIES PHASES **** */
@@ -283,7 +277,6 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                      *          added back into the component species.
                      */
                     if (dss != 0.0) {
-
                         if ((k == kspec) && (m_SSPhase[kspec] != 1)) {
                             /*
                              *  Found out that we can be in this spot, when components of multispecies phases
@@ -420,7 +413,6 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
             /*
              *     First take care of cases where we want to bail out
              *
-             *
              *     Don't bother if superconvergence has already been achieved
              *     in this mode.
              */
@@ -555,14 +547,12 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
     } /* End of loop over non-component stoichiometric formation reactions */
 
     /*
-     *
      *     When we form the Hessian we must be careful to ensure that it
      * is a symmetric positive definite matrix, still. This means zeroing
      * out columns when we zero out rows as well.
      *     -> I suggest writing a small program to make sure of this
      *        property.
      */
-
     if (DEBUG_MODE_ENABLED) {
         plogf("   ");
         for (size_t j = 0; j < 77; j++) {
@@ -618,7 +608,6 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
             if (kph == m_phaseID[l]) {
                 s += sc_irxn[l] * (m_np_dLnActCoeffdMolNum(l,kspec) + m_np_dLnActCoeffdMolNum(kspec,l)) / np_kspec;
             }
-
         }
     }
     return s;
@@ -740,7 +729,6 @@ double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char*
     }
 
     dx = dx_orig;
-
     for (its = 0; its < MAXITS; its++) {
         /*
          * Calculate the approximation to the total Gibbs free energy at

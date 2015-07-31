@@ -133,7 +133,6 @@ doublereal MetalSHEelectrons::isothermalCompressibility() const
 doublereal MetalSHEelectrons::thermalExpansionCoeff() const
 {
     return 1.0/temperature();
-
 }
 
 /*

@@ -293,11 +293,8 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 {
     updateMu0();
     doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
-
     std::fill(kc, kc + nReactions(), 0.0);
-
     getReactionDelta(DATA_PTR(m_mu0_Kc), kc);
-
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-kc[i]*rrt);
     }
@@ -402,16 +399,13 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
             //
             //   We need to have the straight chemical reaction rate constant to come out of this calculation.
             if (m_ctrxn_BVform[i] == 0) {
-                //
                 //  Calculate the term and modify the forward reaction
-                //
                 double tmp = exp(- m_beta[i] * m_deltaG0[irxn] * rrt);
                 double tmp2 = m_ProdStanConcReac[irxn];
                 tmp *= 1.0  / tmp2 / Faraday;
                 kfwd[irxn] *= tmp;
             }
             //  If BVform is nonzero we don't need to do anything.
-
         } else {
             // kfwd[] is the chemical reaction rate constant
             //
@@ -419,7 +413,6 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
             // We will calculate the exchange current density formulation here and
             // substitute it.
             if (m_ctrxn_BVform[i] != 0) {
-
                 //  Calculate the term and modify the forward reaction rate constant so that
                 //  it's in the exchange current density formulation format
                 double tmp = exp(m_beta[i] * m_deltaG0[irxn] * rrt);
@@ -471,9 +464,8 @@ void InterfaceKinetics::updateROP()
 
     // Multiply by the perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
-    //
+
     // Copy the forward rate constants to the reverse rate constants
-    //
     copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
     // For reverse rates computed from thermochemistry, multiply
@@ -492,16 +484,13 @@ void InterfaceKinetics::updateROP()
     double OCV = 0.0;
     for (size_t jrxn = 0; jrxn != nReactions(); ++jrxn) {
         if (reactionType(jrxn) == BUTLERVOLMER_RXN) {
-            //
             // OK, the reaction rate constant contains the current density rate constant calculation
             // the rxnstoich calculation contained the dependence of the current density on the activity concentrations
             // We finish up with the ROP calculation
             //
             // Calculate the overpotential of the reaction
-            //
             double nStoichElectrons=1;
             getDeltaGibbs(0);
-
             if (nStoichElectrons != 0.0) {
                 OCV = m_deltaG[jrxn]/Faraday/ nStoichElectrons;
             }
@@ -572,7 +561,6 @@ void InterfaceKinetics::updateROP()
             }
         }
     }
-
     m_ROP_ok = true;
 }
 
@@ -757,7 +745,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
                     orders[kineticsSpeciesIndex(iter->first)] = iter->second;
                 }
             }
-
         } else {
             m_ctrxn_BVform.push_back(0);
             if (re->film_resistivity > 0.0) {
@@ -892,7 +879,6 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
         size_t k = thermo(reactionPhaseIndex()).speciesIndex(iter->first);
         rate.addCoverageDependence(k, iter->second.a, iter->second.m, iter->second.E);
     }
-
     return rate;
 }
 
@@ -946,7 +932,6 @@ void InterfaceKinetics::finalize()
     m_StandardConc.resize(m_kk, 0.0);
     m_deltaG0.resize(safe_reaction_size, 0.0);
     m_deltaG.resize(safe_reaction_size, 0.0);
-
     m_ProdStanConcReac.resize(safe_reaction_size, 0.0);
 
     if (m_thermo.size() != m_phaseExists.size()) {
@@ -962,7 +947,6 @@ void InterfaceKinetics::finalize()
         m_ropnet.resize(1, 0.0);
         m_rkcn.resize(1, 0.0);
     }
-
     m_finalized = true;
 }
 
@@ -1165,7 +1149,6 @@ void EdgeKinetics::finalize()
         m_ropnet.resize(1, 0.0);
         m_rkcn.resize(1, 0.0);
     }
-
     m_finalized = true;
 }
 

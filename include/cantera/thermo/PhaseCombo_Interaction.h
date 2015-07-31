@@ -58,7 +58,6 @@ namespace Cantera
  *  can now be identically zero due to thermodynamic considerations. The phase behaves more
  *  like a series of phases. That's why we named it PhaseCombo.
  *
- *
  * <HR>
  * <H2> Specification of Species Standard State Properties </H2>
  * <HR>
@@ -151,7 +150,6 @@ namespace Cantera
  *            \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
  *                    - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
  *       \f]
- *
  *
  * <HR>
  * <H2> %Application within Kinetics Managers </H2>
@@ -254,7 +252,6 @@ namespace Cantera
  *
  *  \f$k^{-1} \f$ has units of s-1.
  *
- *
  * <HR>
  * <H2> Instantiation of the Class </H2>
  * <HR>
@@ -285,7 +282,6 @@ namespace Cantera
  *    XML_Node * const xs = xc->findNameID("phase", "LiFeS_X");
  *    PhaseCombo_Interaction *LiFeS_X_solid = new PhaseCombo_Interaction(*xs);
  * @endcode
- *
  *
  * <HR>
  * <H2> XML Example </H2>
@@ -328,7 +324,6 @@ namespace Cantera
  * being of the type handled by the PhaseCombo_Interaction object.
  *
  * @ingroup thermoprops
- *
  */
 class PhaseCombo_Interaction : public GibbsExcessVPSSTP
 {
@@ -538,7 +533,6 @@ public:
      *
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of the
      *                         log Activity Coefficients. length = m_kk
-     *
      */
     virtual void getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const;
 
@@ -551,7 +545,6 @@ public:
      *
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
-     *
      */
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
@@ -599,7 +592,6 @@ public:
     //! Get the change in activity coefficients w.r.t. change in state (temp, mole fraction, etc.) along
     //! a line in parameter space or along a line in physical space
     /*!
-     *
      * @param dTds           Input of temperature change along the path
      * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
      *                       Along the path length it must be the case that the mole fractions sum to one.

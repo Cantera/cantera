@@ -146,7 +146,6 @@ double methane::up()
     for (int i=0; i<14; i++) {
         sum += (C(i, rt, rt2) - T*Cprime(i, rt, rt2, rt3))*I(i, egrho);
     }
-
     sum += T*(Gmeth[0] + 0.75*Gmeth[1]*t3 + 0.6*Gmeth[2]*t3*t3 + 0.5*Gmeth[3]*T)
            + Gmeth[4]*beta/(exp(beta*rt) - 1.0) + u0;
     return sum + m_energy_offset;

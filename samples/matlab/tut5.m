@@ -19,10 +19,10 @@ set(g,'T',1500,'P',oneatm,'X',ones(nSpecies(g),1));
 
 % 1) Stoichiometric coefficients
 
-nu_r   = stoich_r(g)    % reactant stoichiometric coefficient mstix 
-nu_p   = stoich_p(g)    % product stoichiometric coefficient mstix 
+nu_r   = stoich_r(g)    % reactant stoichiometric coefficient mstix
+nu_p   = stoich_p(g)    % product stoichiometric coefficient mstix
 nu_net = stoich_net(g)  % net (product - reactant) stoichiometric
-                        % coefficient mstix 
+                        % coefficient mstix
 
 % For any of these, the (k,i) matrix element is the stoichiometric
 % coefficient of species k in reaction i. Since these coefficient
@@ -64,7 +64,7 @@ legend('creation','destruction','net');
 
 % For comparison, the production rates may also be computed
 % directly from the rates of progress and stoichiometric
-% coefficients. 
+% coefficients.
 
 cdot2 = nu_p*qf + nu_r*qr;
 creation = [cdot, cdot2, cdot - cdot2]
@@ -75,14 +75,11 @@ destruction = [ddot, ddot2, ddot - ddot2]
 wdot2 = nu_net * qn;
 net = [wdot, wdot2, wdot - wdot2]
 
-
 % 4) Reaction equations
 
 e8    = reactionEqn(g,8)             % equation for reaction 8
 e1_10 = reactionEqn(g,1:10)          % equation for rxns 1 - 10
 eqs   = reactionEqn(g)               % all equations
-
-
 
 % 5) Equilibrium constants
 
@@ -94,10 +91,8 @@ for i = 1:nReactions(g)
    disp(sprintf('%50s  %13.5g', eqs{i}, kc(i)))
 end
 
-
-
 % 6) Multipliers
- 
+
 % For each reaction, a multiplier may be specified that is applied
 % to the forward rate coefficient. By default, the multiplier is
 % 1.0 for all reactions.

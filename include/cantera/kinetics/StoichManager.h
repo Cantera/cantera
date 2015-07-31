@@ -123,7 +123,6 @@ namespace Cantera
  * real stoichiometric coefficients are used. Shouldn't be that
  * hard to do, and they occur in engineering simulations with some
  * regularity.
- *
  */
 
 static doublereal ppow(doublereal x, doublereal order)
@@ -395,7 +394,6 @@ public:
     }
 
 private:
-
     //! Length of the m_ic vector
     /*!
      *   This is the number of species which participate in the reaction order

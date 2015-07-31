@@ -1,5 +1,4 @@
 #include "cantera/thermo/Species.h"
-
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/transport/TransportData.h"

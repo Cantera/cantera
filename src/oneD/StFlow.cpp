@@ -30,7 +30,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_do_radiation(false)
 {
     m_type = cFlowType;
-
     m_points = points;
     m_thermo = ph;
 
@@ -43,7 +42,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
         m_nsp = nsp2;
         Domain1D::resize(m_nsp+4, points);
     }
-
 
     // make a local copy of the species molecular weight vector
     m_wt = m_thermo->molecularWeights();
@@ -67,7 +65,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_qdotRadiation.resize(m_points, 0.0);
 
     //-------------- default solution bounds --------------------
-
     setBounds(0, -1e20, 1e20); // no bounds on u
     setBounds(1, -1e20, 1e20); // V
     setBounds(2, 200.0, 1e9); // temperature bounds
@@ -240,7 +237,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     integer* diag = diagg + loc();
 
     size_t jmin, jmax;
-
     if (jg == npos) {      // evaluate all points
         jmin = 0;
         jmax = m_points - 1;
@@ -270,12 +266,10 @@ void StFlow::eval(size_t jg, doublereal* xg,
     // Jacobian is being evaluated
     updateDiffFluxes(x, j0, j1);
 
-
     //----------------------------------------------------
     // evaluate the residual equations at all required
     // grid points
     //----------------------------------------------------
-
     doublereal sum, sum2, dtdzj;
 
     // calculation of qdotRadiation
@@ -349,7 +343,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
         //----------------------------------------------
 
         if (j == 0) {
-
             // these may be modified by a boundary object
 
             // Continuity. This propagates information right-to-left,
@@ -380,7 +373,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
             rsd[index(c_offset_Y, 0)] = 1.0 - sum;
         } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
-
         } else { // interior points
             evalContinuity(j, x, rsd, diag, rdt);
 
@@ -389,7 +381,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
             //
             //    \rho dV/dt + \rho u dV/dz + \rho V^2
             //       = d(\mu dV/dz)/dz - lambda
-            //
             //-------------------------------------------------
             rsd[index(c_offset_V,j)]
             = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j)
@@ -402,10 +393,8 @@ void StFlow::eval(size_t jg, doublereal* xg,
             //
             //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
             //   = M_k\omega_k
-            //
             //-------------------------------------------------
             getWdot(x,j);
-
             doublereal convec, diffus;
             for (k = 0; k < m_nsp; k++) {
                 convec = rho_u(x,j)*dYdz(x,k,j);
@@ -426,15 +415,12 @@ void StFlow::eval(size_t jg, doublereal* xg,
             //      - sum_k(\omega_k h_k_ref)
             //      - sum_k(J_k c_p_k / M_k) dT/dz
             //-----------------------------------------------
-
             if (m_do_energy[j]) {
-
                 setGas(x,j);
 
                 // heat release term
                 const vector_fp& h_RT = m_thermo->enthalpy_RT_ref();
                 const vector_fp& cp_R = m_thermo->cp_R_ref();
-
                 sum = 0.0;
                 sum2 = 0.0;
                 doublereal flxk;
@@ -451,7 +437,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
                     - m_cp[j]*rho_u(x,j)*dtdzj
                     - divHeatFlux(x,j) - sum - sum2;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
                 diag[index(c_offset_T, j)] = 1;
@@ -564,14 +549,12 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     doublereal sum, wtm, rho, dz, gradlogT;
 
     switch (m_transport_option) {
-
     case c_Mixav_Transport:
         for (j = j0; j < j1; j++) {
             sum = 0.0;
             wtm = m_wtm[j];
             rho = density(j);
             dz = z(j+1) - z(j);
-
             for (k = 0; k < m_nsp; k++) {
                 m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
                 m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
@@ -587,7 +570,6 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     case c_Multi_Transport:
         for (j = j0; j < j1; j++) {
             dz = z(j+1) - z(j);
-
             for (k = 0; k < m_nsp; k++) {
                 doublereal sum = 0.0;
                 for (size_t m = 0; m < m_nsp; m++) {
@@ -650,7 +632,6 @@ size_t StFlow::componentIndex(const std::string& name) const
             }
         }
     }
-
     return npos;
 }
 
@@ -670,10 +651,8 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     double pp = -1.0;
     pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
-
     vector<XML_Node*> d = dom.child("grid_data").getChildren("floatArray");
     size_t nd = d.size();
-
     vector_fp x;
     size_t n, np = 0, j, ks, k;
     string nm;
@@ -733,7 +712,6 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             // imported temperature profile by default.  If
             // this is not desired, call setFixedTempProfile
             // *after* restoring the solution.
-
             vector_fp zz(np);
             for (size_t jj = 0; jj < np; jj++) {
                 zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
@@ -825,9 +803,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
 {
     size_t k;
-
     Array2D soln(m_nv, m_points, sol + loc());
-
     XML_Node& flow = Domain1D::save(o, sol);
     flow.addAttribute("type",flowType());
 
@@ -881,7 +857,6 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     addFloat(ref, "curve", refiner().maxSlope());
     addFloat(ref, "prune", refiner().prune());
     addFloat(ref, "grid_min", refiner().gridMin());
-
     return flow;
 }
 
@@ -897,7 +872,6 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
     // the boundary object connected to the right of this one may modify or
     // replace these equations. The default boundary conditions are zero u, V,
     // and T, and zero diffusive flux for all species.
-
     rsd[index(0,j)] = rho_u(x,j);
     rsd[index(1,j)] = V(x,j);
     rsd[index(2,j)] = T(x,j);
@@ -923,9 +897,7 @@ void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     //    lambda information propagates in the opposite direction.
     //
     //    d(\rho u)/dz + 2\rho V = 0
-    //
     //------------------------------------------------
-
     rsd[index(c_offset_U,j)] =
         -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
         -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
@@ -974,9 +946,7 @@ void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     //    Continuity equation
     //
     //    d(\rho u)/dz + 2\rho V = 0
-    //
     //----------------------------------------------
-
     if (grid(j) > m_zfixed) {
         rsd[index(c_offset_U,j)] =
             - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]

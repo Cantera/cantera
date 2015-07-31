@@ -118,7 +118,6 @@ namespace Cantera
  *
  * In terms of the reference state, the above can be rewritten
  *
- *
  *       \f[
  *            \mu_k(T,P) = \mu^{ref}_k(T, P) + R T \log(\frac{P X_k}{P_{ref}})
  *       \f]
@@ -146,7 +145,6 @@ namespace Cantera
  *       \f[
  *            \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
  *       \f]
- *
  *
  * <HR>
  * <H2> %Application within Kinetics Managers </H2>
@@ -298,7 +296,6 @@ namespace Cantera
  *   being of the type handled by the IdealGasPhase object.
  *
  *    @ingroup thermoprops
- *
  */
 class IdealGasPhase: public ThermoPhase
 {

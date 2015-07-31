@@ -62,7 +62,6 @@ void Nasa9Poly1::updateProperties(const doublereal* tt,
     doublereal ct5 = m_coeff[5] * tt[2];   // a5 * T^3
     doublereal ct6 = m_coeff[6] * tt[3];   // a6 * T^4
 
-
     doublereal cpdivR = ct0 + ct1 + ct2 + ct3 + ct4 + ct5 + ct6;
     doublereal hdivRT = -ct0 + tt[6]*ct1  + ct2 + 0.5*ct3 + 1.0/3.0*ct4
                         + 0.25*ct5  + 0.2*ct6 + m_coeff[7] * tt[4];

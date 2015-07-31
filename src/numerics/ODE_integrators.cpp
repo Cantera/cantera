@@ -2,7 +2,6 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/numerics/Integrator.h"
 
-
 #ifdef HAS_SUNDIALS
 #include "cantera/numerics/CVodesIntegrator.h"
 #else

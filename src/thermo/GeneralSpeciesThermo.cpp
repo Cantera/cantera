@@ -69,7 +69,6 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     m_tlow_max = b.m_tlow_max;
     m_thigh_min = b.m_thigh_min;
     m_p0 = b.m_p0;
-
     return *this;
 }
 
@@ -207,7 +206,6 @@ const SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k) const
         return 0;
     }
 }
-
 
 doublereal GeneralSpeciesThermo::reportOneHf298(const size_t k) const
 {

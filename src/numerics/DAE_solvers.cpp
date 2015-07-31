@@ -35,5 +35,4 @@ DAE_Solver* newDAE_Solver(const std::string& itype, ResidJacEval& f)
 }
 }
 
-#
 #endif

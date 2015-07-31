@@ -18,9 +18,9 @@ prints its temperature is shown below:
 
     int main(int argc, char** argv)
     {
-	Cantera::ThermoPhase* gas = Cantera::newPhase("h2o2.cti","ohmech");
-	std::cout << gas->temperature() << std::endl;
-	return 0;
+        Cantera::ThermoPhase* gas = Cantera::newPhase("h2o2.cti","ohmech");
+        std::cout << gas->temperature() << std::endl;
+        return 0;
     }
 
 Class :ct:`ThermoPhase` is the base class for Cantera classes that represent
@@ -106,11 +106,11 @@ properties are computed and printed out:
 Note that the methods that compute the properties take no input parameters. The
 properties are computed for the state that has been previously set and stored
 internally within the object.
- 
+
 Naming Conventions
 ------------------
 
-- methods that return *molar* properties have names that end in ``_mole``. 
+- methods that return *molar* properties have names that end in ``_mole``.
 - methods that return properties *per unit mass* have names that end in
   ``_mass``.
 - methods that write an array of values into a supplied output array have names

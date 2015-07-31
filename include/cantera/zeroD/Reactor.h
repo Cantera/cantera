@@ -34,7 +34,6 @@ namespace Cantera
  *  - rate of change of the total volume (m^3/s)
  *  - surface heat loss rate (W)
  *  - species surface production rates (kmol/s)
- *
  */
 class Reactor : public ReactorBase
 {

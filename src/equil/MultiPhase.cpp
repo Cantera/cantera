@@ -213,9 +213,7 @@ void MultiPhase::init()
     /// set the initial composition within each phase to the
     /// mole fractions stored in the phase objects
     m_init = true;
-
     uploadMoleFractionsFromPhases();
-
     updatePhases();
 }
 
@@ -317,7 +315,6 @@ void MultiPhase::getValidChemPotentials(doublereal not_mu,
                                         doublereal* mu, bool standard) const
 {
     size_t i, loc = 0;
-
     updatePhases();
     // iterate over the phases
     for (i = 0; i < m_np; i++) {
@@ -590,7 +587,6 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
         Tlow = 0.5*m_Tmin;      // lower bound on T
         Thigh = 2.0*m_Tmax;     // upper bound on T
         for (n = 0; n < maxiter; n++) {
-
             // if 'strt' is false, the current composition will be used as
             // the starting estimate; otherwise it will be estimated
             MultiPhaseEquil e(this, strt);
@@ -746,7 +742,6 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
     vector_fp initial_moles = m_moles;
     double initial_T = m_temp;
     double initial_P = m_press;
-
     int ixy = _equilflag(XY.c_str());
     if (solver == "auto" || solver == "vcs") {
         try {

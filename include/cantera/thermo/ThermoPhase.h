@@ -339,7 +339,6 @@ public:
      * @{
      */
 
-
     //! This method returns the convention used in specification
     //! of the activities, of which there are currently two, molar-
     //! and molality-based conventions.
@@ -478,7 +477,6 @@ public:
     virtual void getChemPotentials_RT(doublereal* mu) const {
         throw NotImplementedError("ThermoPhase::getChemPotentials_RT");
     }
-
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -815,10 +813,8 @@ public:
      */
     virtual void getReferenceComposition(doublereal* const x) const;
 
-    //
     //  The methods below are not virtual, and should not
     //  be overloaded.
-    //
 
     //@}
     //! @name Specific Properties
@@ -1175,7 +1171,6 @@ private:
     void setState_conditional_TP(doublereal t, doublereal p, bool set_p);
 
 public:
-
     /**
      * @name Chemical Equilibrium
      * Chemical equilibrium.
@@ -1340,7 +1335,6 @@ public:
 
     //@}
 
-
     //! @name Initialization Methods - For Internal Use (ThermoPhase)
     /*!
      * The following methods are used in the process of constructing
@@ -1388,7 +1382,6 @@ public:
     //! Return a changeable reference to the calculation manager
     //! for species reference-state thermodynamic properties
     /*!
-     *
      * @param k   Species id. The default is -1, meaning return the default
      *
      * @internal
@@ -1513,7 +1506,6 @@ public:
     //! Set the initial state of the phase to the conditions
     //! specified in the state XML element.
     /*!
-     *
      * This method sets the temperature, pressure, and mole
      * fraction vector to a set default value.
      *
@@ -1530,7 +1522,6 @@ public:
     //! Get the change in activity coefficients wrt changes in state (temp, mole fraction, etc) along
     //! a line in parameter space or along a line in physical space
     /*!
-     *
      * @param dTds           Input of temperature change along the path
      * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
      *                       Along the path length it must be the case that the mole fractions sum to one.

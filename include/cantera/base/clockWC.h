@@ -34,7 +34,6 @@ namespace Cantera
  * An example of how to use the timer is given below. timeToDoCalcs
  * contains the wall clock time calculated for the operation.
  *
- *
  *  @code
  *   clockWC wc;
  *   do_hefty_calculations_atLeastgreaterThanAMillisecond();

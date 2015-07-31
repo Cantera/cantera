@@ -166,7 +166,6 @@ void GasKinetics::updateROP()
 {
     update_rates_C();
     update_rates_T();
-
     if (m_ROP_ok) {
         return;
     }
@@ -211,7 +210,6 @@ void GasKinetics::updateROP()
         AssertFinite(m_ropr[i], "GasKinetics::updateROP",
                      "m_ropr[" + int2str(i) + "] is not finite.");
     }
-
     m_ROP_ok = true;
 }
 

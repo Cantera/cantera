@@ -75,7 +75,7 @@ end
 % does a few other things to generate a good starting guess and to
 % produce a reasonably robust algorithm. If you want to know more
 % about the details, look at the on-line documented source code of
-% Cantera C++ class 'ChemEquil' at http://www.cantera.org. 
+% Cantera C++ class 'ChemEquil' at http://www.cantera.org.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all

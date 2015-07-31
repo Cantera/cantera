@@ -74,7 +74,6 @@ DustyGasTransport& DustyGasTransport::operator=(const  DustyGasTransport& right)
     delete m_gastran;
     m_gastran = right.duplMyselfAsTransport();
 
-
     return *this;
 }
 
@@ -91,14 +90,12 @@ Transport* DustyGasTransport::duplMyselfAsTransport() const
 
 void DustyGasTransport::setThermo(thermo_t& thermo)
 {
-
     Transport::setThermo(thermo);
     m_gastran->setThermo(thermo);
 }
 
 void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
 {
-
     // constant mixture attributes
     m_thermo = phase;
     m_nsp = m_thermo->nSpecies();
@@ -163,7 +160,6 @@ void DustyGasTransport::eval_H_matrix()
     updateKnudsenDiffCoeffs();
     doublereal sum;
     for (size_t k = 0; k < m_nsp; k++) {
-
         // evaluate off-diagonal terms
         for (size_t l = 0; l < m_nsp; l++) {
             m_multidiff(k,l) = -m_x[k]/m_d(k,l);
@@ -186,7 +182,6 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
                                        doublereal* const fluxes)
 {
     doublereal conc1, conc2;
-
     // cbar will be the average concentration between the two points
     doublereal* const cbar = DATA_PTR(m_spwork);
     doublereal* const gradc = DATA_PTR(m_spwork2);
@@ -213,14 +208,11 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
     doublereal pbar = 0.5*(p1 + p2);
     doublereal gradp = (p2 - p1)/delta;
     doublereal tbar = 0.5*(t1 + t2);
-
     m_thermo->setState_TPX(tbar, pbar, cbar);
-
     updateMultiDiffCoeffs();
 
     // Multiply m_multidiff and gradc together and store the result in fluxes[]
     multiply(m_multidiff, gradc, fluxes);
-
     divide_each(cbar, cbar + m_nsp, m_dk.begin());
 
     // if no permeability has been specified, use result for
@@ -249,12 +241,10 @@ void DustyGasTransport::updateMultiDiffCoeffs()
 
     // update the mole fractions
     updateTransport_C();
-
     eval_H_matrix();
 
     // invert H
     int ierr = invert(m_multidiff);
-
     if (ierr != 0) {
         throw CanteraError("DustyGasTransport::updateMultiDiffCoeffs",
                            "invert returned ierr = "+int2str(ierr));

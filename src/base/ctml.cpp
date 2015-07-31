@@ -322,7 +322,6 @@ size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
 
     v.clear();
     doublereal vmin = Undef, vmax = Undef;
-
     doublereal funit = 1.0;
     /*
      * Get the attributes field, units, from the XML node

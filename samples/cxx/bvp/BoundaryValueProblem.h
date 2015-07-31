@@ -66,8 +66,8 @@ public:
      */
     BoundaryValueProblem(int nv, int np,
                          doublereal zmin, doublereal zmax) :
-        m_left(0), m_right(0), m_sim(0) {
-
+        m_left(0), m_right(0), m_sim(0)
+    {
         // Create the initial uniform grid
         Cantera::vector_fp z(np);
         int iz;
@@ -86,12 +86,11 @@ public:
      */
     BoundaryValueProblem(int nv, int np,
                          doublereal* z) :
-        m_left(0), m_right(0), m_sim(0) {
-
+        m_left(0), m_right(0), m_sim(0)
+    {
         setupGrid(np, z);
         resize(nv, np);
     }
-
 
     /**
      * Destructor. Deletes the dummy terminator domains, and the
@@ -102,7 +101,6 @@ public:
         delete m_right;
         delete m_sim;
     }
-
 
     /**
      *  Set parameters and options for solution component \a n.
@@ -137,7 +135,6 @@ public:
         setComponentName(n, c.name);
     }
 
-
     /**
      * Solve the boundary value problem.
      * @param loglevel controls amount of diagnostic output.
@@ -149,7 +146,6 @@ public:
         bool refine = true;
         m_sim->solve(loglevel, refine);
     }
-
 
     /**
      * Write the solution to a CSV file.
@@ -189,7 +185,6 @@ public:
         return 0.0;
     }
 
-
     /**
      * Value of component \a m at point \a j. This method is used
      * to access solution values once a converged solution has been
@@ -199,13 +194,10 @@ public:
         return m_sim->value(1,m,j);
     }
 
-
 protected:
-
     Cantera::Domain1D* m_left;  ///< dummy terminator
     Cantera::Domain1D* m_right; ///< dummy terminator
     Cantera::Sim1D* m_sim;      ///< controller for solution
-
 
     /**
      * True if n is the index of the left-most grid point (zero),
@@ -230,7 +222,6 @@ protected:
      * derived classes.
      */
     void start() {
-
         // Add dummy terminator domains on either side of this one.
         m_left = new Cantera::Empty1D;
         m_right = new Cantera::Empty1D;
@@ -247,7 +238,6 @@ protected:
         m_sim->setRefineCriteria(1, max_grid_ratio, max_delta,
                                  max_delta_slope, prune);
     }
-
 
     /**
      * @name Trial Solution Derivatives
@@ -324,7 +314,6 @@ protected:
         return c1/(z(j+1) - z(j-1));
     }
 
-
     /**
      * This method is provided for use in method residual when
      * central-differenced second derivatives are needed.
@@ -385,8 +374,6 @@ protected:
         return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
     }
     //@}
-
-
 };
 }
 #endif

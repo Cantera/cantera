@@ -157,14 +157,14 @@ public:
 
     void solveEnergyEqn(size_t j=npos) {
         bool changed = false;
-        if (j == npos)
+        if (j == npos) {
             for (size_t i = 0; i < m_points; i++) {
                 if (!m_do_energy[i]) {
                     changed = true;
                 }
                 m_do_energy[i] = true;
             }
-        else {
+        } else {
             if (!m_do_energy[j]) {
                 changed = true;
             }
@@ -215,14 +215,14 @@ public:
 
     void fixTemperature(size_t j=npos) {
         bool changed = false;
-        if (j == npos)
+        if (j == npos) {
             for (size_t i = 0; i < m_points; i++) {
                 if (m_do_energy[i]) {
                     changed = true;
                 }
                 m_do_energy[i] = false;
             }
-        else {
+        } else {
             if (m_do_energy[j]) {
                 changed = true;
             }
@@ -332,7 +332,6 @@ protected:
         doublereal c2 = (f[j+1] + f[j])*(x[index(n,j+1)] - x[index(n,j)]);
         return (c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
-
 
     //! @name Solution components
     //! @{

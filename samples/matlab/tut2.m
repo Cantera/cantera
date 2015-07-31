@@ -104,7 +104,6 @@ diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...
                                  gas2, diamond);
 
 
-
 % Converting CK-format files
 % --------------------------
 
@@ -121,7 +120,7 @@ diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...
 %
 % Here's an example of how to use it:
 %
-% ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech 
+% ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech
 %
 
 clear all

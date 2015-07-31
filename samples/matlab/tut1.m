@@ -1,5 +1,5 @@
 % Tutorial 1:  Getting started
-%   
+%
 %  Topics:
 %    - creating a gas mixture
 %    - setting the state
@@ -17,7 +17,7 @@ gas1 = GRI30
 %            pressure          101325  Pa
 %             density        0.081889  kg/m^3
 %    mean mol. weight         2.01588  amu
-%   
+%
 %                            1 kg            1 kmol
 %                         -----------      ------------
 %            enthalpy         26470.1        5.336e+04     J
@@ -26,8 +26,8 @@ gas1 = GRI30
 %      Gibbs function    -1.94477e+07        -3.92e+07     J
 %   heat capacity c_p         14311.8        2.885e+04     J/K
 %   heat capacity c_v         10187.3        2.054e+04     J/K
-%   
-%                             X                 Y          Chem. Pot. / RT    
+%
+%                             X                 Y          Chem. Pot. / RT
 %                       -------------     ------------     ------------
 %                  H2              1                1         -15.7173
 %       [  +52 minor]              0                0
@@ -66,7 +66,7 @@ setTemperature(gas1, 1200)
 % Notice in the summary of properties that MATLAB prints after this
 % command is executed that the temperature has been changed as
 % requested, but the pressure has changed too. The density and
-% composition have not. 
+% composition have not.
 %
 % When setting properties individually, some convention needs to be
 % adopted to specify which other properties are held constant. This is
@@ -83,7 +83,7 @@ setTemperature(gas1, 1200)
 
 % b) Setting the pressure is done holding temperature and
 %    composition fixed. (The density changes.)
-% 
+%
 % c) Setting the composition is done holding temperature
 %    and density fixed. (The pressure changes).
 %
@@ -104,7 +104,7 @@ set(gas1, 'Temperature', 900.0, 'Pressure', 1.e5);
 % call to 'set'. For example, the following sets the mole fractions
 % too:
 set(gas1, 'Temperature', 900.0, 'Pressure', 1.e5, 'MoleFractions', ...
-	  'CH4:1,O2:2,N2:7.52');
+          'CH4:1,O2:2,N2:7.52');
 
 % The 'set' method also accepts abbreviated property names:
 
@@ -116,7 +116,7 @@ set(gas1,'T',900.0,'P',1.e5,'X','CH4:1,O2:2,N2:7.52')
 %            pressure          100000  Pa
 %             density        0.369279  kg/m^3
 %    mean mol. weight         27.6332  amu
-%   
+%
 %                            1 kg            1 kmol
 %                         -----------      ------------
 %            enthalpy          455660        1.259e+07     J
@@ -125,8 +125,8 @@ set(gas1,'T',900.0,'P',1.e5,'X','CH4:1,O2:2,N2:7.52')
 %      Gibbs function    -7.22072e+06       -1.995e+08     J
 %   heat capacity c_p          1304.4        3.604e+04     J/K
 %   heat capacity c_v         1003.52        2.773e+04     J/K
-%   
-%                             X                 Y          Chem. Pot. / RT    
+%
+%                             X                 Y          Chem. Pot. / RT
 %                       -------------     ------------     ------------
 %                  O2       0.190114         0.220149         -27.9596
 %                 CH4       0.095057        0.0551863         -37.0813
@@ -137,11 +137,10 @@ set(gas1,'T',900.0,'P',1.e5,'X','CH4:1,O2:2,N2:7.52')
 % can't be set individually. The following property pairs may be
 % set: (Enthalpy, Pressure), (IntEnergy, Volume), (Entropy,
 % Volume), (Entropy, Pressure). In each case, the values of the
-% extensive properties must be entered *per unit mass*. 
+% extensive properties must be entered *per unit mass*.
 
 % Setting the enthalpy and pressure:
 set(gas1, 'Enthalpy', 2*enthalpy_mass(gas1), 'Pressure', 2*oneatm);
-
 
 % The composition above was specified using a string. The format is a
 % comma-separated list of <species name>:<relative mole numbers>

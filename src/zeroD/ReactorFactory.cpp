@@ -4,7 +4,6 @@
 // Copyright 2006  California Institute of Technology
 
 #include "cantera/zeroD/ReactorFactory.h"
-
 #include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowReactor.h"
@@ -36,15 +35,12 @@ static int _itypes[]   = {ReservoirType, ReactorType, ConstPressureReactorType,
  */
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
-
     int ir=-1;
-
     for (int n = 0; n < ntypes; n++) {
         if (reactorType == _types[n]) {
             ir = _itypes[n];
         }
     }
-
     return newReactor(ir);
 }
 
@@ -72,4 +68,3 @@ ReactorBase* ReactorFactory::newReactor(int ir)
 }
 
 }
-

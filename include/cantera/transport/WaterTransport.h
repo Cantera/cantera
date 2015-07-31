@@ -19,7 +19,6 @@ const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
 const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
 //! @}
 
-
 class WaterProps;
 class PDSS_Water;
 
@@ -32,7 +31,6 @@ public:
     /*!
      *  @param thermo   ThermoPhase object that represents the phase.
      *                  Defaults to zero
-     *
      *  @param ndim     Number of dimensions of the flux expressions.
      *                  Defaults to a value of one.
      */
@@ -86,7 +84,6 @@ public:
     virtual doublereal thermalConductivity();
 
 private:
-
     //! Routine to do some common initializations at the start of using
     //! this routine.
     void initTP();

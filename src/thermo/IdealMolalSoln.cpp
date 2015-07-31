@@ -293,7 +293,6 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
         double xmolSolvent = moleFraction(m_indexSolvent);
         ac[m_indexSolvent] =
             exp(IMS_lnActCoeffMolal_[m_indexSolvent]) * xmolSolvent;
-
     }
 }
 
@@ -346,7 +345,6 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
     doublereal RT = GasConstant * temperature();
 
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
-
         for (size_t k = 1; k < m_kk; k++) {
             double xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * log(xx);
@@ -355,7 +353,6 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
          * Do the solvent
          *  -> see my notes
          */
-
         double xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
             (RT * (xmolSolvent - 1.0) / xx);
@@ -366,7 +363,6 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
          */
         s_updateIMS_lnMolalityActCoeff();
 
-
         for (size_t k = 1; k < m_kk; k++) {
             double xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT * (log(xx) + IMS_lnActCoeffMolal_[k]);
@@ -375,7 +371,6 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
         mu[m_indexSolvent] +=
             RT * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
     }
-
 }
 
 void IdealMolalSoln::getPartialMolarEnthalpies(doublereal* hbar) const
@@ -420,7 +415,6 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
         double xmolSolvent = moleFraction(m_indexSolvent);
         mm = std::max(SmallNumber, xmolSolvent);
         sbar[m_indexSolvent] -= GasConstant *(log(mm) + IMS_lnActCoeffMolal_[m_indexSolvent]);
-
     }
 }
 
@@ -436,7 +430,6 @@ void IdealMolalSoln::getPartialMolarCp(doublereal* cpbar) const
      * species at the T and P of the solution.
      */
     getCp_R(cpbar);
-
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
@@ -558,11 +551,9 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 if (ccNode.hasChild("slope_g_limit")) {
                     IMS_slopegCut_ = getFloat(ccNode, "slope_g_limit");
                 }
-
             }
         }
     }
-
 
     /*
      * Reconcile the solvent name and index.
@@ -585,7 +576,6 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            " should be first species");
     }
 
-
     /*
      * Now go get the molar volumes
      */
@@ -607,8 +597,6 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     }
 
     MolalityVPSSTP::initThermoXML(phaseNode, id_);
-
-
     setMoleFSolventMin(1.0E-5);
     /*
      * Set the state
@@ -617,7 +605,6 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& stateNode = phaseNode.child("state");
         setStateFromXML(stateNode);
     }
-
 }
 
 /*
@@ -657,7 +644,6 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
             return;
         } else {
-
             /*
              * If we are in the middle region, calculate the connecting polynomials
              */
@@ -705,7 +691,6 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
             return;
         } else {
-
             double xoverc = xmolSolvent/IMS_cCut_;
             double eterm = std::exp(-xoverc);
 

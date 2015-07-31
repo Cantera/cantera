@@ -3,7 +3,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef REACTOR_FACTORY_H
 #define REACTOR_FACTORY_H
 
@@ -16,9 +15,7 @@ namespace Cantera
 
 class ReactorFactory : FactoryBase
 {
-
 public:
-
     static ReactorFactory* factory() {
         ScopedLock lock(reactor_mutex);
         if (!s_factory) {

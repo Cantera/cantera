@@ -16,7 +16,6 @@ using namespace std;
 
 #include <cstdio>
 
-
 namespace Cantera
 {
 int ChemEquil_print_lvl = 0;
@@ -68,7 +67,6 @@ void ChemEquil::initialize(thermo_t& s)
 {
     // store a pointer to s and some of its properties locally.
     m_phase = &s;
-
     m_p0 = s.refPressure();
     m_kk = s.nSpecies();
     m_mm = s.nElements();
@@ -107,7 +105,6 @@ void ChemEquil::initialize(thermo_t& s)
             // represent positive ions, where the 'element' is an
             // electron
             if (na < 0.0) {
-
                 // if negative atom numbers have already been specified
                 // for some element other than this one, throw
                 // an exception
@@ -161,7 +158,6 @@ void ChemEquil::setToEquilState(thermo_t& s,
 
 void ChemEquil::update(const thermo_t& s)
 {
-
     // get the mole fractions, temperature, and density
     s.getMoleFractions(DATA_PTR(m_molefractions));
     m_temp = s.temperature();
@@ -352,10 +348,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 {
     doublereal xval, yval, tmp;
     int fail = 0;
-
     bool tempFixed = true;
     int XY = _equilflag(XYstr);
-
     vector_fp state;
     s.saveState(state);
 
@@ -504,7 +498,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
         // loop up to 5 times
         for (int it = 0; it < 10; it++) {
-
             // set the composition and get p1
             setInitialMoles(s, elMolesGoal, loglevel - 1);
             pval = m_p1->value(s);
@@ -546,7 +539,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         }
     }
 
-
     setInitialMoles(s, elMolesGoal,loglevel);
 
     /*
@@ -579,7 +571,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
          */
         estimateElementPotentials(s, x, elMolesGoal);
     }
-
 
     /*
      * Do a better estimate of the element potentials.
@@ -627,7 +618,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     vector_fp oldx(nvar, 0.0);        // old solution
     vector_fp oldresid(nvar, 0.0);
     doublereal f, oldf;
-
     doublereal fctr = 1.0, newval;
 
     for (int iter = 0; iter < options.maxIterations; iter++)
@@ -918,11 +908,9 @@ void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
         rdx = 1.0/dx;
 
         // calculate perturbed residual
-
         equilResidual(s, x, elmols, r1, xval, yval, loglevel-1);
 
         // compute nth column of Jacobian
-
         for (m = 0; m < x.size(); m++) {
             jac(m, n) = (r1[m] - r0[m])*rdx;
         }
@@ -989,7 +977,6 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
     vector_fp n_i(m_kk,0.0);
     vector_fp n_i_calc(m_kk,0.0);
     vector_fp actCoeff(m_kk, 1.0);
-
     vector_fp Xmol_i_calc(m_kk,0.0);
     double beta = 1.0;
 
@@ -1008,7 +995,6 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
      */
     s.getGibbs_RT(DATA_PTR(m_muSS_RT));
 
-
     vector_fp eMolesCalc(m_mm, 0.0);
     vector_fp eMolesFix(m_mm, 0.0);
     double elMolesTotal = 0.0;
@@ -1026,7 +1012,6 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             x[m] = clip(x[m], -1000.0, 50.0);
         }
     }
-
 
     double n_t = 0.0;
     double sum2 = 0.0;
@@ -1122,7 +1107,6 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         }
 
         double nCutoff;
-
         bool normalStep = true;
         /*
          * Decide if we are to do a normal step or a modified step
@@ -1299,7 +1283,6 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     }
                 }
             }
-
 
             resid[m_mm] = n_t - n_t_calc;
 
@@ -1509,7 +1492,6 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
     }
     s.getMoleFractions(DATA_PTR(m_molefractions));
     size_t k;
-
     size_t maxPosEloc = npos;
     size_t maxNegEloc = npos;
     double maxPosVal = -1.0;
@@ -1576,7 +1558,6 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
 
     s.setMoleFractions(DATA_PTR(m_molefractions));
     s.getMoleFractions(DATA_PTR(m_molefractions));
-
 }
 
 } // namespace

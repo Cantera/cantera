@@ -309,20 +309,16 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
 
         m_lnActCoeffMolal_Scaled       = b.m_lnActCoeffMolal_Scaled;
         m_lnActCoeffMolal_Unscaled     = b.m_lnActCoeffMolal_Unscaled;
-
         m_dlnActCoeffMolaldT_Scaled    = b.m_dlnActCoeffMolaldT_Scaled;
         m_dlnActCoeffMolaldT_Unscaled  = b.m_dlnActCoeffMolaldT_Unscaled;
-
         m_d2lnActCoeffMolaldT2_Scaled  = b.m_d2lnActCoeffMolaldT2_Scaled;
         m_d2lnActCoeffMolaldT2_Unscaled= b.m_d2lnActCoeffMolaldT2_Unscaled;
-
         m_dlnActCoeffMolaldP_Scaled    = b.m_dlnActCoeffMolaldP_Scaled;
         m_dlnActCoeffMolaldP_Unscaled  = b.m_dlnActCoeffMolaldP_Unscaled;
 
         m_molalitiesCropped    = b.m_molalitiesCropped;
         m_molalitiesAreCropped = b.m_molalitiesAreCropped;
         m_CounterIJ            = b.m_CounterIJ;
-
         m_gfunc_IJ            = b.m_gfunc_IJ;
         m_g2func_IJ           = b.m_g2func_IJ;
         m_hfunc_IJ            = b.m_hfunc_IJ;
@@ -383,7 +379,6 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
         CROP_ln_gamma_k_min   = b.CROP_ln_gamma_k_min;
         CROP_ln_gamma_k_max   = b.CROP_ln_gamma_k_max;
         CROP_speciesCropped_  = b.CROP_speciesCropped_;
-
         m_debugCalc           = b.m_debugCalc;
     }
     return *this;
@@ -552,7 +547,6 @@ double HMWSoln::density() const
 void HMWSoln::setDensity(const doublereal rho)
 {
     double dens_old = density();
-
     if (rho != dens_old) {
         throw CanteraError("HMWSoln::setDensity",
                            "Density is not an independent variable");
@@ -784,7 +778,6 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
      * species at the T and P of the solution.
      */
     getCp_R(cpbar);
-
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
@@ -987,7 +980,6 @@ void HMWSoln::initLengths()
     m_speciesSize.resize(m_kk);
     m_speciesCharge_Stoich.resize(m_kk, 0.0);
     m_Aionic.resize(m_kk, 0.0);
-
     m_pp.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);
@@ -1060,14 +1052,12 @@ void HMWSoln::initLengths()
     m_dlnActCoeffMolaldT_Scaled.resize(m_kk, 0.0);
     m_d2lnActCoeffMolaldT2_Scaled.resize(m_kk, 0.0);
     m_dlnActCoeffMolaldP_Scaled.resize(m_kk, 0.0);
-
     m_lnActCoeffMolal_Unscaled.resize(m_kk, 0.0);
     m_dlnActCoeffMolaldT_Unscaled.resize(m_kk, 0.0);
     m_d2lnActCoeffMolaldT2_Unscaled.resize(m_kk, 0.0);
     m_dlnActCoeffMolaldP_Unscaled.resize(m_kk, 0.0);
 
     m_CounterIJ.resize(m_kk*m_kk, 0);
-
     m_gfunc_IJ.resize(maxCounterIJlen, 0.0);
     m_g2func_IJ.resize(maxCounterIJlen, 0.0);
     m_hfunc_IJ.resize(maxCounterIJlen, 0.0);
@@ -1099,7 +1089,6 @@ void HMWSoln::initLengths()
     m_CMX_IJ_P.resize(maxCounterIJlen, 0.0);
 
     m_gamma_tmp.resize(m_kk, 0.0);
-
     IMS_lnActCoeffMolal_.resize(m_kk, 0.0);
     CROP_speciesCropped_.resize(m_kk, 0);
 
@@ -1210,10 +1199,7 @@ void HMWSoln::calcMolalitiesCropped() const
     }
 
     int cropMethod = 1;
-
-
     if (cropMethod == 0) {
-
         /*
          * Quick return
          */
@@ -1222,7 +1208,6 @@ void HMWSoln::calcMolalitiesCropped() const
         }
 
         m_molalitiesAreCropped = true;
-
         for (size_t i = 1; i < (m_kk - 1); i++) {
             double charge_i = charge(i);
             double abs_charge_i = fabs(charge_i);
@@ -1324,11 +1309,9 @@ void HMWSoln::calcMolalitiesCropped() const
         }
 
         m_molalitiesAreCropped = true;
-
         double poly = MC_apCut_ + MC_bpCut_ * xmolSolvent + MC_dpCut_* xmolSolvent * xmolSolvent;
         double  p =  xmolSolvent + MC_epCut_ + exp(- xmolSolvent/ MC_cpCut_) * poly;
         double denomInv = 1.0/ (m_Mnaught * p);
-
         for (size_t k = 0; k < m_kk; k++) {
             m_molalitiesCropped[k] = molF[k] * denomInv ;
         }
@@ -1349,7 +1332,6 @@ void HMWSoln::calcMolalitiesCropped() const
             }
         }
     }
-
 }
 
 void HMWSoln::counterIJ_setup() const
@@ -1395,7 +1377,6 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 
     for (size_t i = 1; i < (m_kk - 1); i++) {
         for (size_t j = (i+1); j < m_kk; j++) {
-
             /*
              * Find the counterIJ for the symmetric binary interaction
              */
@@ -1417,26 +1398,21 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                           + beta0MX_coeff[1]*tlin;
                 m_Beta0MX_ij_L[counterIJ] = beta0MX_coeff[1];
                 m_Beta0MX_ij_LL[counterIJ] = 0.0;
-
                 m_Beta1MX_ij[counterIJ]   = beta1MX_coeff[0]
                                             + beta1MX_coeff[1]*tlin;
                 m_Beta1MX_ij_L[counterIJ] = beta1MX_coeff[1];
                 m_Beta1MX_ij_LL[counterIJ] = 0.0;
-
                 m_Beta2MX_ij[counterIJ]    = beta2MX_coeff[0]
                                              + beta2MX_coeff[1]*tlin;
                 m_Beta2MX_ij_L[counterIJ]  = beta2MX_coeff[1];
                 m_Beta2MX_ij_LL[counterIJ] = 0.0;
-
                 m_CphiMX_ij[counterIJ]     = CphiMX_coeff[0]
                                              + CphiMX_coeff[1]*tlin;
                 m_CphiMX_ij_L[counterIJ]   = CphiMX_coeff[1];
                 m_CphiMX_ij_LL[counterIJ]  = 0.0;
-
                 m_Theta_ij[counterIJ]      = Theta_coeff[0] + Theta_coeff[1]*tlin;
                 m_Theta_ij_L[counterIJ]    = Theta_coeff[1];
                 m_Theta_ij_LL[counterIJ]   = 0.0;
-
                 break;
 
             case PITZER_TEMP_COMPLEX1:
@@ -1445,78 +1421,64 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                           + beta0MX_coeff[2]*tquad
                                           + beta0MX_coeff[3]*tinv
                                           + beta0MX_coeff[4]*tln;
-
                 m_Beta1MX_ij[counterIJ] = beta1MX_coeff[0]
                                           + beta1MX_coeff[1]*tlin
                                           + beta1MX_coeff[2]*tquad
                                           + beta1MX_coeff[3]*tinv
                                           + beta1MX_coeff[4]*tln;
-
                 m_Beta2MX_ij[counterIJ] = beta2MX_coeff[0]
                                           + beta2MX_coeff[1]*tlin
                                           + beta2MX_coeff[2]*tquad
                                           + beta2MX_coeff[3]*tinv
                                           + beta2MX_coeff[4]*tln;
-
                 m_CphiMX_ij[counterIJ] = CphiMX_coeff[0]
                                          + CphiMX_coeff[1]*tlin
                                          + CphiMX_coeff[2]*tquad
                                          + CphiMX_coeff[3]*tinv
                                          + CphiMX_coeff[4]*tln;
-
                 m_Theta_ij[counterIJ] = Theta_coeff[0]
                                         + Theta_coeff[1]*tlin
                                         + Theta_coeff[2]*tquad
                                         + Theta_coeff[3]*tinv
                                         + Theta_coeff[4]*tln;
-
                 m_Beta0MX_ij_L[counterIJ] =  beta0MX_coeff[1]
                                              + beta0MX_coeff[2]*twoT
                                              - beta0MX_coeff[3]*invT2
                                              + beta0MX_coeff[4]*invT;
-
                 m_Beta1MX_ij_L[counterIJ] =  beta1MX_coeff[1]
                                              + beta1MX_coeff[2]*twoT
                                              - beta1MX_coeff[3]*invT2
                                              + beta1MX_coeff[4]*invT;
-
                 m_Beta2MX_ij_L[counterIJ] =  beta2MX_coeff[1]
                                              + beta2MX_coeff[2]*twoT
                                              - beta2MX_coeff[3]*invT2
                                              + beta2MX_coeff[4]*invT;
-
                 m_CphiMX_ij_L[counterIJ] =  CphiMX_coeff[1]
                                             + CphiMX_coeff[2]*twoT
                                             - CphiMX_coeff[3]*invT2
                                             + CphiMX_coeff[4]*invT;
-
                 m_Theta_ij_L[counterIJ] =   Theta_coeff[1]
                                             + Theta_coeff[2]*twoT
                                             - Theta_coeff[3]*invT2
                                             + Theta_coeff[4]*invT;
-
                 doDerivs = 2;
                 if (doDerivs > 1) {
                     m_Beta0MX_ij_LL[counterIJ] =
                         + beta0MX_coeff[2]*2.0
                         + beta0MX_coeff[3]*twoinvT3
                         - beta0MX_coeff[4]*invT2;
-
                     m_Beta1MX_ij_LL[counterIJ] =
                         + beta1MX_coeff[2]*2.0
                         + beta1MX_coeff[3]*twoinvT3
                         - beta1MX_coeff[4]*invT2;
-
                     m_Beta2MX_ij_LL[counterIJ] =
                         + beta2MX_coeff[2]*2.0
                         + beta2MX_coeff[3]*twoinvT3
                         - beta2MX_coeff[4]*invT2;
-
                     m_CphiMX_ij_LL[counterIJ] =
                         + CphiMX_coeff[2]*2.0
                         + CphiMX_coeff[3]*twoinvT3
                         - CphiMX_coeff[4]*invT2;
-
                     m_Theta_ij_LL[counterIJ] =
                         + Theta_coeff[2]*2.0
                         + Theta_coeff[3]*twoinvT3
@@ -1579,12 +1541,10 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                       + Mu_coeff[2]*tquad
                                       + Mu_coeff[3]*tinv
                                       + Mu_coeff[4]*tln;
-
                         m_Mu_nnn_L[i] = Mu_coeff[1]
                                         + Mu_coeff[2]*twoT
                                         - Mu_coeff[3]*invT2
                                         + Mu_coeff[4]*invT;
-
                         m_Mu_nnn_LL[i] =
                             Mu_coeff[2]*2.0
                             + Mu_coeff[3]*twoinvT3
@@ -1631,12 +1591,10 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                  + Psi_coeff[2]*tquad
                                  + Psi_coeff[3]*tinv
                                  + Psi_coeff[4]*tln;
-
                   m_Psi_ijk_L[n] = Psi_coeff[1]
                                    + Psi_coeff[2]*twoT
                                    - Psi_coeff[3]*invT2
                                    + Psi_coeff[4]*invT;
-
                   m_Psi_ijk_LL[n] =
                       Psi_coeff[2]*2.0
                       + Psi_coeff[3]*twoinvT3
@@ -1646,7 +1604,6 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
       }
       break;
     }
-
 }
 
 void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
@@ -1676,9 +1633,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     const double* thetaij =  DATA_PTR(m_Theta_ij);
     const double* alpha1MX =  DATA_PTR(m_Alpha1MX_ij);
     const double* alpha2MX =  DATA_PTR(m_Alpha2MX_ij);
-
     const double* psi_ijk =  DATA_PTR(m_Psi_ijk);
-
     double* gamma_Unscaled = DATA_PTR(m_gamma_tmp);
     /*
      * Local variables defined by Coltrin
@@ -2000,7 +1955,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     }
 
     for (size_t i = 1; i < m_kk; i++) {
-
         /*
          * -------- SUBSECTION FOR CALCULATING THE ACTCOEFF FOR CATIONS -----
          * -------- -> equations agree with my notes, Eqn. (118).
@@ -2062,7 +2016,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     }
                 }
 
-
                 if (charge(j) > 0.0) {
                     // sum over all cations
                     if (j != i) {
@@ -2078,7 +2031,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
-
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 = sum2 + molality[j]*molality[k]*psi_ijk[n];
                             if (DEBUG_MODE_ENABLED && m_debugCalc) {
@@ -2353,7 +2305,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                        sni.c_str(), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
             }
         }
-
     }
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Step 9: \n");
@@ -2440,7 +2391,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                      */
                     size_t n = m_kk*j + k;
                     size_t counterIJ = m_CounterIJ[n];
-
                     sum3 = sum3 + molality[j]*molality[k]*Phiphi[counterIJ];
                     for (size_t m = 1; m < m_kk; m++) {
                         if (charge(m) > 0.0) {
@@ -2561,8 +2511,6 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
      *  Do the pH scaling to the derivatives
      */
     s_updateScaling_pHScaling_dT();
-
-
 }
 
 void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
@@ -2831,7 +2779,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
     /*
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-     * --------
      */
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Step 6: \n");
@@ -2914,7 +2861,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     for (size_t i = 1; i < m_kk; i++) {
         /*
          * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
-         * --
          */
         if (charge(i) > 0) {
             // species i is the cation (positive) to calc the actcoeff
@@ -2951,7 +2897,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                     }
                 }
 
-
                 if (charge(j) > 0.0) {
                     // sum over all cations
                     if (j != i) {
@@ -2960,7 +2905,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
-
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 = sum2 + molality[j]*molality[k]*psi_ijk_L[n];
                             /*
@@ -3013,7 +2957,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
         /*
          * ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR ANIONS ------
-         *
          */
         if (charge(i) < 0) {
             //          species i is an anion (negative)
@@ -3133,7 +3076,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                        sni.c_str(), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
             }
         }
-
     }
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Step 9: \n");
@@ -3171,7 +3113,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                      */
                     size_t n = m_kk*j + k;
                     size_t counterIJ = m_CounterIJ[n];
-
                     sum1 = sum1 + molality[j]*molality[k]*
                            (BphiMX_L[counterIJ] + molarcharge*CMX_L[counterIJ]);
                 }
@@ -3220,7 +3161,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                      */
                     size_t n = m_kk*j + k;
                     size_t counterIJ = m_CounterIJ[n];
-
                     sum3 = sum3 + molality[j]*molality[k]*Phiphi_L[counterIJ];
                     for (size_t m = 1; m < m_kk; m++) {
                         if (charge(m) > 0.0) {
@@ -3403,7 +3343,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
      */
     counterIJ_setup();
 
-
     /*
      * ---------- Calculate common sums over solutes ---------------------
      */
@@ -3459,7 +3398,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     }
 
     /*
-     *
      *  calculate gfunc(x) and hfunc(x) for each cation-anion pair MX
      *   In the original literature, hfunc, was called gprime. However,
      *   it's not the derivative of gfunc(x), so I renamed it.
@@ -3566,7 +3504,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
     /*
      * --------- SUBSECTION TO CALCULATE CMX_LL ----------
-     * ---------
      */
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Step 5: \n");
@@ -3600,7 +3537,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
     /*
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-     * --------
      */
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Step 6: \n");
@@ -3680,10 +3616,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     }
 
     for (size_t i = 1; i < m_kk; i++) {
-
         /*
          * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
-         * --
          */
         if (charge(i) > 0) {
             // species i is the cation (positive) to calc the actcoeff
@@ -3720,7 +3654,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                     }
                 }
 
-
                 if (charge(j) > 0.0) {
                     // sum over all cations
                     if (j != i) {
@@ -3729,7 +3662,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
-
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 = sum2 + molality[j]*molality[k]*psi_ijk_LL[n];
                             /*
@@ -3779,10 +3711,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             }
         }
 
-
         /*
          * ------ SUBSECTION FOR CALCULATING THE d2ACTCOEFFdT2 FOR ANIONS ------
-         *
          */
         if (charge(i) < 0) {
             //          species i is an anion (negative)
@@ -4224,7 +4154,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     }
 
     /*
-     *
      *  calculate g(x) and hfunc(x) for each cation-anion pair MX
      *   In the original literature, hfunc, was called gprime. However,
      *   it's not the derivative of g(x), so I renamed it.
@@ -4365,7 +4294,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 
     /*
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-     * --------
      */
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Step 6: \n");
@@ -4446,7 +4374,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     }
 
     for (size_t i = 1; i < m_kk; i++) {
-
         /*
          * -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR CATIONS -----
          */
@@ -4484,7 +4411,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                         }
                     }
                 }
-
 
                 if (charge(j) > 0.0) {
                     // sum over all cations
@@ -4545,7 +4471,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                        zsqdFdP, sum1, sum2, sum3, sum4, sum5);
             }
         }
-
 
         /*
          * ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR ANIONS ------
@@ -4668,7 +4593,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                        sni.c_str(), m_dlnActCoeffMolaldP_Unscaled[i]);
             }
         }
-
     }
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Step 9: \n");
@@ -4706,7 +4630,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                      */
                     size_t n = m_kk*j + k;
                     size_t counterIJ = m_CounterIJ[n];
-
                     sum1 = sum1 + molality[j]*molality[k]*
                            (BphiMX_P[counterIJ] + molarcharge*CMX_P[counterIJ]);
                 }
@@ -4737,7 +4660,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 }
             }
         }
-
 
         /*
          * Loop Over Anions
@@ -4828,7 +4750,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     }
     double d_lnwateract_dP = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dP;
 
-
     /*
      * In Cantera, we define the activity coefficient of the solvent as
      *
@@ -4873,7 +4794,6 @@ void HMWSoln::calc_lambdas(double is) const
      * Calculate E-lambda terms for charge combinations of like sign,
      * using method of Pitzer (1975). Charges up to 4 are calculated.
      */
-
     for (int i=1; i<=4; i++) {
         for (int j=i; j<=4; j++) {
             int ij = i*j;
@@ -4944,7 +4864,6 @@ void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
      * State objects' data.
      */
     calcMolalities();
-
     double xmolSolvent = moleFraction(m_indexSolvent);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     if (IMS_typeCutoff_ == 0) {
@@ -5015,7 +4934,6 @@ void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
             IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
             return;
         } else {
-
             double xoverc = xmolSolvent/IMS_cCut_;
             double eterm = std::exp(-xoverc);
 
@@ -5077,8 +4995,6 @@ void HMWSoln::printCoeffs() const
                    m_Beta0MX_ij[ct], m_Beta1MX_ij[ct],
                    m_Beta2MX_ij[ct], m_CphiMX_ij[ct],
                    m_Alpha1MX_ij[ct], m_Theta_ij[ct]);
-
-
         }
     }
 

@@ -16,7 +16,6 @@ namespace Cantera
 
 void Group::validate()
 {
-
     size_t n = m_comp.size();
 
     // if already checked and not valid, return

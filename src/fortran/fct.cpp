@@ -336,7 +336,6 @@ extern "C" {
         return 0;
     }
 
-
     doublereal phase_natoms_(const integer* n, integer* k, integer* m)
     {
         try {
@@ -592,7 +591,6 @@ extern "C" {
         }
     }
 
-
     status_t th_getenthalpies_rt_(const integer* n, doublereal* h_rt)
     {
         try {
@@ -625,7 +623,6 @@ extern "C" {
         }
         return 0;
     }
-
 
     //-------------- Kinetics ------------------//
 
@@ -1050,7 +1047,6 @@ extern "C" {
         }
         return 0;
     }
-
 
     status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
                                     integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)

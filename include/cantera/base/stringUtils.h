@@ -101,7 +101,6 @@ compositionMap parseCompString(const std::string& ss,
  *  atoi() is used.
  *
  *  @param val   String value of the integer
- *
  *  @return      Returns an integer
  */
 int intValue(const std::string& val);
@@ -111,7 +110,6 @@ int intValue(const std::string& val);
  *  No error checking is done on the conversion.
  *
  *  @param val   String value of the double
- *
  *  @return      Returns a doublereal value
  */
 doublereal fpValue(const std::string& val);
@@ -171,7 +169,6 @@ std::string wrapString(const std::string& s,
  *  Example: "1.0 atm" results in the number 1.01325e5.
  *
  *  @param strSI string to be converted. One or two tokens
- *
  *  @return returns a converted double
  */
 doublereal strSItoDbl(const std::string& strSI);

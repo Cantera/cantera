@@ -4,7 +4,6 @@
  *   employ excess Gibbs free energy formulations related to RedlichKister
  *   expansions (see \ref thermoprops
  *    and class \link Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP\endlink).
- *
  */
 /*
  * Copyright (2009) Sandia Corporation. Under the terms of
@@ -253,7 +252,6 @@ void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
      */
     getStandardVolumes(vbar);
     for (size_t iK = 0; iK < m_kk; iK++) {
-
         vbar[iK] += 0.0;
     }
 }
@@ -330,7 +328,6 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
      *            within the routine. There is a severe problem with roundoff error in these calculations. The
      *            dimensionless terms help.
      */
-
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
         size_t iA =  m_pSpecies_A_ij[i];
         size_t iB =  m_pSpecies_B_ij[i];
@@ -368,7 +365,6 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         }
         // Debug against formula in literature
     }
-
 }
 
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
@@ -385,7 +381,6 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
-
         vector_fp& se_vec = m_SE_m_ij[i];
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
@@ -433,7 +428,6 @@ void RedlichKisterVPSSTP::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
 {
     doublereal T = temperature();
-
     dlnActCoeff_dX_.zero();
 
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
@@ -471,7 +465,6 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
 
         for (size_t k = 0; k < m_kk; k++) {
             if (iA == k) {
-
                 dlnActCoeff_dX_(k, iA) += (- XB * sum + (1.0 - XA) * XB * sumMm1
                                            + XB * sumMm1 * (1.0 - 2.0 * XA + XB)
                                            + XA * XB * sumMm2 * (1.0 - XA + XB));
@@ -479,9 +472,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
                 dlnActCoeff_dX_(k, iB) += ((1.0 - XA) * sum - (1.0 - XA) * XB * sumMm1
                                            + XA * sumMm1 * (1.0 + 2.0 * XB - XA)
                                            - XA * XB * sumMm2 * (1.0 - XA + XB));
-
             } else  if (iB == k) {
-
                 dlnActCoeff_dX_(k, iA) += ((1.0 - XB) * sum + (1.0 - XA) * XB * sumMm1
                                            + XB * sumMm1 * (1.0 - 2.0 * XA + XB)
                                            + XA * XB * sumMm2 * (1.0 - XA + XB));
@@ -490,11 +481,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
                                            + XA * sumMm1 * (XB - XA - (1.0 - XB))
                                            - XA * XB * sumMm2 * (-XA - (1.0 - XB)));
             } else {
-
                 dlnActCoeff_dX_(k, iA) += (- XB * sum2  - XA * XB * sum2Mm1);
-
                 dlnActCoeff_dX_(k, iB) += (- XA * sum2  + XA * XB * sum2Mm1);
-
             }
         }
     }
@@ -638,7 +626,6 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     double XA;
     doublereal T = temperature();
     double Volts = 0.0;
-
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
@@ -671,7 +658,6 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     Volts /= Faraday;
 
     double termp = GasConstant * T * log((1.0 - XA)/XA) / Faraday;
-
     VintOut =  Volts;
     voltsOut = Volts + termp;
 }

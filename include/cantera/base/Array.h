@@ -3,7 +3,6 @@
  */
 // Copyright 2001  California Institute of Technology
 
-
 #ifndef CT_ARRAY_H
 #define CT_ARRAY_H
 
@@ -250,7 +249,6 @@ public:
     doublereal& operator()(size_t i, size_t j) {
         return value(i,j);
     }
-
 
     //! Allows retrieving elements using the syntax x = A(i,j).
     /*!

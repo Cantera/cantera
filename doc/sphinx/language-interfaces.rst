@@ -21,7 +21,7 @@ Python scripts to do calculations ranging from simple evaluation of
 thermodynamic or transport properties, on up to chemical equilibrium in
 multiphase mixtures, 1D laminar flames, reactor networks, and more.  If your
 problem can be solved by using Cantera from Python, you'll almost certainly
-solve it faster with Python than by writing programs in Fortran or C++. 
+solve it faster with Python than by writing programs in Fortran or C++.
 
 See http://www.python.org
 

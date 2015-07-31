@@ -12,7 +12,6 @@ void equil_demo()
 
 int main()
 {
-
     try {
         equil_demo();
     } catch (CanteraError& err) {

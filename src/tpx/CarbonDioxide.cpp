@@ -151,7 +151,6 @@ inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, d
 inline double CarbonDioxide::I(int j, double ergho, double Gamma)
 {
     switch (j) {
-
     case 0:
         return Rho;
     case 1:
@@ -193,19 +192,16 @@ double CarbonDioxide::up()
     double egrho = exp(-Gamma*Rho*Rho);
 
     double sum = 0.0;
-
     // Equation C-6 integrated
     sum += G[0]*log(T/To);
     int i;
     for (i=1; i<=5; i++) {
         sum += G[i]*(pow(T,i) - pow(To,i))/double(i);
     }
-
     for (i=0; i<=6; i++) {
         sum += I(i,egrho, Gamma) *
                (C(i, Tinverse, T2inverse, T3inverse, T4inverse) - T*Cprime(i,T2inverse, T3inverse, T4inverse));
     }
-
     sum += u0;
     return sum + m_energy_offset;
 }
@@ -218,21 +214,15 @@ double CarbonDioxide::sp()
     double egrho = exp(-Gamma*Rho*Rho);
 
     double sum = 0.0;
-
     for (int i=2; i<=5; i++) {
         sum += G[i]*(pow(T,i-1) - pow(To,i-1))/double(i-1);
     }
-
     sum += G[1]*log(T/To);
     sum -= G[0]*(1.0/T - 1.0/To);
-
-
     for (int i=0; i<=6; i++) {
         sum -= Cprime(i,T2inverse, T3inverse, T4inverse)*I(i,egrho,Gamma);
     }
-
     sum += s0 - R*log(Rho);
-
     return sum + m_entropy_offset;
 }
 
@@ -243,7 +233,6 @@ double CarbonDioxide::Pp()
     double T3inverse = pow(T, -3);
     double T4inverse = pow(T, -4);
     double egrho = exp(-Gamma*Rho*Rho);
-
     double P = Rho*R*T;
 
     // when i=0 we are on second sum of equation (where rho^2)
@@ -267,7 +256,6 @@ double CarbonDioxide::Psat()
     log = ((Tc/T)-1)*sum;
     P=exp(log)*Pc;
     return P;
-
 }
 
 double CarbonDioxide::ldens()
@@ -280,7 +268,6 @@ double CarbonDioxide::ldens()
     for (int i=1; i<=6; i++) {
         sum+=D[i-1]*pow(xx,double(i-1)/3.0);
     }
-
     return sum;
 }
 

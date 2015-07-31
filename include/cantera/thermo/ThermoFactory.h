@@ -2,10 +2,8 @@
  *  @file ThermoFactory.h
  *     Headers for the factory class that can create known ThermoPhase objects
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
- *
  */
 // Copyright 2001  California Institute of Technology
-
 
 #ifndef THERMO_FACTORY_H
 #define THERMO_FACTORY_H
@@ -54,9 +52,7 @@ public:
  */
 class ThermoFactory : public FactoryBase
 {
-
 public:
-
     //! Static function that creates a static instance of the factory.
     static ThermoFactory* factory() {
         ScopedLock lock(thermo_mutex);
@@ -76,7 +72,6 @@ public:
     //! Create a new thermodynamic property manager.
     /*!
      * @param model  String to look up the model against
-     *
      * @return
      *   Returns a pointer to a new ThermoPhase instance matching the
      *   model string. Returns NULL if something went wrong.
@@ -100,7 +95,6 @@ private:
 /*!
  * @param model   String to look up the model against
  * @param f       ThermoFactory instance to use in matching the string
- *
  * @return
  *   Returns a pointer to a new ThermoPhase instance matching the
  *   model string. Returns NULL if something went wrong.
@@ -154,7 +148,6 @@ ThermoPhase* newPhase(XML_Node& phase);
  * @param infile name of the input file
  * @param id     name of the phase id in the file.
  *               If this is blank, the first phase in the file is used.
- *
  * @return
  *   Returns an initialized ThermoPhase object.
  */
@@ -223,7 +216,6 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  *                  available. If not available, one will be
  *                  created.
  * @ingroup thermoprops
- *
  */
 void importPhase(XML_Node& phase, ThermoPhase* th);
 

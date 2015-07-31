@@ -230,7 +230,6 @@ class PDSS;
  *  This class is usually used for nearly incompressible phases. For those phases, it
  *  makes sense to change the equation of state independent variable from
  *  density to pressure.
- *
  */
 class VPSSMgr
 {
@@ -525,7 +524,6 @@ public:
     virtual void updateRefStateThermo() const;
 
 protected:
-
     //! Updates the standard state thermodynamic functions at the
     //! current T and P of the solution.
     /*!

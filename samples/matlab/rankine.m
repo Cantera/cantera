@@ -1,10 +1,9 @@
-function [work, efficiency] = rankine(t1, p2, eta_pump, ...
-				      eta_turbine)
+function [work, efficiency] = rankine(t1, p2, eta_pump, eta_turbine)
 %
 % RANKINE
 %
 % This example computes the efficiency of a simple vapor power
-% cycle. 
+% cycle.
 %
 help rankine
 
@@ -38,11 +37,10 @@ x4 = vaporFraction(w);
 efficiency = (work - pump_work)/heat_added
 
 
-
 function w = pump(fluid, pfinal, eta)
 % PUMP - Adiabatically pump a fluid to pressure pfinal, using a pump
 % with isentropic efficiency eta.
-% 
+%
 h0 = enthalpy_mass(fluid);
 s0 = entropy_mass(fluid);
 set(fluid, 'S', s0, 'P', pfinal);
@@ -67,5 +65,3 @@ actual_work = isentropic_work * eta;
 h1 = h0 - actual_work;
 set(fluid, 'H',h1, 'P',pfinal);
 w = actual_work;
-
-

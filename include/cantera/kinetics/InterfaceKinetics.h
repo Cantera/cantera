@@ -1,6 +1,5 @@
 /**
  * @file InterfaceKinetics.h
- *
  * @ingroup chemkinetics
  */
 // Copyright 2001  California Institute of Technology

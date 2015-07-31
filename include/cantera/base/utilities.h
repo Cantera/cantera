@@ -42,7 +42,6 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
     /*!
      * @param x  Variable of templated type T that will be
      *           used in the multiplication operator
-     *
      * @return Returns a value of type double from the internal
      *         multiplication
      */
@@ -70,7 +69,6 @@ inline doublereal dot4(const V& x, const V& y)
 {
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
 }
-
 
 //!  Templated Inner product of two vectors of length 5
 /*!
@@ -341,7 +339,6 @@ inline void scatter_copy(InputIter begin, InputIter end,
         *(result + *index) = *begin;
     }
 }
-
 
 //! Multiply selected elements in an array by a contiguous
 //! sequence of multipliers.

@@ -89,9 +89,8 @@ int main()
         int retn = kinetics1(0, 0);
         appdelete();
         return retn;
-    }
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         cout << " terminating... " << endl;
         appdelete();
