@@ -58,7 +58,7 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& 
     importPhase(xmlphase, this);
 }
 
-StoichSubstanceSSTP::StoichSubstanceSSTP(const StoichSubstanceSSTP&  right)
+StoichSubstanceSSTP::StoichSubstanceSSTP(const StoichSubstanceSSTP& right)
 {
     *this = right;
 }
@@ -142,7 +142,7 @@ void StoichSubstanceSSTP::getStandardChemPotentials(doublereal* mu0) const
 void StoichSubstanceSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
-    doublereal presCorrect = (m_press - m_p0) /  molarDensity();
+    doublereal presCorrect = (m_press - m_p0) / molarDensity();
     hrt[0] += presCorrect / (GasConstant * temperature());
 }
 

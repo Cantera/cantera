@@ -126,7 +126,7 @@ namespace Cantera
  *          \mu^e_k = \frac{F D_k}{R T}
  *     \f]
  *
- *   The diffusion coefficients,  \f$  D_k \f$ , is calculated from a call to the mixture diffusion
+ *   The diffusion coefficients, \f$  D_k \f$ , is calculated from a call to the mixture diffusion
  *   coefficient routine.
  *
  *  <H2> Species Diffusive Fluxes </H2>
@@ -193,7 +193,7 @@ public:
     SimpleTransport(thermo_t* thermo = 0, int ndim = 1);
 
     SimpleTransport(const SimpleTransport& right);
-    SimpleTransport& operator=(const  SimpleTransport& right);
+    SimpleTransport& operator=(const SimpleTransport& right);
     virtual Transport* duplMyselfAsTransport() const;
     virtual ~SimpleTransport();
 
@@ -272,7 +272,7 @@ public:
      *
      *  Controlling update boolean = m_condmix_ok
      *
-     *  Units are in W/m/K  or equivalently kg m / s3 / K
+     *  Units are in W/m/K or equivalently kg m / s3 / K
      *
      * Solvent-only:
      *    \f[
@@ -370,8 +370,8 @@ public:
      *                     length = ldx * ndim
      */
     virtual void getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
-                                   int ldx,  const doublereal* grad_X,
-                                   int ldf,  const doublereal* grad_Phi,
+                                   int ldx, const doublereal* grad_X,
+                                   int ldf, const doublereal* grad_Phi,
                                    doublereal* Vdiff);
 
     //! Get the species diffusive mass fluxes wrt to the specified solution averaged velocity,
@@ -526,19 +526,19 @@ private:
     /*!
      *  Length is Equal to the number of species in the mechanism.
      */
-    vector_fp  m_mw;
+    vector_fp m_mw;
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<LTPspecies*>  m_coeffVisc_Ns;
+    std::vector<LTPspecies*> m_coeffVisc_Ns;
 
     //! Pure species thermal conductivities in Arrhenius temperature-dependent form.
-    std::vector<LTPspecies*>  m_coeffLambda_Ns;
+    std::vector<LTPspecies*> m_coeffLambda_Ns;
 
     //! Pure species viscosities in Arrhenius temperature-dependent form.
-    std::vector<LTPspecies*>  m_coeffDiff_Ns;
+    std::vector<LTPspecies*> m_coeffDiff_Ns;
 
     //! Hydrodynamic radius in LTPspecies form
-    std::vector<LTPspecies*>  m_coeffHydroRadius_Ns;
+    std::vector<LTPspecies*> m_coeffHydroRadius_Ns;
 
     //! Internal value of the gradient of the mole fraction vector
     /*!
@@ -619,7 +619,7 @@ private:
      *
      * controlling update boolean -> m_cond_temp_ok
      */
-    vector_fp  m_condSpecies;
+    vector_fp m_condSpecies;
 
     //! State of the mole fraction vector.
     int m_iStateMF;
@@ -685,7 +685,7 @@ private:
     /*!
      *   Length is equal to m_nsp
      */
-    vector_fp  m_spwork;
+    vector_fp m_spwork;
 
     vector_fp m_fluxes;
 

@@ -25,7 +25,7 @@ namespace Cantera
 VPSSMgr_ConstVol::VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth) :
     VPSSMgr(vp_ptr, spth)
 {
-    m_useTmpRefStateStorage      = true;
+    m_useTmpRefStateStorage = true;
     m_useTmpStandardStateStorage = true;
 }
 
@@ -61,10 +61,10 @@ void VPSSMgr_ConstVol::_updateStandardStateThermo()
     doublereal del_pRT = (m_plast - m_p0) / (GasConstant * m_tlast);
 
     for (size_t k = 0; k < m_kk; k++) {
-        m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
-        m_cpss_R[k]  = m_cp0_R[k];
-        m_sss_R[k]   = m_s0_R[k];
-        m_gss_RT[k]  = m_hss_RT[k] - m_sss_R[k];
+        m_hss_RT[k] = m_h0_RT[k] + del_pRT * m_Vss[k];
+        m_cpss_R[k] = m_cp0_R[k];
+        m_sss_R[k] = m_s0_R[k];
+        m_gss_RT[k] = m_hss_RT[k] - m_sss_R[k];
         // m_Vss[k] constant
     }
 }
@@ -146,6 +146,6 @@ PDSS_enumType VPSSMgr_ConstVol::reportPDSSType(int k) const
 
 VPSSMgr_enumType VPSSMgr_ConstVol::reportVPSSMgrType() const
 {
-    return  cVPSSMGR_CONSTVOL;
+    return cVPSSMGR_CONSTVOL;
 }
 }

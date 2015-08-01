@@ -15,7 +15,7 @@ public:
         Tcr = tc;
         Pcr = pc;
         Mw = wt;
-        Isr = itype;   // simple fluid or reference
+        Isr = itype; // simple fluid or reference
         m_name = "Lee-Kesler";
         m_formula = "---";
     }

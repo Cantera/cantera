@@ -101,7 +101,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     return false;
 }
 
-int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
+int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
     int nfound = 0;
     phasePopProblemLists_.clear();
@@ -126,7 +126,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
             size_t iph = m_phaseID[j];
             jList.push_back(iph);
             for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
-                size_t kspec = irxn +  m_numComponents;
+                size_t kspec = irxn + m_numComponents;
                 iph = m_phaseID[kspec];
                 vcs_VolPhase* Vphase = m_VolPhaseList[iph];
                 int existence = Vphase->exists();
@@ -146,7 +146,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     std::vector< std::vector<size_t> > zeroedPhaseLinkedZeroComponents(m_numPhases);
     std::vector<int> linkedPhases;
     /*
-     *   The logic below calculates  zeroedPhaseLinkedZeroComponents
+     *   The logic below calculates zeroedPhaseLinkedZeroComponents
      */
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         std::vector<size_t> &iphList = zeroedPhaseLinkedZeroComponents[iph];
@@ -162,7 +162,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
                     if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS && m_molNumSpecies_old[j] <= 0.0 && m_stoichCoeffRxnMatrix(j,irxn) < 0.0) {
                         bool foundPos = false;
                         for (size_t kk = 0; kk < nsp; kk++) {
-                            size_t kkspec  = Vphase->spGlobalIndexVCS(kk);
+                            size_t kkspec = Vphase->spGlobalIndexVCS(kk);
                             if (kkspec >= m_numComponents) {
                                 size_t iirxn = kkspec - m_numComponents;
                                 if (m_stoichCoeffRxnMatrix(j,iirxn) > 0.0) {
@@ -180,7 +180,7 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     }
 
     /*
-     *  Now fill in the   phasePopProblemLists_  list.
+     *  Now fill in the phasePopProblemLists_ list.
      */
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* Vphase = m_VolPhaseList[iph];
@@ -395,13 +395,13 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 
         for (size_t k = 0; k < Vphase->nSpecies(); k++) {
             kspec = Vphase->spGlobalIndexVCS(k);
-            double delmol =  deltaMolNumPhase * X_est[k];
+            double delmol = deltaMolNumPhase * X_est[k];
             if (kspec >= m_numComponents) {
                 irxn = kspec - m_numComponents;
                 for (size_t j = 0; j < m_numComponents; ++j) {
                     double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
                     if (stoicC != 0.0 && m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-                        molNumSpecies_tmp[j] +=  stoicC * delmol;
+                        molNumSpecies_tmp[j] += stoicC * delmol;
                     }
                 }
             }
@@ -505,7 +505,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     }
 
     for (size_t k = 0; k < m_numComponents; k++) {
-        m_feSpecies_Deficient[k]  = m_feSpecies_old[k];
+        m_feSpecies_Deficient[k] = m_feSpecies_old[k];
     }
     normUpdate = 0.1 * vcs_l2norm(fracDelta_new);
     damp = 1.0E-2;
@@ -528,7 +528,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             }
         }
         bool converged = false;
-        for (int its = 0; its < 200  && (!converged); its++) {
+        for (int its = 0; its < 200 && (!converged); its++) {
             dampOld = damp;
             normUpdateOld = normUpdate;
             fracDelta_old = fracDelta_new;
@@ -540,11 +540,11 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 size_t kc = componentList[i];
                 size_t kc_spec = Vphase->spGlobalIndexVCS(kc);
                 fracDelta_old[kc] = 0.0;
-                for (size_t k = 0; k <  nsp; k++) {
+                for (size_t k = 0; k < nsp; k++) {
                     size_t kspec = Vphase->spGlobalIndexVCS(k);
                     if (kspec >= m_numComponents) {
                         size_t irxn = kspec - m_numComponents;
-                        fracDelta_old[kc] += m_stoichCoeffRxnMatrix(kc_spec,irxn) *  fracDelta_old[k];
+                        fracDelta_old[kc] += m_stoichCoeffRxnMatrix(kc_spec,irxn) * fracDelta_old[k];
                     }
                 }
             }
@@ -595,7 +595,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
             for (size_t i = 0; i < componentList.size(); i++) {
                 size_t kc_spec = Vphase->spGlobalIndexVCS(componentList[i]);
-                for (size_t k = 0; k <  Vphase->nSpecies(); k++) {
+                for (size_t k = 0; k < Vphase->nSpecies(); k++) {
                     size_t kspec = Vphase->spGlobalIndexVCS(k);
                     if (kspec >= m_numComponents) {
                         size_t irxn = kspec - m_numComponents;
@@ -621,7 +621,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                     size_t irxn = kspec - m_numComponents;
                     double deltaGRxn = clip(m_deltaGRxn_Deficient[irxn], -50.0, 50.0);
                     E_phi[k] = std::exp(-deltaGRxn) / m_actCoeffSpecies_new[kspec];
-                    sum +=  E_phi[k];
+                    sum += E_phi[k];
                     funcPhaseStability += E_phi[k];
                 } else {
                     E_phi[k] = 0.0;
@@ -633,7 +633,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
              */
             for (size_t k = 0; k < nsp; k++) {
                 size_t kspec = Vphase->spGlobalIndexVCS(k);
-                double b =  E_phi[k] / sum * (1.0 - sum_Xcomp);
+                double b = E_phi[k] / sum * (1.0 - sum_Xcomp);
                 if (kspec >= m_numComponents) {
                     fracDelta_raw[k] = b;
                 }

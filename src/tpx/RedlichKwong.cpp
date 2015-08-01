@@ -11,16 +11,16 @@ double RedlichKwong::up()
 double RedlichKwong::hresid()
 {
     double hh = m_b * (Rho/m_mw);
-    double hresid_mol_RT =  z() - 1.0
-                            - (1.5*m_a/(m_b*8314.3*T*sqrt(T)))*log(1.0 + hh);
+    double hresid_mol_RT = z() - 1.0
+                           - (1.5*m_a/(m_b*8314.3*T*sqrt(T)))*log(1.0 + hh);
     return 8314.3*T*hresid_mol_RT/m_mw;
 }
 
 double RedlichKwong::sresid()
 {
     double hh = m_b * (Rho/m_mw);
-    double sresid_mol_R =  log(z()*(1.0 - hh))
-                           - (0.5*m_a/(m_b*8314.3*T*sqrt(T)))*log(1.0 + hh);
+    double sresid_mol_R = log(z()*(1.0 - hh))
+                          - (0.5*m_a/(m_b*8314.3*T*sqrt(T)))*log(1.0 + hh);
     return 8314.3*sresid_mol_R/m_mw;
 }
 

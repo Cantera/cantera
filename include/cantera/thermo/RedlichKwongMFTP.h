@@ -111,7 +111,7 @@ public:
     /*!
      *  Since the mass density, temperature, and mass fractions are stored,
      *  this method uses these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,  Y_K) \f$.
+     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots, Y_K) \f$.
      *
      * \f[
      *    P = \frac{RT}{v-b_{mix}} - \frac{a_{mix}}{T^{0.5} v \left( v + b_{mix} \right) }
@@ -224,7 +224,7 @@ public:
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
     //! the generalized concentration.
     /*!
-     * This is defined as the concentration  by which the generalized
+     * This is defined as the concentration by which the generalized
      * concentration is normalized to produce the activity.
      * In many cases, this quantity will be the same for all species in a phase.
      * Since the activity for an ideal gas mixture is
@@ -261,7 +261,7 @@ public:
      * getChemPotentials() and then dividing by RT. No need for child
      * classes to handle.
      *
-     * @param mu    Output vector of  non-dimensional species chemical potentials
+     * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
     void getChemPotentials_RT(doublereal* mu) const;
@@ -602,7 +602,7 @@ protected:
     vector_fp a_vec_Curr_;
     vector_fp b_vec_Curr_;
 
-    Array2D  a_coeff_vec;
+    Array2D a_coeff_vec;
 
     vector_fp m_pc_Species;
     vector_fp m_tc_Species;

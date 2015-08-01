@@ -83,7 +83,7 @@ namespace Cantera
  *    R_s = k_s C_{gas}
  *   \f]
  * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
- * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
+ * of kmol m-3. Therefore, the kinetic rate constant, \f$ k_s \f$, has
  * units of m s-1. Nowhere does the concentration of the bulk phase
  * appear in the rate constant expression, since it's a stoichiometric
  * phase and the activity is always equal to 1.0.
@@ -181,7 +181,7 @@ public:
     /*!
      * @param right Object to be copied
      */
-    StoichSubstanceSSTP(const StoichSubstanceSSTP&  right);
+    StoichSubstanceSSTP(const StoichSubstanceSSTP& right);
 
     //! Assignment operator
     /*!
@@ -244,7 +244,7 @@ public:
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
      * \f]
      */
-    virtual doublereal thermalExpansionCoeff() const ;
+    virtual doublereal thermalExpansionCoeff() const;
 
     /**
      * @}
@@ -349,7 +349,7 @@ public:
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-    //!  Returns the vector of nondimensional Internal Energies  of the standard
+    //!  Returns the vector of nondimensional Internal Energies of the standard
     //!  state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      *  For an incompressible,

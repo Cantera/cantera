@@ -80,7 +80,7 @@ const doublereal Planck = 6.62607009e-34; // J-s
 const doublereal Planck_bar = Planck / (2 * Pi); // m2-kg/s
 
 /// log(k/h)
-const doublereal logBoltz_Planck = std::log(Boltzmann / Planck);  // ln(k_B/h)
+const doublereal logBoltz_Planck = std::log(Boltzmann / Planck); // ln(k_B/h)
 /// Stefan-Boltzmann constant
 const doublereal StefanBoltz = 5.670373e-8;
 
@@ -154,9 +154,9 @@ typedef std::map<std::string, doublereal> Composition;
 
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
-typedef std::vector<double>        vector_fp;
+typedef std::vector<double> vector_fp;
 //! Vector of ints
-typedef std::vector<int>           vector_int;
+typedef std::vector<int> vector_int;
 
 //! A grouplist is a vector of groups of species
 typedef std::vector<std::vector<size_t> > grouplist_t;
@@ -164,6 +164,6 @@ typedef std::vector<std::vector<size_t> > grouplist_t;
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
 
-}  // namespace
+} // namespace
 
 #endif

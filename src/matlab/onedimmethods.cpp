@@ -140,7 +140,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         case 18:
             checkNArgs(4, nrhs);
             nm = getString(prhs[3]);
-            vv = (double) domain_componentIndex(dom, nm) ;
+            vv = (double) domain_componentIndex(dom, nm);
             if (vv >= 0.0) {
                 vv += 1.0;
             }
@@ -217,7 +217,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         case 53:
             checkNArgs(4, nrhs);
             grid = mxGetPr(prhs[3]);
-            npts = mxGetM(prhs[3]) *  mxGetN(prhs[3]);
+            npts = mxGetM(prhs[3]) * mxGetN(prhs[3]);
             iok = domain_setupGrid(dom, npts, grid);
             break;
         case 54:

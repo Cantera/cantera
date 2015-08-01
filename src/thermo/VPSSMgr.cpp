@@ -62,7 +62,7 @@ VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
     if (&right == this) {
         return *this;
     }
-    m_kk                          = right.m_kk;
+    m_kk = right.m_kk;
     /*
      * What we are doing here is to make a shallow copy of the VPStandardStateTP
      * pointer in the "new" VPSSMgr object using the value from the "old"
@@ -76,35 +76,35 @@ VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
      *
      * We will have to "fix" up the shallow copies later.
      */
-    m_vptp_ptr                    = right.m_vptp_ptr;
-    m_spthermo                    = right.m_spthermo;
-    m_tlast                       = -1.0;
-    m_plast                       = -1.0;
-    m_p0                          = right.m_p0;
-    m_minTemp                     = right.m_minTemp;
-    m_maxTemp                     = right.m_maxTemp;
-    m_useTmpRefStateStorage       = right.m_useTmpRefStateStorage;
-    m_h0_RT                       = right.m_h0_RT;
-    m_cp0_R                       = right.m_cp0_R;
-    m_g0_RT                       = right.m_g0_RT;
-    m_s0_R                        = right.m_s0_R;
-    m_V0                          = right.m_V0;
-    m_useTmpStandardStateStorage  = right.m_useTmpStandardStateStorage;
-    m_hss_RT                      = right.m_hss_RT;
-    m_cpss_R                      = right.m_cpss_R;
-    m_gss_RT                      = right.m_gss_RT;
-    m_sss_R                       = right.m_sss_R;
-    m_Vss                         = right.m_Vss;
-    mPDSS_h0_RT                   = right.mPDSS_h0_RT;
-    mPDSS_cp0_R                   = right.mPDSS_cp0_R;
-    mPDSS_g0_RT                   = right.mPDSS_g0_RT;
-    mPDSS_s0_R                    = right.mPDSS_s0_R;
-    mPDSS_V0                      = right.mPDSS_V0;
-    mPDSS_hss_RT                  = right.mPDSS_hss_RT;
-    mPDSS_cpss_R                  = right.mPDSS_cpss_R;
-    mPDSS_gss_RT                  = right.mPDSS_gss_RT;
-    mPDSS_sss_R                   = right.mPDSS_sss_R;
-    mPDSS_Vss                     = right.mPDSS_Vss;
+    m_vptp_ptr = right.m_vptp_ptr;
+    m_spthermo = right.m_spthermo;
+    m_tlast = -1.0;
+    m_plast = -1.0;
+    m_p0 = right.m_p0;
+    m_minTemp = right.m_minTemp;
+    m_maxTemp = right.m_maxTemp;
+    m_useTmpRefStateStorage = right.m_useTmpRefStateStorage;
+    m_h0_RT = right.m_h0_RT;
+    m_cp0_R = right.m_cp0_R;
+    m_g0_RT = right.m_g0_RT;
+    m_s0_R = right.m_s0_R;
+    m_V0 = right.m_V0;
+    m_useTmpStandardStateStorage = right.m_useTmpStandardStateStorage;
+    m_hss_RT = right.m_hss_RT;
+    m_cpss_R = right.m_cpss_R;
+    m_gss_RT = right.m_gss_RT;
+    m_sss_R = right.m_sss_R;
+    m_Vss = right.m_Vss;
+    mPDSS_h0_RT = right.mPDSS_h0_RT;
+    mPDSS_cp0_R = right.mPDSS_cp0_R;
+    mPDSS_g0_RT = right.mPDSS_g0_RT;
+    mPDSS_s0_R = right.mPDSS_s0_R;
+    mPDSS_V0 = right.mPDSS_V0;
+    mPDSS_hss_RT = right.mPDSS_hss_RT;
+    mPDSS_cpss_R = right.mPDSS_cpss_R;
+    mPDSS_gss_RT = right.mPDSS_gss_RT;
+    mPDSS_sss_R = right.mPDSS_sss_R;
+    mPDSS_Vss = right.mPDSS_Vss;
 
     return *this;
 }
@@ -369,7 +369,7 @@ void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
     }
 }
 
-void VPSSMgr::installSTSpecies(size_t k,  const XML_Node& s,
+void VPSSMgr::installSTSpecies(size_t k, const XML_Node& s,
                                const XML_Node* phaseNode_ptr)
 {
     shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(s.child("thermo")));

@@ -252,7 +252,7 @@ public:
     //! Get the nondimensional Enthalpy functions for the species
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
@@ -260,7 +260,7 @@ public:
     //! Get the array of nondimensional Entropy functions for the
     //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
+     * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
     virtual void getEntropy_R(doublereal* sr) const;

@@ -33,7 +33,7 @@ VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(VPStandardStateTP* vp_ptr,
     m_waterSS(0),
     m_tlastRef(-1.0)
 {
-    m_useTmpRefStateStorage      = true;
+    m_useTmpRefStateStorage = true;
     m_useTmpStandardStateStorage = true;
 }
 
@@ -142,19 +142,19 @@ void VPSSMgr_Water_HKFT::_updateRefStateThermo() const
     m_p0 = m_waterSS->pref_safe(m_tlast);
     m_waterSS->setState_TP(m_tlast, m_p0);
     m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
-    m_s0_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
+    m_s0_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
     m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_V0[0]    = (m_waterSS->density()) / m_vptp_ptr->molecularWeight(0);
+    m_V0[0] = (m_waterSS->density()) / m_vptp_ptr->molecularWeight(0);
     PDSS* ps;
     for (size_t k = 1; k < m_kk; k++) {
         ps = m_vptp_ptr->providePDSS(k);
         ps->setState_TP(m_tlast, m_p0);
-        m_cp0_R[k]  = ps->cp_R();
-        m_s0_R[k]   = ps->entropy_mole() / GasConstant;
-        m_g0_RT[k]  = ps->gibbs_RT();
-        m_h0_RT[k]  = m_g0_RT[k] + m_s0_R[k];
-        m_V0[k]     = ps->molarVolume();
+        m_cp0_R[k] = ps->cp_R();
+        m_s0_R[k] = ps->entropy_mole() / GasConstant;
+        m_g0_RT[k] = ps->gibbs_RT();
+        m_h0_RT[k] = m_g0_RT[k] + m_s0_R[k];
+        m_V0[k] = ps->molarVolume();
 
     }
     m_waterSS->setState_TP(m_tlast, m_plast);
@@ -169,19 +169,19 @@ void VPSSMgr_Water_HKFT::_updateStandardStateThermo()
     // Do the water
     m_waterSS->setState_TP(m_tlast, m_plast);
     m_hss_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
-    m_sss_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
-    m_cpss_R[0] = (m_waterSS->cp_mole())      / GasConstant;
+    m_sss_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
+    m_cpss_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_Vss[0]    = (m_vptp_ptr->molecularWeight(0)) / (m_waterSS->density());
+    m_Vss[0] = (m_vptp_ptr->molecularWeight(0)) / (m_waterSS->density());
 
     for (size_t k = 1; k < m_kk; k++) {
         PDSS* ps = m_vptp_ptr->providePDSS(k);
         ps->setState_TP(m_tlast, m_plast);
-        m_cpss_R[k]  = ps->cp_R();
-        m_sss_R[k]   = ps->entropy_R();
-        m_gss_RT[k]  = ps->gibbs_RT();
-        m_hss_RT[k]  = m_gss_RT[k] + m_sss_R[k];
-        m_Vss[k]     = ps->molarVolume();
+        m_cpss_R[k] = ps->cp_R();
+        m_sss_R[k] = ps->entropy_R();
+        m_gss_RT[k] = ps->gibbs_RT();
+        m_hss_RT[k] = m_gss_RT[k] + m_sss_R[k];
+        m_Vss[k] = ps->molarVolume();
     }
 }
 
@@ -193,7 +193,7 @@ void VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode,
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &phaseNode.root());
     m_waterSS->setState_TP(300., OneAtm);
-    m_Vss[0] = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
+    m_Vss[0] = (m_waterSS->density()) / m_vptp_ptr->molecularWeight(0);
 
     for (size_t k = 1; k < m_kk; k++) {
         string name = m_vptp_ptr->speciesName(k);

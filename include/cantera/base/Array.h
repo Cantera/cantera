@@ -135,7 +135,7 @@ public:
         m_ncols++;
         m_data.resize(m_nrows*m_ncols);
         size_t m;
-        for (m = 0;  m < m_nrows; m++) {
+        for (m = 0; m < m_nrows; m++) {
             value(m_ncols, m) = c[m];
         }
     }
@@ -152,7 +152,7 @@ public:
         m_ncols++;
         m_data.resize(m_nrows*m_ncols);
         size_t m;
-        for (m = 0;  m < m_nrows; m++) {
+        for (m = 0; m < m_nrows; m++) {
             value(m_ncols, m) = c[m];
         }
     }
@@ -171,7 +171,7 @@ public:
     //! Get the nth row and return it in a vector
     /*!
      *   @param n    Index of the row to be returned.
-     *   @param rw   Return Vector  for the operation.
+     *   @param rw   Return Vector for the operation.
      *               Must have a length of m_ncols.
      */
     void getRow(size_t n, doublereal* const rw) {
@@ -277,7 +277,7 @@ public:
 
     //! Returns the value of a single matrix entry
     /*!
-     * This is a key entry. Returns the value of the  matrix position (i,j)
+     * This is a key entry. Returns the value of the matrix position (i,j)
      * element.
      *
      * @param i   The row index

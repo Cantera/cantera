@@ -18,11 +18,11 @@ namespace Cantera
 //------------------------------------------
 
 // Offsets of solution components in the solution array.
-const size_t c_offset_U = 0;    // axial velocity
-const size_t c_offset_V = 1;    // strain rate
-const size_t c_offset_T = 2;    // temperature
-const size_t c_offset_L = 3;    // (1/r)dP/dr
-const size_t c_offset_Y = 4;    // mass fractions
+const size_t c_offset_U = 0; // axial velocity
+const size_t c_offset_V = 1; // strain rate
+const size_t c_offset_T = 2; // temperature
+const size_t c_offset_L = 3; // (1/r)dP/dr
+const size_t c_offset_Y = 4; // mass fractions
 
 // Transport option flags
 const int c_Mixav_Transport = 0;
@@ -318,7 +318,7 @@ protected:
             setGas(x,j);
             m_rho[j] = m_thermo->density();
             m_wtm[j] = m_thermo->meanMolecularWeight();
-            m_cp[j]  = m_thermo->cp_mass();
+            m_cp[j] = m_thermo->cp_mass();
         }
     }
 
@@ -428,7 +428,7 @@ protected:
     //             member data
     //---------------------------------------------------------
 
-    doublereal m_press;        // pressure
+    doublereal m_press; // pressure
 
     // grid parameters
     vector_fp m_dz;

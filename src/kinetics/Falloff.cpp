@@ -26,7 +26,7 @@ void Troe::init(const vector_fp& c)
             "Incorrect number of parameters. 3 or 4 required. Received " +
             int2str(c.size()) + ".");
     }
-    m_a  = c[0];
+    m_a = c[0];
     if (c[1] == 0.0) {
         m_rt3 = 1000.;
     } else {

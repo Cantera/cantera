@@ -239,7 +239,7 @@ protected:
     ResidJacEval& m_resid;
 
     //! Number of total equations in the system
-    integer    m_neq;
+    integer m_neq;
     doublereal m_time;
 
 private:

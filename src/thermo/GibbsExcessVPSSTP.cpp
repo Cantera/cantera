@@ -36,14 +36,14 @@ GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
 
     VPStandardStateTP::operator=(b);
 
-    moleFractions_       = b.moleFractions_;
-    lnActCoeff_Scaled_   = b.lnActCoeff_Scaled_;
-    dlnActCoeffdT_Scaled_   = b.dlnActCoeffdT_Scaled_;
-    d2lnActCoeffdT2_Scaled_   = b.d2lnActCoeffdT2_Scaled_;
+    moleFractions_ = b.moleFractions_;
+    lnActCoeff_Scaled_ = b.lnActCoeff_Scaled_;
+    dlnActCoeffdT_Scaled_ = b.dlnActCoeffdT_Scaled_;
+    d2lnActCoeffdT2_Scaled_ = b.d2lnActCoeffdT2_Scaled_;
     dlnActCoeffdlnX_diag_ = b.dlnActCoeffdlnX_diag_;
     dlnActCoeffdlnN_diag_ = b.dlnActCoeffdlnN_diag_;
-    dlnActCoeffdlnN_  = b.dlnActCoeffdlnN_;
-    m_pp                 = b.m_pp;
+    dlnActCoeffdlnN_ = b.dlnActCoeffdlnN_;
+    m_pp = b.m_pp;
 
     return *this;
 }
@@ -204,7 +204,7 @@ void GibbsExcessVPSSTP::initThermo()
     getMoleFractions(DATA_PTR(moleFractions_));
 }
 
-void  GibbsExcessVPSSTP::initLengths()
+void GibbsExcessVPSSTP::initLengths()
 {
     moleFractions_.resize(m_kk);
     lnActCoeff_Scaled_.resize(m_kk);

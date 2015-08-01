@@ -47,7 +47,7 @@ public:
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
      *   For this class, there are no
-     *   concentration-dependent parts, so this method does  nothing.
+     *   concentration-dependent parts, so this method does nothing.
      */
     void update_C(const doublereal* c) {
     }

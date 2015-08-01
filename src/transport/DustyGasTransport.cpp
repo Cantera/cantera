@@ -45,7 +45,7 @@ DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
     *this = right;
 }
 
-DustyGasTransport& DustyGasTransport::operator=(const  DustyGasTransport& right)
+DustyGasTransport& DustyGasTransport::operator=(const DustyGasTransport& right)
 {
     if (&right == this) {
         return *this;
@@ -106,7 +106,7 @@ void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
 
     // make a local copy of the molecular weights
     m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(),  m_thermo->molecularWeights().end(), m_mw.begin());
+    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
 
     m_multidiff.resize(m_nsp, m_nsp);
     m_d.resize(m_nsp, m_nsp);
@@ -304,17 +304,17 @@ void DustyGasTransport::setMeanPoreRadius(doublereal rbar)
     m_knudsen_ok = false;
 }
 
-void  DustyGasTransport::setMeanParticleDiameter(doublereal dbar)
+void DustyGasTransport::setMeanParticleDiameter(doublereal dbar)
 {
     m_diam = dbar;
 }
 
-void  DustyGasTransport::setPermeability(doublereal B)
+void DustyGasTransport::setPermeability(doublereal B)
 {
     m_perm = B;
 }
 
-Transport&  DustyGasTransport::gasTransport()
+Transport& DustyGasTransport::gasTransport()
 {
     return *m_gastran;
 }

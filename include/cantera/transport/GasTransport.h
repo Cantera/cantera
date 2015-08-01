@@ -321,8 +321,8 @@ protected:
 
     //! Polynomial fits to the binary diffusivity of each species
     /*!
-     *  m_diffcoeff[ic] is vector of polynomial coefficients for species  i
-     *  species  j that fits the binary diffusion coefficient. The relationship
+     *  m_diffcoeff[ic] is vector of polynomial coefficients for species i
+     *  species j that fits the binary diffusion coefficient. The relationship
      *  between i j and ic is determined from the following algorithm:
      *
      *      int ic = 0;

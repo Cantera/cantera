@@ -1,6 +1,6 @@
 /**
  *  @file LTPspecies.cpp \
- *     definitions for the  LTPspecies objects and its children, which is the virtual base class
+ *     definitions for the LTPspecies objects and its children, which is the virtual base class
  *     for describing temperature dependence of submodels for transport parameters
  *    (see \ref tranprops and \link Cantera::LTPspecies LTPspecies \endlink) .
  */
@@ -71,11 +71,11 @@ LTPspecies& LTPspecies::operator=(const LTPspecies& right)
 {
     if (&right != this) {
         m_speciesName = right.m_speciesName;
-        m_property    = right.m_property;
-        m_model       = right.m_model;
-        m_coeffs      = right.m_coeffs;
-        m_thermo      = right.m_thermo;
-        m_mixWeight   = right.m_mixWeight;
+        m_property = right.m_property;
+        m_model = right.m_model;
+        m_coeffs = right.m_coeffs;
+        m_thermo = right.m_thermo;
+        m_mixWeight = right.m_mixWeight;
     }
     return *this;
 }
@@ -142,7 +142,7 @@ doublereal LTPspecies_Const::getSpeciesTransProp()
 }
 
 LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node& propNode, const std::string name,
-        TransportPropertyType tp_ind,  const thermo_t* thermo) :
+        TransportPropertyType tp_ind, const thermo_t* thermo) :
     LTPspecies(&propNode, name, tp_ind, thermo)
 {
     m_model = LTP_TD_ARRHENIUS;
@@ -169,9 +169,9 @@ LTPspecies_Arrhenius& LTPspecies_Arrhenius::operator=(const LTPspecies_Arrhenius
 {
     if (&right != this) {
         LTPspecies::operator=(right);
-        m_temp    = right.m_temp;
-        m_logt    = right.m_logt;
-        m_prop    = right.m_prop;
+        m_temp = right.m_temp;
+        m_logt = right.m_logt;
+        m_prop = right.m_prop;
         m_logProp = right.m_logProp;
     }
     return *this;
@@ -196,9 +196,9 @@ doublereal LTPspecies_Arrhenius::getSpeciesTransProp()
         m_logt = log(m_temp);
         //For viscosity the sign convention on positive activation energy is swithced
         if (m_property == TP_VISCOSITY) {
-            m_logProp = m_coeffs[3] + m_coeffs[1] * m_logt + m_coeffs[2] / m_temp ;
+            m_logProp = m_coeffs[3] + m_coeffs[1] * m_logt + m_coeffs[2] / m_temp;
         } else {
-            m_logProp = m_coeffs[3] + m_coeffs[1] * m_logt - m_coeffs[2] / m_temp ;
+            m_logProp = m_coeffs[3] + m_coeffs[1] * m_logt - m_coeffs[2] / m_temp;
         }
         m_prop = exp(m_logProp);
     }
@@ -225,8 +225,8 @@ LTPspecies_Poly& LTPspecies_Poly::operator=(const LTPspecies_Poly& right)
 {
     if (&right != this) {
         LTPspecies::operator=(right);
-        m_temp    = right.m_temp;
-        m_prop    = right.m_prop;
+        m_temp = right.m_temp;
+        m_prop = right.m_prop;
     }
     return *this;
 }
@@ -272,8 +272,8 @@ LTPspecies_ExpT& LTPspecies_ExpT::operator=(const LTPspecies_ExpT& right)
 {
     if (&right != this) {
         LTPspecies::operator=(right);
-        m_temp    = right.m_temp;
-        m_prop    = right.m_prop;
+        m_temp = right.m_temp;
+        m_prop = right.m_prop;
     }
     return *this;
 }

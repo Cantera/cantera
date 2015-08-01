@@ -149,7 +149,7 @@ void ImplicitSurfChem::updateState(doublereal* c)
 void ImplicitSurfChem::eval(doublereal time, doublereal* y,
                             doublereal* ydot, doublereal* p)
 {
-    updateState(y);   // synchronize the surface state(s) with y
+    updateState(y); // synchronize the surface state(s) with y
     doublereal rs0, sum;
     size_t loc, kstart;
     for (size_t n = 0; n < m_nsurf; n++) {
@@ -206,7 +206,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     InterfaceKinetics* ik = m_vecKinPtrs[0];
     ThermoPhase& tp = ik->thermo(0);
     doublereal TKelvin = tp.temperature();
-    doublereal PGas  = tp.pressure();
+    doublereal PGas = tp.pressure();
     /*
      * Make sure that there is a common temperature and
      * pressure for all ThermoPhase objects belonging to the
@@ -266,7 +266,7 @@ void ImplicitSurfChem::getConcSpecies(doublereal* const vecConcSpecies) const
         TP_ptr->getConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
-    for (size_t ip = 0; ip <  m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip < m_numBulkPhases; ip++) {
         ThermoPhase* TP_ptr = m_bulkPhases[ip];
         TP_ptr->getConcentrations(vecConcSpecies + kstart);
         kstart += TP_ptr->nSpecies();
@@ -282,7 +282,7 @@ void ImplicitSurfChem::setConcSpecies(const doublereal* const vecConcSpecies)
         TP_ptr->setConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
-    for (size_t ip = 0; ip <  m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip < m_numBulkPhases; ip++) {
         ThermoPhase* TP_ptr = m_bulkPhases[ip];
         TP_ptr->setConcentrations(vecConcSpecies + kstart);
         kstart += TP_ptr->nSpecies();

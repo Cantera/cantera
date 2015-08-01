@@ -68,17 +68,17 @@ IdealSolidSolnPhase& IdealSolidSolnPhase::operator=(const IdealSolidSolnPhase& b
     if (this != &b) {
         ThermoPhase::operator=(b);
 
-        m_formGC     = b.m_formGC;
-        m_Pref       = b.m_Pref;
-        m_Pcurrent   = b.m_Pcurrent;
+        m_formGC = b.m_formGC;
+        m_Pref = b.m_Pref;
+        m_Pcurrent = b.m_Pcurrent;
         m_speciesMolarVolume = b.m_speciesMolarVolume;
-        m_h0_RT      = b.m_h0_RT;
-        m_cp0_R      = b.m_cp0_R;
-        m_g0_RT      = b.m_g0_RT;
-        m_s0_R       = b.m_s0_R;
-        m_expg0_RT   = b.m_expg0_RT;
-        m_pe         = b.m_pe;
-        m_pp         = b.m_pp;
+        m_h0_RT = b.m_h0_RT;
+        m_cp0_R = b.m_cp0_R;
+        m_g0_RT = b.m_g0_RT;
+        m_s0_R = b.m_s0_R;
+        m_expg0_RT = b.m_expg0_RT;
+        m_pe = b.m_pe;
+        m_pp = b.m_pp;
     }
     return *this;
 }
@@ -273,7 +273,7 @@ doublereal IdealSolidSolnPhase::logStandardConc(size_t k) const
         res = log(1.0/m_speciesMolarVolume[k]);
         break;
     case 2:
-        res =  log(1.0/m_speciesMolarVolume[m_kk-1]);
+        res = log(1.0/m_speciesMolarVolume[m_kk-1]);
         break;
     default:
         throw CanteraError("eosType", "Unknown type");
@@ -538,7 +538,7 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
                                          &phaseNode.root());
 
     for (size_t k = 0; k < m_kk; k++) {
-        XML_Node* s =  speciesDB->findByAttr("name", speciesName(k));
+        XML_Node* s = speciesDB->findByAttr("name", speciesName(k));
         XML_Node* ss = s->findByName("standardState");
         m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
     }
@@ -590,7 +590,7 @@ void IdealSolidSolnPhase::setToEquilState(const doublereal* lambda_RT)
 
 double IdealSolidSolnPhase::speciesMolarVolume(int k) const
 {
-    return  m_speciesMolarVolume[k];
+    return m_speciesMolarVolume[k];
 }
 
 void IdealSolidSolnPhase::getSpeciesMolarVolumes(doublereal* smv) const
@@ -618,4 +618,4 @@ void IdealSolidSolnPhase::_updateThermo() const
     }
 }
 
-}  // end namespace Cantera
+} // end namespace Cantera

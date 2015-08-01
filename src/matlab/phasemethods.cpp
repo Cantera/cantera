@@ -10,7 +10,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
 {
     double vv = 0.0;
     int iok=0, k;
-    int ph  = getInt(prhs[1]);
+    int ph = getInt(prhs[1]);
     int job = getInt(prhs[2]);
 
     char* input_buf;

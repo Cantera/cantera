@@ -47,7 +47,7 @@ void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vecto
     }
 }
 
-void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value)
+void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_x.size(), "Sim1D::setValue",

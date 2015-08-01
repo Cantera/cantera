@@ -268,7 +268,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 void CVodesIntegrator::initialize(double t0, FuncEval& func)
 {
     m_neq = func.neq();
-    m_t0  = t0;
+    m_t0 = t0;
     m_time = t0;
 
     if (m_y) {
@@ -345,7 +345,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
 
 void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
-    m_t0  = t0;
+    m_t0 = t0;
     m_time = t0;
     func.getInitialConditions(m_t0, static_cast<sd_size_t>(m_neq),
                               NV_DATA_S(m_y));

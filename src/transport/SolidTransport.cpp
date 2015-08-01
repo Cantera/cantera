@@ -42,7 +42,7 @@ SolidTransport& SolidTransport::operator=(const SolidTransport& b)
     }
     Transport::operator=(b);
 
-    m_nmobile =  b.m_nmobile;
+    m_nmobile = b.m_nmobile;
     m_Adiff = b.m_Adiff;
     m_Ndiff = b.m_Ndiff;
     m_Ediff = b.m_Ediff;
@@ -65,9 +65,9 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
 {
     m_thermo = tr.thermo;
     tr.thermo = 0;
-    m_ionConductivity =  tr.ionConductivity;
+    m_ionConductivity = tr.ionConductivity;
     tr.ionConductivity = 0;
-    m_electConductivity =  tr.electConductivity;
+    m_electConductivity = tr.electConductivity;
     tr.electConductivity = 0;
     m_thermalConductivity = tr.thermalConductivity;
     tr.thermalConductivity = 0;

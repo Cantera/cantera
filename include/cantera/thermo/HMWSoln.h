@@ -63,9 +63,9 @@ namespace Cantera
  *               q1(T - Tr) + q2(T**2 - Tr**2)
  */
 //@{
-#define PITZER_TEMP_CONSTANT   0
-#define PITZER_TEMP_LINEAR     1
-#define PITZER_TEMP_COMPLEX1   2
+#define PITZER_TEMP_CONSTANT 0
+#define PITZER_TEMP_LINEAR 1
+#define PITZER_TEMP_COMPLEX1 2
 //@}
 
 /*
@@ -74,8 +74,8 @@ namespace Cantera
  *  These defines determine the way A_Debye is calculated
  */
 //@{
-#define    A_DEBYE_CONST  0
-#define    A_DEBYE_WATER  1
+#define A_DEBYE_CONST 0
+#define A_DEBYE_WATER 1
 //@}
 
 class WaterProps;
@@ -154,7 +154,7 @@ class WaterProps;
  * all solutes. The molar volume for the water solvent, however,
  * is obtained from a pure water equation of state, waterSS.
  * Therefore, the water standard state varies with both T and P.
- * It is an error to request standard state water properties  at a T and P
+ * It is an error to request standard state water properties at a T and P
  * where the water phase is not a stable phase, i.e., beyond its
  * spinodal curve.
  *
@@ -163,7 +163,7 @@ class WaterProps;
  * <HR>
  *
  * Chemical potentials
- * of the solutes,  \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based
+ * of the solutes, \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based
  * on the molality form, have the following general format:
  *
  * \f[
@@ -339,7 +339,7 @@ class WaterProps;
  *  theory depends on the total ionic strength of the solution, and therefore,
  *  \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  will depend on <I>I</I>, the
  *  ionic strength.  \f$ B_{ca}\f$ is a strong function of the
- *  total ionic strength,  <I>I</I>,
+ *  total ionic strength, <I>I</I>,
  *  of the electrolyte. The rest of the coefficients are assumed to be independent of the
  *  molalities or ionic strengths. However, all coefficients are potentially functions
  *  of the temperature and pressure of the solution.
@@ -399,7 +399,7 @@ class WaterProps;
  *  solfates and other high-valence electrolytes which exhibit significant
  *  association at low ionic strengths.
  *
- *  The \f$ \beta^{(0)}_{ca} \f$,  \f$ \beta^{(1)}_{ca}\f$,  \f$ \beta^{(2)}_{ca} \f$,
+ *  The \f$ \beta^{(0)}_{ca} \f$, \f$ \beta^{(1)}_{ca}\f$, \f$ \beta^{(2)}_{ca} \f$,
  *  and \f$ C_{ca} \f$ binary coefficients are referred to as ion-interaction or
  *  Pitzer parameters. These Pitzer parameters may vary with temperature and pressure
  *  but they do not depend on the ionic strength. Their values and temperature
@@ -603,7 +603,7 @@ class WaterProps;
  *  Therefore,
  *  a formalism wherein all of the coefficients in the base theory have
  *  temperature dependencies associated with them has been implemented
- *  within the  HMWSoln object. Much of the formalism, however,
+ *  within the HMWSoln object. Much of the formalism, however,
  *  has been unexercised.
  *
  *  In the HMWSoln object, the temperature dependence of the Pitzer
@@ -633,7 +633,7 @@ class WaterProps;
  *  \f$ C_{MX}\f$
  *  The specification of \f$ B_{MX}\f$ is a function of
  *  \f$\beta^{(0)}_{MX} \f$, \f$\beta^{(1)}_{MX} \f$,
- *  \f$\beta^{(2)}_{MX} \f$,  \f$\alpha^{(1)}_{MX} \f$, and
+ *  \f$\beta^{(2)}_{MX} \f$, \f$\alpha^{(1)}_{MX} \f$, and
  *  \f$\alpha^{(2)}_{MX} \f$.
  *  \f$ C_{MX}\f$ is calculated from \f$C^{\phi}_{MX} \f$
  *  from the formula above.
@@ -668,7 +668,7 @@ class WaterProps;
  *  This same <TT> COMPLEX1 </TT> temperature
  *  dependence given above is used for the following parameters:
  *  \f$ \beta^{(0)}_{MX} \f$, \f$ \beta^{(1)}_{MX} \f$,
- *  \f$ \beta^{(2)}_{MX} \f$, \f$ \Theta_{cc'} \f$,  \f$\Theta_{aa'} \f$,
+ *  \f$ \beta^{(2)}_{MX} \f$, \f$ \Theta_{cc'} \f$, \f$\Theta_{aa'} \f$,
  *  \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{ca{a'}} \f$.
  *
  *  <H3> Like-Charged Binary Ion Parameters and the Mixing Parameters </H3>
@@ -723,7 +723,7 @@ class WaterProps;
  *
  *  The \f$  \Theta_{ij} \f$ term is a constant that is specified
  *  by the XML element <TT> thetaCation </TT> and
- *  <TT> thetaAnion </TT>,  which
+ *  <TT> thetaAnion </TT>, which
  *  has the attribute <TT> cation1 </TT>, <TT> cation2 </TT> and
  *  <TT> anion1 </TT>, <TT> anion2 </TT> respectively
  *  to identify the interaction. No temperature or
@@ -1084,7 +1084,7 @@ class WaterProps;
  *      ThermoPhase *HMW = newPhase("HMW_NaCl.xml", "NaCl_electrolyte");
  * @endcode
  *
- * A new HMWSoln object may be created by  the following code snippets:
+ * A new HMWSoln object may be created by the following code snippets:
  *
  * @code
  *      HMWSoln *HMW = new HMWSoln("HMW_NaCl.xml", "NaCl_electrolyte");
@@ -1499,7 +1499,7 @@ public:
 
     /**
      * @}
-     * @name Activities, Standard States,  and Activity Concentrations
+     * @name Activities, Standard States, and Activity Concentrations
      *
      * The activity \f$a_k\f$ of a species in solution is
      * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
@@ -1512,7 +1512,7 @@ public:
 
     //! This method returns an array of generalized activity concentrations
     /*!
-     * The generalized activity concentrations, \f$ C_k^a\f$,  are defined such that
+     * The generalized activity concentrations, \f$ C_k^a\f$, are defined such that
      * \f$ a_k = C^a_k / C^0_k, \f$ where \f$ C^0_k \f$
      * is a standard concentration
      * defined below.  These generalized concentrations are used
@@ -1541,7 +1541,7 @@ public:
      * The standard concentration \f$ C^0_k \f$ used to normalize
      * the activity (i.e., generalized) concentration for use
      *
-     * We have set the standard concentration for all solute  species in
+     * We have set the standard concentration for all solute species in
      * this phase equal to the default concentration of the solvent at the system temperature
      * and pressure multiplied by Mnaught (kg solvent / gmol solvent). The solvent
      * standard concentration is just equal to its standard state concentration.
@@ -2094,7 +2094,7 @@ private:
      *  - polarNeutral
      *  - nonpolarNeutral  .
      */
-    vector_int  m_electrolyteSpeciesType;
+    vector_int m_electrolyteSpeciesType;
 
     /**
      *  a_k = Size of the ionic species in the DH formulation
@@ -2196,10 +2196,10 @@ private:
     WaterProps* m_waterProps;
 
     //! Temporary array used in equilibrium calculations
-    mutable vector_fp      m_pp;
+    mutable vector_fp m_pp;
 
     //! vector of size m_kk, used as a temporary holding area.
-    mutable vector_fp      m_tmpV;
+    mutable vector_fp m_tmpV;
 
     /**
      * Stoichiometric species charge -> This is for calculations
@@ -2213,7 +2213,7 @@ private:
      * For species that aren't ion pairs, its equal to the
      * m_speciesCharge[] value.
      */
-    vector_fp  m_speciesCharge_Stoich;
+    vector_fp m_speciesCharge_Stoich;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation.
@@ -2224,25 +2224,25 @@ private:
      *     counterIJ where counterIJ = m_counterIJ[i][j]
      *  is used to access this array.
      */
-    mutable vector_fp  m_Beta0MX_ij;
+    mutable vector_fp m_Beta0MX_ij;
 
     //! Derivative of Beta0_ij[i][j] wrt T
     /*!
      *  vector index is counterIJ
      */
-    mutable vector_fp  m_Beta0MX_ij_L;
+    mutable vector_fp m_Beta0MX_ij_L;
 
     //! Derivative of Beta0_ij[i][j] wrt TT
     /*!
      *  vector index is counterIJ
      */
-    mutable vector_fp  m_Beta0MX_ij_LL;
+    mutable vector_fp m_Beta0MX_ij_LL;
 
     //! Derivative of Beta0_ij[i][j] wrt P
     /*!
      *  vector index is counterIJ
      */
-    mutable vector_fp  m_Beta0MX_ij_P;
+    mutable vector_fp m_Beta0MX_ij_P;
 
     //! Array of coefficients for Beta0, a variable in Pitzer's papers
     /*!
@@ -2250,7 +2250,7 @@ private:
      *  m_Beta0MX_ij_coeff.ptrColumn(counterIJ) is a double* containing
      *  the vector of coefficients for the counterIJ interaction.
      */
-    mutable Array2D    m_Beta0MX_ij_coeff;
+    mutable Array2D m_Beta0MX_ij_coeff;
 
     /*!
      *  Array of 2D data used in the Pitzer/HMW formulation.
@@ -2287,7 +2287,7 @@ private:
      *  m_Beta1MX_ij_coeff.ptrColumn(counterIJ) is a double* containing
      *  the vector of coefficients for the counterIJ interaction.
      */
-    mutable Array2D   m_Beta1MX_ij_coeff;
+    mutable Array2D m_Beta1MX_ij_coeff;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation.
@@ -2327,7 +2327,7 @@ private:
      *  This was added for the YMP database version of the code since it
      *  contains temperature-dependent parameters for some 2-2 electrolytes.
      */
-    mutable Array2D   m_Beta2MX_ij_coeff;
+    mutable Array2D m_Beta2MX_ij_coeff;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation.
@@ -2494,16 +2494,16 @@ private:
      * index, i.e., n. The charged species occupy the j coordinate.
      * neutral, neutral interactions are also included here.
      */
-    mutable Array2D   m_Lambda_nj;
+    mutable Array2D m_Lambda_nj;
 
-    //! Derivative of  Lambda_nj[i][j] wrt T. see m_Lambda_ij
-    mutable Array2D   m_Lambda_nj_L;
+    //! Derivative of Lambda_nj[i][j] wrt T. see m_Lambda_ij
+    mutable Array2D m_Lambda_nj_L;
 
-    //! Derivative of  Lambda_nj[i][j] wrt TT
-    mutable Array2D   m_Lambda_nj_LL;
+    //! Derivative of Lambda_nj[i][j] wrt TT
+    mutable Array2D m_Lambda_nj_LL;
 
-    //! Derivative of  Lambda_nj[i][j] wrt P
-    mutable Array2D   m_Lambda_nj_P;
+    //! Derivative of Lambda_nj[i][j] wrt P
+    mutable Array2D m_Lambda_nj_P;
 
     //! Array of coefficients for Lambda_nj[i][j] in the Pitzer/HMW formulation.
     /*!
@@ -2521,7 +2521,7 @@ private:
      *  m_Lambda_ij_coeff.ptrColumn(n) is a double* containing
      *  the vector of coefficients for the (i,j) interaction.
      */
-    Array2D  m_Lambda_nj_coeff;
+    Array2D m_Lambda_nj_coeff;
 
     //! Mu coefficient for the self-ternary neutral coefficient
     /*!
@@ -2530,7 +2530,7 @@ private:
      * nnn interaction. This is a general interaction representing
      * neutral species interacting with itself.
      */
-    mutable vector_fp  m_Mu_nnn;
+    mutable vector_fp m_Mu_nnn;
 
     //! Mu coefficient temperature derivative for the self-ternary neutral coefficient
     /*!
@@ -2539,7 +2539,7 @@ private:
      * nnn interaction. This is a general interaction representing
      * neutral species interacting with itself.
      */
-    mutable vector_fp  m_Mu_nnn_L;
+    mutable vector_fp m_Mu_nnn_L;
 
     //! Mu coefficient 2nd temperature derivative for the self-ternary neutral coefficient
     /*!
@@ -2548,7 +2548,7 @@ private:
      * nnn interaction. This is a general interaction representing
      * neutral species interacting with itself.
      */
-    mutable vector_fp  m_Mu_nnn_LL;
+    mutable vector_fp m_Mu_nnn_LL;
 
     //! Mu coefficient pressure derivative for the self-ternary neutral coefficient
     /*!
@@ -2557,10 +2557,10 @@ private:
      * nnn interaction. This is a general interaction representing
      * neutral species interacting with itself.
      */
-    mutable vector_fp  m_Mu_nnn_P;
+    mutable vector_fp m_Mu_nnn_P;
 
     //! Array of coefficients form_Mu_nnn term
-    Array2D   m_Mu_nnn_coeff;
+    Array2D m_Mu_nnn_coeff;
 
     //!  Logarithm of the activity coefficients on the molality
     //!  scale.
@@ -2843,7 +2843,7 @@ private:
     /*!
      *   Normally these are all one. However, stability schemes will change that
      */
-    mutable vector_fp      IMS_lnActCoeffMolal_;
+    mutable vector_fp IMS_lnActCoeffMolal_;
 
     //! IMS Cutoff type
     int IMS_typeCutoff_;
@@ -3181,10 +3181,10 @@ private:
     void readXMLCroppingCoefficients(const XML_Node& acNode);
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
-    void  calcIMSCutoffParams_();
+    void calcIMSCutoffParams_();
 
     //! Calculate molality cut-off parameters
-    void  calcMCCutoffParams_();
+    void calcMCCutoffParams_();
 
     //! Utility function to assign an integer value from a string
     //! for the ElectrolyteSpeciesType field.

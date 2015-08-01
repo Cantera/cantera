@@ -151,7 +151,7 @@ namespace Cantera
  * For example, a bulk-phase binary gas reaction between species j and k, producing
  * a new species l would have the
  * following equation for its rate of progress variable, \f$ R^1 \f$, which has
- * units of  kmol m-3 s-1.
+ * units of kmol m-3 s-1.
  *
  *   \f[
  *    R^1 = k^1 C_j^a C_k^a =  k^1  X_j X_k
@@ -438,7 +438,7 @@ public:
     virtual void setConcentrations(const doublereal* const c);
 
     //@}
-    /// @name Activities, Standard States,  and Activity Concentrations
+    /// @name Activities, Standard States, and Activity Concentrations
     /**
      * The activity \f$a_k\f$ of a species in solution is
      * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
@@ -549,7 +549,7 @@ public:
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
      * \f]
      * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
+     * at the reference pressure, \f$ P_{ref} \f$, are computed by the
      * species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
@@ -638,7 +638,7 @@ public:
      *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
      *  changes to the reference state thermodynamics is resolved at this level.
      *
-     * @param sr   Output vector of  nondimensional standard state entropies.
+     * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
     virtual void getEntropy_R(doublereal* sr) const;
@@ -723,7 +723,7 @@ public:
     /*!
      *  units = J/kmol
      *
-     * @param g       Output vector containing the  reference state
+     * @param g       Output vector containing the reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
     virtual void getGibbs_ref(doublereal* g) const;
@@ -793,7 +793,7 @@ public:
      *
      * @param n number of parameters. Must be one
      * @param c array of \a n coefficients
-     *           c[0] = The bulk  lattice density (kmol m-3)
+     *           c[0] = The bulk lattice density (kmol m-3)
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -873,7 +873,7 @@ protected:
     /**
      * Species molar volumes \f$ m^3 kmol^-1 \f$
      */
-    vector_fp   m_speciesMolarVolume;
+    vector_fp m_speciesMolarVolume;
 
     //! Site Density of the lattice solid
     /*!

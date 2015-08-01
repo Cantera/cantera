@@ -24,16 +24,16 @@ namespace Cantera
  *
  *   WATER_UNSTABLELIQUID indicates that we are in the unstable region, inside the
  *   spinodal curve where dpdrho < 0.0 amonst other properties. The difference
- *   between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS  is that
+ *   between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS is that
  *     for WATER_UNSTABLELIQUID  d2pdrho2 > 0   and dpdrho < 0.0
  *     for WATER_UNSTABLEGAS     d2pdrho2 < 0   and dpdrho < 0.0
  */
 //@{
-#define WATER_GAS       0
-#define WATER_LIQUID    1
+#define WATER_GAS 0
+#define WATER_LIQUID 1
 #define WATER_SUPERCRIT 2
-#define WATER_UNSTABLELIQUID  3
-#define WATER_UNSTABLEGAS  4
+#define WATER_UNSTABLELIQUID 3
+#define WATER_UNSTABLEGAS 4
 //@}
 
 //! Class for calculating the equation of state of water.
@@ -185,14 +185,14 @@ public:
     //! using the last temperature and density
     doublereal Gibbs() const;
 
-    //!  Calculate the enthalpy in mks units of  J kmol-1
+    //!  Calculate the enthalpy in mks units of J kmol-1
     //!  using the last temperature and density
     doublereal enthalpy() const;
 
     //! Calculate the internal energy in mks units of J kmol-1
     doublereal intEnergy() const;
 
-    //! Calculate the entropy in mks units of  J kmol-1 K-1
+    //! Calculate the entropy in mks units of J kmol-1 K-1
     doublereal entropy() const;
 
     //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
@@ -387,7 +387,7 @@ public:
      *    - WATER_LIQUID  below the critical temperature but above the critical density
      *    - WATER_SUPERCRIT   above the critical temperature
      */
-    int phaseState(bool checkState = false) const ;
+    int phaseState(bool checkState = false) const;
 
     //! Returns the critical temperature of water (Kelvin)
     /*!

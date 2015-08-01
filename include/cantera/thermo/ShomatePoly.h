@@ -103,7 +103,7 @@ public:
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the
-     * functions of temperature needed by this  parameterization, and three
+     * functions of temperature needed by this parameterization, and three
      * pointers to arrays where the computed property values should be
      * written. This method updates only one value in each array.
      *
@@ -123,13 +123,13 @@ public:
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const {
-        doublereal A      = m_coeff[0];
-        doublereal Bt     = m_coeff[1]*tt[0];
-        doublereal Ct2    = m_coeff[2]*tt[1];
-        doublereal Dt3    = m_coeff[3]*tt[2];
-        doublereal Etm2   = m_coeff[4]*tt[3];
-        doublereal Ftm1   = m_coeff[5]*tt[5];
-        doublereal G      = m_coeff[6];
+        doublereal A = m_coeff[0];
+        doublereal Bt = m_coeff[1]*tt[0];
+        doublereal Ct2 = m_coeff[2]*tt[1];
+        doublereal Dt3 = m_coeff[3]*tt[2];
+        doublereal Etm2 = m_coeff[4]*tt[3];
+        doublereal Ftm1 = m_coeff[5]*tt[5];
+        doublereal G = m_coeff[6];
 
         *cp_R = A + Bt + Ct2 + Dt3 + Etm2;
         *h_RT = A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2 + Ftm1;
@@ -316,7 +316,7 @@ public:
     virtual void modifyParameters(doublereal* coeffs) {
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
-        msp_low = ShomatePoly(m_lowT, m_midT,  m_Pref, coeffs+1);
+        msp_low = ShomatePoly(m_lowT, m_midT, m_Pref, coeffs+1);
         msp_high = ShomatePoly(m_midT, m_highT, m_Pref, coeffs+8);
     }
 
@@ -339,7 +339,7 @@ public:
         double h = msp_low.reportHf298(0);
         double hnew = h + delH;
         msp_low.modifyOneHf298(k, hnew);
-        h  = msp_high.reportHf298(0);
+        h = msp_high.reportHf298(0);
         hnew = h + delH;
         msp_high.modifyOneHf298(k, hnew);
     }

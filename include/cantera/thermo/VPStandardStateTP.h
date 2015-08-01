@@ -127,7 +127,7 @@ public:
      * getChemPotentials() and then dividing by RT. No need for child
      * classes to handle.
      *
-     * @param mu    Output vector of  non-dimensional species chemical potentials
+     * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
     void getChemPotentials_RT(doublereal* mu) const;
@@ -213,7 +213,7 @@ public:
      * pressure for the standard state of the species
      * at the current T and P.
      *
-     * This is redefined here to call the internal function,  _updateStandardStateThermo(),
+     * This is redefined here to call the internal function, _updateStandardStateThermo(),
      * which calculates all standard state properties at the same time.
      *
      * @param cpr    Output vector containing the
@@ -229,7 +229,7 @@ public:
     /*!
      * units = m^3 / kmol
      *
-     * This is redefined here to call the internal function,  _updateStandardStateThermo(),
+     * This is redefined here to call the internal function, _updateStandardStateThermo(),
      * which calculates all standard state properties at the same time.
      *
      * @param vol Output vector of species volumes. length = m_kk.
@@ -335,10 +335,10 @@ protected:
      * @internal
      *
      * If m_useTmpStandardStateStorage is true,
-     * this function must be called for every call to functions in this  class.
+     * this function must be called for every call to functions in this class.
      *
      * This function is responsible for updating the following internal members,
-     * when  m_useTmpStandardStateStorage is true.
+     * when m_useTmpStandardStateStorage is true.
      *
      *  -  m_hss_RT;
      *  -  m_cpss_R;
@@ -360,7 +360,7 @@ public:
      *  variables for holding the species reference-state values of Cp, H, S, and V at the
      *  last temperature and reference pressure called. These functions are not recalculated
      *  if a new call is made using the previous temperature.
-     *  All calculations are done within the routine  _updateRefStateThermo().
+     *  All calculations are done within the routine _updateRefStateThermo().
      */
     //@{
 
@@ -499,7 +499,7 @@ public:
      */
     VPSSMgr* provideVPSSMgr();
 
-    void createInstallPDSS(size_t k,  const XML_Node& s, const XML_Node* phaseNode_ptr);
+    void createInstallPDSS(size_t k, const XML_Node& s, const XML_Node* phaseNode_ptr);
 
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;
@@ -512,14 +512,14 @@ protected:
      *
      *  units = Pascals
      */
-    doublereal  m_Pcurrent;
+    doublereal m_Pcurrent;
 
     //! The last temperature at which the standard statethermodynamic properties were calculated at.
-    mutable doublereal    m_Tlast_ss;
+    mutable doublereal m_Tlast_ss;
 
     //! The last pressure at which the Standard State thermodynamic
     //! properties were calculated at.
-    mutable doublereal    m_Plast_ss;
+    mutable doublereal m_Plast_ss;
 
     /*!
      * Reference pressure (Pa) must be the same for all species

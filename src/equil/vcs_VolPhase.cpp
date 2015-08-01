@@ -111,15 +111,15 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         //        operator but is true for a copy constructor
         // m_owningSolverObject = b.m_owningSolverObject;
 
-        VP_ID_               = b.VP_ID_;
-        m_singleSpecies     = b.m_singleSpecies;
-        m_gasPhase            = b.m_gasPhase;
-        m_eqnState            = b.m_eqnState;
+        VP_ID_ = b.VP_ID_;
+        m_singleSpecies = b.m_singleSpecies;
+        m_gasPhase = b.m_gasPhase;
+        m_eqnState = b.m_eqnState;
         ChargeNeutralityElement = b.ChargeNeutralityElement;
-        p_VCS_UnitsFormat   = b.p_VCS_UnitsFormat;
+        p_VCS_UnitsFormat = b.p_VCS_UnitsFormat;
         p_activityConvention= b.p_activityConvention;
         m_numSpecies = b.m_numSpecies;
-        m_numElemConstraints    = b.m_numElemConstraints;
+        m_numElemConstraints = b.m_numElemConstraints;
         m_elementNames.resize(b.m_numElemConstraints);
         for (size_t e = 0; e < b.m_numElemConstraints; e++) {
             m_elementNames[e] = b.m_elementNames[e];
@@ -128,12 +128,12 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         m_elementType = b.m_elementType;
         m_formulaMatrix = b.m_formulaMatrix;
         m_speciesUnknownType = b.m_speciesUnknownType;
-        m_elemGlobalIndex    = b.m_elemGlobalIndex;
-        PhaseName           = b.PhaseName;
-        m_totalMolesInert   = b.m_totalMolesInert;
-        m_isIdealSoln       = b.m_isIdealSoln;
-        m_existence         = b.m_existence;
-        m_MFStartIndex      = b.m_MFStartIndex;
+        m_elemGlobalIndex = b.m_elemGlobalIndex;
+        PhaseName = b.PhaseName;
+        m_totalMolesInert = b.m_totalMolesInert;
+        m_isIdealSoln = b.m_isIdealSoln;
+        m_existence = b.m_existence;
+        m_MFStartIndex = b.m_MFStartIndex;
         /*
          * Do a shallow copy because we haven' figured this out.
          */
@@ -141,7 +141,7 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
 
         for (size_t k = 0; k < old_num; k++) {
             if (ListSpeciesPtr[k]) {
-                delete  ListSpeciesPtr[k];
+                delete ListSpeciesPtr[k];
                 ListSpeciesPtr[k] = 0;
             }
         }
@@ -157,29 +157,29 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
          *  duplicateMyselfAsThermoPhase() call here. This will
          *  have to be looked into.
          */
-        TP_ptr              = b.TP_ptr;
-        v_totalMoles              = b.v_totalMoles;
+        TP_ptr = b.TP_ptr;
+        v_totalMoles = b.v_totalMoles;
         Xmol_ = b.Xmol_;
         creationMoleNumbers_ = b.creationMoleNumbers_;
         creationGlobalRxnNumbers_ = b.creationGlobalRxnNumbers_;
-        m_phiVarIndex       = b.m_phiVarIndex;
-        m_totalVol          = b.m_totalVol;
+        m_phiVarIndex = b.m_phiVarIndex;
+        m_totalVol = b.m_totalVol;
         SS0ChemicalPotential = b.SS0ChemicalPotential;
         StarChemicalPotential = b.StarChemicalPotential;
         StarMolarVol = b.StarMolarVol;
         PartialMolarVol = b.PartialMolarVol;
         ActCoeff = b.ActCoeff;
         np_dLnActCoeffdMolNumber = b.np_dLnActCoeffdMolNumber;
-        m_vcsStateStatus      = b.m_vcsStateStatus;
-        m_phi               = b.m_phi;
-        m_UpToDate            = false;
-        m_UpToDate_AC         = false;
-        m_UpToDate_VolStar    = false;
-        m_UpToDate_VolPM      = false;
-        m_UpToDate_GStar      = false;
-        m_UpToDate_G0         = false;
-        Temp_                = b.Temp_;
-        Pres_                = b.Pres_;
+        m_vcsStateStatus = b.m_vcsStateStatus;
+        m_phi = b.m_phi;
+        m_UpToDate = false;
+        m_UpToDate_AC = false;
+        m_UpToDate_VolStar = false;
+        m_UpToDate_VolPM = false;
+        m_UpToDate_GStar = false;
+        m_UpToDate_G0 = false;
+        Temp_ = b.Temp_;
+        Pres_ = b.Pres_;
 
         setState_TP(Temp_, Pres_);
         _updateMoleFractionDependencies();
@@ -263,13 +263,13 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     np_dLnActCoeffdMolNumber.resize(nspecies, nspecies, 0.0);
 
     m_speciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
-    m_UpToDate            = false;
-    m_vcsStateStatus      = VCS_STATECALC_OLD;
-    m_UpToDate_AC         = false;
-    m_UpToDate_VolStar    = false;
-    m_UpToDate_VolPM      = false;
-    m_UpToDate_GStar      = false;
-    m_UpToDate_G0         = false;
+    m_UpToDate = false;
+    m_vcsStateStatus = VCS_STATECALC_OLD;
+    m_UpToDate_AC = false;
+    m_UpToDate_VolStar = false;
+    m_UpToDate_VolPM = false;
+    m_UpToDate_GStar = false;
+    m_UpToDate_G0 = false;
 
     elemResize(numElem);
 }
@@ -593,11 +593,11 @@ void vcs_VolPhase::setState_TP(const double temp, const double pres)
     TP_ptr->setState_TP(temp, pres);
     Temp_ = temp;
     Pres_ = pres;
-    m_UpToDate_AC      = false;
+    m_UpToDate_AC = false;
     m_UpToDate_VolStar = false;
-    m_UpToDate_VolPM   = false;
-    m_UpToDate_GStar   = false;
-    m_UpToDate_G0      = false;
+    m_UpToDate_VolPM = false;
+    m_UpToDate_GStar = false;
+    m_UpToDate_G0 = false;
 }
 
 void vcs_VolPhase::setState_T(const double temp)
@@ -749,7 +749,7 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     m_phi = TP_ptr->electricPotential();
     size_t nsp = TP_ptr->nSpecies();
     size_t nelem = TP_ptr->nElements();
-    if (nsp !=  m_numSpecies) {
+    if (nsp != m_numSpecies) {
         if (m_numSpecies != 0) {
             plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
         }
@@ -826,7 +826,7 @@ void vcs_VolPhase::setTotalMoles(const double totalMols)
                        fp2str(totalMols) + " " + fp2str(m_totalMolesInert));
     } else {
         if (m_singleSpecies && (m_phiVarIndex == 0)) {
-            m_existence =  VCS_PHASE_EXIST_ALWAYS;
+            m_existence = VCS_PHASE_EXIST_ALWAYS;
         } else {
             if (totalMols > 0.0) {
                 m_existence = VCS_PHASE_EXIST_YES;
@@ -862,7 +862,7 @@ std::string string16_EOSType(int EOSType)
     case VCS_EOS_IDEAL_GAS:
         sprintf(st,"Ideal Gas       ");
         break;
-    case  VCS_EOS_STOICH_SUB:
+    case VCS_EOS_STOICH_SUB:
         sprintf(st,"Stoich Sub      ");
         break;
     case VCS_EOS_IDEAL_SOLN:
@@ -906,7 +906,7 @@ void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex)
 
 vcs_SpeciesProperties* vcs_VolPhase::speciesProperty(const size_t kindex)
 {
-    return  ListSpeciesPtr[kindex];
+    return ListSpeciesPtr[kindex];
 }
 
 int vcs_VolPhase::exists() const

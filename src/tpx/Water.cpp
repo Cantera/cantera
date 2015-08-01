@@ -162,7 +162,7 @@ double water::Psat()
                         "Temperature out of range. T = " + fp2str(T));
     }
     for (int i=1; i<=8; i++) {
-        sum += F[i-1]*pow(aww*(T-Tp),double(i-1));    // DGG mod
+        sum += F[i-1]*pow(aww*(T-Tp),double(i-1)); // DGG mod
     }
     log = (Tc/T-1)*sum;
     return exp(log)*Pc;

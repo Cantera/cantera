@@ -54,23 +54,23 @@ PhaseCombo_Interaction& PhaseCombo_Interaction::operator=(const PhaseCombo_Inter
 
     GibbsExcessVPSSTP::operator=(b);
 
-    numBinaryInteractions_      = b.numBinaryInteractions_ ;
-    m_HE_b_ij                   = b.m_HE_b_ij;
-    m_HE_c_ij                   = b.m_HE_c_ij;
-    m_HE_d_ij                   = b.m_HE_d_ij;
-    m_SE_b_ij                   = b.m_SE_b_ij;
-    m_SE_c_ij                   = b.m_SE_c_ij;
-    m_SE_d_ij                   = b.m_SE_d_ij;
-    m_VHE_b_ij                  = b.m_VHE_b_ij;
-    m_VHE_c_ij                  = b.m_VHE_c_ij;
-    m_VHE_d_ij                  = b.m_VHE_d_ij;
-    m_VSE_b_ij                  = b.m_VSE_b_ij;
-    m_VSE_c_ij                  = b.m_VSE_c_ij;
-    m_VSE_d_ij                  = b.m_VSE_d_ij;
-    m_pSpecies_A_ij             = b.m_pSpecies_A_ij;
-    m_pSpecies_B_ij             = b.m_pSpecies_B_ij;
-    formMargules_               = b.formMargules_;
-    formTempModel_              = b.formTempModel_;
+    numBinaryInteractions_ = b.numBinaryInteractions_;
+    m_HE_b_ij = b.m_HE_b_ij;
+    m_HE_c_ij = b.m_HE_c_ij;
+    m_HE_d_ij = b.m_HE_d_ij;
+    m_SE_b_ij = b.m_SE_b_ij;
+    m_SE_c_ij = b.m_SE_c_ij;
+    m_SE_d_ij = b.m_SE_d_ij;
+    m_VHE_b_ij = b.m_VHE_b_ij;
+    m_VHE_c_ij = b.m_VHE_c_ij;
+    m_VHE_d_ij = b.m_VHE_d_ij;
+    m_VSE_b_ij = b.m_VSE_b_ij;
+    m_VSE_c_ij = b.m_VSE_c_ij;
+    m_VSE_d_ij = b.m_VSE_d_ij;
+    m_pSpecies_A_ij = b.m_pSpecies_A_ij;
+    m_pSpecies_B_ij = b.m_pSpecies_B_ij;
+    formMargules_ = b.formMargules_;
+    formTempModel_ = b.formTempModel_;
 
     return *this;
 }
@@ -267,9 +267,9 @@ void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
     for (size_t iK = 0; iK < m_kk; iK++) {
         int delAK = 0;
         int delBK = 0;
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-            size_t iA =  m_pSpecies_A_ij[i];
-            size_t iB =  m_pSpecies_B_ij[i];
+        for (size_t i = 0; i < numBinaryInteractions_; i++) {
+            size_t iA = m_pSpecies_A_ij[i];
+            size_t iB = m_pSpecies_B_ij[i];
 
             if (iA==iK) {
                 delAK = 1;
@@ -292,7 +292,7 @@ void PhaseCombo_Interaction::initThermo()
     GibbsExcessVPSSTP::initThermo();
 }
 
-void  PhaseCombo_Interaction::initLengths()
+void PhaseCombo_Interaction::initLengths()
 {
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
@@ -367,9 +367,9 @@ void PhaseCombo_Interaction::s_update_lnActCoeff() const
         /*
          *  Then add in the Margules interaction terms. that's it!
          */
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-            size_t iA =  m_pSpecies_A_ij[i];
-            size_t iB =  m_pSpecies_B_ij[i];
+        for (size_t i = 0; i < numBinaryInteractions_; i++) {
+            size_t iA = m_pSpecies_A_ij[i];
+            size_t iB = m_pSpecies_B_ij[i];
             int delAK = 0;
             int delBK = 0;
             if (iA==iK) {
@@ -392,9 +392,9 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dT() const
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
     for (size_t iK = 0; iK < m_kk; iK++) {
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-            size_t iA =  m_pSpecies_A_ij[i];
-            size_t iB =  m_pSpecies_B_ij[i];
+        for (size_t i = 0; i < numBinaryInteractions_; i++) {
+            size_t iA = m_pSpecies_A_ij[i];
+            size_t iB = m_pSpecies_B_ij[i];
             int delAK = 0;
             int delBK = 0;
             if (iA==iK) {
@@ -429,7 +429,7 @@ void PhaseCombo_Interaction::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) con
     }
 }
 
-void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
+void PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
         doublereal* dlnActCoeffds) const
 {
     doublereal T = temperature();
@@ -447,9 +447,9 @@ void  PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doub
             dlnActCoeffds[iK] += - 1.0 / xx;
         }
 
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-            size_t iA =  m_pSpecies_A_ij[i];
-            size_t iB =  m_pSpecies_B_ij[i];
+        for (size_t i = 0; i < numBinaryInteractions_; i++) {
+            size_t iA = m_pSpecies_A_ij[i];
+            size_t iB = m_pSpecies_B_ij[i];
             int delAK = 0;
             int delBK = 0;
 
@@ -489,9 +489,9 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
             dlnActCoeffdlnN_diag_[iK] = - 1.0 + xx;
         }
 
-        for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-            size_t iA =  m_pSpecies_A_ij[i];
-            size_t iB =  m_pSpecies_B_ij[i];
+        for (size_t i = 0; i < numBinaryInteractions_; i++) {
+            size_t iA = m_pSpecies_A_ij[i];
+            size_t iB = m_pSpecies_B_ij[i];
             int delAK = 0;
             int delBK = 0;
 
@@ -535,9 +535,9 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
                 dlnActCoeffdlnN_(iK,iM) += - delKM/XM + 1.0;
             }
 
-            for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-                size_t iA =  m_pSpecies_A_ij[i];
-                size_t iB =  m_pSpecies_B_ij[i];
+            for (size_t i = 0; i < numBinaryInteractions_; i++) {
+                size_t iA = m_pSpecies_A_ij[i];
+                size_t iB = m_pSpecies_B_ij[i];
                 double delAK = 0.0;
                 double delBK = 0.0;
                 double delAM = 0.0;
@@ -569,9 +569,9 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag() const
 {
     doublereal T = temperature();
     dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
-    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-        size_t iA =  m_pSpecies_A_ij[i];
-        size_t iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+        size_t iA = m_pSpecies_A_ij[i];
+        size_t iB = m_pSpecies_B_ij[i];
 
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];

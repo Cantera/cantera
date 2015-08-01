@@ -83,7 +83,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
 
     m_maxTotSpecies = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
-        size_t tsp =  m_objects[n]->nTotalSpecies();
+        size_t tsp = m_objects[n]->nTotalSpecies();
         m_maxTotSpecies = std::max(m_maxTotSpecies, tsp);
     }
     m_maxTotSpecies = std::max(m_maxTotSpecies, m_neq);
@@ -134,15 +134,15 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     int info = 0;
     int label_t=-1; /* Species IDs for time control */
     int label_d = -1; /* Species IDs for damping control */
-    int        label_t_old=-1;
-    doublereal     label_factor = 1.0;
+    int label_t_old=-1;
+    doublereal label_factor = 1.0;
     int iter=0; // iteration number on numlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
     doublereal deltaT = 1.0E-10; // Delta time step
     doublereal damp=1.0, tmp;
     //  Weighted L2 norm of the residual.  Currently, this is only
     //  used for IO purposes. It doesn't control convergence.
-    doublereal  resid_norm;
+    doublereal resid_norm;
     doublereal inv_t = 0.0;
     doublereal t_real = 0.0, update_norm = 1.0E6;
     bool do_time = false, not_converged = true;
@@ -161,7 +161,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
      */
     size_t loc = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
-        SurfPhase* sf_ptr =  m_ptrsSurfPhase[n];
+        SurfPhase* sf_ptr = m_ptrsSurfPhase[n];
         sf_ptr->getConcentrations(DATA_PTR(m_numEqn1));
         size_t nsp = m_nSpeciesSurfPhase[n];
         for (size_t k = 0; k <nsp; k++) {
@@ -217,11 +217,11 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
             }
             tmp = calc_t(DATA_PTR(m_netProductionRatesSave),
                          DATA_PTR(m_XMolKinSpecies),
-                         &label_t, &label_t_old,  &label_factor, m_ioflag);
+                         &label_t, &label_t_old, &label_factor, m_ioflag);
             if (iter < 10) {
                 inv_t = tmp;
             } else if (tmp > 2.0*inv_t) {
-                inv_t =  2.0*inv_t;
+                inv_t = 2.0*inv_t;
             } else {
                 inv_t = tmp;
             }
@@ -333,7 +333,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
         }
 
         if (m_ioflag) {
-            printIteration(m_ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
+            printIteration(m_ioflag, damp, label_d, label_t, inv_t, t_real, iter,
                            update_norm, resid_norm, do_time);
         }
 
@@ -343,7 +343,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
             if (do_time) {
                 if (t_real > time_scale ||
                         (resid_norm < 1.0e-7 &&
-                         update_norm*time_scale/t_real < EXTRA_ACCURACY))  {
+                         update_norm*time_scale/t_real < EXTRA_ACCURACY)) {
                     do_time = false;
                 }
             } else {
@@ -374,7 +374,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
                  false, deltaT);
         resid_norm = calcWeightedNorm(DATA_PTR(m_wtResid),
                                       DATA_PTR(m_resid), m_neq);
-        printIteration(m_ioflag, damp, label_d, label_t,  inv_t, t_real, iter,
+        printIteration(m_ioflag, damp, label_d, label_t, inv_t, t_real, iter,
                        update_norm, resid_norm, do_time, true);
     }
 
@@ -433,7 +433,7 @@ void solveSP::evalSurfLarge(const doublereal* CSolnSP)
 }
 
 void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
-                       const doublereal* CSolnOld,  const bool do_time,
+                       const doublereal* CSolnOld, const bool do_time,
                        const doublereal deltaT)
 {
     size_t isp, nsp, kstart, k, kindexSP, kins, kspecial;
@@ -606,7 +606,7 @@ void solveSP::resjac_eval(SquareMatrix& jac,
 static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label)
 {
     const doublereal APPROACH = 0.80;
-    doublereal    damp = 1.0, xnew, xtop, xbot;
+    doublereal damp = 1.0, xnew, xtop, xbot;
     static doublereal damp_old = 1.0;
     *label = -1;
 
@@ -629,7 +629,7 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
         } else if (xnew < xbot) {
             damp = APPROACH * x[i] / dxneg[i];
             *label = int(i);
-        } else  if (xnew > 3.0*std::max(x[i], 1.0E-10)) {
+        } else if (xnew > 3.0*std::max(x[i], 1.0E-10)) {
             damp = - 2.0 * std::max(x[i], 1.0E-10) / dxneg[i];
             *label = int(i);
         }
@@ -654,7 +654,7 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
 } /* calc_damping */
 
 /*
- *    This function calculates the norm  of an update, dx[],
+ *    This function calculates the norm of an update, dx[],
  *    based on the weighted values of x.
  */
 static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[], size_t dim)
@@ -718,7 +718,7 @@ doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
                           doublereal* label_factor, int ioflag)
 {
     size_t k, isp, nsp, kstart;
-    doublereal   inv_timeScale = 1.0E-10;
+    doublereal inv_timeScale = 1.0E-10;
     doublereal sden, tmp;
     size_t kindexSP = 0;
     *label = 0;

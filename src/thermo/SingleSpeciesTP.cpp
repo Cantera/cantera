@@ -35,11 +35,11 @@ SingleSpeciesTP& SingleSpeciesTP::operator=(const SingleSpeciesTP& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_press      = right.m_press;
-        m_p0         = right.m_p0;
-        m_h0_RT      = right.m_h0_RT;
-        m_cp0_R      = right.m_cp0_R;
-        m_s0_R       = right.m_s0_R;
+        m_press = right.m_press;
+        m_p0 = right.m_p0;
+        m_h0_RT = right.m_h0_RT;
+        m_cp0_R = right.m_cp0_R;
+        m_s0_R = right.m_s0_R;
     }
     return *this;
 }

@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 
 
                 HMW->getCp_R(Cp0_R);
-                Cp0_H2O    = Cp0_R[0] * GasConstant * 1.0E-6;
+                Cp0_H2O = Cp0_R[0] * GasConstant * 1.0E-6;
                 Cp0_Naplus = Cp0_R[i1] * GasConstant * 1.0E-6;
                 Cp0_Clminus = Cp0_R[i2] * GasConstant * 1.0E-6;
                 /*
@@ -162,8 +162,8 @@ int main(int argc, char** argv)
 
 
                 HMW->getPartialMolarCp(pmCp);
-                Cp_H2O     = pmCp[0]  * 1.0E-6;
-                Cp_Naplus  = pmCp[i1] * 1.0E-6;
+                Cp_H2O = pmCp[0] * 1.0E-6;
+                Cp_Naplus = pmCp[i1] * 1.0E-6;
                 Cp_Clminus = pmCp[i2] * 1.0E-6;
 
                 //double Delta_Cp_Salt = Cp_NaCl - (Cp_Naplus + Cp_Clminus);
@@ -174,7 +174,7 @@ int main(int argc, char** argv)
                  * Calculate the heat capacity of solution for the reaction
                  * NaCl(s) -> Na+ + Cl-
                  */
-                double Delta_Cps = (Xmol[0]  * Cp_H2O +
+                double Delta_Cps = (Xmol[0] * Cp_H2O +
                                     Xmol[i1] * Cp_Naplus +
                                     Xmol[i2] * Cp_Clminus
                                     - Xmol[0] * Cp0_H2O
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
                  * Calculate the relative heat capacity, J, from the
                  * partial molar quantities, units J/gmolSolutionK
                  */
-                double J = (Xmol[0]  * (Cp_H2O    - Cp0_H2O) +
+                double J = (Xmol[0] * (Cp_H2O - Cp0_H2O) +
                             Xmol[i1] * (Cp_Naplus - Cp0_Naplus) +
                             Xmol[i2] * (Cp_Clminus - Cp0_Clminus));
 
@@ -223,17 +223,17 @@ int main(int argc, char** argv)
             printf(" Species     MoleFrac        Molal          Cp0      "
                    "    partCp     (partCp - Cp0)\n");
             printf("  H2O(L)");
-            printf("%13.5f %13.5f %13.5f %13.5f %13.5f\n", Xmol[0], moll[0], Cp0_H2O , Cp_H2O,  Cp_H2O-Cp0_H2O);
+            printf("%13.5f %13.5f %13.5f %13.5f %13.5f\n", Xmol[0], moll[0], Cp0_H2O, Cp_H2O, Cp_H2O-Cp0_H2O);
             printf("  Na+   ");
             printf("%13.5f %13.5f %13.5f %13.5f %13.5f\n", Xmol[i1], moll[i1],
-                   Cp0_Naplus , Cp_Naplus,  Cp_Naplus -Cp0_Naplus);
+                   Cp0_Naplus, Cp_Naplus, Cp_Naplus-Cp0_Naplus);
             printf("  Cl-   ");
             printf("%13.5f %13.5f %13.5f %13.5f %13.5f\n", Xmol[i2], moll[i2],
-                   Cp0_Clminus , Cp_Clminus,  Cp_Clminus - Cp0_Clminus);
+                   Cp0_Clminus, Cp_Clminus, Cp_Clminus-Cp0_Clminus);
 
             printf(" NaCl(s)");
             printf("%13.5f               %13.5f %13.5f %13.5f\n", 1.0,
-                   Cp0_NaCl , Cp_NaCl,  Cp_NaCl - Cp0_NaCl);
+                   Cp0_NaCl, Cp_NaCl, Cp_NaCl-Cp0_NaCl);
 
         }
 

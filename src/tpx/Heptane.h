@@ -54,13 +54,13 @@ private:
     double C(int jm, double, double, double, double);
 
     //! derivative of C(i)
-    double Cprime(int i,  double, double, double);
+    double Cprime(int i, double, double, double);
 
     /*!
      * I = integral from o-rho { 1/(rho^2) * H(i, rho) d rho }
      * ( see section 2 of Reynolds TPSI )
      */
-    double I(int i,  double, double);
+    double I(int i, double, double);
 
     /*!
      * H returns a multiplier in each term of the sum in P-2.

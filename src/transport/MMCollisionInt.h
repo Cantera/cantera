@@ -33,7 +33,7 @@ public:
      *  @param loglevel    Set the loglevel for the object. The default
      *                     loglevel is zero, indicating no output.
      */
-    void init(doublereal tsmin,  doublereal tsmax, int loglevel = 0);
+    void init(doublereal tsmin, doublereal tsmax, int loglevel = 0);
 
     doublereal omega22(double ts, double deltastar);
     doublereal astar(double ts, double deltastar);
@@ -49,10 +49,10 @@ public:
 private:
     doublereal fitDelta(int table, int ntstar, int degree, doublereal* c);
 
-    std::vector<vector_fp>  m_o22poly;
-    std::vector<vector_fp>  m_apoly;
-    std::vector<vector_fp>  m_bpoly;
-    std::vector<vector_fp>  m_cpoly;
+    std::vector<vector_fp> m_o22poly;
+    std::vector<vector_fp> m_apoly;
+    std::vector<vector_fp> m_bpoly;
+    std::vector<vector_fp> m_cpoly;
 
     static doublereal delta[8];
     static doublereal tstar22[37];
@@ -76,7 +76,7 @@ private:
     static doublereal cstar_table[39*8];
 
     //! Log temp
-    vector_fp  m_logTemp;
+    vector_fp m_logTemp;
 
     int m_nmin;
     int m_nmax;

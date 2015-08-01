@@ -64,7 +64,7 @@ IdealSolnGasVPSS& IdealSolnGasVPSS::operator=(const IdealSolnGasVPSS& b)
          * However, we have to handle data that we own.
          */
         m_idealGas = b.m_idealGas;
-        m_formGC   = b.m_formGC;
+        m_formGC = b.m_formGC;
     }
     return *this;
 }
@@ -101,7 +101,7 @@ doublereal IdealSolnGasVPSS::entropy_mole() const
 doublereal IdealSolnGasVPSS::cp_mole() const
 {
     updateStandardStateThermo();
-    return  GasConstant * mean_X(m_VPSS_ptr->cp_R());
+    return GasConstant * mean_X(m_VPSS_ptr->cp_R());
 }
 
 doublereal IdealSolnGasVPSS::cv_mole() const

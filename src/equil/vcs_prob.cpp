@@ -51,12 +51,12 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
         throw CanteraError("VCS_PROB::VCS_PROB",
                            "number of species is zero or neg");
     }
-    NE0       = ne;
+    NE0 = ne;
     if (ne <= 0) {
         throw CanteraError("VCS_PROB::VCS_PROB",
                            "number of elements is zero or neg");
     }
-    NPHASE0   = NPhase;
+    NPHASE0 = NPhase;
     if (NPhase <= 0) {
         throw CanteraError("VCS_PROB::VCS_PROB",
                            "number of phases is zero or neg");
@@ -190,7 +190,7 @@ void VCS_PROB::prob_report(int print_lvl)
             plogf("%16s      %5d   %16s", SpName[i].c_str(), PhaseID[i],
                   Vphase->PhaseName.c_str());
             if (iest >= 0) {
-                plogf("             %-10.5g",  w[i]);
+                plogf("             %-10.5g", w[i]);
             } else {
                 plogf("                N/A");
             }
@@ -221,7 +221,7 @@ void VCS_PROB::prob_report(int print_lvl)
             plogf("%16s %8d %16e ", EOS_cstr.c_str(),
                   Vphase->nSpecies(), Vphase->totalMolesInert());
             if (iest >= 0) {
-                plogf("%16e\n",  Vphase->totalMoles());
+                plogf("%16e\n", Vphase->totalMoles());
             } else {
                 plogf("   N/A\n");
             }
@@ -441,7 +441,7 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
                         mf[istart + k], molalities[k], ac[k], activity[k],
                         mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         mf[istart + k] * TMolesPhase,
-                        volPM[k],  VolPhaseVolumes);
+                        volPM[k], VolPhaseVolumes);
             }
         } else {
             if (iphase == 0) {
@@ -462,10 +462,10 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
                         "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
                         phaseName.c_str(), TMolesPhase,
-                        mf[istart + k],  molalities[k], ac[k],
+                        mf[istart + k], molalities[k], ac[k],
                         activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         mf[istart + k] * TMolesPhase,
-                        volPM[k],  VolPhaseVolumes);
+                        volPM[k], VolPhaseVolumes);
             }
         }
 

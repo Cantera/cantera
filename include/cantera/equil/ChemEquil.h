@@ -32,10 +32,10 @@ public:
         iterations(0),
         maxStepSize(10.0), propertyPair(TP), contin(false) {}
 
-    doublereal relTolerance;      ///< Relative tolerance
-    doublereal absElemTol;        ///< Abs Tol in element number
-    int maxIterations;            ///< Maximum number of iterations
-    int iterations;               ///< Iteration counter
+    doublereal relTolerance; ///< Relative tolerance
+    doublereal absElemTol; ///< Abs Tol in element number
+    int maxIterations; ///< Maximum number of iterations
+    int iterations; ///< Iteration counter
 
     /**
      * Maximum step size. Largest change in any element potential or
@@ -77,7 +77,7 @@ class PropertyCalculator;
  *  chemical equilibrium. Non-stoichiometric methods are faster
  *  when they converge, but stoichiometric ones tend to be more
  *  robust and can be used also for problems with multiple
- *  condensed phases.  As expected, the ChemEquil solver is faster
+ *  condensed phases. As expected, the ChemEquil solver is faster
  *  than MultiPhaseEquil for many single-phase equilibrium
  *  problems (particularly if there are only a few elements but
  *  very many species), but can be less stable. Problem
@@ -153,7 +153,7 @@ protected:
      *  means that the 2 ThermoPhases have to have consist of the same
      *  species and elements.
      */
-    thermo_t*  m_phase;
+    thermo_t* m_phase;
 
     //! number of atoms of element m in species k.
     doublereal nAtoms(size_t k, size_t m) const {
@@ -183,7 +183,7 @@ protected:
     int setInitialMoles(thermo_t& s, vector_fp& elMoleGoal, int loglevel = 0);
 
     //! Generate a starting estimate for the element potentials.
-    int estimateElementPotentials(thermo_t& s,  vector_fp& lambda,
+    int estimateElementPotentials(thermo_t& s, vector_fp& lambda,
                                   vector_fp& elMolesGoal, int loglevel = 0);
 
     /*!

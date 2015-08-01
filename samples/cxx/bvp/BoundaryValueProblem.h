@@ -13,10 +13,10 @@ namespace BVP
 {
 
 // default grid refinement parameters
-const double max_grid_ratio  = 4.0;   ///< max ratio of neighboring grid intervals
-const double max_delta       = 0.01;  ///< max difference in function values
-const double max_delta_slope = 0.02;  ///< max difference in slopes
-const double prune           = 0.000; ///< don't remove grid points
+const double max_grid_ratio = 4.0; ///< max ratio of neighboring grid intervals
+const double max_delta = 0.01; ///< max difference in function values
+const double max_delta_slope = 0.02; ///< max difference in slopes
+const double prune = 0.000; ///< don't remove grid points
 
 /**
  * Used to specify component-specific options for method
@@ -27,12 +27,12 @@ const double prune           = 0.000; ///< don't remove grid points
 class Component
 {
 public:
-    double lower;  ///< lower bound
-    double upper;  ///< upper bound
-    double rtol;   ///< relative error tolerance
-    double atol;   ///< absolute error tolerance
-    bool refine;   ///< make this component active for grid refinement
-    std::string name;   ///< component name
+    double lower; ///< lower bound
+    double upper; ///< upper bound
+    double rtol; ///< relative error tolerance
+    double atol; ///< absolute error tolerance
+    bool refine; ///< make this component active for grid refinement
+    std::string name; ///< component name
 
     /**
      * Constructor. Sets default values.
@@ -195,9 +195,9 @@ public:
     }
 
 protected:
-    Cantera::Domain1D* m_left;  ///< dummy terminator
+    Cantera::Domain1D* m_left; ///< dummy terminator
     Cantera::Domain1D* m_right; ///< dummy terminator
-    Cantera::Sim1D* m_sim;      ///< controller for solution
+    Cantera::Sim1D* m_sim; ///< controller for solution
 
     /**
      * True if n is the index of the left-most grid point (zero),

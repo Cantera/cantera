@@ -48,7 +48,7 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex,
     m_constMolarVolume(-1.0)
 {
     m_pdssType = cPDSS_SSVOL;
-    constructPDSSXML(tp, spindex, speciesNode,  phaseRoot, spInstalled) ;
+    constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
 }
 
 PDSS_SSVol::PDSS_SSVol(const PDSS_SSVol& b) :
@@ -198,7 +198,7 @@ doublereal PDSS_SSVol::cp_R() const
 
 doublereal PDSS_SSVol::cv_mole() const
 {
-    return (cp_mole() -  m_V0_ptr[m_spindex]);
+    return (cp_mole() - m_V0_ptr[m_spindex]);
 }
 
 doublereal PDSS_SSVol::molarVolume() const
@@ -242,15 +242,15 @@ void PDSS_SSVol::calcMolarVolume() const
         m_Vss_ptr[m_spindex] = m_constMolarVolume;
     } else if (volumeModel_ == cSSVOLUME_TPOLY) {
         m_Vss_ptr[m_spindex] = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
-        dVdT_   = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
-        d2VdT2_ =  2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
-    } else  if (volumeModel_ == cSSVOLUME_DENSITY_TPOLY) {
-        doublereal dens =  TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
+        dVdT_ = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
+        d2VdT2_ = 2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
+    } else if (volumeModel_ == cSSVOLUME_DENSITY_TPOLY) {
+        doublereal dens = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
         m_Vss_ptr[m_spindex] = m_mw / dens;
         doublereal dens2 = dens * dens;
-        doublereal ddensdT =  TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
+        doublereal ddensdT = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
         doublereal d2densdT2 = 2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
-        dVdT_   = - m_mw / dens2 * ddensdT;
+        dVdT_ = - m_mw / dens2 * ddensdT;
         d2VdT2_ = 2.0 * m_mw / (dens2 * dens) * ddensdT * ddensdT - m_mw / dens2 * d2densdT2;
     } else {
         throw CanteraError("PDSS_SSVol::calcMolarVolume", "unimplemented");
@@ -268,7 +268,7 @@ void PDSS_SSVol::setPressure(doublereal p)
         m_cpss_R_ptr[m_spindex] = m_cp0_R_ptr[m_spindex];
     } else {
         doublereal del_pRT = deltaP / (GasConstant * m_temp);
-        doublereal sV_term =  - deltaP / GasConstant * dVdT_;
+        doublereal sV_term = - deltaP / GasConstant * dVdT_;
         m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] + sV_term + del_pRT * m_Vss_ptr[m_spindex];
         m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex] + sV_term;
         m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
@@ -281,7 +281,7 @@ void PDSS_SSVol::setTemperature(doublereal temp)
     m_temp = temp;
     m_spthermo->update_one(m_spindex, temp, m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
     calcMolarVolume();
-    m_g0_RT_ptr[m_spindex] =  m_h0_RT_ptr[m_spindex] -  m_s0_R_ptr[m_spindex];
+    m_g0_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] - m_s0_R_ptr[m_spindex];
     doublereal deltaP = m_pres - m_p0;
     if (fabs(deltaP) < 1.0E-10) {
         m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex];
@@ -290,7 +290,7 @@ void PDSS_SSVol::setTemperature(doublereal temp)
         m_cpss_R_ptr[m_spindex] = m_cp0_R_ptr[m_spindex];
     } else {
         doublereal del_pRT = deltaP / (GasConstant * m_temp);
-        doublereal sV_term =  - deltaP / GasConstant * dVdT_;
+        doublereal sV_term = - deltaP / GasConstant * dVdT_;
         m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] + sV_term + del_pRT * m_Vss_ptr[m_spindex];
         m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex] + sV_term;
         m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];

@@ -59,26 +59,26 @@ IdealMolalSoln& IdealMolalSoln::operator=(const IdealMolalSoln& b)
 {
     if (&b != this) {
         MolalityVPSSTP::operator=(b);
-        m_speciesMolarVolume  = b.m_speciesMolarVolume;
-        m_formGC              = b.m_formGC;
-        IMS_typeCutoff_       = b.IMS_typeCutoff_;
-        IMS_X_o_cutoff_       = b.IMS_X_o_cutoff_;
-        IMS_gamma_o_min_      = b.IMS_gamma_o_min_;
-        IMS_gamma_k_min_      = b.IMS_gamma_k_min_;
-        IMS_cCut_             = b.IMS_cCut_;
-        IMS_slopefCut_        = b.IMS_slopefCut_;
-        IMS_dfCut_            = b.IMS_dfCut_;
-        IMS_efCut_            = b.IMS_efCut_;
-        IMS_afCut_            = b.IMS_afCut_;
-        IMS_bfCut_            = b.IMS_bfCut_;
-        IMS_slopegCut_        = b.IMS_slopegCut_;
-        IMS_dgCut_            = b.IMS_dgCut_;
-        IMS_egCut_            = b.IMS_egCut_;
-        IMS_agCut_            = b.IMS_agCut_;
-        IMS_bgCut_            = b.IMS_bgCut_;
-        m_pp                  = b.m_pp;
-        m_tmpV                = b.m_tmpV;
-        IMS_lnActCoeffMolal_  = b.IMS_lnActCoeffMolal_;
+        m_speciesMolarVolume = b.m_speciesMolarVolume;
+        m_formGC = b.m_formGC;
+        IMS_typeCutoff_ = b.IMS_typeCutoff_;
+        IMS_X_o_cutoff_ = b.IMS_X_o_cutoff_;
+        IMS_gamma_o_min_ = b.IMS_gamma_o_min_;
+        IMS_gamma_k_min_ = b.IMS_gamma_k_min_;
+        IMS_cCut_ = b.IMS_cCut_;
+        IMS_slopefCut_ = b.IMS_slopefCut_;
+        IMS_dfCut_ = b.IMS_dfCut_;
+        IMS_efCut_ = b.IMS_efCut_;
+        IMS_afCut_ = b.IMS_afCut_;
+        IMS_bfCut_ = b.IMS_bfCut_;
+        IMS_slopegCut_ = b.IMS_slopegCut_;
+        IMS_dgCut_ = b.IMS_dgCut_;
+        IMS_egCut_ = b.IMS_egCut_;
+        IMS_agCut_ = b.IMS_agCut_;
+        IMS_bgCut_ = b.IMS_bgCut_;
+        m_pp = b.m_pp;
+        m_tmpV = b.m_tmpV;
+        IMS_lnActCoeffMolal_ = b.IMS_lnActCoeffMolal_;
     }
     return *this;
 }
@@ -528,7 +528,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                     IMS_typeCutoff_ = 1;
                 } else {
                     throw CanteraError("IdealMolalSoln::initThermoXML",
-                                       "Unknown  idealMolalSolnCutoff form: " + modelString);
+                                       "Unknown idealMolalSolnCutoff form: " + modelString);
                 }
 
                 if (ccNode.hasChild("gamma_o_limit")) {
@@ -584,7 +584,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     const std::vector<std::string> &sss = speciesNames();
 
     for (size_t k = 0; k < m_kk; k++) {
-        XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+        XML_Node* s = speciesDB->findByAttr("name", sss[k]);
         XML_Node* ss = s->findByName("standardState");
         m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
     }
@@ -609,7 +609,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
  * ------------ Private and Restricted Functions ------------------
  */
 
-void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
+void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
 {
     /*
      * Calculate the molalities. Currently, the molalities
@@ -645,24 +645,24 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             /*
              * If we are in the middle region, calculate the connecting polynomials
              */
-            double xminus  = xmolSolvent - IMS_X_o_cutoff_/2.0;
+            double xminus = xmolSolvent - IMS_X_o_cutoff_/2.0;
             double xminus2 = xminus * xminus;
             double xminus3 = xminus2 * xminus;
             double x_o_cut2 = IMS_X_o_cutoff_ * IMS_X_o_cutoff_;
-            double x_o_cut3 =  x_o_cut2 * IMS_X_o_cutoff_;
+            double x_o_cut3 = x_o_cut2 * IMS_X_o_cutoff_;
 
-            double h2 = 3.5 * xminus2 /  IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;
-            double h2_prime = 7.0 * xminus /  IMS_X_o_cutoff_ - 6.0 * xminus2 /  x_o_cut2;
+            double h2 = 3.5 * xminus2 / IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;
+            double h2_prime = 7.0 * xminus / IMS_X_o_cutoff_ - 6.0 * xminus2 / x_o_cut2;
 
-            double h1 = (1.0 - 3.0 * xminus2 /  x_o_cut2 + 2.0 *  xminus3/ x_o_cut3);
-            double h1_prime = (- 6.0 * xminus /  x_o_cut2 + 6.0 *  xminus2/ x_o_cut3);
+            double h1 = (1.0 - 3.0 * xminus2 / x_o_cut2 + 2.0 * xminus3/ x_o_cut3);
+            double h1_prime = (- 6.0 * xminus / x_o_cut2 + 6.0 * xminus2/ x_o_cut3);
 
             double h1_g = h1 / IMS_gamma_o_min_;
-            double h1_g_prime  = h1_prime / IMS_gamma_o_min_;
+            double h1_g_prime = h1_prime / IMS_gamma_o_min_;
 
             double alpha = 1.0 / (exp(1.0) * IMS_gamma_k_min_);
             double h1_f = h1 * alpha;
-            double h1_f_prime  = h1_prime * alpha;
+            double h1_f_prime = h1_prime * alpha;
 
             double f = h2 + h1_f;
             double f_prime = h2_prime + h1_f_prime;
@@ -692,12 +692,12 @@ void  IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             double xoverc = xmolSolvent/IMS_cCut_;
             double eterm = std::exp(-xoverc);
 
-            double fptmp = IMS_bfCut_  - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
+            double fptmp = IMS_bfCut_ - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
                            + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
             double f_prime = 1.0 + eterm*fptmp;
             double f = xmolSolvent + IMS_efCut_ + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
 
-            double gptmp = IMS_bgCut_  - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
+            double gptmp = IMS_bgCut_ - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
                            + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
             double g_prime = 1.0 + eterm*gptmp;
             double g = xmolSolvent + IMS_egCut_ + eterm * (IMS_agCut_ + xmolSolvent * (IMS_bgCut_ + IMS_dgCut_*xmolSolvent));
@@ -727,14 +727,14 @@ void IdealMolalSoln::initLengths()
     IMS_lnActCoeffMolal_.resize(m_kk);
 }
 
-void  IdealMolalSoln::calcIMSCutoffParams_()
+void IdealMolalSoln::calcIMSCutoffParams_()
 {
-    IMS_afCut_ = 1.0 / (std::exp(1.0) *  IMS_gamma_k_min_);
+    IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_);
     IMS_efCut_ = 0.0;
     bool converged = false;
     for (int its = 0; its < 100 && !converged; its++) {
         double oldV = IMS_efCut_;
-        IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_)  - IMS_efCut_;
+        IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_) - IMS_efCut_;
         IMS_bfCut_ = IMS_afCut_ / IMS_cCut_ + IMS_slopefCut_ - 1.0;
         IMS_dfCut_ = ((- IMS_afCut_/IMS_cCut_ + IMS_bfCut_ - IMS_bfCut_*IMS_X_o_cutoff_/IMS_cCut_)
                       /
@@ -756,7 +756,7 @@ void  IdealMolalSoln::calcIMSCutoffParams_()
     IMS_egCut_ = 0.0;
     for (int its = 0; its < 100 && !converged; its++) {
         double oldV = IMS_egCut_;
-        double lng_0 = -log(IMS_gamma_o_min_) -  f_prime_0 / f_0;
+        double lng_0 = -log(IMS_gamma_o_min_) - f_prime_0 / f_0;
         IMS_agCut_ = exp(lng_0) - IMS_egCut_;
         IMS_bgCut_ = IMS_agCut_ / IMS_cCut_ + IMS_slopegCut_ - 1.0;
         IMS_dgCut_ = ((- IMS_agCut_/IMS_cCut_ + IMS_bgCut_ - IMS_bgCut_*IMS_X_o_cutoff_/IMS_cCut_)

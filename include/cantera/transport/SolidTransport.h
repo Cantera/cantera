@@ -22,7 +22,7 @@ class SolidTransport : public Transport
 public:
     SolidTransport();
     SolidTransport(const SolidTransport& right);
-    SolidTransport&  operator=(const SolidTransport& right);
+    SolidTransport& operator=(const SolidTransport& right);
     virtual Transport* duplMyselfAsTransport() const;
 
     virtual int model() const {
@@ -35,7 +35,7 @@ public:
      *  The ionConductivity calculation is handled by subclasses of
      *  LTPspecies as specified in the input file.
      */
-    virtual doublereal ionConductivity() ;
+    virtual doublereal ionConductivity();
 
     //! Returns the thermal conductivity of the phase
     /*!

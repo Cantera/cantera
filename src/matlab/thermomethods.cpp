@@ -152,7 +152,7 @@ static void thermoget(int nlhs, mxArray* plhs[],
             vv = double(th_eosType(n));
             break;
         case 19:
-            vv  = th_critTemperature(n);
+            vv = th_critTemperature(n);
             break;
         case 20:
             vv = th_critPressure(n);

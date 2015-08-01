@@ -37,7 +37,7 @@ HMWSoln::HMWSoln() :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -87,7 +87,7 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -138,7 +138,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -189,7 +189,7 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     m_TempPitzerRef(298.15),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0),
@@ -235,16 +235,16 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
 {
     if (&b != this) {
         MolalityVPSSTP::operator=(b);
-        m_formPitzer          = b.m_formPitzer;
-        m_formPitzerTemp      = b.m_formPitzerTemp;
-        m_formGC              = b.m_formGC;
-        m_Aionic              = b.m_Aionic;
-        m_IionicMolality      = b.m_IionicMolality;
-        m_maxIionicStrength   = b.m_maxIionicStrength;
-        m_TempPitzerRef       = b.m_TempPitzerRef;
+        m_formPitzer = b.m_formPitzer;
+        m_formPitzerTemp = b.m_formPitzerTemp;
+        m_formGC = b.m_formGC;
+        m_Aionic = b.m_Aionic;
+        m_IionicMolality = b.m_IionicMolality;
+        m_maxIionicStrength = b.m_maxIionicStrength;
+        m_TempPitzerRef = b.m_TempPitzerRef;
         m_IionicMolalityStoich= b.m_IionicMolalityStoich;
-        m_form_A_Debye        = b.m_form_A_Debye;
-        m_A_Debye             = b.m_A_Debye;
+        m_form_A_Debye = b.m_form_A_Debye;
+        m_A_Debye = b.m_A_Debye;
 
         // This is an internal shallow copy of the PDSS_Water pointer
         m_waterSS = providePDSS(0);
@@ -252,7 +252,7 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
             throw CanteraError("HMWSoln::operator=()", "Dynamic cast to PDSS_Water failed");
         }
 
-        m_densWaterSS         = b.m_densWaterSS;
+        m_densWaterSS = b.m_densWaterSS;
 
         delete m_waterProps;
         m_waterProps = 0;
@@ -260,126 +260,126 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
             m_waterProps = new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS));
         }
 
-        m_pp                  = b.m_pp;
-        m_tmpV                = b.m_tmpV;
+        m_pp = b.m_pp;
+        m_tmpV = b.m_tmpV;
         m_speciesCharge_Stoich= b.m_speciesCharge_Stoich;
-        m_Beta0MX_ij          = b.m_Beta0MX_ij;
-        m_Beta0MX_ij_L        = b.m_Beta0MX_ij_L;
-        m_Beta0MX_ij_LL       = b.m_Beta0MX_ij_LL;
-        m_Beta0MX_ij_P        = b.m_Beta0MX_ij_P;
-        m_Beta0MX_ij_coeff    = b.m_Beta0MX_ij_coeff;
-        m_Beta1MX_ij          = b.m_Beta1MX_ij;
-        m_Beta1MX_ij_L        = b.m_Beta1MX_ij_L;
-        m_Beta1MX_ij_LL       = b.m_Beta1MX_ij_LL;
-        m_Beta1MX_ij_P        = b.m_Beta1MX_ij_P;
-        m_Beta1MX_ij_coeff    = b.m_Beta1MX_ij_coeff;
-        m_Beta2MX_ij          = b.m_Beta2MX_ij;
-        m_Beta2MX_ij_L        = b.m_Beta2MX_ij_L;
-        m_Beta2MX_ij_LL       = b.m_Beta2MX_ij_LL;
-        m_Beta2MX_ij_P        = b.m_Beta2MX_ij_P;
-        m_Beta2MX_ij_coeff    = b.m_Beta2MX_ij_coeff;
-        m_Alpha1MX_ij         = b.m_Alpha1MX_ij;
-        m_Alpha2MX_ij         = b.m_Alpha2MX_ij;
-        m_CphiMX_ij           = b.m_CphiMX_ij;
-        m_CphiMX_ij_L         = b.m_CphiMX_ij_L;
-        m_CphiMX_ij_LL        = b.m_CphiMX_ij_LL;
-        m_CphiMX_ij_P         = b.m_CphiMX_ij_P;
-        m_CphiMX_ij_coeff     = b.m_CphiMX_ij_coeff;
-        m_Theta_ij            = b.m_Theta_ij;
-        m_Theta_ij_L          = b.m_Theta_ij_L;
-        m_Theta_ij_LL         = b.m_Theta_ij_LL;
-        m_Theta_ij_P          = b.m_Theta_ij_P;
-        m_Theta_ij_coeff      = b.m_Theta_ij_coeff;
-        m_Psi_ijk             = b.m_Psi_ijk;
-        m_Psi_ijk_L           = b.m_Psi_ijk_L;
-        m_Psi_ijk_LL          = b.m_Psi_ijk_LL;
-        m_Psi_ijk_P           = b.m_Psi_ijk_P;
-        m_Psi_ijk_coeff       = b.m_Psi_ijk_coeff;
-        m_Lambda_nj           = b.m_Lambda_nj;
-        m_Lambda_nj_L         = b.m_Lambda_nj_L;
-        m_Lambda_nj_LL        = b.m_Lambda_nj_LL;
-        m_Lambda_nj_P         = b.m_Lambda_nj_P;
-        m_Lambda_nj_coeff     = b.m_Lambda_nj_coeff;
+        m_Beta0MX_ij = b.m_Beta0MX_ij;
+        m_Beta0MX_ij_L = b.m_Beta0MX_ij_L;
+        m_Beta0MX_ij_LL = b.m_Beta0MX_ij_LL;
+        m_Beta0MX_ij_P = b.m_Beta0MX_ij_P;
+        m_Beta0MX_ij_coeff = b.m_Beta0MX_ij_coeff;
+        m_Beta1MX_ij = b.m_Beta1MX_ij;
+        m_Beta1MX_ij_L = b.m_Beta1MX_ij_L;
+        m_Beta1MX_ij_LL = b.m_Beta1MX_ij_LL;
+        m_Beta1MX_ij_P = b.m_Beta1MX_ij_P;
+        m_Beta1MX_ij_coeff = b.m_Beta1MX_ij_coeff;
+        m_Beta2MX_ij = b.m_Beta2MX_ij;
+        m_Beta2MX_ij_L = b.m_Beta2MX_ij_L;
+        m_Beta2MX_ij_LL = b.m_Beta2MX_ij_LL;
+        m_Beta2MX_ij_P = b.m_Beta2MX_ij_P;
+        m_Beta2MX_ij_coeff = b.m_Beta2MX_ij_coeff;
+        m_Alpha1MX_ij = b.m_Alpha1MX_ij;
+        m_Alpha2MX_ij = b.m_Alpha2MX_ij;
+        m_CphiMX_ij = b.m_CphiMX_ij;
+        m_CphiMX_ij_L = b.m_CphiMX_ij_L;
+        m_CphiMX_ij_LL = b.m_CphiMX_ij_LL;
+        m_CphiMX_ij_P = b.m_CphiMX_ij_P;
+        m_CphiMX_ij_coeff = b.m_CphiMX_ij_coeff;
+        m_Theta_ij = b.m_Theta_ij;
+        m_Theta_ij_L = b.m_Theta_ij_L;
+        m_Theta_ij_LL = b.m_Theta_ij_LL;
+        m_Theta_ij_P = b.m_Theta_ij_P;
+        m_Theta_ij_coeff = b.m_Theta_ij_coeff;
+        m_Psi_ijk = b.m_Psi_ijk;
+        m_Psi_ijk_L = b.m_Psi_ijk_L;
+        m_Psi_ijk_LL = b.m_Psi_ijk_LL;
+        m_Psi_ijk_P = b.m_Psi_ijk_P;
+        m_Psi_ijk_coeff = b.m_Psi_ijk_coeff;
+        m_Lambda_nj = b.m_Lambda_nj;
+        m_Lambda_nj_L = b.m_Lambda_nj_L;
+        m_Lambda_nj_LL = b.m_Lambda_nj_LL;
+        m_Lambda_nj_P = b.m_Lambda_nj_P;
+        m_Lambda_nj_coeff = b.m_Lambda_nj_coeff;
 
-        m_Mu_nnn              = b.m_Mu_nnn;
-        m_Mu_nnn_L            = b.m_Mu_nnn_L;
-        m_Mu_nnn_LL           = b.m_Mu_nnn_LL;
-        m_Mu_nnn_P            = b.m_Mu_nnn_P;
-        m_Mu_nnn_coeff        = b.m_Mu_nnn_coeff;
+        m_Mu_nnn = b.m_Mu_nnn;
+        m_Mu_nnn_L = b.m_Mu_nnn_L;
+        m_Mu_nnn_LL = b.m_Mu_nnn_LL;
+        m_Mu_nnn_P = b.m_Mu_nnn_P;
+        m_Mu_nnn_coeff = b.m_Mu_nnn_coeff;
 
-        m_lnActCoeffMolal_Scaled       = b.m_lnActCoeffMolal_Scaled;
-        m_lnActCoeffMolal_Unscaled     = b.m_lnActCoeffMolal_Unscaled;
-        m_dlnActCoeffMolaldT_Scaled    = b.m_dlnActCoeffMolaldT_Scaled;
-        m_dlnActCoeffMolaldT_Unscaled  = b.m_dlnActCoeffMolaldT_Unscaled;
-        m_d2lnActCoeffMolaldT2_Scaled  = b.m_d2lnActCoeffMolaldT2_Scaled;
-        m_d2lnActCoeffMolaldT2_Unscaled= b.m_d2lnActCoeffMolaldT2_Unscaled;
-        m_dlnActCoeffMolaldP_Scaled    = b.m_dlnActCoeffMolaldP_Scaled;
-        m_dlnActCoeffMolaldP_Unscaled  = b.m_dlnActCoeffMolaldP_Unscaled;
+        m_lnActCoeffMolal_Scaled = b.m_lnActCoeffMolal_Scaled;
+        m_lnActCoeffMolal_Unscaled = b.m_lnActCoeffMolal_Unscaled;
+        m_dlnActCoeffMolaldT_Scaled = b.m_dlnActCoeffMolaldT_Scaled;
+        m_dlnActCoeffMolaldT_Unscaled = b.m_dlnActCoeffMolaldT_Unscaled;
+        m_d2lnActCoeffMolaldT2_Scaled = b.m_d2lnActCoeffMolaldT2_Scaled;
+        m_d2lnActCoeffMolaldT2_Unscaled = b.m_d2lnActCoeffMolaldT2_Unscaled;
+        m_dlnActCoeffMolaldP_Scaled = b.m_dlnActCoeffMolaldP_Scaled;
+        m_dlnActCoeffMolaldP_Unscaled = b.m_dlnActCoeffMolaldP_Unscaled;
 
-        m_molalitiesCropped    = b.m_molalitiesCropped;
+        m_molalitiesCropped = b.m_molalitiesCropped;
         m_molalitiesAreCropped = b.m_molalitiesAreCropped;
-        m_CounterIJ            = b.m_CounterIJ;
-        m_gfunc_IJ            = b.m_gfunc_IJ;
-        m_g2func_IJ           = b.m_g2func_IJ;
-        m_hfunc_IJ            = b.m_hfunc_IJ;
-        m_h2func_IJ           = b.m_h2func_IJ;
-        m_BMX_IJ              = b.m_BMX_IJ;
-        m_BMX_IJ_L            = b.m_BMX_IJ_L;
-        m_BMX_IJ_LL           = b.m_BMX_IJ_LL;
-        m_BMX_IJ_P            = b.m_BMX_IJ_P;
-        m_BprimeMX_IJ         = b.m_BprimeMX_IJ;
-        m_BprimeMX_IJ_L       = b.m_BprimeMX_IJ_L;
-        m_BprimeMX_IJ_LL      = b.m_BprimeMX_IJ_LL;
-        m_BprimeMX_IJ_P       = b.m_BprimeMX_IJ_P;
-        m_BphiMX_IJ           = b.m_BphiMX_IJ;
-        m_BphiMX_IJ_L         = b.m_BphiMX_IJ_L;
-        m_BphiMX_IJ_LL        = b.m_BphiMX_IJ_LL;
-        m_BphiMX_IJ_P         = b.m_BphiMX_IJ_P;
-        m_Phi_IJ              = b.m_Phi_IJ;
-        m_Phi_IJ_L            = b.m_Phi_IJ_L;
-        m_Phi_IJ_LL           = b.m_Phi_IJ_LL;
-        m_Phi_IJ_P            = b.m_Phi_IJ_P;
-        m_Phiprime_IJ         = b.m_Phiprime_IJ;
-        m_PhiPhi_IJ           = b.m_PhiPhi_IJ;
-        m_PhiPhi_IJ_L         = b.m_PhiPhi_IJ_L;
-        m_PhiPhi_IJ_LL        = b.m_PhiPhi_IJ_LL;
-        m_PhiPhi_IJ_P         = b.m_PhiPhi_IJ_P;
-        m_CMX_IJ              = b.m_CMX_IJ;
-        m_CMX_IJ_L            = b.m_CMX_IJ_L;
-        m_CMX_IJ_LL           = b.m_CMX_IJ_LL;
-        m_CMX_IJ_P            = b.m_CMX_IJ_P;
-        m_gamma_tmp           = b.m_gamma_tmp;
+        m_CounterIJ = b.m_CounterIJ;
+        m_gfunc_IJ = b.m_gfunc_IJ;
+        m_g2func_IJ = b.m_g2func_IJ;
+        m_hfunc_IJ = b.m_hfunc_IJ;
+        m_h2func_IJ = b.m_h2func_IJ;
+        m_BMX_IJ = b.m_BMX_IJ;
+        m_BMX_IJ_L = b.m_BMX_IJ_L;
+        m_BMX_IJ_LL = b.m_BMX_IJ_LL;
+        m_BMX_IJ_P = b.m_BMX_IJ_P;
+        m_BprimeMX_IJ = b.m_BprimeMX_IJ;
+        m_BprimeMX_IJ_L = b.m_BprimeMX_IJ_L;
+        m_BprimeMX_IJ_LL = b.m_BprimeMX_IJ_LL;
+        m_BprimeMX_IJ_P = b.m_BprimeMX_IJ_P;
+        m_BphiMX_IJ = b.m_BphiMX_IJ;
+        m_BphiMX_IJ_L = b.m_BphiMX_IJ_L;
+        m_BphiMX_IJ_LL = b.m_BphiMX_IJ_LL;
+        m_BphiMX_IJ_P = b.m_BphiMX_IJ_P;
+        m_Phi_IJ = b.m_Phi_IJ;
+        m_Phi_IJ_L = b.m_Phi_IJ_L;
+        m_Phi_IJ_LL = b.m_Phi_IJ_LL;
+        m_Phi_IJ_P = b.m_Phi_IJ_P;
+        m_Phiprime_IJ = b.m_Phiprime_IJ;
+        m_PhiPhi_IJ = b.m_PhiPhi_IJ;
+        m_PhiPhi_IJ_L = b.m_PhiPhi_IJ_L;
+        m_PhiPhi_IJ_LL = b.m_PhiPhi_IJ_LL;
+        m_PhiPhi_IJ_P = b.m_PhiPhi_IJ_P;
+        m_CMX_IJ = b.m_CMX_IJ;
+        m_CMX_IJ_L = b.m_CMX_IJ_L;
+        m_CMX_IJ_LL = b.m_CMX_IJ_LL;
+        m_CMX_IJ_P = b.m_CMX_IJ_P;
+        m_gamma_tmp = b.m_gamma_tmp;
 
-        IMS_lnActCoeffMolal_  = b.IMS_lnActCoeffMolal_;
-        IMS_typeCutoff_       = b.IMS_typeCutoff_;
-        IMS_X_o_cutoff_       = b.IMS_X_o_cutoff_;
-        IMS_gamma_o_min_      = b.IMS_gamma_o_min_;
-        IMS_gamma_k_min_      = b.IMS_gamma_k_min_;
-        IMS_cCut_             = b.IMS_cCut_;
-        IMS_slopefCut_        = b.IMS_slopefCut_;
-        IMS_dfCut_            = b.IMS_dfCut_;
-        IMS_efCut_            = b.IMS_efCut_;
-        IMS_afCut_            = b.IMS_afCut_;
-        IMS_bfCut_            = b.IMS_bfCut_;
-        IMS_slopegCut_        = b.IMS_slopegCut_;
-        IMS_dgCut_            = b.IMS_dgCut_;
-        IMS_egCut_            = b.IMS_egCut_;
-        IMS_agCut_            = b.IMS_agCut_;
-        IMS_bgCut_            = b.IMS_bgCut_;
-        MC_X_o_cutoff_        = b.MC_X_o_cutoff_;
-        MC_X_o_min_           = b.MC_X_o_min_;
-        MC_slopepCut_         = b.MC_slopepCut_;
-        MC_dpCut_             = b.MC_dpCut_;
-        MC_epCut_             = b.MC_epCut_;
-        MC_apCut_             = b.MC_apCut_;
-        MC_bpCut_             = b.MC_bpCut_;
-        MC_cpCut_             = b.MC_cpCut_;
-        CROP_ln_gamma_o_min   = b.CROP_ln_gamma_o_min;
-        CROP_ln_gamma_o_max   = b.CROP_ln_gamma_o_max;
-        CROP_ln_gamma_k_min   = b.CROP_ln_gamma_k_min;
-        CROP_ln_gamma_k_max   = b.CROP_ln_gamma_k_max;
-        CROP_speciesCropped_  = b.CROP_speciesCropped_;
-        m_debugCalc           = b.m_debugCalc;
+        IMS_lnActCoeffMolal_ = b.IMS_lnActCoeffMolal_;
+        IMS_typeCutoff_ = b.IMS_typeCutoff_;
+        IMS_X_o_cutoff_ = b.IMS_X_o_cutoff_;
+        IMS_gamma_o_min_ = b.IMS_gamma_o_min_;
+        IMS_gamma_k_min_ = b.IMS_gamma_k_min_;
+        IMS_cCut_ = b.IMS_cCut_;
+        IMS_slopefCut_ = b.IMS_slopefCut_;
+        IMS_dfCut_ = b.IMS_dfCut_;
+        IMS_efCut_ = b.IMS_efCut_;
+        IMS_afCut_ = b.IMS_afCut_;
+        IMS_bfCut_ = b.IMS_bfCut_;
+        IMS_slopegCut_ = b.IMS_slopegCut_;
+        IMS_dgCut_ = b.IMS_dgCut_;
+        IMS_egCut_ = b.IMS_egCut_;
+        IMS_agCut_ = b.IMS_agCut_;
+        IMS_bgCut_ = b.IMS_bgCut_;
+        MC_X_o_cutoff_ = b.MC_X_o_cutoff_;
+        MC_X_o_min_ = b.MC_X_o_min_;
+        MC_slopepCut_ = b.MC_slopepCut_;
+        MC_dpCut_ = b.MC_dpCut_;
+        MC_epCut_ = b.MC_epCut_;
+        MC_apCut_ = b.MC_apCut_;
+        MC_bpCut_ = b.MC_bpCut_;
+        MC_cpCut_ = b.MC_cpCut_;
+        CROP_ln_gamma_o_min = b.CROP_ln_gamma_o_min;
+        CROP_ln_gamma_o_max = b.CROP_ln_gamma_o_max;
+        CROP_ln_gamma_k_min = b.CROP_ln_gamma_k_min;
+        CROP_ln_gamma_k_max = b.CROP_ln_gamma_k_max;
+        CROP_speciesCropped_ = b.CROP_speciesCropped_;
+        m_debugCalc = b.m_debugCalc;
     }
     return *this;
 }
@@ -891,7 +891,7 @@ double HMWSoln::dA_DebyedP_TP(double tempArg, double presArg) const
             dAdP = cached.value;
         } else {
             dAdP = m_waterProps->ADebye(T, P, 3);
-            cached.value  = dAdP;
+            cached.value = dAdP;
         }
         break;
     default:
@@ -1122,13 +1122,12 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     m_IionicMolalityStoich = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         double z_k = charge(k);
-        double zs_k1 =  m_speciesCharge_Stoich[k];
+        double zs_k1 = m_speciesCharge_Stoich[k];
         if (z_k == zs_k1) {
             m_IionicMolalityStoich += m_molalities[k] * z_k * z_k;
         } else {
             double zs_k2 = z_k - zs_k1;
-            m_IionicMolalityStoich
-            += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
+            m_IionicMolalityStoich += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
         }
     }
 
@@ -1260,15 +1259,15 @@ void HMWSoln::calcMolalitiesCropped() const
             for (size_t i = 0; i < m_kk; i++) {
                 double charge_i = charge(i);
                 if (charge_i < 0.0) {
-                    double anion_contrib =  - m_molalitiesCropped[i] * charge_i;
-                    anion_charge += anion_contrib ;
+                    double anion_contrib = - m_molalitiesCropped[i] * charge_i;
+                    anion_charge += anion_contrib;
                     if (anion_contrib > anion_contrib_max) {
                         anion_contrib_max = anion_contrib;
                         anion_contrib_max_i = i;
                     }
                 } else if (charge_i > 0.0) {
                     double cation_contrib = m_molalitiesCropped[i] * charge_i;
-                    cation_charge += cation_contrib ;
+                    cation_charge += cation_contrib;
                     if (cation_contrib > cation_contrib_max) {
                         cation_contrib_max = cation_contrib;
                         cation_contrib_max_i = i;
@@ -1278,7 +1277,7 @@ void HMWSoln::calcMolalitiesCropped() const
             double total_charge = cation_charge - anion_charge;
             if (total_charge > 1.0E-8) {
                 double desiredCrop = total_charge/charge(cation_contrib_max_i);
-                double maxCrop =  0.66 * m_molalitiesCropped[cation_contrib_max_i];
+                double maxCrop = 0.66 * m_molalitiesCropped[cation_contrib_max_i];
                 if (desiredCrop < maxCrop) {
                     m_molalitiesCropped[cation_contrib_max_i] -= desiredCrop;
                     break;
@@ -1287,7 +1286,7 @@ void HMWSoln::calcMolalitiesCropped() const
                 }
             } else if (total_charge < -1.0E-8) {
                 double desiredCrop = total_charge/charge(anion_contrib_max_i);
-                double maxCrop =  0.66 * m_molalitiesCropped[anion_contrib_max_i];
+                double maxCrop = 0.66 * m_molalitiesCropped[anion_contrib_max_i];
                 if (desiredCrop < maxCrop) {
                     m_molalitiesCropped[anion_contrib_max_i] -= desiredCrop;
                     break;
@@ -1310,10 +1309,10 @@ void HMWSoln::calcMolalitiesCropped() const
 
         m_molalitiesAreCropped = true;
         double poly = MC_apCut_ + MC_bpCut_ * xmolSolvent + MC_dpCut_* xmolSolvent * xmolSolvent;
-        double  p =  xmolSolvent + MC_epCut_ + exp(- xmolSolvent/ MC_cpCut_) * poly;
+        double p = xmolSolvent + MC_epCut_ + exp(- xmolSolvent/ MC_cpCut_) * poly;
         double denomInv = 1.0/ (m_Mnaught * p);
         for (size_t k = 0; k < m_kk; k++) {
-            m_molalitiesCropped[k] = molF[k] * denomInv ;
+            m_molalitiesCropped[k] = molF[k] * denomInv;
         }
 
         // Do a further check to see if the Ionic strength is below a max value
@@ -1398,21 +1397,21 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                           + beta0MX_coeff[1]*tlin;
                 m_Beta0MX_ij_L[counterIJ] = beta0MX_coeff[1];
                 m_Beta0MX_ij_LL[counterIJ] = 0.0;
-                m_Beta1MX_ij[counterIJ]   = beta1MX_coeff[0]
+                m_Beta1MX_ij[counterIJ] = beta1MX_coeff[0]
                                             + beta1MX_coeff[1]*tlin;
                 m_Beta1MX_ij_L[counterIJ] = beta1MX_coeff[1];
                 m_Beta1MX_ij_LL[counterIJ] = 0.0;
-                m_Beta2MX_ij[counterIJ]    = beta2MX_coeff[0]
+                m_Beta2MX_ij[counterIJ] = beta2MX_coeff[0]
                                              + beta2MX_coeff[1]*tlin;
-                m_Beta2MX_ij_L[counterIJ]  = beta2MX_coeff[1];
+                m_Beta2MX_ij_L[counterIJ] = beta2MX_coeff[1];
                 m_Beta2MX_ij_LL[counterIJ] = 0.0;
-                m_CphiMX_ij[counterIJ]     = CphiMX_coeff[0]
+                m_CphiMX_ij[counterIJ] = CphiMX_coeff[0]
                                              + CphiMX_coeff[1]*tlin;
-                m_CphiMX_ij_L[counterIJ]   = CphiMX_coeff[1];
-                m_CphiMX_ij_LL[counterIJ]  = 0.0;
-                m_Theta_ij[counterIJ]      = Theta_coeff[0] + Theta_coeff[1]*tlin;
-                m_Theta_ij_L[counterIJ]    = Theta_coeff[1];
-                m_Theta_ij_LL[counterIJ]   = 0.0;
+                m_CphiMX_ij_L[counterIJ] = CphiMX_coeff[1];
+                m_CphiMX_ij_LL[counterIJ] = 0.0;
+                m_Theta_ij[counterIJ] = Theta_coeff[0] + Theta_coeff[1]*tlin;
+                m_Theta_ij_L[counterIJ] = Theta_coeff[1];
+                m_Theta_ij_LL[counterIJ] = 0.0;
                 break;
 
             case PITZER_TEMP_COMPLEX1:
@@ -1441,23 +1440,23 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                                         + Theta_coeff[2]*tquad
                                         + Theta_coeff[3]*tinv
                                         + Theta_coeff[4]*tln;
-                m_Beta0MX_ij_L[counterIJ] =  beta0MX_coeff[1]
+                m_Beta0MX_ij_L[counterIJ] = beta0MX_coeff[1]
                                              + beta0MX_coeff[2]*twoT
                                              - beta0MX_coeff[3]*invT2
                                              + beta0MX_coeff[4]*invT;
-                m_Beta1MX_ij_L[counterIJ] =  beta1MX_coeff[1]
+                m_Beta1MX_ij_L[counterIJ] = beta1MX_coeff[1]
                                              + beta1MX_coeff[2]*twoT
                                              - beta1MX_coeff[3]*invT2
                                              + beta1MX_coeff[4]*invT;
-                m_Beta2MX_ij_L[counterIJ] =  beta2MX_coeff[1]
+                m_Beta2MX_ij_L[counterIJ] = beta2MX_coeff[1]
                                              + beta2MX_coeff[2]*twoT
                                              - beta2MX_coeff[3]*invT2
                                              + beta2MX_coeff[4]*invT;
-                m_CphiMX_ij_L[counterIJ] =  CphiMX_coeff[1]
+                m_CphiMX_ij_L[counterIJ] = CphiMX_coeff[1]
                                             + CphiMX_coeff[2]*twoT
                                             - CphiMX_coeff[3]*invT2
                                             + CphiMX_coeff[4]*invT;
-                m_Theta_ij_L[counterIJ] =   Theta_coeff[1]
+                m_Theta_ij_L[counterIJ] = Theta_coeff[1]
                                             + Theta_coeff[2]*twoT
                                             - Theta_coeff[3]*invT2
                                             + Theta_coeff[4]*invT;
@@ -1502,9 +1501,9 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                     m_Lambda_nj(i,j) = Lambda_coeff[0];
                     break;
                 case PITZER_TEMP_LINEAR:
-                    m_Lambda_nj(i,j)      = Lambda_coeff[0] + Lambda_coeff[1]*tlin;
-                    m_Lambda_nj_L(i,j)    = Lambda_coeff[1];
-                    m_Lambda_nj_LL(i,j)   = 0.0;
+                    m_Lambda_nj(i,j) = Lambda_coeff[0] + Lambda_coeff[1]*tlin;
+                    m_Lambda_nj_L(i,j) = Lambda_coeff[1];
+                    m_Lambda_nj_LL(i,j) = 0.0;
                     break;
                 case PITZER_TEMP_COMPLEX1:
                     m_Lambda_nj(i,j) = Lambda_coeff[0]
@@ -1531,9 +1530,9 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
                         m_Mu_nnn[i] = Mu_coeff[0];
                         break;
                     case PITZER_TEMP_LINEAR:
-                        m_Mu_nnn[i]      = Mu_coeff[0] + Mu_coeff[1]*tlin;
-                        m_Mu_nnn_L[i]    = Mu_coeff[1];
-                        m_Mu_nnn_LL[i]   = 0.0;
+                        m_Mu_nnn[i] = Mu_coeff[0] + Mu_coeff[1]*tlin;
+                        m_Mu_nnn_L[i] = Mu_coeff[1];
+                        m_Mu_nnn_LL[i] = 0.0;
                         break;
                     case PITZER_TEMP_COMPLEX1:
                         m_Mu_nnn[i] = Mu_coeff[0]
@@ -1560,7 +1559,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
       for (size_t i = 1; i < m_kk; i++) {
           for (size_t j = 1; j < m_kk; j++) {
               for (size_t k = 1; k < m_kk; k++) {
-                  size_t n = i * m_kk *m_kk + j * m_kk + k ;
+                  size_t n = i * m_kk *m_kk + j * m_kk + k;
                   const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
                   m_Psi_ijk[n] = Psi_coeff[0];
               }
@@ -1571,11 +1570,11 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
       for (size_t i = 1; i < m_kk; i++) {
           for (size_t j = 1; j < m_kk; j++) {
               for (size_t k = 1; k < m_kk; k++) {
-                  size_t n = i * m_kk *m_kk + j * m_kk + k ;
+                  size_t n = i * m_kk *m_kk + j * m_kk + k;
                   const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
-                  m_Psi_ijk[n]      = Psi_coeff[0] + Psi_coeff[1]*tlin;
-                  m_Psi_ijk_L[n]    = Psi_coeff[1];
-                  m_Psi_ijk_LL[n]   = 0.0;
+                  m_Psi_ijk[n] = Psi_coeff[0] + Psi_coeff[1]*tlin;
+                  m_Psi_ijk_L[n] = Psi_coeff[1];
+                  m_Psi_ijk_LL[n] = 0.0;
               }
           }
       }
@@ -1584,7 +1583,7 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
       for (size_t i = 1; i < m_kk; i++) {
           for (size_t j = 1; j < m_kk; j++) {
               for (size_t k = 1; k < m_kk; k++) {
-                  size_t n = i * m_kk *m_kk + j * m_kk + k ;
+                  size_t n = i * m_kk *m_kk + j * m_kk + k;
                   const double* Psi_coeff = m_Psi_ijk_coeff.ptrColumn(n);
                   m_Psi_ijk[n] = Psi_coeff[0]
                                  + Psi_coeff[1]*tlin
@@ -1626,14 +1625,14 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      * These are data inputs about the Pitzer correlation. They come
      * from the input file for the Pitzer model.
      */
-    const double* beta0MX =  DATA_PTR(m_Beta0MX_ij);
-    const double* beta1MX =  DATA_PTR(m_Beta1MX_ij);
-    const double* beta2MX =  DATA_PTR(m_Beta2MX_ij);
-    const double* CphiMX  =  DATA_PTR(m_CphiMX_ij);
-    const double* thetaij =  DATA_PTR(m_Theta_ij);
-    const double* alpha1MX =  DATA_PTR(m_Alpha1MX_ij);
-    const double* alpha2MX =  DATA_PTR(m_Alpha2MX_ij);
-    const double* psi_ijk =  DATA_PTR(m_Psi_ijk);
+    const double* beta0MX = DATA_PTR(m_Beta0MX_ij);
+    const double* beta1MX = DATA_PTR(m_Beta1MX_ij);
+    const double* beta2MX = DATA_PTR(m_Beta2MX_ij);
+    const double* CphiMX = DATA_PTR(m_CphiMX_ij);
+    const double* thetaij = DATA_PTR(m_Theta_ij);
+    const double* alpha1MX = DATA_PTR(m_Alpha1MX_ij);
+    const double* alpha2MX = DATA_PTR(m_Alpha2MX_ij);
+    const double* psi_ijk = DATA_PTR(m_Psi_ijk);
     double* gamma_Unscaled = DATA_PTR(m_gamma_tmp);
     /*
      * Local variables defined by Coltrin
@@ -1654,17 +1653,17 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      */
     double molalitysumUncropped = 0.0;
 
-    double* gfunc    =  DATA_PTR(m_gfunc_IJ);
-    double* g2func   =  DATA_PTR(m_g2func_IJ);
-    double* hfunc    =  DATA_PTR(m_hfunc_IJ);
-    double* h2func   =  DATA_PTR(m_h2func_IJ);
-    double* BMX      =  DATA_PTR(m_BMX_IJ);
-    double* BprimeMX =  DATA_PTR(m_BprimeMX_IJ);
-    double* BphiMX   =  DATA_PTR(m_BphiMX_IJ);
-    double* Phi      =  DATA_PTR(m_Phi_IJ);
-    double* Phiprime =  DATA_PTR(m_Phiprime_IJ);
-    double* Phiphi   =  DATA_PTR(m_PhiPhi_IJ);
-    double* CMX      =  DATA_PTR(m_CMX_IJ);
+    double* gfunc = DATA_PTR(m_gfunc_IJ);
+    double* g2func = DATA_PTR(m_g2func_IJ);
+    double* hfunc = DATA_PTR(m_hfunc_IJ);
+    double* h2func = DATA_PTR(m_h2func_IJ);
+    double* BMX = DATA_PTR(m_BMX_IJ);
+    double* BprimeMX = DATA_PTR(m_BprimeMX_IJ);
+    double* BphiMX = DATA_PTR(m_BphiMX_IJ);
+    double* Phi = DATA_PTR(m_Phi_IJ);
+    double* Phiprime = DATA_PTR(m_Phiprime_IJ);
+    double* Phiphi = DATA_PTR(m_PhiPhi_IJ);
+    double* CMX = DATA_PTR(m_CMX_IJ);
 
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf("\n Debugging information from hmw_act \n");
@@ -1681,7 +1680,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
         //      ionic strength
         Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge(n)) * molality[n];
+        molarcharge += fabs(charge(n)) * molality[n];
         molalitysumUncropped += m_molalities[n];
     }
     Is *= 0.5;
@@ -1750,7 +1749,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                  */
                 double x1 = sqrtIs * alpha1MX[counterIJ];
                 if (x1 > 1.0E-100) {
-                    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
+                    gfunc[counterIJ] = 2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
                     hfunc[counterIJ] = -2.0 *
                                        (1.0-(1.0 + x1 + 0.5 * x1 * x1) * exp(-x1)) / (x1 * x1);
                 } else {
@@ -1761,7 +1760,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 if (beta2MX[counterIJ] != 0.0) {
                     double x2 = sqrtIs * alpha2MX[counterIJ];
                     if (x2 > 1.0E-100) {
-                        g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+                        g2func[counterIJ] = 2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
                         h2func[counterIJ] = -2.0 *
                                             (1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
                     } else {
@@ -1805,13 +1804,13 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
              * and the other is negative
              */
             if (charge(i)*charge(j) < 0.0) {
-                BMX[counterIJ]  = beta0MX[counterIJ]
+                BMX[counterIJ] = beta0MX[counterIJ]
                                   + beta1MX[counterIJ] * gfunc[counterIJ]
                                   + beta2MX[counterIJ] * g2func[counterIJ];
 
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
                     printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ,  BMX[counterIJ], beta0MX[counterIJ],
+                           (int) counterIJ, BMX[counterIJ], beta0MX[counterIJ],
                            beta1MX[counterIJ], beta2MX[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
@@ -1820,11 +1819,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 } else {
                     BprimeMX[counterIJ] = 0.0;
                 }
-                BphiMX[counterIJ]   = BMX[counterIJ] + Is*BprimeMX[counterIJ];
+                BphiMX[counterIJ] = BMX[counterIJ] + Is*BprimeMX[counterIJ];
             } else {
-                BMX[counterIJ]      = 0.0;
+                BMX[counterIJ] = 0.0;
                 BprimeMX[counterIJ] = 0.0;
-                BphiMX[counterIJ]   = 0.0;
+                BphiMX[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -1897,9 +1896,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 Phiprime[counterIJ] = etheta_prime[z1][z2];
                 Phiphi[counterIJ] = Phi[counterIJ] + Is * Phiprime[counterIJ];
             } else {
-                Phi[counterIJ]      = 0.0;
+                Phi[counterIJ] = 0.0;
                 Phiprime[counterIJ] = 0.0;
-                Phiphi[counterIJ]   = 0.0;
+                Phiphi[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -2504,16 +2503,16 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                            "Wrong index solvent value!");
     }
 
-    const double* molality  =  DATA_PTR(m_molalitiesCropped);
-    const double* beta0MX_L =  DATA_PTR(m_Beta0MX_ij_L);
-    const double* beta1MX_L =  DATA_PTR(m_Beta1MX_ij_L);
-    const double* beta2MX_L =  DATA_PTR(m_Beta2MX_ij_L);
-    const double* CphiMX_L  =  DATA_PTR(m_CphiMX_ij_L);
-    const double* thetaij_L =  DATA_PTR(m_Theta_ij_L);
-    const double* alpha1MX   =  DATA_PTR(m_Alpha1MX_ij);
-    const double* alpha2MX   =  DATA_PTR(m_Alpha2MX_ij);
-    const double* psi_ijk_L =  DATA_PTR(m_Psi_ijk_L);
-    double* d_gamma_dT_Unscaled   =  DATA_PTR(m_gamma_tmp);
+    const double* molality = DATA_PTR(m_molalitiesCropped);
+    const double* beta0MX_L = DATA_PTR(m_Beta0MX_ij_L);
+    const double* beta1MX_L = DATA_PTR(m_Beta1MX_ij_L);
+    const double* beta2MX_L = DATA_PTR(m_Beta2MX_ij_L);
+    const double* CphiMX_L = DATA_PTR(m_CphiMX_ij_L);
+    const double* thetaij_L = DATA_PTR(m_Theta_ij_L);
+    const double* alpha1MX = DATA_PTR(m_Alpha1MX_ij);
+    const double* alpha2MX = DATA_PTR(m_Alpha2MX_ij);
+    const double* psi_ijk_L = DATA_PTR(m_Psi_ijk_L);
+    double* d_gamma_dT_Unscaled = DATA_PTR(m_gamma_tmp);
     /*
      * Local variables defined by Coltrin
      */
@@ -2533,17 +2532,17 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
      */
     double molalitysum = 0.0;
 
-    double* gfunc    =  DATA_PTR(m_gfunc_IJ);
-    double* g2func   =  DATA_PTR(m_g2func_IJ);
-    double* hfunc    =  DATA_PTR(m_hfunc_IJ);
-    double* h2func   =  DATA_PTR(m_h2func_IJ);
-    double* BMX_L    =  DATA_PTR(m_BMX_IJ_L);
+    double* gfunc = DATA_PTR(m_gfunc_IJ);
+    double* g2func = DATA_PTR(m_g2func_IJ);
+    double* hfunc = DATA_PTR(m_hfunc_IJ);
+    double* h2func = DATA_PTR(m_h2func_IJ);
+    double* BMX_L = DATA_PTR(m_BMX_IJ_L);
     double* BprimeMX_L= DATA_PTR(m_BprimeMX_IJ_L);
-    double* BphiMX_L =  DATA_PTR(m_BphiMX_IJ_L);
-    double* Phi_L    =  DATA_PTR(m_Phi_IJ_L);
-    double* Phiprime =  DATA_PTR(m_Phiprime_IJ);
-    double* Phiphi_L =  DATA_PTR(m_PhiPhi_IJ_L);
-    double* CMX_L    =  DATA_PTR(m_CMX_IJ_L);
+    double* BphiMX_L = DATA_PTR(m_BphiMX_IJ_L);
+    double* Phi_L = DATA_PTR(m_Phi_IJ_L);
+    double* Phiprime = DATA_PTR(m_Phiprime_IJ);
+    double* Phiphi_L = DATA_PTR(m_PhiPhi_IJ_L);
+    double* CMX_L = DATA_PTR(m_CMX_IJ_L);
 
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf("\n Debugging information from "
@@ -2561,7 +2560,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
         //      ionic strength
         Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge(n)) * molality[n];
+        molarcharge += fabs(charge(n)) * molality[n];
         molalitysum += molality[n];
     }
     Is *= 0.5;
@@ -2629,7 +2628,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                  */
                 double x1 = sqrtIs * alpha1MX[counterIJ];
                 if (x1 > 1.0E-100) {
-                    gfunc[counterIJ]     =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
+                    gfunc[counterIJ] = 2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
                     hfunc[counterIJ] = -2.0 *
                                        (1.0-(1.0 + x1 + 0.5 * x1 *x1) * exp(-x1)) / (x1 * x1);
                 } else {
@@ -2640,7 +2639,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 if (beta2MX_L[counterIJ] != 0.0) {
                     double x2 = sqrtIs * alpha2MX[counterIJ];
                     if (x2 > 1.0E-100) {
-                        g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+                        g2func[counterIJ] = 2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
                         h2func[counterIJ] = -2.0 *
                                             (1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
                     } else {
@@ -2684,13 +2683,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
              * and the other is negative
              */
             if (charge(i)*charge(j) < 0.0) {
-                BMX_L[counterIJ]  = beta0MX_L[counterIJ]
+                BMX_L[counterIJ] = beta0MX_L[counterIJ]
                                     + beta1MX_L[counterIJ] * gfunc[counterIJ]
                                     + beta2MX_L[counterIJ] * gfunc[counterIJ];
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
                     printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ,  BMX_L[counterIJ], beta0MX_L[counterIJ],
-                           beta1MX_L[counterIJ],  beta2MX_L[counterIJ], gfunc[counterIJ]);
+                           (int) counterIJ, BMX_L[counterIJ], beta0MX_L[counterIJ],
+                           beta1MX_L[counterIJ], beta2MX_L[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
                     BprimeMX_L[counterIJ] = (beta1MX_L[counterIJ] * hfunc[counterIJ]/Is +
@@ -2700,9 +2699,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 }
                 BphiMX_L[counterIJ] = BMX_L[counterIJ] + Is*BprimeMX_L[counterIJ];
             } else {
-                BMX_L[counterIJ]      = 0.0;
+                BMX_L[counterIJ] = 0.0;
                 BprimeMX_L[counterIJ] = 0.0;
-                BphiMX_L[counterIJ]     = 0.0;
+                BphiMX_L[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -2772,9 +2771,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 Phiprime[counterIJ] = 0.0;
                 Phiphi_L[counterIJ] = Phi_L[counterIJ] + Is * Phiprime[counterIJ];
             } else {
-                Phi_L[counterIJ]      = 0.0;
+                Phi_L[counterIJ] = 0.0;
                 Phiprime[counterIJ] = 0.0;
-                Phiphi_L[counterIJ]   = 0.0;
+                Phiphi_L[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -3261,15 +3260,15 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                            "Wrong index solvent value!");
     }
 
-    const double* molality  =  DATA_PTR(m_molalitiesCropped);
-    const double* beta0MX_LL=  DATA_PTR(m_Beta0MX_ij_LL);
-    const double* beta1MX_LL=  DATA_PTR(m_Beta1MX_ij_LL);
-    const double* beta2MX_LL=  DATA_PTR(m_Beta2MX_ij_LL);
-    const double* CphiMX_LL =  DATA_PTR(m_CphiMX_ij_LL);
-    const double* thetaij_LL=  DATA_PTR(m_Theta_ij_LL);
-    const double* alpha1MX  =  DATA_PTR(m_Alpha1MX_ij);
-    const double* alpha2MX  =  DATA_PTR(m_Alpha2MX_ij);
-    const double* psi_ijk_LL=  DATA_PTR(m_Psi_ijk_LL);
+    const double* molality = DATA_PTR(m_molalitiesCropped);
+    const double* beta0MX_LL = DATA_PTR(m_Beta0MX_ij_LL);
+    const double* beta1MX_LL = DATA_PTR(m_Beta1MX_ij_LL);
+    const double* beta2MX_LL = DATA_PTR(m_Beta2MX_ij_LL);
+    const double* CphiMX_LL = DATA_PTR(m_CphiMX_ij_LL);
+    const double* thetaij_LL = DATA_PTR(m_Theta_ij_LL);
+    const double* alpha1MX = DATA_PTR(m_Alpha1MX_ij);
+    const double* alpha2MX = DATA_PTR(m_Alpha2MX_ij);
+    const double* psi_ijk_LL = DATA_PTR(m_Psi_ijk_LL);
 
     /*
      * Local variables defined by Coltrin
@@ -3290,17 +3289,17 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
      */
     double molalitysum = 0.0;
 
-    double* gfunc    =  DATA_PTR(m_gfunc_IJ);
-    double* g2func   =  DATA_PTR(m_g2func_IJ);
-    double* hfunc    =  DATA_PTR(m_hfunc_IJ);
-    double* h2func   =  DATA_PTR(m_h2func_IJ);
-    double* BMX_LL   =  DATA_PTR(m_BMX_IJ_LL);
-    double* BprimeMX_LL=DATA_PTR(m_BprimeMX_IJ_LL);
-    double* BphiMX_LL=  DATA_PTR(m_BphiMX_IJ_LL);
-    double* Phi_LL   =  DATA_PTR(m_Phi_IJ_LL);
-    double* Phiprime =  DATA_PTR(m_Phiprime_IJ);
-    double* Phiphi_LL=  DATA_PTR(m_PhiPhi_IJ_LL);
-    double* CMX_LL   =  DATA_PTR(m_CMX_IJ_LL);
+    double* gfunc = DATA_PTR(m_gfunc_IJ);
+    double* g2func = DATA_PTR(m_g2func_IJ);
+    double* hfunc = DATA_PTR(m_hfunc_IJ);
+    double* h2func = DATA_PTR(m_h2func_IJ);
+    double* BMX_LL = DATA_PTR(m_BMX_IJ_LL);
+    double* BprimeMX_LL = DATA_PTR(m_BprimeMX_IJ_LL);
+    double* BphiMX_LL = DATA_PTR(m_BphiMX_IJ_LL);
+    double* Phi_LL = DATA_PTR(m_Phi_IJ_LL);
+    double* Phiprime = DATA_PTR(m_Phiprime_IJ);
+    double* Phiphi_LL = DATA_PTR(m_PhiPhi_IJ_LL);
+    double* CMX_LL = DATA_PTR(m_CMX_IJ_LL);
 
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf("\n Debugging information from "
@@ -3318,7 +3317,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
         //      ionic strength
         Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge(n)) * molality[n];
+        molarcharge += fabs(charge(n)) * molality[n];
         molalitysum += molality[n];
     }
     Is *= 0.5;
@@ -3386,7 +3385,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                  */
                 double x1 = sqrtIs * alpha1MX[counterIJ];
                 if (x1 > 1.0E-100) {
-                    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 *x1);
+                    gfunc[counterIJ] = 2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 *x1);
                     hfunc[counterIJ] = -2.0*
                                        (1.0-(1.0 + x1 + 0.5*x1 * x1) * exp(-x1)) / (x1 * x1);
                 } else {
@@ -3397,7 +3396,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 if (beta2MX_LL[counterIJ] != 0.0) {
                     double x2 = sqrtIs * alpha2MX[counterIJ];
                     if (x2 > 1.0E-100) {
-                        g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+                        g2func[counterIJ] = 2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
                         h2func[counterIJ] = -2.0 *
                                             (1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
                     } else {
@@ -3440,12 +3439,12 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
              * and the other is negative
              */
             if (charge(i)*charge(j) < 0.0) {
-                BMX_LL[counterIJ]  = beta0MX_LL[counterIJ]
+                BMX_LL[counterIJ] = beta0MX_LL[counterIJ]
                                      + beta1MX_LL[counterIJ] * gfunc[counterIJ]
                                      + beta2MX_LL[counterIJ] * g2func[counterIJ];
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
                     printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ,  BMX_LL[counterIJ], beta0MX_LL[counterIJ],
+                           (int) counterIJ, BMX_LL[counterIJ], beta0MX_LL[counterIJ],
                            beta1MX_LL[counterIJ], beta2MX_LL[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
@@ -3456,9 +3455,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 }
                 BphiMX_LL[counterIJ] = BMX_LL[counterIJ] + Is*BprimeMX_LL[counterIJ];
             } else {
-                BMX_LL[counterIJ]      = 0.0;
+                BMX_LL[counterIJ] = 0.0;
                 BprimeMX_LL[counterIJ] = 0.0;
-                BphiMX_LL[counterIJ]     = 0.0;
+                BphiMX_LL[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -3527,9 +3526,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 Phiprime[counterIJ] = 0.0;
                 Phiphi_LL[counterIJ] = Phi_LL[counterIJ];
             } else {
-                Phi_LL[counterIJ]      = 0.0;
+                Phi_LL[counterIJ] = 0.0;
                 Phiprime[counterIJ] = 0.0;
-                Phiphi_LL[counterIJ]   = 0.0;
+                Phiphi_LL[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -4010,15 +4009,15 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                            "Wrong index solvent value!");
     }
 
-    const double* molality  =  DATA_PTR(m_molalitiesCropped);
-    const double* beta0MX_P =  DATA_PTR(m_Beta0MX_ij_P);
-    const double* beta1MX_P =  DATA_PTR(m_Beta1MX_ij_P);
-    const double* beta2MX_P =  DATA_PTR(m_Beta2MX_ij_P);
-    const double* CphiMX_P  =  DATA_PTR(m_CphiMX_ij_P);
-    const double* thetaij_P =  DATA_PTR(m_Theta_ij_P);
-    const double* alpha1MX  =  DATA_PTR(m_Alpha1MX_ij);
-    const double* alpha2MX  =  DATA_PTR(m_Alpha2MX_ij);
-    const double* psi_ijk_P =  DATA_PTR(m_Psi_ijk_P);
+    const double* molality = DATA_PTR(m_molalitiesCropped);
+    const double* beta0MX_P = DATA_PTR(m_Beta0MX_ij_P);
+    const double* beta1MX_P = DATA_PTR(m_Beta1MX_ij_P);
+    const double* beta2MX_P = DATA_PTR(m_Beta2MX_ij_P);
+    const double* CphiMX_P = DATA_PTR(m_CphiMX_ij_P);
+    const double* thetaij_P = DATA_PTR(m_Theta_ij_P);
+    const double* alpha1MX = DATA_PTR(m_Alpha1MX_ij);
+    const double* alpha2MX = DATA_PTR(m_Alpha2MX_ij);
+    const double* psi_ijk_P = DATA_PTR(m_Psi_ijk_P);
 
     /*
      * Local variables defined by Coltrin
@@ -4039,17 +4038,17 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
      */
     double molalitysum = 0.0;
 
-    double* gfunc    =  DATA_PTR(m_gfunc_IJ);
-    double* g2func   =  DATA_PTR(m_g2func_IJ);
-    double* hfunc    =  DATA_PTR(m_hfunc_IJ);
-    double* h2func   =  DATA_PTR(m_h2func_IJ);
-    double* BMX_P    =  DATA_PTR(m_BMX_IJ_P);
-    double* BprimeMX_P= DATA_PTR(m_BprimeMX_IJ_P);
-    double* BphiMX_P =  DATA_PTR(m_BphiMX_IJ_P);
-    double* Phi_P    =  DATA_PTR(m_Phi_IJ_P);
-    double* Phiprime =  DATA_PTR(m_Phiprime_IJ);
-    double* Phiphi_P =  DATA_PTR(m_PhiPhi_IJ_P);
-    double* CMX_P    =  DATA_PTR(m_CMX_IJ_P);
+    double* gfunc = DATA_PTR(m_gfunc_IJ);
+    double* g2func = DATA_PTR(m_g2func_IJ);
+    double* hfunc = DATA_PTR(m_hfunc_IJ);
+    double* h2func = DATA_PTR(m_h2func_IJ);
+    double* BMX_P = DATA_PTR(m_BMX_IJ_P);
+    double* BprimeMX_P = DATA_PTR(m_BprimeMX_IJ_P);
+    double* BphiMX_P = DATA_PTR(m_BphiMX_IJ_P);
+    double* Phi_P = DATA_PTR(m_Phi_IJ_P);
+    double* Phiprime = DATA_PTR(m_Phiprime_IJ);
+    double* Phiphi_P = DATA_PTR(m_PhiPhi_IJ_P);
+    double* CMX_P = DATA_PTR(m_CMX_IJ_P);
 
     double currTemp = temperature();
     double currPres = pressure();
@@ -4070,7 +4069,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         //      ionic strength
         Is += charge(n) * charge(n) * molality[n];
         //      total molar charge
-        molarcharge +=  fabs(charge(n)) * molality[n];
+        molarcharge += fabs(charge(n)) * molality[n];
         molalitysum += molality[n];
     }
     Is *= 0.5;
@@ -4139,7 +4138,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                  */
                 double x1 = sqrtIs * alpha1MX[counterIJ];
                 if (x1 > 1.0E-100) {
-                    gfunc[counterIJ] =  2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
+                    gfunc[counterIJ] = 2.0*(1.0-(1.0 + x1) * exp(-x1)) / (x1 * x1);
                     hfunc[counterIJ] = -2.0*
                                        (1.0-(1.0 + x1 + 0.5 * x1 * x1) * exp(-x1)) / (x1 * x1);
                 } else {
@@ -4150,7 +4149,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 if (beta2MX_P[counterIJ] != 0.0) {
                     double x2 = sqrtIs * alpha2MX[counterIJ];
                     if (x2 > 1.0E-100) {
-                        g2func[counterIJ] =  2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
+                        g2func[counterIJ] = 2.0*(1.0-(1.0 + x2) * exp(-x2)) / (x2 * x2);
                         h2func[counterIJ] = -2.0 *
                                             (1.0-(1.0 + x2 + 0.5 * x2 * x2) * exp(-x2)) / (x2 * x2);
                     } else {
@@ -4194,12 +4193,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
              * and the other is negative
              */
             if (charge(i)*charge(j) < 0.0) {
-                BMX_P[counterIJ]  = beta0MX_P[counterIJ]
+                BMX_P[counterIJ] = beta0MX_P[counterIJ]
                                     + beta1MX_P[counterIJ] * gfunc[counterIJ]
                                     + beta2MX_P[counterIJ] * g2func[counterIJ];
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
                     printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ,  BMX_P[counterIJ], beta0MX_P[counterIJ],
+                           (int) counterIJ, BMX_P[counterIJ], beta0MX_P[counterIJ],
                            beta1MX_P[counterIJ], beta2MX_P[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
@@ -4210,9 +4209,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 }
                 BphiMX_P[counterIJ] = BMX_P[counterIJ] + Is*BprimeMX_P[counterIJ];
             } else {
-                BMX_P[counterIJ]      = 0.0;
+                BMX_P[counterIJ] = 0.0;
                 BprimeMX_P[counterIJ] = 0.0;
-                BphiMX_P[counterIJ]     = 0.0;
+                BphiMX_P[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -4281,9 +4280,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 Phiprime[counterIJ] = 0.0;
                 Phiphi_P[counterIJ] = Phi_P[counterIJ] + Is * Phiprime[counterIJ];
             } else {
-                Phi_P[counterIJ]      = 0.0;
+                Phi_P[counterIJ] = 0.0;
                 Phiprime[counterIJ] = 0.0;
-                Phiphi_P[counterIJ]   = 0.0;
+                Phiphi_P[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
@@ -4490,7 +4489,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                              */
                             n = m_kk*j + k;
                             size_t counterIJ2 = m_CounterIJ[n];
-                            sum4 += fabs(charge(i))* 
+                            sum4 += fabs(charge(i))*
                                     molality[j]*molality[k]*CMX_P[counterIJ2];
                         }
                     }
@@ -4536,7 +4535,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             double sum1 = 0.0;
             double sum3 = 0.0;
             for (size_t j = 1; j < m_kk; j++) {
-                sum1 +=  molality[j]*2.0*m_Lambda_nj_P(i,j);
+                sum1 += molality[j]*2.0*m_Lambda_nj_P(i,j);
                 /*
                  * Zeta term -> we piggyback on the psi term
                  */
@@ -4741,7 +4740,7 @@ void HMWSoln::calc_lambdas(double is) const
      * aphi is the Debye-Huckel constant at 25 C
      */
     double c1 = 4.581, c2 = 0.7237, c3 = 0.0120, c4 = 0.528;
-    double aphi = 0.392;   /* Value at 25 C */
+    double aphi = 0.392; /* Value at 25 C */
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         printf(" Is = %g\n", is);
     }
@@ -4766,15 +4765,15 @@ void HMWSoln::calc_lambdas(double is) const
             /*
              * calculate Xmn (A1) from Harvie, Weare (1980).
              */
-            double x = 6.0* zprod * aphi * sqrt(is);                      /* eqn 23 */
+            double x = 6.0* zprod * aphi * sqrt(is); /* eqn 23 */
 
-            double jfunc = x / (4.0 + c1*pow(x,-c2)*exp(-c3*pow(x,c4)));  /* eqn 47 */
+            double jfunc = x / (4.0 + c1*pow(x,-c2)*exp(-c3*pow(x,c4))); /* eqn 47 */
 
             double t = c3 * c4 * pow(x,c4);
             double dj = c1* pow(x,(-c2-1.0)) * (c2+t) * exp(-c3*pow(x,c4));
             double jprime = (jfunc/x)*(1.0 + jfunc*dj);
 
-            elambda[ij] = zprod*jfunc / (4.0*is);                  /* eqn 14 */
+            elambda[ij] = zprod*jfunc / (4.0*is); /* eqn 14 */
             elambda1[ij] = (3.0*zprod*zprod*aphi*jprime/(4.0*sqrt(is))
                             - elambda[ij])/is;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
@@ -4811,14 +4810,14 @@ void HMWSoln::calc_thetas(int z1, int z2,
         /*
          * Actually calculate the interaction.
          */
-        double f1 = (double)i / (2.0  * j);
-        double f2 = (double)j / (2.0  * i);
+        double f1 = (double)i / (2.0 * j);
+        double f2 = (double)j / (2.0 * i);
         *etheta = elambda[i*j] - f1*elambda[j*j] - f2*elambda[i*i];
         *etheta_prime = elambda1[i*j] - f1*elambda1[j*j] - f2*elambda1[i*i];
     }
 }
 
-void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
+void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
 {
     /*
      * Calculate the molalities. Currently, the molalities
@@ -4852,24 +4851,24 @@ void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
             /*
                  * If we are in the middle region, calculate the connecting polynomials
                  */
-            double xminus  = xmolSolvent - IMS_X_o_cutoff_/2.0;
+            double xminus = xmolSolvent - IMS_X_o_cutoff_/2.0;
             double xminus2 = xminus * xminus;
             double xminus3 = xminus2 * xminus;
             double x_o_cut2 = IMS_X_o_cutoff_ * IMS_X_o_cutoff_;
-            double x_o_cut3 =  x_o_cut2 * IMS_X_o_cutoff_;
+            double x_o_cut3 = x_o_cut2 * IMS_X_o_cutoff_;
 
-            double h2 = 3.5 * xminus2 /  IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;
-            double h2_prime = 7.0 * xminus /  IMS_X_o_cutoff_ - 6.0 * xminus2 /  x_o_cut2;
+            double h2 = 3.5 * xminus2 / IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;
+            double h2_prime = 7.0 * xminus / IMS_X_o_cutoff_ - 6.0 * xminus2 / x_o_cut2;
 
-            double h1 = (1.0 - 3.0 * xminus2 /  x_o_cut2 + 2.0 *  xminus3/ x_o_cut3);
-            double h1_prime = (- 6.0 * xminus /  x_o_cut2 + 6.0 *  xminus2/ x_o_cut3);
+            double h1 = (1.0 - 3.0 * xminus2 / x_o_cut2 + 2.0 * xminus3/ x_o_cut3);
+            double h1_prime = (- 6.0 * xminus / x_o_cut2 + 6.0 * xminus2/ x_o_cut3);
 
             double h1_g = h1 / IMS_gamma_o_min_;
-            double h1_g_prime  = h1_prime / IMS_gamma_o_min_;
+            double h1_g_prime = h1_prime / IMS_gamma_o_min_;
 
             double alpha = 1.0 / (exp(1.0) * IMS_gamma_k_min_);
             double h1_f = h1 * alpha;
-            double h1_f_prime  = h1_prime * alpha;
+            double h1_f_prime = h1_prime * alpha;
 
             double f = h2 + h1_f;
             double f_prime = h2_prime + h1_f_prime;
@@ -4899,13 +4898,13 @@ void  HMWSoln::s_updateIMS_lnMolalityActCoeff() const
             double xoverc = xmolSolvent/IMS_cCut_;
             double eterm = std::exp(-xoverc);
 
-            double fptmp = IMS_bfCut_  - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
+            double fptmp = IMS_bfCut_ - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
                            + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
             double f_prime = 1.0 + eterm*fptmp;
             double f = xmolSolvent + IMS_efCut_
                        + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
 
-            double gptmp = IMS_bgCut_  - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
+            double gptmp = IMS_bgCut_ - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
                            + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
             double g_prime = 1.0 + eterm*gptmp;
             double g = xmolSolvent + IMS_egCut_
@@ -4950,7 +4949,7 @@ void HMWSoln::printCoeffs() const
         std::string sni = speciesName(i);
         for (size_t j = i+1; j < m_kk; j++) {
             std::string snj = speciesName(j);
-            size_t n  = i * m_kk + j;
+            size_t n = i * m_kk + j;
             size_t ct = m_CounterIJ[n];
             printf(" %-16s %-16s %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f \n",
                    sni.c_str(), snj.c_str(),
@@ -5058,7 +5057,7 @@ doublereal HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal A = A_Debye_TP();
     doublereal lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs);
-    return  lnGammaClMs2;
+    return lnGammaClMs2;
 }
 
 doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const

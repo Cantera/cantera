@@ -14,18 +14,18 @@ namespace tpx
 {
 
 // Heptane constants
-static const double Tmn = 182.56;   // [K] minimum temperature for which calculations are valid
-static const double Tmx = 1000.0;   // [K] maximum temperature for which calculations are valid
-static const double Tc=537.68;      // [K] critical temperature
-static const double Roc=197.60;        // [kg/m^3] critical density
-static const double To=300;            // [K] reference Temperature
-static const double R=82.99504;        // [J/(kg*K)] gas constant (for this substance)
-static const double Gamma=9.611604E-6;    // [??]
-static const double u0=3.4058439E5;    // [] internal energy at To
-static const double s0=1.1080254E3;    // [] entropy at To
-static const double Tp=400;            // [K] ??
-static const double Pc=2.6199E6;    // [Pa] critical pressure
-static const double M=100.20;        // [kg/kmol] molar density
+static const double Tmn = 182.56; // [K] minimum temperature for which calculations are valid
+static const double Tmx = 1000.0; // [K] maximum temperature for which calculations are valid
+static const double Tc=537.68; // [K] critical temperature
+static const double Roc=197.60; // [kg/m^3] critical density
+static const double To=300; // [K] reference Temperature
+static const double R=82.99504; // [J/(kg*K)] gas constant (for this substance)
+static const double Gamma=9.611604E-6; // [??]
+static const double u0=3.4058439E5; // [] internal energy at To
+static const double s0=1.1080254E3; // [] entropy at To
+static const double Tp=400; // [K] ??
+static const double Pc=2.6199E6; // [Pa] critical pressure
+static const double M=100.20; // [kg/kmol] molar density
 
 // array Ahept is used by the function Pp
 static const double Ahept[]= {
@@ -76,41 +76,41 @@ static const double G[]= {
 double Heptane::C(int j,double Tinverse, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
-    case 0 :
-        return    Ahept[0] * R * T -
-                  Ahept[1] -
-                  Ahept[2] * T2inverse +
-                  Ahept[3] * T3inverse -
-                  Ahept[4] * T4inverse;
-    case 1 :
-        return    Ahept[5] * R * T -
-                  Ahept[6] -
-                  Ahept[7] * Tinverse;
-    case 2 :
-        return    Ahept[9] * (Ahept[6] + Ahept[7] * Tinverse);
-    case 3 :
-        return    Ahept[8] * T2inverse;
-    default :
-        return    0.0;
+    case 0:
+        return Ahept[0] * R * T -
+               Ahept[1] -
+               Ahept[2] * T2inverse +
+               Ahept[3] * T3inverse -
+               Ahept[4] * T4inverse;
+    case 1:
+        return Ahept[5] * R * T -
+               Ahept[6] -
+               Ahept[7] * Tinverse;
+    case 2:
+        return Ahept[9] * (Ahept[6] + Ahept[7] * Tinverse);
+    case 3:
+        return Ahept[8] * T2inverse;
+    default:
+        return 0.0;
     }
 }
 
 inline double Heptane::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
-    case 0 :
-        return    Ahept[0] * R -
-                  -2 * Ahept[2] * T3inverse +
-                  -3 * Ahept[3] * T4inverse -
-                  -4 * Ahept[4] * pow(T, -5.0);
-    case 1 :
-        return    Ahept[5] * R  -
-                  -1 * Ahept[7] * T2inverse;
-    case 2 :
-        return    Ahept[9] * (-1 * Ahept[7] * T2inverse);
-    case 3 :
-        return    -2 * Ahept[8] * T3inverse;
-    default :
+    case 0:
+        return Ahept[0] * R -
+               -2 * Ahept[2] * T3inverse +
+               -3 * Ahept[3] * T4inverse -
+               -4 * Ahept[4] * pow(T, -5.0);
+    case 1:
+        return Ahept[5] * R -
+               -1 * Ahept[7] * T2inverse;
+    case 2:
+        return Ahept[9] * (-1 * Ahept[7] * T2inverse);
+    case 3:
+        return -2 * Ahept[8] * T3inverse;
+    default:
         return 0.0;
     }
 }

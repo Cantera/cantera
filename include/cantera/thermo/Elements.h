@@ -23,7 +23,7 @@ namespace Cantera
   */
 
 //! An element constraint that is current turned off
-#define CT_ELEM_TYPE_TURNEDOFF       -1
+#define CT_ELEM_TYPE_TURNEDOFF -1
 
 //! Normal element constraint consisting of positive coefficients for the
 //! formula matrix.
@@ -32,13 +32,13 @@ namespace Cantera
  * With this constraint, we may employ various strategies to handle
  * small values of the element number successfully.
  */
-#define CT_ELEM_TYPE_ABSPOS           0
+#define CT_ELEM_TYPE_ABSPOS 0
 
 //! This refers to conservation of electrons
 /*!
  * Electrons may have positive or negative values in the Formula matrix.
  */
-#define CT_ELEM_TYPE_ELECTRONCHARGE   1
+#define CT_ELEM_TYPE_ELECTRONCHARGE 1
 
 //! This refers to a charge neutrality of a single phase
 /*!
@@ -76,7 +76,7 @@ namespace Cantera
 /*!
  * currently there are none
  */
-#define CT_ELEM_TYPE_OTHERCONSTRAINT  6
+#define CT_ELEM_TYPE_OTHERCONSTRAINT 6
 //@}
 
 //! Number indicating we don't know the entropy of the element in its most
@@ -95,6 +95,6 @@ namespace Cantera
 //!     @exception CanteraError If a match is not found, throws a CanteraError
 double LookupWtElements(const std::string& ename);
 
-}  // namespace
+} // namespace
 
 #endif

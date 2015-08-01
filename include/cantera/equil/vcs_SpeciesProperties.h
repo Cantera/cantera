@@ -15,32 +15,32 @@ class vcs_VolPhase;
 class vcs_SpeciesProperties
 {
 public:
-    size_t    IndexPhase;
-    size_t    IndexSpeciesPhase;
+    size_t IndexPhase;
+    size_t IndexSpeciesPhase;
     vcs_VolPhase* OwningPhase;
-    size_t    NumElements;
+    size_t NumElements;
 
     //! Name of the species
     std::string SpName;
 
     VCS_SPECIES_THERMO* SpeciesThermo; /* Pointer to the thermo
                                           structure for this species  */
-    double WtSpecies;       /* Molecular Weight of the species (gm/mol) */
+    double WtSpecies; /* Molecular Weight of the species (gm/mol) */
 
     //! Column of the formula matrix, comprising the
     //! element composition of the species */
     std::vector<double> FormulaMatrixCol;
 
-    double Charge;         /* Charge state of the species -> This may
+    double Charge; /* Charge state of the species -> This may
                 be duplication of what's in the
                 FormulaMatrixCol entries. However, it's prudent
                 to separate it out. */
-    int  SurfaceSpecies;   /* True if this species belongs to a surface phase */
+    int SurfaceSpecies; /* True if this species belongs to a surface phase */
     /*
      *     Various Calculated Quantities that are appropriate to
      *     keep copies of at this level.
      */
-    double VolPM;          /* Partial molar volume of the species */
+    double VolPM; /* Partial molar volume of the species */
     double ReferenceMoleFraction; /* Representative value of the mole
                                      fraction of this species in a phase.
                                      This value is used for convergence issues

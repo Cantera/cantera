@@ -93,7 +93,7 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                                ssModel == "constantVolume") {
                         has_nasa_constVol++;
                     } else if (ssModel == "temperature_polynomial" ||
-                               ssModel == "density_temperature_polynomial"  ||
+                               ssModel == "density_temperature_polynomial" ||
                                ssModel == "constant") {
                         has_other++;
                     } else {
@@ -109,7 +109,7 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                                ssModel == "constantVolume") {
                         has_shomate_constVol++;
                     } else if (ssModel == "temperature_polynomial" ||
-                               ssModel == "density_temperature_polynomial"  ||
+                               ssModel == "density_temperature_polynomial" ||
                                ssModel == "constant") {
                         has_other++;
                     } else {
@@ -125,7 +125,7 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                                ssModel == "constantVolume") {
                         has_simple_constVol++;
                     } else if (ssModel == "temperature_polynomial" ||
-                               ssModel == "density_temperature_polynomial"  ||
+                               ssModel == "density_temperature_polynomial" ||
                                ssModel == "constant") {
                         has_other++;
                     } else {
@@ -253,15 +253,15 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 
     if (iwater == 1) {
         if (ihptx == 0) {
-            if (inasaIG ||  ishomateIG || isimpleIG) {
+            if (inasaIG || ishomateIG || isimpleIG) {
                 throw CanteraError("newVPSSMgr", "Ideal gas with liquid water");
             } else {
                 return new VPSSMgr_Water_ConstVol(vp_ptr, spth);
             }
         } else {
-            if (inasaIG ||  ishomateIG || isimpleIG) {
+            if (inasaIG || ishomateIG || isimpleIG) {
                 throw CanteraError("newVPSSMgr", "Ideal gas with liquid water");
-            } else if (inasaCV || ishomateCV ||  isimpleCV) {
+            } else if (inasaCV || ishomateCV || isimpleCV) {
                 return new VPSSMgr_General(vp_ptr, spth);
             } else {
                 return new VPSSMgr_Water_HKFT(vp_ptr, spth);

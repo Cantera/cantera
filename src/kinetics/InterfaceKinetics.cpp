@@ -64,47 +64,47 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
 
     Kinetics::operator=(right);
 
-    m_grt                  = right.m_grt;
-    m_revindex             = right.m_revindex;
-    m_rates                = right.m_rates;
-    m_redo_rates           = right.m_redo_rates;
-    m_irrev                = right.m_irrev;
-    m_nirrev               = right.m_nirrev;
-    m_nrev                 = right.m_nrev;
-    m_conc                 = right.m_conc;
-    m_actConc              = right.m_actConc;
-    m_mu0                  = right.m_mu0;
-    m_mu                   = right.m_mu;
-    m_mu0_Kc               = right.m_mu0_Kc;
-    m_phi                  = right.m_phi;
-    m_pot                  = right.m_pot;
-    deltaElectricEnergy_   = right.deltaElectricEnergy_;
-    m_E                    = right.m_E;
-    m_surf                 = right.m_surf;  //DANGER - shallow copy
-    m_integrator           = right.m_integrator;  //DANGER - shallow copy
-    m_beta                 = right.m_beta;
-    m_ctrxn                = right.m_ctrxn;
-    m_ctrxn_BVform         = right.m_ctrxn_BVform;
-    m_ctrxn_ecdf           = right.m_ctrxn_ecdf;
-    m_StandardConc         = right.m_StandardConc;
-    m_deltaG0              = right.m_deltaG0;
-    m_deltaG               = right.m_deltaG;
-    m_ProdStanConcReac     = right.m_ProdStanConcReac;
-    m_logp0                = right.m_logp0;
-    m_logc0                = right.m_logc0;
-    m_ROP_ok               = right.m_ROP_ok;
-    m_temp                 = right.m_temp;
-    m_logtemp              = right.m_logtemp;
-    m_finalized            = right.m_finalized;
+    m_grt = right.m_grt;
+    m_revindex = right.m_revindex;
+    m_rates = right.m_rates;
+    m_redo_rates = right.m_redo_rates;
+    m_irrev = right.m_irrev;
+    m_nirrev = right.m_nirrev;
+    m_nrev = right.m_nrev;
+    m_conc = right.m_conc;
+    m_actConc = right.m_actConc;
+    m_mu0 = right.m_mu0;
+    m_mu = right.m_mu;
+    m_mu0_Kc = right.m_mu0_Kc;
+    m_phi = right.m_phi;
+    m_pot = right.m_pot;
+    deltaElectricEnergy_ = right.deltaElectricEnergy_;
+    m_E = right.m_E;
+    m_surf = right.m_surf; //DANGER - shallow copy
+    m_integrator = right.m_integrator; //DANGER - shallow copy
+    m_beta = right.m_beta;
+    m_ctrxn = right.m_ctrxn;
+    m_ctrxn_BVform = right.m_ctrxn_BVform;
+    m_ctrxn_ecdf = right.m_ctrxn_ecdf;
+    m_StandardConc = right.m_StandardConc;
+    m_deltaG0 = right.m_deltaG0;
+    m_deltaG = right.m_deltaG;
+    m_ProdStanConcReac = right.m_ProdStanConcReac;
+    m_logp0 = right.m_logp0;
+    m_logc0 = right.m_logc0;
+    m_ROP_ok = right.m_ROP_ok;
+    m_temp = right.m_temp;
+    m_logtemp = right.m_logtemp;
+    m_finalized = right.m_finalized;
     m_has_coverage_dependence = right.m_has_coverage_dependence;
     m_has_electrochem_rxns = right.m_has_electrochem_rxns;
     m_has_exchange_current_density_formulation = right.m_has_exchange_current_density_formulation;
-    m_phaseExistsCheck     = right.m_phaseExistsCheck;
-    m_phaseExists          = right.m_phaseExists;
-    m_phaseIsStable        = right.m_phaseIsStable;
-    m_rxnPhaseIsReactant   = right.m_rxnPhaseIsReactant;
-    m_rxnPhaseIsProduct    = right.m_rxnPhaseIsProduct;
-    m_ioFlag               = right.m_ioFlag;
+    m_phaseExistsCheck = right.m_phaseExistsCheck;
+    m_phaseExists = right.m_phaseExists;
+    m_phaseIsStable = right.m_phaseIsStable;
+    m_rxnPhaseIsReactant = right.m_rxnPhaseIsReactant;
+    m_rxnPhaseIsProduct = right.m_rxnPhaseIsProduct;
+    m_ioFlag = right.m_ioFlag;
 
     return *this;
 }
@@ -392,7 +392,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
         size_t irxn = m_ctrxn[i];
 
         // Determine whether the reaction rate constant is in an exchange current density formulation format.
-        int iECDFormulation =  m_ctrxn_ecdf[i];
+        int iECDFormulation = m_ctrxn_ecdf[i];
         if (iECDFormulation) {
             // If the BV form is to be converted into the normal form then we go through this process.
             // If it isn't to be converted, then we don't go through this process.
@@ -402,7 +402,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
                 //  Calculate the term and modify the forward reaction
                 double tmp = exp(- m_beta[i] * m_deltaG0[irxn] * rrt);
                 double tmp2 = m_ProdStanConcReac[irxn];
-                tmp *= 1.0  / tmp2 / Faraday;
+                tmp *= 1.0 / tmp2 / Faraday;
                 kfwd[irxn] *= tmp;
             }
             //  If BVform is nonzero we don't need to do anything.
@@ -508,7 +508,7 @@ void InterfaceKinetics::updateROP()
      */
     if (m_phaseExistsCheck) {
         for (size_t j = 0; j != nReactions(); ++j) {
-            if ((m_ropr[j] >  m_ropf[j]) && (m_ropr[j] > 0.0)) {
+            if ((m_ropr[j] > m_ropf[j]) && (m_ropr[j] > 0.0)) {
                 for (size_t p = 0; p < nPhases(); p++) {
                     if (m_rxnPhaseIsProduct[j][p] && !m_phaseExists[p]) {
                         m_ropnet[j] = 0.0;

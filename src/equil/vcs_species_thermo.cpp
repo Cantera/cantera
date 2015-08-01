@@ -62,21 +62,21 @@ VCS_SPECIES_THERMO&
 VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
 {
     if (&b != this) {
-        IndexPhase            = b.IndexPhase;
-        IndexSpeciesPhase     = b.IndexSpeciesPhase;
-        OwningPhase           = b.OwningPhase;
-        SS0_Model             = b.SS0_Model;
-        SS0_feSave            = b.SS0_feSave;
-        SS0_TSave             = b.SS0_TSave;
-        SS0_T0                = b.SS0_T0;
-        SS0_H0                = b.SS0_H0;
-        SS0_S0                = b.SS0_S0;
-        SS0_Cp0               = b.SS0_Cp0;
-        SS0_Pref              = b.SS0_Pref;
-        SSStar_Model          = b.SSStar_Model;
-        SSStar_Vol_Model      = b.SSStar_Vol_Model;
-        SSStar_Vol0           = b.SSStar_Vol0;
-        m_VCS_UnitsFormat     = b.m_VCS_UnitsFormat;
+        IndexPhase = b.IndexPhase;
+        IndexSpeciesPhase = b.IndexSpeciesPhase;
+        OwningPhase = b.OwningPhase;
+        SS0_Model = b.SS0_Model;
+        SS0_feSave = b.SS0_feSave;
+        SS0_TSave = b.SS0_TSave;
+        SS0_T0 = b.SS0_T0;
+        SS0_H0 = b.SS0_H0;
+        SS0_S0 = b.SS0_S0;
+        SS0_Cp0 = b.SS0_Cp0;
+        SS0_Pref = b.SS0_Pref;
+        SSStar_Model = b.SSStar_Model;
+        SSStar_Vol_Model = b.SSStar_Vol_Model;
+        SSStar_Vol0 = b.SSStar_Vol0;
+        m_VCS_UnitsFormat = b.m_VCS_UnitsFormat;
     }
     return *this;
 }

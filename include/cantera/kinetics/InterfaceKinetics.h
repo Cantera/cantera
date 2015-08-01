@@ -36,7 +36,7 @@ class ImplicitSurfChem;
  *  information about the phases (i.e., temperature pressure, and mole
  *  fraction).
  *
- *  The extrinsic specification of whether a phase exists or not  must be
+ *  The extrinsic specification of whether a phase exists or not must be
  *  specified on top of the intrinsic calculation of the reaction rate.  This
  *  class carries a set of booleans indicating whether a phase in the
  *  heterogeneous mechanism exists or not.
@@ -113,7 +113,7 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaG  Output vector of  deltaG's for reactions Length:
+     * @param deltaG  Output vector of deltaG's for reactions Length:
      *     nReactions(). If 0, this updates the internally stored values only.
      */
     virtual void getDeltaGibbs(doublereal* deltaG);
@@ -283,7 +283,7 @@ public:
 
     //! When an electrode reaction rate is optionally specified in terms of its
     //! exchange current density, adjust kfwd to the standard reaction rate constant form and units.
-    //! When the BV reaction types are used, keep the  exchange current density form.
+    //! When the BV reaction types are used, keep the exchange current density form.
     /*!
      *  For a reaction rate constant that was given in units of Amps/m2 (exchange current
      *  density formulation with iECDFormulation == true), convert the rate to
@@ -498,7 +498,7 @@ protected:
     //! Electrochemical transfer coefficient for the forward direction
     /*!
      *   Electrochemical transfer coefficient for all reactions that have transfer reactions
-     *   the reaction is given by  m_ctrxn[i]
+     *   the reaction is given by m_ctrxn[i]
      */
     vector_fp m_beta;
 

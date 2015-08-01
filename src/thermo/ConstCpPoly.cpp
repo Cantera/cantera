@@ -24,8 +24,8 @@ ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
     SpeciesThermoInterpType(tlow, thigh, pref)
 {
     m_t0 = coeffs[0];
-    m_h0_R = coeffs[1]  / GasConstant;
-    m_s0_R = coeffs[2]  / GasConstant;
+    m_h0_R = coeffs[1] / GasConstant;
+    m_s0_R = coeffs[2] / GasConstant;
     m_cp0_R = coeffs[3] / GasConstant;
     m_logt0 = log(m_t0);
 }
@@ -46,7 +46,7 @@ void ConstCpPoly::updateProperties(const doublereal* tt,
     doublereal rt = 1.0/t;
     *cp_R = m_cp0_R;
     *h_RT = rt*(m_h0_R + (t - m_t0) * m_cp0_R);
-    *s_R  = m_s0_R + m_cp0_R * (logt - m_logt0);
+    *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
 void ConstCpPoly::updatePropertiesTemp(const doublereal temp,
@@ -58,7 +58,7 @@ void ConstCpPoly::updatePropertiesTemp(const doublereal temp,
     doublereal rt = 1.0/temp;
     *cp_R = m_cp0_R;
     *h_RT = rt*(m_h0_R + (temp - m_t0) * m_cp0_R);
-    *s_R  = m_s0_R + m_cp0_R * (logt - m_logt0);
+    *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
 void ConstCpPoly::reportParameters(size_t& n, int& type,
@@ -80,8 +80,8 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
 void ConstCpPoly::modifyParameters(doublereal* coeffs)
 {
     m_t0 = coeffs[0];
-    m_h0_R = coeffs[1]  / GasConstant;
-    m_s0_R = coeffs[2]  / GasConstant;
+    m_h0_R = coeffs[1] / GasConstant;
+    m_s0_R = coeffs[2] / GasConstant;
     m_cp0_R = coeffs[3] / GasConstant;
     m_logt0 = log(m_t0);
 }

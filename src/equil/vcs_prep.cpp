@@ -83,7 +83,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         size_t pID = m_phaseID[kspec];
         size_t spPhIndex = m_speciesLocalPhaseIndex[kspec];
-        vcs_VolPhase* vPhase =  m_VolPhaseList[pID];
+        vcs_VolPhase* vPhase = m_VolPhaseList[pID];
         vcs_SpeciesProperties* spProp = vPhase->speciesProperty(spPhIndex);
         double sz = 0.0;
         size_t eSize = spProp->FormulaMatrixCol.size();
@@ -119,7 +119,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     double test = -1.0e-10;
     bool modifiedSoln = false;
     if (m_doEstimateEquil < 0) {
-        double sum  = 0.0;
+        double sum = 0.0;
         for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
             if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
                 sum += fabs(m_molNumSpecies_old[kspec]);

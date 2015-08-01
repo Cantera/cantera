@@ -477,7 +477,7 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaG  Output vector of  deltaG's for reactions Length:
+     * @param deltaG  Output vector of deltaG's for reactions Length:
      *     nReactions().
      */
     virtual void getDeltaGibbs(doublereal* deltaG) {
@@ -492,7 +492,7 @@ public:
      *
      *  units = J kmol-1
      *
-     * @param deltaM  Output vector of  deltaM's for reactions Length:
+     * @param deltaM  Output vector of deltaM's for reactions Length:
      *     nReactions().
      */
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
@@ -947,7 +947,7 @@ protected:
      * for the species vector for the n'th phase in the kinetics
      * class.
      */
-    std::vector<size_t>  m_start;
+    std::vector<size_t> m_start;
 
     /**
      * Mapping of the phase id, i.e., the id attribute in the XML

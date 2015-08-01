@@ -357,8 +357,8 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         db = diag + 1;
         db[1] = 0;
         db[2] = 0;
-        rb[1] = xb[1] - xb[1 + nc];      // zero dV/dz
-        rb[2] = xb[2] - xb[2 + nc];      // zero dT/dz
+        rb[1] = xb[1] - xb[1 + nc]; // zero dV/dz
+        rb[2] = xb[2] - xb[2 + nc]; // zero dT/dz
     }
 
     if (m_flow_left) {
@@ -368,8 +368,8 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         db = diag - nc;
         db[1] = 0;
         db[2] = 0;
-        rb[1] = xb[1] - xb[1 - nc];      // zero dV/dz
-        rb[2] = xb[2] - xb[2 - nc];      // zero dT/dz
+        rb[1] = xb[1] - xb[1 - nc]; // zero dV/dz
+        rb[2] = xb[2] - xb[2 - nc]; // zero dT/dz
     }
 }
 
@@ -458,7 +458,7 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
             rb[0] = xb[3];
         }
 
-        rb[2] = xb[2] - xb[2 - nc];  // zero T gradient
+        rb[2] = xb[2] - xb[2 - nc]; // zero T gradient
         for (k = 5; k < nc; k++) {
             rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
             db[k] = 0;
@@ -587,11 +587,11 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         if (!m_flow_left->fixed_mdot()) {
             ;
         } else {
-            rb[0] = xb[3];    // zero Lambda
+            rb[0] = xb[3]; // zero Lambda
         }
         rb[2] = xb[2] - m_temp; // zero dT/dz
         for (k = 5; k < nc; k++) {
-            rb[k] = xb[k] - m_yres[k-4];     // fixed Y
+            rb[k] = xb[k] - m_yres[k-4]; // fixed Y
             db[k] = 0;
         }
     }
@@ -674,14 +674,14 @@ void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     if (m_flow_right) {
         rb = r + 1;
         xb = x + 1;
-        rb[2] = xb[2] - x[0];            // specified T
+        rb[2] = xb[2] - x[0]; // specified T
     }
 
     if (m_flow_left) {
         nc = m_flow_left->nComponents();
         rb = r - nc;
         xb = x - nc;
-        rb[2] = xb[2] - x[0];            // specified T
+        rb[2] = xb[2] - x[0]; // specified T
     }
 }
 
@@ -801,7 +801,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     if (m_flow_right) {
         rb = r + 1;
         xb = x + 1;
-        rb[2] = xb[2] - x[0];            // specified T
+        rb[2] = xb[2] - x[0]; // specified T
     }
     size_t nc;
     if (m_flow_left) {
@@ -809,7 +809,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         const doublereal* mwleft = DATA_PTR(m_phase_left->molecularWeights());
         rb =r - nc;
         xb = x - nc;
-        rb[2] = xb[2] - x[0];            // specified T
+        rb[2] = xb[2] - x[0]; // specified T
         for (size_t nl = 1; nl < m_left_nsp; nl++) {
             rb[4+nl] += m_work[nl]*mwleft[nl];
         }

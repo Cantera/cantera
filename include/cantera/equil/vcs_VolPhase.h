@@ -20,8 +20,8 @@ namespace Cantera
 class ThermoPhase;
 
 //! Models for the standard state volume of each species
-#define VCS_SSVOL_IDEALGAS    0
-#define VCS_SSVOL_CONSTANT    1
+#define VCS_SSVOL_IDEALGAS 0
+#define VCS_SSVOL_CONSTANT 1
 
 /*
  * DEFINITIONS FOR THE vcs_VolPhase structure
@@ -29,14 +29,14 @@ class ThermoPhase;
  * Equation of State Types
  * - Permissible values for the EqnState variable in CPC_PHASE structure
  */
-#define VCS_EOS_CONSTANT      0
-#define VCS_EOS_IDEAL_GAS     1
-#define VCS_EOS_STOICH_SUB    5
-#define VCS_EOS_IDEAL_SOLN    22
+#define VCS_EOS_CONSTANT 0
+#define VCS_EOS_IDEAL_GAS 1
+#define VCS_EOS_STOICH_SUB 5
+#define VCS_EOS_IDEAL_SOLN 22
 #define VCS_EOS_DEBEYE_HUCKEL 23
 #define VCS_EOS_REDLICK_KWONG 24
-#define VCS_EOS_REGULAR_SOLN  25
-#define VCS_EOS_UNK_CANTERA   -1
+#define VCS_EOS_REGULAR_SOLN 25
+#define VCS_EOS_UNK_CANTERA -1
 
 struct VCS_SPECIES;
 class vcs_SpeciesProperties;
@@ -832,7 +832,7 @@ private:
      *  - VCS_STATECALC_NEW
      *  - VCS_STATECALC_TMP
      */
-    int  m_vcsStateStatus;
+    int m_vcsStateStatus;
 
     //! Value of the potential for the phase (Volts)
     double m_phi;

@@ -27,9 +27,9 @@
 // corresponding Fortran data types on your system. The defaults
 // are OK for most systems
 
-typedef  double       doublereal;   // Fortran double precision
-typedef  int          integer;      // Fortran integer
-typedef  int          ftnlen;       // Fortran hidden string length type
+typedef double doublereal;   // Fortran double precision
+typedef int integer;      // Fortran integer
+typedef int ftnlen;       // Fortran hidden string length type
 
 // Fortran compilers pass character strings in argument lists by
 // adding a hidden argument with the length of the string. Some

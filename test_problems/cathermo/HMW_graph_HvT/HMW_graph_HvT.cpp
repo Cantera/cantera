@@ -151,12 +151,12 @@ int main(int argc, char** argv)
             solid->getPartialMolarEnthalpies(pmEnth);
             H_NaCl = pmEnth[0] * 1.0E-6;
             HMW->getPartialMolarEnthalpies(pmEnth);
-            H_H2O     = pmEnth[0]  * 1.0E-6;
+            H_H2O     = pmEnth[0] * 1.0E-6;
             H_Naplus  = pmEnth[i1] * 1.0E-6;
             H_Clminus = pmEnth[i2] * 1.0E-6;
             molarEnth = HMW->enthalpy_mole() * 1.0E-6;
 
-            double Delta_Hs = (Xmol[0]  * H_H2O +
+            double Delta_Hs = (Xmol[0] * H_H2O +
                                Xmol[i1] * H_Naplus +
                                Xmol[i2] * H_Clminus
                                - Xmol[0] * H0_H2O
@@ -167,7 +167,7 @@ int main(int argc, char** argv)
              * Calculate the relative enthalpy, L, from the
              * partial molar quantities. units kJ/gmolSolution
              */
-            double L = (Xmol[0]  * (H_H2O    - H0_H2O) +
+            double L = (Xmol[0] * (H_H2O - H0_H2O) +
                         Xmol[i1] * (H_Naplus - H0_Naplus) +
                         Xmol[i2] * (H_Clminus - H0_Clminus));
 

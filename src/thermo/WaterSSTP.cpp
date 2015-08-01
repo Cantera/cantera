@@ -1,6 +1,6 @@
 /**
  *  @file WaterSSTP.cpp
- * Definitions for a ThermoPhase class consisting of  pure water (see \ref thermoprops
+ * Definitions for a ThermoPhase class consisting of pure water (see \ref thermoprops
  * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*
@@ -65,7 +65,7 @@ WaterSSTP::WaterSSTP(const WaterSSTP& b) :
     m_allowGasPhase(b.m_allowGasPhase)
 {
     m_sub = new WaterPropsIAPWS(*(b.m_sub));
-    m_waterProps =  new WaterProps(m_sub);
+    m_waterProps = new WaterProps(m_sub);
 
     /*
      * Use the assignment operator to do the brunt
@@ -154,12 +154,12 @@ void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
     setTemperature(T);
     SW_Offset = 0.0;
     doublereal s = entropy_mole();
-    s -=  GasConstant * log(oneBar/presLow);
+    s -= GasConstant * log(oneBar/presLow);
     if (s != 188.835E3) {
         SW_Offset = 188.835E3 - s;
     }
     s = entropy_mole();
-    s -=  GasConstant * log(oneBar/presLow);
+    s -= GasConstant * log(oneBar/presLow);
 
     doublereal h = enthalpy_mole();
     if (h != -241.826E6) {
@@ -175,7 +175,7 @@ void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
     double rho0 = m_sub->density(298.15, OneAtm, WATER_LIQUID);
     setDensity(rho0);
 
-    m_waterProps =  new WaterProps(m_sub);
+    m_waterProps = new WaterProps(m_sub);
 
     /*
      * We have to do something with the thermo function here.

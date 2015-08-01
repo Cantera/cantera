@@ -98,7 +98,7 @@ void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
     if (doIrreversible) {
         getEquilibriumConstants(&m_ropnet[0]);
         for (size_t i = 0; i < nReactions(); i++) {
-            krev[i] /=  m_ropnet[i];
+            krev[i] /= m_ropnet[i];
         }
     } else {
         // m_rkcn[] is zero for irreversible reactions

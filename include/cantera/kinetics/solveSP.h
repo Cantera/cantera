@@ -123,7 +123,7 @@ namespace Cantera
  *  values defined in @ref solvesp_methods.
  *
  *  ### Pseudo time stepping algorithm:
- *  The time step is determined from sdot[], so  so that the time step
+ *  The time step is determined from sdot[], so that the time step
  *  doesn't ever change the value of a variable by more than 100%.
  *
  *  This algorithm does use a damped Newton's method to relax the equations.
@@ -132,7 +132,7 @@ namespace Cantera
  *
  *  `EXTRA_ACCURACY`: A constant that is the ratio of the required update norm
  *  in this Newton iteration compared to that in the nonlinear solver. A value
- *  of 0.1 is used so surface species are safely  overconverged.
+ *  of 0.1 is used so surface species are safely overconverged.
  *
  *  Functions called:
  *  - `ct_dgetrf` -- First half of LAPACK direct solve of a full Matrix
@@ -217,7 +217,7 @@ private:
      *  @param netProdRateSolnSP  Output variable. Net production rate of all
      *      of the species in the solution vector.
      *  @param XMolSolnSP output variable. Mole fraction of all of the species
-     *      in the  solution vector
+     *      in the solution vector
      *  @param label Output variable. Pointer to the value of the species
      *      index (kindexSP) that is controlling the time step
      *  @param label_old Output variable. Pointer to the value of the species
@@ -288,8 +288,8 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void  fun_eval(doublereal* resid, const doublereal* CSolnSP,
-                   const doublereal* CSolnOldSP,  const bool do_time, const doublereal deltaT);
+    void fun_eval(doublereal* resid, const doublereal* CSolnSP,
+                  const doublereal* CSolnOldSP, const bool do_time, const doublereal deltaT);
 
     //! Main routine that calculates the current residual and Jacobian
     /*!
@@ -305,7 +305,7 @@ private:
      */
     void resjac_eval(SquareMatrix& jac, doublereal* resid,
                      doublereal* CSolnSP,
-                     const doublereal* CSolnSPOld,  const bool do_time,
+                     const doublereal* CSolnSPOld, const bool do_time,
                      const doublereal deltaT);
 
     //!   Pointer to the manager of the implicit surface chemistry problem
@@ -397,7 +397,7 @@ private:
      * This is equal to or less than the total number of volumetric phases in
      * all of the InterfaceKinetics objects. We usually do not include bulk
      * phases. Bulk phases are only included in the calculation when their
-     * domain isn't included in the underlying continuum  model conservation
+     * domain isn't included in the underlying continuum model conservation
      * equation system.
      *
      * This is equal to 0, for the time being
@@ -408,7 +408,7 @@ private:
     /*!
      * Length is number of bulk phases
      */
-    std::vector<size_t>              m_numBulkSpecies;
+    std::vector<size_t> m_numBulkSpecies;
 
     //! Total number of species in all bulk phases.
     /*!
@@ -444,7 +444,7 @@ private:
      *  varies from 0 to (num species in phase - 1) and `i` is the surface
      *  phase index in the problem. Length is equal to #m_numSurfPhases.
      */
-    std::vector<size_t>  m_spSurfLarge;
+    std::vector<size_t> m_spSurfLarge;
 
     //! The absolute tolerance in real units. units are (kmol/m2)
     doublereal m_atol;

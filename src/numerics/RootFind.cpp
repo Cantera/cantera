@@ -105,19 +105,19 @@ RootFind& RootFind::operator=(const RootFind& right)
     m_rtolf = right.m_rtolf;
     m_rtolx = right.m_rtolx;
     m_maxstep = right.m_maxstep;
-    printLvl  = right.printLvl;
+    printLvl = right.printLvl;
     writeLogAllowed_ = right.writeLogAllowed_;
-    DeltaXnorm_  = right.DeltaXnorm_;
+    DeltaXnorm_ = right.DeltaXnorm_;
     specifiedDeltaXnorm_ = right.specifiedDeltaXnorm_;
-    DeltaXMax_  = right.DeltaXMax_;
+    DeltaXMax_ = right.DeltaXMax_;
     specifiedDeltaXMax_ = right.specifiedDeltaXMax_;
-    FuncIsGenerallyIncreasing_   = right.FuncIsGenerallyIncreasing_;
-    FuncIsGenerallyDecreasing_  = right.FuncIsGenerallyDecreasing_;
-    deltaXConverged_  = right.deltaXConverged_;
-    x_maxTried_   = right.x_maxTried_;
-    fx_maxTried_  = right.fx_maxTried_;
-    x_minTried_   = right.x_minTried_;
-    fx_minTried_  = right.fx_minTried_;
+    FuncIsGenerallyIncreasing_ = right.FuncIsGenerallyIncreasing_;
+    FuncIsGenerallyDecreasing_ = right.FuncIsGenerallyDecreasing_;
+    deltaXConverged_ = right.deltaXConverged_;
+    x_maxTried_ = right.x_maxTried_;
+    fx_maxTried_ = right.fx_maxTried_;
+    x_minTried_ = right.x_minTried_;
+    fx_minTried_ = right.fx_minTried_;
 
     return *this;
 }
@@ -196,7 +196,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     doublereal fPosF = 1.0E300;
     doublereal xNegF = 0.0;
     doublereal fNegF = -1.0E300;
-    doublereal fnorm;   /* A valid norm for the making the function value  dimensionless */
+    doublereal fnorm; /* A valid norm for the making the function value dimensionless */
     doublereal xDelMin;
     doublereal sgn;
     doublereal fnoise = 0.0;
@@ -248,8 +248,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     deltaXConverged_ = m_rtolx * (*xbest) + m_atolx;
     if (DeltaXnorm_ < deltaXConverged_) {
         writelogf("%s DeltaXnorm_, %g, is too small compared to tols, increasing to %g\n",
-                  stre, DeltaXnorm_,  deltaXConverged_);
-        DeltaXnorm_ =  deltaXConverged_;
+                  stre, DeltaXnorm_, deltaXConverged_);
+        DeltaXnorm_ = deltaXConverged_;
     }
 
     /*
@@ -304,7 +304,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
      */
     rfT.reasoning = "Second Point: ";
     if (x1 == 0.0) {
-        x2 = x1 +  0.01 * DeltaXnorm_;
+        x2 = x1 + 0.01 * DeltaXnorm_;
         rfT.reasoning += "Set by DeltaXnorm_";
     } else {
         x2 = x1 * 1.0001;
@@ -316,7 +316,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     }
 
     /*
-     *  Find the second function value f2 = func(x2),  Process it
+     *  Find the second function value f2 = func(x2), Process it
      */
     deltaX2 = x2 - x1;
     its++;
@@ -395,7 +395,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 writelogf("%s functions evals produced the same result, %g, at %g and %g\n",
                           strw, f2, x1, x2);
             }
-            xnew = x2 +  DeltaXnorm_;
+            xnew = x2 + DeltaXnorm_;
             slopePointingToHigher = true;
             useNextStrat = true;
             rfT.reasoning += "Slope is close to zero. ";
@@ -510,7 +510,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             }
             if (fabs(xnew - x2) < 0.1 * xDelMin) {
-                xnew = x2 + sign(xnew-x2) * 0.1 *  xDelMin;
+                xnew = x2 + sign(xnew-x2) * 0.1 * xDelMin;
                 if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
@@ -523,7 +523,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
              */
             doublereal xDelMax = 1.5 * fabs(x2 - x1);
             if (specifiedDeltaXnorm_ && 0.5 * DeltaXnorm_ > xDelMax) {
-                xDelMax = 0.5 *DeltaXnorm_ ;
+                xDelMax = 0.5 *DeltaXnorm_;
             }
             if (fabs(xDelMax) < fabs(xnew - x2)) {
                 xnew = x2 + sign(xnew-x2) * xDelMax;
@@ -573,14 +573,14 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             } else {
                 if (f2 > 0.0) {
-                    if (xnew < x2)  {
+                    if (xnew < x2) {
                         xnew = (xNegF + x2)/2;
                     }
                     if (xnew > xNegF) {
                         xnew = (xNegF + x2)/2;
                     }
                 } else {
-                    if (xnew > x2)  {
+                    if (xnew > x2) {
                         xnew = (xPosF + x2)/2;
                     }
                     if (xnew < xPosF) {
@@ -821,8 +821,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         deltaX2 = deltaXnew;
         deltaXnew = x2 - x1;
         deltaXConverged_ = 0.5 * deltaXConverged_ + 0.5 * (m_rtolx * 0.5 * (fabs(x2) + fabs(x1)) + m_atolx);
-        rfT.deltaXConverged =  deltaXConverged_;
-        rfT.deltaFConverged =  fnorm * m_rtolf;
+        rfT.deltaXConverged = deltaXConverged_;
+        rfT.deltaFConverged = fnorm * m_rtolf;
         if (foundStraddle) {
             rfT.delX = std::max(fabs(deltaX2), fabs(deltaXnew));
         } else {
@@ -1003,7 +1003,7 @@ done:
                 writelogf("RootFind ERROR: Soln probably lies higher than xmax, %g: best guess = %g\n", xmax, *xbest);
             }
             rfT.reasoning += "Soln probably lies higher than xmax, " + fp2str(xmax) + ": best guess = " + fp2str(*xbest);
-        } else   if (retn == ROOTFIND_SOLNLOWERTHANXMIN) {
+        } else if (retn == ROOTFIND_SOLNLOWERTHANXMIN) {
             if (printLvl >= 1) {
                 writelogf("RootFind ERROR: Soln probably lies lower than xmin, %g: best guess = %g\n", xmin, *xbest);
             }
@@ -1046,7 +1046,7 @@ doublereal RootFind::func(doublereal x)
     if (DEBUG_MODE_ENABLED) {
         checkFinite(r);
     }
-    doublereal ff = r  - m_funcTargetValue;
+    doublereal ff = r - m_funcTargetValue;
     if (x >= x_maxTried_) {
         x_maxTried_ = x;
         fx_maxTried_ = ff;

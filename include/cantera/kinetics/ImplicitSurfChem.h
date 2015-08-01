@@ -217,7 +217,7 @@ protected:
     std::vector<InterfaceKinetics*> m_vecKinPtrs;
 
     //! Vector of number of species in each Surface Phase
-    std::vector<size_t>  m_nsp;
+    std::vector<size_t> m_nsp;
 
     //! index of the surface phase in each InterfaceKinetics object
     std::vector<size_t> m_surfindex;
@@ -240,13 +240,13 @@ protected:
 
     size_t m_numBulkPhases;
     std::vector<size_t> m_nspBulkPhases;
-    size_t  m_numTotalBulkSpecies;
+    size_t m_numTotalBulkSpecies;
     size_t m_numTotalSpecies;
 
     std::vector<vector_int> pLocVec;
     //! Pointer to the CVODE integrator
     Integrator* m_integ;
-    doublereal m_atol, m_rtol;   // tolerances
+    doublereal m_atol, m_rtol; // tolerances
     doublereal m_maxstep; //!< max step size
     vector_fp m_work;
 

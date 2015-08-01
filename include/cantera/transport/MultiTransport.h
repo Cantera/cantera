@@ -55,7 +55,7 @@ public:
 
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
 
-    //! Get the species diffusive mass fluxes wrt to  the mass averaged velocity,
+    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
      *  Units for the returned fluxes are kg m-2 s-1.
@@ -75,7 +75,7 @@ public:
      *                   length = ldx * ndim
      */
     virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  size_t ldx,  const doublereal* const grad_X,
+                                  size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
 
     //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the thermodynamic
@@ -131,28 +131,28 @@ protected:
     doublereal m_thermal_tlast;
 
     //! Dense matrix for astar
-    DenseMatrix          m_astar;
+    DenseMatrix m_astar;
 
     //! Dense matrix for bstar
-    DenseMatrix          m_bstar;
+    DenseMatrix m_bstar;
 
     //! Dense matrix for cstar
-    DenseMatrix          m_cstar;
+    DenseMatrix m_cstar;
 
     //! Dense matrix for omega22
-    DenseMatrix          m_om22;
+    DenseMatrix m_om22;
 
-    vector_fp   m_cinternal;
+    vector_fp m_cinternal;
 
-    vector_fp  m_sqrt_eps_k;
+    vector_fp m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
-    vector_fp  m_frot_298;
-    vector_fp  m_rotrelax;
+    vector_fp m_frot_298;
+    vector_fp m_rotrelax;
 
     doublereal m_lambda;
 
     // L matrix quantities
-    DenseMatrix  m_Lmatrix;
+    DenseMatrix m_Lmatrix;
     SquareMatrix m_aa;
     vector_fp m_a;
     vector_fp m_b;

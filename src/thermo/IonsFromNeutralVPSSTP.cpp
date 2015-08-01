@@ -105,33 +105,33 @@ IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
     if (IOwnNThermoPhase_) {
         if (b.neutralMoleculePhase_) {
             delete neutralMoleculePhase_;
-            neutralMoleculePhase_   = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
+            neutralMoleculePhase_ = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
         } else {
-            neutralMoleculePhase_   = 0;
+            neutralMoleculePhase_ = 0;
         }
     } else {
-        neutralMoleculePhase_     = b.neutralMoleculePhase_;
+        neutralMoleculePhase_ = b.neutralMoleculePhase_;
     }
     geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
 
     GibbsExcessVPSSTP::operator=(b);
 
-    ionSolnType_                = b.ionSolnType_;
-    numNeutralMoleculeSpecies_  = b.numNeutralMoleculeSpecies_;
-    indexSpecialSpecies_        = b.indexSpecialSpecies_;
-    indexSecondSpecialSpecies_  = b.indexSecondSpecialSpecies_;
-    fm_neutralMolec_ions_       = b.fm_neutralMolec_ions_;
-    fm_invert_ionForNeutral     = b.fm_invert_ionForNeutral;
-    NeutralMolecMoleFractions_  = b.NeutralMolecMoleFractions_;
-    cationList_                 = b.cationList_;
-    anionList_                  = b.anionList_;
-    passThroughList_            = b.passThroughList_;
-    y_                          = b.y_;
+    ionSolnType_ = b.ionSolnType_;
+    numNeutralMoleculeSpecies_ = b.numNeutralMoleculeSpecies_;
+    indexSpecialSpecies_ = b.indexSpecialSpecies_;
+    indexSecondSpecialSpecies_ = b.indexSecondSpecialSpecies_;
+    fm_neutralMolec_ions_ = b.fm_neutralMolec_ions_;
+    fm_invert_ionForNeutral = b.fm_invert_ionForNeutral;
+    NeutralMolecMoleFractions_ = b.NeutralMolecMoleFractions_;
+    cationList_ = b.cationList_;
+    anionList_ = b.anionList_;
+    passThroughList_ = b.passThroughList_;
+    y_ = b.y_;
     dlnActCoeff_NeutralMolecule_ = b.dlnActCoeff_NeutralMolecule_;
-    dX_NeutralMolecule_         = b.dX_NeutralMolecule_;
-    IOwnNThermoPhase_           = b.IOwnNThermoPhase_;
-    moleFractionsTmp_           = b.moleFractionsTmp_;
-    muNeutralMolecule_          = b.muNeutralMolecule_;
+    dX_NeutralMolecule_ = b.dX_NeutralMolecule_;
+    IOwnNThermoPhase_ = b.IOwnNThermoPhase_;
+    moleFractionsTmp_ = b.moleFractionsTmp_;
+    muNeutralMolecule_ = b.muNeutralMolecule_;
     lnActCoeff_NeutralMolecule_ = b.lnActCoeff_NeutralMolecule_;
     dlnActCoeffdT_NeutralMolecule_ = b.dlnActCoeffdT_NeutralMolecule_;
     dlnActCoeffdlnX_diag_NeutralMolecule_ = b.dlnActCoeffdlnX_diag_NeutralMolecule_;
@@ -226,7 +226,7 @@ void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string i
      *  Create the neutralMolecule ThermoPhase if we haven't already
      */
     if (!neutralMoleculePhase_) {
-        neutralMoleculePhase_  = newPhase(*neut_ptr);
+        neutralMoleculePhase_ = newPhase(*neut_ptr);
     }
 
     /*
@@ -352,7 +352,7 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             xx = std::max(SmallNumber, moleFractions_[icat]);
-            mu[icat] =  muNeutralMolecule_[jNeut]  + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
+            mu[icat] = muNeutralMolecule_[jNeut] + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
         }
         break;
 
@@ -493,7 +493,7 @@ void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal* const mf) const
     /*
      *  Use the formula matrix to calculate the relative mole numbers.
      */
-    for (size_t jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+    for (size_t jNeut = 0; jNeut < numNeutralMoleculeSpecies_; jNeut++) {
         for (size_t k = 0; k < m_kk; k++) {
             double fmij = fm_neutralMolec_ions_[k + jNeut * m_kk];
             mf[k] += fmij * NeutralMolecMoleFractions_[jNeut];
@@ -527,7 +527,7 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
         for (size_t k = 0; k < m_kk; k++) {
             sum += moleFractions_[k];
         }
-        if (fabs(sum) > 1.0E-11)  {
+        if (fabs(sum) > 1.0E-11) {
             throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
                                "molefracts don't sum to one: " + fp2str(sum));
         }
@@ -550,13 +550,13 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
             icat = cationList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             if (jNeut != npos) {
-                fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
+                fmij = fm_neutralMolec_ions_[icat + jNeut * m_kk];
                 AssertTrace(fmij != 0.0);
                 NeutralMolecMoleFractions_[jNeut] += moleFractions_[icat] / fmij;
             }
         }
 
-        for (size_t k = 0; k <  passThroughList_.size(); k++) {
+        for (size_t k = 0; k < passThroughList_.size(); k++) {
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             fmij = fm_neutralMolec_ions_[ icat + jNeut * m_kk];
@@ -567,9 +567,9 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
             for (size_t k = 0; k < m_kk; k++) {
                 moleFractionsTmp_[k] = moleFractions_[k];
             }
-            for (jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+            for (jNeut = 0; jNeut < numNeutralMoleculeSpecies_; jNeut++) {
                 for (size_t k = 0; k < m_kk; k++) {
-                    fmij =  fm_neutralMolec_ions_[k + jNeut * m_kk];
+                    fmij = fm_neutralMolec_ions_[k + jNeut * m_kk];
                     moleFractionsTmp_[k] -= fmij * NeutralMolecMoleFractions_[jNeut];
                 }
             }
@@ -600,10 +600,10 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
         }
         break;
 
-    case  cIonSolnType_SINGLECATION:
+    case cIonSolnType_SINGLECATION:
         throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
         break;
-    case  cIonSolnType_MULTICATIONANION:
+    case cIonSolnType_MULTICATIONANION:
         throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions", "Unknown type");
         break;
     default:
@@ -637,7 +637,7 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             size_t icat = cationList_[k];
             size_t jNeut = fm_invert_ionForNeutral[icat];
             if (jNeut != npos) {
-                double fmij =  fm_neutralMolec_ions_[icat + jNeut * m_kk];
+                double fmij = fm_neutralMolec_ions_[icat + jNeut * m_kk];
                 AssertTrace(fmij != 0.0);
                 const doublereal temp = 1.0/fmij;
                 dy[jNeut] += dx[icat] * temp;
@@ -645,7 +645,7 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
             }
         }
 
-        for (size_t k = 0; k <  passThroughList_.size(); k++) {
+        for (size_t k = 0; k < passThroughList_.size(); k++) {
             size_t icat = passThroughList_[k];
             size_t jNeut = fm_invert_ionForNeutral[icat];
             double fmij = fm_neutralMolec_ions_[ icat + jNeut * m_kk];
@@ -667,11 +667,11 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
 
         break;
 
-    case  cIonSolnType_SINGLECATION:
+    case cIonSolnType_SINGLECATION:
         throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
                            "Unknown type");
         break;
-    case  cIonSolnType_MULTICATIONANION:
+    case cIonSolnType_MULTICATIONANION:
         throw CanteraError("IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads",
                            "Unknown type");
         break;
@@ -727,9 +727,9 @@ void IonsFromNeutralVPSSTP::initThermo()
     GibbsExcessVPSSTP::initThermo();
 }
 
-void  IonsFromNeutralVPSSTP::initLengths()
+void IonsFromNeutralVPSSTP::initLengths()
 {
-    numNeutralMoleculeSpecies_ =  neutralMoleculePhase_->nSpecies();
+    numNeutralMoleculeSpecies_ = neutralMoleculePhase_->nSpecies();
     moleFractions_.resize(m_kk);
     fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
     fm_invert_ionForNeutral.resize(m_kk);
@@ -758,10 +758,10 @@ void  IonsFromNeutralVPSSTP::initLengths()
  *     @param elemVectorI
  *     @param nElementsI
  */
-static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
+static double factorOverlap(const std::vector<std::string>& elnamesVN ,
                             const std::vector<double>& elemVectorN,
                             const size_t nElementsN,
-                            const std::vector<std::string>&  elnamesVI ,
+                            const std::vector<std::string>& elnamesVI ,
                             const std::vector<double>& elemVectorI,
                             const size_t nElementsI)
 {
@@ -825,7 +825,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
      *  Create the neutralMolecule ThermoPhase if we haven't already
      */
     if (!neutralMoleculePhase_) {
-        neutralMoleculePhase_  = newPhase(*neut_ptr);
+        neutralMoleculePhase_ = newPhase(*neut_ptr);
     }
 
     cationList_.clear();
@@ -864,20 +864,20 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         }
     }
 
-    size_t nElementsN =  neutralMoleculePhase_->nElements();
-    const std::vector<std::string>&  elnamesVN = neutralMoleculePhase_->elementNames();
+    size_t nElementsN = neutralMoleculePhase_->nElements();
+    const std::vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
     std::vector<double> elemVectorN(nElementsN);
     std::vector<double> elemVectorN_orig(nElementsN);
 
-    size_t nElementsI =  nElements();
-    const std::vector<std::string>&  elnamesVI = elementNames();
+    size_t nElementsI = nElements();
+    const std::vector<std::string>& elnamesVI = elementNames();
     std::vector<double> elemVectorI(nElementsI);
 
     vector<doublereal> fm_tmp(m_kk);
-    for (size_t k = 0; k <  m_kk; k++) {
+    for (size_t k = 0; k < m_kk; k++) {
         fm_invert_ionForNeutral[k] = npos;
     }
-    for (size_t jNeut = 0; jNeut <  numNeutralMoleculeSpecies_; jNeut++) {
+    for (size_t jNeut = 0; jNeut < numNeutralMoleculeSpecies_; jNeut++) {
         for (size_t m = 0; m < nElementsN; m++) {
             elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);
         }
@@ -901,7 +901,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                 }
             }
         }
-        fm_neutralMolec_ions_[indexSpecialSpecies_  + jNeut * m_kk ] += fac;
+        fm_neutralMolec_ions_[indexSpecialSpecies_ + jNeut * m_kk ] += fac;
 
         for (size_t k = 0; k < m_kk; k++) {
             for (size_t m = 0; m < nElementsI; m++) {
@@ -932,7 +932,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                                        "Simple formula matrix generation failed, one cation is shared between two salts");
                 }
             }
-            fm_neutralMolec_ions_[k  + jNeut * m_kk] += fac;
+            fm_neutralMolec_ions_[k + jNeut * m_kk] += fac;
         }
 
         // Ok check the work
@@ -981,7 +981,7 @@ void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const
         lnActCoeff_Scaled_[icat]= 0.0;
 
         // Do the list of neutral molecules
-        for (size_t k = 0; k <  passThroughList_.size(); k++) {
+        for (size_t k = 0; k < passThroughList_.size(); k++) {
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             lnActCoeff_Scaled_[icat] = lnActCoeff_NeutralMolecule_[jNeut];
@@ -1089,7 +1089,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
         dlnActCoeffdT_Scaled_[icat]= 0.0;
 
         // Do the list of neutral molecules
-        for (size_t k = 0; k <  passThroughList_.size(); k++) {
+        for (size_t k = 0; k < passThroughList_.size(); k++) {
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             dlnActCoeffdT_Scaled_[icat] = dlnActCoeffdT_NeutralMolecule_[jNeut];
@@ -1140,7 +1140,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
         dlnActCoeffdlnX_diag_[icat]= 0.0;
 
         // Do the list of neutral molecules
-        for (size_t k = 0; k <  passThroughList_.size(); k++) {
+        for (size_t k = 0; k < passThroughList_.size(); k++) {
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             dlnActCoeffdlnX_diag_[icat] = dlnActCoeffdlnX_diag_NeutralMolecule_[jNeut];
@@ -1234,7 +1234,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
                 kcat = cationList_[k];
 
                 kNeut = fm_invert_ionForNeutral[kcat];
-                fmij =  fm_neutralMolec_ions_[kcat + kNeut * m_kk];
+                fmij = fm_neutralMolec_ions_[kcat + kNeut * m_kk];
                 dlnActCoeffdlnN_diag_[kcat] = dlnActCoeffdlnN_diag_NeutralMolecule_[kNeut]/fmij;
 
                 mcat = cationList_[m];
@@ -1247,7 +1247,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
             for (size_t m = 0; m < passThroughList_.size(); m++) {
                 mcat = passThroughList_[m];
                 mNeut = fm_invert_ionForNeutral[mcat];
-                dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut) / fmij;
+                dlnActCoeffdlnN_(kcat, mcat) = dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut) / fmij;
             }
         }
 
@@ -1260,7 +1260,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
         }
 
         // Do the list of neutral molecules
-        for (size_t k = 0; k <  passThroughList_.size(); k++) {
+        for (size_t k = 0; k < passThroughList_.size(); k++) {
             kcat = passThroughList_[k];
             kNeut = fm_invert_ionForNeutral[kcat];
             dlnActCoeffdlnN_diag_[kcat] = dlnActCoeffdlnN_diag_NeutralMolecule_[kNeut];
@@ -1268,13 +1268,13 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
             for (size_t m = 0; m < m_kk; m++) {
                 mcat = passThroughList_[m];
                 mNeut = fm_invert_ionForNeutral[mcat];
-                dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut);
+                dlnActCoeffdlnN_(kcat, mcat) = dlnActCoeffdlnN_NeutralMolecule_(kNeut, mNeut);
             }
 
             for (size_t m = 0; m < cationList_.size(); m++) {
                 mcat = cationList_[m];
                 mNeut = fm_invert_ionForNeutral[mcat];
-                dlnActCoeffdlnN_(kcat, mcat) =  dlnActCoeffdlnN_NeutralMolecule_(kNeut,mNeut);
+                dlnActCoeffdlnN_(kcat, mcat) = dlnActCoeffdlnN_NeutralMolecule_(kNeut,mNeut);
             }
         }
         break;

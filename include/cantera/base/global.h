@@ -7,7 +7,7 @@
  * @ingroup utils
  *
  * These functions store
- * some parameters in  global storage that are accessible at all times
+ * some parameters in global storage that are accessible at all times
  * from the calling application.
  * Contains module definitions for
  *     -  inputfiles  (see \ref inputfiles)
@@ -115,7 +115,7 @@ void addDirectory(const std::string& dir);
 void appdelete();
 
 //! @copydoc Application::thread_complete
-void thread_complete() ;
+void thread_complete();
 
 //! Returns root directory where %Cantera is installed
 /*!

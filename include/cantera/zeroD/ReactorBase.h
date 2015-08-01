@@ -216,7 +216,7 @@ protected:
     //! Number of homogeneous species in the mixture
     size_t m_nsp;
 
-    thermo_t*  m_thermo;
+    thermo_t* m_thermo;
     doublereal m_vol;
     doublereal m_enthalpy;
     doublereal m_intEnergy;

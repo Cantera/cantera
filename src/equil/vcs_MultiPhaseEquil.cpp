@@ -408,13 +408,13 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
         } else {
             xtarget = m_mix->IntEnergy();
         }
-        double Tlow  = 0.5 * m_mix->minTemp();
+        double Tlow = 0.5 * m_mix->minTemp();
         double Thigh = 2.0 * m_mix->maxTemp();
         return equilibrate_HP(xtarget, XY, Tlow, Thigh,
                               estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == SP) {
         xtarget = m_mix->entropy();
-        double Tlow  = 0.5 * m_mix->minTemp();
+        double Tlow = 0.5 * m_mix->minTemp();
         double Thigh = 2.0 * m_mix->maxTemp();
         return equilibrate_SP(xtarget, Tlow, Thigh,
                               estimateEquil, printLvl, err, maxsteps, loglevel);
@@ -524,7 +524,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
             plogf("\nVCS FAILED TO CONVERGE!\n");
         }
         plogf("\n");
-        plogf("Temperature = %g Kelvin\n",  m_vprob.T);
+        plogf("Temperature = %g Kelvin\n", m_vprob.T);
         plogf("Pressure    = %g Pa\n", m_vprob.PresPA);
         plogf("\n");
         plogf("----------------------------------------"
@@ -676,7 +676,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         mf[istart + k], molalities[k], ac[k], activity[k],
                         mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         mf[istart + k] * TMolesPhase,
-                        VolPM[k],  VolPhaseVolumes);
+                        VolPM[k], VolPhaseVolumes);
             }
         } else {
             if (iphase == 0) {
@@ -697,10 +697,10 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
                         phaseName.c_str(), TMolesPhase,
-                        mf[istart + k],  molalities[k], ac[k],
+                        mf[istart + k], molalities[k], ac[k],
                         activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         mf[istart + k] * TMolesPhase,
-                        VolPM[k],  VolPhaseVolumes);
+                        VolPM[k], VolPhaseVolumes);
             }
         }
 
@@ -726,7 +726,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
  * HKM -> Work on transferring the current value of the voltages into the
  *        equilibrium problem.
  */
-int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
+int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 {
     VCS_SPECIES_THERMO* ts_ptr = 0;
 
@@ -738,17 +738,17 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 
     // Problem type has yet to be worked out.
     vprob->prob_type = 0;
-    vprob->nspecies  = totNumSpecies;
-    vprob->ne        = 0;
-    vprob->NPhase    = totNumPhases;
-    vprob->m_VCS_UnitsFormat      = VCS_UNITS_MKS;
+    vprob->nspecies = totNumSpecies;
+    vprob->ne = 0;
+    vprob->NPhase = totNumPhases;
+    vprob->m_VCS_UnitsFormat = VCS_UNITS_MKS;
     // Set the initial estimate to a machine generated estimate for now
     // We will work out the details later.
-    vprob->iest      = -1;
-    vprob->T         = mphase->temperature();
-    vprob->PresPA    = mphase->pressure();
-    vprob->Vol       = mphase->volume();
-    vprob->Title     = "MultiPhase Object";
+    vprob->iest = -1;
+    vprob->T = mphase->temperature();
+    vprob->PresPA = mphase->pressure();
+    vprob->Vol = mphase->volume();
+    vprob->Title = "MultiPhase Object";
 
     int printLvl = vprob->m_printLvl;
 
@@ -823,7 +823,7 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         case cStoichSubstance:
             VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
             break;
-        case  cPureFluid:
+        case cPureFluid:
             if (printLvl > 1) {
                 plogf("cPureFluid not recognized yet by VCSnonideal\n");
             }
@@ -964,17 +964,17 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
                 double c[4];
                 double minTemp, maxTemp, refPressure;
                 sp.reportParams(k, spType, c, minTemp, maxTemp, refPressure);
-                ts_ptr->SS0_Model  = VCS_SS0_CONSTANT;
-                ts_ptr->SS0_T0  = c[0];
-                ts_ptr->SS0_H0  = c[1];
-                ts_ptr->SS0_S0  = c[2];
+                ts_ptr->SS0_Model = VCS_SS0_CONSTANT;
+                ts_ptr->SS0_T0 = c[0];
+                ts_ptr->SS0_H0 = c[1];
+                ts_ptr->SS0_S0 = c[2];
                 ts_ptr->SS0_Cp0 = c[3];
                 if (gasPhase) {
                     ts_ptr->SSStar_Model = VCS_SSSTAR_IDEAL_GAS;
-                    ts_ptr->SSStar_Vol_Model  = VCS_SSVOL_IDEALGAS;
+                    ts_ptr->SSStar_Vol_Model = VCS_SSVOL_IDEALGAS;
                 } else {
                     ts_ptr->SSStar_Model = VCS_SSSTAR_CONSTANT;
-                    ts_ptr->SSStar_Vol_Model  = VCS_SSVOL_CONSTANT;
+                    ts_ptr->SSStar_Vol_Model = VCS_SSVOL_CONSTANT;
                 }
             } else {
                 if (vprob->m_printLvl > 2) {
@@ -1063,9 +1063,9 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
             if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("     Volts = %-10.5g\n",  vprob->w[i]);
+                plogf("     Volts = %-10.5g\n", vprob->w[i]);
             } else {
-                plogf("             %-10.5g\n",  vprob->w[i]);
+                plogf("             %-10.5g\n", vprob->w[i]);
             }
         }
 
@@ -1081,10 +1081,10 @@ int  vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
             std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
             plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
-                  VolPhase->VP_ID_,       VolPhase->m_singleSpecies,
-                  VolPhase->m_gasPhase,    sEOS.c_str(),
+                  VolPhase->VP_ID_, VolPhase->m_singleSpecies,
+                  VolPhase->m_gasPhase, sEOS.c_str(),
                   VolPhase->nSpecies(), VolPhase->totalMolesInert());
-            plogf("%16e\n",  VolPhase->totalMoles());
+            plogf("%16e\n", VolPhase->totalMoles());
         }
 
         writeline('=', 80, true, true);
@@ -1106,10 +1106,10 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
     vprob->prob_type = 0;
     // Whether we have an estimate or not gets overwritten on
     // the call to the equilibrium solver.
-    vprob->iest      = -1;
-    vprob->T         = mphase->temperature();
-    vprob->PresPA    = mphase->pressure();
-    vprob->Vol       = mphase->volume();
+    vprob->iest = -1;
+    vprob->T = mphase->temperature();
+    vprob->PresPA = mphase->pressure();
+    vprob->Vol = mphase->volume();
 
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
         ThermoPhase* tPhase = &mphase->phase(iphase);
@@ -1182,9 +1182,9 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
             if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("     Volts = %-10.5g\n",  vprob->w[i]);
+                plogf("     Volts = %-10.5g\n", vprob->w[i]);
             } else {
-                plogf("             %-10.5g\n",  vprob->w[i]);
+                plogf("             %-10.5g\n", vprob->w[i]);
             }
         }
 
@@ -1200,10 +1200,10 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
             std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
             plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
-                  VolPhase->VP_ID_,       VolPhase->m_singleSpecies,
-                  VolPhase->m_gasPhase,    sEOS.c_str(),
+                  VolPhase->VP_ID_, VolPhase->m_singleSpecies,
+                  VolPhase->m_gasPhase, sEOS.c_str(),
                   VolPhase->nSpecies(), VolPhase->totalMolesInert());
-            plogf("%16e\n",  VolPhase->totalMoles());
+            plogf("%16e\n", VolPhase->totalMoles());
         }
 
         writeline('=', 80, true, true);
@@ -1312,7 +1312,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
     if (printLvl > 0) {
         plogf("\n Results from vcs_PS:\n");
         plogf("\n");
-        plogf("Temperature = %g Kelvin\n",  m_vprob.T);
+        plogf("Temperature = %g Kelvin\n", m_vprob.T);
         plogf("Pressure    = %g Pa\n", m_vprob.PresPA);
         std::string sss = m_mix->phaseName(iph);
         if (iStable) {

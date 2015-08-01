@@ -158,7 +158,7 @@ int main(int argc, char** argv)
              * Calculate the delta volume of solution for the reaction
              *                NaCl(s) -> Na+ + Cl-
              */
-            double Delta_Vs = (Xmol[0]  * V_H2O +
+            double Delta_Vs = (Xmol[0] * V_H2O +
                                Xmol[i1] * V_Naplus +
                                Xmol[i2] * V_Clminus
                                - Xmol[0] * V0_H2O
@@ -170,7 +170,7 @@ int main(int argc, char** argv)
              * Calculate the apparent molar volume, J, from the
              * partial molar quantities, units m3/kmol
              */
-            double Vex = (Xmol[0]  * (V_H2O    - V0_H2O) +
+            double Vex = (Xmol[0] * (V_H2O    - V0_H2O) +
                           Xmol[i1] * (V_Naplus - V0_Naplus) +
                           Xmol[i2] * (V_Clminus - V0_Clminus));
 

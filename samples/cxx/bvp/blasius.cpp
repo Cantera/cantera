@@ -32,7 +32,7 @@ public:
         A.rtol = 1.0e-12;
         A.atol = 1.0e-15;
         A.name = "zeta";
-        setComponent(0, A);  // zeta will be component 0
+        setComponent(0, A); // zeta will be component 0
 
         BVP::Component B;
         B.lower = -200.0;
@@ -40,7 +40,7 @@ public:
         B.rtol = 1.0e-12;
         B.atol = 1.0e-15;
         B.name = "u";
-        setComponent(1, B);  // u will be component 1
+        setComponent(1, B); // u will be component 1
     }
 
     // destructor

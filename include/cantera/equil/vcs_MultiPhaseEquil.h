@@ -82,7 +82,7 @@ public:
      *           number of components, which can be obtained from the
      *           numComponents() command.
      */
-    size_t component(size_t m) const ;
+    size_t component(size_t m) const;
 
     //! Get the stoichiometric reaction coefficients for a single
     //! reaction index
@@ -260,7 +260,7 @@ public:
      *  @param logLevel Determines the amount of printing to the output file.
      */
     int equilibrate_TV(int XY, doublereal xtarget,
-                       int  estimateEquil = 0,
+                       int estimateEquil = 0,
                        int printLvl = 0, doublereal err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int logLevel = -99);
 
@@ -276,7 +276,7 @@ public:
      *                   compile with debug flags to get some printing).
      *  @param logLevel Determines the amount of printing to the output file.
      */
-    int determine_PhaseStability(int iph, double& funcStab,  int printLvl= 0, int logLevel = -99);
+    int determine_PhaseStability(int iph, double& funcStab, int printLvl= 0, int logLevel = -99);
 
     //! Report the equilibrium answer in a comma separated table format
     /*!
@@ -303,7 +303,7 @@ public:
 
     // Friend functions
     friend int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob);
-    friend int  vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob);
+    friend int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob);
 
 protected:
     //! Vector that takes into account of the current sorting of the species

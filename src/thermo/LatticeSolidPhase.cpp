@@ -135,7 +135,7 @@ doublereal LatticeSolidPhase::entropy_mole() const
 doublereal LatticeSolidPhase::gibbs_mole() const
 {
     _updateThermo();
-    doublereal  sum = 0.0;
+    doublereal sum = 0.0;
     for (size_t n = 0; n < m_nlattice; n++) {
         sum += theta_[n] * m_lattice[n]->gibbs_mole();
     }
@@ -179,7 +179,7 @@ doublereal LatticeSolidPhase::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void  LatticeSolidPhase::setPressure(doublereal p)
+void LatticeSolidPhase::setPressure(doublereal p)
 {
     m_press = p;
     for (size_t n = 0; n < m_nlattice; n++) {
@@ -188,7 +188,7 @@ void  LatticeSolidPhase::setPressure(doublereal p)
     calcDensity();
 }
 
-doublereal  LatticeSolidPhase::calcDensity()
+doublereal LatticeSolidPhase::calcDensity()
 {
     double sum = 0.0;
     for (size_t n = 0; n < m_nlattice; n++) {
@@ -202,7 +202,7 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
 {
     size_t strt = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        size_t nsp =  m_lattice[n]->nSpecies();
+        size_t nsp = m_lattice[n]->nSpecies();
         m_lattice[n]->setMoleFractions(x + strt);
         strt += nsp;
     }
@@ -219,7 +219,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
     // the ifdef block should be the way we calculate this.!!!!!
     Phase::getMoleFractions(x);
     for (size_t n = 0; n < m_nlattice; n++) {
-        size_t nsp =  m_lattice[n]->nSpecies();
+        size_t nsp = m_lattice[n]->nSpecies();
         double sum = 0.0;
         for (size_t k = 0; k < nsp; k++) {
             sum += (x + strt)[k];
@@ -249,7 +249,7 @@ void LatticeSolidPhase::getChemPotentials(doublereal* mu) const
     _updateThermo();
     size_t strt = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        size_t nlsp =  m_lattice[n]->nSpecies();
+        size_t nlsp = m_lattice[n]->nSpecies();
         m_lattice[n]->getChemPotentials(mu+strt);
         strt += nlsp;
     }
@@ -260,7 +260,7 @@ void LatticeSolidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
     _updateThermo();
     size_t strt = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        size_t nlsp =  m_lattice[n]->nSpecies();
+        size_t nlsp = m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarEnthalpies(hbar + strt);
         strt += nlsp;
     }
@@ -271,7 +271,7 @@ void LatticeSolidPhase::getPartialMolarEntropies(doublereal* sbar) const
     _updateThermo();
     size_t strt = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        size_t nlsp =  m_lattice[n]->nSpecies();
+        size_t nlsp = m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarEntropies(sbar + strt);
         strt += nlsp;
     }
@@ -282,7 +282,7 @@ void LatticeSolidPhase::getPartialMolarCp(doublereal* cpbar) const
     _updateThermo();
     size_t strt = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        size_t nlsp =  m_lattice[n]->nSpecies();
+        size_t nlsp = m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarCp(cpbar + strt);
         strt += nlsp;
     }
@@ -293,7 +293,7 @@ void LatticeSolidPhase::getPartialMolarVolumes(doublereal* vbar) const
     _updateThermo();
     size_t strt = 0;
     for (size_t n = 0; n < m_nlattice; n++) {
-        size_t nlsp =  m_lattice[n]->nSpecies();
+        size_t nlsp = m_lattice[n]->nSpecies();
         m_lattice[n]->getPartialMolarVolumes(vbar + strt);
         strt += nlsp;
     }
@@ -354,7 +354,7 @@ void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
             string econ = "LC_" + int2str(n) + "_" + id();
             size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
             size_t mm = nElements();
-            size_t nsp0 =  m_lattice[0]->nSpecies();
+            size_t nsp0 = m_lattice[0]->nSpecies();
             for (size_t k = 0; k < nsp0; k++) {
                 m_speciesComp[k * mm + m] = -theta_[0];
             }
@@ -458,7 +458,7 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298N
     for (size_t n = 0; n < m_nlattice; n++) {
         if (lkstart_[n+1] < k) {
             size_t kk = k-lkstart_[n];
-            SpeciesThermo& l_spthermo =  m_lattice[n]->speciesThermo();
+            SpeciesThermo& l_spthermo = m_lattice[n]->speciesThermo();
             l_spthermo.modifyOneHf298(kk, Hf298New);
         }
     }

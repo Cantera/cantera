@@ -70,11 +70,11 @@ public:
     //@{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const ;
-    virtual void getGibbs_ref(doublereal* g) const ;
-    virtual void getEntropy_R_ref(doublereal* er) const ;
-    virtual void getCp_R_ref(doublereal* cpr) const ;
-    virtual void getStandardVolumes_ref(doublereal* vol) const ;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
+    virtual void getGibbs_ref(doublereal* g) const;
+    virtual void getEntropy_R_ref(doublereal* er) const;
+    virtual void getCp_R_ref(doublereal* cpr) const;
+    virtual void getStandardVolumes_ref(doublereal* vol) const;
 
     //! @}
     /*! @name Initialization Methods - For Internal use
@@ -91,8 +91,8 @@ public:
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr);
 
-    virtual PDSS_enumType reportPDSSType(int index = -1) const ;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const ;
+    virtual PDSS_enumType reportPDSSType(int index = -1) const;
+    virtual VPSSMgr_enumType reportVPSSMgrType() const;
     virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 
 private:

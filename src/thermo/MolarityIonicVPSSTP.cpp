@@ -70,15 +70,15 @@ MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b
         GibbsExcessVPSSTP::operator=(b);
     }
 
-    PBType_                     = b.PBType_;
-    numPBSpecies_               = b.numPBSpecies_;
-    indexSpecialSpecies_        = b.indexSpecialSpecies_;
-    PBMoleFractions_            = b.PBMoleFractions_;
-    cationList_                 = b.cationList_;
-    anionList_                  = b.anionList_;
-    passThroughList_            = b.passThroughList_;
-    neutralPBindexStart         = b.neutralPBindexStart;
-    moleFractionsTmp_           = b.moleFractionsTmp_;
+    PBType_ = b.PBType_;
+    numPBSpecies_ = b.numPBSpecies_;
+    indexSpecialSpecies_ = b.indexSpecialSpecies_;
+    PBMoleFractions_ = b.PBMoleFractions_;
+    cationList_ = b.cationList_;
+    anionList_ = b.anionList_;
+    passThroughList_ = b.passThroughList_;
+    neutralPBindexStart = b.neutralPBindexStart;
+    moleFractionsTmp_ = b.moleFractionsTmp_;
 
     return *this;
 }
@@ -255,7 +255,7 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
             moleFractionsTmp_[cationList_[kMax]] -= sum / m_speciesCharge[kMax];
             sum = 0.0;
             for (size_t k = 0; k < cationList_.size(); k++) {
-                sum +=  moleFractionsTmp_[k];
+                sum += moleFractionsTmp_[k];
             }
             for (size_t k = 0; k < cationList_.size(); k++) {
                 moleFractionsTmp_[k]/= sum;
@@ -265,7 +265,7 @@ void MolarityIonicVPSSTP::calcPseudoBinaryMoleFractions() const
         for (size_t k = 0; k < cationList_.size(); k++) {
             PBMoleFractions_[k] = moleFractionsTmp_[cationList_[k]];
         }
-        for (size_t k = 0; k <  passThroughList_.size(); k++) {
+        for (size_t k = 0; k < passThroughList_.size(); k++) {
             PBMoleFractions_[neutralPBindexStart + k] = moleFractions_[passThroughList_[k]];
         }
 
@@ -298,7 +298,7 @@ void MolarityIonicVPSSTP::s_update_dlnActCoeff_dT() const
 {
 }
 
-void  MolarityIonicVPSSTP::s_update_dlnActCoeff_dX_() const
+void MolarityIonicVPSSTP::s_update_dlnActCoeff_dX_() const
 {
 }
 
@@ -335,7 +335,7 @@ void MolarityIonicVPSSTP::initThermo()
     }
 }
 
-void  MolarityIonicVPSSTP::initLengths()
+void MolarityIonicVPSSTP::initLengths()
 {
     moleFractionsTmp_.resize(m_kk);
 }

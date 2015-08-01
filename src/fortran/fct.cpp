@@ -1065,7 +1065,7 @@ extern "C" {
                 r = &root->root();
             }
             std::string srcS = f2string(src, lensrc);
-            std::string idS  = f2string(id, lenid);
+            std::string idS = f2string(id, lenid);
             if (srcS != "") {
                 x = get_XML_Node(srcS, r);
             } else {

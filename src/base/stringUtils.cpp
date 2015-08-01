@@ -257,7 +257,7 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
         if (icolon != std::string::npos) {
             phaseName = s.substr(0, icolon);
             s = s.substr(icolon+1, s.size());
-            icolon =  s.find(':');
+            icolon = s.find(':');
             if (icolon != std::string::npos) {
                 throw CanteraError("parseSpeciesName()", "two colons in name: " + nameStr);
             }

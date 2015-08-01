@@ -58,7 +58,7 @@ public:
     MixTransport();
 
     MixTransport(const MixTransport& right);
-    MixTransport& operator=(const  MixTransport& right);
+    MixTransport& operator=(const MixTransport& right);
     virtual Transport* duplMyselfAsTransport() const;
 
     //! Return the model id for transport

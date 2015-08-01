@@ -167,33 +167,33 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
     PDSS::operator=(b);
 
     //! Need to call initAllPtrs AFTER, to get the correct m_waterSS
-    m_waterSS        = 0;
-    m_densWaterSS               = b.m_densWaterSS;
+    m_waterSS = 0;
+    m_densWaterSS = b.m_densWaterSS;
     //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
     delete m_waterProps;
-    m_waterProps                = 0;
-    m_born_coeff_j              = b.m_born_coeff_j;
-    m_r_e_j                     = b.m_r_e_j;
-    m_deltaG_formation_tr_pr    = b.m_deltaG_formation_tr_pr;
-    m_deltaH_formation_tr_pr    = b.m_deltaH_formation_tr_pr;
-    m_Mu0_tr_pr                 = b.m_Mu0_tr_pr;
-    m_Entrop_tr_pr              = b.m_Entrop_tr_pr;
-    m_a1                        = b.m_a1;
-    m_a2                        = b.m_a2;
-    m_a3                        = b.m_a3;
-    m_a4                        = b.m_a4;
-    m_c1                        = b.m_c1;
-    m_c2                        = b.m_c2;
-    m_omega_pr_tr               = b.m_omega_pr_tr;
-    m_Y_pr_tr                   = b.m_Y_pr_tr;
-    m_Z_pr_tr                   = b.m_Z_pr_tr;
-    m_presR_bar                 = b.m_presR_bar;
-    m_domega_jdT_prtr           = b.m_domega_jdT_prtr;
-    m_charge_j                  = b.m_charge_j;
+    m_waterProps = 0;
+    m_born_coeff_j = b.m_born_coeff_j;
+    m_r_e_j = b.m_r_e_j;
+    m_deltaG_formation_tr_pr = b.m_deltaG_formation_tr_pr;
+    m_deltaH_formation_tr_pr = b.m_deltaH_formation_tr_pr;
+    m_Mu0_tr_pr = b.m_Mu0_tr_pr;
+    m_Entrop_tr_pr = b.m_Entrop_tr_pr;
+    m_a1 = b.m_a1;
+    m_a2 = b.m_a2;
+    m_a3 = b.m_a3;
+    m_a4 = b.m_a4;
+    m_c1 = b.m_c1;
+    m_c2 = b.m_c2;
+    m_omega_pr_tr = b.m_omega_pr_tr;
+    m_Y_pr_tr = b.m_Y_pr_tr;
+    m_Z_pr_tr = b.m_Z_pr_tr;
+    m_presR_bar = b.m_presR_bar;
+    m_domega_jdT_prtr = b.m_domega_jdT_prtr;
+    m_charge_j = b.m_charge_j;
 
     // Here we just fill these in so that local copies within the VPSS object work.
-    m_waterSS                  = b.m_waterSS;
-    m_waterProps               = new WaterProps(m_waterSS);
+    m_waterSS = b.m_waterSS;
+    m_waterProps = new WaterProps(m_waterSS);
 
     return *this;
 }
@@ -263,14 +263,14 @@ doublereal PDSS_HKFT::cp_mole() const
 
         doublereal r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
         doublereal dr_e_jdT = fabs(m_charge_j) * dgvaldT;
-        doublereal d2r_e_jdT2 =  fabs(m_charge_j) * d2gvaldT2;
+        doublereal d2r_e_jdT2 = fabs(m_charge_j) * d2gvaldT2;
         doublereal r_e_j2 = r_e_j * r_e_j;
 
         doublereal charge2 = m_charge_j * m_charge_j;
         doublereal r_e_H = 3.082 + gval;
         doublereal r_e_H2 = r_e_H * r_e_H;
         omega_j = nu * (charge2 / r_e_j - m_charge_j / r_e_H);
-        domega_jdT =  nu * (-(charge2    / r_e_j2 * dr_e_jdT)
+        domega_jdT = nu * (-(charge2 / r_e_j2 * dr_e_jdT)
                             +(m_charge_j / r_e_H2 * dgvaldT));
         d2omega_jdT2 = nu * (2.0*charge2*dr_e_jdT*dr_e_jdT/(r_e_j2*r_e_j) - charge2*d2r_e_jdT2/r_e_j2
                              -2.0*m_charge_j*dgvaldT*dgvaldT/(r_e_H2*r_e_H) + m_charge_j*d2gvaldT2 /r_e_H2);
@@ -287,7 +287,7 @@ doublereal PDSS_HKFT::cp_mole() const
     doublereal yterm = 2.0 * m_temp * Y * domega_jdT;
     doublereal xterm = omega_j * m_temp * X;
     doublereal otterm = m_temp * d2omega_jdT2 * (Z + 1.0);
-    doublereal rterm =  - m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
+    doublereal rterm = - m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
 
     doublereal Cp_calgmol = c1term + c2term + a3term + a4term + yterm + xterm + otterm + rterm;
 
@@ -297,7 +297,7 @@ doublereal PDSS_HKFT::cp_mole() const
     return Cp;
 }
 
-doublereal  PDSS_HKFT::molarVolume() const
+doublereal PDSS_HKFT::molarVolume() const
 {
     // Initially do all calculations in (cal/gmol/Pa)
 
@@ -316,7 +316,7 @@ doublereal  PDSS_HKFT::molarVolume() const
         doublereal charge2 = m_charge_j * m_charge_j;
         doublereal r_e_j_pr_tr = charge2 / (m_omega_pr_tr/nu + m_charge_j/3.082);
 
-        doublereal gval    = gstar(m_temp, m_pres, 0);
+        doublereal gval = gstar(m_temp, m_pres, 0);
         doublereal dgvaldP = gstar(m_temp, m_pres, 3);
 
         doublereal r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
@@ -324,7 +324,7 @@ doublereal  PDSS_HKFT::molarVolume() const
 
         omega_j = nu * (charge2 / r_e_j - m_charge_j / r_e_H);
         doublereal dr_e_jdP = fabs(m_charge_j) * dgvaldP;
-        domega_jdP = -  nu * (charge2 / (r_e_j * r_e_j) * dr_e_jdP)
+        domega_jdP = - nu * (charge2 / (r_e_j * r_e_j) * dr_e_jdP)
                      + nu * m_charge_j / (r_e_H * r_e_H) * dgvaldP;
     }
 
@@ -334,7 +334,7 @@ doublereal  PDSS_HKFT::molarVolume() const
     doublereal Z = -1.0 / relepsilon;
     doublereal wterm = - domega_jdP * (Z + 1.0);
     doublereal qterm = - omega_j * Q;
-    doublereal molVol_calgmolPascal = a1term + a2term +  a3term + a4term + wterm + qterm;
+    doublereal molVol_calgmolPascal = a1term + a2term + a3term + a4term + wterm + qterm;
 
     // Convert to m**3 / kmol from (cal/gmol/Pa)
     return molVol_calgmolPascal * 4.184 * 1.0E3;
@@ -402,7 +402,7 @@ void PDSS_HKFT::initThermo()
 
     m_waterSS = dynamic_cast<PDSS_Water*>(m_tp->providePDSS(0));
     /*
-     *  Section to initialize  m_Z_pr_tr and   m_Y_pr_tr
+     *  Section to initialize m_Z_pr_tr and m_Y_pr_tr
      */
     m_temp = 273.15 + 25.;
     m_pres = OneAtm;
@@ -456,7 +456,7 @@ void PDSS_HKFT::initThermo()
         doublereal dgvaldT = gstar(m_temp, m_pres, 1);
         doublereal r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
         doublereal dr_e_jdT = fabs(m_charge_j) * dgvaldT;
-        m_domega_jdT_prtr =  -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
+        m_domega_jdT_prtr = - nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
                              + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
     }
 }
@@ -464,7 +464,7 @@ void PDSS_HKFT::initThermo()
 void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                             SpeciesThermo* spthermo_ptr)
 {
-    PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr,  spthermo_ptr);
+    PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr, spthermo_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_tp->providePDSS(0));
     delete m_waterProps;
     m_waterProps = new WaterProps(m_waterSS);
@@ -596,12 +596,12 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     }
     if (hasDGO == 0) {
         doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
-        m_Mu0_tr_pr = DHjmol -  298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
-        m_deltaG_formation_tr_pr =   m_Mu0_tr_pr / (1.0E3 * 4.184);
-        double tmp =   m_Mu0_tr_pr;
+        m_Mu0_tr_pr = DHjmol - 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
+        m_deltaG_formation_tr_pr = m_Mu0_tr_pr / (1.0E3 * 4.184);
+        double tmp = m_Mu0_tr_pr;
         m_charge_j = m_tp->charge(m_spindex);
         convertDGFormation();
-        double totalSum =  m_Mu0_tr_pr - tmp;
+        double totalSum = m_Mu0_tr_pr - tmp;
         m_Mu0_tr_pr = tmp;
         m_deltaG_formation_tr_pr = (m_Mu0_tr_pr - totalSum)/ (1.0E3 * 4.184);
     }
@@ -643,7 +643,7 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     XML_Node& speciesList = fxml_phase->child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &fxml_phase->root());
-    const XML_Node* s =  speciesDB->findByAttr("name", tp->speciesName(spindex));
+    const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 
@@ -659,7 +659,7 @@ doublereal PDSS_HKFT::deltaH() const
     doublereal a3term = m_a3 * a3tmp * (pbar - m_presR_bar);
     doublereal a4term = m_a4 * a3tmp * log((2600. + pbar)/(2600. + m_presR_bar));
     doublereal omega_j;
-    doublereal  domega_jdT;
+    doublereal domega_jdT;
     if (m_charge_j == 0.0) {
         omega_j = m_omega_pr_tr;
         domega_jdT = 0.0;
@@ -671,7 +671,7 @@ doublereal PDSS_HKFT::deltaH() const
         doublereal dgvaldT = gstar(m_temp, m_pres, 1);
         doublereal dr_e_jdT = fabs(m_charge_j) * dgvaldT;
         omega_j = nu * (m_charge_j * m_charge_j / r_e_j - m_charge_j / (3.082 + gval));
-        domega_jdT = -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
+        domega_jdT = - nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
                      + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
     }
 
@@ -681,13 +681,13 @@ doublereal PDSS_HKFT::deltaH() const
     doublereal Y = drelepsilondT / (relepsilon * relepsilon);
     doublereal Z = -1.0 / relepsilon;
 
-    doublereal yterm  =   m_temp * omega_j       * Y;
+    doublereal yterm = m_temp * omega_j * Y;
     doublereal yrterm = - 298.15 * m_omega_pr_tr * m_Y_pr_tr;
 
-    doublereal wterm  = - omega_j * (Z + 1.0);
+    doublereal wterm = - omega_j * (Z + 1.0);
     doublereal wrterm = + m_omega_pr_tr * (m_Z_pr_tr + 1.0);
 
-    doublereal otterm =    m_temp * domega_jdT        * (Z + 1.0);
+    doublereal otterm = m_temp * domega_jdT * (Z + 1.0);
     doublereal otrterm = - m_temp * m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
 
     doublereal deltaH_calgmol = c1term + a1term + a2term + c2term + a3term + a4term
@@ -701,7 +701,7 @@ doublereal PDSS_HKFT::deltaH() const
 doublereal PDSS_HKFT::deltaG() const
 {
     doublereal pbar = m_pres * 1.0E-5;
-    doublereal sterm = -  m_Entrop_tr_pr * (m_temp - 298.15);
+    doublereal sterm = - m_Entrop_tr_pr * (m_temp - 298.15);
     doublereal c1term = -m_c1 * (m_temp * log(m_temp/298.15) - (m_temp - 298.15));
     doublereal a1term = m_a1 * (pbar - m_presR_bar);
     doublereal a2term = m_a2 * log((2600. + pbar)/(2600. + m_presR_bar));
@@ -755,7 +755,7 @@ doublereal PDSS_HKFT::deltaS() const
         doublereal r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
         doublereal dr_e_jdT = fabs(m_charge_j) * dgvaldT;
         omega_j = nu * (m_charge_j * m_charge_j / r_e_j - m_charge_j / (3.082 + gval));
-        domega_jdT = -  nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
+        domega_jdT = - nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
                      + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
     }
 
@@ -767,7 +767,7 @@ doublereal PDSS_HKFT::deltaS() const
     doublereal wrterm = - m_omega_pr_tr * m_Y_pr_tr;
     doublereal otterm = domega_jdT * (Z + 1.0);
     doublereal otrterm = - m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
-    doublereal deltaS_calgmol = c1term + c2term + a3term + a4term + wterm + wrterm  + otterm + otrterm;
+    doublereal deltaS_calgmol = c1term + c2term + a3term + a4term + wterm + wrterm + otterm + otrterm;
 
     // Convert to Joules / kmol
     return deltaS_calgmol * 1.0E3 * 4.184;
@@ -775,11 +775,11 @@ doublereal PDSS_HKFT::deltaS() const
 
 doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
 {
-    static doublereal ag_coeff[3] = { -2.037662,  5.747000E-3,  -6.557892E-6};
+    static doublereal ag_coeff[3] = { -2.037662, 5.747000E-3, -6.557892E-6};
     if (ifunc == 0) {
         return ag_coeff[0] + ag_coeff[1] * temp + ag_coeff[2] * temp * temp;
     } else if (ifunc == 1) {
-        return  ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
+        return ag_coeff[1] + ag_coeff[2] * 2.0 * temp;
     }
     if (ifunc != 2) {
         return 0.0;
@@ -789,7 +789,7 @@ doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
 
 doublereal PDSS_HKFT::bg(const doublereal temp, const int ifunc) const
 {
-    static doublereal bg_coeff[3] = { 6.107361, -1.074377E-2,  1.268348E-5};
+    static doublereal bg_coeff[3] = { 6.107361, -1.074377E-2, 1.268348E-5};
     if (ifunc == 0) {
         return bg_coeff[0] + bg_coeff[1] * temp + bg_coeff[2] * temp * temp;
     }   else if (ifunc == 1) {
@@ -852,7 +852,7 @@ doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int 
     } else if (ifunc == 1 || ifunc == 2) {
         doublereal afuncdT = ag(temp, 1);
         doublereal bfuncdT = bg(temp, 1);
-        doublereal alpha   = m_waterSS->thermalExpansionCoeff();
+        doublereal alpha = m_waterSS->thermalExpansionCoeff();
 
         doublereal fac1 = afuncdT * gval / afunc;
         doublereal fac2 = bfuncdT * gval * log(1.0 - dens);
@@ -868,7 +868,7 @@ doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int 
         doublereal dfac1dT = dgdt * afuncdT / afunc + afuncdT2 * gval / afunc
                              -  afuncdT * afuncdT * gval / (afunc * afunc);
         doublereal ddensdT = - alpha * dens;
-        doublereal dfac2dT =  bfuncdT2 * gval * log(1.0 - dens)
+        doublereal dfac2dT = bfuncdT2 * gval * log(1.0 - dens)
                               + bfuncdT * dgdt * log(1.0 - dens)
                               - bfuncdT * gval /(1.0 - dens) * ddensdT;
         doublereal dalphadT = m_waterSS->dthermalExpansionCoeffdT();
@@ -880,7 +880,7 @@ doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int 
 
         return dfac1dT + dfac2dT + dfac3dT;
     } else if (ifunc == 3) {
-        doublereal beta   = m_waterSS->isothermalCompressibility();
+        doublereal beta = m_waterSS->isothermalCompressibility();
         return - bfunc * gval * dens * beta / (1.0 - dens);
     } else {
         throw CanteraError("HKFT_PDSS::g", "unimplemented");
@@ -946,12 +946,12 @@ void PDSS_HKFT::reportParams(size_t& kindex, int& type,
     c[1] = m_deltaH_formation_tr_pr;
     c[2] = m_Mu0_tr_pr;
     c[3] = m_Entrop_tr_pr;
-    c[4] =  m_a1;
-    c[5] =  m_a2;
-    c[6] =  m_a3;
-    c[7] =  m_a4;
-    c[8] =  m_c1;
-    c[9] =  m_c2;
+    c[4] = m_a1;
+    c[5] = m_a2;
+    c[6] = m_a3;
+    c[7] = m_a4;
+    c[8] = m_c1;
+    c[9] = m_c2;
     c[10] = m_omega_pr_tr;
 }
 

@@ -304,7 +304,7 @@ private:
 private:
     //! Enumerated data type describing the type of volume model
     //! used to calculate the standard state volume of the species
-    SSVolume_Model_enumType  volumeModel_;
+    SSVolume_Model_enumType volumeModel_;
 
     //! Value of the constant molar volume for the species
     /*!

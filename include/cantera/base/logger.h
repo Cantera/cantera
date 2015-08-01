@@ -22,7 +22,7 @@ namespace Cantera
 /// stream, but classes may be derived from Logger that implement
 /// other output options. This is important when Cantera is used
 /// in applications that do not display the standard output, such
-/// as MATLAB.  The Cantera MATLAB interface derives a class from
+/// as MATLAB. The Cantera MATLAB interface derives a class from
 /// Logger that implements these methods with MATLAB-specific
 /// procedures, insuring that the messages will be passed through
 /// to the user. It would also be possible to derive a class that

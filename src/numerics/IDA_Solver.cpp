@@ -72,7 +72,7 @@ extern "C" {
         Cantera::ResidJacEval* f = d->m_func;
         Cantera::IDA_Solver* s = d->m_solver;
         double delta_t = s->getCurrentStepFromIDA();
-        // TODO evaluate  evalType. Assumed to be Base_ResidEval
+        // TODO evaluate evalType. Assumed to be Base_ResidEval
         int retn = 0;
         int flag = f->evalResidNJ(t, delta_t, ydata, ydotdata, rdata);
         if (flag < 0) {
@@ -96,18 +96,18 @@ extern "C" {
      * In the case of a recoverable error return, the integrator will
      * attempt to recover by reducing the stepsize (which changes cj).
      */
-    static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j,  N_Vector y, N_Vector ydot, N_Vector r,
-                            DlsMat Jac,  void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+    static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j, N_Vector y, N_Vector ydot, N_Vector r,
+                            DlsMat Jac, void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
     {
-        doublereal* ydata    = NV_DATA_S(y);
+        doublereal* ydata = NV_DATA_S(y);
         doublereal* ydotdata = NV_DATA_S(ydot);
-        doublereal* rdata    = NV_DATA_S(r);
+        doublereal* rdata = NV_DATA_S(r);
         Cantera::ResidData* d = (Cantera::ResidData*) f_data;
         Cantera::ResidJacEval* f = d->m_func;
         doublereal* const* colPts = Jac->cols;
         Cantera::IDA_Solver* s = d->m_solver;
         double delta_t = s->getCurrentStepFromIDA();
-        f->evalJacobianDP(t, delta_t, c_j,  ydata, ydotdata, colPts, rdata);
+        f->evalJacobianDP(t, delta_t, c_j, ydata, ydotdata, colPts, rdata);
         return 0;
     }
 }
@@ -457,7 +457,7 @@ void IDA_Solver::init(doublereal t0)
     }
 }
 
-void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doublereal tout)
+void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, doublereal tout)
 {
     int icopt = IDA_Y_INIT;
     doublereal tout1 = tout;
@@ -482,7 +482,7 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,  doubl
     doublereal* yyp = NV_DATA_S(m_ydot);
 
     for (int i = 0; i < m_neq; i++) {
-        y[i]  = yy[i];
+        y[i] = yy[i];
         yp[i] = yyp[i];
     }
 }
@@ -512,7 +512,7 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
     doublereal* yyp = NV_DATA_S(m_ydot);
 
     for (int i = 0; i < m_neq; i++) {
-        y[i]  = yy[i];
+        y[i] = yy[i];
         yp[i] = yyp[i];
     }
 }
@@ -534,7 +534,7 @@ int IDA_Solver::solve(double tout)
         flag = IDASolve(m_ida_mem, tout, &tretn, m_y, m_ydot, IDA_ONE_STEP);
         if (flag < 0) {
             throw IDA_Err(" IDA error encountered.");
-        } else   if (flag == IDA_TSTOP_RETURN) {
+        } else if (flag == IDA_TSTOP_RETURN) {
             // we've reached our goal, and have actually integrated past it
         } else if (flag == IDA_ROOT_RETURN) {
             // not sure what to do with this yet
@@ -563,7 +563,7 @@ double IDA_Solver::step(double tout)
     flag = IDASolve(m_ida_mem, tout, &t, m_y, m_ydot, IDA_ONE_STEP);
     if (flag < 0) {
         throw IDA_Err(" IDA error encountered.");
-    } else   if (flag == IDA_TSTOP_RETURN) {
+    } else if (flag == IDA_TSTOP_RETURN) {
         // we've reached our goal, and have actually integrated past it
     } else if (flag == IDA_ROOT_RETURN) {
         // not sure what to do with this yet

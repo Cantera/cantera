@@ -44,9 +44,9 @@ enum ResidEval_Type_Enum {
 
 //! Wrappers for the function evaluators for Nonlinear solvers and Time steppers
 /*!
- *  A class for full (non-sparse dense matrices with Fortran-compatible  data storage.
+ *  A class for full (non-sparse dense matrices with Fortran-compatible data storage.
  *  The class adds support for identifying what types of calls are made to the residual
- *  evaluator by adding the  ResidEval_Type_Enum  class.
+ *  evaluator by adding the ResidEval_Type_Enum class.
  */
 class ResidJacEval : public ResidEval
 {
@@ -106,7 +106,7 @@ public:
                      const doublereal* const ydot,
                      doublereal* const r);
 
-    virtual int  getInitialConditions(const doublereal t0, doublereal* const y, doublereal* const ydot);
+    virtual int getInitialConditions(const doublereal t0, doublereal* const y, doublereal* const ydot);
 
     //! Filter the solution predictions
     /*!
@@ -152,8 +152,8 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int  evalTimeTrackingEqns(const doublereal t, const doublereal delta_t, const doublereal* const y,
-                                      const doublereal* const ydot);
+    virtual int evalTimeTrackingEqns(const doublereal t, const doublereal delta_t, const doublereal* const y,
+                                     const doublereal* const ydot);
 
     //! Evaluate any stopping criteria other than a final time limit
     /*!
@@ -256,8 +256,8 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int  matrixConditioning(doublereal* const matrix, const int nrows,
-                                    doublereal* const rhs);
+    virtual int matrixConditioning(doublereal* const matrix, const int nrows,
+                                   doublereal* const rhs);
 
     //! Calculate an analytical Jacobian and the residual at the current time and values.
     /*!
@@ -287,7 +287,7 @@ public:
      * @param cj            Coefficient of yprime used in the evaluation of the Jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
-     * @param jacobianColPts   Pointer  to the vector of pts to columns of the SquareMatrix
+     * @param jacobianColPts   Pointer to the vector of pts to columns of the SquareMatrix
      *                         object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
      * @return Returns a flag to indicate that operation is successful.

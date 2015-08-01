@@ -23,7 +23,7 @@ double Beta1(double temp)
     double q9 = 6.1608E-5;
     double q10 = 1.0715E-6;
     double tref = 298.15;
-    return q6  + q9 * (temp - tref)
+    return q6 + q9 * (temp - tref)
            + q10 * (temp * temp - tref * tref);
 }
 

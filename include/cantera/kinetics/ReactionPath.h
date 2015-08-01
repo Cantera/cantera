@@ -14,7 +14,7 @@
 
 namespace Cantera
 {
-enum flow_t   { NetFlow, OneWayFlow };
+enum flow_t { NetFlow, OneWayFlow };
 
 // forward references
 class Path;
@@ -33,10 +33,10 @@ public:
     virtual ~SpeciesNode() {}
 
     // public attributes
-    size_t number;           ///<  Species number
-    std::string      name;             ///<  Label on graph
-    doublereal  value;            ///<  May be used to set node appearance
-    bool        visible;          ///<  Visible on graph;
+    size_t number; ///< Species number
+    std::string name; ///< Label on graph
+    doublereal value; ///< May be used to set node appearance
+    bool visible; ///< Visible on graph;
 
     /**
      *  @name References.
@@ -44,10 +44,10 @@ public:
      *  to another node.
      */
     //@{
-    Path*        path(int n)       {
+    Path* path(int n) {
         return m_paths[n];
     }
-    const Path*  path(int n) const {
+    const Path* path(int n) const {
         return m_paths[n];
     }
     //@}
@@ -269,8 +269,7 @@ public:
     std::string dashed_color;
     std::string element;
     std::string m_font;
-    doublereal threshold,
-               bold_min, dashed_max, label_min;
+    doublereal threshold, bold_min, dashed_max, label_min;
     doublereal x_size, y_size;
     std::string name, dot_options;
     flow_t flow_type;
@@ -280,14 +279,14 @@ public:
     doublereal arrow_hue;
 
 protected:
-    doublereal                    m_flxmax;
+    doublereal m_flxmax;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
     std::map<size_t, SpeciesNode*> m_nodes;
-    std::vector<Path*>                 m_pathlist;
-    std::vector<std::string>                m_include;
-    std::vector<std::string>                m_exclude;
+    std::vector<Path*> m_pathlist;
+    std::vector<std::string> m_include;
+    std::vector<std::string> m_exclude;
     std::vector<size_t> m_speciesNumber;
-    std::map<size_t, int>                 m_rxns;
+    std::map<size_t, int> m_rxns;
     size_t m_local;
 };
 
@@ -324,7 +323,7 @@ protected:
     std::vector<std::vector<int> > m_groups;
     std::vector<Group> m_sgroup;
     std::vector<std::string> m_elementSymbols;
-    std::map<size_t, std::map<size_t, std::map<size_t, Group> > >  m_transfer;
+    std::map<size_t, std::map<size_t, std::map<size_t, Group> > > m_transfer;
     std::vector<bool> m_determinate;
     Array2D m_atoms;
     std::map<std::string, size_t> m_enamemap;

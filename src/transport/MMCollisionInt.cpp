@@ -234,14 +234,14 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
         m_nmin = 0;
         m_nmax = 36;
     }
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0)  {
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
         writelogf("T*_min = %g\n", tstar[m_nmin + 1]);
         writelogf("T*_max = %g\n", tstar[m_nmax + 1]);
     }
     m_logTemp.resize(37);
     doublereal rmserr, e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0)  {
+    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
         writelog("Collision integral fits at each tabulated T* vs. delta*.\n"
                  "These polynomial fits are used to interpolate between "
                  "columns (delta*)\n in the Monchick and Mason tables."

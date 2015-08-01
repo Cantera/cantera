@@ -278,7 +278,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 m_molNumSpecies_old[i] = tmp;
             } else {
                 if (m_SSPhase[i]) {
-                    m_molNumSpecies_old[i] =  0.0;
+                    m_molNumSpecies_old[i] = 0.0;
                 }  else {
                     m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
                 }
@@ -291,7 +291,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 m_molNumSpecies_old[i] = tmp;
             } else {
                 if (m_SSPhase[i]) {
-                    m_molNumSpecies_old[i] =  0.0;
+                    m_molNumSpecies_old[i] = 0.0;
                 }  else {
                     m_molNumSpecies_old[i] = m_molNumSpecies_old[i] * 0.0001;
                 }
@@ -382,7 +382,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) {
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (m_elemAbundances[i] > 0.0 && m_formulaMatrix(kspec,i) < 0.0) {
-                    m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i) ;
+                    m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i);
                     m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
                     vcs_elab();
                     break;
@@ -424,14 +424,14 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (m_molNumSpecies_old[kspec] > 0.0 || useZeroed) {
                     if (dev < 0.0 && m_formulaMatrix(kspec,i) < 0.0) {
-                        double delta = dev / m_formulaMatrix(kspec,i) ;
+                        double delta = dev / m_formulaMatrix(kspec,i);
                         m_molNumSpecies_old[kspec] += delta;
                         m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
                         vcs_elab();
                         break;
                     }
                     if (dev > 0.0 && m_formulaMatrix(kspec,i) > 0.0) {
-                        double delta = dev / m_formulaMatrix(kspec,i) ;
+                        double delta = dev / m_formulaMatrix(kspec,i);
                         m_molNumSpecies_old[kspec] += delta;
                         m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
                         vcs_elab();

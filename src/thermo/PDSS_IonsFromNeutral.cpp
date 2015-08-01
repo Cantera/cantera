@@ -81,14 +81,14 @@ PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral
      *  functionally the best we can do for this assignment operator. We fix up the pointer in the
      *  initAllPtrs() function.
      */
-    neutralMoleculePhase_   = b.neutralMoleculePhase_;
+    neutralMoleculePhase_ = b.neutralMoleculePhase_;
 
-    numMult_                = b.numMult_;
-    idNeutralMoleculeVec    = b.idNeutralMoleculeVec;
-    factorVec               = b.factorVec;
-    add2RTln2_              = b.add2RTln2_;
-    tmpNM                   = b.tmpNM;
-    specialSpecies_         = b.specialSpecies_;
+    numMult_ = b.numMult_;
+    idNeutralMoleculeVec = b.idNeutralMoleculeVec;
+    factorVec = b.factorVec;
+    add2RTln2_ = b.add2RTln2_;
+    tmpNM = b.tmpNM;
+    specialSpecies_ = b.specialSpecies_;
 
     return *this;
 }
@@ -138,13 +138,13 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
 
     std::vector<std::string> key;
     std::vector<std::string> val;
-    numMult_ = getPairs(*nsm,  key, val);
+    numMult_ = getPairs(*nsm, key, val);
     idNeutralMoleculeVec.resize(numMult_);
     factorVec.resize(numMult_);
     tmpNM.resize(neutralMoleculePhase_->nSpecies());
     for (size_t i = 0; i < numMult_; i++) {
         idNeutralMoleculeVec[i] = neutralMoleculePhase_->speciesIndex(key[i]);
-        factorVec[i] =  fpValueCheck(val[i]);
+        factorVec[i] = fpValueCheck(val[i]);
     }
     specialSpecies_ = 0;
     const XML_Node* ss = tn->findByName("specialSpecies");
@@ -223,7 +223,7 @@ doublereal PDSS_IonsFromNeutral::entropy_R() const
     neutralMoleculePhase_->getEntropy_R(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -237,7 +237,7 @@ doublereal PDSS_IonsFromNeutral::gibbs_RT() const
     neutralMoleculePhase_->getGibbs_RT(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -251,7 +251,7 @@ doublereal PDSS_IonsFromNeutral::cp_R() const
     neutralMoleculePhase_->getCp_R(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -262,7 +262,7 @@ doublereal PDSS_IonsFromNeutral::molarVolume() const
     neutralMoleculePhase_->getStandardVolumes(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -278,7 +278,7 @@ doublereal PDSS_IonsFromNeutral::gibbs_RT_ref() const
     neutralMoleculePhase_->getGibbs_RT_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -292,7 +292,7 @@ doublereal PDSS_IonsFromNeutral::enthalpy_RT_ref() const
     neutralMoleculePhase_->getEnthalpy_RT_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -303,7 +303,7 @@ doublereal PDSS_IonsFromNeutral::entropy_R_ref() const
     neutralMoleculePhase_->getEntropy_R_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     if (add2RTln2_) {
@@ -317,7 +317,7 @@ doublereal PDSS_IonsFromNeutral::cp_R_ref() const
     neutralMoleculePhase_->getCp_R_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
@@ -328,7 +328,7 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
     neutralMoleculePhase_->getStandardVolumes_ref(DATA_PTR(tmpNM));
     doublereal val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
-        size_t jNeut =  idNeutralMoleculeVec[i];
+        size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
     }
     return val;

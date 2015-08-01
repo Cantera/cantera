@@ -35,7 +35,7 @@ LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& r
 {
     if (&right != this) {
         // These are all shallow pointer copies - yes, yes, yes horrible crime.
-        speciesName        = right.speciesName;
+        speciesName = right.speciesName;
         if (right.hydroRadius) {
             hydroRadius = (right.hydroRadius)->duplMyselfAsLTPspecies();
         }
@@ -61,7 +61,7 @@ LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& r
         }
 
         if (right.thermalCond) {
-            thermalCond  = (right.thermalCond)->duplMyselfAsLTPspecies();
+            thermalCond = (right.thermalCond)->duplMyselfAsLTPspecies();
         }
         if (right.electCond) {
             electCond = (right.electCond)->duplMyselfAsLTPspecies();

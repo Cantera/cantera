@@ -362,7 +362,7 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) ;
+    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
     //! @}
 
     //! Get the Salt Dissociation Coefficients
@@ -393,7 +393,7 @@ public:
      *  is charge neutrality. If there isn't, then it wouldn't
      *  make much sense.
      *
-     *  for the case of  cIonSolnType_SINGLEANION, some slough
+     *  for the case of cIonSolnType_SINGLEANION, some slough
      *  in the charge neutrality is allowed. The cation number
      *  is followed, while the difference in charge neutrality
      *  is dumped into the anion mole number to fix the imbalance.
@@ -453,7 +453,7 @@ public:
      *  is charge neutrality. If there isn't, then it wouldn't
      *  make much sense.
      *
-     *  for the case of  cIonSolnType_SINGLEANION, some slough
+     *  for the case of cIonSolnType_SINGLEANION, some slough
      *  in the charge neutrality is allowed. The cation number
      *  is followed, while the difference in charge neutrality
      *  is dumped into the anion mole number to fix the imbalance.
@@ -660,7 +660,7 @@ protected:
      *
      *  Thus, we formulate the neutral molecule mole fraction NeutralMolecMoleFractions_[]
      *  vector from this association. We further assume that there are
-     *  no other associations.  If  fm_invert_simple_ is not true,
+     *  no other associations.  If fm_invert_simple_ is not true,
      *  then we need to do a formal inversion which takes a great
      *  deal of time and is not currently implemented.
      */

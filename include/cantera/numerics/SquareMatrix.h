@@ -108,7 +108,7 @@ public:
 
     virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const;
 
-    virtual  vector_fp::iterator begin();
+    virtual vector_fp::iterator begin();
     virtual vector_fp::const_iterator begin() const;
 
     virtual doublereal* const* colPts();

@@ -24,17 +24,17 @@ namespace Cantera
 #define FLUID_UNSTABLE -4
 #define FLUID_UNDEFINED -3
 #define FLUID_SUPERCRIT -2
-#define FLUID_GAS       -1
-#define FLUID_LIQUID_0   0
-#define FLUID_LIQUID_1   1
-#define FLUID_LIQUID_2   2
-#define FLUID_LIQUID_3   3
-#define FLUID_LIQUID_4   4
-#define FLUID_LIQUID_5   5
-#define FLUID_LIQUID_6   6
-#define FLUID_LIQUID_7   7
-#define FLUID_LIQUID_8   8
-#define FLUID_LIQUID_9   9
+#define FLUID_GAS -1
+#define FLUID_LIQUID_0 0
+#define FLUID_LIQUID_1 1
+#define FLUID_LIQUID_2 2
+#define FLUID_LIQUID_3 3
+#define FLUID_LIQUID_4 4
+#define FLUID_LIQUID_5 5
+#define FLUID_LIQUID_6 6
+#define FLUID_LIQUID_7 7
+#define FLUID_LIQUID_8 8
+#define FLUID_LIQUID_9 9
 
 /**
  * @ingroup thermoprops
@@ -169,7 +169,7 @@ public:
      * getChemPotentials() and then dividing by RT. No need for child
      * classes to handle.
      *
-     * @param mu    Output vector of  non-dimensional species chemical potentials
+     * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
     void getChemPotentials_RT(doublereal* mu) const;
@@ -260,7 +260,7 @@ public:
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
     //! Get the nondimensional Heat Capacities at constant
-    //! pressure for the standard state of the species  at the current T and P.
+    //! pressure for the standard state of the species at the current T and P.
     /*!
      * For all objects with the Mixture Fugacity approximation, we define the
      * standard state as an ideal gas at the current temperature and pressure of the solution.
@@ -423,7 +423,7 @@ public:
     }
 
 protected:
-    //! Updates the reference state thermodynamic functions at the current T  of the solution.
+    //! Updates the reference state thermodynamic functions at the current T of the solution.
     /*!
      * This function must be called for every call to functions in this
      * class. It checks to see whether the temperature has changed and
@@ -446,7 +446,7 @@ public:
      *  variables for holding the species reference-state values of Cp, H, S, and V at the
      *  last temperature and reference pressure called. These functions are not recalculated
      *  if a new call is made using the previous temperature.
-     *  All calculations are done within the routine  _updateRefStateThermo().
+     *  All calculations are done within the routine _updateRefStateThermo().
      */
     //@{
 
@@ -549,9 +549,9 @@ public:
      */
     //@{
 
-    //! Set the initial state of the phase to the conditions  specified in the state XML element.
+    //! Set the initial state of the phase to the conditions specified in the state XML element.
     /*!
-     * This method sets the temperature, pressure, and mole  fraction vector to a set default value.
+     * This method sets the temperature, pressure, and mole fraction vector to a set default value.
      *
      * @param state An XML_Node object corresponding to
      *              the "state" entry for this phase in the input file.
@@ -615,7 +615,7 @@ protected:
     //!  Calculate the value of z
     /*!
      *  \f[
-     *        z = \frac{P v}{  R  T}
+     *        z = \frac{P v}{R T}
      *  \f]
      *
      *  returns the value of z
@@ -714,7 +714,7 @@ public:
      *  - WATER_LIQUID  below the critical temperature but above the critical density
      *  - WATER_SUPERCRIT   above the critical temperature
      */
-    int phaseState(bool checkState = false) const ;
+    int phaseState(bool checkState = false) const;
 
     //! Return the value of the density at the liquid spinodal point (on the liquid side)
     //! for the current temperature.
@@ -791,7 +791,7 @@ protected:
      *
      *  units = Pascals
      */
-    doublereal  m_Pcurrent;
+    doublereal m_Pcurrent;
 
     //! Storage for the current values of the mole fractions of the species
     /*!
@@ -815,19 +815,19 @@ protected:
     mutable doublereal m_Tlast_ref;
 
     //! Temporary storage for log of p/rt
-    mutable doublereal    m_logc0;
+    mutable doublereal m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //! Temporary storage for dimensionless reference state Gibbs energies
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
     spinodalFunc* fdpdv_;
 };

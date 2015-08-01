@@ -39,7 +39,7 @@ PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
     PDSS(tp, spindex)
 {
     m_pdssType = cPDSS_CONSTVOL;
-    constructPDSSXML(tp, spindex, speciesNode,  phaseRoot, spInstalled) ;
+    constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
 }
 
 PDSS_ConstVol::PDSS_ConstVol(const PDSS_ConstVol& b) :
@@ -58,7 +58,7 @@ PDSS_ConstVol& PDSS_ConstVol::operator=(const PDSS_ConstVol& b)
         return *this;
     }
     PDSS::operator=(b);
-    m_constMolarVolume      = b.m_constMolarVolume;
+    m_constMolarVolume = b.m_constMolarVolume;
     return *this;
 }
 
@@ -121,7 +121,7 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     XML_Node& speciesList = fxml_phase->child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
                                          &fxml_phase->root());
-    const XML_Node* s =  speciesDB->findByAttr("name", tp->speciesName(spindex));
+    const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 
@@ -170,7 +170,7 @@ doublereal PDSS_ConstVol::cp_R() const
 
 doublereal PDSS_ConstVol::cv_mole() const
 {
-    return (cp_mole() -  m_V0_ptr[m_spindex]);
+    return (cp_mole() - m_V0_ptr[m_spindex]);
 }
 
 doublereal PDSS_ConstVol::molarVolume() const
@@ -212,7 +212,7 @@ void PDSS_ConstVol::setPressure(doublereal p)
 {
     m_pres = p;
     doublereal del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
-    m_hss_RT_ptr[m_spindex]  = m_h0_RT_ptr[m_spindex] + del_pRT * m_Vss_ptr[m_spindex];
+    m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] + del_pRT * m_Vss_ptr[m_spindex];
     m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
 }
 
@@ -221,12 +221,12 @@ void PDSS_ConstVol::setTemperature(doublereal temp)
     m_temp = temp;
     m_spthermo->update_one(m_spindex, temp,
                            m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
-    m_g0_RT_ptr[m_spindex] =  m_h0_RT_ptr[m_spindex] -  m_s0_R_ptr[m_spindex];
+    m_g0_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] - m_s0_R_ptr[m_spindex];
 
     doublereal del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
 
-    m_hss_RT_ptr[m_spindex]  = m_h0_RT_ptr[m_spindex] + del_pRT * m_Vss_ptr[m_spindex];
-    m_cpss_R_ptr[m_spindex]  = m_cp0_R_ptr[m_spindex];
+    m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] + del_pRT * m_Vss_ptr[m_spindex];
+    m_cpss_R_ptr[m_spindex] = m_cp0_R_ptr[m_spindex];
     m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex];
     m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
 }

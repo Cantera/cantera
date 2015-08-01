@@ -59,13 +59,13 @@ MolalityVPSSTP& MolalityVPSSTP::operator=(const MolalityVPSSTP& b)
 {
     if (&b != this) {
         VPStandardStateTP::operator=(b);
-        m_indexSolvent     = b.m_indexSolvent;
-        m_pHScalingType    = b.m_pHScalingType;
-        m_indexCLM         = b.m_indexCLM;
-        m_weightSolvent    = b.m_weightSolvent;
-        m_xmolSolventMIN   = b.m_xmolSolventMIN;
-        m_Mnaught          = b.m_Mnaught;
-        m_molalities       = b.m_molalities;
+        m_indexSolvent = b.m_indexSolvent;
+        m_pHScalingType = b.m_pHScalingType;
+        m_indexCLM = b.m_indexCLM;
+        m_weightSolvent = b.m_weightSolvent;
+        m_xmolSolventMIN = b.m_xmolSolventMIN;
+        m_Mnaught = b.m_Mnaught;
+        m_molalities = b.m_molalities;
     }
     return *this;
 }
@@ -82,7 +82,7 @@ ThermoPhase* MolalityVPSSTP::duplMyselfAsThermoPhase() const
 void MolalityVPSSTP::setpHScale(const int pHscaleType)
 {
     m_pHScalingType = pHscaleType;
-    if (pHscaleType !=  PHSCALE_PITZER && pHscaleType !=  PHSCALE_NBS) {
+    if (pHscaleType != PHSCALE_PITZER && pHscaleType != PHSCALE_NBS) {
         throw CanteraError("MolalityVPSSTP::setpHScale",
                            "Unknown scale type: " + int2str(pHscaleType));
     }
@@ -111,7 +111,7 @@ size_t MolalityVPSSTP::solventIndex() const
     return m_indexSolvent;
 }
 
-void  MolalityVPSSTP::setMoleFSolventMin(doublereal xmolSolventMIN)
+void MolalityVPSSTP::setMoleFSolventMin(doublereal xmolSolventMIN)
 {
     if (xmolSolventMIN <= 0.0) {
         throw CanteraError("MolalityVPSSTP::setSolute ", "trouble");
@@ -444,7 +444,7 @@ size_t MolalityVPSSTP::findCLMIndex() const
 
 //   Initialize lengths of local variables after all species have
 //   been identified.
-void  MolalityVPSSTP::initLengths()
+void MolalityVPSSTP::initLengths()
 {
     m_molalities.resize(m_kk);
 }

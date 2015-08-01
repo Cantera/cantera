@@ -108,17 +108,17 @@ void Application::Messages::addError(const std::string& r, const std::string& ms
 
 int Application::Messages::getErrorCount()
 {
-    return static_cast<int>(errorMessage.size()) ;
+    return static_cast<int>(errorMessage.size());
 }
 
 void Application::Messages::setLogger(Logger* _logwriter)
 {
     if (logwriter == _logwriter) {
-        return ;
+        return;
     }
     if (logwriter != 0) {
         delete logwriter;
-        logwriter = 0 ;
+        logwriter = 0;
     }
     logwriter = _logwriter;
 }
@@ -141,23 +141,23 @@ static mutex_t msg_mutex;
 Application::Messages* Application::ThreadMessages::operator ->()
 {
     ScopedLock msgLock(msg_mutex);
-    cthreadId_t curId = getThisThreadId() ;
-    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
+    cthreadId_t curId = getThisThreadId();
+    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
         return iter->second.get();
     }
-    pMessages_t pMsgs(new Messages()) ;
-    m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs)) ;
-    return pMsgs.get() ;
+    pMessages_t pMsgs(new Messages());
+    m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs));
+    return pMsgs.get();
 }
 
 void Application::ThreadMessages::removeThreadMessages()
 {
     ScopedLock msgLock(msg_mutex);
-    cthreadId_t curId = getThisThreadId() ;
-    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId) ;
+    cthreadId_t curId = getThisThreadId();
+    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
-        m_threadMsgMap.erase(iter) ;
+        m_threadMsgMap.erase(iter);
     }
 }
 #endif // THREAD_SAFE_CANTERA
@@ -173,7 +173,7 @@ Application::Application() :
     // output / standard error
     setDefaultDirectories();
 #if defined(THREAD_SAFE_CANTERA)
-    Unit::units() ;
+    Unit::units();
 #endif
 }
 
@@ -219,7 +219,7 @@ void Application::warn_deprecated(const std::string& method,
 void Application::thread_complete()
 {
 #if defined(THREAD_SAFE_CANTERA)
-    pMessenger.removeThreadMessages() ;
+    pMessenger.removeThreadMessages();
 #endif
 }
 
@@ -333,8 +333,8 @@ long int Application::readStringRegistryKey(const std::string& keyName, const st
 void Application::Messages::popError()
 {
     if (!errorMessage.empty()) {
-        errorRoutine.pop_back() ;
-        errorMessage.pop_back() ;
+        errorRoutine.pop_back();
+        errorMessage.pop_back();
     }
 }
 

@@ -40,10 +40,10 @@ PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
     if (&right != this) {
         ThermoPhase::operator=(right);
         delete m_sub;
-        m_subflag    = right.m_subflag;
-        m_sub        = tpx::GetSub(m_subflag);
-        m_mw         = right.m_mw;
-        m_verbose    = right.m_verbose;
+        m_subflag = right.m_subflag;
+        m_sub = tpx::GetSub(m_subflag);
+        m_mw = right.m_mw;
+        m_verbose = right.m_verbose;
     }
     return *this;
 }
@@ -172,32 +172,32 @@ tpx::Substance& PureFluidPhase::TPX_Substance()
     return *m_sub;
 }
 
-void  PureFluidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
+void PureFluidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     hbar[0] = enthalpy_mole();
 }
 
-void  PureFluidPhase::getPartialMolarEntropies(doublereal* sbar) const
+void PureFluidPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     sbar[0] = entropy_mole();
 }
 
-void  PureFluidPhase::getPartialMolarIntEnergies(doublereal* ubar) const
+void PureFluidPhase::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     ubar[0] = intEnergy_mole();
 }
 
-void  PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
+void PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
 {
     cpbar[0] = cp_mole();
 }
 
-void  PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
+void PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
 {
     vbar[0] = 1.0 / molarDensity();
 }
 
-void  PureFluidPhase::getActivityConcentrations(doublereal* c) const
+void PureFluidPhase::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;
 }
@@ -207,12 +207,12 @@ doublereal PureFluidPhase::standardConcentration(size_t k) const
     return 1.0;
 }
 
-void  PureFluidPhase::getActivities(doublereal* a) const
+void PureFluidPhase::getActivities(doublereal* a) const
 {
     a[0] = 1.0;
 }
 
-void  PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
+void PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
 {
     mu[0] = gibbs_mole();
 }
@@ -227,7 +227,7 @@ void PureFluidPhase::getEntropy_R(doublereal* sr) const
     sr[0] = entropy_mole() / GasConstant;
 }
 
-void  PureFluidPhase::getGibbs_RT(doublereal* grt) const
+void PureFluidPhase::getGibbs_RT(doublereal* grt) const
 {
     grt[0] = gibbs_mole() / _RT();
 }
@@ -243,7 +243,7 @@ void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
 
 }
 
-void  PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
+void PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
 {
     double psave = pressure();
     double t = temperature();

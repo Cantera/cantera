@@ -16,7 +16,7 @@ namespace Cantera
 //! Return a pointer to the application object
 static Application* app()
 {
-    return Application::Instance() ;
+    return Application::Instance();
 }
 
 // **************** Text Logging ****************
@@ -24,7 +24,7 @@ static Application* app()
 void setLogger(Logger* logwriter)
 {
     try {
-        app()->setLogger(logwriter) ;
+        app()->setLogger(logwriter);
     } catch (std::bad_alloc) {
         logwriter->error("bad alloc thrown by app()");
     }
@@ -37,20 +37,20 @@ void writelog(const std::string& msg)
 
 void writelogf(const char* fmt,...)
 {
-    enum { BUFSIZE = 2048 } ;
-    char sbuf[BUFSIZE] ;
+    enum { BUFSIZE = 2048 };
+    char sbuf[BUFSIZE];
 
-    va_list args ;
-    va_start(args, fmt) ;
+    va_list args;
+    va_start(args, fmt);
 
 #ifdef _MSC_VER
-    _vsnprintf(sbuf, BUFSIZE, fmt, args) ;
+    _vsnprintf(sbuf, BUFSIZE, fmt, args);
 #else
-    vsprintf(sbuf, fmt, args) ;
+    vsprintf(sbuf, fmt, args);
 #endif
 
-    writelog(sbuf) ;
-    va_end(args) ;
+    writelog(sbuf);
+    va_end(args);
 }
 
 void writelogendl()
@@ -86,19 +86,19 @@ mutex_t Unit::units_mutex;
 
 void appdelete()
 {
-    Application::ApplicationDestroy() ;
+    Application::ApplicationDestroy();
     FactoryBase::deleteFactories();
     Unit::deleteUnit();
 }
 
 void thread_complete()
 {
-    app()->thread_complete() ;
+    app()->thread_complete();
 }
 
 XML_Node* get_XML_File(const std::string& file, int debug)
 {
-    XML_Node* xtmp = app()->get_XML_File(file, debug) ;
+    XML_Node* xtmp = app()->get_XML_File(file, debug);
     return xtmp;
 }
 
@@ -109,7 +109,7 @@ XML_Node* get_XML_from_string(const std::string& text)
 
 void close_XML_File(const std::string& file)
 {
-    app()->close_XML_File(file) ;
+    app()->close_XML_File(file);
 }
 
 int nErrors()
@@ -119,37 +119,37 @@ int nErrors()
 
 void popError()
 {
-    app()->popError() ;
+    app()->popError();
 }
 
 string lastErrorMessage()
 {
-    return app()->lastErrorMessage() ;
+    return app()->lastErrorMessage();
 }
 
 void showErrors(std::ostream& f)
 {
-    app()->getErrors(f) ;
+    app()->getErrors(f);
 }
 
 void showErrors()
 {
-    app()->logErrors() ;
+    app()->logErrors();
 }
 
 void setError(const std::string& r, const std::string& msg)
 {
-    app()->addError(r, msg) ;
+    app()->addError(r, msg);
 }
 
 void addDirectory(const std::string& dir)
 {
-    app()->addDataDirectory(dir) ;
+    app()->addDataDirectory(dir);
 }
 
 std::string findInputFile(const std::string& name)
 {
-    return app()->findInputFile(name) ;
+    return app()->findInputFile(name);
 }
 
 doublereal toSI(const std::string& unit)

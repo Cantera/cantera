@@ -54,7 +54,7 @@ public:
      *     the leftmost grid point in the domain.
      * @param value the value.
      */
-    void setValue(size_t dom, size_t comp, size_t localPoint,  doublereal value);
+    void setValue(size_t dom, size_t comp, size_t localPoint, doublereal value);
 
     /**
      * Get one entry in the solution vector.

@@ -37,9 +37,9 @@ void makeDataLabels(const G& gas, V& names)
     int nsp = gas.nSpecies();
     names.resize(nsp + 4);
     names[0] = "time (s)";
-    names[1]  = "Temperature (K)";
-    names[2]  = "Density (kg/m3)";
-    names[3]  = "Pressure (Pa)";
+    names[1] = "Temperature (K)";
+    names[2] = "Density (kg/m3)";
+    names[3] = "Pressure (Pa)";
     int k;
     for (k = 0; k < nsp; k++) {
         names[4+k] = gas.speciesName(k);

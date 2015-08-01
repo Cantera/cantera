@@ -298,7 +298,7 @@ public:
 
     //! Return a vector of activity concentrations for each species
     /*!
-     *  For this phase the activity concentrations,\f$ C^a_k \f$,  are defined to be
+     *  For this phase the activity concentrations,\f$ C^a_k \f$, are defined to be
      *  equal to the actual concentrations, \f$ C^s_k \f$.
      *  Activity concentrations are
      *
@@ -428,7 +428,7 @@ public:
     //! Get the nondimensional Enthalpy functions for the species standard states
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
@@ -436,7 +436,7 @@ public:
     //! Get the array of nondimensional Entropy functions for the
     //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
+     * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
     virtual void getEntropy_R(doublereal* sr) const;
@@ -489,7 +489,7 @@ public:
     //!  enthalpies of the reference state at the current temperature
     //!  of the solution and the reference pressure for the species.
     /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -545,9 +545,9 @@ public:
      */
     void setCoveragesNoNorm(const doublereal* theta);
 
-    //! Set the coverages from a string of colon-separated  name:value pairs.
+    //! Set the coverages from a string of colon-separated name:value pairs.
     /*!
-     *  @param cov  String containing colon-separated  name:value pairs
+     *  @param cov  String containing colon-separated name:value pairs
      */
     void setCoveragesByName(const std::string& cov);
 
@@ -574,26 +574,26 @@ protected:
     doublereal m_press;
 
     //! Temporary storage for the reference state enthalpies
-    mutable vector_fp      m_h0;
+    mutable vector_fp m_h0;
 
     //! Temporary storage for the reference state entropies
-    mutable vector_fp      m_s0;
+    mutable vector_fp m_s0;
 
     //! Temporary storage for the reference state heat capacities
-    mutable vector_fp      m_cp0;
+    mutable vector_fp m_cp0;
 
     //! Temporary storage for the reference state Gibbs energies
-    mutable vector_fp      m_mu0;
+    mutable vector_fp m_mu0;
 
     //! Temporary work array
-    mutable vector_fp      m_work;
+    mutable vector_fp m_work;
 
     //! vector storing the log of the size of each species.
     /*!
      * The size of each species is defined as the number of surface
      * sites each species occupies.
      */
-    mutable vector_fp      m_logsize;
+    mutable vector_fp m_logsize;
 
 private:
     //! Update the species reference state thermodynamic functions

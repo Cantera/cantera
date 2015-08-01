@@ -17,20 +17,20 @@
 namespace Cantera
 {
 
-const int DIAG  = 1;
+const int DIAG = 1;
 const int DENSE = 2;
 const int NOJAC = 4;
-const int JAC   = 8;
-const int GMRES =16;
-const int BAND  =32;
+const int JAC = 8;
+const int GMRES = 16;
+const int BAND = 32;
 
 /**
  * Specifies the method used to integrate the system of equations.
  * Not all methods are supported by all integrators.
  */
 enum MethodType {
-    BDF_Method,          /**< Backward Differentiation */
-    Adams_Method         /**< Adams                    */
+    BDF_Method, /**< Backward Differentiation */
+    Adams_Method /**< Adams */
 };
 
 //! Specifies the method used for iteration.
@@ -212,6 +212,6 @@ private:
 // defined in ODE_integrators.cpp
 Integrator* newIntegrator(const std::string& itype);
 
-}    // namespace
+} // namespace
 
 #endif

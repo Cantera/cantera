@@ -53,19 +53,19 @@ public:
     //! the calculation of each species' self diffusion coefficient for the phase
     std::vector<LiquidTranInteraction*> selfDiffusion;
 
-    //! Pointer to the  LiquidTranInteraction object which handles the
+    //! Pointer to the LiquidTranInteraction object which handles the
     //! calculation of the mixture thermal conductivity for the phase
     LiquidTranInteraction* thermalCond;
 
-    //! Pointer to the  LiquidTranInteraction object which handles the
+    //! Pointer to the LiquidTranInteraction object which handles the
     //! calculation of the species diffusivity for the phase
     LiquidTranInteraction* speciesDiffusivity;
 
-    //! Pointer to the  LiquidTranInteraction object which handles the
+    //! Pointer to the LiquidTranInteraction object which handles the
     //! calculation of the electrical conductivity for the phase
     LiquidTranInteraction* electCond;
 
-    //! Pointer to the  LiquidTranInteraction object which handles the
+    //! Pointer to the LiquidTranInteraction object which handles the
     //! calculation of the hydrodynamic radius for the phase
     /*!
      *  @note  I don't understand at the moment how one can define a
@@ -98,7 +98,7 @@ public:
      * \f[ \eta_{mix} = \sum_i X_i \eta_i
      *  + \sum_i \sum_j X_i X_j A_{i,j} \f].
      */
-    DenseMatrix  thermalCond_Aij;
+    DenseMatrix thermalCond_Aij;
 
     //! Model for species interaction effects for mass diffusivity
     //! Takes enum LiquidTranMixingModel
@@ -111,7 +111,7 @@ public:
      * LTI_MODEL_STEFANMAXWELL_PPN. These provide species interaction
      * coefficients associated with the Stefan-Maxwell formulation.
      */
-    DenseMatrix  diff_Dij;
+    DenseMatrix diff_Dij;
 
     //! Model for species interaction effects for hydrodynamic radius
     //! Takes enum LiquidTranMixingModel
@@ -121,7 +121,7 @@ public:
     /**
      * Not yet implemented
      */
-    DenseMatrix  radius_Aij;
+    DenseMatrix radius_Aij;
 
     //! Default composition dependence of the transport properties
     /*!

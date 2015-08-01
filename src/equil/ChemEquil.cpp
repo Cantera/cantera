@@ -306,7 +306,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     for (size_t m = 0; m < m_nComponents; m++) {
         lambda_RT[m_orderVectorElements[m]] = b[m];
     }
-    for (size_t m = m_nComponents; m < m_mm;  m++) {
+    for (size_t m = m_nComponents; m < m_mm; m++) {
         lambda_RT[m_orderVectorElements[m]] = 0.0;
     }
 
@@ -320,7 +320,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
                 tmp += nAtoms(isp, n) * lambda_RT[n];
             }
             writelogf("%3d %16s  %10.5g   %10.5g   %10.5g\n",
-                      m, sname.c_str(),  mu_RT[isp], tmp, tmp - mu_RT[isp]);
+                      m, sname.c_str(), mu_RT[isp], tmp, tmp - mu_RT[isp]);
         }
 
         writelog(" id    ElName  Lambda_RT\n");
@@ -426,9 +426,9 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
     size_t mm = m_mm;
     size_t nvar = mm + 1;
-    DenseMatrix jac(nvar, nvar);       // Jacobian
-    vector_fp x(nvar, -102.0);         // solution vector
-    vector_fp res_trial(nvar, 0.0);    // residual
+    DenseMatrix jac(nvar, nvar); // Jacobian
+    vector_fp x(nvar, -102.0); // solution vector
+    vector_fp res_trial(nvar, 0.0); // residual
 
     /*
      * Replace one of the element abundance fraction equations
@@ -617,8 +617,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     above[mm] = log(s.maxTemp() + 25.0);
     below[mm] = log(s.minTemp() - 25.0);
 
-    vector_fp grad(nvar, 0.0);        // gradient of f = F*F/2
-    vector_fp oldx(nvar, 0.0);        // old solution
+    vector_fp grad(nvar, 0.0); // gradient of f = F*F/2
+    vector_fp oldx(nvar, 0.0); // old solution
     vector_fp oldresid(nvar, 0.0);
     doublereal f, oldf;
     doublereal fctr = 1.0, newval;
@@ -634,7 +634,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         deltay = (yy - yval)/yval;
         bool passThis = true;
         for (m = 0; m < nvar; m++) {
-            double tval =  options.relTolerance;
+            double tval = options.relTolerance;
             if (m < mm) {
                 /*
                  * Special case convergence requirements for electron element.
@@ -1001,7 +1001,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
     for (m = 0; m < m_mm; m++) {
         elMolesTotal += elMoles[m];
         for (k = 0; k < m_kk; k++) {
-            eMolesFix[m] +=  nAtoms(k,m) * n_i[k];
+            eMolesFix[m] += nAtoms(k,m) * n_i[k];
         }
     }
 
@@ -1094,7 +1094,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             writelog("        Species: Calculated_Moles Calculated_Mole_Fraction\n");
             for (k = 0; k < m_kk; k++) {
                 string nnn = s.speciesName(k);
-                writelogf("%15s: %10.5g %10.5g\n", nnn.c_str(),  n_i_calc[k], Xmol_i_calc[k]);
+                writelogf("%15s: %10.5g %10.5g\n", nnn.c_str(), n_i_calc[k], Xmol_i_calc[k]);
             }
             writelogf("%15s: %10.5g\n", "Total Molar Sum", n_t_calc);
             writelogf("(iter %d) element moles bal:   Goal  Calculated\n", iter);
@@ -1185,7 +1185,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             for (m = 0; m < m_mm; m++) {
                 size_t kMSp = npos;
                 size_t kMSp2 = npos;
-                int nSpeciesWithElem  = 0;
+                int nSpeciesWithElem = 0;
                 for (k = 0; k < m_kk; k++) {
                     if (n_i_calc[k] > nCutoff && fabs(nAtoms(k,m)) > 0.001) {
                         nSpeciesWithElem++;
@@ -1193,7 +1193,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                             kMSp2 = k;
                             double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
                             for (n = 0; n < m_mm; n++) {
-                                if (fabs(factor *  nAtoms(kMSp2,n) -  nAtoms(kMSp,n)) > 1.0E-8) {
+                                if (fabs(factor * nAtoms(kMSp2,n) - nAtoms(kMSp,n)) > 1.0E-8) {
                                     lumpSum[m] = 0;
                                     break;
                                 }
@@ -1453,7 +1453,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 string eee = s.elementName(m);
                 writelogf("     %5s   %10.5g   %10.5g   %10.5g\n", eee.c_str(), x_old[m], x[m], resid[m]);
             }
-            writelogf("       n_t    %10.5g   %10.5g  %10.5g \n",  x_old[m_mm], n_t, exp(resid[m_mm]));
+            writelogf("       n_t    %10.5g   %10.5g  %10.5g \n", x_old[m_mm], n_t, exp(resid[m_mm]));
         }
     }
     if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {

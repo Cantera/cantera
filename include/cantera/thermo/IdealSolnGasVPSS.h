@@ -94,7 +94,7 @@ public:
      */
     void setPressure(doublereal p);
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
+    //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
      * \f[
@@ -150,7 +150,7 @@ public:
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
     //! the generalized concentration.
     /*!
-     * This is defined as the concentration  by which the generalized
+     * This is defined as the concentration by which the generalized
      * concentration is normalized to produce the activity.
      * In many cases, this quantity will be the same for all species in a phase.
      * Since the activity for an ideal gas mixture is
@@ -186,7 +186,7 @@ public:
      * getChemPotentials() and then dividing by RT. No need for child
      * classes to handle.
      *
-     * @param mu    Output vector of  non-dimensional species chemical potentials
+     * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
     void getChemPotentials_RT(doublereal* mu) const;

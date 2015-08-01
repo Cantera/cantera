@@ -80,7 +80,7 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
 {
     m_pdssType = cPDSS_WATER;
     std::string id= "";
-    constructPDSSXML(tp, spindex, phaseRoot, id) ;
+    constructPDSSXML(tp, spindex, phaseRoot, id);
     initThermo();
     m_spthermo = 0;
     m_minTemp = 200.;
@@ -116,11 +116,11 @@ PDSS_Water& PDSS_Water::operator=(const PDSS_Water& b)
 
     m_sub = b.m_sub;
     m_waterProps = b.m_waterProps;
-    m_dens          = b.m_dens;
-    m_iState        = b.m_iState;
-    EW_Offset       = b.EW_Offset;
-    SW_Offset       = b.SW_Offset;
-    m_verbose       = b.m_verbose;
+    m_dens = b.m_dens;
+    m_iState = b.m_iState;
+    EW_Offset = b.EW_Offset;
+    SW_Offset = b.SW_Offset;
+    m_verbose = b.m_verbose;
     m_allowGasPhase = b.m_allowGasPhase;
 
     return *this;
@@ -185,12 +185,12 @@ void PDSS_Water::constructSet()
     m_pres = presLow;
     SW_Offset = 0.0;
     doublereal s = entropy_mole();
-    s -=  GasConstant * log(oneBar/presLow);
+    s -= GasConstant * log(oneBar/presLow);
     if (s != 188.835E3) {
         SW_Offset = 188.835E3 - s;
     }
     s = entropy_mole();
-    s -=  GasConstant * log(oneBar/presLow);
+    s -= GasConstant * log(oneBar/presLow);
 
     doublereal h = enthalpy_mole();
     if (h != -241.826E6) {
@@ -237,7 +237,7 @@ doublereal PDSS_Water::cv_mole() const
     return m_sub.cv();
 }
 
-doublereal  PDSS_Water::molarVolume() const
+doublereal PDSS_Water::molarVolume() const
 {
     return m_sub.molarVolume();
 }

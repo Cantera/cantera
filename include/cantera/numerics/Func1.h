@@ -339,7 +339,7 @@ public:
         m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -402,7 +402,7 @@ public:
         m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -463,7 +463,7 @@ public:
         m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -522,7 +522,7 @@ public:
         Func1::operator=(right);
         m_f1 = &m_f1->duplicate();
         m_f1->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
     virtual int ID() const {
@@ -597,7 +597,7 @@ public:
         Func1::operator=(right);
         m_f1 = &m_f1->duplicate();
         m_f1->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -658,7 +658,7 @@ public:
         m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -724,7 +724,7 @@ public:
         m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -791,10 +791,10 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_A        = right.m_A;
-        m_t0       = right.m_t0;
-        m_tau      = right.m_tau;
-        m_parent   = 0;
+        m_A = right.m_A;
+        m_t0 = right.m_t0;
+        m_tau = right.m_tau;
+        m_parent = 0;
         return *this;
     }
 
@@ -836,9 +836,9 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_cpoly    = right.m_cpoly;
-        m_n        = right.m_n;
-        m_parent   = 0;
+        m_cpoly = right.m_cpoly;
+        m_n = right.m_n;
+        m_parent = 0;
         return *this;
     }
 
@@ -896,11 +896,11 @@ public:
         }
         Func1::operator=(right);
         m_omega = right.m_omega;
-        m_a0_2  = right.m_a0_2;
-        m_ccos  = right.m_ccos;
-        m_csin  = right.m_csin;
-        m_n     = right.m_n;
-        m_parent   = 0;
+        m_a0_2 = right.m_a0_2;
+        m_ccos = right.m_ccos;
+        m_csin = right.m_csin;
+        m_n = right.m_n;
+        m_parent = 0;
         return *this;
     }
 
@@ -960,11 +960,11 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_n      = right.m_n;
-        m_A      = right.m_A;
-        m_b      = right.m_b;
-        m_E      = right.m_E;
-        m_parent   = 0;
+        m_n = right.m_n;
+        m_A = right.m_A;
+        m_b = right.m_b;
+        m_E = right.m_E;
+        m_parent = 0;
         return *this;
     }
 

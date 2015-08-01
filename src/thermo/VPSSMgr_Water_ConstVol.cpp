@@ -30,7 +30,7 @@ VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
     VPSSMgr(vp_ptr, spth),
     m_waterSS(0)
 {
-    m_useTmpRefStateStorage      = true;
+    m_useTmpRefStateStorage = true;
     m_useTmpStandardStateStorage = true;
 }
 
@@ -156,10 +156,10 @@ void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const
     }
     m_waterSS->setState_TP(m_tlast, m_p0);
     m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
-    m_s0_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
+    m_s0_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
     m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_V0[0]    =  m_vptp_ptr->molecularWeight(0) / (m_waterSS->density());
+    m_V0[0] = m_vptp_ptr->molecularWeight(0) / (m_waterSS->density());
     m_waterSS->setState_TP(m_tlast, m_plast);
 }
 
@@ -168,10 +168,10 @@ void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
     doublereal del_pRT = (m_plast - OneAtm) / (GasConstant * m_tlast);
 
     for (size_t k = 1; k < m_kk; k++) {
-        m_hss_RT[k]  = m_h0_RT[k] + del_pRT * m_Vss[k];
-        m_cpss_R[k]  = m_cp0_R[k];
-        m_sss_R[k]   = m_s0_R[k];
-        m_gss_RT[k]  = m_hss_RT[k] - m_sss_R[k];
+        m_hss_RT[k] = m_h0_RT[k] + del_pRT * m_Vss[k];
+        m_cpss_R[k] = m_cp0_R[k];
+        m_sss_R[k] = m_s0_R[k];
+        m_gss_RT[k] = m_hss_RT[k] - m_sss_R[k];
         // m_Vss[k] constant
         PDSS* kPDSS = m_vptp_ptr->providePDSS(k);
         kPDSS->setState_TP(m_tlast, m_plast);
@@ -179,10 +179,10 @@ void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
     // Do the water
     m_waterSS->setState_TP(m_tlast, m_plast);
     m_hss_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
-    m_sss_R[0]  = (m_waterSS->entropy_mole()) / GasConstant;
-    m_cpss_R[0] = (m_waterSS->cp_mole())      / GasConstant;
+    m_sss_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
+    m_cpss_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_Vss[0]    = (m_vptp_ptr->molecularWeight(0) / m_waterSS->density());
+    m_Vss[0] = (m_vptp_ptr->molecularWeight(0) / m_waterSS->density());
 }
 
 void VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode,
@@ -199,7 +199,7 @@ void VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode,
     }
 
     m_waterSS->setState_TP(300., OneAtm);
-    m_Vss[0] = (m_waterSS->density())      / m_vptp_ptr->molecularWeight(0);
+    m_Vss[0] = (m_waterSS->density()) / m_vptp_ptr->molecularWeight(0);
 
     for (size_t k = 1; k < m_kk; k++) {
         const XML_Node* s = speciesDB->findByAttr("name", m_vptp_ptr->speciesName(k));

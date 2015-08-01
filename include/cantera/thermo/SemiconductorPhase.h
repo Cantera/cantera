@@ -57,7 +57,7 @@ public:
     virtual void setPressure(doublereal pres) {
         m_press = pres;
     }
-    virtual doublereal  pressure() const {
+    virtual doublereal pressure() const {
         return m_press;
     }
 

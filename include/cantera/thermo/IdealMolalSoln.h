@@ -478,7 +478,7 @@ public:
 
     //! Partial molar heat capacity of the solution:. UnitsL J/kmol/K
     /*!
-     *   The kth partial molar heat capacity is  equal to
+     *   The kth partial molar heat capacity is equal to
      *   the temperature derivative of the partial molar
      *   enthalpy of the kth species in the solution at constant
      *   P and composition (p. 220 Smith and Van Ness).
@@ -565,14 +565,14 @@ public:
      *
      * @param smv Output vector of species molar volumes.
      */
-    void   getSpeciesMolarVolumes(double* smv) const;
+    void getSpeciesMolarVolumes(double* smv) const;
     //@}
 
 protected:
     /**
      * Species molar volume \f$ m^3 kmol^{-1} \f$
      */
-    vector_fp   m_speciesMolarVolume;
+    vector_fp m_speciesMolarVolume;
 
     /**
      * The standard concentrations can have three different forms
@@ -596,18 +596,18 @@ private:
     /**
      * Temporary array used in equilibrium calculations
      */
-    mutable vector_fp      m_pp;
+    mutable vector_fp m_pp;
 
     /**
      * vector of size m_kk, used as a temporary holding area.
      */
-    mutable vector_fp      m_tmpV;
+    mutable vector_fp m_tmpV;
 
     //! Logarithm of the molal activity coefficients
     /*!
      *   Normally these are all one. However, stability schemes will change that
      */
-    mutable vector_fp      IMS_lnActCoeffMolal_;
+    mutable vector_fp IMS_lnActCoeffMolal_;
 public:
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;

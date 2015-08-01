@@ -60,7 +60,7 @@ void ct2ctml(const char* file, const int debug)
     // For Windows, make the path POSIX compliant so code looking for directory
     // separators is simpler.  Just look for '/' not both '/' and '\\'
     std::replace_if(out_name.begin(), out_name.end(),
-                    std::bind2nd(std::equal_to<char>(), '\\'), '/') ;
+                    std::bind2nd(std::equal_to<char>(), '\\'), '/');
 #endif
     size_t idir = out_name.rfind('/');
     if (idir != npos) {

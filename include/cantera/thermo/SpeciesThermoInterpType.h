@@ -76,7 +76,7 @@ class VPSSMgr;
   * The following classes inherit from SpeciesThermoInterpType.
   *
   *   - NasaPoly1          in file NasaPoly1.h
-  *      - This is a one zone model,  consisting of a 7
+  *      - This is a one zone model, consisting of a 7
   *        coefficient NASA Polynomial format.
   *      .
   *   - NasaPoly2          in file NasaPoly2.h
@@ -100,7 +100,7 @@ class VPSSMgr;
   *        the heat capacity is treated as a constant.
   *      .
   *   - Nasa9Poly1          in file Nasa9Poly1.h
-  *      - This is a one zone model,  consisting of the 9
+  *      - This is a one zone model, consisting of the 9
   *        coefficient NASA Polynomial format.
   *      .
   *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
@@ -119,7 +119,7 @@ class VPSSMgr;
   *  \link SpeciesThermoInterpType::updatePropertiesTemp() updatePropertiesTemp()\endlink.
   *  The function calculates the values of Cp, H, and S for the specific
   *  species pertaining to this class. It takes as its arguments the
-  *  base pointer for the vector of  Cp, H, and S values for all species
+  *  base pointer for the vector of Cp, H, and S values for all species
   *  in the phase. The offset for the species is known within the
   *  object.
   *
@@ -150,7 +150,7 @@ class VPSSMgr;
  *
  *  @code
  *   SpeciesThermoInterpType(int index, doublereal tlow, doublereal thigh,
- *                           doublereal pref,  const doublereal* coeffs)
+ *                           doublereal pref, const doublereal* coeffs)
  *  @endcode
  *
  * @ingroup spthermo
@@ -205,7 +205,7 @@ public:
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the functions
-     * of temperature needed by this  parameterization, and three pointers to
+     * of temperature needed by this parameterization, and three pointers to
      * arrays where the computed property values should be written. This method
      * updates only one value in each array.
      *
@@ -272,7 +272,7 @@ public:
      *   the standard state of the species from its constituent elements in
      *   their standard states at 298 K and 1 bar.
      *
-     *   @param h298 If this is nonnull,  the current value of the Heat of
+     *   @param h298 If this is nonnull, the current value of the Heat of
      *               Formation at 298K and 1 bar for species m_speciesIndex is
      *               returned in h298[m_speciesIndex].
      *   @return     Returns the current value of the Heat of Formation at 298K

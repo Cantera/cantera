@@ -10,13 +10,13 @@
 namespace Cantera
 {
 //! @{
-const int LVISC_CONSTANT     = 0;
-const int LVISC_WILKES       = 1;
-const int LVISC_MIXTUREAVG   = 2;
+const int LVISC_CONSTANT = 0;
+const int LVISC_WILKES = 1;
+const int LVISC_MIXTUREAVG = 2;
 
-const int LDIFF_MIXDIFF_UNCORRECTED     = 0;
-const int LDIFF_MIXDIFF_FLUXCORRECTED  = 1;
-const int LDIFF_MULTICOMP_STEFANMAXWELL  = 2;
+const int LDIFF_MIXDIFF_UNCORRECTED = 0;
+const int LDIFF_MIXDIFF_FLUXCORRECTED = 1;
+const int LDIFF_MULTICOMP_STEFANMAXWELL = 2;
 //! @}
 
 class WaterProps;
@@ -37,7 +37,7 @@ public:
     WaterTransport(thermo_t* thermo = 0, int ndim = 1);
 
     WaterTransport(const WaterTransport& right);
-    WaterTransport&  operator=(const  WaterTransport& right);
+    WaterTransport& operator=(const WaterTransport& right);
     virtual Transport* duplMyselfAsTransport() const;
 
     virtual int model() const {

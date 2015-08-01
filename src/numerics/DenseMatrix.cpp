@@ -73,12 +73,12 @@ void DenseMatrix::resize(size_t n, size_t m, doublereal v)
     }
 }
 
-doublereal*   const* DenseMatrix::colPts()
+doublereal* const* DenseMatrix::colPts()
 {
     return &m_colPts[0];
 }
 
-const doublereal*   const* DenseMatrix::const_colPts() const
+const doublereal* const* DenseMatrix::const_colPts() const
 {
     return &m_colPts[0];
 }
@@ -211,7 +211,7 @@ int invert(DenseMatrix& A, size_t nn)
     vector_fp work(n);
     integer lwork = static_cast<int>(work.size());
     ct_dgetri(n, A.ptrColumn(0), static_cast<int>(A.nRows()),
-              &A.ipiv()[0],  &work[0], lwork, info);
+              &A.ipiv()[0], &work[0], lwork, info);
     if (info != 0) {
         if (A.m_printLevel) {
             writelogf("invert(DenseMatrix& A, int nn): DGETRS returned INFO = %d\n", info);

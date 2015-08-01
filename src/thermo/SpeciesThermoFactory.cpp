@@ -337,7 +337,7 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
     }
     if (nRegions == 0) {
         throw CanteraError("newNasa9ThermoFromXML", "zero regions found");
-    } else if (nRegions == 1)  {
+    } else if (nRegions == 1) {
         return regionPtrs[0];
     } else {
         return new Nasa9PolyMultiTempRegion(regionPtrs);

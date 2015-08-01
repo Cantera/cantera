@@ -28,18 +28,18 @@ namespace Cantera
  *   These are possible formats for the molality-based activity coefficients.
  */
 //@{
-#define DHFORM_DILUTE_LIMIT  0
-#define DHFORM_BDOT_AK       1
-#define DHFORM_BDOT_ACOMMON  2
-#define DHFORM_BETAIJ        3
+#define DHFORM_DILUTE_LIMIT 0
+#define DHFORM_BDOT_AK 1
+#define DHFORM_BDOT_ACOMMON 2
+#define DHFORM_BETAIJ 3
 #define DHFORM_PITZER_BETAIJ 4
 //@}
 /*
  *  @name  Acceptable ways to calculate the value of A_Debye
  */
 //@{
-#define    A_DEBYE_CONST  0
-#define    A_DEBYE_WATER  1
+#define A_DEBYE_CONST 0
+#define A_DEBYE_WATER 1
 //@}
 
 class WaterProps;
@@ -108,7 +108,7 @@ class PDSS_Water;
  * all solutes. The molar volume for the water solvent, however,
  * is obtained from a pure water equation of state, waterSS.
  * Therefore, the water standard state varies with both T and P.
- * It is an error to request standard state water properties  at a T and P
+ * It is an error to request standard state water properties at a T and P
  * where the water phase is not a stable phase, i.e., beyond its
  * spinodal curve.
  *
@@ -117,7 +117,7 @@ class PDSS_Water;
  * <HR>
  *
  * Chemical potentials
- * of the solutes,  \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based
+ * of the solutes, \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based
  * on the molality form, have the following general format:
  *
  * \f[
@@ -785,7 +785,7 @@ public:
 
     /**
      * @}
-     * @name Activities, Standard States,  and Activity Concentrations
+     * @name Activities, Standard States, and Activity Concentrations
      *
      * The activity \f$a_k\f$ of a species in solution is
      * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
@@ -924,7 +924,7 @@ public:
      * \f]
      *
      * The reference-state pure-species entropies,\f$ \hat s^0_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
+     * at the reference pressure, \f$ P_{ref} \f$, are computed by the
      * species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
@@ -1025,9 +1025,9 @@ public:
      *             to see if phaseNode is pointing to the phase
      *             with the correct id.
      */
-    virtual void  initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    //! Return  the Debye Huckel constant as a function of temperature
+    //! Return the Debye Huckel constant as a function of temperature
     //! and pressure (Units = sqrt(kg/gmol))
     /*!
      *  The default is to assume that it is constant, given
@@ -1163,7 +1163,7 @@ private:
     //@}
 
 protected:
-    //! form of the Debye-Huckel parameterization  used in the model.
+    //! form of the Debye-Huckel parameterization used in the model.
     /*!
      * The options are described at the top of this document,
      * and in the general documentation.
@@ -1219,7 +1219,7 @@ protected:
      *  - nonpolarNeutral
      *  .
      */
-    vector_int  m_electrolyteSpeciesType;
+    vector_int m_electrolyteSpeciesType;
 
     /**
      *  a_k = Size of the ionic species in the DH formulation
@@ -1316,7 +1316,7 @@ protected:
      *  in some formulations to extend DH to higher molalities. B_dot is
      *  specific to the major ionic pair.
      */
-    vector_fp  m_B_Dot;
+    vector_fp m_B_Dot;
 
     /**
      *  These are coefficients to describe the increase in activity coeff for
@@ -1326,7 +1326,7 @@ protected:
     vector_fp m_npActCoeff;
 
 
-    //! Pointer to the  Water standard state object
+    //! Pointer to the Water standard state object
     /*!
      *  derived from the equation of state for water.
      */
@@ -1342,10 +1342,10 @@ protected:
     WaterProps* m_waterProps;
 
     //! Temporary array used in equilibrium calculations
-    mutable vector_fp      m_pp;
+    mutable vector_fp m_pp;
 
     //! vector of size m_kk, used as a temporary holding area.
-    mutable vector_fp      m_tmpV;
+    mutable vector_fp m_tmpV;
 
     /**
      * Stoichiometric species charge -> This is for calculations
@@ -1359,7 +1359,7 @@ protected:
      * For species that aren't ion pairs, it's equal to the
      * m_speciesCharge[] value.
      */
-    vector_fp  m_speciesCharge_Stoich;
+    vector_fp m_speciesCharge_Stoich;
 
     /**
      *  Array of 2D data used in the DHFORM_BETAIJ formulation

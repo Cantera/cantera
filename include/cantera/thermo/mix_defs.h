@@ -34,13 +34,13 @@ const int cHarmonicOsc = 4;
  *  not be able to initialize the class within its "factory"
  *  routines.
  */
-const int cIdealGas = 1;       //  IdealGasPhase in IdealGasPhase.h
-const int cIncompressible = 2; //  ConstDensityThermo in ConstDensityThermo.h
+const int cIdealGas = 1; // IdealGasPhase in IdealGasPhase.h
+const int cIncompressible = 2; // ConstDensityThermo in ConstDensityThermo.h
 /// A surface phase. Used by class SurfPhase.
 const int cSurf = 3;
 
 /// A metal phase.
-const int cMetal = 4;          //  MetalPhase in MetalPhase.h
+const int cMetal = 4; // MetalPhase in MetalPhase.h
 const int cStoichSubstance = 5; // StoichSubstance.h
 const int cSemiconductor = 7;
 
@@ -92,12 +92,12 @@ const int cPhaseCombo_Interaction = 305;
 const int cIonsFromNeutral = 2000;
 
 //! Variable Pressure Standard State ThermoPhase objects
-const int cVPSS_IdealGas     = 1001;
-const int cVPSS_ConstVol     = 1002;
-const int cVPSS_PureFluid    = 1010;
-const int cVPSS_HMW          = 1040;
+const int cVPSS_IdealGas = 1001;
+const int cVPSS_ConstVol = 1002;
+const int cVPSS_PureFluid = 1010;
+const int cVPSS_HMW = 1040;
 const int cVPSS_DebyeHuckel = 1050;
-const int cVPSS_MolalSoln   = 1060;
+const int cVPSS_MolalSoln = 1060;
 
 //! Types of general formulations for the specification of the standard state volume
 enum SSVolume_Model_enumType {

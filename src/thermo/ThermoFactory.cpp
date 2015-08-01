@@ -73,16 +73,16 @@ static string _types[] = {"IdealGas", "Incompressible",
                          };
 
 //! Define the integer id of the ThermoPhase types that are handled by this factory routine
-static int _itypes[]   = {cIdealGas, cIncompressible,
-                          cSurf, cEdge, cMetal, cStoichSubstance,
-                          cPureFluid, cLatticeSolid, cLattice,
-                          cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
-                          cIdealMolalSoln, cVPSS_IdealGas, cIdealSolnGasVPSS_iscv,
-                          cMineralEQ3, cMetalSHEelectrons,
-                          cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
-                          cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP,
-                          cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase
-                         };
+static int _itypes[] = {cIdealGas, cIncompressible,
+                        cSurf, cEdge, cMetal, cStoichSubstance,
+                        cPureFluid, cLatticeSolid, cLattice,
+                        cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
+                        cIdealMolalSoln, cVPSS_IdealGas, cIdealSolnGasVPSS_iscv,
+                        cMineralEQ3, cMetalSHEelectrons,
+                        cMargulesVPSSTP, cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
+                        cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP,
+                        cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase
+                       };
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
@@ -338,7 +338,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         }
         th->setNDim(idim);
     } else {
-        th->setNDim(3);     // default
+        th->setNDim(3); // default
     }
 
     // Set equation of state parameters. The parameters are
@@ -435,7 +435,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     // for those species in a single vector. This is where we decide what
     // species are to be included in the phase.
     // The logic is complicated enough that we put it in a separate routine.
-    std::vector<XML_Node*>  spDataNodeList;
+    std::vector<XML_Node*> spDataNodeList;
     std::vector<std::string> spNamesList;
     std::vector<int> spRuleList;
     formSpeciesXMLNodeList(spDataNodeList, spNamesList, spRuleList,

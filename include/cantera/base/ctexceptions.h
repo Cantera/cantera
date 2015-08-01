@@ -39,7 +39,7 @@ namespace Cantera
  *
  *  A group of defines may be used during debugging to assert
  *  conditions which should be true. These are named AssertTrace(),
- *  AssertThrow(), and AssertThrowMsg().  Examples of their usage is
+ *  AssertThrow(), and AssertThrowMsg(). Examples of their usage is
  *  given below.
  *
  * @code
@@ -200,7 +200,7 @@ public:
 /*!
  *   This is a std:string containing the file name and the line number
  */
-#define STR_TRACE   (std::string(__FILE__) +  ":" + XSTR_TRACE_LINE(__LINE__))
+#define STR_TRACE (std::string(__FILE__) + ":" + XSTR_TRACE_LINE(__LINE__))
 
 #ifdef NDEBUG
 #ifndef AssertTrace
@@ -217,7 +217,7 @@ public:
 //! Assertion must be true or an error is thrown
 /*!
  * Assertion must be true or else a CanteraError is thrown. A diagnostic string containing the
- * file and line number,  indicating where the error
+ * file and line number, indicating where the error
  * occurred is added to the thrown object.
  *
  * @param expr  Boolean expression that must be true

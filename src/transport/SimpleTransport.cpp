@@ -66,11 +66,11 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
     }
     Transport::operator=(right);
 
-    tempDepType_                          = right.tempDepType_;
-    compositionDepType_                   = right.compositionDepType_;
-    useHydroRadius_                       = right.useHydroRadius_;
-    doMigration_                          = right.doMigration_;
-    m_mw                                  = right.m_mw;
+    tempDepType_ = right.tempDepType_;
+    compositionDepType_ = right.compositionDepType_;
+    useHydroRadius_ = right.useHydroRadius_;
+    doMigration_ = right.doMigration_;
+    m_mw = right.m_mw;
 
     m_coeffVisc_Ns = right.m_coeffVisc_Ns;
     for (size_t k = 0; k <right.m_coeffVisc_Ns.size() ; k++) {
@@ -100,32 +100,32 @@ SimpleTransport& SimpleTransport::operator=(const SimpleTransport& right)
         }
     }
 
-    m_Grad_X                              = right.m_Grad_X;
-    m_Grad_T                              = right.m_Grad_T;
-    m_Grad_P                              = right.m_Grad_P;
-    m_Grad_V                              = right.m_Grad_V;
-    m_diffSpecies                         = right.m_diffSpecies;
-    m_viscSpecies                         = right.m_viscSpecies;
-    m_condSpecies                         = right.m_condSpecies;
+    m_Grad_X = right.m_Grad_X;
+    m_Grad_T = right.m_Grad_T;
+    m_Grad_P = right.m_Grad_P;
+    m_Grad_V = right.m_Grad_V;
+    m_diffSpecies = right.m_diffSpecies;
+    m_viscSpecies = right.m_viscSpecies;
+    m_condSpecies = right.m_condSpecies;
     m_iStateMF = -1;
-    m_molefracs                           = right.m_molefracs;
-    m_concentrations                      = right.m_concentrations;
-    concTot_                              = right.concTot_;
-    meanMolecularWeight_                  = right.meanMolecularWeight_;
-    dens_                                 = right.dens_;
-    m_chargeSpecies                       = right.m_chargeSpecies;
-    m_temp                                = right.m_temp;
-    m_press                               = right.m_press;
-    m_lambda                              = right.m_lambda;
-    m_viscmix                             = right.m_viscmix;
-    m_spwork                              = right.m_spwork;
-    m_visc_mix_ok    = false;
-    m_visc_temp_ok   = false;
-    m_diff_mix_ok    = false;
-    m_diff_temp_ok   = false;
-    m_cond_temp_ok   = false;
-    m_cond_mix_ok    = false;
-    m_nDim                                = right.m_nDim;
+    m_molefracs = right.m_molefracs;
+    m_concentrations = right.m_concentrations;
+    concTot_ = right.concTot_;
+    meanMolecularWeight_ = right.meanMolecularWeight_;
+    dens_ = right.dens_;
+    m_chargeSpecies = right.m_chargeSpecies;
+    m_temp = right.m_temp;
+    m_press = right.m_press;
+    m_lambda = right.m_lambda;
+    m_viscmix = right.m_viscmix;
+    m_spwork = right.m_spwork;
+    m_visc_mix_ok = false;
+    m_visc_temp_ok = false;
+    m_diff_mix_ok = false;
+    m_diff_temp_ok = false;
+    m_cond_temp_ok = false;
+    m_cond_mix_ok = false;
+    m_nDim = right.m_nDim;
 
     return *this;
 }
@@ -155,7 +155,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
 {
     // constant substance attributes
     m_thermo = tr.thermo;
-    m_nsp   = m_thermo->nSpecies();
+    m_nsp = m_thermo->nSpecies();
 
     /*
      * Read the transport block in the phase XML Node
@@ -242,12 +242,12 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_Grad_V.resize(m_nDim, 0.0);
 
     // set all flags to false
-    m_visc_mix_ok   = false;
-    m_visc_temp_ok  = false;
+    m_visc_mix_ok = false;
+    m_visc_temp_ok = false;
     m_cond_temp_ok = false;
-    m_cond_mix_ok  = false;
-    m_diff_temp_ok   = false;
-    m_diff_mix_ok  = false;
+    m_cond_mix_ok = false;
+    m_diff_temp_ok = false;
+    m_diff_mix_ok = false;
     return true;
 }
 
@@ -317,7 +317,7 @@ void SimpleTransport::getMobilities(doublereal* const mobil)
     }
 }
 
-void  SimpleTransport::getFluidMobilities(doublereal* const mobil_f)
+void SimpleTransport::getFluidMobilities(doublereal* const mobil_f)
 {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = 1.0 / (GasConstant * m_temp);
@@ -392,13 +392,13 @@ void SimpleTransport::getSpeciesVdiff(size_t ndim,
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
-    const doublereal* y  = m_thermo->massFractions();
+    const doublereal* y = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
     getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
-                Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
+                Vdiff[n * m_nsp + k] *= 1.0 / (rho * y[k]);
             } else {
                 Vdiff[n * m_nsp + k] = 0.0;
             }
@@ -407,20 +407,20 @@ void SimpleTransport::getSpeciesVdiff(size_t ndim,
 }
 
 void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
-                                        int ldx,  const doublereal* grad_X,
-                                        int ldf,  const doublereal* grad_Phi,
+                                        int ldx, const doublereal* grad_X,
+                                        int ldf, const doublereal* grad_Phi,
                                         doublereal* Vdiff)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     set_Grad_V(grad_Phi);
-    const doublereal* y  = m_thermo->massFractions();
+    const doublereal* y = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
     getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
-                Vdiff[n * m_nsp + k] *=  1.0 / (rho * y[k]);
+                Vdiff[n * m_nsp + k] *= 1.0 / (rho * y[k]);
             } else {
                 Vdiff[n * m_nsp + k] = 0.0;
             }
@@ -428,7 +428,7 @@ void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
     }
 }
 
-void SimpleTransport::getSpeciesFluxes(size_t ndim,  const doublereal* const grad_T,
+void SimpleTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                        size_t ldx, const doublereal* const grad_X,
                                        size_t ldf, doublereal* const fluxes)
 {
@@ -446,12 +446,12 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
     getMixDiffCoeffs(DATA_PTR(m_spwork));
 
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* y  = m_thermo->massFractions();
+    const doublereal* y = m_thermo->massFractions();
     doublereal concTotal = m_thermo->molarDensity();
 
     // Unroll wrt ndim
     if (doMigration_) {
-        double FRT =  ElectronCharge / (Boltzmann * m_temp);
+        double FRT = ElectronCharge / (Boltzmann * m_temp);
         for (size_t n = 0; n < m_nDim; n++) {
             rhoVc[n] = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
@@ -547,7 +547,7 @@ bool SimpleTransport::update_C()
             concTot_ += m_concentrations[k];
         }
         dens_ = m_thermo->density();
-        meanMolecularWeight_ =  m_thermo->meanMolecularWeight();
+        meanMolecularWeight_ = m_thermo->meanMolecularWeight();
     }
     if (qReturn) {
         return false;
@@ -579,7 +579,7 @@ void SimpleTransport::updateDiff_T()
         double visc = viscosity();
         double RT = GasConstant * m_temp;
         for (size_t k = 0; k < m_nsp; k++) {
-            double rad = m_coeffHydroRadius_Ns[k]->getSpeciesTransProp() ;
+            double rad = m_coeffHydroRadius_Ns[k]->getSpeciesTransProp();
             m_diffSpecies[k] = RT / (6.0 * Pi * visc * rad);
         }
     } else {
@@ -626,7 +626,7 @@ bool SimpleTransport::update_T()
     // interpolations will need to be reevaluated.
     // Set all of these flags to false
     m_visc_mix_ok = false;
-    m_visc_temp_ok  = false;
+    m_visc_temp_ok = false;
     m_cond_temp_ok = false;
     m_cond_mix_ok = false;
     m_diff_mix_ok = false;

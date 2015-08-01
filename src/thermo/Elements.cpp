@@ -25,8 +25,8 @@ namespace Cantera
  * This structure was picked because it's simple, compact, and extensible.
  */
 struct awData {
-    char name[4];         //!< Null Terminated name, First letter capitalized
-    double atomicWeight;  //!< atomic weight in kg / kg-mol
+    char name[4]; //!< Null Terminated name, First letter capitalized
+    double atomicWeight; //!< atomic weight in kg / kg-mol
 };
 
 /*!

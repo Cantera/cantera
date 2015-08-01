@@ -31,7 +31,7 @@ class VPSSMgr_ConstVol : public VPSSMgr
 public:
     //! Constructor
     /*!
-     *  @param vp_ptr Pointer to the owning VPStandardStateTP  object
+     *  @param vp_ptr Pointer to the owning VPStandardStateTP object
      *                for the phase. It's a requirement that this be
      *                already malloced.
      *  @param spth   Pointer to the SpeciesThermo object for the
@@ -68,13 +68,13 @@ protected:
      *  state values of Cp, H, S, and V at the last temperature and reference
      *  pressure called. These functions are not recalculated if a new call is
      *  made using the previous temperature. All calculations are done within
-     *  the routine  _updateRefStateThermo(). _updateRefStateThermo() is
+     *  the routine _updateRefStateThermo(). _updateRefStateThermo() is
      *  defined in the parent object.
      */
     //@{
 
-    virtual void getGibbs_RT_ref(doublereal* grt) const ;
-    virtual void getStandardVolumes_ref(doublereal* vol) const ;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
+    virtual void getStandardVolumes_ref(doublereal* vol) const;
 
     //@}
     /*! @name Initialization Methods - For Internal use
@@ -111,8 +111,8 @@ public:
                                     const XML_Node* const phaseNode_ptr);
     //@}
 
-    virtual PDSS_enumType reportPDSSType(int index = -1) const ;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const ;
+    virtual PDSS_enumType reportPDSSType(int index = -1) const;
+    virtual VPSSMgr_enumType reportVPSSMgrType() const;
 };
 
 }

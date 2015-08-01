@@ -61,7 +61,7 @@ namespace Cantera
  *    R_s = k_s C_{gas}
  *   \f]
  * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
- * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
+ * of kmol m-3. Therefore, the kinetic rate constant, \f$ k_s \f$, has
  * units of m s-1. Nowhere does the concentration of the bulk phase
  * appear in the rate constant expression, since it's a stoichiometric
  * phase, and the activity is always equal to 1.0.
@@ -176,7 +176,7 @@ public:
     /*!
      * @param right Object to be copied
      */
-    FixedChemPotSSTP(const FixedChemPotSSTP&  right);
+    FixedChemPotSSTP(const FixedChemPotSSTP& right);
 
     //! Special constructor for the FixecChemPotSSTP class setting an element chemical
     //! potential directly
@@ -252,7 +252,7 @@ public:
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
      * \f]
      */
-    virtual doublereal thermalExpansionCoeff() const ;
+    virtual doublereal thermalExpansionCoeff() const;
 
     /**
      * @}
@@ -343,7 +343,7 @@ public:
     //! Get the nondimensional Enthalpy functions for the species
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
@@ -351,7 +351,7 @@ public:
     //! Get the array of nondimensional Entropy functions for the
     //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
+     * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
     virtual void getEntropy_R(doublereal* sr) const;
@@ -373,7 +373,7 @@ public:
      */
     virtual void getCp_R(doublereal* cpr) const;
 
-    //!  Returns the vector of nondimensional Internal Energies  of the standard
+    //!  Returns the vector of nondimensional Internal Energies of the standard
     //!  state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      *  For an incompressible,
@@ -448,10 +448,10 @@ public:
      *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
      *  pointer is populated and yields the reference state.
      *
-     * @param g       Output vector containing the  reference state
+     * @param g       Output vector containing the reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void  getGibbs_ref(doublereal* g) const;
+    virtual void getGibbs_ref(doublereal* g) const;
 
     /*!
      *  Returns the vector of nondimensional

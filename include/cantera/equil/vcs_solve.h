@@ -112,7 +112,7 @@ public:
      * using a variant of the VCS method. Nonideal phases can be accommodated
      * as well.
      *
-     * Any number of single-species phases and  multi-species phases
+     * Any number of single-species phases and multi-species phases
      * can be handled by the present version.
      *
      * @param print_lvl     1 -> Print results to standard output;
@@ -241,7 +241,7 @@ public:
      *    across the interface on the SHE (standard hydrogen electrode) scale
      *    (volts).
      *  - #VCS_SPECIES_ZEROEDPHASE: Species lies in a multicomponent phase
-     *    that is zeroed atm  and will stay deleted due to a choice from a
+     *    that is zeroed atm and will stay deleted due to a choice from a
      *    higher level. These species will formally always have zero mole
      *    numbers in the solution vector.
      *  - #VCS_SPECIES_ACTIVEBUTZERO: The species lies in a multicomponent
@@ -481,7 +481,7 @@ public:
     //! into existence
     /*!
      * Updates #m_deltaMolNumSpecies[irxn] : reaction adjustments, where irxn
-     * refers to the irxn'th species formation reaction. This  adjustment is
+     * refers to the irxn'th species formation reaction. This adjustment is
      * for species irxn + M, where M is the number of components.
      *
      * @param iphasePop  Phase id of the phase that will come into existence
@@ -503,7 +503,7 @@ public:
      * -------
      * m_deltaMolNumSpecies(irxn) : reaction adjustments, where irxn refers to
      *                              the irxn'th species formation reaction.
-     *                              This  adjustment is for species irxn + M,
+     *                              This adjustment is for species irxn + M,
      *                              where M is the number of components.
      *
      * Special branching occurs sometimes. This causes the component basis
@@ -532,7 +532,7 @@ public:
      *  Formation reactions are
      *  reactions which create each noncomponent species from the component
      *  species. m_stoichCoeffRxnMatrix(jcomp,irxn)  are the stoichiometric
-     *  coefficients for these  reactions. A stoichiometric coefficient of
+     *  coefficients for these reactions. A stoichiometric coefficient of
      *  one is assumed for species irxn in this reaction.
      *
      *  @param l
@@ -797,7 +797,7 @@ public:
      * actually contains argon. Then, nc < ne. Also, without perturbation of
      * FormulaMatrix[] vcs_basopt[] would produce a zero pivot because the
      * matrix would be singular (unless the argon element column was already
-     * the last column of  FormulaMatrix[].
+     * the last column of FormulaMatrix[].
      *
      * This routine borrows heavily from vcs_basopt's algorithm. It finds nc
      * constraints which span the range space of the Component Formula matrix,
@@ -848,7 +848,7 @@ public:
      *
      *  NOTE: currently this routine is not used.
      */
-    int  vcs_rxn_adj_cg();
+    int vcs_rxn_adj_cg();
 
     //!  Calculates the diagonal contribution to the Hessian due to
     //!  the dependence of the activity coefficients on the mole numbers.
@@ -947,7 +947,7 @@ public:
      *        with significantly different total kmol numbers than one
      *        the algorithm would have problems.
      */
-    void   vcs_nondim_TP();
+    void vcs_nondim_TP();
 
     //! Redimensionalize the problem data
     /*!
@@ -957,7 +957,7 @@ public:
      *  or in nondimensional form. This routine switches the data from
      *  nondimensional form into dimensional form.
      */
-    void   vcs_redim_TP();
+    void vcs_redim_TP();
 
     //! Print the string representing the Chemical potential units
     /*!
@@ -965,7 +965,7 @@ public:
      *
      * @param unitsFormat   Integer representing the units system
      */
-    void   vcs_printChemPotUnits(int unitsFormat) const;
+    void vcs_printChemPotUnits(int unitsFormat) const;
 
     //! Computes the current elemental abundances vector
     /*!
@@ -984,7 +984,7 @@ public:
      * definition. Satisfaction of extra constraints would have had to occur
      * in the problem specification.
      *
-     * The constraints should be broken up into 2  sections. If a constraint
+     * The constraints should be broken up into 2 sections. If a constraint
      * involves a formula matrix with positive and negative signs, and eaSet =
      * 0.0, then you can't expect that the sum will be zero. There may be
      * roundoff that inhibits this. However, if the formula matrix is all of
@@ -1202,7 +1202,7 @@ private:
      *
      *   Then, if TL is zero, the phase pops into existence if DG_i_O < 0.
      *   Also, if the phase exists, then we check to see if the species
-     *   can have a mole number larger than  VCS_DELETE_SPECIES_CUTOFF
+     *   can have a mole number larger than VCS_DELETE_SPECIES_CUTOFF
      *   (default value = 1.0E-32).
      */
     int vcs_recheck_deleted();
@@ -1354,7 +1354,7 @@ private:
      * @param[in] molNum  Current mole numbers of species to be used as input
      *         to the calculation (units = kmol), (length = totalNuMSpecies)
      *
-     * @param[out] ac  Activity coefficients   (length = totalNumSpecies) Note
+     * @param[out] ac  Activity coefficients (length = totalNumSpecies) Note
      *         this is only partially formed. Only species in phases that
      *         participate in the reaction will be updated
      * @param[out] mu_i  dimensionless chemical potentials (length
@@ -1427,10 +1427,10 @@ private:
     std::vector<double> m_wx;
 
 public:
-    //! value of the number of species  used to malloc data structures
+    //! value of the number of species used to malloc data structures
     size_t NSPECIES0;
 
-    //! value of the number of phases  used to malloc data structures
+    //! value of the number of phases used to malloc data structures
     size_t NPHASE0;
 
     //!  Total number of species in the problems
@@ -1531,7 +1531,7 @@ public:
     //! at the new tentatite T, P, and mole numbers.
     /*!
      *   The first NC entries are for components. The following
-     *   NR entries are for the current  non-component species in the mechanism.
+     *   NR entries are for the current non-component species in the mechanism.
      *  Length = number of species
      */
     std::vector<double> m_feSpecies_new;
@@ -1575,7 +1575,7 @@ public:
      */
     Array2D m_deltaMolNumPhase;
 
-    //!  This is 1 if the phase, iphase,  participates in the formation reaction
+    //!  This is 1 if the phase, iphase, participates in the formation reaction
     //!  irxn, and zero otherwise.  PhaseParticipation(iphase,irxn)
     Array2D m_phaseParticipation;
 
@@ -1588,7 +1588,7 @@ public:
 
     //! Delta G(irxn) for the noncomponent species in the mechanism.
     /*!
-     *    Computed by the  subroutine  deltaG. m_deltaGRxn is the free
+     *    Computed by the subroutine deltaG. m_deltaGRxn is the free
      *    energy change for the reaction which forms species K from the
      *    component species. This vector has length equal to the number
      *    of noncomponent species in the mechanism. It starts with
@@ -1674,7 +1674,7 @@ public:
     std::vector<double> m_deltaPhaseMoles;
 
     //! Temperature (Kelvin)
-    double   m_temperature;
+    double m_temperature;
 
     //! Pressure (units are determined by m_VCS_UnitsFormat
     /*!
@@ -1692,7 +1692,7 @@ public:
 
     //!  Total kmoles of inert to add to each phase
     /*!
-     *  TPhInertMoles[iph] = Total kmoles of  inert to add to each phase
+     *  TPhInertMoles[iph] = Total kmoles of inert to add to each phase
      *  length = number of phases
      */
     std::vector<double> TPhInertMoles;
@@ -1703,7 +1703,7 @@ public:
     //! Tolerance requirements for minor species
     double m_tolmin;
 
-    //! Below this, major species aren't refined  any more
+    //! Below this, major species aren't refined any more
     double m_tolmaj2;
 
     //! Below this, minor species aren't refined any more
@@ -1751,7 +1751,7 @@ public:
     std::vector<size_t> m_elementMapIndex;
 
     //!  Mapping between the species index for noncomponent species and the
-    //!  full species  index.
+    //!  full species index.
     /*!
      * ir[irxn]   = Mapping between the reaction index for noncomponent
      *              formation reaction of a species and the full species
@@ -1819,7 +1819,7 @@ public:
     /*!
      *  The default is to have this unitless
      */
-    char  m_unitsState;
+    char m_unitsState;
 
     //! Multiplier for the mole numbers within the nondimensionless formulation
     /*!
@@ -1830,7 +1830,7 @@ public:
      */
     double m_totalMoleScale;
 
-    //! specifies the activity  convention of the phase containing the species
+    //! specifies the activity convention of the phase containing the species
     /*!
      *  * 0 = molar based
      *  * 1 = molality based
@@ -1848,7 +1848,7 @@ public:
      */
     std::vector<int> m_phaseActConvention;
 
-    //!  specifies the ln(Mnaught) used to   calculate the chemical potentials
+    //!  specifies the ln(Mnaught) used to calculate the chemical potentials
     /*!
      *  For molar based activity conventions this will be equal to 0.0.
      *  length = number of species.
@@ -1890,7 +1890,7 @@ public:
     std::vector<std::vector<size_t> > phasePopProblemLists_;
 
     //! Vector of pointers to thermostructures which identify the model
-    //! and parameters for evaluating the  thermodynamic functions for that
+    //! and parameters for evaluating the thermodynamic functions for that
     //! particular species.
     /*!
      * SpeciesThermo[k] pointer to the thermo information for the kth species
@@ -1900,7 +1900,7 @@ public:
     //! Choice of Hessians
     /*!
      *  If this is true, then we will use a better approximation to the
-     *  Hessian based on Jacobian of the  ln(ActCoeff) with respect to mole
+     *  Hessian based on Jacobian of the ln(ActCoeff) with respect to mole
      *  numbers
      */
     int m_useActCoeffJac;

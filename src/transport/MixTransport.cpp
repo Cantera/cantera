@@ -29,7 +29,7 @@ MixTransport::MixTransport(const MixTransport& right) :
     *this = right;
 }
 
-MixTransport&  MixTransport::operator=(const MixTransport& right)
+MixTransport& MixTransport::operator=(const MixTransport& right)
 {
     if (&right == this) {
         return *this;
@@ -103,7 +103,7 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
     update_C();
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* y  = m_thermo->massFractions();
+    const doublereal* y = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
     vector_fp sum(ndim,0.0);
     for (size_t n = 0; n < ndim; n++) {

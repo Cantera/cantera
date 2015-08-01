@@ -37,7 +37,7 @@ public:
      *  @param msg      String message to be sent to the user
      */
     TransportDBError(size_t linenum, const std::string& msg) :
-        CanteraError("getTransportData", "error reading transport data: "  + msg + "\n") {
+        CanteraError("getTransportData", "error reading transport data: " + msg + "\n") {
     }
 };
 
@@ -330,7 +330,7 @@ void TransportFactory::setupSolidTransport(thermo_t* thermo, int log_level,
     }
 }
 
-void  TransportFactory::initLiquidTransport(Transport* tran,
+void TransportFactory::initLiquidTransport(Transport* tran,
         thermo_t* thermo,
         int log_level)
 {
@@ -340,7 +340,7 @@ void  TransportFactory::initLiquidTransport(Transport* tran,
     tran->initLiquid(trParam);
 }
 
-void  TransportFactory::initSolidTransport(Transport* tran,
+void TransportFactory::initSolidTransport(Transport* tran,
         thermo_t* thermo,
         int log_level)
 {
@@ -396,10 +396,10 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
 
                     switch (m_tranPropMap[nodeName]) {
                     case TP_VISCOSITY:
-                        data.viscosity = newLTP(xmlChild, name,  m_tranPropMap[nodeName], temp_thermo);
+                        data.viscosity = newLTP(xmlChild, name, m_tranPropMap[nodeName], temp_thermo);
                         break;
                     case TP_IONCONDUCTIVITY:
-                        data.ionConductivity = newLTP(xmlChild,  name,   m_tranPropMap[nodeName], temp_thermo);
+                        data.ionConductivity = newLTP(xmlChild, name, m_tranPropMap[nodeName], temp_thermo);
                         break;
                     case TP_MOBILITYRATIO: {
                         for (size_t iSpec = 0; iSpec< nBinInt; iSpec++) {
@@ -418,7 +418,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                             XML_Node& propSpecNode = xmlChild.child(iSpec);
                             std::string specName = propSpecNode.name();
                             size_t index = temp_thermo->speciesIndex(specName.c_str());
-                            data.selfDiffusion[index] = newLTP(propSpecNode,  name,  m_tranPropMap[nodeName], temp_thermo);
+                            data.selfDiffusion[index] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], temp_thermo);
                         };
                     };
                     break;
@@ -466,7 +466,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
              */
         it = datatable.find(names[i]);
         if (it == datatable.end()) {
-            throw TransportDBError(0,"No transport data found for species "  + names[i]);
+            throw TransportDBError(0,"No transport data found for species " + names[i]);
         }
         LiquidTransportData& trdat = it->second;
 

@@ -31,7 +31,7 @@ class XML_Node;
  *  The piece-wise constant heat capacity is calculated from the change in the chemical potential over each interval.
  *  Once the heat capacity is known, the other thermodynamic functions may be determined.
  *  The basic equation for going from temperature point 1 to temperature point 2
- *  are as follows for \f$ T \f$,  \f$ T_1 <= T <= T_2 \f$
+ *  are as follows for \f$ T \f$, \f$ T_1 <= T <= T_2 \f$
  *
  * \f[
  *      \mu^o(T_1) = h^o(T_1) - T_1 * s^o(T_1)
@@ -46,7 +46,7 @@ class XML_Node;
  *      h^o(T_2) = h^o(T_1) + Cp^o(T_1)(T_2 - T_1)
  * \f]
  *
- *  Within each interval the following relations are used. For \f$ T \f$,  \f$ T_1 <= T <= T_2 \f$
+ *  Within each interval the following relations are used. For \f$ T \f$, \f$ T_1 <= T <= T_2 \f$
  *
  * \f[
  *      \mu^o(T) = \mu^o(T_1) + Cp^o(T_1)(T - T_1) - Cp^o(T_1)(T_2)ln(\frac{T}{T_1}) - s^o(T_1)(T - T_1)
@@ -110,7 +110,7 @@ public:
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this  parameterization, and three pointers to arrays where the
+     * temperature needed by this parameterization, and three pointers to arrays where the
      * computed property values should be written. This method updates only one value in
      * each array.
      *
@@ -125,12 +125,12 @@ public:
      */
     virtual void updateProperties(const doublereal* tPoly,
                                   doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const ;
+                                  doublereal* s_R) const;
 
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R,
                                       doublereal* h_RT,
-                                      doublereal* s_R) const ;
+                                      doublereal* s_R) const;
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,

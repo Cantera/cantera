@@ -166,7 +166,7 @@ public:
 
     //! Returns the reference pressure in Pa. This function is a wrapper
     //! that calls the species thermo refPressure function.
-    virtual doublereal refPressure() const ;
+    virtual doublereal refPressure() const;
 
     //! This method returns the convention used in specification
     //! of the standard state, of which there are currently two,
@@ -398,7 +398,7 @@ public:
     //! This method returns an array of generalized activity concentrations
     /*!
      *  The generalized activity concentrations,
-     * \f$ C^a_k \f$,  are defined such that \f$ a_k = C^a_k /
+     * \f$ C^a_k \f$, are defined such that \f$ a_k = C^a_k /
      * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
      * defined below and \f$ a_k \f$ are activities used in the
      * thermodynamic functions.  These activity (or generalized)
@@ -463,7 +463,7 @@ public:
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
      * \f]
      * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
+     * at the reference pressure, \f$ P_{ref} \f$, are computed by the
      * species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
@@ -564,7 +564,7 @@ public:
      *  @param g  Vector of Gibbs free energies of the reference state.
      *              length = m_kk
      */
-    virtual void  getGibbs_ref(doublereal* g) const;
+    virtual void getGibbs_ref(doublereal* g) const;
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -588,7 +588,7 @@ public:
 
     //! Add in species from Slave phases
     /*!
-     *  This hook is used for  cSS_CONVENTION_SLAVE phases
+     *  This hook is used for cSS_CONVENTION_SLAVE phases
      *
      *  @param  phaseNode    XML_Node for the current phase
      */

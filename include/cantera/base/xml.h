@@ -395,7 +395,7 @@ public:
     /*!
      *  @param n  Number of the child to return
      */
-    XML_Node& child(const size_t n) const ;
+    XML_Node& child(const size_t n) const;
 
     //! Return an unchangeable reference to the vector of children of the current node
     /*!
@@ -540,7 +540,7 @@ public:
      */
     std::vector<XML_Node*> getChildren(const std::string& name) const;
 
-    //! Return a changeable reference to a child of the current node,  named by the argument
+    //! Return a changeable reference to a child of the current node, named by the argument
     /*!
      *  Note the underlying data allows for more than one XML element with the same name.
      *  This routine returns the first child with the given name.
@@ -709,7 +709,7 @@ protected:
 /*!
  *  Search for a phase Node matching a name.
  *
- *  @param root         Starting XML_Node* pointer  for the search
+ *  @param root         Starting XML_Node* pointer for the search
  *  @param phaseName    Name of the phase to search for
  *
  *  @return Returns the XML_Node pointer if the phase is found.

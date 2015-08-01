@@ -115,7 +115,7 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
      * (all information concerning Temperature and Pressure has already
      *  been derived. The free energies are now in dimensionless form.)
      */
-    iStab  = vcs_solve_phaseStability(iphase, ifunc, feStable, printLvl);
+    iStab = vcs_solve_phaseStability(iphase, ifunc, feStable, printLvl);
 
     /*
      *        Redimensionalize the free energies using

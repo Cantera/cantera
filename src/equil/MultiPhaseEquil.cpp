@@ -485,7 +485,7 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
         // goes away. First we'll determine an upper bound on omega,
         // such that all
         if (m_dsoln[k] == 1) {
-            if ((m_moles[k] > MAJOR_THRESHOLD)  || (ik < m_nel)) {
+            if ((m_moles[k] > MAJOR_THRESHOLD) || (ik < m_nel)) {
                 if (m_moles[k] < MAJOR_THRESHOLD) {
                     m_force = true;
                 }
@@ -720,7 +720,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
-        istart =    m_mix->speciesIndex(0, iphase);
+        istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
@@ -742,7 +742,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
-        istart =    m_mix->speciesIndex(0, iphase);
+        istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         ThermoPhase* tp = &tref;
         tp->getMoleFractions(&mf[istart]);
@@ -790,7 +790,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         mf[istart + k], molalities[k], ac[k], activity[k],
                         mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         mf[istart + k] * TMolesPhase,
-                        VolPM[k],  VolPhaseVolumes);
+                        VolPM[k], VolPhaseVolumes);
             }
         } else {
             if (iphase == 0) {
@@ -811,10 +811,10 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
                         phaseName.c_str(), TMolesPhase,
-                        mf[istart + k],  molalities[k], ac[k],
+                        mf[istart + k], molalities[k], ac[k],
                         activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         mf[istart + k] * TMolesPhase,
-                        VolPM[k],  VolPhaseVolumes);
+                        VolPM[k], VolPhaseVolumes);
             }
         }
     }

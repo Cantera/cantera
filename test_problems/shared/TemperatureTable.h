@@ -5,7 +5,7 @@
  */
 
 #ifndef TEMPERATURE_TABLE_H
-#define  TEMPERATURE_TABLE_H
+#define TEMPERATURE_TABLE_H
 
 #include <vector>
 #include <algorithm>
@@ -24,7 +24,7 @@ class TemperatureTable
 
 public:
     size_t NPoints;
-    bool   Include298;
+    bool Include298;
     double Tlow;                 //!<   Min temperature for thermo data fit
     double Thigh;                //!<   Max temperature for thermo table
     double DeltaT;
@@ -87,7 +87,7 @@ public:
      *
      *       return the array value in the vector
      */
-    double operator[](const int i)  {
+    double operator[](const int i) {
         return T[i];
     }
     /***********************************************************************/

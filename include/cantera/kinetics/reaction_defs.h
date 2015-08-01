@@ -39,7 +39,7 @@ const int THREE_BODY_RXN = 2;
  * The general form for a gas-phase association or dissociation reaction, with a
  * pressure-dependent rate. Example: CH3 + H (+M) <-> CH4 (+M)
  */
-const int FALLOFF_RXN    = 4;
+const int FALLOFF_RXN = 4;
 
 /**
  * A pressure-dependent rate expression consisting of several Arrhenius rate
@@ -61,7 +61,7 @@ const int CHEBYSHEV_RXN = 6;
  * a reaction intermediate. Example: Si + SiH4 (+M) <-> Si2H2 + H2
  * (+M), which competes with Si + SiH4 (+M) <-> Si2H4 (+M).
  */
-const int CHEMACT_RXN    = 8;
+const int CHEMACT_RXN = 8;
 
 /**
  * A reaction occurring on a surface.
@@ -69,7 +69,7 @@ const int CHEMACT_RXN    = 8;
  *        The dimensionality of the interface is a separate concept from the type
  *        of the reaction.
  */
-const int SURFACE_RXN    = 20;
+const int SURFACE_RXN = 20;
 
 //! A reaction occurring on an interface, e.g a surface or edge.
 const int INTERFACE_RXN = 20;
@@ -97,13 +97,13 @@ const int SURFACEAFFINITY_RXN = 27;
  *        The dimensionality of the interface is a separate concept from the type
  *        of the reaction.
  */
-const int EDGE_RXN  = 22;
+const int EDGE_RXN = 22;
 
 /**
  * A global reaction. These may have non-mass action reaction orders,
  * and are not allowed to be reversible.
  */
-const int GLOBAL_RXN     = 30;
+const int GLOBAL_RXN = 30;
 
 //@}
 
@@ -133,7 +133,7 @@ const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
 //@{
 const int SIMPLE_FALLOFF = 100;
 const int TROE_FALLOFF = 110;
-const int SRI_FALLOFF  = 112;
+const int SRI_FALLOFF = 112;
 //@}
 }
 

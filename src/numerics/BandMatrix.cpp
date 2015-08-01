@@ -190,7 +190,7 @@ size_t BandMatrix::ldim() const
     return 2*m_kl + m_ku + 1;
 }
 
-vector_int&   BandMatrix::ipiv()
+vector_int& BandMatrix::ipiv()
 {
     return m_ipiv;
 }
@@ -279,7 +279,7 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     return info;
 }
 
-vector_fp::iterator  BandMatrix::begin()
+vector_fp::iterator BandMatrix::begin()
 {
     m_factored = false;
     return data.begin();
@@ -314,7 +314,7 @@ ostream& operator<<(ostream& s, const BandMatrix& m)
     return s;
 }
 
-doublereal  BandMatrix::rcond(doublereal a1norm)
+doublereal BandMatrix::rcond(doublereal a1norm)
 {
     int printLevel = 0;
     int useReturnErrorCode = 0;
@@ -356,7 +356,7 @@ doublereal BandMatrix::oneNorm() const
     doublereal value = 0.0;
     for (int j = 0; j < (int) m_n; j++) {
         doublereal sum = 0.0;
-        doublereal* colP =  m_colPtrs[j];
+        doublereal* colP = m_colPtrs[j];
         for (int i = j - ku; i <= j + kl; i++) {
             sum += fabs(colP[kl + ku + i - j]);
         }

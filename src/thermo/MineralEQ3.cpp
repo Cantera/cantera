@@ -61,7 +61,7 @@ MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
     importPhase(xmlphase, this);
 }
 
-MineralEQ3::MineralEQ3(const MineralEQ3&  right)
+MineralEQ3::MineralEQ3(const MineralEQ3& right)
 {
     *this = right;
 }
@@ -77,10 +77,10 @@ MineralEQ3::operator=(const MineralEQ3& right)
     m_Entrop_pr_tr = right.m_Entrop_pr_tr;
     m_deltaG_formation_pr_tr = right.m_deltaG_formation_pr_tr;
     m_deltaH_formation_pr_tr = right.m_deltaH_formation_pr_tr;
-    m_V0_pr_tr               = right.m_V0_pr_tr;
-    m_a                      = right.m_a;
-    m_b                      = right.m_b;
-    m_c                      = right.m_c;
+    m_V0_pr_tr = right.m_V0_pr_tr;
+    m_a = right.m_a;
+    m_b = right.m_b;
+    m_c = right.m_c;
 
     return *this;
 }
@@ -156,7 +156,7 @@ void MineralEQ3::getEnthalpy_RT(doublereal* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
     doublereal RT = GasConstant * temperature();
-    doublereal presCorrect = (m_press - m_p0) /  molarDensity();
+    doublereal presCorrect = (m_press - m_p0) / molarDensity();
     hrt[0] += presCorrect / RT;
 }
 

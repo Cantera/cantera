@@ -39,7 +39,7 @@ namespace Cantera
  *  The independent unknowns are pressure, temperature, and mass fraction.
  *
  *  Several concepts are introduced. The first concept is there are temporary
- *  variables for holding the species standard state values  of Cp, H, S, G, and V at the
+ *  variables for holding the species standard state values of Cp, H, S, G, and V at the
  *  last temperature and pressure called. These functions are not recalculated
  *  if a new call is made using the previous temperature and pressure. Currently,
  *  these variables and the calculation method are handled by the VPSSMgr class,
@@ -136,7 +136,7 @@ namespace Cantera
  *            \tilde{h}_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
  *       \f]
  *
- * The partial molar volume for  species <I>k</I> is
+ * The partial molar volume for species <I>k</I> is
  *
  *       \f[
  *              \tilde V_k(T,P)  = V^o_k(T,P)  + R T \frac{d \ln(\gamma_k) }{dP}
@@ -528,7 +528,7 @@ public:
      */
     virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
 
-    //! Get the array of  derivatives of the log activity coefficients wrt mole numbers - diagonal only
+    //! Get the array of derivatives of the log activity coefficients wrt mole numbers - diagonal only
     /*!
      * This function is a virtual method.  For ideal mixtures
      * (unity activity coefficients), this can return zero.
@@ -563,7 +563,7 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) ;
+    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
 
     //@}
 
@@ -624,7 +624,7 @@ public:
      *  @param VintOut  Output contribution to the voltage corresponding to nonideal term
      *  @param voltsOut Output contribution to the voltage corresponding to nonideal term and mf term
      */
-    void Vint(double& VintOut, double& voltsOut) ;
+    void Vint(double& VintOut, double& voltsOut);
 #endif
 
 protected:
@@ -654,7 +654,7 @@ protected:
 
     //! Entropy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
-    mutable  std::vector< vector_fp> m_SE_m_ij;
+    mutable std::vector< vector_fp> m_SE_m_ij;
 
     //! form of the RedlichKister interaction expression
     /*!

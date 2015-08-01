@@ -95,7 +95,7 @@ public:
 
     //! Return the value of element (i,j).
     /*!
-     *   This method does not  alter the array.
+     *   This method does not alter the array.
      *  @param i  row
      *  @param j  column
      *  @return Returns the value of the matrix entry
@@ -299,7 +299,7 @@ protected:
     doublereal m_zero;
 
     //! Pivot vector
-    vector_int  m_ipiv;
+    vector_int m_ipiv;
 
     //! Vector of column pointers
     std::vector<doublereal*> m_colPtrs;

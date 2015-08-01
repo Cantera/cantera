@@ -72,12 +72,12 @@ Phase& Phase::operator=(const Phase& right)
     m_speciesComp = right.m_speciesComp;
     m_speciesCharge = right.m_speciesCharge;
     m_speciesSize = right.m_speciesSize;
-    m_mm             = right.m_mm;
-    m_atomicWeights  = right.m_atomicWeights;
-    m_atomicNumbers  = right.m_atomicNumbers;
-    m_elementNames   = right.m_elementNames;
-    m_entropy298     = right.m_entropy298;
-    m_elem_type      = right.m_elem_type;
+    m_mm = right.m_mm;
+    m_atomicWeights = right.m_atomicWeights;
+    m_atomicNumbers = right.m_atomicNumbers;
+    m_elementNames = right.m_elementNames;
+    m_entropy298 = right.m_entropy298;
+    m_elem_type = right.m_elem_type;
     /*
      * This is a little complicated. -> Because we delete m_xml
      * in the destructor, we own m_xml completely, and we need
@@ -101,8 +101,8 @@ Phase& Phase::operator=(const Phase& right)
           throw CanteraError("Phase::operator=()", "confused: root changed");
         }
     }
-    m_id    = right.m_id;
-    m_name  = right.m_name;
+    m_id = right.m_id;
+    m_name = right.m_name;
     return *this;
 }
 
@@ -600,7 +600,7 @@ void Phase::getMassFractions(doublereal* const y) const
 doublereal Phase::concentration(const size_t k) const
 {
     checkSpeciesIndex(k);
-    return m_y[k] * m_dens * m_rmolwts[k] ;
+    return m_y[k] * m_dens * m_rmolwts[k];
 }
 
 void Phase::getConcentrations(doublereal* const c) const
@@ -743,7 +743,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
         for (size_t k = 0; k < m_kk; k++) {
             size_t m_old = m_mm - 1;
             for (size_t m = 0; m < m_old; m++) {
-                m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
+                m_speciesComp[k * m_mm + m] = old[k * (m_old) + m];
             }
             m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0;
         }

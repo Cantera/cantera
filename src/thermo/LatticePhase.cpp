@@ -35,13 +35,13 @@ LatticePhase& LatticePhase::operator=(const LatticePhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_Pref       = right.m_Pref;
-        m_Pcurrent     = right.m_Pcurrent;
-        m_h0_RT      = right.m_h0_RT;
-        m_cp0_R      = right.m_cp0_R;
-        m_g0_RT      = right.m_g0_RT;
-        m_s0_R       = right.m_s0_R;
-        m_vacancy    = right.m_vacancy;
+        m_Pref = right.m_Pref;
+        m_Pcurrent = right.m_Pcurrent;
+        m_h0_RT = right.m_h0_RT;
+        m_cp0_R = right.m_cp0_R;
+        m_g0_RT = right.m_g0_RT;
+        m_s0_R = right.m_s0_R;
+        m_vacancy = right.m_vacancy;
         m_speciesMolarVolume = right.m_speciesMolarVolume;
         m_site_density = right.m_site_density;
     }
@@ -322,7 +322,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
     for (size_t k = 0; k < m_kk; k++) {
         m_speciesMolarVolume[k] = m_site_density;
-        XML_Node* s =  speciesDB->findByAttr("name", speciesName(k));
+        XML_Node* s = speciesDB->findByAttr("name", speciesName(k));
         if (!s) {
             throw CanteraError(" LatticePhase::initThermoXML", "database problems");
         }

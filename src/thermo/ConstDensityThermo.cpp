@@ -24,11 +24,11 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
         return *this;
     }
 
-    m_h0_RT         = right.m_h0_RT;
-    m_cp0_R         = right.m_cp0_R;
-    m_g0_RT         = right.m_g0_RT;
-    m_s0_R          = right.m_s0_R;
-    m_pp            = right.m_pp;
+    m_h0_RT = right.m_h0_RT;
+    m_cp0_R = right.m_cp0_R;
+    m_g0_RT = right.m_g0_RT;
+    m_s0_R = right.m_s0_R;
+    m_pp = right.m_pp;
 
     return *this;
 

@@ -241,7 +241,7 @@ std::string XML_Reader::readTag(std::map<std::string, std::string>& attribs)
 {
     string name, tag = "";
     bool incomment = false;
-    char ch  = '-';
+    char ch = '-';
     while (true) {
         if (m_s.eof() || (getchr(ch), ch == '<')) {
             break;
@@ -396,7 +396,7 @@ void XML_Node::addComment(const std::string& comment)
 XML_Node& XML_Node::mergeAsChild(XML_Node& node)
 {
     m_children.push_back(&node);
-    m_childindex.insert(pair<const std::string, XML_Node*>(node.name(),  m_children.back()));
+    m_childindex.insert(pair<const std::string, XML_Node*>(node.name(), m_children.back()));
     node.setRoot(root());
     node.setParent(this);
     return *m_children.back();
@@ -461,7 +461,7 @@ std::string XML_Node::value() const
     return m_value;
 }
 
-doublereal  XML_Node::fp_value() const
+doublereal XML_Node::fp_value() const
 {
     return fpValueCheck(m_value);
 }

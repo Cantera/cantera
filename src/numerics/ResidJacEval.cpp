@@ -35,7 +35,7 @@ ResidJacEval& ResidJacEval::operator=(const ResidJacEval& right)
     ResidEval::operator=(right);
 
     m_atol = right.m_atol;
-    neq_   = right.neq_;
+    neq_ = right.neq_;
 
     return *this;
 }

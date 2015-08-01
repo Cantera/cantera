@@ -198,10 +198,10 @@ void PDSS_IdealGas::setTemperature(doublereal temp)
     m_temp = temp;
     m_spthermo->update_one(m_spindex, temp,
                            m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
-    m_g0_RT_ptr[m_spindex] =  m_h0_RT_ptr[m_spindex] -  m_s0_R_ptr[m_spindex];
+    m_g0_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] - m_s0_R_ptr[m_spindex];
     m_V0_ptr[m_spindex] = GasConstant * m_temp / m_p0;
-    m_hss_RT_ptr[m_spindex]  = m_h0_RT_ptr[m_spindex];
-    m_cpss_R_ptr[m_spindex]  = m_cp0_R_ptr[m_spindex];
+    m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex];
+    m_cpss_R_ptr[m_spindex] = m_cp0_R_ptr[m_spindex];
     m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex] + log(m_pres/m_p0);
     m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
     m_Vss_ptr[m_spindex] = GasConstant * m_temp / m_pres;
@@ -213,7 +213,7 @@ void PDSS_IdealGas::setState_TP(doublereal temp, doublereal pres)
     setTemperature(temp);
 }
 
-void  PDSS_IdealGas::setState_TR(doublereal temp, doublereal rho)
+void PDSS_IdealGas::setState_TR(doublereal temp, doublereal rho)
 {
     m_pres = GasConstant * temp * rho / m_mw;
     setTemperature(temp);

@@ -42,7 +42,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
      * (all information concerning Temperature and Pressure has already
      *  been derived. The free energies are now in dimensionless form.)
      */
-    iconv  = vcs_solve_TP(ipr, ip1, maxit);
+    iconv = vcs_solve_TP(ipr, ip1, maxit);
 
     /*
      *        Redimensionalize the free energies using
@@ -76,7 +76,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 
     if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-            m_SSfeSpecies[i]  /= Temp;
+            m_SSfeSpecies[i] /= Temp;
         }
     }
     return VCS_SUCCESS;

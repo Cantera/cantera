@@ -90,7 +90,7 @@ double Cphi(double temp, int ifunc)
                + q13 / temp + q14;
     } else if (ifunc == 2) {
         retn = + 2.0 * q12 / (temp * temp * temp)
-               - q13 / (temp * temp) ;
+               - q13 / (temp * temp);
     } else if (ifunc == 3) {
         retn = 0.0;
     } else {

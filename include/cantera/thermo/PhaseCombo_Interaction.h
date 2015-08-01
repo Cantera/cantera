@@ -370,7 +370,7 @@ public:
      */
     PhaseCombo_Interaction& operator=(const PhaseCombo_Interaction& b);
 
-    //! Duplication routine for objects which inherit from  ThermoPhase.
+    //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
@@ -618,7 +618,7 @@ public:
      */
     virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
 
-    //! Get the array of  derivatives of the log activity coefficients wrt mole numbers - diagonal only
+    //! Get the array of derivatives of the log activity coefficients wrt mole numbers - diagonal only
     /*!
      * This function is a virtual method.  For ideal mixtures
      * (unity activity coefficients), this can return zero.
@@ -714,7 +714,7 @@ private:
      */
     void s_update_dlnActCoeff_dlnN_diag() const;
 
-    //! Update the derivative of the log of the activity coefficients  wrt log(moles_m)
+    //! Update the derivative of the log of the activity coefficients wrt log(moles_m)
     /*!
      * This function will be called to update the internally stored
      * derivative of the natural logarithm of the activity coefficients

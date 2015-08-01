@@ -52,10 +52,10 @@ VPStandardStateTP& VPStandardStateTP::operator=(const VPStandardStateTP& b)
         /*
          * However, we have to handle data that we own.
          */
-        m_Pcurrent     = b.m_Pcurrent;
-        m_Tlast_ss     = b.m_Tlast_ss;
-        m_Plast_ss     = b.m_Plast_ss;
-        m_P0        = b.m_P0;
+        m_Pcurrent = b.m_Pcurrent;
+        m_Tlast_ss = b.m_Tlast_ss;
+        m_Plast_ss = b.m_Plast_ss;
+        m_P0 = b.m_P0;
 
         /*
          * Duplicate the pdss objects
@@ -309,7 +309,7 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
     calcDensity();
 }
 
-void VPStandardStateTP::createInstallPDSS(size_t k,  const XML_Node& s,
+void VPStandardStateTP::createInstallPDSS(size_t k, const XML_Node& s,
                                           const XML_Node* phaseNode_ptr)
 {
     if (m_PDSS_storage.size() < k+1) {

@@ -28,11 +28,11 @@ StoichSubstance& StoichSubstance::operator=(const StoichSubstance& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_press   = right.m_press;
-        m_p0      = right.m_p0;
-        m_h0_RT   = right.m_h0_RT;
-        m_cp0_R   = right.m_cp0_R;
-        m_s0_R    = right.m_s0_R;
+        m_press = right.m_press;
+        m_p0 = right.m_p0;
+        m_h0_RT = right.m_h0_RT;
+        m_cp0_R = right.m_cp0_R;
+        m_s0_R = right.m_s0_R;
     }
     return *this;
 }
@@ -131,7 +131,7 @@ doublereal StoichSubstance::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void StoichSubstance::getStandardChemPotentials(doublereal*  mu0) const
+void StoichSubstance::getStandardChemPotentials(doublereal* mu0) const
 {
     mu0[0] = gibbs_mole();
 }
@@ -188,7 +188,7 @@ void StoichSubstance::getEntropy_R(doublereal* sr) const
 
 void StoichSubstance::getGibbs_RT(doublereal* grt) const
 {
-    grt[0] =  gibbs_mole() / (GasConstant * temperature());
+    grt[0] = gibbs_mole() / (GasConstant * temperature());
 }
 
 void StoichSubstance::getPureGibbs(doublereal* gpure) const

@@ -86,7 +86,7 @@ class SpeciesThermoInterpType;
  * The following classes inherit from SpeciesThermoInterpType.
  *
  *   - NasaPoly1          in file NasaPoly1.h
- *      - This is a one zone model,  consisting of a 7
+ *      - This is a one zone model, consisting of a 7
  *        coefficient NASA Polynomial format.
  *   - NasaPoly2          in file NasaPoly2.h
  *      - This is a two zone model, with each zone consisting of a 7
@@ -104,7 +104,7 @@ class SpeciesThermoInterpType;
  *        at a set number of temperatures. Between each temperature
  *        the heat capacity is treated as a constant.
  *   - Nasa9Poly1          in file Nasa9Poly1.h
- *      - This is a one zone model,  consisting of the 9
+ *      - This is a one zone model, consisting of the 9
  *        coefficient NASA Polynomial format.
  *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
  *      - This is a multiple zone model, consisting of the 9

@@ -1,7 +1,7 @@
 /**
  *  @file SurfPhase.cpp
  *  Definitions for a simple thermodynamic model of a surface phase
- *  derived from ThermoPhase,  assuming an ideal solution model
+ *  derived from ThermoPhase, assuming an ideal solution model
  *  (see \ref thermoprops and class
  *  \link Cantera::SurfPhase SurfPhase\endlink).
  */
@@ -69,15 +69,15 @@ SurfPhase& SurfPhase::operator=(const SurfPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        m_n0         = right.m_n0;
-        m_logn0      = right.m_logn0;
-        m_press      = right.m_press;
-        m_h0         = right.m_h0;
-        m_s0         = right.m_s0;
-        m_cp0        = right.m_cp0;
-        m_mu0        = right.m_mu0;
-        m_work       = right.m_work;
-        m_logsize    = right.m_logsize;
+        m_n0 = right.m_n0;
+        m_logn0 = right.m_logn0;
+        m_press = right.m_press;
+        m_h0 = right.m_h0;
+        m_s0 = right.m_s0;
+        m_cp0 = right.m_cp0;
+        m_mu0 = right.m_mu0;
+        m_work = right.m_work;
+        m_logsize = right.m_logsize;
     }
     return *this;
 }

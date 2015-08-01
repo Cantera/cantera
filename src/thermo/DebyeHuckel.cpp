@@ -35,8 +35,8 @@ DebyeHuckel::DebyeHuckel() :
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
+    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0)
@@ -56,8 +56,8 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),  // units = sqrt(kg/gmol) / m
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
+    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0)
@@ -77,8 +77,8 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
+    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0)
@@ -98,8 +98,8 @@ DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576),   // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9),   // units = sqrt(kg/gmol) / m
+    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
+    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_waterProps(0)
@@ -115,27 +115,27 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
 {
     if (&b != this) {
         MolalityVPSSTP::operator=(b);
-        m_formDH              = b.m_formDH;
-        m_formGC              = b.m_formGC;
-        m_Aionic              = b.m_Aionic;
-        m_npActCoeff          = b.m_npActCoeff;
-        m_IionicMolality      = b.m_IionicMolality;
-        m_maxIionicStrength   = b.m_maxIionicStrength;
+        m_formDH = b.m_formDH;
+        m_formGC = b.m_formGC;
+        m_Aionic = b.m_Aionic;
+        m_npActCoeff = b.m_npActCoeff;
+        m_IionicMolality = b.m_IionicMolality;
+        m_maxIionicStrength = b.m_maxIionicStrength;
         m_useHelgesonFixedForm= b.m_useHelgesonFixedForm;
         m_IionicMolalityStoich= b.m_IionicMolalityStoich;
-        m_form_A_Debye        = b.m_form_A_Debye;
-        m_A_Debye             = b.m_A_Debye;
-        m_B_Debye             = b.m_B_Debye;
-        m_B_Dot               = b.m_B_Dot;
-        m_npActCoeff          = b.m_npActCoeff;
+        m_form_A_Debye = b.m_form_A_Debye;
+        m_A_Debye = b.m_A_Debye;
+        m_B_Debye = b.m_B_Debye;
+        m_B_Dot = b.m_B_Dot;
+        m_npActCoeff = b.m_npActCoeff;
 
         // This is an internal shallow copy of the PDSS_Water pointer
-        m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0)) ;
+        m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
         if (!m_waterSS) {
             throw CanteraError("DebyHuckel::operator=()", "Dynamic cast to waterPDSS failed");
         }
 
-        m_densWaterSS         = b.m_densWaterSS;
+        m_densWaterSS = b.m_densWaterSS;
 
         delete m_waterProps;
         m_waterProps = 0;
@@ -143,11 +143,11 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
             m_waterProps = new WaterProps(m_waterSS);
         }
 
-        m_pp                  = b.m_pp;
-        m_tmpV                = b.m_tmpV;
+        m_pp = b.m_pp;
+        m_tmpV = b.m_tmpV;
         m_speciesCharge_Stoich= b.m_speciesCharge_Stoich;
-        m_Beta_ij             = b.m_Beta_ij;
-        m_lnActCoeffMolal     = b.m_lnActCoeffMolal;
+        m_Beta_ij = b.m_Beta_ij;
+        m_lnActCoeffMolal = b.m_lnActCoeffMolal;
         m_d2lnActCoeffMolaldT2= b.m_d2lnActCoeffMolaldT2;
     }
     return *this;
@@ -578,7 +578,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             if (formString == "Dilute_limit") {
                 m_formDH = DHFORM_DILUTE_LIMIT;
             } else if (formString == "Bdot_with_variable_a") {
-                m_formDH = DHFORM_BDOT_AK  ;
+                m_formDH = DHFORM_BDOT_AK;
             } else if (formString == "Bdot_with_common_a") {
                 m_formDH = DHFORM_BDOT_ACOMMON;
             } else if (formString == "Beta_ij") {
@@ -678,7 +678,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     const vector<string>&sss = speciesNames();
 
     for (size_t k = 0; k < m_kk; k++) {
-        XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+        XML_Node* s = speciesDB->findByAttr("name", sss[k]);
         if (!s) {
             throw CanteraError("DebyeHuckel::initThermoXML",
                                "Species Data Base " + sss[k] + " not found");
@@ -687,7 +687,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (!ss) {
             throw CanteraError("DebyeHuckel::initThermoXML",
                                "Species " + sss[k] +
-                               " standardState XML block  not found");
+                               " standardState XML block not found");
         }
         std::string modelStringa = ss->attrib("model");
         if (modelStringa == "") {
@@ -703,7 +703,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 /*
                  * Initialize the water standard state model
                  */
-                m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0)) ;
+                m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
                 if (!m_waterSS) {
                     throw CanteraError("HMWSoln::installThermoXML",
                                        "Dynamic cast to PDSS_Water failed");
@@ -1187,7 +1187,7 @@ double DebyeHuckel::_lnactivityWaterHelgesonFixedForm() const
         }
     }
     if (sum > 2.0 * m_maxIionicStrength) {
-        sum = 2.0 *  m_maxIionicStrength;
+        sum = 2.0 * m_maxIionicStrength;
     };
     return - m_Mnaught * sum * oc;
 }
@@ -1220,13 +1220,12 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
     m_IionicMolalityStoich = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         z_k = m_speciesCharge[k];
-        zs_k1 =  m_speciesCharge_Stoich[k];
+        zs_k1 = m_speciesCharge_Stoich[k];
         if (z_k == zs_k1) {
             m_IionicMolalityStoich += m_molalities[k] * z_k * z_k;
         } else {
             zs_k2 = z_k - zs_k1;
-            m_IionicMolalityStoich
-            += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
+            m_IionicMolalityStoich += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
         }
     }
     m_IionicMolalityStoich /= 2.0;
@@ -1305,7 +1304,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         for (size_t k = 0; k < m_kk; k++) {
             z_k = m_speciesCharge[k];
             if ((k != m_indexSolvent) && (z_k != 0.0)) {
-                tmp +=  m_B_Dot[k] * m_molalities[k];
+                tmp += m_B_Dot[k] * m_molalities[k];
             }
         }
         lnActivitySolvent -=
@@ -1343,7 +1342,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         for (size_t k = 0; k < m_kk; k++) {
             z_k = m_speciesCharge[k];
             if ((k != m_indexSolvent) && (z_k != 0.0)) {
-                tmp +=  m_B_Dot[k] * m_molalities[k];
+                tmp += m_B_Dot[k] * m_molalities[k];
             }
         }
         lnActivitySolvent -=
@@ -1362,7 +1361,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
                 m_lnActCoeffMolal[k] =
                     - z_k * z_k * numTmp / (1.0 + denomTmp);
                 for (size_t j = 0; j < m_kk; j++) {
-                    double beta =   m_Beta_ij.value(k, j);
+                    double beta = m_Beta_ij.value(k, j);
                     m_lnActCoeffMolal[k] += 2.0 * m_molalities[j] * beta;
                 }
             }
@@ -1440,7 +1439,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
 {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
     // First we store dAdT explicitly here
-    double dAdT =  dA_DebyedT_TP();
+    double dAdT = dA_DebyedT_TP();
     if (dAdT == 0.0) {
         for (size_t k = 0; k < m_kk; k++) {
             m_dlnActCoeffMolaldT[k] = 0.0;
@@ -1453,7 +1452,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
-    double sqrtI  = sqrt(m_IionicMolality);
+    double sqrtI = sqrt(m_IionicMolality);
     double numdAdTTmp = dAdT * sqrtI;
     double denomTmp = m_B_Debye * sqrtI;
     double d_lnActivitySolvent_dT = 0;
@@ -1466,7 +1465,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         }
         d_lnActivitySolvent_dT = 2.0 / 3.0 * dAdT * m_Mnaught *
                                  m_IionicMolality * sqrt(m_IionicMolality);
-        m_dlnActCoeffMolaldT[m_indexSolvent] =  d_lnActivitySolvent_dT;
+        m_dlnActCoeffMolaldT[m_indexSolvent] = d_lnActivitySolvent_dT;
         break;
 
     case DHFORM_BDOT_AK:
@@ -1560,7 +1559,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
 void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
 {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
-    double dAdT =  dA_DebyedT_TP();
+    double dAdT = dA_DebyedT_TP();
     double d2AdT2 = d2A_DebyedT2_TP();
     if (d2AdT2 == 0.0 && dAdT == 0.0) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -1575,7 +1574,7 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
-    double sqrtI  = sqrt(m_IionicMolality);
+    double sqrtI = sqrt(m_IionicMolality);
     double numd2AdT2Tmp = d2AdT2 * sqrtI;
     double denomTmp = m_B_Debye * sqrtI;
 
@@ -1679,7 +1678,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
 {
     double z_k, coeff, tmp, y, yp1, sigma, tmpLn;
     int est;
-    double dAdP =  dA_DebyedP_TP();
+    double dAdP = dA_DebyedP_TP();
     if (dAdP == 0.0) {
         for (size_t k = 0; k < m_kk; k++) {
             m_dlnActCoeffMolaldP[k] = 0.0;
@@ -1692,7 +1691,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
-    double sqrtI  = sqrt(m_IionicMolality);
+    double sqrtI = sqrt(m_IionicMolality);
     double numdAdPTmp = dAdP * sqrtI;
     double denomTmp = m_B_Debye * sqrtI;
 

@@ -57,8 +57,8 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     std::vector<double> wx(m_numElemConstraints, 0.0);
     std::vector<double> aw(m_numSpeciesTot, 0.0);
 
-    for (ik = 0; ik <  m_numSpeciesTot; ik++) {
-        if (m_speciesUnknownType[ik] !=  VCS_SPECIES_INTERFACIALVOLTAGE) {
+    for (ik = 0; ik < m_numSpeciesTot; ik++) {
+        if (m_speciesUnknownType[ik] != VCS_SPECIES_INTERFACIALVOLTAGE) {
             m_molNumSpecies_old[ik] = max(0.0, m_molNumSpecies_old[ik]);
         }
     }
@@ -114,7 +114,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             }
             // fwd or rev direction.
             //  idir > 0 implies increasing the current species
-            //  idir < 0  implies decreasing the current species
+            //  idir < 0 implies decreasing the current species
             idir = (dg_rt < 0.0 ? 1 : -1);
             if (idir < 0) {
                 dxi_min = m_molNumSpecies_old[ik];
@@ -143,7 +143,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             // Redo the iteration, if a component went from positive to zero on this step.
             double dsLocal = idir*dxi_min;
             m_molNumSpecies_old[ik] += dsLocal;
-            m_molNumSpecies_old[ik] = max(0.0,  m_molNumSpecies_old[ik]);
+            m_molNumSpecies_old[ik] = max(0.0, m_molNumSpecies_old[ik]);
             for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
                 bool full = false;
                 if (m_molNumSpecies_old[jcomp] > 1.0E-15) {

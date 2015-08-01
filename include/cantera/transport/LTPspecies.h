@@ -87,7 +87,7 @@ public:
      *                          is creating a parameterization for (e.g., viscosity)
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */
-    LTPspecies(const XML_Node* const propNode = 0,  const std::string name = "-",
+    LTPspecies(const XML_Node* const propNode = 0, const std::string name = "-",
                TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* thermo = 0);
 
     //! Copy Constructor
@@ -207,7 +207,7 @@ public:
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */
     LTPspecies_Const(const XML_Node& propNode, const std::string name,
-                     TransportPropertyType tp_ind,  const thermo_t* const thermo);
+                     TransportPropertyType tp_ind, const thermo_t* const thermo);
 
     //! Copy Constructor
     /*!
@@ -267,7 +267,7 @@ public:
  *    </species>
  * \endverbatim
  */
-class LTPspecies_Arrhenius : public  LTPspecies
+class LTPspecies_Arrhenius : public LTPspecies
 {
 public:
     //! Construct an LTPspecies object for a liquid transport property
@@ -468,7 +468,7 @@ public:
      *   @param   thermo        const pointer to the ThermoPhase object, which is used to find the temperature.
      */
     LTPspecies_ExpT(const XML_Node& propNode, const std::string name,
-                    TransportPropertyType tp_ind,  const thermo_t* thermo);
+                    TransportPropertyType tp_ind, const thermo_t* thermo);
 
     //! Copy Constructor
     /*!
@@ -481,7 +481,7 @@ public:
      *   @param right   Object to be copied
      *   @return returns a reference to the current object
      */
-    LTPspecies_ExpT&  operator=(const LTPspecies_ExpT& right);
+    LTPspecies_ExpT& operator=(const LTPspecies_ExpT& right);
 
     //! Duplicates the current object given the parent class reference
     /*!

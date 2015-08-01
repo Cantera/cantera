@@ -122,8 +122,8 @@ int flamespeed(double phi)
         locs.resize(3);
         value.resize(3);
 
-        //ramp values from inlet to adiabatic flame conditions
-        //  over 70% of domain and then level off at equilibrium
+        // ramp values from inlet to adiabatic flame conditions
+        // over 70% of domain and then level off at equilibrium
         double z1=0.7;
 
         double uout;

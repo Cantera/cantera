@@ -145,11 +145,11 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
 
     m_SSPhase.resize(2*nspecies0, 0);
     m_phaseID.resize(nspecies0, 0);
-    m_numElemConstraints  = nelements;
+    m_numElemConstraints = nelements;
     m_elementName.resize(nelements, std::string(""));
     m_speciesName.resize(nspecies0, std::string(""));
     m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
-    m_elementActive.resize(nelements,  1);
+    m_elementActive.resize(nelements, 1);
     /*
      *    Malloc space for activity coefficients for all species
      *    -> Set it equal to one.
@@ -185,7 +185,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
      *        Malloc space for counters kept within vcs
      *
      */
-    m_VCount    = new VCS_COUNTERS();
+    m_VCount = new VCS_COUNTERS();
     vcs_counters_init(1);
 
     if (vcs_timing_print_lvl == 0) {
@@ -228,7 +228,7 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
     int retn = 0, iconv = 0;
     clockWC tickTock;
 
-    int  iprintTime = std::max(ipr, ip1);
+    int iprintTime = std::max(ipr, ip1);
     iprintTime = std::min(iprintTime, m_timing_print_lvl);
 
     if (ifunc > 2) {
@@ -361,7 +361,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
      *  First Check to see whether we have room for the current problem
      *  size
      */
-    size_t nspecies  = pub->nspecies;
+    size_t nspecies = pub->nspecies;
     if (NSPECIES0 < nspecies) {
         plogf("%sPrivate Data is dimensioned too small\n", ser);
         return VCS_PUB_BAD;
@@ -634,7 +634,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     }
 
     for (size_t i = 0; i < nelements; i++) {
-        if (m_elType[i] ==  VCS_ELEM_TYPE_CHARGENEUTRALITY) {
+        if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
             if (m_elemAbundancesGoal[i] != 0.0) {
                 if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
                     throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
@@ -877,9 +877,9 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         pub->VolPM[i] = m_PMVolumeSpecies[k1];
     }
 
-    pub->T    = m_temperature;
+    pub->T = m_temperature;
     pub->PresPA = m_pressurePA;
-    pub->Vol  = m_totalVol;
+    pub->Vol = m_totalVol;
     size_t kT = 0;
     for (size_t iph = 0; iph < pub->NPhase; iph++) {
         vcs_VolPhase* pubPhase = pub->VPhaseList[iph];
@@ -912,7 +912,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
                         fp2str(pub->mf[kT]) + " " + fp2str(vPhase->molefraction(k)));
             }
             if (pubPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                sumMoles +=  pub->w[kT];
+                sumMoles += pub->w[kT];
             }
         }
         if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
@@ -922,7 +922,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         }
     }
 
-    pub->m_Iterations            = m_VCount->Its;
+    pub->m_Iterations = m_VCount->Its;
     pub->m_NumBasisOptimizations = m_VCount->Basis_Opts;
     return VCS_SUCCESS;
 }

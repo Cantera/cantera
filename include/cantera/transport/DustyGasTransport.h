@@ -79,7 +79,7 @@ public:
      * @param right    Reference to DustyGasTransport object to be copied
      *                 into the current one.
      */
-    DustyGasTransport& operator=(const  DustyGasTransport& right);
+    DustyGasTransport& operator=(const DustyGasTransport& right);
 
     virtual ~DustyGasTransport();
     virtual Transport* duplMyselfAsTransport() const;
@@ -111,7 +111,7 @@ public:
      *   \f]
      *
      * @param  state1  Array of temperature, density, and mass fractions for state 1.
-     * @param  state2  Array of temperature, density, and mass  fractions for state 2.
+     * @param  state2  Array of temperature, density, and mass fractions for state 2.
      * @param  delta   Distance from state 1 to state 2 (m).
      *
      * @param fluxes   Vector of species molar fluxes due to diffusional driving force
@@ -255,7 +255,7 @@ private:
      *  units kg /kmol
      *  length = m_nsp;
      */
-    vector_fp  m_mw;
+    vector_fp m_mw;
 
     //! binary diffusion coefficients
     DenseMatrix m_d;
@@ -287,13 +287,13 @@ private:
      *        H_{k,k} = \frac{1}{\mathcal(D)^{knud}_{k}} + \sum_{j \ne k}^N{ \frac{X_j}{D_{k,j}} }
      *     \f]
      */
-    DenseMatrix  m_multidiff;
+    DenseMatrix m_multidiff;
 
     //!  work space of size m_nsp;
-    vector_fp  m_spwork;
+    vector_fp m_spwork;
 
     //!  work space of size m_nsp;
-    vector_fp  m_spwork2;
+    vector_fp m_spwork2;
 
     //! Pressure Gradient
     doublereal m_gradP;

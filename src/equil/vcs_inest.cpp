@@ -50,7 +50,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             if (m_elementActive[j]) {
                 double tmp = 0.0;
                 for (size_t kspec = 0; kspec < nspecies; ++kspec) {
-                    tmp +=  m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
+                    tmp += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                 }
                 plogf("%s     ", pprefix);
                 plogf("   %-9.9s", m_elementName[j].c_str());
@@ -384,7 +384,7 @@ int VCS_SOLVE::vcs_inest_TP()
             plogendl();
         }
         vcs_elcorr(&sm[0], &aw[0]);
-        rangeCheck  = vcs_elabcheck(1);
+        rangeCheck = vcs_elabcheck(1);
         if (!vcs_elabcheck(0)) {
             plogf("%sInitial guess still fails element abundance equations\n",
                   pprefix);

@@ -128,7 +128,7 @@ int VCS_SOLVE::vcs_report(int iconv)
                       m_VolPhaseList[i]->PhaseName.c_str());
             }
             plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i] * molScale,
-                  TPhInertMoles[i] /  m_tPhaseMoles_old[i], 0.0);
+                  TPhInertMoles[i] / m_tPhaseMoles_old[i], 0.0);
         }
     }
     if (m_numSpeciesRdc != nspecies) {
@@ -218,7 +218,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         vcs_VolPhase* VPhase = m_VolPhaseList[iphase];
         plogf("%-12.12s |",VPhase->PhaseName.c_str());
         plogf("%10.3e |", m_tPhaseMoles_old[iphase]*molScale);
-        totalMoles +=  m_tPhaseMoles_old[iphase];
+        totalMoles += m_tPhaseMoles_old[iphase];
         if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles() &&
             !vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->totalMoles())) {
             throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
@@ -376,7 +376,7 @@ void VCS_SOLVE::vcs_TCounters_report(int timing_print_lvl)
               m_VCount->T_Calls_vcs_TP, m_VCount->T_Its,
               m_VCount->T_Time_vcs_TP);
         plogf("    vcs_inest:    %5d                    %11.5E\n",
-              m_VCount->T_Calls_Inest,  m_VCount->T_Time_inest);
+              m_VCount->T_Calls_Inest, m_VCount->T_Time_inest);
         plogf("    vcs_TotalTime:                         %11.5E\n",
               m_VCount->T_Time_vcs);
     } else {

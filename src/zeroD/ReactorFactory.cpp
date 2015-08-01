@@ -25,10 +25,10 @@ static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",
                          };
 
 // these constants are defined in ReactorBase.h
-static int _itypes[]   = {ReservoirType, ReactorType, ConstPressureReactorType,
-                          FlowReactorType, IdealGasReactorType,
-                          IdealGasConstPressureReactorType
-                         };
+static int _itypes[] = {ReservoirType, ReactorType, ConstPressureReactorType,
+                        FlowReactorType, IdealGasReactorType,
+                        IdealGasConstPressureReactorType
+                       };
 
 /**
  * This method returns a new instance of a subclass of ThermoPhase

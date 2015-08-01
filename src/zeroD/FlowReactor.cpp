@@ -46,9 +46,9 @@ void FlowReactor::initialize(doublereal t0)
 
 void FlowReactor::updateState(doublereal* y)
 {
-    // Set the mass fractions and  density of the mixture.
-    m_dist         = y[0];
-    m_speed        = y[1];
+    // Set the mass fractions and density of the mixture.
+    m_dist = y[0];
+    m_speed = y[1];
     doublereal* mss = y + 2;
     m_thermo->setMassFractions(mss);
     doublereal rho = m_rho0 * m_speed0/m_speed;
@@ -95,7 +95,7 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
     const doublereal* mw = DATA_PTR(m_thermo->molecularWeights());
 
     if (m_chem) {
-        m_kin->getNetProductionRates(ydot+2);   // "omega dot"
+        m_kin->getNetProductionRates(ydot+2); // "omega dot"
     } else {
         fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
     }

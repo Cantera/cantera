@@ -251,7 +251,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state Gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
@@ -307,7 +307,7 @@ public:
      *  Gibbs free energy, calculated from enthalpy and the
      *  entropy, and the multiplying by RT.
      */
-    virtual void  getGibbs_ref(doublereal* g) const;
+    virtual void getGibbs_ref(doublereal* g) const;
 
     /**
      *  Returns the vector of nondimensional
@@ -344,9 +344,9 @@ protected:
     doublereal m_press;
     doublereal m_p0;
 
-    mutable vector_fp      m_h0_RT;
-    mutable vector_fp      m_cp0_R;
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_h0_RT;
+    mutable vector_fp m_cp0_R;
+    mutable vector_fp m_s0_R;
 
 private:
     void _updateThermo() const;

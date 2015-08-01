@@ -498,7 +498,7 @@ void MultiPhase::setState_TP(const doublereal T, const doublereal Pres)
     if (!m_init) {
         init();
     }
-    m_temp  = T;
+    m_temp = T;
     m_press = Pres;
     updatePhases();
 }
@@ -506,7 +506,7 @@ void MultiPhase::setState_TP(const doublereal T, const doublereal Pres)
 void MultiPhase::setState_TPMoles(const doublereal T, const doublereal Pres,
                                   const doublereal* n)
 {
-    m_temp  = T;
+    m_temp = T;
     m_press = Pres;
     setMoles(n);
 }
@@ -584,8 +584,8 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
         return err;
     } else if (XY == HP) {
         h0 = enthalpy();
-        Tlow = 0.5*m_Tmin;      // lower bound on T
-        Thigh = 2.0*m_Tmax;     // upper bound on T
+        Tlow = 0.5*m_Tmin; // lower bound on T
+        Thigh = 2.0*m_Tmax; // upper bound on T
         for (n = 0; n < maxiter; n++) {
             // if 'strt' is false, the current composition will be used as
             // the starting estimate; otherwise it will be estimated
@@ -659,7 +659,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                            "No convergence for T");
     } else if (XY == SP) {
         s0 = entropy();
-        Tlow = 1.0;    // lower bound on T
+        Tlow = 1.0; // lower bound on T
         Thigh = 1.0e6; // upper bound on T
         for (n = 0; n < maxiter; n++) {
             MultiPhaseEquil e(this, strt);

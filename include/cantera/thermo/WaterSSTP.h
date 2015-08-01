@@ -1,6 +1,6 @@
 /**
  *  @file WaterSSTP.h
- * Declares a ThermoPhase class consisting of  pure water (see \ref thermoprops
+ * Declares a ThermoPhase class consisting of pure water (see \ref thermoprops
  * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
  */
 /*
@@ -49,7 +49,7 @@ class WaterProps;
  *   specified so that the following properties hold:
  *
  *   - Delta_Hfo_idealgas(298.15) = -241.826 kJ/gmol
- *   - So_idealgas(298.15, 1bar)  =  188.835  J/gmolK
+ *   - So_idealgas(298.15, 1bar)  =  188.835 J/gmolK
  *
  *   (From http://webbook.nist.gov)
  *
@@ -291,10 +291,10 @@ public:
      *  current temperature of the solution and the reference pressure for the
      *  species. units = J/kmol
      *
-     * @param g       Output vector containing the  reference state
+     * @param g       Output vector containing the reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void  getGibbs_ref(doublereal* g) const;
+    virtual void getGibbs_ref(doublereal* g) const;
 
     /*!
      *  Returns the vector of nondimensional
@@ -370,7 +370,7 @@ public:
      */
     virtual void setDensity(const doublereal dens);
 
-    //!Import and initialize a ThermoPhase object  using an XML tree.
+    //!Import and initialize a ThermoPhase object using an XML tree.
     /*!
      * @internal
      *
@@ -465,7 +465,7 @@ private:
      */
     doublereal SW_Offset;
 
-    //! Boolean  is true if object has been properly initialized for calculation
+    //! Boolean is true if object has been properly initialized for calculation
     bool m_ready;
 
     /**

@@ -83,6 +83,6 @@ private:
     void* m_data;
 };
 
-}    // namespace
+} // namespace
 
 #endif // CT_CVODE

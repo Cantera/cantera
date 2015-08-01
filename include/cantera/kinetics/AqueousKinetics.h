@@ -31,7 +31,7 @@ public:
      *  inherited from Kinetics even if the application only has
      *  a pointer to Kinetics to work with.
      *
-     *  These routines are basically wrappers around the derived copy  constructor.
+     *  These routines are basically wrappers around the derived copy constructor.
      *
      * @param  tpVector Vector of shallow pointers to ThermoPhase objects. this is the
      *                  m_thermo vector within this object

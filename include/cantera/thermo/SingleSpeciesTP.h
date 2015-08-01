@@ -72,7 +72,7 @@ public:
     /*!
      * @param right Object to be copied
      */
-    SingleSpeciesTP(const SingleSpeciesTP&  right);
+    SingleSpeciesTP(const SingleSpeciesTP& right);
 
     //! Assignment operator
     /*!
@@ -189,10 +189,10 @@ public:
     //@}
     /// @name  Partial Molar Properties of the Solution
     ///
-    ///  These functions are resolved at this level, by reference
-    ///  to the partial molar functions and standard state
-    ///  functions for species 0. Derived classes don't need
-    ///  to supply entries for these functions.
+    /// These functions are resolved at this level, by reference
+    /// to the partial molar functions and standard state
+    /// functions for species 0. Derived classes don't need
+    /// to supply entries for these functions.
     //@{
 
     //!  Get the array of non-dimensional species chemical potentials
@@ -224,7 +224,7 @@ public:
      * This method adds a term \f$ Fz_k \phi_k \f$ to
      * each chemical potential.
      *
-     * This is resolved here. A single  species phase
+     * This is resolved here. A single species phase
      * is not allowed to have anything other than a zero charge.
      *
      *  @param mu   On return, Contains the electrochemical potential of the single species
@@ -356,7 +356,7 @@ public:
      * @param g       Output vector containing the  reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
-    virtual void  getGibbs_ref(doublereal* g) const;
+    virtual void getGibbs_ref(doublereal* g) const;
 
     /*!
      *  Returns the vector of nondimensional
@@ -481,11 +481,11 @@ protected:
     doublereal m_p0;
 
     //! Dimensionless enthalpy at the (mtlast, m_p0)
-    mutable vector_fp       m_h0_RT;
+    mutable vector_fp m_h0_RT;
     //! Dimensionless heat capacity at the (mtlast, m_p0)
-    mutable vector_fp       m_cp0_R;
+    mutable vector_fp m_cp0_R;
     //! Dimensionless entropy at the (mtlast, m_p0)
-    mutable vector_fp       m_s0_R;
+    mutable vector_fp m_s0_R;
 
     /**
      * @internal

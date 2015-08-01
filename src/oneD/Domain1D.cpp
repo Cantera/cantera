@@ -64,13 +64,13 @@ void Domain1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* rsd = rg + loc();
     integer* diag = mask + loc();
 
-    size_t jmin, jmax, jpt,  j, i;
+    size_t jmin, jmax, jpt, j, i;
     jpt = jg - firstPoint();
 
-    if (jg == npos) {      // evaluate all points
+    if (jg == npos) { // evaluate all points
         jmin = 0;
         jmax = m_points - 1;
-    } else {          // evaluate points for Jacobian
+    } else { // evaluate points for Jacobian
         jmin = std::max<size_t>(jpt, 1) - 1;
         jmax = std::min(jpt+1,m_points-1);
     }

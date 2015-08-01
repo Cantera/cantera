@@ -329,7 +329,7 @@ void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
             }
             sum1 *= p;
             sum2 *= p * m_molefracs[k] / (mmw - m_mw[k]*m_molefracs[k]);
-            d[k] = 1.0 / (sum1 +  sum2);
+            d[k] = 1.0 / (sum1 + sum2);
         }
     }
 }
@@ -400,7 +400,7 @@ void GasTransport::setupMM()
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             // the reduced mass
-            m_reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
+            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
 
             // hard-sphere diameter for (i,j) collisions
             m_diam(i,j) = 0.5*(m_sigma[i] + m_sigma[j]);
@@ -418,8 +418,8 @@ void GasTransport::setupMM()
 
             // reduced dipole moment delta* (nondimensional)
             double d = m_diam(i,j);
-            m_delta(i,j) =  0.5 * m_dipole(i,j)*m_dipole(i,j)
-                             / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
+            m_delta(i,j) = 0.5 * m_dipole(i,j)*m_dipole(i,j)
+                           / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
             makePolarCorrections(i, j, f_eps, f_sigma);
             m_diam(i,j) *= f_sigma;
             m_epsilon(i,j) *= f_eps;
@@ -428,8 +428,8 @@ void GasTransport::setupMM()
             m_reducedMass(j,i) = m_reducedMass(i,j);
             m_diam(j,i) = m_diam(i,j);
             m_epsilon(j,i) = m_epsilon(i,j);
-            m_dipole(j,i)  = m_dipole(i,j);
-            m_delta(j,i)   = m_delta(i,j);
+            m_dipole(j,i) = m_dipole(i,j);
+            m_delta(j,i) = m_delta(i,j);
         }
     }
 
@@ -496,13 +496,13 @@ void GasTransport::makePolarCorrections(size_t i, size_t j,
 
     // corrections to the effective diameter and well depth
     // if one is polar and one is non-polar
-    size_t kp = (m_polar[i] ? i : j);     // the polar one
-    size_t knp = (i == kp ? j : i);        // the nonpolar one
+    size_t kp = (m_polar[i] ? i : j); // the polar one
+    size_t knp = (i == kp ? j : i); // the nonpolar one
     double d3np, d3p, alpha_star, mu_p_star, xi;
     d3np = pow(m_sigma[knp],3);
-    d3p  = pow(m_sigma[kp],3);
+    d3p = pow(m_sigma[kp],3);
     alpha_star = m_alpha[knp]/d3np;
-    mu_p_star  = m_dipole(kp,kp)/sqrt(4 * Pi * epsilon_0 * d3p * m_eps[kp]);
+    mu_p_star = m_dipole(kp,kp)/sqrt(4 * Pi * epsilon_0 * d3p * m_eps[kp]);
     xi = 1.0 + 0.25 * alpha_star * mu_p_star * mu_p_star *
          sqrt(m_eps[kp]/m_eps[knp]);
     f_sigma = pow(xi, -1.0/6.0);
@@ -525,7 +525,7 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
     }
     vector_fp fitlist;
     for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = i; j < m_nsp; j++)  {
+        for (size_t j = i; j < m_nsp; j++) {
             // Chemkin fits only delta* = 0
             if (m_mode != CK_Mode) {
                 dstar = m_delta(i,j);
@@ -733,7 +733,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     double eps, sigma;
-    for (size_t k = 0; k < m_nsp; k++)  {
+    for (size_t k = 0; k < m_nsp; k++) {
         for (size_t j = k; j < m_nsp; j++) {
             for (size_t n = 0; n < np; n++) {
                 double t = m_thermo->minTemp() + dt*n;

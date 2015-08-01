@@ -151,7 +151,7 @@ void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
         const doublereal r = moleFraction(product_species_index);
         const doublereal pval = p(r);
         const doublereal rfm = r * fm(r);
-        const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval))  /
+        const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval)) /
                              (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
         const doublereal B = pval * h_mixing / (GasConstant * temperature());
         cached.value[product_species_index] = A * std::exp(B);
@@ -169,7 +169,7 @@ void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
     const doublereal RT = GasConstant * temperature();
     const doublereal DgbarDr = pval * h_mixing +
                                GasConstant * temperature() *
-                               std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r)  /
+                               std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r) /
                                (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
     mu[product_species_index] = RT * m_g0_RT[product_species_index] + DgbarDr;
     mu[reactant_species_index] = RT * m_g0_RT[reactant_species_index] - DgbarDr;
@@ -320,4 +320,4 @@ doublereal MaskellSolidSolnPhase::p(const doublereal r) const
     return (1 - 2*r) / std::sqrt(sval*sval - 4 * sval * r + 4 * sval * r * r);
 }
 
-}  // end namespace Cantera
+} // end namespace Cantera

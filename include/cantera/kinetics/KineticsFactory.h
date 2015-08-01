@@ -39,8 +39,8 @@ public:
 
     virtual void deleteFactory() {
         ScopedLock lock(kinetics_mutex);
-        delete s_factory ;
-        s_factory = 0 ;
+        delete s_factory;
+        s_factory = 0;
     }
 
     /**

@@ -113,7 +113,7 @@ public:
 
     //! Duplication routine for objects which inherit from PDSS
     /*!
-     *  This virtual routine can be used to duplicate PDSS  objects
+     *  This virtual routine can be used to duplicate PDSS objects
      *  inherited from PDSS even if the application only has
      *  a pointer to PDSS to work with.
      *
@@ -186,7 +186,7 @@ public:
      */
     virtual doublereal dthermalExpansionCoeffdT() const;
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
+    //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
      * \f[

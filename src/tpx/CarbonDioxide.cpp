@@ -16,18 +16,18 @@ namespace tpx
 /*
  * Carbon Dioxide constants
  */
-static const double Tmn = 216.54;   // [K] minimum temperature for which calculations are valid
-static const double Tmx = 1500.0;   // [K] maximum temperature for which calculations are valid
-static const double Tc=304.21;      // [K] critical temperature
-static const double Roc=464.00;        // [kg/m^3] critical density
-static const double To=216.54;        // [K] reference Temperature
-static const double R=188.918;        // [] gas constant for CO2 J/kg/K
-static const double Gamma=5.0E-6;    // [??]
-static const double u0=3.2174105E5;    // [] internal energy at To
-static const double s0=2.1396056E3;    // [] entropy at To
-static const double Tp=250;            // [K] ??
-static const double Pc=7.38350E6;    // [Pa] critical pressure
-static const double M=44.01;        // [kg/kmol] molar density
+static const double Tmn = 216.54; // [K] minimum temperature for which calculations are valid
+static const double Tmx = 1500.0; // [K] maximum temperature for which calculations are valid
+static const double Tc=304.21; // [K] critical temperature
+static const double Roc=464.00; // [kg/m^3] critical density
+static const double To=216.54; // [K] reference Temperature
+static const double R=188.918; // [] gas constant for CO2 J/kg/K
+static const double Gamma=5.0E-6; // [??]
+static const double u0=3.2174105E5; // [] internal energy at To
+static const double s0=2.1396056E3; // [] entropy at To
+static const double Tp=250; // [K] ??
+static const double Pc=7.38350E6; // [Pa] critical pressure
+static const double M=44.01; // [kg/kmol] molar density
 
 // array Acarbdi is used by the function named Pp
 static const double Acarbdi[]= {
@@ -87,31 +87,31 @@ static const double G[]= {
 double CarbonDioxide::C(int j,double Tinverse, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
-    case 0 :
-        return    Acarbdi[0]*T            +
-                  Acarbdi[1]                +
-                  Acarbdi[2] * Tinverse    +
-                  Acarbdi[3] * T2inverse    +
-                  Acarbdi[4] * T3inverse ;
-    case 1 :
-        return    Acarbdi[5] *T            +
-                  Acarbdi[6]                +
-                  Acarbdi[7] * Tinverse ;
-    case 2 :
+    case 0:
+        return Acarbdi[0]*T +
+               Acarbdi[1] +
+               Acarbdi[2] * Tinverse +
+               Acarbdi[3] * T2inverse +
+               Acarbdi[4] * T3inverse;
+    case 1:
+        return Acarbdi[5] *T +
+               Acarbdi[6] +
+               Acarbdi[7] * Tinverse;
+    case 2:
         return Acarbdi[8]*T + Acarbdi[9];
-    case 3 :
-        return Acarbdi[10]*T  + Acarbdi[11];
-    case 4 :
+    case 3:
+        return Acarbdi[10]*T + Acarbdi[11];
+    case 4:
         return Acarbdi[12];
-    case 5 :
-        return    Acarbdi[13] *T2inverse    +
-                  Acarbdi[14] *T3inverse    +
-                  Acarbdi[15] *T4inverse;
-    case 6 :
-        return    Acarbdi[16] *T2inverse    +
-                  Acarbdi[17] *T3inverse    +
-                  Acarbdi[18] *T4inverse;
-    default :
+    case 5:
+        return Acarbdi[13] *T2inverse +
+               Acarbdi[14] *T3inverse +
+               Acarbdi[15] *T4inverse;
+    case 6:
+        return Acarbdi[16] *T2inverse +
+               Acarbdi[17] *T3inverse +
+               Acarbdi[18] *T4inverse;
+    default:
         return 0.0;
     }
 }
@@ -119,31 +119,31 @@ double CarbonDioxide::C(int j,double Tinverse, double T2inverse, double T3invers
 inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
-    case 0 :
-        return    Acarbdi[0]     +
-                  - Acarbdi[2] * T2inverse    +
-                  -2 * Acarbdi[3] * T3inverse    +
-                  -3 * Acarbdi[4] * T4inverse ;
-    case 1 :
-        return    Acarbdi[5]     -
-                  Acarbdi[7] * T2inverse;
-    case 2 :
-        return  Acarbdi[8] ;
-    case 3 :
-        return    Acarbdi[10] ;
-    case 4 :
-        return    0;
-    case 5 :
+    case 0:
+        return Acarbdi[0] +
+               - Acarbdi[2] * T2inverse +
+               -2 * Acarbdi[3] * T3inverse +
+               -3 * Acarbdi[4] * T4inverse;
+    case 1:
+        return Acarbdi[5] -
+               Acarbdi[7] * T2inverse;
+    case 2:
+        return Acarbdi[8];
+    case 3:
+        return Acarbdi[10];
+    case 4:
+        return 0;
+    case 5:
         return
-            -2 *Acarbdi[13] *T3inverse    +
-            -3 *Acarbdi[14] *T4inverse    +
+            -2 *Acarbdi[13] *T3inverse +
+            -3 *Acarbdi[14] *T4inverse +
             -4 *Acarbdi[15]* pow(T,-5);
-    case 6 :
+    case 6:
         return
-            -2 *Acarbdi[16] *T3inverse    +
-            -3 *Acarbdi[17] *T4inverse    +
+            -2 *Acarbdi[16] *T3inverse +
+            -3 *Acarbdi[17] *T4inverse +
             -4 *Acarbdi[18] *pow(T,-5);
-    default :
+    default:
         return 0.0;
     }
 }

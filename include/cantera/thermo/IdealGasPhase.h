@@ -464,7 +464,7 @@ public:
         setTemperature(p * meanMolecularWeight() / (GasConstant * rho));
     }
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
+    //! Returns the isothermal compressibility. Units: 1/Pa.
     /**
      * The isothermal compressibility is defined as
      * \f[
@@ -539,7 +539,7 @@ public:
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to normalize
     //! the generalized concentration.
     /*!
-     * This is defined as the concentration  by which the generalized
+     * This is defined as the concentration by which the generalized
      * concentration is normalized to produce the activity.
      * In many cases, this quantity will be the same for all species in a phase.
      * Since the activity for an ideal gas mixture is
@@ -630,7 +630,7 @@ public:
     //! Get the nondimensional Enthalpy functions for the species standard states
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
@@ -638,7 +638,7 @@ public:
     //! Get the array of nondimensional Entropy functions for the
     //! species standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
+     * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
     virtual void getEntropy_R(doublereal* sr) const;
@@ -655,12 +655,12 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state Gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-    //!  Returns the vector of nondimensional Internal Energies  of the standard
+    //!  Returns the vector of nondimensional Internal Energies of the standard
     //!  state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * @param urt  output vector of nondimensional standard state internal energies
@@ -715,7 +715,7 @@ public:
     /*!
      *  units = J/kmol
      *
-     * @param g       Output vector containing the  reference state
+     * @param g       Output vector containing the reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
     virtual void getGibbs_ref(doublereal* g) const;

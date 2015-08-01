@@ -92,10 +92,10 @@ void VPSSMgr_General::_updateRefStateThermo() const
             PDSS* kPDSS = m_PDSS_ptrs[k];
             kPDSS->setState_TP(m_tlast, m_plast);
             m_h0_RT[k] = kPDSS->enthalpy_RT_ref();
-            m_s0_R[k]  = kPDSS->entropy_R_ref();
+            m_s0_R[k] = kPDSS->entropy_R_ref();
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
             m_cp0_R[k] = kPDSS->cp_R_ref();
-            m_V0[k]    = kPDSS->molarVolume_ref();
+            m_V0[k] = kPDSS->molarVolume_ref();
         }
     }
 }
@@ -106,10 +106,10 @@ void VPSSMgr_General::_updateStandardStateThermo()
         PDSS* kPDSS = m_PDSS_ptrs[k];
         kPDSS->setState_TP(m_tlast, m_plast);
         m_hss_RT[k] = kPDSS->enthalpy_RT();
-        m_sss_R[k]  = kPDSS->entropy_R();
+        m_sss_R[k] = kPDSS->entropy_R();
         m_gss_RT[k] = m_hss_RT[k] - m_sss_R[k];
         m_cpss_R[k] = kPDSS->cp_R();
-        m_Vss[k]    = kPDSS->molarVolume();
+        m_Vss[k] = kPDSS->molarVolume();
     }
 }
 
@@ -128,7 +128,7 @@ void VPSSMgr_General::getGibbs_ref(doublereal* g) const
             PDSS* kPDSS = m_PDSS_ptrs[k];
             kPDSS->setState_TP(m_tlast, m_plast);
             double h0_RT = kPDSS->enthalpy_RT_ref();
-            double s0_R  = kPDSS->entropy_R_ref();
+            double s0_R = kPDSS->entropy_R_ref();
             g[k] = GasConstant * m_tlast * (h0_RT - s0_R);
         }
     }
@@ -216,10 +216,10 @@ PDSS* VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 
 PDSS_enumType VPSSMgr_General::reportPDSSType(int k) const
 {
-    return  m_PDSS_ptrs[k]->reportPDSSType();
+    return m_PDSS_ptrs[k]->reportPDSSType();
 }
 
-VPSSMgr_enumType  VPSSMgr_General::reportVPSSMgrType() const
+VPSSMgr_enumType VPSSMgr_General::reportVPSSMgrType() const
 {
     return cVPSSMGR_GENERAL;
 }

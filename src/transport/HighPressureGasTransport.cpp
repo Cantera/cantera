@@ -243,7 +243,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
             m_bdiff(i,j) *= P_corr_ij;
         }
     }
-    m_bindiff_ok = false;  // m_bdiff is overwritten by the above routine.
+    m_bindiff_ok = false; // m_bdiff is overwritten by the above routine.
 
     // Having corrected m_bdiff for pressure and concentration effects, the
     //    routine now procedes the same as in the low-pressure case:
@@ -260,7 +260,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
         throw CanteraError("HighPressureGasTransport::getMultiDiffCoeffs",
                             string(" invert returned ierr = ")+int2str(ierr));
     }
-    m_l0000_ok = false;           // matrix is overwritten by inverse
+    m_l0000_ok = false; // matrix is overwritten by inverse
     m_lmatrix_soln_ok = false;
 
     doublereal pres = m_thermo->pressure();
@@ -302,8 +302,8 @@ doublereal HighPressureGasTransport::viscosity()
         Tr = tKelvin/Tc;
         Zc = Zcrit_i(i);
         Tc_mix += Tc*molefracs[i];
-        Pc_mix_n += molefracs[i]*Zc;           //numerator
-        Pc_mix_d += molefracs[i]*Vcrit_i(i);   //denominator
+        Pc_mix_n += molefracs[i]*Zc; //numerator
+        Pc_mix_d += molefracs[i]*Vcrit_i(i); //denominator
 
         // Need to calculate ratio of heaviest to lightest species:
         if (m_mw[i] > MW_H) {
@@ -359,7 +359,7 @@ doublereal HighPressureGasTransport::viscosity()
            + 0.340*exp(-4.058*Tr_mix)+0.018)*FP_mix_o*FQ_mix_o;
 
     // Calculate Z2m:
-    if (Tr_mix <= 1.0){
+    if (Tr_mix <= 1.0) {
         if (Pr_mix < Pvp_mix/Pc_mix) {
             doublereal alpha = 3.262 + 14.98*pow(Pr_mix,5.508);
             doublereal beta = 1.390 + 5.746*Pr_mix;

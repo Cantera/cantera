@@ -16,9 +16,9 @@ namespace Cantera
 /**
  * Electrolyte species type
  */
-const int cEST_solvent  = 0;             // Solvent species (neutral)
-const int cEST_chargedSpecies = 1;       // Charged species (charged)
-const int cEST_weakAcidAssociated = 2;   // Species which can break
+const int cEST_solvent = 0; // Solvent species (neutral)
+const int cEST_chargedSpecies = 1; // Charged species (charged)
+const int cEST_weakAcidAssociated = 2; // Species which can break
 // apart into charged species.
 // It may or may not be charged.
 // These may or may not be
@@ -29,8 +29,8 @@ const int cEST_strongAcidAssociated = 3; // Species which always breaks
 // It may or may not be charged.
 // Normally, these aren't included
 // in the speciation vector.
-const int cEST_polarNeutral = 4;         // Polar neutral species
-const int cEST_nonpolarNeutral = 5;      // Nonpolar neutral species. These
+const int cEST_polarNeutral = 4; // Polar neutral species
+const int cEST_nonpolarNeutral = 5; // Nonpolar neutral species. These
 // usually have activity coefficnt
 // corrections applied to them to
 // account for salting-out effects

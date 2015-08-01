@@ -21,7 +21,7 @@ WaterTransport::WaterTransport(const WaterTransport& right) :
     *this = right;
 }
 
-WaterTransport&  WaterTransport::operator=(const  WaterTransport& right)
+WaterTransport& WaterTransport::operator=(const WaterTransport& right)
 {
     if (&right != this) {
         return *this;
@@ -35,7 +35,7 @@ WaterTransport&  WaterTransport::operator=(const  WaterTransport& right)
     return *this;
 }
 
-Transport*   WaterTransport::duplMyselfAsTransport() const
+Transport* WaterTransport::duplMyselfAsTransport() const
 {
     return new WaterTransport(*this);
 }

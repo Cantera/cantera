@@ -58,7 +58,7 @@ double Beta1(double temp, int ifunc)
     double retn;
     double tref = 298.15;
     if (ifunc == 0) {
-        retn = q6  + q9 * (temp - tref)
+        retn = q6 + q9 * (temp - tref)
                + q10 * (temp * temp - tref * tref);
     } else if (ifunc == 1) {
         retn = q9 + 2.0 * q10 * temp;
@@ -86,7 +86,7 @@ double Cphi(double temp, int ifunc)
                + q13 / temp + q14;
     } else if (ifunc == 2) {
         retn = + 2.0 * q12 / (temp * temp * temp)
-               - q13 / (temp * temp) ;
+               - q13 / (temp * temp);
     } else {
         exit(-1);
     }
@@ -147,8 +147,8 @@ void calc(double temp, double Iionic)
 
     double Cppmx = 0.5 * sqrt(vm * vx) * cphiprime2;
 
-    double Bmx =  Bppmx + 2.0 / temp * Bpmx;
-    double Cmx =  Cppmx + 2.0 / temp * Cpmx;
+    double Bmx = Bppmx + 2.0 / temp * Bpmx;
+    double Cmx = Cppmx + 2.0 / temp * Cpmx;
 
     double phiJ = v * zm * zx * (A_J/(2.*b)) * log(1 + 1.2 * sqrtI) -
                   2 * vm * vx * GasConst * temp * temp * (m * Bmx + m * m * Cmx);

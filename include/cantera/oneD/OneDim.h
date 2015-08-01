@@ -253,21 +253,21 @@ public:
 protected:
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
-    doublereal m_tmin;        // minimum timestep size
-    doublereal m_tmax;        // maximum timestep size
-    doublereal m_tfactor;     // factor time step is multiplied by
+    doublereal m_tmin; // minimum timestep size
+    doublereal m_tmax; // maximum timestep size
+    doublereal m_tfactor; // factor time step is multiplied by
     // if time stepping fails ( < 1 )
 
-    MultiJac* m_jac;          // Jacobian evaluator
-    MultiNewton* m_newt;      // Newton iterator
-    doublereal m_rdt;         // reciprocal of time step
-    bool m_jac_ok;            // if true, Jacobian is current
+    MultiJac* m_jac; // Jacobian evaluator
+    MultiNewton* m_newt; // Newton iterator
+    doublereal m_rdt; // reciprocal of time step
+    bool m_jac_ok; // if true, Jacobian is current
 
     //! number of domains
     size_t m_nd;
 
-    size_t m_bw;                 // Jacobian bandwidth
-    size_t m_size;               // solution vector size
+    size_t m_bw; // Jacobian bandwidth
+    size_t m_size; // solution vector size
 
     std::vector<Domain1D*> m_dom, m_connect, m_bulk;
 

@@ -657,9 +657,9 @@ public:
     }
 
 private:
-    std::vector<C1>     m_c1_list;
-    std::vector<C2>     m_c2_list;
-    std::vector<C3>     m_c3_list;
+    std::vector<C1> m_c1_list;
+    std::vector<C2> m_c2_list;
+    std::vector<C3> m_c3_list;
     std::vector<C_AnyN> m_cn_list;
 };
 

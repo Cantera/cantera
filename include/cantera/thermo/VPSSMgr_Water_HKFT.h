@@ -55,11 +55,11 @@ public:
     //@{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const ;
-    virtual void getGibbs_ref(doublereal* g) const ;
-    virtual void getEntropy_R_ref(doublereal* er) const ;
-    virtual void getCp_R_ref(doublereal* cpr) const ;
-    virtual void getStandardVolumes_ref(doublereal* vol) const ;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
+    virtual void getGibbs_ref(doublereal* g) const;
+    virtual void getEntropy_R_ref(doublereal* er) const;
+    virtual void getCp_R_ref(doublereal* cpr) const;
+    virtual void getStandardVolumes_ref(doublereal* vol) const;
     //@}
 
     virtual void setState_TP(doublereal T, doublereal P);
@@ -96,8 +96,8 @@ public:
      * various states and attributes
      */
     //@{
-    virtual PDSS_enumType reportPDSSType(int index = -1) const ;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const ;
+    virtual PDSS_enumType reportPDSSType(int index = -1) const;
+    virtual VPSSMgr_enumType reportVPSSMgrType() const;
     //@}
 
     /*! @name Initialization Methods - For Internal use (VPStandardState)

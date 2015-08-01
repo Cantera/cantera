@@ -72,7 +72,7 @@ public:
 
 protected:
     //! Bruggeman exponent: power to which the tortuosity depends on the volume fraction
-    double expBrug_ ;
+    double expBrug_;
 };
 
 
@@ -80,11 +80,11 @@ protected:
  * appropriate for porous media where percolation theory applies.
  * It is derived from the Tortuosity class.
  */
-class TortuosityPercolation : public  Tortuosity
+class TortuosityPercolation : public Tortuosity
 {
 public:
     //! Default constructor uses Bruggeman exponent of 1.5
-    TortuosityPercolation(double percolationThreshold = 0.4, double conductivityExponent = 2.0) : percolationThreshold_(percolationThreshold), conductivityExponent_(conductivityExponent)  {
+    TortuosityPercolation(double percolationThreshold = 0.4, double conductivityExponent = 2.0) : percolationThreshold_(percolationThreshold), conductivityExponent_(conductivityExponent) {
     }
 
     //! The tortuosity factor models the effective increase in the
@@ -147,7 +147,7 @@ class TortuosityMaxwell : public Tortuosity
 {
 public:
     //! Default constructor uses Bruggeman exponent of 1.5
-    TortuosityMaxwell(double relativeConductivites = 0.0) : relativeConductivites_(relativeConductivites)  {
+    TortuosityMaxwell(double relativeConductivites = 0.0) : relativeConductivites_(relativeConductivites) {
     }
 
     //! The tortuosity factor models the effective increase in the
@@ -175,7 +175,7 @@ public:
     }
 
 protected:
-    //! Relative  conductivities of the dispersed and continuous phases,
+    //! Relative conductivities of the dispersed and continuous phases,
     //! `relativeConductivites_` \f$ = \kappa_d / \kappa_0 \f$.
     double relativeConductivites_;
 };

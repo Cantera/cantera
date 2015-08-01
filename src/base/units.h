@@ -64,7 +64,7 @@ public:
      * Return the multiplier required to convert a dimensional quantity
      * with units specified by string 'units' to SI units.
      * The list of recognized units is stored as a stl map
-     *  <string, doublereal>called  m_u[] and m_act_u for activity
+     *  <string, doublereal>called m_u[] and m_act_u for activity
      * coefficients. These maps are initialized with likely values.
      *
      * @param units_ String containing the units description
@@ -165,74 +165,74 @@ private:
         m_u["1"] = 1.0;
 
         // length
-        m_u["m"]    = 1.0;
-        m_u["cm"]   = 0.01;
-        m_u["km"]   = 1.0e3;
-        m_u["mm"]   = 1.0e-3;
-        m_u["micron"]   = 1.0e-6;
-        m_u["nm"]   = 1.0e-9;
-        m_u["A"]   = 1.0e-10;
-        m_u["Angstrom"]   = 1.0e-10;
-        m_u["Angstroms"]   = 1.0e-10;
+        m_u["m"] = 1.0;
+        m_u["cm"] = 0.01;
+        m_u["km"] = 1.0e3;
+        m_u["mm"] = 1.0e-3;
+        m_u["micron"] = 1.0e-6;
+        m_u["nm"] = 1.0e-9;
+        m_u["A"] = 1.0e-10;
+        m_u["Angstrom"] = 1.0e-10;
+        m_u["Angstroms"] = 1.0e-10;
 
         // energy
-        m_u["J"]        = 1.0;
-        m_u["kJ"]       = 1.0e3;
-        m_u["cal"]      = 4.184;
-        m_u["kcal"]     = 4184.0;
-        m_u["eV"]       = Faraday; //1.60217733e-19;
+        m_u["J"] = 1.0;
+        m_u["kJ"] = 1.0e3;
+        m_u["cal"] = 4.184;
+        m_u["kcal"] = 4184.0;
+        m_u["eV"] = Faraday; //1.60217733e-19;
 
         // resistance
-        m_u["ohm"]      = 1.0;
+        m_u["ohm"] = 1.0;
 
         // quantity
-        m_u["mol"]      = 1.0e-3;
-        m_u["gmol"]     = 1.0e-3;
-        m_u["mole"]     = 1.0e-3;
-        m_u["kmol"]     = 1.0;
-        m_u["kgmol"]     = 1.0;
-        m_u["molec"]    = 1.0/Avogadro;
+        m_u["mol"] = 1.0e-3;
+        m_u["gmol"] = 1.0e-3;
+        m_u["mole"] = 1.0e-3;
+        m_u["kmol"] = 1.0;
+        m_u["kgmol"] = 1.0;
+        m_u["molec"] = 1.0/Avogadro;
 
         // temperature
-        m_u["K"]        = 1.0;
-        m_u["C"]        = 1.0;
-        m_u["Kelvin"]   = 1.0;
+        m_u["K"] = 1.0;
+        m_u["C"] = 1.0;
+        m_u["Kelvin"] = 1.0;
 
         // mass
-        m_u["gm"]       = 1.0e-3;
-        m_u["g"]        = 1.0e-3;
-        m_u["kg"]       = 1.0;
+        m_u["gm"] = 1.0e-3;
+        m_u["g"] = 1.0e-3;
+        m_u["kg"] = 1.0;
 
         // pressure
-        m_u["atm"]      = 1.01325e5;
-        m_u["bar"]      = 1.0e5;
-        m_u["Pa"]       = 1.0;
+        m_u["atm"] = 1.01325e5;
+        m_u["bar"] = 1.0e5;
+        m_u["Pa"] = 1.0;
 
         // time
-        m_u["s"]        = 1.0;
-        m_u["min"]      = 60.0;
-        m_u["hr"]       = 3600.0;
-        m_u["ms"]       = 0.001;
+        m_u["s"] = 1.0;
+        m_u["min"] = 60.0;
+        m_u["hr"] = 3600.0;
+        m_u["ms"] = 0.001;
 
         // electric potential
-        m_u["volt"]     = 1.0;
+        m_u["volt"] = 1.0;
 
         // charge
-        m_u["coulomb"]  = 1.0;
+        m_u["coulomb"] = 1.0;
 
         /*
         // frequency  - Took frequency out to reevaluate it. Inverse cm is probably the wrong default unit
-        m_u["hZ"]       = 0.01/(lightSpeed);
-        m_u["cm^-1"]    = 1.0;
-        m_u["m^-1"]     = 0.1;
-        m_u["cm-1"]     = m_u["cm^-1"];
-        m_u["m-1"]      = m_u["m^-1"];
+        m_u["hZ"] = 0.01/(lightSpeed);
+        m_u["cm^-1"] = 1.0;
+        m_u["m^-1"] = 0.1;
+        m_u["cm-1"] = m_u["cm^-1"];
+        m_u["m-1"] = m_u["m^-1"];
         m_u["wavenumbers"] = m_u["cm^-1"];
         */
 
         // viscosity
         m_u["Pa-s"] = 1;
-        m_u["poise"]    = 0.1;
+        m_u["poise"] = 0.1;
         m_u["centipoise"] = 0.001;
         m_u["P"] = 0.1;
         m_u["cP"] = 0.001;
@@ -247,8 +247,8 @@ private:
         m_u["cc"] = 1.0e-6;
 
         m_act_u["eV"] = m_u["eV"]; // /m_u["molec"];
-        m_act_u["K"] =  GasConstant;
-        m_act_u["Kelvin"] =  GasConstant;
+        m_act_u["K"] = GasConstant;
+        m_act_u["Kelvin"] = GasConstant;
         m_act_u["Dimensionless"] = (GasConstant * 273.15);
     }
 };

@@ -55,7 +55,7 @@ LiquidTransportParams::LiquidTransportParams(const LiquidTransportParams& right)
     operator=(right);
 }
 
-LiquidTransportParams&  LiquidTransportParams::operator=(const LiquidTransportParams& right)
+LiquidTransportParams& LiquidTransportParams::operator=(const LiquidTransportParams& right)
 {
     if (&right != this) {
         return *this;

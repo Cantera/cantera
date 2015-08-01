@@ -24,7 +24,7 @@ public:
     //! Constructor.
     FalloffMgr() :
         m_worksize(0) {
-        m_factory = FalloffFactory::factory();   // RFB:TODO This raw pointer should be encapsulated
+        m_factory = FalloffFactory::factory(); // RFB:TODO This raw pointer should be encapsulated
         // because accessing a 'Singleton Factory'
     }
 

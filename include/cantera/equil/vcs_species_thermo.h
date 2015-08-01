@@ -17,15 +17,15 @@ namespace Cantera
 class vcs_VolPhase;
 
 // Models for the species standard state Naught temperature dependence
-#define VCS_SS0_NOTHANDLED    -1
-#define VCS_SS0_CONSTANT       0
-//#define VCS_SS0_NASA_POLY      1
-#define VCS_SS0_CONSTANT_CP    2
+#define VCS_SS0_NOTHANDLED -1
+#define VCS_SS0_CONSTANT 0
+//#define VCS_SS0_NASA_POLY 1
+#define VCS_SS0_CONSTANT_CP 2
 
 // Models for the species standard state extra pressure dependence
-#define VCS_SSSTAR_NOTHANDLED    -1
-#define VCS_SSSTAR_CONSTANT       0
-#define VCS_SSSTAR_IDEAL_GAS      1
+#define VCS_SSSTAR_NOTHANDLED -1
+#define VCS_SSSTAR_CONSTANT 0
+#define VCS_SSSTAR_IDEAL_GAS 1
 
 /*!
  *  Identifies the thermo model for the species. This structure is shared by
@@ -51,7 +51,7 @@ public:
     //! Integer representing the models for the species standard state
     //! Naught temperature dependence. They are listed above and start
     //! with VCS_SS0_...
-    int    SS0_Model;
+    int SS0_Model;
 
     //! Internal storage of the last calculation of the reference naught Gibbs
     //! free energy at SS0_TSave. (always in units of Kelvin)

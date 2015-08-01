@@ -91,7 +91,7 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
                                "Unknown species " + speciesA);
         }
         size_t jSpecies = m_thermo->speciesIndex(speciesB);
-        if (jSpecies == npos)  {
+        if (jSpecies == npos) {
             throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
                                "Unknown species " + speciesB);
         }
@@ -99,7 +99,7 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
         if (xmlChild.hasChild("Eij")) {
             m_Eij(iSpecies,jSpecies) = getFloat(xmlChild, "Eij", "actEnergy");
             m_Eij(iSpecies,jSpecies) /= GasConstant;
-            m_Eij(jSpecies,iSpecies) = m_Eij(iSpecies,jSpecies) ;
+            m_Eij(jSpecies,iSpecies) = m_Eij(iSpecies,jSpecies);
         }
 
         if (xmlChild.hasChild("Aij")) {
@@ -117,7 +117,7 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
 
         if (xmlChild.hasChild("Bij")) {
             vector_fp poly;
-            getFloatArray(xmlChild, poly, true, "toSI",  "Bij");
+            getFloatArray(xmlChild, poly, true, "toSI", "Bij");
             while (m_Bij.size() < poly.size()) {
                 DenseMatrix* bTemp = new DenseMatrix();
                 bTemp->resize(nsp, nsp, 0.0);
@@ -158,28 +158,28 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
 
         if (xmlChild.hasChild("Dij")) {
             m_Dij(iSpecies,jSpecies) = getFloat(xmlChild, "Dij", "toSI");
-            m_Dij(jSpecies,iSpecies) = m_Dij(iSpecies,jSpecies) ;
+            m_Dij(jSpecies,iSpecies) = m_Dij(iSpecies,jSpecies);
         }
     }
 }
 
 LiquidTranInteraction::LiquidTranInteraction(const LiquidTranInteraction& right)
 {
-    *this = right;  //use assignment operator to do other work
+    *this = right; //use assignment operator to do other work
 }
 
 LiquidTranInteraction& LiquidTranInteraction::operator=(const LiquidTranInteraction& right)
 {
     if (&right != this) {
-        m_model     = right.m_model;
-        m_property  = right.m_property;
-        m_thermo    = right.m_thermo;
-        m_Aij       = right.m_Aij;
-        m_Bij       = right.m_Bij;
-        m_Eij       = right.m_Eij;
-        m_Hij       = right.m_Hij;
-        m_Sij       = right.m_Sij;
-        m_Dij       = right.m_Dij;
+        m_model = right.m_model;
+        m_property = right.m_property;
+        m_thermo = right.m_thermo;
+        m_Aij = right.m_Aij;
+        m_Bij = right.m_Bij;
+        m_Eij = right.m_Eij;
+        m_Hij = right.m_Hij;
+        m_Sij = right.m_Sij;
+        m_Dij = right.m_Dij;
     }
     return *this;
 }
@@ -422,10 +422,10 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
         value += log(LTPptrs[i]->getSpeciesTransProp()) * molefracs[i];
         for (size_t j = 0; j < nsp; j++) {
             for (size_t k = 0; k < m_Hij.size(); k++) {
-                value +=  molefracs[i]*molefracs[j]*(*m_Hij[k])(i,j)/temp*pow(molefracs[i], (int) k);
+                value += molefracs[i]*molefracs[j]*(*m_Hij[k])(i,j)/temp*pow(molefracs[i], (int) k);
             }
             for (size_t k = 0; k < m_Sij.size(); k++) {
-                value -=  molefracs[i]*molefracs[j]*(*m_Sij[k])(i,j)*pow(molefracs[i], (int) k);
+                value -= molefracs[i]*molefracs[j]*(*m_Sij[k])(i,j)*pow(molefracs[i], (int) k);
             }
         }
     }
@@ -482,7 +482,7 @@ void LTI_Pairwise_Interaction::getMatrixTransProp(DenseMatrix& mat, doublereal* 
 
     for (size_t i = 0; i < nsp; i++) {
         if (mat(i,i) == 0.0 && m_diagonals[i]) {
-            mat(i,i) = 1.0 / m_diagonals[i]->getSpeciesTransProp() ;
+            mat(i,i) = 1.0 / m_diagonals[i]->getSpeciesTransProp();
         }
     }
 }
@@ -512,7 +512,7 @@ void LTI_StefanMaxwell_PPN::setParameters(LiquidTransportParams& trParam)
 
     for (size_t k = 0; k < nsp; k++) {
         LiquidTransportData& ltd = trParam.LTData[k];
-        m_ionCondSpecies[k]   =  ltd.ionConductivity;
+        m_ionCondSpecies[k] = ltd.ionConductivity;
         for (size_t j = 0; j < nsp2; j++) {
             m_mobRatSpecies[j][k] = ltd.mobilityRatio[j];
         }
@@ -644,8 +644,8 @@ void LTI_StokesEinstein::setParameters(LiquidTransportParams& trParam)
     m_hydroRadius.resize(nsp, 0);
     for (size_t k = 0; k < nsp; k++) {
         LiquidTransportData& ltd = trParam.LTData[k];
-        m_viscosity[k]   =  ltd.viscosity;
-        m_hydroRadius[k] =  ltd.hydroRadius;
+        m_viscosity[k] = ltd.viscosity;
+        m_hydroRadius[k] = ltd.hydroRadius;
     }
 }
 
@@ -657,8 +657,8 @@ void LTI_StokesEinstein::getMatrixTransProp(DenseMatrix& mat, doublereal* specie
     vector_fp radiusSpec(nsp);
 
     for (size_t k = 0; k < nsp; k++) {
-        viscSpec[k] = m_viscosity[k]->getSpeciesTransProp() ;
-        radiusSpec[k] = m_hydroRadius[k]->getSpeciesTransProp() ;
+        viscSpec[k] = m_viscosity[k]->getSpeciesTransProp();
+        radiusSpec[k] = m_hydroRadius[k]->getSpeciesTransProp();
     }
 
     mat.resize(nsp,nsp, 0.0);

@@ -111,7 +111,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 }
                 m_Beta0MX_ij[counter] = vParams[0];
                 m_Beta0MX_ij_coeff(0,counter) = m_Beta0MX_ij[counter];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta0 for " + ispName
                                        + "::" + jspName,
@@ -120,7 +120,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 m_Beta0MX_ij_coeff(0,counter) = vParams[0];
                 m_Beta0MX_ij_coeff(1,counter) = vParams[1];
                 m_Beta0MX_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound != 5) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta0 for " + ispName
                                        + "::" + jspName,
@@ -146,7 +146,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 }
                 m_Beta1MX_ij[counter] = vParams[0];
                 m_Beta1MX_ij_coeff(0,counter) = m_Beta1MX_ij[counter];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta1 for " + ispName
                                        + "::" + jspName,
@@ -155,7 +155,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 m_Beta1MX_ij_coeff(0,counter) = vParams[0];
                 m_Beta1MX_ij_coeff(1,counter) = vParams[1];
                 m_Beta1MX_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound != 5) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta1 for " + ispName
                                        + "::" + jspName,
@@ -178,7 +178,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 }
                 m_Beta2MX_ij[counter] = vParams[0];
                 m_Beta2MX_ij_coeff(0,counter) = m_Beta2MX_ij[counter];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName
                                        + "::" + jspName,
@@ -187,7 +187,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 m_Beta2MX_ij_coeff(0,counter) = vParams[0];
                 m_Beta2MX_ij_coeff(1,counter) = vParams[1];
                 m_Beta2MX_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound != 5) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName
                                        + "::" + jspName,
@@ -213,7 +213,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 }
                 m_CphiMX_ij[counter] = vParams[0];
                 m_CphiMX_ij_coeff(0,counter) = m_CphiMX_ij[counter];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::Cphi for " + ispName
                                        + "::" + jspName,
@@ -222,7 +222,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
                 m_CphiMX_ij_coeff(0,counter) = vParams[0];
                 m_CphiMX_ij_coeff(1,counter) = vParams[1];
                 m_CphiMX_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound != 5) {
                     throw CanteraError("HMWSoln::readXMLBinarySalt::Cphi for " + ispName
                                        + "::" + jspName,
@@ -300,7 +300,7 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
                 }
                 m_Theta_ij_coeff(0,counter) = vParams[0];
                 m_Theta_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName
                                        + "::" + jspName,
@@ -309,7 +309,7 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
                 m_Theta_ij_coeff(0,counter) = vParams[0];
                 m_Theta_ij_coeff(1,counter) = vParams[1];
                 m_Theta_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
                     nParamsFound = 5;
@@ -379,7 +379,7 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
                 }
                 m_Theta_ij_coeff(0,counter) = vParams[0];
                 m_Theta_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName
                                        + "::" + jspName,
@@ -388,7 +388,7 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
                 m_Theta_ij_coeff(0,counter) = vParams[0];
                 m_Theta_ij_coeff(1,counter) = vParams[1];
                 m_Theta_ij[counter] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
                     nParamsFound = 5;
@@ -473,7 +473,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
         if (nodeName == "psi") {
             getFloatArray(xmlChild, vParams, false, "", stemp);
             size_t nParamsFound = vParams.size();
-            n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
+            n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies;
 
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
@@ -483,7 +483,7 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
                 }
                 m_Psi_ijk_coeff(0,n) = vParams[0];
                 m_Psi_ijk[n] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLPsiCation::Psi for "
                                        + kName + "::" + iName + "::" + jName,
@@ -491,8 +491,8 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
                 }
                 m_Psi_ijk_coeff(0,n) = vParams[0];
                 m_Psi_ijk_coeff(1,n) = vParams[1];
-                m_Psi_ijk[n]         = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+                m_Psi_ijk[n] = vParams[0];
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
                     nParamsFound = 5;
@@ -508,31 +508,31 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
             }
 
             // fill in the duplicate entries
-            n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
+            n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies ;
+            n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies ;
+            n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies ;
+            n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies ;
+            n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
@@ -607,7 +607,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
         if (nodeName == "psi") {
             getFloatArray(xmlChild, vParams, false, "", stemp);
             size_t nParamsFound = vParams.size();
-            n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
+            n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies;
 
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
@@ -617,7 +617,7 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
                 }
                 m_Psi_ijk_coeff(0,n) = vParams[0];
                 m_Psi_ijk[n] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLPsiAnion::Psi for "
                                        + kName + "::" + iName + "::" + jName,
@@ -625,8 +625,8 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
                 }
                 m_Psi_ijk_coeff(0,n) = vParams[0];
                 m_Psi_ijk_coeff(1,n) = vParams[1];
-                m_Psi_ijk[n]         = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+                m_Psi_ijk[n] = vParams[0];
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
                     nParamsFound = 5;
@@ -642,31 +642,31 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
             }
 
             // fill in the duplicate entries
-            n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies ;
+            n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies ;
+            n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies ;
+            n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies ;
+            n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
             m_Psi_ijk[n] = vParams[0];
 
-            n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies ;
+            n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies;
             for (size_t j = 0; j < nParamsFound; j++) {
                 m_Psi_ijk_coeff(j, n) = vParams[j];
             }
@@ -725,7 +725,7 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
                 }
                 m_Lambda_nj_coeff(0,nCount) = vParams[0];
                 m_Lambda_nj(iSpecies,jSpecies) = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
                                        + "::" + jName,
@@ -734,7 +734,7 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
                 m_Lambda_nj_coeff(0,nCount) = vParams[0];
                 m_Lambda_nj_coeff(1,nCount) = vParams[1];
                 m_Lambda_nj(iSpecies, jSpecies) = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
                     nParamsFound = 5;
@@ -793,7 +793,7 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
                 }
                 m_Mu_nnn_coeff(0,iSpecies) = vParams[0];
                 m_Mu_nnn[iSpecies] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
                                        "wrong number of params found");
@@ -801,7 +801,7 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
                 m_Mu_nnn_coeff(0, iSpecies) = vParams[0];
                 m_Mu_nnn_coeff(1, iSpecies) = vParams[1];
                 m_Mu_nnn[iSpecies] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
                     nParamsFound = 5;
@@ -850,7 +850,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
         return;
     }
     if (charge(iSpecies) != 0.0) {
-        throw CanteraError("HMWSoln::readXMLZetaCation",  "neutral charge problem");
+        throw CanteraError("HMWSoln::readXMLZetaCation", "neutral charge problem");
     }
 
     size_t jSpecies = speciesIndex(jName);
@@ -876,7 +876,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
         if (nodeName == "zeta") {
             getFloatArray(xmlChild, vParams, false, "", "zeta");
             size_t nParamsFound = vParams.size();
-            size_t n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies ;
+            size_t n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies;
 
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
                 if (nParamsFound != 1) {
@@ -886,7 +886,7 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
                 }
                 m_Psi_ijk_coeff(0,n) = vParams[0];
                 m_Psi_ijk[n] = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
                 if (nParamsFound != 2) {
                     throw CanteraError("HMWSoln::readXMLZetaCation::Zeta for "
                                        + iName + "::" + jName + "::" + kName,
@@ -894,8 +894,8 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
                 }
                 m_Psi_ijk_coeff(0,n) = vParams[0];
                 m_Psi_ijk_coeff(1,n) = vParams[1];
-                m_Psi_ijk[n]         = vParams[0];
-            } else  if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+                m_Psi_ijk[n] = vParams[0];
+            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
                 if (nParamsFound == 1) {
                     vParams.resize(5, 0.0);
                     nParamsFound = 5;
@@ -1254,7 +1254,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     const vector<string>&sss = speciesNames();
 
     for (size_t k = 0; k < m_kk; k++) {
-        XML_Node* s =  speciesDB->findByAttr("name", sss[k]);
+        XML_Node* s = speciesDB->findByAttr("name", sss[k]);
         if (!s) {
             throw CanteraError("HMWSoln::initThermoXML",
                                "Species Data Base " + sss[k] + " not found");
@@ -1263,7 +1263,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (!ss) {
             throw CanteraError("HMWSoln::initThermoXML",
                                "Species " + sss[k] +
-                               " standardState XML block  not found");
+                               " standardState XML block not found");
         }
         string modelStringa = ss->attrib("model");
         if (modelStringa == "") {
@@ -1279,7 +1279,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                  * Store a local pointer to the water standard state model.
                  *   -> We've hardcoded it to a PDSS_Water model, so this is ok.
                  */
-                m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0)) ;
+                m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
                 if (!m_waterSS) {
                     throw CanteraError("HMWSoln::initThermoXML",
                                        "Dynamic cast to PDSS_Water failed");
@@ -1403,7 +1403,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
             if (jmap != npos) {
                 const XML_Node& sp = *xspecies[jmap];
-                getOptionalFloat(sp, "stoichIsMods",  m_speciesCharge_Stoich[k]);
+                getOptionalFloat(sp, "stoichIsMods", m_speciesCharge_Stoich[k]);
             }
         }
 
@@ -1550,13 +1550,13 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             if (kHp != npos) {
                 if (mf[kHp] > sum * 1.1) {
                     mf[kHp] -= sum;
-                    mf[0]   += sum;
+                    mf[0] += sum;
                     notDone = false;
                 } else {
                     if (sum > 0.0) {
                         mf[kHp] *= 0.5;
-                        mf[0]   += mf[kHp];
-                        sum     -=  mf[kHp];
+                        mf[0] += mf[kHp];
+                        sum -= mf[kHp];
                     }
                 }
             }
@@ -1564,13 +1564,13 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 if (kOHm != npos) {
                     if (mf[kOHm] > -sum * 1.1) {
                         mf[kOHm] += sum;
-                        mf[0]    -= sum;
+                        mf[0] -= sum;
                         notDone = false;
                     } else {
                         if (sum < 0.0) {
                             mf[kOHm] *= 0.5;
-                            mf[0]    += mf[kOHm];
-                            sum      += mf[kOHm];
+                            mf[0] += mf[kOHm];
+                            sum += mf[kOHm];
                         }
                     }
                 }
@@ -1592,15 +1592,15 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     }
 }
 
-void  HMWSoln::calcIMSCutoffParams_()
+void HMWSoln::calcIMSCutoffParams_()
 {
-    IMS_afCut_ = 1.0 / (std::exp(1.0) *  IMS_gamma_k_min_);
+    IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_);
     IMS_efCut_ = 0.0;
     bool converged = false;
     double oldV = 0.0;
     for (int its = 0; its < 100 && !converged; its++) {
         oldV = IMS_efCut_;
-        IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_)  -IMS_efCut_;
+        IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_) -IMS_efCut_;
         IMS_bfCut_ = IMS_afCut_ / IMS_cCut_ + IMS_slopefCut_ - 1.0;
         IMS_dfCut_ = ((- IMS_afCut_/IMS_cCut_ + IMS_bfCut_ - IMS_bfCut_*IMS_X_o_cutoff_/IMS_cCut_)
                       /
@@ -1622,7 +1622,7 @@ void  HMWSoln::calcIMSCutoffParams_()
     IMS_egCut_ = 0.0;
     for (int its = 0; its < 100 && !converged; its++) {
         oldV = IMS_egCut_;
-        double lng_0 = -log(IMS_gamma_o_min_) -  f_prime_0 / f_0;
+        double lng_0 = -log(IMS_gamma_o_min_) - f_prime_0 / f_0;
         IMS_agCut_ = exp(lng_0) - IMS_egCut_;
         IMS_bgCut_ = IMS_agCut_ / IMS_cCut_ + IMS_slopegCut_ - 1.0;
         IMS_dgCut_ = ((- IMS_agCut_/IMS_cCut_ + IMS_bgCut_ - IMS_bgCut_*IMS_X_o_cutoff_/IMS_cCut_)
@@ -1641,7 +1641,7 @@ void  HMWSoln::calcIMSCutoffParams_()
     }
 }
 
-void  HMWSoln::calcMCCutoffParams_()
+void HMWSoln::calcMCCutoffParams_()
 {
     MC_X_o_min_ = 0.35;
     MC_X_o_cutoff_ = 0.6;

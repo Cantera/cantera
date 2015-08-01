@@ -15,10 +15,10 @@
 #include "sundials/sundials_nvector.h"
 
 // These constants are defined internally in the IDA package, ida.c
-#define IDA_NN  0
-#define IDA_SS  1
-#define IDA_SV  2
-#define IDA_WF  3
+#define IDA_NN 0
+#define IDA_SS 1
+#define IDA_SV 2
+#define IDA_WF 3
 
 #define REAL_WORKSPACE_SIZE 0
 
@@ -83,7 +83,7 @@ public:
 
     //! Set the stop time
     /*!
-     *  @param tstop the independent variable value past  which the solution is not to proceed.
+     *  @param tstop the independent variable value past which the solution is not to proceed.
      */
     virtual void setStopTime(doublereal tstop);
 

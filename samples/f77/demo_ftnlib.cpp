@@ -90,11 +90,11 @@ extern "C" {
             delete _trans;
             _trans = newTransportMgr(trmodel,_gas,1);
         } catch (CanteraError& err) {
-            _trans =  newTransportMgr("",_gas,1);
+            _trans = newTransportMgr("",_gas,1);
         }
     }
 
-    ///   integer function nElements()
+    /// integer function nElements()
     integer nelements_()
     {
         return _gas->nElements();

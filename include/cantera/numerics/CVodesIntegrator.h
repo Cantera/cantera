@@ -109,7 +109,7 @@ private:
     int m_maxsteps;
     int m_maxErrTestFails;
     FuncData* m_fdata;
-    N_Vector*  m_yS;
+    N_Vector* m_yS;
     size_t m_np;
     int m_mupper, m_mlower;
 
@@ -118,7 +118,7 @@ private:
     bool m_sens_ok;
 };
 
-}    // namespace
+} // namespace
 
 #else
 

@@ -352,7 +352,7 @@ public:
      * kmol m<SUP>-3</SUP>. Rate constants must reflect this fact.
      *
      * On a general note, the following must be true.
-     * For an ideal solution, the generalized concentration  must consist
+     * For an ideal solution, the generalized concentration must consist
      * of the mole fraction multiplied by a constant. The constant may be
      * fairly arbitrarily chosen, with differences adsorbed into the
      * reaction rate expression. 1/V_N, 1/V_k, or 1 are equally good,
@@ -483,7 +483,7 @@ public:
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
      * \f]
      * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$,  are computed by the
+     * at the reference pressure, \f$ P_{ref} \f$, are computed by the
      * species thermodynamic
      * property manager. They are polynomial functions of temperature.
      * @see SpeciesThermo
@@ -846,34 +846,34 @@ protected:
     /**
      * Species molar volumes \f$ m^3 kmol^-1 \f$
      */
-    vector_fp   m_speciesMolarVolume;
+    vector_fp m_speciesMolarVolume;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     /**
      * Vector containing the species reference constant pressure
      * heat capacities at T = m_tlast
      */
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //!  Vector containing the species reference Gibbs functions at T = m_tlast
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Vector containing the species reference entropies at T = m_tlast
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
     /**
      * Vector containing the species reference exp(-G/RT) functions
      * at T = m_tlast
      */
-    mutable vector_fp      m_expg0_RT;
+    mutable vector_fp m_expg0_RT;
 
     //! Vector of potential energies for the species.
-    mutable vector_fp      m_pe;
+    mutable vector_fp m_pe;
 
     //! Temporary array used in equilibrium calculations
-    mutable vector_fp      m_pp;
+    mutable vector_fp m_pp;
 
 private:
     /// @name Utility Functions

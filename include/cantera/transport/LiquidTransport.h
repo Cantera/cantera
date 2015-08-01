@@ -60,7 +60,7 @@ namespace Cantera
  *     various methods below.
  *
  *  Within LiquidTransport, the state is presumed to be
- *  defined in terms of the  species mole fraction,
+ *  defined in terms of the species mole fraction,
  *  temperature and pressure.  Charged species are expected
  *  and quantities like the electric current are computed
  *  based on a combined electrochemical potential.
@@ -83,7 +83,7 @@ public:
     LiquidTransport(thermo_t* thermo = 0, int ndim = 1);
 
     LiquidTransport(const LiquidTransport& right);
-    LiquidTransport&  operator=(const  LiquidTransport& right);
+    LiquidTransport& operator=(const LiquidTransport& right);
     virtual Transport* duplMyselfAsTransport() const;
     virtual ~LiquidTransport();
 
@@ -373,7 +373,7 @@ public:
      *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i
      *  \f]
      *  where \f$ z_i \f$ is the charge on species i,
-     *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
+     *  \f$ F \f$ is Faradays constant, \f$ \rho \f$  is the density,
      *  \f$ W_i \f$ is the molecular mass of species i.
      *  The conductance, \f$ \kappa \f$ is obtained from
      *  \f[
@@ -385,14 +385,14 @@ public:
     //! Compute the electric current density in A/m^2
     /*!
      *  The electric current is computed first by computing the
-     *  species diffusive fluxes using  the Stefan Maxwell solution
+     *  species diffusive fluxes using the Stefan Maxwell solution
      *  and then the current, \f$ \vec{i} \f$ by summing over
      *  the charge-weighted fluxes according to
      *  \f[
      *      \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i
      *  \f]
      *  where \f$ z_i \f$ is the charge on species i,
-     *  \f$ F \f$ is Faradays constant,  \f$ \rho \f$  is the density,
+     *  \f$ F \f$ is Faradays constant, \f$ \rho \f$  is the density,
      *  \f$ W_i \f$ is the molecular mass of species \c i.
      *
      * @param ndim       The number of spatial dimensions (1, 2, or 3).
@@ -470,10 +470,10 @@ public:
      *                   Flat vector with the m_nsp in the inner loop.
      *                     length = ldx * ndim
      */
-    virtual void getSpeciesVdiffES(size_t ndim,  const doublereal* grad_T,
-                                   int ldx,  const doublereal* grad_X,
-                                   int ldf,  const doublereal* grad_Phi,
-                                   doublereal* Vdiff) ;
+    virtual void getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
+                                   int ldx, const doublereal* grad_X,
+                                   int ldf, const doublereal* grad_Phi,
+                                   doublereal* Vdiff);
 
     //!  Return the species diffusive mass fluxes wrt to
     //!  the averaged velocity in [kmol/m^2/s].
@@ -916,7 +916,7 @@ private:
     //! Stefan-Maxwell diffusion coefficients
     DenseMatrix m_diff_Dij;
 
-    //!   Hydrodynamic radius for each species expressed as an  appropriate subclass of LTPspecies
+    //!   Hydrodynamic radius for each species expressed as an appropriate subclass of LTPspecies
     /*!
      *  These subclasses of LTPspecies evaluate the species-specific
      *  transport properties according to the parameters parsed in
@@ -936,7 +936,7 @@ private:
     LiquidTranInteraction* m_radiusMixModel;
 
     //! Species hydrodynamic radius
-    vector_fp  m_hydrodynamic_radius;
+    vector_fp m_hydrodynamic_radius;
 
     //! Internal value of the gradient of the mole fraction vector
     /*!
@@ -1028,7 +1028,7 @@ private:
      *
      * units m2/sec
      */
-    DenseMatrix  m_bdiff;
+    DenseMatrix m_bdiff;
 
     //! Internal value of the species viscosities
     /*!
@@ -1081,7 +1081,7 @@ private:
      *
      *   Length = number of species
      */
-    vector_fp  m_lambdaSpecies;
+    vector_fp m_lambdaSpecies;
 
     //! State of the mole fraction vector.
     int m_iStateMF;
@@ -1168,7 +1168,7 @@ private:
     vector_fp m_actCoeff;
 
     //! RHS to the Stefan-Maxwell equation
-    DenseMatrix   m_B;
+    DenseMatrix m_B;
 
     //! Matrix for the Stefan-Maxwell equation.
     DenseMatrix m_A;
@@ -1215,7 +1215,7 @@ private:
     /*!
      *   Length is equal to m_nsp
      */
-    vector_fp  m_spwork;
+    vector_fp m_spwork;
 
 private:
     //! Boolean indicating that the top-level mixture viscosity is current

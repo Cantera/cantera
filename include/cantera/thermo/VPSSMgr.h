@@ -330,7 +330,7 @@ public:
     //! Get the nondimensional Heat Capacities at constant pressure for the
     //! standard state of the species at the current T and P.
     /*!
-     * This is redefined here to call the internal function,  _updateStandardStateThermo(),
+     * This is redefined here to call the internal function, _updateStandardStateThermo(),
      * which calculates all standard state properties at the same time.
      *
      * @param cpr    Output vector containing the the nondimensional Heat
@@ -396,7 +396,7 @@ public:
      *            of the reference state of the species
      *            length = m_kk, units = dimensionless.
      */
-    virtual void getGibbs_RT_ref(doublereal* grt) const ;
+    virtual void getGibbs_RT_ref(doublereal* grt) const;
 
 
     //! Return a reference to the vector of Gibbs free energies of the species
@@ -413,7 +413,7 @@ public:
      *            of the reference state of the species
      *            length = m_kk, units = J/kmol.
      */
-    virtual void getGibbs_ref(doublereal* g) const ;
+    virtual void getGibbs_ref(doublereal* g) const;
 
     /*!
      *  Returns the vector of nondimensional entropies of the reference state
@@ -424,7 +424,7 @@ public:
      *            of the species in their reference states
      *            length: m_kk, units: dimensionless.
      */
-    virtual void getEntropy_R_ref(doublereal* er) const ;
+    virtual void getEntropy_R_ref(doublereal* er) const;
 
     /*!
      *  Returns the vector of nondimensional constant pressure heat capacities
@@ -435,7 +435,7 @@ public:
      *             of the species in their reference states
      *             length: m_kk, units: dimensionless.
      */
-    virtual void getCp_R_ref(doublereal* cpr) const ;
+    virtual void getCp_R_ref(doublereal* cpr) const;
 
     //!  Get the molar volumes of the species reference states at the current
     //!  *T* and *P_ref* of the solution.
@@ -445,7 +445,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal* vol) const ;
+    virtual void getStandardVolumes_ref(doublereal* vol) const;
 
     //@}
     /*! @name Setting the Internal State of the System
@@ -535,7 +535,7 @@ protected:
      * functions for all of the species must be recalculated.
      *
      * This function is responsible for updating the following internal members,
-     * when  m_useTmpStandardStateStorage is true.
+     * when m_useTmpStandardStateStorage is true.
      *
      *  -  m_hss_RT;
      *  -  m_cpss_R;
@@ -576,7 +576,7 @@ public:
     /*!
      * @param index  Species index
      */
-    virtual PDSS_enumType reportPDSSType(int index = -1) const ;
+    virtual PDSS_enumType reportPDSSType(int index = -1) const;
 
     //! This utility function reports the type of manager
     //! for the calculation of ss properties
@@ -584,7 +584,7 @@ public:
      *  @return Returns an enum type called VPSSMgr_enumType, which is a list
      *          of the known VPSSMgr objects
      */
-    virtual VPSSMgr_enumType reportVPSSMgrType() const ;
+    virtual VPSSMgr_enumType reportVPSSMgrType() const;
 
     //! Minimum temperature.
     /*!
@@ -595,7 +595,7 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const ;
+    virtual doublereal minTemp(size_t k=npos) const;
 
     //! Maximum temperature.
     /*!
@@ -619,7 +619,7 @@ public:
      * @param k Species index. Default is -1, which returns
      *          the generic answer.
      */
-    virtual doublereal refPressure(size_t k=npos) const ;
+    virtual doublereal refPressure(size_t k=npos) const;
 
     //@}
     /*! @name Initialization Methods - For Internal use
@@ -674,7 +674,7 @@ public:
      * @param phaseNode_ptr Pointer to the XML Node corresponding
      *                      to the phase which owns the species
      */
-    void installSTSpecies(size_t k,  const XML_Node& speciesNode,
+    void installSTSpecies(size_t k, const XML_Node& speciesNode,
                           const XML_Node* phaseNode_ptr);
 
     //! Install specific content for species k in the standard-state
@@ -719,11 +719,11 @@ protected:
 
     //! The last temperature at which the standard state thermodynamic
     //! properties were calculated at.
-    mutable doublereal    m_tlast;
+    mutable doublereal m_tlast;
 
     //! The last pressure at which the Standard State thermodynamic
     //! properties were calculated at.
-    mutable doublereal    m_plast;
+    mutable doublereal m_plast;
 
     /*!
      * Reference pressure (Pa) must be the same for all species
@@ -747,28 +747,28 @@ protected:
      * Vector containing the species reference enthalpies at T = m_tlast
      * and P = p_ref.
      */
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     /**
      * Vector containing the species reference constant pressure
      * heat capacities at T = m_tlast    and P = p_ref.
      */
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     /**
      * Vector containing the species reference Gibbs functions
-     * at T = m_tlast  and P = p_ref.
+     * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     /**
      * Vector containing the species reference entropies
      * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
     //! Vector containing the species reference molar volumes
-    mutable vector_fp      m_V0;
+    mutable vector_fp m_V0;
 
     /*!
      * boolean indicating whether temporary standard state storage is used
@@ -780,101 +780,101 @@ protected:
      * Vector containing the species Standard State enthalpies at T = m_tlast
      * and P = m_plast.
      */
-    mutable vector_fp      m_hss_RT;
+    mutable vector_fp m_hss_RT;
 
     /**
      * Vector containing the species Standard State constant pressure
      * heat capacities at T = m_tlast and P = m_plast.
      */
-    mutable vector_fp      m_cpss_R;
+    mutable vector_fp m_cpss_R;
 
     /**
      * Vector containing the species Standard State Gibbs functions
      * at T = m_tlast and P = m_plast.
      */
-    mutable vector_fp      m_gss_RT;
+    mutable vector_fp m_gss_RT;
 
     /**
      * Vector containing the species Standard State entropies
      * at T = m_tlast and P = m_plast.
      */
-    mutable vector_fp      m_sss_R;
+    mutable vector_fp m_sss_R;
 
     /**
      * Vector containing the species standard state volumes
      * at T = m_tlast and P = m_plast
      */
-    mutable vector_fp      m_Vss;
+    mutable vector_fp m_Vss;
 
     //! species reference enthalpies - used by individual PDSS objects
     /*!
      * Vector containing the species reference enthalpies at T = m_tlast
      * and P = p_ref.
      */
-    mutable vector_fp      mPDSS_h0_RT;
+    mutable vector_fp mPDSS_h0_RT;
 
     //! species reference heat capacities - used by individual PDSS objects
     /**
      * Vector containing the species reference constant pressure
      * heat capacities at T = m_tlast    and P = p_ref.
      */
-    mutable vector_fp      mPDSS_cp0_R;
+    mutable vector_fp mPDSS_cp0_R;
 
     //! species reference Gibbs free energies - used by individual PDSS objects
     /**
      * Vector containing the species reference Gibbs functions
-     * at T = m_tlast  and P = p_ref.
+     * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      mPDSS_g0_RT;
+    mutable vector_fp mPDSS_g0_RT;
 
     //! species reference entropies - used by individual PDSS objects
     /**
      * Vector containing the species reference entropies
      * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      mPDSS_s0_R;
+    mutable vector_fp mPDSS_s0_R;
 
     //! species reference state molar Volumes - used by individual PDSS objects
     /**
      * Vector containing the rf molar volumes
      * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      mPDSS_V0;
+    mutable vector_fp mPDSS_V0;
 
     //! species standard state enthalpies - used by individual PDSS objects
     /*!
      * Vector containing the species standard state enthalpies at T = m_tlast
      * and P = p_ref.
      */
-    mutable vector_fp      mPDSS_hss_RT;
+    mutable vector_fp mPDSS_hss_RT;
 
     //! species standard state heat capacities - used by individual PDSS objects
     /**
      * Vector containing the species standard state constant pressure
      * heat capacities at T = m_tlast    and P = p_ref.
      */
-    mutable vector_fp      mPDSS_cpss_R;
+    mutable vector_fp mPDSS_cpss_R;
 
     //! species standard state Gibbs free energies - used by individual PDSS objects
     /**
      * Vector containing the species standard state Gibbs functions
-     * at T = m_tlast  and P = p_ref.
+     * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      mPDSS_gss_RT;
+    mutable vector_fp mPDSS_gss_RT;
 
     //! species standard state entropies - used by individual PDSS objects
     /**
      * Vector containing the species standard state entropies
      * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      mPDSS_sss_R;
+    mutable vector_fp mPDSS_sss_R;
 
     //! species standard state molar Volumes - used by individual PDSS objects
     /**
      * Vector containing the ss molar volumes
      * at T = m_tlast and P = p_ref.
      */
-    mutable vector_fp      mPDSS_Vss;
+    mutable vector_fp mPDSS_Vss;
 
     friend class PDSS;
 };

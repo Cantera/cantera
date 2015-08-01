@@ -22,7 +22,7 @@ namespace Cantera
 const doublereal T_c = 647.096;
 //! Critical Pressure (Pascals)
 static const doublereal P_c = 22.064E6;
-//! Value of the Density at the critical point (kg  m-3)
+//! Value of the Density at the critical point (kg m-3)
 const doublereal Rho_c = 322.;
 //! Molecular Weight of water that is consistent with the paper (kg kmol-1)
 static const doublereal M_water = 18.015268;
@@ -34,7 +34,7 @@ static const doublereal M_water = 18.015268;
  *
  * The Ratio of R/M = 0.46151805 kJ kg-1 K-1 , which is Eqn. (6.3) in the paper.
  */
-static const doublereal Rgas = 8.314371E3;   // Joules kmol-1 K-1
+static const doublereal Rgas = 8.314371E3; // Joules kmol-1 K-1
 
 // Base constructor
 WaterPropsIAPWS::WaterPropsIAPWS() :
@@ -92,7 +92,7 @@ void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho)
     }
 }
 
-doublereal  WaterPropsIAPWS::helmholtzFE() const
+doublereal WaterPropsIAPWS::helmholtzFE() const
 {
     doublereal retn = m_phi->phi(tau, delta);
     doublereal temperature = T_c/tau;
@@ -100,7 +100,7 @@ doublereal  WaterPropsIAPWS::helmholtzFE() const
     return retn * RT;
 }
 
-doublereal  WaterPropsIAPWS::pressure() const
+doublereal WaterPropsIAPWS::pressure() const
 {
     doublereal retn = m_phi->pressureM_rhoRT(tau, delta);
     doublereal rho = delta * Rho_c;
@@ -303,7 +303,7 @@ doublereal WaterPropsIAPWS::Gibbs() const
     return gRT * Rgas * temperature;
 }
 
-void  WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
+void WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
     doublereal& densLiq, doublereal& densGas, doublereal& delGRT)
 {
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
@@ -313,7 +313,7 @@ void  WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
                            + fp2str(temperature) + "  " + fp2str(pressure));
     }
     setState_TR(temperature, densLiq);
-    doublereal gibbsLiqRT =  m_phi->gibbs_RT();
+    doublereal gibbsLiqRT = m_phi->gibbs_RT();
 
     densGas = density(temperature, pressure, WATER_GAS, densGas);
     if (densGas <= 0.0) {
@@ -476,13 +476,13 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
             slope = -dpdrho_new;
             // shouldn't be here for liquid spinodal
         }
-        doublereal delta_rho =  - dpdrho_new / slope;
+        doublereal delta_rho = - dpdrho_new / slope;
         if (delta_rho > 0.0) {
             delta_rho = std::min(delta_rho, dens_new * 0.1);
         } else {
             delta_rho = std::max(delta_rho, - dens_new * 0.1);
         }
-        doublereal dens_est =  dens_new + delta_rho;
+        doublereal dens_est = dens_new + delta_rho;
         if (dens_est < rho_low) {
             dens_est = 0.5 * (rho_low + dens_new);
         }
@@ -499,7 +499,7 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
         dpdrho_new = dpdrho();
         if (dpdrho_new > 0.0) {
             rho_high = std::min(dens_new, rho_high);
-        } else  if (dpdrho_new < 0.0) {
+        } else if (dpdrho_new < 0.0) {
             rho_low = std::max(rho_low, dens_new);
         } else {
             conv = true;
@@ -570,7 +570,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
         } else {
             delta_rho = std::max(delta_rho, - dens_new * 0.1);
         }
-        doublereal dens_est =  dens_new + delta_rho;
+        doublereal dens_est = dens_new + delta_rho;
         if (dens_est < rho_low) {
             dens_est = 0.5 * (rho_low + dens_new);
         }
@@ -586,7 +586,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
         dpdrho_new = dpdrho();
         if (dpdrho_new < 0.0) {
             rho_high = std::min(dens_new, rho_high);
-        } else  if (dpdrho_new > 0.0) {
+        } else if (dpdrho_new > 0.0) {
             rho_low = std::max(rho_low, dens_new);
         } else {
             conv = true;
@@ -618,7 +618,7 @@ void WaterPropsIAPWS::setState_TR(doublereal temperature, doublereal rho)
 doublereal WaterPropsIAPWS::enthalpy() const
 {
     doublereal temperature = T_c/tau;
-    doublereal hRT =  m_phi->enthalpy_RT();
+    doublereal hRT = m_phi->enthalpy_RT();
     return hRT * Rgas * temperature;
 }
 
@@ -641,7 +641,7 @@ doublereal WaterPropsIAPWS::cv() const
     return cvR * Rgas;
 }
 
-doublereal  WaterPropsIAPWS::cp() const
+doublereal WaterPropsIAPWS::cp() const
 {
     doublereal cpR = m_phi->cp_R();
     return cpR * Rgas;

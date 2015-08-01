@@ -215,14 +215,14 @@ doublereal getFloatCurrent(const XML_Node& node, const std::string& type)
     } else if (type != "" && units != "") {
         fctr = toSI(units);
 #ifdef DEBUG_MODE
-        writelog("\nWarning: conversion toSI() was done on node value "  + node.name() +
+        writelog("\nWarning: conversion toSI() was done on node value " + node.name() +
                  "but wasn't explicitly requested. Type was \"" + type + "\"\n");
 #endif
 #ifdef DEBUG_MODE_MORE
     } else if (type == "" && units != "") {
         // Note, below currently produces a lot of output due to transport blocks.
         // This needs to be addressed.
-        writelog("\nWarning: XML node "  + node.name() +
+        writelog("\nWarning: XML node " + node.name() +
                  "has a units attribute, \"" + units + "\","
                  "but no conversion was done because the getFloat() command didn't have a type\n");
 #endif

@@ -232,7 +232,7 @@ public:
     //!     @param m    element index
     doublereal nAtoms(size_t k, size_t m) const;
 
-    //! Get a vector containing the atomic composition  of species k
+    //! Get a vector containing the atomic composition of species k
     //!     @param  k         species index
     //!     @param atomArray  vector containing the atomic number in the species.
     //!                       Length: m_mm

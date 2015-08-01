@@ -21,9 +21,9 @@ namespace Cantera
  */
 //@{
 //! Standard state uses the molar convention
-const int    cAC_CONVENTION_MOLAR    = 0;
+const int cAC_CONVENTION_MOLAR = 0;
 //! Standard state uses the molality convention
-const int    cAC_CONVENTION_MOLALITY = 1;
+const int cAC_CONVENTION_MOLALITY = 1;
 //@}
 
 /*!
@@ -213,7 +213,7 @@ public:
      * Some phases must have zero net charge in order for their thermodynamics functions to be valid.
      * If this is so, then the value returned from this function is true.
      * If this is not the case, then this is false. Now, ideal gases have this parameter set to false,
-     * while solution with  molality-based activity coefficients have this parameter set to true.
+     * while solution with molality-based activity coefficients have this parameter set to true.
      */
     bool chargeNeutralityNecessary() const {
         return m_chargeNeutralityNecessary;
@@ -269,7 +269,7 @@ public:
         throw NotImplementedError("ThermoPhase::pressure");
     }
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
+    //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
      * \f[
@@ -334,7 +334,7 @@ public:
      * to the chemical potential by \f[ \mu_k = \mu_k^0(T,P) +
      * \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
      * the standard chemical potential at unit activity,
-     * which depends on  temperature and pressure,
+     * which depends on temperature and pressure,
      * but not on composition. The activity is dimensionless.
      * @{
      */
@@ -577,7 +577,7 @@ public:
         throw NotImplementedError("ThermoPhase::getdPartialMolarVolumes_dT");
     }
 
-    //! Return an array of derivatives of partial molar volumes wrt pressure  for the
+    //! Return an array of derivatives of partial molar volumes wrt pressure for the
     //! species in the mixture. Units: m^3/kmol.
     /*!
      *  The derivative is at constant temperature
@@ -610,7 +610,7 @@ public:
     //! Get the nondimensional Enthalpy functions for the species
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
     virtual void getEnthalpy_RT(doublereal* hrt) const {
@@ -620,7 +620,7 @@ public:
     //! Get the array of nondimensional Entropy functions for the
     //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
+     * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
     virtual void getEntropy_R(doublereal* sr) const {
@@ -648,7 +648,7 @@ public:
         throw NotImplementedError("ThermoPhase::getPureGibbs");
     }
 
-    //!  Returns the vector of nondimensional Internal Energies  of the standard
+    //!  Returns the vector of nondimensional Internal Energies of the standard
     //!  state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * @param urt  output vector of nondimensional standard state internal energies
@@ -743,7 +743,7 @@ public:
     /*!
      *  units = J/kmol
      *
-     * @param g       Output vector containing the  reference state
+     * @param g       Output vector containing the reference state
      *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
      */
     virtual void getGibbs_ref(doublereal* g) const {
@@ -1063,7 +1063,7 @@ public:
      *  @param rho Density (kg/m^3)
      *  @param p   Pressure (Pa)
      */
-    virtual void setState_RP(doublereal rho, doublereal p){
+    virtual void setState_RP(doublereal rho, doublereal p) {
         throw NotImplementedError("ThermoPhase::setState_RP");
     }
 
@@ -1411,7 +1411,7 @@ public:
     virtual void initThermoFile(const std::string& inputFile,
                                 const std::string& id);
 
-    //!Import and initialize a ThermoPhase object  using an XML tree.
+    //!Import and initialize a ThermoPhase object using an XML tree.
     /*!
      * @internal
      *
@@ -1462,7 +1462,7 @@ public:
 
     //! Add in species from Slave phases
     /*!
-     *  This hook is used for  cSS_CONVENTION_SLAVE phases
+     *  This hook is used for cSS_CONVENTION_SLAVE phases
      *
      *  @param phaseNode   XML Element for the phase
      */

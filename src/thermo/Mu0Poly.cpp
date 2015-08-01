@@ -32,13 +32,13 @@ SpeciesThermoInterpType* Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
     return new Mu0Poly(*this);
 }
 
-void  Mu0Poly::updateProperties(const doublereal* tt,  doublereal* cp_R,
-                                doublereal* h_RT, doublereal* s_R) const
+void Mu0Poly::updateProperties(const doublereal* tt, doublereal* cp_R,
+                               doublereal* h_RT, doublereal* s_R) const
 {
     size_t j = m_numIntervals;
     double T = *tt;
     for (size_t i = 0; i < m_numIntervals; i++) {
-        double T2 =  m_t0_int[i+1];
+        double T2 = m_t0_int[i+1];
         if (T <=T2) {
             j = i;
             break;
@@ -48,7 +48,7 @@ void  Mu0Poly::updateProperties(const doublereal* tt,  doublereal* cp_R,
     double cp_Rj = m_cp0_R_int[j];
     *cp_R = cp_Rj;
     *h_RT = (m_h0_R_int[j] + (T - T1) * cp_Rj)/T;
-    *s_R  = m_s0_R_int[j] + cp_Rj * (log(T/T1));
+    *s_R = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
 void Mu0Poly::updatePropertiesTemp(const doublereal T,
@@ -140,7 +140,7 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
     c[0] = static_cast<double>(numPoints);
     c[1] = h298;
     for (size_t i = 0; i < numPoints; i++) {
-        c[2+i*2]   = cTemperatures[i];
+        c[2+i*2] = cTemperatures[i];
         c[2+i*2+1] = cValues[i];
     }
 
@@ -156,7 +156,7 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
                            "nPoints must be >= 2");
     }
     m_numIntervals = nPoints - 1;
-    m_H298       = coeffs[1] / GasConstant;
+    m_H298 = coeffs[1] / GasConstant;
     size_t iT298 = 0;
     /*
      * Resize according to the number of points
@@ -175,7 +175,7 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
     for (size_t i = 0, iindex = 2; i < nPoints; i++) {
         double T1 = coeffs[iindex];
         m_t0_int[i] = T1;
-        m_mu0_R_int[i] =  coeffs[iindex+1] / GasConstant;
+        m_mu0_R_int[i] = coeffs[iindex+1] / GasConstant;
         if (T1 == 298.15) {
             iT298 = i;
             ifound = true;
@@ -220,7 +220,7 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
             double T2 = m_t0_int[i+1];
             double s2 = m_s0_R_int[i+1];
             double deltaMu = m_mu0_R_int[i+1] - m_mu0_R_int[i];
-            double deltaT  = T2 - T1;
+            double deltaT = T2 - T1;
             double cpi = (deltaMu - T1 * s2 + T2 * s2) / (deltaT - T1 * log(T2/T1));
             m_cp0_R_int[i] = cpi;
             m_h0_R_int[i] = m_h0_R_int[i+1] - cpi * deltaT;

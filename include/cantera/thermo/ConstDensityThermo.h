@@ -148,7 +148,7 @@ public:
     //! state of the species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of  standard state Gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const {
@@ -159,7 +159,7 @@ public:
     //! Get the nondimensional Enthalpy functions for the species
     //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
+     * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
     void getEnthalpy_RT(doublereal* hrt) const {
@@ -170,7 +170,7 @@ public:
     //! Get the array of nondimensional Entropy functions for the
     //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
+     * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
     void getEntropy_R(doublereal* sr) const {
@@ -307,19 +307,19 @@ public:
 
 protected:
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable vector_fp      m_h0_RT;
+    mutable vector_fp m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable vector_fp      m_cp0_R;
+    mutable vector_fp m_cp0_R;
 
     //! Temporary storage for dimensionless reference state Gibbs energies
-    mutable vector_fp      m_g0_RT;
+    mutable vector_fp m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable vector_fp      m_s0_R;
+    mutable vector_fp m_s0_R;
 
     //! Temporary array containing internally calculated partial pressures
-    mutable vector_fp      m_pp;
+    mutable vector_fp m_pp;
 
     //! Current pressure (Pa)
     doublereal m_press;

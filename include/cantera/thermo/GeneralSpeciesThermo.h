@@ -43,7 +43,7 @@ public:
      */
     GeneralSpeciesThermo& operator=(const GeneralSpeciesThermo& b);
 
-    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const ;
+    virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const;
 
     virtual void install_STIT(size_t index,
                               shared_ptr<SpeciesThermoInterpType> stit_ptr);

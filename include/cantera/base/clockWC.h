@@ -88,11 +88,11 @@ private:
     clock_t start_ticks;
 
     //! internal constant containing clock ticks per second
-    const  double  inv_clocks_per_sec;
+    const double inv_clocks_per_sec;
 
     //! internal constant containing the total number of ticks
     //! per rollover.
-    const  double  clock_width;
+    const double clock_width;
 };
 }
 #endif

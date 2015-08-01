@@ -34,13 +34,13 @@ SolidTransportData& SolidTransportData::operator=(const SolidTransportData& righ
 {
     if (&right != this) {
         // These are all shallow pointer copies - yes, yes, yes horrible crime.
-        speciesName        = right.speciesName;
+        speciesName = right.speciesName;
         if (right.ionConductivity) {
             ionConductivity = (right.ionConductivity)->duplMyselfAsLTPspecies();
         }
 
         if (right.thermalConductivity) {
-            thermalConductivity  = (right.thermalConductivity)->duplMyselfAsLTPspecies();
+            thermalConductivity = (right.thermalConductivity)->duplMyselfAsLTPspecies();
         }
         if (right.electConductivity) {
             electConductivity = (right.electConductivity)->duplMyselfAsLTPspecies();

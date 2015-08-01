@@ -72,10 +72,10 @@ public:
     doublereal phi_tt(doublereal tau, doublereal delta);
 
     //! Internal check # 1
-    void   check1();
+    void check1();
 
     //! Internal check # 2
-    void   check2();
+    void check2();
 
     //! Calculate the dimensionless pressure at tau and delta;
     /*!

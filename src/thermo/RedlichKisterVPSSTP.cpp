@@ -61,15 +61,15 @@ RedlichKisterVPSSTP& RedlichKisterVPSSTP::operator=(const RedlichKisterVPSSTP& b
 
     GibbsExcessVPSSTP::operator=(b);
 
-    numBinaryInteractions_      = b.numBinaryInteractions_ ;
-    m_pSpecies_A_ij             = b.m_pSpecies_A_ij;
-    m_pSpecies_B_ij             = b.m_pSpecies_B_ij;
-    m_N_ij                      = b.m_N_ij;
-    m_HE_m_ij                   = b.m_HE_m_ij;
-    m_SE_m_ij                   = b.m_SE_m_ij;
-    formRedlichKister_          = b.formRedlichKister_;
-    formTempModel_              = b.formTempModel_;
-    dlnActCoeff_dX_             = b.dlnActCoeff_dX_;
+    numBinaryInteractions_ = b.numBinaryInteractions_;
+    m_pSpecies_A_ij = b.m_pSpecies_A_ij;
+    m_pSpecies_B_ij = b.m_pSpecies_B_ij;
+    m_N_ij = b.m_N_ij;
+    m_HE_m_ij = b.m_HE_m_ij;
+    m_SE_m_ij = b.m_SE_m_ij;
+    formRedlichKister_ = b.formRedlichKister_;
+    formTempModel_ = b.formTempModel_;
+    dlnActCoeff_dX_ = b.dlnActCoeff_dX_;
 
     return *this;
 }
@@ -262,7 +262,7 @@ void RedlichKisterVPSSTP::initThermo()
     GibbsExcessVPSSTP::initThermo();
 }
 
-void  RedlichKisterVPSSTP::initLengths()
+void RedlichKisterVPSSTP::initLengths()
 {
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
@@ -328,9 +328,9 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
      *            within the routine. There is a severe problem with roundoff error in these calculations. The
      *            dimensionless terms help.
      */
-    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-        size_t iA =  m_pSpecies_A_ij[i];
-        size_t iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+        size_t iA = m_pSpecies_A_ij[i];
+        size_t iB = m_pSpecies_B_ij[i];
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
@@ -343,7 +343,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         doublereal sumMm1 = 0.0;
         doublereal sum2 = 0.0;
         for (size_t m = 0; m < N; m++) {
-            doublereal A_ge = (he_vec[m] -  T * se_vec[m]) / (GasConstant * T);
+            doublereal A_ge = (he_vec[m] - T * se_vec[m]) / (GasConstant * T);
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
             poly *= deltaX;
@@ -357,7 +357,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         for (size_t k = 0; k < m_kk; k++) {
             if (iA == k) {
                 lnActCoeff_Scaled_[k] += (oneMXA * XB * sum) + (XA * XB * sumMm1 * (oneMXA + XB));
-            } else  if (iB == k) {
+            } else if (iB == k) {
                 lnActCoeff_Scaled_[k] += (oneMXB * XA * sum) + (XA * XB * sumMm1 * (-oneMXB - XA));
             } else {
                 lnActCoeff_Scaled_[k] += -(XA * XB * sum2);
@@ -372,9 +372,9 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
 
-    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-        size_t iA =  m_pSpecies_A_ij[i];
-        size_t iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+        size_t iA = m_pSpecies_A_ij[i];
+        size_t iB = m_pSpecies_B_ij[i];
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
@@ -400,7 +400,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         for (size_t k = 0; k < m_kk; k++) {
             if (iA == k) {
                 dlnActCoeffdT_Scaled_[k] += (oneMXA * XB * sum) + (XA * XB * sumMm1 * (oneMXA + XB));
-            } else  if (iB == k) {
+            } else if (iB == k) {
                 dlnActCoeffdT_Scaled_[k] += (oneMXB * XA * sum) + (XA * XB * sumMm1 * (-oneMXB - XA));
             } else {
                 dlnActCoeffdT_Scaled_[k] += -(XA * XB * sum2);
@@ -430,9 +430,9 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
     doublereal T = temperature();
     dlnActCoeff_dX_.zero();
 
-    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-        size_t iA =  m_pSpecies_A_ij[i];
-        size_t iB =  m_pSpecies_B_ij[i];
+    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+        size_t iA = m_pSpecies_A_ij[i];
+        size_t iB = m_pSpecies_B_ij[i];
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
@@ -448,12 +448,12 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         doublereal sum2Mm1 = 0.0;
         doublereal sumMm2 = 0.0;
         for (size_t m = 0; m < N; m++) {
-            doublereal A_ge = he_vec[m] -  T * se_vec[m];
+            doublereal A_ge = he_vec[m] - T * se_vec[m];
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
             poly *= deltaX;
             if (m >= 1) {
-                sumMm1  += (A_ge * polyMm1 * m);
+                sumMm1 += (A_ge * polyMm1 * m);
                 sum2Mm1 += (A_ge * polyMm1 * m * (1.0 + m));
                 polyMm1 *= deltaX;
             }
@@ -472,7 +472,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
                 dlnActCoeff_dX_(k, iB) += ((1.0 - XA) * sum - (1.0 - XA) * XB * sumMm1
                                            + XA * sumMm1 * (1.0 + 2.0 * XB - XA)
                                            - XA * XB * sumMm2 * (1.0 - XA + XB));
-            } else  if (iB == k) {
+            } else if (iB == k) {
                 dlnActCoeff_dX_(k, iA) += ((1.0 - XB) * sum + (1.0 - XA) * XB * sumMm1
                                            + XB * sumMm1 * (1.0 - 2.0 * XA + XB)
                                            + XA * XB * sumMm2 * (1.0 - XA + XB));
@@ -481,8 +481,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
                                            + XA * sumMm1 * (XB - XA - (1.0 - XB))
                                            - XA * XB * sumMm2 * (-XA - (1.0 - XB)));
             } else {
-                dlnActCoeff_dX_(k, iA) += (- XB * sum2  - XA * XB * sum2Mm1);
-                dlnActCoeff_dX_(k, iB) += (- XA * sum2  + XA * XB * sum2Mm1);
+                dlnActCoeff_dX_(k, iA) += (- XB * sum2 - XA * XB * sum2Mm1);
+                dlnActCoeff_dX_(k, iB) += (- XA * sum2 + XA * XB * sum2Mm1);
             }
         }
     }
@@ -628,8 +628,8 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     double Volts = 0.0;
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
-    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
-        size_t iA =  m_pSpecies_A_ij[i];
+    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+        size_t iA = m_pSpecies_A_ij[i];
         XA = moleFractions_[iA];
         if (XA <= 1.0E-14) {
             XA = 1.0E-14;
@@ -658,7 +658,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     Volts /= Faraday;
 
     double termp = GasConstant * T * log((1.0 - XA)/XA) / Faraday;
-    VintOut =  Volts;
+    VintOut = Volts;
     voltsOut = Volts + termp;
 }
 #endif

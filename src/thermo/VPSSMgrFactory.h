@@ -34,7 +34,7 @@ public:
      */
     UnknownVPSSMgrModel(const std::string& proc,
                         const std::string& VPSSMgrModel) :
-        CanteraError(proc,  "Specified VPSSMgr model "
+        CanteraError(proc, "Specified VPSSMgr model "
                      + VPSSMgrModel +
                      " does not match any known type.") {}
 };
@@ -96,7 +96,7 @@ public:
     //! String conversion to an enumType
     /*!
      *  This routine is a string conversion. The string is obtained from the
-     *  standardState model attribute and converted to a  VPSSMgr_enumType
+     *  standardState model attribute and converted to a VPSSMgr_enumType
      *  type.
      *
      * @param ssModel  String representing the VPSSMGr object

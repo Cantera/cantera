@@ -91,7 +91,7 @@ public:
     /*!
      * @param b class to be copied
      */
-    MolarityIonicVPSSTP(const  MolarityIonicVPSSTP& b);
+    MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b);
 
     /// Assignment operator
     /*!
@@ -99,7 +99,7 @@ public:
      */
     MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP& b);
 
-    //! Duplication routine for objects which inherit from  ThermoPhase.
+    //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
@@ -348,10 +348,10 @@ protected:
     mutable std::vector<doublereal> moleFractionsTmp_;
 };
 
-#define  PBTYPE_PASSTHROUGH        0
-#define  PBTYPE_SINGLEANION        1
-#define  PBTYPE_SINGLECATION       2
-#define  PBTYPE_MULTICATIONANION   3
+#define PBTYPE_PASSTHROUGH 0
+#define PBTYPE_SINGLEANION 1
+#define PBTYPE_SINGLECATION 2
+#define PBTYPE_MULTICATIONANION 3
 
 }
 

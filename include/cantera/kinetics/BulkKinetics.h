@@ -52,7 +52,7 @@ protected:
     //! Difference between the global reactants order and the global products
     //! order. Of type "double" to account for the fact that we can have real-
     //! valued stoichiometries.
-    vector_fp  m_dn;
+    vector_fp m_dn;
 
     vector_fp m_conc;
     vector_fp m_grt;

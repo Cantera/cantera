@@ -61,7 +61,7 @@ public:
 
     //! Make one of several transport models, and return a base class pointer to it.
     /*!
-     *  This method operates at the level of a  single transport property as a
+     *  This method operates at the level of a single transport property as a
      *  function of temperature and possibly composition. It's a factory for
      *  LTPspecies classes.
      *
@@ -153,7 +153,7 @@ private:
     /*!
      * Given a vector of pointers to species XML data bases
      * and a list of species names, this method constructs the LiquidTransport
-     * Params object  containing the transport data for these species.
+     * Params object containing the transport data for these species.
      *
      *  It is an error to not find a "transport" XML element within each of the species
      *  XML elements listed in the names vector.
@@ -250,7 +250,7 @@ private:
  *
  * @ingroup tranprops
  */
-Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* thermo = 0, int loglevel = 0,
+Transport* newTransportMgr(const std::string& transportModel = "", thermo_t* thermo = 0, int loglevel = 0,
                            TransportFactory* f = 0, int ndim=1);
 
 //!  Create a new transport manager instance.
@@ -263,7 +263,7 @@ Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* th
  *
  * @ingroup tranprops
  */
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0,  TransportFactory* f = 0);
+Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0, TransportFactory* f = 0);
 
 } // End of namespace Cantera
 

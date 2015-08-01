@@ -49,16 +49,16 @@ MixtureFugacityTP& MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
         /*
          * However, we have to handle data that we own.
          */
-        m_Pcurrent     = b.m_Pcurrent;
+        m_Pcurrent = b.m_Pcurrent;
         moleFractions_ = b.moleFractions_;
-        iState_        = b.iState_;
-        forcedState_   = b.forcedState_;
-        m_Tlast_ref    = b.m_Tlast_ref;
-        m_logc0        = b.m_logc0;
-        m_h0_RT        = b.m_h0_RT;
-        m_cp0_R        = b.m_cp0_R;
-        m_g0_RT        = b.m_g0_RT;
-        m_s0_R         = b.m_s0_R;
+        iState_ = b.iState_;
+        forcedState_ = b.forcedState_;
+        m_Tlast_ref = b.m_Tlast_ref;
+        m_logc0 = b.m_logc0;
+        m_h0_RT = b.m_h0_RT;
+        m_cp0_R = b.m_cp0_R;
+        m_g0_RT = b.m_g0_RT;
+        m_s0_R = b.m_s0_R;
     }
     return *this;
 }
@@ -73,17 +73,17 @@ int MixtureFugacityTP::standardStateConvention() const
     return cSS_CONVENTION_TEMPERATURE;
 }
 
-void  MixtureFugacityTP::setForcedSolutionBranch(int solnBranch)
+void MixtureFugacityTP::setForcedSolutionBranch(int solnBranch)
 {
     forcedState_ = solnBranch;
 }
 
-int  MixtureFugacityTP::forcedSolutionBranch() const
+int MixtureFugacityTP::forcedSolutionBranch() const
 {
     return forcedState_;
 }
 
-int  MixtureFugacityTP::reportSolnBranchActual() const
+int MixtureFugacityTP::reportSolnBranchActual() const
 {
     return iState_;
 }
@@ -353,7 +353,7 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
     updateMixingExpressions();
     m_Pcurrent = pres;
 
-    if (forcedState_ ==  FLUID_UNDEFINED) {
+    if (forcedState_ == FLUID_UNDEFINED) {
         double rhoNow = Phase::density();
         double rho = densityCalc(t, pres, iState_, rhoNow);
         if (rho > 0.0) {
@@ -569,7 +569,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         /*
          * Dampen and crop the update
          */
-        doublereal  dpdV = dpdVBase;
+        doublereal dpdV = dpdVBase;
         if (n < 10) {
             dpdV = dpdVBase * 1.5;
         }
@@ -648,7 +648,7 @@ int MixtureFugacityTP::spinodalFunc::evalSS(const doublereal t, const doublereal
 }
 
 int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& densLiqGuess,
-                             doublereal& densGasGuess, doublereal& liqGRT,  doublereal& gasGRT)
+                             doublereal& densGasGuess, doublereal& liqGRT, doublereal& gasGRT)
 {
     int retn = 0;
     doublereal densLiq = densityCalc(TKelvin, pres, FLUID_LIQUID_0, densLiqGuess);
@@ -660,7 +660,7 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
         liqGRT = gibbs_mole() / _RT();
     }
 
-    doublereal  densGas = densityCalc(TKelvin, pres, FLUID_GAS, densGasGuess);
+    doublereal densGas = densityCalc(TKelvin, pres, FLUID_GAS, densGasGuess);
     if (densGas <= 0.0) {
         if (retn == -1) {
             throw CanteraError("MixtureFugacityTP::corr0",
@@ -709,7 +709,7 @@ int MixtureFugacityTP::phaseState(bool checkState) const
 
         double dpdv = dpdVCalc(t, molarVol, presCalc);
         if (dpdv < 0.0) {
-            state =  iStateGuess;
+            state = iStateGuess;
         } else {
             state = FLUID_UNSTABLE;
         }
@@ -777,11 +777,11 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
          */
         doublereal presLiquid = 0.;
         doublereal presGas;
-        doublereal  presBase = pres;
+        doublereal presBase = pres;
         bool foundLiquid = false;
         bool foundGas = false;
 
-        doublereal  densLiquid = densityCalc(TKelvin, presBase, FLUID_LIQUID_0, RhoLiquidGood);
+        doublereal densLiquid = densityCalc(TKelvin, presBase, FLUID_LIQUID_0, RhoLiquidGood);
         if (densLiquid > 0.0) {
             foundLiquid = true;
             presLiquid = pres;
@@ -921,7 +921,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         pres = critPressure();
         setState_TP(TKelvin, pres);
         molarVolGas = mw / density();
-        molarVolLiquid =  molarVolGas;
+        molarVolLiquid = molarVolGas;
         setState_TR(tempSave, densSave);
     }
     return pres;
@@ -944,7 +944,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
     if (m_Tlast_ref != Tnow) {
-        m_spthermo->update(Tnow, &m_cp0_R[0], &m_h0_RT[0],  &m_s0_R[0]);
+        m_spthermo->update(Tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
         m_Tlast_ref = Tnow;
 
         // update the species Gibbs functions

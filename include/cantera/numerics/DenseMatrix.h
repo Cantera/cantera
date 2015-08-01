@@ -54,7 +54,7 @@ public:
  *  LAPACK is handled by either throwing an exception of type, CELapackError, or by
  *  returning the error code condition to the calling routine.
  *
- *  The int variable,  m_useReturnErrorCode, determines which method is used.
+ *  The int variable, m_useReturnErrorCode, determines which method is used.
  *  The default value of zero means that an exception is thrown. A value of 1
  *  means that a return code is used.
  *
@@ -102,7 +102,7 @@ public:
      */
     void resize(size_t n, size_t m, doublereal v = 0.0);
 
-    virtual doublereal*   const* colPts();
+    virtual doublereal* const* colPts();
 
     //! Return a const vector of const pointers to the columns
     /*!
@@ -148,7 +148,7 @@ public:
 
 protected:
     //! Vector of pivots. Length is equal to the max of m and n.
-    vector_int     m_ipiv;
+    vector_int m_ipiv;
 
     //! Vector of column pointers
     std::vector<doublereal*> m_colPts;

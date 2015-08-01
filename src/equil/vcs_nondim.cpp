@@ -65,7 +65,7 @@ void VCS_SOLVE::vcs_nondim_TP()
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             /*
              *        Modify the standard state and total chemical potential data,
-             *        FF(I),  to make it dimensionless, i.e.,  mu / RT.
+             *        FF(I), to make it dimensionless, i.e., mu / RT.
              *        Thus, we may divide it by the temperature.
              */
             m_SSfeSpecies[i] *= tf;
@@ -74,7 +74,7 @@ void VCS_SOLVE::vcs_nondim_TP()
             m_feSpecies_old[i] *= tf;
         }
 
-        m_Faraday_dim =  vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
+        m_Faraday_dim = vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
 
         /*
          * Scale the total moles if necessary:
@@ -107,9 +107,9 @@ void VCS_SOLVE::vcs_nondim_TP()
 
         // Determine the scale of the problem
         if (tmole_orig > 1.0E4) {
-            m_totalMoleScale =  tmole_orig / 1.0E4;
+            m_totalMoleScale = tmole_orig / 1.0E4;
         } else if (tmole_orig < 1.0E-4) {
-            m_totalMoleScale =  tmole_orig / 1.0E-4;
+            m_totalMoleScale = tmole_orig / 1.0E-4;
         } else {
             m_totalMoleScale = 1.0;
         }
@@ -150,7 +150,7 @@ void VCS_SOLVE::vcs_redim_TP()
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             /*
              *        Modify the standard state and total chemical potential data,
-             *        FF(I),  to make it have units, i.e. mu = RT * mu_star
+             *        FF(I), to make it have units, i.e. mu = RT * mu_star
              */
             m_SSfeSpecies[i] *= tf;
             m_deltaGRxn_new[i] *= tf;

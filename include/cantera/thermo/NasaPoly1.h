@@ -85,7 +85,7 @@ public:
     //! Update the properties for this species, given a temperature polynomial
     /*!
      * This method is called with a pointer to an array containing the
-     * functions of temperature needed by this  parameterization, and three
+     * functions of temperature needed by this parameterization, and three
      * pointers to arrays where the computed property values should be
      * written. This method updates only one value in each array.
      *
@@ -104,18 +104,18 @@ public:
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
-        doublereal ct0 = m_coeff[0];          // a0
-        doublereal ct1 = m_coeff[1]*tt[0];    // a1 * T
-        doublereal ct2 = m_coeff[2]*tt[1];    // a2 * T^2
-        doublereal ct3 = m_coeff[3]*tt[2];    // a3 * T^3
-        doublereal ct4 = m_coeff[4]*tt[3];    // a4 * T^4
+        doublereal ct0 = m_coeff[0]; // a0
+        doublereal ct1 = m_coeff[1]*tt[0]; // a1 * T
+        doublereal ct2 = m_coeff[2]*tt[1]; // a2 * T^2
+        doublereal ct3 = m_coeff[3]*tt[2]; // a3 * T^3
+        doublereal ct4 = m_coeff[4]*tt[3]; // a4 * T^4
 
         doublereal cp, h, s;
         cp = ct0 + ct1 + ct2 + ct3 + ct4;
         h = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
-            + m_coeff[5]*tt[4];               // last term is a5/T
+            + m_coeff[5]*tt[4]; // last term is a5/T
         s = ct0*tt[5] + ct1 + 0.5*ct2 + 1.0/3.0*ct3
-            +0.25*ct4 + m_coeff[6];           // last term is a6
+            +0.25*ct4 + m_coeff[6]; // last term is a6
 
         // return the computed properties for this species
         *cp_R = cp;
@@ -156,14 +156,14 @@ public:
         double tt[6];
         double temp = 298.15;
         updateTemperaturePoly(temp, tt);
-        doublereal ct0 = m_coeff[0];          // a0
-        doublereal ct1 = m_coeff[1]*tt[0];    // a1 * T
-        doublereal ct2 = m_coeff[2]*tt[1];    // a2 * T^2
-        doublereal ct3 = m_coeff[3]*tt[2];    // a3 * T^3
-        doublereal ct4 = m_coeff[4]*tt[3];    // a4 * T^4
+        doublereal ct0 = m_coeff[0]; // a0
+        doublereal ct1 = m_coeff[1]*tt[0]; // a1 * T
+        doublereal ct2 = m_coeff[2]*tt[1]; // a2 * T^2
+        doublereal ct3 = m_coeff[3]*tt[2]; // a3 * T^3
+        doublereal ct4 = m_coeff[4]*tt[3]; // a4 * T^4
 
         double h_RT = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
-                      + m_coeff[5]*tt[4];               // last t
+                      + m_coeff[5]*tt[4]; // last t
 
         double h = h_RT * GasConstant * temp;
         if (h298) {

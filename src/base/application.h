@@ -69,7 +69,7 @@ protected:
         /*!
          * @ingroup errorhandling
          */
-        int getErrorCount() ;
+        int getErrorCount();
 
         //! Discard the last error message
         /*!
@@ -79,7 +79,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        void popError() ;
+        void popError();
 
         //! Retrieve the last error message in a string
         /*!
@@ -88,7 +88,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        std::string lastErrorMessage() ;
+        std::string lastErrorMessage();
 
         //!  Prints all of the error messages to an ostream
         /*!
@@ -102,7 +102,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        void getErrors(std::ostream& f) ;
+        void getErrors(std::ostream& f);
 
         //!  Prints all of the error messages using writelog
         /*!
@@ -143,7 +143,7 @@ protected:
          * @see Logger.
          * @ingroup textlogs
          */
-        void setLogger(Logger* logwriter) ;
+        void setLogger(Logger* logwriter);
 
     protected:
         //! Current list of error messages
@@ -154,11 +154,11 @@ protected:
 
         //! Current pointer to the logwriter
         Logger* logwriter;
-    } ;
+    };
 
 #ifdef THREAD_SAFE_CANTERA
     //! Typedef for thread specific messages
-    typedef boost::shared_ptr< Messages >   pMessages_t ;
+    typedef boost::shared_ptr< Messages > pMessages_t;
 
     //! Class that stores thread messages for each thread, and retrieves them
     //! based on the thread id.
@@ -178,12 +178,12 @@ protected:
         void removeThreadMessages();
 
         //! Typedef for map between a thread and the message
-        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
+        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t;
 
     private:
         //! Thread Msg Map
-        threadMsgMap_t   m_threadMsgMap ;
-    } ;
+        threadMsgMap_t m_threadMsgMap;
+    };
 #endif
 
 protected:
@@ -209,32 +209,32 @@ public:
 
     //! @copydoc Messages::addError
     void addError(const std::string& r, const std::string& msg) {
-        pMessenger->addError(r, msg) ;
+        pMessenger->addError(r, msg);
     }
 
     //! @copydoc Messages::getErrorCount
     int getErrorCount() {
-        return pMessenger->getErrorCount() ;
+        return pMessenger->getErrorCount();
     }
 
     //! @copydoc Messages::popError
     void popError() {
-        pMessenger->popError() ;
+        pMessenger->popError();
     }
 
     //! @copydoc Messages::lastErrorMessage
     std::string lastErrorMessage() {
-        return pMessenger->lastErrorMessage() ;
+        return pMessenger->lastErrorMessage();
     }
 
     //! @copydoc Messages::getErrors
     void getErrors(std::ostream& f) {
-        pMessenger->getErrors(f) ;
+        pMessenger->getErrors(f);
     }
 
     //! @copydoc Messages::logErrors
     void logErrors() {
-        pMessenger->logErrors() ;
+        pMessenger->logErrors();
     }
 
     //!  Add a directory to the data file search path.
@@ -243,7 +243,7 @@ public:
      *
      * @param dir  String name for the directory to be added to the search path
      */
-    void addDataDirectory(const std::string& dir) ;
+    void addDataDirectory(const std::string& dir);
 
     //! Find an input file.
     /*!
@@ -270,7 +270,7 @@ public:
      *
      * @ingroup inputfiles
      */
-    std::string findInputFile(const std::string& name) ;
+    std::string findInputFile(const std::string& name);
 
     //! Return a pointer to the XML tree for a Cantera input file.
     /*!
@@ -282,7 +282,7 @@ public:
      * @param file String containing the relative or absolute file name
      * @param debug Debug flag
      */
-    XML_Node* get_XML_File(const std::string& file, int debug=0) ;
+    XML_Node* get_XML_File(const std::string& file, int debug=0);
 
     //! Read a CTI or CTML string and fill up an XML tree.
     /*!
@@ -301,7 +301,7 @@ public:
      *
      * @param file String containing the relative or absolute file name
      */
-    void close_XML_File(const std::string& file) ;
+    void close_XML_File(const std::string& file);
 
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
@@ -342,7 +342,7 @@ public:
      * version of Cantera has not been specifically compiled for thread safety
      * this function does nothing.
      */
-    void thread_complete() ;
+    void thread_complete();
 
 protected:
     //! Set the default directories for input files.
@@ -386,14 +386,14 @@ protected:
     bool m_suppress_deprecation_warnings;
 
 #if defined(THREAD_SAFE_CANTERA)
-    ThreadMessages   pMessenger ;
+    ThreadMessages pMessenger;
 #else
-    std::auto_ptr<Messages> pMessenger ;
+    std::auto_ptr<Messages> pMessenger;
 #endif
 
 private:
     //! Pointer to the single Application instance
-    static Application* s_app ;
+    static Application* s_app;
 };
 
 }

@@ -239,7 +239,7 @@ int Refiner::getNewGrid(int n, const doublereal* z,
     }
 
     if (m_loc.empty()) {
-        copy(z, z + n,  zn);
+        copy(z, z + n, zn);
         return 0;
     }
 

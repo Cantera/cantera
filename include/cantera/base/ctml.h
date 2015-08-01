@@ -176,7 +176,7 @@ void addFloatArray(XML_Node& node, const std::string& titleString,
  *     @code
  *     const XML_Node &node;
  *     std::string titleString = "additionalTemperatures";
- *     int  n = 3;
+ *     int n = 3;
  *     int Tcases[3] = [273.15, 298.15, 373.15];
  *     std::string typeString = "optional";
  *     std::string units = "Kelvin";
@@ -241,11 +241,11 @@ void addNamedFloatArray(XML_Node& parentNode, const std::string& name, const siz
 void addString(XML_Node& node, const std::string& titleString,
                const std::string& valueString, const std::string& typeString="");
 
-//! This function reads the current node or a  child node of the current node
+//! This function reads the current node or a child node of the current node
 //! with the default name, "floatArray", with a value field
 //! consisting of a comma separated list of floats
 /*!
- * This function will read either the current XML node or a  child node to the
+ * This function will read either the current XML node or a child node to the
  * current XML node, with the name "floatArray". It will have a title
  * attribute, and the body of the XML node will be filled out with a comma
  * separated list of doublereals. Get an array of floats from the XML Node.

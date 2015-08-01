@@ -28,7 +28,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                      std::vector<size_t>& orderVectorElements,
                      vector_fp& formRxnMatrix)
 {
-    size_t  j, jj, k=0, kk, l, i, jl, ml;
+    size_t j, jj, k=0, kk, l, i, jl, ml;
     std::string ename;
     std::string sname;
     /*

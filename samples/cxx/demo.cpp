@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////
 //
-//     This demonstration program builds an object representing a
-//     reacting gas mixture, and uses it to compute thermodynamic
-//     properties, chemical equilibrium, and transport properties.
+// This demonstration program builds an object representing a
+// reacting gas mixture, and uses it to compute thermodynamic
+// properties, chemical equilibrium, and transport properties.
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -11,8 +11,8 @@
 // provide a simplified interface to the Cantera header files. If you need
 // to include core headers directly, use the format "cantera/module/*.h".
 
-#include "cantera/IdealGasMix.h"    // defines class IdealGasMix
-#include "cantera/transport.h"      // transport properties
+#include "cantera/IdealGasMix.h" // defines class IdealGasMix
+#include "cantera/transport.h" // transport properties
 #include <cstdio>
 
 // All Cantera kernel names are in namespace Cantera. You can either
@@ -33,7 +33,7 @@ void demoprog()
     gas.setState_TPX(temp, pres, "H2:1, O2:1, AR:2");
 
 
-    //    Thermodynamic properties
+    // Thermodynamic properties
 
     printf("\n\nInitial state:\n\n");
     printf(
@@ -62,7 +62,7 @@ void demoprog()
         gas.enthalpy_mole(), gas.entropy_mole(), gas.cp_mole());
 
 
-    //   Reaction information
+    // Reaction information
 
     int irxns = gas.nReactions();
     vector_fp qf(irxns);

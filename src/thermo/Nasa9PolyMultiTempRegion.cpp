@@ -110,13 +110,13 @@ int Nasa9PolyMultiTempRegion::reportType() const
 
 void Nasa9PolyMultiTempRegion::updateTemperaturePoly(double T, double* T_poly) const
 {
-    T_poly[0]  = T;
-    T_poly[1]  = T * T;
-    T_poly[2]  = T_poly[1] * T;
-    T_poly[3]  = T_poly[2] * T;
-    T_poly[4]  = 1.0 / T;
-    T_poly[5]  = T_poly[4] / T;
-    T_poly[6]  = std::log(T);
+    T_poly[0] = T;
+    T_poly[1] = T * T;
+    T_poly[2] = T_poly[1] * T;
+    T_poly[3] = T_poly[2] * T;
+    T_poly[4] = 1.0 / T;
+    T_poly[5] = T_poly[4] / T;
+    T_poly[6] = std::log(T);
 }
 
 void Nasa9PolyMultiTempRegion::updateProperties(const doublereal* tt,

@@ -28,10 +28,10 @@ Func1& Func1::operator=(const Func1& right)
     if (&right == this) {
         return *this;
     }
-    m_c        = right.m_c;
-    m_f1       = right.m_f1;
-    m_f2       = right.m_f2;
-    m_parent   = right.m_parent;
+    m_c = right.m_c;
+    m_f1 = right.m_f1;
+    m_f2 = right.m_f2;
+    m_parent = right.m_parent;
     return *this;
 }
 
@@ -141,7 +141,7 @@ void Func1::setParent(Func1* p)
 
 string Sin1::write(const string& arg) const
 {
-    string c  = "";
+    string c = "";
     if (m_c != 1.0) {
         c = fp2str(m_c);
     }
@@ -165,7 +165,7 @@ Func1& Cos1::derivative() const
 
 std::string Cos1::write(const std::string& arg) const
 {
-    string c  = "";
+    string c = "";
     if (m_c != 1.0) {
         c = fp2str(m_c);
     }
@@ -186,7 +186,7 @@ Func1& Exp1::derivative() const
 
 std::string Exp1::write(const std::string& arg) const
 {
-    string c  = "";
+    string c = "";
     if (m_c != 1.0) {
         c = fp2str(m_c);
     }
@@ -216,7 +216,7 @@ string Func1::write(const std::string& arg) const
 
 string Pow1::write(const std::string& arg) const
 {
-    string c  = "";
+    string c = "";
     if (m_c == 0.5) {
         return "\\sqrt{" + arg + "}";
     }

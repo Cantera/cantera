@@ -167,7 +167,7 @@ public:
      *
      *   value at 25C and 1 atm, relEps = 78.38
      */
-    doublereal relEpsilon(doublereal T, doublereal P_pascal,  int ifunc = 0);
+    doublereal relEpsilon(doublereal T, doublereal P_pascal, int ifunc = 0);
 
     //! ADebye calculates the value of A_Debye as a function
     //! of temperature and pressure according to relations

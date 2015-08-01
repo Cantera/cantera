@@ -69,7 +69,7 @@ MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
     importPhase(xmlphase, this);
 }
 
-MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons&  right) :
+MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons& right) :
     xdef_(0)
 {
     operator=(right);

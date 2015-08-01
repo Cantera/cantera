@@ -81,7 +81,7 @@ namespace Cantera
  *
  * The standard states for thermodynamic objects that derive from <b>MolalityVPSSTP</b>
  * are on the unit molality basis. Chemical potentials
- * of the solutes,  \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based
+ * of the solutes, \f$ \mu_k \f$, and the solvent, \f$ \mu_o \f$, which are based
  * on the molality form, have the following general format:
  *
  * \f[
@@ -103,7 +103,7 @@ namespace Cantera
  *   \f]
  *
  *  MolalityVPSSTP::osmoticCoefficient() returns the value of \f$ \phi \f$.
- *  Note there  are a few of definitions of the osmotic coefficient floating
+ *  Note there are a few of definitions of the osmotic coefficient floating
  *  around. We use the one defined in
  *  (Activity Coefficients in Electrolyte Solutions, K. S. Pitzer
  *   CRC Press, Boca Raton, 1991, p. 85, Eqn. 28). This definition is most clearly
@@ -470,7 +470,7 @@ public:
 
     //!  Get the array of non-dimensional molality based
     //!  activity coefficients at the current solution temperature,
-    //!  pressure, and  solution concentration.
+    //!  pressure, and solution concentration.
     /*!
      *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
      *  classes which derive from MolalityVPSSTP. This function takes over from the
@@ -506,7 +506,7 @@ public:
      *       \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
      *   \f]
      *
-     *  Note there  are a few of definitions of the osmotic coefficient floating
+     *  Note there are a few of definitions of the osmotic coefficient floating
      *  around. We use the one defined in
      *  (Activity Coefficients in Electrolyte Solutions, K. S. Pitzer
      *   CRC Press, Boca Raton, 1991, p. 85, Eqn. 28). This definition is most clearly
@@ -679,7 +679,7 @@ protected:
 
     //! Get the array of unscaled non-dimensional molality based
     //!  activity coefficients at the current solution temperature,
-    //!  pressure, and  solution concentration.
+    //!  pressure, and solution concentration.
     /*!
      *  See Denbigh p. 278 for a thorough discussion. This class must be overwritten in
      *  classes which derive from MolalityVPSSTP. This function takes over from the
@@ -736,7 +736,7 @@ protected:
      *   scaling.
      *   Either PHSCALE_PITZER or PHSCALE_NBS
      */
-    int        m_pHScalingType;
+    int m_pHScalingType;
 
     //! Index of the phScale species
     /*!
@@ -772,7 +772,7 @@ protected:
      * Note this vector is a mutable quantity.
      * units are (kg/kmol)
      */
-    mutable vector_fp  m_molalities;
+    mutable vector_fp m_molalities;
 };
 
 
@@ -819,7 +819,7 @@ const int PHSCALE_PITZER = 0;
  *  This is the NBS pH scale, which is used in all conventional pH
  *  measurements. and is based on the Bates-Guggenheim equations.
  */
-const int PHSCALE_NBS    = 1;
+const int PHSCALE_NBS = 1;
 
 }
 

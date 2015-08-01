@@ -122,7 +122,7 @@ public:
      */
     GibbsExcessVPSSTP& operator=(const GibbsExcessVPSSTP& b);
 
-    //! Duplication routine for objects which inherit from  ThermoPhase.
+    //! Duplication routine for objects which inherit from ThermoPhase.
     /*!
      *  This virtual routine can be used to duplicate ThermoPhase objects
      *  inherited from ThermoPhase even if the application only has
@@ -285,7 +285,7 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)  {
+    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnN: "
                                   "nonzero and nonimplemented");
     }
@@ -479,7 +479,7 @@ protected:
     //! log of the activity coefficients of the species
     mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
 
-    //! Storage for the current derivative values of the  gradients with respect to logarithm of the species mole number of the
+    //! Storage for the current derivative values of the gradients with respect to logarithm of the species mole number of the
     //! log of the activity coefficients of the species
     /*!
      *  dlnActCoeffdlnN_(k, m)  is the derivative of ln(gamma_k) wrt ln mole number of species m

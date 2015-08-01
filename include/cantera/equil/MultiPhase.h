@@ -629,7 +629,7 @@ private:
     std::map<std::string, size_t> m_enamemap;
 
     //! Number of phases in the MultiPhase object
-    size_t  m_np;
+    size_t m_np;
 
     //! Current value of the temperature (kelvin)
     doublereal m_temp;
@@ -761,7 +761,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  *
  * Also, without perturbation of FormulaMatrix[], BasisOptimize[] would
  * produce a zero pivot because the matrix would be singular (unless the argon
- * element column was already the last column of  FormulaMatrix[].
+ * element column was already the last column of FormulaMatrix[].
  *
  * This routine borrows heavily from BasisOptimize algorithm. It finds nc
  * constraints which span the range space of the Component Formula matrix, and

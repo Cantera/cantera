@@ -190,12 +190,12 @@ void CVodeInt::setIterator(IterType t)
 void CVodeInt::initialize(double t0, FuncEval& func)
 {
     m_neq = int(func.neq());
-    m_t0  = t0;
+    m_t0 = t0;
 
     if (m_y) {
-        N_VFree(m_y);    // free solution vector if already allocated
+        N_VFree(m_y); // free solution vector if already allocated
     }
-    m_y = N_VNew(m_neq, 0);   // allocate solution vector
+    m_y = N_VNew(m_neq, 0); // allocate solution vector
     // check abs tolerance array size
     if (m_itol == 1 && m_nabs < m_neq) {
         throw CVodeErr("not enough absolute tolerance values specified.");
@@ -205,7 +205,7 @@ void CVodeInt::initialize(double t0, FuncEval& func)
     // set options
     m_iopt[MXSTEP] = m_maxsteps;
     m_iopt[MAXORD] = m_maxord;
-    m_ropt[HMAX]   = m_hmax;
+    m_ropt[HMAX] = m_hmax;
 
     if (m_cvode_mem) {
         CVodeFree(m_cvode_mem);
@@ -246,13 +246,13 @@ void CVodeInt::initialize(double t0, FuncEval& func)
 
 void CVodeInt::reinitialize(double t0, FuncEval& func)
 {
-    m_t0  = t0;
+    m_t0 = t0;
     func.getInitialConditions(m_t0, m_neq, N_VDATA(m_y));
 
     // set options
     m_iopt[MXSTEP] = m_maxsteps;
     m_iopt[MAXORD] = m_maxord;
-    m_ropt[HMAX]   = m_hmax;
+    m_ropt[HMAX] = m_hmax;
 
     // pass a pointer to func in m_data
     m_data = (void*)&func;

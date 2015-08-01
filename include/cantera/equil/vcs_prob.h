@@ -182,7 +182,7 @@ public:
 
     //! Molecular weight of species
     /*!
-     * WtSpecies[k] = molecular weight of species   in gm/mol
+     * WtSpecies[k] = molecular weight of species in gm/mol
      */
     std::vector<double> WtSpecies;
 
@@ -195,7 +195,7 @@ public:
     // String containing the title of the run
     std::string Title;
 
-    //! Vector of pointers to thermo  structures which identify the model and
+    //! Vector of pointers to thermo structures which identify the model and
     //! parameters for evaluating the thermodynamic functions for that
     //! particular species
     std::vector<VCS_SPECIES_THERMO*> SpeciesThermo;

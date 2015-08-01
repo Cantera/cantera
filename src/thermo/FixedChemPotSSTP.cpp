@@ -112,7 +112,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     saveSpeciesData(0, &s);
 }
 
-FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP&  right)
+FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP& right)
 {
     *this = right;
 }

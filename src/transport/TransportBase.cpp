@@ -19,10 +19,10 @@ Transport::Transport(thermo_t* thermo, size_t ndim) :
 
 Transport::Transport(const Transport& right)
 {
-    m_thermo        = right.m_thermo;
-    m_ready         = right.m_ready;
-    m_nsp          = right.m_nsp;
-    m_nDim          = right.m_nDim;
+    m_thermo = right.m_thermo;
+    m_ready = right.m_ready;
+    m_nsp = right.m_nsp;
+    m_nDim = right.m_nDim;
     m_velocityBasis = right.m_velocityBasis;
 }
 
@@ -31,10 +31,10 @@ Transport& Transport::operator=(const Transport& right)
     if (&right != this) {
         return *this;
     }
-    m_thermo        = right.m_thermo;
-    m_ready         = right.m_ready;
-    m_nsp          = right.m_nsp;
-    m_nDim          = right.m_nDim;
+    m_thermo = right.m_thermo;
+    m_ready = right.m_ready;
+    m_nsp = right.m_nsp;
+    m_nDim = right.m_nDim;
     m_velocityBasis = right.m_velocityBasis;
     return *this;
 }

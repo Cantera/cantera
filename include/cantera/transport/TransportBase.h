@@ -36,20 +36,20 @@ class SolidTransportData;
 const int CK_Mode = 10;
 
 // types of transport models that can be constructed
-const int None                 = 199;
-const int cMulticomponent      = 200;
-const int CK_Multicomponent    = 202;
-const int cMixtureAveraged     = 210;
-const int CK_MixtureAveraged   = 211;
-const int cHighP               = 270;
-const int cSolidTransport      = 300;
-const int cDustyGasTransport   = 400;
-const int cUserTransport       = 500;
-const int cFtnTransport        = 600;
-const int cLiquidTransport     = 700;
-const int cSimpleTransport     = 770;
-const int cRadiativeTransport  = 800;
-const int cWaterTransport      = 721;
+const int None = 199;
+const int cMulticomponent = 200;
+const int CK_Multicomponent = 202;
+const int cMixtureAveraged = 210;
+const int CK_MixtureAveraged = 211;
+const int cHighP = 270;
+const int cSolidTransport = 300;
+const int cDustyGasTransport = 400;
+const int cUserTransport = 500;
+const int cFtnTransport = 600;
+const int cLiquidTransport = 700;
+const int cSimpleTransport = 770;
+const int cRadiativeTransport = 800;
+const int cWaterTransport = 721;
 //!   \endcond
 
 //! The diffusion fluxes must be referenced to a particular reference
@@ -172,7 +172,7 @@ public:
 
     virtual ~Transport() {}
     Transport(const Transport& right);
-    Transport&  operator=(const Transport& right);
+    Transport& operator=(const Transport& right);
 
     //! Duplication routine for objects which inherit from Transport
     /*!
@@ -292,7 +292,7 @@ public:
      *
      *        k = j * nsp + i
      *
-     *    The size of mobRat must be at least equal to  nsp*nsp
+     *    The size of mobRat must be at least equal to nsp*nsp
      */
     virtual void mobilityRatio(double* mobRat) {
         throw NotImplementedError("Transport::mobilityRatio");
@@ -412,7 +412,7 @@ public:
     //! Compute the mixture electrical conductivity (S m-1) at the current
     //! conditions of the phase (Siemens m-1)
     /*!
-     *   The electrical conductivity, \f$ \sigma \f$,  relates the electric
+     *   The electrical conductivity, \f$ \sigma \f$, relates the electric
      *   current density, J, to the electric field, E.
      *
      *     \f[
@@ -424,7 +424,7 @@ public:
      *
      *   The conductivity is the reciprocal of the resistivity.
      *
-     *   The units are Siemens m-1,  where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
+     *   The units are Siemens m-1, where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
      */
     virtual doublereal getElectricConduct() {
         throw NotImplementedError("Transport::getElectricConduct");
@@ -613,7 +613,7 @@ public:
      *           coefficients.  Dimension dt at least as large as the number of
      *           species. Units are kg/m/s.
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt)  {
+    virtual void getThermalDiffCoeffs(doublereal* const dt) {
         throw NotImplementedError("Transport::getThermalDiffCoeffs");
     }
 
@@ -781,10 +781,10 @@ protected:
     //@}
 
     //!  pointer to the object representing the phase
-    thermo_t*  m_thermo;
+    thermo_t* m_thermo;
 
     //!  true if finalize has been called
-    bool      m_ready;
+    bool m_ready;
 
     //! Number of species
     size_t m_nsp;

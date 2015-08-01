@@ -34,7 +34,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_thermo = ph;
 
     if (ph == 0) {
-        return;    // used to create a dummy object
+        return; // used to create a dummy object
     }
 
     size_t nsp2 = m_thermo->nSpecies();
@@ -109,7 +109,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_visc.resize(m_points, 0.0);
     m_tcon.resize(m_points, 0.0);
 
-    if (m_transport_option ==  c_Mixav_Transport) {
+    if (m_transport_option == c_Mixav_Transport) {
         m_diff.resize(m_nsp*m_points);
     } else {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
@@ -238,10 +238,10 @@ void StFlow::eval(size_t jg, doublereal* xg,
     integer* diag = diagg + loc();
 
     size_t jmin, jmax;
-    if (jg == npos) {      // evaluate all points
+    if (jg == npos) { // evaluate all points
         jmin = 0;
         jmax = m_points - 1;
-    } else {          // evaluate points for Jacobian
+    } else { // evaluate points for Jacobian
         size_t jpt = (jg == 0) ? 0 : jg - firstPoint();
         jmin = std::max<size_t>(jpt, 1) - 1;
         jmax = std::min(jpt+1,m_points-1);
@@ -434,9 +434,8 @@ void StFlow::eval(size_t jg, doublereal* xg,
                 dtdzj = dTdz(x,j);
                 sum2 *= GasConstant * dtdzj;
 
-                rsd[index(c_offset_T, j)]   =
-                    - m_cp[j]*rho_u(x,j)*dtdzj
-                    - divHeatFlux(x,j) - sum - sum2;
+                rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
+                                            - divHeatFlux(x,j) - sum - sum2;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
@@ -689,7 +688,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 soln[index(0,j)] = x[j];
             }
         } else if (nm == "z") {
-            ;   // already read grid
+            ; // already read grid
         } else if (nm == "V") {
             writelog("radial velocity   ", loglevel >= 2);
             if (x.size() != np) {
@@ -1010,4 +1009,4 @@ XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
     return flow;
 }
 
-}  // namespace
+} // namespace

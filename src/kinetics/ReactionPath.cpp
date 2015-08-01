@@ -238,7 +238,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
         if (scale <= 0.0) {
             for (i1 = 0; i1 < nNodes(); i1++) {
                 k1 = m_speciesNumber[i1];
-                node(k1)->visible  = false;
+                node(k1)->visible = false;
                 for (i2 = i1+1; i2 < nNodes(); i2++) {
                     k2 = m_speciesNumber[i2];
                     flx = netFlow(k1, k2);
@@ -279,8 +279,8 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                     // is greater than the threshold
                     if (flxratio >= threshold) {
                         // make nodes visible
-                        node(kbegin)->visible  = true;
-                        node(kend)->visible    = true;
+                        node(kbegin)->visible = true;
+                        node(kend)->visible = true;
 
                         s << "s" << kbegin << " -> s" << kend;
                         s <<  "[fontname=\""+m_font+"\", style=\"setlinewidth(";
@@ -292,7 +292,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                             s << ", arrowsize="
                               <<  std::min(6.0, 0.5*lwidth);
                         } else {
-                            s <<  arrow_width << ")\"";
+                            s << arrow_width << ")\"";
                             s << ", arrowsize=" << flxratio + 1;
                         }
 
@@ -403,7 +403,7 @@ void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
                                     doublereal value, string legend)
 {
     SpeciesNode* begin = m_nodes[k1];
-    SpeciesNode* end   = m_nodes[k2];
+    SpeciesNode* end = m_nodes[k2];
     Path* ff = m_paths[k1][k2];
     if (!ff) {
         ff= new Path(begin, end);
@@ -423,7 +423,7 @@ std::vector<size_t> ReactionPathDiagram::species()
 int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
 {
     m_groups.resize(m_nr);
-    for (size_t i = 0; i < m_nr; i++) {           // loop over reactions
+    for (size_t i = 0; i < m_nr; i++) { // loop over reactions
         logfile << endl << "Reaction " << i+1 << ": "
                 << s.reactionString(i);
 
@@ -628,7 +628,7 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     m_ropf.resize(m_nr);
     m_ropr.resize(m_nr);
     m_determinate.resize(m_nr);
-    m_x.resize(m_ns);  // not currently used ?
+    m_x.resize(m_ns); // not currently used ?
     m_elatoms.resize(m_nel, m_nr);
 
     size_t nr, np, n, k;
@@ -703,12 +703,12 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
         for (size_t m = 0; m < m_nel; m++) {
             nar = 0;
             nap = 0;
-            for (size_t j = 0;  j < nr; j++) {
+            for (size_t j = 0; j < nr; j++) {
                 if (m_atoms(m_reac[i][j],m) > 0) {
                     nar++;
                 }
             }
-            for (size_t j = 0;  j < np; j++) {
+            for (size_t j = 0; j < np; j++) {
                 if (m_atoms(m_prod[i][j],m) > 0) {
                     nap++;
                 }
@@ -803,7 +803,7 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                     // element m, and both are allowed to appear in
                     // the diagram
                     if ((kkr != kkp) && (m_atoms(kkr,m) > 0
-                                         &&  m_atoms(kkp,m) > 0)
+                                         && m_atoms(kkp,m) > 0)
                             && status[kkr] >= 0 && status[kkp] >= 0) {
                         // if neither species contains the full
                         // number of atoms of element m in the

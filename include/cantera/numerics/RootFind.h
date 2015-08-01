@@ -26,7 +26,7 @@ namespace Cantera
 ///  @name  Constant which determines the return integer from the routine
 
 //!  This means that the root solver was a success
-#define ROOTFIND_SUCCESS             0
+#define ROOTFIND_SUCCESS 0
 //!  This return value means that the root finder resolved a solution in the x coordinate
 //!  However, convergence in F was not achieved.
 /*!
@@ -36,13 +36,13 @@ namespace Cantera
  */
 #define ROOTFIND_SUCCESS_XCONVERGENCEONLY 1
 //!  This means that the root solver failed to achieve convergence
-#define ROOTFIND_FAILEDCONVERGENCE  -1
+#define ROOTFIND_FAILEDCONVERGENCE -1
 //!  This means that the input to the root solver was defective
-#define ROOTFIND_BADINPUT           -2
+#define ROOTFIND_BADINPUT -2
 //!  This means that the rootfinder believes the solution is lower than xmin
-#define ROOTFIND_SOLNLOWERTHANXMIN  -3
+#define ROOTFIND_SOLNLOWERTHANXMIN -3
 //!  This means that the rootfinder believes the solution is higher than xmax
-#define ROOTFIND_SOLNHIGHERTHANXMAX  -4
+#define ROOTFIND_SOLNHIGHERTHANXMAX -4
 //@}
 
 //! Root finder for 1D problems

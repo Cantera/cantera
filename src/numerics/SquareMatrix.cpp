@@ -98,7 +98,7 @@ void SquareMatrix::resize(size_t n, size_t m, doublereal v)
     DenseMatrix::resize(n, m, v);
 }
 
-void  SquareMatrix::mult(const doublereal* b, doublereal* prod) const
+void SquareMatrix::mult(const doublereal* b, doublereal* prod) const
 {
     DenseMatrix::mult(b, prod);
 }
@@ -108,7 +108,7 @@ void SquareMatrix::mult(const DenseMatrix& b, DenseMatrix& prod) const
     DenseMatrix::mult(b, prod);
 }
 
-void  SquareMatrix::leftMult(const doublereal* const b, doublereal* const prod) const
+void SquareMatrix::leftMult(const doublereal* const b, doublereal* const prod) const
 {
     DenseMatrix::leftMult(b, prod);
 }
@@ -141,7 +141,7 @@ void SquareMatrix::setFactorFlag()
 
 int SquareMatrix::factorQR()
 {
-    if (tau.size() < m_nrows)  {
+    if (tau.size() < m_nrows) {
         tau.resize(m_nrows, 0.0);
         work.resize(8 * m_nrows, 0.0);
     }
@@ -203,7 +203,7 @@ int SquareMatrix::solveQR(doublereal* b)
     }
 
     char dd = 'N';
-    ct_dtrtrs(ctlapack::UpperTriangular, ctlapack::NoTranspose, &dd, m_nrows, 1,  &*begin(), m_nrows, b,
+    ct_dtrtrs(ctlapack::UpperTriangular, ctlapack::NoTranspose, &dd, m_nrows, 1, &*begin(), m_nrows, b,
               m_nrows, info);
     if (info != 0) {
         if (m_printLevel) {
@@ -262,7 +262,7 @@ doublereal SquareMatrix::rcondQR()
     }
 
     int rinfo = 0;
-    rcond =  ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &*begin(), m_nrows, DATA_PTR(work),
+    rcond = ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &*begin(), m_nrows, DATA_PTR(work),
                        DATA_PTR(iwork_), rinfo);
     if (rinfo != 0) {
         if (m_printLevel) {
@@ -290,7 +290,7 @@ doublereal* SquareMatrix::ptrColumn(size_t j)
     return Array2D::ptrColumn(j);
 }
 
-size_t  SquareMatrix::nRows() const
+size_t SquareMatrix::nRows() const
 {
     return m_nrows;
 }
@@ -315,7 +315,7 @@ vector_fp::const_iterator SquareMatrix::begin() const
     return m_data.begin();
 }
 
-doublereal*   const* SquareMatrix::colPts()
+doublereal* const* SquareMatrix::colPts()
 {
     return DenseMatrix::colPts();
 }

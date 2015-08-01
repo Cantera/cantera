@@ -76,8 +76,8 @@ public:
     }
 
 protected:
-    std::vector<R>             m_rates;
-    std::vector<size_t>           m_rxn;
+    std::vector<R> m_rates;
+    std::vector<size_t> m_rxn;
 
     //! map reaction number to index in m_rxn / m_rates
     std::map<size_t, size_t> m_indices;

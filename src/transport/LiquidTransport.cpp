@@ -104,76 +104,76 @@ LiquidTransport& LiquidTransport::operator=(const LiquidTransport& right)
         return *this;
     }
     Transport::operator=(right);
-    m_nsp2                                = right.m_nsp2;
-    m_mw                                  = right.m_mw;
-    m_viscTempDep_Ns                      = right.m_viscTempDep_Ns;
-    m_ionCondTempDep_Ns                   = right.m_ionCondTempDep_Ns;
-    m_mobRatTempDep_Ns                    = right.m_mobRatTempDep_Ns;
-    m_selfDiffTempDep_Ns                  = right.m_selfDiffTempDep_Ns;
-    m_lambdaTempDep_Ns                    = right.m_lambdaTempDep_Ns;
-    m_diffTempDep_Ns                      = right.m_diffTempDep_Ns;
-    m_radiusTempDep_Ns                    = right.m_radiusTempDep_Ns;
-    m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
-    m_Grad_X                              = right.m_Grad_X;
-    m_Grad_T                              = right.m_Grad_T;
-    m_Grad_V                              = right.m_Grad_V;
-    m_Grad_mu                             = right.m_Grad_mu;
-    m_bdiff                               = right.m_bdiff;
-    m_viscSpecies                         = right.m_viscSpecies;
-    m_ionCondSpecies                      = right.m_ionCondSpecies;
-    m_mobRatSpecies                       = right.m_mobRatSpecies;
-    m_selfDiffSpecies                     = right.m_selfDiffSpecies;
-    m_hydrodynamic_radius                 = right.m_hydrodynamic_radius;
-    m_lambdaSpecies                       = right.m_lambdaSpecies;
-    m_viscMixModel                        = right.m_viscMixModel;
-    m_ionCondMixModel                     = right.m_ionCondMixModel;
-    m_mobRatMixModel                      = right.m_mobRatMixModel;
-    m_selfDiffMixModel                    = right.m_selfDiffMixModel;
-    m_lambdaMixModel                      = right.m_lambdaMixModel;
-    m_diffMixModel                        = right.m_diffMixModel;
+    m_nsp2 = right.m_nsp2;
+    m_mw = right.m_mw;
+    m_viscTempDep_Ns = right.m_viscTempDep_Ns;
+    m_ionCondTempDep_Ns = right.m_ionCondTempDep_Ns;
+    m_mobRatTempDep_Ns = right.m_mobRatTempDep_Ns;
+    m_selfDiffTempDep_Ns = right.m_selfDiffTempDep_Ns;
+    m_lambdaTempDep_Ns = right.m_lambdaTempDep_Ns;
+    m_diffTempDep_Ns = right.m_diffTempDep_Ns;
+    m_radiusTempDep_Ns = right.m_radiusTempDep_Ns;
+    m_hydrodynamic_radius = right.m_hydrodynamic_radius;
+    m_Grad_X = right.m_Grad_X;
+    m_Grad_T = right.m_Grad_T;
+    m_Grad_V = right.m_Grad_V;
+    m_Grad_mu = right.m_Grad_mu;
+    m_bdiff = right.m_bdiff;
+    m_viscSpecies = right.m_viscSpecies;
+    m_ionCondSpecies = right.m_ionCondSpecies;
+    m_mobRatSpecies = right.m_mobRatSpecies;
+    m_selfDiffSpecies = right.m_selfDiffSpecies;
+    m_hydrodynamic_radius = right.m_hydrodynamic_radius;
+    m_lambdaSpecies = right.m_lambdaSpecies;
+    m_viscMixModel = right.m_viscMixModel;
+    m_ionCondMixModel = right.m_ionCondMixModel;
+    m_mobRatMixModel = right.m_mobRatMixModel;
+    m_selfDiffMixModel = right.m_selfDiffMixModel;
+    m_lambdaMixModel = right.m_lambdaMixModel;
+    m_diffMixModel = right.m_diffMixModel;
     m_iStateMF = -1;
-    m_massfracs                           = right.m_massfracs;
-    m_massfracs_tran                      = right.m_massfracs_tran;
-    m_molefracs                           = right.m_molefracs;
-    m_molefracs_tran                      = right.m_molefracs_tran;
-    m_concentrations                      = right.m_concentrations;
-    m_actCoeff                            = right.m_actCoeff;
-    m_Grad_lnAC                           = right.m_Grad_lnAC;
-    m_chargeSpecies                       = right.m_chargeSpecies;
-    m_B                                   = right.m_B;
-    m_A                                   = right.m_A;
-    m_temp                                = right.m_temp;
-    m_press                               = right.m_press;
-    m_flux                                = right.m_flux;
-    m_Vdiff                               = right.m_Vdiff;
-    m_lambda                              = right.m_lambda;
-    m_viscmix                             = right.m_viscmix;
-    m_ionCondmix                          = right.m_ionCondmix;
-    m_mobRatMix                           = right.m_mobRatMix;
-    m_selfDiffMix                         = right.m_selfDiffMix;
-    m_spwork                              = right.m_spwork;
-    m_visc_mix_ok    = false;
-    m_visc_temp_ok   = false;
-    m_visc_conc_ok   = false;
-    m_ionCond_mix_ok    = false;
-    m_ionCond_temp_ok   = false;
-    m_ionCond_conc_ok   = false;
-    m_mobRat_mix_ok    = false;
-    m_mobRat_temp_ok   = false;
-    m_mobRat_conc_ok   = false;
-    m_selfDiff_mix_ok    = false;
-    m_selfDiff_temp_ok   = false;
-    m_selfDiff_conc_ok   = false;
-    m_radi_mix_ok    = false;
-    m_radi_temp_ok   = false;
-    m_radi_conc_ok   = false;
-    m_diff_mix_ok    = false;
-    m_diff_temp_ok   = false;
-    m_lambda_temp_ok   = false;
-    m_lambda_mix_ok    = false;
-    m_mode                                = right.m_mode;
-    m_debug                               = right.m_debug;
-    m_nDim                                = right.m_nDim;
+    m_massfracs = right.m_massfracs;
+    m_massfracs_tran = right.m_massfracs_tran;
+    m_molefracs = right.m_molefracs;
+    m_molefracs_tran = right.m_molefracs_tran;
+    m_concentrations = right.m_concentrations;
+    m_actCoeff = right.m_actCoeff;
+    m_Grad_lnAC = right.m_Grad_lnAC;
+    m_chargeSpecies = right.m_chargeSpecies;
+    m_B = right.m_B;
+    m_A = right.m_A;
+    m_temp = right.m_temp;
+    m_press = right.m_press;
+    m_flux = right.m_flux;
+    m_Vdiff = right.m_Vdiff;
+    m_lambda = right.m_lambda;
+    m_viscmix = right.m_viscmix;
+    m_ionCondmix = right.m_ionCondmix;
+    m_mobRatMix = right.m_mobRatMix;
+    m_selfDiffMix = right.m_selfDiffMix;
+    m_spwork = right.m_spwork;
+    m_visc_mix_ok = false;
+    m_visc_temp_ok = false;
+    m_visc_conc_ok = false;
+    m_ionCond_mix_ok = false;
+    m_ionCond_temp_ok = false;
+    m_ionCond_conc_ok = false;
+    m_mobRat_mix_ok = false;
+    m_mobRat_temp_ok = false;
+    m_mobRat_conc_ok = false;
+    m_selfDiff_mix_ok = false;
+    m_selfDiff_temp_ok = false;
+    m_selfDiff_conc_ok = false;
+    m_radi_mix_ok = false;
+    m_radi_temp_ok = false;
+    m_radi_conc_ok = false;
+    m_diff_mix_ok = false;
+    m_diff_temp_ok = false;
+    m_lambda_temp_ok = false;
+    m_lambda_mix_ok = false;
+    m_mode = right.m_mode;
+    m_debug = right.m_debug;
+    m_nDim = right.m_nDim;
 
     return *this;
 }
@@ -217,7 +217,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     //  Transfer quantitities from the database to the Transport object
     m_thermo = tr.thermo;
     m_velocityBasis = tr.velocityBasis_;
-    m_nsp   = m_thermo->nSpecies();
+    m_nsp = m_thermo->nSpecies();
     m_nsp2 = m_nsp*m_nsp;
 
     //  Resize the local storage according to the number of species
@@ -263,12 +263,12 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     //for each species, assign viscosity model and coefficients
     for (size_t k = 0; k < m_nsp; k++) {
         LiquidTransportData& ltd = tr.LTData[k];
-        m_viscTempDep_Ns[k] =  ltd.viscosity;
+        m_viscTempDep_Ns[k] = ltd.viscosity;
         ltd.viscosity = 0;
-        m_ionCondTempDep_Ns[k] =  ltd.ionConductivity;
+        m_ionCondTempDep_Ns[k] = ltd.ionConductivity;
         ltd.ionConductivity = 0;
         for (size_t j = 0; j < m_nsp2; j++) {
-            m_mobRatTempDep_Ns[j][k] =  ltd.mobilityRatio[j];
+            m_mobRatTempDep_Ns[j][k] = ltd.mobilityRatio[j];
             ltd.mobilityRatio[j] = 0;
         }
         for (size_t j = 0; j < m_nsp; j++) {
@@ -334,7 +334,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     //It is updated in updateDiff_T()
     m_diffMixModel->getMatrixTransProp(m_bdiff);
 
-    m_mode       = tr.mode_;
+    m_mode = tr.mode_;
     m_massfracs.resize(m_nsp, 0.0);
     m_massfracs_tran.resize(m_nsp, 0.0);
     m_molefracs.resize(m_nsp, 0.0);
@@ -358,24 +358,24 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_Vdiff.resize(m_nsp, m_nDim, 0.0);
 
     // set all flags to false
-    m_visc_mix_ok   = false;
-    m_visc_temp_ok  = false;
-    m_visc_conc_ok  = false;
-    m_ionCond_mix_ok   = false;
-    m_ionCond_temp_ok  = false;
-    m_ionCond_conc_ok  = false;
-    m_mobRat_mix_ok   = false;
-    m_mobRat_temp_ok  = false;
-    m_mobRat_conc_ok  = false;
-    m_selfDiff_mix_ok   = false;
-    m_selfDiff_temp_ok  = false;
-    m_selfDiff_conc_ok  = false;
-    m_radi_temp_ok  = false;
-    m_radi_conc_ok  = false;
+    m_visc_mix_ok = false;
+    m_visc_temp_ok = false;
+    m_visc_conc_ok = false;
+    m_ionCond_mix_ok = false;
+    m_ionCond_temp_ok = false;
+    m_ionCond_conc_ok = false;
+    m_mobRat_mix_ok = false;
+    m_mobRat_temp_ok = false;
+    m_mobRat_conc_ok = false;
+    m_selfDiff_mix_ok = false;
+    m_selfDiff_temp_ok = false;
+    m_selfDiff_conc_ok = false;
+    m_radi_temp_ok = false;
+    m_radi_conc_ok = false;
     m_lambda_temp_ok = false;
-    m_lambda_mix_ok  = false;
-    m_diff_temp_ok   = false;
-    m_diff_mix_ok  = false;
+    m_lambda_mix_ok = false;
+    m_diff_temp_ok = false;
+    m_diff_mix_ok = false;
     return true;
 }
 
@@ -537,7 +537,7 @@ void LiquidTransport::getMobilities(doublereal* const mobil)
     }
 }
 
-void  LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
+void LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
 {
     getMixDiffCoeffs(DATA_PTR(m_spwork));
     doublereal c1 = 1.0 / (GasConstant * m_temp);
@@ -593,7 +593,7 @@ doublereal LiquidTransport::getElectricConduct()
     for (size_t i = 0; i < 1; i++) {
         current = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
-            current += m_chargeSpecies[k] *  Faraday  * fluxes[k] / m_mw[k];
+            current += m_chargeSpecies[k] * Faraday * fluxes[k] / m_mw[k];
         }
         //divide by unit potential gradient
         current /= - gradV[i];
@@ -728,21 +728,21 @@ bool LiquidTransport::update_T()
     m_temp = t;
 
     // temperature has changed so temp flags are flipped
-    m_visc_temp_ok  = false;
-    m_ionCond_temp_ok  = false;
-    m_mobRat_temp_ok  = false;
-    m_selfDiff_temp_ok  = false;
-    m_radi_temp_ok  = false;
-    m_diff_temp_ok  = false;
-    m_lambda_temp_ok  = false;
+    m_visc_temp_ok = false;
+    m_ionCond_temp_ok = false;
+    m_mobRat_temp_ok = false;
+    m_selfDiff_temp_ok = false;
+    m_radi_temp_ok = false;
+    m_diff_temp_ok = false;
+    m_lambda_temp_ok = false;
 
     // temperature has changed, so polynomial temperature
     // interpolations will need to be reevaluated.
     // This means that many concentration
-    m_visc_conc_ok  = false;
-    m_ionCond_conc_ok  = false;
-    m_mobRat_conc_ok  = false;
-    m_selfDiff_conc_ok  = false;
+    m_visc_conc_ok = false;
+    m_ionCond_conc_ok = false;
+    m_mobRat_conc_ok = false;
+    m_selfDiff_conc_ok = false;
 
     // Mixture stuff needs to be evaluated
     m_visc_mix_ok = false;
@@ -780,7 +780,7 @@ bool LiquidTransport::update_C()
             concTot_ += m_concentrations[k];
         }
         dens_ = m_thermo->density();
-        meanMolecularWeight_ =  m_thermo->meanMolecularWeight();
+        meanMolecularWeight_ = m_thermo->meanMolecularWeight();
         concTot_tran_ *= concTot_;
     }
     if (qReturn) {
@@ -809,7 +809,7 @@ bool LiquidTransport::update_C()
 void LiquidTransport::updateCond_T()
 {
     for (size_t k = 0; k < m_nsp; k++) {
-        m_lambdaSpecies[k] = m_lambdaTempDep_Ns[k]->getSpeciesTransProp() ;
+        m_lambdaSpecies[k] = m_lambdaTempDep_Ns[k]->getSpeciesTransProp();
     }
     m_lambda_temp_ok = true;
     m_lambda_mix_ok = false;
@@ -830,7 +830,7 @@ void LiquidTransport::updateViscosities_C()
 void LiquidTransport::updateViscosity_T()
 {
     for (size_t k = 0; k < m_nsp; k++) {
-        m_viscSpecies[k] = m_viscTempDep_Ns[k]->getSpeciesTransProp() ;
+        m_viscSpecies[k] = m_viscTempDep_Ns[k]->getSpeciesTransProp();
     }
     m_visc_temp_ok = true;
     m_visc_mix_ok = false;
@@ -844,7 +844,7 @@ void LiquidTransport::updateIonConductivity_C()
 void LiquidTransport::updateIonConductivity_T()
 {
     for (size_t k = 0; k < m_nsp; k++) {
-        m_ionCondSpecies[k] = m_ionCondTempDep_Ns[k]->getSpeciesTransProp() ;
+        m_ionCondSpecies[k] = m_ionCondTempDep_Ns[k]->getSpeciesTransProp();
     }
     m_ionCond_temp_ok = true;
     m_ionCond_mix_ok = false;
@@ -875,7 +875,7 @@ void LiquidTransport::updateSelfDiffusion_T()
 {
     for (size_t k = 0; k < m_nsp2; k++) {
         for (size_t j = 0; j < m_nsp; j++) {
-            m_selfDiffSpecies(k,j) = m_selfDiffTempDep_Ns[k][j]->getSpeciesTransProp() ;
+            m_selfDiffSpecies(k,j) = m_selfDiffTempDep_Ns[k][j]->getSpeciesTransProp();
         }
     }
     m_selfDiff_temp_ok = true;
@@ -890,7 +890,7 @@ void LiquidTransport::updateHydrodynamicRadius_C()
 void LiquidTransport::updateHydrodynamicRadius_T()
 {
     for (size_t k = 0; k < m_nsp; k++) {
-        m_hydrodynamic_radius[k] = m_radiusTempDep_Ns[k]->getSpeciesTransProp() ;
+        m_hydrodynamic_radius[k] = m_radiusTempDep_Ns[k]->getSpeciesTransProp();
     }
     m_radi_temp_ok = true;
     m_radi_mix_ok = false;
@@ -921,7 +921,7 @@ void LiquidTransport::stefan_maxwell_solve()
     m_A.resize(m_nsp, m_nsp, 0.0);
 
     //! grab a local copy of the molecular weights
-    const vector_fp& M =  m_thermo->molecularWeights();
+    const vector_fp& M = m_thermo->molecularWeights();
     //! grad a local copy of the ion molar volume (inverse total ion concentration)
     const doublereal vol = m_thermo->molarVolume();
 
@@ -935,7 +935,7 @@ void LiquidTransport::stefan_maxwell_solve()
     }
 
     double T = m_thermo->temperature();
-    update_Grad_lnAC() ;
+    update_Grad_lnAC();
     m_thermo->getActivityCoefficients(DATA_PTR(m_actCoeff));
 
     /*
@@ -965,7 +965,7 @@ void LiquidTransport::stefan_maxwell_solve()
     for (size_t a = 0; a < m_nDim; a++) {
         for (size_t i = 0; i < m_nsp; i++) {
             m_Grad_mu[a*m_nsp + i] =
-                m_chargeSpecies[i] *  Faraday * m_Grad_V[a]
+                m_chargeSpecies[i] * Faraday * m_Grad_V[a]
                 +  GasConstant * T * m_Grad_lnAC[a*m_nsp+i];
         }
     }
@@ -990,7 +990,7 @@ void LiquidTransport::stefan_maxwell_solve()
     double condSum1;
     const doublereal invRT = 1.0 / (GasConstant * T);
     switch (m_nDim) {
-    case 1:  /* 1-D approximation */
+    case 1: /* 1-D approximation */
         m_B(0,0) = 0.0;
         //equation for the reference velocity
         for (size_t j = 0; j < m_nsp; j++) {
@@ -1017,8 +1017,8 @@ void LiquidTransport::stefan_maxwell_solve()
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
                     tmp = m_molefracs_tran[j] * m_bdiff(i,j);
-                    m_A(i,i) -=   tmp;
-                    m_A(i,j)  =   tmp;
+                    m_A(i,i) -= tmp;
+                    m_A(i,j) = tmp;
                 }
             }
         }
@@ -1030,7 +1030,7 @@ void LiquidTransport::stefan_maxwell_solve()
             condSum1 -= Faraday*m_chargeSpecies[i]*m_B(i,0)*m_molefracs_tran[i]/vol;
         }
         break;
-    case 2:  /* 2-D approximation */
+    case 2: /* 2-D approximation */
         m_B(0,0) = 0.0;
         m_B(0,1) = 0.0;
         //equation for the reference velocity
@@ -1053,14 +1053,14 @@ void LiquidTransport::stefan_maxwell_solve()
             }
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) =  m_Grad_mu[i]         * invRT;
-            m_B(i,1) =  m_Grad_mu[m_nsp + i] * invRT;
+            m_B(i,0) = m_Grad_mu[i] * invRT;
+            m_B(i,1) = m_Grad_mu[m_nsp + i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
-                    m_A(i,i) -=   tmp;
-                    m_A(i,j)  =   tmp;
+                    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
+                    m_A(i,i) -= tmp;
+                    m_A(i,j) = tmp;
                 }
             }
         }
@@ -1068,7 +1068,7 @@ void LiquidTransport::stefan_maxwell_solve()
         //! invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
         break;
-    case 3:  /* 3-D approximation */
+    case 3: /* 3-D approximation */
         m_B(0,0) = 0.0;
         m_B(0,1) = 0.0;
         m_B(0,2) = 0.0;
@@ -1092,15 +1092,15 @@ void LiquidTransport::stefan_maxwell_solve()
             }
         }
         for (size_t i = 1; i < m_nsp; i++) {
-            m_B(i,0) = m_Grad_mu[i]           * invRT;
-            m_B(i,1) = m_Grad_mu[m_nsp + i]   * invRT;
+            m_B(i,0) = m_Grad_mu[i] * invRT;
+            m_B(i,1) = m_Grad_mu[m_nsp + i] * invRT;
             m_B(i,2) = m_Grad_mu[2*m_nsp + i] * invRT;
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    tmp =  m_molefracs_tran[j] * m_bdiff(i,j);
-                    m_A(i,i) -=   tmp;
-                    m_A(i,j)  = tmp;
+                    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
+                    m_A(i,i) -= tmp;
+                    m_A(i,j) = tmp;
                 }
             }
         }
