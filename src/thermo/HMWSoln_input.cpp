@@ -1533,7 +1533,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     std::vector<const XML_Node*> xspecies = speciesData();
     for (size_t k = 0; k < m_kk; k++) {
         const XML_Node* spPtr = xspecies[k];
-        if (!spPtr) {
+        if (spPtr) {
             if (spPtr->hasChild("electrolyteSpeciesType")) {
                 string est = getChildValue(*spPtr, "electrolyteSpeciesType");
                 if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
