@@ -331,10 +331,11 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     // Number of spatial dimensions. Defaults to 3 (bulk phase)
     if (phase.hasAttrib("dim")) {
         int idim = intValue(phase["dim"]);
-        if (idim < 1 || idim > 3)
+        if (idim < 1 || idim > 3) {
             throw CanteraError("importPhase",
                                "phase, " + th->id() +
                                ", has unphysical number of dimensions: " + phase["dim"]);
+        }
         th->setNDim(idim);
     } else {
         th->setNDim(3);     // default

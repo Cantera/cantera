@@ -34,32 +34,37 @@ extern "C" {
             } else if (type == ExpFuncType) {
                 r = new Exp1(params[0]);
             } else if (type == PowFuncType) {
-                if (lenp < 1)
+                if (lenp < 1) {
                     throw CanteraError("func_new",
                                        "exponent for pow must be supplied");
+                }
                 r = new Pow1(params[0]);
             } else if (type == ConstFuncType) {
                 r = new Const1(params[0]);
             } else if (type == FourierFuncType) {
-                if (lenp < 2*n + 2)
+                if (lenp < 2*n + 2) {
                     throw CanteraError("func_new",
                                        "not enough Fourier coefficients");
+                }
                 r = new Fourier1(n, params[n+1], params[0], params + 1,
                                  params + n + 2);
             } else if (type == GaussianFuncType) {
-                if (lenp < 3)
+                if (lenp < 3) {
                     throw CanteraError("func_new",
                                        "not enough Gaussian coefficients");
+                }
                 r = new Gaussian(params[0], params[1], params[2]);
             } else if (type == PolyFuncType) {
-                if (lenp < n + 1)
+                if (lenp < n + 1) {
                     throw CanteraError("func_new",
                                        "not enough polynomial coefficients");
+                }
                 r = new Poly1(n, params);
             } else if (type == ArrheniusFuncType) {
-                if (lenp < 3*n)
+                if (lenp < 3*n) {
                     throw CanteraError("func_new",
                                        "not enough Arrhenius coefficients");
+                }
                 r = new Arrhenius1(n, params);
             } else if (type == PeriodicFuncType) {
                 r = new Periodic1(FuncCabinet::item(n), params[0]);

@@ -141,9 +141,10 @@ void Wall::syncCoverages(int leftright)
 
 void Wall::addSensitivityReaction(int leftright, size_t rxn)
 {
-    if (rxn >= m_chem[leftright]->nReactions())
+    if (rxn >= m_chem[leftright]->nReactions()) {
         throw CanteraError("Wall::addSensitivityReaction",
                            "Reaction number out of range ("+int2str(rxn)+")");
+    }
     if (leftright == 0) {
         m_left->network().registerSensitivityReaction(this, rxn,
                 m_chem[0]->reactionString(rxn), leftright);

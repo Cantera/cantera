@@ -474,15 +474,17 @@ void LTI_Pairwise_Interaction::getMatrixTransProp(DenseMatrix& mat, doublereal* 
     m_thermo->getMoleFractions(&molefracs[0]);
 
     mat.resize(nsp, nsp, 0.0);
-    for (size_t i = 0; i < nsp; i++)
+    for (size_t i = 0; i < nsp; i++) {
         for (size_t j = 0; j < i; j++) {
             mat(i,j) = mat(j,i) = exp(m_Eij(i,j) / temp) / m_Dij(i,j);
         }
+    }
 
-    for (size_t i = 0; i < nsp; i++)
+    for (size_t i = 0; i < nsp; i++) {
         if (mat(i,i) == 0.0 && m_diagonals[i]) {
             mat(i,i) = 1.0 / m_diagonals[i]->getSpeciesTransProp() ;
         }
+    }
 }
 
 void LTI_StefanMaxwell_PPN::setParameters(LiquidTransportParams& trParam)
@@ -660,10 +662,11 @@ void LTI_StokesEinstein::getMatrixTransProp(DenseMatrix& mat, doublereal* specie
     }
 
     mat.resize(nsp,nsp, 0.0);
-    for (size_t i = 0; i < nsp; i++)
+    for (size_t i = 0; i < nsp; i++) {
         for (size_t j = 0; j < nsp; j++) {
             mat(i,j) = (6.0 * Pi * radiusSpec[i] * viscSpec[j]) / GasConstant / temp;
         }
+    }
 }
 
 doublereal LTI_MoleFracs_ExpT::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)

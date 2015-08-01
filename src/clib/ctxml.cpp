@@ -119,9 +119,10 @@ extern "C" {
             if (node.hasAttrib(key)) {
                 string v = node[key];
                 strncpy(value, v.c_str(), 80);
-            } else
+            } else {
                 throw CanteraError("xml_attrib","node "
                                    " has no attribute '"+string(key)+"'");
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -213,9 +214,10 @@ extern "C" {
             XML_Node* c = XmlCabinet::item(i).findByName(nm);
             if (c) {
                 return XmlCabinet::add(c);
-            } else
+            } else {
                 throw CanteraError("xml_findByName","name "+string(nm)
                                    +" not found");
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

@@ -956,8 +956,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     for (size_t k = 0; k < m_kk; k++) {
         if (fabs(m_speciesCharge[k]) > 0.0001) {
             m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
-            if (fabs(m_speciesCharge_Stoich[k] - m_speciesCharge[k])
-                    > 0.0001) {
+            if (fabs(m_speciesCharge_Stoich[k] - m_speciesCharge[k]) > 0.0001) {
                 m_electrolyteSpeciesType[k] = cEST_weakAcidAssociated;
             }
         } else if (fabs(m_speciesCharge_Stoich[k]) > 0.0001) {

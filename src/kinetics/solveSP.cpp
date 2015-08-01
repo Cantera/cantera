@@ -833,16 +833,18 @@ void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
         }
         if (do_time) {
             printf("%9.4e %9.4e ", t_real, 1.0/inv_t);
-        } else
+        } else {
             for (i = 0; i < 22; i++) {
                 printf(" ");
             }
+        }
         if (damp < 1.0) {
             printf("%9.4e ", damp);
-        } else
+        } else {
             for (i = 0; i < 11; i++) {
                 printf(" ");
             }
+        }
         printf("%9.4e %9.4e", update_norm, resid_norm);
         if (do_time) {
             k = m_kinSpecIndex[label_t];

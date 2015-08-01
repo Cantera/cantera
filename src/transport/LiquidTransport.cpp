@@ -510,9 +510,10 @@ void LiquidTransport::getThermalDiffCoeffs(doublereal* const dt)
 
 void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 {
-    if (ld != m_nsp)
+    if (ld != m_nsp) {
         throw CanteraError("LiquidTransport::getBinaryDiffCoeffs",
                            "First argument does not correspond to number of species in model.\nDiff Coeff matrix may be misdimensioned");
+    }
     update_T();
     // if necessary, evaluate the binary diffusion coefficients
     // from the polynomial fits
@@ -902,12 +903,13 @@ void LiquidTransport::update_Grad_lnAC()
         grad_T = m_Grad_T[k];
         size_t start = m_nsp*k;
         m_thermo->getdlnActCoeffds(grad_T, &m_Grad_X[start], &m_Grad_lnAC[start]);
-        for (size_t i = 0; i < m_nsp; i++)
+        for (size_t i = 0; i < m_nsp; i++) {
             if (m_molefracs[i] < 1.e-15) {
                 m_Grad_lnAC[start+i] = 0;
             } else {
                 m_Grad_lnAC[start+i] += m_Grad_X[start+i]/m_molefracs[i];
             }
+        }
     }
     return;
 }
@@ -997,16 +999,17 @@ void LiquidTransport::stefan_maxwell_solve()
             } else if (m_velocityBasis == VB_MASSAVG) {
                 m_A(0,j) = m_massfracs_tran[j];
             } else if ((m_velocityBasis >= 0)
-                       && (m_velocityBasis < static_cast<int>(m_nsp)))
+                       && (m_velocityBasis < static_cast<int>(m_nsp))) {
                 // use species number m_velocityBasis as reference velocity
                 if (m_velocityBasis == static_cast<int>(j)) {
                     m_A(0,j) = 1.0;
                 } else {
                     m_A(0,j) = 0.0;
                 }
-            else
+            } else {
                 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                                    "Unknown reference velocity provided.");
+            }
         }
         for (size_t i = 1; i < m_nsp; i++) {
             m_B(i,0) = m_Grad_mu[i] * invRT;
@@ -1037,16 +1040,17 @@ void LiquidTransport::stefan_maxwell_solve()
             } else if (m_velocityBasis == VB_MASSAVG) {
                 m_A(0,j) = m_massfracs_tran[j];
             } else if ((m_velocityBasis >= 0)
-                       && (m_velocityBasis < static_cast<int>(m_nsp)))
+                       && (m_velocityBasis < static_cast<int>(m_nsp))) {
                 // use species number m_velocityBasis as reference velocity
                 if (m_velocityBasis == static_cast<int>(j)) {
                     m_A(0,j) = 1.0;
                 } else {
                     m_A(0,j) = 0.0;
                 }
-            else
+            } else {
                 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                                    "Unknown reference velocity provided.");
+            }
         }
         for (size_t i = 1; i < m_nsp; i++) {
             m_B(i,0) =  m_Grad_mu[i]         * invRT;
@@ -1075,16 +1079,17 @@ void LiquidTransport::stefan_maxwell_solve()
             } else if (m_velocityBasis == VB_MASSAVG) {
                 m_A(0,j) = m_massfracs_tran[j];
             } else if ((m_velocityBasis >= 0)
-                       && (m_velocityBasis < static_cast<int>(m_nsp)))
+                       && (m_velocityBasis < static_cast<int>(m_nsp))) {
                 // use species number m_velocityBasis as reference velocity
                 if (m_velocityBasis == static_cast<int>(j)) {
                     m_A(0,j) = 1.0;
                 } else {
                     m_A(0,j) = 0.0;
                 }
-            else
+            } else {
                 throw CanteraError("LiquidTransport::stefan_maxwell_solve",
                                    "Unknown reference velocity provided.");
+            }
         }
         for (size_t i = 1; i < m_nsp; i++) {
             m_B(i,0) = m_Grad_mu[i]           * invRT;

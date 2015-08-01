@@ -108,21 +108,23 @@ void ChemEquil::initialize(thermo_t& s)
                 // if negative atom numbers have already been specified
                 // for some element other than this one, throw
                 // an exception
-                if (mneg != npos && mneg != m)
+                if (mneg != npos && mneg != m) {
                     throw CanteraError("ChemEquil::initialize",
                                        "negative atom numbers allowed for only one element");
+                }
                 mneg = m;
                 ewt = s.atomicWeight(m);
 
                 // the element should be an electron... if it isn't
                 // print a warning.
-                if (ewt > 1.0e-3)
+                if (ewt > 1.0e-3) {
                     writelog(string("WARNING: species "
                                     +s.speciesName(k)
                                     +" has "+fp2str(s.nAtoms(k,m))
                                     +" atoms of element "
                                     +s.elementName(m)+
                                     ", but this element is not an electron.\n"));
+                }
             }
         }
     }
@@ -141,10 +143,11 @@ void ChemEquil::setToEquilState(thermo_t& s,
 {
     // Construct the chemical potentials by summing element potentials
     fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
-    for (size_t k = 0; k < m_kk; k++)
+    for (size_t k = 0; k < m_kk; k++) {
         for (size_t m = 0; m < m_mm; m++) {
             m_mu_RT[k] += lambda_RT[m]*nAtoms(k,m);
         }
+    }
 
     // Set the temperature
     s.setTemperature(t);
@@ -620,9 +623,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     doublereal f, oldf;
     doublereal fctr = 1.0, newval;
 
-    for (int iter = 0; iter < options.maxIterations; iter++)
-    {
-    //  check for convergence.
+    for (int iter = 0; iter < options.maxIterations; iter++) {
+        // check for convergence.
         equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
         f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
         doublereal xx, yy, deltax, deltay;

@@ -93,9 +93,10 @@ void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","PureFluid");
     m_subflag = atoi(eosdata["fluid_type"].c_str());
-    if (m_subflag < 0)
+    if (m_subflag < 0) {
         throw CanteraError("PureFluidPhase::setParametersFromXML",
                            "missing or negative substance flag");
+    }
 }
 
 doublereal PureFluidPhase::enthalpy_mole() const

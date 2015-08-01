@@ -41,9 +41,10 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
         InterfaceKinetics* kinPtr = k[n];
         m_vecKinPtrs.push_back(kinPtr);
         ns = k[n]->surfacePhaseIndex();
-        if (ns == npos)
+        if (ns == npos) {
             throw CanteraError("ImplicitSurfChem",
                                "kinetics manager contains no surface phase");
+        }
         m_surfindex.push_back(ns);
         m_surf.push_back((SurfPhase*)&k[n]->thermo(ns));
         nsp = m_surf.back()->nSpecies();

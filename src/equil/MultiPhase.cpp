@@ -927,8 +927,7 @@ void MultiPhase::updatePhases() const
         loc += nsp;
         m_phase[p]->setState_TPX(m_temp, m_press, x);
         m_temp_OK[p] = true;
-        if (m_temp < m_phase[p]->minTemp()
-                || m_temp > m_phase[p]->maxTemp()) {
+        if (m_temp < m_phase[p]->minTemp() || m_temp > m_phase[p]->maxTemp()) {
             m_temp_OK[p] = false;
         }
     }

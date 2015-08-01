@@ -104,9 +104,10 @@ void Transport::finalize()
 {
     if (!ready()) {
         m_ready = true;
-    } else
+    } else {
         throw CanteraError("Transport::finalize",
                            "finalize has already been called.");
+    }
 }
 
 void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,

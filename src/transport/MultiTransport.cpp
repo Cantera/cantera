@@ -655,19 +655,21 @@ void MultiTransport::eval_L0001()
 void MultiTransport::eval_L0100()
 {
     size_t n2 = 2*m_nsp;
-    for (size_t j = 0; j < m_nsp; j++)
+    for (size_t j = 0; j < m_nsp; j++) {
         for (size_t i = 0; i < m_nsp; i++) {
             m_Lmatrix(i+n2,j) = 0.0;    //  see Eq. (12.123)
         }
+    }
 }
 
 void MultiTransport::eval_L0110()
 {
     size_t n2 = 2*m_nsp;
-    for (size_t j = 0; j < m_nsp; j++)
+    for (size_t j = 0; j < m_nsp; j++) {
         for (size_t i = 0; i < m_nsp; i++) {
             m_Lmatrix(i+n2,j+m_nsp) = m_Lmatrix(j+m_nsp,i+n2);    //  see Eq. (12.123)
         }
+    }
 }
 
 void MultiTransport::eval_L0101(const doublereal* x)

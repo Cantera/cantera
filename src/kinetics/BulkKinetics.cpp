@@ -22,12 +22,7 @@ Kinetics* BulkKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVe
 }
 
 bool BulkKinetics::isReversible(size_t i) {
-    if (std::find(m_revindex.begin(), m_revindex.end(), i)
-            < m_revindex.end()) {
-        return true;
-    } else {
-        return false;
-    }
+    return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
 }
 
 void BulkKinetics::getDeltaGibbs(doublereal* deltaG)

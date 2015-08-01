@@ -30,10 +30,10 @@ int main()
             cout << gas.speciesName(k) << "  " << wdot[k] << endl;
         }
 
-        for (size_t k = 0; k < surf.nSpecies(); k++)
+        for (size_t k = 0; k < surf.nSpecies(); k++) {
             cout << surf.speciesName(k) << "   "
                  << wdot[k+gas.nSpecies()] << endl;
-
+        }
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
     }

@@ -75,10 +75,11 @@ void Reactor::initialize(doublereal t0)
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
     m_nv = m_nsp + 3;
-    for (size_t w = 0; w < m_wall.size(); w++)
+    for (size_t w = 0; w < m_wall.size(); w++) {
         if (m_wall[w]->surface(m_lr[w])) {
             m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
         }
+    }
 
     m_enthalpy = m_thermo->enthalpy_mass();
     m_pressure = m_thermo->pressure();
@@ -323,9 +324,10 @@ double Reactor::evalSurfaces(double t, double* ydot)
 
 void Reactor::addSensitivityReaction(size_t rxn)
 {
-    if (rxn >= m_kin->nReactions())
+    if (rxn >= m_kin->nReactions()) {
         throw CanteraError("Reactor::addSensitivityReaction",
                            "Reaction number out of range ("+int2str(rxn)+")");
+    }
 
     network().registerSensitivityReaction(this, rxn,
                                           name()+": "+m_kin->reactionString(rxn));

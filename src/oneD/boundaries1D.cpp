@@ -48,11 +48,12 @@ void Bdry1D::_init(size_t n)
             m_left_loc = container().start(m_index-1);
             m_left_nsp = m_left_nv - 4;
             m_phase_left = &m_flow_left->phase();
-        } else
+        } else {
             throw CanteraError("Bdry1D::_init",
                                "Boundary domains can only be "
                                "connected on the left to flow domains, not type "+int2str(r.domainType())
                                + " domains.");
+        }
     }
 
     // if this is not the last domain, see what is connected on
@@ -65,11 +66,12 @@ void Bdry1D::_init(size_t n)
             m_right_loc = container().start(m_index+1);
             m_right_nsp = m_right_nv - 4;
             m_phase_right = &m_flow_right->phase();
-        } else
+        } else {
             throw CanteraError("Bdry1D::_init",
                                "Boundary domains can only be "
                                "connected on the right to flow domains, not type "+int2str(r.domainType())
                                + " domains.");
+        }
     }
 }
 

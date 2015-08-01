@@ -106,9 +106,10 @@ extern "C" {
             if (node.hasAttrib(ky)) {
                 std::string v = node[ky];
                 strncpy(value, v.c_str(), valuelen);
-            } else
+            } else {
                 throw CanteraError("fxml_attrib","node "
                                    " has no attribute '"+ky+"'");
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -212,9 +213,10 @@ extern "C" {
             XML_Node* c = node.findByName(f2string(nm, nmlen));
             if (c) {
                 return XmlCabinet::add(c);
-            } else
+            } else {
                 throw CanteraError("fxml_findByName","name "+f2string(nm, nmlen)
                                    +" not found");
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

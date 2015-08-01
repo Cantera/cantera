@@ -383,14 +383,16 @@ public:
 
     void incrementReaction(const doublereal* input,
                            doublereal* output) const {
-        for (size_t n = 0; n < m_n; n++) output[m_rxn]
-            += m_stoich[n]*input[m_ic[n]];
+        for (size_t n = 0; n < m_n; n++) {
+            output[m_rxn] += m_stoich[n]*input[m_ic[n]];
+        }
     }
 
     void decrementReaction(const doublereal* input,
                            doublereal* output) const {
-        for (size_t n = 0; n < m_n; n++) output[m_rxn]
-            -= m_stoich[n]*input[m_ic[n]];
+        for (size_t n = 0; n < m_n; n++) {
+            output[m_rxn] -= m_stoich[n]*input[m_ic[n]];
+        }
     }
 
 private:
@@ -598,8 +600,9 @@ public:
             // instead of 'power'.
             std::vector<size_t> kRep;
             for (size_t n = 0; n < k.size(); n++) {
-                for (size_t i = 0; i < stoich[n]; i++)
+                for (size_t i = 0; i < stoich[n]; i++) {
                     kRep.push_back(k[n]);
+                }
             }
 
             switch (kRep.size()) {

@@ -409,10 +409,9 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
     for (j = 0; j < nFree(); j++) {
         m_solnrxn[j] = false;
         for (k = 0; k < m_nsp; k++) {
-            if (m_N(k, j) != 0)
-                if (m_mix->solutionSpecies(m_species[m_order[k]])) {
-                    m_solnrxn[j] = true;
-                }
+            if (m_N(k, j) != 0 && m_mix->solutionSpecies(m_species[m_order[k]])) {
+                m_solnrxn[j] = true;
+            }
         }
     }
 }

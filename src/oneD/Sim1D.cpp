@@ -107,9 +107,10 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
     ifstream s(fname.c_str());
-    if (!s)
+    if (!s) {
         throw CanteraError("Sim1D::restore",
                            "could not open input file "+fname);
+    }
 
     XML_Node root;
     root.build(s);

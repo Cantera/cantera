@@ -353,9 +353,10 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
             // Decrease the stepsize and try again.
             writelog("...failure.\n", loglevel);
             dt *= m_tfactor;
-            if (dt < m_tmin)
+            if (dt < m_tmin) {
                 throw CanteraError("OneDim::timeStep",
                                    "Time integration failed.");
+            }
         }
     }
 

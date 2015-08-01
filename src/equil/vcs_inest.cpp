@@ -135,12 +135,13 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
             plogf("%s", pprefix);
             plogf("%-12.12s", m_speciesName[kspec].c_str());
-            if (kspec < m_numComponents)
+            if (kspec < m_numComponents) {
                 plogf("fe* = %15.5g ff = %15.5g\n", m_feSpecies_new[kspec],
                       m_SSfeSpecies[kspec]);
-            else
+            } else {
                 plogf("fe* = %15.5g ff = %15.5g dg* = %15.5g\n",
                       m_feSpecies_new[kspec], m_SSfeSpecies[kspec], m_deltaGRxn_new[kspec-m_numComponents]);
+            }
         }
     }
     /* ********************************************************** */

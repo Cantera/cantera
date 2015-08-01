@@ -176,10 +176,11 @@ doublereal getFloat(const XML_Node& parent,
                     const std::string& name,
                     const std::string& type)
 {
-    if (!parent.hasChild(name))
+    if (!parent.hasChild(name)) {
         throw CanteraError("getFloat (called from XML Node \"" +
                            parent.name() + "\"): ",
                            "no child XML element named \"" + name + "\" exists");
+    }
     const XML_Node& node = parent.child(name);
     return getFloatCurrent(node, type);
 }

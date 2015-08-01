@@ -156,10 +156,11 @@ void StFlow::setTransport(Transport& trans, bool withSoret)
     } else if (model == cMixtureAveraged || model == CK_MixtureAveraged) {
         m_transport_option = c_Mixav_Transport;
         m_diff.resize(m_nsp*m_points);
-        if (withSoret)
+        if (withSoret) {
             throw CanteraError("setTransport",
                                "Thermal diffusion (the Soret effect) "
                                "requires using a multicomponent transport model.");
+        }
     } else {
         throw CanteraError("setTransport","unknown transport model.");
     }

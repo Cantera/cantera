@@ -43,9 +43,10 @@ void ReactorNet::initialize()
     char buf[100];
     m_nv = 0;
     writelog("Initializing reactor network.\n", m_verbose);
-    if (m_reactors.empty())
+    if (m_reactors.empty()) {
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
+    }
     size_t sensParamNumber = 0;
     m_start.assign(1, 0);
     for (n = 0; n < m_reactors.size(); n++) {

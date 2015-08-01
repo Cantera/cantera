@@ -229,10 +229,11 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
         throw CanteraError(" MixTransport::getBinaryDiffCoeffs()", "ld is too small");
     }
     doublereal rp = 1.0/m_thermo->pressure();
-    for (size_t i = 0; i < m_nsp; i++)
+    for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             d[ld*j + i] = rp * m_bdiff(i,j);
         }
+    }
 }
 
 void GasTransport::getMixDiffCoeffs(doublereal* const d)

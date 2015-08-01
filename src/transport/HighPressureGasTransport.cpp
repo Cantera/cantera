@@ -151,8 +151,7 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
         throw CanteraError("HighPressureTransport::getBinaryDiffCoeffs()", "ld is too small");
     }
     doublereal rp = 1.0/m_thermo->pressure();
-    for (size_t i = 0; i < nsp; i++)
-    {
+    for (size_t i = 0; i < nsp; i++) {
         for (size_t j = 0; j < nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
             //   zero (this would lead to Pr_ij = Inf):
@@ -221,8 +220,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
         throw CanteraError("HighPressureTransport::getMultiDiffCoeffs()",
                            "ld is too small");
     }
-    for (size_t i = 0; i < m_nsp; i++)
-    {
+    for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
             //   zero (this would lead to Pr_ij = Inf):

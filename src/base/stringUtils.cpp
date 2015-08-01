@@ -107,10 +107,11 @@ static int lastChar(const std::string& s)
 {
     int i;
     int n = static_cast<int>(s.size());
-    for (i = n-1; i >= 0; i--)
+    for (i = n-1; i >= 0; i--) {
         if (s[i] != ' ' && isprint(s[i])) {
             break;
         }
+    }
     return i;
 }
 

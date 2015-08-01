@@ -193,10 +193,11 @@ void MultiNewton::step(doublereal* x, doublereal* step,
         iok--;
         size_t nd = r.nDomains();
         size_t n;
-        for (n = nd-1; n != npos; n--)
+        for (n = nd-1; n != npos; n--) {
             if (iok >= r.start(n)) {
                 break;
             }
+        }
         Domain1D& dom = r.domain(n);
         size_t offset = iok - r.start(n);
         size_t pt = offset/dom.nComponents();
@@ -207,9 +208,10 @@ void MultiNewton::step(doublereal* x, doublereal* step,
                            +dom.componentName(comp)+" at point "
                            +int2str(pt)+"\n(Matrix row "
                            +int2str(iok)+") \nsee file bandmatrix.csv\n");
-    } else if (int(iok) < 0)
+    } else if (int(iok) < 0) {
         throw CanteraError("MultiNewton::step",
                            "iok = "+int2str(iok));
+    }
 }
 
 doublereal MultiNewton::boundStep(const doublereal* x0,

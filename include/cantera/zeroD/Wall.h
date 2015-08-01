@@ -82,9 +82,10 @@ public:
 
     //! Set the emissivity.
     void setEmissivity(doublereal epsilon) {
-        if (epsilon > 1.0 || epsilon < 0.0)
+        if (epsilon > 1.0 || epsilon < 0.0) {
             throw CanteraError("Wall::setEmissivity",
                                "emissivity must be between 0.0 and 1.0");
+        }
         m_emiss = epsilon;
     }
 
