@@ -44,11 +44,9 @@ double VCS_SOLVE::vcs_GibbsPhase(size_t iphase, const double* const w,
     double g = 0.0;
     double phaseMols = 0.0;
     for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-        if (m_phaseID[kspec] == iphase) {
-            if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                g += w[kspec] * fe[kspec];
-                phaseMols += w[kspec];
-            }
+        if (m_phaseID[kspec] == iphase && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            g += w[kspec] * fe[kspec];
+            phaseMols += w[kspec];
         }
     }
 

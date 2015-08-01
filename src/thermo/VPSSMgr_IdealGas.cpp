@@ -88,12 +88,10 @@ PDSS* VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                           const XML_Node* const phaseNode_ptr)
 {
     const XML_Node* ss = speciesNode.findByName("standardState");
-    if (ss) {
-        if (ss->attrib("model") != "ideal_gas") {
-            throw CanteraError("VPSSMgr_IdealGas::createInstallPDSS",
-                               "standardState model for species isn't "
-                               "ideal_gas: " + speciesNode["name"]);
-        }
+    if (ss && ss->attrib("model") != "ideal_gas") {
+        throw CanteraError("VPSSMgr_IdealGas::createInstallPDSS",
+                           "standardState model for species isn't "
+                           "ideal_gas: " + speciesNode["name"]);
     }
     if (m_Vss.size() < k+1) {
         m_Vss.resize(k+1, 0.0);

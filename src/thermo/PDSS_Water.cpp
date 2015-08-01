@@ -316,11 +316,9 @@ void PDSS_Water::setPressure(doublereal p)
 
     // We are only putting the phase check here because of speed considerations.
     m_iState = m_sub.phaseState(true);
-    if (! m_allowGasPhase) {
-        if (m_iState != WATER_SUPERCRIT && m_iState != WATER_LIQUID && m_iState != WATER_UNSTABLELIQUID) {
-            throw CanteraError("PDSS_Water::setPressure",
-                               "Water State isn't liquid or crit");
-        }
+    if (!m_allowGasPhase && m_iState != WATER_SUPERCRIT && m_iState != WATER_LIQUID && m_iState != WATER_UNSTABLELIQUID) {
+        throw CanteraError("PDSS_Water::setPressure",
+                           "Water State isn't liquid or crit");
     }
 }
 

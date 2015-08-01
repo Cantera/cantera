@@ -32,10 +32,8 @@ void VCS_SOLVE::vcs_SSPhase()
         if (TPhInertMoles[iph] > 0.0) {
             Vphase->setExistence(2);
         }
-        if (numPhSpecies[iph] <= 1) {
-            if (TPhInertMoles[iph] == 0.0) {
-                Vphase->m_singleSpecies = true;
-            }
+        if (numPhSpecies[iph] <= 1 && TPhInertMoles[iph] == 0.0) {
+            Vphase->m_singleSpecies = true;
         }
     }
 

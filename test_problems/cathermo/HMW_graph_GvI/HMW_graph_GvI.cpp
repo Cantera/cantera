@@ -78,12 +78,10 @@ int main(int argc, char** argv)
                         + ISQRTbot*(1.0 - (double)i/(its - 1.0));
 
                 Is = ISQRT * ISQRT;
-                if (!doneSp) {
-                    if (Is > 6.146) {
-                        Is = 6.146;
-                        doneSp = true;
-                        i--;
-                    }
+                if (!doneSp && Is > 6.146) {
+                    Is = 6.146;
+                    doneSp = true;
+                    i--;
                 }
                 moll[i1] = Is;
                 moll[i2] = Is;

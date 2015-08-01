@@ -460,11 +460,9 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
      */
     initThermo();
 
-    if (id_.size() > 0) {
-        if (phaseNode.id() != id_) {
-            throw CanteraError("IdealMolalSoln::initThermo",
-                               "phasenode and Id are incompatible");
-        }
+    if (id_.size() > 0 && phaseNode.id() != id_) {
+        throw CanteraError("IdealMolalSoln::initThermo",
+                           "phasenode and Id are incompatible");
     }
 
     /*

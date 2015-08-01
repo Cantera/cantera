@@ -57,10 +57,8 @@ LTPspecies::LTPspecies(const XML_Node* const propNode, const std::string name,
     m_thermo(thermo),
     m_mixWeight(1.0)
 {
-    if (propNode) {
-        if (propNode->hasChild("mixtureWeighting")) {
-            m_mixWeight = getFloat(*propNode, "mixtureWeighting");
-        }
+    if (propNode && propNode->hasChild("mixtureWeighting")) {
+        m_mixWeight = getFloat(*propNode, "mixtureWeighting");
     }
 }
 

@@ -184,11 +184,9 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
 
 void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 {
-    if (id_.size() > 0) {
-        if (phaseNode.id() != id_) {
-            throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
+    if (id_.size() > 0 && phaseNode.id() != id_) {
+        throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
+                           "phasenode and Id are incompatible");
     }
 
     /*
@@ -769,16 +767,14 @@ static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
 {
     double fMax = 1.0E100;
     for (size_t mi = 0; mi < nElementsI; mi++) {
-        if (elnamesVI[mi] != "E") {
-            if (elemVectorI[mi] > 1.0E-13) {
-                double eiNum = elemVectorI[mi];
-                for (size_t mn = 0; mn < nElementsN; mn++) {
-                    if (elnamesVI[mi] == elnamesVN[mn]) {
-                        if (elemVectorN[mn] <= 1.0E-13) {
-                            return 0.0;
-                        }
-                        fMax = std::min(fMax, elemVectorN[mn]/eiNum);
+        if (elnamesVI[mi] != "E" && elemVectorI[mi] > 1.0E-13) {
+            double eiNum = elemVectorI[mi];
+            for (size_t mn = 0; mn < nElementsN; mn++) {
+                if (elnamesVI[mi] == elnamesVN[mn]) {
+                    if (elemVectorN[mn] <= 1.0E-13) {
+                        return 0.0;
                     }
+                    fMax = std::min(fMax, elemVectorN[mn]/eiNum);
                 }
             }
         }
@@ -787,11 +783,9 @@ static double factorOverlap(const std::vector<std::string>&  elnamesVN ,
 }
 void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    if (id_.size() > 0) {
-        if (phaseNode.id() != id_) {
-            throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                               "phasenode and Id are incompatible");
-        }
+    if (id_.size() > 0 && phaseNode.id() != id_) {
+        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+                           "phasenode and Id are incompatible");
     }
 
     /*

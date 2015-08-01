@@ -327,10 +327,8 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             throw CanteraError(" LatticePhase::initThermoXML", "database problems");
         }
         XML_Node* ss = s->findByName("standardState");
-        if (ss) {
-            if (ss->findByName("molarVolume")) {
-                m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
-            }
+        if (ss && ss->findByName("molarVolume")) {
+            m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
         }
     }
 

@@ -203,17 +203,13 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
     for (size_t k = 0; k < m_kk; k++) {
         double ch = charge(k);
         if (mf[k] > 0.0) {
-            if (ch > 0.0) {
-                if (ch * mf[k] > cPos) {
-                    largePos = k;
-                    cPos = ch * mf[k];
-                }
+            if (ch > 0.0 && ch * mf[k] > cPos) {
+                largePos = k;
+                cPos = ch * mf[k];
             }
-            if (ch < 0.0) {
-                if (fabs(ch) * mf[k] > cNeg) {
-                    largeNeg = k;
-                    cNeg = fabs(ch) * mf[k];
-                }
+            if (ch < 0.0 && fabs(ch) * mf[k] > cNeg) {
+                largeNeg = k;
+                cNeg = fabs(ch) * mf[k];
             }
         }
         sum += mf[k] * ch;

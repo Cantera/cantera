@@ -321,13 +321,11 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                     Tlow = Tnow;
                     Slow = Snow;
                 } else {
-                    if (Slow > Starget) {
-                        if (Snow < Slow) {
-                            Thigh = Tlow;
-                            Shigh = Slow;
-                            Tlow = Tnow;
-                            Slow = Snow;
-                        }
+                    if (Slow > Starget && Snow < Slow) {
+                        Thigh = Tlow;
+                        Shigh = Slow;
+                        Tlow = Tnow;
+                        Slow = Snow;
                     }
                 }
             } else {
@@ -573,10 +571,8 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         }
         plogf("------------------------------------------"
               "-------------------\n");
-        if (printLvl > 2) {
-            if (m_vsolve.m_timing_print_lvl > 0) {
-                plogf("Total time = %12.6e seconds\n", te);
-            }
+        if (printLvl > 2 && m_vsolve.m_timing_print_lvl > 0) {
+            plogf("Total time = %12.6e seconds\n", te);
         }
     }
     return iSuccess;
@@ -1362,10 +1358,8 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
         }
         plogf("------------------------------------------"
               "-------------------\n");
-        if (printLvl > 2) {
-            if (m_vsolve.m_timing_print_lvl > 0) {
-                plogf("Total time = %12.6e seconds\n", te);
-            }
+        if (printLvl > 2 && m_vsolve.m_timing_print_lvl > 0) {
+            plogf("Total time = %12.6e seconds\n", te);
         }
     }
     return iStable;

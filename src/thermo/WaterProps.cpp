@@ -353,14 +353,12 @@ doublereal WaterProps::viscosityWater() const
 
     // Apply the near-critical point corrections if necessary
     doublereal mu2bar = 1.0;
-    if ((tbar >= 0.9970) && tbar <= 1.0082) {
-        if ((rhobar >= 0.755) && (rhobar <= 1.290)) {
-            doublereal drhodp =  1.0 / m_waterIAPWS->dpdrho();
-            drhodp *= presStar / rhoStar;
-            doublereal xsi = rhobar * drhodp;
-            if (xsi >= 21.93) {
-                mu2bar = 0.922 * std::pow(xsi, 0.0263);
-            }
+    if (tbar >= 0.9970 && tbar <= 1.0082 && rhobar >= 0.755 && rhobar <= 1.290) {
+        doublereal drhodp =  1.0 / m_waterIAPWS->dpdrho();
+        drhodp *= presStar / rhoStar;
+        doublereal xsi = rhobar * drhodp;
+        if (xsi >= 21.93) {
+            mu2bar = 0.922 * std::pow(xsi, 0.0263);
         }
     }
 

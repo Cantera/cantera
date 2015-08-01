@@ -209,17 +209,15 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     // First look for any explicit instructions within the XML Database
     // for the standard state manager and the variable pressure
     // standard state manager
-    if (phaseNode_ptr) {
-        if (phaseNode_ptr->hasChild("thermo")) {
-            const XML_Node& thermoNode = phaseNode_ptr->child("thermo");
-            if (thermoNode.hasChild("standardStateManager")) {
-                const XML_Node& ssNode = thermoNode.child("standardStateManager");
-                ssManager = ssNode["model"];
-            }
-            if (thermoNode.hasChild("variablePressureStandardStateManager")) {
-                const XML_Node& vpssNode = thermoNode.child("variablePressureStandardStateManager");
-                vpssManager = vpssNode["model"];
-            }
+    if (phaseNode_ptr && phaseNode_ptr->hasChild("thermo")) {
+        const XML_Node& thermoNode = phaseNode_ptr->child("thermo");
+        if (thermoNode.hasChild("standardStateManager")) {
+            const XML_Node& ssNode = thermoNode.child("standardStateManager");
+            ssManager = ssNode["model"];
+        }
+        if (thermoNode.hasChild("variablePressureStandardStateManager")) {
+            const XML_Node& vpssNode = thermoNode.child("variablePressureStandardStateManager");
+            vpssManager = vpssNode["model"];
         }
     }
 
@@ -270,10 +268,9 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
             }
         }
     }
-    if (inasaCV || ishomateCV || isimpleCV) {
-        if (!inasaIG && !ishomateIG && !isimpleIG && !itpx && !ihptx && !iother) {
-            return new VPSSMgr_ConstVol(vp_ptr, spth);
-        }
+    if ((inasaCV || ishomateCV || isimpleCV) &&
+        !inasaIG && !ishomateIG && !isimpleIG && !itpx && !ihptx && !iother) {
+        return new VPSSMgr_ConstVol(vp_ptr, spth);
     }
     return new VPSSMgr_General(vp_ptr, spth);
 }

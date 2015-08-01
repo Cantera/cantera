@@ -478,11 +478,9 @@ const vector_fp& IdealSolidSolnPhase::entropy_R_ref() const
 
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    if (id_.size() > 0) {
-        if (phaseNode.id() != id_) {
-            throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                               "phasenode and Id are incompatible");
-        }
+    if (id_.size() > 0 && phaseNode.id() != id_) {
+        throw CanteraError("IdealSolidSolnPhase::initThermoXML",
+                           "phasenode and Id are incompatible");
     }
 
     /*

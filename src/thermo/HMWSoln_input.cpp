@@ -465,11 +465,9 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
             stemp = xmlChild.value();
             double old = m_Theta_ij[counter];
             m_Theta_ij[counter] = fpValueCheck(stemp);
-            if (old != 0.0) {
-                if (old != m_Theta_ij[counter]) {
-                    throw CanteraError("HMWSoln::readXMLPsiCommonCation",
-                                       "conflicting values");
-                }
+            if (old != 0.0 && old != m_Theta_ij[counter]) {
+                throw CanteraError("HMWSoln::readXMLPsiCommonCation",
+                                   "conflicting values");
             }
         }
         if (nodeName == "psi") {
@@ -601,11 +599,9 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
             stemp = xmlChild.value();
             double old = m_Theta_ij[counter];
             m_Theta_ij[counter] = fpValueCheck(stemp);
-            if (old != 0.0) {
-                if (old != m_Theta_ij[counter]) {
-                    throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
-                                       "conflicting values");
-                }
+            if (old != 0.0 && old != m_Theta_ij[counter]) {
+                throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
+                                   "conflicting values");
             }
         }
         if (nodeName == "psi") {
@@ -1414,19 +1410,17 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         /*
          * Now look at the activity coefficient database
          */
-        if (acNodePtr) {
-            if (acNodePtr->hasChild("stoichIsMods")) {
-                XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
-                map<string, string> msIs;
-                getMap(sIsNode, msIs);
-                for (map<string,string>::const_iterator _b = msIs.begin();
-                     _b != msIs.end();
-                     ++_b) {
-                    size_t kk = speciesIndex(_b->first);
-                    if (kk != npos) {
-                        double val = fpValue(_b->second);
-                        m_speciesCharge_Stoich[kk] = val;
-                    }
+        if (acNodePtr && acNodePtr->hasChild("stoichIsMods")) {
+            XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
+            map<string, string> msIs;
+            getMap(sIsNode, msIs);
+            for (map<string,string>::const_iterator _b = msIs.begin();
+                 _b != msIs.end();
+                 ++_b) {
+                size_t kk = speciesIndex(_b->first);
+                if (kk != npos) {
+                    double val = fpValue(_b->second);
+                    m_speciesCharge_Stoich[kk] = val;
                 }
             }
         }
@@ -1496,34 +1490,30 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     std::vector<const XML_Node*> xspecies = speciesData();
     for (size_t k = 0; k < m_kk; k++) {
         const XML_Node* spPtr = xspecies[k];
-        if (spPtr) {
-            if (spPtr->hasChild("electrolyteSpeciesType")) {
-                string est = getChildValue(*spPtr, "electrolyteSpeciesType");
-                if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
-                    throw CanteraError("HMWSoln::initThermoXML",
-                                       "Bad electrolyte type: " + est);
-                }
+        if (spPtr && spPtr->hasChild("electrolyteSpeciesType")) {
+            string est = getChildValue(*spPtr, "electrolyteSpeciesType");
+            if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
+                throw CanteraError("HMWSoln::initThermoXML",
+                                   "Bad electrolyte type: " + est);
             }
         }
     }
     /*
      * Then look at the phase thermo specification
      */
-    if (acNodePtr) {
-        if (acNodePtr->hasChild("electrolyteSpeciesType")) {
-            XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
-            map<string, string> msEST;
-            getMap(ESTNode, msEST);
-            for (map<string,string>::const_iterator _b = msEST.begin();
-                 _b != msEST.end();
-                 ++_b) {
-                size_t kk = speciesIndex(_b->first);
-                if (kk != npos) {
-                    string est = _b->second;
-                    if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
-                        throw CanteraError("HMWSoln::initThermoXML",
-                                           "Bad electrolyte type: " + est);
-                    }
+    if (acNodePtr && acNodePtr->hasChild("electrolyteSpeciesType")) {
+        XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
+        map<string, string> msEST;
+        getMap(ESTNode, msEST);
+        for (map<string,string>::const_iterator _b = msEST.begin();
+             _b != msEST.end();
+             ++_b) {
+            size_t kk = speciesIndex(_b->first);
+            if (kk != npos) {
+                string est = _b->second;
+                if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
+                    throw CanteraError("HMWSoln::initThermoXML",
+                                       "Bad electrolyte type: " + est);
                 }
             }
         }
@@ -1585,16 +1575,14 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                         }
                     }
                 }
-                if (notDone) {
-                    if (kMaxC != npos) {
-                        if (mf[kMaxC] > (1.1 * sum / charge(kMaxC))) {
-                            mf[kMaxC] -= sum / charge(kMaxC);
-                            mf[0] += sum / charge(kMaxC);
-                        } else {
-                            mf[kMaxC] *= 0.5;
-                            mf[0] += mf[kMaxC];
-                            notDone = true;
-                        }
+                if (notDone && kMaxC != npos) {
+                    if (mf[kMaxC] > (1.1 * sum / charge(kMaxC))) {
+                        mf[kMaxC] -= sum / charge(kMaxC);
+                        mf[0] += sum / charge(kMaxC);
+                    } else {
+                        mf[kMaxC] *= 0.5;
+                        mf[0] += mf[kMaxC];
+                        notDone = true;
                     }
                 }
             }

@@ -493,10 +493,8 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
      * then we have a valid state. If the phase went away, it would
      * be a valid starting point for F_k's. So, save the state.
      */
-    if (stateCalc == VCS_STATECALC_OLD) {
-        if (v_totalMoles > 0.0) {
-            creationMoleNumbers_ = Xmol_;
-        }
+    if (stateCalc == VCS_STATECALC_OLD && v_totalMoles > 0.0) {
+        creationMoleNumbers_ = Xmol_;
     }
 
     /*
@@ -528,12 +526,9 @@ void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
 
 void vcs_VolPhase::updateFromVCS_MoleNumbers(const int vcsStateStatus)
 {
-    if (!m_UpToDate || (vcsStateStatus != m_vcsStateStatus)) {
-        if (vcsStateStatus == VCS_STATECALC_OLD || vcsStateStatus == VCS_STATECALC_NEW) {
-            if (m_owningSolverObject) {
-                setMolesFromVCS(vcsStateStatus);
-            }
-        }
+    if ((!m_UpToDate || vcsStateStatus != m_vcsStateStatus) && m_owningSolverObject &&
+        (vcsStateStatus == VCS_STATECALC_OLD || vcsStateStatus == VCS_STATECALC_NEW)) {
+        setMolesFromVCS(vcsStateStatus);
     }
 }
 
@@ -591,10 +586,8 @@ double vcs_VolPhase::electricPotential() const
 
 void vcs_VolPhase::setState_TP(const double temp, const double pres)
 {
-    if (Temp_ == temp) {
-        if (Pres_ == pres) {
-            return;
-        }
+    if (Temp_ == temp && Pres_ == pres) {
+        return;
     }
     TP_ptr->setElectricPotential(m_phi);
     TP_ptr->setState_TP(temp, pres);
@@ -906,10 +899,8 @@ void vcs_VolPhase::setPhiVarIndex(size_t phiVarIndex)
 {
     m_phiVarIndex = phiVarIndex;
     m_speciesUnknownType[m_phiVarIndex] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
-    if (m_singleSpecies) {
-        if (m_phiVarIndex == 0) {
-            m_existence = VCS_PHASE_EXIST_ALWAYS;
-        }
+    if (m_singleSpecies && m_phiVarIndex == 0) {
+        m_existence = VCS_PHASE_EXIST_ALWAYS;
     }
 }
 
@@ -935,20 +926,14 @@ void vcs_VolPhase::setExistence(const int existence)
             }
         }
     } else if (DEBUG_MODE_ENABLED && m_totalMolesInert == 0.0) {
-        if (v_totalMoles == 0.0) {
-            if (!m_singleSpecies  || m_phiVarIndex != 0) {
-                throw CanteraError("vcs_VolPhase::setExistence",
-                        "setting true existence for phase with no moles");
-            }
+        if (v_totalMoles == 0.0 && (!m_singleSpecies || m_phiVarIndex != 0)) {
+            throw CanteraError("vcs_VolPhase::setExistence",
+                    "setting true existence for phase with no moles");
         }
     }
-    if (DEBUG_MODE_ENABLED && m_singleSpecies) {
-        if (m_phiVarIndex == 0) {
-            if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
-                throw CanteraError("vcs_VolPhase::setExistence",
-                        "Trying to set existence of an electron phase to false");
-            }
-        }
+    if (DEBUG_MODE_ENABLED && m_singleSpecies && m_phiVarIndex == 0 && (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE)) {
+        throw CanteraError("vcs_VolPhase::setExistence",
+                "Trying to set existence of an electron phase to false");
     }
     m_existence = existence;
 }
@@ -1040,10 +1025,8 @@ static bool hasChargedSpecies(const ThermoPhase* const tPhase)
 static bool chargeNeutralityElement(const ThermoPhase* const tPhase)
 {
     int hasCharge = hasChargedSpecies(tPhase);
-    if (tPhase->chargeNeutralityNecessary()) {
-        if (hasCharge) {
-            return true;
-        }
+    if (tPhase->chargeNeutralityNecessary() && hasCharge) {
+        return true;
     }
     return false;
 }
@@ -1155,11 +1138,9 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
      * The logic isn't set in stone, and is just for a particular type
      * of problem that I'm solving first.
      */
-    if (ns == 1) {
-        if (tPhase->charge(0) != 0.0) {
-            m_speciesUnknownType[0] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
-            setPhiVarIndex(0);
-        }
+    if (ns == 1 && tPhase->charge(0) != 0.0) {
+        m_speciesUnknownType[0] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
+        setPhiVarIndex(0);
     }
 
     return ne;

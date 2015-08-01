@@ -53,14 +53,12 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
 
         for (j = 0; j < np; j++) {
             val = x[index(m,j)];
-            if (loglevel > 0) {
-                if (val > above + 1.0e-12 || val < below - 1.0e-12) {
-                    sprintf(buf, "domain %s: %20s(%s) = %10.3e (%10.3e, %10.3e)\n",
-                            int2str(r.domainIndex()).c_str(),
-                            r.componentName(m).c_str(), int2str(j).c_str(),
-                            val, below, above);
-                    writelog(string("\nERROR: solution out of bounds.\n")+buf);
-                }
+            if (loglevel > 0 && (val > above + 1.0e-12 || val < below - 1.0e-12)) {
+                sprintf(buf, "domain %s: %20s(%s) = %10.3e (%10.3e, %10.3e)\n",
+                        int2str(r.domainIndex()).c_str(),
+                        r.componentName(m).c_str(), int2str(j).c_str(),
+                        val, below, above);
+                writelog(string("\nERROR: solution out of bounds.\n")+buf);
             }
 
             newval = val + step[index(m,j)];

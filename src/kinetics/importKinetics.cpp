@@ -152,12 +152,10 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     string owning_phase = phase["id"];
 
     bool check_for_duplicates = false;
-    if (phase.parent()) {
-        if (phase.parent()->hasChild("validate")) {
-            const XML_Node& d = phase.parent()->child("validate");
-            if (d["reactions"] == "yes") {
-                check_for_duplicates = true;
-            }
+    if (phase.parent() && phase.parent()->hasChild("validate")) {
+        const XML_Node& d = phase.parent()->child("validate");
+        if (d["reactions"] == "yes") {
+            check_for_duplicates = true;
         }
     }
 

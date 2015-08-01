@@ -625,10 +625,8 @@ void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
                         "Use of SpeciesThermo classes other than "
                         "GeneralSpeciesThermo is deprecated.");
     }
-    if (m_spthermo) {
-        if (m_spthermo != spthermo) {
-            delete m_spthermo;
-        }
+    if (m_spthermo && m_spthermo != spthermo) {
+        delete m_spthermo;
     }
     m_spthermo = spthermo;
 }

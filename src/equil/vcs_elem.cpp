@@ -32,53 +32,51 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
      * Require 12 digits of accuracy on non-zero constraints.
      */
     for (size_t i = 0; i < top; ++i) {
-        if (m_elementActive[i]) {
-            if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > (fabs(m_elemAbundancesGoal[i]) * 1.0e-12)) {
+        if (m_elementActive[i] && fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > fabs(m_elemAbundancesGoal[i]) * 1.0e-12) {
+            /*
+             * This logic is for charge neutrality condition
+             */
+            if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY &&
+                    m_elemAbundancesGoal[i] != 0.0) {
+                throw CanteraError("VCS_SOLVE::vcs_elabcheck",
+                                   "Problem with charge neutrality condition");
+            }
+            if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
+                double scale = VCS_DELETE_MINORSPECIES_CUTOFF;
                 /*
-                 * This logic is for charge neutrality condition
+                 * Find out if the constraint is a multisign constraint.
+                 * If it is, then we have to worry about roundoff error
+                 * in the addition of terms. We are limited to 13
+                 * digits of finite arithmetic accuracy.
                  */
-                if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY &&
-                        m_elemAbundancesGoal[i] != 0.0) {
-                    throw CanteraError("VCS_SOLVE::vcs_elabcheck",
-                                       "Problem with charge neutrality condition");
-                }
-                if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
-                    double scale = VCS_DELETE_MINORSPECIES_CUTOFF;
-                    /*
-                     * Find out if the constraint is a multisign constraint.
-                     * If it is, then we have to worry about roundoff error
-                     * in the addition of terms. We are limited to 13
-                     * digits of finite arithmetic accuracy.
-                     */
-                    bool multisign = false;
-                    for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
-                        double eval = m_formulaMatrix(kspec,i);
-                        if (eval < 0.0) {
-                            multisign = true;
-                        }
-                        if (eval != 0.0) {
-                            scale = std::max(scale, fabs(eval * m_molNumSpecies_old[kspec]));
-                        }
+                bool multisign = false;
+                for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+                    double eval = m_formulaMatrix(kspec,i);
+                    if (eval < 0.0) {
+                        multisign = true;
                     }
-                    if (multisign) {
-                        if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > 1e-11 * scale) {
-                            return false;
-                        }
-                    } else {
-                        if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > VCS_DELETE_MINORSPECIES_CUTOFF) {
-                            return false;
-                        }
+                    if (eval != 0.0) {
+                        scale = std::max(scale, fabs(eval * m_molNumSpecies_old[kspec]));
+                    }
+                }
+                if (multisign) {
+                    if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > 1e-11 * scale) {
+                        return false;
                     }
                 } else {
-                    /*
-                     * For normal element balances, we require absolute compliance
-                     * even for ridiculously small numbers.
-                     */
-                    if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
-                        return false;
-                    } else {
+                    if (fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > VCS_DELETE_MINORSPECIES_CUTOFF) {
                         return false;
                     }
+                }
+            } else {
+                /*
+                 * For normal element balances, we require absolute compliance
+                 * even for ridiculously small numbers.
+                 */
+                if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
+                    return false;
+                } else {
+                    return false;
                 }
             }
         }
@@ -91,10 +89,8 @@ void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
     for (size_t j = 0; j < m_numElemConstraints; ++j) {
         elemAbundPhase[j] = 0.0;
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-            if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                if (m_phaseID[i] == iphase) {
-                    elemAbundPhase[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
-                }
+            if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE && m_phaseID[i] == iphase) {
+                elemAbundPhase[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
             }
         }
     }
@@ -385,21 +381,17 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY ||
                 (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) {
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
-                if (m_elemAbundances[i] > 0.0) {
-                    if (m_formulaMatrix(kspec,i) < 0.0) {
-                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i) ;
-                        m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
-                        vcs_elab();
-                        break;
-                    }
+                if (m_elemAbundances[i] > 0.0 && m_formulaMatrix(kspec,i) < 0.0) {
+                    m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i) ;
+                    m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
+                    vcs_elab();
+                    break;
                 }
-                if (m_elemAbundances[i] < 0.0) {
-                    if (m_formulaMatrix(kspec,i) > 0.0) {
-                        m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i);
-                        m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
-                        vcs_elab();
-                        break;
-                    }
+                if (m_elemAbundances[i] < 0.0 && m_formulaMatrix(kspec,i) > 0.0) {
+                    m_molNumSpecies_old[kspec] -= m_elemAbundances[i] / m_formulaMatrix(kspec,i);
+                    m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
+                    vcs_elab();
+                    break;
                 }
             }
         }
@@ -420,38 +412,30 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
             bool useZeroed = true;
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (dev < 0.0) {
-                    if (m_formulaMatrix(kspec,i) < 0.0) {
-                        if (m_molNumSpecies_old[kspec] > 0.0) {
-                            useZeroed = false;
-                        }
+                    if (m_formulaMatrix(kspec,i) < 0.0 && m_molNumSpecies_old[kspec] > 0.0) {
+                        useZeroed = false;
                     }
                 } else {
-                    if (m_formulaMatrix(kspec,i) > 0.0) {
-                        if (m_molNumSpecies_old[kspec] > 0.0) {
-                            useZeroed = false;
-                        }
+                    if (m_formulaMatrix(kspec,i) > 0.0 && m_molNumSpecies_old[kspec] > 0.0) {
+                        useZeroed = false;
                     }
                 }
             }
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
                 if (m_molNumSpecies_old[kspec] > 0.0 || useZeroed) {
-                    if (dev < 0.0) {
-                        if (m_formulaMatrix(kspec,i) < 0.0) {
-                            double delta = dev / m_formulaMatrix(kspec,i) ;
-                            m_molNumSpecies_old[kspec] += delta;
-                            m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
-                            vcs_elab();
-                            break;
-                        }
+                    if (dev < 0.0 && m_formulaMatrix(kspec,i) < 0.0) {
+                        double delta = dev / m_formulaMatrix(kspec,i) ;
+                        m_molNumSpecies_old[kspec] += delta;
+                        m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
+                        vcs_elab();
+                        break;
                     }
-                    if (dev > 0.0) {
-                        if (m_formulaMatrix(kspec,i) > 0.0) {
-                            double delta = dev / m_formulaMatrix(kspec,i) ;
-                            m_molNumSpecies_old[kspec] += delta;
-                            m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
-                            vcs_elab();
-                            break;
-                        }
+                    if (dev > 0.0 && m_formulaMatrix(kspec,i) > 0.0) {
+                        double delta = dev / m_formulaMatrix(kspec,i) ;
+                        m_molNumSpecies_old[kspec] += delta;
+                        m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 0.0);
+                        vcs_elab();
+                        break;
                     }
                 }
             }

@@ -1318,13 +1318,11 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             tmp = an *  Vroot[i] * Vroot[i] * Vroot[i] + bn * Vroot[i] * Vroot[i] + cn  * Vroot[i] + dn;
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
-                    if (j != i) {
-                        if (fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                            writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " +
-                                     fp2str(pres) + "): WARNING roots have merged: " +
-                                     fp2str(Vroot[i]) + ", " + fp2str(Vroot[j]));
-                            writelogendl();
-                        }
+                    if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
+                        writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " +
+                                 fp2str(pres) + "): WARNING roots have merged: " +
+                                 fp2str(Vroot[i]) + ", " + fp2str(Vroot[j]));
+                        writelogendl();
                     }
                 }
             }
@@ -1400,10 +1398,8 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
         }
     } else {
-        if (nSolnValues == 2) {
-            if (delta > 0.0) {
-                nSolnValues = -2;
-            }
+        if (nSolnValues == 2 && delta > 0.0) {
+            nSolnValues = -2;
         }
     }
     return nSolnValues;

@@ -212,10 +212,9 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     /* *********************************************************** */
     double par = 0.5;
     for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
-        if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            if (par < -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec]) {
-                par = -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec];
-            }
+        if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE &&
+            par < -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec]) {
+            par = -m_deltaMolNumSpecies[kspec] / m_molNumSpecies_new[kspec];
         }
     }
     par = 1. / par;
@@ -239,10 +238,9 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             }
         }
         for (size_t kspec = m_numComponents; kspec < nspecies; ++kspec) {
-            if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                if (m_deltaMolNumSpecies[kspec] != 0.0) {
-                    m_molNumSpecies_old[kspec] = m_deltaMolNumSpecies[kspec] * par;
-                }
+            if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE &&
+                m_deltaMolNumSpecies[kspec] != 0.0) {
+                m_molNumSpecies_old[kspec] = m_deltaMolNumSpecies[kspec] * par;
             }
         }
         /*
@@ -265,10 +263,8 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         if (s == 0.0) {
             break;
         }
-        if (s < 0.0) {
-            if (ikl == 0) {
-                break;
-            }
+        if (s < 0.0 && ikl == 0) {
+            break;
         }
         /* ***************************************** */
         /* *** TRY HALF STEP SIZE ****************** */

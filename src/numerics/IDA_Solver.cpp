@@ -269,12 +269,10 @@ doublereal IDA_Solver::getCurrentStepFromIDA()
 void IDA_Solver::setJacobianType(int formJac)
 {
     m_formJac = formJac;
-    if (m_ida_mem) {
-        if (m_formJac == 1) {
-            int flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
-            if (flag != IDA_SUCCESS) {
-                throw IDA_Err("IDADlsSetDenseJacFn failed.");
-            }
+    if (m_ida_mem && m_formJac == 1) {
+        int flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+        if (flag != IDA_SUCCESS) {
+            throw IDA_Err("IDADlsSetDenseJacFn failed.");
         }
     }
 }

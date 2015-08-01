@@ -49,11 +49,9 @@ MineralEQ3::MineralEQ3(const std::string& infile, std::string id_)
 
 MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
 {
-    if (id_ != "") {
-        if (id_ != xmlphase["id"]) {
-            throw CanteraError("MineralEQ3::MineralEQ3",
-                               "id's don't match");
-        }
+    if (id_ != "" && id_ != xmlphase["id"]) {
+        throw CanteraError("MineralEQ3::MineralEQ3",
+                           "id's don't match");
     }
     std::string model = xmlphase.child("thermo")["model"];
     if (model != "StoichSubstance" && model != "MineralEQ3") {

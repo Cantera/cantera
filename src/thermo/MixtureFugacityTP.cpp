@@ -580,26 +580,20 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
          * of 0.1 times the current volume
          */
         double delMV = - (presBase - presPa) / dpdV;
-        if (!gasSide || delMV < 0.0) {
-            if (fabs(delMV) > 0.2 * molarVolBase) {
-                delMV = delMV / fabs(delMV) * 0.2 * molarVolBase;
-            }
+        if ((!gasSide || delMV < 0.0) && fabs(delMV) > 0.2 * molarVolBase) {
+            delMV = delMV / fabs(delMV) * 0.2 * molarVolBase;
         }
         /*
          *  Only go 1/10 the way towards the spinodal at any one time.
          */
         if (TKelvin < tcrit) {
             if (gasSide) {
-                if (delMV < 0.0) {
-                    if (-delMV > 0.5 * (molarVolBase - molarVolSpinodal)) {
-                        delMV = - 0.5 * (molarVolBase - molarVolSpinodal);
-                    }
+                if (delMV < 0.0 && -delMV > 0.5 * (molarVolBase - molarVolSpinodal)) {
+                    delMV = - 0.5 * (molarVolBase - molarVolSpinodal);
                 }
             } else {
-                if (delMV > 0.0) {
-                    if (delMV > 0.5 * (molarVolSpinodal - molarVolBase)) {
-                        delMV = 0.5 * (molarVolSpinodal - molarVolBase);
-                    }
+                if (delMV > 0.0 && delMV > 0.5 * (molarVolSpinodal - molarVolBase)) {
+                    delMV = 0.5 * (molarVolSpinodal - molarVolBase);
                 }
             }
         }
@@ -828,37 +822,35 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             }
         }
 
-        if (foundGas && foundLiquid) {
-            if (presGas != presLiquid) {
-                pres = 0.5 * (presLiquid + presGas);
-                bool goodLiq;
-                bool goodGas;
-                for (int i = 0; i < 50; i++) {
-                    densLiquid = densityCalc(TKelvin, pres, FLUID_LIQUID_0, RhoLiquidGood);
-                    if (densLiquid <= 0.0) {
-                        goodLiq = false;
-                    } else {
-                        goodLiq = true;
-                        RhoLiquidGood = densLiquid;
-                        presLiquid = pres;
-                    }
-                    densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
-                    if (densGas <= 0.0) {
-                        goodGas = false;
-                    } else {
-                        goodGas = true;
-                        RhoGasGood = densGas;
-                        presGas = pres;
-                    }
-                    if (goodGas && goodLiq) {
-                        break;
-                    }
-                    if (!goodLiq && !goodGas) {
-                        pres = 0.5 * (pres + presLiquid);
-                    }
-                    if (goodLiq || goodGas) {
-                        pres = 0.5 * (presLiquid + presGas);
-                    }
+        if (foundGas && foundLiquid && presGas != presLiquid) {
+            pres = 0.5 * (presLiquid + presGas);
+            bool goodLiq;
+            bool goodGas;
+            for (int i = 0; i < 50; i++) {
+                densLiquid = densityCalc(TKelvin, pres, FLUID_LIQUID_0, RhoLiquidGood);
+                if (densLiquid <= 0.0) {
+                    goodLiq = false;
+                } else {
+                    goodLiq = true;
+                    RhoLiquidGood = densLiquid;
+                    presLiquid = pres;
+                }
+                densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
+                if (densGas <= 0.0) {
+                    goodGas = false;
+                } else {
+                    goodGas = true;
+                    RhoGasGood = densGas;
+                    presGas = pres;
+                }
+                if (goodGas && goodLiq) {
+                    break;
+                }
+                if (!goodLiq && !goodGas) {
+                    pres = 0.5 * (pres + presLiquid);
+                }
+                if (goodLiq || goodGas) {
+                    pres = 0.5 * (presLiquid + presGas);
                 }
             }
         }

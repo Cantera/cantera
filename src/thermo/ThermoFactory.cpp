@@ -377,13 +377,11 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
      * present.
      ***************************************************************/
     vector<XML_Node*> sparrays = phase.getChildren("speciesArray");
-    if (ssConvention != cSS_CONVENTION_SLAVE) {
-        if (sparrays.empty()) {
-            throw CanteraError("importPhase",
-                               "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
-                               + " There must be at least one speciesArray nodes "
-                               "with one or more species");
-        }
+    if (ssConvention != cSS_CONVENTION_SLAVE && sparrays.empty()) {
+        throw CanteraError("importPhase",
+                           "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
+                           + " There must be at least one speciesArray nodes "
+                           "with one or more species");
     }
     vector<XML_Node*> dbases;
     vector_int sprule(sparrays.size(),0);
@@ -450,11 +448,9 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     }
 
     size_t nsp = spDataNodeList.size();
-    if (ssConvention == cSS_CONVENTION_SLAVE) {
-        if (nsp > 0) {
-            throw CanteraError("importPhase()", "For Slave standard states, number of species must be zero: "
-                               + int2str(nsp));
-        }
+    if (ssConvention == cSS_CONVENTION_SLAVE && nsp > 0) {
+        throw CanteraError("importPhase()", "For Slave standard states, number of species must be zero: "
+                           + int2str(nsp));
     }
     for (size_t k = 0; k < nsp; k++) {
         XML_Node* s = spDataNodeList[k];

@@ -522,10 +522,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
              *   the user has said that it is ok to take
              */
             doublereal xDelMax = 1.5 * fabs(x2 - x1);
-            if (specifiedDeltaXnorm_) {
-                if (0.5 * DeltaXnorm_ >  xDelMax) {
-                    xDelMax = 0.5 *DeltaXnorm_ ;
-                }
+            if (specifiedDeltaXnorm_ && 0.5 * DeltaXnorm_ > xDelMax) {
+                xDelMax = 0.5 *DeltaXnorm_ ;
             }
             if (fabs(xDelMax) < fabs(xnew - x2)) {
                 xnew = x2 + sign(xnew-x2) * xDelMax;
@@ -590,10 +588,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     }
                 }
             }
-            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
-                if (xorig != xnew) {
-                    fprintf(fp, " | xstraddle = %-11.5E", xnew);
-                }
+            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_ && xorig != xnew) {
+                fprintf(fp, " | xstraddle = %-11.5E", xnew);
             }
         }
 
@@ -601,17 +597,15 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
          *  Enforce a minimum stepsize if we haven't found a straddle.
          */
         deltaXnew = xnew - x2;
-        if (fabs(deltaXnew) < 1.2 * delXMeaningful(xnew)) {
-            if (!foundStraddle) {
-                sgn = 1.0;
-                if (x2 > xnew) {
-                    sgn = -1.0;
-                }
-                deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
-                rfT.reasoning += "Enforcing minimum stepsize from " + fp2str(xnew - x2) +
-                                 " to " + fp2str(deltaXnew);
-                xnew = x2 + deltaXnew;
+        if (fabs(deltaXnew) < 1.2 * delXMeaningful(xnew) && !foundStraddle) {
+            sgn = 1.0;
+            if (x2 > xnew) {
+                sgn = -1.0;
             }
+            deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
+            rfT.reasoning += "Enforcing minimum stepsize from " + fp2str(xnew - x2) +
+                             " to " + fp2str(deltaXnew);
+            xnew = x2 + deltaXnew;
         }
 
         /*
@@ -861,42 +855,38 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             /*
              *  Check for excess convergence in the x coordinate
              */
-            if (!converged) {
-                if (foundStraddle) {
-                    doublereal denom = fabs(x1 - x2);
-                    if (denom < 1.0E-200) {
-                        retn = ROOTFIND_FAILEDCONVERGENCE;
-                        converged = true;
-                        rfT.reasoning += "ConvergenceFZero but X1X2Identical";
-                    }
-                    if (theSame(x2, x1, 1.0E-2)) {
-                        converged = true;
-                        rfT.reasoning += " ConvergenceF and XSame";
-                        retn = ROOTFIND_SUCCESS;
-                    }
+            if (!converged && foundStraddle) {
+                doublereal denom = fabs(x1 - x2);
+                if (denom < 1.0E-200) {
+                    retn = ROOTFIND_FAILEDCONVERGENCE;
+                    converged = true;
+                    rfT.reasoning += "ConvergenceFZero but X1X2Identical";
+                }
+                if (theSame(x2, x1, 1.0E-2)) {
+                    converged = true;
+                    rfT.reasoning += " ConvergenceF and XSame";
+                    retn = ROOTFIND_SUCCESS;
                 }
             }
         } else {
             /*
              *  We are here when F is not converged, but we may want to end anyway
              */
-            if (!converged) {
-                if (foundStraddle) {
-                    doublereal denom = fabs(x1 - x2);
-                    if (denom < 1.0E-200) {
-                        retn = ROOTFIND_FAILEDCONVERGENCE;
-                        converged = true;
-                        rfT.reasoning += "FNotConverged but X1X2Identical";
-                    }
-                    /*
-                     *  The premise here is that if x1 and x2 get close to one another,
-                     *  then the accuracy of the calculation gets destroyed.
-                     */
-                    if (theSame(x2, x1, 1.0E-5)) {
-                        converged = true;
-                        retn = ROOTFIND_SUCCESS_XCONVERGENCEONLY;
-                        rfT.reasoning += "FNotConverged but XSame";
-                    }
+            if (!converged && foundStraddle) {
+                doublereal denom = fabs(x1 - x2);
+                if (denom < 1.0E-200) {
+                    retn = ROOTFIND_FAILEDCONVERGENCE;
+                    converged = true;
+                    rfT.reasoning += "FNotConverged but X1X2Identical";
+                }
+                /*
+                 *  The premise here is that if x1 and x2 get close to one another,
+                 *  then the accuracy of the calculation gets destroyed.
+                 */
+                if (theSame(x2, x1, 1.0E-5)) {
+                    converged = true;
+                    retn = ROOTFIND_SUCCESS_XCONVERGENCEONLY;
+                    rfT.reasoning += "FNotConverged but XSame";
                 }
             }
         }
@@ -961,11 +951,9 @@ done:
                 std::swap(f1, f2);
                 std::swap(x1, x2);
                 *xbest = x2;
-                if (fabs(fnew) < fabs(f1)) {
-                    if (f1 * fnew > 0.0) {
-                        std::swap(f1, fnew);
-                        std::swap(x1, xnew);
-                    }
+                if (fabs(fnew) < fabs(f1) && f1 * fnew > 0.0) {
+                    std::swap(f1, fnew);
+                    std::swap(x1, xnew);
                 }
 
                 rfT.its = its;

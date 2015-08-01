@@ -166,18 +166,14 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     s = 1.0 / m_molNumSpecies_old[kspec];
                 }
                 for (size_t j = 0; j < m_numComponents; ++j) {
-                    if (!m_SSPhase[j]) {
-                        if (m_molNumSpecies_old[j] > 0.0) {
-                            s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
-                        }
+                    if (!m_SSPhase[j] && m_molNumSpecies_old[j] > 0.0) {
+                        s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
                     }
                 }
                 for (size_t j = 0; j < m_numPhases; j++) {
                     vcs_VolPhase* Vphase = m_VolPhaseList[j];
-                    if (!Vphase->m_singleSpecies) {
-                        if (m_tPhaseMoles_old[j] > 0.0) {
-                            s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
-                        }
+                    if (!Vphase->m_singleSpecies && m_tPhaseMoles_old[j] > 0.0) {
+                        s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                     }
                 }
                 if (s != 0.0) {
@@ -455,10 +451,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                 }
             }
             for (size_t j = 0; j < m_numPhases; j++) {
-                if (!m_VolPhaseList[j]->m_singleSpecies) {
-                    if (m_tPhaseMoles_old[j] > 0.0) {
-                        s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
-                    }
+                if (!m_VolPhaseList[j]->m_singleSpecies && m_tPhaseMoles_old[j] > 0.0) {
+                    s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                 }
             }
             if (s != 0.0) {

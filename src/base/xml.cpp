@@ -173,11 +173,9 @@ int XML_Reader::findQuotedString(const std::string& s, std::string& rstring) con
         ilocStart = iloc2;
         qtype = q2;
     }
-    if (iloc1 != string::npos) {
-        if (iloc1 < ilocStart) {
-            ilocStart = iloc1;
-            qtype = q1;
-        }
+    if (iloc1 != string::npos && iloc1 < ilocStart) {
+        ilocStart = iloc1;
+        qtype = q1;
     }
     if (qtype == ' ') {
         return 0;
@@ -349,11 +347,9 @@ XML_Node& XML_Node::operator=(const XML_Node& right)
 {
     if (&right != this) {
         for (size_t i = 0; i < m_children.size(); i++) {
-            if (m_children[i]) {
-                if (m_children[i]->parent() == this) {
-                    delete m_children[i];
-                    m_children[i] = 0;
-                }
+            if (m_children[i] && m_children[i]->parent() == this) {
+                delete m_children[i];
+                m_children[i] = 0;
             }
         }
         m_children.resize(0);
@@ -368,11 +364,9 @@ XML_Node::~XML_Node()
         writelog("XML_Node::~XML_Node: deleted a locked XML_Node: "+name());
     }
     for (size_t i = 0; i < m_children.size(); i++) {
-        if (m_children[i]) {
-            if (m_children[i]->parent() == this) {
-                delete m_children[i];
-                m_children[i] = 0;
-            }
+        if (m_children[i] && m_children[i]->parent() == this) {
+            delete m_children[i];
+            m_children[i] = 0;
         }
     }
 }
@@ -380,11 +374,9 @@ XML_Node::~XML_Node()
 void XML_Node::clear()
 {
     for (size_t i = 0; i < m_children.size(); i++) {
-        if (m_children[i]) {
-            if (m_children[i]->parent() == this) {
-                delete m_children[i];
-                m_children[i] = 0;
-            }
+        if (m_children[i] && m_children[i]->parent() == this) {
+            delete m_children[i];
+            m_children[i] = 0;
         }
     }
     m_value.clear();
@@ -593,10 +585,8 @@ bool XML_Node::isComment() const
 
 void XML_Node::_require(const std::string& a, const std::string& v) const
 {
-    if (hasAttrib(a)) {
-        if (attrib(a) == v) {
-            return;
-        }
+    if (hasAttrib(a) && attrib(a) == v) {
+        return;
     }
     string msg="XML_Node "+name()+" is required to have an attribute named " + a +
                " with the value \"" + v +"\", but instead the value is \"" + attrib(a);
@@ -609,10 +599,8 @@ XML_Node* XML_Node::findNameID(const std::string& nameTarget,
     XML_Node* scResult = 0;
     XML_Node* sc;
     std::string idattrib = id();
-    if (name() == nameTarget) {
-        if (idTarget == "" || idTarget == idattrib) {
-            return const_cast<XML_Node*>(this);
-        }
+    if (name() == nameTarget && (idTarget == "" || idTarget == idattrib)) {
+        return const_cast<XML_Node*>(this);
     }
     for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
@@ -645,12 +633,8 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
     std::string ii = attrib("index");
     std::string index_s = int2str(index_i);
     int iMax = -1000000;
-    if (name() == nameTarget) {
-        if (idTarget == "" || idTarget == idattrib) {
-            if (index_s == ii) {
-                return const_cast<XML_Node*>(this);
-            }
-        }
+    if (name() == nameTarget && (idTarget == "" || idTarget == idattrib) && index_s == ii) {
+        return const_cast<XML_Node*>(this);
     }
     for (size_t n = 0; n < m_children.size(); n++) {
         sc = m_children[n];
@@ -658,10 +642,8 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
             ii = sc->attrib("index");
             int indexR = atoi(ii.c_str());
             idattrib = sc->id();
-            if (idTarget == idattrib || idTarget == "") {
-                if (index_s == ii) {
-                    return sc;
-                }
+            if ((idTarget == idattrib || idTarget == "") && index_s == ii) {
+                return sc;
             }
             if (indexR > iMax) {
                 scResult = sc;
@@ -674,10 +656,8 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
 
 XML_Node* XML_Node::findID(const std::string& id_, const int depth) const
 {
-    if (hasAttrib("id")) {
-        if (attrib("id") == id_) {
-            return const_cast<XML_Node*>(this);
-        }
+    if (hasAttrib("id") && attrib("id") == id_) {
+        return const_cast<XML_Node*>(this);
     }
     if (depth > 0) {
         XML_Node* r = 0;
@@ -694,10 +674,8 @@ XML_Node* XML_Node::findID(const std::string& id_, const int depth) const
 XML_Node* XML_Node::findByAttr(const std::string& attr,
                                const std::string& val, int depth) const
 {
-    if (hasAttrib(attr)) {
-        if (attrib(attr) == val) {
-            return const_cast<XML_Node*>(this);
-        }
+    if (hasAttrib(attr) && attrib(attr) == val) {
+        return const_cast<XML_Node*>(this);
     }
     if (depth > 0) {
         XML_Node* r = 0;
@@ -829,25 +807,17 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
             for (size_t idc = 0; idc < ndc; idc++) {
                 XML_Node* dcc = vsc[idc];
                 if (dcc->name() == sc->name()) {
-                    if (sc->hasAttrib("id")) {
-                        if (sc->attrib("id") != dcc->attrib("id")) {
-                            break;
-                        }
+                    if (sc->hasAttrib("id") && sc->attrib("id") != dcc->attrib("id")) {
+                        break;
                     }
-                    if (sc->hasAttrib("name")) {
-                        if (sc->attrib("name") != dcc->attrib("name")) {
-                            break;
-                        }
+                    if (sc->hasAttrib("name") && sc->attrib("name") != dcc->attrib("name")) {
+                        break;
                     }
-                    if (sc->hasAttrib("model")) {
-                        if (sc->attrib("model") != dcc->attrib("model")) {
-                            break;
-                        }
+                    if (sc->hasAttrib("model") && sc->attrib("model") != dcc->attrib("model")) {
+                        break;
                     }
-                    if (sc->hasAttrib("title")) {
-                        if (sc->attrib("title") != dcc->attrib("title")) {
-                            break;
-                        }
+                    if (sc->hasAttrib("title") && sc->attrib("title") != dcc->attrib("title")) {
+                        break;
                     }
                     dc = vsc[idc];
                 }

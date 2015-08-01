@@ -2004,12 +2004,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 += molality[j]*molality[k]*psi_ijk[n];
-                                if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                                    if (psi_ijk[n] != 0.0) {
-                                        std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                        printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                               molality[j]*molality[k]*psi_ijk[n]);
-                                    }
+                                if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
+                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
+                                    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+                                           molality[j]*molality[k]*psi_ijk[n]);
                                 }
                             }
                         }
@@ -2020,12 +2018,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     // sum over all cations
                     if (j != i) {
                         sum2 += molality[j]*(2.0*Phi[counterIJ]);
-                        if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                            if ((molality[j] * Phi[counterIJ])!= 0.0) {
-                                std::string snj = speciesName(j) + ":";
-                                printf("      Phi term with %-12s                2 m_j Phi_cc = %10.5f\n", snj.c_str(),
-                                       molality[j]*(2.0*Phi[counterIJ]));
-                            }
+                        if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j] * Phi[counterIJ])!= 0.0) {
+                            std::string snj = speciesName(j) + ":";
+                            printf("      Phi term with %-12s                2 m_j Phi_cc = %10.5f\n", snj.c_str(),
+                                   molality[j]*(2.0*Phi[counterIJ]));
                         }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
@@ -2033,12 +2029,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             // two inner sums over anions
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 += molality[j]*molality[k]*psi_ijk[n];
-                            if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                                if (psi_ijk[n] != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                           molality[j]*molality[k]*psi_ijk[n]);
-                                }
+                            if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
+                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
+                                printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+                                       molality[j]*molality[k]*psi_ijk[n]);
                             }
                             /*
                              * Find the counterIJ for the j,k interaction
@@ -2047,12 +2041,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             size_t counterIJ2 = m_CounterIJ[n];
                             sum4 += (fabs(charge(i))*
                                            molality[j]*molality[k]*CMX[counterIJ2]);
-                            if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                                if ((molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
-                                           fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
-                                }
+                            if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
+                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
+                                printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
+                                       fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
                             }
                         }
                     }
@@ -2063,12 +2055,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                  */
                 if (charge(j) == 0) {
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
-                    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                        if ((molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
-                            std::string snj = speciesName(j) + ":";
-                            printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
-                                   molality[j]*2.0*m_Lambda_nj(j,i));
-                        }
+                    if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
+                        std::string snj = speciesName(j) + ":";
+                        printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
+                               molality[j]*2.0*m_Lambda_nj(j,i));
                     }
                     /*
                      * Zeta interaction term
@@ -2150,12 +2140,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 += molality[j]*molality[k]*psi_ijk[n];
-                                if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                                    if (psi_ijk[n] != 0.0) {
-                                        std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                        printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                               molality[j]*molality[k]*psi_ijk[n]);
-                                    }
+                                if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
+                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
+                                    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+                                           molality[j]*molality[k]*psi_ijk[n]);
                                 }
                             }
                         }
@@ -2169,12 +2157,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     //  sum over all anions
                     if (j != i) {
                         sum2 += molality[j]*(2.0*Phi[counterIJ]);
-                        if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                            if ((molality[j] * Phi[counterIJ])!= 0.0) {
-                                std::string snj = speciesName(j) + ":";
-                                printf("      Phi term with %-12s                2 m_j Phi_aa = %10.5f\n", snj.c_str(),
-                                       molality[j]*(2.0*Phi[counterIJ]));
-                            }
+                        if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j] * Phi[counterIJ])!= 0.0) {
+                            std::string snj = speciesName(j) + ":";
+                            printf("      Phi term with %-12s                2 m_j Phi_aa = %10.5f\n", snj.c_str(),
+                                   molality[j]*(2.0*Phi[counterIJ]));
                         }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
@@ -2182,12 +2168,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 += molality[j]*molality[k]*psi_ijk[n];
-                            if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                                if (psi_ijk[n] != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                           molality[j]*molality[k]*psi_ijk[n]);
-                                }
+                            if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
+                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
+                                printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+                                       molality[j]*molality[k]*psi_ijk[n]);
                             }
                             /*
                              * Find the counterIJ for the symmetric binary interaction
@@ -2196,12 +2180,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             size_t counterIJ2 = m_CounterIJ[n];
                             sum4 += fabs(charge(i))*
                                     molality[j]*molality[k]*CMX[counterIJ2];
-                            if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                                if ((molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
-                                           fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
-                                }
+                            if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
+                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
+                                printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
+                                       fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
                             }
                         }
                     }
@@ -2212,12 +2194,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                  */
                 if (charge(j) == 0.0) {
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
-                    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                        if ((molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
-                            std::string snj = speciesName(j) + ":";
-                            printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
-                                   molality[j]*2.0*m_Lambda_nj(j,i));
-                        }
+                    if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
+                        std::string snj = speciesName(j) + ":";
+                        printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
+                               molality[j]*2.0*m_Lambda_nj(j,i));
                     }
                     /*
                      * Zeta interaction term
@@ -2263,12 +2243,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             double sum3 = 0.0;
             for (size_t j = 1; j < m_kk; j++) {
                 sum1 += molality[j]*2.0*m_Lambda_nj(i,j);
-                if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                    if (m_Lambda_nj(i,j) != 0.0) {
-                        std::string snj = speciesName(j) + ":";
-                        printf("      Lambda_n term on %-16s     2 m_j lambda_n_j = %10.5f\n", snj.c_str(),
-                               molality[j]*2.0*m_Lambda_nj(i,j));
-                    }
+                if (DEBUG_MODE_ENABLED && m_debugCalc && m_Lambda_nj(i,j) != 0.0) {
+                    std::string snj = speciesName(j) + ":";
+                    printf("      Lambda_n term on %-16s     2 m_j lambda_n_j = %10.5f\n", snj.c_str(),
+                           molality[j]*2.0*m_Lambda_nj(i,j));
                 }
                 /*
                  * Zeta term -> we piggyback on the psi term
@@ -2278,23 +2256,19 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                         if (charge(k) < 0.0) {
                             size_t n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 += molality[j]*molality[k]*psi_ijk[n];
-                            if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                                if (psi_ijk[n] != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Zeta term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                           molality[j]*molality[k]*psi_ijk[n]);
-                                }
+                            if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
+                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
+                                printf("      Zeta term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
+                                       molality[j]*molality[k]*psi_ijk[n]);
                             }
                         }
                     }
                 }
             }
             double sum2 = 3.0 * molality[i]* molality[i] * m_Mu_nnn[i];
-            if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                if (m_Mu_nnn[i] != 0.0) {
-                    printf("      Mu_nnn term              3 m_n m_n Mu_n_n = %10.5f\n",
-                           3.0 * molality[i]* molality[i] * m_Mu_nnn[i]);
-                }
+            if (DEBUG_MODE_ENABLED && m_debugCalc && m_Mu_nnn[i] != 0.0) {
+                printf("      Mu_nnn term              3 m_n m_n Mu_n_n = %10.5f\n",
+                       3.0 * molality[i]* molality[i] * m_Mu_nnn[i]);
             }
             m_lnActCoeffMolal_Unscaled[i] = sum1 + sum2 + sum3;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);

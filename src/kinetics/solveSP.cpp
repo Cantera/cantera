@@ -357,13 +357,11 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
      *  End Newton's method.  If not converged, print error message and
      *  recalculate sdot's at equal site fractions.
      */
-    if (not_converged) {
-        if (m_ioflag) {
-            printf("#$#$#$# Error in solveSP $#$#$#$ \n");
-            printf("Newton iter on surface species did not converge, "
-                   "update_norm = %e \n", update_norm);
-            printf("Continuing anyway\n");
-        }
+    if (not_converged && m_ioflag) {
+        printf("#$#$#$# Error in solveSP $#$#$#$ \n");
+        printf("Newton iter on surface species did not converge, "
+               "update_norm = %e \n", update_norm);
+        printf("Continuing anyway\n");
     }
 
     /*

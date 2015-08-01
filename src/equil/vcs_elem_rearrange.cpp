@@ -68,11 +68,9 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
              */
             k = m_numElemConstraints;
             for (size_t ielem = jr; ielem < m_numElemConstraints; ielem++) {
-                if (m_elementActive[ielem]) {
-                    if (aw[ielem] != test) {
-                        k = ielem;
-                        break;
-                    }
+                if (m_elementActive[ielem] && aw[ielem] != test) {
+                    k = ielem;
+                    break;
                 }
             }
             if (k == m_numElemConstraints) {

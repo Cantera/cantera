@@ -510,52 +510,40 @@ void InterfaceKinetics::updateROP()
         for (size_t j = 0; j != nReactions(); ++j) {
             if ((m_ropr[j] >  m_ropf[j]) && (m_ropr[j] > 0.0)) {
                 for (size_t p = 0; p < nPhases(); p++) {
-                    if (m_rxnPhaseIsProduct[j][p]) {
-                        if (! m_phaseExists[p]) {
-                            m_ropnet[j] = 0.0;
-                            m_ropr[j] = m_ropf[j];
-                            if (m_ropf[j] > 0.0) {
-                                for (size_t rp = 0; rp < nPhases(); rp++) {
-                                    if (m_rxnPhaseIsReactant[j][rp]) {
-                                        if (! m_phaseExists[rp]) {
-                                            m_ropnet[j] = 0.0;
-                                            m_ropr[j] = m_ropf[j] = 0.0;
-                                        }
-                                    }
+                    if (m_rxnPhaseIsProduct[j][p] && !m_phaseExists[p]) {
+                        m_ropnet[j] = 0.0;
+                        m_ropr[j] = m_ropf[j];
+                        if (m_ropf[j] > 0.0) {
+                            for (size_t rp = 0; rp < nPhases(); rp++) {
+                                if (m_rxnPhaseIsReactant[j][rp] && !m_phaseExists[rp]) {
+                                    m_ropnet[j] = 0.0;
+                                    m_ropr[j] = m_ropf[j] = 0.0;
                                 }
                             }
                         }
                     }
-                    if (m_rxnPhaseIsReactant[j][p]) {
-                        if (! m_phaseIsStable[p]) {
-                            m_ropnet[j] = 0.0;
-                            m_ropr[j] = m_ropf[j];
-                        }
+                    if (m_rxnPhaseIsReactant[j][p] && !m_phaseIsStable[p]) {
+                        m_ropnet[j] = 0.0;
+                        m_ropr[j] = m_ropf[j];
                     }
                 }
             } else if ((m_ropf[j] > m_ropr[j]) && (m_ropf[j] > 0.0)) {
                 for (size_t p = 0; p < nPhases(); p++) {
-                    if (m_rxnPhaseIsReactant[j][p]) {
-                        if (! m_phaseExists[p]) {
-                            m_ropnet[j] = 0.0;
-                            m_ropf[j] = m_ropr[j];
-                            if (m_ropf[j] > 0.0) {
-                                for (size_t rp = 0; rp < nPhases(); rp++) {
-                                    if (m_rxnPhaseIsProduct[j][rp]) {
-                                        if (! m_phaseExists[rp]) {
-                                            m_ropnet[j] = 0.0;
-                                            m_ropf[j] = m_ropr[j] = 0.0;
-                                        }
-                                    }
+                    if (m_rxnPhaseIsReactant[j][p] && !m_phaseExists[p]) {
+                        m_ropnet[j] = 0.0;
+                        m_ropf[j] = m_ropr[j];
+                        if (m_ropf[j] > 0.0) {
+                            for (size_t rp = 0; rp < nPhases(); rp++) {
+                                if (m_rxnPhaseIsProduct[j][rp] && !m_phaseExists[rp]) {
+                                    m_ropnet[j] = 0.0;
+                                    m_ropf[j] = m_ropr[j] = 0.0;
                                 }
                             }
                         }
                     }
-                    if (m_rxnPhaseIsProduct[j][p]) {
-                        if (! m_phaseIsStable[p]) {
-                            m_ropnet[j] = 0.0;
-                            m_ropf[j] = m_ropr[j];
-                        }
+                    if (m_rxnPhaseIsProduct[j][p] && !m_phaseIsStable[p]) {
+                        m_ropnet[j] = 0.0;
+                        m_ropf[j] = m_ropr[j];
                     }
                 }
             }

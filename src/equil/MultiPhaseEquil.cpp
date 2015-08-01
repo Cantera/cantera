@@ -41,13 +41,11 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
         // it from the calculation. Electrons are a special case,
         // since a species can have a negative number of 'atoms'
         // of electrons (positive ions).
-        if (m_mix->elementMoles(m) <= 0.0) {
-            if (m != m_eloc) {
-                m_incl_element[m] = 0;
-                for (k = 0; k < m_nsp_mix; k++) {
-                    if (m_mix->nAtoms(k,m) != 0.0) {
-                        m_incl_species[k] = 0;
-                    }
+        if (m_mix->elementMoles(m) <= 0.0 && m != m_eloc) {
+            m_incl_element[m] = 0;
+            for (k = 0; k < m_nsp_mix; k++) {
+                if (m_mix->nAtoms(k,m) != 0.0) {
+                    m_incl_species[k] = 0;
                 }
             }
         }
@@ -348,11 +346,9 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
             doublereal maxmoles = -999.0;
             size_t kmax = 0;
             for (k = m+1; k < nColumns; k++) {
-                if (m_A(m,k) != 0.0) {
-                    if (fabs(m_moles[m_order[k]]) > maxmoles) {
-                        kmax = k;
-                        maxmoles = fabs(m_moles[m_order[k]]);
-                    }
+                if (m_A(m,k) != 0.0 && fabs(m_moles[m_order[k]]) > maxmoles) {
+                    kmax = k;
+                    maxmoles = fabs(m_moles[m_order[k]]);
                 }
             }
 

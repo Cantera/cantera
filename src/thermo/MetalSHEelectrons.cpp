@@ -58,11 +58,9 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_)
 MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_) :
     xdef_(0)
 {
-    if (id_ != "") {
-        if (id_ != xmlphase["id"]) {
-            throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                               "id's don't match");
-        }
+    if (id_ != "" && id_ != xmlphase["id"]) {
+        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
+                           "id's don't match");
     }
     if (xmlphase.child("thermo")["model"] != "MetalSHEelectrons") {
         throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",

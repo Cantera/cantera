@@ -908,12 +908,10 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
 
                             if (DEBUG_MODE_ENABLED) {
                                 doPhaseDeleteKspec = kspec;
-                                if (m_debug_print_lvl >= 2) {
-                                    if (m_speciesStatus[kspec] >= 0) {
-                                        plogf("   --- SS species changed to zeroedss: ");
-                                        plogf("%-12s", m_speciesName[kspec].c_str());
-                                        plogendl();
-                                    }
+                                if (m_debug_print_lvl >= 2 && m_speciesStatus[kspec] >= 0) {
+                                    plogf("   --- SS species changed to zeroedss: ");
+                                    plogf("%-12s", m_speciesName[kspec].c_str());
+                                    plogendl();
                                 }
                             }
                             m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDSS;
@@ -1387,26 +1385,22 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         size_t kspec = m_indexRxnToSpecies[irxn];
         int speciesType = vcs_species_type(kspec);
         if (speciesType < VCS_SPECIES_MINOR) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                if (m_speciesStatus[kspec] >= VCS_SPECIES_MINOR) {
-                    plogf("   ---    major/minor species is now zeroed out: %s\n",
-                          m_speciesName[kspec].c_str());
-                }
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2 && m_speciesStatus[kspec] >= VCS_SPECIES_MINOR) {
+                plogf("   ---    major/minor species is now zeroed out: %s\n",
+                      m_speciesName[kspec].c_str());
             }
             ++m_numRxnMinorZeroed;
         } else if (speciesType == VCS_SPECIES_MINOR) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                if (m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
-                    if (m_speciesStatus[kspec] == VCS_SPECIES_MAJOR) {
-                        plogf("   ---   Noncomponent turned from major to minor: ");
-                    } else if (kspec < m_numComponents) {
-                        plogf("   ---   Component turned into a minor species: ");
-                    } else {
-                        plogf("   ---   Zeroed Species turned into a "
-                              "minor species: ");
-                    }
-                    plogf("%s\n", m_speciesName[kspec].c_str());
+            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2 && m_speciesStatus[kspec] != VCS_SPECIES_MINOR) {
+                if (m_speciesStatus[kspec] == VCS_SPECIES_MAJOR) {
+                    plogf("   ---   Noncomponent turned from major to minor: ");
+                } else if (kspec < m_numComponents) {
+                    plogf("   ---   Component turned into a minor species: ");
+                } else {
+                    plogf("   ---   Zeroed Species turned into a "
+                          "minor species: ");
                 }
+                plogf("%s\n", m_speciesName[kspec].c_str());
             }
             ++m_numRxnMinorZeroed;
         } else if (speciesType == VCS_SPECIES_MAJOR) {
@@ -1776,11 +1770,9 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
              * If the component has a zero concentration and is a reactant
              * in the formation reaction, then dx == 0.0, and we just return.
              */
-            if (m_molNumSpecies_old[j] <= 0.0) {
-                if (sc_irxn[j] < 0.0) {
-                    *delta_ptr = 0.0;
-                    return 0;
-                }
+            if (m_molNumSpecies_old[j] <= 0.0 && sc_irxn[j] < 0.0) {
+                *delta_ptr = 0.0;
+                return 0;
             }
         }
         /*
@@ -1878,22 +1870,17 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
      *    Check to see whether we have just annihilated a multispecies phase.
      *    If it is extinct, call the delete_multiphase() function.
      */
-    if (! m_SSPhase[klast]) {
-        if (Vphase->exists() != VCS_PHASE_EXIST_ALWAYS) {
-            bool stillExists = false;
-            for (size_t k = 0; k < m_numSpeciesRdc; k++) {
-                if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                    if (m_phaseID[k] == iph) {
-                        if (m_molNumSpecies_old[k] > 0.0) {
-                            stillExists = true;
-                            break;
-                        }
-                    }
-                }
+    if (! m_SSPhase[klast] && Vphase->exists() != VCS_PHASE_EXIST_ALWAYS) {
+        bool stillExists = false;
+        for (size_t k = 0; k < m_numSpeciesRdc; k++) {
+            if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE &&
+                m_phaseID[k] == iph && m_molNumSpecies_old[k] > 0.0) {
+                stillExists = true;
+                break;
             }
-            if (!stillExists) {
-                vcs_delete_multiphase(iph);
-            }
+        }
+        if (!stillExists) {
+            vcs_delete_multiphase(iph);
         }
     }
     /*
@@ -1940,10 +1927,8 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
         if (Vphase->exists() == VCS_PHASE_EXIST_NO) {
             Vphase->setExistence(VCS_PHASE_EXIST_YES);
             for (size_t k = 0; k < m_numSpeciesTot; k++) {
-                if (m_phaseID[k] == iph) {
-                    if (m_speciesStatus[k] != VCS_SPECIES_DELETED) {
-                        m_speciesStatus[k] = VCS_SPECIES_MINOR;
-                    }
+                if (m_phaseID[k] == iph && m_speciesStatus[k] != VCS_SPECIES_DELETED) {
+                    m_speciesStatus[k] = VCS_SPECIES_MINOR;
                 }
             }
         }
@@ -2310,18 +2295,16 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
     for (size_t irxn = m_numRxnRdc; irxn < m_numRxnTot; ++irxn) {
         size_t kspec = m_indexRxnToSpecies[irxn];
         size_t iph = m_phaseID[kspec];
-        if (m_tPhaseMoles_old[iph] > 0.0) {
-            if (fabs(m_deltaGRxn_old[irxn]) > m_tolmin) {
-                if (((m_molNumSpecies_old[kspec] * exp(-m_deltaGRxn_old[irxn])) >
-                        VCS_DELETE_MINORSPECIES_CUTOFF) ||
-                        (m_molNumSpecies_old[kspec] > VCS_DELETE_MINORSPECIES_CUTOFF)) {
-                    retn++;
-                    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                        plogf("  --- add_deleted():  species %s with mol number %g not converged: DG = %g",
-                              m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
-                              m_deltaGRxn_old[irxn]);
-                        plogendl();
-                    }
+        if (m_tPhaseMoles_old[iph] > 0.0 && fabs(m_deltaGRxn_old[irxn]) > m_tolmin) {
+            if (((m_molNumSpecies_old[kspec] * exp(-m_deltaGRxn_old[irxn])) >
+                    VCS_DELETE_MINORSPECIES_CUTOFF) ||
+                    (m_molNumSpecies_old[kspec] > VCS_DELETE_MINORSPECIES_CUTOFF)) {
+                retn++;
+                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                    plogf("  --- add_deleted():  species %s with mol number %g not converged: DG = %g",
+                          m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
+                          m_deltaGRxn_old[irxn]);
+                    plogendl();
                 }
             }
         }
@@ -2587,35 +2570,31 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 int minNonZeroes = 100000;
                 int nonZeroesKspec = 0;
                 for (size_t kspec = ncTrial; kspec < m_numSpeciesTot; kspec++) {
-                    if (aw[kspec] >= 0.0) {
-                        if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                            maxConcPossKspec = 1.0E10;
-                            nonZeroesKspec = 0;
-                            for (size_t j = 0; j < m_numElemConstraints; ++j) {
-                                if (m_elementActive[j]) {
-                                    if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-                                        double nu = m_formulaMatrix(kspec,j);
-                                        if (nu != 0.0) {
-                                            nonZeroesKspec++;
-                                            maxConcPossKspec = std::min(m_elemAbundancesGoal[j] / nu, maxConcPossKspec);
-                                        }
-                                    }
+                    if (aw[kspec] >= 0.0 && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                        maxConcPossKspec = 1.0E10;
+                        nonZeroesKspec = 0;
+                        for (size_t j = 0; j < m_numElemConstraints; ++j) {
+                            if (m_elementActive[j] && m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
+                                double nu = m_formulaMatrix(kspec,j);
+                                if (nu != 0.0) {
+                                    nonZeroesKspec++;
+                                    maxConcPossKspec = std::min(m_elemAbundancesGoal[j] / nu, maxConcPossKspec);
                                 }
                             }
-                            if ((maxConcPossKspec >= maxConcPoss) || (maxConcPossKspec > 1.0E-5)) {
-                                if (nonZeroesKspec <= minNonZeroes) {
-                                    if (kfound == npos || nonZeroesKspec < minNonZeroes) {
+                        }
+                        if ((maxConcPossKspec >= maxConcPoss) || (maxConcPossKspec > 1.0E-5)) {
+                            if (nonZeroesKspec <= minNonZeroes) {
+                                if (kfound == npos || nonZeroesKspec < minNonZeroes) {
+                                    kfound = kspec;
+                                } else {
+                                    // ok we are sitting pretty equal here decide on the raw ss Gibbs energy
+                                    if (m_SSfeSpecies[kspec] <= m_SSfeSpecies[kfound]) {
                                         kfound = kspec;
-                                    } else {
-                                        // ok we are sitting pretty equal here decide on the raw ss Gibbs energy
-                                        if (m_SSfeSpecies[kspec] <= m_SSfeSpecies[kfound]) {
-                                            kfound = kspec;
-                                        }
                                     }
                                 }
-                                minNonZeroes = std::min(minNonZeroes, nonZeroesKspec);
-                                maxConcPoss = std::max(maxConcPoss, maxConcPossKspec);
                             }
+                            minNonZeroes = std::min(minNonZeroes, nonZeroesKspec);
+                            maxConcPoss = std::max(maxConcPoss, maxConcPossKspec);
                         }
                     }
                 }
@@ -2812,17 +2791,13 @@ L_END_LOOP:
     juse  = npos;
     jlose = npos;
     for (size_t j = 0; j < m_numElemConstraints; j++) {
-        if (!m_elementActive[j]) {
-            if (!strcmp(m_elementName[j].c_str(), "E")) {
-                juse = j;
-            }
+        if (!m_elementActive[j] && !strcmp(m_elementName[j].c_str(), "E")) {
+            juse = j;
         }
     }
     for (size_t j = 0; j < m_numElemConstraints; j++) {
-        if (m_elementActive[j]) {
-            if (!strncmp((m_elementName[j]).c_str(), "cn_", 3)) {
-                jlose = j;
-            }
+        if (m_elementActive[j] && !strncmp((m_elementName[j]).c_str(), "cn_", 3)) {
+            jlose = j;
         }
     }
     for (k = 0; k < m_numSpeciesTot; k++) {
@@ -3029,10 +3004,8 @@ size_t VCS_SOLVE::vcs_basisOptMax(const double* const molNum, const size_t j,
         bool doSwap = false;
         if (m_SSPhase[j]) {
             doSwap = (molNum[i] * m_spSize[i]) > big;
-            if (!m_SSPhase[i]) {
-                if (doSwap) {
-                    doSwap = molNum[i] > (molNum[largest] * 1.001);
-                }
+            if (!m_SSPhase[i] && doSwap) {
+                doSwap = molNum[i] > (molNum[largest] * 1.001);
             }
         } else {
             if (m_SSPhase[i]) {
@@ -3066,10 +3039,8 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
 
     // ---------- Treat zeroed out species first ----------------
     if (m_molNumSpecies_old[kspec] <= 0.0) {
-        if (m_tPhaseMoles_old[iph] <= 0.0) {
-            if (!m_SSPhase[kspec]) {
-                return VCS_SPECIES_ZEROEDMS;
-            }
+        if (m_tPhaseMoles_old[iph] <= 0.0 && !m_SSPhase[kspec]) {
+            return VCS_SPECIES_ZEROEDMS;
         }
 
         /*
@@ -3145,21 +3116,19 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
             }
         }
 
-        if (irxn >= 0) {
-            if (m_deltaGRxn_old[irxn] >= 0.0) {
-                /*
-                 *  We are here when the species is or should remain zeroed out
-                 */
-                if (m_SSPhase[kspec]) {
-                    return VCS_SPECIES_ZEROEDSS;
+        if (irxn >= 0 && m_deltaGRxn_old[irxn] >= 0.0) {
+            /*
+             *  We are here when the species is or should remain zeroed out
+             */
+            if (m_SSPhase[kspec]) {
+                return VCS_SPECIES_ZEROEDSS;
+            } else {
+                if (phaseExist >= VCS_PHASE_EXIST_YES) {
+                    return VCS_SPECIES_ACTIVEBUTZERO;
+                } else if (phaseExist == VCS_PHASE_EXIST_ZEROEDPHASE) {
+                    return VCS_SPECIES_ZEROEDPHASE;
                 } else {
-                    if (phaseExist >= VCS_PHASE_EXIST_YES) {
-                        return VCS_SPECIES_ACTIVEBUTZERO;
-                    } else if (phaseExist == VCS_PHASE_EXIST_ZEROEDPHASE) {
-                        return VCS_SPECIES_ZEROEDPHASE;
-                    } else {
-                        return VCS_SPECIES_ZEROEDMS;
-                    }
+                    return VCS_SPECIES_ZEROEDMS;
                 }
             }
         }
@@ -3226,12 +3195,8 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
     } else {
         double szAdj = m_scSize[irxn] * std::sqrt((double)m_numRxnTot);
         for (size_t k = 0; k < m_numComponents; ++k) {
-            if (!m_SSPhase[k]) {
-                if (m_stoichCoeffRxnMatrix(k,irxn) != 0.0) {
-                    if (m_molNumSpecies_old[kspec] * szAdj >= m_molNumSpecies_old[k] * 0.01) {
-                        return VCS_SPECIES_MAJOR;
-                    }
-                }
+            if (!m_SSPhase[k] && m_stoichCoeffRxnMatrix(k,irxn) != 0.0 && m_molNumSpecies_old[kspec] * szAdj >= m_molNumSpecies_old[k] * 0.01) {
+                return VCS_SPECIES_MAJOR;
             }
         }
     }
@@ -3689,10 +3654,8 @@ void VCS_SOLVE::check_tmoles() const
         double m_tPhaseMoles_old_a = TPhInertMoles[i];
 
         for (size_t k = 0; k < m_numSpeciesTot; k++) {
-            if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_MOLNUM) {
-                if (m_phaseID[k] == i) {
-                    m_tPhaseMoles_old_a += m_molNumSpecies_old[k];
-                }
+            if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_MOLNUM && m_phaseID[k] == i) {
+                m_tPhaseMoles_old_a += m_molNumSpecies_old[k];
             }
         }
         sum += m_tPhaseMoles_old_a;
@@ -3784,10 +3747,8 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
                 }
             }
         }
-        if (kspec >= m_numComponents) {
-            if (m_speciesStatus[kspec] != VCS_SPECIES_MAJOR) {
-                ++m_numRxnMinorZeroed;
-            }
+        if (kspec >= m_numComponents && m_speciesStatus[kspec] != VCS_SPECIES_MAJOR) {
+            ++m_numRxnMinorZeroed;
         }
     }
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
@@ -4163,15 +4124,13 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
         bool zeroedPhase = true;
         for (size_t irxn = 0; irxn < irxnl; ++irxn) {
             size_t kspec = m_indexRxnToSpecies[irxn];
-            if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                if (m_phaseID[kspec] == iphase) {
-                    if (m_molNumSpecies_old[kspec] > 0.0) {
-                        zeroedPhase = false;
-                    }
-                    deltaGRxn[irxn] = feSpecies[kspec];
-                    for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
-                        deltaGRxn[irxn] += m_stoichCoeffRxnMatrix(kcomp,irxn) * feSpecies[kcomp];
-                    }
+            if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE && m_phaseID[kspec] == iphase) {
+                if (m_molNumSpecies_old[kspec] > 0.0) {
+                    zeroedPhase = false;
+                }
+                deltaGRxn[irxn] = feSpecies[kspec];
+                for (size_t kcomp = 0; kcomp < m_numComponents; ++kcomp) {
+                    deltaGRxn[irxn] += m_stoichCoeffRxnMatrix(kcomp,irxn) * feSpecies[kcomp];
                 }
             }
         }
@@ -4214,24 +4173,22 @@ void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
          *      All of the dg[]'s will be equal. If dg[] is negative, then
          *      the phase will come back into existence.
          */
-        if (alterZeroedPhases) {
-            if (zeroedPhase) {
-                double phaseDG = 1.0;
-                for (size_t irxn = 0; irxn < irxnl; ++irxn) {
-                    size_t kspec = m_indexRxnToSpecies[irxn];
-                    if (m_phaseID[kspec] == iphase) {
-                        deltaGRxn[irxn] = clip(deltaGRxn[irxn], -50.0, 50.0);
-                        phaseDG -= exp(-deltaGRxn[irxn])/actCoeffSpecies[kspec];
-                    }
+        if (alterZeroedPhases && zeroedPhase) {
+            double phaseDG = 1.0;
+            for (size_t irxn = 0; irxn < irxnl; ++irxn) {
+                size_t kspec = m_indexRxnToSpecies[irxn];
+                if (m_phaseID[kspec] == iphase) {
+                    deltaGRxn[irxn] = clip(deltaGRxn[irxn], -50.0, 50.0);
+                    phaseDG -= exp(-deltaGRxn[irxn])/actCoeffSpecies[kspec];
                 }
-                /*
-                 * Overwrite the individual dg's with the phase DG.
-                 */
-                for (size_t irxn = 0; irxn < irxnl; ++irxn) {
-                    size_t kspec = m_indexRxnToSpecies[irxn];
-                    if (m_phaseID[kspec] == iphase) {
-                        deltaGRxn[irxn] = 1.0 - phaseDG;
-                    }
+            }
+            /*
+             * Overwrite the individual dg's with the phase DG.
+             */
+            for (size_t irxn = 0; irxn < irxnl; ++irxn) {
+                size_t kspec = m_indexRxnToSpecies[irxn];
+                if (m_phaseID[kspec] == iphase) {
+                    deltaGRxn[irxn] = 1.0 - phaseDG;
                 }
             }
         }
@@ -4373,10 +4330,8 @@ double VCS_SOLVE::vcs_birthGuess(const int kspec)
                     dx = std::min(dx, - 0.3333* m_molNumSpecies_old[j] / sc_irxn[j]);
                 }
             }
-            if (m_molNumSpecies_old[j] <= 0.0) {
-                if (sc_irxn[j] < 0.0) {
-                    dx = 0.0;
-                }
+            if (m_molNumSpecies_old[j] <= 0.0 && sc_irxn[j] < 0.0) {
+                dx = 0.0;
             }
         }
     }

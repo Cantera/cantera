@@ -219,10 +219,9 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf("%-12.12s |",VPhase->PhaseName.c_str());
         plogf("%10.3e |", m_tPhaseMoles_old[iphase]*molScale);
         totalMoles +=  m_tPhaseMoles_old[iphase];
-        if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles()) {
-            if (! vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->totalMoles())) {
-                throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
-            }
+        if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles() &&
+            !vcs_doubleEqual(m_tPhaseMoles_old[iphase], VPhase->totalMoles())) {
+            throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
         }
         vcs_elabPhase(iphase, &gaPhase[0]);
         for (size_t j = 0; j < m_numElemConstraints; j++) {

@@ -180,11 +180,9 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
             iT298 = i;
             ifound = true;
         }
-        if (i < nPoints - 1) {
-            if (coeffs[iindex+2] <= T1) {
-                throw CanteraError("Mu0Poly",
-                                   "Temperatures are not monotonic increasing");
-            }
+        if (i < nPoints - 1 && coeffs[iindex+2] <= T1) {
+            throw CanteraError("Mu0Poly",
+                               "Temperatures are not monotonic increasing");
         }
         iindex += 2;
     }

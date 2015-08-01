@@ -484,10 +484,8 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     if (pub->gai.size() != 0) {
         for (size_t i = 0; i < nelements; i++) {
             m_elemAbundancesGoal[i] = pub->gai[i];
-            if (pub->m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO) {
-                if (m_elemAbundancesGoal[i] < 1.0E-10) {
-                    m_elemAbundancesGoal[i] = 0.0;
-                }
+            if (pub->m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[i] < 1.0E-10) {
+                m_elemAbundancesGoal[i] = 0.0;
             }
         }
     } else {
@@ -501,10 +499,8 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
                         m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                     }
                 }
-                if (pub->m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO) {
-                    if (m_elemAbundancesGoal[j] < 1.0E-10 * sum) {
-                        m_elemAbundancesGoal[j] = 0.0;
-                    }
+                if (pub->m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[j] < 1.0E-10 * sum) {
+                    m_elemAbundancesGoal[j] = 0.0;
                 }
             }
         } else {

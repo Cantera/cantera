@@ -932,18 +932,16 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         /*
          * Now look at the activity coefficient database
          */
-        if (acNodePtr) {
-            if (acNodePtr->hasChild("stoichIsMods")) {
-                XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
-                map<std::string, std::string> msIs;
-                getMap(sIsNode, msIs);
-                for (map<std::string,std::string>::const_iterator _b = msIs.begin();
-                    _b != msIs.end();
-                    ++_b) {
-                    size_t kk = speciesIndex(_b->first);
-                    double val = fpValue(_b->second);
-                    m_speciesCharge_Stoich[kk] = val;
-                }
+        if (acNodePtr && acNodePtr->hasChild("stoichIsMods")) {
+            XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
+            map<std::string, std::string> msIs;
+            getMap(sIsNode, msIs);
+            for (map<std::string,std::string>::const_iterator _b = msIs.begin();
+                _b != msIs.end();
+                ++_b) {
+                size_t kk = speciesIndex(_b->first);
+                double val = fpValue(_b->second);
+                m_speciesCharge_Stoich[kk] = val;
             }
         }
     }
@@ -978,33 +976,29 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     for (size_t k = 0; k < m_kk; k++) {
         std::string kname = speciesName(k);
         const XML_Node* spPtr = xspecies[k];
-        if (spPtr) {
-            if (spPtr->hasChild("electrolyteSpeciesType")) {
-                std::string est = getChildValue(*spPtr, "electrolyteSpeciesType");
-                if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
-                    throw CanteraError("DebyeHuckel:initThermoXML",
-                                       "Bad electrolyte type: " + est);
-                }
+        if (spPtr && spPtr->hasChild("electrolyteSpeciesType")) {
+            std::string est = getChildValue(*spPtr, "electrolyteSpeciesType");
+            if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
+                throw CanteraError("DebyeHuckel:initThermoXML",
+                                   "Bad electrolyte type: " + est);
             }
         }
     }
     /*
      * Then look at the phase thermo specification
      */
-    if (acNodePtr) {
-        if (acNodePtr->hasChild("electrolyteSpeciesType")) {
-            XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
-            map<std::string, std::string> msEST;
-            getMap(ESTNode, msEST);
-            for (map<std::string,std::string>::const_iterator _b = msEST.begin();
-                _b != msEST.end();
-                ++_b) {
-                size_t kk = speciesIndex(_b->first);
-                std::string est = _b->second;
-                if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
-                    throw CanteraError("DebyeHuckel:initThermoXML",
-                                       "Bad electrolyte type: " + est);
-                }
+    if (acNodePtr && acNodePtr->hasChild("electrolyteSpeciesType")) {
+        XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
+        map<std::string, std::string> msEST;
+        getMap(ESTNode, msEST);
+        for (map<std::string,std::string>::const_iterator _b = msEST.begin();
+            _b != msEST.end();
+            ++_b) {
+            size_t kk = speciesIndex(_b->first);
+            std::string est = _b->second;
+            if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
+                throw CanteraError("DebyeHuckel:initThermoXML",
+                                   "Bad electrolyte type: " + est);
             }
         }
     }

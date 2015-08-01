@@ -755,10 +755,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
                 }
             }
             // Delta Damping
-            if (m == mm) {
-                if (fabs(res_trial[mm]) > 0.2) {
-                    fctr = std::min(fctr, 0.2/fabs(res_trial[mm]));
-                }
+            if (m == mm && fabs(res_trial[mm]) > 0.2) {
+                fctr = std::min(fctr, 0.2/fabs(res_trial[mm]));
             }
         }
         if (fctr != 1.0 && DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
@@ -1057,10 +1055,8 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         }
     }
     for (m = 0; m < m_mm; m++) {
-        if (m != m_eloc) {
-            if (elMoles[m] <= options.absElemTol) {
-                x[m] = -200.;
-            }
+        if (m != m_eloc && elMoles[m] <= options.absElemTol) {
+            x[m] = -200.;
         }
     }
 
@@ -1124,10 +1120,8 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 }
             }
         }
-        if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
-            if (!normalStep) {
-                writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM);
-            }
+        if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && !normalStep) {
+            writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM);
         }
         if (!normalStep) {
             beta = 1.0;
@@ -1135,16 +1129,14 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             for (im = 0; im < m_mm; im++) {
                 m = m_orderVectorElements[im];
                 resid[m] = 0.0;
-                if (im < m_nComponents) {
-                    if (elMoles[m] > 0.001 * elMolesTotal) {
-                        if (eMolesCalc[m] > 1000. * elMoles[m]) {
-                            resid[m] = -0.5;
-                            resid[m_mm] -= 0.5;
-                        }
-                        if (1000 * eMolesCalc[m] < elMoles[m]) {
-                            resid[m] = 0.5;
-                            resid[m_mm] += 0.5;
-                        }
+                if (im < m_nComponents && elMoles[m] > 0.001 * elMolesTotal) {
+                    if (eMolesCalc[m] > 1000. * elMoles[m]) {
+                        resid[m] = -0.5;
+                        resid[m_mm] -= 0.5;
+                    }
+                    if (1000 * eMolesCalc[m] < elMoles[m]) {
+                        resid[m] = 0.5;
+                        resid[m_mm] += 0.5;
                     }
                 }
             }
@@ -1193,21 +1185,19 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 size_t kMSp2 = npos;
                 int nSpeciesWithElem  = 0;
                 for (k = 0; k < m_kk; k++) {
-                    if (n_i_calc[k] > nCutoff) {
-                        if (fabs(nAtoms(k,m)) > 0.001) {
-                            nSpeciesWithElem++;
-                            if (kMSp != npos) {
-                                kMSp2 = k;
-                                double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
-                                for (n = 0; n < m_mm; n++) {
-                                    if (fabs(factor *  nAtoms(kMSp2,n) -  nAtoms(kMSp,n)) > 1.0E-8) {
-                                        lumpSum[m] = 0;
-                                        break;
-                                    }
+                    if (n_i_calc[k] > nCutoff && fabs(nAtoms(k,m)) > 0.001) {
+                        nSpeciesWithElem++;
+                        if (kMSp != npos) {
+                            kMSp2 = k;
+                            double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));
+                            for (n = 0; n < m_mm; n++) {
+                                if (fabs(factor *  nAtoms(kMSp2,n) -  nAtoms(kMSp,n)) > 1.0E-8) {
+                                    lumpSum[m] = 0;
+                                    break;
                                 }
-                            } else {
-                                kMSp = k;
                             }
+                        } else {
+                            kMSp = k;
                         }
                     }
                 }
@@ -1443,10 +1433,8 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     beta = std::min(beta, -1.0 / resid[m]);
                 }
             }
-            if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
-                if (beta != 1.0) {
-                    writelogf("(it %d) Beta = %g\n", iter, beta);
-                }
+            if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && beta != 1.0) {
+                writelogf("(it %d) Beta = %g\n", iter, beta);
             }
         }
         /*
@@ -1498,17 +1486,13 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
     double maxNegVal = -1.0;
     if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
         for (k = 0; k < m_kk; k++) {
-            if (nAtoms(k,m_eloc) > 0.0) {
-                if (m_molefractions[k] > maxPosVal && m_molefractions[k] > 0.0) {
-                    maxPosVal = m_molefractions[k];
-                    maxPosEloc = k;
-                }
+            if (nAtoms(k,m_eloc) > 0.0 && m_molefractions[k] > maxPosVal && m_molefractions[k] > 0.0) {
+                maxPosVal = m_molefractions[k];
+                maxPosEloc = k;
             }
-            if (nAtoms(k,m_eloc) < 0.0) {
-                if (m_molefractions[k] > maxNegVal && m_molefractions[k] > 0.0) {
-                    maxNegVal = m_molefractions[k];
-                    maxNegEloc = k;
-                }
+            if (nAtoms(k,m_eloc) < 0.0 && m_molefractions[k] > maxNegVal && m_molefractions[k] > 0.0) {
+                maxNegVal = m_molefractions[k];
+                maxNegEloc = k;
             }
         }
     }

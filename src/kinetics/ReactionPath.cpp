@@ -259,10 +259,8 @@ void ReactionPathDiagram::exportToDot(ostream& s)
             for (i2 = i1+1; i2 < nNodes(); i2++) {
                 k2 = m_speciesNumber[i2];
                 flx = netFlow(k1, k2);
-                if (m_local != npos) {
-                    if (k1 != m_local && k2 != m_local) {
-                        flx = 0.0;
-                    }
+                if (m_local != npos && k1 != m_local && k2 != m_local) {
+                    flx = 0.0;
                 }
                 if (flx != 0.0) {
                     // set beginning and end of the path based on the
@@ -817,16 +815,14 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                 (m_atoms(kkr,m) < m_elatoms(m, i))) {
                             map<size_t, map<size_t, Group> >& g = m_transfer[i];
                             if (g.empty()) {
-                                if (!warn[i]) {
-                                    if (!quiet) {
-                                        output << endl;
-                                        output << "*************** REACTION IGNORED ***************" << endl;
-                                        output << "Warning: no rule to determine partitioning of " << element
-                                               << endl << " in reaction " << s.reactionString(i) << "." << endl
-                                               << "*************** REACTION IGNORED **************" << endl;
-                                        output << endl;
-                                        warn[i] = 1;
-                                    }
+                                if (!warn[i] && !quiet) {
+                                    output << endl;
+                                    output << "*************** REACTION IGNORED ***************" << endl;
+                                    output << "Warning: no rule to determine partitioning of " << element
+                                           << endl << " in reaction " << s.reactionString(i) << "." << endl
+                                           << "*************** REACTION IGNORED **************" << endl;
+                                    output << endl;
+                                    warn[i] = 1;
                                 }
                                 f = 0.0;
                             } else {

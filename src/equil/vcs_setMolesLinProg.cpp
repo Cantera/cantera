@@ -128,13 +128,11 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                     delta_xi = fabs(m_molNumSpecies_old[jcomp]/nu);
                     // if a component has nearly zero moles, redo
                     // with a new set of components
-                    if (!redo) {
-                        if (delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
-                            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                                plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str());
-                            }
-                            redo = true;
+                    if (!redo && delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
+                        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                            plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str());
                         }
+                        redo = true;
                     }
                     dxi_min = std::min(dxi_min, delta_xi);
                 }
@@ -153,10 +151,8 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                 }
                 m_molNumSpecies_old[jcomp] += sc_irxn[jcomp] * dsLocal;
                 m_molNumSpecies_old[jcomp] = max(0.0, m_molNumSpecies_old[jcomp]);
-                if (full) {
-                    if (m_molNumSpecies_old[jcomp] < 1.0E-60) {
-                        redo = true;
-                    }
+                if (full && m_molNumSpecies_old[jcomp] < 1.0E-60) {
+                    redo = true;
                 }
             }
         }

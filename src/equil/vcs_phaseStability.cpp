@@ -70,10 +70,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                     foundJrxn = true;
                     // We can do the reaction if all other reactant components have positive mole fractions
                     for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
-                        if (m_stoichCoeffRxnMatrix(kcomp,jrxn) < 0.0) {
-                            if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
-                                foundJrxn = false;
-                            }
+                        if (m_stoichCoeffRxnMatrix(kcomp,jrxn) < 0.0 && m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
+                            foundJrxn = false;
                         }
                     }
                     if (foundJrxn) {
@@ -89,10 +87,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                     }
                    // We can do the backwards reaction if all of the product components species are positive
                     for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
-                        if (m_stoichCoeffRxnMatrix(kcomp,jrxn) > 0.0) {
-                            if (m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
-                                foundJrxn = false;
-                            }
+                        if (m_stoichCoeffRxnMatrix(kcomp,jrxn) > 0.0 && m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
+                            foundJrxn = false;
                         }
                     }
                     if (foundJrxn) {
@@ -125,23 +121,18 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
      *  The logic below calculates zeroedComponentLinkedPhasePops
      */
     for (size_t j = 0; j < m_numComponents; j++) {
-        if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-            if (m_molNumSpecies_old[j] <= 0.0) {
-                std::vector<size_t> &jList = zeroedComponentLinkedPhasePops[j];
-                size_t iph = m_phaseID[j];
-                jList.push_back(iph);
-                for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
-                    size_t kspec = irxn +  m_numComponents;
-                    iph = m_phaseID[kspec];
-                    vcs_VolPhase* Vphase = m_VolPhaseList[iph];
-                    int existence = Vphase->exists();
-                    if (existence < 0) {
-                        if (m_stoichCoeffRxnMatrix(j,irxn) > 0.0) {
-                            if (std::find(jList.begin(), jList.end(), iph) != jList.end()) {
-                                jList.push_back(iph);
-                            }
-                        }
-                    }
+        if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS && m_molNumSpecies_old[j] <= 0.0) {
+            std::vector<size_t> &jList = zeroedComponentLinkedPhasePops[j];
+            size_t iph = m_phaseID[j];
+            jList.push_back(iph);
+            for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
+                size_t kspec = irxn +  m_numComponents;
+                iph = m_phaseID[kspec];
+                vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+                int existence = Vphase->exists();
+                if (existence < 0 && m_stoichCoeffRxnMatrix(j,irxn) > 0.0 &&
+                    std::find(jList.begin(), jList.end(), iph) != jList.end()) {
+                    jList.push_back(iph);
                 }
             }
         }
@@ -168,25 +159,19 @@ int  VCS_SOLVE::vcs_phasePopDeterminePossibleList()
                 size_t kspec = Vphase->spGlobalIndexVCS(k);
                 size_t irxn = kspec - m_numComponents;
                 for (size_t j = 0; j < m_numComponents; j++) {
-                    if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-                        if (m_molNumSpecies_old[j] <= 0.0) {
-                            if (m_stoichCoeffRxnMatrix(j,irxn) < 0.0) {
-                                bool foundPos = false;
-                                for (size_t kk = 0; kk < nsp; kk++) {
-                                    size_t kkspec  = Vphase->spGlobalIndexVCS(kk);
-                                    if (kkspec >= m_numComponents) {
-                                        size_t iirxn = kkspec - m_numComponents;
-                                        if (m_stoichCoeffRxnMatrix(j,iirxn) > 0.0) {
-                                            foundPos = true;
-                                        }
-                                    }
-                                }
-                                if (!foundPos) {
-                                    if (std::find(iphList.begin(), iphList.end(), j) != iphList.end()) {
-                                        iphList.push_back(j);
-                                    }
+                    if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS && m_molNumSpecies_old[j] <= 0.0 && m_stoichCoeffRxnMatrix(j,irxn) < 0.0) {
+                        bool foundPos = false;
+                        for (size_t kk = 0; kk < nsp; kk++) {
+                            size_t kkspec  = Vphase->spGlobalIndexVCS(kk);
+                            if (kkspec >= m_numComponents) {
+                                size_t iirxn = kkspec - m_numComponents;
+                                if (m_stoichCoeffRxnMatrix(j,iirxn) > 0.0) {
+                                    foundPos = true;
                                 }
                             }
+                        }
+                        if (!foundPos && std::find(iphList.begin(), iphList.end(), j) != iphList.end()) {
+                            iphList.push_back(j);
                         }
                     }
                 }
@@ -350,18 +335,14 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     if (Vphase->m_singleSpecies) {
         double s = 0.0;
         for (size_t j = 0; j < m_numComponents; ++j) {
-            if (!m_SSPhase[j]) {
-                if (m_molNumSpecies_old[j] > 0.0) {
-                    s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
-                }
+            if (!m_SSPhase[j] && m_molNumSpecies_old[j] > 0.0) {
+                s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
             }
         }
         for (size_t j = 0; j < m_numPhases; j++) {
             Vphase = m_VolPhaseList[j];
-            if (! Vphase->m_singleSpecies) {
-                if (m_tPhaseMoles_old[j] > 0.0) {
-                    s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
-                }
+            if (! Vphase->m_singleSpecies && m_tPhaseMoles_old[j] > 0.0) {
+                s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
             }
         }
         if (s != 0.0) {
@@ -379,15 +360,13 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
          */
         for (size_t j = 0; j < m_numComponents; ++j) {
             double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
-            if (stoicC != 0.0) {
-                if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-                    double negChangeComp = - stoicC * m_deltaMolNumSpecies[kspec];
-                    if (negChangeComp > m_molNumSpecies_old[j]) {
-                        if (m_molNumSpecies_old[j] > 0.0) {
-                            m_deltaMolNumSpecies[kspec] = - 0.5 * m_molNumSpecies_old[j] / stoicC;
-                        } else {
-                            m_deltaMolNumSpecies[kspec] = 0.0;
-                        }
+            if (stoicC != 0.0 && m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
+                double negChangeComp = - stoicC * m_deltaMolNumSpecies[kspec];
+                if (negChangeComp > m_molNumSpecies_old[j]) {
+                    if (m_molNumSpecies_old[j] > 0.0) {
+                        m_deltaMolNumSpecies[kspec] = - 0.5 * m_molNumSpecies_old[j] / stoicC;
+                    } else {
+                        m_deltaMolNumSpecies[kspec] = 0.0;
                     }
                 }
             }
@@ -421,10 +400,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                 irxn = kspec - m_numComponents;
                 for (size_t j = 0; j < m_numComponents; ++j) {
                     double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
-                    if (stoicC != 0.0) {
-                        if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-                            molNumSpecies_tmp[j] +=  stoicC * delmol;
-                        }
+                    if (stoicC != 0.0 && m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
+                        molNumSpecies_tmp[j] +=  stoicC * delmol;
                     }
                 }
             }
@@ -456,10 +433,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         // Here we create a damp > 1 to account for this possibility.
         // We adjust upwards to make sure that a component in an existing multispecies
         // phase is modified by a factor of 1/1000.
-        if (ratioComp > 1.0E-30) {
-            if (ratioComp < 0.001) {
-                damp = 0.001 / ratioComp;
-            }
+        if (ratioComp > 1.0E-30 && ratioComp < 0.001) {
+            damp = 0.001 / ratioComp;
         }
         if (damp <= 1.0E-6) {
             return 3;
@@ -721,15 +696,11 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                     damp = std::max(0.3*fabs(fracDelta_old[k]) / fabs(delFrac[k]),
                                     1.0E-8/fabs(delFrac[k]));
                 }
-                if (delFrac[k] < 0.0) {
-                    if (2.0 * damp * (-delFrac[k]) > fracDelta_old[k]) {
-                        damp = fracDelta_old[k] / (2.0 * -delFrac[k]);
-                    }
+                if (delFrac[k] < 0.0 && 2.0 * damp * (-delFrac[k]) > fracDelta_old[k]) {
+                    damp = fracDelta_old[k] / (2.0 * -delFrac[k]);
                 }
-                if (delFrac[k] > 0.0) {
-                    if (2.0 * damp * delFrac[k] > fracDelta_old[k]) {
-                        damp = fracDelta_old[k] / (2.0 * delFrac[k]);
-                    }
+                if (delFrac[k] > 0.0 && 2.0 * damp * delFrac[k] > fracDelta_old[k]) {
+                    damp = fracDelta_old[k] / (2.0 * delFrac[k]);
                 }
             }
             damp = std::max(damp, 0.000001);
