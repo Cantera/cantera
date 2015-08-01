@@ -185,11 +185,6 @@ void VPSSMgr_Water_HKFT::_updateStandardStateThermo()
     }
 }
 
-void VPSSMgr_Water_HKFT::initThermo()
-{
-    VPSSMgr::initThermo();
-}
-
 void VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode,
                                        const std::string& id)
 {

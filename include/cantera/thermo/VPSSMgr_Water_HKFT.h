@@ -107,7 +107,6 @@ public:
      * To see how they are used, see importPhase().
      */
     //@{
-    virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr);

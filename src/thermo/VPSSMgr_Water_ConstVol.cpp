@@ -185,11 +185,6 @@ void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
     m_Vss[0]    = (m_vptp_ptr->molecularWeight(0) / m_waterSS->density());
 }
 
-void VPSSMgr_Water_ConstVol::initThermo()
-{
-    VPSSMgr::initThermo();
-}
-
 void VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode,
                                            const std::string& id)
 {

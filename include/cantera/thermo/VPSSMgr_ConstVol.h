@@ -85,7 +85,6 @@ protected:
     //@{
 
 public:
-    virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //!  Create and install a constant volume pressure dependent

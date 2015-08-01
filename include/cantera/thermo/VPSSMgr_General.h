@@ -84,7 +84,6 @@ protected:
      */
     //@{
     virtual void initThermo();
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     //@}
 
 private:

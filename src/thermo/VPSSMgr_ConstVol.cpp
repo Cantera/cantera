@@ -89,11 +89,6 @@ void VPSSMgr_ConstVol::getStandardVolumes_ref(doublereal* vol) const
     }
 }
 
-void VPSSMgr_ConstVol::initThermo()
-{
-    VPSSMgr::initThermo();
-}
-
 void VPSSMgr_ConstVol::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     VPSSMgr::initThermoXML(phaseNode, id);
