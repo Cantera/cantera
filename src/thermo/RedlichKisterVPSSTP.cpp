@@ -635,6 +635,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 #ifdef DEBUG_MODE
 void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
+    double XA;
     doublereal T = temperature();
     double Volts = 0.0;
 
@@ -642,7 +643,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 
     for (size_t i = 0; i <  numBinaryInteractions_; i++) {
         size_t iA =  m_pSpecies_A_ij[i];
-        double XA = moleFractions_[iA];
+        XA = moleFractions_[iA];
         if (XA <= 1.0E-14) {
             XA = 1.0E-14;
         }

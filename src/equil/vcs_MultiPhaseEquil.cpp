@@ -612,7 +612,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     double pres = m_mix->pressure();
     vector_fp& mf = m_vprob.mf;
 #ifdef DEBUG_MODE
-    double* fe = &m_vprob.m_gibbsSpecies[0]);
+    double* fe = &m_vprob.m_gibbsSpecies[0];
 #endif
     std::vector<double> VolPM;
     std::vector<double> activity;
