@@ -36,7 +36,7 @@ def configure_python(env, python_command):
 
 def add_dependencies(mod, ext):
     localenv.Depends(mod, ext)
-    localenv.Depends(mod, dataFiles + testFiles + scripts)
+    localenv.Depends(mod, dataFiles + testFiles)
     localenv.Depends(ext, localenv['cantera_staticlib'])
 
     for f in (mglob(localenv, 'cantera', 'py') +
@@ -67,37 +67,33 @@ for line in open('cantera/_cantera.pxd'):
     if m:
         localenv.Depends('cantera/_cantera.cpp', '#include/' + m.group(1))
 
-script_ext = '.py' if os.name == 'nt' else ''
-localenv['py_ctml_writer'] = repr('scripts/ctml_writer%s' % script_ext)
-localenv['py_ck2cti'] = repr('scripts/ck2cti%s' % script_ext)
-localenv['py_mixmaster'] = repr('scripts/mixmaster%s' % script_ext)
-
-# thin wrappers
-scripts = []
-for script in mglob(env, 'scripts', 'py.in'):
-  base_name = script.name.split('.')[0]
-  script = build(env.Command('scripts/%s%s' % (base_name, script_ext), script,
-                             Copy('$TARGET', '$SOURCE')))
-  scripts.append(script)
-
 def install_module(prefix, python_version):
+    major = python_version[0]
+    ver = '3' if major == '3' else ''
+    dummy = 'dummy' + major
     if prefix == 'USER':
         # Install to the OS-dependent user site-packages directory
         extra = '--user'
+        if 'clang' in localenv.subst('$CC'):
+            extra += ' --prefix=""'
     elif prefix:
-        # A specific location for the Cantera python module has been specified
-        extra = '--prefix="%s"' % prefix
+        # A specific location for the Cantera python module has been given
+        extra = '--user'
+        if 'clang' in localenv.subst('$CC'):
+            extra += ' --prefix=""'
+        localenv.AppendENVPath(
+            'PYTHONUSERBASE',
+            normpath(localenv.subst('$python%s_prefix' % ver))
+        )
     else:
         # Install Python module in the default location
         extra = ''
 
-    major = python_version[0]
-    ver = '3' if major == '3' else ''
-    dummy = 'dummy' + major
     if localenv['PYTHON_INSTALLER'] == 'direct':
         mod_inst = install(localenv.Command, dummy, mod,
                            build_cmd + ' install %s' % extra +
-                           ' --record ../../build/python%s-installed-files.txt' % major)
+                           ' --record=../../build/python%s-installed-files.txt' % major +
+                           ' --single-version-externally-managed')
         global_env = env
         def find_module_dir(target, source, env):
             check = pjoin('cantera','__init__.py')
@@ -105,7 +101,7 @@ def install_module(prefix, python_version):
                 filename = filename.strip()
                 if filename.endswith(check):
                     filename = filename.replace(check,'')
-                    global_env['python%s_module_loc' % ver] = os.path.normpath(filename)
+                    global_env['python%s_module_loc' % ver] = normpath(filename)
                     break
         localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
         if not ver:
@@ -142,8 +138,7 @@ if localenv['python3_package'] == 'y':
 
     py3env.SubstFile('setup3.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
-                 ' $python3_cmd setup3.py build --build-lib=../../build/python3'
-                 ' --executable="/usr/bin/env python3"')
+                 ' $python3_cmd setup3.py build --build-lib=../../build/python3')
     mod = build(py3env.Command('#build/python3/cantera/__init__.py', 'setup3.py',
                                build_cmd))
     env['python3_module'] = mod
@@ -165,8 +160,7 @@ if localenv['python_package'] == 'full':
     py2env['py_extension'] = ext[0].name
     py2env.SubstFile('setup2.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
-                 ' $python_cmd_esc setup2.py build --build-lib=../../build/python2'
-                 ' --executable="/usr/bin/env python"')
+                 ' $python_cmd_esc setup2.py build --build-lib=../../build/python2')
     mod = build(py2env.Command('#build/python2/cantera/__init__.py',
                                'setup2.py',
                                build_cmd))

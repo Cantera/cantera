@@ -64,12 +64,14 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('interfaces/cython/cantera/_cantera.cpp')
     removeFile('interfaces/cython/setup2.py')
     removeFile('interfaces/cython/setup3.py')
+    removeFile('interfaces/python_minimal/setup.py')
     removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
     removeDirectory('doc/sphinx/matlab/tutorials')
     removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
-    removeDirectory('interfaces/cython/build')
+    removeDirectory('interfaces/cython/Cantera.egg-info')
+    removeDirectory('interfaces/python_minimal/Cantera_minimal_.egg-info')
     for name in os.listdir('interfaces/cython/cantera/data/'):
         if name != '__init__.py':
             removeFile('interfaces/cython/cantera/data/' + name)
@@ -85,6 +87,9 @@ if 'clean' in COMMAND_LINE_TARGETS:
     for name in os.listdir('site_scons/site_tools/'):
         if name.endswith('.pyc'):
             removeFile('site_scons/site_tools/' + name)
+    for name in os.listdir('interfaces/python_minimal/cantera'):
+        if name != '__init__.py':
+            removeFile('interfaces/python_minimal/cantera/' + name)
     removeFile('interfaces/matlab/toolbox/cantera_shared.dll')
     removeFile('interfaces/matlab/Contents.m')
     removeFile('interfaces/matlab/ctpath.m')
@@ -1348,15 +1353,6 @@ if addInstallActions:
     # Data files
     install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
 
-    # Converter scripts
-    pyExt = '.py' if env['OS'] == 'Windows' else ''
-    install(env.InstallAs,
-            '$inst_bindir/ck2cti%s' % pyExt,
-            'interfaces/cython/cantera/ck2cti.py')
-    install(env.InstallAs,
-            '$inst_bindir/ctml_writer%s' % pyExt,
-            'interfaces/cython/cantera/ctml_writer.py')
-
     # Copy external libaries for Windows installations
     if env['CC'] == 'cl' and env['use_boost_libs']:
         boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
@@ -1565,13 +1561,25 @@ def getParentDirs(path, top=True):
 allfiles = FindInstalledFiles()
 
 # Files installed by the Python installer(s)
-pyFiles = ['build/python-installed-files.txt',
-           'build/python2-installed-files.txt',
+pyFiles = ['build/python2-installed-files.txt',
            'build/python3-installed-files.txt']
 
 for filename in pyFiles:
     if os.path.exists(filename):
-        allfiles.extend([File(f.strip()) for f in open(filename).readlines()])
+        with open(filename, 'r') as f:
+            file_list = f.readlines()
+
+        install_base = os.path.dirname(file_list[0].strip())
+        if os.path.exists(install_base):
+            not_listed_files = [s for s in os.listdir(install_base) if not any(s in j for j in file_list)]
+            for f in not_listed_files:
+                f = pjoin(install_base, f)
+                if not os.path.isdir(f) and os.path.exists(f):
+                    allfiles.append(File(f))
+        for f in file_list:
+            f = f.strip()
+            if not os.path.isdir(f) and os.path.exists(f):
+                allfiles.append(File(f))
 
 # After removing files (which SCons keeps track of),
 # remove any empty directories (which SCons doesn't track)

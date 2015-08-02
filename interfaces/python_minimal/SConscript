@@ -5,8 +5,6 @@ Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-script_ext = '.py' if os.name == 'nt' else ''
-
 make_setup = build(localenv.SubstFile('setup.py', 'setup.py.in'))
 
 # copy scripts from the full Cython module
@@ -15,16 +13,7 @@ for script in ['ctml_writer', 'ck2cti']:
     s = build(env.Command('cantera/%s.py' % script,
                           '#interfaces/cython/cantera/%s.py' % script,
                           Copy('$TARGET', '$SOURCE')))
-    # thin wrapper
-    w = build(env.Command('scripts/%s%s' % (script, script_ext),
-                          '#interfaces/cython/scripts/%s.py.in' % script,
-                          Copy('$TARGET', '$SOURCE')))
     localenv.Depends(make_setup, s)
-    localenv.Depends(make_setup, w)
-
-    # Name used in setup.py
-    localenv['py_%s' % script] = repr('scripts/%s%s' % (script, script_ext))
-    localenv['py_%s' % script] = repr('scripts/%s%s' % (script, script_ext))
 
 build_cmd = ('cd interfaces/python_minimal &&'
              ' $python_cmd_esc setup.py build --build-lib=../../build/python2')
@@ -38,23 +27,33 @@ if localenv['PYTHON_INSTALLER'] == 'direct':
     if localenv['python_prefix'] == 'USER':
         # Install to the OS-dependent user site-packages directory
         extra = '--user'
+        if 'clang' in localenv.subst('$CC'):
+            extra += ' --prefix=""'
     elif localenv['python_prefix']:
-        # A specific location for the Cantera python module has been specified
-        extra = '--prefix="%s"' % localenv['python_prefix']
+        # A specific location for the Cantera python module has been given
+        extra = '--user'
+        if 'clang' in localenv.subst('$CC'):
+            extra += ' --prefix=""'
+        localenv.AppendENVPath(
+            'PYTHONUSERBASE',
+            normpath(localenv.subst('$python_prefix'))
+        )
     else:
         # Install Python module in the default location
         extra = ''
     mod_inst = install(localenv.Command, 'dummy', mod,
                        build_cmd + ' install %s' % extra +
-                       ' --record ../../build/python2-installed-files.txt')
+                       ' --record=../../build/python2-installed-files.txt' +
+                       ' --single-version-externally-managed')
     global_env = env
+
     def find_module_dir(target, source, env):
-        check = pjoin('cantera','__init__.py')
+        check = pjoin('cantera', '__init__.py')
         for filename in open('build/python2-installed-files.txt').readlines():
             filename = filename.strip()
             if filename.endswith(check):
-                filename = filename.replace(check,'')
-                global_env['python_module_loc'] = os.path.normpath(filename)
+                filename = filename.replace(check, '')
+                global_env['python_module_loc'] = normpath(filename)
                 break
     localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
     env['install_python2_action'] = mod_inst

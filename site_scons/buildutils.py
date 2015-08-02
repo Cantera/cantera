@@ -1,5 +1,6 @@
 import os
 from os.path import join as pjoin
+from os.path import normpath
 import sys
 import platform
 import textwrap
