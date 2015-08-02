@@ -2681,8 +2681,11 @@ def convert(filename=None, outName=None, text=None):
 
     write(outName)
 
-if __name__ == "__main__":
-    import sys
+
+def main():
     if len(sys.argv) not in (2,3):
         raise ValueError('Incorrect number of command line arguments.')
     convert(*sys.argv[1:])
+
+if __name__ == "__main__":
+    main()

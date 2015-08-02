@@ -2028,5 +2028,8 @@ def main(argv):
         print(e)
         sys.exit(1)
 
+def script_entry_point():
+    main(sys.argv[1:])
+
 if __name__ == '__main__':
     main(sys.argv[1:])
