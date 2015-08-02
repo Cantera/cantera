@@ -1561,13 +1561,25 @@ def getParentDirs(path, top=True):
 allfiles = FindInstalledFiles()
 
 # Files installed by the Python installer(s)
-pyFiles = ['build/python-installed-files.txt',
-           'build/python2-installed-files.txt',
+pyFiles = ['build/python2-installed-files.txt',
            'build/python3-installed-files.txt']
 
 for filename in pyFiles:
     if os.path.exists(filename):
-        allfiles.extend([File(f.strip()) for f in open(filename).readlines()])
+        with open(filename, 'r') as f:
+            file_list = f.readlines()
+
+        install_base = os.path.dirname(file_list[0].strip())
+        if os.path.exists(install_base):
+            not_listed_files = [s for s in os.listdir(install_base) if not any(s in j for j in file_list)]
+            for f in not_listed_files:
+                f = pjoin(install_base, f)
+                if not os.path.isdir(f) and os.path.exists(f):
+                    allfiles.append(File(f))
+        for f in file_list:
+            f = f.strip()
+            if not os.path.isdir(f) and os.path.exists(f):
+                allfiles.append(File(f))
 
 # After removing files (which SCons keeps track of),
 # remove any empty directories (which SCons doesn't track)
