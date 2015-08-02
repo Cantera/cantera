@@ -429,9 +429,8 @@ doublereal HMWSoln::relative_enthalpy() const
     getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
     double hbar = mean_X(m_tmpV);
     getEnthalpy_RT(DATA_PTR(m_gamma_tmp));
-    double RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        m_gamma_tmp[k] *= RT;
+        m_gamma_tmp[k] *= RT();
     }
     double h0bar = mean_X(m_gamma_tmp);
     return hbar - h0bar;
@@ -669,17 +668,16 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
      * This also updates the internal molality array.
      */
     s_update_lnMolalityActCoeff();
-    doublereal RT = GasConstant * temperature();
     double xmolSolvent = moleFraction(m_indexSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         if (m_indexSolvent != k) {
             xx = std::max(m_molalities[k], SmallNumber);
-            mu[k] += RT * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
+            mu[k] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
         }
     }
     xx = std::max(xmolSolvent, SmallNumber);
     mu[m_indexSolvent] +=
-        RT * (log(xx) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
+        RT() * (log(xx) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
 }
 
 void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
@@ -691,10 +689,8 @@ void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     /*
      * dimensionalize it.
      */
-    double T = temperature();
-    double RT = GasConstant * T;
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] *= RT;
+        hbar[k] *= RT();
     }
     /*
      * Update the activity coefficients, This also update the
@@ -702,9 +698,8 @@ void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
      */
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dT();
-    double RTT = RT * T;
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] -= RTT * m_dlnActCoeffMolaldT_Scaled[k];
+        hbar[k] -= RT() * temperature() * m_dlnActCoeffMolaldT_Scaled[k];
     }
 }
 
@@ -718,9 +713,8 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
     /*
      * Dimensionalize the entropies
      */
-    doublereal R = GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] *= R;
+        sbar[k] *= GasConstant;
     }
     /*
      * Update the activity coefficients, This also update the
@@ -735,21 +729,20 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
     for (size_t k = 0; k < m_kk; k++) {
         if (k != m_indexSolvent) {
             mm = std::max(SmallNumber, m_molalities[k]);
-            sbar[k] -= R * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
+            sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
         }
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
     mm = std::max(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
+    sbar[m_indexSolvent] -= GasConstant *(log(mm) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
     /*
      * Check to see whether activity coefficients are temperature
      * dependent. If they are, then calculate the their temperature
      * derivatives and add them into the result.
      */
     s_update_dlnMolalityActCoeff_dT();
-    double RT = R * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] -= RT * m_dlnActCoeffMolaldT_Scaled[k];
+        sbar[k] -= RT() * m_dlnActCoeffMolaldT_Scaled[k];
     }
 }
 
@@ -764,10 +757,8 @@ void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
      */
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dP();
-    double T = temperature();
-    double RT = GasConstant * T;
     for (size_t k = 0; k < m_kk; k++) {
-        vbar[k] += RT * m_dlnActCoeffMolaldP_Scaled[k];
+        vbar[k] += RT() * m_dlnActCoeffMolaldP_Scaled[k];
     }
 }
 
@@ -788,12 +779,9 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dT();
     s_update_d2lnMolalityActCoeff_dT2();
-    double T = temperature();
-    double RT = GasConstant * T;
-    double RTT = RT * T;
     for (size_t k = 0; k < m_kk; k++) {
-        cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT_Scaled[k] +
-                     RTT * m_d2lnActCoeffMolaldT2_Scaled[k]);
+        cpbar[k] -= (2.0 * RT() * m_dlnActCoeffMolaldT_Scaled[k] +
+                     RT() * temperature() * m_d2lnActCoeffMolaldT2_Scaled[k]);
     }
 }
 

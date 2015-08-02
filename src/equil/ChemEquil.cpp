@@ -552,12 +552,11 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     if (useThermoPhaseElementPotentials) {
         bool haveEm = s.getElementPotentials(DATA_PTR(x));
         if (haveEm) {
-            doublereal rt = GasConstant * s.temperature();
             if (s.temperature() < 100.) {
                 printf("we are here %g\n", s.temperature());
             }
             for (m = 0; m < m_mm; m++) {
-                x[m] /= rt;
+                x[m] *= 1.0 / s.RT();
             }
         } else {
             estimateElementPotentials(s, x, elMolesGoal);
@@ -663,9 +662,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         if (iter > 0 && passThis && fabs(deltax) < options.relTolerance
                 && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
-            doublereal rt = GasConstant* s.temperature();
             for (m = 0; m < m_mm; m++) {
-                m_lambda[m] = x[m]*rt;
+                m_lambda[m] = x[m]* s.RT();
             }
 
             if (m_eloc != npos) {

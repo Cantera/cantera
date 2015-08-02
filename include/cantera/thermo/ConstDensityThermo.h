@@ -153,7 +153,7 @@ public:
      */
     virtual void getPureGibbs(doublereal* gpure) const {
         const vector_fp& gibbsrt = gibbs_RT();
-        scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
+        scale(gibbsrt.begin(), gibbsrt.end(), gpure, RT());
     }
 
     //! Get the nondimensional Enthalpy functions for the species

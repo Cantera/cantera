@@ -122,9 +122,8 @@ int VPStandardStateTP::standardStateConvention() const
 void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
-    doublereal invRT = 1.0 / _RT();
     for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= invRT;
+        muRT[k] *= 1.0 / RT();
     }
 }
 
@@ -134,9 +133,8 @@ void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 void VPStandardStateTP::getStandardChemPotentials(doublereal* g) const
 {
     getGibbs_RT(g);
-    doublereal RT = _RT();
     for (size_t k = 0; k < m_kk; k++) {
-        g[k] *= RT;
+        g[k] *= RT();
     }
 }
 

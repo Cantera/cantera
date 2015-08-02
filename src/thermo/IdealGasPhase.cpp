@@ -97,7 +97,7 @@ void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
 void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), muStar, _RT());
+    scale(gibbsrt.begin(), gibbsrt.end(), muStar, RT());
     double tmp = log(pressure() / m_spthermo->refPressure());
     tmp *= GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
@@ -110,18 +110,16 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 void IdealGasPhase::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
-    doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] += rt * log(xx);
+        mu[k] += RT() * log(xx);
     }
 }
 
 void IdealGasPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal rt = GasConstant * temperature();
-    scale(_h.begin(), _h.end(), hbar, rt);
+    scale(_h.begin(), _h.end(), hbar, RT());
 }
 
 void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const
@@ -138,9 +136,8 @@ void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const
 void IdealGasPhase::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal rt = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        ubar[k] = rt * (_h[k] - 1.0);
+        ubar[k] = RT() * (_h[k] - 1.0);
     }
 }
 
@@ -189,9 +186,8 @@ void IdealGasPhase::getGibbs_RT(doublereal* grt) const
 void IdealGasPhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), gpure, _RT());
-    double tmp = log(pressure() / m_spthermo->refPressure());
-    tmp *= _RT();
+    scale(gibbsrt.begin(), gibbsrt.end(), gpure, RT());
+    double tmp = log(pressure() / m_spthermo->refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         gpure[k] += tmp;
     }
@@ -236,7 +232,7 @@ void IdealGasPhase::getGibbs_RT_ref(doublereal* grt) const
 void IdealGasPhase::getGibbs_ref(doublereal* g) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), g, _RT());
+    scale(gibbsrt.begin(), gibbsrt.end(), g, RT());
 }
 
 void IdealGasPhase::getEntropy_R_ref(doublereal* er) const
@@ -261,7 +257,7 @@ void IdealGasPhase::getCp_R_ref(doublereal* cprt) const
 
 void IdealGasPhase::getStandardVolumes_ref(doublereal* vol) const
 {
-    doublereal tmp = _RT() / m_p0;
+    doublereal tmp = RT() / m_p0;
     for (size_t k = 0; k < m_kk; k++) {
         vol[k] = tmp;
     }

@@ -963,7 +963,6 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         getMoleFractions(&x[0]);
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
-        doublereal rt = GasConstant * temperature();
         int nMinor = 0;
         doublereal xMinor = 0.0;
         doublereal yMinor = 0.0;
@@ -978,7 +977,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                 if (x[k] >= threshold) {
                     if (x[k] > SmallNumber) {
                         sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
-                                speciesName(k).c_str(), x[k], y[k], mu[k]/rt);
+                                speciesName(k).c_str(), x[k], y[k], mu[k]/RT());
                     } else {
                         sprintf(p, "%18s   %12.6g     %12.6g     \n",
                                 speciesName(k).c_str(), x[k], y[k]);

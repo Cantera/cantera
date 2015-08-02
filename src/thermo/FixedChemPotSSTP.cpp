@@ -204,8 +204,7 @@ void FixedChemPotSSTP::getStandardChemPotentials(doublereal* mu0) const
 
 void FixedChemPotSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
-    double rt = _RT();
-    hrt[0] = chemPot_ / rt;
+    hrt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getEntropy_R(doublereal* sr) const
@@ -215,8 +214,7 @@ void FixedChemPotSSTP::getEntropy_R(doublereal* sr) const
 
 void FixedChemPotSSTP::getGibbs_RT(doublereal* grt) const
 {
-    double rt = _RT();
-    grt[0] = chemPot_ / rt;
+    grt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getCp_R(doublereal* cpr) const
@@ -245,8 +243,7 @@ void FixedChemPotSSTP::getIntEnergy_RT_ref(doublereal* urt) const
 
 void FixedChemPotSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
-    double rt = _RT();
-    hrt[0] = chemPot_ / rt;
+    hrt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getEntropy_R_ref(doublereal* sr) const
@@ -256,8 +253,7 @@ void FixedChemPotSSTP::getEntropy_R_ref(doublereal* sr) const
 
 void FixedChemPotSSTP::getGibbs_RT_ref(doublereal* grt) const
 {
-    double rt = _RT();
-    grt[0] = chemPot_ / rt;
+    grt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getGibbs_ref(doublereal* g) const

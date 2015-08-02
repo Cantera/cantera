@@ -278,9 +278,8 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
 void WaterSSTP::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
-    doublereal rt = _RT();
     for (size_t k = 0; k < m_kk; k++) {
-        g[k] *= rt;
+        g[k] *= RT();
     }
 }
 

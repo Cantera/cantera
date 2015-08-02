@@ -240,14 +240,13 @@ void InterfaceKinetics::updateMu0()
      * kinetics object and store it in m_mu0[] and in m_mu0_Kc[]
      */
     size_t nsp, ik = 0;
-    doublereal rt = GasConstant * thermo(0).temperature();
     size_t np = nPhases();
     for (size_t n = 0; n < np; n++) {
         thermo(n).getStandardChemPotentials(DATA_PTR(m_mu0) + m_start[n]);
         nsp = thermo(n).nSpecies();
         for (size_t k = 0; k < nsp; k++) {
             m_mu0_Kc[ik] = m_mu0[ik] + Faraday * m_phi[n] * thermo(n).charge(k);
-            m_mu0_Kc[ik] -= rt * thermo(n).logStandardConc(k);
+            m_mu0_Kc[ik] -= thermo(0).RT() * thermo(n).logStandardConc(k);
             ik++;
         }
     }
@@ -261,8 +260,7 @@ void InterfaceKinetics::checkPartialEquil()
     vector_fp dmu(nTotalSpecies(), 0.0);
     vector_fp rmu(std::max<size_t>(nReactions(), 1), 0.0);
     if (m_nrev > 0) {
-        doublereal rt = GasConstant*thermo(0).temperature();
-        cout << "T = " << thermo(0).temperature() << " " << rt << endl;
+        cout << "T = " << thermo(0).temperature() << " " << thermo(0).RT() << endl;
         size_t nsp, ik=0;
         doublereal delta;
         for (size_t n = 0; n < nPhases(); n++) {
@@ -281,7 +279,7 @@ void InterfaceKinetics::checkPartialEquil()
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
             cout << "Reaction " << reactionString(irxn)
-                 << "  " << rmu[irxn]/rt << endl;
+                 << "  " << rmu[irxn]/thermo(0).RT() << endl;
             printf("%12.6e  %12.6e  %12.6e  %12.6e \n",
                    m_ropf[irxn], m_ropr[irxn], m_ropnet[irxn],
                    m_ropnet[irxn]/(m_ropf[irxn] + m_ropr[irxn]));
@@ -372,9 +370,7 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
         if (m_ctrxn_BVform[i] == 0) {
             eamod = m_beta[i] * deltaElectricEnergy_[irxn];
             if (eamod != 0.0) {
-                doublereal rt = GasConstant*thermo(0).temperature();
-                doublereal rrt = 1.0/rt;
-                kf[irxn] *= exp(-eamod*rrt);
+                kf[irxn] *= exp(-eamod/thermo(0).RT());
             }
         }
     }
@@ -383,9 +379,6 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
 void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* const kfwd)
 {
     updateExchangeCurrentQuantities();
-    doublereal rt = GasConstant * thermo(0).temperature();
-    doublereal rrt = 1.0/rt;
-
     //  Loop over all reactions which are defined to have a voltage transfer coefficient that
     //  affects the activity energy for the reaction
     for (size_t i = 0; i < m_ctrxn.size(); i++) {
@@ -400,7 +393,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
             //   We need to have the straight chemical reaction rate constant to come out of this calculation.
             if (m_ctrxn_BVform[i] == 0) {
                 //  Calculate the term and modify the forward reaction
-                double tmp = exp(- m_beta[i] * m_deltaG0[irxn] * rrt);
+                double tmp = exp(- m_beta[i] * m_deltaG0[irxn] / thermo(0).RT());
                 double tmp2 = m_ProdStanConcReac[irxn];
                 tmp *= 1.0 / tmp2 / Faraday;
                 kfwd[irxn] *= tmp;
@@ -415,7 +408,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
             if (m_ctrxn_BVform[i] != 0) {
                 //  Calculate the term and modify the forward reaction rate constant so that
                 //  it's in the exchange current density formulation format
-                double tmp = exp(m_beta[i] * m_deltaG0[irxn] * rrt);
+                double tmp = exp(m_beta[i] * m_deltaG0[irxn] * thermo(0).RT());
                 double tmp2 = m_ProdStanConcReac[irxn];
                 tmp *= Faraday * tmp2;
                 kfwd[irxn] *= tmp;
@@ -647,9 +640,8 @@ void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getEnthalpy_RT(DATA_PTR(m_grt) + m_start[n]);
     }
-    doublereal RT = thermo(0).temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= RT;
+        m_grt[k] *= thermo(0).RT();
     }
     /*
      * Use the stoichiometric manager to find deltaG for each
@@ -668,9 +660,8 @@ void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getEntropy_R(DATA_PTR(m_grt) + m_start[n]);
     }
-    doublereal R = GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= R;
+        m_grt[k] *= GasConstant;
     }
     /*
      * Use the stoichiometric manager to find deltaS for each

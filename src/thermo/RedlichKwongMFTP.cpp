@@ -150,7 +150,7 @@ int RedlichKwongMFTP::eosType() const
 doublereal RedlichKwongMFTP::enthalpy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal h_ideal = _RT() * mean_X(m_h0_RT);
+    doublereal h_ideal = RT() * mean_X(m_h0_RT);
     doublereal h_nonideal = hresid();
     return h_ideal + h_nonideal;
 }
@@ -278,10 +278,8 @@ doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 
 void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
 {
-    doublereal TKelvin = temperature();
-    doublereal rt = TKelvin * GasConstant;
     doublereal mv = molarVolume();
-    doublereal sqt = sqrt(TKelvin);
+    doublereal sqt = sqrt(temperature());
     doublereal vpb = mv + m_b_current;
     doublereal vmb = mv - m_b_current;
 
@@ -295,16 +293,16 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
     doublereal pres = pressure();
 
     for (size_t k = 0; k < m_kk; k++) {
-        ac[k] = (- rt * log(pres * mv / rt)
-                 + rt * log(mv / vmb)
-                 + rt * b_vec_Curr_[k] / vmb
+        ac[k] = (- RT() * log(pres * mv / RT())
+                 + RT() * log(mv / vmb)
+                 + RT() * b_vec_Curr_[k] / vmb
                  - 2.0 * m_pp[k] / (m_b_current * sqt) * log(vpb/mv)
                  + m_a_current * b_vec_Curr_[k] / (m_b_current * m_b_current * sqt) * log(vpb/mv)
                  - m_a_current / (m_b_current * sqt) * (b_vec_Curr_[k]/vpb)
                 );
     }
     for (size_t k = 0; k < m_kk; k++) {
-        ac[k] = exp(ac[k]/rt);
+        ac[k] = exp(ac[k]/RT());
     }
 }
 
@@ -315,24 +313,21 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
 void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
-    doublereal invRT = 1.0 / _RT();
     for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= invRT;
+        muRT[k] *= 1.0 / RT();
     }
 }
 
 void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
 {
     getGibbs_ref(mu);
-    doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] += rt*(log(xx));
+        mu[k] += RT()*(log(xx));
     }
 
-    doublereal TKelvin = temperature();
     doublereal mv = molarVolume();
-    doublereal sqt = sqrt(TKelvin);
+    doublereal sqt = sqrt(temperature());
     doublereal vpb = mv + m_b_current;
     doublereal vmb = mv - m_b_current;
 
@@ -347,9 +342,9 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
     doublereal refP = refPressure();
 
     for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += (rt * log(pres/refP) - rt * log(pres * mv / rt)
-                  + rt * log(mv / vmb)
-                  + rt * b_vec_Curr_[k] / vmb
+        mu[k] += (RT() * log(pres/refP) - RT() * log(pres * mv / RT())
+                  + RT() * log(mv / vmb)
+                  + RT() * b_vec_Curr_[k] / vmb
                   - 2.0 * m_pp[k] / (m_b_current * sqt) * log(vpb/mv)
                   + m_a_current * b_vec_Curr_[k] / (m_b_current * m_b_current * sqt) * log(vpb/mv)
                   - m_a_current / (m_b_current * sqt) * (b_vec_Curr_[k]/vpb)
@@ -363,8 +358,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
      *  First we get the reference state contributions
      */
     getEnthalpy_RT_ref(hbar);
-    doublereal rt = GasConstant * temperature();
-    scale(hbar, hbar+m_kk, hbar, rt);
+    scale(hbar, hbar+m_kk, hbar, RT());
 
     /*
      * We calculate dpdni_
@@ -382,7 +376,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
         }
     }
     for (size_t k = 0; k < m_kk; k++) {
-        dpdni_[k] = rt/vmb + rt * b_vec_Curr_[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
+        dpdni_[k] = RT()/vmb + RT() * b_vec_Curr_[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
                     + m_a_current * b_vec_Curr_[k]/(sqt * mv * vpb * vpb);
     }
     doublereal dadt = da_dt();
@@ -399,7 +393,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
     pressureDerivatives();
     doublereal fac2 = mv + TKelvin * dpdT_ / dpdV_;
     for (size_t k = 0; k < m_kk; k++) {
-        double hE_v = (mv * dpdni_[k] - rt - b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
+        double hE_v = (mv * dpdni_[k] - RT() - b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
                        + 1.0 / (m_b_current * sqt) * log(vpb/mv) * m_tmpV[k]
                        +  b_vec_Curr_[k] / vpb / (m_b_current * sqt) * fac);
         hbar[k] = hbar[k] + hE_v;
@@ -410,8 +404,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
 void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R_ref(sbar);
-    doublereal r = GasConstant;
-    scale(sbar, sbar+m_kk, sbar, r);
+    scale(sbar, sbar+m_kk, sbar, GasConstant);
     doublereal TKelvin = temperature();
     doublereal sqt = sqrt(TKelvin);
     doublereal mv = molarVolume();
@@ -419,7 +412,7 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
 
     for (size_t k = 0; k < m_kk; k++) {
         doublereal xx = std::max(SmallNumber, moleFraction(k));
-        sbar[k] += r * (- log(xx));
+        sbar[k] += GasConstant * (- log(xx));
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
@@ -462,15 +455,13 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
 void RedlichKwongMFTP::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     getIntEnergy_RT(ubar);
-    doublereal rt = GasConstant * temperature();
-    scale(ubar, ubar+m_kk, ubar, rt);
+    scale(ubar, ubar+m_kk, ubar, RT());
 }
 
 void RedlichKwongMFTP::getPartialMolarCp(doublereal* cpbar) const
 {
     getCp_R(cpbar);
-    doublereal r = GasConstant;
-    scale(cpbar, cpbar+m_kk, cpbar, r);
+    scale(cpbar, cpbar+m_kk, cpbar, GasConstant);
 }
 
 void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
@@ -490,19 +481,17 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
         }
     }
 
-    doublereal TKelvin = temperature();
-    doublereal sqt = sqrt(TKelvin);
+    doublereal sqt = sqrt(temperature());
     doublereal mv = molarVolume();
-    doublereal rt = GasConstant * TKelvin;
     doublereal vmb = mv - m_b_current;
     doublereal vpb = mv + m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
-        doublereal num = (rt + rt * m_b_current/ vmb + rt * b_vec_Curr_[k] / vmb
-                          + rt * m_b_current * b_vec_Curr_[k] /(vmb * vmb)
+        doublereal num = (RT() + RT() * m_b_current/ vmb + RT() * b_vec_Curr_[k] / vmb
+                          + RT() * m_b_current * b_vec_Curr_[k] /(vmb * vmb)
                           - 2.0 * m_pp[k] / (sqt * vpb)
                           + m_a_current * b_vec_Curr_[k] / (sqt * vpb * vpb)
                          );
-        doublereal denom = (m_Pcurrent + rt * m_b_current/(vmb * vmb) - m_a_current / (sqt * vpb * vpb)
+        doublereal denom = (m_Pcurrent + RT() * m_b_current/(vmb * vmb) - m_a_current / (sqt * vpb * vpb)
                            );
         vbar[k] = num / denom;
     }

@@ -155,9 +155,8 @@ void MineralEQ3::getStandardChemPotentials(doublereal* mu0) const
 void MineralEQ3::getEnthalpy_RT(doublereal* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
-    doublereal RT = GasConstant * temperature();
     doublereal presCorrect = (m_press - m_p0) / molarDensity();
-    hrt[0] += presCorrect / RT;
+    hrt[0] += presCorrect / RT();
 }
 
 void MineralEQ3::getEntropy_R(doublereal* sr) const
@@ -180,8 +179,7 @@ void MineralEQ3::getCp_R(doublereal* cpr) const
 void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
 {
     _updateThermo();
-    doublereal RT = GasConstant * temperature();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
 /*
@@ -191,8 +189,7 @@ void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
 void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    doublereal RT = GasConstant * temperature();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
 /*

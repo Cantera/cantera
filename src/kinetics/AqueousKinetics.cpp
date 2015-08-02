@@ -48,13 +48,11 @@ void AqueousKinetics::_update_rates_C()
 
 void AqueousKinetics::updateKc()
 {
-    doublereal rt = GasConstant * m_temp;
-
     thermo().getStandardChemPotentials(&m_grt[0]);
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
-        m_grt[k] -= rt * logStandConc_k;
+        m_grt[k] -= GasConstant * m_temp * logStandConc_k;
     }
 
     // compute Delta G^0 for all reversible reactions
@@ -77,10 +75,9 @@ void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
 
     thermo().getStandardChemPotentials(&m_grt[0]);
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
-    doublereal rt = GasConstant * m_temp;
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
-        m_grt[k] -= rt * logStandConc_k;
+        m_grt[k] -= GasConstant * m_temp * logStandConc_k;
     }
 
     // compute Delta G^0 for all reactions

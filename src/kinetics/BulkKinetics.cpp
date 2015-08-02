@@ -64,9 +64,8 @@ void BulkKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
 {
     // Get the standard state enthalpies of the species.
     thermo().getEnthalpy_RT(&m_grt[0]);
-    doublereal RT = thermo().temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= RT;
+        m_grt[k] *= thermo().RT();
     }
     // Use the stoichiometric manager to find deltaH for each reaction.
     getReactionDelta(&m_grt[0], deltaH);
@@ -78,9 +77,8 @@ void BulkKinetics::getDeltaSSEntropy(doublereal* deltaS)
     // the entropies of the pure species at the temperature and pressure of the
     // solution.
     thermo().getEntropy_R(&m_grt[0]);
-    doublereal R = GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= R;
+        m_grt[k] *= GasConstant;
     }
     // Use the stoichiometric manager to find deltaS for each reaction.
     getReactionDelta(&m_grt[0], deltaS);

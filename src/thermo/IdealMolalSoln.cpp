@@ -342,12 +342,11 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
      * get the solvent mole fraction
      */
     double xmolSolvent = moleFraction(m_indexSolvent);
-    doublereal RT = GasConstant * temperature();
 
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
         for (size_t k = 1; k < m_kk; k++) {
             double xx = std::max(m_molalities[k], SmallNumber);
-            mu[k] += RT * log(xx);
+            mu[k] += RT() * log(xx);
         }
         /*
          * Do the solvent
@@ -355,7 +354,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
          */
         double xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
-            (RT * (xmolSolvent - 1.0) / xx);
+            (RT() * (xmolSolvent - 1.0) / xx);
     } else {
         /*
          * Update the activity coefficients
@@ -365,20 +364,19 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 
         for (size_t k = 1; k < m_kk; k++) {
             double xx = std::max(m_molalities[k], SmallNumber);
-            mu[k] += RT * (log(xx) + IMS_lnActCoeffMolal_[k]);
+            mu[k] += RT() * (log(xx) + IMS_lnActCoeffMolal_[k]);
         }
         double xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
-            RT * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
+            RT() * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
     }
 }
 
 void IdealMolalSoln::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
-    doublereal RT = _RT();
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] *= RT;
+        hbar[k] *= RT();
     }
 }
 

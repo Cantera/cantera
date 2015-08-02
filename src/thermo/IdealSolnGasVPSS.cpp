@@ -207,19 +207,17 @@ void IdealSolnGasVPSS::getActivityCoefficients(doublereal* ac) const
 void IdealSolnGasVPSS::getChemPotentials_RT(doublereal* muRT) const
 {
     getChemPotentials(muRT);
-    doublereal invRT = 1.0 / _RT();
     for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= invRT;
+        muRT[k] *= 1.0 / RT();
     }
 }
 
 void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
-    doublereal rt = temperature() * GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] += rt*(log(xx));
+        mu[k] += RT() * log(xx);
     }
 }
 

@@ -219,7 +219,7 @@ void PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
 
 void PureFluidPhase::getEnthalpy_RT(doublereal* hrt) const
 {
-    hrt[0] = enthalpy_mole() / _RT();
+    hrt[0] = enthalpy_mole() / RT();
 }
 
 void PureFluidPhase::getEntropy_R(doublereal* sr) const
@@ -229,7 +229,7 @@ void PureFluidPhase::getEntropy_R(doublereal* sr) const
 
 void PureFluidPhase::getGibbs_RT(doublereal* grt) const
 {
-    grt[0] = gibbs_mole() / _RT();
+    grt[0] = gibbs_mole() / RT();
 }
 
 void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const

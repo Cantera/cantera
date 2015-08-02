@@ -126,9 +126,8 @@ doublereal SurfPhase::cv_mole() const
 void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
-    doublereal rt = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] *= rt;
+        hbar[k] *= RT();
     }
 }
 

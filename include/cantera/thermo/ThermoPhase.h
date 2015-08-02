@@ -12,6 +12,7 @@
 
 #include "Phase.h"
 #include "SpeciesThermo.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -865,9 +866,20 @@ public:
 
     //! Return the Gas Constant multiplied by the current temperature
     /*!
-     *  The units are Joules kmol-1
+     *  The units are Joules kmol-1.
+     *  @deprecated use RT() instead. To be removed after Cantera 2.3.
      */
     doublereal _RT() const {
+        warn_deprecated("ThermoPhase::_RT()",
+                        "use RT() instead. To be removed after Cantera 2.3.");
+        return temperature() * GasConstant;
+    }
+
+    //! Return the Gas Constant multiplied by the current temperature
+    /*!
+     *  The units are Joules kmol-1
+     */
+    doublereal RT() const {
         return temperature() * GasConstant;
     }
 

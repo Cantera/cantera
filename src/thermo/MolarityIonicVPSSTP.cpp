@@ -120,10 +120,9 @@ void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
      * Update the activity coefficients
      */
     s_update_lnActCoeff();
-    doublereal RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(moleFractions_[k], SmallNumber);
-        mu[k] += RT * (log(xx) + lnActCoeff_Scaled_[k]);
+        mu[k] += RT() * (log(xx) + lnActCoeff_Scaled_[k]);
     }
 }
 

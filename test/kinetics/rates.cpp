@@ -137,7 +137,7 @@ TEST_F(FracCoeffTest, EquilibriumConstants)
     double deltaG0_1 = mu0[kH2O] - 0.7 * mu0[kH2] - 0.6 * mu0[kOH] - 0.2 * mu0[kO2];
 
     double pRef = therm.refPressure();
-    double RT = GasConstant * therm.temperature();
+    double RT = therm.RT();
 
     // Net stoichiometric coefficients are 1.2 and -0.5
     EXPECT_NEAR(exp(-deltaG0_0/RT) * pow(pRef/RT, 1.2), Kc[0], 1e-13 * Kc[0]);

@@ -292,11 +292,10 @@ void IdealSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 void IdealSolidSolnPhase::getChemPotentials(doublereal* mu) const
 {
     doublereal delta_p = m_Pcurrent - m_Pref;
-    doublereal RT = temperature() * GasConstant;
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] = RT * (g_RT[k] + log(xx))
+        mu[k] = RT() * (g_RT[k] + log(xx))
                 + delta_p * m_speciesMolarVolume[k];
     }
 }
@@ -351,20 +350,18 @@ void IdealSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 void IdealSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal RT = _RT();
     const doublereal* const gk = DATA_PTR(gibbsrt);
     doublereal delta_p = (m_Pcurrent - m_Pref);
     for (size_t k = 0; k < m_kk; k++) {
-        gpure[k] = RT * gk[k] + delta_p * m_speciesMolarVolume[k];
+        gpure[k] = RT() * gk[k] + delta_p * m_speciesMolarVolume[k];
     }
 }
 
 void IdealSolidSolnPhase::getGibbs_RT(doublereal* grt) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal RT = _RT();
     const doublereal* const gk = DATA_PTR(gibbsrt);
-    doublereal delta_prt = (m_Pcurrent - m_Pref)/ RT;
+    doublereal delta_prt = (m_Pcurrent - m_Pref)/ RT();
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] = gk[k] + delta_prt * m_speciesMolarVolume[k];
     }
@@ -373,8 +370,7 @@ void IdealSolidSolnPhase::getGibbs_RT(doublereal* grt) const
 void IdealSolidSolnPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal delta_prt = ((m_Pcurrent - m_Pref) /
-                            (GasConstant * temperature()));
+    doublereal delta_prt = (m_Pcurrent - m_Pref) / RT();
     for (size_t k = 0; k < m_kk; k++) {
         hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
     }

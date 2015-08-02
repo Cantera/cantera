@@ -362,17 +362,16 @@ void DebyeHuckel::getChemPotentials(doublereal* mu) const
      * This also updates the internal molality array.
      */
     s_update_lnMolalityActCoeff();
-    doublereal RT = GasConstant * temperature();
     double xmolSolvent = moleFraction(m_indexSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         if (m_indexSolvent != k) {
             xx = std::max(m_molalities[k], SmallNumber);
-            mu[k] += RT * (log(xx) + m_lnActCoeffMolal[k]);
+            mu[k] += RT() * (log(xx) + m_lnActCoeffMolal[k]);
         }
     }
     xx = std::max(xmolSolvent, SmallNumber);
     mu[m_indexSolvent] +=
-        RT * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
+        RT() * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
 }
 
 void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
@@ -384,10 +383,8 @@ void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
     /*
      * Dimensionalize it.
      */
-    double T = temperature();
-    double RT = GasConstant * T;
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] *= RT;
+        hbar[k] *= RT();
     }
     /*
      * Check to see whether activity coefficients are temperature
@@ -402,9 +399,8 @@ void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
          */
         s_update_lnMolalityActCoeff();
         s_update_dlnMolalityActCoeff_dT();
-        double RTT = GasConstant * T * T;
         for (size_t k = 0; k < m_kk; k++) {
-            hbar[k] -= RTT * m_dlnActCoeffMolaldT[k];
+            hbar[k] -= RT() * temperature() * m_dlnActCoeffMolaldT[k];
         }
     }
 }
@@ -419,9 +415,8 @@ void DebyeHuckel::getPartialMolarEntropies(doublereal* sbar) const
     /*
      * Dimensionalize the entropies
      */
-    doublereal R = GasConstant;
     for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] *= R;
+        sbar[k] *= GasConstant;
     }
     /*
      * Update the activity coefficients, This also update the
@@ -436,12 +431,12 @@ void DebyeHuckel::getPartialMolarEntropies(doublereal* sbar) const
     for (size_t k = 0; k < m_kk; k++) {
         if (k != m_indexSolvent) {
             mm = std::max(SmallNumber, m_molalities[k]);
-            sbar[k] -= R * (log(mm) + m_lnActCoeffMolal[k]);
+            sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal[k]);
         }
     }
     double xmolSolvent = moleFraction(m_indexSolvent);
     mm = std::max(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -= R *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
+    sbar[m_indexSolvent] -= GasConstant *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
     /*
      * Check to see whether activity coefficients are temperature
      * dependent. If they are, then calculate the their temperature
@@ -450,9 +445,8 @@ void DebyeHuckel::getPartialMolarEntropies(doublereal* sbar) const
     double dAdT = dA_DebyedT_TP();
     if (dAdT != 0.0) {
         s_update_dlnMolalityActCoeff_dT();
-        double RT = R * temperature();
         for (size_t k = 0; k < m_kk; k++) {
-            sbar[k] -= RT * m_dlnActCoeffMolaldT[k];
+            sbar[k] -= RT() * m_dlnActCoeffMolaldT[k];
         }
     }
 }
@@ -465,10 +459,8 @@ void DebyeHuckel::getPartialMolarVolumes(doublereal* vbar) const
      */
     s_update_lnMolalityActCoeff();
     s_update_dlnMolalityActCoeff_dP();
-    double T = temperature();
-    double RT = GasConstant * T;
     for (size_t k = 0; k < m_kk; k++) {
-        vbar[k] += RT * m_dlnActCoeffMolaldP[k];
+        vbar[k] += RT() * m_dlnActCoeffMolaldP[k];
     }
 }
 
@@ -498,12 +490,9 @@ void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
         s_update_lnMolalityActCoeff();
         s_update_dlnMolalityActCoeff_dT();
         s_update_d2lnMolalityActCoeff_dT2();
-        double T = temperature();
-        double RT = GasConstant * T;
-        double RTT = RT * T;
         for (size_t k = 0; k < m_kk; k++) {
-            cpbar[k] -= (2.0 * RT * m_dlnActCoeffMolaldT[k] +
-                         RTT * m_d2lnActCoeffMolaldT2[k]);
+            cpbar[k] -= (2.0 * RT() * m_dlnActCoeffMolaldT[k] +
+                         RT() * temperature() * m_d2lnActCoeffMolaldT2[k]);
         }
     }
 }

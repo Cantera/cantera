@@ -151,11 +151,10 @@ doublereal LatticePhase::logStandardConc(size_t k) const
 void LatticePhase::getChemPotentials(doublereal* mu) const
 {
     doublereal delta_p = m_Pcurrent - m_Pref;
-    doublereal RT = temperature() * GasConstant;
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] = RT * (g_RT[k] + log(xx))
+        mu[k] = RT() * (g_RT[k] + log(xx))
                 + delta_p * m_speciesMolarVolume[k];
     }
 }
@@ -191,23 +190,22 @@ void LatticePhase::getPartialMolarVolumes(doublereal* vbar) const
 void LatticePhase::getStandardChemPotentials(doublereal* mu0) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), mu0, _RT());
+    scale(gibbsrt.begin(), gibbsrt.end(), mu0, RT());
 }
 
 void LatticePhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     doublereal delta_p = (m_Pcurrent - m_Pref);
-    double RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        gpure[k] = RT * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
+        gpure[k] = RT() * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
 }
 
 void LatticePhase::getEnthalpy_RT(doublereal* hrt) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal delta_prt = ((m_Pcurrent - m_Pref) / (GasConstant * temperature()));
+    doublereal delta_prt = (m_Pcurrent - m_Pref) / RT();
     for (size_t k = 0; k < m_kk; k++) {
         hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
     }
@@ -222,7 +220,7 @@ void LatticePhase::getEntropy_R(doublereal* sr) const
 void LatticePhase::getGibbs_RT(doublereal* grt) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal delta_prt = (m_Pcurrent - m_Pref) / _RT();
+    doublereal delta_prt = (m_Pcurrent - m_Pref) / RT();
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] = gibbsrt[k] + delta_prt * m_speciesMolarVolume[k];
     }

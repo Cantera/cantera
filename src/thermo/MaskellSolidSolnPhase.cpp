@@ -166,21 +166,19 @@ void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
     const doublereal r = moleFraction(product_species_index);
     const doublereal pval = p(r);
     const doublereal rfm = r * fm(r);
-    const doublereal RT = GasConstant * temperature();
     const doublereal DgbarDr = pval * h_mixing +
                                GasConstant * temperature() *
                                std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r) /
                                (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
-    mu[product_species_index] = RT * m_g0_RT[product_species_index] + DgbarDr;
-    mu[reactant_species_index] = RT * m_g0_RT[reactant_species_index] - DgbarDr;
+    mu[product_species_index] = RT() * m_g0_RT[product_species_index] + DgbarDr;
+    mu[reactant_species_index] = RT() * m_g0_RT[reactant_species_index] - DgbarDr;
 }
 
 void MaskellSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
-    const doublereal invRT = 1.0 / (GasConstant * temperature());
     getChemPotentials(mu);
     for (size_t sp=0; sp < m_kk; ++sp) {
-        mu[sp] *= invRT;
+        mu[sp] *= 1.0 / RT();
     }
 }
 

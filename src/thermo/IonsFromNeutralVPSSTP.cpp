@@ -377,10 +377,8 @@ void IonsFromNeutralVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     /*
      * dimensionalize it.
      */
-    double T = temperature();
-    double RT = GasConstant * T;
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] *= RT;
+        hbar[k] *= RT();
     }
     /*
      * Update the activity coefficients, This also update the
@@ -388,9 +386,8 @@ void IonsFromNeutralVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
      */
     s_update_lnActCoeff();
     s_update_dlnActCoeffdT();
-    double RTT = RT * T;
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] -= RTT * dlnActCoeffdT_Scaled_[k];
+        hbar[k] -= RT() * temperature() * dlnActCoeffdT_Scaled_[k];
     }
 }
 
@@ -400,7 +397,6 @@ void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
      * Get the nondimensional standard state entropies
      */
     getEntropy_R(sbar);
-    double T = temperature();
     /*
      * Update the activity coefficients, This also update the
      * internally stored molalities.
@@ -410,7 +406,7 @@ void IonsFromNeutralVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(moleFractions_[k], SmallNumber);
-        sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
+        sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - temperature() * dlnActCoeffdT_Scaled_[k];
     }
     /*
      * dimensionalize it.

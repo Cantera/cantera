@@ -195,8 +195,7 @@ void MetalSHEelectrons::getIntEnergy_RT(doublereal* urt) const
 void MetalSHEelectrons::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    doublereal RT = GasConstant * temperature();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
 /*
