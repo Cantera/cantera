@@ -29,7 +29,7 @@ namespace Cantera
 void VCS_SOLVE::checkDelta1(double* const dsLocal,
                             double* const delTPhMoles, size_t kspec)
 {
-    std::vector<double> dchange(m_numPhases, 0.0);
+    vector_fp dchange(m_numPhases, 0.0);
     for (size_t k = 0; k < kspec; k++) {
         if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             size_t iph = m_phaseID[k];
@@ -3568,7 +3568,7 @@ void VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 #ifdef DEBUG_MODE
 void VCS_SOLVE::prneav() const
 {
-    std::vector<double> eav(m_numElemConstraints, 0.0);
+    vector_fp eav(m_numElemConstraints, 0.0);
 
     for (size_t j = 0; j < m_numElemConstraints; ++j) {
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {

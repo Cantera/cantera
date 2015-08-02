@@ -343,7 +343,7 @@ private:
 
 public:
     //! Return a const reference to the mole fractions stored in the object.
-    const std::vector<double> & moleFractions() const;
+    const vector_fp & moleFractions() const;
 
     double moleFraction(size_t klocal) const;
 
@@ -357,7 +357,7 @@ public:
     /*!
      * @return  Returns a const reference to the vector of creationMoleNumbers
      */
-    const std::vector<double> & creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const;
+    const vector_fp & creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const;
 
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
@@ -648,7 +648,7 @@ private:
 
     //! boolean indicating whether an element constraint is active
     //! for the current  problem
-    std::vector<int> m_elementActive;
+    vector_int m_elementActive;
 
     //! Type of the element constraint
     /*!
@@ -661,7 +661,7 @@ private:
      *   a species has neg 0 or pos value of that constraint (other than
      *   charge)
      */
-    std::vector<int> m_elementType;
+    vector_int m_elementType;
 
     //! Formula Matrix for the phase
     /*!
@@ -678,7 +678,7 @@ private:
      *  - metal electron -> VCS_SPECIES_INTERFACIALVOLTAGE.
      *    (unknown is the interfacial voltage (volts))
      */
-    std::vector<int> m_speciesUnknownType;
+    vector_int m_speciesUnknownType;
 
     //!  Index of the element number in the global list of elements
     //!  stored in VCS_PROB or VCS_SOLVE
@@ -750,13 +750,13 @@ private:
     double v_totalMoles;
 
     //! Vector of the current mole fractions for species in the phase
-    std::vector<double> Xmol_;
+    vector_fp Xmol_;
 
     //! Vector of current creationMoleNumbers_
     /*!
      *  These are the actual unknowns in the phase stability problem
      */
-    std::vector<double> creationMoleNumbers_;
+    vector_fp creationMoleNumbers_;
 
     //! Vector of creation global reaction numbers for the phase stability problem
     /*!
@@ -791,7 +791,7 @@ private:
      *
      * Units -> depends on VCS_UnitsFormat variable. Cantera -> J/kmol
      */
-    mutable std::vector<double> SS0ChemicalPotential;
+    mutable vector_fp SS0ChemicalPotential;
 
     //! Vector of calculated Star chemical potentials for the
     //! current Temperature and pressure.
@@ -801,20 +801,20 @@ private:
      *
      * Units -> depends on VCS_UnitsFormat variable. Cantera -> J/kmol.
      */
-    mutable std::vector<double> StarChemicalPotential;
+    mutable vector_fp StarChemicalPotential;
 
     //! Vector of the Star molar Volumes of the species. units  m3 / kmol
-    mutable std::vector<double> StarMolarVol;
+    mutable vector_fp StarMolarVol;
 
     //! Vector of the Partial molar Volumes of the species. units  m3 / kmol
-    mutable std::vector<double> PartialMolarVol;
+    mutable vector_fp PartialMolarVol;
 
     //! Vector of calculated activity coefficients for the current state
     /*!
      *  Whether or not this vector is current is determined by
      *  the bool #m_UpToDate_AC.
      */
-    mutable std::vector<double> ActCoeff;
+    mutable vector_fp ActCoeff;
 
     //! Vector of the derivatives of the ln activity coefficient wrt to the
     //! current mole number multiplied by the current phase moles

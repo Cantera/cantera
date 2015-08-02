@@ -347,10 +347,10 @@ int VCS_SOLVE::vcs_inest_TP()
      *        sa[ne]
      *        aw[m]
      */
-    std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
-    std::vector<double> ss(m_numElemConstraints, 0.0);
-    std::vector<double> sa(m_numElemConstraints, 0.0);
-    std::vector<double> aw(m_numSpeciesTot+ m_numElemConstraints, 0.0);
+    vector_fp sm(m_numElemConstraints*m_numElemConstraints, 0.0);
+    vector_fp ss(m_numElemConstraints, 0.0);
+    vector_fp sa(m_numElemConstraints, 0.0);
+    vector_fp aw(m_numSpeciesTot+ m_numElemConstraints, 0.0);
     /*
      *  Go get the estimate of the solution
      */

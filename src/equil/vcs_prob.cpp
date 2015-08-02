@@ -355,12 +355,12 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
         throw CanteraError("VCS_PROB::reportCSV", "Failure to open file");
     }
 
-    std::vector<double> volPM(nspecies, 0.0);
-    std::vector<double> activity(nspecies, 0.0);
-    std::vector<double> ac(nspecies, 0.0);
-    std::vector<double> mu(nspecies, 0.0);
-    std::vector<double> mu0(nspecies, 0.0);
-    std::vector<double> molalities(nspecies, 0.0);
+    vector_fp volPM(nspecies, 0.0);
+    vector_fp activity(nspecies, 0.0);
+    vector_fp ac(nspecies, 0.0);
+    vector_fp mu(nspecies, 0.0);
+    vector_fp mu0(nspecies, 0.0);
+    vector_fp molalities(nspecies, 0.0);
     double vol = 0.0;
     size_t iK = 0;
     for (size_t iphase = 0; iphase < NPhase; iphase++) {

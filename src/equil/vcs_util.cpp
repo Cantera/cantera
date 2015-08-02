@@ -20,14 +20,14 @@ using namespace std;
 namespace Cantera
 {
 
-double vcs_l2norm(const std::vector<double> vec)
+double vcs_l2norm(const vector_fp vec)
 {
     size_t len = vec.size();
     if (len == 0) {
         return 0.0;
     }
     double sum = 0.0;
-    std::vector<double>::const_iterator pos;
+    vector_fp::const_iterator pos;
     for (pos = vec.begin(); pos != vec.end(); ++pos) {
         sum += (*pos) * (*pos);
     }

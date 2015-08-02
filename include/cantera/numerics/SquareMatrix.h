@@ -123,7 +123,7 @@ public:
     vector_fp work;
 
     //! Integer work vector for QR algorithms
-    std::vector<int> iwork_;
+    vector_int iwork_;
 protected:
     //! 1-norm of the matrix. This is determined immediately before every factorization
     doublereal a1norm_;

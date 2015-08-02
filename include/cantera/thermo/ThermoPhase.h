@@ -1694,7 +1694,7 @@ protected:
      *  The algorithm will pick up the mole fraction vector that is applied from
      *  the state XML file in the input file
      */
-    std::vector<doublereal> xMol_Ref;
+    vector_fp xMol_Ref;
 
     //! last value of the temperature processed by reference state
     mutable doublereal m_tlast;

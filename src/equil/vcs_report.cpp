@@ -17,7 +17,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     size_t nspecies = m_numSpeciesTot;
     char originalUnitsState = m_unitsState;
     std::vector<size_t> sortindex(nspecies,0);
-    std::vector<double> xy(nspecies,0.0);
+    vector_fp xy(nspecies,0.0);
 
     /* ************************************************************** */
     /* **** SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES ***** */
@@ -189,8 +189,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     /*
      * ------------------ TABLE OF PHASE INFORMATION ---------------------
      */
-    std::vector<double> gaPhase(m_numElemConstraints, 0.0);
-    std::vector<double> gaTPhase(m_numElemConstraints, 0.0);
+    vector_fp gaPhase(m_numElemConstraints, 0.0);
+    vector_fp gaTPhase(m_numElemConstraints, 0.0);
     double totalMoles = 0.0;
     double gibbsPhase = 0.0;
     double gibbsTotal = 0.0;

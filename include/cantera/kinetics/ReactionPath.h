@@ -320,7 +320,7 @@ protected:
     std::vector<std::vector<size_t> > m_reac;
     std::vector<std::vector<size_t> > m_prod;
     DenseMatrix m_elatoms;
-    std::vector<std::vector<int> > m_groups;
+    std::vector<vector_int> m_groups;
     std::vector<Group> m_sgroup;
     std::vector<std::string> m_elementSymbols;
     std::map<size_t, std::map<size_t, std::map<size_t, Group> > > m_transfer;

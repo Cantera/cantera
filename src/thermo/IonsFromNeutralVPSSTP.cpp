@@ -755,10 +755,10 @@ void IonsFromNeutralVPSSTP::initLengths()
  *     @param nElementsI
  */
 static double factorOverlap(const std::vector<std::string>& elnamesVN ,
-                            const std::vector<double>& elemVectorN,
+                            const vector_fp& elemVectorN,
                             const size_t nElementsN,
                             const std::vector<std::string>& elnamesVI ,
-                            const std::vector<double>& elemVectorI,
+                            const vector_fp& elemVectorI,
                             const size_t nElementsI)
 {
     double fMax = 1.0E100;
@@ -862,14 +862,14 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
 
     size_t nElementsN = neutralMoleculePhase_->nElements();
     const std::vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
-    std::vector<double> elemVectorN(nElementsN);
-    std::vector<double> elemVectorN_orig(nElementsN);
+    vector_fp elemVectorN(nElementsN);
+    vector_fp elemVectorN_orig(nElementsN);
 
     size_t nElementsI = nElements();
     const std::vector<std::string>& elnamesVI = elementNames();
-    std::vector<double> elemVectorI(nElementsI);
+    vector_fp elemVectorI(nElementsI);
 
-    vector<doublereal> fm_tmp(m_kk);
+    vector_fp fm_tmp(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         fm_invert_ionForNeutral[k] = npos;
     }

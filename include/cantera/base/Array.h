@@ -127,7 +127,7 @@ public:
     /*!
      *  This operation will add a column onto the existing matrix.
      *
-     *  @param c  This vector<doublereal> is the entries in the
+     *  @param c  This vector is the entries in the
      *            column to be added. It must have a length
      *            equal to m_nrows or greater.
      */

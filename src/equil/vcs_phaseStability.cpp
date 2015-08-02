@@ -144,7 +144,7 @@ int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
      *     Cut out components which have a pos stoichiometric value with another species in the phase.
      */
     std::vector< std::vector<size_t> > zeroedPhaseLinkedZeroComponents(m_numPhases);
-    std::vector<int> linkedPhases;
+    vector_int linkedPhases;
     /*
      *   The logic below calculates zeroedPhaseLinkedZeroComponents
      */
@@ -376,8 +376,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
         }
     } else {
-        vector<doublereal> fracDelta(Vphase->nSpecies());
-        vector<doublereal> X_est(Vphase->nSpecies());
+        vector_fp fracDelta(Vphase->nSpecies());
+        vector_fp X_est(Vphase->nSpecies());
         fracDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 
         double sumFrac = 0.0;
@@ -472,15 +472,15 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     // We will do a full Newton calculation later, but for now, ...
     bool doSuccessiveSubstitution = true;
     double funcPhaseStability;
-    vector<doublereal> X_est(nsp, 0.0);
-    vector<doublereal> delFrac(nsp, 0.0);
-    vector<doublereal> E_phi(nsp, 0.0);
-    vector<doublereal> fracDelta_new(nsp, 0.0);
-    vector<doublereal> fracDelta_old(nsp, 0.0);
-    vector<doublereal> fracDelta_raw(nsp, 0.0);
+    vector_fp X_est(nsp, 0.0);
+    vector_fp delFrac(nsp, 0.0);
+    vector_fp E_phi(nsp, 0.0);
+    vector_fp fracDelta_new(nsp, 0.0);
+    vector_fp fracDelta_old(nsp, 0.0);
+    vector_fp fracDelta_raw(nsp, 0.0);
     vector<size_t> creationGlobalRxnNumbers(nsp, npos);
     m_deltaGRxn_Deficient = m_deltaGRxn_old;
-    vector<doublereal> m_feSpecies_Deficient(m_numComponents, 0.0);
+    vector_fp m_feSpecies_Deficient(m_numComponents, 0.0);
     doublereal damp = 1.0;
     doublereal dampOld = 1.0;
     doublereal normUpdate = 1.0;

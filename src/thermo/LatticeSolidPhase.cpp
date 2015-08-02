@@ -335,7 +335,7 @@ void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
     std::vector<XML_Node*> lattices = la.getChildren("phase");
     for (size_t n = 0; n < m_nlattice; n++) {
         LatticePhase* lp = m_lattice[n];
-        vector<doublereal> constArr(lp->nElements());
+        vector_fp constArr(lp->nElements());
         const vector_fp& aws = lp->atomicWeights();
         for (size_t es = 0; es < lp->nElements(); es++) {
             addElement(lp->elementName(es), aws[es], lp->atomicNumber(es),

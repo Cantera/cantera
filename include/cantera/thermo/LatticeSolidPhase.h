@@ -646,7 +646,7 @@ protected:
     mutable vector_fp m_x;
 
     //! Lattice stoichiometric coefficients
-    std::vector<doublereal> theta_;
+    vector_fp theta_;
 
     //! Temporary vector
     mutable vector_fp tmpV_;

@@ -42,10 +42,10 @@ double HighPressureGasTransport::thermalConductivity()
     vector_fp cp_0_R(nsp);
     m_thermo->getCp_R_ref(&cp_0_R[0]);
 
-    std::vector<doublereal> L_i(nsp);
-    std::vector<doublereal> f_i(nsp);
-    std::vector<doublereal> h_i(nsp);
-    std::vector<doublereal> V_k(nsp);
+    vector_fp L_i(nsp);
+    vector_fp f_i(nsp);
+    vector_fp h_i(nsp);
+    vector_fp V_k(nsp);
 
     m_thermo -> getPartialMolarVolumes(&V_k[0]);
     doublereal L_i_min = BigNumber;
@@ -135,7 +135,7 @@ void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
 void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
     doublereal P_corr_ij, Tr_ij, Pr_ij;
-    std::vector<double> PcP(5);
+    vector_fp PcP(5);
     size_t nsp = m_thermo->nSpecies();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);

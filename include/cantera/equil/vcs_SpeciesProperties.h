@@ -2,8 +2,7 @@
 #ifndef VCS_SPECIES_PROPERTIES_H
 #define VCS_SPECIES_PROPERTIES_H
 
-#include <vector>
-#include <string>
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {
@@ -29,7 +28,7 @@ public:
 
     //! Column of the formula matrix, comprising the
     //! element composition of the species */
-    std::vector<double> FormulaMatrixCol;
+    vector_fp FormulaMatrixCol;
 
     double Charge; /* Charge state of the species -> This may
                 be duplication of what's in the

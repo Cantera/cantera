@@ -453,31 +453,31 @@ protected:
      * Note in order to do this, the setState functions are redefined to always
      * keep this vector current.
      */
-    mutable std::vector<doublereal> moleFractions_;
+    mutable vector_fp moleFractions_;
 
     //! Storage for the current values of the activity coefficients of the
     //! species
-    mutable std::vector<doublereal> lnActCoeff_Scaled_;
+    mutable vector_fp lnActCoeff_Scaled_;
 
     //! Storage for the current derivative values of the
     //! gradients with respect to temperature of the
     //! log of the activity coefficients of the species
-    mutable std::vector<doublereal> dlnActCoeffdT_Scaled_;
+    mutable vector_fp dlnActCoeffdT_Scaled_;
 
     //! Storage for the current derivative values of the
     //! gradients with respect to temperature of the
     //! log of the activity coefficients of the species
-    mutable std::vector<doublereal> d2lnActCoeffdT2_Scaled_;
+    mutable vector_fp d2lnActCoeffdT2_Scaled_;
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
     //! log of the activity coefficients of the species
-    mutable std::vector<doublereal> dlnActCoeffdlnN_diag_;
+    mutable vector_fp dlnActCoeffdlnN_diag_;
 
     //! Storage for the current derivative values of the
     //! gradients with respect to logarithm of the mole fraction of the
     //! log of the activity coefficients of the species
-    mutable std::vector<doublereal> dlnActCoeffdlnX_diag_;
+    mutable vector_fp dlnActCoeffdlnX_diag_;
 
     //! Storage for the current derivative values of the gradients with respect to logarithm of the species mole number of the
     //! log of the activity coefficients of the species
@@ -487,7 +487,7 @@ protected:
     mutable Array2D dlnActCoeffdlnN_;
 
     //! Temporary storage space that is fair game
-    mutable std::vector<doublereal> m_pp;
+    mutable vector_fp m_pp;
 };
 
 }

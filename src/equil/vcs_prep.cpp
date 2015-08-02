@@ -17,7 +17,7 @@ namespace Cantera
 {
 void VCS_SOLVE::vcs_SSPhase()
 {
-    std::vector<int> numPhSpecies(m_numPhases, 0);
+    vector_int numPhSpecies(m_numPhases, 0);
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         numPhSpecies[m_phaseID[kspec]]++;
     }
@@ -145,7 +145,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
      *     This call to BASOPT doesn't calculate the stoichiometric
      *     reaction matrix.
      */
-    std::vector<double> awSpace(m_numSpeciesTot + (m_numElemConstraints + 2)*(m_numElemConstraints), 0.0);
+    vector_fp awSpace(m_numSpeciesTot + (m_numElemConstraints + 2)*(m_numElemConstraints), 0.0);
     double* aw = &awSpace[0];
     if (aw == NULL) {
         plogf("vcs_prep_oneTime: failed to get memory: global bailout\n");

@@ -211,7 +211,7 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
  */
 static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                                    std::vector<std::string> &spNamesList,
-                                   std::vector<int> &spRuleList,
+                                   vector_int &spRuleList,
                                    const std::vector<XML_Node*> spArray_names,
                                    const std::vector<XML_Node*> spArray_dbases,
                                    const vector_int sprule)
@@ -437,7 +437,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     // The logic is complicated enough that we put it in a separate routine.
     std::vector<XML_Node*> spDataNodeList;
     std::vector<std::string> spNamesList;
-    std::vector<int> spRuleList;
+    vector_int spRuleList;
     formSpeciesXMLNodeList(spDataNodeList, spNamesList, spRuleList,
                            sparrays, dbases, sprule);
 

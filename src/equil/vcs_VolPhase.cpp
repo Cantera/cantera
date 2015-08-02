@@ -359,7 +359,7 @@ void vcs_VolPhase::_updateMoleFractionDependencies()
     }
 }
 
-const std::vector<double> & vcs_VolPhase::moleFractions() const
+const vector_fp & vcs_VolPhase::moleFractions() const
 {
     return Xmol_;
 }
@@ -670,8 +670,8 @@ void vcs_VolPhase::_updateLnActCoeffJac()
 
     double deltaMoles_j = 0.0;
     // Make copies of ActCoeff and Xmol_ for use in taking differences
-    std::vector<double> ActCoeff_Base(ActCoeff);
-    std::vector<double> Xmol_Base(Xmol_);
+    vector_fp ActCoeff_Base(ActCoeff);
+    vector_fp Xmol_Base(Xmol_);
     double TMoles_base = phaseTotalMoles;
 
     /*
@@ -809,7 +809,7 @@ void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
     }
 }
 
-const std::vector<double> & vcs_VolPhase::creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const
+const vector_fp& vcs_VolPhase::creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const
 {
     creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
     return creationMoleNumbers_;

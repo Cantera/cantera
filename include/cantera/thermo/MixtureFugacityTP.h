@@ -797,7 +797,7 @@ protected:
     /*!
      * This vector is kept up-to-date when some the setState functions are called.
      */
-    std::vector<doublereal> moleFractions_;
+    vector_fp moleFractions_;
 
     //! Current state of the fluid
     /*!

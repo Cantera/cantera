@@ -837,14 +837,14 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     /*
      * Evaluate the current base activity coefficients if necessary
      */
-    std::vector<double> ActCoeff_Base(m_kk);
+    vector_fp ActCoeff_Base(m_kk);
     getActivityCoefficients(DATA_PTR(ActCoeff_Base));
-    std::vector<double> Xmol_Base(m_kk);
+    vector_fp Xmol_Base(m_kk);
     getMoleFractions(DATA_PTR(Xmol_Base));
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
-    std::vector<double> ActCoeff(m_kk);
-    std::vector<double> Xmol(m_kk);
+    vector_fp ActCoeff(m_kk);
+    vector_fp Xmol(m_kk);
     double v_totalMoles = 1.0;
     double TMoles_base = v_totalMoles;
 

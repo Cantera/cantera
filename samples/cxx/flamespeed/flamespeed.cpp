@@ -198,7 +198,7 @@ int flamespeed(double phi)
              flame.value(flowdomain,flow.componentIndex("u"),0) << " m/s" << endl;
 
         int np=flow.nPoints();
-        std::vector<doublereal> zvec,Tvec,COvec,CO2vec,Uvec;
+        vector_fp zvec,Tvec,COvec,CO2vec,Uvec;
 
         printf("\n%9s\t%8s\t%5s\t%7s\n","z (m)", "T (K)", "U (m/s)", "Y(CO)");
         for (int n=0; n<np; n++) {

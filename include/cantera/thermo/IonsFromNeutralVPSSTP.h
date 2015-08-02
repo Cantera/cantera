@@ -636,7 +636,7 @@ protected:
      *  This is the number of ions of type i in the neutral
      *  molecule jNeut.
      */
-    std::vector<double> fm_neutralMolec_ions_;
+    vector_fp fm_neutralMolec_ions_;
 
     //! Mapping between ion species and neutral molecule for quick invert.
     /*!
@@ -667,7 +667,7 @@ protected:
     std::vector<size_t> fm_invert_ionForNeutral;
 
     //! Mole fractions using the Neutral Molecule Mole fraction basis
-    mutable std::vector<doublereal> NeutralMolecMoleFractions_;
+    mutable vector_fp NeutralMolecMoleFractions_;
 
     //! List of the species in this ThermoPhase which are cation species
     std::vector<size_t> cationList_;
@@ -705,7 +705,7 @@ private:
     bool IOwnNThermoPhase_;
 
     //! Temporary mole fraction vector
-    mutable std::vector<doublereal> moleFractionsTmp_;
+    mutable vector_fp moleFractionsTmp_;
 
     //! Storage vector for the neutral molecule chemical potentials
     /*!
@@ -715,7 +715,7 @@ private:
      *  - Units = Joules/kmol
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable std::vector<doublereal> muNeutralMolecule_;
+    mutable vector_fp muNeutralMolecule_;
 
     //! Storage vector for the neutral molecule ln activity coefficients
     /*!
@@ -725,7 +725,7 @@ private:
      *  - Units = none
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable std::vector<doublereal> lnActCoeff_NeutralMolecule_;
+    mutable vector_fp lnActCoeff_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dT
     /*!
@@ -734,7 +734,7 @@ private:
      *  - Units =  1/Kelvin
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable std::vector<doublereal> dlnActCoeffdT_NeutralMolecule_;
+    mutable vector_fp dlnActCoeffdT_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dX - diagonal component
     /*!
@@ -743,7 +743,7 @@ private:
      *  - Units =  none
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable std::vector<doublereal> dlnActCoeffdlnX_diag_NeutralMolecule_;
+    mutable vector_fp dlnActCoeffdlnX_diag_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dlnN - diagonal component
     /*!
@@ -752,7 +752,7 @@ private:
      *  - Units =  none
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable std::vector<doublereal> dlnActCoeffdlnN_diag_NeutralMolecule_;
+    mutable vector_fp dlnActCoeffdlnN_diag_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dlnN
     /*!

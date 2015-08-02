@@ -335,7 +335,7 @@ protected:
     //! index of special species
     size_t indexSpecialSpecies_;
 
-    mutable std::vector<doublereal> PBMoleFractions_;
+    mutable vector_fp PBMoleFractions_;
 
     //! Vector of cation indices in the mixture
     std::vector<size_t> cationList_;
@@ -345,7 +345,7 @@ protected:
     std::vector<size_t> passThroughList_;
     size_t neutralPBindexStart;
 
-    mutable std::vector<doublereal> moleFractionsTmp_;
+    mutable vector_fp moleFractionsTmp_;
 };
 
 #define PBTYPE_PASSTHROUGH 0

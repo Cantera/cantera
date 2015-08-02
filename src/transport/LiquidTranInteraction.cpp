@@ -560,8 +560,8 @@ void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* spe
     ions_thermo->getAnionList(anion);
 
     // Reaction Coeffs and Charges
-    std::vector<double> viS(6);
-    std::vector<double> charges(3);
+    vector_fp viS(6);
+    vector_fp charges(3);
     std::vector<size_t> neutMolIndex(3);
     ions_thermo->getDissociationCoeffs(viS,charges,neutMolIndex);
 

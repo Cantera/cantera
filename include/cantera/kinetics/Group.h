@@ -23,7 +23,7 @@ public:
     Group(size_t n) : m_sign(0) {
         m_comp.resize(n,0);
     }
-    Group(const std::vector<int>& elnumbers) :
+    Group(const vector_int& elnumbers) :
         m_comp(elnumbers), m_sign(0) {
         validate();
     }
@@ -130,7 +130,7 @@ public:
                                     const Group& g);
 
 private:
-    std::vector<int> m_comp;
+    vector_int m_comp;
     int m_sign;
 };
 

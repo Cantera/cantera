@@ -54,7 +54,7 @@ public:
      *  This is a calculated output quantity. length = number of species.
      *  units =  m_VCS_UnitsFormat
      */
-    std::vector<double> m_gibbsSpecies;
+    vector_fp m_gibbsSpecies;
 
     //!  Total number of moles of the kth species.
     /*!
@@ -67,21 +67,21 @@ public:
      *
      *  units = m_VCS_UnitsFormat
      */
-    std::vector<double> w;
+    vector_fp w;
 
     //! Mole fraction vector
     /*!
      *  This is a calculated vector, calculated from w[].
      *  length number of species.
      */
-    std::vector<double> mf;
+    vector_fp mf;
 
     //!  Element abundances for jth element
     /*!
      *  This is input from the input file and is considered a constant from
      *  thereon within the vcs_solve_TP(). units = m_VCS_UnitsFormat
      */
-    std::vector<double> gai;
+    vector_fp gai;
 
     //!  Formula Matrix for the problem
     /*!
@@ -100,7 +100,7 @@ public:
      *   interfacial current, which is set to zero in this initial treatment.
      *   Later we may have non-zero interfacial currents.
      */
-    std::vector<int> SpeciesUnknownType;
+    vector_int SpeciesUnknownType;
 
     //! Temperature (Kelvin)
     /*!
@@ -127,7 +127,7 @@ public:
      * This is a calculated vector, calculated from w[].
      *  length number of species.
      */
-    std::vector<double> VolPM;
+    vector_fp VolPM;
 
     //! Units for the chemical potential data, pressure data, volume,
     //! and species amounts
@@ -171,23 +171,23 @@ public:
     std::vector<std::string> ElName;
 
     //! vector of Element types
-    std::vector<int> m_elType;
+    vector_int m_elType;
 
     //! Specifies whether an element constraint is active
     /*!
      * The default is true
      * Length = nelements
      */
-    std::vector<int> ElActive;
+    vector_int ElActive;
 
     //! Molecular weight of species
     /*!
      * WtSpecies[k] = molecular weight of species in gm/mol
      */
-    std::vector<double> WtSpecies;
+    vector_fp WtSpecies;
 
     //! Charge of each species
-    std::vector<double> Charge;
+    vector_fp Charge;
 
     //! Array of phase structures
     std::vector<vcs_VolPhase*> VPhaseList;

@@ -22,7 +22,7 @@ public:
     }
 
     void set_r(const double r) {
-        std::vector<double> moleFracs(2);
+        vector_fp moleFracs(2);
         moleFracs[0] = r;
         moleFracs[1] = 1-r;
         test_phase->setMoleFractions(&moleFracs[0]);
@@ -30,7 +30,7 @@ public:
 
     void check_chemPotentials(const double expected_result[9])
     {
-        std::vector<double> chemPotentials(2);
+        vector_fp chemPotentials(2);
         for(int i=0; i < 9; ++i)
         {
             const double r = 0.1 * (i+1);
@@ -83,7 +83,7 @@ TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
     initializeTestPhaseWithXML(valid_file);
     ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
 
-    std::vector<double> pmv(2);
+    vector_fp pmv(2);
     test_phase->getPartialMolarVolumes(&pmv[0]);
     EXPECT_EQ(0.005, pmv[0]);
     EXPECT_EQ(0.01, pmv[1]);
@@ -101,9 +101,9 @@ TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
 
     // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
     const double RT = GasConstant * 298.;
-    std::vector<double> mu0(2);
-    std::vector<double> activityCoeffs(2);
-    std::vector<double> chemPotentials(2);
+    vector_fp mu0(2);
+    vector_fp activityCoeffs(2);
+    vector_fp chemPotentials(2);
     for(int i=0; i < 9; ++i)
     {
         const double r = 0.1 * (i+1);
@@ -133,9 +133,9 @@ TEST_F(MaskellSolidSolnPhase_Test, activityConcentrations)
     ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
 
     // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
-    std::vector<double> standardConcs(2);
-    std::vector<double> activityCoeffs(2);
-    std::vector<double> activityConcentrations(2);
+    vector_fp standardConcs(2);
+    vector_fp activityCoeffs(2);
+    vector_fp activityConcentrations(2);
     for(int i=0; i < 9; ++i)
     {
         const double r = 0.1 * (i+1);

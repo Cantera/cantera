@@ -48,7 +48,7 @@ protected:
     }
 
     NasaPoly1 poly;
-    std::vector<double> tpow_;
+    vector_fp tpow_;
 };
 
 TEST_F(NasaPoly1Test, Initialization)

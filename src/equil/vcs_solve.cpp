@@ -891,7 +891,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         pubPhase->setMoleFractionsState(vPhase->totalMoles(),
                                         &vPhase->moleFractions()[0],
                                         VCS_STATECALC_TMP);
-        const std::vector<double> & mfVector = pubPhase->moleFractions();
+        const vector_fp & mfVector = pubPhase->moleFractions();
         for (size_t k = 0; k < pubPhase->nSpecies(); k++) {
             kT = pubPhase->spGlobalIndexVCS(k);
             pub->mf[kT] = mfVector[k];

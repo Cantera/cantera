@@ -301,7 +301,7 @@ int getInteger(const XML_Node& parent, const std::string& name)
     return x;
 }
 
-size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
+size_t getFloatArray(const XML_Node& node, vector_fp & v,
                      const bool convert, const std::string& unitsString,
                      const std::string& nodeName)
 {

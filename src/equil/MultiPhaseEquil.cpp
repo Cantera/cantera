@@ -709,14 +709,14 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     }
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
-    vector<double> mf(m_nsp_mix, 1.0);
-    vector<double> fe(m_nsp_mix, 0.0);
-    std::vector<double> VolPM;
-    std::vector<double> activity;
-    std::vector<double> ac;
-    std::vector<double> mu;
-    std::vector<double> mu0;
-    std::vector<double> molalities;
+    vector_fp mf(m_nsp_mix, 1.0);
+    vector_fp fe(m_nsp_mix, 0.0);
+    vector_fp VolPM;
+    vector_fp activity;
+    vector_fp ac;
+    vector_fp mu;
+    vector_fp mu0;
+    vector_fp molalities;
 
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {

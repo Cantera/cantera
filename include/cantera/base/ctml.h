@@ -291,7 +291,7 @@ void addString(XML_Node& node, const std::string& titleString,
  *                      The default value for the node name is floatArray
  * @return              Returns the number of floats read into v.
  */
-size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
+size_t getFloatArray(const XML_Node& node, vector_fp & v,
                      const bool convert=true, const std::string& unitsString="",
                      const std::string& nodeName = "floatArray");
 

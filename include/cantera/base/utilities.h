@@ -308,8 +308,8 @@ inline void sum_each(OutputIter x_begin, OutputIter x_end,
  *  Example:
  *
  *  \code
- *  vector<double> x(3), y(20);
- *  vector<int> index(3);
+ *  vector_fp x(3), y(20);
+ *  vector_int index(3);
  *  index[0] = 9;
  *  index[1] = 2;
  *  index[3] = 16;

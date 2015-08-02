@@ -15,8 +15,8 @@ namespace Cantera
 {
 
 static void printProgress(const vector<string> &spName,
-                          const vector<double> &soln,
-                          const vector<double> &ff)
+                          const vector_fp &soln,
+                          const vector_fp &ff)
 {
     double sum = 0.0;
     plogf(" --- Summary of current progress:\n");
@@ -51,11 +51,11 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     int iter = 0;
     bool abundancesOK = true;
     bool usedZeroedSpecies;
-    std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
-    std::vector<double> ss(m_numElemConstraints, 0.0);
-    std::vector<double> sa(m_numElemConstraints, 0.0);
-    std::vector<double> wx(m_numElemConstraints, 0.0);
-    std::vector<double> aw(m_numSpeciesTot, 0.0);
+    vector_fp sm(m_numElemConstraints*m_numElemConstraints, 0.0);
+    vector_fp ss(m_numElemConstraints, 0.0);
+    vector_fp sa(m_numElemConstraints, 0.0);
+    vector_fp wx(m_numElemConstraints, 0.0);
+    vector_fp aw(m_numSpeciesTot, 0.0);
 
     for (ik = 0; ik < m_numSpeciesTot; ik++) {
         if (m_speciesUnknownType[ik] != VCS_SPECIES_INTERFACIALVOLTAGE) {

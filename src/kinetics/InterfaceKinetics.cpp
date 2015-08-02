@@ -1023,7 +1023,7 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
     }
 }
 
-void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, std::vector<doublereal>& fwdFullOrders)
+void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullOrders)
 {
     // Start out with the full ROP orders vector.
     // This vector will have the BV exchange current density orders in it.

@@ -102,7 +102,7 @@ private:
 protected:
     typedef std::pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
     typedef std::map<int, std::vector<index_STIT> > STIT_map;
-    typedef std::map<int, std::vector<double> > tpoly_map;
+    typedef std::map<int, vector_fp> tpoly_map;
     /**
      * This is the main data structure, which contains the
      * SpeciesThermoInterpType objects, sorted by the parameterization type.

@@ -2922,7 +2922,7 @@ private:
      *  * 2 = In a cropped regime where there is no temperature
      *        or pressure dependence
      */
-    mutable std::vector<int> CROP_speciesCropped_;
+    mutable vector_int CROP_speciesCropped_;
     //! @}
 
     //!  Initialize all of the species-dependent lengths in the object

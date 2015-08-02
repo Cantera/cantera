@@ -138,11 +138,11 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     bool usedZeroedSpecies;
     int iStab = 0;
 
-    std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
-    std::vector<double> ss(m_numElemConstraints, 0.0);
-    std::vector<double> sa(m_numElemConstraints, 0.0);
-    std::vector<double> aw(m_numSpeciesTot, 0.0);
-    std::vector<double> wx(m_numElemConstraints, 0.0);
+    vector_fp sm(m_numElemConstraints*m_numElemConstraints, 0.0);
+    vector_fp ss(m_numElemConstraints, 0.0);
+    vector_fp sa(m_numElemConstraints, 0.0);
+    vector_fp aw(m_numSpeciesTot, 0.0);
+    vector_fp wx(m_numElemConstraints, 0.0);
 
     vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
                test, &usedZeroedSpecies);

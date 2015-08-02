@@ -166,7 +166,7 @@ protected:
      *   The first index is the equation number. The second index is 1 if it is a DAE,
      *   and zero if it is not.
      */
-    std::vector<int> m_alg;
+    vector_int m_alg;
     std::map<int, int> m_constrain;
 };
 

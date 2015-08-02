@@ -28,13 +28,13 @@ TEST_F(ThermoPhase_Fixture, SetAndGetElementPotentials)
   initializeElements();
 
   // Check that getElementPotentials returns false if no element potentials have been set yet.
-  std::vector<double> getLambda(3);
+  vector_fp getLambda(3);
   EXPECT_FALSE(test_phase.getElementPotentials(&getLambda[0]));
 
-  std::vector<double> tooSmall(2);
+  vector_fp tooSmall(2);
   EXPECT_THROW(test_phase.setElementPotentials(tooSmall), CanteraError);
 
-  std::vector<double> setLambda(3);
+  vector_fp setLambda(3);
   setLambda[0] = 1.;
   setLambda[1] = 2.;
   setLambda[2] = 3.;

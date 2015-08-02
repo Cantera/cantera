@@ -194,7 +194,7 @@ public:
 
     //! Stoichiometric coefficient for this species using the Neutral Molecule Species
     //! in the vector idNeutralMoleculeVec
-    std::vector<double> factorVec;
+    vector_fp factorVec;
 
     //! Add 2RTln2 to the entropy and Gibbs free energies for this species
     /*!
@@ -203,7 +203,7 @@ public:
     bool add2RTln2_;
 
     //! Vector of length equal to the number of species in the neutral molecule phase
-    mutable std::vector<double> tmpNM;
+    mutable vector_fp tmpNM;
 
     //! True if this species is the special species
     int specialSpecies_;

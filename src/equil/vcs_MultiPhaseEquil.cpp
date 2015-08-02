@@ -594,12 +594,12 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 #ifdef DEBUG_MODE
     double* fe = &m_vprob.m_gibbsSpecies[0];
 #endif
-    std::vector<double> VolPM;
-    std::vector<double> activity;
-    std::vector<double> ac;
-    std::vector<double> mu;
-    std::vector<double> mu0;
-    std::vector<double> molalities;
+    vector_fp VolPM;
+    vector_fp activity;
+    vector_fp ac;
+    vector_fp mu;
+    vector_fp mu0;
+    vector_fp molalities;
 
     vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
@@ -861,7 +861,7 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
          */
         vprob->addPhaseElements(VolPhase);
         VolPhase->setState_TP(vprob->T, vprob->PresPA);
-        vector<double> muPhase(tPhase->nSpecies(),0.0);
+        vector_fp muPhase(tPhase->nSpecies(),0.0);
         tPhase->getChemPotentials(&muPhase[0]);
         double tMoles = 0.0;
         /*
@@ -993,7 +993,7 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
                 ts_ptr->SSStar_Vol0 = 82.05 * 273.15 / 1.0;
 
             } else {
-                std::vector<double> phaseTermCoeff(nSpPhase, 0.0);
+                vector_fp phaseTermCoeff(nSpPhase, 0.0);
                 int nCoeff;
                 tPhase->getParameters(nCoeff, &phaseTermCoeff[0]);
                 ts_ptr->SSStar_Vol_Model = VCS_SSVOL_CONSTANT;
@@ -1101,7 +1101,7 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 {
     size_t totNumPhases = mphase->nPhases();
     size_t kT = 0;
-    std::vector<double> tmpMoles;
+    vector_fp tmpMoles;
     // Problem type has yet to be worked out.
     vprob->prob_type = 0;
     // Whether we have an estimate or not gets overwritten on
@@ -1121,7 +1121,7 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         volPhase->setElectricPotential(tPhase->electricPotential());
 
         volPhase->setState_TP(vprob->T, vprob->PresPA);
-        vector<double> muPhase(tPhase->nSpecies(),0.0);
+        vector_fp muPhase(tPhase->nSpecies(),0.0);
         tPhase->getChemPotentials(&muPhase[0]);
         /*
          *    Loop through each species in the current phase
