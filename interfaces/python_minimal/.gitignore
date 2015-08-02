@@ -3,3 +3,5 @@ scripts/*
 cantera/ck2cti.py
 cantera/ctml_writer.py
 build
+dist
+Cantera_minimal_.egg-info
