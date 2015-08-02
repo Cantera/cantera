@@ -1348,15 +1348,6 @@ if addInstallActions:
     # Data files
     install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
 
-    # Converter scripts
-    pyExt = '.py' if env['OS'] == 'Windows' else ''
-    install(env.InstallAs,
-            '$inst_bindir/ck2cti%s' % pyExt,
-            'interfaces/cython/cantera/ck2cti.py')
-    install(env.InstallAs,
-            '$inst_bindir/ctml_writer%s' % pyExt,
-            'interfaces/cython/cantera/ctml_writer.py')
-
     # Copy external libaries for Windows installations
     if env['CC'] == 'cl' and env['use_boost_libs']:
         boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
