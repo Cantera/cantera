@@ -30,22 +30,39 @@ if os.name == 'nt':
 
     bdist_msi.run = bdist_run_new
 
+# Copy the long_description from docs/sphinx/index.rst
+long_description = """
+Cantera is a suite of object-oriented software tools for problems involving
+chemical kinetics, thermodynamics, and/or transport processes.
 
-setup(name="Cantera",
-      version="@cantera_version@",
-      description="The Cantera Python Interface",
-      long_description="""
-              """,
-      author="Raymond Speth",
-      author_email="speth@mit.edu",
-      url="http://www.cantera.org",
-      packages = ['cantera',
-                  'cantera.data',
-                  'cantera.test',
-                  'cantera.test.data',
-                  'cantera.mixmaster',
-                  'cantera.mixmaster.Units',
-                  'cantera.examples'],
+Cantera provides types (or classes) of objects representing phases of
+matter, interfaces between these phases, reaction managers, time-dependent
+reactor networks, and steady one-dimensional reacting flows. Cantera is
+currently used for applications including combustion, detonations,
+electrochemical energy conversion and storage, fuel cells, batteries, aqueous
+electrolyte solutions, plasmas, and thin film deposition.
+
+Cantera can be used from Python and Matlab, or in applications written
+in C++ and Fortran 90.
+"""
+
+setup(
+    name="Cantera",
+    version="@cantera_version@",
+    description="The Cantera Python Interface",
+    long_description=long_description,
+    author="Raymond Speth",
+    author_email="speth@mit.edu",
+    url="http://www.cantera.org",
+    packages = [
+        'cantera',
+        'cantera.data',
+        'cantera.test',
+        'cantera.test.data',
+        'cantera.mixmaster',
+        'cantera.mixmaster.Units',
+        'cantera.examples',
+    ],
     entry_points={
         'console_scripts': [
             'ck2cti=cantera.ck2cti:script_entry_point',
@@ -53,7 +70,25 @@ setup(name="Cantera",
             'mixmaster=cantera.mixmaster.__main__:main',
         ],
     },
-      package_data = {'cantera.data': ['*.*'],
-                      'cantera.test.data': ['*.*'],
-                      'cantera.examples': ['*/*.*'],
-                      'cantera': ["@py_extension@", '*.pxd']})
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Education',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: C++',
+        'Programming Language :: Fortran',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Topic :: Scientific/Engineering :: Chemistry',
+    ],
+    package_data = {
+        'cantera.data': ['*.*'],
+        'cantera.test.data': ['*.*'],
+        'cantera.examples': ['*/*.*'],
+        'cantera': ["@py_extension@", '*.pxd'],
+    },
+)
