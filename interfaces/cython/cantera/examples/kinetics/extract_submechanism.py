@@ -38,7 +38,7 @@ print('Species: {0}'.format(', '.join(S.name for S in species)))
 all_reactions = ct.Reaction.listFromFile('gri30.xml')
 reactions = []
 
-print '\nReactions:'
+print('\nReactions:')
 for R in all_reactions:
     if not all(reactant in species_names for reactant in R.reactants):
         continue
