@@ -64,12 +64,14 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('interfaces/cython/cantera/_cantera.cpp')
     removeFile('interfaces/cython/setup2.py')
     removeFile('interfaces/cython/setup3.py')
+    removeFile('interfaces/python_minimal/setup.py')
     removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
     removeDirectory('doc/sphinx/matlab/tutorials')
     removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
-    removeDirectory('interfaces/cython/build')
+    removeDirectory('interfaces/cython/Cantera.egg-info')
+    removeDirectory('interfaces/python_minimal/Cantera_minimal_.egg-info')
     for name in os.listdir('interfaces/cython/cantera/data/'):
         if name != '__init__.py':
             removeFile('interfaces/cython/cantera/data/' + name)
@@ -85,6 +87,9 @@ if 'clean' in COMMAND_LINE_TARGETS:
     for name in os.listdir('site_scons/site_tools/'):
         if name.endswith('.pyc'):
             removeFile('site_scons/site_tools/' + name)
+    for name in os.listdir('interfaces/python_minimal/cantera'):
+        if name != '__init__.py':
+            removeFile('interfaces/python_minimal/cantera/' + name)
     removeFile('interfaces/matlab/toolbox/cantera_shared.dll')
     removeFile('interfaces/matlab/Contents.m')
     removeFile('interfaces/matlab/ctpath.m')
