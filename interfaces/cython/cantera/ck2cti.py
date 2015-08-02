@@ -39,6 +39,8 @@ import sys
 import numpy as np
 import re
 import itertools
+import getopt
+import sys
 
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
@@ -1956,7 +1958,6 @@ duplicate transport data) to be ignored.
 
 
 def main(argv):
-    import getopt
 
     longOptions = ['input=', 'thermo=', 'transport=', 'id=', 'output=',
                    'permissive', 'help', 'debug']
@@ -2028,5 +2029,4 @@ def main(argv):
         sys.exit(1)
 
 if __name__ == '__main__':
-    import sys
     main(sys.argv[1:])
