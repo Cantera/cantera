@@ -1,5 +1,5 @@
 import os
-from distutils.core import setup
+from setuptools import setup
 
 # Monkey patch to prevent bdist_msi from incorrectly overwriting the value of
 # build-lib specified on the command line.
@@ -46,9 +46,13 @@ setup(name="Cantera",
                   'cantera.mixmaster',
                   'cantera.mixmaster.Units',
                   'cantera.examples'],
-      scripts=[@py_ctml_writer@,
-               @py_ck2cti@,
-               @py_mixmaster@],
+    entry_points={
+        'console_scripts': [
+            'ck2cti=cantera.ck2cti:script_entry_point',
+            'ctml_writer=cantera.ctml_writer:main',
+            'mixmaster=cantera.mixmaster.__main__:main',
+        ],
+    },
       package_data = {'cantera.data': ['*.*'],
                       'cantera.test.data': ['*.*'],
                       'cantera.examples': ['*/*.*'],

@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(name="Cantera (minimal)",
       version="@cantera_version@",
@@ -8,5 +8,10 @@ setup(name="Cantera (minimal)",
       author_email="speth@mit.edu",
       url="http://www.cantera.org",
       packages = ['cantera'],
-      scripts=[@py_ctml_writer@,
-               @py_ck2cti@])
+      entry_points={
+        'console_scripts': [
+            'ck2cti=cantera.ck2cti:script_entry_point',
+            'ctml_writer=cantera.ctml_writer:main',
+        ],
+      },
+)
