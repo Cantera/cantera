@@ -28,6 +28,8 @@ PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, int spindex,
                              const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex)
 {
+    warn_deprecated("PDSS_IdealGas constructor from XML input file",
+                    "To be removed after Cantera 2.3.");
     m_pdssType = cPDSS_IDEALGAS;
     constructPDSSFile(tp, spindex, inputFile, id);
 }
@@ -76,6 +78,8 @@ void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                                       const std::string& inputFile,
                                       const std::string& id)
 {
+    warn_deprecated("PDSS_IdealGas::constructPDSSFile",
+                    "To be removed after Cantera 2.3.");
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_IdealGas::constructPDSSFile",
                            "input file is null");

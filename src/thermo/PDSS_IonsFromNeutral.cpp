@@ -38,6 +38,8 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
     add2RTln2_(true),
     specialSpecies_(0)
 {
+    warn_deprecated("PDSS_IonsFromNeutral constructor from XML input file",
+                    "To be removed after Cantera 2.3.");
     m_pdssType = cPDSS_IONSFROMNEUTRAL;
     constructPDSSFile(tp, spindex, inputFile, id);
 }
@@ -164,6 +166,8 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
 void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
         const std::string& inputFile, const std::string& id)
 {
+    warn_deprecated("PDSS_IonsFromNeutral::constructPDSSFile",
+                    "To be removed after Cantera 2.3.");
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile",
                            "input file is null");

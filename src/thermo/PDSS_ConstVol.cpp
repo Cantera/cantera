@@ -28,6 +28,8 @@ PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
                              const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex)
 {
+    warn_deprecated("PDSS_ConstVol constructor from XML input file",
+                    "To be removed after Cantera 2.3.");
     m_pdssType = cPDSS_CONSTVOL;
     constructPDSSFile(tp, spindex, inputFile, id);
 }
@@ -95,6 +97,8 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                                       const std::string& inputFile,
                                       const std::string& id)
 {
+    warn_deprecated("PDSS_ConstVol::constructPDSSFile",
+                    "To be removed after Cantera 2.3.");
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_ConstVol::initThermo",
                            "input file is null");

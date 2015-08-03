@@ -59,6 +59,8 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
     m_verbose(0),
     m_allowGasPhase(false)
 {
+    warn_deprecated("PDSS_Water constructor from XML input file",
+                    "To be removed after Cantera 2.3.");
     m_pdssType = cPDSS_WATER;
     constructPDSSFile(tp, spindex, inputFile, id);
     m_spthermo = 0;
@@ -140,6 +142,8 @@ void PDSS_Water::constructPDSSXML(VPStandardStateTP* tp, int spindex,
 void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
                                    const std::string& inputFile, const std::string& id)
 {
+    warn_deprecated("PDSS_Water::constructPDSSFile",
+                    "To be removed after Cantera 2.3.");
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_Water::constructPDSSFile",
                            "input file is null");

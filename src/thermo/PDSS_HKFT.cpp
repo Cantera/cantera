@@ -83,6 +83,8 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
     m_domega_jdT_prtr(0.0),
     m_charge_j(0.0)
 {
+    warn_deprecated("PDSS_HKFT constructor from XML input file",
+                    "To be removed after Cantera 2.3.");
     m_pres = OneAtm;
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
@@ -617,6 +619,8 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                                   const std::string& inputFile,
                                   const std::string& id)
 {
+    warn_deprecated("PDSS_HKFT::constructPDSSFile",
+                    "To be removed after Cantera 2.3.");
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_HKFT::initThermo",
                            "input file is null");

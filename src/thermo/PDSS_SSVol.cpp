@@ -35,6 +35,8 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp,
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
 {
+    warn_deprecated("PDSS_SSVol constructor from XML input file",
+                    "To be removed after Cantera 2.3.");
     m_pdssType = cPDSS_SSVOL;
     constructPDSSFile(tp, spindex, inputFile, id);
 }
@@ -123,6 +125,8 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
 void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                                    const std::string& inputFile, const std::string& id)
 {
+    warn_deprecated("PDSS_SSVol::constructPDSSFile",
+                    "To be removed after Cantera 2.3.");
     if (inputFile.size() == 0) {
         throw CanteraError("PDSS_SSVol::initThermo",
                            "input file is null");

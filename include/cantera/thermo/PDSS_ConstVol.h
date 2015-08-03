@@ -44,6 +44,7 @@ public:
      *  @param id        String name of the phase in the input file. The default
      *                   is the empty string, in which case the first phase in the
      *                   file is used.
+     * @deprecated To be removed after Cantera 2.3.
      */
     PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
                   const std::string& inputFile, const std::string& id = "");
@@ -135,6 +136,7 @@ public:
      * @param id          Optional parameter identifying the name of the
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
+     * @deprecated To be removed after Cantera 2.3.
      */
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
