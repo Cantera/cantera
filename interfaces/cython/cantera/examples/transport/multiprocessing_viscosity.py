@@ -72,16 +72,19 @@ def serial(mech, predicate, nTemps):
     return y
 
 if __name__ == '__main__':
+    nPoints = 5000
+    nProcs = 4
+
     # For functions where the work done in each subprocess is substantial,
     # significant speedup can be obtained using the multiprocessing module.
     print('Thermal conductivity')
     t1 = time()
-    parallel('gri30.xml', get_thermal_conductivity, 4, 1000)
+    parallel('gri30.xml', get_thermal_conductivity, nProcs, nPoints)
     t2 = time()
     print('Parallel: {0:.3f} seconds'.format(t2-t1))
 
     t1 = time()
-    serial('gri30.xml', get_thermal_conductivity, 1000)
+    serial('gri30.xml', get_thermal_conductivity, nPoints)
     t2 = time()
     print('Serial: {0:.3f} seconds'.format(t2-t1))
 
@@ -89,11 +92,11 @@ if __name__ == '__main__':
     # small, there may be no advantage to using multiprocessing.
     print('\nViscosity')
     t1 = time()
-    parallel('gri30.xml', get_viscosity, 4, 1000)
+    parallel('gri30.xml', get_viscosity, nProcs, nPoints)
     t2 = time()
     print('Parallel: {0:.3f} seconds'.format(t2-t1))
 
     t1 = time()
-    serial('gri30.xml', get_viscosity, 1000)
+    serial('gri30.xml', get_viscosity, nPoints)
     t2 = time()
     print('Serial: {0:.3f} seconds'.format(t2-t1))
