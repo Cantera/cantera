@@ -64,13 +64,13 @@ def serial(mech, predicate, nTemps):
     P = ct.one_atm
     X = 'CH4:1.0, O2:1.0, N2:3.76'
     init_process(mech)
-    y = map(predicate, 
-            zip(itertools.repeat(mech),
-                np.linspace(300, 900, nTemps),
-                itertools.repeat(P),
-                itertools.repeat(X)))
+    y = list(map(predicate,
+                 zip(itertools.repeat(mech),
+                     np.linspace(300, 900, nTemps),
+                     itertools.repeat(P),
+                     itertools.repeat(X))))
     return y
-    
+
 if __name__ == '__main__':
     # For functions where the work done in each subprocess is substantial,
     # significant speedup can be obtained using the multiprocessing module.
