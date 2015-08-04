@@ -7,6 +7,7 @@
 
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/vec_functions.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 using namespace std;
 
@@ -30,7 +31,7 @@ IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
     m_p0(-1.0),
     m_logc0(0.0)
 {
-    initThermoXML(phaseRef, id_);
+    importPhase(phaseRef, this);
 }
 
 IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
