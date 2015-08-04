@@ -40,7 +40,7 @@ def get_viscosity(args):
     mech, T, P, X = args
     gas = gases[mech]
     gas.TPX = T, P, X
-    return gas.enthalpy_mass
+    return gas.viscosity
 
 def parallel(mech, predicate, nProcs, nTemps):
     """
