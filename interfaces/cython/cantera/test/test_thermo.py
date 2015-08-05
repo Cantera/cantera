@@ -910,3 +910,72 @@ class TestSpeciesThermo(utilities.CanteraTest):
         self.assertEqual(st.max_temp, 3500)
         self.assertEqual(st.reference_pressure, 101325)
         self.assertArrayNear(self.h2o_coeffs, st.coeffs)
+
+
+class TestQuantity(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.gas = ct.Solution('gri30.xml')
+
+    def setUp(self):
+        self.gas.TPX = 300, 101325, 'O2:1.0, N2:3.76'
+
+    def test_mass_moles(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        self.assertNear(q1.mass, 5)
+        self.assertNear(q1.moles, 5 / q1.mean_molecular_weight)
+
+        q1.mass = 7
+        self.assertNear(q1.moles, 7 / q1.mean_molecular_weight)
+
+        q1.moles = 9
+        self.assertNear(q1.moles, 9)
+        self.assertNear(q1.mass, 9 * q1.mean_molecular_weight)
+
+    def test_extensive(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        self.assertNear(q1.mass, 5)
+
+        self.assertNear(q1.volume * q1.density, q1.mass)
+        self.assertNear(q1.V * q1.density, q1.mass)
+        self.assertNear(q1.int_energy, q1.moles * q1.int_energy_mole)
+        self.assertNear(q1.enthalpy, q1.moles * q1.enthalpy_mole)
+        self.assertNear(q1.entropy, q1.moles * q1.entropy_mole)
+        self.assertNear(q1.gibbs, q1.moles * q1.gibbs_mole)
+        self.assertNear(q1.int_energy, q1.U)
+        self.assertNear(q1.enthalpy, q1.H)
+        self.assertNear(q1.entropy, q1.S)
+        self.assertNear(q1.gibbs, q1.G)
+
+    def test_multiply(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        q2 = q1 * 2.5
+        self.assertNear(q1.mass * 2.5, q2.mass)
+        self.assertNear(q1.moles * 2.5, q2.moles)
+        self.assertNear(q1.entropy * 2.5, q2.entropy)
+        self.assertArrayNear(q1.X, q2.X)
+
+    def test_iadd(self):
+        q0 = ct.Quantity(self.gas, mass=5)
+        q1 = ct.Quantity(self.gas, mass=5)
+        q2 = ct.Quantity(self.gas, mass=5)
+        q2.TPX = 500, 101325, 'CH4:1.0'
+
+        q1 += q2
+        self.assertNear(q0.mass + q2.mass, q1.mass)
+        # addition is at constant UV
+        self.assertNear(q0.U + q2.U, q1.U)
+        self.assertNear(q0.V + q2.V, q1.V)
+        self.assertArrayNear(q0.X*q0.moles + q2.X*q2.moles, q1.X*q1.moles)
+
+    def test_add(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        q2 = ct.Quantity(self.gas, mass=5)
+        q2.TPX = 500, 101325, 'CH4:1.0'
+
+        q3 = q1 + q2
+        self.assertNear(q1.mass + q2.mass, q3.mass)
+        # addition is at constant UV
+        self.assertNear(q1.U + q2.U, q3.U)
+        self.assertNear(q1.V + q2.V, q3.V)
+        self.assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q3.X*q3.moles)
