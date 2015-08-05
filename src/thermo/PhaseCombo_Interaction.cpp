@@ -38,7 +38,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
     formMargules_(0),
     formTempModel_(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id_), this);
+    importPhase(phaseRoot, this);
 }
 
 PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction& b)

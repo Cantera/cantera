@@ -167,7 +167,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    StoichSubstanceSSTP(const std::string& infile, std::string id = "");
+    StoichSubstanceSSTP(const std::string& infile, const std::string& id = "");
 
     //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
     //! directly from an XML database

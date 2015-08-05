@@ -55,7 +55,7 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
         throw CanteraError(" IdealSolidSolnPhase Constructor",
                            " Illegal value of formGC");
     }
-    importPhase(*findXMLPhase(&root, id_), this);
+    importPhase(root, this);
 }
 
 IdealSolidSolnPhase::IdealSolidSolnPhase(const IdealSolidSolnPhase& b)

@@ -165,7 +165,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_last_is(-1.0),
     m_debugCalc(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id_), this);
+    importPhase(phaseRoot, this);
 }
 
 HMWSoln::HMWSoln(const HMWSoln& b) :

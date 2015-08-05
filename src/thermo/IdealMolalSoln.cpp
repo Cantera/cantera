@@ -125,7 +125,7 @@ IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0)
 {
-    importPhase(*findXMLPhase(&root, id_), this);
+    importPhase(root, this);
 }
 
 ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const

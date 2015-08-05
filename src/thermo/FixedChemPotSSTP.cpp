@@ -30,43 +30,14 @@ FixedChemPotSSTP::FixedChemPotSSTP() :
 {
 }
 
-FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id_) :
+FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, const std::string& id_) :
     chemPot_(0.0)
 {
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    std::string model = th["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP" && model != "FixedChemPot") {
-        throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                           "thermo model attribute must be FixedChemPot or StoichSubstance");
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
     chemPot_(0.0)
 {
-    if (id_ != "") {
-        std::string idxml = xmlphase["id"];
-        if (id_ != idxml) {
-            throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                               "id's don't match");
-        }
-    }
-    const XML_Node& th = xmlphase.child("thermo");
-    std::string model = th["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP" && model != "FixedChemPotSSTP") {
-        throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                           "thermo model attribute must be StoichSubstance or FixedChemPot");
-    }
     importPhase(xmlphase, this);
 }
 

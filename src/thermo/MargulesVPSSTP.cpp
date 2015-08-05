@@ -39,7 +39,7 @@ MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id_) :
     formMargules_(0),
     formTempModel_(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id_), this);
+    importPhase(phaseRoot, this);
 }
 
 MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b)

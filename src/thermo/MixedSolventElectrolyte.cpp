@@ -42,7 +42,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
     formMargules_(0),
     formTempModel_(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id_), this);
+    importPhase(phaseRoot, this);
 }
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b)

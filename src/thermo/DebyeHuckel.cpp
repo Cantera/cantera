@@ -75,7 +75,7 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     m_densWaterSS(1000.),
     m_waterProps(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id_), this);
+    importPhase(phaseRoot, this);
 }
 
 DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :

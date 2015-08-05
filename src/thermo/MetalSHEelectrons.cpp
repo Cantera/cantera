@@ -29,43 +29,15 @@ MetalSHEelectrons::MetalSHEelectrons():
 {
 }
 
-MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_) :
+MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, const std::string& id_) :
     xdef_(0)
 {
-    XML_Node* root;
-    if (infile == "MetalSHEelectrons_default.xml") {
-        xdef_ = MetalSHEelectrons::makeDefaultXMLTree();
-        root = xdef_;
-    } else {
-        root = get_XML_File(infile);
-    }
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    // Check the model name to ensure we have compatibility
-    if (xphase->child("thermo")["model"] != "MetalSHEelectrons") {
-        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "thermo model attribute must be MetalSHEelectrons");
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 
 MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_) :
     xdef_(0)
 {
-    if (id_ != "" && id_ != xmlphase["id"]) {
-        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "id's don't match");
-    }
-    if (xmlphase.child("thermo")["model"] != "MetalSHEelectrons") {
-        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "thermo model attribute must be MetalSHEelectrons");
-    }
     importPhase(xmlphase, this);
 }
 

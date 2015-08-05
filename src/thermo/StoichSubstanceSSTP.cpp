@@ -24,26 +24,13 @@ namespace Cantera
  * ----  Constructors -------
  */
 
-StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string id_)
+StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, const std::string& id_)
 {
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 
 StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& id_)
 {
-    if (id_ != "" && id_ != xmlphase["id"]) {
-        throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
-                           "id's don't match");
-    }
     importPhase(xmlphase, this);
 }
 

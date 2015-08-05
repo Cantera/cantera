@@ -51,7 +51,7 @@ WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
     m_ready(false),
     m_allowGasPhase(false)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id), this);
+    importPhase(phaseRoot, this);
 }
 
 WaterSSTP::WaterSSTP(const WaterSSTP& b) :

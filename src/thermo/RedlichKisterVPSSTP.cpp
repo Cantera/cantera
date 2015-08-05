@@ -42,7 +42,7 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
     formRedlichKister_(0),
     formTempModel_(0)
 {
-    importPhase(*findXMLPhase(&phaseRoot, id_), this);
+    importPhase(phaseRoot, this);
 }
 
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :

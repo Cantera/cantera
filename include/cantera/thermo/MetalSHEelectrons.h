@@ -190,7 +190,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    MetalSHEelectrons(const std::string& infile, std::string id = "");
+    MetalSHEelectrons(const std::string& infile, const std::string& id = "");
 
     //! Construct and initialize a MetalSHEelectrons ThermoPhase object
     //! directly from an XML database

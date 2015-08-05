@@ -55,7 +55,7 @@ LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
 
 LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id_)
 {
-    importPhase(*findXMLPhase(&phaseRef, id_), this);
+    importPhase(phaseRef, this);
 }
 
 ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const

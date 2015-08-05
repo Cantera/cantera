@@ -42,7 +42,7 @@ public:
      *                  to set up the object
      * @param id        ID of the phase in the input file. Defaults to the empty string.
      */
-    RedlichKwongMFTP(const std::string& infile, std::string id="");
+    RedlichKwongMFTP(const std::string& infile, const std::string& id="");
 
     //! Construct and initialize a RedlichKwongMFTP object directly from an
     //! XML database

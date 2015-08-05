@@ -157,7 +157,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    SurfPhase(const std::string& infile, std::string id);
+    SurfPhase(const std::string& infile, const std::string& id);
 
     //! Construct and initialize a SurfPhase ThermoPhase object
     //! directly from an XML database

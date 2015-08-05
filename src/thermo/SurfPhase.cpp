@@ -25,35 +25,15 @@ SurfPhase::SurfPhase(doublereal n0):
     setNDim(2);
 }
 
-SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
+SurfPhase::SurfPhase(const std::string& infile, const std::string& id_) :
     m_press(OneAtm)
 {
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("SurfPhase::SurfPhase",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    // Check the model name to ensure we have compatibility
-    string model = xphase->child("thermo")["model"];
-    if (model != "Surface" && model != "Edge") {
-        throw CanteraError("SurfPhase::SurfPhase",
-                           "thermo model attribute must be Surface or Edge");
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 
 SurfPhase::SurfPhase(XML_Node& xmlphase) :
     m_press(OneAtm)
 {
-    string model = xmlphase.child("thermo")["model"];
-    if (model != "Surface" && model != "Edge") {
-        throw CanteraError("SurfPhase::SurfPhase",
-                           "thermo model attribute must be Surface or Edge");
-    }
     importPhase(xmlphase, this);
 }
 

@@ -27,37 +27,13 @@ namespace Cantera
  * ----  Constructors -------
  */
 
-MineralEQ3::MineralEQ3(const std::string& infile, std::string id_)
+MineralEQ3::MineralEQ3(const std::string& infile, const std::string& id_)
 {
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("MineralEQ3::MineralEQ3",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    // Check the model name to ensure we have compatibility
-    std::string model = xphase->child("thermo")["model"];
-    if (model != "StoichSubstance" && model != "MineralEQ3") {
-        throw CanteraError("MineralEQ3::MineralEQ3",
-                           "thermo model attribute must be StoichSubstance");
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 
 MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
 {
-    if (id_ != "" && id_ != xmlphase["id"]) {
-        throw CanteraError("MineralEQ3::MineralEQ3",
-                           "id's don't match");
-    }
-    std::string model = xmlphase.child("thermo")["model"];
-    if (model != "StoichSubstance" && model != "MineralEQ3") {
-        throw CanteraError("MineralEQ3::MineralEQ3",
-                           "thermo model attribute must be StoichSubstance");
-    }
     importPhase(xmlphase, this);
 }
 
