@@ -11,6 +11,9 @@ mechanism, species are matched by name. If the upstream reactor contains a
 species that is not present in the downstream reaction mechanism, it will be
 ignored. In general, reaction mechanisms for downstream reactors should
 contain all species that might be present in any upstream reactor.
+
+Compare this approach for the transient problem to the method used for the
+steady-state problem in thermo/mixing.py.
 """
 
 import cantera as ct
