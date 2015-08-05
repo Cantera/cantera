@@ -72,10 +72,6 @@ HMWSoln::HMWSoln() :
     m_last_is(-1.0),
     m_debugCalc(0)
 {
-    for (size_t i = 0; i < 17; i++) {
-        elambda[i] = 0.0;
-        elambda1[i] = 0.0;
-    }
 }
 
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
@@ -122,10 +118,6 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_last_is(-1.0),
     m_debugCalc(0)
 {
-    for (int i = 0; i < 17; i++) {
-        elambda[i] = 0.0;
-        elambda1[i] = 0.0;
-    }
     initThermoFile(inputFile, id_);
 }
 
@@ -173,10 +165,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_last_is(-1.0),
     m_debugCalc(0)
 {
-    for (int i = 0; i < 17; i++) {
-        elambda[i] = 0.0;
-        elambda1[i] = 0.0;
-    }
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 

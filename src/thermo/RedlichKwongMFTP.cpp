@@ -37,9 +37,6 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
     dpdV_(0.0),
     dpdT_(0.0)
 {
-    Vroot_[0] = 0.0;
-    Vroot_[1] = 0.0;
-    Vroot_[2] = 0.0;
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id_) :
@@ -51,9 +48,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, std::string id_) :
     dpdV_(0.0),
     dpdT_(0.0)
 {
-    Vroot_[0] = 0.0;
-    Vroot_[1] = 0.0;
-    Vroot_[2] = 0.0;
     XML_Node* root = get_XML_File(infile);
     if (id_ == "-") {
         id_ = "";
@@ -75,9 +69,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     dpdV_(0.0),
     dpdT_(0.0)
 {
-    Vroot_[0] = 0.0;
-    Vroot_[1] = 0.0;
-    Vroot_[2] = 0.0;
     XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, &phaseRefRoot);
     if (!xphase) {
         throw CanteraError("RedlichKwongMFTP::RedlichKwongMFTP()","Couldn't find phase named \"" + id_ + "\" in XML node");
@@ -580,6 +571,10 @@ doublereal RedlichKwongMFTP::critDensity() const
 
 void RedlichKwongMFTP::initThermo()
 {
+    Vroot_[0] = 0.0;
+    Vroot_[1] = 0.0;
+    Vroot_[2] = 0.0;
+
     initLengths();
     MixtureFugacityTP::initThermo();
 }

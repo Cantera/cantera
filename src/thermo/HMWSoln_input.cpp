@@ -942,6 +942,10 @@ void HMWSoln::readXMLCroppingCoefficients(const XML_Node& acNode)
 void HMWSoln::initThermo()
 {
     MolalityVPSSTP::initThermo();
+    for (int i = 0; i < 17; i++) {
+        elambda[i] = 0.0;
+        elambda1[i] = 0.0;
+    }
     initLengths();
 }
 

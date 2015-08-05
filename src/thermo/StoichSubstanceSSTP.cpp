@@ -35,12 +35,6 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(const std::string& infile, std::string 
         throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
                            "Couldn't find phase name in file:" + id_);
     }
-    // Check the model name to ensure we have compatibility
-    std::string model = xphase->child("thermo")["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
-        throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
-                           "thermo model attribute must be StoichSubstance");
-    }
     importPhase(*xphase, this);
 }
 
@@ -49,11 +43,6 @@ StoichSubstanceSSTP::StoichSubstanceSSTP(XML_Node& xmlphase, const std::string& 
     if (id_ != "" && id_ != xmlphase["id"]) {
         throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
                            "id's don't match");
-    }
-    std::string model = xmlphase.child("thermo")["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
-        throw CanteraError("StoichSubstanceSSTP::StoichSubstanceSSTP",
-                           "thermo model attribute must be StoichSubstance");
     }
     importPhase(xmlphase, this);
 }
@@ -220,6 +209,11 @@ void StoichSubstanceSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "no thermo XML node");
     }
     XML_Node& tnode = phaseNode.child("thermo");
+    std::string model = tnode["model"];
+    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
+        throw CanteraError("StoichSubstanceSSTP::initThermoXML",
+                           "thermo model attribute must be StoichSubstance");
+    }
     double dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);

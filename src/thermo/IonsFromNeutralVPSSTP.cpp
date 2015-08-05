@@ -53,7 +53,6 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
         IOwnNThermoPhase_ = false;
     }
     constructPhaseFile(inputFile, id_);
-    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
@@ -69,11 +68,6 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
         IOwnNThermoPhase_ = false;
     }
     constructPhaseXML(phaseRoot, id_);
-    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
-    y_.resize(numNeutralMoleculeSpecies_,0.0);
-    size_t numNeutMolSpec = geThermo->nSpecies();
-    dlnActCoeff_NeutralMolecule_.resize(numNeutMolSpec);
-    dX_NeutralMolecule_.resize(numNeutMolSpec);
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
@@ -721,6 +715,7 @@ void IonsFromNeutralVPSSTP::initThermo()
 {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
+    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
 }
 
 void IonsFromNeutralVPSSTP::initLengths()

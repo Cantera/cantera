@@ -41,10 +41,6 @@ DebyeHuckel::DebyeHuckel() :
     m_densWaterSS(1000.),
     m_waterProps(0)
 {
-    m_npActCoeff.resize(3);
-    m_npActCoeff[0] = 0.1127;
-    m_npActCoeff[1] = -0.01049;
-    m_npActCoeff[2] = 1.545E-3;
 }
 
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
@@ -62,10 +58,6 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
     m_densWaterSS(1000.),
     m_waterProps(0)
 {
-    m_npActCoeff.resize(3);
-    m_npActCoeff[0] = 0.1127;
-    m_npActCoeff[1] = -0.01049;
-    m_npActCoeff[2] = 1.545E-3;
     initThermoFile(inputFile, id_);
 }
 
@@ -83,10 +75,6 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     m_densWaterSS(1000.),
     m_waterProps(0)
 {
-    m_npActCoeff.resize(3);
-    m_npActCoeff[0] = 0.1127;
-    m_npActCoeff[1] = -0.01049;
-    m_npActCoeff[2] = 1.545E-3;
     importPhase(*findXMLPhase(&phaseRoot, id_), this);
 }
 
@@ -504,6 +492,10 @@ void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
 void DebyeHuckel::initThermo()
 {
     MolalityVPSSTP::initThermo();
+    m_npActCoeff.resize(3);
+    m_npActCoeff[0] = 0.1127;
+    m_npActCoeff[1] = -0.01049;
+    m_npActCoeff[2] = 1.545E-3;
     initLengths();
 }
 
