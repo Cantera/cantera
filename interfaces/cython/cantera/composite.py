@@ -123,11 +123,14 @@ class Quantity(object):
         """
         return self.mass * self.phase.gibbs_mass
 
-    def equilibrate(self, *args, **kwargs):
+    def equilibrate(self, XY=None, *args, **kwargs):
         """
-        Set the state to equilibrium. See `ThermoPhase.equilibrate`.
+        Set the state to equilibrium. By default, the property pair
+        `self.constant` is held constant. See `ThermoPhase.equilibrate`.
         """
-        self.phase.equilibrate(*args, **kwargs)
+        if XY is None:
+            XY = self.constant
+        self.phase.equilibrate(XY, *args, **kwargs)
         self.state = self._phase.TDY
 
     def __imul__(self, other):
