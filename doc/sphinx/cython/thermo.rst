@@ -29,6 +29,10 @@ Mixture
 
 .. autoclass:: Mixture
 
+Quantity
+--------
+.. autoclass:: Quantity
+
 Species
 -------
 
