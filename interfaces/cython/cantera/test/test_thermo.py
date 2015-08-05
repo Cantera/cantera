@@ -979,3 +979,13 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.U + q2.U, q3.U)
         self.assertNear(q1.V + q2.V, q3.V)
         self.assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q3.X*q3.moles)
+
+    def test_equilibrate(self):
+        self.gas.TPX = 300, 101325, 'CH4:1.0, O2:0.2, N2:1.0'
+        q1 = ct.Quantity(self.gas)
+        self.gas.equilibrate('HP')
+        T2 = self.gas.T
+
+        self.assertNear(q1.T, 300)
+        q1.equilibrate('HP')
+        self.assertNear(q1.T, T2)

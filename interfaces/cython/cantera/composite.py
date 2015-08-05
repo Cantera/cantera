@@ -123,6 +123,13 @@ class Quantity(object):
         """
         return self.mass * self.phase.gibbs_mass
 
+    def equilibrate(self, *args, **kwargs):
+        """
+        Set the state to equilibrium. See `ThermoPhase.equilibrate`.
+        """
+        self.phase.equilibrate(*args, **kwargs)
+        self.state = self._phase.TDY
+
     def __imul__(self, other):
         self.mass *= other
         return self
