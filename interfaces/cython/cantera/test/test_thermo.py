@@ -989,3 +989,11 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.T, 300)
         q1.equilibrate('HP')
         self.assertNear(q1.T, T2)
+
+    def test_incompatible(self):
+        gas2 = ct.Solution('h2o2.xml')
+        q1 = ct.Quantity(self.gas)
+        q2 = ct.Quantity(gas2)
+
+        with self.assertRaises(Exception):
+            q1+q2

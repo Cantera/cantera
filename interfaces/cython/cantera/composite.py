@@ -68,6 +68,10 @@ class Quantity(object):
         self.state = phase.TDY
         self._phase = phase
 
+        # A unique key to prevent adding phases with different species
+        # definitions
+        self._id = hash((phase.name,) + tuple(phase.species_names))
+
         if mass is not None:
             self.mass = mass
         elif moles is not None:
@@ -144,6 +148,9 @@ class Quantity(object):
         return Quantity(self.phase, mass=self.mass * other)
 
     def __iadd__(self, other):
+        if (self._id != other._id):
+            raise ValueError('Cannot add Quantities with different phase '
+                'definitions.')
         assert(self.constant == other.constant)
         a1,b1 = getattr(self.phase, self.constant)
         a2,b2 = getattr(other.phase, self.constant)
