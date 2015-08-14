@@ -137,7 +137,7 @@ if localenv['python3_package'] == 'y':
     obj = py3env.SharedObject('#build/temp-py/_cantera3', 'cantera/_cantera.cpp')
     ext = py3env.LoadableModule('#build/python3/cantera/_cantera%s' % module_ext,
                                 obj, LIBPREFIX='', SHLIBSUFFIX=module_ext,
-                                LIBSUFFIXES=[module_ext])
+                                SHLIBPREFIX='', LIBSUFFIXES=[module_ext])
     py3env['py_extension'] = ext[0].name
 
     py3env.SubstFile('setup3.py', 'setup.py.in')
@@ -161,7 +161,7 @@ if localenv['python_package'] == 'full':
     obj = py2env.SharedObject('#build/temp-py/_cantera2', 'cantera/_cantera.cpp')
     ext = py2env.LoadableModule('#build/python2/cantera/_cantera%s' % module_ext,
                                 obj, LIBPREFIX='', SHLIBSUFFIX=module_ext,
-                                LIBSUFFIXES=[module_ext])
+                                SHLIBPREFIX='', LIBSUFFIXES=[module_ext])
     py2env['py_extension'] = ext[0].name
     py2env.SubstFile('setup2.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
