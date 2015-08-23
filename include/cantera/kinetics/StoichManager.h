@@ -220,7 +220,11 @@ public:
     }
 
     void multiply(const doublereal* S, doublereal* R) const {
-        R[m_rxn] *= S[m_ic0] * S[m_ic1];
+        if (S[m_ic0] < 0 && S[m_ic1] < 0) {
+            R[m_rxn] = 0;
+        } else {
+            R[m_rxn] *= S[m_ic0] * S[m_ic1];
+        }
     }
 
     void incrementReaction(const doublereal* S, doublereal* R) const {
@@ -281,7 +285,12 @@ public:
     }
 
     void multiply(const doublereal* S, doublereal* R) const {
-        R[m_rxn] *= S[m_ic0] * S[m_ic1] * S[m_ic2];
+        if ((S[m_ic0] < 0 && (S[m_ic1] < 0 || S[m_ic2] < 0)) ||
+            (S[m_ic1] < 0 && S[m_ic2] < 0)) {
+            R[m_rxn] = 0;
+        } else {
+            R[m_rxn] *= S[m_ic0] * S[m_ic1] * S[m_ic2];
+        }
     }
 
     void incrementReaction(const doublereal* S, doublereal* R) const {
@@ -357,11 +366,18 @@ public:
 
     void multiply(const doublereal* input, doublereal* output) const {
         doublereal oo;
+        int neg_count = 0;
         for (size_t n = 0; n < m_n; n++) {
             oo = m_order[n];
             if (oo != 0.0) {
+                if (input[m_ic[n]] < 0) {
+                    neg_count++;
+                }
                 output[m_rxn] *= ppow(input[m_ic[n]], oo);
             }
+        }
+        if (neg_count > 1) {
+            output[m_rxn] = 0;
         }
     }
 
