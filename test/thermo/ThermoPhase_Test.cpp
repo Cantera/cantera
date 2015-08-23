@@ -91,4 +91,15 @@ TEST_F(TestThermoMethods, getMassFractionsByName)
     EXPECT_EQ(Y.size(), (size_t) 3);
 }
 
+TEST_F(TestThermoMethods, setState_nan)
+{
+    double nan = std::numeric_limits<double>::quiet_NaN();
+    thermo->setState_TP(500, 12345);
+    EXPECT_THROW(thermo->setState_TP(nan, 55555), CanteraError);
+    EXPECT_THROW(thermo->setState_TP(555, nan), CanteraError);
+    EXPECT_THROW(thermo->setState_HP(nan, 55555), CanteraError);
+    EXPECT_THROW(thermo->setState_SV(1234, nan), CanteraError);
+    EXPECT_THROW(thermo->setState_TR(555, nan), CanteraError);
+}
+
 }
