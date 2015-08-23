@@ -974,8 +974,8 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                     "------------     ------------\n");
             s += p;
             for (size_t k = 0; k < m_kk; k++) {
-                if (x[k] >= threshold) {
-                    if (x[k] > SmallNumber) {
+                if (abs(x[k]) >= threshold) {
+                    if (abs(x[k]) > SmallNumber) {
                         sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
                                 speciesName(k).c_str(), x[k], y[k], mu[k]/RT());
                     } else {
@@ -997,7 +997,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                     "     ------------\n");
             s += p;
             for (size_t k = 0; k < m_kk; k++) {
-                if (x[k] >= threshold) {
+                if (abs(x[k]) >= threshold) {
                     sprintf(p, "%18s   %12.6g     %12.6g\n",
                             speciesName(k).c_str(), x[k], y[k]);
                     s += p;
