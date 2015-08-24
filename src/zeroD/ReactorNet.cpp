@@ -156,6 +156,7 @@ void ReactorNet::eval(doublereal t, doublereal* y,
                                ydot + m_start[n], p + pstart);
         pstart += m_nparams[n];
     }
+    checkFinite("ydot", ydot, m_nv);
 }
 
 void ReactorNet::evalJacobian(doublereal t, doublereal* y,
@@ -186,6 +187,7 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
 
 void ReactorNet::updateState(doublereal* y)
 {
+    checkFinite("y", y, m_nv);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->updateState(y + m_start[n]);
     }

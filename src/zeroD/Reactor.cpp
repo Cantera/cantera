@@ -128,11 +128,6 @@ void Reactor::syncState()
 
 void Reactor::updateState(doublereal* y)
 {
-    for (size_t i = 0; i < m_nv; i++) {
-        AssertFinite(y[i], "Reactor::updateState",
-                     "y[" + int2str(i) + "] is not finite");
-    }
-
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the total internal energy, [3...K+3] are the mass fractions of each
     // species, and [K+3...] are the coverages of surface species on each wall.
@@ -267,11 +262,6 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     }
 
     ydot[0] = dmdt;
-
-    for (size_t i = 0; i < m_nv; i++) {
-        AssertFinite(ydot[i], "Reactor::evalEqs",
-                     "ydot[" + int2str(i) + "] is not finite");
-    }
     resetSensitivity(params);
 }
 

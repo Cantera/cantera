@@ -13,6 +13,8 @@
 
 #include <stdexcept>
 #include <cstdio>
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/ctexceptions.h"
 
 // We expect that there will be special casing based on the computer
 // system here
@@ -51,6 +53,22 @@ void checkFinite(const double tmp)
             printf("checkFinite() ERROR: we have encountered a neg inf!\n");
         }
         throw std::range_error("checkFinite()");
+    }
+}
+
+void checkFinite(const std::string& name, double* values, size_t N)
+{
+    for (size_t i = 0; i < N; i++) {
+        if (!finite(values[i])) {
+            std::string message = name + " contains non-finite elements:\n\n";
+            for (size_t j = 0; j < N; j++) {
+                if (!finite(values[j])) {
+                    message += name + "[" + int2str(j) + "] = " +
+                               fp2str(values[j]) + "\n";
+                }
+            }
+            throw CanteraError("checkFinite", message);
+        }
     }
 }
 

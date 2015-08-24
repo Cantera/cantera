@@ -521,6 +521,15 @@ void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &t
 //! Check to see that a number is finite (not NaN, +Inf or -Inf)
 void checkFinite(const double tmp);
 
+//! Check to see that all elements in an array are finite
+/*!
+ *  Throws an exception if any element is NaN, +Inf, or -Inf
+ *  @param name    Name to be used in the exception message if the check fails
+ *  @param values  Array of *N* values to be checked
+ *  @param N       Number of elements in *values*
+ */
+void checkFinite(const std::string& name, double* values, size_t N);
+
 //! Const accessor for a value in a std::map.
 /*!
  *  This is a const alternative to operator[]. Roughly equivalent to the 'at'

@@ -56,11 +56,6 @@ void IdealGasReactor::initialize(doublereal t0)
 
 void IdealGasReactor::updateState(doublereal* y)
 {
-    for (size_t i = 0; i < m_nv; i++) {
-        AssertFinite(y[i], "IdealGasReactor::updateState",
-                     "y[" + int2str(i) + "] is not finite");
-    }
-
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the temperature, [3...K+3] are the mass fractions of each species,
     // and [K+3...] are the coverages of surface species on each wall.
@@ -140,11 +135,6 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
         ydot[2] = mcvdTdt / (m_mass * m_thermo->cv_mass());
     } else {
         ydot[2] = 0;
-    }
-
-    for (size_t i = 0; i < m_nv; i++) {
-        AssertFinite(ydot[i], "IdealGasReactor::evalEqs",
-                     "ydot[" + int2str(i) + "] is not finite");
     }
 
     resetSensitivity(params);
