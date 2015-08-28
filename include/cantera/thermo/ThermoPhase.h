@@ -566,30 +566,6 @@ public:
         throw NotImplementedError("ThermoPhase::getPartialMolarVolumes");
     }
 
-    //! Return an array of derivatives of partial molar volumes wrt temperature for the
-    //! species in the mixture. Units: m^3/kmol.
-    /*!
-     *  The derivative is at constant pressure
-     *
-     *  @param d_vbar_dT   Output vector of derivatives of species partial molar volumes wrt T.
-     *                     Length = m_kk. units are m^3/kmol/K.
-     */
-    virtual void getdPartialMolarVolumes_dT(doublereal* d_vbar_dT) const {
-        throw NotImplementedError("ThermoPhase::getdPartialMolarVolumes_dT");
-    }
-
-    //! Return an array of derivatives of partial molar volumes wrt pressure for the
-    //! species in the mixture. Units: m^3/kmol.
-    /*!
-     *  The derivative is at constant temperature
-     *
-     *  @param d_vbar_dP   Output vector of derivatives of species partial molar volumes wrt P.
-     *                     Length = m_kk. units are m^3/kmol/Pa.
-     */
-    virtual void getdPartialMolarVolumes_dP(doublereal* d_vbar_dP) const {
-        throw NotImplementedError("ThermoPhase::getdPartialMolarVolumes_dP");
-    }
-
     //@}
     /// @name Properties of the Standard State of the Species in the Solution
     //@{
@@ -680,32 +656,6 @@ public:
      */
     virtual void getStandardVolumes(doublereal* vol) const {
         throw NotImplementedError("ThermoPhase::getStandardVolumes");
-    }
-
-    //!  Get the derivative of the molar volumes of the species standard states wrt temperature at the current
-    //!  <I>T</I> and <I>P</I> of the solution.
-    /*!
-     *  The derivative is at constant pressure
-     *   units = m^3 / kmol / K
-     *
-     * @param d_vol_dT Output vector containing derivatives of standard state volumes wrt T
-     *                 Length: m_kk.
-     */
-    virtual void getdStandardVolumes_dT(doublereal* d_vol_dT) const {
-        throw NotImplementedError("ThermoPhase::getdStandardVolumes_dT");
-    }
-
-    //!  Get the derivative molar volumes of the species standard states wrt pressure at the current
-    //!  <I>T</I> and <I>P</I> of the solution.
-    /*!
-     *  The derivative is at constant temperature.
-     * units = m^3 / kmol / Pa
-     *
-     * @param d_vol_dP  Output vector containing the derivative of standard state volumes wrt P.
-     *                  Length: m_kk.
-     */
-    virtual void getdStandardVolumes_dP(doublereal* d_vol_dP) const {
-        throw NotImplementedError("ThermoPhase::getdStandardVolumes_dP");
     }
 
     //@}
