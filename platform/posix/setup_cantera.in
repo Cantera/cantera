@@ -39,11 +39,3 @@ if [ "@python_array_home@" != "" ]; then
 fi
 
 export PYTHONPATH
-
-## Uncomment this if you want to specify the tmp dir location where
-## Cantera writes temporary files. The default is:
-##     (1) getenv("TMP")
-##     (2) getenv("TEMP")
-##     (3) "."
-# CANTERA_TMPDIR=/fill/in
-# export CANTERA_TMPDIR
