@@ -30,14 +30,14 @@
     #include <float.h>
     #define isnan(x) _isnan(x)
     #define finite(x) _finite(x)
-#elif defined(USE_STD_ISNAN)
-    // From C++11
-    using std::isnan;
-    #define finite(x) std::isfinite(x)
 #elif defined(USE_GLOBAL_ISNAN)
     // From C99
     using ::isnan;
     using ::finite;
+#elif defined(USE_STD_ISNAN)
+    // From C++11
+    using std::isnan;
+    #define finite(x) std::isfinite(x)
 #endif
 
 namespace Cantera {
