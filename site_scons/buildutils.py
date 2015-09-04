@@ -236,15 +236,20 @@ def compareTextFiles(env, file1, file2):
                 # String representations match, so replacement is unnecessary
                 continue
 
-            delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
-            num1 = float(floats1[j][1])
-            num2 = float(floats2[j][1])
-            abserr = abs(num1-num2)
-            relerr = abserr / (0.5 * abs(num1 + num2) + atol)
-            if abserr > (1.1*delta + atol) and relerr > rtol:
-                print 'Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr)
-                allMatch = False
-                break
+            try:
+                delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
+                num1 = float(floats1[j][1])
+                num2 = float(floats2[j][1])
+                abserr = abs(num1-num2)
+                relerr = abserr / (0.5 * abs(num1 + num2) + atol)
+                if abserr > (1.1*delta + atol) and relerr > rtol:
+                    print 'Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr)
+                    allMatch = False
+                    break
+            except Exception as e:
+                # Something went wrong -- one of the strings isn't actually a number,
+                # so just ignore this line and let the test fail
+                pass
 
         # All the values are sufficiently close, so replace the string
         # so that the diff of this line will succeed
