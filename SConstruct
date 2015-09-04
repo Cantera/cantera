@@ -247,6 +247,7 @@ defaults.warningFlags = '-Wall'
 
 if 'gcc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
+    defaults.cxxFlags = '-std=c++11'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
@@ -262,11 +263,13 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.warningFlags = '/W3'
 
 elif 'icc' in env.subst('$CC'):
+    defaults.cxxFlags = '-std=c++11'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.warningFlags = '-Wcheck'
 
 elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
+    defaults.cxxFlags = '-std=c++11'
 
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
