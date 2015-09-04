@@ -8,6 +8,7 @@
 build/
 test/work/
 include/cantera/base/config.h
+include/cantera/ext/
 interfaces/matlab/ctpath.m
 interfaces/matlab/Contents.m
 stage/
