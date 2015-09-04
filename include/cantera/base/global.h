@@ -20,6 +20,7 @@
 #define CT_GLOBAL_H
 
 #include "ct_defs.h"
+#include "cantera/ext/format.h"
 
 namespace Cantera
 {
@@ -164,7 +165,10 @@ inline void writelog(const std::string& msg, int loglevel)
  * @param fmt  c format string for the following arguments
  * @ingroup textlogs
  */
-void writelogf(const char* fmt,...);
+template <typename... Args>
+void writelogf(const char* fmt, const Args& ... args) {
+    writelog(fmt::sprintf(fmt, args...));
+}
 
 //! Write an end of line character to the screen and flush output
 void writelogendl();

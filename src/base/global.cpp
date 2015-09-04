@@ -5,9 +5,6 @@
 #include "application.h"
 #include "units.h"
 
-#include <cstdio>
-#include <stdarg.h>
-
 using namespace std;
 
 namespace Cantera
@@ -33,24 +30,6 @@ void setLogger(Logger* logwriter)
 void writelog(const std::string& msg)
 {
     app()->writelog(msg);
-}
-
-void writelogf(const char* fmt,...)
-{
-    enum { BUFSIZE = 2048 };
-    char sbuf[BUFSIZE];
-
-    va_list args;
-    va_start(args, fmt);
-
-#ifdef _MSC_VER
-    _vsnprintf(sbuf, BUFSIZE, fmt, args);
-#else
-    vsprintf(sbuf, fmt, args);
-#endif
-
-    writelog(sbuf);
-    va_end(args);
 }
 
 void writelogendl()
