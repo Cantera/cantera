@@ -124,7 +124,7 @@ Stable Release
 
 * Option 2: Check out the code using Git::
 
-    git clone https://github.com/Cantera/cantera.git
+    git clone --recursive https://github.com/Cantera/cantera.git
     cd cantera
     git checkout 2.1
 
@@ -133,7 +133,13 @@ Development Version
 
 * Check out the code using Git::
 
-    git clone https://github.com/Cantera/cantera.git
+    git clone --recursive https://github.com/Cantera/cantera.git
+
+* Update an existing clone of the Git repo:
+    cd /path/to/cantera
+    git fetch
+    git rebase origin/master
+    git submodule update --init --recursive
 
 Determine configuration options
 ===============================
