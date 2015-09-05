@@ -18,7 +18,7 @@ double tvalue(double val, double atol = 1.0E-9)
 
 int main()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     double pres;
