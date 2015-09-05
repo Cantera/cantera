@@ -36,7 +36,7 @@ static double cutoff(double val, double atol=1.0E-15)
 
 int main(int argc, char** argv)
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     string infile = "diamond.xml";
