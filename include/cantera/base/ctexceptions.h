@@ -11,6 +11,7 @@
 
 #include <exception>
 #include <string>
+#include "cantera/ext/format.h"
 
 namespace Cantera
 {
@@ -77,7 +78,21 @@ public:
      *             generated.
      * @param msg  Descriptive string describing the type of error message.
      */
-    CanteraError(const std::string& procedure, const std::string& msg);
+    template <typename... Args>
+    CanteraError(const std::string& procedure, const std::string& msg,
+                 const Args&... args)
+        : procedure_(procedure)
+        , saved_(false)
+    {
+        if (sizeof...(args) == 0) {
+            msg_ = msg;
+        } else {
+            msg_ = fmt::format(msg, args...);
+        }
+        // Save the error in the global list of errors so that showError()
+        // can work
+        save();
+    }
 
     //! Destructor for base class does nothing
     virtual ~CanteraError() throw() {};

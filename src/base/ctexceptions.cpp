@@ -11,15 +11,6 @@ namespace Cantera
 
 static const char* stars = "***********************************************************************\n";
 
-CanteraError::CanteraError(const std::string& procedure, const std::string& msg) :
-    procedure_(procedure),
-    msg_(msg),
-    saved_(false)
-{
-    // Save the error in the global list of errors so that showError() can work
-    save();
-}
-
 CanteraError::CanteraError(const std::string& procedure) :
     procedure_(procedure),
     saved_(false)
