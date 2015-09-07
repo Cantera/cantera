@@ -37,7 +37,6 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
 {
     double x[MSSIZE];
     double C[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string gasPhaseName          = "gas";
     gasTP->getMoleFractions(x);
@@ -57,10 +56,8 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     size_t nspGas = gasTP->nSpecies();
     for (size_t k = 0; k < nspGas; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 0);
-        sprintf(buf, "%4d %24s   %14g %14g  %14e\n",
-                (int) k, gasTP->speciesName(k).c_str(),
-                C[k], x[k], src[kstart]);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14g} {:14g}  {:14e}\n",
+                   k, gasTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
     }
     oooo << "Sum of gas mole fractions= " << sum << endl;
@@ -73,7 +70,6 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
 {
     double x[MSSIZE];
     double C[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->id();
     bulkPhaseTP->getMoleFractions(x);
@@ -96,10 +92,8 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 1);
-        sprintf(buf, "%4d %24s   %14g %14g  %14e\n",
-                (int) k, bulkPhaseTP->speciesName(k).c_str(),
-                C[k], x[k], src[kstart]);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14g} {:14g}  {:14e}\n",
+                   k, bulkPhaseTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
         Wsum += src[kstart] * molecW[k];
     }
@@ -140,10 +134,8 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
         if (fabs(srcK) < 1.0E-8) {
             srcK = 0.0;
         }
-        sprintf(buf, "%4d %24s   %14g   %14e\n",
-                (int) k, surfPhaseTP->speciesName(k).c_str(),
-                x[k], srcK);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14g}   {:14e}\n",
+                   k, surfPhaseTP->speciesName(k), x[k], srcK);
         sum += x[k];
     }
     oooo << "Sum of coverages = " << sum << endl;

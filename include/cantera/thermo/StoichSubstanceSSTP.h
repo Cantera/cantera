@@ -95,16 +95,14 @@ namespace Cantera
  * the following code snippets:
  *
  * @code
- *    sprintf(file_ID,"%s#NaCl(S)", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", iFile + "#NaCl(S)", 0);
  *    StoichSubstanceSSTP *solid = new StoichSubstanceSSTP(*xm);
  * @endcode
  *
  * or by the following call to importPhase():
  *
  * @code
- *    sprintf(file_ID,"%s#NaCl(S)", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", iFile + "#NaCl(S)", 0);
  *    StoichSubstanceSSTP solid;
  *    importPhase(*xm, &solid);
  * @endcode

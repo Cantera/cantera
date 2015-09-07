@@ -46,13 +46,10 @@ int main(int argc, char** argv)
         HMW->getMoleFractions(mf);
         string sName;
         FILE* ff;
-        char fname[64];
 
         for (int jTemp = 0; jTemp < 7; jTemp++) {
             Temp = aTemp[jTemp];
-            sprintf(fname, "T%3.0f.csv", Temp);
-
-            ff = fopen(fname, "w");
+            ff = fopen(fmt::format("T{:3.0f}.csv", Temp).c_str(), "w");
             HMW->setState_TP(Temp, 1.01325E5);
             printf("   Temperature = %g K\n", Temp);
             size_t i1 = HMW->speciesIndex("Na+");

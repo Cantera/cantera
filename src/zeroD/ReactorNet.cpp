@@ -34,7 +34,6 @@ ReactorNet::~ReactorNet()
 void ReactorNet::initialize()
 {
     size_t n, nv;
-    char buf[100];
     m_nv = 0;
     debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
@@ -62,12 +61,8 @@ void ReactorNet::initialize()
         m_start.push_back(m_nv);
 
         if (m_verbose) {
-            sprintf(buf,"Reactor %s: %s variables.\n",
-                    int2str(n).c_str(), int2str(nv).c_str());
-            writelog(buf);
-            sprintf(buf,"            %s sensitivity params.\n",
-                    int2str(r.nSensParams()).c_str());
-            writelog(buf);
+            writelog("Reactor {:d}: {:d} variables.\n", n, nv);
+            writelog("              {:d} sensitivity params.\n", r.nSensParams());
         }
         if (r.type() == FlowReactorType && m_reactors.size() > 1) {
             throw CanteraError("ReactorNet::initialize",
@@ -83,10 +78,8 @@ void ReactorNet::initialize()
     m_integ->setMaxStepSize(m_maxstep);
     m_integ->setMaxErrTestFails(m_maxErrTestFails);
     if (m_verbose) {
-        sprintf(buf, "Number of equations: %s\n", int2str(neq()).c_str());
-        writelog(buf);
-        sprintf(buf, "Maximum time step:   %14.6g\n", m_maxstep);
-        writelog(buf);
+        writelog("Number of equations: {:d}\n", neq());
+        writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
     }
     m_integ->initialize(m_time, *this);
     m_integrator_init = true;

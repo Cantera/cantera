@@ -105,8 +105,7 @@ namespace Cantera
  * or by the following call to importPhase():
  *
  * @code
- *    sprintf(file_ID,"%s#MetalSHEelectrons", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", iFile + "#MetalSHEelectrons", 0);
  *    MetalSHEelectrons eMetal;
  *    importPhase(*xm, &eMetal);
  * @endcode

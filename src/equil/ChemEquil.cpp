@@ -553,7 +553,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         bool haveEm = s.getElementPotentials(DATA_PTR(x));
         if (haveEm) {
             if (s.temperature() < 100.) {
-                printf("we are here %g\n", s.temperature());
+                writelog("we are here {:g}\n", s.temperature());
             }
             for (m = 0; m < m_mm; m++) {
                 x[m] *= 1.0 / s.RT();
@@ -696,24 +696,19 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             for (m = 0; m <= m_mm; m++) {
                 writelog("      [ ");
                 for (size_t n = 0; n <= m_mm; n++) {
-                    writelogf("%10.5g ", jac(m,n));
+                    writelog("{:10.5g} ", jac(m,n));
                 }
                 writelog(" ]");
-                char xName[32];
                 if (m < m_mm) {
-                    string nnn = s.elementName(m);
-                    sprintf(xName, "x_%-10s", nnn.c_str());
+                    writelog("x_{:10s}", s.elementName(m));
+                } else if (m_eloc == m) {
+                    writelog("x_ELOC");
+                } else if (m == m_skip) {
+                    writelog("x_YY");
                 } else {
-                    sprintf(xName, "x_XX");
+                    writelog("x_XX");
                 }
-                if (m_eloc == m) {
-                    sprintf(xName, "x_ELOC");
-                }
-                if (m == m_skip) {
-                    sprintf(xName, "x_YY");
-                }
-                writelogf("%-12s", xName);
-                writelogf(" =  - (%10.5g)\n", res_trial[m]);
+                writelog(" =  - ({:10.5g})\n", res_trial[m]);
             }
         }
 

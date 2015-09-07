@@ -77,8 +77,7 @@ namespace Cantera
  * sets the chemical potential to a specific value in J / kmol.
  *
  * @code
- *    sprintf(file_ID,"%s#Li(Fixed)", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", iFile + "#Li(Fixed)", 0);
  *    FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP(*xm);
       // Set the chemical potential to -2.3E7 J/kmol
  *    LiFixed->setChemicalPotential(-2.3E7.)
@@ -87,8 +86,7 @@ namespace Cantera
  * or by the following call to importPhase():
  *
  * @code
- *    sprintf(file_ID,"%s#NaCl(S)", iFile);
- *    XML_Node *xm = get_XML_NameID("phase", file_ID, 0);
+ *    XML_Node *xm = get_XML_NameID("phase", iFile + "#NaCl(S)", 0);
  *    FixedChemPotSSTP solid;
  *    importPhase(*xm, &solid);
  * @endcode

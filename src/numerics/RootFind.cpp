@@ -207,9 +207,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
 
     callNum++;
     if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
-        char fileName[80];
-        sprintf(fileName, "RootFind_%d.log", callNum);
-        fp = fopen(fileName, "w");
+        fp = fopen(fmt::format("RootFind_%d.log", callNum).c_str(), "w");
         fprintf(fp, " Iter   TP_its  xval   Func_val  |  Reasoning\n");
         fprintf(fp, "-----------------------------------------------------"
                 "-------------------------------\n");
@@ -382,7 +380,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
          *    a linear approximation from the last two points.
          */
         if (DEBUG_MODE_ENABLED && fabs(x2 - x1) < 1.0E-14) {
-            printf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
+            writelogf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
         }
         doublereal delXtmp = deltaXControlled(x2, x1);
         slope = (f2 - f1) / delXtmp;
