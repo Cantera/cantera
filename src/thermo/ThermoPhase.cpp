@@ -763,7 +763,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
     if (solver == "auto" || solver == "element_potential") {
         vector_fp initial_state;
         saveState(initial_state);
-        writelog("Trying ChemEquil solver\n", log_level);
+        debuglog("Trying ChemEquil solver\n", log_level);
         try {
             ChemEquil E;
             E.options.maxIterations = max_steps;
@@ -775,11 +775,11 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
                     "ChemEquil solver failed. Return code: " + int2str(ret));
             }
             setElementPotentials(E.elementPotentials());
-            writelog("ChemEquil solver succeeded\n", log_level);
+            debuglog("ChemEquil solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
-            writelog("ChemEquil solver failed.\n", log_level);
-            writelog(err.what(), log_level);
+            debuglog("ChemEquil solver failed.\n", log_level);
+            debuglog(err.what(), log_level);
             restoreState(initial_state);
             if (solver == "auto") {
             } else {

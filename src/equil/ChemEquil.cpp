@@ -1410,7 +1410,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             } catch (CanteraError& err) {
                 err.save();
                 if (DEBUG_MODE_ENABLED) {
-                    writelog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
+                    debuglog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
                 }
                 s.restoreState(state);
                 throw CanteraError("equilibrate:estimateEP_Brinkley()",

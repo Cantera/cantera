@@ -86,7 +86,7 @@ void PureFluidPhase::initThermo()
     double s_R = s0_R - log(p/refPressure());
     m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
                        s_R*GasConstant/m_mw, T0, p);
-    writelog("PureFluidPhase::initThermo: initialized phase "
+    debuglog("PureFluidPhase::initThermo: initialized phase "
              +id()+"\n", m_verbose);
 }
 

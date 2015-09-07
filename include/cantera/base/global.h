@@ -147,7 +147,7 @@ std::string canteraRoot();
 void writelog(const std::string& msg);
 
 //! Write a message to the log only if loglevel > 0
-inline void writelog(const std::string& msg, int loglevel)
+inline void debuglog(const std::string& msg, int loglevel)
 {
     if (loglevel > 0) {
         writelog(msg);

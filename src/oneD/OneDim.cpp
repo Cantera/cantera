@@ -320,8 +320,8 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
     // set the Jacobian age parameter to the transient value
     newton().setOptions(m_ts_jac_age);
 
-    writelog("\n\n step    size (s)    log10(ss) \n", loglevel);
-    writelog("===============================\n", loglevel);
+    debuglog("\n\n step    size (s)    log10(ss) \n", loglevel);
+    debuglog("===============================\n", loglevel);
 
     int n = 0;
     char str[80];
@@ -342,7 +342,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         // the current solution in x.
         if (m >= 0) {
             n += 1;
-            writelog("\n", loglevel);
+            debuglog("\n", loglevel);
             copy(r, r + m_size, x);
             if (m == 100) {
                 dt *= 1.5;
@@ -351,7 +351,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         } else {
             // No solution could be found with this time step.
             // Decrease the stepsize and try again.
-            writelog("...failure.\n", loglevel);
+            debuglog("...failure.\n", loglevel);
             dt *= m_tfactor;
             if (dt < m_tmin) {
                 throw CanteraError("OneDim::timeStep",
@@ -406,7 +406,7 @@ void OneDim::save(const std::string& fname, std::string id,
     }
     root.write(s);
     s.close();
-    writelog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
+    debuglog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
 }
 
 }

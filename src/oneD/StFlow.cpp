@@ -663,7 +663,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         if (nm == "z") {
             getFloatArray(fa,x,false);
             np = x.size();
-            writelog("Grid contains "+int2str(np)+" points.\n", loglevel >= 2);
+            debuglog("Grid contains "+int2str(np)+" points.\n", loglevel >= 2);
             readgrid = true;
             setupGrid(np, DATA_PTR(x));
         }
@@ -673,13 +673,13 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                            "domain contains no grid points.");
     }
 
-    writelog("Importing datasets:\n", loglevel >= 2);
+    debuglog("Importing datasets:\n", loglevel >= 2);
     for (n = 0; n < nd; n++) {
         const XML_Node& fa = *d[n];
         nm = fa["title"];
         getFloatArray(fa,x,false);
         if (nm == "u") {
-            writelog("axial velocity   ", loglevel >= 2);
+            debuglog("axial velocity   ", loglevel >= 2);
             if (x.size() != np) {
                 throw CanteraError("StFlow::restore",
                                    "axial velocity array size error");
@@ -690,7 +690,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         } else if (nm == "z") {
             ; // already read grid
         } else if (nm == "V") {
-            writelog("radial velocity   ", loglevel >= 2);
+            debuglog("radial velocity   ", loglevel >= 2);
             if (x.size() != np) {
                 throw CanteraError("StFlow::restore",
                                    "radial velocity array size error");
@@ -699,7 +699,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 soln[index(1,j)] = x[j];
             }
         } else if (nm == "T") {
-            writelog("temperature   ", loglevel >= 2);
+            debuglog("temperature   ", loglevel >= 2);
             if (x.size() != np) {
                 throw CanteraError("StFlow::restore",
                                    "temperature array size error");
@@ -718,7 +718,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             }
             setFixedTempProfile(zz, x);
         } else if (nm == "L") {
-            writelog("lambda   ", loglevel >= 2);
+            debuglog("lambda   ", loglevel >= 2);
             if (x.size() != np) {
                 throw CanteraError("StFlow::restore",
                                    "lambda arary size error");
@@ -727,7 +727,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 soln[index(3,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
-            writelog(nm+"   ", loglevel >= 2);
+            debuglog(nm+"   ", loglevel >= 2);
             if (x.size() == np) {
                 k = m_thermo->speciesIndex(nm);
                 did_species[k] = 1;

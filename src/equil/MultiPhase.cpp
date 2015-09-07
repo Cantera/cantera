@@ -745,7 +745,7 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
     int ixy = _equilflag(XY.c_str());
     if (solver == "auto" || solver == "vcs") {
         try {
-            writelog("Trying VCS equilibrium solver\n", log_level);
+            debuglog("Trying VCS equilibrium solver\n", log_level);
             vcs_MultiPhaseEquil eqsolve(this, log_level-1);
             int ret = eqsolve.equilibrate(ixy, estimate_equil, log_level-1,
                                           rtol, max_steps);
@@ -753,11 +753,11 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
                 throw CanteraError("MultiPhase::equilibrate",
                     "VCS solver failed. Return code: " + int2str(ret));
             }
-            writelog("VCS solver succeeded\n", log_level);
+            debuglog("VCS solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
-            writelog("VCS solver failed.\n", log_level);
-            writelog(err.what(), log_level);
+            debuglog("VCS solver failed.\n", log_level);
+            debuglog(err.what(), log_level);
             m_moleFractions = initial_moleFractions;
             m_moles = initial_moles;
             m_temp = initial_T;
@@ -772,15 +772,15 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
 
     if (solver == "auto" || solver == "gibbs") {
         try {
-            writelog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
+            debuglog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
                      log_level);
             equilibrate_MultiPhaseEquil(ixy, rtol, max_steps, max_iter,
                                         log_level-1);
-            writelog("MultiPhaseEquil solver succeeded\n", log_level);
+            debuglog("MultiPhaseEquil solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
-            writelog("MultiPhaseEquil solver failed.\n", log_level);
-            writelog(err.what(), log_level);
+            debuglog("MultiPhaseEquil solver failed.\n", log_level);
+            debuglog(err.what(), log_level);
             m_moleFractions = initial_moleFractions;
             m_moles = initial_moles;
             m_temp = initial_T;

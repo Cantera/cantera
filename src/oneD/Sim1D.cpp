@@ -228,7 +228,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             writeline('.', 78, true, true);
         }
         while (!ok) {
-            writelog("Attempt Newton solution of steady-state problem...", loglevel);
+            debuglog("Attempt Newton solution of steady-state problem...", loglevel);
             int status = newtonSolve(loglevel-1);
 
             if (status == 0) {
@@ -255,7 +255,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 soln_number++;
             } else {
                 char buf[100];
-                writelog("    failure. \n", loglevel);
+                debuglog("    failure. \n", loglevel);
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug",
                          "After unsuccessful Newton solve");
@@ -264,7 +264,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     saveResidual("debug_sim1d.xml", "residual",
                                  "After unsuccessful Newton solve");
                 }
-                writelog("Take "+int2str(nsteps)+" timesteps   ", loglevel);
+                debuglog("Take "+int2str(nsteps)+" timesteps   ", loglevel);
                 dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
                               loglevel-1);
                 if (loglevel > 6) {
@@ -315,7 +315,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 new_points = 0;
             }
         } else {
-            writelog("grid refinement disabled.\n", loglevel);
+            debuglog("grid refinement disabled.\n", loglevel);
             new_points = 0;
         }
     }
@@ -376,7 +376,7 @@ int Sim1D::refine(int loglevel)
                     }
                 }
             } else {
-                writelog("refine: discarding point at "+fp2str(d.grid(m))+"\n", loglevel);
+                debuglog("refine: discarding point at "+fp2str(d.grid(m))+"\n", loglevel);
             }
         }
         dsize.push_back(znew.size() - nstart);

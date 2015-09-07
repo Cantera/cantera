@@ -253,7 +253,7 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     // this case, the Newton algorithm fails, so return an error
     // condition.
     if (fbound < 1.e-10) {
-        writelog("\nAt limits.\n", loglevel);
+        debuglog("\nAt limits.\n", loglevel);
         return -3;
     }
 
@@ -334,7 +334,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
-            writelog("\nMaximum Jacobian age reached ("+int2str(m_maxAge)+")\n", loglevel);
+            debuglog("\nMaximum Jacobian age reached ("+int2str(m_maxAge)+")\n", loglevel);
             forceNewJac = true;
         }
 
@@ -386,7 +386,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
                     break;
                 }
                 nJacReeval++;
-                writelog("\nRe-evaluating Jacobian, since no damping "
+                debuglog("\nRe-evaluating Jacobian, since no damping "
                          "coefficient\ncould be found with this Jacobian.\n",
                          loglevel);
             } else {
