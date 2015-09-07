@@ -9,7 +9,6 @@
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/base/utilities.h"
 
-#include <cstdio>
 #include <ctime>
 
 using namespace std;
@@ -39,7 +38,6 @@ public:
 doublereal bound_step(const doublereal* x, const doublereal* step,
                       Domain1D& r, int loglevel)
 {
-    char buf[100];
     size_t np = r.nPoints();
     size_t nv = r.nComponents();
     Indx index(nv, np);
@@ -54,11 +52,9 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
         for (j = 0; j < np; j++) {
             val = x[index(m,j)];
             if (loglevel > 0 && (val > above + 1.0e-12 || val < below - 1.0e-12)) {
-                sprintf(buf, "domain %s: %20s(%s) = %10.3e (%10.3e, %10.3e)\n",
-                        int2str(r.domainIndex()).c_str(),
-                        r.componentName(m).c_str(), int2str(j).c_str(),
-                        val, below, above);
-                writelog(string("\nERROR: solution out of bounds.\n")+buf);
+                writelog("\nERROR: solution out of bounds.\n");
+                writelog("domain {:d}: {:>20s}({:d}) = {:10.3e} ({:10.3e}, {:10.3e})\n",
+                         r.domainIndex(), r.componentName(m), j, val, below, above);
             }
 
             newval = val + step[index(m,j)];
@@ -73,16 +69,13 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
             if (loglevel > 1 && (newval > above || newval < below)) {
                 if (!wroteTitle) {
                     writelog("\nNewton step takes solution out of bounds.\n\n");
-                    sprintf(buf,"  %12s  %12s  %4s  %10s  %10s  %10s  %10s\n",
-                            "domain","component","pt","value","step","min","max");
+                    writelog("  {:>12s}  {:>12s}  {:>4s}  {:>10s}  {:>10s}  {:>10s}  {:>10s}\n",
+                             "domain","component","pt","value","step","min","max");
                     wroteTitle = true;
-                    writelog(buf);
                 }
-                sprintf(buf, "          %4s  %12s  %4s  %10.3e  %10.3e  %10.3e  %10.3e\n",
-                        int2str(r.domainIndex()).c_str(),
-                        r.componentName(m).c_str(), int2str(j).c_str(),
-                        val, step[index(m,j)], below, above);
-                writelog(buf);
+                writelog("          {:4d}  {:>12s}  {:4d}  {:10.3e}  {:10.3e}  {:10.3e}  {:10.3e}\n",
+                         r.domainIndex(), r.componentName(m), j,
+                         val, step[index(m,j)], below, above);
             }
         }
     }
@@ -235,10 +228,9 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
         writelog("\n\nDamped Newton iteration:\n");
         writeline('-', 65, false);
 
-        sprintf(m_buf,"\n%s  %9s   %9s     %9s   %9s   %9s  %5s %5s\n",
+        writelog("\n{}  {:>9s}   {:>9s}     {:>9s}   {:>9s}   {:>9s}  {:>5s} {:>5s}\n",
                 "m","F_damp","F_bound","log10(ss)",
                 "log10(s0)","log10(s1)","N_jac","Age");
-        writelog(m_buf);
         writeline('-', 65);
     }
 
@@ -283,12 +275,10 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
         // write log information
         if (loglevel > 0) {
             doublereal ss = r.ssnorm(x1,step1);
-            sprintf(m_buf,"\n%s  %9.5f   %9.5f   %9.5f   %9.5f   %9.5f %4d  %d/%d",
-                    int2str(m).c_str(), damp, fbound, log10(ss+SmallNumber),
-                    log10(s0+SmallNumber),
-                    log10(s1+SmallNumber),
-                    jac.nEvals(), jac.age(), m_maxAge);
-            writelog(m_buf);
+            writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f} {:4d}  {:d}/{:d}",
+                     m, damp, fbound, log10(ss+SmallNumber),
+                     log10(s0+SmallNumber), log10(s1+SmallNumber),
+                     jac.nEvals(), jac.age(), m_maxAge);
         }
 
         // if the norm of s1 is less than the norm of s0, then
@@ -355,16 +345,13 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         m = dampStep(&m_x[0], &m_stp[0], x1, &m_stp1[0], s1, r, jac, loglevel-1, frst);
         if (loglevel == 1 && m >= 0) {
             if (frst) {
-                sprintf(m_buf,"\n\n    %10s    %10s   %5s ",
-                        "log10(ss)","log10(s1)","N_jac");
-                writelog(m_buf);
-                sprintf(m_buf,"\n    ------------------------------------");
-                writelog(m_buf);
+                writelog("\n\n    {:>10s}    {:>10s}   {:>5s}",
+                         "log10(ss)","log10(s1)","N_jac");
+                writelog("\n    ------------------------------------");
             }
             doublereal ss = r.ssnorm(&m_x[0], &m_stp[0]);
-            sprintf(m_buf,"\n    %10.4f    %10.4f       %d ",
-                    log10(ss),log10(s1),jac.nEvals());
-            writelog(m_buf);
+            writelog("\n    {:10.4f}    {:10.4f}       {:d}",
+                     log10(ss),log10(s1),jac.nEvals());
         }
         frst = false;
 

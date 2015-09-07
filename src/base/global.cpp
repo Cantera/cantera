@@ -27,7 +27,7 @@ void setLogger(Logger* logwriter)
     }
 }
 
-void writelog(const std::string& msg)
+void writelog_direct(const std::string& msg)
 {
     app()->writelog(msg);
 }
@@ -42,7 +42,7 @@ void writeline(char repeat, size_t count, bool endl_after, bool endl_before)
     if (endl_before) {
         writelogendl();
     }
-    writelog(std::string(count, repeat));
+    writelog_direct(std::string(count, repeat));
     if (endl_after) {
         writelogendl();
     }

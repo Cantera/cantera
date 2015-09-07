@@ -16,8 +16,6 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "StFlow.h"
 
-#include <cstdio>
-
 namespace Cantera
 {
 
@@ -129,18 +127,14 @@ public:
     }
 
     virtual void showSolution(const doublereal* x) {
-        char buf[80];
-        sprintf(buf, "    Mass Flux:   %10.4g kg/m^2/s \n", m_mdot);
-        writelog(buf);
-        sprintf(buf, "    Temperature: %10.4g K \n", m_temp);
-        writelog(buf);
+        writelog("    Mass Flux:   {:10.4g} kg/m^2/s \n", m_mdot);
+        writelog("    Temperature: {:10.4g} K \n", m_temp);
         if (m_flow) {
             writelog("    Mass Fractions: \n");
             for (size_t k = 0; k < m_flow->phase().nSpecies(); k++) {
                 if (m_yin[k] != 0.0) {
-                    sprintf(buf, "        %16s  %10.4g \n",
-                            m_flow->phase().speciesName(k).c_str(), m_yin[k]);
-                    writelog(buf);
+                    writelog("        {:>16s}  {:10.4g} \n",
+                            m_flow->phase().speciesName(k), m_yin[k]);
                 }
             }
         }
@@ -329,10 +323,7 @@ public:
     }
 
     virtual void showSolution(const doublereal* x) {
-        char buf[80];
-        sprintf(buf, "    Temperature: %10.4g K \n", m_temp);
-        writelog(buf);
-        writelog("\n");
+        writelog("    Temperature: {:10.4g} K \n\n", m_temp);
     }
 };
 
@@ -380,14 +371,10 @@ public:
     }
 
     virtual void showSolution(const doublereal* x) {
-        char buf[80];
-        sprintf(buf, "    Temperature: %10.4g K \n", x[0]);
-        writelog(buf);
+        writelog("    Temperature: {:10.4g} K \n", x[0]);
         writelog("    Coverages: \n");
         for (size_t k = 0; k < m_nsp; k++) {
-            sprintf(buf, "    %20s %10.4g \n", m_sphase->speciesName(k).c_str(),
-                    x[k+1]);
-            writelog(buf);
+            writelog("    {:>20s} {:10.4g} \n", m_sphase->speciesName(k), x[k+1]);
         }
         writelog("\n");
     }

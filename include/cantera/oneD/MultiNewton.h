@@ -84,9 +84,6 @@ protected:
     size_t m_n;
 
     doublereal m_elapsed;
-
-private:
-    char m_buf[100];
 };
 }
 

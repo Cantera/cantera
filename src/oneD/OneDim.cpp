@@ -94,20 +94,17 @@ MultiNewton& OneDim::newton()
 void OneDim::writeStats(int printTime)
 {
     saveStats();
-    char buf[100];
-    sprintf(buf,"\nStatistics:\n\n Grid   Functions   Time      Jacobians   Time \n");
-    writelog(buf);
+    writelog("\nStatistics:\n\n Grid   Functions   Time      Jacobians   Time \n");
     size_t n = m_gridpts.size();
     for (size_t i = 0; i < n; i++) {
         if (printTime) {
-            sprintf(buf,"%5s   %5i    %9.4f    %5i    %9.4f \n",
-                    int2str(m_gridpts[i]).c_str(), m_funcEvals[i], m_funcElapsed[i],
-                    m_jacEvals[i], m_jacElapsed[i]);
+            writelog("{:5d}   {:5d}    {:9.4f}    {:5d}    {:9.4f}\n",
+                     m_gridpts[i], m_funcEvals[i], m_funcElapsed[i],
+                     m_jacEvals[i], m_jacElapsed[i]);
         } else {
-            sprintf(buf,"%5s   %5i       NA        %5i        NA    \n",
-                    int2str(m_gridpts[i]).c_str(), m_funcEvals[i], m_jacEvals[i]);
+            writelog("{:5d}   {:5d}       NA        {:5d}        NA\n",
+                     m_gridpts[i], m_funcEvals[i], m_jacEvals[i]);
         }
-        writelog(buf);
     }
 }
 
@@ -324,12 +321,10 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
     debuglog("===============================\n", loglevel);
 
     int n = 0;
-    char str[80];
     while (n < nsteps) {
         if (loglevel > 0) {
             doublereal ss = ssnorm(x, r);
-            sprintf(str, " %4d  %10.4g  %10.4g" , n,dt,log10(ss));
-            writelog(str);
+            writelog(" {:>4d}  {:10.4g}  {:10.4g}", n, dt, log10(ss));
         }
 
         // set up for time stepping with stepsize dt

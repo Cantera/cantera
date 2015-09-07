@@ -8,8 +8,6 @@
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
 
-#include <cstdio>
-
 using namespace std;
 
 namespace Cantera
@@ -486,58 +484,46 @@ void StFlow::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
     size_t i, j, n;
-    char buf[100];
 
     // The mean molecular weight is needed to convert
     updateThermo(x, 0, m_points-1);
 
-    sprintf(buf, "    Pressure:  %10.4g Pa \n", m_press);
-    writelog(buf);
+    writelog("    Pressure:  {:10.4g} Pa\n", m_press);
     for (i = 0; i < nn; i++) {
         writeline('-', 79, false, true);
-        sprintf(buf, "\n        z   ");
-        writelog(buf);
+        writelog("\n          z ");
         for (n = 0; n < 5; n++) {
-            sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
-            writelog(buf);
+            writelog(" {:>10s} ", componentName(i*5 + n));
         }
         writeline('-', 79, false, true);
         for (j = 0; j < m_points; j++) {
-            sprintf(buf, "\n %10.4g ",m_z[j]);
-            writelog(buf);
+            writelog("\n {:10.4g} ", m_z[j]);
             for (n = 0; n < 5; n++) {
-                sprintf(buf, " %10.4g ",component(x, i*5+n,j));
-                writelog(buf);
+                writelog(" {:10.4g} ", component(x, i*5+n,j));
             }
         }
         writelog("\n");
     }
     size_t nrem = m_nv - 5*nn;
     writeline('-', 79, false, true);
-    sprintf(buf, "\n        z   ");
-    writelog(buf);
+    writelog("\n          z ");
     for (n = 0; n < nrem; n++) {
-        sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
-        writelog(buf);
+        writelog(" {:>10s} ", componentName(nn*5 + n));
     }
     writeline('-', 79, false, true);
     for (j = 0; j < m_points; j++) {
-        sprintf(buf, "\n %10.4g ",m_z[j]);
-        writelog(buf);
+        writelog("\n {:10.4g} ", m_z[j]);
         for (n = 0; n < nrem; n++) {
-            sprintf(buf, " %10.4g ",component(x, nn*5+n,j));
-            writelog(buf);
+            writelog(" {:10.4g} ", component(x, nn*5+n,j));
         }
     }
     writelog("\n");
     if (m_do_radiation) {
         writeline('-', 79, false, true);
-        sprintf(buf, "\n        z        radiative heat loss");
-        writelog(buf);
+        writelog("\n          z      radiative heat loss");
         writeline('-', 79, false, true);
         for (j = 0; j < m_points; j++) {
-            sprintf(buf, "\n %10.4g        %10.4g", m_z[j], m_qdotRadiation[j]);
-            writelog(buf);
+            writelog("\n {:10.4g}        {:10.4g}", m_z[j], m_qdotRadiation[j]);
         }
         writelog("\n");
     }

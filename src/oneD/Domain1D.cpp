@@ -6,8 +6,6 @@
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/base/ctml.h"
 
-#include <cstdio>
-
 using namespace std;
 
 namespace Cantera
@@ -159,44 +157,35 @@ void Domain1D::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
     size_t i, j, n;
-    char buf[100];
     doublereal v;
     for (i = 0; i < nn; i++) {
         writeline('-', 79, false, true);
-        sprintf(buf, "\n        z   ");
-        writelog(buf);
+        writelog("\n          z ");
         for (n = 0; n < 5; n++) {
-            sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
-            writelog(buf);
+            writelog(" {:>10s} ", componentName(i*5 + n));
         }
         writeline('-', 79, false, true);
         for (j = 0; j < m_points; j++) {
-            sprintf(buf, "\n %10.4g ",m_z[j]);
-            writelog(buf);
+            writelog("\n {:10.4g} ", m_z[j]);
             for (n = 0; n < 5; n++) {
                 v = value(x, i*5+n, j);
-                sprintf(buf, " %10.4g ",v);
-                writelog(buf);
+                writelog(" {:10.4g} ", v);
             }
         }
         writelog("\n");
     }
     size_t nrem = m_nv - 5*nn;
     writeline('-', 79, false, true);
-    sprintf(buf, "\n        z   ");
-    writelog(buf);
+    writelog("\n          z ");
     for (n = 0; n < nrem; n++) {
-        sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
-        writelog(buf);
+        writelog(" {:>10s} ", componentName(nn*5 + n));
     }
     writeline('-', 79, false, true);
     for (j = 0; j < m_points; j++) {
-        sprintf(buf, "\n %10.4g ",m_z[j]);
-        writelog(buf);
+        writelog("\n {:10.4g} ", m_z[j]);
         for (n = 0; n < nrem; n++) {
             v = value(x, nn*5+n, j);
-            sprintf(buf, " %10.4g ", v);
-            writelog(buf);
+            writelog(" {:10.4g} ", v);
         }
     }
     writelog("\n");

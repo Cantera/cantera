@@ -254,7 +254,6 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 ok = true;
                 soln_number++;
             } else {
-                char buf[100];
                 debuglog("    failure. \n", loglevel);
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug",
@@ -276,9 +275,8 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
 
                 if (loglevel == 1) {
-                    sprintf(buf, " %10.4g %10.4g \n", dt,
-                            log10(ssnorm(DATA_PTR(m_x), DATA_PTR(m_xnew))));
-                    writelog(buf);
+                    writelog(" {:10.4g} {:10.4g}\n", dt,
+                             log10(ssnorm(DATA_PTR(m_x), DATA_PTR(m_xnew))));
                 }
                 istep++;
                 if (istep >= m_steps.size()) {
