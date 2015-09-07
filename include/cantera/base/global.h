@@ -144,13 +144,26 @@ std::string canteraRoot();
  */
 
 //! @copydoc Application::Messages::writelog(const std::string&)
-void writelog(const std::string& msg);
+void writelog_direct(const std::string& msg);
 
 //! Write a message to the log only if loglevel > 0
 inline void debuglog(const std::string& msg, int loglevel)
 {
     if (loglevel > 0) {
-        writelog(msg);
+        writelog_direct(msg);
+    }
+}
+
+//! @copydoc Application::Messages::writelog(const std::string&)
+//! This function passes its arguments to the cppformat 'format' function to
+//! generate a formatted string from a Python-style (curly braces) format
+//! string.
+template <typename... Args>
+void writelog(const std::string& fmt, const Args&... args) {
+    if (sizeof...(args) == 0) {
+        writelog_direct(fmt);
+    } else {
+        writelog_direct(fmt::format(fmt, args...));
     }
 }
 
@@ -167,7 +180,7 @@ inline void debuglog(const std::string& msg, int loglevel)
  */
 template <typename... Args>
 void writelogf(const char* fmt, const Args& ... args) {
-    writelog(fmt::sprintf(fmt, args...));
+    writelog_direct(fmt::sprintf(fmt, args...));
 }
 
 //! Write an end of line character to the screen and flush output
