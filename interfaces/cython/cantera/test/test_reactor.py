@@ -773,6 +773,11 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.integrate()
 
     def test_with_surface_reactions(self):
+        if (not ct.__sundials_version__ and
+            self.reactorClass == ct.ConstPressureReactor):
+            raise unittest.SkipTest("Disabled until there is an interface for "
+                "setting the max_err_test_fails parameter for the old CVODE")
+
         self.create_reactors(add_surf=True)
         self.net1.atol = self.net2.atol = 1e-18
         self.net1.rtol = self.net2.rtol = 1e-9
