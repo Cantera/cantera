@@ -28,6 +28,8 @@ def configure_python(env, python_command):
             env.Append(LIBS='python%s' % py_version.replace('.',''))
             if env['OS_BITS'] == 64:
                 env.Append(CPPDEFINES='MS_WIN64')
+            # fix for http://bugs.python.org/issue11566
+            env.Append(CPPDEFINES={'_hypot':'hypot'})
     elif env['OS'] == 'Cygwin':
         # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
         env.Append(LIBS=pylib[3:-6])
