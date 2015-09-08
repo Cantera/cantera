@@ -12,8 +12,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 
-#include <cstdio>
-
 using namespace std;
 namespace Cantera
 {
@@ -276,8 +274,8 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
              *    "nan" results from the linear solve.
              */
             if (m_ioflag) {
-                printf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
-                       resid_norm, info);
+                writelogf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
+                          resid_norm, info);
             }
             for (size_t jcol = 0; jcol < m_neq; jcol++) {
                 m_resid[jcol] = 0.0;
@@ -285,17 +283,17 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
 
             /* print out some helpful info */
             if (m_ioflag > 1) {
-                printf("-----\n");
-                printf("solveSurfProb: iter %d t_real %g delta_t %g\n\n",
-                       iter,t_real, 1.0/inv_t);
-                printf("solveSurfProb: init guess, current concentration,"
-                       "and prod rate:\n");
+                writelog("-----\n");
+                writelogf("solveSurfProb: iter %d t_real %g delta_t %g\n\n",
+                          iter,t_real, 1.0/inv_t);
+                writelog("solveSurfProb: init guess, current concentration,"
+                         "and prod rate:\n");
                 for (size_t jcol = 0; jcol < m_neq; jcol++) {
-                    printf("\t%s  %g %g %g\n", int2str(jcol).c_str(),
+                    writelog("\t%d  %g %g %g\n", jcol,
                            m_CSolnSPInit[jcol], m_CSolnSP[jcol],
                            m_netProductionRatesSave[m_kinSpecIndex[jcol]]);
                 }
-                printf("-----\n");
+                writelog("-----\n");
             }
             if (do_time) {
                 t_real += time_scale;
@@ -358,10 +356,10 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
      *  recalculate sdot's at equal site fractions.
      */
     if (not_converged && m_ioflag) {
-        printf("#$#$#$# Error in solveSP $#$#$#$ \n");
-        printf("Newton iter on surface species did not converge, "
-               "update_norm = %e \n", update_norm);
-        printf("Continuing anyway\n");
+        writelog("#$#$#$# Error in solveSP $#$#$#$ \n");
+        writelogf("Newton iter on surface species did not converge, "
+                  "update_norm = %e \n", update_norm);
+        writelog("Continuing anyway\n");
     }
 
     /*
@@ -773,48 +771,48 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
                            int damping, doublereal reltol, doublereal abstol)
 {
     if (ioflag) {
-        printf("\n================================ SOLVESP CALL SETUP "
-               "========================================\n");
+        writelog("\n================================ SOLVESP CALL SETUP "
+                 "========================================\n");
         if (ifunc == SFLUX_INITIALIZE) {
-            printf("\n  SOLVESP Called with Initialization turned on\n");
-            printf("     Time scale input = %9.3e\n", time_scale);
+            writelog("\n  SOLVESP Called with Initialization turned on\n");
+            writelogf("     Time scale input = %9.3e\n", time_scale);
         } else if (ifunc == SFLUX_RESIDUAL) {
-            printf("\n   SOLVESP Called to calculate steady state residual\n");
-            printf("           from a good initial guess\n");
+            writelog("\n   SOLVESP Called to calculate steady state residual\n");
+            writelog("           from a good initial guess\n");
         } else if (ifunc == SFLUX_JACOBIAN)  {
-            printf("\n   SOLVESP Called to calculate steady state Jacobian\n");
-            printf("           from a good initial guess\n");
+            writelog("\n   SOLVESP Called to calculate steady state Jacobian\n");
+            writelog("           from a good initial guess\n");
         } else if (ifunc == SFLUX_TRANSIENT) {
-            printf("\n   SOLVESP Called to integrate surface in time\n");
-            printf("           for a total of %9.3e sec\n", time_scale);
+            writelog("\n   SOLVESP Called to integrate surface in time\n");
+            writelogf("           for a total of %9.3e sec\n", time_scale);
         } else {
             throw CanteraError("solveSP::print_header",
                                "Unknown ifunc flag = " + int2str(ifunc));
         }
 
         if (m_bulkFunc == BULK_DEPOSITION) {
-            printf("     The composition of the Bulk Phases will be calculated\n");
+            writelog("     The composition of the Bulk Phases will be calculated\n");
         } else if (m_bulkFunc == BULK_ETCH) {
-            printf("     Bulk Phases have fixed compositions\n");
+            writelog("     Bulk Phases have fixed compositions\n");
         } else {
             throw CanteraError("solveSP::print_header",
                                "Unknown bulkFunc flag = " + int2str(m_bulkFunc));
         }
 
         if (damping) {
-            printf("     Damping is ON   \n");
+            writelog("     Damping is ON   \n");
         } else {
-            printf("     Damping is OFF  \n");
+            writelog("     Damping is OFF  \n");
         }
 
-        printf("     Reltol = %9.3e, Abstol = %9.3e\n", reltol, abstol);
+        writelogf("     Reltol = %9.3e, Abstol = %9.3e\n", reltol, abstol);
     }
 
     if (ioflag == 1) {
-        printf("\n\n\t Iter    Time       Del_t      Damp      DelX   "
-               "     Resid    Name-Time    Name-Damp\n");
-        printf("\t -----------------------------------------------"
-               "------------------------------------\n");
+        writelog("\n\n\t Iter    Time       Del_t      Damp      DelX   "
+                 "     Resid    Name-Time    Name-Damp\n");
+        writelog("\t -----------------------------------------------"
+                 "------------------------------------\n");
     }
 }
 
@@ -827,47 +825,41 @@ void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
     string nm;
     if (ioflag == 1) {
         if (final) {
-            printf("\tFIN%3s ", int2str(iter).c_str());
+            writelogf("\tFIN%3d ", iter);
         } else {
-            printf("\t%6s ", int2str(iter).c_str());
+            writelogf("\t%6d ", iter);
         }
         if (do_time) {
-            printf("%9.4e %9.4e ", t_real, 1.0/inv_t);
+            writelogf("%9.4e %9.4e ", t_real, 1.0/inv_t);
         } else {
-            for (i = 0; i < 22; i++) {
-                printf(" ");
-            }
+            writeline(' ', 22, false);
         }
         if (damp < 1.0) {
-            printf("%9.4e ", damp);
+            writelogf("%9.4e ", damp);
         } else {
-            for (i = 0; i < 11; i++) {
-                printf(" ");
-            }
+            writeline(' ', 11, false);
         }
-        printf("%9.4e %9.4e", update_norm, resid_norm);
+        writelogf("%9.4e %9.4e", update_norm, resid_norm);
         if (do_time) {
             k = m_kinSpecIndex[label_t];
             size_t isp = m_kinObjIndex[label_t];
             InterfaceKinetics* m_kin = m_objects[isp];
             nm = m_kin->kineticsSpeciesName(k);
-            printf(" %-16s", nm.c_str());
+            writelog(" %-16s", nm);
         } else {
-            for (i = 0; i < 16; i++) {
-                printf(" ");
-            }
+            writeline(' ', 16, false);
         }
         if (label_d >= 0) {
             k = m_kinSpecIndex[label_d];
             size_t isp = m_kinObjIndex[label_d];
             InterfaceKinetics* m_kin = m_objects[isp];
             nm = m_kin->kineticsSpeciesName(k);
-            printf(" %-16s", nm.c_str());
+            writelogf(" %-16s", nm);
         }
         if (final) {
-            printf(" -- success");
+            writelog(" -- success");
         }
-        printf("\n");
+        writelog("\n");
     }
 } /* printIteration */
 

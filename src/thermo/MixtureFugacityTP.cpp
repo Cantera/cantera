@@ -851,11 +851,11 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             }
         }
         if (!foundGas || !foundLiquid) {
-            printf("error couldn't find a starting pressure\n");
+            writelog("error couldn't find a starting pressure\n");
             return 0.0;
         }
         if (presGas != presLiquid) {
-            printf("error couldn't find a starting pressure\n");
+            writelog("error couldn't find a starting pressure\n");
             return 0.0;
         }
 

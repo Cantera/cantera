@@ -3514,9 +3514,9 @@ void VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
     }
 
     double RT = m_temperature * GasConstant;
-    printf("   ---  CHEMICAL POT TABLE (J/kmol) Name PhID     MolFR     ChemoSS   "
-           "   logMF       Gamma       Elect       extra       ElectrChem\n");
-    printf("   ");
+    writelog("   ---  CHEMICAL POT TABLE (J/kmol) Name PhID     MolFR     ChemoSS   "
+             "   logMF       Gamma       Elect       extra       ElectrChem\n");
+    writelog("   ");
     writeline('-', 132);
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
@@ -3546,21 +3546,21 @@ void VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
         double total = (m_SSfeSpecies[kspec] + log(mfValue) + elect + log(actCoeff_ptr[kspec]) + comb);
 
         if (zeroedPhase) {
-            printf("   --- ** zp *** ");
+            writelog("   --- ** zp *** ");
         } else {
-            printf("   ---           ");
+            writelog("   ---           ");
         }
-        printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3s", int2str(iphase).c_str());
-        printf(" % -12.4e", mfValue);
-        printf(" % -12.4e", m_SSfeSpecies[kspec] * RT);
-        printf(" % -12.4e", log(mfValue) * RT);
-        printf(" % -12.4e", log(actCoeff_ptr[kspec]) * RT);
-        printf(" % -12.4e", elect * RT);
-        printf(" % -12.4e", comb * RT);
-        printf(" % -12.4e\n", total *RT);
+        writelogf("%-24.24s", m_speciesName[kspec]);
+        writelogf(" %3d", iphase);
+        writelogf(" % -12.4e", mfValue);
+        writelogf(" % -12.4e", m_SSfeSpecies[kspec] * RT);
+        writelogf(" % -12.4e", log(mfValue) * RT);
+        writelogf(" % -12.4e", log(actCoeff_ptr[kspec]) * RT);
+        writelogf(" % -12.4e", elect * RT);
+        writelogf(" % -12.4e", comb * RT);
+        writelogf(" % -12.4e\n", total *RT);
     }
-    printf("   ");
+    writelog("   ");
     writeline('-', 132);
 }
 
@@ -3997,9 +3997,9 @@ void VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         plogf("\n");
     }
 
-    printf("   --- DeltaG Table (J/kmol) Name       PhID   MoleNum      MolFR  "
+    writelog("   --- DeltaG Table (J/kmol) Name       PhID   MoleNum      MolFR  "
            "  ElectrChemStar ElectrChem    DeltaGStar   DeltaG(Pred)  Stability\n");
-    printf("   ");
+    writelog("   ");
     writeline('-', 132);
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
@@ -4028,48 +4028,48 @@ void VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
             mfValue = Vphase->moleFraction(klocal);
         }
         if (zeroedPhase) {
-            printf("   --- ** zp *** ");
+            writelog("   --- ** zp *** ");
         } else {
-            printf("   ---           ");
+            writelog("   ---           ");
         }
         double feFull = feSpecies[kspec];
         if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS) ||
                 (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE)) {
             feFull += log(actCoeff_ptr[kspec]) + log(mfValue);
         }
-        printf("%-24.24s", m_speciesName[kspec].c_str());
-        printf(" %-3s", int2str(iphase).c_str());
+        writelogf("%-24.24s", m_speciesName[kspec]);
+        writelogf(" %3d", iphase);
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            printf("    NA       ");
+            writelog("    NA       ");
         } else {
-            printf(" % -12.4e", molNumSpecies[kspec]);
+            writelogf(" % -12.4e", molNumSpecies[kspec]);
         }
-        printf(" % -12.4e", mfValue);
-        printf(" % -12.4e", feSpecies[kspec] * RT);
-        printf(" % -12.4e", feFull * RT);
+        writelogf(" % -12.4e", mfValue);
+        writelogf(" % -12.4e", feSpecies[kspec] * RT);
+        writelogf(" % -12.4e", feFull * RT);
         if (irxn != npos) {
-            printf(" % -12.4e", deltaGRxn[irxn] * RT);
-            printf(" % -12.4e", (deltaGRxn[irxn] + feFull - feSpecies[kspec]) * RT);
+            writelogf(" % -12.4e", deltaGRxn[irxn] * RT);
+            writelogf(" % -12.4e", (deltaGRxn[irxn] + feFull - feSpecies[kspec]) * RT);
 
             if (deltaGRxn[irxn] < 0.0) {
                 if (molNumSpecies[kspec] > 0.0) {
-                    printf("   growing");
+                    writelog("   growing");
                 } else {
-                    printf("    stable");
+                    writelog("    stable");
                 }
             } else if (deltaGRxn[irxn] > 0.0) {
                 if (molNumSpecies[kspec] > 0.0) {
-                    printf(" shrinking");
+                    writelog(" shrinking");
                 } else {
-                    printf("  unstable");
+                    writelog("  unstable");
                 }
             } else {
-                printf(" balanced");
+                writelog(" balanced");
             }
         }
-        printf(" \n");
+        writelog(" \n");
     }
-    printf("   ");
+    writelog("   ");
     writeline('-', 132);
 }
 

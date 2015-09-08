@@ -114,4 +114,3 @@ int main()
         std::cout << err.what() << std::endl;
     }
 }
-

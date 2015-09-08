@@ -12,7 +12,6 @@
 #include "cantera/base/ct_defs.h"
 
 #include <stdexcept>
-#include <cstdio>
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
@@ -46,13 +45,12 @@ void checkFinite(const double tmp)
 {
     if (!finite(tmp)) {
         if (isnan(tmp)) {
-            printf("checkFinite() ERROR: we have encountered a nan!\n");
+            throw CanteraError("checkFinite", "found NaN");
         } else if (tmp > 0) {
-            printf("checkFinite() ERROR: we have encountered a pos inf!\n");
+            throw CanteraError("checkFinite", "found +Inf");
         } else {
-            printf("checkFinite() ERROR: we have encountered a neg inf!\n");
+            throw CanteraError("checkFinite", "found -Inf");
         }
-        throw std::range_error("checkFinite()");
     }
 }
 

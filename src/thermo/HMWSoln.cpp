@@ -23,7 +23,6 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/electrolytes.h"
 #include "cantera/base/stringUtils.h"
-#include <cstdio>
 
 namespace Cantera
 {
@@ -1641,9 +1640,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     double* Phiphi = DATA_PTR(m_PhiPhi_IJ);
     double* CMX = DATA_PTR(m_CMX_IJ);
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf("\n Debugging information from hmw_act \n");
-    }
+    debuglog("\n Debugging information from hmw_act \n", DEBUG_MODE_ENABLED && m_debugCalc);
     /*
      * Make sure the counter variables are setup
      */
@@ -1667,9 +1664,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 1: \n");
-        printf(" ionic strenth      = %14.7le \n total molar "
-               "charge = %14.7le \n", Is, molarcharge);
+        writelog(" Step 1: \n");
+        writelogf(" ionic strenth      = %14.7le \n total molar "
+                  "charge = %14.7le \n", Is, molarcharge);
     }
 
     /*
@@ -1684,24 +1681,20 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      *                E-thetaprime for all combinations of positive
      *                unlike charges up to 4
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 2: \n");
-    }
+    debuglog(" Step 2: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                       z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
+                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
+                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
             }
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 3: \n");
-        printf(" Species          Species            g(x) "
-               " hfunc(x)   \n");
-    }
+    debuglog(" Step 3: \n"
+             " Species          Species            g(x)  hfunc(x)\n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     /*
      *  calculate g(x) and hfunc(x) for each cation-anion pair MX
@@ -1749,10 +1742,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 hfunc[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(),
-                       gfunc[counterIJ], hfunc[counterIJ]);
+                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i),
+                          speciesName(j), gfunc[counterIJ], hfunc[counterIJ]);
             }
         }
     }
@@ -1761,11 +1752,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      * --------- SUBSECTION TO CALCULATE BMX, BprimeMX, BphiMX ----------
      * --------- Agrees with Pitzer, Eq. (49), (51), (55)
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 4: \n");
-        printf(" Species          Species            BMX    "
-               "BprimeMX    BphiMX   \n");
-    }
+    debuglog(" Step 4: \n"
+             " Species          Species            BMX    BprimeMX    BphiMX\n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -1785,9 +1774,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                   + beta2MX[counterIJ] * g2func[counterIJ];
 
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                    printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ, BMX[counterIJ], beta0MX[counterIJ],
-                           beta1MX[counterIJ], beta2MX[counterIJ], gfunc[counterIJ]);
+                    writelogf("%d %g: %g %g %g %g\n",
+                              counterIJ, BMX[counterIJ], beta0MX[counterIJ],
+                              beta1MX[counterIJ], beta2MX[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
                     BprimeMX[counterIJ] = (beta1MX[counterIJ] * hfunc[counterIJ]/Is +
@@ -1802,11 +1791,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 BphiMX[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                       sni.c_str(), snj.c_str(),
-                       BMX[counterIJ], BprimeMX[counterIJ], BphiMX[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
+                          speciesName(i), speciesName(j),
+                          BMX[counterIJ], BprimeMX[counterIJ], BphiMX[counterIJ]);
             }
         }
     }
@@ -1815,10 +1802,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      * --------- SUBSECTION TO CALCULATE CMX ----------
      * --------- Agrees with Pitzer, Eq. (53).
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 5: \n");
-        printf(" Species          Species            CMX \n");
-    }
+    debuglog(" Step 5: \n"
+             " Species          Species            CMX\n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -1837,10 +1823,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 CMX[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f \n", sni.c_str(), snj.c_str(),
-                       CMX[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f \n",
+                          speciesName(i), speciesName(j), CMX[counterIJ]);
             }
         }
     }
@@ -1849,11 +1833,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      * --------- Agrees with Pitzer, Eq. 72, 73, 74
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 6: \n");
-        printf(" Species          Species            Phi_ij "
-               " Phiprime_ij  Phi^phi_ij \n");
-    }
+    debuglog(" Step 6: \n"
+             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -1877,11 +1859,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 Phiphi[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                       sni.c_str(), snj.c_str(),
-                       Phi[counterIJ], Phiprime[counterIJ], Phiphi[counterIJ]);
+                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
+                          speciesName(i), speciesName(j),
+                          Phi[counterIJ], Phiprime[counterIJ], Phiphi[counterIJ]);
             }
         }
     }
@@ -1890,14 +1870,12 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
      * ------------- SUBSECTION FOR CALCULATION OF F ----------------------
      * ------------ Agrees with Pitzer Eqn. (65) --------------------------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 7: \n");
-    }
+    debuglog(" Step 7: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     double Aphi = A_Debye_TP() / 3.0;
     double F = -Aphi * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                  + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" initial value of F = %10.6f \n", F);
+        writelogf(" initial value of F = %10.6f \n", F);
     }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -1921,13 +1899,12 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 F += molality[i]*molality[j] * Phiprime[counterIJ];
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" F = %10.6f \n", F);
+                writelogf(" F = %10.6f \n", F);
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 8: Summing in All Contributions to Activity Coefficients \n");
-    }
+    debuglog(" Step 8: Summing in All Contributions to Activity Coefficients \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         /*
@@ -1937,13 +1914,12 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
          */
         if (charge(i) > 0.0) {
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf("  Contributions to ln(ActCoeff_%s):\n", sni.c_str());
+                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
             }
             // species i is the cation (positive) to calc the actcoeff
             double zsqF = charge(i)*charge(i)*F;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
+                writelogf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
             }
             double sum1 = 0.0;
             double sum2 = 0.0;
@@ -1963,9 +1939,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             (2.0*BMX[counterIJ] + molarcharge*CMX[counterIJ]);
                     if (DEBUG_MODE_ENABLED && m_debugCalc) {
                         std::string snj = speciesName(j) + ":";
-                        printf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj.c_str(),
-                               molality[j]*2.0*BMX[counterIJ]);
-                        printf("                                                   m_j Z CMX = %10.5f\n",
+                        writelogf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj,
+                                  molality[j]*2.0*BMX[counterIJ]);
+                        writelogf("                                                   m_j Z CMX = %10.5f\n",
                                molality[j]* molarcharge*CMX[counterIJ]);
                     }
                     if (j < m_kk-1) {
@@ -1981,8 +1957,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                 sum3 += molality[j]*molality[k]*psi_ijk[n];
                                 if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
                                     std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                           molality[j]*molality[k]*psi_ijk[n]);
+                                    writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
+                                              molality[j]*molality[k]*psi_ijk[n]);
                                 }
                             }
                         }
@@ -1995,8 +1971,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                         sum2 += molality[j]*(2.0*Phi[counterIJ]);
                         if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j] * Phi[counterIJ])!= 0.0) {
                             std::string snj = speciesName(j) + ":";
-                            printf("      Phi term with %-12s                2 m_j Phi_cc = %10.5f\n", snj.c_str(),
-                                   molality[j]*(2.0*Phi[counterIJ]));
+                            writelogf("      Phi term with %-12s                2 m_j Phi_cc = %10.5f\n", snj,
+                                      molality[j]*(2.0*Phi[counterIJ]));
                         }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
@@ -2006,8 +1982,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             sum2 += molality[j]*molality[k]*psi_ijk[n];
                             if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
                                 std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                       molality[j]*molality[k]*psi_ijk[n]);
+                                writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
+                                          molality[j]*molality[k]*psi_ijk[n]);
                             }
                             /*
                              * Find the counterIJ for the j,k interaction
@@ -2018,8 +1994,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                            molality[j]*molality[k]*CMX[counterIJ2]);
                             if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
                                 std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
-                                       fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
+                                writelogf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj,
+                                          fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
                             }
                         }
                     }
@@ -2032,8 +2008,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
                     if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
                         std::string snj = speciesName(j) + ":";
-                        printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
-                               molality[j]*2.0*m_Lambda_nj(j,i));
+                        writelogf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj,
+                                  molality[j]*2.0*m_Lambda_nj(j,i));
                     }
                     /*
                      * Zeta interaction term
@@ -2048,8 +2024,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                 sum5 += molality[j]*molality[k]*zeta;
                                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
                                     std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Zeta term on %-16s         m_n m_a zeta_nMa = %10.5f\n", snj.c_str(),
-                                           molality[j]*molality[k]*psi_ijk[n]);
+                                    writelogf("      Zeta term on %-16s         m_n m_a zeta_nMa = %10.5f\n", snj,
+                                              molality[j]*molality[k]*psi_ijk[n]);
                                 }
                             }
                         }
@@ -2063,9 +2039,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf("      Net %-16s                        lngamma[i] =  %9.5f         gamma[i]=%10.6f \n",
-                       sni.c_str(), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
+                writelogf("      Net %-16s                        lngamma[i] =  %9.5f         gamma[i]=%10.6f \n",
+                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
             }
         }
 
@@ -2076,13 +2051,12 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
          */
         if (charge(i) < 0) {
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf("  Contributions to ln(ActCoeff_%s):\n", sni.c_str());
+                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
             }
             //          species i is an anion (negative)
             double zsqF = charge(i)*charge(i)*F;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
+                writelogf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
             }
             double sum1 = 0.0;
             double sum2 = 0.0;
@@ -2104,9 +2078,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                            (2.0*BMX[counterIJ]+molarcharge*CMX[counterIJ]);
                     if (DEBUG_MODE_ENABLED && m_debugCalc) {
                         std::string snj = speciesName(j) + ":";
-                        printf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj.c_str(),
-                               molality[j]*2.0*BMX[counterIJ]);
-                        printf("                                                   m_j Z CMX = %10.5f\n",
+                        writelogf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj,
+                                  molality[j]*2.0*BMX[counterIJ]);
+                        writelogf("                                                   m_j Z CMX = %10.5f\n",
                                molality[j]* molarcharge*CMX[counterIJ]);
                     }
                     if (j < m_kk-1) {
@@ -2117,8 +2091,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                 sum3 += molality[j]*molality[k]*psi_ijk[n];
                                 if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
                                     std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                           molality[j]*molality[k]*psi_ijk[n]);
+                                    writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
+                                              molality[j]*molality[k]*psi_ijk[n]);
                                 }
                             }
                         }
@@ -2134,8 +2108,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                         sum2 += molality[j]*(2.0*Phi[counterIJ]);
                         if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j] * Phi[counterIJ])!= 0.0) {
                             std::string snj = speciesName(j) + ":";
-                            printf("      Phi term with %-12s                2 m_j Phi_aa = %10.5f\n", snj.c_str(),
-                                   molality[j]*(2.0*Phi[counterIJ]));
+                            writelogf("      Phi term with %-12s                2 m_j Phi_aa = %10.5f\n", snj,
+                                      molality[j]*(2.0*Phi[counterIJ]));
                         }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
@@ -2145,8 +2119,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             sum2 += molality[j]*molality[k]*psi_ijk[n];
                             if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
                                 std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                printf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                       molality[j]*molality[k]*psi_ijk[n]);
+                                writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
+                                          molality[j]*molality[k]*psi_ijk[n]);
                             }
                             /*
                              * Find the counterIJ for the symmetric binary interaction
@@ -2157,8 +2131,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                     molality[j]*molality[k]*CMX[counterIJ2];
                             if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*molality[k]*CMX[counterIJ2]) != 0.0) {
                                 std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                printf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj.c_str(),
-                                       fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
+                                writelogf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj,
+                                          fabs(charge(i))* molality[j]*molality[k]*CMX[counterIJ2]);
                             }
                         }
                     }
@@ -2171,8 +2145,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
                     if (DEBUG_MODE_ENABLED && m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
                         std::string snj = speciesName(j) + ":";
-                        printf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj.c_str(),
-                               molality[j]*2.0*m_Lambda_nj(j,i));
+                        writelogf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj,
+                                  molality[j]*2.0*m_Lambda_nj(j,i));
                     }
                     /*
                      * Zeta interaction term
@@ -2188,8 +2162,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                 sum5 += molality[j]*molality[k]*zeta;
                                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
                                     std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    printf("      Zeta term on %-16s         m_n m_c zeta_ncX = %10.5f\n", snj.c_str(),
-                                           molality[j]*molality[k]*psi_ijk[n]);
+                                    writelogf("      Zeta term on %-16s         m_n m_c zeta_ncX = %10.5f\n", snj,
+                                              molality[j]*molality[k]*psi_ijk[n]);
                                 }
                             }
                         }
@@ -2199,9 +2173,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
-                       sni.c_str(), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
+                writelogf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
+                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
             }
         }
         /*
@@ -2211,8 +2184,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
          */
         if (charge(i) == 0.0) {
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf("  Contributions to ln(ActCoeff_%s):\n", sni.c_str());
+                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
             }
             double sum1 = 0.0;
             double sum3 = 0.0;
@@ -2220,8 +2192,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 sum1 += molality[j]*2.0*m_Lambda_nj(i,j);
                 if (DEBUG_MODE_ENABLED && m_debugCalc && m_Lambda_nj(i,j) != 0.0) {
                     std::string snj = speciesName(j) + ":";
-                    printf("      Lambda_n term on %-16s     2 m_j lambda_n_j = %10.5f\n", snj.c_str(),
-                           molality[j]*2.0*m_Lambda_nj(i,j));
+                    writelogf("      Lambda_n term on %-16s     2 m_j lambda_n_j = %10.5f\n", snj,
+                              molality[j]*2.0*m_Lambda_nj(i,j));
                 }
                 /*
                  * Zeta term -> we piggyback on the psi term
@@ -2233,8 +2205,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             sum3 += molality[j]*molality[k]*psi_ijk[n];
                             if (DEBUG_MODE_ENABLED && m_debugCalc && psi_ijk[n] != 0.0) {
                                 std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                printf("      Zeta term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj.c_str(),
-                                       molality[j]*molality[k]*psi_ijk[n]);
+                                writelogf("      Zeta term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
+                                          molality[j]*molality[k]*psi_ijk[n]);
                             }
                         }
                     }
@@ -2242,21 +2214,18 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             }
             double sum2 = 3.0 * molality[i]* molality[i] * m_Mu_nnn[i];
             if (DEBUG_MODE_ENABLED && m_debugCalc && m_Mu_nnn[i] != 0.0) {
-                printf("      Mu_nnn term              3 m_n m_n Mu_n_n = %10.5f\n",
-                       3.0 * molality[i]* molality[i] * m_Mu_nnn[i]);
+                writelogf("      Mu_nnn term              3 m_n m_n Mu_n_n = %10.5f\n",
+                          3.0 * molality[i]* molality[i] * m_Mu_nnn[i]);
             }
             m_lnActCoeffMolal_Unscaled[i] = sum1 + sum2 + sum3;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
-                       sni.c_str(), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
+                writelogf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
+                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 9: \n");
-    }
+    debuglog(" Step 9: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     /*
      * -------- SUBSECTION FOR CALCULATING THE OSMOTIC COEFF ---------
      * -------- -> equations agree with my notes, Eqn. (117).
@@ -2397,12 +2366,12 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
         osmotic_coef = 1.0;
     }
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-               "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-               term1, sum1, sum2, sum3, sum4, sum5);
-        printf("     sum_m_phi_minus_1=%10.6f        osmotic_coef=%10.6f\n",
-               sum_m_phi_minus_1, osmotic_coef);
-        printf(" Step 10: \n");
+        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
+                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
+                  term1, sum1, sum2, sum3, sum4, sum5);
+        writelogf("     sum_m_phi_minus_1=%10.6f        osmotic_coef=%10.6f\n",
+                  sum_m_phi_minus_1, osmotic_coef);
+        writelog(" Step 10: \n");
     }
     double lnwateract = -(m_weightSolvent/1000.0) * molalitysumUncropped * osmotic_coef;
 
@@ -2419,10 +2388,10 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xx);
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         double wateract = exp(lnwateract);
-        printf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
-        printf(" molalitySumUncropped = %16.7g\n", molalitysumUncropped);
-        printf(" ln_a_water=%10.6f a_water=%10.6f\n\n",
-               lnwateract, wateract);
+        writelogf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
+        writelogf(" molalitySumUncropped = %16.7g\n", molalitysumUncropped);
+        writelogf(" ln_a_water=%10.6f a_water=%10.6f\n\n",
+                  lnwateract, wateract);
     }
 }
 
@@ -2520,10 +2489,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     double* Phiphi_L = DATA_PTR(m_PhiPhi_IJ_L);
     double* CMX_L = DATA_PTR(m_CMX_IJ_L);
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf("\n Debugging information from "
-               "s_Pitzer_dlnMolalityActCoeff_dT()\n");
-    }
+    debuglog("\n Debugging information from s_Pitzer_dlnMolalityActCoeff_dT()\n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     /*
      * Make sure the counter variables are setup
      */
@@ -2547,9 +2514,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 1: \n");
-        printf(" ionic strenth      = %14.7le \n total molar "
-               "charge = %14.7le \n", Is, molarcharge);
+        writelog(" Step 1: \n");
+        writelogf(" ionic strenth      = %14.7le \n total molar "
+                  "charge = %14.7le \n", Is, molarcharge);
     }
 
     /*
@@ -2564,24 +2531,20 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
      *                E-thetaprime for all combinations of positive
      *                unlike charges up to 4
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 2: \n");
-    }
+    debuglog(" Step 2: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                       z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
+                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
+                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
             }
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 3: \n");
-        printf(" Species          Species            g(x) "
-               " hfunc(x)   \n");
-    }
+    debuglog(" Step 3: \n"
+             " Species          Species            g(x)  hfunc(x)   \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     /*
      *  calculate g(x) and hfunc(x) for each cation-anion pair MX
@@ -2630,8 +2593,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
                 std::string sni = speciesName(i);
                 std::string snj = speciesName(j);
-                printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(),
-                       gfunc[counterIJ], hfunc[counterIJ]);
+                writelogf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(),
+                          gfunc[counterIJ], hfunc[counterIJ]);
             }
         }
     }
@@ -2641,11 +2604,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
      * ------- These are now temperature derivatives of the
      *         previously calculated quantities.
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 4: \n");
-        printf(" Species          Species            BMX    "
-               "BprimeMX    BphiMX   \n");
-    }
+    debuglog(" Step 4: \n"
+             " Species          Species            BMX    BprimeMX    BphiMX   \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -2663,9 +2624,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                                     + beta1MX_L[counterIJ] * gfunc[counterIJ]
                                     + beta2MX_L[counterIJ] * gfunc[counterIJ];
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                    printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ, BMX_L[counterIJ], beta0MX_L[counterIJ],
-                           beta1MX_L[counterIJ], beta2MX_L[counterIJ], gfunc[counterIJ]);
+                    writelogf("%d %g: %g %g %g %g\n",
+                              counterIJ, BMX_L[counterIJ], beta0MX_L[counterIJ],
+                              beta1MX_L[counterIJ], beta2MX_L[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
                     BprimeMX_L[counterIJ] = (beta1MX_L[counterIJ] * hfunc[counterIJ]/Is +
@@ -2680,11 +2641,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 BphiMX_L[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                       sni.c_str(), snj.c_str(),
-                       BMX_L[counterIJ], BprimeMX_L[counterIJ], BphiMX_L[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
+                          speciesName(i), speciesName(j),
+                          BMX_L[counterIJ], BprimeMX_L[counterIJ], BphiMX_L[counterIJ]);
             }
         }
     }
@@ -2693,10 +2652,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
      * --------- SUBSECTION TO CALCULATE CMX_L ----------
      * ---------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 5: \n");
-        printf(" Species          Species            CMX \n");
-    }
+    debuglog(" Step 5: \n"
+             " Species          Species            CMX \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -2715,10 +2673,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 CMX_L[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f \n", sni.c_str(), snj.c_str(),
-                       CMX_L[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f \n",
+                          speciesName(i), speciesName(j), CMX_L[counterIJ]);
             }
         }
     }
@@ -2726,11 +2682,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     /*
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 6: \n");
-        printf(" Species          Species            Phi_ij "
-               " Phiprime_ij  Phi^phi_ij \n");
-    }
+    debuglog(" Step 6: \n"
+             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -2752,11 +2706,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 Phiphi_L[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                       sni.c_str(), snj.c_str(),
-                       Phi_L[counterIJ], Phiprime[counterIJ], Phiphi_L[counterIJ]);
+                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
+                          speciesName(i), speciesName(j),
+                          Phi_L[counterIJ], Phiprime[counterIJ], Phiphi_L[counterIJ]);
             }
         }
     }
@@ -2764,15 +2716,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     /*
      * ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 7: \n");
-    }
+    debuglog(" Step 7: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     double dA_DebyedT = dA_DebyedT_TP();
     double dAphidT = dA_DebyedT /3.0;
     double dFdT = -dAphidT * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" initial value of dFdT = %10.6f \n", dFdT);
+        writelogf(" initial value of dFdT = %10.6f \n", dFdT);
     }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -2796,13 +2746,11 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 dFdT += molality[i]*molality[j] * Phiprime[counterIJ];
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" dFdT = %10.6f \n", dFdT);
+                writelogf(" dFdT = %10.6f \n", dFdT);
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 8: \n");
-    }
+    debuglog(" Step 8: \n", DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         /*
@@ -2893,11 +2841,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
-                       sni.c_str(), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-                printf("                   %12g %12g %12g %12g %12g %12g\n",
-                       zsqdFdT, sum1, sum2, sum3, sum4, sum5);
+                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
+                          speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
+                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
+                          zsqdFdT, sum1, sum2, sum3, sum4, sum5);
             }
         }
 
@@ -2983,11 +2930,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n",
-                       sni.c_str(), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-                printf("                   %12g %12g %12g %12g %12g %12g\n",
-                       zsqdFdT, sum1, sum2, sum3, sum4, sum5);
+                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n",
+                          speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
+                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
+                          zsqdFdT, sum1, sum2, sum3, sum4, sum5);
             }
         }
         /*
@@ -3016,15 +2962,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             m_dlnActCoeffMolaldT_Unscaled[i] = sum1 + sum2 + sum3;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
-                       sni.c_str(), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
+                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
+                       speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 9: \n");
-    }
+    debuglog(" Step 9: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     /*
      * ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dT ---------
      *
@@ -3165,12 +3108,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     }
 
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-               "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-               term1, sum1, sum2, sum3, sum4, sum5);
-        printf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dT =%10.6f\n",
-               sum_m_phi_minus_1, d_osmotic_coef_dT);
-        printf(" Step 10: \n");
+        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
+                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
+                  term1, sum1, sum2, sum3, sum4, sum5);
+        writelogf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dT =%10.6f\n",
+                  sum_m_phi_minus_1, d_osmotic_coef_dT);
+        writelog(" Step 10: \n");
     }
     double d_lnwateract_dT = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dT;
 
@@ -3185,8 +3128,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     m_dlnActCoeffMolaldT_Unscaled[0] = d_lnwateract_dT;
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         double d_wateract_dT = exp(d_lnwateract_dT);
-        printf(" d_ln_a_water_dT = %10.6f d_a_water_dT=%10.6f\n\n",
-               d_lnwateract_dT, d_wateract_dT);
+        writelogf(" d_ln_a_water_dT = %10.6f d_a_water_dT=%10.6f\n\n",
+                  d_lnwateract_dT, d_wateract_dT);
     }
 }
 
@@ -3277,10 +3220,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     double* Phiphi_LL = DATA_PTR(m_PhiPhi_IJ_LL);
     double* CMX_LL = DATA_PTR(m_CMX_IJ_LL);
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf("\n Debugging information from "
-               "s_Pitzer_d2lnMolalityActCoeff_dT2()\n");
-    }
+    debuglog("\n Debugging information from s_Pitzer_d2lnMolalityActCoeff_dT2()\n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     /*
      * Make sure the counter variables are setup
      */
@@ -3304,9 +3245,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 1: \n");
-        printf(" ionic strenth      = %14.7le \n total molar "
-               "charge = %14.7le \n", Is, molarcharge);
+        writelog(" Step 1: \n");
+        writelogf(" ionic strenth      = %14.7le \n total molar "
+                  "charge = %14.7le \n", Is, molarcharge);
     }
 
     /*
@@ -3321,24 +3262,20 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
      *                E-thetaprime for all combinations of positive
      *                unlike charges up to 4
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 2: \n");
-    }
+    debuglog(" Step 2: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                       z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
+                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
+                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
             }
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 3: \n");
-        printf(" Species          Species            g(x) "
-               " hfunc(x)   \n");
-    }
+    debuglog(" Step 3: \n"
+             " Species          Species            g(x)  hfunc(x)   \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     /*
      *  calculate gfunc(x) and hfunc(x) for each cation-anion pair MX
@@ -3385,10 +3322,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 hfunc[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(),
-                       gfunc[counterIJ], hfunc[counterIJ]);
+                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i), speciesName(j),
+                          gfunc[counterIJ], hfunc[counterIJ]);
             }
         }
     }
@@ -3397,11 +3332,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
      * ------- These are now temperature derivatives of the
      *         previously calculated quantities.
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 4: \n");
-        printf(" Species          Species            BMX    "
-               "BprimeMX    BphiMX   \n");
-    }
+    debuglog(" Step 4: \n"
+             " Species          Species            BMX    BprimeMX    BphiMX   \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -3419,9 +3352,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                                      + beta1MX_LL[counterIJ] * gfunc[counterIJ]
                                      + beta2MX_LL[counterIJ] * g2func[counterIJ];
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                    printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ, BMX_LL[counterIJ], beta0MX_LL[counterIJ],
-                           beta1MX_LL[counterIJ], beta2MX_LL[counterIJ], gfunc[counterIJ]);
+                    writelogf("%d %g: %g %g %g %g\n",
+                              counterIJ, BMX_LL[counterIJ], beta0MX_LL[counterIJ],
+                              beta1MX_LL[counterIJ], beta2MX_LL[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
                     BprimeMX_LL[counterIJ] = (beta1MX_LL[counterIJ] * hfunc[counterIJ]/Is +
@@ -3436,11 +3369,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 BphiMX_LL[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                       sni.c_str(), snj.c_str(),
-                       BMX_LL[counterIJ], BprimeMX_LL[counterIJ], BphiMX_LL[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
+                          speciesName(i), speciesName(j),
+                          BMX_LL[counterIJ], BprimeMX_LL[counterIJ], BphiMX_LL[counterIJ]);
             }
         }
     }
@@ -3448,10 +3379,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     /*
      * --------- SUBSECTION TO CALCULATE CMX_LL ----------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 5: \n");
-        printf(" Species          Species            CMX \n");
-    }
+    debuglog(" Step 5: \n"
+             " Species          Species            CMX \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -3470,10 +3400,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 CMX_LL[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f \n", sni.c_str(), snj.c_str(),
-                       CMX_LL[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f \n",
+                          speciesName(i), speciesName(j), CMX_LL[counterIJ]);
             }
         }
     }
@@ -3481,11 +3409,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     /*
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 6: \n");
-        printf(" Species          Species            Phi_ij "
-               " Phiprime_ij  Phi^phi_ij \n");
-    }
+    debuglog(" Step 6: \n"
+             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -3507,11 +3433,9 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 Phiphi_LL[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                       sni.c_str(), snj.c_str(),
-                       Phi_LL[counterIJ], Phiprime[counterIJ], Phiphi_LL[counterIJ]);
+                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
+                          speciesName(i), speciesName(j),
+                          Phi_LL[counterIJ], Phiprime[counterIJ], Phiphi_LL[counterIJ]);
             }
         }
     }
@@ -3519,14 +3443,12 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     /*
      * ----------- SUBSECTION FOR CALCULATION OF d2FdT2 ---------------------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 7: \n");
-    }
+    debuglog(" Step 7: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     double d2AphidT2 = d2A_DebyedT2_TP() / 3.0;
     double d2FdT2 = -d2AphidT2 * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                            + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" initial value of d2FdT2 = %10.6f \n", d2FdT2);
+        writelogf(" initial value of d2FdT2 = %10.6f \n", d2FdT2);
     }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -3550,13 +3472,11 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 d2FdT2 += molality[i]*molality[j] * Phiprime[counterIJ];
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" d2FdT2 = %10.6f \n", d2FdT2);
+                writelogf(" d2FdT2 = %10.6f \n", d2FdT2);
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 8: \n");
-    }
+    debuglog(" Step 8: \n", DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         /*
@@ -3646,11 +3566,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             m_d2lnActCoeffMolaldT2_Unscaled[i] =
                 zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s d2lngammadT2[i]=%10.6f \n",
-                       sni.c_str(), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-                printf("                   %12g %12g %12g %12g %12g %12g\n",
-                       zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
+                writelogf(" %-16s d2lngammadT2[i]=%10.6f \n",
+                          speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
+                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
+                          zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
             }
         }
 
@@ -3738,11 +3657,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             m_d2lnActCoeffMolaldT2_Unscaled[i] =
                 zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s d2lngammadT2[i]=%10.6f\n",
-                       sni.c_str(), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-                printf("                   %12g %12g %12g %12g %12g %12g\n",
-                       zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
+                writelogf(" %-16s d2lngammadT2[i]=%10.6f\n",
+                          speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
+                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
+                          zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
             }
         }
         /*
@@ -3770,16 +3688,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_LL[i];
             m_d2lnActCoeffMolaldT2_Unscaled[i] = sum1 + sum2 + sum3;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s d2lngammadT2[i]=%10.6f \n",
-                       sni.c_str(), m_d2lnActCoeffMolaldT2_Unscaled[i]);
+                writelog(" %-16s d2lngammadT2[i]=%10.6f \n",
+                         speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
             }
         }
 
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 9: \n");
-    }
+    debuglog(" Step 9: \n", DEBUG_MODE_ENABLED && m_debugCalc);
 
     /*
      * ------ SUBSECTION FOR CALCULATING THE d2 OSMOTIC COEFF dT2 ---------
@@ -3922,12 +3837,12 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
         d2_osmotic_coef_dT2 = 0.0;
     }
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-               "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-               term1, sum1, sum2, sum3, sum4, sum5);
-        printf("     sum_m_phi_minus_1=%10.6f        d2_osmotic_coef_dT2=%10.6f\n",
-               sum_m_phi_minus_1, d2_osmotic_coef_dT2);
-        printf(" Step 10: \n");
+        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
+                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
+                  term1, sum1, sum2, sum3, sum4, sum5);
+        writelogf("     sum_m_phi_minus_1=%10.6f        d2_osmotic_coef_dT2=%10.6f\n",
+                  sum_m_phi_minus_1, d2_osmotic_coef_dT2);
+        writelog(" Step 10: \n");
     }
     double d2_lnwateract_dT2 = -(m_weightSolvent/1000.0) * molalitysum * d2_osmotic_coef_dT2;
 
@@ -3943,8 +3858,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
         double d2_wateract_dT2 = exp(d2_lnwateract_dT2);
-        printf(" d2_ln_a_water_dT2 = %10.6f d2_a_water_dT2=%10.6f\n\n",
-               d2_lnwateract_dT2, d2_wateract_dT2);
+        writelogf(" d2_ln_a_water_dT2 = %10.6f d2_a_water_dT2=%10.6f\n\n",
+                  d2_lnwateract_dT2, d2_wateract_dT2);
     }
 }
 
@@ -4029,10 +3944,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     double currTemp = temperature();
     double currPres = pressure();
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf("\n Debugging information from "
-               "s_Pitzer_dlnMolalityActCoeff_dP()\n");
-    }
+    debuglog("\n Debugging information from s_Pitzer_dlnMolalityActCoeff_dP()\n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     /*
      * Make sure the counter variables are setup
      */
@@ -4056,9 +3969,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 1: \n");
-        printf(" ionic strenth      = %14.7le \n total molar "
-               "charge = %14.7le \n", Is, molarcharge);
+        writelog(" Step 1: \n");
+        writelogf(" ionic strenth      = %14.7le \n total molar "
+                  "charge = %14.7le \n", Is, molarcharge);
     }
 
     /*
@@ -4074,24 +3987,20 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
      *                E-thetaprime for all combinations of positive
      *                unlike charges up to 4
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 2: \n");
-    }
+    debuglog(" Step 2: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                       z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
+                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
+                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
             }
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 3: \n");
-        printf(" Species          Species            g(x) "
-               " hfunc(x)   \n");
-    }
+    debuglog(" Step 3: \n"
+             " Species          Species            g(x)  hfunc(x)\n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     /*
      *  calculate g(x) and hfunc(x) for each cation-anion pair MX
@@ -4138,10 +4047,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 hfunc[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(),
-                       gfunc[counterIJ], hfunc[counterIJ]);
+                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i),
+                          speciesName(j), gfunc[counterIJ], hfunc[counterIJ]);
             }
         }
     }
@@ -4151,11 +4058,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
      * ------- These are now temperature derivatives of the
      *         previously calculated quantities.
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 4: \n");
-        printf(" Species          Species            BMX    "
-               "BprimeMX    BphiMX   \n");
-    }
+    debuglog(" Step 4: \n"
+             " Species          Species            BMX    BprimeMX    BphiMX   \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -4173,9 +4078,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                                     + beta1MX_P[counterIJ] * gfunc[counterIJ]
                                     + beta2MX_P[counterIJ] * g2func[counterIJ];
                 if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                    printf("%d %g: %g %g %g %g\n",
-                           (int) counterIJ, BMX_P[counterIJ], beta0MX_P[counterIJ],
-                           beta1MX_P[counterIJ], beta2MX_P[counterIJ], gfunc[counterIJ]);
+                    writelogf("%d %g: %g %g %g %g\n",
+                              counterIJ, BMX_P[counterIJ], beta0MX_P[counterIJ],
+                              beta1MX_P[counterIJ], beta2MX_P[counterIJ], gfunc[counterIJ]);
                 }
                 if (Is > 1.0E-150) {
                     BprimeMX_P[counterIJ] = (beta1MX_P[counterIJ] * hfunc[counterIJ]/Is +
@@ -4190,11 +4095,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 BphiMX_P[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                       sni.c_str(), snj.c_str(),
-                       BMX_P[counterIJ], BprimeMX_P[counterIJ], BphiMX_P[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
+                          speciesName(i), speciesName(j),
+                          BMX_P[counterIJ], BprimeMX_P[counterIJ], BphiMX_P[counterIJ]);
             }
         }
     }
@@ -4202,10 +4105,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     /*
      * --------- SUBSECTION TO CALCULATE CMX_P ----------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 5: \n");
-        printf(" Species          Species            CMX \n");
-    }
+    debuglog(" Step 5: \n"
+             " Species          Species            CMX \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -4224,10 +4126,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 CMX_P[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %11.7f \n", sni.c_str(), snj.c_str(),
-                       CMX_P[counterIJ]);
+                writelogf(" %-16s %-16s %11.7f \n",
+                          speciesName(i), speciesName(j), CMX_P[counterIJ]);
             }
         }
     }
@@ -4235,11 +4135,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     /*
      * ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 6: \n");
-        printf(" Species          Species            Phi_ij "
-               " Phiprime_ij  Phi^phi_ij \n");
-    }
+    debuglog(" Step 6: \n"
+             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
+             DEBUG_MODE_ENABLED && m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             /*
@@ -4261,11 +4159,9 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 Phiphi_P[counterIJ] = 0.0;
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                printf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                       sni.c_str(), snj.c_str(),
-                       Phi_P[counterIJ], Phiprime[counterIJ], Phiphi_P[counterIJ]);
+                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
+                          speciesName(i), speciesName(j),
+                          Phi_P[counterIJ], Phiprime[counterIJ], Phiphi_P[counterIJ]);
             }
         }
     }
@@ -4273,15 +4169,13 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     /*
      * ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
      */
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 7: \n");
-    }
+    debuglog(" Step 7: \n", DEBUG_MODE_ENABLED && m_debugCalc);
     double dA_DebyedP = dA_DebyedP_TP(currTemp, currPres);
     double dAphidP = dA_DebyedP /3.0;
     double dFdP = -dAphidP * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" initial value of dFdP = %10.6f \n", dFdP);
+        writelogf(" initial value of dFdP = %10.6f \n", dFdP);
     }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
@@ -4305,13 +4199,11 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 dFdP += molality[i]*molality[j] * Phiprime[counterIJ];
             }
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" dFdP = %10.6f \n", dFdP);
+                writelogf(" dFdP = %10.6f \n", dFdP);
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 8: \n");
-    }
+    debuglog(" Step 8: \n", DEBUG_MODE_ENABLED && m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         /*
@@ -4404,11 +4296,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
 
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s lngamma[i]=%10.6f \n",
-                       sni.c_str(), m_dlnActCoeffMolaldP_Unscaled[i]);
-                printf("                   %12g %12g %12g %12g %12g %12g\n",
-                       zsqdFdP, sum1, sum2, sum3, sum4, sum5);
+                writelogf(" %-16s lngamma[i]=%10.6f \n",
+                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
+                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
+                          zsqdFdP, sum1, sum2, sum3, sum4, sum5);
             }
         }
 
@@ -4496,11 +4387,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             m_dlnActCoeffMolaldP_Unscaled[i] =
                 zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s lndactcoeffmolaldP[i]=%10.6f \n",
-                       sni.c_str(), m_dlnActCoeffMolaldP_Unscaled[i]);
-                printf("                   %12g %12g %12g %12g %12g %12g\n",
-                       zsqdFdP, sum1, sum2, sum3, sum4, sum5);
+                writelogf(" %-16s lndactcoeffmolaldP[i]=%10.6f \n",
+                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
+                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
+                          zsqdFdP, sum1, sum2, sum3, sum4, sum5);
             }
         }
 
@@ -4527,15 +4417,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_P[i];
             m_dlnActCoeffMolaldP_Unscaled[i] = sum1 + sum2 + sum3;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                std::string sni = speciesName(i);
-                printf(" %-16s dlnActCoeffMolaldP[i]=%10.6f \n",
-                       sni.c_str(), m_dlnActCoeffMolaldP_Unscaled[i]);
+                writelogf(" %-16s dlnActCoeffMolaldP[i]=%10.6f \n",
+                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Step 9: \n");
-    }
+    debuglog(" Step 9: \n", DEBUG_MODE_ENABLED && m_debugCalc);
 
     /*
      * ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dP ---------
@@ -4678,12 +4565,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
         d_osmotic_coef_dP = 0.0;
     }
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-               "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-               term1, sum1, sum2, sum3, sum4, sum5);
-        printf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dP =%10.6f\n",
-               sum_m_phi_minus_1, d_osmotic_coef_dP);
-        printf(" Step 10: \n");
+        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
+                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
+                  term1, sum1, sum2, sum3, sum4, sum5);
+        writelogf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dP =%10.6f\n",
+                  sum_m_phi_minus_1, d_osmotic_coef_dP);
+        writelog(" Step 10: \n");
     }
     double d_lnwateract_dP = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dP;
 
@@ -4697,9 +4584,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
      */
     m_dlnActCoeffMolaldP_Unscaled[0] = d_lnwateract_dP;
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        double d_wateract_dP = exp(d_lnwateract_dP);
-        printf(" d_ln_a_water_dP = %10.6f d_a_water_dP=%10.6f\n\n",
-               d_lnwateract_dP, d_wateract_dP);
+        writelogf(" d_ln_a_water_dP = %10.6f d_a_water_dP=%10.6f\n\n",
+                  d_lnwateract_dP, exp(d_lnwateract_dP));
     }
 }
 
@@ -4718,7 +4604,7 @@ void HMWSoln::calc_lambdas(double is) const
     double c1 = 4.581, c2 = 0.7237, c3 = 0.0120, c4 = 0.528;
     double aphi = 0.392; /* Value at 25 C */
     if (DEBUG_MODE_ENABLED && m_debugCalc) {
-        printf(" Is = %g\n", is);
+        writelogf(" Is = %g\n", is);
     }
     if (is < 1.0E-150) {
         for (int i = 0; i < 17; i++) {
@@ -4753,8 +4639,8 @@ void HMWSoln::calc_lambdas(double is) const
             elambda1[ij] = (3.0*zprod*zprod*aphi*jprime/(4.0*sqrt(is))
                             - elambda[ij])/is;
             if (DEBUG_MODE_ENABLED && m_debugCalc) {
-                printf(" ij = %d, elambda = %g, elambda1 = %g\n",
-                       ij, elambda[ij], elambda1[ij]);
+                writelogf(" ij = %d, elambda = %g, elambda1 = %g\n",
+                          ij, elambda[ij], elambda1[ij]);
             }
         }
     }
@@ -4912,42 +4798,35 @@ void HMWSoln::printCoeffs() const
     s_updatePitzer_CoeffWRTemp(2);
     getMoleFractions(moleF);
 
-    printf("Index  Name                  MoleF   MolalityCropped  Charge\n");
+    writelog("Index  Name                  MoleF   MolalityCropped  Charge\n");
     for (size_t k = 0; k < m_kk; k++) {
-        std::string sni = speciesName(k);
-        printf("%2s     %-16s %14.7le %14.7le %5.1f \n",
-               int2str(k).c_str(), sni.c_str(), moleF[k], molality[k], charge(k));
+        writelogf("%2d     %-16s %14.7le %14.7le %5.1f \n",
+                  k, speciesName(k), moleF[k], molality[k], charge(k));
     }
 
-    printf("\n Species          Species            beta0MX  "
-           "beta1MX   beta2MX   CphiMX    alphaMX thetaij    \n");
+    writelog("\n Species          Species            beta0MX  "
+           "beta1MX   beta2MX   CphiMX    alphaMX thetaij\n");
     for (size_t i = 1; i < m_kk - 1; i++) {
-        std::string sni = speciesName(i);
         for (size_t j = i+1; j < m_kk; j++) {
-            std::string snj = speciesName(j);
             size_t n = i * m_kk + j;
             size_t ct = m_CounterIJ[n];
-            printf(" %-16s %-16s %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f \n",
-                   sni.c_str(), snj.c_str(),
-                   m_Beta0MX_ij[ct], m_Beta1MX_ij[ct],
-                   m_Beta2MX_ij[ct], m_CphiMX_ij[ct],
-                   m_Alpha1MX_ij[ct], m_Theta_ij[ct]);
+            writelogf(" %-16s %-16s %9.5f %9.5f %9.5f %9.5f %9.5f %9.5f \n",
+                      speciesName(i), speciesName(j),
+                      m_Beta0MX_ij[ct], m_Beta1MX_ij[ct],
+                      m_Beta2MX_ij[ct], m_CphiMX_ij[ct],
+                      m_Alpha1MX_ij[ct], m_Theta_ij[ct]);
         }
     }
 
-    printf("\n Species          Species          Species       "
-           "psi   \n");
+    writelog("\n Species          Species          Species       psi   \n");
     for (size_t i = 1; i < m_kk; i++) {
-        std::string sni = speciesName(i);
         for (size_t j = 1; j < m_kk; j++) {
-            std::string snj = speciesName(j);
             for (size_t k = 1; k < m_kk; k++) {
-                std::string snk = speciesName(k);
                 size_t n = k + j * m_kk + i * m_kk * m_kk;
                 if (m_Psi_ijk[n] != 0.0) {
-                    printf(" %-16s %-16s %-16s %9.5f \n",
-                           sni.c_str(), snj.c_str(),
-                           snk.c_str(), m_Psi_ijk[n]);
+                    writelogf(" %-16s %-16s %-16s %9.5f \n",
+                              speciesName(i), speciesName(j),
+                              speciesName(k), m_Psi_ijk[n]);
                 }
             }
         }

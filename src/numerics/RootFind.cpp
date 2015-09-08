@@ -1107,18 +1107,18 @@ void RootFind::setDeltaXMax(doublereal deltaX)
 
 void RootFind::printTable()
 {
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
-    printf("\t  RootFinder Summary table: \n");
-    printf("\t         FTarget = %g\n", m_funcTargetValue);
-    printf("\t Iter |       xval             delX        deltaXConv    |    slope    | foundP foundN|   F - F_targ  deltaFConv  |   Reasoning\n");
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    writelogf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    writelogf("\t  RootFinder Summary table: \n");
+    writelogf("\t         FTarget = %g\n", m_funcTargetValue);
+    writelogf("\t Iter |       xval             delX        deltaXConv    |    slope    | foundP foundN|   F - F_targ  deltaFConv  |   Reasoning\n");
+    writelogf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
     for (int i = 0; i < (int) rfHistory_.size(); i++) {
         struct rfTable rfT = rfHistory_[i];
-        printf("\t  %3d |%- 17.11E %- 13.7E  %- 13.7E |%- 13.5E|   %3d   %3d  | %- 12.5E %- 12.5E | %s \n",
+        writelogf("\t  %3d |%- 17.11E %- 13.7E  %- 13.7E |%- 13.5E|   %3d   %3d  | %- 12.5E %- 12.5E | %s \n",
                rfT.its, rfT.xval, rfT.delX, rfT.deltaXConverged, rfT.slope, rfT.foundPos, rfT.foundNeg, rfT.fval,
-               rfT.deltaFConverged, (rfT.reasoning).c_str());
+               rfT.deltaFConverged, rfT.reasoning);
     }
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    writelogf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
 }
 
 }

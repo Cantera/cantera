@@ -278,11 +278,11 @@ void InterfaceKinetics::checkPartialEquil()
         updateROP();
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
-            cout << "Reaction " << reactionString(irxn)
-                 << "  " << rmu[irxn]/thermo(0).RT() << endl;
-            printf("%12.6e  %12.6e  %12.6e  %12.6e \n",
-                   m_ropf[irxn], m_ropr[irxn], m_ropnet[irxn],
-                   m_ropnet[irxn]/(m_ropf[irxn] + m_ropr[irxn]));
+            writelog("Reaction {} {}\n",
+                     reactionString(irxn), rmu[irxn]/thermo(0).RT());
+            writelogf("%12.6e  %12.6e  %12.6e  %12.6e \n",
+                      m_ropf[irxn], m_ropr[irxn], m_ropnet[irxn],
+                      m_ropnet[irxn]/(m_ropf[irxn] + m_ropr[irxn]));
         }
     }
 }

@@ -10,15 +10,14 @@
  * U.S. Government retains certain rights in this software.
  */
 #include "cantera/thermo/WaterPropsIAPWSphi.h"
+#include "cantera/base/global.h"
 
-#include <cstdio>
 #include <cmath>
 #include <algorithm>
 
 namespace Cantera
 {
 
-using std::printf;
 using std::sqrt;
 using std::log;
 using std::exp;
@@ -392,12 +391,12 @@ void WaterPropsIAPWSphi::intCheck(doublereal tau, doublereal delta)
     doublereal res_dt = phiR_dt();
     doublereal nau_dt = phi0_dt();
 
-    std::printf("nau    = %20.12e\t\tres    = %20.12e\n", nau, res);
-    std::printf("nau_d  = %20.12e\t\tres_d  = %20.12e\n", nau_d, res_d);
-    printf("nau_dd = %20.12e\t\tres_dd = %20.12e\n", nau_dd, res_dd);
-    printf("nau_t  = %20.12e\t\tres_t  = %20.12e\n", nau_t, res_t);
-    printf("nau_tt = %20.12e\t\tres_tt = %20.12e\n", nau_tt, res_tt);
-    printf("nau_dt = %20.12e\t\tres_dt = %20.12e\n", nau_dt, res_dt);
+    writelogf("nau    = %20.12e\t\tres    = %20.12e\n", nau, res);
+    writelogf("nau_d  = %20.12e\t\tres_d  = %20.12e\n", nau_d, res_d);
+    writelogf("nau_dd = %20.12e\t\tres_dd = %20.12e\n", nau_dd, res_dd);
+    writelogf("nau_t  = %20.12e\t\tres_t  = %20.12e\n", nau_t, res_t);
+    writelogf("nau_tt = %20.12e\t\tres_tt = %20.12e\n", nau_tt, res_tt);
+    writelogf("nau_dt = %20.12e\t\tres_dt = %20.12e\n", nau_dt, res_dt);
 }
 
 void WaterPropsIAPWSphi::check1()
@@ -406,7 +405,7 @@ void WaterPropsIAPWSphi::check1()
     doublereal rho = 838.025;
     doublereal tau = T_c/T;
     doublereal delta = rho / Rho_c;
-    printf(" T = 500 K, rho = 838.025 kg m-3\n");
+    writelog(" T = 500 K, rho = 838.025 kg m-3\n");
     intCheck(tau, delta);
 }
 
@@ -416,7 +415,7 @@ void WaterPropsIAPWSphi::check2()
     doublereal rho = 358.0;
     doublereal tau = T_c/T;
     doublereal delta = rho / Rho_c;
-    printf(" T = 647 K, rho = 358.0 kg m-3\n");
+    writelog(" T = 647 K, rho = 358.0 kg m-3\n");
     intCheck(tau, delta);
 }
 

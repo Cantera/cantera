@@ -5,8 +5,6 @@
 #include "cantera/transport/LiquidTransport.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cstdio>
-
 using namespace std;
 
 namespace Cantera
@@ -1109,9 +1107,7 @@ void LiquidTransport::stefan_maxwell_solve()
         solve(m_A, m_B);
         break;
     default:
-        printf("unimplemented\n");
         throw CanteraError("routine", "not done");
-        break;
     }
 
     for (size_t a = 0; a < m_nDim; a++) {

@@ -1234,7 +1234,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (desc != 0.0) {
             // this is for getting to other cases
-            printf("NicholsSolve(): numerical issues\n");
             throw CanteraError("NicholsSolve()", "numerical issues");
         }
         desc = 0.0;

@@ -136,17 +136,17 @@ public:
                                const int time_step_num,
                                const double* y, const double* ydot) {
         int k;
-        printf("ResidEval::writeSolution\n");
-        printf("     Time = %g, ievent = %d, deltaT = %g\n", time, ievent, deltaT);
+        writelog("ResidEval::writeSolution\n");
+        writelogf("     Time = %g, ievent = %d, deltaT = %g\n", time, ievent, deltaT);
         if (ydot) {
-            printf(" k    y[]  ydot[]\n");
+            writelogf(" k    y[]  ydot[]\n");
             for (k = 0; k < nEquations(); k++) {
-                printf("%d %g %g\n", k, y[k], ydot[k]);
+                writelogf("%d %g %g\n", k, y[k], ydot[k]);
             }
         } else {
-            printf(" k    y[]\n");
+            writelogf(" k    y[]\n");
             for (k = 0; k < nEquations(); k++) {
-                printf("%d %g \n", k, y[k]);
+                writelogf("%d %g \n", k, y[k]);
             }
         }
     }
