@@ -155,7 +155,7 @@ void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::strin
                            "input file is null");
     }
     string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
+    std::ifstream fin(path);
     if (!fin) {
         throw CanteraError("MargulesVPSSTP:constructPhaseFile","could not open "
                            +path+" for reading.");

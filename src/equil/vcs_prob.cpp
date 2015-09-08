@@ -187,8 +187,8 @@ void VCS_PROB::prob_report(int print_lvl)
         plogf(" Initial_Estimated_Moles   Species_Type\n");
         for (size_t i = 0; i < nspecies; i++) {
             vcs_VolPhase* Vphase = VPhaseList[PhaseID[i]];
-            plogf("%16s      %5d   %16s", SpName[i].c_str(), PhaseID[i],
-                  Vphase->PhaseName.c_str());
+            plogf("%16s      %5d   %16s", SpName[i], PhaseID[i],
+                  Vphase->PhaseName);
             if (iest >= 0) {
                 plogf("             %-10.5g", w[i]);
             } else {
@@ -216,9 +216,9 @@ void VCS_PROB::prob_report(int print_lvl)
         for (size_t iphase = 0; iphase < NPhase; iphase++) {
             vcs_VolPhase* Vphase = VPhaseList[iphase];
             std::string EOS_cstr = string16_EOSType(Vphase->m_eqnState);
-            plogf("%16s %5d %5d %8d ", Vphase->PhaseName.c_str(),
+            plogf("%16s %5d %5d %8d ", Vphase->PhaseName,
                   Vphase->VP_ID_, Vphase->m_singleSpecies, Vphase->m_gasPhase);
-            plogf("%16s %8d %16e ", EOS_cstr.c_str(),
+            plogf("%16s %8d %16e ", EOS_cstr,
                   Vphase->nSpecies(), Vphase->totalMolesInert());
             if (iest >= 0) {
                 plogf("%16e\n", Vphase->totalMoles());
@@ -235,7 +235,7 @@ void VCS_PROB::prob_report(int print_lvl)
         }
         for (size_t i = 0; i < ne; ++i) {
             writeline(' ', 26, false);
-            plogf("%-2.2s", ElName[i].c_str());
+            plogf("%-2.2s", ElName[i]);
             plogf("%20.12E  ", fac * gai[i]);
             plogf("%3d       %3d\n", m_elType[i], ElActive[i]);
         }
@@ -260,9 +260,9 @@ void VCS_PROB::prob_report(int print_lvl)
             Vphase->setState_TP(T, PresPA);
             for (size_t kindex = 0; kindex < Vphase->nSpecies(); kindex++) {
                 size_t kglob = Vphase->spGlobalIndexVCS(kindex);
-                plogf("%16s ", SpName[kglob].c_str());
+                plogf("%16s ", SpName[kglob]);
                 if (kindex == 0) {
-                    plogf("%16s", Vphase->PhaseName.c_str());
+                    plogf("%16s", Vphase->PhaseName);
                 } else {
                     plogf("                ");
                 }

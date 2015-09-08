@@ -132,7 +132,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     if (DEBUG_MODE_ENABLED) {
                         sprintf(ANOTE, "Skipped: superconverged DG = %11.3E", m_deltaGRxn_new[irxn]);
                         if (m_debug_print_lvl >= 2) {
-                            plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+                            plogf("   --- %-12.12s", m_speciesName[kspec]);
                             plogf("  %12.4E %12.4E %12.4E | %s\n",
                                   m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
                                   m_deltaGRxn_new[irxn], ANOTE);
@@ -148,7 +148,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     if (DEBUG_MODE_ENABLED) {
                         sprintf(ANOTE, "Skipped: IC = %3d and DG >0: %11.3E", m_speciesStatus[kspec], m_deltaGRxn_new[irxn]);
                         if (m_debug_print_lvl >= 2) {
-                            plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+                            plogf("   --- %-12.12s", m_speciesName[kspec]);
                             plogf("  %12.4E %12.4E %12.4E | %s\n",
                                   m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
                                   m_deltaGRxn_new[irxn], ANOTE);
@@ -286,7 +286,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                             }
                             m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
                             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                                plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+                                plogf("   --- %-12.12s", m_speciesName[kspec]);
                                 plogf("  %12.4E %12.4E %12.4E | %s\n",
                                       m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
                                       m_deltaGRxn_new[irxn], ANOTE);
@@ -315,12 +315,12 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                                 sprintf(ANOTE, "Delete this SS phase %lu - SS components only", iphDel);
                             }
                             if (m_debug_print_lvl >= 2) {
-                                plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+                                plogf("   --- %-12.12s", m_speciesName[kspec]);
                                 plogf("  %12.4E %12.4E %12.4E | %s\n",
                                       m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
                                       m_deltaGRxn_new[irxn], ANOTE);
                                 plogf("   --- vcs_RxnStepSizes Special section to set up to delete %s",
-                                      m_speciesName[k].c_str());
+                                      m_speciesName[k]);
                                 plogendl();
                             }
                         }
@@ -340,7 +340,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 }
             } /* End of regular processing */
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                plogf("   --- %-12.12s", m_speciesName[kspec].c_str());
+                plogf("   --- %-12.12s", m_speciesName[kspec]);
                 plogf("  %12.4E %12.4E %12.4E | %s\n",
                       m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
                       m_deltaGRxn_new[irxn], ANOTE);
@@ -416,7 +416,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                 if (DEBUG_MODE_ENABLED) {
                     sprintf(ANOTE, "Skipped: converged DG = %11.3E\n", m_deltaGRxn_new[irxn]);
                     plogf("   --- ");
-                    plogf("%-12.12s", m_speciesName[kspec].c_str());
+                    plogf("%-12.12s", m_speciesName[kspec]);
                     plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec],
                           m_deltaMolNumSpecies[kspec], ANOTE);
                 }
@@ -430,7 +430,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                 if (DEBUG_MODE_ENABLED) {
                     sprintf(ANOTE, "Skipped: IC = %3d and DG >0: %11.3E\n", m_speciesStatus[kspec], m_deltaGRxn_new[irxn]);
                     plogf("   --- ");
-                    plogf("%-12.12s", m_speciesName[kspec].c_str());
+                    plogf("%-12.12s", m_speciesName[kspec]);
                     plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec],
                           m_deltaMolNumSpecies[kspec], ANOTE);
                 }
@@ -515,7 +515,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
                     m_tPhaseMoles_old[m_phaseID[k]] = 0.0;
                     if (DEBUG_MODE_ENABLED) {
                         plogf("   --- vcs_st2 Special section to delete ");
-                        plogf("%-12.12s", m_speciesName[k].c_str());
+                        plogf("%-12.12s", m_speciesName[k]);
                         plogf("\n   ---   Immediate return - Restart iteration\n");
                     }
                     /*
@@ -534,7 +534,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
         } /* End of regular processing */
         if (DEBUG_MODE_ENABLED) {
             plogf("   --- ");
-            plogf("%-12.12s", m_speciesName[kspec].c_str());
+            plogf("%-12.12s", m_speciesName[kspec]);
             plogf("  %12.4E %12.4E | %s\n", m_molNumSpecies_old[kspec],
                   m_deltaMolNumSpecies[kspec], ANOTE);
         }

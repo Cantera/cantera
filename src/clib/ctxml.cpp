@@ -89,7 +89,7 @@ extern "C" {
         try {
             writelog("WARNING: xml_build called. Use get_XML_File instead.");
             string path = findInputFile(file);
-            ifstream f(path.c_str());
+            ifstream f(path);
             if (!f) {
                 throw CanteraError("xml_build",
                                    "file "+string(file)+" not found.");

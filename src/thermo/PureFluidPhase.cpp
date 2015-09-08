@@ -354,7 +354,7 @@ std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
 {
     fmt::MemoryWriter b;
     if (name() != "") {
-        b.write("\n  {}:\n", name().c_str());
+        b.write("\n  {}:\n", name());
     }
     b.write("\n");
     b.write("       temperature    {:12.6g}  K\n", temperature());

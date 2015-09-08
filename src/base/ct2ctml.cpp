@@ -72,7 +72,7 @@ void ct2ctml(const char* file, const int debug)
     } else {
         out_name += ".xml";
     }
-    std::ofstream out(out_name.c_str());
+    std::ofstream out(out_name);
     out << xml;
 }
 

@@ -75,8 +75,8 @@ class ChemkinConversionTest : public testing::Test {
 public:
     void copyInputFile(const std::string& name) {
         std::string in_name = "../data/" + name;
-        std::ifstream source(in_name.c_str(), std::ios::binary);
-        std::ofstream dest(name.c_str(), std::ios::binary);
+        std::ifstream source(in_name, std::ios::binary);
+        std::ofstream dest(name, std::ios::binary);
         dest << source.rdbuf();
     }
 };

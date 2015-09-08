@@ -503,7 +503,7 @@ std::string Application::findInputFile(const std::string& name)
         inname = "";
         for (size_t i = 0; i < nd; i++) {
             inname = dirs[i] + "/" + name;
-            std::ifstream fin(inname.c_str());
+            std::ifstream fin(inname);
             if (fin) {
                 fin.close();
                 return inname;

@@ -149,7 +149,7 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
                            "input file is null");
     }
     std::string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
+    std::ifstream fin(path);
     if (!fin) {
         throw CanteraError("PDSS_Water::initThermo","could not open "
                            +path+" for reading.");

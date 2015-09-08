@@ -106,7 +106,7 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
 void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
-    ifstream s(fname.c_str());
+    ifstream s(fname);
     if (!s) {
         throw CanteraError("Sim1D::restore",
                            "could not open input file "+fname);

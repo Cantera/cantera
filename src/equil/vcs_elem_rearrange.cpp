@@ -147,9 +147,9 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("   ---   ");
-                plogf("%-2.2s", m_elementName[k].c_str());
+                plogf("%-2.2s", m_elementName[k]);
                 plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);
-                plogf("%-2.2s", m_elementName[jr].c_str());
+                plogf("%-2.2s", m_elementName[jr]);
                 plogf("(%9.2g) as element %3d", m_elemAbundancesGoal[jr], jr);
                 plogendl();
             }

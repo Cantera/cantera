@@ -113,7 +113,6 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
                InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string surfParticlePhaseName = surfPhaseTP->id();
     surfPhaseTP->getMoleFractions(x);

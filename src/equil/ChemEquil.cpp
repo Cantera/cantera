@@ -216,15 +216,13 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
             writelogf("  Temperature = %g\n", s.temperature());
             writelogf("  Pressure = %g\n", s.pressure());
             for (size_t k = 0; k < m_kk; k++) {
-                string nnn = s.speciesName(k);
-                double mf = s.moleFraction(k);
-                writelogf("         %-12s % -10.5g\n", nnn.c_str(), mf);
+                writelogf("         %-12s % -10.5g\n",
+                          s.speciesName(k), s.moleFraction(k));
             }
             writelog("      Element_Name   ElementGoal  ElementMF\n");
             for (size_t m = 0; m < m_mm; m++) {
-                string nnn = s.elementName(m);
                 writelogf("      %-12s % -10.5g% -10.5g\n",
-                          nnn.c_str(), elMoleGoal[m], m_elementmolefracs[m]);
+                          s.elementName(m), elMoleGoal[m], m_elementmolefracs[m]);
             }
         }
 
@@ -276,9 +274,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
 
     if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
         for (size_t m = 0; m < m_nComponents; m++) {
-            int isp = static_cast<int>(m_component[m]);
-            string nnn = s.speciesName(isp);
-            writelogf("isp = %d, %s\n", isp, nnn.c_str());
+            size_t isp = m_component[m];
+            writelogf("isp = %d, %s\n", isp, s.speciesName(isp));
         }
         double pres = s.pressure();
         double temp = s.temperature();
@@ -286,9 +283,8 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         writelogf("Temperature = %g\n", temp);
         writelog("  id       Name     MF     mu/RT \n");
         for (size_t n = 0; n < s.nSpecies(); n++) {
-            string nnn = s.speciesName(n);
             writelogf("%10d %15s %10.5g %10.5g\n",
-                      n, nnn.c_str(), xMF_est[n], mu_RT[n]);
+                      n, s.speciesName(n), xMF_est[n], mu_RT[n]);
         }
     }
     DenseMatrix aa(m_nComponents, m_nComponents, 0.0);
@@ -315,18 +311,16 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         for (size_t m = 0; m < m_nComponents; m++) {
             size_t isp = m_component[m];
             double tmp = 0.0;
-            string sname = s.speciesName(isp);
             for (size_t n = 0; n < m_mm; n++) {
                 tmp += nAtoms(isp, n) * lambda_RT[n];
             }
             writelogf("%3d %16s  %10.5g   %10.5g   %10.5g\n",
-                      m, sname.c_str(), mu_RT[isp], tmp, tmp - mu_RT[isp]);
+                      m, s.speciesName(isp), mu_RT[isp], tmp, tmp - mu_RT[isp]);
         }
 
         writelog(" id    ElName  Lambda_RT\n");
         for (size_t m = 0; m < m_mm; m++) {
-            string ename = s.elementName(m);
-            writelogf(" %3d  %6s  %10.5g\n", m, ename.c_str(), lambda_RT[m]);
+            writelogf(" %3d  %6s  %10.5g\n", m, s.elementName(m), lambda_RT[m]);
         }
     }
     return info;
@@ -1037,16 +1031,15 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         writelog("Initial mole numbers and mu_SS:\n");
         writelog("         Name           MoleNum        mu_SS   actCoeff\n");
         for (k = 0; k < m_kk; k++) {
-            string nnn = s.speciesName(k);
             writelogf("%15s  %13.5g  %13.5g %13.5g\n",
-                      nnn.c_str(), n_i[k], m_muSS_RT[k], actCoeff[k]);
+                      s.speciesName(k), n_i[k], m_muSS_RT[k], actCoeff[k]);
         }
         writelogf("Initial n_t = %10.5g\n", n_t);
         writelog("Comparison of Goal Element Abundance with Initial Guess:\n");
         writelog("  eName       eCurrent       eGoal\n");
         for (m = 0; m < m_mm; m++) {
-            string nnn = s.elementName(m);
-            writelogf("%5s   %13.5g  %13.5g\n",nnn.c_str(), eMolesFix[m], elMoles[m]);
+            writelogf("%5s   %13.5g  %13.5g\n",
+                      s.elementName(m), eMolesFix[m], elMoles[m]);
         }
     }
     for (m = 0; m < m_mm; m++) {
@@ -1086,14 +1079,14 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
             writelog("        Species: Calculated_Moles Calculated_Mole_Fraction\n");
             for (k = 0; k < m_kk; k++) {
-                string nnn = s.speciesName(k);
-                writelogf("%15s: %10.5g %10.5g\n", nnn.c_str(), n_i_calc[k], Xmol_i_calc[k]);
+                writelogf("%15s: %10.5g %10.5g\n",
+                          s.speciesName(k), n_i_calc[k], Xmol_i_calc[k]);
             }
             writelogf("%15s: %10.5g\n", "Total Molar Sum", n_t_calc);
             writelogf("(iter %d) element moles bal:   Goal  Calculated\n", iter);
             for (m = 0; m < m_mm; m++) {
-                string nnn = s.elementName(m);
-                writelogf("              %8s: %10.5g %10.5g \n", nnn.c_str(), elMoles[m], eMolesCalc[m]);
+                writelogf("              %8s: %10.5g %10.5g \n",
+                          s.elementName(m), elMoles[m], eMolesCalc[m]);
             }
         }
 
@@ -1197,8 +1190,8 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     }
                 }
                 if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
-                    string nnn = s.elementName(m);
-                    writelogf("               %5s %3d : %5d  %5d\n",nnn.c_str(), lumpSum[m], kMSp, kMSp2);
+                    writelogf("               %5s %3d : %5d  %5d\n",
+                              s.elementName(m), lumpSum[m], kMSp, kMSp2);
                 }
             }
 
@@ -1443,8 +1436,8 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
             writelogf("(it %d)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)\n", iter);
             for (m = 0; m < m_mm; m++) {
-                string eee = s.elementName(m);
-                writelogf("     %5s   %10.5g   %10.5g   %10.5g\n", eee.c_str(), x_old[m], x[m], resid[m]);
+                writelogf("     %5s   %10.5g   %10.5g   %10.5g\n",
+                          s.elementName(m), x_old[m], x[m], resid[m]);
             }
             writelogf("       n_t    %10.5g   %10.5g  %10.5g \n", x_old[m_mm], n_t, exp(resid[m_mm]));
         }
@@ -1510,9 +1503,8 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
         }
         double factor = (elMolesGoal[m_eloc] + sumNeg) / sumPos;
         if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && factor < 0.9999999999) {
-            string nnn = s.speciesName(maxPosEloc);
             writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
-                      nnn.c_str(),
+                      s.speciesName(maxPosEloc),
                       m_molefractions[maxPosEloc], m_molefractions[maxPosEloc]*factor);
         }
         for (k = 0; k < m_kk; k++) {
@@ -1523,9 +1515,8 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
     } else {
         double factor = (-elMolesGoal[m_eloc] + sumPos) / sumNeg;
         if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0 && factor < 0.9999999999) {
-            string nnn = s.speciesName(maxNegEloc);
             writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
-                      nnn.c_str(),
+                      s.speciesName(maxNegEloc),
                       m_molefractions[maxNegEloc], m_molefractions[maxNegEloc]*factor);
         }
         for (k = 0; k < m_kk; k++) {

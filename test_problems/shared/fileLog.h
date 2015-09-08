@@ -7,7 +7,7 @@ class fileLog: public Cantera::Logger
 public:
     explicit fileLog(const std::string& fName) {
         m_fName = fName;
-        m_fs.open(fName.c_str(), std::ios::out);
+        m_fs.open(fName, std::ios::out);
     }
 
     virtual void write(const std::string& msg) {

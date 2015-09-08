@@ -408,7 +408,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                             size_t loc = specName.find(":");
                             std::string firstSpec = specName.substr(0,loc);
                             std::string secondSpec = specName.substr(loc+1);
-                            size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+                            size_t index = temp_thermo->speciesIndex(firstSpec)+nsp*temp_thermo->speciesIndex(secondSpec);
                             data.mobilityRatio[index] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], temp_thermo);
                         };
                     };
@@ -417,7 +417,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                         for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
                             XML_Node& propSpecNode = xmlChild.child(iSpec);
                             std::string specName = propSpecNode.name();
-                            size_t index = temp_thermo->speciesIndex(specName.c_str());
+                            size_t index = temp_thermo->speciesIndex(specName);
                             data.selfDiffusion[index] = newLTP(propSpecNode, name, m_tranPropMap[nodeName], temp_thermo);
                         };
                     };
@@ -533,7 +533,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
                             size_t loc = specName.find(":");
                             string firstSpec = specName.substr(0,loc);
                             string secondSpec = specName.substr(loc+1);
-                            size_t index = temp_thermo->speciesIndex(firstSpec.c_str())+nsp*temp_thermo->speciesIndex(secondSpec.c_str());
+                            size_t index = temp_thermo->speciesIndex(firstSpec)+nsp*temp_thermo->speciesIndex(secondSpec);
                             trParam.mobilityRatio[index] = newLTI(propSpecNode,
                                                                   m_tranPropMap[nodeName],
                                                                   trParam);
@@ -544,7 +544,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
                         for (size_t iSpec = 0; iSpec< nsp; iSpec++) {
                             XML_Node& propSpecNode = compDepNode.child(iSpec);
                             string specName = propSpecNode.name();
-                            size_t index = temp_thermo->speciesIndex(specName.c_str());
+                            size_t index = temp_thermo->speciesIndex(specName);
                             trParam.selfDiffusion[index] = newLTI(propSpecNode,
                                                                   m_tranPropMap[nodeName],
                                                                   trParam);

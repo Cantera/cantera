@@ -241,11 +241,10 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
                 kk = orderVectorSpecies[k];
-                sname = mphase->speciesName(kk);
-                writelogf("   ---   %-12.12s", sname.c_str());
+                writelogf("   ---   %-12.12s", mphase->speciesName(kk));
                 jj = orderVectorSpecies[jr];
-                ename = mphase->speciesName(jj);
-                writelogf("(%9.2g) replaces %-12.12s", molSave, ename.c_str());
+                writelogf("(%9.2g) replaces %-12.12s",
+                          molSave, mphase->speciesName(jj));
                 writelogf("(%9.2g) as component %3d\n", molNum[jj], jr);
             }
             std::swap(orderVectorSpecies[jr], orderVectorSpecies[k]);
@@ -336,8 +335,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         writelog("\n   ---        NonComponent |   Moles  |       ");
         for (i = 0; i < nComponents; i++) {
             kk = orderVectorSpecies[i];
-            sname = mphase->speciesName(kk);
-            writelogf("%-11.10s", sname.c_str());
+            writelogf("%-11.10s", mphase->speciesName(kk));
         }
         writelog("\n");
 
@@ -345,8 +343,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             k = i + nComponents;
             kk = orderVectorSpecies[k];
             writelogf("   --- %3d (%3d) ", k, kk);
-            sname = mphase->speciesName(kk);
-            writelogf("%-10.10s", sname.c_str());
+            writelogf("%-10.10s", mphase->speciesName(kk));
             writelogf("|%10.3g|", molNumBase[kk]);
             /*
              * Print the negative of formRxnMatrix[]; it's easier to interpret.
@@ -596,13 +593,11 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                 kk = orderVectorElements[k];
-                ename = mphase->elementName(kk);
                 writelog("   ---   ");
-                writelogf("%-2.2s", ename.c_str());
+                writelogf("%-2.2s", mphase->elementName(kk));
                 writelog("replaces ");
                 kk = orderVectorElements[jr];
-                ename = mphase->elementName(kk);
-                writelogf("%-2.2s", ename.c_str());
+                writelogf("%-2.2s", mphase->elementName(kk));
                 writelogf(" as element %3d\n", jr);
             }
             std::swap(orderVectorElements[jr], orderVectorElements[k]);

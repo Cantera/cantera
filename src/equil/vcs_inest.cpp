@@ -38,7 +38,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         plogf("%s     SPECIES          MOLE_NUMBER      -SS_ChemPotential\n", pprefix);
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
             plogf("%s     ", pprefix);
-            plogf("%-12.12s", m_speciesName[kspec].c_str());
+            plogf("%-12.12s", m_speciesName[kspec]);
             plogf(" %15.5g  %12.3g\n", m_molNumSpecies_old[kspec], -m_SSfeSpecies[kspec]);
         }
         plogf("%s Element Abundance Agreement returned from linear "
@@ -53,7 +53,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                     tmp += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                 }
                 plogf("%s     ", pprefix);
-                plogf("   %-9.9s", m_elementName[j].c_str());
+                plogf("   %-9.9s", m_elementName[j]);
                 plogf(" %12.3g %12.3g\n", m_elemAbundancesGoal[j], tmp);
             }
         }
@@ -134,7 +134,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
             plogf("%s", pprefix);
-            plogf("%-12.12s", m_speciesName[kspec].c_str());
+            plogf("%-12.12s", m_speciesName[kspec]);
             if (kspec < m_numComponents) {
                 plogf("fe* = %15.5g ff = %15.5g\n", m_feSpecies_new[kspec],
                       m_SSfeSpecies[kspec]);
@@ -195,7 +195,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("%sdirection (", pprefix);
-                plogf("%-12.12s", m_speciesName[kspec].c_str());
+                plogf("%-12.12s", m_speciesName[kspec]);
                 plogf(") = %g", m_deltaMolNumSpecies[kspec]);
                 if (m_SSPhase[kspec]) {
                     if (m_molNumSpecies_old[kspec] > 0.0) {
@@ -307,7 +307,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         plogf("%s     SPECIES      MOLE_NUMBER\n", pprefix);
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
             plogf("%s     ", pprefix);
-            plogf("%-12.12s", m_speciesName[kspec].c_str());
+            plogf("%-12.12s", m_speciesName[kspec]);
             plogf(" %g", m_molNumSpecies_old[kspec]);
             plogendl();
         }

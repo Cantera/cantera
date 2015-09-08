@@ -105,7 +105,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     /* ******************************************************* */
     if (print_lvl != 0) {
         plogf("VCS CALCULATION METHOD\n\n ");
-        plogf("%s\n", m_title.c_str());
+        plogf("%s\n", m_title);
         plogf("\n\n%5d SPECIES\n%5d ELEMENTS\n", m_numSpeciesTot, m_numElemConstraints);
         plogf("%5d COMPONENTS\n", m_numComponents);
         plogf("%5d PHASES\n", m_numPhases);
@@ -122,7 +122,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         plogf("          FROM ESTIMATE           Type\n\n");
         for (size_t i = 0; i < m_numElemConstraints; ++i) {
             writeline(' ', 26, false);
-            plogf("%-2.2s", m_elementName[i].c_str());
+            plogf("%-2.2s", m_elementName[i]);
             plogf("%20.12E%20.12E     %3d\n", m_elemAbundancesGoal[i], m_elemAbundances[i],
                   m_elType[i]);
         }
@@ -154,12 +154,12 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         plogf("   STAN_CHEM_POT  EQUILIBRIUM_EST.  Species_Type\n\n");
         writeline(' ', 20, false);
         for (size_t i = 0; i < m_numElemConstraints; ++i) {
-            plogf("%-4.4s    ", m_elementName[i].c_str());
+            plogf("%-4.4s    ", m_elementName[i]);
         }
         plogf("   PhaseID\n");
         double RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-            plogf(" %-18.18s", m_speciesName[i].c_str());
+            plogf(" %-18.18s", m_speciesName[i]);
             for (size_t j = 0; j < m_numElemConstraints; ++j) {
                 plogf("% -7.3g ", m_formulaMatrix(i,j));
             }
@@ -179,9 +179,8 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
 
     for (size_t i = 0; i < m_numSpeciesTot; ++i) {
         if (m_molNumSpecies_old[i] < 0.0) {
-            plogf("On Input species %-12s has a "
-                  "negative MF, setting it small",
-                  m_speciesName[i].c_str());
+            plogf("On Input species %-12s has a negative MF, setting it small",
+                  m_speciesName[i]);
             plogendl();
             size_t iph = m_phaseID[i];
             double tmp = m_tPhaseMoles_old[iph] * VCS_RELDELETE_SPECIES_CUTOFF * 10;
@@ -620,7 +619,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 bool resurrect = (m_deltaMolNumSpecies[kspec] > 0.0);
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 3) {
                     plogf("   --- %s currently zeroed (SpStatus=%-2d):",
-                          m_speciesName[kspec].c_str(), m_speciesStatus[kspec]);
+                          m_speciesName[kspec], m_speciesStatus[kspec]);
                     plogf("%3d DG = %11.4E WT = %11.4E W = %11.4E DS = %11.4E\n",
                           irxn, m_deltaGRxn_new[irxn], m_molNumSpecies_new[kspec],
                           m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec]);
@@ -669,14 +668,14 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     if (Vphase->exists() == VCS_PHASE_EXIST_NO) {
                         if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                             plogf("   --- Zeroed species changed to major: ");
-                            plogf("%-12s\n", m_speciesName[kspec].c_str());
+                            plogf("%-12s\n", m_speciesName[kspec]);
                         }
                         m_speciesStatus[kspec] = VCS_SPECIES_MAJOR;
                         allMinorZeroedSpecies = false;
                     } else {
                         if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                             plogf("   --- Zeroed species changed to minor: ");
-                            plogf("%-12s\n", m_speciesName[kspec].c_str());
+                            plogf("%-12s\n", m_speciesName[kspec]);
                         }
                         m_speciesStatus[kspec] = VCS_SPECIES_MINOR;
                     }
@@ -712,7 +711,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                         sprintf(ANOTE,"minor species not considered");
                         if (m_debug_print_lvl >= 2) {
                             plogf("   --- ");
-                            plogf("%-12s", m_speciesName[kspec].c_str());
+                            plogf("%-12s", m_speciesName[kspec]);
                             plogf("%3d%11.4E%11.4E%11.4E | %s",
                                   m_speciesStatus[kspec], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
                                   m_deltaMolNumSpecies[kspec], ANOTE);
@@ -746,7 +745,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     /*******************************************************************/
                     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                         plogf("   --- Delete minor species in multispec phase: %-12s",
-                              m_speciesName[kspec].c_str());
+                              m_speciesName[kspec]);
                         plogendl();
                     }
                     m_deltaMolNumSpecies[kspec] = 0.0;
@@ -792,7 +791,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                         sprintf(ANOTE, "major species is converged");
                         if (m_debug_print_lvl >= 2) {
                             plogf("   --- ");
-                            plogf("%-12s", m_speciesName[kspec].c_str());
+                            plogf("%-12s", m_speciesName[kspec]);
                             plogf("%3d%11.4E%11.4E%11.4E | %s",
                                   m_speciesStatus[kspec], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
                                   m_deltaMolNumSpecies[kspec], ANOTE);
@@ -910,7 +909,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                                 doPhaseDeleteKspec = kspec;
                                 if (m_debug_print_lvl >= 2 && m_speciesStatus[kspec] >= 0) {
                                     plogf("   --- SS species changed to zeroedss: ");
-                                    plogf("%-12s", m_speciesName[kspec].c_str());
+                                    plogf("%-12s", m_speciesName[kspec]);
                                     plogendl();
                                 }
                             }
@@ -974,7 +973,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             if (m_debug_print_lvl >= 2) {
                 m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
                 plogf("   --- ");
-                plogf("%-12.12s", m_speciesName[kspec].c_str());
+                plogf("%-12.12s", m_speciesName[kspec]);
                 plogf("%3d%11.4E%11.4E%11.4E | %s",
                       m_speciesStatus[kspec], m_molNumSpecies_old[kspec],
                       m_molNumSpecies_new[kspec],
@@ -986,7 +985,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("   --- ");
                     plogf("%-12.12s Main Loop Special Case deleting phase with species: ",
-                          m_speciesName[doPhaseDeleteKspec].c_str());
+                          m_speciesName[doPhaseDeleteKspec]);
                     plogendl();
                 }
                 break;
@@ -995,7 +994,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
             for (size_t k = 0; k < m_numComponents; k++) {
                 plogf("   --- ");
-                plogf("%-12.12s", m_speciesName[k].c_str());
+                plogf("%-12.12s", m_speciesName[k]);
                 plogf("  c%11.4E%11.4E%11.4E |\n",
                       m_molNumSpecies_old[k],
                       m_molNumSpecies_old[k]+m_deltaMolNumSpecies[k], m_deltaMolNumSpecies[k]);
@@ -1038,7 +1037,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             par *= 0.99;
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("   --- Reduction in step size due to component ");
-                plogf("%s", m_speciesName[ll].c_str());
+                plogf("%s", m_speciesName[ll]);
                 plogf(" going negative = %11.3E", par);
                 plogendl();
             }
@@ -1123,13 +1122,13 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             plogf("   --- SPECIES Status INIT MOLES TENT_MOLES");
             plogf("  FINAL KMOLES  INIT_DEL_G/RT  TENT_DEL_G/RT  FINAL_DELTA_G/RT\n");
             for (size_t i = 0; i < m_numComponents; ++i) {
-                plogf("  --- %-12.12s", m_speciesName[i].c_str());
+                plogf("  --- %-12.12s", m_speciesName[i]);
                 plogf("    %14.6E %14.6E %14.6E\n", m_molNumSpecies_old[i],
                       m_molNumSpecies_old[i] + m_deltaMolNumSpecies[i], m_molNumSpecies_new[i]);
             }
             for (size_t kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
                 size_t irxn = kspec - m_numComponents;
-                plogf("  --- %-12.12s", m_speciesName[kspec].c_str());
+                plogf("  --- %-12.12s", m_speciesName[kspec]);
                 plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n", m_speciesStatus[kspec],
                       m_molNumSpecies_old[kspec],
                       m_molNumSpecies_old[kspec]+m_deltaMolNumSpecies[kspec],
@@ -1173,14 +1172,14 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         plogf("   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT");
         plogf("     Mu/RT     Init_Del_G/RT   Delta_G/RT\n");
         for (size_t i = 0; i < m_numComponents; ++i) {
-            plogf("   ---   %-12.12s", m_speciesName[i].c_str());
+            plogf("   ---   %-12.12s", m_speciesName[i]);
             plogf("    ");
             plogf("%14.6E%14.6E%14.6E%14.6E\n", m_molNumSpecies_old[i],
                   m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_new[i]);
         }
         for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
             size_t l1 = i - m_numComponents;
-            plogf("   ---   %-12.12s", m_speciesName[i].c_str());
+            plogf("   ---   %-12.12s", m_speciesName[i]);
             plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
                   m_speciesStatus[i], m_molNumSpecies_old[i],
                   m_molNumSpecies_new[i], m_feSpecies_old[i], m_feSpecies_new[i],
@@ -1188,7 +1187,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         }
         for (size_t kspec = m_numSpeciesRdc; kspec < m_numSpeciesTot; ++kspec) {
             size_t l1 = kspec - m_numComponents;
-            plogf("   ---   %-12.12s", m_speciesName[kspec].c_str());
+            plogf("   ---   %-12.12s", m_speciesName[kspec]);
             plogf(" %2d %14.6E%14.6E%14.6E%14.6E%14.6E%14.6E\n",
                   m_speciesStatus[kspec], m_molNumSpecies_old[kspec],
                   m_molNumSpecies_new[kspec], m_feSpecies_old[kspec], m_feSpecies_new[kspec],
@@ -1206,7 +1205,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         writeline('-', 50);
         for (size_t iph = 0; iph < m_numPhases; iph++) {
             vcs_VolPhase* Vphase = m_VolPhaseList[iph];
-            plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName.c_str(), m_tPhaseMoles_new[iph]);
+            plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName, m_tPhaseMoles_new[iph]);
         }
         plogf("   ");
         writeline('-', 103);
@@ -1350,9 +1349,9 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             if (doSwap && m_stoichCoeffRxnMatrix(j,i) != 0.0) {
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("   --- Get a new basis because ");
-                    plogf("%s", m_speciesName[l].c_str());
+                    plogf("%s", m_speciesName[l]);
                     plogf(" is better than comp ");
-                    plogf("%s", m_speciesName[j].c_str());
+                    plogf("%s", m_speciesName[j]);
                     plogf(" and share nonzero stoic: %-9.1f",
                           m_stoichCoeffRxnMatrix(j,i));
                     plogendl();
@@ -1387,7 +1386,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         if (speciesType < VCS_SPECIES_MINOR) {
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2 && m_speciesStatus[kspec] >= VCS_SPECIES_MINOR) {
                 plogf("   ---    major/minor species is now zeroed out: %s\n",
-                      m_speciesName[kspec].c_str());
+                      m_speciesName[kspec]);
             }
             ++m_numRxnMinorZeroed;
         } else if (speciesType == VCS_SPECIES_MINOR) {
@@ -1400,7 +1399,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     plogf("   ---   Zeroed Species turned into a "
                           "minor species: ");
                 }
-                plogf("%s\n", m_speciesName[kspec].c_str());
+                plogf("%s\n", m_speciesName[kspec]);
             }
             ++m_numRxnMinorZeroed;
         } else if (speciesType == VCS_SPECIES_MAJOR) {
@@ -1413,7 +1412,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     } else {
                         plogf("   ---   Noncomponent turned from zeroed to major: ");
                     }
-                    plogf("%s\n", m_speciesName[kspec].c_str());
+                    plogf("%s\n", m_speciesName[kspec]);
                 }
                 m_speciesStatus[kspec] = VCS_SPECIES_MAJOR;
             }
@@ -1449,7 +1448,7 @@ void VCS_SOLVE::solve_tp_equilib_check(bool& allMinorZeroedSpecies,
                     stage = RETURN_A;
                 } else {
                     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                        plogf("%s failed\n", m_speciesName[m_indexRxnToSpecies[irxn]].c_str());
+                        plogf("%s failed\n", m_speciesName[m_indexRxnToSpecies[irxn]]);
                     }
                     // Convergence amongst major species has not been achieved
                     /*
@@ -1502,7 +1501,7 @@ void VCS_SOLVE::solve_tp_equilib_check(bool& allMinorZeroedSpecies,
                     return;
                 }
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                    plogf("%s failed\n", m_speciesName[m_indexRxnToSpecies[irxn]].c_str());
+                    plogf("%s failed\n", m_speciesName[m_indexRxnToSpecies[irxn]]);
                 }
                 /*
                  *  Set iti to zero to force a full calculation, and go back
@@ -1894,7 +1893,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 {
     size_t iph = m_phaseID[kspec];
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-        plogf("   --- Add back a deleted species: %-12s\n", m_speciesName[kspec].c_str());
+        plogf("   --- Add back a deleted species: %-12s\n", m_speciesName[kspec]);
     }
     /*
      * Set the species back to minor species status
@@ -1957,7 +1956,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
      */
     Vphase->setTotalMoles(0.0);
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-        plogf("   --- delete_multiphase %d, %s\n", iph, Vphase->PhaseName.c_str());
+        plogf("   --- delete_multiphase %d, %s\n", iph, Vphase->PhaseName);
     }
 
     /*
@@ -1977,7 +1976,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
                     successful = false;
                     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                         plogf("   --- delete_multiphase %d, %s ERROR problems deleting species %s\n",
-                              iph, Vphase->PhaseName.c_str(), m_speciesName[kspec].c_str());
+                              iph, Vphase->PhaseName, m_speciesName[kspec]);
                         plogf("   ---     delta  attempted: %g  achieved: %g   "
                               "  Zeroing it manually\n", dx, dxTent);
                     }
@@ -2008,7 +2007,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
         if (m_phaseID[kcomp] == iph) {
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("   --- delete_multiphase   One of the species is a component %d - %s with mole number %g\n",
-                      kcomp, m_speciesName[kcomp].c_str(), m_molNumSpecies_old[kcomp]);
+                      kcomp, m_speciesName[kcomp], m_molNumSpecies_old[kcomp]);
             }
             if (m_molNumSpecies_old[kcomp] != 0.0) {
                 for (size_t kspec = m_numComponents; kspec < m_numSpeciesRdc; ++kspec) {
@@ -2045,7 +2044,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
             if (m_molNumSpecies_old[kcomp] != 0.0) {
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("   --- delete_multiphase   One of the species is a component %d - %s still with mole number %g\n",
-                          kcomp, m_speciesName[kcomp].c_str(), m_molNumSpecies_old[kcomp]);
+                          kcomp, m_speciesName[kcomp], m_molNumSpecies_old[kcomp]);
                     plogf("   ---                     zeroing it \n");
                 }
                 m_molNumSpecies_old[kcomp] = 0.0;
@@ -2073,7 +2072,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
             ++m_numRxnRdc;
             ++m_numSpeciesRdc;
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                plogf("   ---    Make %s", m_speciesName[kspec].c_str());
+                plogf("   ---    Make %s", m_speciesName[kspec]);
                 plogf(" an active but zeroed species because its phase "
                       "was zeroed\n");
             }
@@ -2264,21 +2263,21 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
             if (retn == 0) {
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl) {
                     plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
-                          m_speciesName[kspec].c_str(), kspec, dx);
+                          m_speciesName[kspec], kspec, dx);
                 }
                 if (dx > 1.0E-50) {
                     dx = 1.0E-50;
                     retn = delta_species(kspec, &dx);
                     if (DEBUG_MODE_ENABLED && retn == 0 && m_debug_print_lvl) {
                         plogf("  --- add_deleted(): delta_species() failed for species %s (%d) with mol number %g\n",
-                              m_speciesName[kspec].c_str(), kspec, dx);
+                              m_speciesName[kspec], kspec, dx);
                     }
                 }
             }
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 if (retn != 0) {
                     plogf("  --- add_deleted():  species %s added back in with mol number %g",
-                          m_speciesName[kspec].c_str(), dx);
+                          m_speciesName[kspec], dx);
                     plogendl();
                 } else {
                     plogf("  --- add_deleted():  species %s failed to be added  back in");
@@ -2302,7 +2301,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
                 retn++;
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("  --- add_deleted():  species %s with mol number %g not converged: DG = %g",
-                          m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
+                          m_speciesName[kspec], m_molNumSpecies_old[kspec],
                           m_deltaGRxn_old[irxn]);
                     plogendl();
                 }
@@ -2693,13 +2692,13 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
         /* ****************************************** */
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                plogf("   ---   %-12.12s", m_speciesName[k].c_str());
+                plogf("   ---   %-12.12s", m_speciesName[k]);
                 if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                    plogf("(Volts = %9.2g)", m_molNumSpecies_old[k]);
                 } else {
                    plogf("(%9.2g)", m_molNumSpecies_old[k]);
                 }
-                plogf(" replaces %-12.12s", m_speciesName[jr].c_str());
+                plogf(" replaces %-12.12s", m_speciesName[jr]);
                 if (m_speciesUnknownType[jr] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                    plogf("(Volts = %9.2g)", m_molNumSpecies_old[jr]);
                 } else {
@@ -2710,7 +2709,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             vcs_switch_pos(false, jr, k);
             std::swap(aw[jr], aw[k]);
         } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-            plogf("   ---   %-12.12s", m_speciesName[k].c_str());
+            plogf("   ---   %-12.12s", m_speciesName[k]);
             if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("(Volts = %9.2g) remains            ", m_molNumSpecies_old[k]);
             } else {
@@ -2862,12 +2861,12 @@ L_END_LOOP:
         }
         plogf("\n   ---   NonComponent|   Moles  |");
         for (size_t j = 0; j < ncTrial; j++) {
-            plogf(" %10.10s", m_speciesName[j].c_str());
+            plogf(" %10.10s", m_speciesName[j]);
         }
         plogf("\n");
         for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
-            plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
+            plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]]);
             if (m_speciesUnknownType[m_indexRxnToSpecies[i]] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("|% -10.3E|", 0.0);
             } else {
@@ -2919,9 +2918,9 @@ L_END_LOOP:
             }
         }
         plogf("   ---               largest error in Stoich coeff = %g at rxn = %d ", sumMax, iMax);
-        plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[iMax]].c_str());
+        plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[iMax]]);
         plogf(" element = %d ", jMax);
-        plogf("%-5.5s", m_elementName[jMax].c_str());
+        plogf("%-5.5s", m_elementName[jMax]);
         plogf("\n");
         plogf("   ");
         for (size_t i=0; i<77; i++) {
@@ -3058,7 +3057,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
                         if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                             plogf("   ---   %s can not be nonzero because"
                                   " needed element %s is zero\n",
-                                  m_speciesName[kspec].c_str(), m_elementName[j].c_str());
+                                  m_speciesName[kspec], m_elementName[j]);
                         }
                         if (m_SSPhase[kspec]) {
                             return VCS_SPECIES_ZEROEDSS;
@@ -3087,7 +3086,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
                             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                                 plogf("   ---   %s is prevented from popping into existence because"
                                       " a needed component to be consumed, %s, has a zero mole number\n",
-                                      m_speciesName[kspec].c_str(), m_speciesName[j].c_str());
+                                      m_speciesName[kspec], m_speciesName[j]);
                             }
                             if (m_SSPhase[kspec]) {
                                 return VCS_SPECIES_ZEROEDSS;
@@ -3103,7 +3102,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
                                 plogf("   ---   %s is prevented from popping into existence because"
                                       " a needed component %s is in a zeroed-phase that would be "
                                       "popped into existence at the same time\n",
-                                      m_speciesName[kspec].c_str(), m_speciesName[j].c_str());
+                                      m_speciesName[kspec], m_speciesName[j]);
                             }
                             if (m_SSPhase[kspec]) {
                                 return VCS_SPECIES_ZEROEDSS;
@@ -3284,7 +3283,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         if (ll == 0) {
             if (lbot != 0) {
                 plogf("   --- Subroutine vcs_dfe called for one species: ");
-                plogf("%-12.12s", m_speciesName[lbot].c_str());
+                plogf("%-12.12s", m_speciesName[lbot]);
             } else {
                 plogf("   --- Subroutine vcs_dfe called for all species");
             }
@@ -3583,7 +3582,7 @@ void VCS_SOLVE::prneav() const
     plogf(" Element   Now      Orignal      Deviation          Type\n");
     for (size_t j = 0; j < m_numElemConstraints; ++j) {
         plogf("  ");
-        plogf("%-2.2s", m_elementName[j].c_str());
+        plogf("%-2.2s", m_elementName[j]);
         plogf(" = %15.6E     %15.6E     %15.6E  %3d\n",
               eav[j], m_elemAbundancesGoal[j], eav[j] - m_elemAbundancesGoal[j], m_elType[j]);
         if (m_elemAbundancesGoal[j] != 0.) {
@@ -3700,7 +3699,7 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         m_speciesStatus[kspec] = vcs_species_type(kspec);
         if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 5) {
-            plogf("  --- %-16s: ", m_speciesName[kspec].c_str());
+            plogf("  --- %-16s: ", m_speciesName[kspec]);
             if (kspec < m_numComponents) {
                 plogf("(COMP) ");
             } else {
@@ -3715,31 +3714,31 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
                 case VCS_SPECIES_COMPONENT:
                     break;
                 case VCS_SPECIES_MAJOR:
-                    plogf("  ---      Major Species          : %-s\n", m_speciesName[kspec].c_str());
+                    plogf("  ---      Major Species          : %-s\n", m_speciesName[kspec]);
                     break;
                 case VCS_SPECIES_ZEROEDPHASE:
                     plogf("  ---      Purposely Zeroed-Phase Species (not in problem): %-s\n",
-                          m_speciesName[kspec].c_str());
+                          m_speciesName[kspec]);
                     break;
                 case VCS_SPECIES_ZEROEDMS:
-                    plogf("  ---      Zeroed-MS Phase Species: %-s\n", m_speciesName[kspec].c_str());
+                    plogf("  ---      Zeroed-MS Phase Species: %-s\n", m_speciesName[kspec]);
                     break;
                 case VCS_SPECIES_ZEROEDSS:
-                    plogf("  ---      Zeroed-SS Phase Species: %-s\n", m_speciesName[kspec].c_str());
+                    plogf("  ---      Zeroed-SS Phase Species: %-s\n", m_speciesName[kspec]);
                     break;
                 case VCS_SPECIES_DELETED:
-                    plogf("  ---      Deleted-Small Species  : %-s\n", m_speciesName[kspec].c_str());
+                    plogf("  ---      Deleted-Small Species  : %-s\n", m_speciesName[kspec]);
                     break;
                 case VCS_SPECIES_ACTIVEBUTZERO:
                     plogf("  ---      Zeroed Species in an active MS phase (tmp): %-s\n",
-                          m_speciesName[kspec].c_str());
+                          m_speciesName[kspec]);
                     break;
                 case VCS_SPECIES_STOICHZERO:
                     plogf("  ---     Zeroed Species in an active MS phase (Stoich Constraint): %-s\n",
-                          m_speciesName[kspec].c_str());
+                          m_speciesName[kspec]);
                     break;
                 case VCS_SPECIES_INTERFACIALVOLTAGE:
-                    plogf("  ---      InterfaceVoltage Species: %-s\n", m_speciesName[kspec].c_str());
+                    plogf("  ---      InterfaceVoltage Species: %-s\n", m_speciesName[kspec]);
                     break;
                 default:
                     throw CanteraError("VCS_SOLVE::vcs_evaluate_speciesType",
@@ -3975,12 +3974,12 @@ void VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         }
         plogf("\n   ---   NonComponent|   Moles  |       ");
         for (size_t j = 0; j < m_numComponents; j++) {
-            plogf("%-10.10s", m_speciesName[j].c_str());
+            plogf("%-10.10s", m_speciesName[j]);
         }
         plogf("\n");
         for (size_t i = 0; i < m_numRxnTot; i++) {
             plogf("   --- %3d ", m_indexRxnToSpecies[i]);
-            plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]].c_str());
+            plogf("%-10.10s", m_speciesName[m_indexRxnToSpecies[i]]);
             if (m_speciesUnknownType[m_indexRxnToSpecies[i]] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("|   NA     |");
             } else {

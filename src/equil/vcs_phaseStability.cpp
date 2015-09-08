@@ -229,9 +229,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
         if (existence > 0) {
             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                 plogf("  ---    %18s %5d           NA       %11.3e\n",
-                      Vphase->PhaseName.c_str(),
-                      existence,
-                      m_tPhaseMoles_old[iph]);
+                      Vphase->PhaseName, existence, m_tPhaseMoles_old[iph]);
             }
         } else {
             if (Vphase->m_singleSpecies) {
@@ -262,8 +260,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("  ---    %18s %5d %10.3g %10.3g %s\n",
-                          Vphase->PhaseName.c_str(),
-                          existence, Fephase,
+                          Vphase->PhaseName, existence, Fephase,
                           m_tPhaseMoles_old[iph], anote);
                 }
             } else {
@@ -282,14 +279,13 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                     }
                     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d  %11.3g %11.3g\n",
-                              Vphase->PhaseName.c_str(),
-                              existence, Fephase,
+                              Vphase->PhaseName, existence, Fephase,
                               m_tPhaseMoles_old[iph]);
                     }
                 } else {
                     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d   blocked  %11.3g\n",
-                              Vphase->PhaseName.c_str(),
+                              Vphase->PhaseName,
                               existence, m_tPhaseMoles_old[iph]);
                     }
                 }
@@ -329,7 +325,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                    "called for a phase that exists!");
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("  ---  vcs_popPhaseRxnStepSizes() called to pop phase %s %d into existence\n",
-              Vphase->PhaseName.c_str(), iphasePop);
+              Vphase->PhaseName, iphasePop);
     }
     // Section for a single-species phase
     if (Vphase->m_singleSpecies) {

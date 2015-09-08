@@ -204,8 +204,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                             if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 3) {
                                 plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g "
                                       "due to %s max bounds constraint\n",
-                                      m_speciesName[kspec].c_str(), m_molNumSpecies_old[kspec],
-                                      maxPermissible, m_elementName[i].c_str());
+                                      m_speciesName[kspec], m_molNumSpecies_old[kspec],
+                                      maxPermissible, m_elementName[i]);
                             }
                             m_molNumSpecies_old[kspec] = maxPermissible;
                             changed = true;
@@ -219,7 +219,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                                     plogf("  ---  vcs_elcorr: Zeroed species %s and changed "
                                           "status to %d due to max bounds constraint\n",
-                                          m_speciesName[kspec].c_str(), m_speciesStatus[kspec]);
+                                          m_speciesName[kspec], m_speciesStatus[kspec]);
                                 }
                             }
                         }
@@ -460,7 +460,7 @@ L_CLEANUP:
               "              Final\n");
         for (size_t i = 0; i < m_numElemConstraints; ++i) {
             plogf("   ---       ");
-            plogf("%-2.2s", m_elementName[i].c_str());
+            plogf("%-2.2s", m_elementName[i]);
             plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);
         }
         plogf("   ---            Diff_Norm:         %20.12E %20.12E\n",

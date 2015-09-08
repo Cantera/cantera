@@ -155,7 +155,7 @@ public:
      */
     void writeCSV(std::string filename = "output.csv",
                   bool dotitles = true, std::string ztitle = "z") const {
-        std::ofstream f(filename.c_str());
+        std::ofstream f(filename);
         int np = nPoints();
         int nc = nComponents();
         int n, m;

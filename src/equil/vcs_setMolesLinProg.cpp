@@ -23,7 +23,7 @@ static void printProgress(const vector<string> &spName,
     plogf(" ---                   Name           Moles  -       SSGibbs \n");
     plogf(" -------------------------------------------------------------------------------------\n");
     for (size_t k = 0; k < soln.size(); k++) {
-        plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k].c_str(), soln[k], ff[k]);
+        plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k], soln[k], ff[k]);
         sum += soln[k] * ff[k];
     }
     plogf(" ---  Total sum to be minimized = %g\n", sum);
@@ -130,7 +130,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                     // with a new set of components
                     if (!redo && delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
                         if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                            plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str());
+                            plogf("   --- Component too small: %s\n", m_speciesName[jcomp]);
                         }
                         redo = true;
                     }

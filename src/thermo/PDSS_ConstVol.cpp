@@ -104,7 +104,7 @@ void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                            "input file is null");
     }
     std::string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    ifstream fin(path);
     if (!fin) {
         throw CanteraError("PDSS_ConstVol::initThermo","could not open "
                            +path+" for reading.");

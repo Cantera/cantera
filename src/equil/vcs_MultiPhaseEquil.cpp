@@ -550,7 +550,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         plogf("--------------------------------------------------"
               "-----------\n");
         for (size_t i = 0; i < m_vprob.nspecies; i++) {
-            plogf("%-12s", m_vprob.SpName[i].c_str());
+            plogf("%-12s", m_vprob.SpName[i]);
             if (m_vprob.SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("  %15.3e %15.3e  ", 0.0, m_vprob.mf[i]);
                 plogf("%15.3e\n", m_vprob.m_gibbsSpecies[i]);
@@ -1343,7 +1343,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
         }
         plogf("-------------------------------------------------------------\n");
         for (size_t i = 0; i < m_vprob.nspecies; i++) {
-            plogf("%-12s", m_vprob.SpName[i].c_str());
+            plogf("%-12s", m_vprob.SpName[i]);
             if (m_vprob.SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("  %15.3e %15.3e  ", 0.0, m_vprob.mf[i]);
                 plogf("%15.3e\n", m_vprob.m_gibbsSpecies[i]);

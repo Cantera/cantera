@@ -94,7 +94,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("Mole Fraction    ChemPot/RT    SpecUnkType\n");
     writeline('-', 80);
     for (size_t i = 0; i < m_numComponents; ++i) {
-        plogf(" %-12.12s", m_speciesName[i].c_str());
+        plogf(" %-12.12s", m_speciesName[i]);
         writeline(' ', 13, false);
         plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i] * molScale,
               m_molNumSpecies_new[i] * molScale, m_feSpecies_old[i]);
@@ -103,7 +103,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     }
     for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
         size_t l = sortindex[i];
-        plogf(" %-12.12s", m_speciesName[l].c_str());
+        plogf(" %-12.12s", m_speciesName[l]);
         writeline(' ', 13, false);
 
         if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
@@ -125,7 +125,7 @@ int VCS_SOLVE::vcs_report(int iconv)
                 plogf(" Inert Gas Species        ");
             } else {
                 plogf(" Inert Species in phase %16s ",
-                      m_VolPhaseList[i]->PhaseName.c_str());
+                      m_VolPhaseList[i]->PhaseName);
             }
             plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i] * molScale,
                   TPhInertMoles[i] / m_tPhaseMoles_old[i], 0.0);
@@ -134,7 +134,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     if (m_numSpeciesRdc != nspecies) {
         plogf("\n SPECIES WITH LESS THAN 1.0E-32 KMOLES:\n\n");
         for (size_t kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
-            plogf(" %-12.12s", m_speciesName[kspec].c_str());
+            plogf(" %-12.12s", m_speciesName[kspec]);
             // Note m_deltaGRxn_new[] stores in kspec slot not irxn slot, after solve
             plogf("             %14.7E     %14.7E    %12.4E",
                   m_molNumSpecies_old[kspec]*molScale,
@@ -163,7 +163,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" |           |\n");
     plogf("               | Components|");
     for (size_t j = 0; j < m_numComponents; j++) {
-        plogf(" %10.10s", m_speciesName[j].c_str());
+        plogf(" %10.10s", m_speciesName[j]);
     }
     plogf(" |           |\n");
     plogf(" NonComponent  |   Moles   |");
@@ -175,7 +175,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
         size_t kspec = m_indexRxnToSpecies[irxn];
         plogf(" %3d ", kspec);
-        plogf("%-10.10s", m_speciesName[kspec].c_str());
+        plogf("%-10.10s", m_speciesName[kspec]);
         plogf("|%10.3g |", m_molNumSpecies_old[kspec]*molScale);
         for (size_t j = 0; j < m_numComponents; j++) {
             plogf("     %6.2f", m_stoichCoeffRxnMatrix(j,irxn));
@@ -204,7 +204,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" |                     |\n");
     plogf("                  | Element   |");
     for (size_t j = 0; j < m_numElemConstraints; j++) {
-        plogf(" %10.10s", m_elementName[j].c_str());
+        plogf(" %10.10s", m_elementName[j]);
     }
     plogf(" |                     |\n");
     plogf("    PhaseName     |KMolTarget |");
@@ -216,7 +216,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         plogf(" %3d ", iphase);
         vcs_VolPhase* VPhase = m_VolPhaseList[iphase];
-        plogf("%-12.12s |",VPhase->PhaseName.c_str());
+        plogf("%-12.12s |",VPhase->PhaseName);
         plogf("%10.3e |", m_tPhaseMoles_old[iphase]*molScale);
         totalMoles += m_tPhaseMoles_old[iphase];
         if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles() &&
@@ -263,7 +263,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("         Actual                    Target         Type      ElActive\n");
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         writeline(' ', 26, false);
-        plogf("%-2.2s", m_elementName[i].c_str());
+        plogf("%-2.2s", m_elementName[i]);
         plogf("%20.12E  %20.12E", m_elemAbundances[i]*molScale, m_elemAbundancesGoal[i]*molScale);
         plogf("   %3d     %3d\n", m_elType[i], m_elementActive[i]);
     }
@@ -286,7 +286,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     for (size_t i = 0; i < nspecies; ++i) {
         size_t l = sortindex[i];
         size_t pid = m_phaseID[l];
-        plogf(" %-12.12s", m_speciesName[l].c_str());
+        plogf(" %-12.12s", m_speciesName[l]);
         plogf(" %14.7E ", m_molNumSpecies_old[l]*molScale);
         plogf("%14.7E  ", m_SSfeSpecies[l]);
         plogf("%14.7E  ", log(m_actCoeffSpecies_old[l]));

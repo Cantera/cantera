@@ -73,17 +73,17 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
 
     string ser = "VCS_SOLVE: ERROR:\n\t";
     if (nspecies0 <= 0) {
-        plogf("%s Number of species is nonpositive\n", ser.c_str());
+        plogf("%s Number of species is nonpositive\n", ser);
         throw CanteraError("VCS_SOLVE()", ser +
                            " Number of species is nonpositive\n");
     }
     if (nelements <= 0) {
-        plogf("%s Number of elements is nonpositive\n", ser.c_str());
+        plogf("%s Number of elements is nonpositive\n", ser);
         throw CanteraError("VCS_SOLVE()", ser +
                            " Number of species is nonpositive\n");
     }
     if (nphase0 <= 0) {
-        plogf("%s Number of phases is nonpositive\n", ser.c_str());
+        plogf("%s Number of phases is nonpositive\n", ser);
         throw CanteraError("VCS_SOLVE()", ser +
                            " Number of species is nonpositive\n");
     }
@@ -429,7 +429,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         }
         if (!nonzero) {
             plogf("vcs_prob_specifyFully:: species %d %s has a zero formula matrix!\n", i,
-                  pub->SpName[i].c_str());
+                  pub->SpName[i]);
             return VCS_PUB_BAD;
         }
     }
@@ -595,7 +595,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
             vcs_VolPhase* Vphase = pub->VPhaseList[iph];
             if (numPhSp[iph] != Vphase->nSpecies()) {
                 plogf("%sNumber of species in phase %d, %s, doesn't match\n",
-                      ser, iph, Vphase->PhaseName.c_str());
+                      ser, iph, Vphase->PhaseName);
                 return VCS_PUB_BAD;
             }
         }
@@ -644,7 +644,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
                 } else {
                     if (m_debug_print_lvl >= 2) {
                         plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
-                              m_elementName[i].c_str(), m_elemAbundancesGoal[i]);
+                              m_elementName[i], m_elemAbundancesGoal[i]);
                     }
                     m_elemAbundancesGoal[i] = 0.0;
                 }
@@ -782,38 +782,34 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
         vcs_VolPhase* pub_phase_ptr = pub->VPhaseList[iph];
 
         if (vPhase->VP_ID_ != pub_phase_ptr->VP_ID_) {
-            plogf("%sPhase numbers have changed:%d %d\n", yo.c_str(),
-                  vPhase->VP_ID_, pub_phase_ptr->VP_ID_);
+            plogf("%sPhase numbers have changed:%d %d\n",
+                  yo, vPhase->VP_ID_, pub_phase_ptr->VP_ID_);
             retn = VCS_PUB_BAD;
         }
 
         if (vPhase->m_singleSpecies != pub_phase_ptr->m_singleSpecies) {
-            plogf("%sSingleSpecies value have changed:%d %d\n", yo.c_str(),
-                  vPhase->m_singleSpecies,
-                  pub_phase_ptr->m_singleSpecies);
+            plogf("%sSingleSpecies value have changed:%d %d\n",
+                  yo, vPhase->m_singleSpecies, pub_phase_ptr->m_singleSpecies);
             retn = VCS_PUB_BAD;
         }
 
         if (vPhase->m_gasPhase != pub_phase_ptr->m_gasPhase) {
-            plogf("%sGasPhase value have changed:%d %d\n", yo.c_str(),
-                  vPhase->m_gasPhase,
-                  pub_phase_ptr->m_gasPhase);
+            plogf("%sGasPhase value have changed:%d %d\n",
+                  yo, vPhase->m_gasPhase, pub_phase_ptr->m_gasPhase);
             retn = VCS_PUB_BAD;
         }
 
         vPhase->m_eqnState = pub_phase_ptr->m_eqnState;
 
         if (vPhase->nSpecies() != pub_phase_ptr->nSpecies()) {
-            plogf("%sNVolSpecies value have changed:%d %d\n", yo.c_str(),
-                  vPhase->nSpecies(),
-                  pub_phase_ptr->nSpecies());
+            plogf("%sNVolSpecies value have changed:%d %d\n",
+                  yo, vPhase->nSpecies(), pub_phase_ptr->nSpecies());
             retn = VCS_PUB_BAD;
         }
 
         if (vPhase->PhaseName != pub_phase_ptr->PhaseName) {
-            plogf("%sPhaseName value have changed:%s %s\n", yo.c_str(),
-                  vPhase->PhaseName.c_str(),
-                  pub_phase_ptr->PhaseName.c_str());
+            plogf("%sPhaseName value have changed:%s %s\n",
+                  yo, vPhase->PhaseName, pub_phase_ptr->PhaseName);
             retn = VCS_PUB_BAD;
         }
 

@@ -85,7 +85,7 @@ void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                            "input file is null");
     }
     std::string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    ifstream fin(path);
     if (!fin) {
         throw CanteraError("PDSS_IdealGas::constructPDSSFile","could not open "
                            +path+" for reading.");

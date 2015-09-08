@@ -296,7 +296,6 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "ids don't match");
     }
 
-    std::string subname = "LatticePhase::initThermoXML";
     /*
      * Check on the thermo field. Must have:
      * <thermo model="Lattice" />
@@ -305,11 +304,11 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& thNode = phaseNode.child("thermo");
         std::string mString = thNode.attrib("model");
         if (lowercase(mString) != "lattice") {
-            throw CanteraError(subname.c_str(),
+            throw CanteraError("LatticePhase::initThermoXML",
                                "Unknown thermo model: " + mString);
         }
     } else {
-        throw CanteraError(subname.c_str(),
+        throw CanteraError("LatticePhase::initThermoXML",
                            "Unspecified thermo model");
     }
     /*

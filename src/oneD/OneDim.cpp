@@ -373,7 +373,7 @@ void OneDim::save(const std::string& fname, std::string id,
     struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
 
     XML_Node root("ctml");
-    ifstream fin(fname.c_str());
+    ifstream fin(fname);
     if (fin) {
         root.build(fin);
         // Remove existing solution with the same id
@@ -395,7 +395,7 @@ void OneDim::save(const std::string& fname, std::string id,
         d->save(sim, sol);
         d = d->right();
     }
-    ofstream s(fname.c_str());
+    ofstream s(fname);
     if (!s) {
         throw CanteraError("OneDim::save","could not open file "+fname);
     }
