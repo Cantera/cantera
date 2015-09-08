@@ -112,24 +112,46 @@ void phasemethods(int nlhs, mxArray* plhs[],
         case 1:
             // floating-point attributes
             vv = phase_temperature(ph);
+            if (vv == DERR) {
+                reportError();
+            }
             break;
         case 2:
             vv = phase_density(ph);
+            if (vv == DERR) {
+                reportError();
+            }
             break;
         case 3:
             vv = phase_molarDensity(ph);
+            if (vv == DERR) {
+                reportError();
+            }
             break;
         case 4:
             vv = phase_meanMolecularWeight(ph);
+            if (vv == DERR) {
+                reportError();
+            }
             break;
         case 8:
-            vv = 1.0/phase_density(ph);
+            vv = phase_density(ph);
+            if (vv == DERR) {
+                reportError();
+            }
+            vv = 1.0/vv;
             break;
         case 10:
             vv = static_cast<int>(phase_nElements(ph));
+            if (vv == -1) {
+                reportError();
+            }
             break;
         case 11:
             vv = static_cast<int>(phase_nSpecies(ph));
+            if (vv == -1) {
+                reportError();
+            }
             break;
         case 12:
             input_buf = getString(prhs[3]);
@@ -143,17 +165,20 @@ void phasemethods(int nlhs, mxArray* plhs[],
             k = getInt(prhs[3]);
             m = getInt(prhs[4]);
             vv = phase_nAtoms(ph,k-1,m-1);
+            if (vv == ERR) {
+                reportError();
+            }
             break;
         case 15:
             show_thermo = getInt(prhs[3]);
             threshold = getDouble(prhs[4]);
             vv = write_phase(ph,show_thermo,threshold);
+            if (vv == -1 || vv == ERR) {
+                reportError();
+            }
             break;
         default:
             mexErrMsgTxt("Unknown job number");
-        }
-        if (vv == DERR || vv == -1 || vv == ERR) {
-            reportError();
         }
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
