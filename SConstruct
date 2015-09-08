@@ -247,7 +247,11 @@ defaults.warningFlags = '-Wall'
 
 if 'gcc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
-    defaults.cxxFlags = '-std=c++11'
+    if env['OS'] == 'Cygwin':
+        # See http://stackoverflow.com/questions/18784112
+        defaults.cxxFlags = '-std=gnu++11'
+    else:
+        defaults.cxxFlags = '-std=c++11'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
