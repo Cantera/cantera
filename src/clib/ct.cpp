@@ -327,7 +327,7 @@ extern "C" {
         try {
             return ThermoCabinet::item(n).nAtoms(k,m);
         } catch (...) {
-            return handleAllExceptions(-1, ERR);
+            return handleAllExceptions(ERR, ERR);
         }
     }
 
