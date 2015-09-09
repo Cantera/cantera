@@ -779,7 +779,12 @@ if env['toolchain'] == 'mingw':
 
 def config_error(message):
     print 'ERROR:', message
-    print "See 'config.log' for details."
+    if env['VERBOSE']:
+        print '*' * 25, 'Contents of config.log:', '*' * 25
+        print open('config.log').read()
+        print '*' * 28, 'End of config.log', '*' * 28
+    else:
+        print "See 'config.log' for details."
     sys.exit(1)
 
 # First, a sanity check:
