@@ -249,9 +249,9 @@ if 'gcc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
     if env['OS'] == 'Cygwin':
         # See http://stackoverflow.com/questions/18784112
-        defaults.cxxFlags = '-std=gnu++11'
+        defaults.cxxFlags = '-std=gnu++0x'
     else:
-        defaults.cxxFlags = '-std=c++11'
+        defaults.cxxFlags = '-std=c++0x'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
@@ -267,7 +267,7 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.warningFlags = '/W3'
 
 elif 'icc' in env.subst('$CC'):
-    defaults.cxxFlags = '-std=c++11'
+    defaults.cxxFlags = '-std=c++0x'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.warningFlags = '-Wcheck'
 
