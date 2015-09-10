@@ -846,11 +846,9 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                  * lack of agreement (HKM -> may be changed in the
                  * future).
                  */
-                for (map<std::string,std::string>::const_iterator _b = m.begin();
-                    _b != m.end();
-                    ++_b) {
-                    size_t kk = speciesIndex(_b->first);
-                    m_Aionic[kk] = fpValue(_b->second) * Afactor;
+                for (const auto& b : m) {
+                    size_t kk = speciesIndex(b.first);
+                    m_Aionic[kk] = fpValue(b.second) * Afactor;
                 }
             }
         }
@@ -917,11 +915,9 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
             map<std::string, std::string> msIs;
             getMap(sIsNode, msIs);
-            for (map<std::string,std::string>::const_iterator _b = msIs.begin();
-                _b != msIs.end();
-                ++_b) {
-                size_t kk = speciesIndex(_b->first);
-                double val = fpValue(_b->second);
+            for (const auto& b : msIs) {
+                size_t kk = speciesIndex(b.first);
+                double val = fpValue(b.second);
                 m_speciesCharge_Stoich[kk] = val;
             }
         }
@@ -971,11 +967,9 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
         map<std::string, std::string> msEST;
         getMap(ESTNode, msEST);
-        for (map<std::string,std::string>::const_iterator _b = msEST.begin();
-            _b != msEST.end();
-            ++_b) {
-            size_t kk = speciesIndex(_b->first);
-            std::string est = _b->second;
+        for (const auto& b : msEST) {
+            size_t kk = speciesIndex(b.first);
+            std::string est = b.second;
             if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
                 throw CanteraError("DebyeHuckel:initThermoXML",
                                    "Bad electrolyte type: " + est);

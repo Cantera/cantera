@@ -23,8 +23,7 @@ doublereal linearInterp(doublereal x, const vector_fp& xpts,
     if (x >= xpts.back()) {
         return fpts.back();
     }
-    vector_fp::const_iterator loc =
-        lower_bound(xpts.begin(), xpts.end(), x);
+    auto loc = lower_bound(xpts.begin(), xpts.end(), x);
     int iloc = int(loc - xpts.begin()) - 1;
     doublereal ff = fpts[iloc] +
                     (x - xpts[iloc])*(fpts[iloc + 1]

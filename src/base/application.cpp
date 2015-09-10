@@ -142,7 +142,7 @@ Application::Messages* Application::ThreadMessages::operator ->()
 {
     ScopedLock msgLock(msg_mutex);
     cthreadId_t curId = getThisThreadId();
-    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId);
+    auto iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
         return iter->second.get();
     }
@@ -155,7 +155,7 @@ void Application::ThreadMessages::removeThreadMessages()
 {
     ScopedLock msgLock(msg_mutex);
     cthreadId_t curId = getThisThreadId();
-    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId);
+    auto iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
         m_threadMsgMap.erase(iter);
     }
@@ -188,11 +188,10 @@ Application* Application::Instance()
 
 Application::~Application()
 {
-    std::map<std::string, std::pair<XML_Node*, int> >::iterator pos;
-    for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
-        pos->second.first->unlock();
-        delete pos->second.first;
-        pos->second.first = 0;
+    for (auto& f : xmlfiles) {
+        f.second.first->unlock();
+        delete f.second.first;
+        f.second.first = 0;
     }
 }
 
@@ -293,12 +292,9 @@ void Application::close_XML_File(const std::string& file)
 {
     ScopedLock xmlLock(xml_mutex);
     if (file == "all") {
-        std::map<string, std::pair<XML_Node*, int> >::iterator
-        b = xmlfiles.begin(),
-        e = xmlfiles.end();
-        for (; b != e; ++b) {
-            b->second.first->unlock();
-            delete b->second.first;
+        for (const auto& f : xmlfiles) {
+            f.second.first->unlock();
+            delete f.second.first;
         }
         xmlfiles.clear();
     } else if (xmlfiles.find(file) != xmlfiles.end()) {
@@ -469,8 +465,7 @@ void Application::addDataDirectory(const std::string& dir)
     string d = stripnonprint(dir);
 
     // Remove any existing entry for this directory
-    std::vector<string>::iterator iter = std::find(inputDirs.begin(),
-                                                   inputDirs.end(), d);
+    auto iter = std::find(inputDirs.begin(), inputDirs.end(), d);
     if (iter != inputDirs.end()) {
         inputDirs.erase(iter);
     }

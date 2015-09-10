@@ -213,15 +213,13 @@ void Refiner::show()
         writelog(string("Refining grid in ") +
                  m_domain->id()+".\n"
                  +"    New points inserted after grid points ");
-        map<size_t, int>::const_iterator b = m_loc.begin();
-        for (; b != m_loc.end(); ++b) {
-            writelog(int2str(b->first)+" ");
+        for (const auto& loc : m_loc) {
+            writelog(int2str(loc.first)+" ");
         }
         writelog("\n");
         writelog("    to resolve ");
-        map<string, int>::const_iterator bb = m_c.begin();
-        for (; bb != m_c.end(); ++bb) {
-            writelog(string(bb->first)+" ");
+        for (const auto& c : m_c) {
+            writelog(string(c.first)+" ");
         }
         writelog("\n");
         writeline('#', 78);

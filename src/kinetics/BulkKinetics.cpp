@@ -113,15 +113,11 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
         return false;
     }
     double dn = 0.0;
-    for (Composition::const_iterator iter = r->products.begin();
-         iter != r->products.end();
-         ++iter) {
-        dn += iter->second;
+    for (const auto& sp : r->products) {
+        dn += sp.second;
     }
-    for (Composition::const_iterator iter = r->reactants.begin();
-         iter != r->reactants.end();
-         ++iter) {
-        dn -= iter->second;
+    for (const auto& sp : r->reactants) {
+        dn -= sp.second;
     }
 
     m_dn.push_back(dn);

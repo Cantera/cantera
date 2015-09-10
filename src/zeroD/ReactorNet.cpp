@@ -47,14 +47,10 @@ void ReactorNet::initialize()
         r.initialize(m_time);
         nv = r.neq();
         m_nparams.push_back(r.nSensParams());
-        std::vector<std::pair<void*, int> > sens_objs = r.getSensitivityOrder();
-        for (size_t i = 0; i < sens_objs.size(); i++) {
-            std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
-            for (std::map<size_t, size_t>::iterator iter = s.begin();
-                    iter != s.end();
-                    ++iter) {
-                m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
-                m_sensIndex[iter->second] = sensParamNumber++;
+        for (const auto& sens_obj : r.getSensitivityOrder()) {
+            for (const auto& order : m_sensOrder[sens_obj]) {
+                m_sensIndex.resize(std::max(order.second + 1, m_sensIndex.size()));
+                m_sensIndex[order.second] = sensParamNumber++;
             }
         }
         m_nv += nv;

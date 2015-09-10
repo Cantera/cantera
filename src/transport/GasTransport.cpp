@@ -538,7 +538,7 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
             // the list of delta* values for which fits have been done.
 
             // 'find' returns a pointer to end() if not found
-            vector_fp::iterator dptr = find(fitlist.begin(), fitlist.end(), dstar);
+            auto dptr = find(fitlist.begin(), fitlist.end(), dstar);
             if (dptr == fitlist.end()) {
                 vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
                 vector_fp co22(degree+1);

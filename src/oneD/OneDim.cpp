@@ -236,16 +236,15 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
     if (rdt < 0.0) {
         rdt = m_rdt;
     }
-    vector<Domain1D*>::iterator d;
 
     // iterate over the bulk domains first
-    for (d = m_bulk.begin(); d != m_bulk.end(); ++d) {
-        (*d)->eval(j, x, r, DATA_PTR(m_mask), rdt);
+    for (const auto& d : m_bulk) {
+        d->eval(j, x, r, DATA_PTR(m_mask), rdt);
     }
 
     // then over the connector domains
-    for (d = m_connect.begin(); d != m_connect.end(); ++d) {
-        (*d)->eval(j, x, r, DATA_PTR(m_mask), rdt);
+    for (const auto& d : m_connect) {
+        d->eval(j, x, r, DATA_PTR(m_mask), rdt);
     }
 
     // increment counter and time

@@ -285,15 +285,13 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
 
     // install the enhanced third-body concentration calculator
     map<size_t, double> efficiencies;
-    for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
-         iter != r.third_body.efficiencies.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
+    for (const auto& eff : r.third_body.efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
         if (k != npos) {
-            efficiencies[k] = iter->second;
+            efficiencies[k] = eff.second;
         } else if (!m_skipUndeclaredThirdBodies) {
             throw CanteraError("GasKinetics::addTFalloffReaction", "Found "
-                "third-body efficiency for undefined species '" + iter->first +
+                "third-body efficiency for undefined species '" + eff.first +
                 "' while adding reaction '" + r.equation() + "'");
         }
     }
@@ -311,15 +309,13 @@ void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
 {
     m_rates.install(nReactions()-1, r.rate);
     map<size_t, double> efficiencies;
-    for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
-         iter != r.third_body.efficiencies.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
+    for (const auto& eff : r.third_body.efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
         if (k != npos) {
-            efficiencies[k] = iter->second;
+            efficiencies[k] = eff.second;
         } else if (!m_skipUndeclaredThirdBodies) {
             throw CanteraError("GasKinetics::addThreeBodyReaction", "Found "
-                "third-body efficiency for undefined species '" + iter->first +
+                "third-body efficiency for undefined species '" + eff.first +
                 "' while adding reaction '" + r.equation() + "'");
         }
     }

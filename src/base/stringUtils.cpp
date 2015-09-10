@@ -303,11 +303,8 @@ static std::string::size_type findFirstWS(const std::string& val)
 {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
-    std::string::const_iterator i = val.begin();
-    for (; i != val.end(); i++) {
-        char ch = *i;
-        int ll = (int) ch;
-        if (isspace(ll)) {
+    for (const auto& ch : val) {
+        if (isspace(static_cast<int>(ch))) {
             ibegin = (std::string::size_type) j;
             break;
         }
@@ -328,11 +325,8 @@ static std::string::size_type findFirstNotOfWS(const std::string& val)
 {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
-    std::string::const_iterator i = val.begin();
-    for (; i != val.end(); i++) {
-        char ch = *i;
-        int ll = (int) ch;
-        if (!isspace(ll)) {
+    for (const auto& ch : val) {
+        if (!isspace(static_cast<int>(ch))) {
             ibegin = (std::string::size_type) j;
             break;
         }

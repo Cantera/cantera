@@ -226,9 +226,9 @@ public:
      *
      */
     void axpy(doublereal a, const Array2D& x, const Array2D& y) {
-        iterator b = begin();
-        const_iterator xb = x.begin();
-        const_iterator yb = y.begin();
+        auto b = begin();
+        auto xb = x.begin();
+        auto yb = y.begin();
         for (; b != end(); ++b, ++xb, ++yb) {
             *b = a*(*xb) + *yb;
         }

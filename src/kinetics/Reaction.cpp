@@ -35,23 +35,19 @@ Reaction::Reaction(int type, const Composition& reactants_,
 void Reaction::validate()
 {
     if (!allow_nonreactant_orders) {
-        for (Composition::iterator iter = orders.begin();
-             iter != orders.end();
-             ++iter) {
-            if (reactants.find(iter->first) == reactants.end()) {
+        for (const auto& order : orders) {
+            if (reactants.find(order.first) == reactants.end()) {
                 throw CanteraError("Reaction::validate", "Reaction order "
-                    "specified for non-reactant species '" + iter->first + "'");
+                    "specified for non-reactant species '" + order.first + "'");
             }
         }
     }
 
     if (!allow_negative_orders) {
-        for (Composition::iterator iter = orders.begin();
-             iter != orders.end();
-             ++iter) {
-            if (iter->second < 0.0) {
+        for (const auto& order : orders) {
+            if (order.second < 0.0) {
                 throw CanteraError("Reaction::validate", "Negative reaction "
-                    "order specified for species '" + iter->first + "'");
+                    "order specified for species '" + order.first + "'");
             }
         }
     }
@@ -60,9 +56,7 @@ void Reaction::validate()
 std::string Reaction::reactantString() const
 {
     std::ostringstream result;
-    for (Composition::const_iterator iter = reactants.begin();
-         iter != reactants.end();
-         ++iter) {
+    for (auto iter = reactants.begin(); iter != reactants.end(); ++iter) {
         if (iter != reactants.begin()) {
             result << " + ";
         }
@@ -77,9 +71,7 @@ std::string Reaction::reactantString() const
 std::string Reaction::productString() const
 {
     std::ostringstream result;
-    for (Composition::const_iterator iter = products.begin();
-         iter != products.end();
-         ++iter) {
+    for (auto iter = products.begin(); iter != products.end(); ++iter) {
         if (iter != products.begin()) {
             result << " + ";
         }
@@ -487,14 +479,11 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
         R.sticking_species = arr["species"];
     }
     std::vector<XML_Node*> cov = arr.getChildren("coverage");
-    for (std::vector<XML_Node*>::iterator iter = cov.begin();
-         iter != cov.end();
-         ++iter)
-    {
-        CoverageDependency& cdep = R.coverage_deps[(*iter)->attrib("species")];
-        cdep.a = getFloat(**iter, "a", "toSI");
-        cdep.m = getFloat(**iter, "m");
-        cdep.E = getFloat(**iter, "e", "actEnergy") / GasConstant;
+    for (const auto& node : cov) {
+        CoverageDependency& cdep = R.coverage_deps[node->attrib("species")];
+        cdep.a = getFloat(*node, "a", "toSI");
+        cdep.m = getFloat(*node, "m");
+        cdep.E = getFloat(*node, "e", "actEnergy") / GasConstant;
     }
     setupElementaryReaction(R, rxn_node);
 }
@@ -544,15 +533,11 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
         R.orders.clear();
         // Reaction orders based on species stoichiometric coefficients
         R.allow_nonreactant_orders = true;
-        for (Composition::const_iterator iter = R.reactants.begin();
-             iter != R.reactants.end();
-             ++iter) {
-            R.orders[iter->first] += iter->second * (1.0 - R.beta);
+        for (const auto& sp : R.reactants) {
+            R.orders[sp.first] += sp.second * (1.0 - R.beta);
         }
-        for (Composition::const_iterator iter = R.products.begin();
-             iter != R.products.end();
-             ++iter) {
-            R.orders[iter->first] += iter->second * R.beta;
+        for (const auto& sp : R.products) {
+            R.orders[sp.first] += sp.second * R.beta;
         }
     }
 
@@ -565,24 +550,18 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
         if (lowercase(rof_node["model"]) == "reactantorders") {
             R.orders = initial_orders;
         } else if (lowercase(rof_node["model"]) == "zeroorders") {
-            for (Composition::const_iterator iter = R.reactants.begin();
-                 iter != R.reactants.end();
-                 ++iter) {
-                R.orders[iter->first] = 0.0;
+            for (const auto& sp : R.reactants) {
+                R.orders[sp.first] = 0.0;
             }
         } else if (lowercase(rof_node["model"]) == "butlervolmerorders") {
             // Reaction orders based on provided reaction orders
-            for (Composition::const_iterator iter = R.reactants.begin();
-                 iter != R.reactants.end();
-                 ++iter) {
-                double c = getValue(initial_orders, iter->first, iter->second);
-                R.orders[iter->first] += c * (1.0 - R.beta);
+            for (const auto& sp : R.reactants) {
+                double c = getValue(initial_orders, sp.first, sp.second);
+                R.orders[sp.first] += c * (1.0 - R.beta);
             }
-            for (Composition::const_iterator iter = R.products.begin();
-                 iter != R.products.end();
-                 ++iter) {
-                double c = getValue(initial_orders, iter->first, iter->second);
-                R.orders[iter->first] += c * R.beta;
+            for (const auto& sp : R.products) {
+                double c = getValue(initial_orders, sp.first, sp.second);
+                R.orders[sp.first] += c * R.beta;
             }
         } else {
             throw CanteraError("setupElectrochemicalReaction", "unknown model "
@@ -594,10 +573,8 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     // Override orders based on the <orders> node
     if (rxn_node.hasChild("orders")) {
         Composition orders = parseCompString(rxn_node.child("orders").value());
-        for (Composition::iterator iter = orders.begin();
-             iter != orders.end();
-             ++iter) {
-            R.orders[iter->first] = iter->second;
+        for (const auto& order : orders) {
+            R.orders[order.first] = order.second;
         }
     }
 }
@@ -658,13 +635,8 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
 std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node)
 {
     std::vector<shared_ptr<Reaction> > all_reactions;
-    std::vector<XML_Node*> reaction_nodes =
-        node.child("reactionData").getChildren("reaction");
-    for (std::vector<XML_Node*>::iterator iter = reaction_nodes.begin();
-         iter != reaction_nodes.end();
-         ++iter)
-    {
-        all_reactions.push_back(newReaction(**iter));
+    for (const auto& rxnnode : node.child("reactionData").getChildren("reaction")) {
+        all_reactions.push_back(newReaction(*rxnnode));
     }
     return all_reactions;
 }

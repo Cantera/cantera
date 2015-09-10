@@ -190,7 +190,7 @@ public:
             return;
         }
 
-        pressureIter iter = pressures_.upper_bound(c[0]);
+        auto iter = pressures_.upper_bound(c[0]);
         AssertThrowMsg(iter != pressures_.end(), "Plog::update_C",
                        "Pressure out of range: " + fp2str(logP_));
         AssertThrowMsg(iter != pressures_.begin(), "Plog::update_C",
@@ -252,7 +252,6 @@ public:
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t> > pressures_;
-    typedef std::map<double, std::pair<size_t, size_t> >::iterator pressureIter;
 
     // Rate expressions which are referenced by the indices stored in pressures_
     std::vector<Arrhenius> rates_;

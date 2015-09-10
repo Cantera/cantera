@@ -371,14 +371,12 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
     vector_fp mf(m_kk, 0.0);
-    for (compositionMap::const_iterator iter = xMap.begin();
-         iter != xMap.end();
-         ++iter) {
+    for (const auto& sp : xMap) {
         try {
-            mf[getValue(m_speciesIndices, iter->first)] = iter->second;
+            mf[getValue(m_speciesIndices, sp.first)] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMoleFractionsByName",
-                               "Unknown species '{}'", iter->first);
+                               "Unknown species '{}'", sp.first);
         }
     }
     setMoleFractions(&mf[0]);
@@ -417,14 +415,12 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
 void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
     vector_fp mf(m_kk, 0.0);
-    for (compositionMap::const_iterator iter = yMap.begin();
-         iter != yMap.end();
-         ++iter) {
+    for (const auto& sp : yMap) {
         try {
-            mf[getValue(m_speciesIndices, iter->first)] = iter->second;
+            mf[getValue(m_speciesIndices, sp.first)] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMassFractionsByName",
-                               "Unknown species '{}'", iter->first);
+                               "Unknown species '{}'", sp.first);
         }
     }
     setMassFractions(&mf[0]);
@@ -710,9 +706,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
     }
 
     // Check for duplicates
-    vector<string>::const_iterator iter = find(m_elementNames.begin(),
-                                               m_elementNames.end(),
-                                               symbol);
+    auto iter = find(m_elementNames.begin(), m_elementNames.end(), symbol);
     if (iter != m_elementNames.end()) {
         size_t m = iter - m_elementNames.begin();
         if (m_atomicWeights[m] != weight) {
@@ -755,29 +749,27 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 bool Phase::addSpecies(shared_ptr<Species> spec) {
     m_species[spec->name] = spec;
     vector_fp comp(nElements());
-    for (map<string, double>::const_iterator iter = spec->composition.begin();
-         iter != spec->composition.end();
-         iter++) {
-        size_t m = elementIndex(iter->first);
+    for (const auto& elem : spec->composition) {
+        size_t m = elementIndex(elem.first);
         if (m == npos) { // Element doesn't exist in this phase
             switch (m_undefinedElementBehavior) {
             case UndefElement::ignore:
                 return false;
 
             case UndefElement::add:
-                addElement(iter->first);
+                addElement(elem.first);
                 comp.resize(nElements());
-                m = elementIndex(iter->first);
+                m = elementIndex(elem.first);
                 break;
 
             case UndefElement::error:
             default:
                 throw CanteraError("Phase::addSpecies",
                     "Species '{}' contains an undefined element '{}'.",
-                    spec->name, iter->first);
+                    spec->name, elem.first);
             }
         }
-        comp[m] = iter->second;
+        comp[m] = elem.second;
     }
 
     m_speciesNames.push_back(spec->name);

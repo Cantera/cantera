@@ -718,10 +718,8 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
             }
             if (!r.orders.empty()) {
                 vector_fp orders(nTotalSpecies(), 0.0);
-                for (Composition::const_iterator iter = r.orders.begin();
-                     iter != r.orders.end();
-                     ++iter) {
-                    orders[kineticsSpeciesIndex(iter->first)] = iter->second;
+                for (const auto& order : r.orders) {
+                    orders[kineticsSpeciesIndex(order.first)] = order.second;
                 }
             }
         } else {
@@ -744,17 +742,13 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
     m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));
 
-    for (Composition::const_iterator iter = r.reactants.begin();
-         iter != r.reactants.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
+    for (const auto& sp : r.reactants) {
+        size_t k = kineticsSpeciesIndex(sp.first);
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsReactant[i][p] = true;
     }
-    for (Composition::const_iterator iter = r.products.begin();
-         iter != r.products.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
+    for (const auto& sp : r.products) {
+        size_t k = kineticsSpeciesIndex(sp.first);
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsProduct[i][p] = true;
     }
@@ -795,10 +789,8 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
         if (sticking_species == "") {
             // Identify the sticking species if not explicitly given
             bool foundStick = false;
-            for (Composition::const_iterator iter = r.reactants.begin();
-                 iter != r.reactants.end();
-                 ++iter) {
-                size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
+            for (const auto& sp : r.reactants) {
+                size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
                 if (iPhase != iInterface) {
                     // Non-interface species. There should be exactly one of these
                     if (foundStick) {
@@ -807,7 +799,7 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
                             "in sticking reaction: '" + r.equation() + "'");
                     }
                     foundStick = true;
-                    sticking_species = iter->first;
+                    sticking_species = sp.first;
                 }
             }
             if (!foundStick) {
@@ -819,14 +811,12 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
 
         double surface_order = 0.0;
         // Adjust the A-factor
-        for (Composition::const_iterator iter = r.reactants.begin();
-             iter != r.reactants.end();
-             ++iter) {
-            size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(iter->first));
+        for (const auto& sp : r.reactants) {
+            size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
             const ThermoPhase& p = thermo(iPhase);
             const ThermoPhase& surf = thermo(surfacePhaseIndex());
-            size_t k = p.speciesIndex(iter->first);
-            if (iter->first == sticking_species) {
+            size_t k = p.speciesIndex(sp.first);
+            if (sp.first == sticking_species) {
                 A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
             } else {
                 // Non-sticking species. Convert from coverages used in the
@@ -835,7 +825,7 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
                 // the dependence on the site density is incorporated when the
                 // rate constant is evaluated, since we don't assume that the
                 // site density is known at this time.
-                double order = getValue(r.orders, iter->first, iter->second);
+                double order = getValue(r.orders, sp.first, sp.second);
                 if (&p == &surf) {
                     A_rate *= pow(p.size(k), order);
                     surface_order += order;
@@ -852,11 +842,9 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
     SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
 
     // Set up coverage dependencies
-    for (map<string, CoverageDependency>::const_iterator iter = r.coverage_deps.begin();
-         iter != r.coverage_deps.end();
-         ++iter) {
-        size_t k = thermo(reactionPhaseIndex()).speciesIndex(iter->first);
-        rate.addCoverageDependence(k, iter->second.a, iter->second.m, iter->second.E);
+    for (const auto& sp : r.coverage_deps) {
+        size_t k = thermo(reactionPhaseIndex()).speciesIndex(sp.first);
+        rate.addCoverageDependence(k, sp.second.a, sp.second.m, sp.second.E);
     }
     return rate;
 }
@@ -1028,10 +1016,8 @@ void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, vector_
     // Start out with the full ROP orders vector.
     // This vector will have the BV exchange current density orders in it.
     fwdFullOrders.assign(nTotalSpecies(), 0.0);
-    for (Composition::const_iterator iter = r.orders.begin();
-         iter != r.orders.end();
-         ++iter) {
-        fwdFullOrders[kineticsSpeciesIndex(iter->first)] = iter->second;
+    for (const auto& order : r.orders) {
+        fwdFullOrders[kineticsSpeciesIndex(order.first)] = order.second;
     }
 
     //   forward and reverse beta values
@@ -1039,11 +1025,9 @@ void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, vector_
 
     // Loop over the reactants doing away with the BV terms.
     // This should leave the reactant terms only, even if they are non-mass action.
-    for (Composition::const_iterator iter = r.reactants.begin();
-         iter != r.reactants.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
-        fwdFullOrders[k] += betaf * iter->second;
+    for (const auto& sp : r.reactants) {
+        size_t k = kineticsSpeciesIndex(sp.first);
+        fwdFullOrders[k] += betaf * sp.second;
         // just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
         if (abs(fwdFullOrders[k]) < 0.00001) {
             fwdFullOrders[k] = 0.0;
@@ -1052,11 +1036,9 @@ void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, vector_
 
     // Loop over the products doing away with the BV terms.
     // This should leave the reactant terms only, even if they are non-mass action.
-    for (Composition::const_iterator iter = r.products.begin();
-         iter != r.products.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
-        fwdFullOrders[k] -= betaf * iter->second;
+    for (const auto& sp : r.products) {
+        size_t k = kineticsSpeciesIndex(sp.first);
+        fwdFullOrders[k] -= betaf * sp.second;
         // just to make sure roundoff doesn't leave a term that should be zero (haven't checked this out yet)
         if (abs(fwdFullOrders[k]) < 0.00001) {
             fwdFullOrders[k] = 0.0;

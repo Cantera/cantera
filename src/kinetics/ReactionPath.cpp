@@ -57,13 +57,12 @@ void Path::writeLabel(ostream& s, doublereal threshold)
         return;
     }
     doublereal v;
-    map<string, doublereal>::const_iterator i = m_label.begin();
-    for (; i != m_label.end(); ++i) {
-        v = i->second/m_total;
+    for (const auto& label : m_label) {
+        v = label.second/m_total;
         if (nn == 1) {
-            s << i->first << "\\l";
+            s << label.first << "\\l";
         } else if (v > threshold) {
-            s << i->first;
+            s << label.first;
             int percent = int(100*v + 0.5);
             if (percent < 100) {
                 s << " (" << percent << "%)\\l";
@@ -101,9 +100,8 @@ ReactionPathDiagram::ReactionPathDiagram()
 ReactionPathDiagram::~ReactionPathDiagram()
 {
     // delete the nodes
-    map<size_t, SpeciesNode*>::const_iterator i = m_nodes.begin();
-    for (; i != m_nodes.end(); ++i) {
-        delete i->second;
+    for (const auto& node : m_nodes) {
+        delete node.second;
     }
 
     // delete the paths
@@ -117,27 +115,22 @@ vector_int ReactionPathDiagram::reactions()
 {
     size_t i, npaths = nPaths();
     doublereal flmax = 0.0, flxratio;
-    Path* p;
     for (i = 0; i < npaths; i++) {
-        p = path(i);
+        Path* p = path(i);
         flmax = std::max(p->flow(), flmax);
     }
     m_rxns.clear();
     for (i = 0; i < npaths; i++) {
-        p = path(i);
-        const Path::rxn_path_map& rxns = p->reactionMap();
-        Path::rxn_path_map::const_iterator m = rxns.begin();
-        for (; m != rxns.end(); ++m) {
-            flxratio = m->second/flmax;
+        for (const auto& rxn : path(i)->reactionMap()) {
+            flxratio = rxn.second/flmax;
             if (flxratio > threshold) {
-                m_rxns[m->first] = 1;
+                m_rxns[rxn.first] = 1;
             }
         }
     }
     vector_int r;
-    map<size_t, int>::const_iterator begin = m_rxns.begin();
-    for (; begin != m_rxns.end(); ++begin) {
-        r.push_back(int(begin->first));
+    for (const auto& rxn : m_rxns) {
+        r.push_back(int(rxn.first));
     }
     return r;
 }
@@ -375,10 +368,9 @@ void ReactionPathDiagram::exportToDot(ostream& s)
         }
     }
     s.precision(2);
-    map<size_t, SpeciesNode*>::const_iterator b = m_nodes.begin();
-    for (; b != m_nodes.end(); ++b) {
-        if (b->second->visible) {
-            s << "s" << b->first << " [ fontname=\""+m_font+"\", label=\"" << b->second->name
+    for (const auto& node : m_nodes) {
+        if (node.second->visible) {
+            s << "s" << node.first << " [ fontname=\""+m_font+"\", label=\"" << node.second->name
               << "\"];" << endl;
         }
     }

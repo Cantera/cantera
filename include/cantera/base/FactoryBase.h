@@ -26,11 +26,8 @@ public:
     //! static function that deletes all factories
     //! in the internal registry maintained in a static variable
     static void deleteFactories() {
-        std::vector< FactoryBase* >::iterator iter;
-        for (iter = s_vFactoryRegistry.begin();
-                iter != s_vFactoryRegistry.end();
-                ++iter) {
-            (*iter)->deleteFactory();
+        for (const auto& f : s_vFactoryRegistry) {
+            f->deleteFactory();
         }
         s_vFactoryRegistry.clear();
     }

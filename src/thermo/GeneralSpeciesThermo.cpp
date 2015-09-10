@@ -31,14 +31,12 @@ GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
 {
     m_sp.clear();
     // Copy SpeciesThermoInterpTypes from 'b'
-    for (STIT_map::const_iterator iter = b.m_sp.begin();
-         iter != b.m_sp.end();
-         iter++) {
-        for (size_t k = 0; k < iter->second.size(); k++) {
-            size_t i = iter->second[k].first;
+    for (const auto& sp : b.m_sp) {
+        for (size_t k = 0; k < sp.second.size(); k++) {
+            size_t i = sp.second[k].first;
             shared_ptr<SpeciesThermoInterpType> spec(
-                iter->second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[iter->first].push_back(std::make_pair(i, spec));
+                sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
+            m_sp[sp.first].push_back(std::make_pair(i, spec));
         }
     }
 }
@@ -53,14 +51,12 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     SpeciesThermo::operator=(b);
     m_sp.clear();
     // Copy SpeciesThermoInterpType objects from 'b'
-    for (STIT_map::const_iterator iter = b.m_sp.begin();
-         iter != b.m_sp.end();
-         iter++) {
-        for (size_t k = 0; k < iter->second.size(); k++) {
-            size_t i = iter->second[k].first;
+    for (const auto& sp : b.m_sp) {
+        for (size_t k = 0; k < sp.second.size(); k++) {
+            size_t i = sp.second[k].first;
             shared_ptr<SpeciesThermoInterpType> spec(
-                iter->second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[iter->first].push_back(std::make_pair(i, spec));
+                sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
+            m_sp[sp.first].push_back(std::make_pair(i, spec));
         }
     }
 
@@ -118,8 +114,8 @@ void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
 void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
                                   doublereal* h_RT, doublereal* s_R) const
 {
-    STIT_map::const_iterator iter = m_sp.begin();
-    tpoly_map::iterator jter = m_tpoly.begin();
+    auto iter = m_sp.begin();
+    auto jter = m_tpoly.begin();
     for (; iter != m_sp.end(); iter++, jter++) {
         const std::vector<index_STIT>& species = iter->second;
         double* tpoly = &jter->second[0];

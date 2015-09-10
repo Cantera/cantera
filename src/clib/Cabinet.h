@@ -65,7 +65,6 @@ class Cabinet
 {
 public:
     typedef std::vector<M*>& dataRef;
-    typedef typename std::vector<M*>::iterator dataIterator;
     /**
      * Destructor. Delete all objects in the list.
      */
@@ -165,7 +164,7 @@ public:
      */
     static int index(const M& obj) {
         dataRef data = getData();
-        dataIterator loc = std::find(data.begin(), data.end(), &obj);
+        auto loc = std::find(data.begin(), data.end(), &obj);
         if (loc != data.end()) {
             return static_cast<int>(loc-data.begin());
         } else {

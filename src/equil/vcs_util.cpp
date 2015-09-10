@@ -27,9 +27,8 @@ double vcs_l2norm(const vector_fp vec)
         return 0.0;
     }
     double sum = 0.0;
-    vector_fp::const_iterator pos;
-    for (pos = vec.begin(); pos != vec.end(); ++pos) {
-        sum += (*pos) * (*pos);
+    for (const auto& val : vec) {
+        sum += val * val;
     }
     return std::sqrt(sum / len);
 }

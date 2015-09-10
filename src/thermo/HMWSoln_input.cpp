@@ -1418,12 +1418,10 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
             map<string, string> msIs;
             getMap(sIsNode, msIs);
-            for (map<string,string>::const_iterator _b = msIs.begin();
-                 _b != msIs.end();
-                 ++_b) {
-                size_t kk = speciesIndex(_b->first);
+            for (const auto& b : msIs) {
+                size_t kk = speciesIndex(b.first);
                 if (kk != npos) {
-                    double val = fpValue(_b->second);
+                    double val = fpValue(b.second);
                     m_speciesCharge_Stoich[kk] = val;
                 }
             }
@@ -1508,12 +1506,10 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
         map<string, string> msEST;
         getMap(ESTNode, msEST);
-        for (map<string,string>::const_iterator _b = msEST.begin();
-             _b != msEST.end();
-             ++_b) {
-            size_t kk = speciesIndex(_b->first);
+        for (const auto& b : msEST) {
+            size_t kk = speciesIndex(b.first);
             if (kk != npos) {
-                string est = _b->second;
+                string est = b.second;
                 if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
                     throw CanteraError("HMWSoln::initThermoXML",
                                        "Bad electrolyte type: " + est);

@@ -49,10 +49,8 @@ void GasTransportData::setCustomaryUnits(
 void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
-    for (compositionMap::const_iterator iter = sp.composition.begin();
-         iter != sp.composition.end();
-         ++iter) {
-        nAtoms += iter->second;
+    for (const auto& elem : sp.composition) {
+        nAtoms += elem.second;
     }
 
     if (geometry == "atom") {

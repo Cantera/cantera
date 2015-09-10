@@ -429,8 +429,7 @@ XML_Node& XML_Node::addChild(const std::string& name, const doublereal value,
 
 void XML_Node::removeChild(const XML_Node* const node)
 {
-    vector<XML_Node*>::iterator i;
-    i = find(m_children.begin(), m_children.end(), node);
+    auto i = find(m_children.begin(), m_children.end(), node);
     m_children.erase(i);
     m_childindex.erase(node->name());
 }
@@ -792,10 +791,9 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
     if (m_name == "") {
         return;
     }
-    map<string,string>::const_iterator b = m_attribs.begin();
-    for (; b != m_attribs.end(); ++b) {
-        if (! node_dest->hasAttrib(b->first)) {
-            node_dest->addAttribute(b->first, b->second);
+    for (const auto& attr : m_attribs) {
+        if (!node_dest->hasAttrib(attr.first)) {
+            node_dest->addAttribute(attr.first, attr.second);
         }
     }
     const vector<XML_Node*> &vsc = node_dest->children();
@@ -840,9 +838,8 @@ void XML_Node::copy(XML_Node* const node_dest) const
     if (m_name == "") {
         return;
     }
-    map<string,string>::const_iterator b = m_attribs.begin();
-    for (; b != m_attribs.end(); ++b) {
-        node_dest->addAttribute(b->first, b->second);
+    for (const auto& attr : m_attribs) {
+        node_dest->addAttribute(attr.first, attr.second);
     }
     const vector<XML_Node*> &vsc = node_dest->children();
 
@@ -888,21 +885,19 @@ XML_Node& XML_Node::child(const std::string& aloc) const
     string::size_type iloc;
     string cname;
     string loc = aloc;
-    std::multimap<std::string,XML_Node*>::const_iterator i;
-
     while (true) {
         iloc = loc.find('/');
         if (iloc != string::npos) {
             cname = loc.substr(0,iloc);
             loc = loc.substr(iloc+1, loc.size());
-            i = m_childindex.find(cname);
+            auto i = m_childindex.find(cname);
             if (i != m_childindex.end()) {
                 return i->second->child(loc);
             } else {
                 throw XML_NoChild(this, m_name, cname, lineNumber());
             }
         } else {
-            i = m_childindex.find(loc);
+            auto i = m_childindex.find(loc);
             if (i != m_childindex.end()) {
                 return *(i->second);
             } else {
@@ -938,9 +933,8 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
     }
 
     s << indent << "<" << m_name;
-    map<string,string>::const_iterator b = m_attribs.begin();
-    for (; b != m_attribs.end(); ++b) {
-        s << " " << b->first << "=\"" << b->second << "\"";
+    for (const auto& attr : m_attribs) {
+        s << " " << attr.first << "=\"" << attr.second << "\"";
     }
     if (m_value == "" && m_children.empty()) {
         s << "/>";

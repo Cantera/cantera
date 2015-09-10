@@ -56,10 +56,8 @@ TransportFactory::TransportFactory()
     m_models["User"] = cUserTransport;
     m_models["HighP"] = cHighP;
     m_models["None"] = None;
-    for (map<string, int>::iterator iter = m_models.begin();
-            iter != m_models.end();
-            iter++) {
-        m_modelNames[iter->second] = iter->first;
+    for (const auto& model : m_models) {
+        m_modelNames[model.second] = model.first;
     }
 
     m_tranPropMap["viscosity"] = TP_VISCOSITY;
@@ -360,7 +358,6 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
       Create a map of species names versus liquid transport data parameters
     */
     std::map<std::string, LiquidTransportData> datatable;
-    std::map<std::string, LiquidTransportData>::iterator it;
 
     // Store the number of species in the phase
     size_t nsp = trParam.nsp_;
@@ -464,7 +461,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
         Check to see that we have a LiquidTransportData object for all of the
         species in the phase. If not, throw an error.
              */
-        it = datatable.find(names[i]);
+        auto it = datatable.find(names[i]);
         if (it == datatable.end()) {
             throw TransportDBError(0,"No transport data found for species " + names[i]);
         }
@@ -505,7 +502,7 @@ void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transp
 
             if (tranTypeNode.name() == "compositionDependence") {
                 std::string modelName = tranTypeNode.attrib("model");
-                std::map<string, LiquidTranMixingModel>::iterator it = m_LTImodelMap.find(modelName);
+                auto it = m_LTImodelMap.find(modelName);
                 if (it == m_LTImodelMap.end()) {
                     throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
                                        "Unknown compositionDependence string: " + modelName);

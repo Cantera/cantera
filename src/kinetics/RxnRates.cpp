@@ -74,10 +74,8 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     size_t j = 0;
     rates_.reserve(rates.size());
     // Insert intermediate pressures
-    for (std::multimap<double, Arrhenius>::const_iterator iter = rates.begin();
-            iter != rates.end();
-            iter++) {
-        double logp = std::log(iter->first);
+    for (const auto& rate : rates) {
+        double logp = std::log(rate.first);
         if (pressures_.empty() || pressures_.rbegin()->first != logp) {
             // starting a new group
             pressures_[logp] = std::make_pair(j, j+1);
@@ -87,7 +85,7 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
         }
 
         j++;
-        rates_.push_back(iter->second);
+        rates_.push_back(rate.second);
     }
 
     // Duplicate the first and last groups to handle P < P_0 and P > P_N
@@ -98,9 +96,7 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
 void Plog::validate(const std::string& equation)
 {
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
-    for (pressureIter iter = pressures_.begin();
-            iter->first < 1000;
-            iter++) {
+    for (auto iter = pressures_.begin(); iter->first < 1000; iter++) {
         update_C(&iter->first);
         for (size_t i=0; i < 6; i++) {
             double k = updateRC(log(T[i]), 1.0/T[i]);
@@ -121,7 +117,7 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
 {
     std::vector<std::pair<double, Arrhenius> > R;
     // initial preincrement to skip rate for P --> 0
-    for (std::map<double, std::pair<size_t, size_t> >::const_iterator iter = ++pressures_.begin();
+    for (auto iter = ++pressures_.begin();
          iter->first < 1000; // skip rates for (P --> infinity)
          ++iter) {
         for (size_t i = iter->second.first;

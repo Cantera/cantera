@@ -292,7 +292,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 if (!skip) {
                     declared[stemp] = true;
                     // Find the species in the database by name.
-                    std::map<std::string, XML_Node*>::iterator iter = speciesNodes.find(stemp);
+                    auto iter = speciesNodes.find(stemp);
                     if (iter == speciesNodes.end()) {
                         throw CanteraError("importPhase","no data for species, \""
                                            + stemp + "\"");
