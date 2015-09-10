@@ -388,7 +388,7 @@ protected:
 #if defined(THREAD_SAFE_CANTERA)
     ThreadMessages pMessenger;
 #else
-    std::auto_ptr<Messages> pMessenger;
+    std::unique_ptr<Messages> pMessenger;
 #endif
 
 private:

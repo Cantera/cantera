@@ -166,7 +166,7 @@ Application::Application() :
     m_suppress_deprecation_warnings(false)
 {
 #if !defined( THREAD_SAFE_CANTERA )
-    pMessenger = std::auto_ptr<Messages>(new Messages());
+    pMessenger = std::unique_ptr<Messages>(new Messages());
 #endif
 
     // install a default logwriter that writes to standard

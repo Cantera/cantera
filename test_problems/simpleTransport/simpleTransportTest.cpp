@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 
         HMWSoln HMW("HMW_NaCl_pdss.xml", "NaCl_electrolyte");
 
-        auto_ptr<Transport> tran(newDefaultTransportMgr(&HMW, log_level));
+        unique_ptr<Transport> tran(newDefaultTransportMgr(&HMW, log_level));
 
         SimpleTransport& tranSimple = dynamic_cast<SimpleTransport&>(*tran.get());
         size_t nsp = HMW.nSpecies();

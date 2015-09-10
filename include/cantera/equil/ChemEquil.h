@@ -275,7 +275,7 @@ protected:
      */
     size_t m_nComponents;
 
-    std::auto_ptr<PropertyCalculator<thermo_t> > m_p1, m_p2;
+    std::unique_ptr<PropertyCalculator<thermo_t> > m_p1, m_p2;
 
     /**
      * Current value of the mole fractions in the single phase.

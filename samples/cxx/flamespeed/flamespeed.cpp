@@ -84,8 +84,8 @@ int flamespeed(double phi)
         // specify the objects to use to compute kinetic rates and
         // transport properties
 
-        std::auto_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
-        std::auto_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
+        std::unique_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
+        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
 
         flow.setTransport(*trmix);
         flow.setKinetics(gas);
