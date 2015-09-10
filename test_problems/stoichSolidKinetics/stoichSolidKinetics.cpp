@@ -4,7 +4,6 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/IdealGasMix.h"
 
-#include <memory>
 #include <iomanip>
 #include <sstream>
 

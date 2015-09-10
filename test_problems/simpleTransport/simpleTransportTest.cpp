@@ -3,7 +3,6 @@
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/transport/SimpleTransport.h"
 
-#include <memory>
 #include <cstdio>
 
 using namespace std;

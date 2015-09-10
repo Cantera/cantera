@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <memory>
 
 /**
  * Namespace for the Cantera kernel.
@@ -35,6 +36,8 @@ namespace Cantera
 #ifndef DATA_PTR
 #define DATA_PTR(vec) &vec[0]
 #endif
+
+using std::shared_ptr;
 
 /*!
  * All physical constants are stored here.

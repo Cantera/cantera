@@ -7,7 +7,6 @@
 #include "cantera/base/logger.h"
 
 #include <set>
-#include <memory>
 
 namespace Cantera
 {

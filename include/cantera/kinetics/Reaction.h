@@ -6,7 +6,6 @@
 #define CT_REACTION_H
 
 #include "cantera/base/utilities.h"
-#include "cantera/base/smart_ptr.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/Falloff.h"
 

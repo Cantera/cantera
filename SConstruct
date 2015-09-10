@@ -818,22 +818,6 @@ boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
 
-# Find shared pointer implementation
-configh['CT_USE_STD_SHARED_PTR'] = None
-configh['CT_USE_TR1_SHARED_PTR'] = None
-configh['CT_USE_MSFT_SHARED_PTR'] = None
-configh['CT_USE_BOOST_SHARED_PTR'] = None
-if conf.CheckStatement('std::shared_ptr<int> x', '#include <memory>'):
-    configh['CT_USE_STD_SHARED_PTR'] = 1
-elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <tr1/memory>'):
-    configh['CT_USE_TR1_SHARED_PTR'] = 1
-elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <memory>'):
-    configh['CT_USE_MSFT_SHARED_PTR'] = 1
-elif conf.CheckStatement('boost::shared_ptr<int> x', '#include <boost/shared_ptr.hpp>'):
-    configh['CT_USE_BOOST_SHARED_PTR'] = 1
-else:
-    config_error("Couldn't find a working shared_ptr implementation.")
-
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
 ret = SCons.Conftest.CheckLib(context,

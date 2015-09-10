@@ -13,8 +13,6 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-#include <memory>
-
 namespace Cantera
 {
 

@@ -6,7 +6,6 @@
 #include "cantera/thermo.h"
 
 #include <stdio.h>
-#include <memory>
 
 using namespace Cantera;
 

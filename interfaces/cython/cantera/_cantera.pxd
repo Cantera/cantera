@@ -59,8 +59,8 @@ cdef extern from "cantera/cython/funcWrapper.h":
         CxxFunc1(callback_wrapper, void*)
         double eval(double) except +translate_exception
 
-cdef extern from "cantera/base/smart_ptr.h":
-    cppclass shared_ptr "Cantera::shared_ptr" [T]:
+cdef extern from "<memory>":
+    cppclass shared_ptr "std::shared_ptr" [T]:
         T* get()
         void reset(T*)
 

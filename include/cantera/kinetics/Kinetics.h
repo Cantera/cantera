@@ -15,7 +15,6 @@
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/global.h"
-#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {

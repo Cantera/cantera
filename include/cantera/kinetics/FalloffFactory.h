@@ -11,7 +11,6 @@
 
 #include "cantera/base/FactoryBase.h"
 #include "cantera/base/ct_thread.h"
-#include "cantera/base/smart_ptr.h"
 #include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
