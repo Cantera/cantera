@@ -33,7 +33,7 @@ Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & t
 void AqueousKinetics::_update_rates_T()
 {
     doublereal T = thermo().temperature();
-    m_rates.update(T, log(T), &m_rfn[0]);
+    m_rates.update(T, log(T), m_rfn.data());
 
     m_temp = T;
     updateKc();
@@ -42,13 +42,13 @@ void AqueousKinetics::_update_rates_T()
 
 void AqueousKinetics::_update_rates_C()
 {
-    thermo().getActivityConcentrations(&m_conc[0]);
+    thermo().getActivityConcentrations(m_conc.data());
     m_ROP_ok = false;
 }
 
 void AqueousKinetics::updateKc()
 {
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
@@ -56,7 +56,7 @@ void AqueousKinetics::updateKc()
     }
 
     // compute Delta G^0 for all reversible reactions
-    getRevReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getRevReactionDelta(m_grt.data(), m_rkcn.data());
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_revindex.size(); i++) {
@@ -73,7 +73,7 @@ void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
 {
     _update_rates_T();
 
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
@@ -81,7 +81,7 @@ void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
     }
 
     // compute Delta G^0 for all reactions
-    getReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getReactionDelta(m_grt.data(), m_rkcn.data());
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < nReactions(); i++) {
@@ -116,10 +116,10 @@ void AqueousKinetics::updateROP()
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_reactantStoich.multiply(&m_conc[0], &m_ropf[0]);
+    m_reactantStoich.multiply(m_conc.data(), m_ropf.data());
 
     // for reversible reactions, multiply ropr by concentration products
-    m_revProductStoich.multiply(&m_conc[0], &m_ropr[0]);
+    m_revProductStoich.multiply(m_conc.data(), m_ropr.data());
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];

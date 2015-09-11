@@ -38,15 +38,15 @@ void GasKinetics::update_rates_T()
 
     if (T != m_temp) {
         if (!m_rfn.empty()) {
-            m_rates.update(T, logT, &m_rfn[0]);
+            m_rates.update(T, logT, m_rfn.data());
         }
 
         if (!m_rfn_low.empty()) {
-            m_falloff_low_rates.update(T, logT, &m_rfn_low[0]);
-            m_falloff_high_rates.update(T, logT, &m_rfn_high[0]);
+            m_falloff_low_rates.update(T, logT, m_rfn_low.data());
+            m_falloff_high_rates.update(T, logT, m_rfn_high.data());
         }
         if (!falloff_work.empty()) {
-            m_falloffn.updateTemp(T, &falloff_work[0]);
+            m_falloffn.updateTemp(T, falloff_work.data());
         }
         updateKc();
         m_ROP_ok = false;
@@ -54,12 +54,12 @@ void GasKinetics::update_rates_T()
 
     if (T != m_temp || P != m_pres) {
         if (m_plog_rates.nReactions()) {
-            m_plog_rates.update(T, logT, &m_rfn[0]);
+            m_plog_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
         }
 
         if (m_cheb_rates.nReactions()) {
-            m_cheb_rates.update(T, logT, &m_rfn[0]);
+            m_cheb_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
         }
     }
@@ -69,17 +69,17 @@ void GasKinetics::update_rates_T()
 
 void GasKinetics::update_rates_C()
 {
-    thermo().getActivityConcentrations(&m_conc[0]);
+    thermo().getActivityConcentrations(m_conc.data());
     doublereal ctot = thermo().molarDensity();
 
     // 3-body reactions
     if (!concm_3b_values.empty()) {
-        m_3b_concm.update(m_conc, ctot, &concm_3b_values[0]);
+        m_3b_concm.update(m_conc, ctot, concm_3b_values.data());
     }
 
     // Falloff reactions
     if (!concm_falloff_values.empty()) {
-        m_falloff_concm.update(m_conc, ctot, &concm_falloff_values[0]);
+        m_falloff_concm.update(m_conc, ctot, concm_falloff_values.data());
     }
 
     // P-log reactions
@@ -99,11 +99,11 @@ void GasKinetics::update_rates_C()
 
 void GasKinetics::updateKc()
 {
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reversible reactions
-    getRevReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getRevReactionDelta(m_grt.data(), m_rkcn.data());
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < m_revindex.size(); i++) {
@@ -120,11 +120,11 @@ void GasKinetics::updateKc()
 void GasKinetics::getEquilibriumConstants(doublereal* kc)
 {
     update_rates_T();
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reactions
-    getReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getReactionDelta(m_grt.data(), m_rkcn.data());
 
     doublereal rrt = 1.0/(GasConstant * thermo().temperature());
     for (size_t i = 0; i < nReactions(); i++) {
@@ -147,8 +147,7 @@ void GasKinetics::processFalloffReactions()
                      "pr[" + int2str(i) + "] is not finite.");
     }
 
-    double* work = (falloff_work.empty()) ? 0 : &falloff_work[0];
-    m_falloffn.pr_to_falloff(&pr[0], work);
+    m_falloffn.pr_to_falloff(pr.data(), falloff_work.data());
 
     for (size_t i = 0; i < m_nfall; i++) {
         if (reactionType(m_fallindx[i]) == FALLOFF_RXN) {
@@ -175,7 +174,7 @@ void GasKinetics::updateROP()
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
-        m_3b_concm.multiply(&m_ropf[0], &concm_3b_values[0]);
+        m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
     }
 
     if (m_nfall) {
@@ -193,10 +192,10 @@ void GasKinetics::updateROP()
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_reactantStoich.multiply(&m_conc[0], &m_ropf[0]);
+    m_reactantStoich.multiply(m_conc.data(), m_ropf.data());
 
     // for reversible reactions, multiply ropr by concentration products
-    m_revProductStoich.multiply(&m_conc[0], &m_ropr[0]);
+    m_revProductStoich.multiply(m_conc.data(), m_ropr.data());
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
@@ -223,7 +222,7 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
-        m_3b_concm.multiply(&m_ropf[0], &concm_3b_values[0]);
+        m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
     }
 
     if (m_nfall) {
