@@ -638,9 +638,9 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
             if (m_elemAbundancesGoal[i] != 0.0) {
                 if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
                     throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
-                            "Charge neutrality condition " + m_elementName[i] +
-                            " is signicantly nonzero, " + fp2str(m_elemAbundancesGoal[i]) +
-                            ". Giving up");
+                            "Charge neutrality condition {} is signicantly "
+                            "nonzero, {}. Giving up",
+                            m_elementName[i], m_elemAbundancesGoal[i]);
                 } else {
                     if (m_debug_print_lvl >= 2) {
                         plogf("Charge neutrality condition %s not zero, %g. Setting it zero\n",
@@ -896,16 +896,15 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
                 double tmp = m_molNumSpecies_old[k1];
                 if (! vcs_doubleEqual(pubPhase->electricPotential() , tmp)) {
                     throw CanteraError("VCS_SOLVE::vcs_prob_update",
-                            "We have an inconsistency in voltage, " +
-                            fp2str(pubPhase->electricPotential()) + " " +
-                            fp2str(tmp));
+                            "We have an inconsistency in voltage, {} {}",
+                            pubPhase->electricPotential(), tmp);
                 }
             }
 
             if (! vcs_doubleEqual(pub->mf[kT], vPhase->molefraction(k))) {
                 throw CanteraError("VCS_SOLVE::vcs_prob_update",
-                        "We have an inconsistency in mole fraction, " +
-                        fp2str(pub->mf[kT]) + " " + fp2str(vPhase->molefraction(k)));
+                        "We have an inconsistency in mole fraction, {} {}",
+                        pub->mf[kT], vPhase->molefraction(k));
             }
             if (pubPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 sumMoles += pub->w[kT];
@@ -913,8 +912,8 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         }
         if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
             throw CanteraError("VCS_SOLVE::vcs_prob_update",
-                            "We have an inconsistency in total moles, " +
-                            fp2str(sumMoles) + " " + fp2str(pubPhase->totalMoles()));
+                            "We have an inconsistency in total moles, {} {}",
+                            sumMoles, pubPhase->totalMoles());
         }
     }
 

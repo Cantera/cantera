@@ -310,10 +310,8 @@ void PDSS_Water::setPressure(doublereal p)
 
     doublereal dd = m_sub.density(T, p, waterState, dens);
     if (dd <= 0.0) {
-        std::string stateString = "T = " +
-                                  fp2str(T) + " K and p = " + fp2str(p) + " Pa";
         throw CanteraError("PDSS_Water:setPressure()",
-                           "Failed to set water SS state: " + stateString);
+            "Failed to set water SS state: T = {} K and p = {} Pa", T, p);
     }
     m_dens = dd;
     m_pres = p;
@@ -339,7 +337,7 @@ doublereal PDSS_Water::dthermalExpansionCoeffdT() const
     doublereal dd = m_sub.density(tt, pres, m_iState, m_dens);
     if (dd < 0.0) {
         throw CanteraError("PDSS_Water::dthermalExpansionCoeffdT",
-                           "unable to solve for the density at T = " + fp2str(tt) + ", P = " + fp2str(pres));
+            "unable to solve for the density at T = {}, P = {}", tt, pres);
     }
     doublereal vald = m_sub.coeffThermExp();
     m_sub.setState_TR(m_temp, dens_save);

@@ -397,8 +397,8 @@ void vcs_VolPhase::setMoleFractionsState(const double totalMoles,
     if (m_totalMolesInert > 0.0) {
         if (m_totalMolesInert > v_totalMoles) {
             throw CanteraError("vcs_VolPhase::setMolesFractionsState",
-                 "inerts greater than total: " + fp2str(v_totalMoles) + " " +
-                 fp2str(m_totalMolesInert));
+                 "inerts greater than total: {} {}",
+                 v_totalMoles, m_totalMolesInert);
         }
         fractotal = 1.0 - m_totalMolesInert/v_totalMoles;
     }
@@ -518,8 +518,7 @@ void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
             Tcheck = v_totalMoles;
         } else {
             throw CanteraError("vcs_VolPhase::setMolesFromVCSCheck",
-                  "We have a consistency problem: " + fp2str(Tcheck) + " " +
-                  fp2str(v_totalMoles));
+                  "We have a consistency problem: {} {}", Tcheck, v_totalMoles);
         }
     }
 }

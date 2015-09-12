@@ -1289,10 +1289,9 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " +
-                                 fp2str(pres) + "): WARNING roots have merged: " +
-                                 fp2str(Vroot[i]) + ", " + fp2str(Vroot[j]));
-                        writelogendl();
+                        writelog("RedlichKwongMFTP::NicholsSolve(T = {}, p = {}):"
+                                 " WARNING roots have merged: {}, {}\n",
+                                 TKelvin, pres, Vroot[i], Vroot[j]);
                     }
                 }
             }
@@ -1351,8 +1350,8 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " +
-                     fp2str(pres) + "): WARNING root didn't converge V = " + fp2str(Vroot[i]));
+            writelog("RedlichKwongMFTP::NicholsSolve(T = {}, p = {}): "
+                "WARNING root didn't converge V = {}", TKelvin, pres, Vroot[i]);
             writelogendl();
         }
     }

@@ -366,12 +366,12 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
         }
         doublereal vv = v.back();
         if (vmin != Undef && vv < vmin - Tiny) {
-            writelog("\nWarning: value "+fp2str(vv)+
-                     " is below lower limit of " +fp2str(vmin)+".\n");
+            writelog("\nWarning: value {} is below lower limit of {}.\n",
+                     vv, vmin);
         }
         if (vmax != Undef && vv > vmax + Tiny) {
-            writelog("\nWarning: value "+fp2str(vv)+
-                     " is above upper limit of " +fp2str(vmin)+".\n");
+            writelog("\nWarning: value {} is above upper limit of {}.\n",
+                     vv, vmax);
         }
     }
     for (size_t n = 0; n < v.size(); n++) {

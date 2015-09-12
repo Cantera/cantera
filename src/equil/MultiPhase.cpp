@@ -751,7 +751,7 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
                                           rtol, max_steps);
             if (ret) {
                 throw CanteraError("MultiPhase::equilibrate",
-                    "VCS solver failed. Return code: " + int2str(ret));
+                    "VCS solver failed. Return code: {}", ret);
             }
             debuglog("VCS solver succeeded\n", log_level);
             return;

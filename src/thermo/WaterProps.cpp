@@ -287,7 +287,7 @@ doublereal WaterProps::coeffThermalExp_IAPWS(doublereal temp, doublereal press)
     doublereal dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
     if (dens < 0.0) {
         throw CanteraError("WaterProps::coeffThermalExp_IAPWS",
-                           "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
+            "Unable to solve for density at T = {} and P = {}", temp, press);
     }
     return m_waterIAPWS->coeffThermExp();
 }
@@ -297,7 +297,7 @@ doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublere
     doublereal dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
     if (dens < 0.0) {
         throw CanteraError("WaterProps::isothermalCompressibility_IAPWS",
-                           "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
+            "Unable to solve for density at T = {} and P = {}", temp, press);
     }
     return m_waterIAPWS->isothermalCompressibility();
 }

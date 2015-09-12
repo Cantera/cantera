@@ -283,8 +283,8 @@ void MineralEQ3::convertDGFormation()
     // If the discrepancy is greater than 100 cal gmol-1, print an error
     if (fabs(Hcalc -DHjmol) > 10.* 1.0E6 * 4.184) {
         throw CanteraError("installMinEQ3asShomateThermoFromXML()",
-                           "DHjmol is not consistent with G and S" +
-                           fp2str(Hcalc) + " vs " + fp2str(DHjmol));
+                           "DHjmol is not consistent with G and S: {} vs {}",
+                           Hcalc, DHjmol);
     }
 }
 

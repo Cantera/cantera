@@ -1066,9 +1066,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             if (m_molNumSpecies_new[kspec] < 0.0 && (m_speciesUnknownType[kspec]
                     != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE)) {
                 throw CanteraError("VCS_SOLVE::solve_tp_inner",
-                    "vcs_solve_TP: ERROR on step change wt[" + int2str(kspec) + ":" +
-                    m_speciesName[kspec] + "]: " +
-                    fp2str(m_molNumSpecies_new[kspec]) + " < 0.0");
+                    "vcs_solve_TP: ERROR on step change wt[{}:{}]: {} < 0.0",
+                    kspec, m_speciesName[kspec], m_molNumSpecies_new[kspec]);
             }
         }
 
@@ -3272,8 +3271,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
         molNum = &m_molNumSpecies_new[0];
     } else if (DEBUG_MODE_ENABLED) {
         throw CanteraError("VCS_SOLVE::vcs_dfe",
-                "Subroutine vcs_dfe called with bad stateCalc value: "+
-                int2str(stateCalc));
+                "Subroutine vcs_dfe called with bad stateCalc value: {}", stateCalc);
     }
 
     AssertThrowMsg(m_unitsState != VCS_DIMENSIONAL_G, "VCS_SOLVE::vcs_dfe",
@@ -3682,7 +3680,7 @@ void VCS_SOLVE::vcs_updateVP(const int vcsState)
                                          &m_tPhaseMoles_new[0]);
         } else if (DEBUG_MODE_ENABLED) {
             throw CanteraError("VCS_SOLVE::vcs_updateVP",
-                               "wrong stateCalc value: " + int2str(vcsState));
+                               "wrong stateCalc value: {}", vcsState);
         }
     }
 }
@@ -3742,7 +3740,7 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
                     break;
                 default:
                     throw CanteraError("VCS_SOLVE::vcs_evaluate_speciesType",
-                                       "Unknown type: " + int2str(m_speciesStatus[kspec]));
+                                       "Unknown type: {}", m_speciesStatus[kspec]);
                 }
             }
         }

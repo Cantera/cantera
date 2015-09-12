@@ -383,7 +383,7 @@ doublereal WaterSSTP::dthermalExpansionCoeffdT() const
     doublereal dd = m_sub->density(tt, pres, WATER_LIQUID, dens_save);
     if (dd < 0.0) {
         throw CanteraError("WaterSSTP::dthermalExpansionCoeffdT",
-                           "Unable to solve for the density at T = " + fp2str(tt) + ", P = " + fp2str(pres));
+            "Unable to solve for the density at T = {}, P = {}", tt, pres);
     }
     doublereal vald = m_sub->coeffThermExp();
     m_sub->setState_TR(T, dens_save);

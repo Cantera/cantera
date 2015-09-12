@@ -519,7 +519,7 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
         }
         if (fabs(sum) > 1.0E-11) {
             throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
-                               "molefracts don't sum to one: " + fp2str(sum));
+                               "molefracts don't sum to one: {}", sum);
         }
     }
 

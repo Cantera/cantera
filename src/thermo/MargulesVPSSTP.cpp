@@ -608,7 +608,8 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     //   @TODO Figure out what the original reason is for putting an error condition for charged species
     //         Seems OK to me.
     if (charge(aSpecies) != 0.0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA has a charge: " + fp2str(charge(aSpecies)));
+        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
+            "speciesA has a charge: {}", charge(aSpecies));
     }
     size_t bSpecies = speciesIndex(bName);
     if (bSpecies == npos) {
@@ -616,7 +617,8 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     }
     string bspName = speciesName(bSpecies);
     if (charge(bSpecies) != 0.0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesB has a charge: " + fp2str(charge(bSpecies)));
+        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
+            "speciesB has a charge: {}", charge(bSpecies));
     }
 
     resizeNumInteractions(numBinaryInteractions_ + 1);

@@ -163,12 +163,9 @@ void Reactor::updateState(doublereal* y)
             T -= dT;
             i++;
             if (i > 100) {
-                std::string message = "no convergence";
-                message += "\nU/m = " + fp2str(U / m_mass);
-                message += "\nT = " + fp2str(T);
-                message += "\nrho = " + fp2str(m_mass / m_vol);
-                message += "\n";
-                throw CanteraError("Reactor::updateState", message);
+                throw CanteraError("Reactor::updateState",
+                    "no convergence\nU/m = {}\nT = {}\nrho = {}\n",
+                    U / m_mass, T, m_mass / m_vol);
             }
         }
     } else {
@@ -316,7 +313,7 @@ void Reactor::addSensitivityReaction(size_t rxn)
 {
     if (rxn >= m_kin->nReactions()) {
         throw CanteraError("Reactor::addSensitivityReaction",
-                           "Reaction number out of range ("+int2str(rxn)+")");
+                           "Reaction number out of range ({})", rxn);
     }
 
     network().registerSensitivityReaction(this, rxn,

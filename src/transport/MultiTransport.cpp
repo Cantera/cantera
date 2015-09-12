@@ -347,12 +347,12 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     int info = m_aa.factor();
     if (info) {
         throw CanteraError("MultiTransport::getMassFluxes",
-                           "Error in factorization.  Info = "+int2str(info));
+                           "Error in factorization.  Info = {}", info);
     }
     info = m_aa.solve(fluxes);
     if (info) {
         throw CanteraError("MultiTransport::getMassFluxes",
-                           "Error in linear solve. Info = "+int2str(info));
+                           "Error in linear solve. Info = {}", info);
     }
 
     doublereal pp = pressure_ig();
@@ -403,7 +403,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
     int ierr = invert(m_Lmatrix, m_nsp);
     if (ierr != 0) {
         throw CanteraError("MultiTransport::getMultiDiffCoeffs",
-                           string(" invert returned ierr = ")+int2str(ierr));
+                           "invert returned ierr = {}", ierr);
     }
     m_l0000_ok = false; // matrix is overwritten by inverse
     m_lmatrix_soln_ok = false;

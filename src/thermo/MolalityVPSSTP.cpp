@@ -84,7 +84,7 @@ void MolalityVPSSTP::setpHScale(const int pHscaleType)
     m_pHScalingType = pHscaleType;
     if (pHscaleType != PHSCALE_PITZER && pHscaleType != PHSCALE_NBS) {
         throw CanteraError("MolalityVPSSTP::setpHScale",
-                           "Unknown scale type: " + int2str(pHscaleType));
+                           "Unknown scale type: {}", pHscaleType);
     }
 }
 

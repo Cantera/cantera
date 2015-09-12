@@ -118,12 +118,9 @@ void ChemEquil::initialize(thermo_t& s)
                 // the element should be an electron... if it isn't
                 // print a warning.
                 if (ewt > 1.0e-3) {
-                    writelog(string("WARNING: species "
-                                    +s.speciesName(k)
-                                    +" has "+fp2str(s.nAtoms(k,m))
-                                    +" atoms of element "
-                                    +s.elementName(m)+
-                                    ", but this element is not an electron.\n"));
+                    writelog("WARNING: species {} has {} atoms of element {},"
+                             " but this element is not an electron.\n",
+                             s.speciesName(k), s.nAtoms(k,m), s.elementName(m));
                 }
             }
         }
@@ -174,8 +171,8 @@ void ChemEquil::update(const thermo_t& s)
             m_elementmolefracs[m] += nAtoms(k,m) * m_molefractions[k];
             if (m_molefractions[k] < 0.0) {
                 throw CanteraError("ChemEquil::update",
-                                   "negative mole fraction for "+s.speciesName(k)+
-                                   ": "+fp2str(m_molefractions[k]));
+                                   "negative mole fraction for {}: {}",
+                                   s.speciesName(k), m_molefractions[k]);
             }
         }
         sum += m_elementmolefracs[m];
@@ -403,10 +400,9 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     if (tempFixed) {
         double tfixed = s.temperature();
         if (tfixed > s.maxTemp() + 1.0 || tfixed < s.minTemp() - 1.0) {
-            throw CanteraError("ChemEquil","Specified temperature ("
-                               +fp2str(s.temperature())+" K) outside "
-                               "valid range of "+fp2str(s.minTemp())+" K to "
-                               +fp2str(s.maxTemp())+" K\n");
+            throw CanteraError("ChemEquil::equilibrate", "Specified temperature"
+                               " ({} K) outside valid range of {} K to {} K\n",
+                               s.temperature(), s.minTemp(), s.maxTemp());
         }
     }
 
@@ -670,10 +666,9 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             s.setElementPotentials(m_lambda);
             if (s.temperature() > s.maxTemp() + 1.0 ||
                     s.temperature() < s.minTemp() - 1.0) {
-                writelog("Warning: Temperature ("
-                         +fp2str(s.temperature())+" K) outside "
-                         "valid range of "+fp2str(s.minTemp())+" K to "
-                         +fp2str(s.maxTemp())+" K\n");
+                writelog("Warning: Temperature ({} K) outside valid range of "
+                         "{} K to {} K\n",
+                         s.temperature(), s.minTemp(), s.maxTemp());
             }
             return 0;
         }
@@ -770,9 +765,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
     // no convergence
     s.restoreState(state);
-    throw CanteraError("equilibrate",
-                       "no convergence in "+int2str(options.maxIterations)
-                       +" iterations.");
+    throw CanteraError("ChemEquil::equilibrate",
+                       "no convergence in {} iterations.", options.maxIterations);
 }
 
 

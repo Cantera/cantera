@@ -50,9 +50,8 @@ void Bdry1D::_init(size_t n)
             m_phase_left = &m_flow_left->phase();
         } else {
             throw CanteraError("Bdry1D::_init",
-                               "Boundary domains can only be "
-                               "connected on the left to flow domains, not type "+int2str(r.domainType())
-                               + " domains.");
+                "Boundary domains can only be connected on the left to flow "
+                "domains, not type {} domains.", r.domainType());
         }
     }
 
@@ -68,9 +67,8 @@ void Bdry1D::_init(size_t n)
             m_phase_right = &m_flow_right->phase();
         } else {
             throw CanteraError("Bdry1D::_init",
-                               "Boundary domains can only be "
-                               "connected on the right to flow domains, not type "+int2str(r.domainType())
-                               + " domains.");
+                "Boundary domains can only be connected on the right to flow "
+                "domains, not type {} domains.", r.domainType());
         }
     }
 }

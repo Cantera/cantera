@@ -338,7 +338,7 @@ doublereal BandMatrix::rcond(doublereal a1norm)
             writelogf("BandMatrix::rcond(): DGBCON returned INFO = %d\n", rinfo);
         }
         if (! useReturnErrorCode) {
-            throw CanteraError("BandMatrix::rcond()", "DGBCON returned INFO = " + int2str(rinfo));
+            throw CanteraError("BandMatrix::rcond()", "DGBCON returned INFO = {}", rinfo);
         }
     }
     return rcond;

@@ -48,7 +48,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
         return new Adsorbate(tlow, thigh, pref, coeffs);
     default:
         throw CanteraError("newSpeciesThermoInterpType",
-                           "Unknown species thermo type: " + int2str(type) + ".");
+                           "Unknown species thermo type: {}.", type);
     }
 }
 

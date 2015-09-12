@@ -196,14 +196,11 @@ void MultiNewton::step(doublereal* x, doublereal* step,
         size_t pt = offset/dom.nComponents();
         size_t comp = offset - pt*dom.nComponents();
         throw CanteraError("MultiNewton::step",
-                           "Jacobian is singular for domain "+
-                           dom.id() + ", component "
-                           +dom.componentName(comp)+" at point "
-                           +int2str(pt)+"\n(Matrix row "
-                           +int2str(iok)+") \nsee file bandmatrix.csv\n");
+            "Jacobian is singular for domain {}, component {} at point {}\n"
+            "(Matrix row {}) \nsee file bandmatrix.csv\n",
+            dom.id(), dom.componentName(comp), pt, iok);
     } else if (int(iok) < 0) {
-        throw CanteraError("MultiNewton::step",
-                           "iok = "+int2str(iok));
+        throw CanteraError("MultiNewton::step", "iok = {}", iok);
     }
 }
 

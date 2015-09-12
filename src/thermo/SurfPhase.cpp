@@ -254,7 +254,7 @@ void SurfPhase::setSiteDensity(doublereal n0)
 {
     if (n0 <= 0.0) {
         throw CanteraError("SurfPhase::setSiteDensity",
-                           "Site density must be positive. Got " + fp2str(n0));
+                           "Site density must be positive. Got {}", n0);
     }
     m_n0 = n0;
     m_logn0 = log(m_n0);

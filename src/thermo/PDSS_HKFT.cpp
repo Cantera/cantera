@@ -430,16 +430,14 @@ void PDSS_HKFT::initThermo()
     if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
         std::string sname = m_tp->speciesName(m_spindex);
         if (s_InputInconsistencyErrorExit) {
-            throw CanteraError(" PDSS_HKFT::initThermo() for " + sname,
-                               "DHjmol is not consistent with G and S: " +
-                               fp2str(Hcalc/(4.184E3)) + " vs "
-                               + fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
+            throw CanteraError("PDSS_HKFT::initThermo()", "For {}, DHjmol is"
+                " not consistent with G and S: {} vs {} cal gmol-1",
+                sname, Hcalc/4.184E3, m_deltaH_formation_tr_pr);
         } else {
-            writelog(" PDSS_HKFT::initThermo() WARNING: "
-                     "DHjmol for " + sname + " is not consistent with G and S: calculated " +
-                     fp2str(Hcalc/(4.184E3)) + " vs input "
-                     + fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
-            writelog("                                : continuing with consistent DHjmol = " + fp2str(Hcalc/(4.184E3)));
+            writelog("PDSS_HKFT::initThermo() WARNING: DHjmol for {} is not"
+                " consistent with G and S: calculated {} vs input {} cal gmol-1",
+                sname, Hcalc/4.184E3, m_deltaH_formation_tr_pr);
+            writelog("                                : continuing with consistent DHjmol = {}", Hcalc/4.184E3);
             m_deltaH_formation_tr_pr = Hcalc / (1.0E3 * 4.184);
         }
     }

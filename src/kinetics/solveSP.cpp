@@ -787,7 +787,7 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
             writelogf("           for a total of %9.3e sec\n", time_scale);
         } else {
             throw CanteraError("solveSP::print_header",
-                               "Unknown ifunc flag = " + int2str(ifunc));
+                               "Unknown ifunc flag = {}", ifunc);
         }
 
         if (m_bulkFunc == BULK_DEPOSITION) {
@@ -796,7 +796,7 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
             writelog("     Bulk Phases have fixed compositions\n");
         } else {
             throw CanteraError("solveSP::print_header",
-                               "Unknown bulkFunc flag = " + int2str(m_bulkFunc));
+                               "Unknown bulkFunc flag = {}", m_bulkFunc);
         }
 
         if (damping) {

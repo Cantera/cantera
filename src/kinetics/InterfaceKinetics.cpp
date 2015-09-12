@@ -218,7 +218,7 @@ void InterfaceKinetics::updateKc()
         for (size_t i = 0; i < m_nrev; i++) {
             size_t irxn = m_revindex[i];
             if (irxn == npos || irxn >= nReactions()) {
-                throw CanteraError("InterfaceKinetics", "illegal value: irxn = "+int2str(irxn));
+                throw CanteraError("InterfaceKinetics", "illegal value: irxn = {}", irxn);
             }
             // WARNING this may overflow HKM
             m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
@@ -892,8 +892,8 @@ void InterfaceKinetics::finalize()
     m_surf = (SurfPhase*)&thermo(ks);
     if (m_surf->nDim() != 2) {
         throw CanteraError("InterfaceKinetics::finalize",
-                           "expected interface dimension = 2, but got dimension = "
-                           +int2str(m_surf->nDim()));
+                           "expected interface dimension = 2, but got dimension = {}",
+                           m_surf->nDim());
     }
     m_StandardConc.resize(m_kk, 0.0);
     m_deltaG0.resize(nReactions(), 0.0);
@@ -1077,8 +1077,8 @@ void EdgeKinetics::finalize()
     m_surf = (SurfPhase*)&thermo(ks);
     if (m_surf->nDim() != 1) {
         throw CanteraError("EdgeKinetics::finalize",
-                           "expected interface dimension = 1, but got dimension = "
-                           +int2str(m_surf->nDim()));
+                           "expected interface dimension = 1, but got dimension = {}",
+                           m_surf->nDim());
     }
     m_StandardConc.resize(m_kk, 0.0);
     m_deltaG0.resize(safe_reaction_size, 0.0);

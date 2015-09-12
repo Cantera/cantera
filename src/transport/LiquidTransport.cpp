@@ -719,7 +719,7 @@ bool LiquidTransport::update_T()
     // Next do a reality check on temperature value
     if (t < 0.0) {
         throw CanteraError("LiquidTransport::update_T()",
-                           "negative temperature "+fp2str(t));
+                           "negative temperature {}", t);
     }
 
     // Compute various direct functions of temperature

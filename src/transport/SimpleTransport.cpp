@@ -616,7 +616,7 @@ bool SimpleTransport::update_T()
     }
     if (t < 0.0) {
         throw CanteraError("SimpleTransport::update_T",
-                           "negative temperature "+fp2str(t));
+                           "negative temperature {}", t);
     }
 
     // Compute various functions of temperature

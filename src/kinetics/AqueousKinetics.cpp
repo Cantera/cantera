@@ -154,7 +154,7 @@ bool AqueousKinetics::addReaction(shared_ptr<Reaction> r)
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else {
         throw CanteraError("AqueousKinetics::addReaction",
-            "Invalid reaction type: " + int2str(r->reaction_type));
+            "Invalid reaction type: {}", r->reaction_type);
     }
     return true;
 }

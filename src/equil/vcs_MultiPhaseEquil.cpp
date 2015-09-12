@@ -55,7 +55,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     doublereal Vtarget = m_mix->volume();
     if ((XY != TV) && (XY != HV) && (XY != UV) && (XY != SV)) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TV",
-                           "Wrong XY flag:" + int2str(XY));
+                           "Wrong XY flag: {}", XY);
     }
     int maxiter = 100;
     int iSuccess = 0;
@@ -159,7 +159,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
     int iSuccess;
     if (XY != HP && XY != UP) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate_HP",
-                           "Wrong XP" + int2str(XY));
+                           "Wrong XP", XY);
     }
     int strt = estimateEquil;
 
@@ -907,7 +907,7 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
                 vprob->mf[kT] = mphase->moleFraction(kT);
              } else {
                throw CanteraError(" vcs_Cantera_to_vprob() ERROR",
-                                  "Unknown species type: " + int2str(vprob->SpeciesUnknownType[kT]));
+                                  "Unknown species type: {}", vprob->SpeciesUnknownType[kT]);
              }
 
             /*

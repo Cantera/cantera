@@ -105,9 +105,8 @@ void Plog::validate(const std::string& equation)
                 // message will correctly indicate that the problematic rate
                 // expression is at the higher of the adjacent pressures.
                 throw CanteraError("Plog::validate",
-                        "Invalid rate coefficient for reaction '" + equation +
-                        "'\nat P = " + fp2str(std::exp((++iter)->first)) +
-                        ", T = " + fp2str(T[i]));
+                    "Invalid rate coefficient for reaction '{}'\nat P = {}, T = {}",
+                    equation, std::exp((++iter)->first), T[i]);
             }
         }
     }

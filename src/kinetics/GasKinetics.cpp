@@ -264,7 +264,7 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         break;
     default:
         throw CanteraError("GasKinetics::addReaction",
-            "Unknown reaction type specified: " + int2str(r->reaction_type));
+            "Unknown reaction type specified: {}", r->reaction_type);
     }
     return true;
 }
@@ -356,7 +356,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         break;
     default:
         throw CanteraError("GasKinetics::modifyReaction",
-            "Unknown reaction type specified: " + int2str(rNew->reaction_type));
+            "Unknown reaction type specified: {}", rNew->reaction_type);
     }
 
     // invalidate all cached data

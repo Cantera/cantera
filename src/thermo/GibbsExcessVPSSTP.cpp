@@ -192,7 +192,7 @@ double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
     doublereal norm = std::accumulate(x, x + m_kk, 0.0);
     if (fabs(norm - 1.0) > 1.0E-9) {
         throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
-                           "(MF sum - 1) exceeded tolerance of 1.0E-9:" + fp2str(norm));
+            "(MF sum - 1) exceeded tolerance of 1.0E-9: {}", norm);
     }
     return norm;
 }

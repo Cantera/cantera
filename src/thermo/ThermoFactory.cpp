@@ -450,8 +450,8 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
 
     size_t nsp = spDataNodeList.size();
     if (ssConvention == cSS_CONVENTION_SLAVE && nsp > 0) {
-        throw CanteraError("importPhase()", "For Slave standard states, number of species must be zero: "
-                           + int2str(nsp));
+        throw CanteraError("importPhase()", "For Slave standard states, "
+            "number of species must be zero: {}", nsp);
     }
     for (size_t k = 0; k < nsp; k++) {
         XML_Node* s = spDataNodeList[k];

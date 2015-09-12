@@ -124,9 +124,8 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     vector<XML_Node*> xd = f->getChildren("domain");
     if (xd.size() != m_nd) {
         throw CanteraError("Sim1D::restore", "Solution does not contain the "
-                           " correct number of domains. Found " +
-                           int2str(xd.size()) + "expected " +
-                           int2str(m_nd) + ".\n");
+            " correct number of domains. Found {} expected {}.\n",
+            xd.size(), m_nd);
     }
     size_t sz = 0;
     for (size_t m = 0; m < m_nd; m++) {
@@ -207,7 +206,7 @@ int Sim1D::newtonSolve(int loglevel)
         return -1;
     } else {
         throw CanteraError("Sim1D::newtonSolve",
-                           "ERROR: OneDim::solve returned m = " + int2str(m) + "\n");
+                           "ERROR: OneDim::solve returned m = {}", m);
     }
 }
 
@@ -236,7 +235,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     writelog("    success.\n\n");
                     writelog("Problem solved on [");
                     for (size_t mm = 1; mm < nDomains(); mm+=2) {
-                        writelog(int2str(domain(mm).nPoints()));
+                        writelog("{}", domain(mm).nPoints());
                         if (mm + 2 < nDomains()) {
                             writelog(", ");
                         }

@@ -258,7 +258,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     int ierr = invert(m_Lmatrix, m_nsp);
     if (ierr != 0) {
         throw CanteraError("HighPressureGasTransport::getMultiDiffCoeffs",
-                            string(" invert returned ierr = ")+int2str(ierr));
+                           "invert returned ierr = {}", ierr);
     }
     m_l0000_ok = false; // matrix is overwritten by inverse
     m_lmatrix_soln_ok = false;

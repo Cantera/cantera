@@ -293,23 +293,23 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
         falloff_type = SIMPLE_FALLOFF;
         if (np != 0) {
             throw CanteraError("readFalloff", "Lindemann parameterization "
-                "takes no parameters, but " + int2str(np) + "were given");
+                "takes no parameters, but {} were given", np);
         }
     } else if (lowercase(falloff["type"]) == "troe") {
         falloff_type = TROE_FALLOFF;
         if (np != 3 && np != 4) {
             throw CanteraError("readFalloff", "Troe parameterization takes "
-                "3 or 4 parameters, but " + int2str(np) + "were given");
+                "3 or 4 parameters, but {} were given", np);
         }
     } else if (lowercase(falloff["type"]) == "sri") {
         falloff_type = SRI_FALLOFF;
         if (np != 3 && np != 5) {
             throw CanteraError("readFalloff", "SRI parameterization takes "
-                "3 or 5 parameters, but " + int2str(np) + "were given");
+                "3 or 5 parameters, but {} were given", np);
         }
     } else {
-        throw CanteraError("readFalloff", "Unrecognized falloff type: '" +
-            falloff["type"] + "'");
+        throw CanteraError("readFalloff", "Unrecognized falloff type: '{}'",
+                           falloff["type"]);
     }
     R.falloff = newFalloff(falloff_type, falloff_parameters);
 }

@@ -754,9 +754,8 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 m_do_energy[i] = x[i];
             }
         } else if (!x.empty()) {
-            throw CanteraError("StFlow::restore", "energy_enabled is length" +
-                               int2str(x.size()) + "but should be length" +
-                               int2str(nPoints()));
+            throw CanteraError("StFlow::restore", "energy_enabled is length {}"
+                               "but should be length {}", x.size(), nPoints());
         }
     }
 
@@ -770,9 +769,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             // This may occur when restoring from a mechanism with a different
             // number of species.
             if (loglevel > 0) {
-                writelog("\nWarning: StFlow::restore: species_enabled is length " +
-                         int2str(x.size()) + " but should be length " +
-                         int2str(m_nsp) + ". Enabling all species equations by default.");
+                writelog("\nWarning: StFlow::restore: species_enabled is "
+                    "length {} but should be length {}. Enabling all species "
+                    "equations by default.", x.size(), m_nsp);
             }
             m_do_species.assign(m_nsp, true);
         }

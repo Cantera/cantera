@@ -143,7 +143,7 @@ void Wall::addSensitivityReaction(int leftright, size_t rxn)
 {
     if (rxn >= m_chem[leftright]->nReactions()) {
         throw CanteraError("Wall::addSensitivityReaction",
-                           "Reaction number out of range ("+int2str(rxn)+")");
+                           "Reaction number out of range ({})", rxn);
     }
     if (leftright == 0) {
         m_left->network().registerSensitivityReaction(this, rxn,

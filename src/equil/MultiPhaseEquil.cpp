@@ -179,8 +179,8 @@ doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err,
     }
     if (i >= maxsteps) {
         throw CanteraError("MultiPhaseEquil::equilibrate",
-                           "no convergence in " + int2str(maxsteps) +
-                           " iterations. Error = " + fp2str(error()));
+                           "no convergence in {} iterations. Error = {}",
+                           maxsteps, error());
     }
     finish();
     return error();

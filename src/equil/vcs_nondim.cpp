@@ -30,8 +30,7 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_KELVIN:
         return ElectronCharge * Avogadro/ TKelvin;
     default:
-        throw CanteraError("vcs_nondim_Farad",
-                           "unknown units: " + int2str(mu_units));
+        throw CanteraError("vcs_nondim_Farad", "unknown units: {}", mu_units);
     }
 }
 
@@ -52,8 +51,7 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
         return TKelvin * GasConstant;
     default:
-        throw CanteraError("vcs_nondimMult_TP",
-                           "unknown units: " + int2str(mu_units));
+        throw CanteraError("vcs_nondimMult_TP", "unknown units: {}", mu_units);
     }
 }
 
@@ -101,8 +99,8 @@ void VCS_SOLVE::vcs_nondim_TP()
          */
         if (tmole_orig < 1.0E-200 || tmole_orig > 1.0E200) {
             throw CanteraError("VCS_SOLVE::vcs_nondim_TP",
-                               "Total input moles ," + fp2str(tmole_orig) +
-                               "is outside the range handled by vcs.\n");
+                "Total input moles, {} is outside the range handled by vcs.\n",
+                tmole_orig);
         }
 
         // Determine the scale of the problem

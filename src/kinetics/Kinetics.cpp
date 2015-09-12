@@ -221,10 +221,10 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 }
             }
             if (throw_err) {
-                string msg = string("Undeclared duplicate reactions detected:\n")
-                             +"Reaction "+int2str(i+1)+": "+other.equation()
-                             +"\nReaction "+int2str(m+1)+": "+R.equation()+"\n";
-                throw CanteraError("installReaction", msg);
+                throw CanteraError("installReaction",
+                        "Undeclared duplicate reactions detected:\n"
+                        "Reaction {}: {}\nReaction {}: {}\n",
+                        int2str(i+1), other.equation(), int2str(m+1), R.equation());
             } else {
                 return make_pair(i,m);
             }
@@ -304,8 +304,8 @@ void Kinetics::checkReactionBalance(const Reaction& R)
         double elemdiff = fabs(balp[elem] - balr[elem]);
         if (elemsum > 0.0 && elemdiff/elemsum > 1e-4) {
             ok = false;
-            msg += "  " + elem + "           " + fp2str(balr[elem]) +
-                   "           " + fp2str(balp[elem]) + "\n";
+            msg += fmt::format("  {}           {}           {}\n",
+                               elem, balr[elem], balp[elem]);
         }
     }
     if (!ok) {
@@ -394,7 +394,7 @@ size_t Kinetics::speciesPhaseIndex(size_t k)
             return n;
         }
     }
-    throw CanteraError("speciesPhaseIndex", "illegal species index: "+int2str(k));
+    throw CanteraError("speciesPhaseIndex", "illegal species index: {}", k);
     return npos;
 }
 
@@ -632,20 +632,20 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     shared_ptr<Reaction>& rOld = m_reactions[i];
     if (rNew->reaction_type != rOld->reaction_type) {
         throw CanteraError("Kinetics::modifyReaction",
-            "Reaction types are different: " + int2str(rOld->reaction_type) +
-            " != " + int2str(rNew->reaction_type) + ".");
+            "Reaction types are different: {} != {}.",
+            rOld->reaction_type, rNew->reaction_type);
     }
 
     if (rNew->reactants != rOld->reactants) {
         throw CanteraError("Kinetics::modifyReaction",
-            "Reactants are different: '" + rOld->reactantString() + "' != '" +
-            rNew->reactantString() + "'.");
+            "Reactants are different: '{}' != '{}'.",
+            rOld->reactantString(), rNew->reactantString());
     }
 
     if (rNew->products != rOld->products) {
         throw CanteraError("Kinetics::modifyReaction",
-            "Products are different: '" + rOld->productString() + "' != '" +
-            rNew->productString() + "'.");
+            "Products are different: '{}' != '{}'.",
+            rOld->productString(), rNew->productString());
     }
     m_reactions[i] = rNew;
 }
