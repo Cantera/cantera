@@ -10,7 +10,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
-
 #include <iomanip>
 #include <fstream>
 
@@ -28,6 +27,7 @@ ThermoPhase::ThermoPhase() :
     m_ssConvention(cSS_CONVENTION_TEMPERATURE),
     m_tlast(0.0)
 {
+
 }
 
 ThermoPhase::~ThermoPhase()
@@ -50,6 +50,9 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
      * Call the assignment operator
      */
     *this = operator=(right);
+
+
+
 }
 
 ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)

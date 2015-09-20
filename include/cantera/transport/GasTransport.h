@@ -41,6 +41,9 @@ public:
      */
     virtual doublereal viscosity();
 
+    virtual doublereal viscosityGY();
+
+
     //! Get the pure-species viscosities
     virtual void getSpeciesViscosities(doublereal* const visc) {
         update_T();
@@ -104,13 +107,18 @@ public:
      */
     virtual void getMixDiffCoeffsMass(doublereal* const d);
 
+
 protected:
     GasTransport(ThermoPhase* thermo=0);
 
     virtual bool initGas(GasTransportParams& tr);
+
+protected:
     virtual void update_T();
     virtual void update_C() = 0;
 
+
+protected:
     //! Update the temperature-dependent viscosity terms.
     /**
      * Updates the array of pure species viscosities, and the weighting
@@ -136,6 +144,8 @@ protected:
      */
     virtual void updateDiff_T();
 
+
+protected:
     //! Vector of species mole fractions. These are processed so that all mole
     //! fractions are >= *Tiny*. Length = m_kk.
     vector_fp m_molefracs;
@@ -238,9 +248,45 @@ protected:
      */
     std::vector<vector_fp> m_diffcoeffs;
 
+        std::vector<vector_fp> m_astarCoeff;
+	std::vector<vector_fp> m_bstarCoeff;
+
+	std::vector<vector_fp> m_omega11Coeff;
+	std::vector<vector_fp> m_omega22Coeff;
+
+    std::vector<vector_fp> m_omega12Coeff;
+    std::vector<vector_fp> m_omega13Coeff;
+    std::vector<vector_fp> m_omega14Coeff;
+    std::vector<vector_fp> m_omega15Coeff;
+    std::vector<vector_fp> m_omega23Coeff;
+    std::vector<vector_fp> m_omega24Coeff;
+
+/*
+        std::vector<std::string> spPos;
+        std::vector<int> spPosIndex;
+        std::vector<std::string> spNeg;
+        std::vector<int> spNegIndex;
+        std::vector<std::string> spNeut;
+        std::vector<int> spNeutIndex;
+
+
+        std::vector<int> indexNeutNeut;
+        std::vector<int> indexNeutPos;
+        std::vector<int> indexNeutNeg;
+        std::vector<int> indexPosPos;
+        std::vector<int> indexPosNeg;
+        std::vector<int> indexNegNeg;
+*/
+
+
     //! Matrix of binary diffusion coefficients at the reference pressure and
     //! the current temperature Size is nsp x nsp.
     DenseMatrix m_bdiff;
+
+/*
+public:
+    vector_fp m_sigma_;
+*/
 };
 
 } // namespace Cantera

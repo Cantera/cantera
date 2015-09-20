@@ -1,6 +1,10 @@
 //! @file GasTransport.cpp
 #include "cantera/transport/GasTransport.h"
 #include "cantera/transport/TransportParams.h"
+#include "MMCollisionIntCharged.h"
+
+using namespace std;
+
 
 namespace Cantera
 {
@@ -31,8 +35,19 @@ GasTransport::GasTransport(ThermoPhase* thermo) :
     m_t14(0.0),
     m_t32(0.0),
     m_diffcoeffs(0),
+    m_astarCoeff(0),
+    m_bstarCoeff(0),
+    m_omega11Coeff(0),
+    m_omega22Coeff(0),
+    m_omega12Coeff(0),
+    m_omega13Coeff(0),
+    m_omega14Coeff(0),
+    m_omega15Coeff(0),
+    m_omega23Coeff(0),
+    m_omega24Coeff(0),
     m_bdiff(0, 0)
 {
+
 }
 
 GasTransport::GasTransport(const GasTransport& right) :
@@ -60,8 +75,19 @@ GasTransport::GasTransport(const GasTransport& right) :
     m_t14(0.0),
     m_t32(0.0),
     m_diffcoeffs(0),
+    m_astarCoeff(0),
+    m_bstarCoeff(0),
+    m_omega11Coeff(0),
+    m_omega22Coeff(0),
+    m_omega12Coeff(0),
+    m_omega13Coeff(0),
+    m_omega14Coeff(0),
+    m_omega15Coeff(0),
+    m_omega23Coeff(0),
+    m_omega24Coeff(0),
     m_bdiff(0, 0)
 {
+
 }
 
 GasTransport& GasTransport::operator=(const GasTransport& right)
@@ -90,21 +116,43 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_t32 = right.m_t32;
     m_diffcoeffs = right.m_diffcoeffs;
     m_bdiff = right.m_bdiff;
+    m_astarCoeff = right.m_astarCoeff;
+    m_bstarCoeff = right.m_bstarCoeff;
+    m_omega11Coeff = right.m_omega11Coeff;
+    m_omega22Coeff = right.m_omega22Coeff;
+    m_omega12Coeff = right.m_omega12Coeff;
+    m_omega13Coeff = right.m_omega13Coeff;
+    m_omega14Coeff = right.m_omega14Coeff;
+    m_omega15Coeff = right.m_omega15Coeff;
+    m_omega23Coeff = right.m_omega23Coeff;
+    m_omega24Coeff = right.m_omega24Coeff;
 
     return *this;
 }
 
 bool GasTransport::initGas(GasTransportParams& tr)
 {
+
+
     // constant mixture attributes
     m_thermo = tr.thermo;
     m_nsp   = m_thermo->nSpecies();
+
 
     // copy polynomials and parameters into local storage
     m_visccoeffs = tr.visccoeffs;
     m_diffcoeffs = tr.diffcoeffs;
     m_mode = tr.mode_;
-
+    m_astarCoeff = tr.astar;
+    m_bstarCoeff = tr.bstar;
+    m_omega11Coeff = tr.omega11_fit;
+    m_omega22Coeff = tr.omega22_fit;
+    m_omega12Coeff = tr.omega12_fit;
+    m_omega13Coeff = tr.omega13_fit;
+    m_omega14Coeff = tr.omega14_fit;
+    m_omega15Coeff = tr.omega15_fit;
+    m_omega23Coeff = tr.omega23_fit;
+    m_omega24Coeff = tr.omega24_fit;
     m_molefracs.resize(m_nsp);
     m_spwork.resize(m_nsp);
     m_visc.resize(m_nsp);
@@ -159,36 +207,53 @@ void GasTransport::update_T(void)
     m_polytempvec[3] = m_logt*m_logt*m_logt;
     m_polytempvec[4] = m_logt*m_logt*m_logt*m_logt;
 
+
     // temperature has changed, so polynomial fits will need to be redone
     m_visc_ok = false;
     m_spvisc_ok = false;
     m_viscwt_ok = false;
     m_bindiff_ok = false;
+
 }
 
 doublereal GasTransport::viscosity()
 {
+
     update_T();
     update_C();
+
 
     if (m_visc_ok) {
         return m_viscmix;
     }
+
 
     doublereal vismix = 0.0;
     // update m_visc and m_phi if necessary
     if (!m_viscwt_ok) {
         updateViscosity_T();
     }
+ 
 
     multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
 
+
     for (size_t k = 0; k < m_nsp; k++) {
-        vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
+
+        vismix += m_molefracs[k] * m_visc[k]/m_spwork[k];
+
+
     }
     m_viscmix = vismix;
-    return vismix;
+
+	// instead of returning vismix, viscosity is obtained with the updated mixture rule (i.e. Gupta Yos)	
+	doublereal viscGY = 0.0;
+	viscGY = viscosityGY();
+	return viscGY;
+
 }
+
+
 
 void GasTransport::updateViscosity_T()
 {
@@ -198,9 +263,13 @@ void GasTransport::updateViscosity_T()
         updateSpeciesViscosities();
     }
 
+
+
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
     for (size_t j = 0; j < m_nsp; j++) {
+
         for (size_t k = j; k < m_nsp; k++) {
+
             vratiokj = m_visc[k]/m_visc[j];
             wratiojk = m_mw[j]/m_mw[k];
 
@@ -208,6 +277,7 @@ void GasTransport::updateViscosity_T()
             factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
             m_phi(k,j) = factor1*factor1 / (SqrtEight * m_wratkj1(j,k));
             m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
+
         }
     }
     m_viscwt_ok = true;
@@ -216,6 +286,14 @@ void GasTransport::updateViscosity_T()
 void GasTransport::updateSpeciesViscosities()
 {
     update_T();
+
+        MMCollisionIntCharged integrals;
+        double t = m_thermo->temperature();
+        double p = m_thermo->pressure();
+	double visc = 0;
+	double om22 = 0;
+
+    //CK mode not used; m_visccoeffs for charged particles are not computed
     if (m_mode == CK_Mode) {
         for (size_t k = 0; k < m_nsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
@@ -223,19 +301,53 @@ void GasTransport::updateSpeciesViscosities()
         }
     } else {
         for (size_t k = 0; k < m_nsp; k++) {
-            // the polynomial fit is done for sqrt(visc/sqrt(T))
-            m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
-            m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
+      	// the polynomial fit is done for sqrt(visc/sqrt(T))
+	if ( m_thermo->charge(k) != 0 )
+	    {
+
+		 om22 = integrals.omega22_charged(m_thermo->speciesName(k), m_thermo->speciesName(k), m_thermo->charge(k), m_thermo->charge(k), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);	
+
+		 visc = FiveSixteenths
+                                * sqrt(Pi * m_mw[k] * Boltzmann * t / Avogadro) /
+                                (om22);
+
+		m_visc[k] = visc;
+		m_sqvisc[k] = sqrt(m_visc[k]);
+
+	    }
+
+	  else
+	    {
+
+		m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
+            	m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
+
+	    }
+
+
         }
     }
+
     m_spvisc_ok = true;
 }
+
 
 void GasTransport::updateDiff_T()
 {
     update_T();
+
+
+	doublereal diffcoeff =0;
+	doublereal om11 = 0;
+	doublereal reducedMass = 0;
+        MMCollisionIntCharged integrals;
+        double t = m_thermo->temperature();
+        double p = m_thermo->pressure();
+	const doublereal ThreeSixteenths = 3.0/16.0;
+
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
+    // CK mode to be modified
     if (m_mode == CK_Mode) {
         for (size_t i = 0; i < m_nsp; i++) {
             for (size_t j = i; j < m_nsp; j++) {
@@ -247,15 +359,229 @@ void GasTransport::updateDiff_T()
     } else {
         for (size_t i = 0; i < m_nsp; i++) {
             for (size_t j = i; j < m_nsp; j++) {
+
+
+        if ( (m_thermo->charge(i) != 0) and (m_thermo->charge(j) != 0) )
+                {
+
+			reducedMass =  m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
+			om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+	
+
+			if ( ( i == m_thermo->speciesIndex("E")) and ( j == m_thermo->speciesIndex("E")) )
+                	{		
+
+				diffcoeff = 0.375 *
+                                      sqrt(Pi/(m_mw[m_thermo->speciesIndex("E")]/Avogadro)) *
+                                      pow((Boltzmann * t), 1.5)/
+                                      (om11);
+			}
+
+			else if ( ( ( i == m_thermo->speciesIndex("E")) and ( j != m_thermo->speciesIndex("E")) ) or ( ( i != m_thermo->speciesIndex("E")) and ( j == m_thermo->speciesIndex("E")) )  )
+			{
+
+                        	diffcoeff = ThreeSixteenths *
+                                      sqrt(2.0 * Pi/(m_mw[m_thermo->speciesIndex("E")]/Avogadro)) *
+                                      pow((Boltzmann * t), 1.5)/
+                                      (om11);
+                	}
+		
+			else
+			{               
+
+                        	diffcoeff = ThreeSixteenths *
+                                      sqrt(2.0 * Pi/reducedMass) *
+                                      pow((Boltzmann * t), 1.5)/
+                                      (om11);
+                	}
+
+
+			m_bdiff(i,j) = diffcoeff;
+                	m_bdiff(j,i) = m_bdiff(i,j);
+
+                }
+                
+	else
+                {
+
                 m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
                                                       m_diffcoeffs[ic]);
                 m_bdiff(j,i) = m_bdiff(i,j);
+
+                }
+
                 ic++;
+
             }
-        }
+        }//end for
+
     }
     m_bindiff_ok = true;
 }
+
+
+// Compute the viscosity according to Gupta-Yos mixture rule
+double GasTransport::viscosityGY()
+{
+
+    update_T();
+    update_C();
+
+
+	double rp = 1/(Boltzmann*m_thermo->temperature());
+	const int a = m_nsp*(m_nsp+1)/2;
+	const int b = m_nsp;
+        double GIJ[a];
+	double BIJ[a];
+
+	double om22;
+	double om11;
+
+        DenseMatrix m_astar(b,b);
+
+
+	// charged-charged
+	MMCollisionIntCharged integrals;
+	double t = m_thermo->temperature();
+        double p = m_thermo->pressure();
+
+	// obtain the Astar to compute viscosity with Gupta-Yos mixture rule
+    	size_t ic2 = 0;
+    	if (m_mode == CK_Mode) {
+        for (size_t i = 0; i < m_nsp; i++) {	
+            for (size_t j = i; j < m_nsp; j++) {	
+
+		if ( ( m_thermo->charge(i) != 0) and ( m_thermo->charge(j) != 0 ) )
+		{
+			om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+			om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+
+			m_astar(i,j) = om22/om11;
+			m_astar(j,i) = m_astar(i,j);
+
+		}
+
+		else
+		{
+			m_astar(i,j) = exp(dot4(m_polytempvec, m_omega22Coeff[ic2])) / exp(dot4(m_polytempvec, m_omega11Coeff[ic2]));
+                	m_astar(j,i) = m_astar(i,j);
+
+			om22 = exp(dot4(m_polytempvec, m_omega22Coeff[ic2]));
+			om11 = exp(dot4(m_polytempvec, m_omega11Coeff[ic2]));
+		}
+
+                ic2++;
+            }
+        }
+    } else {
+
+
+        for (size_t i = 0; i < m_nsp; i++) {	
+            for (size_t j = i; j < m_nsp; j++) {	
+
+
+		if ( ( m_thermo->charge(i) != 0) and ( m_thermo->charge(j) != 0 ) )
+                {			
+			om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+
+                        m_astar(i,j) = om22/om11;
+                        m_astar(j,i) = m_astar(i,j);
+		}
+
+		else
+		{
+			m_astar(i,j) = dot5(m_polytempvec, m_omega22Coeff[ic2])  / dot5(m_polytempvec, m_omega11Coeff[ic2]);
+                	m_astar(j,i) = m_astar(i,j);
+
+                	om22 = dot5(m_polytempvec, m_omega22Coeff[ic2])/(m_temp);
+                	om11 = dot5(m_polytempvec, m_omega11Coeff[ic2])/(m_temp);
+		}
+
+		ic2++;
+
+            }
+        }
+    }
+
+
+        int numberSpecies;
+        numberSpecies = m_nsp;
+        m_nsp = m_nsp-1;
+
+	int ij =0;
+	int ic = 0;
+        for (size_t i = 0; i < m_nsp; i++) {		
+                for (size_t j = i; j < m_nsp; j++) {	
+
+               	ij = ((i+1-1)*(2*m_nsp-i-1)+2*(j+1))/2;
+		ic = ij;
+		GIJ[ic] = 0;
+		BIJ[ic] = 0;
+
+                GIJ[ic] = (2*Avogadro /( (m_mw[i] + m_mw[j])  * rp*m_bdiff(i,j))) * ( ( 1 - 0.6*m_astar(i,j))) ;
+		BIJ[ic] = m_astar(i,j) / (rp*m_bdiff(i,j));
+        	}
+
+       }
+
+	double GII[b];
+	ij = 0;
+	for (int i = 0; i < m_nsp; i++) {	
+
+		GII[i] = 0;
+
+		for (int j = 0; j < i; j++) {
+			ij = ((j+1-1)*(2*m_nsp-j-1)+2*(i+1))/2;
+			GII[i] = GII[i] + BIJ[ij]*m_molefracs[j];
+
+		}
+
+		for (int j = i; j < m_nsp; j++) {
+			ij = ((i+1-1)*(2*m_nsp-i-1)+2*(j+1))/2;
+			GII[i] = GII[i] + BIJ[ij]*m_molefracs[j];
+		}
+	}
+
+	for (size_t i = 0; i < m_nsp; i++) {	
+
+		GII[i] = GII[i] * 1.2 * Avogadro / m_mw[i];
+	}
+	
+	double fac = 0;
+	double sum1 = 0;
+	double sum2 = 0;
+	ic = 0;
+
+	for (size_t i = 0; i < m_nsp-1; i++) {                         
+                for (size_t j = i+1; j < m_nsp; j++) {                 
+                
+		ij = ((i+1-1)*(2*m_nsp-i-1)+2*(j+1))/2;
+		ic = ij;
+
+                fac = 2 * m_molefracs[i]*m_molefracs[j]*( 1/GII[i] - 1/GII[j])*( 1/GII[i] - 1/GII[j]);
+                sum1 = sum1 + fac;
+                sum2 = sum2 + fac*GIJ[ic];
+
+                }
+
+	}
+
+
+	double gav = 0;
+	gav = sum2/sum1;
+	double sum;
+	sum =0;
+	for (size_t i = 0; i < m_nsp; i++) {		
+		sum = sum + m_molefracs[i]/(GII[i] + gav);
+	}
+
+	m_nsp = numberSpecies;
+
+	return sum / (1- gav*sum);
+
+}
+
 
 void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
@@ -371,5 +697,6 @@ void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
         }
     }
 }
+
 
 }

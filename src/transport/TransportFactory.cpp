@@ -20,6 +20,7 @@
 
 #include "cantera/numerics/polyfit.h"
 #include "MMCollisionInt.h"
+#include "StringFunct.h"
 
 #include "cantera/base/xml.h"
 #include "cantera/transport/TransportParams.h"
@@ -31,9 +32,16 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 
+
+#include "cantera/transport/GasTransport.h"
+
 #include <fstream>
+#include <iomanip>
+#include <iostream>
+
 
 using namespace std;
+
 
 //! polynomial degree used for fitting collision integrals
 //! except in CK mode, where the degree is 6.
@@ -76,6 +84,10 @@ void TransportFactory::getBinDiffCorrection(doublereal t,
         size_t k, size_t j, doublereal xk, doublereal xj,
         doublereal& fkj, doublereal& fjk)
 {
+
+//cout << "test get binary diff coeff correction; transport factory: " << t << "    " << k << "   " << j << endl;
+//cout << t;
+
     doublereal w1, w2, wsum, sig1, sig2, sig12, sigratio, sigratio2,
                sigratio3, tstar1, tstar2, tstar12,
                om22_1, om22_2, om11_12, astar_12, bstar_12, cstar_12,
@@ -134,6 +146,9 @@ void TransportFactory::getBinDiffCorrection(doublereal t,
     fjk = 1.0 + 0.1*cnst*cnst *
           (p2*xk*xk + p1*xj*xj + p12*xk*xj)/
           (q2*xk*xk + q1*xj*xj + q12*xk*xj);
+
+
+
 }
 
 void TransportFactory::makePolarCorrections(size_t i, size_t j,
@@ -166,6 +181,8 @@ void TransportFactory::makePolarCorrections(size_t i, size_t j,
 TransportFactory::TransportFactory() :
     m_verbose(false)
 {
+
+
     m_models["Mix"] = cMixtureAveraged;
     m_models["Multi"] = cMulticomponent;
     m_models["Solid"] = cSolidTransport;
@@ -183,6 +200,7 @@ TransportFactory::TransportFactory() :
             iter != m_models.end();
             iter++) {
         m_modelNames[iter->second] = iter->first;
+
     }
 
     m_tranPropMap["viscosity"] = TP_VISCOSITY;
@@ -212,6 +230,8 @@ TransportFactory::TransportFactory() :
     m_LTImodelMap["moleFractionsExpT"] = LTI_MODEL_MOLEFRACS_EXPT;
     m_LTImodelMap["none"] = LTI_MODEL_NONE;
     m_LTImodelMap["multiple"] = LTI_MODEL_MULTIPLE;
+
+
 }
 
 void TransportFactory::deleteFactory()
@@ -322,6 +342,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         thermo_t* phase, int log_level, int ndim)
 {
 
+
     if (transportModel == "") {
         return new Transport;
     }
@@ -361,6 +382,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         tr = new PecosTransport;
         initTransport(tr, phase, 0, log_level);
         break;
+
     case cSolidTransport:
 
         tr = new SolidTransport;
@@ -524,6 +546,8 @@ void TransportFactory::setupMM(const std::vector<const XML_Node*> &transport_dat
     if (DEBUG_MODE_ENABLED && m_verbose) {
         writelog("*** end of property fits ***\n");
     }
+
+
 }
 
 void TransportFactory::setupLiquidTransport(thermo_t* thermo, int log_level,
@@ -640,6 +664,8 @@ void  TransportFactory::initSolidTransport(Transport* tran,
 void TransportFactory::fitCollisionIntegrals(GasTransportParams& tr,
                                              MMCollisionInt& integrals)
 {
+
+
     vector_fp::iterator dptr;
     doublereal dstar;
     size_t nsp = tr.nsp_;
@@ -695,11 +721,15 @@ void TransportFactory::fitCollisionIntegrals(GasTransportParams& tr,
             tr.poly[j][i] = tr.poly[i][j];
         }
     }
+
+
 }
 
 void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspecies,
                                         XML_Node& log, const std::vector<std::string> &names, GasTransportParams& tr)
 {
+
+
     std::map<std::string, size_t> speciesIndices;
     for (size_t i = 0; i < names.size(); i++) {
         speciesIndices[names[i]] = i;
@@ -787,6 +817,8 @@ void TransportFactory::getTransportData(const std::vector<const XML_Node*> &xspe
             throw TransportDBError(i, "negative rotation relaxation number");
         }
     }
+
+
 }
 
 void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &xspecies,
@@ -1108,10 +1140,13 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
 void TransportFactory::fitProperties(GasTransportParams& tr,
                                      MMCollisionInt& integrals)
 {
+
+
     doublereal tstar;
     int ndeg = 0;
     // number of points to use in generating fit data
     const size_t np = 50;
+
 
     int mode = tr.mode_;
     int degree = (mode == CK_Mode ? 3 : 4);
@@ -1120,8 +1155,11 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
     doublereal dt = (tr.tmax - tr.tmin)/(np-1);
     vector_fp tlog(np), spvisc(np), spcond(np);
     doublereal val, fit;
-
     vector_fp w(np), w2(np);
+
+    vector_fp w3(np), w4(np), w5(np), w6(np);
+
+    vector_fp w_12(np), w_13(np), w_14(np), w_15(np), w_23(np), w_24(np);
 
     // generate array of log(t) values
     for (size_t n = 0; n < np; n++) {
@@ -1131,6 +1169,10 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
 
     // vector of polynomial coefficients
     vector_fp c(degree + 1), c2(degree + 1);
+
+    vector_fp c3(degree + 1), c4(degree + 1), c5(degree + 1), c6(degree + 1);
+
+    vector_fp c_12(degree + 1), c_13(degree + 1), c_14(degree + 1), c_15(degree + 1), c_23(degree + 1), c_24(degree + 1);
 
 
     // fit the pure-species viscosity and thermal conductivity for
@@ -1154,41 +1196,105 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
     doublereal cp_R, cond, w_RT, f_int, A_factor, B_factor,
                c1, cv_rot, cv_int, f_rot, f_trans, om11;
     doublereal diffcoeff;
+    doublereal om11_hT_kk;
+    doublereal om22_hT_kk;
+    const int nPairs_kk = 2;
+    string species_kk[nPairs_kk];
 
-    for (size_t k = 0; k < tr.nsp_; k++) {
+int nS_kk2 = 0;
+ifstream file("list_neut.dat", ios::in);
+file >> nS_kk2;
+
+const int nS_kk = nS_kk2;
+
+string  sp_kk_st[nS_kk];
+size_t sp_kk[nS_kk];
+
+for (int i=0; i< nS_kk; i++)
+{
+        file >> sp_kk_st[i];
+	sp_kk[i] = tr.thermo->speciesIndex(sp_kk_st[i]);
+}
+
+file.close();
+
+tr.visccoeffs.resize(tr.nsp_);
+tr.condcoeffs.resize(tr.nsp_);
+
+int k_self = 0;
+
+// NEUTRAL
+for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
+
+	k_self = tr.thermo->spNeutIndex[K];
+                        
         for (size_t n = 0; n < np; n++) {
-            t = tr.tmin + dt*n;
 
-            tr.thermo->setTemperature(t);
-            vector_fp cp_R_all(tr.thermo->nSpecies());
-            tr.thermo->getCp_R_ref(&cp_R_all[0]);
-            cp_R = cp_R_all[k];
+	t =tr.tmin + 4*(dt*n);		// extended temperature range
+//	    t = tr.tmin + dt*n;             //original from Cantera
+	    tlog[n] = log(t);
+	    sqrt_T = sqrt(t);
+	
+	tr.thermo->setTemperature(t);
+	vector_fp cp_R_all(tr.thermo->nSpecies());
+	tr.thermo->getCp_R_ref(&cp_R_all[0]);
+	cp_R = cp_R_all[k_self];
+	
 
+	tstar = Boltzmann * t/ tr.eps[k_self];
 
-            tstar = Boltzmann * t/ tr.eps[k];
-            sqrt_T = sqrt(t);
-            om22 = integrals.omega22(tstar, tr.delta(k,k));
-            om11 = integrals.omega11(tstar, tr.delta(k,k));
+	species_kk[0] = tr.thermo->speciesName(k_self);
+	species_kk[1] = tr.thermo->speciesName(k_self);
+
+        bool test = false;
+        for (int i=0; i < nS_kk; i++)
+        {
+                                if ( (k_self ==sp_kk[i]) )
+
+                                {
+                                        test = true;
+
+                                }
+                
+        }
+
+	if (test)	  
+	  {
+	   
+	    om11_hT_kk = integrals.omega11_hT(species_kk, t, nPairs_kk);		// updated interaction potential
+	    om11 = (pow(10, -20)*om11_hT_kk)/(tr.sigma[k_self]*tr.sigma[k_self]*Pi);
+	    
+	    om22_hT_kk = integrals.omega22_hT(species_kk, t, nPairs_kk);         // updated interaction potential
+	    om22 = (pow(10, -20)*om22_hT_kk)/(tr.sigma[k_self]*tr.sigma[k_self]*Pi);
+	  }
+
+	else
+	{ 
+		om11 = integrals.omega11(tstar, tr.delta(k_self,k_self));
+		om22 = integrals.omega22(tstar, tr.delta(k_self,k_self));
+	}
+
 
             // self-diffusion coefficient, without polar
-            // corrections
-            diffcoeff = ThreeSixteenths *
-                        sqrt(2.0 * Pi/tr.reducedMass(k,k)) *
-                        pow((Boltzmann * t), 1.5)/
-                        (Pi * tr.sigma[k] * tr.sigma[k] * om11);
+            // correction
 
-            // viscosity
-            visc = FiveSixteenths
-                   * sqrt(Pi * tr.mw[k] * Boltzmann * t / Avogadro) /
-                   (om22 * Pi * tr.sigma[k]*tr.sigma[k]);
+		diffcoeff = ThreeSixteenths *
+                        sqrt(2.0 * Pi/tr.reducedMass(k_self,k_self)) *
+                        pow((Boltzmann * t), 1.5)/
+                        (Pi * tr.sigma[k_self] * tr.sigma[k_self] * om11);
+
+                        visc = FiveSixteenths
+                                * sqrt(Pi * tr.mw[k_self] * Boltzmann * t / Avogadro) /
+                                (om22 * Pi * tr.sigma[k_self]*tr.sigma[k_self]);
+
 
             // thermal conductivity
-            w_RT = tr.mw[k]/(GasConstant * t);
+            w_RT = tr.mw[k_self]/(GasConstant * t);
             f_int = w_RT * diffcoeff/visc;
-            cv_rot = tr.crot[k];
+            cv_rot = tr.crot[k_self];
 
             A_factor = 2.5 - f_int;
-            B_factor = tr.zrot[k] + TwoOverPi
+            B_factor = tr.zrot[k_self] + TwoOverPi
                        *(FiveThirds * cv_rot + f_int);
             c1 = TwoOverPi * A_factor/B_factor;
             cv_int = cp_R - 2.5 - cv_rot;
@@ -1196,8 +1302,10 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             f_rot = f_int * (1.0 + c1);
             f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
 
-            cond = (visc/tr.mw[k])*GasConstant*(f_trans * 1.5
+            cond = (visc/tr.mw[k_self])*GasConstant*(f_trans * 1.5
                                                 + f_rot * cv_rot + f_int * cv_int);
+
+
 
             if (mode == CK_Mode) {
                 spvisc[n] = log(visc);
@@ -1205,14 +1313,8 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 w[n] = -1.0;
                 w2[n] = -1.0;
             } else {
-                // the viscosity should be proportional
-                // approximately to sqrt(T); therefore,
-                // visc/sqrt(T) should have only a weak
-                // temperature dependence. And since the mixture
-                // rule requires the square root of the
-                // pure-species viscosity, fit the square root of
-                // (visc/sqrt(T)) to avoid having to compute
-                // square roots in the mixture rule.
+
+
                 spvisc[n] = sqrt(visc/sqrt_T);
 
                 // the pure-species conductivity scales
@@ -1221,14 +1323,21 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 // square root, since a different mixture rule is
                 // used.
                 spcond[n] = cond/sqrt_T;
+
                 w[n] = 1.0/(spvisc[n]*spvisc[n]);
                 w2[n] = 1.0/(spcond[n]*spcond[n]);
+
             }
-        }
+
+	}	// end n loop
+
+
         polyfit(np, DATA_PTR(tlog), DATA_PTR(spvisc),
                 DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
         polyfit(np, DATA_PTR(tlog), DATA_PTR(spcond),
                 DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
+
+
 
         // evaluate max fit errors for viscosity
         for (size_t n = 0; n < np; n++) {
@@ -1261,13 +1370,273 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
             mxerr_cond = std::max(mxerr_cond, fabs(err));
             mxrelerr_cond = std::max(mxrelerr_cond, fabs(relerr));
         }
-        tr.visccoeffs.push_back(c);
-        tr.condcoeffs.push_back(c2);
+
+
+        tr.visccoeffs[k_self] = c;
+        tr.condcoeffs[k_self] = c2;
+
 
         if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
-            writelog(tr.thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
+            writelog(tr.thermo->speciesName(k_self) + ": [" + vec2str(c) + "]\n");
         }
-    }
+
+}
+
+
+// POSITIVE
+for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
+
+        k_self = tr.thermo->spPosIndex[K];
+
+
+        for (size_t n = 0; n < np; n++) {
+
+	    t =tr.tmin + 4*(dt*n); // extended temperature range
+	    tlog[n] = log(t);
+	    sqrt_T = sqrt(t);
+	    
+	  
+	
+	tr.thermo->setTemperature(t);
+	vector_fp cp_R_all(tr.thermo->nSpecies());
+	tr.thermo->getCp_R_ref(&cp_R_all[0]);
+	cp_R = cp_R_all[k_self];
+	
+
+	tstar = Boltzmann * t/ tr.eps[k_self];
+
+	species_kk[0] = tr.thermo->speciesName(k_self);
+	species_kk[1] = tr.thermo->speciesName(k_self);
+
+	    
+	    om11_hT_kk = 1.0;		// data initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons 
+	    om11 = (om11_hT_kk);         
+
+				
+	    om22_hT_kk = 1.0;		// data initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons
+            om22 =(om22_hT_kk);
+
+
+
+
+            // self-diffusion coefficient, without polar
+            // corrections
+	    // values initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons
+
+		diffcoeff = 1.0;
+		visc = 1.0;
+
+           // thermal conductivity
+            w_RT = tr.mw[k_self]/(GasConstant * t);
+            f_int = 1.0;
+            cv_rot = tr.crot[k_self];
+
+            A_factor = 2.5 - f_int;
+            B_factor = tr.zrot[k_self] + TwoOverPi
+                       *(FiveThirds * cv_rot + f_int);
+            c1 = TwoOverPi * A_factor/B_factor;
+            cv_int = cp_R - 2.5 - cv_rot;
+
+            f_rot = f_int * (1.0 + c1);
+            f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
+
+            cond = 1.0;
+
+
+            if (mode == CK_Mode) {
+                spvisc[n] = log(visc);
+                spcond[n] = log(cond);
+                w[n] = -1.0;
+                w2[n] = -1.0;
+            } else {
+
+                         spvisc[n] =log(visc/pow(t,3));
+			 spcond[n] = cond/pow(t, 2);
+
+                w[n] =  1.0/(spvisc[n]*spvisc[n]);
+                w2[n] = 1.0/(spcond[n]*spcond[n]);
+
+            }
+
+        }	// end n loop
+
+
+        polyfit(np, DATA_PTR(tlog), DATA_PTR(spvisc),
+                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+        polyfit(np, DATA_PTR(tlog), DATA_PTR(spcond),
+                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
+
+
+
+        // evaluate max fit errors for viscosity
+        for (size_t n = 0; n < np; n++) {
+            if (mode == CK_Mode) {
+                val = exp(spvisc[n]);
+                fit = exp(poly3(tlog[n], DATA_PTR(c)));
+            } else {
+                sqrt_T = exp(0.5*tlog[n]);
+                val = sqrt_T * pow(spvisc[n],2);
+                fit = sqrt_T * pow(poly4(tlog[n], DATA_PTR(c)),2);
+            }
+            err = fit - val;
+            relerr = err/val;
+            mxerr = std::max(mxerr, fabs(err));
+            mxrelerr = std::max(mxrelerr, fabs(relerr));
+        }
+
+
+        // evaluate max fit errors for conductivity
+        for (size_t n = 0; n < np; n++) {
+            if (mode == CK_Mode) {
+                val = exp(spcond[n]);
+                fit = exp(poly3(tlog[n], DATA_PTR(c2)));
+            } else {
+                sqrt_T = exp(0.5*tlog[n]);
+                val = sqrt_T * spcond[n];
+                fit = sqrt_T * poly4(tlog[n], DATA_PTR(c2));
+            }
+            err = fit - val;
+            relerr = err/val;
+            mxerr_cond = std::max(mxerr_cond, fabs(err));
+            mxrelerr_cond = std::max(mxrelerr_cond, fabs(relerr));
+        }
+
+        tr.visccoeffs[k_self] = c;
+        tr.condcoeffs[k_self] = c2;
+
+        if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+            writelog(tr.thermo->speciesName(k_self) + ": [" + vec2str(c) + "]\n");
+        }
+
+}
+
+
+
+// NEGATIVE
+for (size_t K = 0; K < tr.thermo->spNegIndex.size(); K++)  {
+
+        k_self = tr.thermo->spNegIndex[K];
+
+        for (size_t n = 0; n < np; n++) {
+
+	    t =tr.tmin + 4*(dt*n); // extended temperature range
+	    tlog[n] = log(t);
+	    sqrt_T = sqrt(t);
+	    
+	  
+	
+	tr.thermo->setTemperature(t);
+	vector_fp cp_R_all(tr.thermo->nSpecies());
+	tr.thermo->getCp_R_ref(&cp_R_all[0]);
+	cp_R = cp_R_all[k_self];
+	
+
+	tstar = Boltzmann * t/ tr.eps[k_self];
+
+	species_kk[0] = tr.thermo->speciesName(k_self);
+	species_kk[1] = tr.thermo->speciesName(k_self);
+
+	    
+	    om11_hT_kk = 1.0;			// data initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons
+	    om11 = (om11_hT_kk);         
+
+				
+	    om22_hT_kk = 1.0;			// data initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons
+            om22 =(om22_hT_kk);
+
+
+            // self-diffusion coefficient, without polar
+            // corrections
+	// data initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons
+
+	diffcoeff = 1.0;
+        visc = 1.0;
+
+            // thermal conductivity
+            w_RT = tr.mw[k_self]/(GasConstant * t);
+            f_int =1.0;// w_RT * diffcoeff/visc;
+            cv_rot = tr.crot[k_self];
+
+            A_factor = 2.5 - f_int;
+            B_factor = tr.zrot[k_self] + TwoOverPi
+                       *(FiveThirds * cv_rot + f_int);
+            c1 = TwoOverPi * A_factor/B_factor;
+            cv_int = cp_R - 2.5 - cv_rot;
+
+            f_rot = f_int * (1.0 + c1);
+            f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
+
+            cond = 1.0;
+
+            if (mode == CK_Mode) {
+                spvisc[n] = log(visc);
+                spcond[n] = log(cond);
+                w[n] = -1.0;
+                w2[n] = -1.0;
+            } else {
+
+                         spvisc[n] =log(visc/pow(t,3));
+			 spcond[n] = cond/pow(t, 2);
+
+                w[n] =  1.0/(spvisc[n]*spvisc[n]);
+                w2[n] = 1.0/(spcond[n]*spcond[n]);
+
+            }
+
+        }	// end n loop
+
+        polyfit(np, DATA_PTR(tlog), DATA_PTR(spvisc),
+                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+        polyfit(np, DATA_PTR(tlog), DATA_PTR(spcond),
+                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
+
+
+        // evaluate max fit errors for viscosity
+        for (size_t n = 0; n < np; n++) {
+            if (mode == CK_Mode) {
+                val = exp(spvisc[n]);
+                fit = exp(poly3(tlog[n], DATA_PTR(c)));
+            } else {
+                sqrt_T = exp(0.5*tlog[n]);
+                val = sqrt_T * pow(spvisc[n],2);
+                fit = sqrt_T * pow(poly4(tlog[n], DATA_PTR(c)),2);
+            }
+            err = fit - val;
+            relerr = err/val;
+            mxerr = std::max(mxerr, fabs(err));
+            mxrelerr = std::max(mxrelerr, fabs(relerr));
+        }
+
+
+        // evaluate max fit errors for conductivity
+        for (size_t n = 0; n < np; n++) {
+            if (mode == CK_Mode) {
+                val = exp(spcond[n]);
+                fit = exp(poly3(tlog[n], DATA_PTR(c2)));
+            } else {
+                sqrt_T = exp(0.5*tlog[n]);
+                val = sqrt_T * spcond[n];
+                fit = sqrt_T * poly4(tlog[n], DATA_PTR(c2));
+            }
+            err = fit - val;
+            relerr = err/val;
+            mxerr_cond = std::max(mxerr_cond, fabs(err));
+            mxrelerr_cond = std::max(mxrelerr_cond, fabs(relerr));
+        }
+
+
+        tr.visccoeffs[k_self] = c;
+        tr.condcoeffs[k_self] = c2;
+
+
+        if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+            writelog(tr.thermo->speciesName(k_self) + ": [" + vec2str(c) + "]\n");
+        }
+
+}
+
+
+
     if (DEBUG_MODE_ENABLED && m_verbose) {
         writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
         writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
@@ -1299,19 +1668,136 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     doublereal eps, sigma;
-    for (size_t k = 0; k < tr.nsp_; k++)  {
-        for (size_t j = k; j < tr.nsp_; j++) {
-            for (size_t n = 0; n < np; n++) {
+    // omega11 for calculation using updated (i.e. input by user) interaction potential
+    doublereal om11_hT;
+    doublereal om22_hT;
+    doublereal om22_astar;
+    doublereal astar_hT;
+    doublereal bstar_hT;
+    vector_fp Astar(np + 1);
+    vector_fp Bstar(np + 1);
+    vector_fp Omega11(np + 1);
+    vector_fp Omega22(np + 1);
+    const int nPair = 2;
+    string species[nPair];
 
-                t = tr.tmin + dt*n;
+int numS2 = 0;
+int numS_ion2 = 0;
 
-                eps = tr.epsilon(j,k);
-                tstar = Boltzmann * t/eps;
-                sigma = tr.diam(j,k);
-                om11 = integrals.omega11(tstar, tr.delta(j,k));
+ifstream file2("list_neut.dat", ios::in);
+file2 >> numS2;
+ifstream file3("list_charge.dat", ios::in);
+file3 >> numS_ion2;
 
-                diffcoeff = ThreeSixteenths *
-                            sqrt(2.0 * Pi/tr.reducedMass(k,j)) *
+
+const int numS = numS2;
+const int numS_ion = numS_ion2;
+
+string  sp_st[numS];
+size_t sp[numS];
+
+string sp_ion_st[numS_ion];
+size_t sp_ion[numS_ion];
+
+for (int i=0; i< numS; i++)
+{
+        file2 >> sp_st[i];
+	sp[i] = tr.thermo->speciesIndex(sp_st[i]);
+}
+
+for (int i=0; i< numS_ion; i++)
+{
+        file3 >> sp_ion_st[i];
+	sp_ion[i] = tr.thermo->speciesIndex(sp_ion_st[i]);
+}
+
+file2.close();
+file3.close();
+
+// progressive counters for species identification
+size_t pro1 = 0;
+size_t pro2 = 0;
+int counterTot = 0;
+int icNeutNeut = 0;		// internal counter for Neutral-Neutral
+int icNeutPos = 0;             // internal counter for Neutral-Positive
+int icNeutNeg = 0;             // internal counter for Neutral-Negative
+int icPosPos = 0;             // internal counter for Positive-Positive
+int icPosNeg = 0;             // internal counter for Positive-Negative
+int icNegNeg = 0;             // internal counter for Negative-Negative
+
+
+const int dim = tr.thermo->indexNeutNeut.size()+tr.thermo->indexNeutPos.size()+tr.thermo->indexNeutNeg.size()+tr.thermo->indexPosPos.size()+tr.thermo->indexPosNeg.size()+tr.thermo->indexNegNeg.size();
+
+tr.diffcoeffs.resize(dim);
+tr.astar.resize(dim);
+tr.omega11_fit.resize(dim);
+tr.omega22_fit.resize(dim);
+tr.bstar.resize(dim);
+
+
+// NEUTRAL-NEUTRAL interaction
+for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
+        for (size_t J = K; J < tr.thermo->spNeutIndex.size(); J++) {
+
+
+                        pro1 = tr.thermo->spNeutIndex[K];
+                        pro2 = tr.thermo->spNeutIndex[J];
+
+		for (size_t n = 0; n < np; n++) {
+
+
+              		t =tr.tmin + 4*(dt*n);
+			tlog[n] = log(t);
+		
+
+               		eps = tr.epsilon(pro2,pro1);
+                	tstar = Boltzmann * t/eps;
+                	sigma = tr.diam(pro2,pro1);
+
+			species[0] = tr.thermo->speciesName(pro1);
+			species[1] = tr.thermo->speciesName(pro2);
+	
+        bool test = false;
+        for (int i=0; i < numS; i++)
+        {
+		for (int j=0; j < numS; j++)
+			{
+                                if ( ( pro1 == sp[i]) and ( pro2 == sp[j]) )
+
+                                {
+                                        test = true;
+
+                                }
+			}
+
+        }
+
+			if ( test)
+                	{ 
+				om11_hT = integrals.omega11_hT(species, t, nPair);		// updated interaction potential
+				om11 = (pow(10, -20)*om11_hT)/(sigma*sigma*Pi);
+
+				om22_hT = integrals.omega22_hT(species, t, nPair);              // updated interaction potential
+                                om22_astar = (pow(10, -20)*om22_hT)/(sigma*sigma*Pi);
+
+				astar_hT = om22_astar/om11;
+				bstar_hT = integrals.bstar_hT(species, t, nPair);
+			}
+
+		else
+			{ 
+				om11 = integrals.omega11(tstar, tr.delta(pro2,pro1));
+				om22_astar = integrals.omega22(tstar, tr.delta(pro2,pro1));
+
+				astar_hT = om22_astar/om11;
+				bstar_hT = integrals.bstar(tstar, tr.delta(pro2,pro1));
+			}
+
+
+
+		
+			diffcoeff =ThreeSixteenths *
+                            sqrt(2.0 * Pi/tr.reducedMass(pro1,pro2)) *
                             pow((Boltzmann * t), 1.5)/
                             (Pi * sigma * sigma * om11);
 
@@ -1319,18 +1805,71 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 // 2nd order correction
                 // NOTE: THIS CORRECTION IS NOT APPLIED
                 doublereal fkj, fjk;
-                getBinDiffCorrection(t, tr, integrals, k, j, 1.0, 1.0, fkj, fjk);
+                getBinDiffCorrection(t, tr, integrals, pro1, pro2, 1.0, 1.0, fkj, fjk);
 
                 if (mode == CK_Mode) {
                     diff[n] = log(diffcoeff);
                     w[n] = -1.0;
+
+
+		    Omega11[n] = log(om11);
+                    w4[n] = -1.0;
+
+		    Omega22[n] = log(om22_astar);
+                    w5[n] = -1.0;
+
+
+
+		    Astar[n] = log(astar_hT);
+		    w3[n] = -1.0;
+
+
+                    Bstar[n] = log(bstar_hT);
+                    w6[n] = -1.0;
+
+
                 } else {
-                    diff[n] = diffcoeff/pow(t, 1.5);
-                    w[n] = 1.0/(diff[n]*diff[n]);
+
+                    		diff[n] = diffcoeff/pow(t, 1.5);
+                    		w[n] = 1.0/(diff[n]*diff[n]);
+
+
+				Omega11[n] = om11*(sigma*sigma*Pi);
+                                w4[n] = 1.0/(Omega11[n]*Omega11[n]);
+
+                                Omega22[n] = om22_astar*(sigma*sigma*Pi);
+                                w5[n] = 1.0/(Omega22[n]*Omega22[n]);
+
+
+                    		Astar[n] = log(astar_hT);
+                    		w3[n] = -1.0;
+
+				Bstar[n] = log(bstar_hT);
+                                w6[n] = -1.0;
+
                 }
-            }
+
+		}
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega11),
+                    DATA_PTR(w4), degree, ndeg, 0.0, DATA_PTR(c4));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega22),
+                    DATA_PTR(w5), degree, ndeg, 0.0, DATA_PTR(c5));
+
+
+	    polyfit(np, DATA_PTR(tlog), DATA_PTR(Astar),
+                    DATA_PTR(w3), degree, ndeg, 0.0, DATA_PTR(c3));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Bstar),
+                    DATA_PTR(w6), degree, ndeg, 0.0, DATA_PTR(c6));
+
+
             polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
                     DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
 
             doublereal pre;
             for (size_t n = 0; n < np; n++) {
@@ -1348,19 +1887,989 @@ void TransportFactory::fitProperties(GasTransportParams& tr,
                 mxerr = std::max(mxerr, fabs(err));
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
-            tr.diffcoeffs.push_back(c);
+
+            tr.diffcoeffs[tr.thermo->indexNeutNeut[icNeutNeut]] = c;
+
+
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
-                writelog(tr.thermo->speciesName(k) + "__" +
-                         tr.thermo->speciesName(j) + ": [" + vec2str(c) + "]\n");
+                writelog(tr.thermo->speciesName(pro1) + "__" +
+                         tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
             }
+
+
+                tr.astar[tr.thermo->indexNeutNeut[icNeutNeut]] = c3;
+                tr.omega11_fit[tr.thermo->indexNeutNeut[icNeutNeut]] = c4;
+                tr.omega22_fit[tr.thermo->indexNeutNeut[icNeutNeut]] = c5;
+                tr.bstar[tr.thermo->indexNeutNeut[icNeutNeut]] = c6;
+
+
+                counterTot++;
+		icNeutNeut++;
+
         }
-    }
+}
+
+
+// NEUTRAL-POSITIVE interaction
+for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
+        for (size_t J = 0; J < tr.thermo->spPosIndex.size(); J++) {
+
+                        pro1 = tr.thermo->spNeutIndex[K];
+                        pro2 = tr.thermo->spPosIndex[J];
+
+		for (size_t n = 0; n < np; n++) {
+
+              		t =tr.tmin + 4*(dt*n);
+			tlog[n] = log(t);
+
+                eps = tr.epsilon(pro2,pro1);
+                tstar = Boltzmann * t/eps;
+                sigma = tr.diam(pro2,pro1);
+
+		species[0] = tr.thermo->speciesName(pro1);
+		species[1] = tr.thermo->speciesName(pro2);
+		
+        bool test = false;
+        for (int i=0; i < numS; i++)
+        {
+                                if ( ( pro1 == sp[i]) )
+
+                                {
+                                        test = true;
+
+                                }
+
+        }
+
+			if (test)
+				{
+ 
+				om11_hT = integrals.omega11_hT(species, t, nPair);		// updated  interaction potential
+				om11 = (pow(10, -20)*om11_hT)/(sigma*sigma*Pi);
+
+				om22_hT = integrals.omega22_hT(species, t, nPair);              // updated interaction potential
+                                om22_astar = (pow(10, -20)*om22_hT)/(sigma*sigma*Pi);
+
+				astar_hT = om22_astar/om11;
+				bstar_hT = integrals.bstar_hT(species, t, nPair);
+
+		
+			diffcoeff =ThreeSixteenths *
+                            sqrt(2.0 * Pi/tr.reducedMass(pro1,pro2)) *
+                            pow((Boltzmann * t), 1.5)/
+                            (Pi * sigma * sigma * om11);
+
+
+				}
+
+
+			else
+			{
+				om11_hT = 1.0;
+				om11 = 1.0;
+				om22_hT = 1.0;
+				om22_astar = 1.0;
+				astar_hT = 1.0;
+				bstar_hT = 1.0;
+				diffcoeff = 1.0;
+
+			}
+
+                // 2nd order correction
+                // NOTE: THIS CORRECTION IS NOT APPLIED
+                doublereal fkj, fjk;
+                getBinDiffCorrection(t, tr, integrals, pro1, pro2, 1.0, 1.0, fkj, fjk);
+
+                if (mode == CK_Mode) {
+                    diff[n] = log(diffcoeff);
+                    w[n] = -1.0;
+
+
+		    Omega11[n] = log(om11);
+                    w4[n] = -1.0;
+
+		    Omega22[n] = log(om22_astar);
+                    w5[n] = -1.0;
+
+
+
+		    Astar[n] = log(astar_hT);
+		    w3[n] = -1.0;
+
+
+                    Bstar[n] = log(bstar_hT);
+                    w6[n] = -1.0;
+
+
+                } else {
+
+                    		diff[n] = diffcoeff/pow(t, 1.5);
+                    		w[n] = 1.0/(diff[n]*diff[n]);
+
+
+				Omega11[n] = om11*(sigma*sigma*Pi);
+                                w4[n] = 1.0/(Omega11[n]*Omega11[n]);
+
+                                Omega22[n] = om22_astar*(sigma*sigma*Pi);
+                                w5[n] = 1.0/(Omega22[n]*Omega22[n]);
+
+
+                    		Astar[n] = log(astar_hT);
+                    		w3[n] = -1.0;
+
+				Bstar[n] = log(bstar_hT);
+                                w6[n] = -1.0;
+
+                }
+
+
+		}
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega11),
+                    DATA_PTR(w4), degree, ndeg, 0.0, DATA_PTR(c4));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega22),
+                    DATA_PTR(w5), degree, ndeg, 0.0, DATA_PTR(c5));
+
+
+	    polyfit(np, DATA_PTR(tlog), DATA_PTR(Astar),
+                    DATA_PTR(w3), degree, ndeg, 0.0, DATA_PTR(c3));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Bstar),
+                    DATA_PTR(w6), degree, ndeg, 0.0, DATA_PTR(c6));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
+                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
+
+            doublereal pre;
+            for (size_t n = 0; n < np; n++) {
+                if (mode == CK_Mode) {
+                    val = exp(diff[n]);
+                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                } else {
+                    t = exp(tlog[n]);
+                    pre = pow(t, 1.5);
+                    val = pre * diff[n];
+                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                }
+                err = fit - val;
+                relerr = err/val;
+                mxerr = std::max(mxerr, fabs(err));
+                mxrelerr = std::max(mxrelerr, fabs(relerr));
+            }
+
+
+            tr.diffcoeffs[tr.thermo->indexNeutPos[icNeutPos]] = c;
+
+
+            if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+                writelog(tr.thermo->speciesName(pro1) + "__" +
+                         tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
+            }
+
+                tr.astar[tr.thermo->indexNeutPos[icNeutPos]] = c3;
+                tr.omega11_fit[tr.thermo->indexNeutPos[icNeutPos]] = c4;
+                tr.omega22_fit[tr.thermo->indexNeutPos[icNeutPos]] = c5;
+                tr.bstar[tr.thermo->indexNeutPos[icNeutPos]] = c6;
+
+                counterTot++;
+		icNeutPos++;
+		
+        }
+}
+
+
+// NEUTRAL-NEGATIVE interaction
+for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
+        for (size_t J = 0; J < tr.thermo->spNegIndex.size(); J++) {
+
+                        pro1 = tr.thermo->spNeutIndex[K];
+                        pro2 = tr.thermo->spNegIndex[J];
+
+		for (size_t n = 0; n < np; n++) {
+
+
+              		t =tr.tmin + 4*(dt*n);
+			tlog[n] = log(t);
+
+
+
+                eps = tr.epsilon(pro2,pro1);
+                tstar = Boltzmann * t/eps;
+                sigma = tr.diam(pro2,pro1);
+
+		species[0] = tr.thermo->speciesName(pro1);
+		species[1] = tr.thermo->speciesName(pro2);
+	
+        bool test = false;
+        for (int i=0; i < numS; i++)
+        {
+                                if ( ( pro1 == sp[i]) )
+
+                                {
+                                        test = true;
+
+                                }
+
+        }
+
+
+        bool test2 = false;
+        for (int i=0; i < numS; i++)
+        {
+                                if ( ( pro2 == sp[i]) )
+
+                                {
+                                        test2 = true;
+
+                                }
+
+        }
+	
+			if (test)
+                                {
+	
+				om11_hT = integrals.omega11_hT(species, t, nPair);		// updated interaction potential
+				om11 = (pow(10, -20)*om11_hT)/(sigma*sigma*Pi);
+
+				om22_hT = integrals.omega22_hT(species, t, nPair);              // updated interaction potential
+                                om22_astar = (pow(10, -20)*om22_hT)/(sigma*sigma*Pi);
+
+				astar_hT = om22_astar/om11;
+				bstar_hT = integrals.bstar_hT(species, t, nPair);
+
+				}
+
+                        else
+                        {
+
+				om11_hT = 1.0;
+                                om11 = 1.0;
+                                om22_hT = 1.0;
+                                om22_astar = 1.0;
+                                astar_hT = 1.0;
+                                bstar_hT = 1.0;
+
+                        }
+
+
+
+	
+		//neutral-electron
+		if ( ( ( pro1 == tr.thermo->speciesIndex("E")) and (test2) ) or ( ( pro2 == tr.thermo->speciesIndex("E")) and (test) ) )
+			{
+
+
+                                diffcoeff =ThreeSixteenths *
+                                        sqrt(2.0 * Pi/(tr.mw[tr.thermo->speciesIndex("E")]/Avogadro)) *
+                                        pow((Boltzmann * t), 1.5)/
+                                        (Pi * sigma * sigma * om11);      
+
+			}
+
+
+		//neutral-negative
+		else if ( ( ( pro1 != tr.thermo->speciesIndex("E")) and (test2) ) or ( ( pro2 != tr.thermo->speciesIndex("E")) and (test) ) )
+			{
+
+		
+				diffcoeff =ThreeSixteenths *
+                            		sqrt(2.0 * Pi/tr.reducedMass(pro1,pro2)) *
+                            		pow((Boltzmann * t), 1.5)/
+                            		(Pi * sigma * sigma * om11);
+
+			}
+
+
+                        else
+                        {
+                                diffcoeff = 1.0;
+
+                        }
+
+
+                // 2nd order correction
+                // NOTE: THIS CORRECTION IS NOT APPLIED
+                doublereal fkj, fjk;
+                getBinDiffCorrection(t, tr, integrals, pro1, pro2, 1.0, 1.0, fkj, fjk);
+
+                if (mode == CK_Mode) {
+                    diff[n] = log(diffcoeff);
+                    w[n] = -1.0;
+
+
+		    Omega11[n] = log(om11);
+                    w4[n] = -1.0;
+
+		    Omega22[n] = log(om22_astar);
+                    w5[n] = -1.0;
+
+
+
+		    Astar[n] = log(astar_hT);
+		    w3[n] = -1.0;
+
+
+                    Bstar[n] = log(bstar_hT);
+                    w6[n] = -1.0;
+
+
+                } else {
+
+                    		diff[n] = diffcoeff/pow(t, 1.5);
+                    		w[n] = 1.0/(diff[n]*diff[n]);
+
+
+				Omega11[n] = om11*(sigma*sigma*Pi);
+                                w4[n] = 1.0/(Omega11[n]*Omega11[n]);
+
+                                Omega22[n] = om22_astar*(sigma*sigma*Pi);
+                                w5[n] = 1.0/(Omega22[n]*Omega22[n]);
+
+
+                    		Astar[n] = log(astar_hT);
+                    		w3[n] = -1.0;
+
+				Bstar[n] = log(bstar_hT);
+                                w6[n] = -1.0;
+
+
+                }
+
+
+		}
+
+
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega11),
+                    DATA_PTR(w4), degree, ndeg, 0.0, DATA_PTR(c4));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega22),
+                    DATA_PTR(w5), degree, ndeg, 0.0, DATA_PTR(c5));
+
+
+	    polyfit(np, DATA_PTR(tlog), DATA_PTR(Astar),
+                    DATA_PTR(w3), degree, ndeg, 0.0, DATA_PTR(c3));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Bstar),
+                    DATA_PTR(w6), degree, ndeg, 0.0, DATA_PTR(c6));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
+                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
+
+            doublereal pre;
+            for (size_t n = 0; n < np; n++) {
+                if (mode == CK_Mode) {
+                    val = exp(diff[n]);
+                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                } else {
+                    t = exp(tlog[n]);
+                    pre = pow(t, 1.5);
+                    val = pre * diff[n];
+                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                }
+                err = fit - val;
+                relerr = err/val;
+                mxerr = std::max(mxerr, fabs(err));
+                mxrelerr = std::max(mxrelerr, fabs(relerr));
+            }
+
+            tr.diffcoeffs[tr.thermo->indexNeutNeg[icNeutNeg]] = c;
+
+
+            if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+                writelog(tr.thermo->speciesName(pro1) + "__" +
+                         tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
+            }
+
+
+                tr.astar[tr.thermo->indexNeutNeg[icNeutNeg]] = c3;
+                tr.omega11_fit[tr.thermo->indexNeutNeg[icNeutNeg]] = c4;
+                tr.omega22_fit[tr.thermo->indexNeutNeg[icNeutNeg]] = c5;
+                tr.bstar[tr.thermo->indexNeutNeg[icNeutNeg]] = c6;
+
+                counterTot++;
+		icNeutNeg++;
+
+        }
+}
+
+
+// POSITIVE-POSITIVE interaction
+for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
+        for (size_t J = K; J < tr.thermo->spPosIndex.size(); J++) {
+
+                        pro1 = tr.thermo->spPosIndex[K];
+                        pro2 = tr.thermo->spPosIndex[J];
+
+		for (size_t n = 0; n < np; n++) {
+
+
+                                t = tr.tmin + 4*(dt*n);
+				tlog[n] = log(t);                   
+
+                eps = tr.epsilon(pro2,pro1);
+                tstar = Boltzmann * t/eps;
+                sigma = tr.diam(pro2,pro1);
+
+		species[0] = tr.thermo->speciesName(pro1);
+		species[1] = tr.thermo->speciesName(pro2);
+		
+		// data initialized to 1.0; the correc value will be computed later depending on temperature and molar fraction of electrons
+                                        om11_hT = 1.0;			
+                                        om11 = (om11_hT);
+
+					om22_hT = 1.0;			
+                                        om22_astar = (om22_hT);	
+
+					astar_hT = 1.0;			
+					bstar_hT = 1.0;		
+				
+                        		diffcoeff =1.0;
+					
+
+                // 2nd order correction
+                // NOTE: THIS CORRECTION IS NOT APPLIED
+                doublereal fkj, fjk;
+                getBinDiffCorrection(t, tr, integrals, pro1, pro2, 1.0, 1.0, fkj, fjk);
+
+                if (mode == CK_Mode) {
+                    diff[n] = log(diffcoeff);
+                    w[n] = -1.0;
+
+
+		    Omega11[n] = log(om11);
+                    w4[n] = -1.0;
+
+		    Omega22[n] = log(om22_astar);
+                    w5[n] = -1.0;
+
+
+
+		    Astar[n] = log(astar_hT);
+		    w3[n] = -1.0;
+
+
+                    Bstar[n] = log(bstar_hT);
+                    w6[n] = -1.0;
+
+
+                } else {
+
+
+                    		diff[n] = log(diffcoeff/pow(t, 2));
+                    		w[n] = 1.0/(diff[n]*diff[n]);
+
+
+				Omega11[n] = om11*t;
+                        	w4[n] = 1.0/(Omega11[n]*Omega11[n]);
+
+                        	Omega22[n] = om22_astar*t;
+                        	w5[n] = 1.0/(Omega22[n]*Omega22[n]);
+				
+				if ( t > 3000 ) // this fit is not used
+				{
+					Astar[n] = astar_hT/t;
+                    			w3[n] = 1.0/(Astar[n]*Astar[n]);
+				}
+
+				Bstar[n] = log(bstar_hT);
+                                w6[n] = -1.0;
+
+
+                }
+
+
+		}
+
+
+
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega11),
+                    DATA_PTR(w4), degree, ndeg, 0.0, DATA_PTR(c4));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega22),
+                    DATA_PTR(w5), degree, ndeg, 0.0, DATA_PTR(c5));
+
+
+	    polyfit(np, DATA_PTR(tlog), DATA_PTR(Astar),
+                    DATA_PTR(w3), degree, ndeg, 0.0, DATA_PTR(c3));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Bstar),
+                    DATA_PTR(w6), degree, ndeg, 0.0, DATA_PTR(c6));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
+                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
+
+            doublereal pre;
+            for (size_t n = 0; n < np; n++) {
+                if (mode == CK_Mode) {
+                    val = exp(diff[n]);
+                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                } else {
+                    t = exp(tlog[n]);
+                    pre = pow(t, 1.5);
+                    val = pre * diff[n];
+                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                }
+                err = fit - val;
+                relerr = err/val;
+                mxerr = std::max(mxerr, fabs(err));
+                mxrelerr = std::max(mxrelerr, fabs(relerr));
+            }
+
+
+            tr.diffcoeffs[tr.thermo->indexPosPos[icPosPos]] = c;
+
+
+            if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+                writelog(tr.thermo->speciesName(pro1) + "__" +
+                         tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
+            }
+
+
+                tr.astar[tr.thermo->indexPosPos[icPosPos]] = c3;
+                tr.omega11_fit[tr.thermo->indexPosPos[icPosPos]] = c4;
+                tr.omega22_fit[tr.thermo->indexPosPos[icPosPos]] = c5;
+                tr.bstar[tr.thermo->indexPosPos[icPosPos]] = c6;
+
+
+
+                counterTot++;
+		icPosPos++;
+	}
+} 
+
+
+
+
+// POSITIVE-NEGATIVE interaction
+for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
+        for (size_t J = 0; J < tr.thermo->spNegIndex.size(); J++) {
+
+                        pro1 = tr.thermo->spPosIndex[K];
+                        pro2 = tr.thermo->spNegIndex[J];
+
+		for (size_t n = 0; n < np; n++) {
+
+
+                                t = tr.tmin + 4*(dt*n);
+				tlog[n] = log(t);                   
+
+
+                eps = tr.epsilon(pro2,pro1);
+                tstar = Boltzmann * t/eps;
+                sigma = tr.diam(pro2,pro1);
+
+		species[0] = tr.thermo->speciesName(pro1);
+		species[1] = tr.thermo->speciesName(pro2);
+		
+
+		// data initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons
+					om11_hT = 1.0;          
+                                        om11 = (om11_hT);       
+
+                                        om22_hT = 1.0;          
+                                        om22_astar = (om22_hT);
+
+                                        astar_hT = 1.0;         
+                                        bstar_hT = 1.0;         
+
+                                        diffcoeff =1.0;
+
+                // 2nd order correction
+                // NOTE: THIS CORRECTION IS NOT APPLIED
+                doublereal fkj, fjk;
+                getBinDiffCorrection(t, tr, integrals, pro1, pro2, 1.0, 1.0, fkj, fjk);
+
+                if (mode == CK_Mode) {
+                    diff[n] = log(diffcoeff);
+                    w[n] = -1.0;
+
+
+		    Omega11[n] = log(om11);
+                    w4[n] = -1.0;
+
+		    Omega22[n] = log(om22_astar);
+                    w5[n] = -1.0;
+
+
+
+		    Astar[n] = log(astar_hT);
+		    w3[n] = -1.0;
+
+
+                    Bstar[n] = log(bstar_hT);
+                    w6[n] = -1.0;
+
+
+                } else {
+
+                    		diff[n] = log(diffcoeff/pow(t, 2));
+                    		w[n] = 1.0/(diff[n]*diff[n]);
+
+
+				Omega11[n] = om11*t;
+                        	w4[n] = 1.0/(Omega11[n]*Omega11[n]);
+
+                        	Omega22[n] = om22_astar*t;
+                        	w5[n] = 1.0/(Omega22[n]*Omega22[n]);
+				
+				if ( t > 3000 )	// this fit is not used
+				{
+					Astar[n] = astar_hT/t;
+                    			w3[n] = 1.0/(Astar[n]*Astar[n]);
+				}
+
+				Bstar[n] = log(bstar_hT);
+                                w6[n] = -1.0;
+
+                }
+
+		}
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega11),
+                    DATA_PTR(w4), degree, ndeg, 0.0, DATA_PTR(c4));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega22),
+                    DATA_PTR(w5), degree, ndeg, 0.0, DATA_PTR(c5));
+
+
+	    polyfit(np, DATA_PTR(tlog), DATA_PTR(Astar),
+                    DATA_PTR(w3), degree, ndeg, 0.0, DATA_PTR(c3));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Bstar),
+                    DATA_PTR(w6), degree, ndeg, 0.0, DATA_PTR(c6));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
+                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
+
+            doublereal pre;
+            for (size_t n = 0; n < np; n++) {
+                if (mode == CK_Mode) {
+                    val = exp(diff[n]);
+                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                } else {
+                    t = exp(tlog[n]);
+                    pre = pow(t, 1.5);
+                    val = pre * diff[n];
+                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                }
+                err = fit - val;
+                relerr = err/val;
+                mxerr = std::max(mxerr, fabs(err));
+                mxrelerr = std::max(mxrelerr, fabs(relerr));
+            }
+
+            tr.diffcoeffs[tr.thermo->indexPosNeg[icPosNeg]] = c;
+
+            if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+                writelog(tr.thermo->speciesName(pro1) + "__" +
+                         tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
+            }
+
+                tr.astar[tr.thermo->indexPosNeg[icPosNeg]] = c3;
+                tr.omega11_fit[tr.thermo->indexPosNeg[icPosNeg]] = c4;
+                tr.omega22_fit[tr.thermo->indexPosNeg[icPosNeg]] = c5;
+                tr.bstar[tr.thermo->indexPosNeg[icPosNeg]] = c6;
+
+
+                counterTot++;
+		icPosNeg++;
+        }
+}
+
+
+
+
+// NEGATIVE-NEGATIVE interaction
+for (size_t K = 0; K < tr.thermo->spNegIndex.size(); K++)  {
+        for (size_t J = K; J < tr.thermo->spNegIndex.size(); J++) {
+
+                        pro1 = tr.thermo->spNegIndex[K];
+                        pro2 = tr.thermo->spNegIndex[J];
+
+		for (size_t n = 0; n < np; n++) {
+
+                                t = tr.tmin + 4*(dt*n);
+				tlog[n] = log(t);                   
+
+
+                eps = tr.epsilon(pro2,pro1);
+                tstar = Boltzmann * t/eps;
+                sigma = tr.diam(pro2,pro1);
+
+		species[0] = tr.thermo->speciesName(pro1);
+		species[1] = tr.thermo->speciesName(pro2);
+		
+		// data initialized to 1.0; the correc value will be later computed depending on temperature and molar fraction of electrons
+
+					om11_hT =1.0;           
+                                        om11 = (om11_hT);
+
+                                        om22_hT =1.0;           
+                                        om22_astar = (om22_hT); 
+
+                                        astar_hT = 1.0;         
+                                        bstar_hT = 1.0;         
+                                
+                                        diffcoeff =1.0;
+
+
+                // 2nd order correction
+                // NOTE: THIS CORRECTION IS NOT APPLIED
+                doublereal fkj, fjk;
+                getBinDiffCorrection(t, tr, integrals, pro1, pro2, 1.0, 1.0, fkj, fjk);
+
+                if (mode == CK_Mode) {
+                    diff[n] = log(diffcoeff);
+                    w[n] = -1.0;
+
+
+		    Omega11[n] = log(om11);
+                    w4[n] = -1.0;
+
+		    Omega22[n] = log(om22_astar);
+                    w5[n] = -1.0;
+
+
+
+		    Astar[n] = log(astar_hT);
+		    w3[n] = -1.0;
+
+
+                    Bstar[n] = log(bstar_hT);
+                    w6[n] = -1.0;
+
+
+                } else {
+
+                    		diff[n] = log(diffcoeff/pow(t, 2));
+                    		w[n] = 1.0/(diff[n]*diff[n]);
+
+
+				Omega11[n] = om11*t;
+                        	w4[n] = 1.0/(Omega11[n]*Omega11[n]);
+
+                        	Omega22[n] = om22_astar*t;
+                        	w5[n] = 1.0/(Omega22[n]*Omega22[n]);
+				
+				if ( t > 3000 )	// this fit is not used
+				{
+					Astar[n] = astar_hT/t;
+                    			w3[n] = 1.0/(Astar[n]*Astar[n]);
+				}
+
+				Bstar[n] = log(bstar_hT);
+                                w6[n] = -1.0;
+
+
+                }
+
+		}
+
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega11),
+                    DATA_PTR(w4), degree, ndeg, 0.0, DATA_PTR(c4));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega22),
+                    DATA_PTR(w5), degree, ndeg, 0.0, DATA_PTR(c5));
+
+
+	    polyfit(np, DATA_PTR(tlog), DATA_PTR(Astar),
+                    DATA_PTR(w3), degree, ndeg, 0.0, DATA_PTR(c3));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Bstar),
+                    DATA_PTR(w6), degree, ndeg, 0.0, DATA_PTR(c6));
+
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
+                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+
+
+            doublereal pre;
+            for (size_t n = 0; n < np; n++) {
+                if (mode == CK_Mode) {
+                    val = exp(diff[n]);
+                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                } else {
+                    t = exp(tlog[n]);
+                    pre = pow(t, 1.5);
+                    val = pre * diff[n];
+                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                }
+                err = fit - val;
+                relerr = err/val;
+                mxerr = std::max(mxerr, fabs(err));
+                mxrelerr = std::max(mxrelerr, fabs(relerr));
+            }
+
+            tr.diffcoeffs[tr.thermo->indexNegNeg[icNegNeg]] = c;
+
+
+            if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
+                writelog(tr.thermo->speciesName(pro1) + "__" +
+                         tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
+            }
+
+
+                tr.astar[tr.thermo->indexNegNeg[icNegNeg]] = c3;
+                tr.omega11_fit[tr.thermo->indexNegNeg[icNegNeg]] = c4;
+                tr.omega22_fit[tr.thermo->indexNegNeg[icNegNeg]] = c5;
+                tr.bstar[tr.thermo->indexNegNeg[icNegNeg]] = c6;
+
+
+		counterTot++;
+		icNegNeg++;
+        }
+}
+
+
+
     if (DEBUG_MODE_ENABLED && m_verbose) {
         writelogf("Maximum binary diffusion coefficient absolute error:"
                  "  %12.6g\n", mxerr);
         writelogf("Maximum binary diffusion coefficient relative error:"
                  "%12.6g", mxrelerr);
     }
+
+
+
+    doublereal om12;
+    doublereal om13;
+    doublereal om14;
+    doublereal om15;
+    doublereal om23;
+    doublereal om24;
+    vector_fp Omega12(np + 1);
+    vector_fp Omega13(np + 1);
+    vector_fp Omega14(np + 1);
+    vector_fp Omega15(np + 1);
+    vector_fp Omega23(np + 1);
+    vector_fp Omega24(np + 1);
+    const int nPair_D = 2;
+    string species_D[nPair_D];
+
+
+// fit for Devoto Collision Integrals
+for (size_t k = 0; k < tr.nsp_; k++)  {
+      for (size_t n = 0; n < np; n++) {
+
+		t = tr.tmin + 4*(dt*n);
+               	tlog[n] = log(t);
+
+
+                species_D[0] = tr.thermo->speciesName(k);
+                species_D[1] = "E";
+
+        bool test = false;
+        for (int i=0; i < numS; i++)
+        {
+                                if ( ( k == sp[i]) )
+
+                                {
+                                        test = true;
+
+                                }
+
+        }
+
+                // the interactions electron-charged are initialized to 1 and then computed later
+		if (test)
+                {
+ 
+			// Last two inputs (i.e. electron molar fraction and pressure) are not necessary for these collision integrals electron-neutral
+                        om12 = integrals.omega12_charged(species_D[0], "E", tr.thermo->charge(k), -1, t, t, 0, 1*OneAtm);
+                        om13 = integrals.omega13_charged(species_D[0], "E", tr.thermo->charge(k), -1, t, t, 0, 1*OneAtm);
+                        om14 = integrals.omega14_charged(species_D[0], "E", tr.thermo->charge(k), -1, t, t, 0, 1*OneAtm);
+                        om15 = integrals.omega15_charged(species_D[0], "E", tr.thermo->charge(k), -1, t, t, 0, 1*OneAtm);
+                        om23 = integrals.omega23_charged(species_D[0], "E", tr.thermo->charge(k), -1, t, t, 0, 1*OneAtm);
+                        om24 = integrals.omega24_charged(species_D[0], "E", tr.thermo->charge(k), -1, t, t, 0, 1*OneAtm);
+
+
+                }
+
+                        else
+                {
+			
+                        om12 = 1.0* pow(10, -20);
+                        om13 = 1.0* pow(10, -20);
+                        om14 = 1.0* pow(10, -20);
+                        om15 = 1.0* pow(10, -20);
+                        om23 = 1.0* pow(10, -20);
+                        om24 = 1.0* pow(10, -20);     
+			
+                }
+
+
+					Omega12[n] = log(om12/pow(t, 2));
+                                        w_12[n] = -1.0;
+
+                                        Omega13[n] = log(om13/pow(t, 2));
+                                        w_13[n] = -1.0;
+
+                                        Omega14[n] = log(om14/pow(t, 2));
+                                        w_14[n] = -1.0;
+
+                                        Omega15[n] = log(om15/pow(t, 2));
+                                        w_15[n] = -1.0;
+
+                                        Omega23[n] = log(om23/pow(t, 2));
+                                        w_23[n] = -1.0;
+
+                                        Omega24[n] = log(om24/pow(t, 2));
+                                        w_24[n] = -1.0;
+
+
+		}
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega12),
+                    DATA_PTR(w_12), degree, ndeg, 0.0, DATA_PTR(c_12));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega13),
+                    DATA_PTR(w_13), degree, ndeg, 0.0, DATA_PTR(c_13));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega14),
+                    DATA_PTR(w_14), degree, ndeg, 0.0, DATA_PTR(c_14));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega15),
+                    DATA_PTR(w_15), degree, ndeg, 0.0, DATA_PTR(c_15));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega23),
+                    DATA_PTR(w_23), degree, ndeg, 0.0, DATA_PTR(c_23));
+
+            polyfit(np, DATA_PTR(tlog), DATA_PTR(Omega24),
+                    DATA_PTR(w_24), degree, ndeg, 0.0, DATA_PTR(c_24));
+
+
+
+                tr.omega12_fit.push_back(c_12);
+                tr.omega13_fit.push_back(c_13);
+                tr.omega14_fit.push_back(c_14);
+                tr.omega15_fit.push_back(c_15);
+                tr.omega23_fit.push_back(c_23);
+                tr.omega24_fit.push_back(c_24);
+
+}
+
 }
 
 Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f, int ndim)

@@ -87,6 +87,20 @@ public:
      */
     std::vector<vector_fp> diffcoeffs;
 
+    std::vector<vector_fp> astar;
+    std::vector<vector_fp> bstar;
+    std::vector<vector_fp> omega11_fit;
+    std::vector<vector_fp> omega22_fit;
+
+    std::vector<vector_fp> omega12_fit;
+    std::vector<vector_fp> omega13_fit;
+    std::vector<vector_fp> omega14_fit;
+    std::vector<vector_fp> omega15_fit;
+    std::vector<vector_fp> omega23_fit;
+    std::vector<vector_fp> omega24_fit;
+
+
+
     //!  This is vector of vectors containing the integer lookup value for the (i,j) interaction
     /*!
      *  The outer loop is over a flat (i,j) index that is parameterized on the tr.delta(i,j) value.

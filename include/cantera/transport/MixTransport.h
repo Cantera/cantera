@@ -12,6 +12,8 @@
 
 #include "GasTransport.h"
 #include "cantera/numerics/DenseMatrix.h"
+//#include "TransportAACharChar.h"
+
 
 namespace Cantera
 {
@@ -102,6 +104,11 @@ public:
      */
     virtual doublereal thermalConductivity();
 
+
+    virtual doublereal translationalThermalConductivity();
+    virtual doublereal ElectronTranslationalThermalConductivity();
+
+
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
      *   This function returns the mobilities. In some formulations
@@ -160,6 +167,19 @@ public:
                                   size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
 
+    void getSpeciesFluxesSM(size_t ndim, const doublereal* const grad_T,
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
+
+    void getSpeciesFluxesNeutSM(size_t ndim, const doublereal* const grad_T,
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
+
+    void getSpeciesFluxesSMEamb(size_t ndim, const doublereal* const grad_T,
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal Eamb, doublereal* const fluxes);
+
+
     //! Initialize the transport object
     /*!
      * Here we change all of the internal dimensions to be sufficient.
@@ -202,6 +222,40 @@ private:
      */
     vector_fp m_cond;
 
+
+	vector_fp m_omega12;
+        vector_fp m_omega13;
+        vector_fp m_omega14;
+        vector_fp m_omega15;
+        vector_fp m_omega23;
+        vector_fp m_omega24;
+/*
+    vector_fp Grad_E_fit;
+    vector_fp Grad_N_fit;
+    vector_fp Grad_O_fit;
+    vector_fp Grad_N2_fit;
+    vector_fp Grad_NO_fit;
+    vector_fp Grad_O2_fit;
+    vector_fp Grad_N2p_fit;
+    vector_fp Grad_NOp_fit;
+    vector_fp Grad_Np_fit;
+    vector_fp Grad_O2p_fit;
+    vector_fp Grad_Op_fit;
+*/
+
+    std::vector<vector_fp> Grad_E_fit;
+    std::vector<vector_fp> Grad_N_fit;
+    std::vector<vector_fp> Grad_O_fit;
+    std::vector<vector_fp> Grad_N2_fit;
+    std::vector<vector_fp> Grad_NO_fit;
+    std::vector<vector_fp> Grad_O2_fit;
+    std::vector<vector_fp> Grad_N2p_fit;
+    std::vector<vector_fp> Grad_NOp_fit;
+    std::vector<vector_fp> Grad_Np_fit;
+    std::vector<vector_fp> Grad_O2p_fit;
+    std::vector<vector_fp> Grad_Op_fit;
+
+
     //! Internal storage for the calculated mixture thermal conductivity
     /*!
      *  Units = W /m /K
@@ -220,6 +274,20 @@ public:
     DenseMatrix m_dipole;
     vector_fp m_zrot;
     vector_fp m_crot;
+
+
+	vector_fp alpha;
+	vector_fp beta;
+
+	DenseMatrix V;
+        DenseMatrix H;
+
+        DenseMatrix DIJ;
+        DenseMatrix G;
+
+
+
+
 private:
     //! Debug flag - turns on more printing
     bool m_debug;

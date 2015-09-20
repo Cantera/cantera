@@ -127,4 +127,30 @@ void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 {
     throw NotImplementedError("Transport::getSpeciesFluxes");
 }
+
+
+void Transport::getSpeciesFluxesSM(size_t ndim, const doublereal* const grad_T,
+                                 size_t ldx, const doublereal* const grad_X,
+                                 size_t ldf, doublereal* const fluxes)
+{
+    throw NotImplementedError("Transport::getSpeciesFluxesSM");
+}
+
+
+void Transport::getSpeciesFluxesNeutSM(size_t ndim, const doublereal* const grad_T,
+                                 size_t ldx, const doublereal* const grad_X,
+                                 size_t ldf, doublereal* const fluxes)
+{
+    throw NotImplementedError("Transport::getSpeciesFluxesNeutSM");
+}
+
+
+void Transport::getSpeciesFluxesSMEamb(size_t ndim, const doublereal* const grad_T,
+                                 size_t ldx, const doublereal* const grad_X,
+                                 size_t ldf, doublereal Eamb, doublereal* const fluxes)
+{
+    throw NotImplementedError("Transport::getSpeciesFluxesSMEamb");
+}
+
+
 }

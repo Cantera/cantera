@@ -29,6 +29,8 @@ Phase::Phase() :
     m_mm(0),
     m_elem_type(0)
 {
+
+
 }
 
 Phase::Phase(const Phase& right) :
@@ -47,6 +49,9 @@ Phase::Phase(const Phase& right) :
 {
     // Use the assignment operator to do the actual copying
     operator=(right);
+
+
+
 }
 
 Phase& Phase::operator=(const Phase& right)
@@ -69,6 +74,8 @@ Phase& Phase::operator=(const Phase& right)
     m_stateNum = -1;
 
     m_speciesNames = right.m_speciesNames;
+
+
     m_speciesComp = right.m_speciesComp;
     m_speciesCharge = right.m_speciesCharge;
     m_speciesSize = right.m_speciesSize;
@@ -142,6 +149,9 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
     if (&(m_xml->root()) != root_xml) {
         throw CanteraError("Phase::setXMLdata()", "Root XML node not found");
     }
+
+
+
 }
 
 std::string Phase::id() const
@@ -279,8 +289,48 @@ string Phase::speciesName(size_t k) const
 
 const vector<string>& Phase::speciesNames() const
 {
+
     return m_speciesNames;
 }
+
+
+void  Phase::speciesNamesPositiveIons(std::vector<std::string> &vec, std::vector<int> &vec2)
+{
+	for (size_t k = 0; k < m_kk; k++) {
+            if ( m_speciesCharge[k] > 0 )
+		{
+			vec.push_back(speciesName(k));
+			vec2.push_back(k);
+		}
+	}
+
+}
+
+
+void  Phase::speciesNamesNegativeIons(std::vector<std::string> &vec, std::vector<int> &vec2)
+{
+        for (size_t k = 0; k < m_kk; k++) {
+            if ( m_speciesCharge[k] < 0 )
+                {
+                        vec.push_back(speciesName(k));
+                        vec2.push_back(k);
+                }
+        }
+
+}
+
+void  Phase::speciesNamesNeutrals(std::vector<std::string> &vec, std::vector<int> &vec2)
+{
+        for (size_t k = 0; k < m_kk; k++) {
+            if ( m_speciesCharge[k] == 0 )
+                {
+                        vec.push_back(speciesName(k));
+                        vec2.push_back(k);
+                }
+        }
+
+}
+
 
 void Phase::checkSpeciesIndex(size_t k) const
 {

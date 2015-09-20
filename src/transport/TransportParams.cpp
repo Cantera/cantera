@@ -22,6 +22,8 @@ TransportParams::TransportParams() :
     mode_(0),
     log_level(-1)
 {
+
+
 }
 
 TransportParams::~TransportParams()

@@ -20,6 +20,9 @@ DenseMatrix::DenseMatrix() :
     m_useReturnErrorCode(0),
     m_printLevel(0)
 {
+
+//std::cout << "costructor Dense Matrix" << std::endl;
+
 }
 
 DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
@@ -35,6 +38,11 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
             m_colPts[j] = &(m_data[m_nrows*j]);
         }
     }
+
+//std::cout << "costructor Dense Matrix" << std::endl;
+
+
+
 }
 
 DenseMatrix::DenseMatrix(const DenseMatrix& y) :

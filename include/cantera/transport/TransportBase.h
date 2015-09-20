@@ -248,6 +248,12 @@ public:
         throw NotImplementedError("Transport::viscosity");
     }
 
+
+    virtual doublereal viscosityGY() {
+        throw NotImplementedError("Transport::viscosityGY");
+    }
+
+
     //! Returns the pure species viscosities
     /*!
      *  The units are Pa-s and the length is the number of species
@@ -363,6 +369,16 @@ public:
     virtual doublereal thermalConductivity() {
         throw NotImplementedError("Transport::thermalConductivity");
     }
+
+
+    virtual doublereal translationalThermalConductivity() {
+        throw NotImplementedError("Transport::translationalThermalConductivity");
+    }
+
+    virtual doublereal ElectronTranslationalThermalConductivity() {
+        throw NotImplementedError("Transport::ElectronTranslationalThermalConductivity");
+    }
+
 
     /*!
      * The electrical conductivity (Siemens/m).
@@ -483,6 +499,20 @@ public:
     virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                   size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
+
+
+    virtual void getSpeciesFluxesSM(size_t ndim, const doublereal* const grad_T,
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
+//	{ getSpeciesFluxes(ndim, grad_T, ldx, grad_X, ldf, fluxes);}
+
+    virtual void getSpeciesFluxesNeutSM(size_t ndim, const doublereal* const grad_T,
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal* const fluxes);
+
+    virtual void getSpeciesFluxesSMEamb(size_t ndim, const doublereal* const grad_T,
+                                  size_t ldx, const doublereal* const grad_X,
+                                  size_t ldf, doublereal Eamb, doublereal* const fluxes);
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction, temperature and electrostatic
@@ -717,7 +747,6 @@ public:
     friend class TransportFactory;
 
 protected:
-
     /**
      * @name Transport manager construction
      * These methods are used internally during construction.

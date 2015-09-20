@@ -159,6 +159,7 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
     default:
         throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase", model);
     }
+
 }
 
 std::string eosTypeString(int ieos, int length)
@@ -192,6 +193,8 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
 
 ThermoPhase* newPhase(const std::string& infile, std::string id)
 {
+
+
     XML_Node* root = get_XML_File(infile);
     if (id == "-") {
         id = "";
@@ -201,6 +204,9 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
         throw CanteraError("newPhase",
                            "Couldn't find phase named \"" + id + "\" in file, " + infile);
     }
+
+
+
     return newPhase(*xphase);
 }
 
@@ -314,6 +320,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
             }
         }
     }
+
 }
 
 bool importPhase(XML_Node& phase, ThermoPhase* th,
@@ -519,6 +526,40 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     // that requires the XML phase object
     std::string id = "";
     th->initThermoXML(phase, id);
+
+
+        th->speciesNamesPositiveIons(th->spPos, th->spPosIndex);
+        th->speciesNamesNegativeIons(th->spNeg, th->spNegIndex);
+        th->speciesNamesNeutrals(th->spNeut, th->spNeutIndex);
+
+           int ic = 0;
+           for (int i = 0; i < th->nSpecies(); i++) {
+              for (int j = i; j < th->nSpecies(); j++) {
+
+                if ( (th->charge(i) == 0) and (th->charge(j) == 0) )
+                {th->indexNeutNeut.push_back(ic);}
+
+                else if ( (th->charge(i) == 0) and (th->charge(j) > 0) )
+                {th->indexNeutPos.push_back(ic);}
+
+                else if ( (th->charge(i) == 0) and (th->charge(j) < 0) )
+                {th->indexNeutNeg.push_back(ic);}
+
+                else if ( (th->charge(i) > 0) and (th->charge(j) > 0) )
+                {th->indexPosPos.push_back(ic);}
+
+                else if ( (th->charge(i) > 0) and (th->charge(j) < 0) )
+                {th->indexPosNeg.push_back(ic);}
+
+                else if ( (th->charge(i) < 0) and (th->charge(j) < 0) )
+                {th->indexNegNeg.push_back(ic);}
+
+
+                ic++;
+              }
+
+
+           }
 
     return true;
 }

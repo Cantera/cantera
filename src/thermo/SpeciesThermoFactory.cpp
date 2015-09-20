@@ -96,6 +96,7 @@ static void getSpeciesThermoTypes(std::vector<XML_Node*> & spDataNodeList,
                                spNode->attrib("name") + " is missing the thermo XML node");
         }
     }
+
 }
 
 //! Static method to return an instance of this class

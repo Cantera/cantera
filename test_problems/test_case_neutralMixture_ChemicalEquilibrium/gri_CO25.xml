@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase gri30     -->
+  <phase dim="3" id="gri30">
+    <elementArray datasrc="elements.xml"> C O </elementArray>
+    <speciesArray datasrc="#species_data">
+      C O CO CO2 O2   </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- phase gri30_mix     -->
+  <phase dim="3" id="gri30_mix">
+    <elementArray datasrc="elements.xml"> C O </elementArray>
+    <speciesArray datasrc="#species_data">
+      C O CO CO2 O2  </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="Mix"/>
+  </phase>
+
+  <!-- phase gri30_multi     -->
+  <phase dim="3" id="gri30_multi">
+    <elementArray datasrc="elements.xml"> C O </elementArray>
+    <speciesArray datasrc="#species_data">
+      C O CO CO2 O2  </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="Multi"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+
+
+    <!-- species O    -->
+    <species name="O">
+      <atomArray>O:1 </atomArray>
+      <charge>0</charge>
+      <note>L 1/90</note>
+      <thermo>
+	<NASA9 Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -7.953611300E+03,   1.607177787E+02,   1.966226438E+00,   1.013670310E-03,
+             -1.110415423E-06,   6.517507500E-10,  -1.584779251E-13,   2.840362437E+04,
+             8.404241820E+00</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             2.619020262E+05,  -7.298722030E+02,   3.317177270E+00,  -4.281334360E-04,
+             1.036104594E-07,  -9.438304330E-12,   2.725038297E-16,   3.392428060E+04,
+             -6.679585350E-01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             1.779004264E+08,  -1.082328257E+05,   2.810778365E+01,  -2.975232262E-03,
+             1.854997534E-07,  -5.796231540E-12,   7.191720164E-17,   8.890942630E+05,
+             -2.181728151E+02</floatArray>
+        </NASA9>
+      </thermo>
+      <transport model="gas_transport">
+        <string title="geometry">atom</string>
+        <LJ_welldepth units="K">80.000</LJ_welldepth>
+        <LJ_diameter units="A">2.750</LJ_diameter>
+        <dipoleMoment units="Debye">0.000</dipoleMoment>
+        <polarizability units="A3">0.000</polarizability>
+        <rotRelax>0.000</rotRelax>
+        <acentric_factor>0.000</acentric_factor>
+      </transport>
+    </species>
+
+    <!-- species O2    -->
+    <species name="O2">
+      <atomArray>O:2 </atomArray>
+      <charge>0</charge>
+      <note>TPIS89</note>
+      <thermo>
+	<NASA9 Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -3.425563420E+04,   4.847000970E+02,   1.119010961E+00,   4.293889240E-03,
+             -6.836300520E-07,  -2.023372700E-09,   1.039040018E-12,  -3.391454870E+03,
+             1.849699470E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             -1.037939022E+06,   2.344830282E+03,   1.819732036E+00,   1.267847582E-03,
+             -2.188067988E-07,   2.053719572E-11,  -8.193467050E-16,  -1.689010929E+04,
+             1.738716506E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmax="20000.0" Tmin="6000.0" P0="100000.0">
+           <floatArray name="coeffs" size="9">
+             4.975294300E+08,  -2.866106874E+05,   6.690352250E+01,  -6.169959020E-03,
+             3.016396027E-07,  -7.421416600E-12,   7.278175770E-17,   2.293554027E+06,
+             -5.530621610E+02</floatArray>
+        </NASA9>
+      </thermo>
+      <transport model="gas_transport">
+        <string title="geometry">linear</string>
+        <LJ_welldepth units="K">107.400</LJ_welldepth>
+        <LJ_diameter units="A">3.460</LJ_diameter>
+        <dipoleMoment units="Debye">0.000</dipoleMoment>
+        <polarizability units="A3">1.600</polarizability>
+        <rotRelax>3.800</rotRelax>
+        <acentric_factor>0.000</acentric_factor>
+      </transport>
+    </species>
+
+
+    <!-- species C    -->
+    <species name="C">
+      <atomArray>C:1 </atomArray>
+      <charge>0</charge>
+      <note>L11/88</note>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.554239550E+00,  -3.215377240E-04,   7.337922450E-07,  -7.322348890E-10, 
+             2.665214460E-13,   8.544388320E+04,   4.531308480E+00</floatArray>
+        </NASA>
+        <NASA Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.605582980E+00,  -1.959343350E-04,   1.067372190E-07,  -1.642393900E-11, 
+             8.187057520E-16,   8.541294430E+04,   4.192386810E+00</floatArray>
+        </NASA>
+      </thermo>
+      <transport model="gas_transport">
+        <string title="geometry">atom</string>
+        <LJ_welldepth units="K">71.400</LJ_welldepth>
+        <LJ_diameter units="A">3.300</LJ_diameter>
+        <dipoleMoment units="Debye">0.000</dipoleMoment>
+        <polarizability units="A3">0.000</polarizability>
+        <rotRelax>0.000</rotRelax>
+        <acentric_factor>0.000</acentric_factor>
+      </transport>
+    </species>
+
+
+    <!-- species CO    -->
+    <species name="CO">
+      <atomArray>C:1 O:1 </atomArray>
+      <charge>0</charge>
+      <note>TPIS79</note>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             3.579533470E+00,  -6.103536800E-04,   1.016814330E-06,   9.070058840E-10, 
+             -9.044244990E-13,  -1.434408600E+04,   3.508409280E+00</floatArray>
+        </NASA>
+        <NASA Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             3.048485830E+00,   1.351728180E-03,  -4.857940750E-07,   7.885364860E-11, 
+             -4.698074890E-15,  -1.426611710E+04,   6.017097900E+00</floatArray>
+        </NASA>
+      </thermo>
+      <transport model="gas_transport">
+        <string title="geometry">linear</string>
+        <LJ_welldepth units="K">98.100</LJ_welldepth>
+        <LJ_diameter units="A">3.650</LJ_diameter>
+        <dipoleMoment units="Debye">0.000</dipoleMoment>
+        <polarizability units="A3">1.950</polarizability>
+        <rotRelax>1.800</rotRelax>
+        <acentric_factor>0.000</acentric_factor>
+      </transport>
+    </species>
+
+    <!-- species CO2    -->
+    <species name="CO2">
+      <atomArray>C:1 O:2 </atomArray>
+      <charge>0</charge>
+      <note>L 7/88</note>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             2.356773520E+00,   8.984596770E-03,  -7.123562690E-06,   2.459190220E-09, 
+             -1.436995480E-13,  -4.837196970E+04,   9.901052220E+00</floatArray>
+        </NASA>
+        <NASA Tmax="6000.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             4.636594930E+00,   2.741319910E-03,  -9.958285310E-07,   1.603730110E-10, 
+             -9.161034680E-15,  -4.902493410E+04,  -1.935348550E+00</floatArray>
+        </NASA>
+      </thermo>
+      <transport model="gas_transport">
+        <string title="geometry">linear</string>
+        <LJ_welldepth units="K">244.000</LJ_welldepth>
+        <LJ_diameter units="A">3.760</LJ_diameter>
+        <dipoleMoment units="Debye">0.000</dipoleMoment>
+        <polarizability units="A3">2.650</polarizability>
+        <rotRelax>2.100</rotRelax>
+        <acentric_factor>0.000</acentric_factor>
+      </transport>
+    </species>
+
+
+
+
+
+  </speciesData>
+  <reactionData id="reaction_data">
+
+
+    <!-- reaction 0001    -->
+    <reaction reversible="yes" id="0031">
+      <equation>O2 + CO [=] O + CO2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>2.500000E+09</A>
+           <b>0</b>
+           <E units="cal/mol">47800.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CO:1 O2:1.0</reactants>
+      <products>CO2:1 O:1.0</products>
+    </reaction>
+
+  </reactionData>
+</ctml>
