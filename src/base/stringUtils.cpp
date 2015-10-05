@@ -18,6 +18,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/utilities.h"
 
 #include <sstream>
 #include <cstdio>
@@ -154,6 +155,10 @@ compositionMap parseCompString(const std::string& ss,
         if (!names.empty() && x.find(name) == x.end()) {
             throw CanteraError("parseCompString",
                 "unknown species '" + name + "'");
+        }
+        if (getValue(x, name, 0.0) != 0.0) {
+            throw CanteraError("parseCompString",
+                               "Duplicate key: '" + name + "'.");
         }
         x[name] = fpValueCheck(ss.substr(valstart, stop-colon-1));
         start = ss.find_first_not_of(", ;\n\t", stop+1);

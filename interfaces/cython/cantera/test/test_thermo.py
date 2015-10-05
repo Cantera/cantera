@@ -133,6 +133,10 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.X = 'H2:1e-1.4'
         self.assertArrayNear(X0, self.phase.X)
 
+        with self.assertRaises(Exception):
+            self.phase.X = 'H2:0.5, O2:1.0, H2:0.1'
+        self.assertArrayNear(X0, self.phase.X)
+
     def test_setCompositionDict(self):
         self.phase.X = {b'H2':1.0, b'O2':3.0}
         X = self.phase.X
