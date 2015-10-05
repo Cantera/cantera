@@ -28,12 +28,6 @@ ReactorNet::ReactorNet() :
 
 ReactorNet::~ReactorNet()
 {
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        if (m_iown[n]) {
-            delete m_reactors[n];
-        }
-        m_reactors[n] = 0;
-    }
     delete m_integ;
 }
 
@@ -142,7 +136,6 @@ void ReactorNet::addReactor(Reactor& r)
 {
     r.setNetwork(this);
     m_reactors.push_back(&r);
-    m_iown.push_back(false);
 }
 
 void ReactorNet::eval(doublereal t, doublereal* y,

@@ -269,8 +269,6 @@ protected:
     std::vector<size_t> m_sensIndex;
 
     vector_fp m_ydot;
-
-    std::vector<bool> m_iown;
 };
 }
 
