@@ -658,11 +658,14 @@ void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
     if (phaseNode.hasChild("state")) {
         setStateFromXML(phaseNode.child("state"));
     }
-    setReferenceComposition(0);
+    xMol_Ref.resize(m_kk);
+    getMoleFractions(&xMol_Ref[0]);
 }
 
 void ThermoPhase::setReferenceComposition(const doublereal* const x)
 {
+    warn_deprecated("ThermoPhase::setReferenceComposition",
+        "To be removed after Cantera 2.3.");
     xMol_Ref.resize(m_kk);
     if (x) {
         copy(x, x + m_kk, xMol_Ref.begin());
@@ -678,6 +681,8 @@ void ThermoPhase::setReferenceComposition(const doublereal* const x)
 
 void ThermoPhase::getReferenceComposition(doublereal* const x) const
 {
+    warn_deprecated("ThermoPhase::getReferenceComposition",
+        "To be removed after Cantera 2.3.");
     copy(xMol_Ref.begin(), xMol_Ref.end(), x);
 }
 

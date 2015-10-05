@@ -754,6 +754,7 @@ public:
      *  @param x   Mole fraction vector to set the reference composition to.
      *             If this is zero, then the reference mole fraction
      *             is set to the current mole fraction vector.
+     *  @deprecated Unused. To be removed after Cantera 2.3.
      */
     virtual void setReferenceComposition(const doublereal* const x);
 
@@ -761,6 +762,7 @@ public:
     /*!
      *  The reference mole fraction is a safe mole fraction.
      *  @param x   Mole fraction vector containing the reference composition.
+     *  @deprecated Unused. To be removed after Cantera 2.3.
      */
     virtual void getReferenceComposition(doublereal* const x) const;
 
@@ -1643,6 +1645,7 @@ protected:
      *  the object to. This contains such a vector.
      *  The algorithm will pick up the mole fraction vector that is applied from
      *  the state XML file in the input file
+     *  @deprecated To be removed after Cantera 2.3.
      */
     vector_fp xMol_Ref;
 
