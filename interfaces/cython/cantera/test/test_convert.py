@@ -274,6 +274,16 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertArrayNear(R[:,1], [1, 0, 0, 1])
         self.assertArrayNear(P[:,1], [0, 0.33, 1.67, 0])
 
+    def test_photon(self):
+        convertMech('../data/photo-reaction.inp',
+                    thermoFile='../data/dummy-thermo.dat',
+                    outName='photo-reaction.cti', quiet=True,
+                    permissive=True)
+
+        ref, gas = self.checkConversion('../data/photo-reaction.xml',
+                                        'photo-reaction.cti')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
     def test_transport_normal(self):
         convertMech('../../data/inputs/h2o2.inp',
                     transportFile='../../data/transport/gri30_tran.dat',

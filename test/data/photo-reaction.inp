@@ -1,0 +1,9 @@
+ELEM  H  C END
+
+SPECIES
+R1A
+END
+
+REACTIONS
+R1A = R1A + HV          1.0E18   -2.0   1000
+END

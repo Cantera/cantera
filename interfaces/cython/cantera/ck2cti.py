@@ -1056,7 +1056,8 @@ class Parser(object):
             self.species_tokens.update(k + next_char for k in self.speciesDict)
         self.other_tokens = {'M': 'third-body', 'm': 'third-body',
                              '(+M)': 'falloff3b', '(+m)': 'falloff3b',
-                             '<=>': 'equal', '=>': 'equal', '=': 'equal'}
+                             '<=>': 'equal', '=>': 'equal', '=': 'equal',
+                             'HV': 'photon', 'hv': 'photon'}
         self.other_tokens.update(('(+%s)' % k, 'falloff3b: %s' % k) for k in self.speciesDict)
         self.Slen = max(map(len, self.other_tokens))
 
@@ -1160,6 +1161,7 @@ class Parser(object):
         def parseExpression(expression, dest):
             falloff3b = None
             thirdBody = False  # simple third body reaction (non-falloff)
+            photon = False
             for stoichiometry,species,kind in expression:
                 if kind == 'third-body':
                     thirdBody = True
@@ -1167,17 +1169,29 @@ class Parser(object):
                     falloff3b = 'M'
                 elif kind.startswith('falloff3b:'):
                     falloff3b = kind.split()[1]
+                elif kind == 'photon':
+                    photon = True
                 else:
                     dest.append((stoichiometry, self.speciesDict[species]))
 
-            return falloff3b, thirdBody
+            return falloff3b, thirdBody, photon
 
-        falloff_3b_r, thirdBody = parseExpression(reactants, reaction.reactants)
-        falloff_3b_p, thirdBody = parseExpression(products, reaction.products)
+        falloff_3b_r, thirdBody, photon_r = parseExpression(reactants, reaction.reactants)
+        falloff_3b_p, thirdBody, photon_p = parseExpression(products, reaction.products)
 
         if falloff_3b_r != falloff_3b_p:
             raise InputParseError('Third bodies do not match: "{0}" and "{1}" in'
                 ' reaction entry:\n\n{2}'.format(falloff_3b_r, falloff_3b_p, entry))
+
+        if photon_r:
+            raise InputParseError('Reactant photon not supported. '
+                                  'Found in reaction:\n{0}'.format(entry.strip()))
+        if photon_p and reversible:
+            self.warn('Found reversible reaction containing a product photon:'
+                '\n{0}\nIf the "--permissive" option was specified, this will '
+                'be converted to an irreversible reaction with the photon '
+                'removed.'.format(entry.strip()))
+            reaction.reversible = False
 
         reaction.thirdBody = falloff_3b_r
 
