@@ -342,7 +342,8 @@ class chemkinConverterTest(utilities.CanteraTest):
     def test_reaction_comments1(self):
         convertMech('../data/pdep-test.inp',
                     outName='pdep_test.cti', quiet=True)
-        text = open('pdep_test.cti').read()
+        with open('pdep_test.cti') as f:
+            text = f.read()
         self.assertIn('Generic mechanism header', text)
         self.assertIn('Single PLOG reaction', text)
         self.assertIn('PLOG with duplicate rates and negative A-factors', text)
@@ -351,7 +352,8 @@ class chemkinConverterTest(utilities.CanteraTest):
         convertMech('../data/explicit-third-bodies.inp',
                     thermoFile='../data/dummy-thermo.dat',
                     outName='explicit_third_bodies.cti', quiet=True)
-        text = open('explicit_third_bodies.cti').read()
+        with open('explicit_third_bodies.cti') as f:
+            text = f.read()
         self.assertIn('An end of line comment', text)
         self.assertIn('A comment after the last reaction', text)
 

@@ -1876,8 +1876,8 @@ class Parser(object):
 
             lines.append('')
 
-        f = open(outName, 'w')
-        f.write('\n'.join(lines))
+        with open(outName, 'w') as f:
+            f.write('\n'.join(lines))
 
     def showHelp(self):
         print("""
@@ -1954,7 +1954,8 @@ duplicate transport data) to be ignored.
         if transportFile:
             if not os.path.exists(transportFile):
                 raise IOError('Missing transport file: {0!r}'.format(transportFile))
-            lines = [strip_nonascii(line) for line in open(transportFile, 'rU')]
+            with open(transportFile, 'rU') as f:
+                lines = [strip_nonascii(line) for line in f]
             self.parseTransportData(lines, transportFile, 1)
 
             # Transport validation: make sure all species have transport data

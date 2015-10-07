@@ -633,13 +633,15 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(eq1, eq2)
 
     def test_listFromCti(self):
-        R = ct.Reaction.listFromCti(open('../../build/data/h2o2.cti').read())
+        with open('../../build/data/h2o2.cti') as f:
+            R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromXml(self):
-        R = ct.Reaction.listFromCti(open('../../build/data/h2o2.xml').read())
+        with open('../../build/data/h2o2.xml') as f:
+            R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)

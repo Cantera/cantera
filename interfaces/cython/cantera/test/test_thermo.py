@@ -858,13 +858,15 @@ class TestSpecies(utilities.CanteraTest):
                          set(self.gas.species_names))
 
     def test_listFromCti(self):
-        S = ct.Species.listFromCti(open('../../build/data/h2o2.cti').read())
+        with open('../../build/data/h2o2.cti') as f:
+            S = ct.Species.listFromCti(f.read())
 
         self.assertEqual({sp.name for sp in S},
                          set(self.gas.species_names))
 
     def test_listFromXml(self):
-        S = ct.Species.listFromXml(open('../../build/data/h2o2.xml').read())
+        with open('../../build/data/h2o2.xml') as f:
+            S = ct.Species.listFromXml(f.read())
 
         self.assertEqual({sp.name for sp in S},
                          set(self.gas.species_names))
