@@ -475,7 +475,6 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
       }
     }
 }
-
   
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
 {
