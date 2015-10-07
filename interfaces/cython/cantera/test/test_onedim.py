@@ -360,7 +360,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech='h2o2.xml')
         self.sim.write_csv(filename)
-        data = np.genfromtxt(filename, delimiter=',', skiprows=1)
+        data = np.genfromtxt(filename, delimiter=',', skip_header=1)
         self.assertArrayNear(data[:,0], self.sim.grid)
         self.assertArrayNear(data[:,3], self.sim.T)
         k = self.gas.species_index('H2')

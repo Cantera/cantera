@@ -72,16 +72,17 @@ if sys.version_info[0] == 2:
     def strip_nonascii(s):
         return s.decode('ascii', 'ignore')
 
-    def open(filename, *args):
-        return _open(filename, *args)
+    def open(filename, mode, *args):
+        return _open(filename, mode, *args)
 
 else:
     string_types = (str,)
     def strip_nonascii(s):
         return s.encode('ascii', 'ignore').decode()
 
-    def open(filename, *args):
-        return _open(filename, *args, errors='ignore')
+    def open(filename, mode, *args):
+        mode = mode.replace('U', '')
+        return _open(filename, mode, *args, errors='ignore')
 
 
 def compatible_quantities(quantity_basis, units):
