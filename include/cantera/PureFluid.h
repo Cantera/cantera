@@ -8,6 +8,7 @@
 namespace Cantera
 {
 
+//! Wrapper for PureFluidPhase with constructor from file
 class PureFluid : public PureFluidPhase
 {
 public:
