@@ -432,6 +432,16 @@ private:
      */
     void s_update_dlnActCoeff_dX_() const;
 
+    //! Internal routine that calculates the total derivative of the activity
+    //! coefficients with respect to the log of the mole fractions.
+    /*!
+     * This function will be called to update the internally stored vector of
+     * the total derivatives (i.e. not assuming other mole fractions are
+     * constant) of the natural logarithm of the activity coefficients with
+     * respect to the log of the mole fraction.
+     */
+    void s_update_dlnActCoeff_dlnX_diag() const;
+
 public:
     //! Utility routine that calculates a literature expression
     /*!

@@ -383,6 +383,56 @@ void RedlichKisterVPSSTP::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
     }
 }
 
+void RedlichKisterVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
+{
+    double T = temperature();
+    dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
+
+    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+      size_t iA =  m_pSpecies_A_ij[i];
+      size_t iB =  m_pSpecies_B_ij[i];
+      double XA = moleFractions_[iA];
+      double XB = moleFractions_[iB];
+      double deltaX = XA - XB;
+      size_t N = m_N_ij[i];
+      double poly = 1.0;
+      double sum = 0.0;
+      vector_fp& he_vec = m_HE_m_ij[i];
+      vector_fp& se_vec = m_SE_m_ij[i];
+      double sumMm1 = 0.0;
+      double polyMm1 = 1.0;
+      double polyMm2 = 1.0;
+      double sumMm2 = 0.0;
+      for (size_t m = 0; m < N; m++) {
+          double A_ge = (he_vec[m] -  T * se_vec[m]) / (GasConstant * T);;
+          sum += A_ge * poly;
+          poly *= deltaX;
+          if (m >= 1) {
+              sumMm1  += (A_ge * polyMm1 * m);
+              polyMm1 *= deltaX;
+          }
+          if (m >= 2) {
+              sumMm2 += (A_ge * polyMm2 * m * (m - 1.0));
+              polyMm2 *= deltaX;
+          }
+      }
+
+      for (size_t k = 0; k < m_kk; k++) {
+          if (iA == k) {
+              dlnActCoeffdlnX_diag_[k] +=
+                  XA * (- (1-XA+XB) * sum + 2*(1.0 - XA) * XB * sumMm1
+                        + sumMm1 * (XB * (1 - 2*XA + XB) - XA * (1 - XA + 2*XB))
+                        + 2 * XA * XB * sumMm2 * (1.0 - XA + XB));
+          } else  if (iB == k) {
+              dlnActCoeffdlnX_diag_[k] +=
+                  XB * (- (1-XB+XA) * sum - 2*(1.0 - XB) * XA * sumMm1
+                        + sumMm1 * (XA * (2*XB - XA - 1) - XB * (-2*XA + XB - 1))
+                        - 2 * XA * XB * sumMm2 * (-XA - 1 + XB));
+          }
+      }
+    }
+}
+
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
 {
     doublereal T = temperature();
@@ -472,7 +522,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_di
 
 void RedlichKisterVPSSTP::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
 {
-    s_update_dlnActCoeff_dX_();
+    s_update_dlnActCoeff_dlnX_diag();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffdlnX_diag[k] = dlnActCoeffdlnX_diag_[k];
     }
