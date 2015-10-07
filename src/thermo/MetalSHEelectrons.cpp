@@ -24,44 +24,29 @@ namespace Cantera
  * ----  Constructors -------
  */
 
-MetalSHEelectrons::MetalSHEelectrons():
-    xdef_(0)
+MetalSHEelectrons::MetalSHEelectrons()
 {
 }
 
-MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, const std::string& id_) :
-    xdef_(0)
+MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, const std::string& id_)
 {
     initThermoFile(infile, id_);
 }
 
-MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_) :
-    xdef_(0)
+MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 {
     importPhase(xmlphase, this);
 }
 
-MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons& right) :
-    xdef_(0)
+MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons& right)
 {
     operator=(right);
-}
-
-MetalSHEelectrons::~MetalSHEelectrons()
-{
-    delete xdef_;
 }
 
 MetalSHEelectrons& MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
 {
     if (&right != this) {
         SingleSpeciesTP::operator=(right);
-    }
-
-    delete xdef_;
-    if(right.xdef_)
-    {
-      xdef_ = new XML_Node(*right.xdef_);
     }
 
     return *this;

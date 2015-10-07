@@ -211,9 +211,6 @@ public:
      */
     MetalSHEelectrons& operator=(const MetalSHEelectrons& right);
 
-    //! Destructor for the routine
-    virtual ~MetalSHEelectrons();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the
@@ -457,9 +454,6 @@ public:
      * @endcode
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
-
-protected:
-    XML_Node* xdef_;
 };
 
 }
