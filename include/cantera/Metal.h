@@ -8,6 +8,7 @@
 namespace Cantera
 {
 
+//! Wrapper for MetalPhase with constructor from file
 class Metal : public MetalPhase
 {
 public:

@@ -8,6 +8,7 @@
 namespace Cantera
 {
 
+//! Wrapper for ConstDensityThermo with constructor from file
 class IncompressibleSolid : public ConstDensityThermo
 {
 public:

@@ -10,6 +10,7 @@
 namespace Cantera
 {
 
+//! Convenience class which inherits from both IdealGasPhase and GasKinetics
 class IdealGasMix :
     public IdealGasPhase,
     public GasKinetics

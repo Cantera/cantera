@@ -9,6 +9,7 @@
 namespace Cantera
 {
 
+//! Convenience class which inherits from both EdgePhase and EdgeKinetics
 class Edge :
     public EdgePhase, public EdgeKinetics
 {
