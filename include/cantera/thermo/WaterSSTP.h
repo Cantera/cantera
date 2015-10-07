@@ -12,6 +12,7 @@
 #define CT_WATERSSTP_H
 
 #include "SingleSpeciesTP.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
 
 namespace Cantera
 {
@@ -417,7 +418,7 @@ public:
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterPropsIAPWS* getWater() {
-        return m_sub;
+        return &m_sub;
     }
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
@@ -434,9 +435,8 @@ protected:
     void _updateThermo() const;
 
 private:
-    //! Pointer to the WaterPropsIAPWS that calculates the real properties
-    //! of water.
-    mutable WaterPropsIAPWS* m_sub;
+    //! WaterPropsIAPWS that calculates the real properties of water.
+    mutable WaterPropsIAPWS m_sub;
 
     //! Pointer to the WaterProps object
     /*!
