@@ -167,9 +167,6 @@ public:
     //! assignment constructor
     WaterPropsIAPWS& operator=(const WaterPropsIAPWS& right);
 
-    //! destructor
-    ~WaterPropsIAPWS();
-
     //! Set the internal state of the object wrt temperature and density
     /*!
      * @param temperature   temperature (kelvin)
@@ -446,7 +443,7 @@ private:
                doublereal& densGas, doublereal& pcorr);
 
     //! pointer to the underlying object that does the calculations.
-    WaterPropsIAPWSphi* m_phi;
+    mutable WaterPropsIAPWSphi m_phi;
 
     //! Dimensionless temperature
     /*!
