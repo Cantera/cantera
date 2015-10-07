@@ -20,7 +20,6 @@ namespace Cantera
 {
 
 PureFluidPhase::PureFluidPhase() :
-    m_sub(0),
     m_subflag(0),
     m_mw(-1.0),
     m_verbose(false)
@@ -28,7 +27,6 @@ PureFluidPhase::PureFluidPhase() :
 }
 
 PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
-    m_sub(0),
     m_subflag(0),
     m_mw(-1.0),
     m_verbose(false)
@@ -40,9 +38,8 @@ PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
 {
     if (&right != this) {
         ThermoPhase::operator=(right);
-        delete m_sub;
         m_subflag = right.m_subflag;
-        m_sub = tpx::GetSub(m_subflag);
+        m_sub.reset(tpx::GetSub(m_subflag));
         m_mw = right.m_mw;
         m_verbose = right.m_verbose;
     }
@@ -54,16 +51,10 @@ ThermoPhase* PureFluidPhase::duplMyselfAsThermoPhase() const
     return new PureFluidPhase(*this);
 }
 
-PureFluidPhase::~PureFluidPhase()
-{
-    delete m_sub;
-}
-
 void PureFluidPhase::initThermo()
 {
-    delete m_sub;
-    m_sub = tpx::GetSub(m_subflag);
-    if (m_sub == 0) {
+    m_sub.reset(tpx::GetSub(m_subflag));
+    if (!m_sub) {
         throw CanteraError("PureFluidPhase::initThermo",
                            "could not create new substance object.");
     }

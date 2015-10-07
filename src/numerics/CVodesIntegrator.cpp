@@ -114,7 +114,6 @@ CVodesIntegrator::CVodesIntegrator() :
     m_hmin(0.0),
     m_maxsteps(20000),
     m_maxErrTestFails(0),
-    m_fdata(0),
     m_np(0),
     m_mupper(0), m_mlower(0),
     m_sens_ok(false)
@@ -135,7 +134,6 @@ CVodesIntegrator::~CVodesIntegrator()
     if (m_abstol) {
         N_VDestroy_Serial(m_abstol);
     }
-    delete m_fdata;
 }
 
 double& CVodesIntegrator::solution(size_t k)
@@ -328,10 +326,9 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
 
     // pass a pointer to func in m_data
-    delete m_fdata;
-    m_fdata = new FuncData(&func, func.nparams());
+    m_fdata.reset(new FuncData(&func, func.nparams()));
 
-    flag = CVodeSetUserData(m_cvode_mem, (void*)m_fdata);
+    flag = CVodeSetUserData(m_cvode_mem, m_fdata.get());
     if (flag != CV_SUCCESS) {
         throw CVodesErr("CVodeSetUserData failed.");
     }

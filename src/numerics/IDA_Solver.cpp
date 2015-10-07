@@ -145,7 +145,6 @@ IDA_Solver::IDA_Solver(ResidJacEval& f) :
     m_maxNonlinIters(0),
     m_maxNonlinConvFails(-1),
     m_setSuppressAlg(0),
-    m_fdata(0),
     m_mupper(0),
     m_mlower(0)
 {
@@ -168,7 +167,6 @@ IDA_Solver::~IDA_Solver()
     if (m_constraints) {
         N_VDestroy_Serial(m_constraints);
     }
-    delete m_fdata;
 }
 
 doublereal IDA_Solver::solution(int k) const
@@ -400,8 +398,8 @@ void IDA_Solver::init(doublereal t0)
     }
 
     // pass a pointer to func in m_data
-    m_fdata = new ResidData(&m_resid, this, m_resid.nparams());
-    flag = IDASetUserData(m_ida_mem, (void*)m_fdata);
+    m_fdata.reset(new ResidData(&m_resid, this, m_resid.nparams()));
+    flag = IDASetUserData(m_ida_mem, m_fdata.get());
     if (flag != IDA_SUCCESS) {
         throw IDA_Err("IDASetUserData failed.");
     }

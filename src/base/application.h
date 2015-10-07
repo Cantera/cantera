@@ -51,7 +51,6 @@ protected:
 
         Messages(const Messages& r);
         Messages& operator=(const Messages& r);
-        ~Messages();
 
         //! Set an error condition in the application class without
         //! throwing an exception.
@@ -152,7 +151,7 @@ protected:
         std::vector<std::string> errorRoutine;
 
         //! Current pointer to the logwriter
-        Logger* logwriter;
+        std::unique_ptr<Logger> logwriter;
     };
 
 #ifdef THREAD_SAFE_CANTERA

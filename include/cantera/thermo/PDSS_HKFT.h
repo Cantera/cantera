@@ -347,7 +347,7 @@ private:
     mutable doublereal m_densWaterSS;
 
     //!  Pointer to the water property calculator
-    WaterProps* m_waterProps;
+    std::unique_ptr<WaterProps> m_waterProps;
 
     //! Born coefficient for the current ion or species
     doublereal m_born_coeff_j;

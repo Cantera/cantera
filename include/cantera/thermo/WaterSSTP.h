@@ -13,6 +13,7 @@
 
 #include "SingleSpeciesTP.h"
 #include "cantera/thermo/WaterPropsIAPWS.h"
+#include "cantera/thermo/WaterProps.h"
 
 namespace Cantera
 {
@@ -147,9 +148,6 @@ public:
      * @param id        string id of the phase name
      */
     explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
-
-    //! Destructor
-    virtual ~WaterSSTP();
 
     //! Duplicator from a ThermoPhase object
     ThermoPhase* duplMyselfAsThermoPhase() const;
@@ -423,7 +421,7 @@ public:
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterProps* getWaterProps() {
-        return m_waterProps;
+        return m_waterProps.get();
     }
 
 protected:
@@ -446,7 +444,7 @@ private:
      * This object owns m_waterProps, and the WaterPropsIAPWS object used by
      * WaterProps is m_sub, which is defined above.
      */
-    WaterProps* m_waterProps;
+    std::unique_ptr<WaterProps> m_waterProps;
 
     //! Molecular weight of Water -> Cantera assumption
     doublereal m_mw;

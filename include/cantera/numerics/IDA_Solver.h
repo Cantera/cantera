@@ -296,7 +296,7 @@ protected:
     //! If true, the algebraic variables don't contribute to error tolerances
     int m_setSuppressAlg;
 
-    ResidData* m_fdata;
+    std::unique_ptr<ResidData> m_fdata;
     int m_mupper;
     int m_mlower;
 };

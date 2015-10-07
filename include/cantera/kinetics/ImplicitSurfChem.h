@@ -11,10 +11,10 @@
 
 #include "cantera/numerics/Integrator.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/kinetics/solveSP.h"
 
 namespace Cantera
 {
-class solveSP;
 
 //! Advances the surface coverages of the associated set of SurfacePhase
 //! objects in time
@@ -63,10 +63,7 @@ public:
      */
     ImplicitSurfChem(std::vector<InterfaceKinetics*> k);
 
-    /**
-     * Destructor. Deletes the integrator.
-     */
-    virtual ~ImplicitSurfChem();
+    virtual ~ImplicitSurfChem() {};
 
     /*!
      *  Must be called before calling method 'advance'
@@ -245,7 +242,7 @@ protected:
 
     std::vector<vector_int> pLocVec;
     //! Pointer to the CVODE integrator
-    Integrator* m_integ;
+    std::unique_ptr<Integrator> m_integ;
     doublereal m_atol, m_rtol; // tolerances
     doublereal m_maxstep; //!< max step size
     vector_fp m_work;
@@ -279,7 +276,7 @@ protected:
      * Pointer to the helper method, Placid, which solves the
      * surface problem.
      */
-    solveSP* m_surfSolver;
+    std::unique_ptr<solveSP> m_surfSolver;
 
     //! If true, a common temperature and pressure for all
     //! surface and bulk phases associated with the surface problem

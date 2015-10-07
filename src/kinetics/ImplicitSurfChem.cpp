@@ -21,14 +21,12 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
     m_numBulkPhases(0),
     m_numTotalBulkSpecies(0),
     m_numTotalSpecies(0),
-    m_integ(0),
     m_atol(1.e-14),
     m_rtol(1.e-7),
     m_maxstep(0.0),
     m_mediumSpeciesStart(-1),
     m_bulkSpeciesStart(-1),
     m_surfSpeciesStart(-1),
-    m_surfSolver(0),
     m_commonTempPressForPhases(true),
     m_ioFlag(0)
 {
@@ -79,7 +77,7 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
     m_concSpecies.resize(m_numTotalSpecies, 0.0);
     m_concSpeciesSave.resize(m_numTotalSpecies, 0.0);
 
-    m_integ = newIntegrator("CVODE");
+    m_integ.reset(newIntegrator("CVODE"));
 
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator
@@ -99,12 +97,6 @@ int ImplicitSurfChem::checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* t
         }
     }
     return retn;
-}
-
-ImplicitSurfChem::~ImplicitSurfChem()
-{
-    delete m_integ;
-    delete m_surfSolver;
 }
 
 void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc,
@@ -181,7 +173,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
      */
     doublereal time_scale = timeScaleOverride;
     if (!m_surfSolver) {
-        m_surfSolver = new solveSP(this, bulkFunc);
+        m_surfSolver.reset(new solveSP(this, bulkFunc));
         /*
          * set ifunc, which sets the algorithm.
          */

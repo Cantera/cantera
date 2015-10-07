@@ -39,7 +39,6 @@ HMWSoln::HMWSoln() :
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
-    m_waterProps(0),
     m_molalitiesAreCropped(false),
     IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
@@ -85,7 +84,6 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
-    m_waterProps(0),
     m_molalitiesAreCropped(false),
     IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
@@ -132,7 +130,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
-    m_waterProps(0),
     m_molalitiesAreCropped(false),
     IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
@@ -179,7 +176,6 @@ HMWSoln::HMWSoln(const HMWSoln& b) :
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
     m_densWaterSS(1000.),
-    m_waterProps(0),
     m_molalitiesAreCropped(false),
     IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
@@ -241,10 +237,9 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
 
         m_densWaterSS = b.m_densWaterSS;
 
-        delete m_waterProps;
         m_waterProps = 0;
         if (b.m_waterProps) {
-            m_waterProps = new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS));
+            m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
         }
 
         m_pp = b.m_pp;
@@ -373,8 +368,6 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
 
 HMWSoln::~HMWSoln()
 {
-    delete m_waterProps;
-    m_waterProps = 0;
 }
 
 ThermoPhase* HMWSoln::duplMyselfAsThermoPhase() const

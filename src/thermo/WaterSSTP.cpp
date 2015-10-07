@@ -10,7 +10,6 @@
  */
 
 #include "cantera/thermo/WaterSSTP.h"
-#include "cantera/thermo/WaterProps.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 
@@ -19,7 +18,6 @@ using namespace std;
 namespace Cantera
 {
 WaterSSTP::WaterSSTP() :
-    m_waterProps(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
@@ -29,7 +27,6 @@ WaterSSTP::WaterSSTP() :
 }
 
 WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
-    m_waterProps(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
@@ -40,7 +37,6 @@ WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
 }
 
 WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
-    m_waterProps(0),
     m_mw(0.0),
     EW_Offset(0.0),
     SW_Offset(0.0),
@@ -52,14 +48,13 @@ WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
 
 WaterSSTP::WaterSSTP(const WaterSSTP& b) :
     SingleSpeciesTP(b),
-    m_waterProps(0),
     m_mw(b.m_mw),
     EW_Offset(b.EW_Offset),
     SW_Offset(b.SW_Offset),
     m_ready(false),
     m_allowGasPhase(b.m_allowGasPhase)
 {
-    m_waterProps = new WaterProps(&m_sub);
+    m_waterProps.reset(new WaterProps(&m_sub));
 
     /*
      * Use the assignment operator to do the brunt
@@ -74,11 +69,7 @@ WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
         return *this;
     }
     m_sub = b.m_sub;
-
-    if (!m_waterProps) {
-        m_waterProps = new WaterProps(&m_sub);
-    }
-    *m_waterProps = *b.m_waterProps;
+    m_waterProps.reset(new WaterProps(&m_sub));
 
     m_mw = b.m_mw;
     m_ready = b.m_ready;
@@ -89,11 +80,6 @@ WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
 ThermoPhase* WaterSSTP::duplMyselfAsThermoPhase() const
 {
     return new WaterSSTP(*this);
-}
-
-WaterSSTP::~WaterSSTP()
-{
-    delete m_waterProps;
 }
 
 void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
@@ -162,7 +148,7 @@ void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
     double rho0 = m_sub.density(298.15, OneAtm, WATER_LIQUID);
     setDensity(rho0);
 
-    m_waterProps = new WaterProps(&m_sub);
+    m_waterProps.reset(new WaterProps(&m_sub));
 
     /*
      * We have to do something with the thermo function here.

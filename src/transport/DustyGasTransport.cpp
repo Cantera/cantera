@@ -25,8 +25,7 @@ DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
     m_tortuosity(1.0),
     m_pore_radius(0.0),
     m_diam(0.0),
-    m_perm(-1.0),
-    m_gastran(0)
+    m_perm(-1.0)
 {
 }
 
@@ -39,8 +38,7 @@ DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
     m_tortuosity(1.0),
     m_pore_radius(0.0),
     m_diam(0.0),
-    m_perm(-1.0),
-    m_gastran(0)
+    m_perm(-1.0)
 {
     *this = right;
 }
@@ -71,15 +69,9 @@ DustyGasTransport& DustyGasTransport::operator=(const DustyGasTransport& right)
 
     // Warning -> gastran may not point to the correct object
     //            after this copy. The routine initialize() must be called
-    delete m_gastran;
-    m_gastran = right.duplMyselfAsTransport();
+    m_gastran.reset(right.m_gastran->duplMyselfAsTransport());
 
     return *this;
-}
-
-DustyGasTransport::~DustyGasTransport()
-{
-    delete m_gastran;
 }
 
 Transport* DustyGasTransport::duplMyselfAsTransport() const
@@ -99,9 +91,8 @@ void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
     // constant mixture attributes
     m_thermo = phase;
     m_nsp = m_thermo->nSpecies();
-    if (m_gastran != gastr) {
-        delete m_gastran;
-        m_gastran = gastr;
+    if (m_gastran.get() != gastr) {
+        m_gastran.reset(gastr);
     }
 
     // make a local copy of the molecular weights

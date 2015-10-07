@@ -56,13 +56,11 @@ public:
         m_left(0),
         m_right(0),
         m_id(""), m_desc(""),
-        m_refiner(0), m_bw(-1) {
+        m_bw(-1) {
         resize(nv, points);
     }
 
-    virtual ~Domain1D() {
-        delete m_refiner;
-    }
+    virtual ~Domain1D() {}
 
     //! Domain type flag.
     int domainType() {
@@ -137,8 +135,7 @@ public:
         // new grid refiner is required.
         if (nv != m_nv || !m_refiner) {
             m_nv = nv;
-            delete m_refiner;
-            m_refiner = new Refiner(*this);
+            m_refiner.reset(new Refiner(*this));
         }
         m_nv = nv;
         m_td.resize(m_nv, 1);
@@ -596,7 +593,7 @@ protected:
     //! Identity tag for the domain
     std::string m_id;
     std::string m_desc;
-    Refiner* m_refiner;
+    std::unique_ptr<Refiner> m_refiner;
     vector_int m_td;
     std::vector<std::string> m_name;
     int m_bw;

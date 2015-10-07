@@ -1,8 +1,8 @@
 //! @file OneDim.cpp
-#include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/OneDim.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctml.h"
+#include "cantera/oneD/MultiNewton.h"
 
 #include <fstream>
 #include <ctime>
@@ -14,19 +14,17 @@ namespace Cantera
 
 OneDim::OneDim()
     : m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
-      m_jac(0), m_newt(0),
       m_rdt(0.0), m_jac_ok(false),
       m_nd(0), m_bw(0), m_size(0),
       m_init(false), m_pts(0), m_solve_time(0.0),
       m_ss_jac_age(10), m_ts_jac_age(20),
       m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
-    m_newt = new MultiNewton(1);
+    m_newt.reset(new MultiNewton(1));
 }
 
 OneDim::OneDim(vector<Domain1D*> domains) :
     m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
-    m_jac(0), m_newt(0),
     m_rdt(0.0), m_jac_ok(false),
     m_nd(0), m_bw(0), m_size(0),
     m_init(false), m_solve_time(0.0),
@@ -34,12 +32,16 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
     // create a Newton iterator, and add each domain.
-    m_newt = new MultiNewton(1);
+    m_newt.reset(new MultiNewton(1));
     for (size_t i = 0; i < domains.size(); i++) {
         addDomain(domains[i]);
     }
     init();
     resize();
+}
+
+OneDim::~OneDim()
+{
 }
 
 size_t OneDim::domainIndex(const std::string& name)
@@ -74,12 +76,6 @@ void OneDim::addDomain(Domain1D* d)
     d->setContainer(this, m_nd);
     m_nd++;
     resize();
-}
-
-OneDim::~OneDim()
-{
-    delete m_jac;
-    delete m_newt;
 }
 
 MultiJac& OneDim::jacobian()
@@ -183,12 +179,11 @@ void OneDim::resize()
     m_mask.resize(size());
 
     // delete the current Jacobian evaluator and create a new one
-    delete m_jac;
-    m_jac = new MultiJac(*this);
+    m_jac.reset(new MultiJac(*this));
     m_jac_ok = false;
 
     for (size_t i = 0; i < m_nd; i++) {
-        m_dom[i]->setJac(m_jac);
+        m_dom[i]->setJac(m_jac.get());
     }
 }
 

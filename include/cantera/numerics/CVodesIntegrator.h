@@ -108,7 +108,7 @@ private:
     double m_hmax, m_hmin;
     int m_maxsteps;
     int m_maxErrTestFails;
-    FuncData* m_fdata;
+    std::unique_ptr<FuncData> m_fdata;
     N_Vector* m_yS;
     size_t m_np;
     int m_mupper, m_mlower;

@@ -2193,7 +2193,7 @@ private:
     double m_densWaterSS;
 
     //! Pointer to the water property calculator
-    WaterProps* m_waterProps;
+    std::unique_ptr<WaterProps> m_waterProps;
 
     //! Temporary array used in equilibrium calculations
     mutable vector_fp m_pp;

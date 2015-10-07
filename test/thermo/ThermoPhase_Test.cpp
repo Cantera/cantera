@@ -49,13 +49,9 @@ TEST_F(ThermoPhase_Fixture, SetAndGetElementPotentials)
 class TestThermoMethods : public testing::Test
 {
 public:
-    ThermoPhase* thermo;
+    std::unique_ptr<ThermoPhase> thermo;
     TestThermoMethods() {
-        thermo = newPhase("h2o2.xml");
-    }
-
-    ~TestThermoMethods() {
-        delete thermo;
+        thermo.reset(newPhase("h2o2.xml"));
     }
 };
 

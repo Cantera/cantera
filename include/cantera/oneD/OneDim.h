@@ -6,12 +6,13 @@
 #define CT_ONEDIM_H
 
 #include "Domain1D.h"
+#include "MultiJac.h"
 
 namespace Cantera
 {
 
-class MultiNewton;
 class Func1;
+class MultiNewton;
 
 /**
  * Container class for multiple-domain 1D problems. Each domain is
@@ -258,8 +259,8 @@ protected:
     doublereal m_tfactor; // factor time step is multiplied by
     // if time stepping fails ( < 1 )
 
-    MultiJac* m_jac; // Jacobian evaluator
-    MultiNewton* m_newt; // Newton iterator
+    std::unique_ptr<MultiJac> m_jac; // Jacobian evaluator
+    std::unique_ptr<MultiNewton> m_newt; // Newton iterator
     doublereal m_rdt; // reciprocal of time step
     bool m_jac_ok; // if true, Jacobian is current
 

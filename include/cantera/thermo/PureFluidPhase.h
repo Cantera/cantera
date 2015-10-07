@@ -46,9 +46,6 @@ public:
      */
     PureFluidPhase& operator=(const PureFluidPhase& right);
 
-    //! Destructor
-    virtual ~PureFluidPhase();
-
     //! Duplication function
     /*!
      * This virtual function is used to create a duplicate of the
@@ -473,7 +470,7 @@ protected:
 
 private:
     //! Pointer to the underlying tpx object Substance that does the work
-    mutable tpx::Substance* m_sub;
+    mutable std::unique_ptr<tpx::Substance> m_sub;
 
     //! Int indicating the type of the fluid
     /*!

@@ -66,22 +66,20 @@ static int get_modified_time(const std::string& path) {
 #endif
 }
 
-Application::Messages::Messages() :
-    logwriter(0)
+Application::Messages::Messages()
 {
     // install a default logwriter that writes to standard
     // output / standard error
-    logwriter = new Logger();
+    logwriter.reset(new Logger());
 }
 
 Application::Messages::Messages(const Messages& r) :
     errorMessage(r.errorMessage),
-    errorRoutine(r.errorRoutine),
-    logwriter(0)
+    errorRoutine(r.errorRoutine)
 {
     // install a default logwriter that writes to standard
     // output / standard error
-    logwriter = new Logger(*(r.logwriter));
+    logwriter.reset(new Logger(*r.logwriter));
 }
 
 Application::Messages& Application::Messages::operator=(const Messages& r)
@@ -91,13 +89,8 @@ Application::Messages& Application::Messages::operator=(const Messages& r)
     }
     errorMessage = r.errorMessage;
     errorRoutine = r.errorRoutine;
-    logwriter = new Logger(*(r.logwriter));
+    logwriter.reset(new Logger(*r.logwriter));
     return *this;
-}
-
-Application::Messages::~Messages()
-{
-    delete logwriter;
 }
 
 void Application::Messages::addError(const std::string& r, const std::string& msg)
@@ -113,14 +106,7 @@ int Application::Messages::getErrorCount()
 
 void Application::Messages::setLogger(Logger* _logwriter)
 {
-    if (logwriter == _logwriter) {
-        return;
-    }
-    if (logwriter != 0) {
-        delete logwriter;
-        logwriter = 0;
-    }
-    logwriter = _logwriter;
+    logwriter.reset(_logwriter);
 }
 
 void Application::Messages::writelog(const std::string& msg)

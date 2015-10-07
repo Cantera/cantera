@@ -38,8 +38,7 @@ DebyeHuckel::DebyeHuckel() :
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
-    m_densWaterSS(1000.),
-    m_waterProps(0)
+    m_densWaterSS(1000.)
 {
 }
 
@@ -55,8 +54,7 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
-    m_densWaterSS(1000.),
-    m_waterProps(0)
+    m_densWaterSS(1000.)
 {
     initThermoFile(inputFile, id_);
 }
@@ -72,8 +70,7 @@ DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
-    m_densWaterSS(1000.),
-    m_waterProps(0)
+    m_densWaterSS(1000.)
 {
     importPhase(phaseRoot, this);
 }
@@ -89,8 +86,7 @@ DebyeHuckel::DebyeHuckel(const DebyeHuckel& b) :
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
     m_waterSS(0),
-    m_densWaterSS(1000.),
-    m_waterProps(0)
+    m_densWaterSS(1000.)
 {
     /*
      * Use the assignment operator to do the brunt
@@ -125,10 +121,8 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
 
         m_densWaterSS = b.m_densWaterSS;
 
-        delete m_waterProps;
-        m_waterProps = 0;
         if (b.m_waterProps) {
-            m_waterProps = new WaterProps(m_waterSS);
+            m_waterProps.reset(new WaterProps(m_waterSS));
         }
 
         m_pp = b.m_pp;
@@ -143,8 +137,6 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
 
 DebyeHuckel::~DebyeHuckel()
 {
-    delete m_waterProps;
-    m_waterProps = 0;
 }
 
 ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const
@@ -748,8 +740,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
          * the internal eos water calculator.
          */
         if (m_form_A_Debye == A_DEBYE_WATER) {
-            delete m_waterProps;
-            m_waterProps = new WaterProps(m_waterSS);
+            m_waterProps.reset(new WaterProps(m_waterSS));
         }
 
         /*

@@ -30,9 +30,10 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPt
     m_currRegion(0)
 {
     m_numTempRegions = regionPts.size();
-    // Do a shallow copy of the pointers. From now on, we will
-    // own these pointers and be responsible for deleting them.
-    m_regionPts = regionPts;
+    // From now on, we own these pointers
+    for (Nasa9Poly1* region : regionPts) {
+        m_regionPts.emplace_back(region);
+    }
     m_lowerTempBounds.resize(m_numTempRegions);
     m_lowT = m_regionPts[0]->minTemp();
     m_highT = m_regionPts[m_numTempRegions-1]->maxTemp();
@@ -64,8 +65,7 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegio
 {
     m_regionPts.resize(m_numTempRegions);
     for (size_t i = 0; i < m_numTempRegions; i++) {
-        Nasa9Poly1* dptr = b.m_regionPts[i];
-        m_regionPts[i] = new Nasa9Poly1(*dptr);
+        m_regionPts[i].reset(new Nasa9Poly1(*b.m_regionPts[i]));
     }
 }
 
@@ -74,16 +74,12 @@ Nasa9PolyMultiTempRegion::operator=(const Nasa9PolyMultiTempRegion& b)
 {
     if (&b != this) {
         SpeciesThermoInterpType::operator=(b);
-        for (size_t i = 0; i < m_numTempRegions; i++) {
-            delete m_regionPts[i];
-            m_regionPts[i] = 0;
-        }
         m_numTempRegions = b.m_numTempRegions;
         m_lowerTempBounds = b.m_lowerTempBounds;
         m_currRegion = b.m_currRegion;
         m_regionPts.resize(m_numTempRegions);
         for (size_t i = 0; i < m_numTempRegions; i++) {
-            m_regionPts[i] = new Nasa9Poly1(*(b.m_regionPts[i]));
+            m_regionPts[i].reset(new Nasa9Poly1(*b.m_regionPts[i]));
         }
     }
     return *this;
@@ -91,10 +87,6 @@ Nasa9PolyMultiTempRegion::operator=(const Nasa9PolyMultiTempRegion& b)
 
 Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
 {
-    for (size_t i = 0; i < m_numTempRegions; i++) {
-        delete m_regionPts[i];
-        m_regionPts[i] = 0;
-    }
 }
 
 SpeciesThermoInterpType*

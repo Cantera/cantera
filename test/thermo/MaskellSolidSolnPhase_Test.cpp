@@ -10,15 +10,11 @@ namespace Cantera
 class MaskellSolidSolnPhase_Test : public testing::Test
 {
 protected:
-    ThermoPhase *test_phase;
+    std::unique_ptr<ThermoPhase> test_phase;
 public:
-    MaskellSolidSolnPhase_Test() : test_phase(NULL) {}
-
-    ~MaskellSolidSolnPhase_Test() { delete test_phase; }
-
     void initializeTestPhaseWithXML(const std::string & filename)
     {
-        test_phase = newPhase(filename);
+        test_phase.reset(newPhase(filename));
     }
 
     void set_r(const double r) {
@@ -46,11 +42,10 @@ TEST_F(MaskellSolidSolnPhase_Test, construct_from_xml)
 {
     const std::string invalid_file("../data/MaskellSolidSolnPhase_nohmix.xml");
     EXPECT_THROW(initializeTestPhaseWithXML(invalid_file), CanteraError);
-    delete test_phase;
 
     const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
     initializeTestPhaseWithXML(valid_file);
-    MaskellSolidSolnPhase * maskell_phase = dynamic_cast<MaskellSolidSolnPhase *>(test_phase);
+    MaskellSolidSolnPhase* maskell_phase = dynamic_cast<MaskellSolidSolnPhase*>(test_phase.get());
     EXPECT_TRUE(maskell_phase != NULL);
 }
 
@@ -61,8 +56,7 @@ TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
     test_phase->setState_TP(298., 1.);
     set_r(0.5);
 
-    MaskellSolidSolnPhase * maskell_phase = dynamic_cast<MaskellSolidSolnPhase *>(test_phase);
-    ASSERT_TRUE(maskell_phase != NULL);
+    MaskellSolidSolnPhase* maskell_phase = dynamic_cast<MaskellSolidSolnPhase*>(test_phase.get());
 
     maskell_phase->set_h_mix(0.);
     const double expected_result_0[9] = {1.2338461168724738e7, 8.011774549216799e6, 4.990989640314685e6, 2.415973128783114e6, 0., -2.415973128783114e6, -4.99098964031469e6, -8.0117745492168e6, -1.2338461168724738e7};
@@ -81,7 +75,6 @@ TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
 {
     const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
     initializeTestPhaseWithXML(valid_file);
-    ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
 
     vector_fp pmv(2);
     test_phase->getPartialMolarVolumes(&pmv[0]);
@@ -95,9 +88,6 @@ TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
     initializeTestPhaseWithXML(valid_file);
     test_phase->setState_TP(298., 1.);
     set_r(0.5);
-
-    MaskellSolidSolnPhase * maskell_phase = dynamic_cast<MaskellSolidSolnPhase *>(test_phase);
-    ASSERT_TRUE(maskell_phase != NULL);
 
     // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
     const double RT = GasConstant * 298.;
@@ -120,7 +110,6 @@ TEST_F(MaskellSolidSolnPhase_Test, standardConcentrations)
 {
     const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
     initializeTestPhaseWithXML(valid_file);
-    ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
 
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(1));
@@ -130,7 +119,6 @@ TEST_F(MaskellSolidSolnPhase_Test, activityConcentrations)
 {
     const std::string valid_file("../data/MaskellSolidSolnPhase_valid.xml");
     initializeTestPhaseWithXML(valid_file);
-    ASSERT_TRUE(dynamic_cast<MaskellSolidSolnPhase *>(test_phase) != NULL);
 
     // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
     vector_fp standardConcs(2);

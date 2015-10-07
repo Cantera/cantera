@@ -166,12 +166,8 @@ protected:
     //! Lower boundaries of each temperature regions
     vector_fp m_lowerTempBounds;
 
-    //! pointers to the objects
-    /*!
-     * This object will now own these pointers and delete
-     * them when the current object is deleted.
-     */
-    std::vector<Nasa9Poly1*>m_regionPts;
+    //! Individual temperature region objects
+    std::vector<std::unique_ptr<Nasa9Poly1>> m_regionPts;
 
     //! current region
     mutable int m_currRegion;

@@ -81,7 +81,6 @@ public:
      */
     DustyGasTransport& operator=(const DustyGasTransport& right);
 
-    virtual ~DustyGasTransport();
     virtual Transport* duplMyselfAsTransport() const;
 
     //---------------------------------------------------------
@@ -337,10 +336,7 @@ private:
     doublereal m_perm;
 
     //! Pointer to the transport object for the gas phase
-    /*!
-     * Note, this object owns the gastran object
-     */
-    Transport* m_gastran;
+    std::unique_ptr<Transport> m_gastran;
 };
 }
 #endif

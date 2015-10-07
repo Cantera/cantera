@@ -32,7 +32,6 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -63,7 +62,6 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -97,7 +95,6 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex, const XML_Node& spec
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -129,7 +126,6 @@ PDSS_HKFT::PDSS_HKFT(const PDSS_HKFT& b) :
     PDSS(b),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -172,8 +168,6 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
     m_waterSS = 0;
     m_densWaterSS = b.m_densWaterSS;
     //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
-    delete m_waterProps;
-    m_waterProps = 0;
     m_born_coeff_j = b.m_born_coeff_j;
     m_r_e_j = b.m_r_e_j;
     m_deltaG_formation_tr_pr = b.m_deltaG_formation_tr_pr;
@@ -195,14 +189,13 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
 
     // Here we just fill these in so that local copies within the VPSS object work.
     m_waterSS = b.m_waterSS;
-    m_waterProps = new WaterProps(m_waterSS);
+    m_waterProps.reset(new WaterProps(m_waterSS));
 
     return *this;
 }
 
 PDSS_HKFT::~PDSS_HKFT()
 {
-    delete m_waterProps;
 }
 
 PDSS* PDSS_HKFT::duplMyselfAsPDSS() const
@@ -414,7 +407,7 @@ void PDSS_HKFT::initThermo()
     m_Z_pr_tr = -1.0 / relepsilon;
     doublereal drelepsilondT = m_waterProps->relEpsilon(m_temp, m_pres, 1);
     m_Y_pr_tr = drelepsilondT / (relepsilon * relepsilon);
-    m_waterProps = new WaterProps(m_waterSS);
+    m_waterProps.reset(new WaterProps(m_waterSS));
     m_presR_bar = OneAtm / 1.0E5;
     m_presR_bar = 1.0;
     m_charge_j = m_tp->charge(m_spindex);
@@ -466,8 +459,7 @@ void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
 {
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr, spthermo_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_tp->providePDSS(0));
-    delete m_waterProps;
-    m_waterProps = new WaterProps(m_waterSS);
+    m_waterProps.reset(new WaterProps(m_waterSS));
 }
 
 void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
