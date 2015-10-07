@@ -29,8 +29,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
         size_t kspec = Vphase->spGlobalIndexVCS(k);
         AssertThrowMsg(m_molNumSpecies_old[kspec] <= 0.0,
                        "VCS_SOLVE::vcs_popPhasePossible",
-                       "we shouldn't be here " + int2str(kspec) + " "+
-                       fp2str(m_molNumSpecies_old[kspec]) + " > 0.0");
+                       "we shouldn't be here {}: {} > 0.0", kspec,
+                       m_molNumSpecies_old[kspec]);
         size_t irxn = kspec - m_numComponents;
         if (kspec >= m_numComponents) {
             bool iPopPossible = true;

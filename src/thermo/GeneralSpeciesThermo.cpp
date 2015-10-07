@@ -80,8 +80,9 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
         throw CanteraError("GeneralSpeciesThermo::install_STIT",
                            "zero pointer");
     }
-    AssertThrow(m_speciesLoc.find(index) == m_speciesLoc.end(),
-                "Index position isn't null, duplication of assignment: " + int2str(index));
+    AssertThrowMsg(m_speciesLoc.find(index) == m_speciesLoc.end(),
+            "GeneralSpeciesThermo::install_STIT",
+            "Index position isn't null, duplication of assignment: {}", index);
     int type = stit_ptr->reportType();
     m_speciesLoc[index] = std::make_pair(type, m_sp[type].size());
     m_sp[type].push_back(std::make_pair(index, stit_ptr));

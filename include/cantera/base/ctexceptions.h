@@ -225,7 +225,7 @@ public:
 #  define AssertThrow(expr, procedure)             ((void) (0))
 #endif
 #ifndef AssertThrowMsg
-#  define AssertThrowMsg(expr,procedure, message)  ((void) (0))
+#  define AssertThrowMsg(expr,procedure, ...)  ((void) (0))
 #endif
 #else
 
@@ -271,14 +271,14 @@ public:
  * @ingroup errorhandling
  */
 #ifndef AssertThrowMsg
-#  define AssertThrowMsg(expr, procedure, message)  ((expr) ? (void) 0 : throw CanteraError(procedure + std::string(": at failed assert: \"") + std::string(#expr) + std::string("\""), message))
+#  define AssertThrowMsg(expr, procedure, ...)  ((expr) ? (void) 0 : throw CanteraError(procedure + std::string(":\nfailed assert: \"") + std::string(#expr) + std::string("\""), __VA_ARGS__))
 #endif
 
 #endif
 
 //! Throw an exception if the specified exception is not a finite number.
 #ifndef AssertFinite
-#  define AssertFinite(expr, procedure, message) AssertThrowMsg(expr < BigNumber && expr > -BigNumber, procedure, message)
+#  define AssertFinite(expr, procedure, ...) AssertThrowMsg(expr < BigNumber && expr > -BigNumber, procedure, __VA_ARGS__)
 #endif
 
 }

@@ -947,9 +947,8 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 AssertThrowMsg(fabs(m_deltaMolNumSpecies[kspec] -dx) <
                         1.0E-14*(fabs(m_deltaMolNumSpecies[kspec]) + fabs(dx) + 1.0E-32),
                         "VCS_SOLVE::solve_tp_inner",
-                        "ds[kspec] = " + fp2str(m_deltaMolNumSpecies[kspec]) +
-                        " dx = " + fp2str(dx) + " , kspec = " + int2str(kspec) +
-                        "\nwe have a problem!");
+                        "ds[kspec] = {}, dx = {}, kspec = {}\nwe have a problem!",
+                        m_deltaMolNumSpecies[kspec], dx, kspec);
                 for (size_t k = 0; k < m_numComponents; ++k) {
                     m_deltaMolNumSpecies[k] += sc_irxn[k] * dx;
                 }
@@ -1748,7 +1747,7 @@ int VCS_SOLVE::delta_species(const size_t kspec, double* const delta_ptr)
     int retn = 1;
     double delta = *delta_ptr;
     AssertThrowMsg(kspec >= m_numComponents, "VCS_SOLVE::delta_species",
-        "delete_species() ERROR: called for a component " + int2str(kspec));
+        "delete_species() ERROR: called for a component {}", kspec);
     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
         /*
          * Attempt the given dx. If it doesn't work, try to see if a smaller
@@ -3315,8 +3314,8 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         AssertThrowMsg(vcs_doubleEqual(tlogMoles[iph], tPhMoles_ptr[iph]),
             "VCS_SOLVE::vcs_dfe",
-            "phase Moles may be off, iph = " + int2str(iph) + ", " +
-            fp2str(tlogMoles[iph]) + " " + fp2str(tPhMoles_ptr[iph]));
+            "phase Moles may be off, iph = {}, {} {}",
+            iph, tlogMoles[iph], tPhMoles_ptr[iph]);
     }
     m_TmpPhase.assign(m_TmpPhase.size(), 0.0);
     for (size_t iph = 0; iph < m_numPhases; iph++) {

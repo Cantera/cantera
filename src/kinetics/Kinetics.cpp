@@ -224,7 +224,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 throw CanteraError("installReaction",
                         "Undeclared duplicate reactions detected:\n"
                         "Reaction {}: {}\nReaction {}: {}\n",
-                        int2str(i+1), other.equation(), int2str(m+1), R.equation());
+                        i+1, other.equation(), m+1, R.equation());
             } else {
                 return make_pair(i,m);
             }

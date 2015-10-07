@@ -51,8 +51,7 @@ void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal valu
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_x.size(), "Sim1D::setValue",
-                   "Index out of bounds:" + int2str(iloc) + " > " +
-                   int2str(m_x.size()));
+                   "Index out of bounds: {} > {}", iloc, m_x.size());
     m_x[iloc] = value;
 }
 
@@ -60,8 +59,7 @@ doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_x.size(), "Sim1D::value",
-                   "Index out of bounds:" + int2str(iloc) + " > " +
-                   int2str(m_x.size()));
+                   "Index out of bounds: {} > {}", iloc, m_x.size());
     return m_x[iloc];
 }
 
@@ -69,8 +67,7 @@ doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_x.size(), "Sim1D::workValue",
-                   "Index out of bounds:" + int2str(iloc) + " > " +
-                   int2str(m_x.size()));
+                   "Index out of bounds: {} > {}", iloc, m_x.size());
     return m_xnew[iloc];
 }
 

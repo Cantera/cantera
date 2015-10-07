@@ -821,8 +821,8 @@ void vcs_VolPhase::setTotalMoles(const double totalMols)
         m_existence = VCS_PHASE_EXIST_ALWAYS;
         AssertThrowMsg(totalMols >= m_totalMolesInert,
                        "vcs_VolPhase::setTotalMoles",
-                       "totalMoles less than inert moles: " +
-                       fp2str(totalMols) + " " + fp2str(m_totalMolesInert));
+                       "totalMoles less than inert moles: {} {}",
+                       totalMols, m_totalMolesInert);
     } else {
         if (m_singleSpecies && (m_phiVarIndex == 0)) {
             m_existence = VCS_PHASE_EXIST_ALWAYS;

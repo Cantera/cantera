@@ -170,7 +170,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     }
     AssertThrowMsg(ipos < m_numElemConstraints && jpos < m_numElemConstraints,
                    "vcs_switch_elem_pos",
-                   "inappropriate args: " + int2str(ipos) + " " + int2str(jpos));
+                   "inappropriate args: {} {}", ipos, jpos);
     /*
      * Change the element Global Index list in each vcs_VolPhase object
      * to reflect the switch in the element positions.
