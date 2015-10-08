@@ -608,7 +608,7 @@ public:
             }
         }
         if (frac || k.size() > 3) {
-            m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
+            m_cn_list.emplace_back(rxn, k, order, stoich);
         } else {
             // Try to express the reaction with unity stoichiometric
             // coefficients (by repeating species when necessary) so that the
@@ -623,16 +623,16 @@ public:
 
             switch (kRep.size()) {
             case 1:
-                m_c1_list.push_back(C1(rxn, kRep[0]));
+                m_c1_list.emplace_back(rxn, kRep[0]);
                 break;
             case 2:
-                m_c2_list.push_back(C2(rxn, kRep[0], kRep[1]));
+                m_c2_list.emplace_back(rxn, kRep[0], kRep[1]);
                 break;
             case 3:
-                m_c3_list.push_back(C3(rxn, kRep[0], kRep[1], kRep[2]));
+                m_c3_list.emplace_back(rxn, kRep[0], kRep[1], kRep[2]);
                 break;
             default:
-                m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
+                m_cn_list.emplace_back(rxn, k, order, stoich);
             }
         }
     }

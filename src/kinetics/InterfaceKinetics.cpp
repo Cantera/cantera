@@ -739,8 +739,8 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         m_nirrev++;
     }
 
-    m_rxnPhaseIsReactant.push_back(std::vector<bool>(nPhases(), false));
-    m_rxnPhaseIsProduct.push_back(std::vector<bool>(nPhases(), false));
+    m_rxnPhaseIsReactant.emplace_back(nPhases(), false);
+    m_rxnPhaseIsProduct.emplace_back(nPhases(), false);
 
     for (const auto& sp : r.reactants) {
         size_t k = kineticsSpeciesIndex(sp.first);
@@ -835,7 +835,7 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
             }
         }
         if (i != npos) {
-            m_sticking_orders.push_back(make_pair(i, surface_order));
+            m_sticking_orders.emplace_back(i, surface_order);
         }
     }
 

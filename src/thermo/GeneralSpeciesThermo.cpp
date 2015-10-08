@@ -36,7 +36,7 @@ GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
             size_t i = sp.second[k].first;
             shared_ptr<SpeciesThermoInterpType> spec(
                 sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[sp.first].push_back(std::make_pair(i, spec));
+            m_sp[sp.first].emplace_back(i, spec);
         }
     }
 }
@@ -56,7 +56,7 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
             size_t i = sp.second[k].first;
             shared_ptr<SpeciesThermoInterpType> spec(
                 sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[sp.first].push_back(std::make_pair(i, spec));
+            m_sp[sp.first].emplace_back(i, spec);
         }
     }
 
@@ -85,7 +85,7 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
             "Index position isn't null, duplication of assignment: {}", index);
     int type = stit_ptr->reportType();
     m_speciesLoc[index] = std::make_pair(type, m_sp[type].size());
-    m_sp[type].push_back(std::make_pair(index, stit_ptr));
+    m_sp[type].emplace_back(index, stit_ptr);
     if (m_sp[type].size() == 1) {
         m_tpoly[type].resize(stit_ptr->temperaturePolySize());
     }

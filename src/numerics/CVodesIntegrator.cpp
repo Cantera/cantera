@@ -457,10 +457,10 @@ string CVodesIntegrator::getErrorInfo(int N)
     CVodeGetErrWeights(m_cvode_mem, errw);
     CVodeGetEstLocalErrors(m_cvode_mem, errs);
 
-    vector<pair<pair<double, double>, size_t> > weightedErrors;
+    vector<tuple<double, double, size_t> > weightedErrors;
     for (size_t i=0; i<m_neq; i++) {
         double err = NV_Ith_S(errs, i) * NV_Ith_S(errw, i);
-        weightedErrors.push_back(make_pair(make_pair(-abs(err), err), i));
+        weightedErrors.emplace_back(-abs(err), err, i);
     }
     N_VDestroy(errs);
     N_VDestroy(errw);
@@ -469,8 +469,8 @@ string CVodesIntegrator::getErrorInfo(int N)
     sort(weightedErrors.begin(), weightedErrors.end());
     stringstream s;
     for (int i=0; i<N; i++) {
-        s << weightedErrors[i].second << ": "
-          << weightedErrors[i].first.second << endl;
+        s << get<2>(weightedErrors[i]) << ": "
+          << get<1>(weightedErrors[i]) << endl;
     }
     return s.str();
 }

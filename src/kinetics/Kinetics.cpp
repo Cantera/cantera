@@ -159,7 +159,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         // Get data about this reaction
         unsigned long int key = 0;
         Reaction& R = *m_reactions[i];
-        net_stoich.push_back(std::map<int, double>());
+        net_stoich.emplace_back();
         std::map<int, double>& net = net_stoich.back();
         for (const auto& sp : R.reactants) {
             int k = static_cast<int>(kineticsSpeciesIndex(sp.first));

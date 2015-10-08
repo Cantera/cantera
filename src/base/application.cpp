@@ -133,7 +133,7 @@ Application::Messages* Application::ThreadMessages::operator ->()
         return iter->second.get();
     }
     pMessages_t pMsgs(new Messages());
-    m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs));
+    m_threadMsgMap.emplace(curId, pMsgs);
     return pMsgs.get();
 }
 

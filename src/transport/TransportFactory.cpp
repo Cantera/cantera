@@ -447,7 +447,7 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
                         throw CanteraError("getLiquidSpeciesTransportData","unknown transport property: " + nodeName);
                     }
                 }
-                datatable.insert(pair<std::string, LiquidTransportData>(name,data));
+                datatable.emplace(name,data);
             }
         } catch (CanteraError& err) {
             err.save();

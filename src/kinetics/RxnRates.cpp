@@ -89,8 +89,8 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     }
 
     // Duplicate the first and last groups to handle P < P_0 and P > P_N
-    pressures_.insert(std::make_pair(-1000.0, pressures_.begin()->second));
-    pressures_.insert(std::make_pair(1000.0, pressures_.rbegin()->second));
+    pressures_.emplace(-1000.0, pressures_.begin()->second);
+    pressures_.emplace(1000.0, pressures_.rbegin()->second);
 }
 
 void Plog::validate(const std::string& equation)
@@ -122,7 +122,7 @@ std::vector<std::pair<double, Arrhenius> > Plog::rates() const
         for (size_t i = iter->second.first;
              i < iter->second.second;
              i++) {
-            R.push_back(std::make_pair(std::exp(iter->first), rates_[i]));
+            R.emplace_back(std::exp(iter->first), rates_[i]);
         }
     }
     return R;

@@ -432,8 +432,7 @@ void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
     std::multimap<double, Arrhenius> rates;
     for (size_t m = 0; m < rc.nChildren(); m++) {
         const XML_Node& node = rc.child(m);
-        rates.insert(std::make_pair(getFloat(node, "P", "toSI"),
-                                    readArrhenius(node)));
+        rates.emplace(getFloat(node, "P", "toSI"), readArrhenius(node));
     }
     R.rate = Plog(rates);
     setupReaction(R, rxn_node);

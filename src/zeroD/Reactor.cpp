@@ -325,10 +325,10 @@ void Reactor::addSensitivityReaction(size_t rxn)
 std::vector<std::pair<void*, int> > Reactor::getSensitivityOrder() const
 {
     std::vector<std::pair<void*, int> > order;
-    order.push_back(std::make_pair(const_cast<Reactor*>(this), 0));
+    order.emplace_back(const_cast<Reactor*>(this), 0);
     for (size_t n = 0; n < m_wall.size(); n++) {
         if (m_nsens_wall[n]) {
-            order.push_back(std::make_pair(m_wall[n], m_lr[n]));
+            order.emplace_back(m_wall[n], m_lr[n]);
         }
     }
     return order;

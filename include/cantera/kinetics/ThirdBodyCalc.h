@@ -21,8 +21,8 @@ public:
         m_reaction_index.push_back(rxnNumber);
         m_default.push_back(dflt);
 
-        m_species.push_back(std::vector<size_t>());
-        m_eff.push_back(vector_fp());
+        m_species.emplace_back();
+        m_eff.emplace_back();
         for (const auto& eff : enhanced) {
             assert(eff.first != npos);
             m_species.back().push_back(eff.first);
