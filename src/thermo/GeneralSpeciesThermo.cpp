@@ -84,7 +84,7 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
             "GeneralSpeciesThermo::install_STIT",
             "Index position isn't null, duplication of assignment: {}", index);
     int type = stit_ptr->reportType();
-    m_speciesLoc[index] = std::make_pair(type, m_sp[type].size());
+    m_speciesLoc[index] = {type, m_sp[type].size()};
     m_sp[type].emplace_back(index, stit_ptr);
     if (m_sp[type].size() == 1) {
         m_tpoly[type].resize(stit_ptr->temperaturePolySize());

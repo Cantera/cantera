@@ -78,7 +78,7 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
         double logp = std::log(rate.first);
         if (pressures_.empty() || pressures_.rbegin()->first != logp) {
             // starting a new group
-            pressures_[logp] = std::make_pair(j, j+1);
+            pressures_[logp] = {j, j+1};
         } else {
             // another rate expression at the same pressure
             pressures_[logp].second = j+1;

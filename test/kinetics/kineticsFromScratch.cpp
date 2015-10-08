@@ -117,11 +117,7 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     Composition prod = parseCompString("H2O2:1");
     Arrhenius high_rate(7.4e10, -0.37, 0.0);
     Arrhenius low_rate(2.3e12, -0.9, -1700.0 / GasConst_cal_mol_K);
-    vector_fp falloff_params;
-    falloff_params.push_back(0.7346);
-    falloff_params.push_back(94.0);
-    falloff_params.push_back(1756.0);
-    falloff_params.push_back(5182.0);
+    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
     shared_ptr<FalloffReaction> R(new FalloffReaction(reac, prod, low_rate,
@@ -142,12 +138,12 @@ TEST_F(KineticsFromScratch, add_plog_reaction)
     //                [(100.0, 'atm'), 5.963200e+56, -11.529, 52599.6])
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
-    std::multimap<double, Arrhenius> rates;
-    typedef std::multimap<double, Arrhenius>::value_type item;
-    rates.insert(item(0.01*101325, Arrhenius(1.212400e+16, -0.5779, 10872.7 / GasConst_cal_mol_K)));
-    rates.insert(item(1.0*101325, Arrhenius(4.910800e+31, -4.8507, 24772.8 / GasConst_cal_mol_K)));
-    rates.insert(item(10.0*101325, Arrhenius(1.286600e+47, -9.0246, 39796.5 / GasConst_cal_mol_K)));
-    rates.insert(item(100.0*101325, Arrhenius(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K)));
+    std::multimap<double, Arrhenius> rates {
+        { 0.01*101325, Arrhenius(1.212400e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
+        { 1.0*101325, Arrhenius(4.910800e+31, -4.8507, 24772.8 / GasConst_cal_mol_K) },
+        { 10.0*101325, Arrhenius(1.286600e+47, -9.0246, 39796.5 / GasConst_cal_mol_K) },
+        { 100.0*101325, Arrhenius(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
+    };
 
     shared_ptr<PlogReaction> R(new PlogReaction(reac, prod, Plog(rates)));
     kin.addReaction(R);
@@ -159,12 +155,12 @@ TEST_F(KineticsFromScratch, plog_invalid_rate)
 {
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
-    std::multimap<double, Arrhenius> rates;
-    typedef std::multimap<double, Arrhenius>::value_type item;
-    rates.insert(item(0.01*101325, Arrhenius(1.2124e+16, -0.5779, 10872.7 / GasConst_cal_mol_K)));
-    rates.insert(item(10.0*101325, Arrhenius(1e15, -1, 10000 / GasConst_cal_mol_K)));
-    rates.insert(item(10.0*101325, Arrhenius(-2e20, -2.0, 20000 / GasConst_cal_mol_K)));
-    rates.insert(item(100.0*101325, Arrhenius(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K)));
+    std::multimap<double, Arrhenius> rates {
+        { 0.01*101325, Arrhenius(1.2124e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
+        { 10.0*101325, Arrhenius(1e15, -1, 10000 / GasConst_cal_mol_K) },
+        { 10.0*101325, Arrhenius(-2e20, -2.0, 20000 / GasConst_cal_mol_K) },
+        { 100.0*101325, Arrhenius(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
+    };
 
     shared_ptr<PlogReaction> R(new PlogReaction(reac, prod, Plog(rates)));
     ASSERT_THROW(kin.addReaction(R), CanteraError);
@@ -324,9 +320,7 @@ public:
         , surf("../data/sofc-test.xml", "metal_surface")
         , surf_ref("../data/sofc-test.xml", "metal_surface")
     {
-        std::vector<ThermoPhase*> th;
-        th.push_back(&surf_ref);
-        th.push_back(&gas_ref);
+        std::vector<ThermoPhase*> th = { &surf_ref, &gas_ref };
         importKinetics(surf_ref.xml(), th, &kin_ref);
         kin.addPhase(surf);
         kin.addPhase(gas);

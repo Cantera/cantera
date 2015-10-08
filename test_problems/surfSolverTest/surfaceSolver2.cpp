@@ -242,13 +242,7 @@ int main(int argc, char** argv)
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
-        phaseList.push_back(gasTP);
-        phaseList.push_back(bulkPhaseTP);
-        phaseList.push_back(surfPhaseTP);
-
-
-
+        vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);
         size_t nr = iKin_ptr->nReactions();
@@ -265,10 +259,7 @@ int main(int argc, char** argv)
         cout << "Number of species in 2nd surface phase, " << pname
              << " = " << nsp2 << endl;
 
-        vector<ThermoPhase*> phaseList2;
-        phaseList2.push_back(gasTP);
-        phaseList2.push_back(bulkPhaseTP);
-        phaseList2.push_back(surfPhaseTP2);
+        vector<ThermoPhase*> phaseList2 { gasTP, bulkPhaseTP, surfPhaseTP2 };
 
         // create the second  InterfaceKinetics object based on the
         // second surface phase.
@@ -329,9 +320,7 @@ int main(int argc, char** argv)
          *  Set-up the Surface Problem
          *    This problem will consist of 2 identical InterfaceKinetics objects
          */
-        vector<InterfaceKinetics*> vecKinPtrs;
-        vecKinPtrs.push_back(iKin_ptr);
-        vecKinPtrs.push_back(iKin2_ptr);
+        vector<InterfaceKinetics*> vecKinPtrs { iKin_ptr, iKin2_ptr };
 
         // Create the ImplicitSurfChem problem
         // Initialize it and call the pseudo steadystate capability.

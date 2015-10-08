@@ -57,16 +57,10 @@ void testProblem()
     unique_ptr<ThermoPhase> feo_s(newPhase("solidPhases.xml", "FeO(S)"));
     unique_ptr<ThermoPhase> fe_s(newPhase("solidPhases.xml", "Fe(S)"));
 
-    vector<ThermoPhase*> phaseList;
-    phaseList.push_back(gasTP.get());
-    phaseList.push_back(cao_s.get());
-    phaseList.push_back(caco3_s.get());
-    phaseList.push_back(c_s.get());
-    phaseList.push_back(fe3o4_s.get());
-    phaseList.push_back(feo_s.get());
-    phaseList.push_back(fe_s.get());
-    phaseList.push_back(surfTP.get());
-
+    vector<ThermoPhase*> phaseList {
+        gasTP.get(), cao_s.get(), caco3_s.get(), c_s.get(), fe3o4_s.get(),
+        feo_s.get(), fe_s.get(), surfTP.get()
+    };
     InterfaceKinetics iKin;
     importKinetics(*xg, phaseList, &iKin);
 

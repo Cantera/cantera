@@ -244,10 +244,7 @@ int main(int argc, char** argv)
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
-        phaseList.push_back(gasTP);
-        phaseList.push_back(bulkPhaseTP);
-        phaseList.push_back(surfPhaseTP);
+        vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
 
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);

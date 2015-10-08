@@ -200,7 +200,7 @@ void ReactorNet::registerSensitivityReaction(void* reactor,
                            "Sensitivity reactions cannot be added after the"
                            "integrator has been initialized.");
     }
-    std::pair<void*, int> R = std::make_pair(reactor, leftright);
+    std::pair<void*, int> R = {reactor, leftright};
     if (m_sensOrder.count(R) &&
             m_sensOrder[R].count(reactionIndex)) {
         throw CanteraError("ReactorNet::registerSensitivityReaction",

@@ -226,12 +226,12 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                         "Reaction {}: {}\nReaction {}: {}\n",
                         i+1, other.equation(), m+1, R.equation());
             } else {
-                return make_pair(i,m);
+                return {i,m};
             }
         }
         participants[key].push_back(i);
     }
-    return make_pair(npos, npos);
+    return {npos, npos};
 }
 
 double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,

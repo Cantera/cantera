@@ -107,11 +107,7 @@ int flamespeed(double phi)
 
         //=================== create the container and insert the domains =====
 
-        std::vector<Domain1D*> domains;
-        domains.push_back(&inlet);
-        domains.push_back(&flow);
-        domains.push_back(&outlet);
-
+        std::vector<Domain1D*> domains { &inlet, &flow, &outlet };
         Sim1D flame(domains);
 
         //----------- Supply initial guess----------------------

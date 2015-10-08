@@ -225,7 +225,7 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
         }
     }
     x->lock();
-    xmlfiles[path] = std::make_pair(x, mtime);
+    xmlfiles[path] = {x, mtime};
     return x;
 }
 

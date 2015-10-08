@@ -105,15 +105,16 @@ void runexample()
     double tres;
 
     std::ofstream f("combustor_cxx.csv");
-    std::vector<size_t> k_out;
-    k_out.push_back(gas.speciesIndex("CH4"));
-    k_out.push_back(gas.speciesIndex("O2"));
-    k_out.push_back(gas.speciesIndex("CO2"));
-    k_out.push_back(gas.speciesIndex("H2O"));
-    k_out.push_back(gas.speciesIndex("CO"));
-    k_out.push_back(gas.speciesIndex("OH"));
-    k_out.push_back(gas.speciesIndex("H"));
-    k_out.push_back(gas.speciesIndex("C2H6"));
+    std::vector<size_t> k_out {
+        gas.speciesIndex("CH4"),
+        gas.speciesIndex("O2"),
+        gas.speciesIndex("CO2"),
+        gas.speciesIndex("H2O"),
+        gas.speciesIndex("CO"),
+        gas.speciesIndex("OH"),
+        gas.speciesIndex("H"),
+        gas.speciesIndex("C2H6")
+    };
 
     while (tnow < tfinal) {
         tnow += 0.005;

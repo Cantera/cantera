@@ -225,10 +225,7 @@ protected:
         // Add dummy terminator domains on either side of this one.
         m_left = new Cantera::Empty1D;
         m_right = new Cantera::Empty1D;
-        std::vector<Cantera::Domain1D*> domains;
-        domains.push_back(m_left);
-        domains.push_back(this);
-        domains.push_back(m_right);
+        std::vector<Cantera::Domain1D*> domains { m_left, this, m_right };
 
         // create the Sim1D instance that will control the
         // solution process
