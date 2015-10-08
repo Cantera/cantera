@@ -94,7 +94,7 @@ OS X
 
   and agree to the Xcode license agreement
 
-* If you don't have numpy version >= 1.3, you can install a recent version with::
+* If you don't have numpy version >= 1.4, you can install a recent version with::
 
     sudo easy_install -U numpy
 
@@ -437,7 +437,7 @@ Optional Programs
   * Required to build the Cantera Python module, and to run significant portions
     of the test suite.
   * http://sourceforge.net/projects/numpy/
-  * Known to work with versions 1.7 and 1.8; Expected to work with version >= 1.3
+  * Known to work with versions 1.7-1.9; Expected to work with version >= 1.4
 
 * `Cython <http://cython.org/>`_
 
