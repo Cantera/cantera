@@ -61,7 +61,7 @@ void suppress_deprecation_warnings()
 // **************** Global Data ****************
 
 Unit* Unit::s_u = 0;
-mutex_t Unit::units_mutex;
+std::mutex Unit::units_mutex;
 
 void appdelete()
 {

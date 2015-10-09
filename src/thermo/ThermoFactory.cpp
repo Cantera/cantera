@@ -55,7 +55,7 @@ namespace Cantera
 {
 
 ThermoFactory* ThermoFactory::s_factory = 0;
-mutex_t ThermoFactory::thermo_mutex;
+std::mutex ThermoFactory::thermo_mutex;
 
 //! Define the number of ThermoPhase types for use in this factory routine
 static int ntypes = 27;

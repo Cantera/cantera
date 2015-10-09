@@ -6,6 +6,7 @@
 #define CT_FACTORY_BASE
 
 #include <vector>
+#include <mutex>
 
 namespace Cantera
 {

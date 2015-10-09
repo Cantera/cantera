@@ -94,9 +94,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 // present to support conversions
 %(HAS_NO_PYTHON)s
 
-//--------------------- compile options ----------------------------
-%(THREAD_SAFE_CANTERA)s
-
 //-------------- Optional Cantera Capabilities ----------------------
 
 //    Enable Sundials to use an external BLAS/LAPACK library if it was

@@ -17,7 +17,7 @@ namespace Cantera
 {
 
 KineticsFactory* KineticsFactory::s_factory = 0;
-mutex_t KineticsFactory::kinetics_mutex;
+std::mutex KineticsFactory::kinetics_mutex;
 
 Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
                                        vector<ThermoPhase*> th)

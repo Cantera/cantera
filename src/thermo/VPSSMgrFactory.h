@@ -15,7 +15,6 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/FactoryBase.h"
-#include "cantera/base/ct_thread.h"
 #include "cantera/thermo/VPSSMgr.h"
 
 namespace Cantera
@@ -78,7 +77,7 @@ public:
      * instance.
      */
     static VPSSMgrFactory* factory() {
-        ScopedLock lock(vpss_species_thermo_mutex);
+        std::unique_lock<std::mutex> lock(vpss_species_thermo_mutex);
         if (!s_factory) {
             s_factory = new VPSSMgrFactory;
         }
@@ -137,7 +136,7 @@ private:
 
     //! Decl of the static mutex variable that locks the
     //! VPSSMgr factory singleton
-    static mutex_t vpss_species_thermo_mutex;
+    static std::mutex vpss_species_thermo_mutex;
 
     //! Constructor. This is made private, so that only the static
     //! method factory() can instantiate the class.

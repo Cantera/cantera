@@ -25,7 +25,7 @@ namespace Cantera
 TransportFactory* TransportFactory::s_factory = 0;
 
 // declaration of static storage for the mutex
-mutex_t TransportFactory::transport_mutex;
+std::mutex TransportFactory::transport_mutex;
 
 //! Exception thrown if an error is encountered while reading the transport database
 class TransportDBError : public CanteraError
@@ -91,7 +91,7 @@ TransportFactory::TransportFactory()
 
 void TransportFactory::deleteFactory()
 {
-    ScopedLock transportLock(transport_mutex);
+    std::unique_lock<std::mutex> transportLock(transport_mutex);
     delete s_factory;
     s_factory = 0;
 }

@@ -62,9 +62,6 @@ if localenv['OS'] in ('Darwin', 'Windows', 'Cygwin'):
     if localenv['blas_lapack_libs']:
         localenv.Append(LIBS=localenv['blas_lapack_libs'],
                         LIBPATH=localenv['blas_lapack_dir'])
-    if localenv['boost_libs']:
-        localenv.Append(LIBS=localenv['boost_libs'],
-                        LIBPATH=localenv['boost_lib_dir'])
 
 # Build the Cantera shared library
 if localenv['layout'] != 'debian':

@@ -10,7 +10,7 @@ namespace Cantera
 {
 
 FalloffFactory* FalloffFactory::s_factory = 0;
-mutex_t FalloffFactory::falloff_mutex;
+std::mutex FalloffFactory::falloff_mutex;
 
 Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
 {

@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <mutex>
 
 using std::string;
 using std::endl;
@@ -24,29 +25,14 @@ using std::endl;
 namespace Cantera
 {
 
-// If running multiple threads in a cpp application, the Application class
-// is the only internal object that is single instance with static data.
-
-#ifdef THREAD_SAFE_CANTERA
-cthreadId_t getThisThreadId()
-{
-#if defined(BOOST_HAS_WINTHREADS)
-    return ::GetCurrentThreadId();
-#elif defined(BOOST_HAS_PTHREADS)
-    return pthread_self();
-#endif
-}
-
-#endif
-
 //! Mutex for input directory access
-static mutex_t dir_mutex;
+static std::mutex dir_mutex;
 
 //! Mutex for creating singletons within the application object
-static mutex_t app_mutex;
+static std::mutex app_mutex;
 
 //! Mutex for controlling access to XML file storage
-static mutex_t xml_mutex;
+static std::mutex xml_mutex;
 
 static int get_modified_time(const std::string& path) {
 #ifdef _WIN32
@@ -119,15 +105,13 @@ void Application::Messages::writelogendl()
     logwriter->writeendl();
 }
 
-#ifdef THREAD_SAFE_CANTERA
-
 //! Mutex for access to string messages
-static mutex_t msg_mutex;
+static std::mutex msg_mutex;
 
 Application::Messages* Application::ThreadMessages::operator ->()
 {
-    ScopedLock msgLock(msg_mutex);
-    cthreadId_t curId = getThisThreadId();
+    std::unique_lock<std::mutex> msgLock(msg_mutex);
+    std::thread::id curId = std::this_thread::get_id();
     auto iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
         return iter->second.get();
@@ -139,33 +123,26 @@ Application::Messages* Application::ThreadMessages::operator ->()
 
 void Application::ThreadMessages::removeThreadMessages()
 {
-    ScopedLock msgLock(msg_mutex);
-    cthreadId_t curId = getThisThreadId();
+    std::unique_lock<std::mutex> msgLock(msg_mutex);
+    std::thread::id curId = std::this_thread::get_id();
     auto iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
         m_threadMsgMap.erase(iter);
     }
 }
-#endif // THREAD_SAFE_CANTERA
 
 Application::Application() :
     m_suppress_deprecation_warnings(false)
 {
-#if !defined( THREAD_SAFE_CANTERA )
-    pMessenger = std::unique_ptr<Messages>(new Messages());
-#endif
-
     // install a default logwriter that writes to standard
     // output / standard error
     setDefaultDirectories();
-#if defined(THREAD_SAFE_CANTERA)
     Unit::units();
-#endif
 }
 
 Application* Application::Instance()
 {
-    ScopedLock appLock(app_mutex);
+    std::unique_lock<std::mutex> appLock(app_mutex);
     if (Application::s_app == 0) {
         Application::s_app = new Application();
     }
@@ -183,7 +160,7 @@ Application::~Application()
 
 void Application::ApplicationDestroy()
 {
-    ScopedLock appLock(app_mutex);
+    std::unique_lock<std::mutex> appLock(app_mutex);
     if (Application::s_app != 0) {
         delete Application::s_app;
         Application::s_app = 0;
@@ -203,14 +180,12 @@ void Application::warn_deprecated(const std::string& method,
 
 void Application::thread_complete()
 {
-#if defined(THREAD_SAFE_CANTERA)
     pMessenger.removeThreadMessages();
-#endif
 }
 
 XML_Node* Application::get_XML_File(const std::string& file, int debug)
 {
-    ScopedLock xmlLock(xml_mutex);
+    std::unique_lock<std::mutex> xmlLock(xml_mutex);
     std::string path = "";
     path = findInputFile(file);
     int mtime = get_modified_time(path);
@@ -256,7 +231,7 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
 
 XML_Node* Application::get_XML_from_string(const std::string& text)
 {
-    ScopedLock xmlLock(xml_mutex);
+    std::unique_lock<std::mutex> xmlLock(xml_mutex);
     std::pair<XML_Node*, int>& entry = xmlfiles[text];
     if (entry.first) {
         // Return existing cached XML tree
@@ -276,7 +251,7 @@ XML_Node* Application::get_XML_from_string(const std::string& text)
 
 void Application::close_XML_File(const std::string& file)
 {
-    ScopedLock xmlLock(xml_mutex);
+    std::unique_lock<std::mutex> xmlLock(xml_mutex);
     if (file == "all") {
         for (const auto& f : xmlfiles) {
             f.second.first->unlock();
@@ -444,7 +419,7 @@ void Application::setDefaultDirectories()
 
 void Application::addDataDirectory(const std::string& dir)
 {
-    ScopedLock dirLock(dir_mutex);
+    std::unique_lock<std::mutex> dirLock(dir_mutex);
     if (inputDirs.empty()) {
         setDefaultDirectories();
     }
@@ -462,7 +437,7 @@ void Application::addDataDirectory(const std::string& dir)
 
 std::string Application::findInputFile(const std::string& name)
 {
-    ScopedLock dirLock(dir_mutex);
+    std::unique_lock<std::mutex> dirLock(dir_mutex);
     string::size_type islash = name.find('/');
     string::size_type ibslash = name.find('\\');
     string inname;

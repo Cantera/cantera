@@ -429,11 +429,6 @@ Other Required Software
   * Known to work with version 1.54; Expected to work with versions >= 1.41
   * Only the "header-only" portions of Boost are required. Cantera does not
     currently depend on any of the compiled Boost libraries.
-  * The compiled Boost.Thread library is required to build a thread-safe version
-    of Cantera (using the ``build_thread_safe`` option to SCons.
-  * Pre-built Binaries for Windows are available from http://boost.teeks99.com/ .
-    Make sure to download the file corresponding to your architecture and
-    Visual Studio version.
 
 Optional Programs
 -----------------

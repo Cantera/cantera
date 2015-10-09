@@ -10,7 +10,6 @@
 
 #include "ThermoPhase.h"
 #include "cantera/base/xml.h"
-#include "cantera/base/ct_thread.h"
 #include "cantera/base/FactoryBase.h"
 
 namespace Cantera
@@ -55,7 +54,7 @@ class ThermoFactory : public FactoryBase
 public:
     //! Static function that creates a static instance of the factory.
     static ThermoFactory* factory() {
-        ScopedLock lock(thermo_mutex);
+        std::unique_lock<std::mutex> lock(thermo_mutex);
         if (!s_factory) {
             s_factory = new ThermoFactory;
         }
@@ -64,7 +63,7 @@ public:
 
     //! delete the static instance of this factory
     virtual void deleteFactory() {
-        ScopedLock lock(thermo_mutex);
+        std::unique_lock<std::mutex> lock(thermo_mutex);
         delete s_factory;
         s_factory = 0;
     }
@@ -88,7 +87,7 @@ private:
     ThermoFactory() {};
 
     //! Decl for locking mutex for thermo factory singleton
-    static mutex_t thermo_mutex;
+    static std::mutex thermo_mutex;
 };
 
 //!  Create a new thermo manager instance.

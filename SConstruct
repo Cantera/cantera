@@ -529,32 +529,10 @@ config_options = [
     ('extra_lib_dirs',
      'Additional directories to search for libraries (colon-separated list).',
      ''),
-    BoolVariable(
-        'build_thread_safe',
-        """Cantera can be built so that it is thread safe. Doing so requires
-           using procedures from the Boost library, so if you want thread
-           safety then you need to get and install Boost (http://www.boost.org)
-           if you don't have it.  This is turned off by default, in which case
-           Boost is not required to build Cantera.""",
-        False),
     PathVariable(
         'boost_inc_dir',
         'Location of the Boost header files.',
         defaults.boostIncDir, PathVariable.PathAccept),
-    PathVariable(
-        'boost_lib_dir',
-        'Directory containing the Boost.Thread library.',
-        defaults.boostLibDir, PathVariable.PathAccept),
-    ('boost_thread_lib',
-     """A comma-separated list containing the names of the libraries needed to
-        link to Boost.Thread. Autodetection will be attempted if this is left
-        blank.""",
-     ''),
-    ('boost_windows_libs',
-     """Comma-separated list containing the names of the Boost libraries
-        required to link Cantera programs on Windows. These libraries will be
-        copied to the Cantera installation directory.""",
-     'thread,system,date_time,chrono'), # default is correct for Boost 1.54
     BoolVariable(
         'build_with_f2c',
         """For external procedures written in Fortran 77, both the
@@ -694,9 +672,6 @@ if env['CC'] == 'cl':
 
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
-
-if env['boost_lib_dir']:
-    env.Append(LIBPATH=[env['boost_lib_dir']])
 
 if env['blas_lapack_dir']:
     env.Append(LIBPATH=[env['blas_lapack_dir']])
@@ -921,39 +896,6 @@ env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
 env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
-
-env['boost_libs'] = []
-if env['build_thread_safe']:
-    env['use_boost_libs'] = True
-
-    # Figure out what needs to be linked for Boost Thread support. Varies with
-    # OS and Boost version.
-    boost_ok = False
-    if env['boost_thread_lib']:
-        boost_lib_choices = [env['boost_thread_lib'].split(',')]
-    else:
-        boost_lib_choices = [[''], ['boost_system'],
-                             ['boost_thread', 'boost_system']]
-    for bt in boost_lib_choices:
-        header= "#define BOOST_ALL_NO_LIB\n#include <boost/thread/thread.hpp>"
-        call = "boost::mutex foo; boost::mutex::scoped_lock bar(foo);"
-
-        ans = SCons.Conftest.CheckLib(context,
-                                      [bt[0]],
-                                      header=header,
-                                      language='C++',
-                                      call=call,
-                                      extra_libs=bt[1:] if len(bt)>1 else None,
-                                      autoadd=False)
-        if not ans:
-            boost_ok = True
-            print 'Linking Boost.Thread with the following libraries: {0}'.format(
-                ', '.join(bt) or '<none>')
-            if bt[0] and env.subst('$CXX') != 'cl':
-                env['boost_libs'] = bt
-            break
-else:
-    env['use_boost_libs'] = False
 
 env = conf.Finish()
 
@@ -1262,7 +1204,6 @@ cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
-cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
 
 if not env['HAS_MATH_H_ERF']:
     if env['HAS_BOOST_MATH']:
@@ -1349,14 +1290,6 @@ if addInstallActions:
     # Data files
     install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
 
-    # Copy external libaries for Windows installations
-    if env['CC'] == 'cl' and env['use_boost_libs']:
-        boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
-                                        env['BOOST_LIB_VERSION'])
-        for lib in env['boost_windows_libs'].split(','):
-            install('$inst_libdir',
-                    '$boost_lib_dir/libboost_{0}{1}'.format(lib, boost_suffix))
-
     # Copy sundials library and header files
     if env['install_sundials']:
         for subdir in ['cvode','cvodes','ida','idas','kinsol','nvector','sundials']:
@@ -1391,9 +1324,6 @@ if env['blas_lapack_libs']:
 if not env['build_with_f2c']:
     linkLibs.extend(env['FORTRANSYSLIBS'])
     linkSharedLibs.append(env['FORTRANSYSLIBS'])
-
-linkLibs.extend(env['boost_libs'])
-linkSharedLibs.extend(env['boost_libs'])
 
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs

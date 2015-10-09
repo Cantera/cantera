@@ -22,8 +22,7 @@ incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
            localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
 libs = ['cantera_fortran'] + localenv['cantera_libs'] + ['stdc++']
 libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
-            localenv['blas_lapack_dir'], localenv['boost_lib_dir']) +
-           tuple(localenv['extra_lib_dirs']))
+            localenv['blas_lapack_dir']) + tuple(localenv['extra_lib_dirs']))
 linkflags = ('-g', localenv['thread_flags'])
 
 mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')

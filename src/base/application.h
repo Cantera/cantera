@@ -3,10 +3,10 @@
 #define CT_BASE_APPLICATION_H
 
 #include "cantera/base/config.h"
-#include "cantera/base/ct_thread.h"
 #include "cantera/base/logger.h"
 
 #include <set>
+#include <thread>
 
 namespace Cantera
 {
@@ -154,9 +154,8 @@ protected:
         std::unique_ptr<Logger> logwriter;
     };
 
-#ifdef THREAD_SAFE_CANTERA
     //! Typedef for thread specific messages
-    typedef boost::shared_ptr< Messages > pMessages_t;
+    typedef shared_ptr<Messages> pMessages_t;
 
     //! Class that stores thread messages for each thread, and retrieves them
     //! based on the thread id.
@@ -176,13 +175,12 @@ protected:
         void removeThreadMessages();
 
         //! Typedef for map between a thread and the message
-        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t;
+        typedef std::map<std::thread::id, pMessages_t> threadMsgMap_t;
 
     private:
         //! Thread Msg Map
         threadMsgMap_t m_threadMsgMap;
     };
-#endif
 
 protected:
     //! Constructor for class sets up the initial conditions
@@ -383,11 +381,7 @@ protected:
 
     bool m_suppress_deprecation_warnings;
 
-#if defined(THREAD_SAFE_CANTERA)
     ThreadMessages pMessenger;
-#else
-    std::unique_ptr<Messages> pMessenger;
-#endif
 
 private:
     //! Pointer to the single Application instance

@@ -45,8 +45,7 @@ for subdir, name, extensions in samples:
     incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
                localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
     libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
-               localenv['blas_lapack_dir'], localenv['boost_lib_dir']) +
-               tuple(localenv['extra_lib_dirs']))
+               localenv['blas_lapack_dir']) + tuple(localenv['extra_lib_dirs']))
     linkflags = (debug_link_flag, localenv['thread_flags'])
     localenv['tmpl_compiler_flags'] = repr(compilerFlags)
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])

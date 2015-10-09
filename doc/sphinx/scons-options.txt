@@ -292,33 +292,9 @@ running 'scons build'. The format of this file is:
     list).
     - default: ''
 
-* build_thread_safe: [ yes | no ]
-    Cantera can be built so that it is thread safe. Doing so requires
-    using procedures from the Boost library, so if you want thread
-    safety then you need to get and install Boost (http://www.boost.org)
-    if you don't have it. This is turned off by default, in which case
-    Boost is not required to build Cantera.
-    - default: 'no'
-
 * boost_inc_dir: [ /path/to/boost_inc_dir ]
     Location of the Boost header files.
     - default: ''
-
-* boost_lib_dir: [ /path/to/boost_lib_dir ]
-    Directory containing the Boost.Thread library.
-    - default: ''
-
-* boost_thread_lib: [ string ]
-    A comma-separated list containing the names of the libraries needed
-    to link to Boost.Thread. Autodetection will be attempted if this is
-    left blank.
-    - default: ''
-
-* boost_windows_libs: [ string ]
-    Comma-separated list containing the names of the Boost libraries
-    required to link Cantera programs on Windows. These libraries will
-    be copied to the Cantera installation directory.
-    - default: 'thread,system,date_time,chrono'
 
 * build_with_f2c: [ yes | no ]
     For external procedures written in Fortran 77, both the original F77

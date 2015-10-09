@@ -10,7 +10,6 @@
 #define CT_NEWFALLOFF_H
 
 #include "cantera/base/FactoryBase.h"
-#include "cantera/base/ct_thread.h"
 #include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
@@ -35,7 +34,7 @@ public:
      * on all subsequent calls, a pointer to the existing factory is returned.
      */
     static FalloffFactory* factory() {
-        ScopedLock lock(falloff_mutex);
+        std::unique_lock<std::mutex> lock(falloff_mutex);
         if (!s_factory) {
             s_factory = new FalloffFactory;
         }
@@ -43,7 +42,7 @@ public:
     }
 
     virtual void deleteFactory() {
-        ScopedLock lock(falloff_mutex);
+        std::unique_lock<std::mutex> lock(falloff_mutex);
         delete s_factory;
         s_factory = 0;
     }
@@ -68,7 +67,7 @@ private:
     FalloffFactory() {}
 
     //!  Mutex for use when calling the factory
-    static mutex_t falloff_mutex;
+    static std::mutex falloff_mutex;
 };
 
 //! @copydoc FalloffFactory::newFalloff

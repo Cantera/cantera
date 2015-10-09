@@ -68,15 +68,6 @@ if localenv['boost_inc_dir']:
 else:
     localenv['mak_boost_include'] = ''
 
-if localenv['boost_lib_dir'] and localenv['use_boost_libs']:
-    localenv['mak_boost_libdir'] = '-L' + localenv['boost_lib_dir']
-    pc_libdirs.append(localenv['boost_lib_dir'])
-else:
-    localenv['mak_boost_libdir'] = ''
-
-localenv['mak_boost_libs'] = ' '.join('-l%s' % s for s in localenv['boost_libs'])
-pc_libs += localenv['boost_libs']
-
 # Handle BLAS/LAPACK linkage
 localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
 

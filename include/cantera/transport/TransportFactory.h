@@ -9,7 +9,6 @@
 #define CT_TRANSPORTFACTORY_H
 
 // Cantera includes
-#include "cantera/base/ct_thread.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
 #include "LiquidTransportParams.h"
@@ -43,7 +42,7 @@ public:
      * @endcode
      */
     static TransportFactory* factory() {
-        ScopedLock transportLock(transport_mutex);
+        std::unique_lock<std::mutex> transportLock(transport_mutex);
         if (!s_factory) {
             s_factory = new TransportFactory();
         }
@@ -137,7 +136,7 @@ private:
     static TransportFactory* s_factory;
 
     //! Static instance of the mutex used to ensure the proper reading of the transport database
-    static mutex_t transport_mutex;
+    static std::mutex transport_mutex;
 
     //! The constructor is private; use static method factory() to
     //! get a pointer to a factory instance
