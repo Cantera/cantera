@@ -224,7 +224,22 @@ The total rate of heat transfer through all walls is:
 
     \dot{Q} = \sum_w f_w \dot{Q}_w
 
-where `f_w = \pm 1` indicates the facing of the wall.
+where `f_w = \pm 1` indicates the facing of the wall (+1 for the reactor on the
+left, -1 for the reactor on the right). The heat flux `\dot{Q}_w` through a wall
+`k` connecting reactors "left" and "right" is computed as:
+
+.. math::
+
+    \dot{Q}_w = U A (T_{\rm left} - T_{\rm right})
+              + \epsilon\sigma A (T_{\rm left}^4 - T_{\rm right}^4)
+              + A q_0(t)
+
+where `U` is a user-specified heat transfer coefficient (W/m^2-K), `A` is the
+wall area (m^2), `\epsilon` is the user-specified emissivity, `\sigma` is the
+Stefan-Boltzmann radiation constant, and `q_0(t)` is a user-specified,
+time-dependent heat flux (W/m^2). This definition is such that positive `q_0(t)`
+implies heat transfer from the "left" reactor to the "right" reactor. Each of
+the user-specified terms defaults to 0.
 
 In case of surface reactions, there is a net generation (or
 destruction) of homogeneous phase species at the wall. The molar rate of
