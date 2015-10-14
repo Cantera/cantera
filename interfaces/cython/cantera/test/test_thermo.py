@@ -1003,3 +1003,9 @@ class TestQuantity(utilities.CanteraTest):
 
         with self.assertRaises(Exception):
             q1+q2
+
+
+class TestMisc(utilities.CanteraTest):
+    def test_stringify_bad(self):
+        with self.assertRaises(AttributeError):
+            ct.Solution(3)

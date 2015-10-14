@@ -4,7 +4,7 @@ cdef int _pythonMajorVersion = sys.version_info[0]
 cdef CxxPythonLogger* _logger = new CxxPythonLogger()
 CxxSetLogger(_logger)
 
-cdef string stringify(x):
+cdef string stringify(x) except *:
     """ Converts Python strings to std::string. """
     # This method works with both Python 2.x and 3.x.
     if isinstance(x, bytes):
