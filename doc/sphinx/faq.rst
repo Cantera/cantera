@@ -124,8 +124,8 @@ Support and Bug Reporting
     - Check the `Issue Tracker
       <https://github.com/Cantera/cantera/issues>`_ to see if the issue
       has already been reported.
-    - Try to generate a complete, minimal example that demonstrates the
-      observed bug.
+    - Try to generate a `minimal, complete, and verifiable example
+      <http://stackoverflow.com/help/mcve>`_ that demonstrates the observed bug.
     - Create a new issue on the tracker. Include as much information as
       possible about your system configuration (operating system, compiler
       versions, Python versions, installation method, etc.)
