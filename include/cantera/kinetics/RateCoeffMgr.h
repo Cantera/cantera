@@ -75,6 +75,44 @@ public:
         return m_rates.size();
     }
 
+    //! Return effective preexponent for the specified reaction.
+    /*!
+     *  Returns effective preexponent, accounting for surface coverage
+     *  dependencies. Used in InterfaceKinetics.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective preexponent
+     */
+    double effectivePreExponentialFactor(size_t irxn) {
+        return m_rates[irxn].preExponentialFactor();
+    }
+
+    //! Return effective activation energy for the specified reaction.
+    /*!
+     *  Returns effective activation energy, accounting for surface coverage
+     *  dependencies. Used in InterfaceKinetics.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective activation energy divided by the gas constant
+     */
+    double effectiveActivationEnergy_R(size_t irxn) {
+        return m_rates[irxn].activationEnergy_R();
+    }
+
+    //! Return effective temperature exponent for the specified  reaction.
+    /*!
+     *  Returns effective temperature exponent, accounting for surface coverage
+     *  dependencies. Used in InterfaceKinetics. Current parameterization in
+     *  SurfaceArrhenius does not change this parameter with the change in
+     *  surface coverages.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective temperature exponent
+     */
+    double effectiveTemperatureExponent(size_t irxn) {
+        return m_rates[irxn].temperatureExponent();
+    }
+
 protected:
     std::vector<R> m_rates;
     std::vector<size_t> m_rxn;

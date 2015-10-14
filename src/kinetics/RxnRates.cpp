@@ -21,7 +21,7 @@ Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
     } else {
-        m_logA = log(m_A);
+        m_logA = std::log(m_A);
     }
 }
 

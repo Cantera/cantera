@@ -161,6 +161,43 @@ public:
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
 
+    //! Return effective preexponent for the specified reaction
+    /*!
+     *  Returns effective preexponent, accounting for surface coverage
+     *  dependencies.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective preexponent
+     */
+    double effectivePreExponentialFactor(size_t irxn) {
+        return m_rates.effectivePreExponentialFactor(irxn);
+    }
+
+    //! Return effective activation energy for the specified reaction
+    /*!
+     *  Returns effective activation energy, accounting for surface coverage
+     *  dependencies.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective activation energy divided by the gas constant
+     */
+    double effectiveActivationEnergy_R(size_t irxn) {
+       return m_rates.effectiveActivationEnergy_R(irxn);
+    }
+
+    //! Return effective temperature exponent for the specified reaction
+    /*!
+     *  Returns effective temperature exponenty, accounting for surface coverage
+     *  dependencies. Current parameterization in SurfaceArrhenius does not
+     *  change this parameter with the change in surface coverages.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective temperature exponent
+     */
+    double effectiveTemperatureExponent(size_t irxn) {
+       return m_rates.effectiveTemperatureExponent(irxn);
+    }
+
     //! @}
     //! @name Reaction Mechanism Construction
     //! @{
