@@ -161,6 +161,18 @@ public:
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
 
+    doublereal getEffectivePreExponentialFactor(int rnum) {
+        return m_rates.getEffectivePreExponentialFactor(rnum);
+    }
+
+    doublereal getEffectiveActivationEnergy_R(int rnum) {
+       return m_rates.getEffectiveActivationEnergy_R(rnum);
+    }
+
+    doublereal getEffectiveTemperatureExponent(int rnum) {
+       return m_rates.getEffectiveTemperatureExponent(rnum);
+    }
+
     //! @}
     //! @name Reaction Mechanism Construction
     //! @{

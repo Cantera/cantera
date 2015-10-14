@@ -75,6 +75,18 @@ public:
         return m_rates.size();
     }
 
+    doublereal getEffectivePreExponentialFactor(int rnum) {
+        return m_rates[rnum].preExponentialFactor();
+    }
+
+    doublereal getEffectiveTemperatureExponent(int rnum) {
+        return m_rates[rnum].temperatureExponent();
+    }
+
+    doublereal getEffectiveActivationEnergy_R(int rnum) {
+        return m_rates[rnum].activationEnergy_R();
+    }
+
 protected:
     std::vector<R> m_rates;
     std::vector<size_t> m_rxn;
