@@ -977,7 +977,7 @@ cdef class ReactionPathDiagram:
     cdef CxxStringStream* _log
 
 # free functions
-cdef string stringify(x)
+cdef string stringify(x) except *
 cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
