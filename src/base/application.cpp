@@ -117,7 +117,7 @@ Application::Messages* Application::ThreadMessages::operator ->()
         return iter->second.get();
     }
     pMessages_t pMsgs(new Messages());
-    m_threadMsgMap.emplace(curId, pMsgs);
+    m_threadMsgMap.insert({curId, pMsgs});
     return pMsgs.get();
 }
 

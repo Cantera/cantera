@@ -396,7 +396,7 @@ void XML_Node::addComment(const std::string& comment)
 XML_Node& XML_Node::mergeAsChild(XML_Node& node)
 {
     m_children.push_back(&node);
-    m_childindex.emplace(node.name(), m_children.back());
+    m_childindex.insert({node.name(), m_children.back()});
     node.setRoot(root());
     node.setParent(this);
     return *m_children.back();

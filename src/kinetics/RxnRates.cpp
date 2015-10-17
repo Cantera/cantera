@@ -89,8 +89,8 @@ Plog::Plog(const std::multimap<double, Arrhenius>& rates)
     }
 
     // Duplicate the first and last groups to handle P < P_0 and P > P_N
-    pressures_.emplace(-1000.0, pressures_.begin()->second);
-    pressures_.emplace(1000.0, pressures_.rbegin()->second);
+    pressures_.insert({-1000.0, pressures_.begin()->second});
+    pressures_.insert({1000.0, pressures_.rbegin()->second});
 }
 
 void Plog::validate(const std::string& equation)
