@@ -766,6 +766,12 @@ def config_error(message):
 if not conf.CheckCXXHeader('cmath', '<>'):
     config_error('The C++ compiler is not correctly configured.')
 
+# Check that cppformat submodule is in place
+if not os.path.exists('ext/cppformat/format.h'):
+    config_error('Cppformat submodule is missing.\n'
+                 'The module can be checked out using git by running:\n\n'
+                 '    git submodule update --init --recursive\n')
+
 def get_expression_value(includes, expression):
     s = ['#include ' + i for i in includes]
     s.extend(('#define Q(x) #x',
