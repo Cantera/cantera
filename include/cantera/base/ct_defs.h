@@ -38,6 +38,7 @@ namespace Cantera
 #endif
 
 using std::shared_ptr;
+using std::make_shared;
 
 /*!
  * All physical constants are stored here.

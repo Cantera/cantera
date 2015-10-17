@@ -590,39 +590,39 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
 
     // Create a new Reaction object of the appropriate type
     if (type == "elementary" || type == "arrhenius" || type == "") {
-        shared_ptr<ElementaryReaction> R(new ElementaryReaction());
+        auto R = make_shared<ElementaryReaction>();
         setupElementaryReaction(*R, rxn_node);
         return R;
     } else if (type == "threebody" || type == "three_body") {
-        shared_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());
+        auto R = make_shared<ThreeBodyReaction>();
         setupThreeBodyReaction(*R, rxn_node);
         return R;
     } else if (type == "falloff") {
-        shared_ptr<FalloffReaction> R(new FalloffReaction());
+        auto R = make_shared<FalloffReaction>();
         setupFalloffReaction(*R, rxn_node);
         return R;
     } else if (type == "chemact" || type == "chemically_activated") {
-        shared_ptr<ChemicallyActivatedReaction> R(new ChemicallyActivatedReaction());
+        auto R = make_shared<ChemicallyActivatedReaction>();
         setupChemicallyActivatedReaction(*R, rxn_node);
         return R;
     } else if (type == "plog" || type == "pdep_arrhenius") {
-        shared_ptr<PlogReaction> R(new PlogReaction());
+        auto R = make_shared<PlogReaction>();
         setupPlogReaction(*R, rxn_node);
         return R;
     } else if (type == "chebyshev") {
-        shared_ptr<ChebyshevReaction> R(new ChebyshevReaction());
+        auto R = make_shared<ChebyshevReaction>();
         setupChebyshevReaction(*R, rxn_node);
         return R;
     } else if (type == "interface" || type == "surface" || type == "edge" ||
                type == "global") {
-        shared_ptr<InterfaceReaction> R(new InterfaceReaction());
+        auto R = make_shared<InterfaceReaction>();
         setupInterfaceReaction(*R, rxn_node);
         return R;
     } else if (type == "electrochemical" ||
                type == "butlervolmer_noactivitycoeffs" ||
                type == "butlervolmer" ||
                type == "surfaceaffinity") {
-        shared_ptr<ElectrochemicalReaction> R(new ElectrochemicalReaction());
+        auto R = make_shared<ElectrochemicalReaction>();
         setupElectrochemicalReaction(*R, rxn_node);
         return R;
     } else {

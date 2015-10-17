@@ -129,12 +129,12 @@ shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)
 {
     std::string model = transport_node["model"];
     if (model == "gas_transport") {
-        shared_ptr<GasTransportData> tr(new GasTransportData());
+        auto tr = make_shared<GasTransportData>();
         setupGasTransportData(*tr, transport_node);
         return tr;
     } else {
         // Transport model not handled here
-        return shared_ptr<TransportData>(new TransportData());
+        return make_shared<TransportData>();
     }
 }
 

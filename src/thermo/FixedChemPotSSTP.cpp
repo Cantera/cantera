@@ -49,7 +49,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     setName(pname);
     setNDim(3);
     addElement(Ename);
-    shared_ptr<Species> sp(new Species(pname, parseCompString(Ename + ":1.0")));
+    auto sp = make_shared<Species>(pname, parseCompString(Ename + ":1.0"));
     double c[4] = {298.15, val, 0.0, 0.0};
     shared_ptr<SpeciesThermoInterpType> stit(
             newSpeciesThermoInterpType("const_cp", 0.1, 1e30, OneAtm, c));

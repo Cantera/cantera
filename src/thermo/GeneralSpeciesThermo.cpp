@@ -99,7 +99,7 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
-    shared_ptr<SpeciesThermoInterpType> stit_ptr(new STITbyPDSS(vpssmgr_ptr, PDSS_ptr));
+    auto stit_ptr = make_shared<STITbyPDSS>(vpssmgr_ptr, PDSS_ptr);
     install_STIT(k, stit_ptr);
 }
 
