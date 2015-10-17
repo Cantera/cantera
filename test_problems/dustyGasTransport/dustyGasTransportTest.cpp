@@ -28,7 +28,7 @@ int main(int argc, char** argv)
         tranDusty->setMeanPoreRadius(1.5E-7);
         tranDusty->setMeanParticleDiameter(1.5E-6);
 
-        tranDusty->getMultiDiffCoeffs(nsp, DATA_PTR(multiD));
+        tranDusty->getMultiDiffCoeffs(nsp, multiD.data());
         printf("MultiDiffusion coefficients: \n");
         for (size_t i = 0; i < nsp; i++) {
             for (size_t j = 0; j < nsp; j++) {

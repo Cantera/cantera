@@ -218,12 +218,12 @@ void CVodeInt::initialize(double t0, FuncEval& func)
         m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, m_y, m_method,
                                   m_iter, m_itol, &m_reltol,
                                   m_abstol, m_data, NULL, 1, m_iopt,
-                                  DATA_PTR(m_ropt), NULL);
+                                  m_ropt.data(), NULL);
     } else {
         m_cvode_mem = CVodeMalloc(m_neq, cvode_rhs, m_t0, m_y, m_method,
                                   m_iter, m_itol, &m_reltol,
                                   &m_abstols, m_data, NULL, 1, m_iopt,
-                                  DATA_PTR(m_ropt), NULL);
+                                  m_ropt.data(), NULL);
     }
 
     if (!m_cvode_mem) {
@@ -261,12 +261,12 @@ void CVodeInt::reinitialize(double t0, FuncEval& func)
         result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, m_y, m_method,
                           m_iter, m_itol, &m_reltol,
                           m_abstol, m_data, NULL, 1, m_iopt,
-                          DATA_PTR(m_ropt), NULL);
+                          m_ropt.data(), NULL);
     } else {
         result = CVReInit(m_cvode_mem, cvode_rhs, m_t0, m_y, m_method,
                           m_iter, m_itol, &m_reltol,
                           &m_abstols, m_data, NULL, 1, m_iopt,
-                          DATA_PTR(m_ropt), NULL);
+                          m_ropt.data(), NULL);
     }
 
     if (result != 0) {

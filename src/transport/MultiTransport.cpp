@@ -148,22 +148,22 @@ void MultiTransport::solveLMatrixEquation()
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp, 0.0);
 
     //! Evaluate the upper-left block of the L matrix.
-    eval_L0000(DATA_PTR(m_molefracs));
-    eval_L0010(DATA_PTR(m_molefracs));
+    eval_L0000(m_molefracs.data());
+    eval_L0010(m_molefracs.data());
     eval_L0001();
     eval_L1000();
-    eval_L1010(DATA_PTR(m_molefracs));
-    eval_L1001(DATA_PTR(m_molefracs));
+    eval_L1010(m_molefracs.data());
+    eval_L1001(m_molefracs.data());
     eval_L0100();
     eval_L0110();
-    eval_L0101(DATA_PTR(m_molefracs));
+    eval_L0101(m_molefracs.data());
 
     // Solve it using GMRES or LU decomposition. The last solution
     // in m_a should provide a good starting guess, so convergence
     // should be fast.
     copy(m_b.begin(), m_b.end(), m_a.begin());
     try {
-        solve(m_Lmatrix, DATA_PTR(m_a));
+        solve(m_Lmatrix, m_a.data());
     } catch (CanteraError& err) {
         err.save();
         throw CanteraError("MultiTransport::solveLMatrixEquation",
@@ -192,7 +192,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
         }
     }
     if (addThermalDiffusion) {
-        getThermalDiffCoeffs(DATA_PTR(m_spwork));
+        getThermalDiffCoeffs(m_spwork.data());
     }
 
     const doublereal* y = m_thermo->massFractions();
@@ -277,9 +277,9 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
 void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* state2, doublereal delta,
                                    doublereal* fluxes)
 {
-    double* x1 = DATA_PTR(m_spwork1);
-    double* x2 = DATA_PTR(m_spwork2);
-    double* x3 = DATA_PTR(m_spwork3);
+    double* x1 = m_spwork1.data();
+    double* x2 = m_spwork2.data();
+    double* x3 = m_spwork3.data();
     size_t n, nsp = m_thermo->nSpecies();
     m_thermo->restoreState(nsp+2, state1);
     double p1 = m_thermo->pressure();
@@ -298,7 +298,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
         x3[n] = 0.5*(x1[n] + x2[n]);
     }
     m_thermo->setState_TPX(t, p, x3);
-    m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
+    m_thermo->getMoleFractions(m_molefracs.data());
 
     // update the binary diffusion coefficients if necessary
     update_T();
@@ -309,7 +309,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     bool addThermalDiffusion = false;
     if (state1[0] != state2[0]) {
         addThermalDiffusion = true;
-        getThermalDiffCoeffs(DATA_PTR(m_spwork));
+        getThermalDiffCoeffs(m_spwork.data());
     }
 
     const doublereal* y = m_thermo->massFractions();
@@ -396,7 +396,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
     // evaluate L0000 if the temperature or concentrations have
     // changed since it was last evaluated.
     if (!m_l0000_ok) {
-        eval_L0000(DATA_PTR(m_molefracs));
+        eval_L0000(m_molefracs.data());
     }
 
     // invert L00,00
@@ -436,7 +436,7 @@ void MultiTransport::update_T()
 void MultiTransport::update_C()
 {
     // Update the local mole fraction array
-    m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
+    m_thermo->getMoleFractions(m_molefracs.data());
 
     for (size_t k = 0; k < m_nsp; k++) {
         // add an offset to avoid a pure species condition
@@ -467,15 +467,15 @@ void MultiTransport::updateThermal_T()
             z = m_logt - m_log_eps_k(i,j);
             ipoly = m_poly[i][j];
             if (m_mode == CK_Mode) {
-                m_om22(i,j) = poly6(z, DATA_PTR(m_omega22_poly[ipoly]));
-                m_astar(i,j) = poly6(z, DATA_PTR(m_astar_poly[ipoly]));
-                m_bstar(i,j) = poly6(z, DATA_PTR(m_bstar_poly[ipoly]));
-                m_cstar(i,j) = poly6(z, DATA_PTR(m_cstar_poly[ipoly]));
+                m_om22(i,j) = poly6(z, m_omega22_poly[ipoly].data());
+                m_astar(i,j) = poly6(z, m_astar_poly[ipoly].data());
+                m_bstar(i,j) = poly6(z, m_bstar_poly[ipoly].data());
+                m_cstar(i,j) = poly6(z, m_cstar_poly[ipoly].data());
             } else {
-                m_om22(i,j) = poly8(z, DATA_PTR(m_omega22_poly[ipoly]));
-                m_astar(i,j) = poly8(z, DATA_PTR(m_astar_poly[ipoly]));
-                m_bstar(i,j) = poly8(z, DATA_PTR(m_bstar_poly[ipoly]));
-                m_cstar(i,j) = poly8(z, DATA_PTR(m_cstar_poly[ipoly]));
+                m_om22(i,j) = poly8(z, m_omega22_poly[ipoly].data());
+                m_astar(i,j) = poly8(z, m_astar_poly[ipoly].data());
+                m_bstar(i,j) = poly8(z, m_bstar_poly[ipoly].data());
+                m_cstar(i,j) = poly8(z, m_cstar_poly[ipoly].data());
             }
             m_om22(j,i) = m_om22(i,j);
             m_astar(j,i) = m_astar(i,j);

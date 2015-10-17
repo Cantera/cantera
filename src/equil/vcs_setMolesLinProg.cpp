@@ -38,10 +38,6 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         plogf("   --- call setInitialMoles\n");
     }
 
-    // m_mu are standard state chemical potentials
-    //  Boolean on the end specifies standard chem potentials
-    // m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
-    // -> This is already done coming into the routine.
     double dg_rt;
     int idir;
     double nu;

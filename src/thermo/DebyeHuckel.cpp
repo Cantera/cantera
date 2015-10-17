@@ -169,25 +169,25 @@ int DebyeHuckel::eosType() const
 //
 doublereal DebyeHuckel::enthalpy_mole() const
 {
-    getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
+    getPartialMolarEnthalpies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal DebyeHuckel::entropy_mole() const
 {
-    getPartialMolarEntropies(DATA_PTR(m_tmpV));
+    getPartialMolarEntropies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal DebyeHuckel::gibbs_mole() const
 {
-    getChemPotentials(DATA_PTR(m_tmpV));
+    getChemPotentials(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal DebyeHuckel::cp_mole() const
 {
-    getPartialMolarCp(DATA_PTR(m_tmpV));
+    getPartialMolarCp(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 

@@ -20,9 +20,9 @@ int main()
         Interface surf("surface.xml", "surface", phases);
         vector_fp cov { 0.8, 0.2 };
         cout.precision(4);
-        surf.setCoverages(DATA_PTR(cov));
+        surf.setCoverages(cov.data());
         vector_fp wdot(gas.nSpecies() + surf.nSpecies());
-        surf.getNetProductionRates(DATA_PTR(wdot));
+        surf.getNetProductionRates(wdot.data());
         for (size_t k = 0; k < gas.nSpecies(); k++) {
             cout << gas.speciesName(k) << "  " << wdot[k] << endl;
         }
@@ -36,4 +36,3 @@ int main()
     }
     return 0;
 }
-

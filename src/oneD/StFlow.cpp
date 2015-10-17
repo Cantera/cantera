@@ -87,7 +87,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     for (size_t ng = 0; ng < m_points; ng++) {
         gr.push_back(1.0*ng/m_points);
     }
-    setupGrid(m_points, DATA_PTR(gr));
+    setupGrid(m_points, gr.data());
     setID("stagnation flow");
 
     // Find indices for radiating species
@@ -191,7 +191,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
     for (size_t k = 0; k < m_nsp; k++) {
         m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
     }
-    m_thermo->setMassFractions_NoNorm(DATA_PTR(m_ybar));
+    m_thermo->setMassFractions_NoNorm(m_ybar.data());
     m_thermo->setPressure(m_press);
 }
 
@@ -456,7 +456,7 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
         for (size_t j = j0; j < j1; j++) {
             setGasAtMidpoint(x,j);
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-            m_trans->getMixDiffCoeffs(DATA_PTR(m_diff) + j*m_nsp);
+            m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
             m_tcon[j] = m_trans->thermalConductivity();
         }
     } else if (m_transport_option == c_Multi_Transport) {
@@ -651,7 +651,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             np = x.size();
             debuglog("Grid contains "+int2str(np)+" points.\n", loglevel >= 2);
             readgrid = true;
-            setupGrid(np, DATA_PTR(x));
+            setupGrid(np, x.data());
         }
     }
     if (!readgrid) {
@@ -798,31 +798,30 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     XML_Node& gv = flow.addChild("grid_data");
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
 
-    addFloatArray(gv,"z",m_z.size(),DATA_PTR(m_z),
+    addFloatArray(gv,"z",m_z.size(), m_z.data(),
                   "m","length");
     vector_fp x(soln.nColumns());
 
-    soln.getRow(0,DATA_PTR(x));
-    addFloatArray(gv,"u",x.size(),DATA_PTR(x),"m/s","velocity");
+    soln.getRow(0, x.data());
+    addFloatArray(gv,"u",x.size(),x.data(),"m/s","velocity");
 
-    soln.getRow(1,DATA_PTR(x));
-    addFloatArray(gv,"V",
-                  x.size(),DATA_PTR(x),"1/s","rate");
+    soln.getRow(1, x.data());
+    addFloatArray(gv,"V",x.size(),x.data(),"1/s","rate");
 
-    soln.getRow(2,DATA_PTR(x));
-    addFloatArray(gv,"T",x.size(),DATA_PTR(x),"K","temperature");
+    soln.getRow(2, x.data());
+    addFloatArray(gv,"T",x.size(),x.data(),"K","temperature");
 
-    soln.getRow(3,DATA_PTR(x));
-    addFloatArray(gv,"L",x.size(),DATA_PTR(x),"N/m^4");
+    soln.getRow(3, x.data());
+    addFloatArray(gv,"L",x.size(),x.data(),"N/m^4");
 
     for (k = 0; k < m_nsp; k++) {
-        soln.getRow(4+k,DATA_PTR(x));
+        soln.getRow(4+k, x.data());
         addFloatArray(gv,m_thermo->speciesName(k),
-                      x.size(),DATA_PTR(x),"","massFraction");
+                      x.size(),x.data(),"","massFraction");
     }
     if (m_do_radiation) {
         addFloatArray(gv, "radiative_heat_loss", m_z.size(),
-            DATA_PTR(m_qdotRadiation), "W/m^3", "specificPower");
+            m_qdotRadiation.data(), "W/m^3", "specificPower");
     }
     vector_fp values(nPoints());
     for (size_t i = 0; i < nPoints(); i++) {

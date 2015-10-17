@@ -350,20 +350,18 @@ void IdealSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 void IdealSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    const doublereal* const gk = DATA_PTR(gibbsrt);
     doublereal delta_p = (m_Pcurrent - m_Pref);
     for (size_t k = 0; k < m_kk; k++) {
-        gpure[k] = RT() * gk[k] + delta_p * m_speciesMolarVolume[k];
+        gpure[k] = RT() * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
 }
 
 void IdealSolidSolnPhase::getGibbs_RT(doublereal* grt) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    const doublereal* const gk = DATA_PTR(gibbsrt);
     doublereal delta_prt = (m_Pcurrent - m_Pref)/ RT();
     for (size_t k = 0; k < m_kk; k++) {
-        grt[k] = gk[k] + delta_prt * m_speciesMolarVolume[k];
+        grt[k] = gibbsrt[k] + delta_prt * m_speciesMolarVolume[k];
     }
 }
 
@@ -601,8 +599,7 @@ void IdealSolidSolnPhase::_updateThermo() const
         /*
          * Update the thermodynamic functions of the reference state.
          */
-        m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
-                           DATA_PTR(m_s0_R));
+        m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         m_tlast = tnow;
         doublereal rrt = 1.0 / (GasConstant * tnow);
         for (size_t k = 0; k < m_kk; k++) {

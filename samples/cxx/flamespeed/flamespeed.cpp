@@ -43,7 +43,7 @@ int flamespeed(double phi)
             }
         }
 
-        gas.setState_TPX(temp,pressure,DATA_PTR(x));
+        gas.setState_TPX(temp,pressure,x.data());
         doublereal rho_in=gas.density();
 
         vector_fp yin(nsp);
@@ -95,7 +95,7 @@ int flamespeed(double phi)
 
         Inlet1D inlet;
 
-        inlet.setMoleFractions(DATA_PTR(x));
+        inlet.setMoleFractions(x.data());
         doublereal mdot=uin*rho_in;
         inlet.setMdot(mdot);
         inlet.setTemperature(temp);
@@ -145,7 +145,7 @@ int flamespeed(double phi)
             flame.setInitialGuess(gas.speciesName(i),locs,value);
         }
 
-        inlet.setMoleFractions(DATA_PTR(x));
+        inlet.setMoleFractions(x.data());
         inlet.setMdot(mdot);
         inlet.setTemperature(temp);
 

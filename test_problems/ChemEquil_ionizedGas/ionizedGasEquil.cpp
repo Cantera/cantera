@@ -64,7 +64,7 @@ int main(int argc, char** argv)
                 cout << "heat capacity c_p = " << gas->cp_mass() << endl;
                 cout << "heat capacity c_v = " << gas->cv_mass() << endl << endl;
 
-                gas->getMoleFractions(DATA_PTR(Xmol));
+                gas->getMoleFractions(Xmol.data());
                 fprintf(FF,"%10.4g, %10.4g,", tkelvin, pres);
                 for (size_t k = 0; k < kk; k++) {
                     if (fabs(Xmol[k]) < 1.0E-130) {

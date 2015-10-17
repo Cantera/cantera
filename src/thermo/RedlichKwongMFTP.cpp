@@ -194,7 +194,7 @@ void RedlichKwongMFTP::calcDensity()
      * Calculate the molarVolume of the solution (m**3 kmol-1)
      */
     const doublereal* const dtmp = moleFractdivMMW();
-    getPartialMolarVolumes(DATA_PTR(m_tmpV));
+    getPartialMolarVolumes(m_tmpV.data());
     double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
     /*
      * Set the density in the parent State object directly,
@@ -242,7 +242,7 @@ void RedlichKwongMFTP::setConcentrations(const doublereal* const c)
 
 void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 {
-    getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
+    getPartialMolarVolumes(m_partialMolarVolumes.data());
     for (size_t k = 0; k < m_kk; k++) {
         c[k] = moleFraction(k) / m_partialMolarVolumes[k];
     }
@@ -250,7 +250,7 @@ void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 
 doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-    getStandardVolumes(DATA_PTR(m_tmpV));
+    getStandardVolumes(m_tmpV.data());
     return 1.0 / m_tmpV[k];
 }
 
@@ -424,7 +424,7 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
     }
 
     pressureDerivatives();
-    getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
+    getPartialMolarVolumes(m_partialMolarVolumes.data());
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= -m_partialMolarVolumes[k] * dpdT_;
     }
@@ -570,7 +570,7 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
 {
     double tmp, tmp2;
     _updateReferenceStateThermo();
-    getGibbs_RT_ref(DATA_PTR(m_tmpV));
+    getGibbs_RT_ref(m_tmpV.data());
 
     /*
      * Within the method, we protect against inf results if the

@@ -387,7 +387,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         doublereal deltaMolNumPhase = tPhaseMoles;
         doublereal damp = 1.0;
         m_deltaGRxn_tmp = m_molNumSpecies_old;
-        double* molNumSpecies_tmp = DATA_PTR(m_deltaGRxn_tmp);
+        double* molNumSpecies_tmp = m_deltaGRxn_tmp.data();
 
         for (size_t k = 0; k < Vphase->nSpecies(); k++) {
             kspec = Vphase->spGlobalIndexVCS(k);

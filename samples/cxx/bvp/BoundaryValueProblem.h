@@ -74,7 +74,7 @@ public:
         for (iz = 0; iz < np; iz++) {
             z[iz] = zmin + iz*(zmax - zmin)/(np-1);
         }
-        setupGrid(np, DATA_PTR(z));
+        setupGrid(np, z.data());
         resize(nv, np);
     }
 

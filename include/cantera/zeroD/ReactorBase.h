@@ -196,7 +196,7 @@ public:
 
     //! Return the vector of species mass fractions.
     const doublereal* massFractions() const {
-        return DATA_PTR(m_state) + 2;
+        return m_state.data() + 2;
     }
 
     //! Return the mass fraction of the *k*-th species.

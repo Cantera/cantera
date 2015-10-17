@@ -528,7 +528,7 @@ void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 
 void LiquidTransport::getMobilities(doublereal* const mobil)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -537,7 +537,7 @@ void LiquidTransport::getMobilities(doublereal* const mobil)
 
 void LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = 1.0 / (GasConstant * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil_f[k] = c1 * m_spwork[k];
@@ -765,9 +765,9 @@ bool LiquidTransport::update_C()
     int iStateNew = m_thermo->stateMFNumber();
     if (iStateNew != m_iStateMF) {
         qReturn = false;
-        m_thermo->getMassFractions(DATA_PTR(m_massfracs));
-        m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
-        m_thermo->getConcentrations(DATA_PTR(m_concentrations));
+        m_thermo->getMassFractions(m_massfracs.data());
+        m_thermo->getMoleFractions(m_molefracs.data());
+        m_thermo->getConcentrations(m_concentrations.data());
         concTot_ = 0.0;
         concTot_tran_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
@@ -934,7 +934,7 @@ void LiquidTransport::stefan_maxwell_solve()
 
     double T = m_thermo->temperature();
     update_Grad_lnAC();
-    m_thermo->getActivityCoefficients(DATA_PTR(m_actCoeff));
+    m_thermo->getActivityCoefficients(m_actCoeff.data());
 
     /*
      *  Calculate the electrochemical potential gradient. This is the

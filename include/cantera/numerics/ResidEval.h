@@ -101,7 +101,7 @@ public:
         for (int i = 0; i < nn; i++) {
             ydot[i] = (y[i] - yold[i]) / deltaT;
         }
-        return eval(t, y, DATA_PTR(ydot), r);
+        return eval(t, y, ydot.data(), r);
     }
 
     //! Fill in the initial conditions

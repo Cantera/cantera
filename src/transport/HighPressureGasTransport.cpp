@@ -251,7 +251,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     // evaluate L0000 if the temperature or concentrations have
     // changed since it was last evaluated.
     if (!m_l0000_ok) {
-        eval_L0000(DATA_PTR(molefracs));
+        eval_L0000(molefracs.data());
     }
 
     // invert L00,00

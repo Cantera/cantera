@@ -294,8 +294,7 @@ void MaskellSolidSolnPhase::_updateThermo() const
      */
     doublereal tnow = temperature();
     if (!cached.validate(tnow)) {
-        m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
-                           DATA_PTR(m_s0_R));
+        m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }

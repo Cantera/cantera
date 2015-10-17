@@ -328,7 +328,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         if (forceNewJac) {
             r.eval(npos, &m_x[0], &m_stp[0], 0.0, 0);
             jac.eval(&m_x[0], &m_stp[0], 0.0);
-            jac.updateTransient(rdt, DATA_PTR(r.transientMask()));
+            jac.updateTransient(rdt, r.transientMask().data());
             forceNewJac = false;
         }
 

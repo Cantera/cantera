@@ -128,7 +128,7 @@ doublereal MolalityVPSSTP::moleFSolventMin() const
 
 void MolalityVPSSTP::calcMolalities() const
 {
-    getMoleFractions(DATA_PTR(m_molalities));
+    getMoleFractions(m_molalities.data());
     double xmolSolvent = std::max(m_molalities[m_indexSolvent], m_xmolSolventMIN);
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
     for (size_t k = 0; k < m_kk; k++) {
@@ -164,7 +164,7 @@ void MolalityVPSSTP::setMolalities(const doublereal* const molal)
             m_molalities[k] *= tmp;
         }
     }
-    setMoleFractions(DATA_PTR(m_molalities));
+    setMoleFractions(m_molalities.data());
     /*
      * Essentially we don't trust the input: We calculate
      * the molalities from the mole fractions that we
@@ -184,7 +184,7 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
      * Get a vector of mole fractions
      */
     vector_fp mf(m_kk, 0.0);
-    getMoleFractions(DATA_PTR(mf));
+    getMoleFractions(mf.data());
     double xmolSmin = std::max(mf[m_indexSolvent], m_xmolSolventMIN);
     for (size_t k = 0; k < m_kk; k++) {
         double mol_k = getValue(mMap, speciesName(k), 0.0);
@@ -239,7 +239,7 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
     for (size_t k = 0; k < m_kk; k++) {
         mf[k] *= sum;
     }
-    setMoleFractions(DATA_PTR(mf));
+    setMoleFractions(mf.data());
     /*
      * After we formally set the mole fractions, we
      * calculate the molalities again and store it in
@@ -300,7 +300,7 @@ doublereal MolalityVPSSTP::osmoticCoefficient() const
      * First, we calculate the activities all over again
      */
     vector_fp act(m_kk);
-    getActivities(DATA_PTR(act));
+    getActivities(act.data());
     /*
      * Then, we calculate the sum of the solvent molalities
      */

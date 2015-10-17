@@ -209,7 +209,7 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
     for (size_t k = 0; k < strt; k++) {
         m_x[k] = x[k] / m_nlattice;
     }
-    Phase::setMoleFractions(DATA_PTR(m_x));
+    Phase::setMoleFractions(m_x.data());
     calcDensity();
 }
 
@@ -379,7 +379,7 @@ void LatticeSolidPhase::initThermo()
         }
         lkstart_[n+1] = loc;
     }
-    setMoleFractions(DATA_PTR(m_x));
+    setMoleFractions(m_x.data());
     ThermoPhase::initThermo();
 }
 
@@ -395,11 +395,11 @@ void LatticeSolidPhase::_updateThermo() const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow) {
-        getMoleFractions(DATA_PTR(m_x));
+        getMoleFractions(m_x.data());
         size_t strt = 0;
         for (size_t n = 0; n < m_nlattice; n++) {
             m_lattice[n]->setTemperature(tnow);
-            m_lattice[n]->setMoleFractions(DATA_PTR(m_x) + strt);
+            m_lattice[n]->setMoleFractions(&m_x[strt]);
             m_lattice[n]->setPressure(m_press);
             strt += m_lattice[n]->nSpecies();
         }
@@ -419,7 +419,7 @@ void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string&
             loc++;
         }
     }
-    setMoleFractions(DATA_PTR(m_x));
+    setMoleFractions(m_x.data());
 }
 
 void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)

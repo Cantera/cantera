@@ -235,7 +235,7 @@ int BandMatrix::factor()
     int info=0;
     copy(data.begin(), data.end(), ludata.begin());
     ct_dgbtrf(nRows(), nColumns(), nSubDiagonals(), nSuperDiagonals(),
-              DATA_PTR(ludata), ldim(), DATA_PTR(ipiv()), info);
+              ludata.data(), ldim(), ipiv().data(), info);
 
     // if info = 0, LU decomp succeeded.
     if (info == 0) {
@@ -266,8 +266,8 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     }
     if (info == 0) {
         ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
-                  nSuperDiagonals(), nrhs, DATA_PTR(ludata), ldim(),
-                  DATA_PTR(ipiv()), b, ldb, info);
+                  nSuperDiagonals(), nrhs, ludata.data(), ldim(),
+                  ipiv().data(), b, ldb, info);
     }
 
     // error handling
@@ -331,8 +331,8 @@ doublereal BandMatrix::rcond(doublereal a1norm)
 
     size_t ldab = (2 *m_kl + m_ku + 1);
     int rinfo = 0;
-    rcond = ct_dgbcon('1', m_n, m_kl, m_ku, DATA_PTR(ludata), ldab, DATA_PTR(m_ipiv), a1norm, DATA_PTR(work_),
-                      DATA_PTR(iwork_), rinfo);
+    rcond = ct_dgbcon('1', m_n, m_kl, m_ku, ludata.data(), ldab, m_ipiv.data(), a1norm, work_.data(),
+                      iwork_.data(), rinfo);
     if (rinfo != 0) {
         if (printLevel) {
             writelogf("BandMatrix::rcond(): DGBCON returned INFO = %d\n", rinfo);

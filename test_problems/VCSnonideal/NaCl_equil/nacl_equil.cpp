@@ -91,7 +91,7 @@ int main(int argc, char** argv)
         vector_fp Xmol(kk, 0.0);
         size_t iH2OL = hmw.speciesIndex("H2O(L)");
         Xmol[iH2OL] = 1.0;
-        hmw.setState_TPX(T, pres, DATA_PTR(Xmol));
+        hmw.setState_TPX(T, pres, Xmol.data());
 
         ThermoPhase* gas = newPhase("gas.xml");
 
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
         }
         size_t iN2 = gas->speciesIndex("N2");
         Xmol[iN2] = 1.0;
-        gas->setState_TPX(T, pres, DATA_PTR(Xmol));
+        gas->setState_TPX(T, pres, Xmol.data());
 
 
         StoichSubstanceSSTP ss("NaCl_Solid.xml", "");

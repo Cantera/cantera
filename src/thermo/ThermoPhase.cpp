@@ -852,9 +852,9 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
      * Evaluate the current base activity coefficients if necessary
      */
     vector_fp ActCoeff_Base(m_kk);
-    getActivityCoefficients(DATA_PTR(ActCoeff_Base));
+    getActivityCoefficients(ActCoeff_Base.data());
     vector_fp Xmol_Base(m_kk);
-    getMoleFractions(DATA_PTR(Xmol_Base));
+    getMoleFractions(Xmol_Base.data());
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
     vector_fp ActCoeff(m_kk);
@@ -889,8 +889,8 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
          * Go get new values for the activity coefficients.
          * -> Note this calls setState_PX();
          */
-        setState_PX(pres, DATA_PTR(Xmol));
-        getActivityCoefficients(DATA_PTR(ActCoeff));
+        setState_PX(pres, Xmol.data());
+        getActivityCoefficients(ActCoeff.data());
 
         /*
          * Calculate the column of the matrix
@@ -912,7 +912,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
      * -> Just wanted to make sure that cantera is in sync
      *    with VolPhase after this call.
      */
-    setState_PX(pres, DATA_PTR(Xmol_Base));
+    setState_PX(pres, Xmol_Base.data());
 }
 
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const

@@ -48,7 +48,7 @@ void Wall::setKinetics(Kinetics* left, Kinetics* right)
             m_surf[0] = (SurfPhase*)&left->thermo(ileft);
             m_nsp[0] = m_surf[0]->nSpecies();
             m_leftcov.resize(m_nsp[0]);
-            m_surf[0]->getCoverages(DATA_PTR(m_leftcov));
+            m_surf[0]->getCoverages(m_leftcov.data());
         }
     }
     if (right) {
@@ -57,7 +57,7 @@ void Wall::setKinetics(Kinetics* left, Kinetics* right)
             m_surf[1] = (SurfPhase*)&right->thermo(iright);
             m_nsp[1] = m_surf[1]->nSpecies();
             m_rightcov.resize(m_nsp[1]);
-            m_surf[1]->getCoverages(DATA_PTR(m_rightcov));
+            m_surf[1]->getCoverages(m_rightcov.data());
         }
     }
     if (ileft == npos || iright == npos) {
@@ -133,9 +133,9 @@ void Wall::getCoverages(int leftright, doublereal* cov)
 void Wall::syncCoverages(int leftright)
 {
     if (leftright == 0) {
-        m_surf[0]->setCoverages(DATA_PTR(m_leftcov));
+        m_surf[0]->setCoverages(m_leftcov.data());
     } else {
-        m_surf[1]->setCoverages(DATA_PTR(m_rightcov));
+        m_surf[1]->setCoverages(m_rightcov.data());
     }
 }
 

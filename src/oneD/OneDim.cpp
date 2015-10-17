@@ -192,7 +192,7 @@ int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
     if (!m_jac_ok) {
         eval(npos, x, xnew, 0.0, 0);
         m_jac->eval(x, xnew, 0.0);
-        m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
+        m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
     return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
@@ -234,12 +234,12 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
 
     // iterate over the bulk domains first
     for (const auto& d : m_bulk) {
-        d->eval(j, x, r, DATA_PTR(m_mask), rdt);
+        d->eval(j, x, r, m_mask.data(), rdt);
     }
 
     // then over the connector domains
     for (const auto& d : m_connect) {
-        d->eval(j, x, r, DATA_PTR(m_mask), rdt);
+        d->eval(j, x, r, m_mask.data(), rdt);
     }
 
     // increment counter and time
@@ -268,7 +268,7 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
     // if the stepsize has changed, then update the transient
     // part of the Jacobian
     if (fabs(rdt_old - m_rdt) > Tiny) {
-        m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
+        m_jac->updateTransient(m_rdt, m_mask.data());
     }
 
     // iterate over all domains, preparing each one to begin
@@ -283,7 +283,7 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
 void OneDim::setSteadyMode()
 {
     m_rdt = 0.0;
-    m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
+    m_jac->updateTransient(m_rdt, m_mask.data());
 
     // iterate over all domains, preparing them for steady-state solution
     Domain1D* d = left();

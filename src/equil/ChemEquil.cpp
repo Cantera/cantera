@@ -152,14 +152,14 @@ void ChemEquil::setToEquilState(thermo_t& s,
     // Call the phase-specific method to set the phase to the
     // equilibrium state with the specified species chemical
     // potentials.
-    s.setToEquilState(DATA_PTR(m_mu_RT));
+    s.setToEquilState(m_mu_RT.data());
     update(s);
 }
 
 void ChemEquil::update(const thermo_t& s)
 {
     // get the mole fractions, temperature, and density
-    s.getMoleFractions(DATA_PTR(m_molefractions));
+    s.getMoleFractions(m_molefractions.data());
     m_temp = s.temperature();
     m_dens = s.density();
 
@@ -238,12 +238,12 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     vector_fp mu_RT(m_kk, 0.0);
     vector_fp xMF_est(m_kk, 0.0);
 
-    s.getMoleFractions(DATA_PTR(xMF_est));
+    s.getMoleFractions(xMF_est.data());
     for (size_t n = 0; n < s.nSpecies(); n++) {
         xMF_est[n] = std::max(xMF_est[n], 1e-20);
     }
-    s.setMoleFractions(DATA_PTR(xMF_est));
-    s.getMoleFractions(DATA_PTR(xMF_est));
+    s.setMoleFractions(xMF_est.data());
+    s.getMoleFractions(xMF_est.data());
 
     MultiPhase mp;
     mp.addPhase(&s, 1.0);
@@ -259,13 +259,13 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         m_component[m] = k;
         xMF_est[k] = std::max(xMF_est[k], 1e-8);
     }
-    s.setMoleFractions(DATA_PTR(xMF_est));
-    s.getMoleFractions(DATA_PTR(xMF_est));
+    s.setMoleFractions(xMF_est.data());
+    s.getMoleFractions(xMF_est.data());
 
     ElemRearrange(m_nComponents, elMolesGoal, &mp,
                   m_orderVectorSpecies, m_orderVectorElements);
 
-    s.getChemPotentials(DATA_PTR(mu_RT));
+    s.getChemPotentials(mu_RT.data());
     doublereal rrt = 1.0/(GasConstant* s.temperature());
     scale(mu_RT.begin(), mu_RT.end(), mu_RT.begin(), rrt);
 
@@ -292,7 +292,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         b[m] = mu_RT[m_component[m]];
     }
 
-    int info = solve(aa, DATA_PTR(b));
+    int info = solve(aa, b.data());
     if (info) {
         info = -2;
     }
@@ -449,7 +449,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     for (size_t k = 0; k < m_kk; k++) {
         xmm[k] = s.moleFraction(k) + 1.0E-32;
     }
-    s.setMoleFractions(DATA_PTR(xmm));
+    s.setMoleFractions(xmm.data());
 
     /*
      * Update the internally stored values of m_temp,
@@ -540,7 +540,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
      * itself. Or else, create our own estimate.
      */
     if (useThermoPhaseElementPotentials) {
-        bool haveEm = s.getElementPotentials(DATA_PTR(x));
+        bool haveEm = s.getElementPotentials(x.data());
         if (haveEm) {
             if (s.temperature() < 100.) {
                 writelog("we are here {:g}\n", s.temperature());
@@ -709,7 +709,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
          * Solve the system
          */
         try {
-            info = solve(jac, DATA_PTR(res_trial));
+            info = solve(jac, res_trial.data());
         } catch (CanteraError& err) {
             err.save();
             s.restoreState(state);
@@ -912,9 +912,9 @@ double ChemEquil::calcEmoles(thermo_t& s, vector_fp& x, const double& n_t,
      * previous solution state.
      */
     vector_fp actCoeff(m_kk, 1.0);
-    s.setMoleFractions(DATA_PTR(Xmol_i_calc));
+    s.setMoleFractions(Xmol_i_calc.data());
     s.setPressure(pressureConst);
-    s.getActivityCoefficients(DATA_PTR(actCoeff));
+    s.getActivityCoefficients(actCoeff.data());
 
     for (size_t k = 0; k < m_kk; k++) {
         tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
@@ -961,7 +961,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
     vector_fp Xmol_i_calc(m_kk,0.0);
     double beta = 1.0;
 
-    s.getMoleFractions(DATA_PTR(n_i));
+    s.getMoleFractions(n_i.data());
     double pressureConst = s.pressure();
     copy(n_i.begin(), n_i.end(), Xmol_i_calc.begin());
 
@@ -974,7 +974,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
      * at their standard states of solution at the current T and P
      * of the solution.
      */
-    s.getGibbs_RT(DATA_PTR(m_muSS_RT));
+    s.getGibbs_RT(m_muSS_RT.data());
 
     vector_fp eMolesCalc(m_mm, 0.0);
     vector_fp eMolesFix(m_mm, 0.0);
@@ -997,9 +997,9 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
     double n_t = 0.0;
     double sum2 = 0.0;
     double nAtomsMax = 1.0;
-    s.setMoleFractions(DATA_PTR(Xmol_i_calc));
+    s.setMoleFractions(Xmol_i_calc.data());
     s.setPressure(pressureConst);
-    s.getActivityCoefficients(DATA_PTR(actCoeff));
+    s.getActivityCoefficients(actCoeff.data());
     for (k = 0; k < m_kk; k++) {
         tmp = - (m_muSS_RT[k] + log(actCoeff[k]));
         sum2 = 0.0;
@@ -1388,7 +1388,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             }
 
             try {
-                solve(a1, DATA_PTR(resid));
+                solve(a1, resid.data());
             } catch (CanteraError& err) {
                 err.save();
                 if (DEBUG_MODE_ENABLED) {
@@ -1460,7 +1460,7 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
     if (fabs(elMolesGoal[m_eloc]) > 1.0E-20) {
         return;
     }
-    s.getMoleFractions(DATA_PTR(m_molefractions));
+    s.getMoleFractions(m_molefractions.data());
     size_t k;
     size_t maxPosEloc = npos;
     size_t maxNegEloc = npos;
@@ -1520,8 +1520,8 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
         }
     }
 
-    s.setMoleFractions(DATA_PTR(m_molefractions));
-    s.getMoleFractions(DATA_PTR(m_molefractions));
+    s.setMoleFractions(m_molefractions.data());
+    s.getMoleFractions(m_molefractions.data());
 }
 
 } // namespace

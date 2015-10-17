@@ -146,7 +146,7 @@ void ImplicitSurfChem::eval(doublereal time, doublereal* y,
     size_t loc, kstart;
     for (size_t n = 0; n < m_nsurf; n++) {
         rs0 = 1.0/m_surf[n]->siteDensity();
-        m_vecKinPtrs[n]->getNetProductionRates(DATA_PTR(m_work));
+        m_vecKinPtrs[n]->getNetProductionRates(m_work.data());
         kstart = m_vecKinPtrs[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
         sum = 0.0;
         loc = 0;
@@ -194,7 +194,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
      *  1) concentrations of all species in all phases, m_concSpecies[]
      *  2) Temperature and pressure
      */
-    getConcSpecies(DATA_PTR(m_concSpecies));
+    getConcSpecies(m_concSpecies.data());
     InterfaceKinetics* ik = m_vecKinPtrs[0];
     ThermoPhase& tp = ik->thermo(0);
     doublereal TKelvin = tp.temperature();
@@ -225,7 +225,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
         }
     }
     if (rset) {
-        setConcSpecies(DATA_PTR(m_concSpecies));
+        setConcSpecies(m_concSpecies.data());
     }
 
     m_surfSolver->m_ioflag = m_ioFlag;
@@ -238,7 +238,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     if (retn != 1) {
         // reset the concentrations
         copy(m_concSpeciesSave.begin(), m_concSpeciesSave.end(), m_concSpecies.begin());
-        setConcSpecies(DATA_PTR(m_concSpeciesSave));
+        setConcSpecies(m_concSpeciesSave.data());
         ifunc = SFLUX_INITIALIZE;
         retn = m_surfSolver->solveSurfProb(ifunc, time_scale, TKelvin, PGas,
                                            reltol, atol);

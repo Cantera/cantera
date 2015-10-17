@@ -246,32 +246,32 @@ int IonsFromNeutralVPSSTP::eosType() const
 
 doublereal IonsFromNeutralVPSSTP::enthalpy_mole() const
 {
-    getPartialMolarEnthalpies(DATA_PTR(m_pp));
+    getPartialMolarEnthalpies(m_pp.data());
     return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::entropy_mole() const
 {
-    getPartialMolarEntropies(DATA_PTR(m_pp));
+    getPartialMolarEntropies(m_pp.data());
     return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::gibbs_mole() const
 {
-    getChemPotentials(DATA_PTR(m_pp));
+    getChemPotentials(m_pp.data());
     return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::cp_mole() const
 {
-    getPartialMolarCp(DATA_PTR(m_pp));
+    getPartialMolarCp(m_pp.data());
     return mean_X(m_pp);
 }
 
 doublereal IonsFromNeutralVPSSTP::cv_mole() const
 {
     // Need to revisit this, as it is wrong
-    getPartialMolarCp(DATA_PTR(m_pp));
+    getPartialMolarCp(m_pp.data());
     return mean_X(m_pp);
 }
 
@@ -314,7 +314,7 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
     /*
      * Get the standard chemical potentials of netural molecules
      */
-    neutralMoleculePhase_->getStandardChemPotentials(DATA_PTR(muNeutralMolecule_));
+    neutralMoleculePhase_->getStandardChemPotentials(muNeutralMolecule_.data());
 
     doublereal RT_ = GasConstant * temperature();
 
@@ -323,7 +323,7 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
         neutralMoleculePhase_->getChemPotentials(mu);
         break;
     case cIonSolnType_SINGLEANION:
-        neutralMoleculePhase_->getLnActivityCoefficients(DATA_PTR(lnActCoeff_NeutralMolecule_));
+        neutralMoleculePhase_->getLnActivityCoefficients(lnActCoeff_NeutralMolecule_.data());
         fact2 = 2.0 * RT_ * log(2.0);
 
         // Do the cation list
@@ -473,7 +473,7 @@ void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal* const mf) const
      * Download the neutral mole fraction vector into the
      * vector, NeutralMolecMoleFractions_[]
      */
-    neutralMoleculePhase_->getMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    neutralMoleculePhase_->getMoleFractions(NeutralMolecMoleFractions_.data());
 
     // Zero the mole fractions
     for (size_t k = 0; k < m_kk; k++) {
@@ -676,35 +676,35 @@ void IonsFromNeutralVPSSTP::setMassFractions(const doublereal* const y)
 {
     GibbsExcessVPSSTP::setMassFractions(y);
     calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
 }
 
 void IonsFromNeutralVPSSTP::setMassFractions_NoNorm(const doublereal* const y)
 {
     GibbsExcessVPSSTP::setMassFractions_NoNorm(y);
     calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
 }
 
 void IonsFromNeutralVPSSTP::setMoleFractions(const doublereal* const x)
 {
     GibbsExcessVPSSTP::setMoleFractions(x);
     calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
 }
 
 void IonsFromNeutralVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
     GibbsExcessVPSSTP::setMoleFractions_NoNorm(x);
     calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions_NoNorm(DATA_PTR(NeutralMolecMoleFractions_));
+    neutralMoleculePhase_->setMoleFractions_NoNorm(NeutralMolecMoleFractions_.data());
 }
 
 void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const c)
 {
     GibbsExcessVPSSTP::setConcentrations(c);
     calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions(DATA_PTR(NeutralMolecMoleFractions_));
+    neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
 }
 
 /*
@@ -951,7 +951,7 @@ void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const
     /*
      * Get the activity coefficiens of the neutral molecules
      */
-    neutralMoleculePhase_->getLnActivityCoefficients(DATA_PTR(lnActCoeff_NeutralMolecule_));
+    neutralMoleculePhase_->getLnActivityCoefficients(lnActCoeff_NeutralMolecule_.data());
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1005,10 +1005,10 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         return;
     }
 
-    getNeutralMoleculeMoleGrads(DATA_PTR(dXds),DATA_PTR(dX_NeutralMolecule_));
+    getNeutralMoleculeMoleGrads(dXds, dX_NeutralMolecule_.data());
 
     // All mole fractions returned to normal
-    geThermo->getdlnActCoeffds(dTds, DATA_PTR(dX_NeutralMolecule_), DATA_PTR(dlnActCoeff_NeutralMolecule_));
+    geThermo->getdlnActCoeffds(dTds, dX_NeutralMolecule_.data(), dlnActCoeff_NeutralMolecule_.data());
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1059,7 +1059,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
         return;
     }
 
-    geThermo->getdlnActCoeffdT(DATA_PTR(dlnActCoeffdT_NeutralMolecule_));
+    geThermo->getdlnActCoeffdT(dlnActCoeffdT_NeutralMolecule_.data());
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1110,7 +1110,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
         return;
     }
 
-    geThermo->getdlnActCoeffdlnX_diag(DATA_PTR(dlnActCoeffdlnX_diag_NeutralMolecule_));
+    geThermo->getdlnActCoeffdlnX_diag(dlnActCoeffdlnX_diag_NeutralMolecule_.data());
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
@@ -1161,7 +1161,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
         return;
     }
 
-    geThermo->getdlnActCoeffdlnN_diag(DATA_PTR(dlnActCoeffdlnN_diag_NeutralMolecule_));
+    geThermo->getdlnActCoeffdlnN_diag(dlnActCoeffdlnN_diag_NeutralMolecule_.data());
 
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:

@@ -310,7 +310,7 @@ void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 
 void SimpleTransport::getMobilities(doublereal* const mobil)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -319,7 +319,7 @@ void SimpleTransport::getMobilities(doublereal* const mobil)
 
 void SimpleTransport::getFluidMobilities(doublereal* const mobil_f)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = 1.0 / (GasConstant * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil_f[k] = c1 * m_spwork[k];
@@ -394,7 +394,7 @@ void SimpleTransport::getSpeciesVdiff(size_t ndim,
     set_Grad_X(grad_X);
     const doublereal* y = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
-    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+    getSpeciesFluxesExt(m_nsp, Vdiff);
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
@@ -416,7 +416,7 @@ void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
     set_Grad_V(grad_Phi);
     const doublereal* y = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
-    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+    getSpeciesFluxesExt(m_nsp, Vdiff);
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
@@ -443,7 +443,7 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
     update_T();
     update_C();
 
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
 
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y = m_thermo->massFractions();
@@ -539,8 +539,8 @@ bool SimpleTransport::update_C()
     int iStateNew = m_thermo->stateMFNumber();
     if (iStateNew != m_iStateMF) {
         qReturn = false;
-        m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
-        m_thermo->getConcentrations(DATA_PTR(m_concentrations));
+        m_thermo->getMoleFractions(m_molefracs.data());
+        m_thermo->getConcentrations(m_concentrations.data());
         concTot_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_molefracs[k] = std::max(0.0, m_molefracs[k]);

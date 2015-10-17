@@ -70,7 +70,7 @@ extern "C" {
             if (d->m_pars.size() == 0) {
                 f->eval(t, ydata, ydotdata, NULL);
             } else {
-                f->eval(t, ydata, ydotdata, DATA_PTR(d->m_pars));
+                f->eval(t, ydata, ydotdata, d->m_pars.data());
             }
         } catch (CanteraError& err) {
             std::cerr << err.what() << std::endl;
@@ -259,7 +259,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     }
     vector_fp atol(m_np, m_abstolsens);
     double rtol = m_reltolsens;
-    flag = CVodeSensSStolerances(m_cvode_mem, rtol, DATA_PTR(atol));
+    flag = CVodeSensSStolerances(m_cvode_mem, rtol, atol.data());
 
 }
 
@@ -334,7 +334,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
     if (func.nparams() > 0) {
         sensInit(t0, func);
-        flag = CVodeSetSensParams(m_cvode_mem, DATA_PTR(m_fdata->m_pars),
+        flag = CVodeSetSensParams(m_cvode_mem, m_fdata->m_pars.data(),
                                   NULL, NULL);
     }
     applyOptions();

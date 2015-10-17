@@ -223,7 +223,7 @@ ThermoPhase& MultiPhase::phase(size_t n)
         init();
     }
     m_phase[n]->setTemperature(m_temp);
-    m_phase[n]->setMoleFractions_NoNorm(DATA_PTR(m_moleFractions) + m_spstart[n]);
+    m_phase[n]->setMoleFractions_NoNorm(&m_moleFractions[m_spstart[n]]);
     m_phase[n]->setPressure(m_press);
     return *m_phase[n];
 }
@@ -425,7 +425,7 @@ void MultiPhase::setMolesByName(const compositionMap& xMap)
     for (size_t k = 0; k < kk; k++) {
         moles[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
     }
-    setMoles(DATA_PTR(moles));
+    setMoles(moles.data());
 }
 
 void MultiPhase::setMolesByName(const std::string& x)
@@ -473,9 +473,9 @@ void MultiPhase::setMoles(const doublereal* n)
         if (nsp > 1) {
             if (phasemoles > 0.0) {
                 p->setState_TPX(m_temp, m_press, n + loc);
-                p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+                p->getMoleFractions(&m_moleFractions[loc]);
             } else {
-                p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+                p->getMoleFractions(&m_moleFractions[loc]);
             }
         } else {
             m_moleFractions[loc] = 1.0;
@@ -487,10 +487,10 @@ void MultiPhase::setMoles(const doublereal* n)
 void MultiPhase::addSpeciesMoles(const int indexS, const doublereal addedMoles)
 {
     vector_fp tmpMoles(m_nsp, 0.0);
-    getMoles(DATA_PTR(tmpMoles));
+    getMoles(tmpMoles.data());
     tmpMoles[indexS] += addedMoles;
     tmpMoles[indexS] = std::max(tmpMoles[indexS], 0.0);
-    setMoles(DATA_PTR(tmpMoles));
+    setMoles(tmpMoles.data());
 }
 
 void MultiPhase::setState_TP(const doublereal T, const doublereal Pres)
@@ -912,7 +912,7 @@ void MultiPhase::uploadMoleFractionsFromPhases()
     size_t ip, loc = 0;
     for (ip = 0; ip < m_np; ip++) {
         ThermoPhase* p = m_phase[ip];
-        p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+        p->getMoleFractions(&m_moleFractions[loc]);
         loc += p->nSpecies();
     }
     calcElemAbundances();
@@ -923,9 +923,8 @@ void MultiPhase::updatePhases() const
     size_t p, nsp, loc = 0;
     for (p = 0; p < m_np; p++) {
         nsp = m_phase[p]->nSpecies();
-        const doublereal* x = DATA_PTR(m_moleFractions) + loc;
+        m_phase[p]->setState_TPX(m_temp, m_press, &m_moleFractions[loc]);
         loc += nsp;
-        m_phase[p]->setState_TPX(m_temp, m_press, x);
         m_temp_OK[p] = true;
         if (m_temp < m_phase[p]->minTemp() || m_temp > m_phase[p]->maxTemp()) {
             m_temp_OK[p] = false;

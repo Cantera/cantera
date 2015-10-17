@@ -135,32 +135,32 @@ ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const
 
 doublereal IdealMolalSoln::enthalpy_mole() const
 {
-    getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
-    getMoleFractions(DATA_PTR(m_pp));
+    getPartialMolarEnthalpies(m_tmpV.data());
+    getMoleFractions(m_pp.data());
     return mean_X(m_tmpV);
 }
 
 doublereal IdealMolalSoln::intEnergy_mole() const
 {
-    getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
+    getPartialMolarEnthalpies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal IdealMolalSoln::entropy_mole() const
 {
-    getPartialMolarEntropies(DATA_PTR(m_tmpV));
+    getPartialMolarEntropies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal IdealMolalSoln::gibbs_mole() const
 {
-    getChemPotentials(DATA_PTR(m_tmpV));
+    getChemPotentials(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal IdealMolalSoln::cp_mole() const
 {
-    getPartialMolarCp(DATA_PTR(m_tmpV));
+    getPartialMolarCp(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 

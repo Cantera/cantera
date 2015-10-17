@@ -82,7 +82,7 @@ void Inlet1D::setMoleFractions(const std::string& xin)
     m_xstr = xin;
     if (m_flow) {
         m_flow->phase().setMoleFractionsByName(xin);
-        m_flow->phase().getMassFractions(DATA_PTR(m_yin));
+        m_flow->phase().getMassFractions(m_yin.data());
         needJacUpdate();
     }
 }
@@ -91,7 +91,7 @@ void Inlet1D::setMoleFractions(const doublereal* xin)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xin);
-        m_flow->phase().getMassFractions(DATA_PTR(m_yin));
+        m_flow->phase().getMassFractions(m_yin.data());
         needJacUpdate();
     }
 }
@@ -486,7 +486,7 @@ void OutletRes1D::setMoleFractions(const std::string& xres)
     m_xstr = xres;
     if (m_flow) {
         m_flow->phase().setMoleFractionsByName(xres);
-        m_flow->phase().getMassFractions(DATA_PTR(m_yres));
+        m_flow->phase().getMassFractions(m_yres.data());
         needJacUpdate();
     }
 }
@@ -495,7 +495,7 @@ void OutletRes1D::setMoleFractions(const doublereal* xres)
 {
     if (m_flow) {
         m_flow->phase().setMoleFractions(xres);
-        m_flow->phase().getMassFractions(DATA_PTR(m_yres));
+        m_flow->phase().getMassFractions(m_yres.data());
         needJacUpdate();
     }
 }
@@ -757,7 +757,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         sum += x[k+1];
     }
     m_sphase->setTemperature(x[0]);
-    m_sphase->setCoverages(DATA_PTR(m_work));
+    m_sphase->setCoverages(m_work.data());
 
     // set the left gas state to the adjacent point
 
@@ -775,7 +775,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         m_flow_right->setGas(xg + rightloc, 0);
     }
 
-    m_kin->getNetProductionRates(DATA_PTR(m_work));
+    m_kin->getNetProductionRates(m_work.data());
     doublereal rs0 = 1.0/m_sphase->siteDensity();
     size_t ioffset = m_kin->kineticsSpeciesIndex(0, m_surfindex);
 
@@ -804,7 +804,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     size_t nc;
     if (m_flow_left) {
         nc = m_flow_left->nComponents();
-        const doublereal* mwleft = DATA_PTR(m_phase_left->molecularWeights());
+        const vector_fp& mwleft = m_phase_left->molecularWeights();
         rb =r - nc;
         xb = x - nc;
         rb[2] = xb[2] - x[0]; // specified T

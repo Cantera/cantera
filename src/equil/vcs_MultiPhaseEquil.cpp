@@ -1306,7 +1306,7 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
      * states.
      */
     m_mix->uploadMoleFractionsFromPhases();
-    m_mix->getChemPotentials(DATA_PTR(m_vprob.m_gibbsSpecies));
+    m_mix->getChemPotentials(m_vprob.m_gibbsSpecies.data());
 
     double te = tickTock.secondsWC();
     if (printLvl > 0) {

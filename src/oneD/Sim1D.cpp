@@ -23,7 +23,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
     for (size_t n = 0; n < m_nd; n++) {
-        domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
+        domain(n)._getInitialSoln(&m_x[start(n)]);
     }
 
     // set some defaults
@@ -86,7 +86,7 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 void Sim1D::save(const std::string& fname, const std::string& id,
                  const std::string& desc, int loglevel)
 {
-    OneDim::save(fname, id, desc, DATA_PTR(m_x), loglevel);
+    OneDim::save(fname, id, desc, m_x.data(), loglevel);
 }
 
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
@@ -132,7 +132,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     m_x.resize(sz);
     m_xnew.resize(sz);
     for (size_t m = 0; m < m_nd; m++) {
-        domain(m).restore(*xd[m], DATA_PTR(m_x) + domain(m).loc(), loglevel);
+        domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
     }
     resize();
     finalize();
@@ -151,7 +151,7 @@ void Sim1D::showSolution(ostream& s)
 {
     for (size_t n = 0; n < m_nd; n++) {
         if (domain(n).domainType() != cEmptyType) {
-            domain(n).showSolution_s(s, DATA_PTR(m_x) + start(n));
+            domain(n).showSolution_s(s, &m_x[start(n)]);
         }
     }
 }
@@ -162,7 +162,7 @@ void Sim1D::showSolution()
         if (domain(n).domainType() != cEmptyType) {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-            domain(n).showSolution(DATA_PTR(m_x) + start(n));
+            domain(n).showSolution(&m_x[start(n)]);
         }
     }
 }
@@ -170,14 +170,14 @@ void Sim1D::showSolution()
 void Sim1D::getInitialSoln()
 {
     for (size_t n = 0; n < m_nd; n++) {
-        domain(n)._getInitialSoln(DATA_PTR(m_x) + start(n));
+        domain(n)._getInitialSoln(&m_x[start(n)]);
     }
 }
 
 void Sim1D::finalize()
 {
     for (size_t n = 0; n < m_nd; n++) {
-        domain(n)._finalize(DATA_PTR(m_x) + start(n));
+        domain(n)._finalize(&m_x[start(n)]);
     }
 }
 
@@ -192,7 +192,7 @@ void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
 
 int Sim1D::newtonSolve(int loglevel)
 {
-    int m = OneDim::solve(DATA_PTR(m_x), DATA_PTR(m_xnew), loglevel);
+    int m = OneDim::solve(m_x.data(), m_xnew.data(), loglevel);
     if (m >= 0) {
         copy(m_xnew.begin(), m_xnew.end(), m_x.begin());
         return 0;
@@ -257,7 +257,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                                  "After unsuccessful Newton solve");
                 }
                 debuglog("Take "+int2str(nsteps)+" timesteps   ", loglevel);
-                dt = timeStep(nsteps, dt, DATA_PTR(m_x), DATA_PTR(m_xnew),
+                dt = timeStep(nsteps, dt, m_x.data(), m_xnew.data(),
                               loglevel-1);
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug", "After timestepping");
@@ -269,7 +269,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
                 if (loglevel == 1) {
                     writelog(" {:10.4g} {:10.4g}\n", dt,
-                             log10(ssnorm(DATA_PTR(m_x), DATA_PTR(m_xnew))));
+                             log10(ssnorm(m_x.data(), m_xnew.data())));
                 }
                 istep++;
                 if (istep >= m_steps.size()) {
@@ -324,8 +324,7 @@ int Sim1D::refine(int loglevel)
         Refiner& r = d.refiner();
 
         // determine where new points are needed
-        ianalyze = r.analyze(d.grid().size(),
-                             DATA_PTR(d.grid()), DATA_PTR(m_x) + start(n));
+        ianalyze = r.analyze(d.grid().size(), d.grid().data(), &m_x[start(n)]);
         if (ianalyze < 0) {
             return ianalyze;
         }
@@ -382,7 +381,7 @@ int Sim1D::refine(int loglevel)
     for (size_t n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);
         gridsize = dsize[n];
-        d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
+        d.setupGrid(gridsize, &znew[gridstart]);
         gridstart += gridsize;
     }
 
@@ -475,7 +474,7 @@ int Sim1D::setFixedTemperature(doublereal t)
     for (n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);
         gridsize = dsize[n];
-        d.setupGrid(gridsize, DATA_PTR(znew) + gridstart);
+        d.setupGrid(gridsize, &znew[gridstart]);
         gridstart += gridsize;
     }
 
@@ -538,6 +537,6 @@ doublereal Sim1D::jacobian(int i, int j)
 
 void Sim1D::evalSSJacobian()
 {
-    OneDim::evalSSJacobian(DATA_PTR(m_x), DATA_PTR(m_xnew));
+    OneDim::evalSSJacobian(m_x.data(), m_xnew.data());
 }
 }

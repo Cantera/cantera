@@ -160,7 +160,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     size_t loc = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
         SurfPhase* sf_ptr = m_ptrsSurfPhase[n];
-        sf_ptr->getConcentrations(DATA_PTR(m_numEqn1));
+        sf_ptr->getConcentrations(m_numEqn1.data());
         size_t nsp = m_nSpeciesSurfPhase[n];
         for (size_t k = 0; k <nsp; k++) {
             m_CSolnSP[loc] = m_numEqn1[k];
@@ -171,7 +171,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), m_CSolnSPInit.begin());
 
     // Calculate the largest species in each phase
-    evalSurfLarge(DATA_PTR(m_CSolnSP));
+    evalSurfLarge(m_CSolnSP.data());
 
     if (m_ioflag) {
         print_header(m_ioflag, ifunc, time_scale, true, reltol, abstol);
@@ -201,7 +201,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
          * 5 iterations.
          */
         if (iter%5 == 4) {
-            evalSurfLarge(DATA_PTR(m_CSolnSP));
+            evalSurfLarge(m_CSolnSP.data());
         }
 
         /*
@@ -213,8 +213,8 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
             if (damp < 1.0) {
                 label_factor = 1.0;
             }
-            tmp = calc_t(DATA_PTR(m_netProductionRatesSave),
-                         DATA_PTR(m_XMolKinSpecies),
+            tmp = calc_t(m_netProductionRatesSave.data(),
+                         m_XMolKinSpecies.data(),
                          &label_t, &label_t_old, &label_factor, m_ioflag);
             if (iter < 10) {
                 inv_t = tmp;
@@ -244,23 +244,22 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
          * Call the routine to numerically evaluation the Jacobian
          * and residual for the current iteration.
          */
-        resjac_eval(m_Jac, DATA_PTR(m_resid), DATA_PTR(m_CSolnSP),
-                    DATA_PTR(m_CSolnSPOld), do_time, deltaT);
+        resjac_eval(m_Jac, m_resid.data(), m_CSolnSP.data(),
+                    m_CSolnSPOld.data(), do_time, deltaT);
 
         /*
          * Calculate the weights. Make sure the calculation is carried
          * out on the first iteration.
          */
         if (iter%4 == 1) {
-            calcWeights(DATA_PTR(m_wtSpecies), DATA_PTR(m_wtResid),
-                        m_Jac, DATA_PTR(m_CSolnSP), abstol, reltol);
+            calcWeights(m_wtSpecies.data(), m_wtResid.data(),
+                        m_Jac, m_CSolnSP.data(), abstol, reltol);
         }
 
         /*
          *    Find the weighted norm of the residual
          */
-        resid_norm = calcWeightedNorm(DATA_PTR(m_wtResid),
-                                      DATA_PTR(m_resid), m_neq);
+        resid_norm = calcWeightedNorm(m_wtResid.data(), m_resid.data(), m_neq);
 
         /*
          *  Solve Linear system.  The solution is in resid[]
@@ -305,15 +304,15 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
          *    between 0 and 1, and not allow too large a change (factor of 2)
          *    in any unknown.
          */
-        damp = calc_damping(DATA_PTR(m_CSolnSP), DATA_PTR(m_resid), m_neq, &label_d);
+        damp = calc_damping(m_CSolnSP.data(), m_resid.data(), m_neq, &label_d);
 
         /*
          *    Calculate the weighted norm of the update vector
          *       Here, resid is the delta of the solution, in concentration
          *       units.
          */
-        update_norm = calcWeightedNorm(DATA_PTR(m_wtSpecies),
-                                       DATA_PTR(m_resid), m_neq);
+        update_norm = calcWeightedNorm(m_wtSpecies.data(),
+                                       m_resid.data(), m_neq);
         /*
          *    Update the solution vector and real time
          *    Crop the concentrations to zero.
@@ -324,7 +323,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
         for (size_t irow = 0; irow < m_neq; irow++) {
             m_CSolnSP[irow] = std::max(0.0, m_CSolnSP[irow]);
         }
-        updateState(DATA_PTR(m_CSolnSP));
+        updateState(m_CSolnSP.data());
 
         if (do_time) {
             t_real += damp/inv_t;
@@ -368,10 +367,9 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
      *          no matter how bad
      */
     if (m_ioflag) {
-        fun_eval(DATA_PTR(m_resid), DATA_PTR(m_CSolnSP), DATA_PTR(m_CSolnSPOld),
+        fun_eval(m_resid.data(), m_CSolnSP.data(), m_CSolnSPOld.data(),
                  false, deltaT);
-        resid_norm = calcWeightedNorm(DATA_PTR(m_wtResid),
-                                      DATA_PTR(m_resid), m_neq);
+        resid_norm = calcWeightedNorm(m_wtResid.data(), m_resid.data(), m_neq);
         printIteration(m_ioflag, damp, label_d, label_t, inv_t, t_real, iter,
                        update_norm, resid_norm, do_time, true);
     }
@@ -459,7 +457,7 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
                 size_t surfIndex = kinPtr->surfacePhaseIndex();
                 kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                 kins = kindexSP;
-                kinPtr->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
+                kinPtr->getNetProductionRates(m_netProductionRatesSave.data());
                 for (k = 0; k < nsp; k++, kindexSP++) {
                     resid[kindexSP] =
                         (CSoln[kindexSP] - CSolnOld[kindexSP]) / deltaT
@@ -481,7 +479,7 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
                 size_t surfIndex = kinPtr->surfacePhaseIndex();
                 kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                 kins = kindexSP;
-                kinPtr->getNetProductionRates(DATA_PTR(m_netProductionRatesSave));
+                kinPtr->getNetProductionRates(m_netProductionRatesSave.data());
                 for (k = 0; k < nsp; k++, kindexSP++) {
                     resid[kindexSP] = - m_netProductionRatesSave[kstart + k];
                 }
@@ -497,7 +495,7 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
         if (m_bulkFunc == BULK_DEPOSITION) {
             kindexSP = m_numTotSurfSpecies;
             for (isp = 0; isp < m_numBulkPhasesSS; isp++) {
-                doublereal* XBlk = DATA_PTR(m_numEqn1);
+                doublereal* XBlk = m_numEqn1.data();
                 nsp = m_nSpeciesSurfPhase[isp];
                 size_t surfPhaseIndex = m_indexKinObjSurfPhase[isp];
                 InterfaceKinetics* m_kin = m_objects[isp];
@@ -562,7 +560,7 @@ void solveSP::resjac_eval(SquareMatrix& jac,
             cSave = CSoln[kColIndex];
             dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
             CSoln[kColIndex] += dc;
-            fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
+            fun_eval(m_numEqn2.data(), CSoln, CSolnOld, do_time, deltaT);
             for (i = 0; i < m_neq; i++) {
                 jac(i, kColIndex) = (m_numEqn2[i] - resid[i])/dc;
             }
@@ -579,7 +577,7 @@ void solveSP::resjac_eval(SquareMatrix& jac,
                 cSave = CSoln[kColIndex];
                 dc = std::max(1.0E-10 * sd, fabs(cSave) * 1.0E-7);
                 CSoln[kColIndex] += dc;
-                fun_eval(DATA_PTR(m_numEqn2), CSoln, CSolnOld, do_time, deltaT);
+                fun_eval(m_numEqn2.data(), CSoln, CSolnOld, do_time, deltaT);
                 for (i = 0; i < m_neq; i++) {
                     jac(i, kColIndex) = (m_numEqn2[i] - resid[i])/dc;
                 }
@@ -732,7 +730,7 @@ doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
         size_t surfIndex = m_kin->surfacePhaseIndex();
         kstart = m_kin->kineticsSpeciesIndex(0, surfIndex);
         ThermoPhase& THref = m_kin->thermo(surfIndex);
-        m_kin->getNetProductionRates(DATA_PTR(m_numEqn1));
+        m_kin->getNetProductionRates(m_numEqn1.data());
         sden = THref.molarDensity();
         for (k = 0; k < nsp; k++, kindexSP++) {
             size_t kspindex = kstart + k;

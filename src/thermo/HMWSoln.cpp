@@ -399,16 +399,16 @@ int HMWSoln::eosType() const
 //
 doublereal HMWSoln::enthalpy_mole() const
 {
-    getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
-    getMoleFractions(DATA_PTR(m_pp));
+    getPartialMolarEnthalpies(m_tmpV.data());
+    getMoleFractions(m_pp.data());
     return mean_X(m_tmpV);
 }
 
 doublereal HMWSoln::relative_enthalpy() const
 {
-    getPartialMolarEnthalpies(DATA_PTR(m_tmpV));
+    getPartialMolarEnthalpies(m_tmpV.data());
     double hbar = mean_X(m_tmpV);
-    getEnthalpy_RT(DATA_PTR(m_gamma_tmp));
+    getEnthalpy_RT(m_gamma_tmp.data());
     for (size_t k = 0; k < m_kk; k++) {
         m_gamma_tmp[k] *= RT();
     }
@@ -419,7 +419,7 @@ doublereal HMWSoln::relative_enthalpy() const
 doublereal HMWSoln::relative_molal_enthalpy() const
 {
     double L = relative_enthalpy();
-    getMoleFractions(DATA_PTR(m_tmpV));
+    getMoleFractions(m_tmpV.data());
     double xanion = 0.0;
     size_t kcation = npos;
     double xcation = 0.0;
@@ -458,19 +458,19 @@ doublereal HMWSoln::relative_molal_enthalpy() const
 
 doublereal HMWSoln::entropy_mole() const
 {
-    getPartialMolarEntropies(DATA_PTR(m_tmpV));
+    getPartialMolarEntropies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal HMWSoln::gibbs_mole() const
 {
-    getChemPotentials(DATA_PTR(m_tmpV));
+    getChemPotentials(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
 doublereal HMWSoln::cp_mole() const
 {
-    getPartialMolarCp(DATA_PTR(m_tmpV));
+    getPartialMolarCp(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
@@ -589,7 +589,7 @@ void HMWSoln::getActivityConcentrations(doublereal* c) const
 
 doublereal HMWSoln::standardConcentration(size_t k) const
 {
-    getStandardVolumes(DATA_PTR(m_tmpV));
+    getStandardVolumes(m_tmpV.data());
     double mvSolvent = m_tmpV[m_indexSolvent];
     if (k > 0) {
         return m_Mnaught / mvSolvent;
@@ -1268,7 +1268,7 @@ void HMWSoln::calcMolalitiesCropped() const
     }
 
     if (cropMethod == 1) {
-        double* molF = DATA_PTR(m_gamma_tmp);
+        double* molF = m_gamma_tmp.data();
         getMoleFractions(molF);
         double xmolSolvent = molF[m_indexSolvent];
         if (xmolSolvent >= MC_X_o_cutoff_) {
@@ -1586,7 +1586,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     /*
      * Use the CROPPED molality of the species in solution.
      */
-    const double* molality = DATA_PTR(m_molalitiesCropped);
+    const vector_fp& molality = m_molalitiesCropped;
 
     /*
      * These are data inputs about the Pitzer correlation. They come

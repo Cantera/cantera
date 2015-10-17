@@ -1530,7 +1530,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
      * Lastly calculate the charge balance and then add stuff until the charges compensate
      */
     vector_fp mf(m_kk, 0.0);
-    getMoleFractions(DATA_PTR(mf));
+    getMoleFractions(mf.data());
     bool notDone = true;
 
     while (notDone) {
@@ -1585,7 +1585,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                     }
                 }
             }
-            setMoleFractions(DATA_PTR(mf));
+            setMoleFractions(mf.data());
         } else {
             notDone = false;
         }

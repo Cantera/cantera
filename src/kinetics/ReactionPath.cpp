@@ -747,8 +747,8 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
         return -1;
     }
 
-    s.getFwdRatesOfProgress(DATA_PTR(m_ropf));
-    s.getRevRatesOfProgress(DATA_PTR(m_ropr));
+    s.getFwdRatesOfProgress(m_ropf.data());
+    s.getRevRatesOfProgress(m_ropr.data());
 
     // species explicitly included or excluded
     vector<string>& in_nodes = r.included();

@@ -92,7 +92,7 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
     ydot[1] = m_fctr*(m_speed0 - m_thermo->density()*m_speed/m_rho0);
 
     /* species equations */
-    const doublereal* mw = DATA_PTR(m_thermo->molecularWeights());
+    const vector_fp& mw = m_thermo->molecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(ydot+2); // "omega dot"

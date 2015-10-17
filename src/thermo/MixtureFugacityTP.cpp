@@ -290,37 +290,37 @@ void MixtureFugacityTP::setPressure(doublereal p)
 void MixtureFugacityTP::setMassFractions(const doublereal* const y)
 {
     Phase::setMassFractions(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMassFractions_NoNorm(const doublereal* const y)
 {
     Phase::setMassFractions_NoNorm(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMoleFractions(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
     Phase::setMoleFractions_NoNorm(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setConcentrations(const doublereal* const c)
 {
     Phase::setConcentrations(c);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
     updateMixingExpressions();
 }
 
@@ -341,7 +341,7 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
      *     Therefore, we need to do the standard state thermo calc with the
      *  (t, pres) combo.
      */
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 
     Phase::setTemperature(t);
     _updateReferenceStateThermo();
@@ -406,7 +406,7 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
 
 void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
 {
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
     Phase::setTemperature(T);
     _updateReferenceStateThermo();
     Phase::setDensity(rho);

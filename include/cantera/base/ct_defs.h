@@ -32,11 +32,6 @@
 namespace Cantera
 {
 
-//! Creates a pointer to the start of the raw data for a vector
-#ifndef DATA_PTR
-#define DATA_PTR(vec) &vec[0]
-#endif
-
 using std::shared_ptr;
 using std::make_shared;
 

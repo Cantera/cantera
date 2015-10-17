@@ -329,8 +329,7 @@ void SingleSpeciesTP::_updateThermo() const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow) {
-        m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
-                           DATA_PTR(m_s0_R));
+        m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         m_tlast = tnow;
     }
 }

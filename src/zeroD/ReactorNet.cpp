@@ -69,7 +69,7 @@ void ReactorNet::initialize()
     m_ydot.resize(m_nv,0.0);
     m_atol.resize(neq());
     fill(m_atol.begin(), m_atol.end(), m_atols);
-    m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));
+    m_integ->setTolerances(m_rtol, neq(), m_atol.data());
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
     m_integ->setMaxErrTestFails(m_maxErrTestFails);
@@ -157,7 +157,7 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
         dy = y[n] - ysave;
 
         // calculate perturbed residual
-        eval(t, y, DATA_PTR(m_ydot), p);
+        eval(t, y, m_ydot.data(), p);
 
         // compute nth column of Jacobian
         for (size_t m = 0; m < m_nv; m++) {

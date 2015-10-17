@@ -144,7 +144,7 @@ void SurfPhase::getChemPotentials(doublereal* mu) const
 {
     _updateThermo();
     copy(m_mu0.begin(), m_mu0.end(), mu);
-    getActivityConcentrations(DATA_PTR(m_work));
+    getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
         mu[k] += GasConstant * temperature() *
                  (log(m_work[k]) - logStandardConc(k));
@@ -243,7 +243,7 @@ void SurfPhase::initThermo()
     m_work.resize(m_kk);
     vector_fp cov(m_kk, 0.0);
     cov[0] = 1.0;
-    setCoverages(DATA_PTR(cov));
+    setCoverages(cov.data());
     m_logsize.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_logsize[k] = log(size(k));
@@ -277,7 +277,7 @@ void SurfPhase::setCoverages(const doublereal* theta)
      * Call the Phase:: class function
      * setConcentrations.
      */
-    setConcentrations(DATA_PTR(m_work));
+    setConcentrations(m_work.data());
 }
 
 void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
@@ -289,7 +289,7 @@ void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
      * Call the Phase:: class function
      * setConcentrations.
      */
-    setConcentrations(DATA_PTR(m_work));
+    setConcentrations(m_work.data());
 }
 
 void SurfPhase::getCoverages(doublereal* theta) const
@@ -320,15 +320,14 @@ void SurfPhase::setCoveragesByName(const compositionMap& cov)
         throw CanteraError("SurfPhase::setCoveragesByName",
                            "Input coverages are all zero or negative");
     }
-    setCoverages(DATA_PTR(cv));
+    setCoverages(cv.data());
 }
 
 void SurfPhase::_updateThermo(bool force) const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow || force) {
-        m_spthermo->update(tnow, DATA_PTR(m_cp0), DATA_PTR(m_h0),
-                           DATA_PTR(m_s0));
+        m_spthermo->update(tnow, m_cp0.data(), m_h0.data(), m_s0.data());
         m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_h0[k] *= GasConstant * tnow;

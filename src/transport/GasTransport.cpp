@@ -143,7 +143,7 @@ doublereal GasTransport::viscosity()
         updateViscosity_T();
     }
 
-    multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
+    multiply(m_phi, m_molefracs.data(), m_spwork.data());
 
     for (size_t k = 0; k < m_nsp; k++) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
@@ -542,10 +542,8 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
             if (dptr == fitlist.end()) {
                 vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
                 vector_fp co22(degree+1);
-                integrals.fit(degree, dstar,
-                              DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
-                integrals.fit_omega22(degree, dstar,
-                                      DATA_PTR(co22));
+                integrals.fit(degree, dstar, ca.data(), cb.data(), cc.data());
+                integrals.fit_omega22(degree, dstar, co22.data());
                 m_omega22_poly.push_back(co22);
                 m_astar_poly.push_back(ca);
                 m_bstar_poly.push_back(cb);
@@ -657,21 +655,21 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 w2[n] = 1.0/(spcond[n]*spcond[n]);
             }
         }
-        polyfit(np, DATA_PTR(tlog), DATA_PTR(spvisc),
-                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
-        polyfit(np, DATA_PTR(tlog), DATA_PTR(spcond),
-                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
+        polyfit(np, tlog.data(), spvisc.data(),
+                w.data(), degree, ndeg, 0.0, c.data());
+        polyfit(np, tlog.data(), spcond.data(),
+                w.data(), degree, ndeg, 0.0, c2.data());
 
         // evaluate max fit errors for viscosity
         for (size_t n = 0; n < np; n++) {
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spvisc[n]);
-                fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                fit = exp(poly3(tlog[n], c.data()));
             } else {
                 sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * pow(spvisc[n],2);
-                fit = sqrt_T * pow(poly4(tlog[n], DATA_PTR(c)),2);
+                fit = sqrt_T * pow(poly4(tlog[n], c.data()),2);
             }
             err = fit - val;
             relerr = err/val;
@@ -684,11 +682,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spcond[n]);
-                fit = exp(poly3(tlog[n], DATA_PTR(c2)));
+                fit = exp(poly3(tlog[n], c2.data()));
             } else {
                 sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * spcond[n];
-                fit = sqrt_T * poly4(tlog[n], DATA_PTR(c2));
+                fit = sqrt_T * poly4(tlog[n], c2.data());
             }
             err = fit - val;
             relerr = err/val;
@@ -758,19 +756,19 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                     w[n] = 1.0/(diff[n]*diff[n]);
                 }
             }
-            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
-                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+            polyfit(np, tlog.data(), diff.data(),
+                    w.data(), degree, ndeg, 0.0, c.data());
 
             for (size_t n = 0; n < np; n++) {
                 double val, fit;
                 if (m_mode == CK_Mode) {
                     val = exp(diff[n]);
-                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                    fit = exp(poly3(tlog[n], c.data()));
                 } else {
                     double t = exp(tlog[n]);
                     double pre = pow(t, 1.5);
                     val = pre * diff[n];
-                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                    fit = pre * poly4(tlog[n], c.data());
                 }
                 err = fit - val;
                 relerr = err/val;

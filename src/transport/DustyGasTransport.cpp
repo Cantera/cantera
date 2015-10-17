@@ -104,7 +104,7 @@ void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
     m_dk.resize(m_nsp, 0.0);
 
     m_x.resize(m_nsp, 0.0);
-    m_thermo->getMoleFractions(DATA_PTR(m_x));
+    m_thermo->getMoleFractions(m_x.data());
 
     // set flags all false
     m_knudsen_ok = false;
@@ -174,8 +174,8 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
 {
     doublereal conc1, conc2;
     // cbar will be the average concentration between the two points
-    doublereal* const cbar = DATA_PTR(m_spwork);
-    doublereal* const gradc = DATA_PTR(m_spwork2);
+    doublereal* const cbar = m_spwork.data();
+    doublereal* const gradc = m_spwork2.data();
     const doublereal t1 = state1[0];
     const doublereal t2 = state2[0];
     const doublereal rho1 = state1[1];
@@ -264,7 +264,7 @@ void DustyGasTransport::updateTransport_T()
 
 void DustyGasTransport::updateTransport_C()
 {
-    m_thermo->getMoleFractions(DATA_PTR(m_x));
+    m_thermo->getMoleFractions(m_x.data());
 
     // add an offset to avoid a pure species condition
     // (check - this may be unnecessary)

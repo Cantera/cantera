@@ -144,7 +144,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // species has precisely zero moles.
     vector_fp dxi(nFree(), 1.0e-20);
     if (!dxi.empty()) {
-        multiply(m_N, DATA_PTR(dxi), DATA_PTR(m_work));
+        multiply(m_N, dxi.data(), m_work.data());
         unsort(m_work);
     }
 
@@ -193,7 +193,7 @@ void MultiPhaseEquil::updateMixMoles()
     for (k = 0; k < m_nsp; k++) {
         m_work3[m_species[k]] = m_moles[k];
     }
-    m_mix->setMoles(DATA_PTR(m_work3));
+    m_mix->setMoles(m_work3.data());
 }
 
 void MultiPhaseEquil::finish()
@@ -203,14 +203,14 @@ void MultiPhaseEquil::finish()
     for (k = 0; k < m_nsp; k++) {
         m_work3[m_species[k]] = (m_moles[k] > 0.0 ? m_moles[k] : 0.0);
     }
-    m_mix->setMoles(DATA_PTR(m_work3));
+    m_mix->setMoles(m_work3.data());
 }
 
 int MultiPhaseEquil::setInitialMoles(int loglevel)
 {
     size_t ik, j;
     double not_mu = 1.0e12;
-    m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
+    m_mix->getValidChemPotentials(not_mu, m_mu.data(), true);
     doublereal dg_rt;
     int idir;
     double nu;
@@ -460,7 +460,7 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
 
     // compute the mole fraction changes.
     if (nFree()) {
-        multiply(m_N, DATA_PTR(m_dxi), DATA_PTR(m_work));
+        multiply(m_N, m_dxi.data(), m_work.data());
     }
 
     // change to sequential form
@@ -520,7 +520,7 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
     // current direction. If it is positive, then we have overshot
     // the minimum. In this case, interpolate back.
     doublereal not_mu = 1.0e12;
-    m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu));
+    m_mix->getValidChemPotentials(not_mu, m_mu.data());
     doublereal grad1 = 0.0;
     for (k = 0; k < m_nsp; k++) {
         grad1 += m_work[k] * m_mu[m_species[k]];
@@ -546,7 +546,7 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
     dxi.resize(nFree());
     computeN();
     doublereal not_mu = 1.0e12;
-    m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu));
+    m_mix->getValidChemPotentials(not_mu, m_mu.data());
 
     for (j = 0; j < nFree(); j++) {
         // get stoichiometric vector
@@ -725,7 +725,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getMoleFractions(&mf[istart]);
-        tref.getPartialMolarVolumes(DATA_PTR(VolPM));
+        tref.getPartialMolarVolumes(VolPM.data());
 
         double TMolesPhase = phaseMoles(iphase);
         double VolPhaseVolumes = 0.0;
@@ -756,11 +756,11 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         VolPM.resize(nSpecies, 0.0);
         molalities.resize(nSpecies, 0.0);
         int actConvention = tp->activityConvention();
-        tp->getActivities(DATA_PTR(activity));
-        tp->getActivityCoefficients(DATA_PTR(ac));
-        tp->getStandardChemPotentials(DATA_PTR(mu0));
-        tp->getPartialMolarVolumes(DATA_PTR(VolPM));
-        tp->getChemPotentials(DATA_PTR(mu));
+        tp->getActivities(activity.data());
+        tp->getActivityCoefficients(ac.data());
+        tp->getStandardChemPotentials(mu0.data());
+        tp->getPartialMolarVolumes(VolPM.data());
+        tp->getChemPotentials(mu.data());
         double VolPhaseVolumes = 0.0;
         for (k = 0; k < nSpecies; k++) {
             VolPhaseVolumes += VolPM[k] * mf[istart + k];
@@ -769,8 +769,8 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
         vol += VolPhaseVolumes;
         if (actConvention == 1) {
             MolalityVPSSTP* mTP = static_cast<MolalityVPSSTP*>(tp);
-            mTP->getMolalities(DATA_PTR(molalities));
-            tp->getChemPotentials(DATA_PTR(mu));
+            mTP->getMolalities(molalities.data());
+            tp->getChemPotentials(mu.data());
 
             if (iphase == 0) {
                 fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "

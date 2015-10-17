@@ -62,7 +62,7 @@ void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 
 void MixTransport::getMobilities(doublereal* const mobil)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -101,7 +101,7 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 {
     update_T();
     update_C();
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
@@ -144,7 +144,7 @@ void MixTransport::update_C()
     // fractions.
     m_visc_ok = false;
     m_condmix_ok = false;
-    m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
+    m_thermo->getMoleFractions(m_molefracs.data());
 
     // add an offset to avoid a pure species condition
     for (size_t k = 0; k < m_nsp; k++) {

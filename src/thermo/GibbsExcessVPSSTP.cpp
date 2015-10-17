@@ -56,31 +56,31 @@ ThermoPhase* GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y)
 {
     Phase::setMassFractions(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y)
 {
     Phase::setMassFractions_NoNorm(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
     Phase::setMoleFractions_NoNorm(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
 {
     Phase::setConcentrations(c);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 /*
@@ -142,7 +142,7 @@ doublereal GibbsExcessVPSSTP::logStandardConc(size_t k) const
 void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
 {
     getActivityCoefficients(ac);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] *= moleFractions_[k];
     }
@@ -201,7 +201,7 @@ void GibbsExcessVPSSTP::initThermo()
 {
     initLengths();
     VPStandardStateTP::initThermo();
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::initLengths()

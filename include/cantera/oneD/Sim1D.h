@@ -100,7 +100,7 @@ public:
     void showSolution();
 
     const doublereal* solution() {
-        return DATA_PTR(m_x);
+        return m_x.data();
     }
 
     void setTimeStep(doublereal stepsize, size_t n, integer* tsteps);
@@ -108,7 +108,7 @@ public:
     void solve(int loglevel = 0, bool refine_grid = true);
 
     void eval(doublereal rdt=-1.0, int count = 1) {
-        OneDim::eval(npos, DATA_PTR(m_x), DATA_PTR(m_xnew), rdt, count);
+        OneDim::eval(npos, m_x.data(), m_xnew.data(), rdt, count);
     }
 
     /// Refine the grid in all domains.
@@ -140,11 +140,11 @@ public:
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {
-        std::copy(soln, soln + m_x.size(), DATA_PTR(m_x));
+        std::copy(soln, soln + m_x.size(), m_x.data());
     }
 
     const doublereal* solution() const {
-        return DATA_PTR(m_x);
+        return m_x.data();
     }
 
     doublereal jacobian(int i, int j);

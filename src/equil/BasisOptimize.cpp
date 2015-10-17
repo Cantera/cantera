@@ -117,7 +117,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
      * Create an array of mole numbers
      */
     vector_fp molNum(nspecies,0.0);
-    mphase->getMoles(DATA_PTR(molNum));
+    mphase->getMoles(molNum.data());
 
     /*
      * Other workspace
