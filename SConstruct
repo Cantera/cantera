@@ -626,7 +626,7 @@ valid_arguments = (set(opt[0] for opt in windows_compiler_options) |
 for arg in ARGUMENTS:
     if arg not in valid_arguments:
         print 'Encountered unexpected command line argument: %r' % arg
-        sys.exit(0)
+        sys.exit(1)
 
 # Require a StrictVersion-compatible version
 ctversion = StrictVersion(env['cantera_version'])
