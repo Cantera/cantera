@@ -42,8 +42,8 @@ def prep_sundials(env):
 
 def prep_gtest(env):
     localenv = prep_default(env)
-    localenv.Prepend(CPPPATH=[Dir('#ext/gtest'),
-                              Dir('#ext/gtest/include')],
+    localenv.Prepend(CPPPATH=[Dir('#ext/googletest'),
+                              Dir('#ext/googletest/include')],
                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
     return localenv
 
@@ -95,6 +95,7 @@ for subdir, extensions, prepFunction in libs:
     libraryTargets.extend(objects)
 
 # Google Test: Used internally for Cantera unit tests.
-localenv = prep_gtest(env)
-gtest = build(localenv.Library('../lib/gtest',
-                               source=['gtest/src/gtest-all.cc']))
+if not env['system_googletest']:
+    localenv = prep_gtest(env)
+    gtest = build(localenv.Library('../lib/gtest',
+                                   source=['googletest/src/gtest-all.cc']))

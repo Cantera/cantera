@@ -12,8 +12,10 @@ if localenv['OS'] == 'Linux':
 else:
     cantera_libs = localenv['cantera_libs']
 
-localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
+localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
+if not env['system_googletest']:
+    localenv.Prepend(CPPPATH=['#ext/googletest/include'])
 localenv.Append(LIBS=['gtest'] + cantera_libs,
                 CCFLAGS=env['warning_flags'])
 

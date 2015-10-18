@@ -472,6 +472,11 @@ config_options = [
         'lapack_ftn_trailing_underscore', '', True),
     BoolVariable(
         'lapack_ftn_string_len_at_end', '', True),
+    EnumVariable(
+        'system_googletest',
+        """Select whether to use gtest from system installation ('y'), from a
+           git submodule ('n'), or to decide automatically ('default').""",
+        'default', ('default', 'y', 'n')),
     ('env_vars',
      """Environment variables to propagate through to SCons. Either the
         string "all" or a comma separated list of variable names, e.g.
@@ -767,6 +772,31 @@ if not os.path.exists('ext/cppformat/format.h'):
     config_error('Cppformat submodule is missing.\n'
                  'The module can be checked out using git by running:\n\n'
                  '    git submodule update --init --recursive\n')
+
+# Check for googletest and checkout submodule if needed
+if env['system_googletest'] in ('y', 'default'):
+    if conf.CheckCXXHeader('gtest/gtest.h', '""'):
+        env['system_googletest'] = True
+    elif env['system_googletest'] == 'y':
+        config_error('Expected system installation of Googletest, but it '
+                     'could not be found.')
+
+if env['system_googletest'] in ('n', 'default'):
+    env['system_googletest'] = False
+    if not os.path.exists('ext/googletest/include/gtest/gtest.h'):
+        if not os.path.exists('.git'):
+            config_error('Googletest is missing. Install source in ext/googletest.')
+
+        try:
+            code = subprocess.call(['git','submodule','update','--init',
+                                    '--recursive','ext/googletest'])
+        except Exception:
+            code = -1
+        if code:
+            config_error('Googletest not found and submodule checkout failed.\n'
+                         'Try manually checking out the submodule with:\n\n'
+                         '    git submodule update --init --recursive ext/googletest\n')
+
 
 def get_expression_value(includes, expression):
     s = ['#include ' + i for i in includes]
