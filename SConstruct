@@ -767,11 +767,20 @@ def config_error(message):
 if not conf.CheckCXXHeader('cmath', '<>'):
     config_error('The C++ compiler is not correctly configured.')
 
-# Check that cppformat submodule is in place
+# Check for cppformat and checkout submodule if needed
 if not os.path.exists('ext/cppformat/format.h'):
-    config_error('Cppformat submodule is missing.\n'
-                 'The module can be checked out using git by running:\n\n'
-                 '    git submodule update --init --recursive\n')
+    if not os.path.exists('.git'):
+        config_error('Cppformat is missing. Install source in ext/cppformat.')
+
+    try:
+        code = subprocess.call(['git','submodule','update','--init',
+                                '--recursive','ext/cppformat'])
+    except Exception:
+        code = -1
+    if code:
+        config_error('Cppformat submodule checkout failed.\n'
+                     'Try manually checking out the submodule with:\n\n'
+                     '    git submodule update --init --recursive ext/cppformat\n')
 
 # Check for googletest and checkout submodule if needed
 if env['system_googletest'] in ('y', 'default'):
