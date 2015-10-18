@@ -15,9 +15,9 @@ operating systems:
 * Linux
 
   * Ubuntu 12.04 LTS (Lucid Lynx) or newer
-  * Debian 6.0 (Squeeze) or newer
+  * Debian 7.0 (Wheezy) or newer
 
-* Windows Vista, Windows 7, or Windows 8 (32-bit or 64-bit versions)
+* Windows 7, or Windows 8 (32-bit or 64-bit versions)
 * OS X 10.9 (Mavericks) or OS X 10.10 (Yosemite).
 
 In addition to the above operating systems, Cantera should work on any
@@ -33,7 +33,7 @@ Linux
 * For Ubuntu or Debian users, the following packages should be installed using
   your choice of package manager::
 
-      g++ python scons libboost-all-dev libsundials-serial-dev
+      g++ python scons libsundials-serial-dev
 
 * Building the python module also requires::
 
@@ -126,7 +126,11 @@ Stable Release
 
     git clone --recursive https://github.com/Cantera/cantera.git
     cd cantera
-    git checkout 2.1
+
+  Then, depending on the desired branch, run one of:
+
+    git checkout 2.2
+    git checkout master
 
 Development Version
 -------------------
@@ -374,30 +378,22 @@ program.
 
 * GNU compilers (C/C++/Fortran)
 
-  * Known to work with version 4.8; Expected to work with version >= 4.4
+  * Known to work with version 4.8; Expected to work with version >= 4.6
 
 * Clang/LLVM (C/C++)
 
   * Known to work with versions 3.3 through 3.5. Expected to work with version
-    >= 2.9.
+    >= 3.1.
   * Works with the versions included with Xcode 5.1 and Xcode 6.1.
 
 * Intel compilers (C/C++/Fortran)
 
-  * Known to work with version 11.0 and 12.1; Expected to work with
-    versions >= 11.0
+  * Known to work with version 14.0.
 
 * Microsoft compilers (C/C++)
 
-  * Known to work with versions 9.0 (Visual Studio 2008) through 12.0 (Visual
-    Studio 2013).
-  * The "Express" editions of Visual Studio 2008 and 2010 do not include a
-    64-bit compiler. To compile Cantera with 64-bit support, you must install
-    the corresponding version of the Windows SDK, available as a free download.
-  * Windows SDK, equivalent to Visual Studio 2008:
-    http://www.microsoft.com/download/en/details.aspx?id=3138
-  * Windows SDK, equivalent to Visual Studio 2010:
-    http://www.microsoft.com/en-us/download/details.aspx?id=8279
+  * Known to work with versions 12.0 (Visual Studio 2013) and 14.0 (Visual
+    Studio 2015).
 
 * MinGW (C/C++/Fortran)
 
@@ -412,8 +408,8 @@ Other Required Software
 * SCons:
 
   * http://www.scons.org/download.php
-  * Known to work with SCons 2.3.0; Expected to work with versions >= 1.0.0
-  * Version 2.3.2 or newer is required to use Visual Studio 2013.
+  * Linux & OS X: Known to work with SCons 2.3.0; Expected to work with versions >= 1.0.0
+  * Version 2.3.6 or newer is required to use Visual Studio 2015.
 
 * Python:
 

@@ -131,9 +131,8 @@ if os.name == 'nt':
     windows_compiler_options.extend([
         ('msvc_version',
          """Version of Visual Studio to use. The default is the newest
-            installed version. Specify '9.0' for Visual Studio 2008; '10.0'
-            for Visual Studio 2010; '11.0' for Visual Studio 2012; or '12.0'
-            for Visual Studio 2013.""",
+            installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
+            for Visual Studio 2015.""",
          ''),
         ('target_arch',
          """Target architecture. The default is the same
@@ -257,9 +256,6 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
     defaults.ccFlags = ['/MD', '/nologo',
                         '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
-    if env['MSVC_VERSION'] == '11.0':
-        # Fix compatibility issue between VS2012 and Google Test
-        defaults.cxxFlags.append('/D_VARIADIC_MAX=10')
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2'
