@@ -822,14 +822,7 @@ configh = {}
 
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
-env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 
-env['HAS_GLOBAL_ISNAN'] = conf.CheckStatement('::isnan(1.0)', '#include <cmath>')
-env['HAS_STD_ISNAN'] = conf.CheckStatement('std::isnan(1.0)', '#include <cmath>')
-env['HAS_UNDERSCORE_ISNAN'] = conf.CheckStatement('_isnan(1.0)',
-                                                  '#include <cmath>\n#include <float.h>')
-
-env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
@@ -1245,18 +1238,6 @@ cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
-
-if not env['HAS_MATH_H_ERF']:
-    if env['HAS_BOOST_MATH']:
-        configh['USE_BOOST_MATH'] = 1
-    else:
-        config_error("Couldn't find 'erf' in either <math.h> or Boost.Math.")
-else:
-    configh['USE_BOOST_MATH'] = None
-
-cdefine('USE_GLOBAL_ISNAN', 'HAS_GLOBAL_ISNAN')
-cdefine('USE_STD_ISNAN', 'HAS_STD_ISNAN')
-cdefine('USE_UNDERSCORE_ISNAN', 'HAS_UNDERSCORE_ISNAN')
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',

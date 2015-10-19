@@ -55,9 +55,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(LAPACK_NAMES_LOWERCASE)s
 %(LAPACK_FTN_TRAILING_UNDERSCORE)s
 
-//-------- BOOST --------
-%(USE_BOOST_MATH)s
-
 //--------- operating system --------------------------------------
 
 // The configure script defines this if the operating system is Mac
@@ -70,11 +67,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(SOLARIS)s
 
 //---------- C++ Compiler Variations ------------------------------
-
-// Name for 'isnan' varies for different compilers / standard libraries
-%(USE_STD_ISNAN)s
-%(USE_GLOBAL_ISNAN)s
-%(USE_UNDERSCORE_ISNAN)s
 
 // This define is needed to account for the variability for how
 // static variables in templated classes are defined. Right now

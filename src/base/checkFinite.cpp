@@ -10,41 +10,15 @@
  */
 
 #include "cantera/base/ct_defs.h"
-
-#include <stdexcept>
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
-
-// We expect that there will be special casing based on the computer
-// system here
-
-#ifdef SOLARIS
-#include <ieeefp.h>
-#include <sunmath.h>
-#endif
-
-// Compiler-dependent names for 'isnan' and 'finite'
-#if defined(USE_UNDERSCORE_ISNAN)
-    // Windows
-    #include <float.h>
-    #define isnan(x) _isnan(x)
-    #define finite(x) _finite(x)
-#elif defined(USE_GLOBAL_ISNAN)
-    // From C99
-    using ::isnan;
-    using ::finite;
-#elif defined(USE_STD_ISNAN)
-    // From C++11
-    using std::isnan;
-    #define finite(x) std::isfinite(x)
-#endif
 
 namespace Cantera {
 
 void checkFinite(const double tmp)
 {
-    if (!finite(tmp)) {
-        if (isnan(tmp)) {
+    if (!std::isfinite(tmp)) {
+        if (std::isnan(tmp)) {
             throw CanteraError("checkFinite", "found NaN");
         } else if (tmp > 0) {
             throw CanteraError("checkFinite", "found +Inf");
@@ -57,10 +31,10 @@ void checkFinite(const double tmp)
 void checkFinite(const std::string& name, double* values, size_t N)
 {
     for (size_t i = 0; i < N; i++) {
-        if (!finite(values[i])) {
+        if (!std::isfinite(values[i])) {
             std::string message = name + " contains non-finite elements:\n\n";
             for (size_t j = 0; j < N; j++) {
-                if (!finite(values[j])) {
+                if (!std::isfinite(values[j])) {
                     message += name + "[" + int2str(j) + "] = " +
                                fp2str(values[j]) + "\n";
                 }
