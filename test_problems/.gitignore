@@ -35,7 +35,7 @@ cathermo/HMW_test_3/HMW_test_3
 cathermo/VPissp/ISSPTester2
 cathermo/ims/IMSTester
 cathermo/issp/ISSPTester
-cathermo/stoichSubSSTP/stoichSubSSTP
+cathermo/stoichSub/stoichSub
 cathermo/testIAPWS/testIAPWSphi
 cathermo/testIAPWSPres/testIAPWSPres
 cathermo/testIAPWSTripP/testIAPWSTripP

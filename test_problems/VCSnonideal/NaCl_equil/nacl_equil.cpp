@@ -7,7 +7,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/HMWSoln.h"
-#include "cantera/thermo/StoichSubstanceSSTP.h"
+#include "cantera/thermo/StoichSubstance.h"
 
 using namespace Cantera;
 using namespace std;
@@ -105,7 +105,7 @@ int main(int argc, char** argv)
         gas->setState_TPX(T, pres, Xmol.data());
 
 
-        StoichSubstanceSSTP ss("NaCl_Solid.xml", "");
+        StoichSubstance ss("NaCl_Solid.xml", "");
         ss.setState_TP(T, pres);
 
 

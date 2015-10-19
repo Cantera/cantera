@@ -140,7 +140,7 @@
  *   phase density or the phase pressure.
  *   Lists of classes in this group are given below.
  *
- *   - StoichSubstanceSSTP  in StoichSubstanceSSTP.h
+ *   - StoichSubstance      in StoichSubstance.h
  *   - WaterSSTP            in WaterSSTP.h
  *
  *   The reader may note that there are duplications in functionality in the

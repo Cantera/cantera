@@ -28,14 +28,7 @@
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/SemiconductorPhase.h"
-
-#undef USE_SSTP
-#ifdef USE_SSTP
-#include "cantera/thermo/StoichSubstanceSSTP.h"
-#else
 #include "cantera/thermo/StoichSubstance.h"
-#endif
-
 #include "cantera/thermo/MineralEQ3.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
@@ -119,11 +112,7 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
     case cMetal:
         return new MetalPhase;
     case cStoichSubstance:
-#ifdef USE_SSTP
-        return new StoichSubstanceSSTP;
-#else
         return new StoichSubstance;
-#endif
     case cFixedChemPot:
         return new FixedChemPotSSTP;
     case cMineralEQ3:

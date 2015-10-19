@@ -204,8 +204,8 @@ CompileAndTest('HMW_test_3', 'cathermo/HMW_test_3',
                'HMW_test_3', 'output_noD_blessed.txt')
 CompileAndTest('IMSTester', 'cathermo/ims', 'IMSTester', 'output_blessed.txt')
 CompileAndTest('ISSPTester', 'cathermo/issp', 'ISSPTester', 'output_blessed.txt')
-CompileAndTest('stoichSubSSTP', 'cathermo/stoichSubSSTP',
-               'stoichSubSSTP', 'output_blessed.txt')
+CompileAndTest('stoichSub', 'cathermo/stoichSub',
+               'stoichSub', 'output_blessed.txt')
 CompileAndTest('IAPWSphi', 'cathermo/testIAPWS',
                'testIAPWSphi', 'output_blessed.txt')
 CompileAndTest('IAPWSPres', 'cathermo/testIAPWSPres',

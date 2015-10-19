@@ -48,7 +48,7 @@ MineralEQ3::operator=(const MineralEQ3& right)
     if (&right == this) {
         return *this;
     }
-    StoichSubstanceSSTP::operator=(right);
+    StoichSubstance::operator=(right);
     m_Mu0_pr_tr = right.m_Mu0_pr_tr;
     m_Entrop_pr_tr = right.m_Entrop_pr_tr;
     m_deltaG_formation_pr_tr = right.m_deltaG_formation_pr_tr;

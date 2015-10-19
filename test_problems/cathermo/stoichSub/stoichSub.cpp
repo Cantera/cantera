@@ -4,7 +4,7 @@
  */
 
 #include "cantera/thermo.h"
-#include "cantera/thermo/StoichSubstanceSSTP.h"
+#include "cantera/thermo/StoichSubstance.h"
 
 #include "TemperatureTable.h"
 
@@ -19,7 +19,7 @@ int main(int argc, char** argv)
         std::string iFile = (argc > 1) ? argv[1] : "NaCl_Solid.xml";
         std::string file_ID = iFile + "#NaCl(S)";
         XML_Node* xm = get_XML_NameID("phase", file_ID, 0);
-        StoichSubstanceSSTP* solid = new StoichSubstanceSSTP(*xm);
+        StoichSubstance* solid = new StoichSubstance(*xm);
 
         size_t nsp = solid->nSpecies();
         if (nsp != 1) {

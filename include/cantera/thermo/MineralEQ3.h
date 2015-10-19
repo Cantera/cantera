@@ -15,7 +15,7 @@
 #ifndef CT_MINERALEQ3_H
 #define CT_MINERALEQ3_H
 
-#include "StoichSubstanceSSTP.h"
+#include "StoichSubstance.h"
 
 namespace Cantera
 {
@@ -91,13 +91,13 @@ namespace Cantera
  *
  * @ingroup thermoprops
  */
-class MineralEQ3 : public StoichSubstanceSSTP
+class MineralEQ3 : public StoichSubstance
 {
 public:
-    //! Default constructor for the StoichSubstanceSSTP class
+    //! Default constructor for the MineralEQ3 class
     MineralEQ3() {}
 
-    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
+    //! Construct and initialize a MineralEQ3 ThermoPhase object
     //! directly from an ASCII input file
     /*!
      * @param infile name of the input file
@@ -106,10 +106,10 @@ public:
      */
     MineralEQ3(const std::string& infile, const std::string& id = "");
 
-    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
+    //! Construct and initialize a MineralEQ3 ThermoPhase object
     //! directly from an XML database
     /*!
-     *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
+     *  @param phaseRef XML node pointing to a MineralEQ3 description
      *  @param id       Id of the phase.
      */
     MineralEQ3(XML_Node& phaseRef, const std::string& id = "");
