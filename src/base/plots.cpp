@@ -22,10 +22,8 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
     }
     if (fmt == "TEC") {
         outputTEC(f, plotTitle, names, data);
-        f.close();
     } else if (fmt == "XL" || fmt == "CSV") {
         outputExcel(f, plotTitle, names, data);
-        f.close();
     } else {
         throw CanteraError("writePlotFile",
                            "unsupported plot type:" + fmt);
