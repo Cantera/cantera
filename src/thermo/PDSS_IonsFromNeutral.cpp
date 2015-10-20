@@ -63,10 +63,8 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b) :
     PDSS(b)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -78,11 +76,9 @@ PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral
 
     PDSS::operator=(b);
 
-    /*
-     *  The shallow pointer copy in the next step will be insufficient in most cases. However, its
-     *  functionally the best we can do for this assignment operator. We fix up the pointer in the
-     *  initAllPtrs() function.
-     */
+    // The shallow pointer copy in the next step will be insufficient in most
+    // cases. However, its functionally the best we can do for this assignment
+    // operator. We fix up the pointer in the initAllPtrs() function.
     neutralMoleculePhase_ = b.neutralMoleculePhase_;
 
     numMult_ = b.numMult_;
@@ -178,10 +174,9 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile","could not open "
                            +path+" for reading.");
     }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
+
+    // The phase object automatically constructs an XML object. Use this object
+    // to store information.
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
@@ -340,9 +335,8 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
 
 doublereal PDSS_IonsFromNeutral::temperature() const
 {
-    /*
-     * Obtain the temperature from the owning VPStandardStateTP object if you can.
-     */
+    // Obtain the temperature from the owning VPStandardStateTP object if you
+    // can.
     m_temp = m_vpssmgr_ptr->temperature();
     return m_temp;
 }

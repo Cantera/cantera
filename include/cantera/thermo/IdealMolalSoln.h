@@ -26,10 +26,6 @@
 namespace Cantera
 {
 
-/**  \addtogroup thermoprops */
-/* @{
- */
-
 /**
  * This phase is based upon the mixing-rule assumption that
  * all molality-based activity coefficients are equal
@@ -93,6 +89,8 @@ namespace Cantera
  *             </idealMolalSolnCutoff>
  *          </activityCoefficients>
  *      </thermo>
+ *
+ * @ingroup thermoprops
  */
 class IdealMolalSoln : public MolalityVPSSTP
 {
@@ -675,7 +673,6 @@ private:
     void calcIMSCutoffParams_();
 };
 
-/* @} */
 }
 
 #endif

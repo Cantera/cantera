@@ -1,5 +1,5 @@
 /**
- *  @file
+ *  @file PhaseCombo_Interaction.cpp
  */
 /*
  * Copyright (2009) Sandia Corporation. Under the terms of
@@ -80,37 +80,27 @@ ThermoPhase* PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
     return new PhaseCombo_Interaction(*this);
 }
 
-/*
- *  -------------- Utilities -------------------------------
- */
+// -------------- Utilities -------------------------------
 
 int PhaseCombo_Interaction::eosType() const
 {
     return cPhaseCombo_Interaction;
 }
 
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
+// - Activities, Standard States, Activity Concentrations -----------
 
 void PhaseCombo_Interaction::getActivityCoefficients(doublereal* ac) const
 {
-    /*
-     * Update the activity coefficients
-     */
+    // Update the activity coefficients
     s_update_lnActCoeff();
 
-    /*
-     * take the exp of the internally stored coefficients.
-     */
+    // take the exp of the internally stored coefficients.
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = exp(lnActCoeff_Scaled_[k]);
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
+// ------------ Partial Molar Properties of the Solution ------------
 
 void PhaseCombo_Interaction::getElectrochemPotentials(doublereal* mu) const
 {
@@ -123,16 +113,10 @@ void PhaseCombo_Interaction::getElectrochemPotentials(doublereal* mu) const
 
 void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const
 {
-    /*
-     * First get the standard chemical potentials in
-     * molar form.
-     *  -> this requires updates of standard state as a function
-     *     of T and P
-     */
+    // First get the standard chemical potentials in molar form. This requires
+    // updates of standard state as a function of T and P
     getStandardChemPotentials(mu);
-    /*
-     * Update the activity coefficients
-     */
+    // Update the activity coefficients
     s_update_lnActCoeff();
 
     for (size_t k = 0; k < m_kk; k++) {
@@ -181,21 +165,16 @@ doublereal PhaseCombo_Interaction::cv_mole() const
 
 void PhaseCombo_Interaction::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    /*
-     * Get the nondimensional standard state enthalpies
-     */
+    // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
-    /*
-     * dimensionalize it.
-     */
+    // dimensionalize it.
     double T = temperature();
     for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= GasConstant * T;
     }
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -205,24 +184,20 @@ void PhaseCombo_Interaction::getPartialMolarEnthalpies(doublereal* hbar) const
 
 void PhaseCombo_Interaction::getPartialMolarCp(doublereal* cpbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
+    // Get the nondimensional standard state entropies
     getCp_R(cpbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
@@ -230,15 +205,12 @@ void PhaseCombo_Interaction::getPartialMolarCp(doublereal* cpbar) const
 
 void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
+    // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
@@ -246,9 +218,8 @@ void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
         double xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] - log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] *= GasConstant;
     }
@@ -258,9 +229,7 @@ void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
 {
     double T = temperature();
 
-    /*
-     * Get the standard state values in m^3 kmol-1
-     */
+    // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -303,10 +272,8 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
                            "phasenode and Id are incompatible");
     }
 
-    /*
-     * Check on the thermo field. Must have:
-     * <thermo model="PhaseCombo_Interaction" />
-     */
+    // Check on the thermo field. Must have:
+    // <thermo model="PhaseCombo_Interaction" />
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("PhaseCombo_Interaction::initThermoXML",
                            "no thermo XML node");
@@ -318,10 +285,8 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
                            "model name isn't PhaseCombo_Interaction: " + formString);
     }
 
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
+    // Go get all of the coefficients and factors in the activityCoefficients
+    // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         string mString = acNode.attrib("model");
@@ -331,20 +296,17 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
         }
         for (size_t i = 0; i < acNode.nChildren(); i++) {
             XML_Node& xmlACChild = acNode.child(i);
-            /*
-             * Process a binary salt field, or any of the other XML fields
-             * that make up the Pitzer Database. Entries will be ignored
-             * if any of the species in the entry isn't in the solution.
-             */
+
+            // Process a binary salt field, or any of the other XML fields that
+            // make up the Pitzer Database. Entries will be ignored if any of
+            // the species in the entry isn't in the solution.
             if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
     }
 
-    /*
-     * Go down the chain
-     */
+    // Go down the chain
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
 }
 
@@ -354,18 +316,13 @@ void PhaseCombo_Interaction::s_update_lnActCoeff() const
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
-        /*
-         *  We never sample the end of the mole fraction domains
-         */
+        // We never sample the end of the mole fraction domains
         double xx = std::max(moleFractions_[iK], SmallNumber);
-        /*
-         *  First wipe out the ideal solution mixing term
-         */
+
+        // First wipe out the ideal solution mixing term
         lnActCoeff_Scaled_[iK] = - log(xx);
 
-        /*
-         *  Then add in the Margules interaction terms. that's it!
-         */
+        // Then add in the Margules interaction terms. that's it!
         for (size_t i = 0; i < numBinaryInteractions_; i++) {
             size_t iA = m_pSpecies_A_ij[i];
             size_t iB = m_pSpecies_B_ij[i];
@@ -435,13 +392,10 @@ void PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doubl
     s_update_dlnActCoeff_dT();
 
     for (size_t iK = 0; iK < m_kk; iK++) {
-        /*
-         *  We never sample the end of the mole fraction domains
-         */
+        // We never sample the end of the mole fraction domains
         double xx = std::max(moleFractions_[iK], SmallNumber);
-        /*
-         *  First wipe out the ideal solution mixing term
-         */
+
+        // First wipe out the ideal solution mixing term
         if (xx > SmallNumber) {
             dlnActCoeffds[iK] += - 1.0 / xx;
         }
@@ -477,13 +431,10 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
 
     for (size_t iK = 0; iK < m_kk; iK++) {
         double XK = moleFractions_[iK];
-        /*
-         *  We never sample the end of the mole fraction domains
-         */
+        // We never sample the end of the mole fraction domains
         double xx = std::max(moleFractions_[iK], SmallNumber);
-        /*
-         *  First wipe out the ideal solution mixing term
-         */
+
+        // First wipe out the ideal solution mixing term
         if (xx > SmallNumber) {
             dlnActCoeffdlnN_diag_[iK] = - 1.0 + xx;
         }
@@ -515,13 +466,9 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
     double T = temperature();
     dlnActCoeffdlnN_.zero();
 
-    /*
-     *  Loop over the activity coefficient gamma_k
-     */
+    // Loop over the activity coefficient gamma_k
     for (size_t iK = 0; iK < m_kk; iK++) {
-        /*
-         *  We never sample the end of the mole fraction domains
-         */
+        // We never sample the end of the mole fraction domains
         double xx = std::max(moleFractions_[iK], SmallNumber);
         for (size_t iM = 0; iM < m_kk; iM++) {
             double XM = moleFractions_[iM];
@@ -646,10 +593,9 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     if (jName == "") {
         throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies", "no speciesB attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
@@ -675,13 +621,10 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         string nodeName = lowercase(xmlChild.name());
-        /*
-         * Process the binary species interaction child elements
-         */
+
+        // Process the binary species interaction child elements
         if (nodeName == "excessenthalpy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessEnthalpy for " + ispName
@@ -693,9 +636,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
 
         if (nodeName == "excessentropy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessEntropy for " + ispName
@@ -707,9 +648,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
 
         if (nodeName == "excessvolume_enthalpy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessVolume_Enthalpy for " + ispName
@@ -721,9 +660,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
 
         if (nodeName == "excessvolume_entropy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
             if (vParams.size() != 2) {
                 throw CanteraError("PhaseCombo_Interaction::readXMLBinarySpecies::excessVolume_Entropy for " + ispName

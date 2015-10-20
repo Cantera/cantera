@@ -4,13 +4,12 @@
  * state (see \ref thermoprops
  * and class \link Cantera::IdealMolalSoln IdealMolalSoln\endlink).
  *
- * Definition file for a derived class of ThermoPhase that handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties that are further based upon
- * activities on the molality scale. The Ideal molal
- * solution assumes that all molality-based activity
- * coefficients are equal to one. This turns out, actually, to be
- * highly nonlinear when the solvent densities get low.
+ * Definition file for a derived class of ThermoPhase that handles variable
+ * pressure standard state methods for calculating thermodynamic properties that
+ * are further based upon activities on the molality scale. The Ideal molal
+ * solution assumes that all molality-based activity coefficients are equal to
+ * one. This turns out, actually, to be highly nonlinear when the solvent
+ * densities get low.
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
@@ -48,10 +47,8 @@ IdealMolalSoln::IdealMolalSoln() :
 IdealMolalSoln::IdealMolalSoln(const IdealMolalSoln& b) :
     MolalityVPSSTP(b)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -169,9 +166,7 @@ doublereal IdealMolalSoln::cv_mole() const
     throw NotImplementedError("IdealMolalSoln::cv_mole");
 }
 
-//
 // ------- Mechanical Equation of State Properties ------------------------
-//
 
 void IdealMolalSoln::setPressure(doublereal p)
 {
@@ -226,9 +221,7 @@ void IdealMolalSoln::setState_TP(doublereal temp, doublereal pres)
     calcDensity();
 }
 
-//
 // ------- Activities and Activity Concentrations
-//
 
 void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
 {
@@ -266,10 +259,9 @@ doublereal IdealMolalSoln::standardConcentration(size_t k) const
 void IdealMolalSoln::getActivities(doublereal* ac) const
 {
     _updateStandardStateThermo();
-    /*
-     * Update the molality array, m_molalities()
-     *   This requires an update due to mole fractions
-     */
+
+    // Update the molality array, m_molalities(). This requires an update due to
+    // mole fractions
     if (IMS_typeCutoff_ == 0) {
         calcMolalities();
         for (size_t k = 0; k < m_kk; k++) {
@@ -284,9 +276,8 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
     } else {
 
         s_updateIMS_lnMolalityActCoeff();
-        /*
-         * Now calculate the array of activities.
-         */
+
+        // Now calculate the array of activities.
         for (size_t k = 1; k < m_kk; k++) {
             ac[k] = m_molalities[k] * exp(IMS_lnActCoeffMolal_[k]);
         }
@@ -317,30 +308,23 @@ void IdealMolalSoln::getMolalityActivityCoefficients(doublereal* acMolality) con
     }
 }
 
-//
 // ------ Partial Molar Properties of the Solution -----------------
-//
 
 void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 {
     // Assertion is made for speed
     AssertThrow(m_indexSolvent == 0, "solvent not the first species");
 
-    /*
-     * First get the standard chemical potentials
-     *  -> this requires updates of standard state as a function
-     *     of T and P
-     * These are defined at unit molality.
-     */
+    // First get the standard chemical potentials. This requires updates of
+    // standard state as a function of T and P These are defined at unit
+    // molality.
     getStandardChemPotentials(mu);
-    /*
-     * Update the molality array, m_molalities()
-     *   This requires an update due to mole fractions
-     */
+
+    // Update the molality array, m_molalities(). This requires an update due to
+    // mole fractions
     calcMolalities();
-    /*
-     * get the solvent mole fraction
-     */
+
+    // get the solvent mole fraction
     double xmolSolvent = moleFraction(m_indexSolvent);
 
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
@@ -348,18 +332,15 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
             double xx = std::max(m_molalities[k], SmallNumber);
             mu[k] += RT() * log(xx);
         }
-        /*
-         * Do the solvent
-         *  -> see my notes
-         */
+
+        // Do the solvent
+        //  -> see my notes
         double xx = std::max(xmolSolvent, SmallNumber);
         mu[m_indexSolvent] +=
             (RT() * (xmolSolvent - 1.0) / xx);
     } else {
-        /*
-         * Update the activity coefficients
-         * This also updates the internal molality array.
-         */
+        // Update the activity coefficients. This also updates the internal
+        // molality array.
         s_updateIMS_lnMolalityActCoeff();
 
         for (size_t k = 1; k < m_kk; k++) {
@@ -394,15 +375,12 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
         double xmolSolvent = moleFraction(m_indexSolvent);
         sbar[m_indexSolvent] -= (GasConstant * (xmolSolvent - 1.0) / xmolSolvent);
     } else {
-        /*
-         * Update the activity coefficients, This also update the
-         * internally stored molalities.
-         */
+        // Update the activity coefficients, This also update the internally
+        // stored molalities.
         s_updateIMS_lnMolalityActCoeff();
-        /*
-         * First we will add in the obvious dependence on the T
-         * term out front of the log activity term
-         */
+
+        // First we will add in the obvious dependence on the T term out front
+        // of the log activity term
         doublereal mm;
         for (size_t k = 0; k < m_kk; k++) {
             if (k != m_indexSolvent) {
@@ -423,19 +401,15 @@ void IdealMolalSoln::getPartialMolarVolumes(doublereal* vbar) const
 
 void IdealMolalSoln::getPartialMolarCp(doublereal* cpbar) const
 {
-    /*
-     * Get the nondimensional Gibbs standard state of the
-     * species at the T and P of the solution.
-     */
+    // Get the nondimensional Gibbs standard state of the species at the T and P
+    // of the solution.
     getCp_R(cpbar);
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
 }
 
-/*
- *  -------------- Utilities -------------------------------
- */
+// -------------- Utilities -------------------------------
 
 void IdealMolalSoln::initThermo()
 {
@@ -445,17 +419,13 @@ void IdealMolalSoln::initThermo()
 
 void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("IdealMolalSoln::initThermoXML",
                            "no thermo XML node");
     }
 
-    /*
-     * Initialize the whole thermo object, using a virtual function.
-     */
+    // Initialize the whole thermo object, using a virtual function.
     initThermo();
 
     if (id_.size() > 0 && phaseNode.id() != id_) {
@@ -463,18 +433,14 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "phasenode and Id are incompatible");
     }
 
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("IdealMolalSoln::initThermo",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
 
-    /*
-     * Possible change the form of the standard concentrations
-     */
+    // Possible change the form of the standard concentrations
     if (thermoNode.hasChild("standardConc")) {
         XML_Node& scNode = thermoNode.child("standardConc");
         m_formGC = 2;
@@ -493,10 +459,8 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Get the Name of the Solvent:
-     *      <solvent> solventName </solvent>
-     */
+    // Get the Name of the Solvent:
+    //      <solvent> solventName </solvent>
     std::string solventName = "";
     if (thermoNode.hasChild("solvent")) {
         std::vector<std::string> nameSolventa;
@@ -551,9 +515,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Reconcile the solvent name and index.
-     */
+    // Reconcile the solvent name and index.
     for (size_t k = 0; k < m_kk; k++) {
         if (solventName == speciesName(k)) {
             m_indexSolvent = k;
@@ -572,9 +534,7 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            " should be first species");
     }
 
-    /*
-     * Now go get the molar volumes
-     */
+    // Now go get the molar volumes
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB =
         get_XML_NameID("speciesData", speciesList["datasrc"],
@@ -594,26 +554,20 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
     MolalityVPSSTP::initThermoXML(phaseNode, id_);
     setMoleFSolventMin(1.0E-5);
-    /*
-     * Set the state
-     */
+
+    // Set the state
     if (phaseNode.hasChild("state")) {
         XML_Node& stateNode = phaseNode.child("state");
         setStateFromXML(stateNode);
     }
 }
 
-/*
- * ------------ Private and Restricted Functions ------------------
- */
+// ------------ Private and Restricted Functions ------------------
 
 void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
 {
-    /*
-     * Calculate the molalities. Currently, the molalities
-     * may not be current with respect to the contents of the
-     * State objects' data.
-     */
+    // Calculate the molalities. Currently, the molalities may not be current
+    // with respect to the contents of the State objects' data.
     calcMolalities();
 
     double xmolSolvent = moleFraction(m_indexSolvent);
@@ -640,9 +594,7 @@ void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
             return;
         } else {
-            /*
-             * If we are in the middle region, calculate the connecting polynomials
-             */
+            // If we are in the middle region, calculate the connecting polynomials
             double xminus = xmolSolvent - IMS_X_o_cutoff_/2.0;
             double xminus2 = xminus * xminus;
             double xminus3 = xminus2 * xminus;
@@ -715,10 +667,6 @@ void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
 
 void IdealMolalSoln::initLengths()
 {
-    /*
-     * Obtain the limits of the temperature from the species
-     * thermo handler's limits.
-     */
     m_pp.resize(m_kk);
     m_speciesMolarVolume.resize(m_kk);
     m_tmpV.resize(m_kk);

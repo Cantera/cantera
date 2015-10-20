@@ -161,12 +161,11 @@ int flamespeed(double phi)
         int loglevel=1;
         bool refine_grid = true;
 
-        /* Solve freely propagating flame*/
+        // Solve freely propagating flame
 
-        /* Linearly interpolate to find location where this
-           temperature would exist. The temperature at this
-           location will then be fixed for remainder of
-           calculation.*/
+        // Linearly interpolate to find location where this temperature would
+        // exist. The temperature at this location will then be fixed for
+        // remainder of calculation.
 
         flow.fixTemperature();
         refine_grid=false;

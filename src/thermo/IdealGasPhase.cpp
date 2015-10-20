@@ -38,10 +38,8 @@ IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
     m_p0(right.m_p0),
     m_logc0(right.m_logc0)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = right;
 }
 
@@ -280,14 +278,11 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
 
-    /*
-     * Within the method, we protect against inf results if the
-     * exponent is too high.
-     *
-     * If it is too low, we set
-     * the partial pressure to zero. This capability is needed
-     * by the elemental potential method.
-     */
+    // Within the method, we protect against inf results if the exponent is too
+    // high.
+    //
+    // If it is too low, we set the partial pressure to zero. This capability is
+    // needed by the elemental potential method.
     doublereal pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         double tmp = -grt[k] + mu_RT[k];

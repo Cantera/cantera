@@ -26,7 +26,7 @@ public:
     ReactorNet();
     virtual ~ReactorNet();
 
-    /** @name Methods to set up a simulation. */
+    //! @name Methods to set up a simulation.
     //@{
 
     /**

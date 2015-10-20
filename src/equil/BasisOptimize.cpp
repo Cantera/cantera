@@ -144,8 +144,8 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
      *   current number of component species found.
      */
     while (jr < nComponents) {
-        /* - Top of another loop point based on finding a linearly */
-        /* - independent species */
+        // Top of another loop point based on finding a linearly independent
+        // species
         while (true) {
             /*
              *    Search the remaining part of the mole number vector, molNum
@@ -183,9 +183,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 #endif
             molNum[kk] = USEDBEFORE;
 
-            /* *********************************************************** */
-            /* **** CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES ****** */
-            /* *********************************************************** */
+            // **** CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES ******
             /*
              *          Modified Gram-Schmidt Method, p. 202 Dalquist
              *          QR factorization of a matrix without row pivoting.
@@ -228,16 +226,12 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                 tmp = sm[ml + jr*ne];
                 sa[jr] += tmp * tmp;
             }
-            /* **************************************************** */
-            /* **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT ********** */
-            /* **************************************************** */
+            // **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT **********
             if (sa[jr] > 1.0e-6) {
                 break;
             }
         }
-        /* ****************************************** */
-        /* **** REARRANGE THE DATA ****************** */
-        /* ****************************************** */
+        // **** REARRANGE THE DATA ******************
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
                 kk = orderVectorSpecies[k];
@@ -258,9 +252,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         return nComponents;
     }
 
-    /* ****************************************************** */
-    /* **** EVALUATE THE STOICHIOMETRY ********************** */
-    /* ****************************************************** */
+    // **** EVALUATE THE STOICHIOMETRY **********************
     /*
      *  Formulate the matrix problem for the stoichiometric
      *  coefficients. CX + B = 0
@@ -361,7 +353,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     }
 
     return nComponents;
-} /* basopt() ************************************************************/
+} // basopt()
 
 static void print_stringTrunc(const char* str, int space, int alignment)
 
@@ -526,10 +518,8 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
              */
             eAbund[kk] = test;
 
-            /* *********************************************************** */
-            /* **** CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX    */
-            /* **** LINE WITH PREVIOUS LINES OF THE FORMULA MATRIX  ****** */
-            /* *********************************************************** */
+            // **** CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX
+            // **** LINE WITH PREVIOUS LINES OF THE FORMULA MATRIX  ******
             /*
              *          Modified Gram-Schmidt Method, p. 202 Dalquist
              *          QR factorization of a matrix without row pivoting.
@@ -580,16 +570,12 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                 double tmp = sm[ml + jr*nComponents];
                 sa[jr] += tmp * tmp;
             }
-            /* **************************************************** */
-            /* **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT ********** */
-            /* **************************************************** */
+            // **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT **********
             if (sa[jr] > 1.0e-6) {
                 break;
             }
         }
-        /* ****************************************** */
-        /* **** REARRANGE THE DATA ****************** */
-        /* ****************************************** */
+        // **** REARRANGE THE DATA ******************
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                 kk = orderVectorElements[k];

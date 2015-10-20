@@ -67,10 +67,9 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
     if (jName == "") {
         throw CanteraError("HMWSoln::readXMLBinarySalt", "no anion attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
@@ -94,13 +93,10 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
         XML_Node& xmlChild = BinSalt.child(iChild);
         string stemp = xmlChild.name();
         string nodeName = lowercase(stemp);
-        /*
-         * Process the binary salt child elements
-         */
+
+        // Process the binary salt child elements
         if (nodeName == "beta0") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, false, "", "beta0");
             size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
@@ -133,9 +129,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
             }
         }
         if (nodeName == "beta1") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, false, "", "beta1");
             size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
@@ -200,9 +194,7 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
             }
         }
         if (nodeName == "cphi") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, false, "", "Cphi");
             size_t nParamsFound = vParams.size();
             if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
@@ -264,10 +256,9 @@ void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
     if (jspName == "") {
         throw CanteraError("HMWSoln::readXMLThetaAnion", "no anion2 attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t iSpecies = speciesIndex(ispName);
     if (iSpecies == npos) {
         return;
@@ -343,10 +334,9 @@ void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
     if (jspName == "") {
         throw CanteraError("HMWSoln::readXMLThetaCation", "no cation2 attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t iSpecies = speciesIndex(ispName);
     if (iSpecies == npos) {
         return;
@@ -426,10 +416,9 @@ void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
     if (jName == "") {
         throw CanteraError("HMWSoln::readXMLPsiCommonCation", "no anion2 attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t kSpecies = speciesIndex(kName);
     if (kSpecies == npos) {
         return;
@@ -561,10 +550,9 @@ void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
     if (jName == "") {
         throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "no cation2 attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t kSpecies = speciesIndex(kName);
     if (kSpecies == npos) {
         return;
@@ -692,10 +680,9 @@ void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
     if (jName == "") {
         throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no species2 attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
@@ -766,10 +753,8 @@ void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
         throw CanteraError("HMWSoln::readXMLMunnnNeutral", "no species1 attrib");
     }
 
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
@@ -841,10 +826,9 @@ void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
     if (kName == "") {
         throw CanteraError("HMWSoln::readXMLZetaCation", "no anion1 attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
@@ -961,10 +945,9 @@ void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
         throw CanteraError("HMWSoln:constructPhaseFile","could not open "
                            +path+" for reading.");
     }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
+
+    // The phase object automatically constructs an XML object.
+    // Use this object to store information.
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id_);
@@ -987,18 +970,14 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
         }
     }
 
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("HMWSoln::constructPhaseXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
 
-    /*
-     * Possibly change the form of the standard concentrations
-     */
+    // Possibly change the form of the standard concentrations
     if (thermoNode.hasChild("standardConc")) {
         XML_Node& scNode = thermoNode.child("standardConc");
         m_formGC = 2;
@@ -1021,10 +1000,9 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
             }
         }
     }
-    /*
-     * Get the Name of the Solvent:
-     *      <solvent> solventName </solvent>
-     */
+
+    // Get the Name of the Solvent:
+    //      <solvent> solventName </solvent>
     string solventName = "";
     if (thermoNode.hasChild("solvent")) {
         XML_Node& scNode = thermoNode.child("solvent");
@@ -1037,10 +1015,8 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
         solventName = nameSolventa[0];
     }
 
-    /*
-     * Determine the form of the Pitzer model,
-     *   We will use this information to size arrays below.
-     */
+    // Determine the form of the Pitzer model. We will use this information to
+    // size arrays below.
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& scNode = thermoNode.child("activityCoefficients");
         string stemp = scNode.attrib("model");
@@ -1056,10 +1032,9 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
                                    + formString);
             }
         }
-        /*
-         * Determine the form of the temperature dependence
-         * of the Pitzer activity coefficient model.
-         */
+
+        // Determine the form of the temperature dependence of the Pitzer
+        // activity coefficient model.
         stemp = scNode.attrib("TempModel");
         formString = lowercase(stemp);
         if (formString != "") {
@@ -1076,11 +1051,9 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
             }
         }
 
-        /*
-         * Determine the reference temperature
-         * of the Pitzer activity coefficient model's temperature
-         * dependence formulation: defaults to 25C
-         */
+        // Determine the reference temperature of the Pitzer activity
+        // coefficient model's temperature dependence formulation: defaults to
+        // 25C
         stemp = scNode.attrib("TempReference");
         formString = lowercase(stemp);
         if (formString != "") {
@@ -1090,11 +1063,9 @@ void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
         }
     }
 
-    /*
-     * Call the Cantera importPhase() function. This will import
-     * all of the species into the phase. This will also handle
-     * all of the solvent and solute standard states
-     */
+    // Call the importPhase() function. This will import all of the species into
+    // the phase. This will also handle all of the solvent and solute standard
+    // states
     importPhase(phaseNode, this);
 }
 
@@ -1108,18 +1079,14 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("HMWSoln::initThermoXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
 
-    /*
-     * Possibly change the form of the standard concentrations
-     */
+    // Possibly change the form of the standard concentrations
     if (thermoNode.hasChild("standardConc")) {
         XML_Node& scNode = thermoNode.child("standardConc");
         m_formGC = 2;
@@ -1143,10 +1110,8 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Determine the form of the Pitzer model,
-     *   We will use this information to size arrays below.
-     */
+    // Determine the form of the Pitzer model, We will use this information to
+    // size arrays below.
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& scNode = thermoNode.child("activityCoefficients");
         string stemp = scNode.attrib("model");
@@ -1163,10 +1128,8 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        /*
-         * Determine the form of the temperature dependence
-         * of the Pitzer activity coefficient model.
-         */
+        // Determine the form of the temperature dependence of the Pitzer
+        // activity coefficient model.
         stemp = scNode.attrib("TempModel");
         formString = lowercase(stemp);
         if (formString != "") {
@@ -1183,11 +1146,9 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        /*
-         * Determine the reference temperature
-         * of the Pitzer activity coefficient model's temperature
-         * dependence formulation: defaults to 25C
-         */
+        // Determine the reference temperature of the Pitzer activity
+        // coefficient model's temperature dependence formulation: defaults to
+        // 25C
         stemp = scNode.attrib("TempReference");
         formString = lowercase(stemp);
         if (formString != "") {
@@ -1197,10 +1158,8 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Get the Name of the Solvent:
-     *      <solvent> solventName </solvent>
-     */
+    // Get the Name of the Solvent:
+    //      <solvent> solventName </solvent>
     string solventName = "";
     if (thermoNode.hasChild("solvent")) {
         XML_Node& scNode = thermoNode.child("solvent");
@@ -1213,15 +1172,11 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         solventName = nameSolventa[0];
     }
 
-    /*
-     * Initialize all of the lengths of arrays in the object
-     * now that we know what species are in the phase.
-     */
+    // Initialize all of the lengths of arrays in the object
+    // now that we know what species are in the phase.
     initLengths();
 
-    /*
-     * Reconcile the solvent name and index.
-     */
+    // Reconcile the solvent name and index.
     for (size_t k = 0; k < m_kk; k++) {
         string sname = speciesName(k);
         if (solventName == sname) {
@@ -1246,11 +1201,9 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            " should be first species");
     }
 
-    /*
-     * Now go get the specification of the standard states for
-     * species in the solution. This includes the molar volumes
-     * data blocks for incompressible species.
-     */
+    // Now go get the specification of the standard states for species in the
+    // solution. This includes the molar volumes data blocks for incompressible
+    // species.
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB =
         get_XML_NameID("speciesData", speciesList["datasrc"],
@@ -1279,20 +1232,18 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (k == 0) {
             if (modelString == "wateriapws" || modelString == "real_water" ||
                     modelString == "waterpdss") {
-                /*
-                 * Store a local pointer to the water standard state model.
-                 *   -> We've hardcoded it to a PDSS_Water model, so this is ok.
-                 */
+
+                // Store a local pointer to the water standard state model.
+                // We've hardcoded it to a PDSS_Water model, so this is ok.
                 m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
                 if (!m_waterSS) {
                     throw CanteraError("HMWSoln::initThermoXML",
                                        "Dynamic cast to PDSS_Water failed");
                 }
-                /*
-                 * Fill in the molar volume of water (m3/kmol)
-                 * at standard conditions to fill in the m_speciesSize entry
-                 * with something reasonable.
-                 */
+
+                // Fill in the molar volume of water (m3/kmol) at standard
+                // conditions to fill in the m_speciesSize entry with something
+                // reasonable.
                 m_waterSS->setState_TP(300., OneAtm);
                 double dens = m_waterSS->density();
                 double mw = m_waterSS->molecularWeight();
@@ -1317,34 +1268,25 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Initialize the water property calculator. It will share
-     * the internal eos water calculator.
-     */
+    // Initialize the water property calculator. It will share the internal eos
+    // water calculator.
     m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
 
-    /*
-     * Fill in parameters for the calculation of the
-     * stoichiometric Ionic Strength
-     *
-     * The default is that stoich charge is the same as the
-     * regular charge.
-     */
+    // Fill in parameters for the calculation of the stoichiometric Ionic
+    // Strength. The default is that stoich charge is the same as the regular
+    // charge.
     for (size_t k = 0; k < m_kk; k++) {
         m_speciesCharge_Stoich[k] = charge(k);
     }
 
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
+    // Go get all of the coefficients and factors in the activityCoefficients
+    // XML block
     XML_Node* acNodePtr = 0;
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         acNodePtr = &acNode;
-        /*
-         * Look for parameters for A_Debye
-         */
+
+        // Look for parameters for A_Debye
         if (acNode.hasChild("A_Debye")) {
             XML_Node& ADebye = acNode.child("A_Debye");
             m_form_A_Debye = A_DEBYE_CONST;
@@ -1361,16 +1303,12 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        /*
-         * Look for Parameters for the Maximum Ionic Strength
-         */
+        // Look for Parameters for the Maximum Ionic Strength
         if (acNode.hasChild("maxIonicStrength")) {
             m_maxIionicStrength = getFloat(acNode, "maxIonicStrength");
         }
 
-        /*
-         * Look for parameters for the Ionic radius
-         */
+        // Look for parameters for the Ionic radius
         if (acNode.hasChild("ionicRadius")) {
             XML_Node& irNode = acNode.child("ionicRadius");
             double Afactor = 1.0;
@@ -1388,11 +1326,8 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        /*
-         * First look at the species database.
-         *  -> Look for the subelement "stoichIsMods"
-         *     in each of the species SS databases.
-         */
+        // First look at the species database. Look for the subelement
+        // "stoichIsMods" in each of the species SS databases.
         std::vector<const XML_Node*> xspecies = speciesData();
         for (size_t k = 0; k < m_kk; k++) {
             size_t jmap = npos;
@@ -1411,9 +1346,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        /*
-         * Now look at the activity coefficient database
-         */
+        // Now look at the activity coefficient database
         if (acNodePtr && acNodePtr->hasChild("stoichIsMods")) {
             XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
             map<string, string> msIs;
@@ -1427,20 +1360,16 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        /*
-         * Loop through the children getting multiple instances of
-         * parameters
-         */
+        // Loop through the children getting multiple instances of parameters
         if (acNodePtr) {
             for (size_t i = 0; i < acNodePtr->nChildren(); i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
                 string stemp = xmlACChild.name();
                 string nodeName = lowercase(stemp);
-                /*
-                 * Process a binary salt field, or any of the other XML fields
-                 * that make up the Pitzer Database. Entries will be ignored
-                 * if any of the species in the entry isn't in the solution.
-                 */
+
+                // Process a binary salt field, or any of the other XML fields
+                // that make up the Pitzer Database. Entries will be ignored
+                // if any of the species in the entry isn't in the solution.
                 if (nodeName == "binarysaltparameters") {
                     readXMLBinarySalt(xmlACChild);
                 } else if (nodeName == "thetaanion") {
@@ -1463,13 +1392,10 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         readXMLCroppingCoefficients(acNode);
     }
 
-    /*
-     * Fill in the vector specifying the electrolyte species
-     * type
-     *
-     *   First fill in default values. Everything is either
-     *   a charge species, a nonpolar neutral, or the solvent.
-     */
+    // Fill in the vector specifying the electrolyte species type
+    //
+    // First fill in default values. Everything is either a charge species, a
+    // nonpolar neutral, or the solvent.
     for (size_t k = 0; k < m_kk; k++) {
         if (fabs(charge(k)) > 0.0001) {
             m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
@@ -1483,11 +1409,9 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
     m_electrolyteSpeciesType[m_indexSolvent] = cEST_solvent;
-    /*
-     * First look at the species database.
-     *  -> Look for the subelement "stoichIsMods"
-     *     in each of the species SS databases.
-     */
+
+    // First look at the species database. Look for the subelement
+    // "stoichIsMods" in each of the species SS databases.
     std::vector<const XML_Node*> xspecies = speciesData();
     for (size_t k = 0; k < m_kk; k++) {
         const XML_Node* spPtr = xspecies[k];
@@ -1499,9 +1423,8 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
     }
-    /*
-     * Then look at the phase thermo specification
-     */
+
+    // Then look at the phase thermo specification
     if (acNodePtr && acNodePtr->hasChild("electrolyteSpeciesType")) {
         XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
         map<string, string> msEST;
@@ -1526,9 +1449,9 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     setMoleFSolventMin(1.0E-5);
 
     MolalityVPSSTP::initThermoXML(phaseNode, id_);
-    /*
-     * Lastly calculate the charge balance and then add stuff until the charges compensate
-     */
+
+    // Lastly calculate the charge balance and then add stuff until the charges
+    // compensate
     vector_fp mf(m_kk, 0.0);
     getMoleFractions(mf.data());
     bool notDone = true;

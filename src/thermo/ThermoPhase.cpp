@@ -50,43 +50,31 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     m_chargeNeutralityNecessary(false),
     m_ssConvention(cSS_CONVENTION_TEMPERATURE)
 {
-    /*
-     * Call the assignment operator
-     */
+    // Call the assignment operator
     *this = right;
 }
 
 ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
 {
-    /*
-     * Check for self assignment.
-     */
+    // Check for self assignment.
     if (this == &right) {
         return *this;
     }
 
-    /*
-     * We need to destruct first
-     */
+    // We need to destruct first
     for (size_t k = 0; k < m_speciesData.size(); k++) {
         delete m_speciesData[k];
     }
     delete m_spthermo;
 
-    /*
-     * Call the base class assignment operator
-     */
+    // Call the base class assignment operator
     Phase::operator=(right);
 
-    /*
-     * Pointer to the species thermodynamic property manager
-     * We own this, so we need to do a deep copy
-     */
+    // Pointer to the species thermodynamic property manager
+    // We own this, so we need to do a deep copy
     m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
 
-    /*
-     * Do a deep copy of species Data, because we own this
-     */
+    // Do a deep copy of species Data, because we own this
     m_speciesData.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_speciesData[k] = new XML_Node(*(right.m_speciesData[k]));
@@ -291,9 +279,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     double Tbot = Tnew;
 
     bool ignoreBounds = false;
-    // Unstable phases are those for which
-    // cp < 0.0. These are possible for cases where
-    // we have passed the spinodal curve.
+    // Unstable phases are those for which cp < 0.0. These are possible for
+    // cases where we have passed the spinodal curve.
     bool unstablePhase = false;
     // Counter indicating the last temperature point where the
     // phase was unstable
@@ -315,9 +302,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         // Calculate the new T
         Tnew = Told + dt;
 
-        // Limit the step size so that we are convergent
-        // This is the step that makes it different from a
-        // Newton's algorithm
+        // Limit the step size so that we are convergent This is the step that
+        // makes it different from a Newton's algorithm
         if ((dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
             if (Hbot < Htarget && Tnew < (0.75 * Tbot + 0.25 * Told)) {
                 dt = 0.75 * (Tbot - Told);
@@ -404,10 +390,9 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         }
     }
     // We are here when there hasn't been convergence
-    /*
-     * Formulate a detailed error message, since questions seem to
-     * arise often about the lack of convergence.
-     */
+
+    // Formulate a detailed error message, since questions seem to arise often
+    // about the lack of convergence.
     string ErrString =  "No convergence in 500 iterations\n";
     if (doUV) {
         ErrString += fmt::format(
@@ -495,9 +480,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     double Tbot = Tnew;
 
     bool ignoreBounds = false;
-    // Unstable phases are those for which
-    // Cp < 0.0. These are possible for cases where
-    // we have passed the spinodal curve.
+    // Unstable phases are those for which Cp < 0.0. These are possible for
+    // cases where we have passed the spinodal curve.
     bool unstablePhase = false;
     double Tunstable = -1.0;
     bool unstablePhaseNew = false;
@@ -592,10 +576,9 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         }
     }
     // We are here when there hasn't been convergence
-    /*
-     * Formulate a detailed error message, since questions seem to
-     * arise often about the lack of convergence.
-     */
+
+    // Formulate a detailed error message, since questions seem to arise often
+    // about the lack of convergence.
     string ErrString =  "No convergence in 500 iterations\n";
     if (doSV) {
         ErrString += fmt::format(
@@ -848,9 +831,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     double deltaMoles_j = 0.0;
     double pres = pressure();
 
-    /*
-     * Evaluate the current base activity coefficients if necessary
-     */
+    // Evaluate the current base activity coefficients if necessary
     vector_fp ActCoeff_Base(m_kk);
     getActivityCoefficients(ActCoeff_Base.data());
     vector_fp Xmol_Base(m_kk);
@@ -862,56 +843,40 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     double v_totalMoles = 1.0;
     double TMoles_base = v_totalMoles;
 
-    /*
-     *  Loop over the columns species to be deltad
-     */
+    // Loop over the columns species to be deltad
     for (size_t j = 0; j < m_kk; j++) {
-        /*
-         * Calculate a value for the delta moles of species j
-         * -> NOte Xmol_[] and Tmoles are always positive or zero
-         *    quantities.
-         * -> experience has shown that you always need to make the deltas greater than needed to
-         *    change the other mole fractions in order to capture some effects.
-         */
+        // Calculate a value for the delta moles of species j
+        // -> Note Xmol_[] and Tmoles are always positive or zero quantities.
+        // -> experience has shown that you always need to make the deltas
+        //    greater than needed to change the other mole fractions in order
+        //    to capture some effects.
         double moles_j_base = v_totalMoles * Xmol_Base[j];
         deltaMoles_j = 1.0E-7 * moles_j_base + v_totalMoles * 1.0E-13 + 1.0E-150;
-        /*
-         * Now, update the total moles in the phase and all of the
-         * mole fractions based on this.
-         */
+
+        // Now, update the total moles in the phase and all of the mole
+        // fractions based on this.
         v_totalMoles = TMoles_base + deltaMoles_j;
         for (size_t k = 0; k < m_kk; k++) {
             Xmol[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
         }
         Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
 
-        /*
-         * Go get new values for the activity coefficients.
-         * -> Note this calls setState_PX();
-         */
+        // Go get new values for the activity coefficients.
+        // -> Note this calls setState_PX();
         setState_PX(pres, Xmol.data());
         getActivityCoefficients(ActCoeff.data());
 
-        /*
-         * Calculate the column of the matrix
-         */
+        // Calculate the column of the matrix
         double* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
         for (size_t k = 0; k < m_kk; k++) {
             lnActCoeffCol[k] = (2*moles_j_base + deltaMoles_j) *(ActCoeff[k] - ActCoeff_Base[k]) /
                                ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
         }
-        /*
-         * Revert to the base case Xmol_, v_totalMoles
-         */
+        // Revert to the base case Xmol_, v_totalMoles
         v_totalMoles = TMoles_base;
         Xmol = Xmol_Base;
     }
-    /*
-     * Go get base values for the activity coefficients.
-     * -> Note this calls setState_TPX() again;
-     * -> Just wanted to make sure that cantera is in sync
-     *    with VolPhase after this call.
-     */
+
     setState_PX(pres, Xmol_Base.data());
 }
 

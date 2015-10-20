@@ -99,10 +99,8 @@ PDSS_Water::PDSS_Water(const PDSS_Water& b) :
     m_verbose(b.m_verbose),
     m_allowGasPhase(b.m_allowGasPhase)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -111,9 +109,7 @@ PDSS_Water& PDSS_Water::operator=(const PDSS_Water& b)
     if (&b == this) {
         return *this;
     }
-    /*
-     * Call the base class operator
-     */
+    // Call the base class operator
     PDSS::operator=(b);
 
     m_sub = b.m_sub;
@@ -154,10 +150,9 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
         throw CanteraError("PDSS_Water::initThermo","could not open "
                            +path+" for reading.");
     }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
+
+    // The phase object automatically constructs an XML object. Use this object
+    // to store information.
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
@@ -171,15 +166,11 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
 
 void PDSS_Water::constructSet()
 {
-    /*
-     * Calculate the molecular weight.
-     *  hard coded to Cantera's elements and Water.
-     */
+    // Calculate the molecular weight. hard coded to Cantera's elements and
+    // Water.
     m_mw = 2 * 1.00794 + 15.9994;
 
-    /*
-     * Set the baseline
-     */
+    // Set the baseline
     doublereal T = 298.15;
     m_p0 = OneAtm;
     doublereal presLow = 1.0E-2;
@@ -202,10 +193,7 @@ void PDSS_Water::constructSet()
     }
     h = enthalpy_mole();
 
-    /*
-     * Set the initial state of the system to 298.15 K and
-     * 1 bar.
-     */
+    // Set the initial state of the system to 298.15 K and 1 bar.
     setTemperature(298.15);
     m_dens = m_sub.density(298.15, OneAtm, WATER_LIQUID);
     m_pres = OneAtm;

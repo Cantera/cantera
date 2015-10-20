@@ -5,11 +5,10 @@
  *  (see \ref thermoprops
  * and class \link Cantera::MolalityVPSSTP MolalityVPSSTP\endlink).
  *
- * Header file for a derived class of ThermoPhase that handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties that are further based upon activities
- * based on the molality scale.  These include most of the methods for
- * calculating liquid electrolyte thermodynamics.
+ * Header file for a derived class of ThermoPhase that handles variable pressure
+ * standard state methods for calculating thermodynamic properties that are
+ * further based upon activities based on the molality scale.  These include
+ * most of the methods for calculating liquid electrolyte thermodynamics.
  */
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
@@ -36,11 +35,9 @@ MolalityVPSSTP::MolalityVPSSTP() :
     m_xmolSolventMIN(0.01),
     m_Mnaught(18.01528E-3)
 {
-    /*
-     * Change the default to be that charge neutrality in the
-     * phase is necessary condition for the proper specification
-     * of thermodynamic functions within the phase
-     */
+    // Change the default to be that charge neutrality in the phase is necessary
+    // condition for the proper specification of thermodynamic functions within
+    // the phase
     m_chargeNeutralityNecessary = true;
 }
 
@@ -75,9 +72,7 @@ ThermoPhase* MolalityVPSSTP::duplMyselfAsThermoPhase() const
     return new MolalityVPSSTP(*this);
 }
 
-/*
- *  -------------- Utilities -------------------------------
- */
+// -------------- Utilities -------------------------------
 
 void MolalityVPSSTP::setpHScale(const int pHscaleType)
 {
@@ -165,24 +160,18 @@ void MolalityVPSSTP::setMolalities(const doublereal* const molal)
         }
     }
     setMoleFractions(m_molalities.data());
-    /*
-     * Essentially we don't trust the input: We calculate
-     * the molalities from the mole fractions that we
-     * just obtained.
-     */
+
+    // Essentially we don't trust the input: We calculate the molalities from
+    // the mole fractions that we just obtained.
     calcMolalities();
 }
 
 void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
 {
-    /*
-     *  HKM -> Might need to be more complicated here, setting
-     *         neutrals so that the existing mole fractions are
-     *         preserved.
-     */
-    /*
-     * Get a vector of mole fractions
-     */
+    // HKM -> Might need to be more complicated here, setting neutrals so that
+    //        the existing mole fractions are preserved.
+
+    // Get a vector of mole fractions
     vector_fp mf(m_kk, 0.0);
     getMoleFractions(mf.data());
     double xmolSmin = std::max(mf[m_indexSolvent], m_xmolSolventMIN);
@@ -192,9 +181,8 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
             mf[k] = mol_k * m_Mnaught * xmolSmin;
         }
     }
-    /*
-     * check charge neutrality
-     */
+
+    // check charge neutrality
     size_t largePos = npos;
     double cPos = 0.0;
     size_t largeNeg = npos;
@@ -240,11 +228,9 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
         mf[k] *= sum;
     }
     setMoleFractions(mf.data());
-    /*
-     * After we formally set the mole fractions, we
-     * calculate the molalities again and store it in
-     * this object.
-     */
+
+    // After we formally set the mole fractions, we calculate the molalities
+    // again and store it in this object.
     calcMolalities();
 }
 
@@ -254,9 +240,7 @@ void MolalityVPSSTP::setMolalitiesByName(const std::string& x)
     setMolalitiesByName(xx);
 }
 
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
+// - Activities, Standard States, Activity Concentrations -----------
 
 int MolalityVPSSTP::activityConvention() const
 {
@@ -296,14 +280,11 @@ void MolalityVPSSTP::getMolalityActivityCoefficients(doublereal* acMolality) con
 
 doublereal MolalityVPSSTP::osmoticCoefficient() const
 {
-    /*
-     * First, we calculate the activities all over again
-     */
+    // First, we calculate the activities all over again
     vector_fp act(m_kk);
     getActivities(act.data());
-    /*
-     * Then, we calculate the sum of the solvent molalities
-     */
+
+    // Then, we calculate the sum of the solvent molalities
     double sum = 0;
     for (size_t k = 1; k < m_kk; k++) {
         sum += std::max(m_molalities[k], 0.0);
@@ -366,13 +347,11 @@ void MolalityVPSSTP::initThermo()
 {
     initLengths();
     VPStandardStateTP::initThermo();
-    /*
-     * The solvent defaults to species 0
-     */
+
+    // The solvent defaults to species 0
     setSolvent(0);
-    /*
-     * Find the Cl- species
-     */
+
+    // Find the Cl- species
     m_indexCLM = findCLMIndex();
 }
 
@@ -452,9 +431,8 @@ void MolalityVPSSTP::initLengths()
 void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     initLengths();
-    /*
-     * The solvent defaults to species 0
-     */
+
+    // The solvent defaults to species 0
     setSolvent(0);
     VPStandardStateTP::initThermoXML(phaseNode, id_);
 }

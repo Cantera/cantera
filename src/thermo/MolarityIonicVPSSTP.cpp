@@ -5,11 +5,10 @@
  *  (see \ref thermoprops
  * and class \link Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
  *
- * Header file for a derived class of ThermoPhase that handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties that are further based upon expressions
- * for the excess Gibbs free energy expressed as a function of
- * the mole fractions.
+ * Header file for a derived class of ThermoPhase that handles variable pressure
+ * standard state methods for calculating thermodynamic properties that are
+ * further based upon expressions for the excess Gibbs free energy expressed as
+ * a function of the mole fractions.
  */
 /*
  * Copyright (2009) Sandia Corporation. Under the terms of
@@ -88,20 +87,14 @@ ThermoPhase* MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
     return new MolarityIonicVPSSTP(*this);
 }
 
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
+// - Activities, Standard States, Activity Concentrations -----------
 
 void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 {
-    /*
-     * Update the activity coefficients
-     */
+    // Update the activity coefficients
     s_update_lnActCoeff();
 
-    /*
-     * take the exp of the internally stored coefficients.
-     */
+    // take the exp of the internally stored coefficients.
     for (size_t k = 0; k < m_kk; k++) {
         lnac[k] = lnActCoeff_Scaled_[k];
     }
@@ -109,16 +102,11 @@ void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 
 void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
 {
-    /*
-     * First get the standard chemical potentials in
-     * molar form.
-     *  -> this requires updates of standard state as a function
-     *     of T and P
-     */
+    // First get the standard chemical potentials in molar form. This requires
+    // updates of standard state as a function of T and P
     getStandardChemPotentials(mu);
-    /*
-     * Update the activity coefficients
-     */
+
+    // Update the activity coefficients
     s_update_lnActCoeff();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(moleFractions_[k], SmallNumber);
@@ -137,21 +125,17 @@ void MolarityIonicVPSSTP::getElectrochemPotentials(doublereal* mu) const
 
 void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    /*
-     * Get the nondimensional standard state enthalpies
-     */
+    // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
-    /*
-     * dimensionalize it.
-     */
+
+    // dimensionalize it.
     double T = temperature();
     for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= GasConstant * T;
     }
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -161,24 +145,20 @@ void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 
 void MolarityIonicVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
+    // Get the nondimensional standard state entropies
     getCp_R(cpbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
@@ -186,15 +166,12 @@ void MolarityIonicVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 
 void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
+    // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
@@ -202,9 +179,8 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
         double xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] *= GasConstant;
     }
@@ -212,9 +188,7 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 
 void MolarityIonicVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    /*
-     * Get the standard state values in m^3 kmol-1
-     */
+    // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
     for (size_t iK = 0; iK < m_kk; iK++) {
         vbar[iK] += 0.0;
@@ -305,9 +279,8 @@ void MolarityIonicVPSSTP::initThermo()
 {
     GibbsExcessVPSSTP::initThermo();
     initLengths();
-    /*
-     *  Go find the list of cations and anions
-     */
+
+    // Go find the list of cations and anions
     cationList_.clear();
     anionList_.clear();
     passThroughList_.clear();
@@ -346,11 +319,9 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "phasenode and Id are incompatible");
     }
 
-    /*
-     * Check on the thermo field. Must have one of:
-     * <thermo model="MolarityIonicVPSS" />
-     * <thermo model="MolarityIonicVPSSTP" />
-     */
+    // Check on the thermo field. Must have one of:
+    //     <thermo model="MolarityIonicVPSS" />
+    //     <thermo model="MolarityIonicVPSSTP" />
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("MolarityIonicVPSSTP::initThermoXML",
                            "no thermo XML node");
@@ -363,26 +334,20 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "Unknown thermo model: " + mStringa + " - This object only knows \"MolarityIonicVPSSTP\" ");
     }
 
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
+    // Go get all of the coefficients and factors in the activityCoefficients
+    // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         for (size_t i = 0; i < acNode.nChildren(); i++) {
             XML_Node& xmlACChild = acNode.child(i);
-            /*
-             * Process a binary interaction
-             */
+            // Process a binary interaction
             if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
     }
 
-    /*
-     * Go down the chain
-     */
+    // Go down the chain
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id);
 }
 

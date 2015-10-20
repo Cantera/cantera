@@ -48,7 +48,7 @@ public:
         m_name = name;
     }
 
-    /** @name Methods to set up a simulation. */
+    //! @name Methods to set up a simulation.
     //@{
 
     /**

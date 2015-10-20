@@ -20,9 +20,7 @@
 namespace Cantera
 {
 
-/*
- * ----  Constructors -------
- */
+// ----  Constructors -------
 
 StoichSubstance::StoichSubstance(const std::string& infile, const std::string& id_)
 {
@@ -53,18 +51,14 @@ ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
     return new StoichSubstance(*this);
 }
 
-/*
- * ---- Utilities -----
- */
+// ---- Utilities -----
 
 int StoichSubstance::eosType() const
 {
     return cStoichSubstance;
 }
 
-/*
- * ----- Mechanical Equation of State ------
- */
+// ----- Mechanical Equation of State ------
 
 doublereal StoichSubstance::pressure() const
 {
@@ -86,9 +80,7 @@ doublereal StoichSubstance::thermalExpansionCoeff() const
     return 0.0;
 }
 
-/*
- * ---- Chemical Potentials and Activities ----
- */
+// ---- Chemical Potentials and Activities ----
 
 void StoichSubstance::getActivityConcentrations(doublereal* c) const
 {
@@ -105,9 +97,7 @@ doublereal StoichSubstance::logStandardConc(size_t k) const
     return 0.0;
 }
 
-/*
- * Properties of the Standard State of the Species in the Solution
- */
+// Properties of the Standard State of the Species in the Solution
 
 void StoichSubstance::getStandardChemPotentials(doublereal* mu0) const
 {
@@ -145,9 +135,7 @@ void StoichSubstance::getIntEnergy_RT(doublereal* urt) const
     urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / (GasConstant * temperature());
 }
 
-/*
- * ---- Thermodynamic Values for the Species Reference States ----
- */
+// ---- Thermodynamic Values for the Species Reference States ----
 
 void StoichSubstance::getIntEnergy_RT_ref(doublereal* urt) const
 {
@@ -155,42 +143,32 @@ void StoichSubstance::getIntEnergy_RT_ref(doublereal* urt) const
     urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / (GasConstant * temperature());
 }
 
-/*
- * ---- Initialization and Internal functions
- */
+// ---- Initialization and Internal functions
 
 void StoichSubstance::initThermo()
 {
-    /*
-     * Make sure there is one and only one species in this phase.
-     */
+    // Make sure there is one and only one species in this phase.
     if (m_kk != 1) {
         throw CanteraError("initThermo",
                            "stoichiometric substances may only contain one species.");
     }
-    /*
-     * Store the reference pressure in the variables for the class.
-     */
+
+    // Store the reference pressure in the variables for the class.
     m_p0 = refPressure();
 
-    /*
-     * Resize temporary arrays.
-     */
+    // Resize temporary arrays.
     int leng = 1;
     m_h0_RT.resize(leng);
     m_cp0_R.resize(leng);
     m_s0_R.resize(leng);
-    /*
-     * Call the base class thermo initializer
-     */
+
+    // Call the base class thermo initializer
     SingleSpeciesTP::initThermo();
 }
 
 void StoichSubstance::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("StoichSubstance::initThermoXML",
                            "no thermo XML node");

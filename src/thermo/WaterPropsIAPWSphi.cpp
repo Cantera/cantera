@@ -458,9 +458,7 @@ doublereal WaterPropsIAPWSphi::phiR() const
     doublereal delta = DELTAsave;
     int i, j;
 
-    /*
-     * Write out the first seven polynomials in the expression
-     */
+    // Write out the first seven polynomials in the expression
     doublereal T375 = pow(tau, 0.375);
     doublereal val = (ni[1] * delta / TAUsqrt +
                       ni[2] * delta * TAUsqrt * T375 +
@@ -469,16 +467,12 @@ doublereal WaterPropsIAPWSphi::phiR() const
                       ni[5] * DELTAp[2] * T375 * T375 +
                       ni[6] * DELTAp[3] * T375 +
                       ni[7] * DELTAp[4] * tau);
-    /*
-     * Next, do polynomial contributions 8 to 51
-     */
+    // Next, do polynomial contributions 8 to 51
     for (i = 8; i <= 51; i++) {
         val += (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]] * exp(-DELTAp[ciR[i]]));
     }
 
-    /*
-     * Next do contributions 52 to 54
-     */
+    // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
         doublereal dtmp = delta - epsi[j];
@@ -487,9 +481,7 @@ doublereal WaterPropsIAPWSphi::phiR() const
                 exp(-alphai[j]*dtmp*dtmp - betai[j]*ttmp*ttmp));
     }
 
-    /*
-     * Next do contributions 55 and 56
-     */
+    // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
         doublereal deltam1 = delta - 1.0;
@@ -520,9 +512,7 @@ doublereal WaterPropsIAPWSphi::phiR_d() const
     doublereal delta = DELTAsave;
     int i, j;
 
-    /*
-     * Write out the first seven polynomials in the expression
-     */
+    // Write out the first seven polynomials in the expression
     doublereal T375 = pow(tau, 0.375);
     doublereal val = (ni[1] / TAUsqrt +
                       ni[2] * TAUsqrt * T375 +
@@ -531,17 +521,13 @@ doublereal WaterPropsIAPWSphi::phiR_d() const
                       ni[5] * 2.0 * delta * T375 * T375 +
                       ni[6] * 3.0 * DELTAp[2] * T375 +
                       ni[7] * 4.0 * DELTAp[3] * tau);
-    /*
-     * Next, do polynomial contributions 8 to 51
-     */
+    // Next, do polynomial contributions 8 to 51
     for (i = 8; i <= 51; i++) {
         val += ((ni[i] * exp(-DELTAp[ciR[i]]) * DELTAp[diR[i] - 1] *
                  TAUp[tiR[i]]) * (diR[i] - ciR[i]* DELTAp[ciR[i]]));
     }
 
-    /*
-     * Next do contributions 52 to 54
-     */
+    // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
         doublereal dtmp = delta - epsi[j];
@@ -551,9 +537,7 @@ doublereal WaterPropsIAPWSphi::phiR_d() const
         val += tmp * (diR[i]/delta - 2.0 * alphai[j] * dtmp);
     }
 
-    /*
-     * Next do contributions 55 and 56
-     */
+    // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
         doublereal deltam1 = delta - 1.0;
@@ -608,17 +592,13 @@ doublereal WaterPropsIAPWSphi::phiR_dd() const
     int i, j;
     doublereal atmp;
 
-    /*
-     * Write out the first seven polynomials in the expression
-     */
+    // Write out the first seven polynomials in the expression
     doublereal T375 = pow(tau, 0.375);
     doublereal val = (ni[4] * 2.0 * TAUsqrt +
                       ni[5] * 2.0 * T375 * T375 +
                       ni[6] * 6.0 * delta * T375 +
                       ni[7] * 12.0 * DELTAp[2] * tau);
-    /*
-     * Next, do polynomial contributions 8 to 51
-     */
+    // Next, do polynomial contributions 8 to 51
     for (i = 8; i <= 51; i++) {
         doublereal dtmp = DELTAp[ciR[i]];
         doublereal tmp = ni[i] * exp(-dtmp) * TAUp[tiR[i]];
@@ -632,9 +612,7 @@ doublereal WaterPropsIAPWSphi::phiR_dd() const
         val += tmp;
     }
 
-    /*
-     * Next do contributions 52 to 54
-     */
+    // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
         doublereal dtmp = delta - epsi[j];
@@ -652,9 +630,7 @@ doublereal WaterPropsIAPWSphi::phiR_dd() const
                       diR[i] * (diR[i] - 1.0) * deltmpM2);
     }
 
-    /*
-     * Next do contributions 55 and 56
-     */
+    // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
         doublereal deltam1 = delta - 1.0;
@@ -741,9 +717,7 @@ doublereal WaterPropsIAPWSphi::phiR_t() const
     int i, j;
     doublereal atmp, tmp;
 
-    /*
-     * Write out the first seven polynomials in the expression
-     */
+    // Write out the first seven polynomials in the expression
     doublereal T375 = pow(tau, 0.375);
     doublereal val = ((-0.5) *ni[1] * delta / TAUsqrt / tau +
                        ni[2] * delta * 0.875 / TAUsqrt * T375 +
@@ -752,17 +726,13 @@ doublereal WaterPropsIAPWSphi::phiR_t() const
                        ni[5] * DELTAp[2] * 0.75 * T375 * T375 / tau +
                        ni[6] * DELTAp[3] * 0.375 * T375 / tau +
                        ni[7] * DELTAp[4]);
-    /*
-     * Next, do polynomial contributions 8 to 51
-     */
+    // Next, do polynomial contributions 8 to 51
     for (i = 8; i <= 51; i++) {
         tmp = (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]-1] * exp(-DELTAp[ciR[i]]));
         val += tiR[i] * tmp;
     }
 
-    /*
-     * Next do contributions 52 to 54
-     */
+    // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
         doublereal dtmp = delta - epsi[j];
@@ -772,9 +742,7 @@ doublereal WaterPropsIAPWSphi::phiR_t() const
         val += tmp *(tiR[i]/tau - 2.0 * betai[j]*ttmp);
     }
 
-    /*
-     * Next do contributions 55 and 56
-     */
+    // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
         doublereal deltam1 = delta - 1.0;
@@ -820,18 +788,14 @@ doublereal WaterPropsIAPWSphi::phiR_tt() const
     int i, j;
     doublereal atmp, tmp;
 
-    /*
-     * Write out the first seven polynomials in the expression
-     */
+    // Write out the first seven polynomials in the expression
     doublereal T375 = pow(tau, 0.375);
     doublereal val = ((-0.5) * (-1.5) * ni[1] * delta / (TAUsqrt * tau * tau) +
                       ni[2] * delta * 0.875 * (-0.125) * T375 / (TAUsqrt * tau) +
                       ni[4] * DELTAp[2] * 0.5 * (-0.5)/ (TAUsqrt * tau) +
                       ni[5] * DELTAp[2] * 0.75 *(-0.25) * T375 * T375 / (tau * tau) +
                       ni[6] * DELTAp[3] * 0.375 *(-0.625) * T375 / (tau * tau));
-    /*
-     * Next, do polynomial contributions 8 to 51
-     */
+    // Next, do polynomial contributions 8 to 51
     for (i = 8; i <= 51; i++) {
         if (tiR[i] > 1) {
             tmp = (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]-2] * exp(-DELTAp[ciR[i]]));
@@ -839,9 +803,7 @@ doublereal WaterPropsIAPWSphi::phiR_tt() const
         }
     }
 
-    /*
-     * Next do contributions 52 to 54
-     */
+    // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
         doublereal dtmp = delta - epsi[j];
@@ -852,9 +814,7 @@ doublereal WaterPropsIAPWSphi::phiR_tt() const
         val += tmp *(atmp * atmp - tiR[i]/(tau*tau) - 2.0*betai[j]);
     }
 
-    /*
-     * Next do contributions 55 and 56
-     */
+    // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
         doublereal deltam1 = delta - 1.0;
@@ -900,9 +860,7 @@ doublereal WaterPropsIAPWSphi::phiR_dt() const
     doublereal delta = DELTAsave;
     int i, j;
     doublereal tmp;
-    /*
-     * Write out the first seven polynomials in the expression
-     */
+    // Write out the first seven polynomials in the expression
     doublereal T375 = pow(tau, 0.375);
     doublereal val = (ni[1] * (-0.5) / (TAUsqrt * tau) +
                       ni[2] * (0.875) * T375 / TAUsqrt +
@@ -911,18 +869,14 @@ doublereal WaterPropsIAPWSphi::phiR_dt() const
                       ni[5] * 2.0 * delta * (0.75) * T375 * T375 / tau +
                       ni[6] * 3.0 * DELTAp[2] * 0.375 * T375 / tau +
                       ni[7] * 4.0 * DELTAp[3]);
-    /*
-     * Next, do polynomial contributions 8 to 51
-     */
+    // Next, do polynomial contributions 8 to 51
     for (i = 8; i <= 51; i++) {
         tmp = (ni[i] * tiR[i] * exp(-DELTAp[ciR[i]]) * DELTAp[diR[i] - 1] *
                TAUp[tiR[i] - 1]);
         val += tmp * (diR[i] - ciR[i] * DELTAp[ciR[i]]);
     }
 
-    /*
-     * Next do contributions 52 to 54
-     */
+    // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
         doublereal dtmp = delta - epsi[j];
@@ -933,9 +887,7 @@ doublereal WaterPropsIAPWSphi::phiR_dt() const
                       (tiR[i]/tau - 2.0 * betai[j] * ttmp));
     }
 
-    /*
-     * Next do contributions 55 and 56
-     */
+    // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
         doublereal deltam1 = delta - 1.0;
@@ -977,29 +929,24 @@ doublereal WaterPropsIAPWSphi::dfind(doublereal p_red, doublereal tau, doublerea
     doublereal deldd = dd;
     doublereal pcheck = 1.0E-30 + 1.0E-8 * p_red;
     for (int n = 0; n < 200; n++) {
-        /*
-         * Calculate the internal polynomials, and then calculate the
-         * phi deriv functions needed by this routine.
-         */
+
+        // Calculate the internal polynomials, and then calculate the phi deriv
+        // functions needed by this routine.
         tdpolycalc(tau, dd);
         doublereal q1 = phiR_d();
         doublereal q2 = phiR_dd();
 
-        /*
-         * Calculate the predicted reduced pressure, pred0, based on the
-         * current tau and dd.
-         */
+        // Calculate the predicted reduced pressure, pred0, based on the current
+        // tau and dd.
         doublereal pred0 = dd + dd * dd * q1;
-        /*
-         * Calculate the derivative of the predicted reduced pressure
-         * wrt the reduced density, dd, This is dpddelta
-         */
+
+        // Calculate the derivative of the predicted reduced pressure wrt the
+        // reduced density, dd, This is dpddelta
         doublereal dpddelta = 1.0 + 2.0 * dd * q1 + dd * dd * q2;
-        /*
-         * If dpddelta is negative, then we are in the middle of the
-         * 2 phase region, beyond the stability curve. We need to adjust
-         * the initial guess outwards and start a new iteration.
-         */
+
+        // If dpddelta is negative, then we are in the middle of the 2 phase
+        // region, beyond the stability curve. We need to adjust the initial
+        // guess outwards and start a new iteration.
         if (dpddelta <= 0.0) {
             if (deltaGuess > 1.0) {
                 dd = dd * 1.05;
@@ -1009,50 +956,41 @@ doublereal WaterPropsIAPWSphi::dfind(doublereal p_red, doublereal tau, doublerea
             }
             continue;
         }
-        /*
-         * Check for convergence
-         */
+
+        // Check for convergence
         if (fabs(pred0-p_red) < pcheck) {
             conv = true;
             break;
         }
 
-        /*
-         * Dampen and crop the update
-         */
+        // Dampen and crop the update
         doublereal dpdx = dpddelta;
         if (n < 10) {
             dpdx = dpddelta * 1.1;
         }
         dpdx = std::max(dpdx, 0.001);
 
-        /*
-         * Formulate the update to reduced density using
-         * Newton's method. Then, crop it to a max value
-         * of 0.02
-         */
+        // Formulate the update to reduced density using Newton's method. Then,
+        // crop it to a max value of 0.02
         deldd = - (pred0 - p_red) / dpdx;
         if (fabs(deldd) > 0.05) {
             deldd = deldd * 0.05 / fabs(deldd);
         }
-        /*
-         * updated the reduced density value
-         */
+
+        // updated the reduced density value
         dd += deldd;
         if (fabs(deldd/dd) < 1.0E-14) {
             conv = true;
             break;
         }
-        /*
-         * Check for negative densities
-         */
+
+        // Check for negative densities
         if (dd <= 0.0) {
             dd = 1.0E-24;
         }
     }
-    /*
-     * Check for convergence, and return 0.0 if it wasn't achieved.
-     */
+
+    // Check for convergence, and return 0.0 if it wasn't achieved.
     if (! conv) {
         dd = 0.0;
     }

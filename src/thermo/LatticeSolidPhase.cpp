@@ -227,10 +227,9 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
         for (size_t k = 0; k < nsp; k++) {
             (x + strt)[k] /= sum;
         }
-        /*
-         * At this point we can check against the mole fraction vector of the underlying LatticePhase objects and
-         * get the same answer.
-         */
+
+        // At this point we can check against the mole fraction vector of the
+        // underlying LatticePhase objects and get the same answer.
         if (DEBUG_MODE_ENABLED) {
             m_lattice[n]->getMoleFractions(&m_x[strt]);
             for (size_t k = 0; k < nsp; k++) {
@@ -347,9 +346,7 @@ void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
             addSpecies(lp->species(k));
             kk++;
         }
-        /*
-         *  Add in the lattice stoichiometry constraint
-         */
+        // Add in the lattice stoichiometry constraint
         if (n > 0) {
             string econ = "LC_" + int2str(n) + "_" + id();
             size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);

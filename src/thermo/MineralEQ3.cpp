@@ -23,9 +23,7 @@ using namespace std;
 namespace Cantera
 {
 
-/*
- * ----  Constructors -------
- */
+// ----  Constructors -------
 
 MineralEQ3::MineralEQ3(const std::string& infile, const std::string& id_)
 {
@@ -66,18 +64,14 @@ ThermoPhase* MineralEQ3::duplMyselfAsThermoPhase() const
     return new MineralEQ3(*this);
 }
 
-/*
- * ---- Utilities -----
- */
+// ---- Utilities -----
 
 int MineralEQ3::eosType() const
 {
     return cStoichSubstance;
 }
 
-/*
- * ----- Mechanical Equation of State ------
- */
+// ----- Mechanical Equation of State ------
 
 doublereal MineralEQ3::pressure() const
 {
@@ -99,9 +93,7 @@ doublereal MineralEQ3::thermalExpansionCoeff() const
     return 0.0;
 }
 
-/*
- * ---- Chemical Potentials and Activities ----
- */
+// ---- Chemical Potentials and Activities ----
 
 void MineralEQ3::getActivityConcentrations(doublereal* c) const
 {
@@ -118,9 +110,7 @@ doublereal MineralEQ3::logStandardConc(size_t k) const
     return 0.0;
 }
 
-/*
- * Properties of the Standard State of the Species in the Solution
- */
+// Properties of the Standard State of the Species in the Solution
 
 void MineralEQ3::getStandardChemPotentials(doublereal* mu0) const
 {
@@ -158,9 +148,7 @@ void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
     urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
-/*
- * ---- Thermodynamic Values for the Species Reference States ----
- */
+// ---- Thermodynamic Values for the Species Reference States ----
 
 void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
 {
@@ -168,9 +156,7 @@ void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
     urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
-/*
- * ---- Initialization and Internal functions
- */
+// ---- Initialization and Internal functions
 
 void MineralEQ3::setParameters(int n, doublereal* const c)
 {
@@ -185,9 +171,7 @@ void MineralEQ3::getParameters(int& n, doublereal* const c) const
 
 void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("HMWSoln::initThermoXML",
                            "no thermo XML node");
@@ -262,9 +246,7 @@ doublereal MineralEQ3::LookupGe(const std::string& elemName)
 
 void MineralEQ3::convertDGFormation()
 {
-    /*
-     * Ok let's get the element compositions and conversion factors.
-     */
+    // Ok let's get the element compositions and conversion factors.
     doublereal totalSum = 0.0;
     for (size_t m = 0; m < nElements(); m++) {
         double na = nAtoms(0, m);

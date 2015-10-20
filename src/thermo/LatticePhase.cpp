@@ -296,10 +296,8 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "ids don't match");
     }
 
-    /*
-     * Check on the thermo field. Must have:
-     * <thermo model="Lattice" />
-     */
+    // Check on the thermo field. Must have:
+    // <thermo model="Lattice" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
         std::string mString = thNode.attrib("model");
@@ -311,9 +309,8 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         throw CanteraError("LatticePhase::initThermoXML",
                            "Unspecified thermo model");
     }
-    /*
-     * Now go get the molar volumes. use the default if not found
-     */
+
+    // Now go get the molar volumes. use the default if not found
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"], &phaseNode.root());
 
@@ -329,10 +326,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Call the base initThermo, which handles setting the initial
-     * state.
-     */
+    // Call the base initThermo, which handles setting the initial state.
     ThermoPhase::initThermoXML(phaseNode, id_);
 }
 

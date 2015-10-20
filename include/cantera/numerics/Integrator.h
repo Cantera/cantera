@@ -29,8 +29,8 @@ const int BAND = 32;
  * Not all methods are supported by all integrators.
  */
 enum MethodType {
-    BDF_Method, /**< Backward Differentiation */
-    Adams_Method /**< Adams */
+    BDF_Method, //!< Backward Differentiation
+    Adams_Method //! Adams
 };
 
 //! Specifies the method used for iteration.
@@ -129,51 +129,51 @@ public:
         return 0.0;
     }
 
-    /** The current value of the solution of equation k. */
+    //! The current value of the solution of equation k.
     virtual doublereal& solution(size_t k) {
         warn("solution");
         return m_dummy;
     }
 
-    /** The current value of the solution of the system of equations. */
+    //! The current value of the solution of the system of equations.
     virtual doublereal* solution() {
         warn("solution");
         return 0;
     }
 
-    /** The number of equations. */
+    //! The number of equations.
     virtual int nEquations() const {
         warn("nEquations");
         return 0;
     }
 
-    /** The number of function evaluations. */
+    //! The number of function evaluations.
     virtual int nEvals() const {
         warn("nEvals");
         return 0;
     }
 
-    /** Set the maximum integration order that will be used. **/
+    //! Set the maximum integration order that will be used.
     virtual void setMaxOrder(int n) {
         warn("setMaxorder");
     }
 
-    /** Set the solution method */
+    //! Set the solution method
     virtual void setMethod(MethodType t) {
         warn("setMethodType");
     }
 
-    /** Set the linear iterator. */
+    //! Set the linear iterator.
     virtual void setIterator(IterType t) {
         warn("setInterator");
     }
 
-    /** Set the maximum step size */
+    //! Set the maximum step size
     virtual void setMaxStepSize(double hmax) {
         warn("setMaxStepSize");
     }
 
-    /** Set the minimum step size */
+    //! Set the minimum step size
     virtual void setMinStepSize(double hmin) {
         warn("setMinStepSize");
     }

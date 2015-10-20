@@ -78,12 +78,10 @@ Phase& Phase::operator=(const Phase& right)
     m_elementNames = right.m_elementNames;
     m_entropy298 = right.m_entropy298;
     m_elem_type = right.m_elem_type;
-    /*
-     * This is a little complicated. -> Because we delete m_xml
-     * in the destructor, we own m_xml completely, and we need
-     * to have our own individual copies of the XML data tree
-     * in each object
-     */
+
+    // This is a little complicated. -> Because we delete m_xml in the
+    // destructor, we own m_xml completely, and we need to have our own
+    // individual copies of the XML data tree in each object
     if (m_xml) {
         XML_Node* rroot = &m_xml->root();
         delete rroot;
@@ -327,9 +325,7 @@ void Phase::setMoleFractions(const doublereal* const x)
 {
     // Use m_y as a temporary work vector for the non-negative mole fractions
     doublereal norm = 0.0;
-    /*
-     * sum is calculated below as the unnormalized molecular weight
-     */
+    // sum is calculated below as the unnormalized molecular weight
     doublereal sum = 0;
     for (size_t k = 0; k < m_kk; k++) {
         double xk = std::max(x[k], 0.0); // Ignore negative mole fractions
@@ -337,24 +333,22 @@ void Phase::setMoleFractions(const doublereal* const x)
         norm += xk;
         sum += m_molwts[k] * xk;
     }
-    /*
-     * Set m_ym_ to the normalized mole fractions divided by the normalized mean molecular weight:
-     *         m_ym_k = X_k / (sum_k X_k M_k)
-     */
+
+    // Set m_ym_ to the normalized mole fractions divided by the normalized mean
+    // molecular weight:
+    //     m_ym_k = X_k / (sum_k X_k M_k)
     const doublereal invSum = 1.0/sum;
     for (size_t k=0; k < m_kk; k++) {
         m_ym[k] = m_y[k]*invSum;
     }
-    /*
-     * Now set m_y to the normalized mass fractions
-     *          m_y =  X_k M_k / (sum_k X_k M_k)
-     */
+
+    // Now set m_y to the normalized mass fractions:
+    //     m_y =  X_k M_k / (sum_k X_k M_k)
     for (size_t k=0; k < m_kk; k++) {
         m_y[k] = m_ym[k] * m_molwts[k];
     }
-    /*
-     * Calculate the normalized molecular weight
-     */
+
+    // Calculate the normalized molecular weight
     m_mmw = sum/norm;
     m_stateNum++;
 }

@@ -4,11 +4,10 @@
  *   employ excess Gibbs free energy formulations
  *  (see \ref thermoprops and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
  *
- * Header file for a derived class of ThermoPhase that handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties that are further based upon expressions
- * for the excess Gibbs free energy expressed as a function of
- * the mole fractions.
+ * Header file for a derived class of ThermoPhase that handles variable pressure
+ * standard state methods for calculating thermodynamic properties that are
+ * further based upon expressions for the excess Gibbs free energy expressed as
+ * a function of the mole fractions.
  */
 /*
  * Copyright (2009) Sandia Corporation. Under the terms of
@@ -83,9 +82,8 @@ void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
     getMoleFractions(moleFractions_.data());
 }
 
-/*
- * ------------ Mechanical Properties ------------------------------
- */
+// ------------ Mechanical Properties ------------------------------
+
 void GibbsExcessVPSSTP::setPressure(doublereal p)
 {
     setState_TP(temperature(), p);
@@ -105,25 +103,19 @@ void GibbsExcessVPSSTP::calcDensity()
 void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
 {
     Phase::setTemperature(t);
-    /*
-     * Store the current pressure
-     */
+
+    // Store the current pressure
     m_Pcurrent = p;
-    /*
-     * update the standard state thermo
-     * -> This involves calling the water function and setting the pressure
-     */
+
+    // update the standard state thermo. This involves calling the water
+    // function and setting the pressure
     updateStandardStateThermo();
 
-    /*
-     * Calculate the partial molar volumes, and then the density of the fluid
-     */
+    // Calculate the partial molar volumes, and then the density of the fluid
     calcDensity();
 }
 
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
+// - Activities, Standard States, Activity Concentrations -----------
 void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const
 {
     getActivities(c);
@@ -171,14 +163,11 @@ void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
+// ------------ Partial Molar Properties of the Solution ------------
+
 void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    /*
-     * Get the standard state values in m^3 kmol-1
-     */
+    // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
 }
 

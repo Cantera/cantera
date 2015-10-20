@@ -56,10 +56,8 @@ WaterSSTP::WaterSSTP(const WaterSSTP& b) :
 {
     m_waterProps.reset(new WaterProps(&m_sub));
 
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -84,18 +82,14 @@ ThermoPhase* WaterSSTP::duplMyselfAsThermoPhase() const
 
 void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-    /*
-     * Do initializations that don't depend on knowing the XML file
-     */
+    // Do initializations that don't depend on knowing the XML file
     initThermo();
-    /*
-     * Calculate the molecular weight. Note while there may
-     * be a very good calculated weight in the steam table
-     * class, using this weight may lead to codes exhibiting
-     * mass loss issues. We need to grab the elemental
-     * atomic weights used in the Element class and calculate
-     * a consistent H2O molecular weight based on that.
-     */
+
+    // Calculate the molecular weight. Note while there may be a very good
+    // calculated weight in the steam table class, using this weight may lead to
+    // codes exhibiting mass loss issues. We need to grab the elemental atomic
+    // weights used in the Element class and calculate a consistent H2O
+    // molecular weight based on that.
     size_t nH = elementIndex("H");
     if (nH == npos) {
         throw CanteraError("WaterSSTP::initThermo",
@@ -113,9 +107,7 @@ void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
     double one = 1.0;
     setMoleFractions(&one);
 
-    /*
-     * Set the baseline
-     */
+    // Set the baseline
     doublereal T = 298.15;
     Phase::setDensity(7.0E-8);
     Phase::setTemperature(T);
@@ -140,25 +132,18 @@ void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
     }
     h = enthalpy_mole();
 
-    /*
-     * Set the initial state of the system to 298.15 K and
-     * 1 bar.
-     */
+    // Set the initial state of the system to 298.15 K and 1 bar.
     setTemperature(298.15);
     double rho0 = m_sub.density(298.15, OneAtm, WATER_LIQUID);
     setDensity(rho0);
 
     m_waterProps.reset(new WaterProps(&m_sub));
 
-    /*
-     * We have to do something with the thermo function here.
-     */
+    // We have to do something with the thermo function here.
     delete m_spthermo;
     m_spthermo = 0;
 
-    /*
-     * Set the flag to say we are ready to calculate stuff
-     */
+    // Set the flag to say we are ready to calculate stuff
     m_ready = true;
 }
 
@@ -408,9 +393,7 @@ doublereal WaterSSTP::vaporFraction() const
         }
         return 1.0;
     }
-    /*
-     * If below tcrit we always return 0 from this class
-     */
+    // If below tcrit we always return 0 from this class
     return 0.0;
 }
 

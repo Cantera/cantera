@@ -20,9 +20,7 @@
 namespace Cantera
 {
 
-/*
- * ----  Constructors -------
- */
+// ----  Constructors -------
 
 MetalSHEelectrons::MetalSHEelectrons()
 {
@@ -57,18 +55,14 @@ ThermoPhase* MetalSHEelectrons::duplMyselfAsThermoPhase() const
     return new MetalSHEelectrons(*this);
 }
 
-/*
- * ---- Utilities -----
- */
+// ---- Utilities -----
 
 int MetalSHEelectrons::eosType() const
 {
     return cMetalSHEelectrons;
 }
 
-/*
- * ----- Mechanical Equation of State ------
- */
+// ----- Mechanical Equation of State ------
 
 doublereal MetalSHEelectrons::pressure() const
 {
@@ -90,9 +84,7 @@ doublereal MetalSHEelectrons::thermalExpansionCoeff() const
     return 1.0/temperature();
 }
 
-/*
- * ---- Chemical Potentials and Activities ----
- */
+// ---- Chemical Potentials and Activities ----
 
 void MetalSHEelectrons::getActivityConcentrations(doublereal* c) const
 {
@@ -109,9 +101,7 @@ doublereal MetalSHEelectrons::logStandardConc(size_t k) const
     return 0.0;
 }
 
-/*
- * Properties of the Standard State of the Species in the Solution
- */
+// Properties of the Standard State of the Species in the Solution
 
 void MetalSHEelectrons::getStandardChemPotentials(doublereal* mu0) const
 {
@@ -155,15 +145,11 @@ void MetalSHEelectrons::getIntEnergy_RT_ref(doublereal* urt) const
     urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
-/*
- * ---- Initialization and Internal functions
- */
+// ---- Initialization and Internal functions
 
 void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("MetalSHEelectrons::initThermoXML",
                            "no thermo XML node");

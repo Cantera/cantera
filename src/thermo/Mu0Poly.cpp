@@ -104,11 +104,10 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
         throw CanteraError("installMu0ThermoFromXML", "missing Mu0Values");
     }
     getFloatArray(*valNode_ptr, cValues, true, "actEnergy");
-    /*
-     * Check to see whether the Mu0's were input in a dimensionless
-     * form. If they were, then the assumed temperature needs to be
-     * adjusted from the assumed T = 273.15
-     */
+
+    // Check to see whether the Mu0's were input in a dimensionless form. If
+    // they were, then the assumed temperature needs to be adjusted from the
+    // assumed T = 273.15
     if (valNode_ptr->attrib("units") == "Dimensionless") {
         dimensionlessMu0Values = true;
     }
@@ -127,9 +126,7 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
         throw CanteraError("installMu0ThermoFromXML", "numPoints inconsistent");
     }
 
-    /*
-     * Fix up dimensionless Mu0 values if input
-     */
+    // Fix up dimensionless Mu0 values if input
     if (dimensionlessMu0Values) {
         for (size_t i = 0; i < numPoints; i++) {
             cValues[i] *= cTemperatures[i] / 273.15;
@@ -158,19 +155,16 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
     m_numIntervals = nPoints - 1;
     m_H298 = coeffs[1] / GasConstant;
     size_t iT298 = 0;
-    /*
-     * Resize according to the number of points
-     */
+
+    // Resize according to the number of points
     m_t0_int.resize(nPoints);
     m_h0_R_int.resize(nPoints);
     m_s0_R_int.resize(nPoints);
     m_cp0_R_int.resize(nPoints);
     m_mu0_R_int.resize(nPoints);
-    /*
-     * Calculate the T298 interval and make sure that
-     * the temperatures are strictly monotonic.
-     * Also distribute the data into the internal arrays.
-     */
+
+    // Calculate the T298 interval and make sure that the temperatures are
+    // strictly monotonic. Also distribute the data into the internal arrays.
     bool ifound = false;
     for (size_t i = 0, iindex = 2; i < nPoints; i++) {
         double T1 = coeffs[iindex];
@@ -191,9 +185,7 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
                            "One temperature has to be 298.15");
     }
 
-    /*
-     * Starting from the interval with T298, we go up
-     */
+    // Starting from the interval with T298, we go up
     m_h0_R_int[iT298] = m_H298;
     m_s0_R_int[iT298] = - (m_mu0_R_int[iT298] - m_h0_R_int[iT298]) / m_t0_int[iT298];
     for (size_t i = iT298; i < m_numIntervals; i++) {
@@ -209,9 +201,7 @@ void Mu0Poly::processCoeffs(const doublereal* coeffs)
         m_cp0_R_int[i+1] = cpi;
     }
 
-    /*
-     * Starting from the interval with T298, we go down
-     */
+    // Starting from the interval with T298, we go down
     if (iT298 != 0) {
         m_h0_R_int[iT298] = m_H298;
         m_s0_R_int[iT298] = - (m_mu0_R_int[iT298] - m_h0_R_int[iT298]) / m_t0_int[iT298];

@@ -15,9 +15,8 @@
 
 namespace Cantera
 {
-/*
- * Critical Point values of water in mks units
- */
+// Critical Point values of water in mks units
+
 //! Critical Temperature value (kelvin)
 const doublereal T_c = 647.096;
 //! Critical Pressure (Pascals)
@@ -68,9 +67,8 @@ void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho)
 {
     tau = T_c / temperature;
     delta = rho / Rho_c;
-    /*
-     * Determine the internal state
-     */
+
+    // Determine the internal state
     if (temperature > T_c) {
         iState = WATER_SUPERCRIT;
     } else {
@@ -110,10 +108,8 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
                 if (phase == WATER_GAS || phase == WATER_SUPERCRIT) {
                     rhoguess = pressure * M_water / (Rgas * temperature);
                 } else if (phase == WATER_LIQUID) {
-                    /*
-                     * Provide a guess about the liquid density that is
-                     * relatively high -> convergence from above seems robust.
-                     */
+                    // Provide a guess about the liquid density that is
+                    // relatively high -> convergence from above seems robust.
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
                     throw CanteraError("WaterPropsIAPWS::density",
@@ -124,10 +120,8 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
                 }
             }
         } else {
-            /*
-             * Assume the Gas phase initial guess, if nothing is
-             * specified to the routine
-             */
+            // Assume the Gas phase initial guess, if nothing is specified to
+            // the routine
             rhoguess = pressure * M_water / (Rgas * temperature);
         }
     }
@@ -139,14 +133,11 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
     if (delta_retn >0.0) {
         delta = delta_retn;
 
-        /*
-         * Dimensionalize the density before returning
-         */
+        // Dimensionalize the density before returning
         density_retn = delta_retn * Rho_c;
-        /*
-         * Set the internal state -> this may be
-         * a duplication. However, let's just be sure.
-         */
+
+        // Set the internal state -> this may be a duplication. However, let's
+        // just be sure.
         setState_TR(temperature, density_retn);
     } else {
         density_retn = -1.0;
@@ -168,10 +159,8 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
                 if (phase == WATER_GAS || phase == WATER_SUPERCRIT) {
                     rhoguess = pressure * M_water / (Rgas * temperature);
                 } else if (phase == WATER_LIQUID) {
-                    /*
-                     * Provide a guess about the liquid density that is
-                     * relatively high -> convergence from above seems robust.
-                     */
+                    // Provide a guess about the liquid density that is
+                    // relatively high -> convergence from above seems robust.
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
                     throw CanteraError("WaterPropsIAPWS::density",
@@ -182,10 +171,8 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
                 }
             }
         } else {
-            /*
-             * Assume the Gas phase initial guess, if nothing is
-             * specified to the routine
-             */
+            // Assume the Gas phase initial guess, if nothing is specified to
+            // the routine
             rhoguess = pressure * M_water / (Rgas * temperature);
         }
     }
@@ -200,9 +187,7 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
     if (delta_retn > 0.0) {
         delta = delta_retn;
 
-        /*
-         * Dimensionalize the density before returning
-         */
+        // Dimensionalize the density before returning
         density_retn = delta_retn * Rho_c;
 
     } else {
@@ -252,9 +237,8 @@ doublereal WaterPropsIAPWS::psat_est(doublereal temperature) const
         doublereal q = b / v;
         ps = 22.093*exp(q);
     }
-    /*
-     * Original correlation was in cgs. Convert to mks
-     */
+
+    // Original correlation was in cgs. Convert to mks
     ps *= 1.0E6;
     return ps;
 }
