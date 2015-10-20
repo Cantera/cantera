@@ -24,10 +24,8 @@ class VCS_SPECIES_THERMO;
 class VCS_PROB
 {
 public:
-    //! Problem type. I.e., the identity of what is held constant.
-    /*!
-     *  Currently, T and P are held constant, and this input is ignored
-     */
+    //! Problem type. I.e., the identity of what is held constant. Currently, T
+    //! and P are held constant, and this input is ignored
     int prob_type;
 
     //! Total number of species in the problems
@@ -49,56 +47,50 @@ public:
     //! Number of phases used to malloc data structures
     size_t NPHASE0;
 
-    //! Vector of chemical potentials of the species
-    /*!
-     *  This is a calculated output quantity. length = number of species.
-     *  units =  m_VCS_UnitsFormat
-     */
+    //! Vector of chemical potentials of the species. This is a calculated
+    //! output quantity. length = number of species. units =  m_VCS_UnitsFormat
     vector_fp m_gibbsSpecies;
 
-    //!  Total number of moles of the kth species.
+    //! Total number of moles of the kth species.
     /*!
-     *  This is both an input and an output variable.
-     *  On input, this is an estimate of the mole numbers.
-     *  The actual element abundance vector contains the problem specification.
+     * This is both an input and an output variable. On input, this is an
+     * estimate of the mole numbers. The actual element abundance vector
+     * contains the problem specification.
      *
-     *  On output, this contains the solution for the total number of moles
-     *  of the kth species.
+     * On output, this contains the solution for the total number of moles of
+     * the kth species.
      *
      *  units = m_VCS_UnitsFormat
      */
     vector_fp w;
 
-    //! Mole fraction vector
-    /*!
-     *  This is a calculated vector, calculated from w[].
-     *  length number of species.
-     */
+    //! Mole fraction vector. This is a calculated vector, calculated from w[].
+    //! length number of species.
     vector_fp mf;
 
-    //!  Element abundances for jth element
+    //! Element abundances for jth element
     /*!
-     *  This is input from the input file and is considered a constant from
-     *  thereon within the vcs_solve_TP(). units = m_VCS_UnitsFormat
+     * This is input from the input file and is considered a constant from
+     * thereon within the vcs_solve_TP(). units = m_VCS_UnitsFormat
      */
     vector_fp gai;
 
-    //!  Formula Matrix for the problem
+    //! Formula Matrix for the problem
     /*!
-     *   FormulaMatrix(kspec,j) = Number of elements, j, in the kspec species
+     * FormulaMatrix(kspec,j) = Number of elements, j, in the kspec species
      */
     Array2D FormulaMatrix;
 
     //! Specifies the species unknown type
     /*!
-     *   There are two types. One is the straightforward species, with the
-     *   mole number w[k], as the unknown. The second is the an interfacial
-     *   voltage where w[k] refers to the interfacial voltage in volts.
+     * There are two types. One is the straightforward species, with the mole
+     * number w[k], as the unknown. The second is the an interfacial voltage
+     * where w[k] refers to the interfacial voltage in volts.
      *
-     *   These species types correspond to metallic electrons corresponding to
-     *   electrodes. The voltage and other interfacial conditions sets up an
-     *   interfacial current, which is set to zero in this initial treatment.
-     *   Later we may have non-zero interfacial currents.
+     * These species types correspond to metallic electrons corresponding to
+     * electrodes. The voltage and other interfacial conditions sets up an
+     * interfacial current, which is set to zero in this initial treatment.
+     * Later we may have non-zero interfacial currents.
      */
     vector_int SpeciesUnknownType;
 
@@ -117,23 +109,23 @@ public:
 
     //! Volume of the entire system
     /*!
-     *   units given by m_VCS_UnitsFormat
-     *   Note, this is an output variable atm
+     * units given by m_VCS_UnitsFormat
+     * Note, this is an output variable atm
      */
     double Vol;
 
     //! Partial Molar Volumes of species
     /*!
      * This is a calculated vector, calculated from w[].
-     *  length number of species.
+     * length number of species.
      */
     vector_fp VolPM;
 
-    //! Units for the chemical potential data, pressure data, volume,
-    //! and species amounts
+    //! Units for the chemical potential data, pressure data, volume, and
+    //! species amounts
     /*!
-     *  All internally stored quantities will have these units. Also, printed
-     *  quantities will display in these units.
+     * All internally stored quantities will have these units. Also, printed
+     * quantities will display in these units.
      *
      * |   |                      |  Chem_Pot               | Pres |  vol  | moles|
      * |---|----------------------|-------------------------|------|-------|------|
@@ -158,7 +150,7 @@ public:
     //! Tolerance requirement for major species
     double tolmaj;
 
-    //!  Tolerance requirement for minor species
+    //! Tolerance requirement for minor species
     double tolmin;
 
     //! Mapping between the species and the phases
@@ -214,8 +206,8 @@ public:
 
     //! Constructor
     /*!
-     *  This constructor initializes the sizes within the object
-     * to parameter values.
+     * This constructor initializes the sizes within the object to parameter
+     * values.
      *
      * @param nsp number of species
      * @param nel number of elements
@@ -227,42 +219,42 @@ public:
 
     //! Resizes all of the phase lists within the structure
     /*!
-     *  Note, this doesn't change the number of phases in the problem.
-     *  It will change #NPHASE0 if `nPhase` is greater than #NPHASE0.
+     * Note, this doesn't change the number of phases in the problem. It will
+     * change #NPHASE0 if `nPhase` is greater than #NPHASE0.
      *
-     *  @param nPhase  size to dimension all the phase lists to
-     *  @param force   If true, this will dimension the size to be equal to `nPhase`
-     *                 even if `nPhase` is less than the current value of NPHASE0
+     * @param nPhase  size to dimension all the phase lists to
+     * @param force   If true, this will dimension the size to be equal to
+     *     `nPhase` even if `nPhase` is less than the current value of NPHASE0
      */
     void resizePhase(size_t nPhase, int force);
 
     //! Resizes all of the species lists within the structure
     /*!
-     *  Note, this doesn't change the number of species in the problem.
-     *  It will change #NSPECIES0 if `nsp` is greater than #NSPECIES0.
+     * Note, this doesn't change the number of species in the problem.
+     * It will change #NSPECIES0 if `nsp` is greater than #NSPECIES0.
      *
-     *  @param nsp    size to dimension all the species lists to
-     *  @param force  If true, this will dimension the size to be equal to `nsp`
-     *                even if `nsp` is less than the current value of #NSPECIES0
+     * @param nsp    size to dimension all the species lists to
+     * @param force  If true, this will dimension the size to be equal to `nsp`
+     *               even if `nsp` is less than the current value of #NSPECIES0
      */
     void resizeSpecies(size_t nsp, int force);
 
     //! Resizes all of the element lists within the structure
     /*!
-     *  Note, this doesn't change the number of element constraints in the
-     *  problem. It will change #NE0 if `nel` is greater than #NE0.
+     * Note, this doesn't change the number of element constraints in the
+     * problem. It will change #NE0 if `nel` is greater than #NE0.
      *
-     *  @param nel      size to dimension all the elements lists
-     *  @param force    If true, this will dimension the size to be equal to `nel`
-     *                  even if `nel` is less than the current value of #NE0
+     * @param nel     size to dimension all the elements lists
+     * @param force   If true, this will dimension the size to be equal to `nel`
+     *                even if `nel` is less than the current value of #NE0
      */
     void resizeElements(size_t nel, int force);
 
     //! Calculate the element abundance vector from the mole numbers
     void set_gai();
 
-    //! Print out the  problem specification in all generality
-    //! as it currently exists in the VCS_PROB object
+    //! Print out the  problem specification in all generality as it currently
+    //! exists in the VCS_PROB object
     /*!
      *  @param print_lvl Parameter lvl for printing
      *      * 0 - no printing
@@ -272,47 +264,44 @@ public:
 
     //! Add elements to the local element list
     /*!
-     *  This routine sorts through the elements defined in the vcs_VolPhase
-     *  object. It then adds the new elements to the VCS_PROB object, and
-     *  creates a global map, which is stored in the vcs_VolPhase object. Id
-     *  and matching of elements is done strictly via the element name, with
-     *  case not mattering.
+     * This routine sorts through the elements defined in the vcs_VolPhase
+     * object. It then adds the new elements to the VCS_PROB object, and creates
+     * a global map, which is stored in the vcs_VolPhase object. Id and matching
+     * of elements is done strictly via the element name, with case not
+     * mattering.
      *
-     *  The routine also fills in the position of the element
-     *  in the vcs_VolPhase object's ElGlobalIndex field.
+     * The routine also fills in the position of the element in the vcs_VolPhase
+     * object's ElGlobalIndex field.
      *
-     * @param volPhase  Object containing the phase to be added.
-     *                  The elements in this phase are parsed for
-     *                  addition to the global element list
+     * @param volPhase  Object containing the phase to be added. The elements in
+     *     this phase are parsed for addition to the global element list
      */
     void addPhaseElements(vcs_VolPhase* volPhase);
 
-    //!  This routine resizes the number of elements in the VCS_PROB object by
-    //!  adding a new element to the end of the element list
+    //! This routine resizes the number of elements in the VCS_PROB object by
+    //! adding a new element to the end of the element list
     /*!
-     *   The element name is added. Formula vector entries ang element
-     *   abundances for the new element are set to zero.
+     * The element name is added. Formula vector entries ang element abundances
+     * for the new element are set to zero.
      *
-     *   Returns the index number of the new element.
-     *
-     *  @param elNameNew New name of the element
-     *  @param elType    Type of the element
-     *  @param elactive  boolean indicating whether the element is active
-     *  @return returns the index number of the new element
+     * @param elNameNew New name of the element
+     * @param elType    Type of the element
+     * @param elactive  boolean indicating whether the element is active
+     * @returns the index number of the new element
      */
     size_t addElement(const char* elNameNew, int elType, int elactive);
 
     //! This routines adds entries for the formula matrix for one species
     /*!
-     *   This routines adds entries for the formula matrix for this object
-     *   for one species
+     * This routines adds entries for the formula matrix for this object for one
+     * species
      *
-     *   This object also fills in the index filed, IndSpecies, within
-     *   the volPhase object.
+     * This object also fills in the index filed, IndSpecies, within the
+     * volPhase object.
      *
-     *  @param volPhase object containing the species
-     *  @param k        Species number within the volPhase k
-     *  @param kT       global Species number within this object
+     * @param volPhase object containing the species
+     * @param k        Species number within the volPhase k
+     * @param kT       global Species number within this object
      *
      */
     size_t addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT);
@@ -321,7 +310,7 @@ public:
 
     //! Set the debug level
     /*!
-     *  @param vcs_debug_print_lvl input debug level
+     * @param vcs_debug_print_lvl input debug level
      */
     void setDebugPrintLvl(int vcs_debug_print_lvl);
 };

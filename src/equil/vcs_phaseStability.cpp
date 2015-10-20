@@ -19,12 +19,10 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     AssertThrowMsg(!Vphase->exists(), "VCS_SOLVE::vcs_popPhasePossible",
                    "called for a phase that exists!");
 
-    /*
-     * Loop through all of the species in the phase. We say the phase
-     * can be popped, if there is one species in the phase that can be
-     * popped. This does not mean that the phase will be popped or that it
-     * leads to a lower Gibbs free energy.
-     */
+    // Loop through all of the species in the phase. We say the phase can be
+    // popped, if there is one species in the phase that can be popped. This
+    // does not mean that the phase will be popped or that it leads to a lower
+    // Gibbs free energy.
     for (size_t k = 0; k < Vphase->nSpecies(); k++) {
         size_t kspec = Vphase->spGlobalIndexVCS(k);
         AssertThrowMsg(m_molNumSpecies_old[kspec] <= 0.0,
@@ -34,18 +32,19 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
         size_t irxn = kspec - m_numComponents;
         if (kspec >= m_numComponents) {
             bool iPopPossible = true;
-            /*
-             *  Note one case is if the component is a member of the popping phase.
-             *  This component will be zeroed and the logic here will negate the current
-             *  species from causing a positive if this component is consumed.
-             */
+
+            // Note one case is if the component is a member of the popping
+            // phase. This component will be zeroed and the logic here will
+            // negate the current species from causing a positive if this
+            // component is consumed.
             for (size_t j = 0; j < m_numComponents; ++j) {
                 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
                     double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
                     if (stoicC != 0.0) {
                         double negChangeComp = - stoicC;
                         if (negChangeComp > 0.0) {
-                            // If there is no component to give, then the species can't be created
+                            // If there is no component to give, then the
+                            // species can't be created
                             if (m_molNumSpecies_old[j] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                                 iPopPossible = false;
                             }
@@ -53,22 +52,22 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                     }
                 }
             }
-            // We are here when the species can be popped because all its needed components have positive mole numbers
+            // We are here when the species can be popped because all its needed
+            // components have positive mole numbers
             if (iPopPossible) {
                 return true;
             }
         } else {
-            /*
-             * We are here when the species, k, in the phase is a component. Its mole number is zero.
-             * We loop through the regular reaction looking for a reaction that can pop the
-             * component.
-             */
+            // We are here when the species, k, in the phase is a component. Its
+            // mole number is zero. We loop through the regular reaction looking
+            // for a reaction that can pop the component.
             for (size_t jrxn = 0; jrxn < m_numRxnRdc; jrxn++) {
                 bool foundJrxn = false;
                 // First, if the component is a product of the reaction
                 if (m_stoichCoeffRxnMatrix(kspec,jrxn) > 0.0) {
                     foundJrxn = true;
-                    // We can do the reaction if all other reactant components have positive mole fractions
+                    // We can do the reaction if all other reactant components
+                    // have positive mole fractions
                     for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
                         if (m_stoichCoeffRxnMatrix(kcomp,jrxn) < 0.0 && m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                             foundJrxn = false;
@@ -78,14 +77,16 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
                         return true;
                     }
                 } else if (m_stoichCoeffRxnMatrix(kspec,jrxn) < 0.0) {
-                    // Second we are here if the component is a reactant in the reaction, and the reaction goes backwards.
+                    // Second we are here if the component is a reactant in the
+                    // reaction, and the reaction goes backwards.
                     foundJrxn = true;
                     size_t jspec = jrxn + m_numComponents;
                     if (m_molNumSpecies_old[jspec] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                         foundJrxn = false;
                         continue;
                     }
-                   // We can do the backwards reaction if all of the product components species are positive
+                    // We can do the backwards reaction if all of the product
+                    // components species are positive
                     for (size_t kcomp = 0; kcomp < m_numComponents; kcomp++) {
                         if (m_stoichCoeffRxnMatrix(kcomp,jrxn) > 0.0 && m_molNumSpecies_old[kcomp] <= VCS_DELETE_ELEMENTABS_CUTOFF*0.5) {
                             foundJrxn = false;
@@ -106,20 +107,17 @@ int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     int nfound = 0;
     phasePopProblemLists_.clear();
 
-    /*
-     *  This is a vector over each component.
-     *  For zeroed components it lists the phases, which are currently zeroed,
-     *     which have a species with a positive stoichiometric value wrt the component.
-     *     Therefore, we could pop the component species and pop that phase at the same time
-     *     if we considered no other factors than keeping the component mole number positive.
-     *
-     *     It does not count species with positive stoichiometric values if that species
-     *     already has a positive mole number. The phase is already popped.
-     */
+    // This is a vector over each component. For zeroed components it lists the
+    // phases, which are currently zeroed, which have a species with a positive
+    // stoichiometric value wrt the component. Therefore, we could pop the
+    // component species and pop that phase at the same time if we considered no
+    // other factors than keeping the component mole number positive.
+    //
+    // It does not count species with positive stoichiometric values if that
+    // species already has a positive mole number. The phase is already popped.
     std::vector< std::vector<size_t> > zeroedComponentLinkedPhasePops(m_numComponents);
-    /*
-     *  The logic below calculates zeroedComponentLinkedPhasePops
-     */
+
+    // The logic below calculates zeroedComponentLinkedPhasePops
     for (size_t j = 0; j < m_numComponents; j++) {
         if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS && m_molNumSpecies_old[j] <= 0.0) {
             std::vector<size_t> &jList = zeroedComponentLinkedPhasePops[j];
@@ -137,17 +135,16 @@ int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
             }
         }
     }
-    /*
-     *   This is a vector over each zeroed phase
-     *   For zeroed phases, it lists the components, which are currently zeroed,
-     *     which have a species with a negative stoichiometric value wrt one or more species in the phase.
-     *     Cut out components which have a pos stoichiometric value with another species in the phase.
-     */
+
+    // This is a vector over each zeroed phase For zeroed phases, it lists the
+    // components, which are currently zeroed, which have a species with a
+    // negative stoichiometric value wrt one or more species in the phase. Cut
+    // out components which have a pos stoichiometric value with another species
+    // in the phase.
     std::vector< std::vector<size_t> > zeroedPhaseLinkedZeroComponents(m_numPhases);
     vector_int linkedPhases;
-    /*
-     *   The logic below calculates zeroedPhaseLinkedZeroComponents
-     */
+
+    // The logic below calculates zeroedPhaseLinkedZeroComponents
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         std::vector<size_t> &iphList = zeroedPhaseLinkedZeroComponents[iph];
         iphList.clear();
@@ -179,9 +176,7 @@ int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
         }
     }
 
-    /*
-     *  Now fill in the phasePopProblemLists_ list.
-     */
+    // Now fill in the phasePopProblemLists_ list.
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         if (Vphase->exists() < 0) {
@@ -233,9 +228,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
             }
         } else {
             if (Vphase->m_singleSpecies) {
-                /***********************************************************************
-                 *  Single Phase Stability Resolution
-                 ***********************************************************************/
+                // Single Phase Stability Resolution
                 size_t kspec = Vphase->spGlobalIndexVCS(0);
                 size_t irxn = kspec - m_numComponents;
                 doublereal deltaGRxn = m_deltaGRxn_old[irxn];
@@ -264,9 +257,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                           m_tPhaseMoles_old[iph], anote);
                 }
             } else {
-                /***********************************************************************
-                 * MultiSpecies Phase Stability Resolution
-                 ***********************************************************************/
+                // MultiSpecies Phase Stability Resolution
                 if (vcs_popPhasePossible(iph)) {
                     Fephase = vcs_phaseStabilityTest(iph);
                     if (Fephase > 0.0) {
@@ -297,10 +288,8 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
         phasePopPhaseIDs.push_back(iphasePop);
     }
 
-    /*
-     *   Insert logic here to figure out if phase pops are linked together. Only do one linked
-     *   pop at a time.
-     */
+    // Insert logic here to figure out if phase pops are linked together. Only
+    // do one linked pop at a time.
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   ---------------------------------------------------------------------\n");
     }
@@ -351,9 +340,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             m_deltaMolNumSpecies[kspec] = tPhaseMoles;
         }
 
-        /*
-         * section to do damping of the m_deltaMolNumSpecies[]
-         */
+        // section to do damping of the m_deltaMolNumSpecies[]
         for (size_t j = 0; j < m_numComponents; ++j) {
             double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
             if (stoicC != 0.0 && m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
@@ -367,7 +354,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                 }
             }
         }
-        // Implement a damping term that limits m_deltaMolNumSpecies to the size of the mole number
+        // Implement a damping term that limits m_deltaMolNumSpecies to the size
+        // of the mole number
         if (-m_deltaMolNumSpecies[kspec] > m_molNumSpecies_old[kspec]) {
             m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
         }
@@ -426,8 +414,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
         }
 
         // We may have greatly underestimated the deltaMoles for the phase pop
-        // Here we create a damp > 1 to account for this possibility.
-        // We adjust upwards to make sure that a component in an existing multispecies
+        // Here we create a damp > 1 to account for this possibility. We adjust
+        // upwards to make sure that a component in an existing multispecies
         // phase is modified by a factor of 1/1000.
         if (ratioComp > 1.0E-30 && ratioComp < 0.001) {
             damp = 0.001 / ratioComp;
@@ -455,9 +443,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 
 double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 {
-    /*
-     * We will use the _new state calc here
-     */
+    // We will use the _new state calc here
     vcs_VolPhase* Vphase = m_VolPhaseList[iph];
     const size_t nsp = Vphase->nSpecies();
     int minNumberIterations = 3;
@@ -550,7 +536,8 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             for (size_t k = 0; k < nsp; k++) {
                 sumFrac += fracDelta_old[k];
             }
-            // Necessary because this can be identically zero. -> we need to fix this algorithm!
+            // Necessary because this can be identically zero. -> we need to fix
+            // this algorithm!
             if (sumFrac <= 0.0) {
                 sumFrac = 1.0;
             }
@@ -562,21 +549,15 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 }
             }
 
-            /*
-             * Feed the newly formed estimate of the mole fractions back into the
-             * ThermoPhase object
-             */
+            // Feed the newly formed estimate of the mole fractions back into the
+            // ThermoPhase object
             Vphase->setMoleFractionsState(0.0, &X_est[0], VCS_STATECALC_PHASESTABILITY);
 
-            /*
-             *   get the activity coefficients
-             */
+            // get the activity coefficients
             Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
 
-            /*
-             * First calculate altered chemical potentials for component species
-             * belonging to this phase.
-             */
+            // First calculate altered chemical potentials for component species
+            // belonging to this phase.
             for (size_t i = 0; i < componentList.size(); i++) {
                 size_t kc = componentList[i];
                 size_t kc_spec = Vphase->spGlobalIndexVCS(kc);
@@ -606,9 +587,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 }
             }
 
-            /*
-             *  Calculate the E_phi's
-             */
+            // Calculate the E_phi's
             sum = 0.0;
             funcPhaseStability = sum_Xcomp - 1.0;
             for (size_t k = 0; k < nsp; k++) {
@@ -624,9 +603,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 }
             }
 
-            /*
-             * Calculate the raw estimate of the new fracs
-             */
+            // Calculate the raw estimate of the new fracs
             for (size_t k = 0; k < nsp; k++) {
                 size_t kspec = Vphase->spGlobalIndexVCS(k);
                 double b = E_phi[k] / sum * (1.0 - sum_Xcomp);
@@ -650,9 +627,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 }
             }
 
-            /*
-             * Now possibly dampen the estimate.
-             */
+            // Now possibly dampen the estimate.
             doublereal sumADel = 0.0;
             for (size_t k = 0; k < nsp; k++) {
                 delFrac[k] = fracDelta_raw[k] - fracDelta_old[k];
@@ -718,14 +693,11 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
         }
 
         if (converged) {
-            /*
-             *  Save the final optimized stated back into the VolPhase object for later use
-             */
+            // Save the final optimized stated back into the VolPhase object for later use
             Vphase->setMoleFractionsState(0.0, &X_est[0], VCS_STATECALC_PHASESTABILITY);
-            /*
-             * Save fracDelta for later use to initialize the problem better
-             *  @TODO  creationGlobalRxnNumbers needs to be calculated here and stored.
-             */
+
+            // Save fracDelta for later use to initialize the problem better
+            // @TODO  creationGlobalRxnNumbers needs to be calculated here and stored.
             Vphase->setCreationMoleNumbers(&fracDelta_new[0], creationGlobalRxnNumbers);
         }
     } else {

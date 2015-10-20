@@ -78,11 +78,10 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         } else {
             abundancesOK = true;
         }
-        /*
-         *  Now find the optimized basis that spans the stoichiometric
-         *  coefficient matrix, based on the current composition, m_molNumSpecies_old[]
-         *  We also calculate sc[][], the reaction matrix.
-         */
+
+        // Now find the optimized basis that spans the stoichiometric
+        // coefficient matrix, based on the current composition,
+        // m_molNumSpecies_old[] We also calculate sc[][], the reaction matrix.
         retn = vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
                           test, &usedZeroedSpecies);
         if (retn != VCS_SUCCESS) {

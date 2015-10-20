@@ -16,16 +16,11 @@ namespace Cantera
 
 int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStable)
 {
-    /*
-     *  ifunc determines the problem type
-     */
+    // ifunc determines the problem type
     int ifunc = 0;
     int iStab = 0;
 
-    /*
-     *         This function is called to create the private data
-     *         using the public data.
-     */
+    // This function is called to create the private data using the public data.
     size_t nspecies0 = vprob->nspecies + 10;
     size_t nelements0 = vprob->ne;
     size_t nphase0 = vprob->NPhase;
@@ -37,22 +32,18 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
         return VCS_PUB_BAD;
     }
 
-    /*
-     *         This function is called to copy the public data
-     *         and the current problem specification
-     *         into the current object's data structure.
-     */
+    // This function is called to copy the public data and the current problem
+    // specification into the current object's data structure.
     int retn = vcs_prob_specifyFully(vprob);
     if (retn != 0) {
         plogf("vcs_pub_to_priv returned a bad status, %d: bailing!\n",
               retn);
         return retn;
     }
-    /*
-     *        Prep the problem data
-     *           - adjust the identity of any phases
-     *           - determine the number of components in the problem
-     */
+
+    // Prep the problem data
+    //    - adjust the identity of any phases
+    //    - determine the number of components in the problem
     retn = vcs_prep_oneTime(printLvl);
     if (retn != 0) {
         plogf("vcs_prep_oneTime returned a bad status, %d: bailing!\n",
@@ -60,10 +51,8 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
         return retn;
     }
 
-    /*
-     *         This function is called to copy the current problem
-     *         into the current object's data structure.
-     */
+    // This function is called to copy the current problem into the current
+    // object's data structure.
     retn = vcs_prob_specify(vprob);
     if (retn != 0) {
         plogf("vcs_prob_specify returned a bad status, %d: bailing!\n",
@@ -71,62 +60,46 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
         return retn;
     }
 
-    /*
-     *        Prep the problem data for this particular instantiation of
-     *        the problem
-     */
+    // Prep the problem data for this particular instantiation of the problem
     retn = vcs_prep();
     if (retn != VCS_SUCCESS) {
         plogf("vcs_prep returned a bad status, %d: bailing!\n", retn);
         return retn;
     }
-    /*
-     *        Check to see if the current problem is well posed.
-     */
+
+    // Check to see if the current problem is well posed.
     if (!vcs_wellPosed(vprob)) {
         plogf("vcs has determined the problem is not well posed: Bailing\n");
         return VCS_PUB_BAD;
     }
 
-    /*
-     *        Store the temperature and pressure in the private global variables
-     */
+    // Store the temperature and pressure in the private global variables
     m_temperature = vprob->T;
     m_pressurePA = vprob->PresPA;
-    /*
-     *        Evaluate the standard state free energies
-     *        at the current temperatures and pressures.
-     */
+
+    // Evaluate the standard state free energies at the current temperatures and
+    // pressures.
     vcs_evalSS_TP(printLvl, printLvl, m_temperature, m_pressurePA);
 
-    /*
-     *        Prepare the problem data:
-     *          ->nondimensionalize the free energies using
-     *            the divisor, R * T
-     */
+    // Prepare the problem data: nondimensionalize the free energies using the
+    // divisor, R * T
     vcs_nondim_TP();
-    /*
-     * Prep the fe field
-     */
+
+    // Prep the fe field
     vcs_fePrep_TP();
 
-    /*
-     *        Solve the problem at a fixed Temperature and Pressure
-     * (all information concerning Temperature and Pressure has already
-     *  been derived. The free energies are now in dimensionless form.)
-     */
+    // Solve the problem at a fixed Temperature and Pressure (all information
+    // concerning Temperature and Pressure has already been derived. The free
+    // energies are now in dimensionless form.)
     iStab = vcs_solve_phaseStability(iphase, ifunc, feStable, printLvl);
 
-    /*
-     *        Redimensionalize the free energies using
-     *        the reverse of vcs_nondim to add back units.
-     */
+    // Redimensionalize the free energies using the reverse of vcs_nondim to add
+    // back units.
     vcs_redim_TP();
 
     vcs_prob_update(vprob);
-    /*
-     *        Return the convergence success flag.
-     */
+
+    // Return the convergence success flag.
     return iStab;
 }
 

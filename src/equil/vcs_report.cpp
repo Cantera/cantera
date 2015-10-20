@@ -19,19 +19,14 @@ int VCS_SOLVE::vcs_report(int iconv)
     std::vector<size_t> sortindex(nspecies,0);
     vector_fp xy(nspecies,0.0);
 
-    /* ************************************************************** */
-    /* **** SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES ***** */
-    /* ************************************************************** */
-
+    // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
     for (size_t i = 0; i < nspecies; ++i) {
         sortindex[i] = i;
         xy[i] = m_molNumSpecies_old[i];
     }
-    /*
-     *       Sort the XY vector, the mole fraction vector,
-     *       and the sort index vector, sortindex, according to
-     *       the magnitude of the mole fraction vector.
-     */
+
+    // Sort the XY vector, the mole fraction vector, and the sort index vector,
+    // sortindex, according to the magnitude of the mole fraction vector.
     for (size_t l = m_numComponents; l < m_numSpeciesRdc; ++l) {
         size_t k = vcs_optMax(&xy[0], 0, l, m_numSpeciesRdc);
         if (k != l) {
@@ -40,11 +35,9 @@ int VCS_SOLVE::vcs_report(int iconv)
         }
     }
 
-    /*
-     *  Decide whether we have to nondimensionalize the equations.
-     *     -> For the printouts from this routine, we will use nondimensional
-     *        representations. This may be expanded in the future.
-     */
+    // Decide whether we have to nondimensionalize the equations. For the
+    // printouts from this routine, we will use nondimensional representations.
+    // This may be expanded in the future.
     if (m_unitsState == VCS_DIMENSIONAL_G) {
         vcs_nondim_TP();
     }
@@ -55,10 +48,8 @@ int VCS_SOLVE::vcs_report(int iconv)
 
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
-    /* ******************************************************** */
-    /* *** PRINT OUT RESULTS ********************************** */
-    /* ******************************************************** */
 
+    // PRINT OUT RESULTS
     plogf("\n\n\n\n");
     writeline('-', 80);
     writeline('-', 80);
@@ -70,9 +61,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     } else if (iconv == 1) {
         plogf(" RANGE SPACE ERROR: Equilibrium Found but not all Element Abundances are Satisfied\n");
     }
-    /*
-     *   Calculate some quantities that may need updating
-     */
+
+    // Calculate some quantities that may need updating
     vcs_tmoles();
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA,
                               &m_molNumSpecies_old[0], &m_PMVolumeSpecies[0]);
@@ -85,9 +75,7 @@ int VCS_SOLVE::vcs_report(int iconv)
               molScale);
     }
 
-    /*
-     * -------- TABLE OF SPECIES IN DECREASING MOLE NUMBERS --------------
-     */
+    // TABLE OF SPECIES IN DECREASING MOLE NUMBERS
     plogf("\n\n");
     writeline('-', 80);
     plogf(" Species                 Equilibrium kmoles   ");
@@ -152,9 +140,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', 80);
     plogf("\n");
 
-    /*
-     * ---------- TABLE OF SPECIES FORMATION REACTIONS ------------------
-     */
+    // TABLE OF SPECIES FORMATION REACTIONS
     writeline('-', m_numComponents*10 + 45, true, true);
     plogf("               |ComponentID|");
     for (size_t j = 0; j < m_numComponents; j++) {
@@ -186,9 +172,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', m_numComponents*10 + 45);
     plogf("\n");
 
-    /*
-     * ------------------ TABLE OF PHASE INFORMATION ---------------------
-     */
+    // TABLE OF PHASE INFORMATION
     vector_fp gaPhase(m_numElemConstraints, 0.0);
     vector_fp gaTPhase(m_numElemConstraints, 0.0);
     double totalMoles = 0.0;
@@ -243,15 +227,10 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', m_numElemConstraints*10 + 58);
     plogf("\n");
 
-    /*
-     * ----------- GLOBAL SATISFACTION INFORMATION -----------------------
-     */
+    // GLOBAL SATISFACTION INFORMATION
 
-    /*
-     *    Calculate the total dimensionless Gibbs Free Energy
-     *     -> Inert species are handled as if they had a standard free
-     *        energy of zero
-     */
+    // Calculate the total dimensionless Gibbs Free Energy. Inert species are
+    // handled as if they had a standard free energy of zero
     double g = vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
                                &m_tPhaseMoles_old[0]);
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
@@ -269,9 +248,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     }
     plogf("\n");
 
-    /*
-     * ------------------ TABLE OF SPECIES CHEM POTS ---------------------
-     */
+    // TABLE OF SPECIES CHEM POTS
     writeline('-', 93, true, true);
     plogf("Chemical Potentials of the Species: (dimensionless)\n");
 
@@ -329,9 +306,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" %20.9E\n", g);
     writeline('-', 147);
 
-    /*
-     * ------------- TABLE OF SOLUTION COUNTERS --------------------------
-     */
+    // TABLE OF SOLUTION COUNTERS
     plogf("\n");
     plogf("\nCounters:         Iterations          Time (seconds)\n");
     if (m_timing_print_lvl > 0) {
@@ -348,10 +323,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', 80);
     writeline('-', 80);
 
-    /*
-     *   Set the Units state of the system back to where it was when we
-     *   entered the program.
-     */
+    // Set the Units state of the system back to where it was when we
+    // entered the program.
     if (originalUnitsState != m_unitsState) {
         if (originalUnitsState == VCS_DIMENSIONAL_G) {
             vcs_redim_TP();
@@ -359,9 +332,8 @@ int VCS_SOLVE::vcs_report(int iconv)
             vcs_nondim_TP();
         }
     }
-    /*
-     *   Return a successful completion flag
-     */
+
+    // Return a successful completion flag
     return VCS_SUCCESS;
 }
 

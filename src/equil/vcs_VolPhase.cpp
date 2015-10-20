@@ -134,9 +134,8 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         m_isIdealSoln = b.m_isIdealSoln;
         m_existence = b.m_existence;
         m_MFStartIndex = b.m_MFStartIndex;
-        /*
-         * Do a shallow copy because we haven' figured this out.
-         */
+
+        // Do a shallow copy because we haven' figured this out.
         IndSpecies = b.IndSpecies;
 
         for (size_t k = 0; k < old_num; k++) {
@@ -150,13 +149,13 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
             ListSpeciesPtr[k] =
                 new vcs_SpeciesProperties(*(b.ListSpeciesPtr[k]));
         }
-        /*
-         * Do a shallow copy of the ThermoPhase object pointer.
-         * We don't duplicate the object.
-         *  Um, there is no reason we couldn't do a
-         *  duplicateMyselfAsThermoPhase() call here. This will
-         *  have to be looked into.
-         */
+
+        // Do a shallow copy of the ThermoPhase object pointer. We don't
+        // duplicate the object.
+        //
+        // Um, there is no reason we couldn't do a
+        // duplicateMyselfAsThermoPhase() call here. This will have to be looked
+        // into.
         TP_ptr = b.TP_ptr;
         v_totalMoles = b.v_totalMoles;
         Xmol_ = b.Xmol_;
@@ -466,10 +465,9 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         // This is currently unimplemented.
         m_existence = VCS_PHASE_EXIST_NO;
     }
-    /*
-     * Update the electric potential if it is a solution variable
-     * in the equation system
-     */
+
+    // Update the electric potential if it is a solution variable in the
+    // equation system
     if (m_phiVarIndex != npos) {
         size_t kglob = IndSpecies[m_phiVarIndex];
         if (m_numSpecies == 1) {
@@ -488,18 +486,14 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
         m_existence = VCS_PHASE_EXIST_ALWAYS;
     }
 
-    /*
-     * If stateCalc is old and the total moles is positive,
-     * then we have a valid state. If the phase went away, it would
-     * be a valid starting point for F_k's. So, save the state.
-     */
+    // If stateCalc is old and the total moles is positive, then we have a valid
+    // state. If the phase went away, it would be a valid starting point for
+    // F_k's. So, save the state.
     if (stateCalc == VCS_STATECALC_OLD && v_totalMoles > 0.0) {
         creationMoleNumbers_ = Xmol_;
     }
 
-    /*
-     * Set flags indicating we are up to date with the VCS state vector.
-     */
+    // Set flags indicating we are up to date with the VCS state vector.
     m_UpToDate = true;
     m_vcsStateStatus = stateCalc;
 }
@@ -509,9 +503,8 @@ void vcs_VolPhase::setMolesFromVCSCheck(const int vcsStateStatus,
                                         const double* const TPhMoles)
 {
     setMolesFromVCS(vcsStateStatus, molesSpeciesVCS);
-    /*
-     * Check for consistency with TPhMoles[]
-     */
+
+    // Check for consistency with TPhMoles[]
     double Tcheck = TPhMoles[VP_ID_];
     if (Tcheck != v_totalMoles) {
         if (vcs_doubleEqual(Tcheck, v_totalMoles)) {
@@ -646,9 +639,7 @@ void vcs_VolPhase::_updateLnActCoeffJac()
         phaseTotalMoles = 1.0;
     }
 
-    /*
-     * Evaluate the current base activity coefficients if necessary
-     */
+    // Evaluate the current base activity coefficients if necessary
     if (!m_UpToDate_AC) {
         _updateActCoeff();
     }
@@ -673,45 +664,34 @@ void vcs_VolPhase::_updateLnActCoeffJac()
     vector_fp Xmol_Base(Xmol_);
     double TMoles_base = phaseTotalMoles;
 
-    /*
-     *  Loop over the columns species to be deltad
-     */
+    // Loop over the columns species to be deltad
     for (size_t j = 0; j < m_numSpecies; j++) {
-        /*
-         * Calculate a value for the delta moles of species j
-         * -> Note Xmol_[] and Tmoles are always positive or zero
-         *    quantities.
-         */
+        // Calculate a value for the delta moles of species j. Note Xmol_[] and
+        // Tmoles are always positive or zero quantities.
         double moles_j_base = phaseTotalMoles * Xmol_Base[j];
         deltaMoles_j = 1.0E-7 * moles_j_base + 1.0E-13 * phaseTotalMoles + 1.0E-150;
-        /*
-         * Now, update the total moles in the phase and all of the
-         * mole fractions based on this.
-         */
+
+        // Now, update the total moles in the phase and all of the mole
+        // fractions based on this.
         phaseTotalMoles = TMoles_base + deltaMoles_j;
         for (size_t k = 0; k < m_numSpecies; k++) {
             Xmol_[k] = Xmol_Base[k] * TMoles_base / phaseTotalMoles;
         }
         Xmol_[j] = (moles_j_base + deltaMoles_j) / phaseTotalMoles;
 
-        /*
-         * Go get new values for the activity coefficients.
-         * -> Note this calls setState_PX();
-         */
+        // Go get new values for the activity coefficients. Note this calls
+        // setState_PX();
         _updateMoleFractionDependencies();
         _updateActCoeff();
-        /*
-         * Revert to the base case Xmol_, v_totalMoles
-         */
+
+        // Revert to the base case Xmol_, v_totalMoles
         v_totalMoles = TMoles_base;
         Xmol_ = Xmol_Base;
     }
-    /*
-     * Go get base values for the activity coefficients.
-     * -> Note this calls setState_TPX() again;
-     * -> Just wanted to make sure that cantera is in sync
-     *    with VolPhase after this call.
-     */
+
+    // Go get base values for the activity coefficients. Note this calls
+    // setState_TPX() again; Just wanted to make sure that cantera is in sync
+    // with VolPhase after this call.
     setMoleFractions(&Xmol_Base[0]);
     _updateMoleFractionDependencies();
     _updateActCoeff();
@@ -719,16 +699,11 @@ void vcs_VolPhase::_updateLnActCoeffJac()
 
 void vcs_VolPhase::sendToVCS_LnActCoeffJac(Array2D& np_LnACJac_VCS)
 {
-    /*
-     * update the Ln Act Coeff Jacobian entries with respect to the
-     * mole number of species in the phase -> we always assume that
-     * they are out of date.
-     */
+    // update the Ln Act Coeff Jacobian entries with respect to the mole number
+    // of species in the phase -> we always assume that they are out of date.
     _updateLnActCoeffJac();
 
-    /*
-     *  Now copy over the values
-     */
+    // Now copy over the values
     for (size_t j = 0; j < m_numSpecies; j++) {
         size_t jglob = IndSpecies[j];
         for (size_t k = 0; k < m_numSpecies; k++) {
@@ -758,9 +733,7 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     creationMoleNumbers_ = Xmol_;
     _updateMoleFractionDependencies();
 
-    /*
-     *  figure out ideal solution tag
-     */
+    // figure out ideal solution tag
     if (nsp == 1) {
         m_isIdealSoln = true;
     } else {
@@ -1015,12 +988,10 @@ static bool hasChargedSpecies(const ThermoPhase* const tPhase)
     return false;
 }
 
-/*!
- *  This utility routine decides whether a Cantera ThermoPhase needs
- *  a constraint equation representing the charge neutrality of the
- *  phase. It does this by searching for charged species. If it
- *  finds one, and if the phase needs one, then it returns true.
- */
+//! This utility routine decides whether a Cantera ThermoPhase needs
+//! a constraint equation representing the charge neutrality of the
+//! phase. It does this by searching for charged species. If it
+//! finds one, and if the phase needs one, then it returns true.
 static bool chargeNeutralityElement(const ThermoPhase* const tPhase)
 {
     int hasCharge = hasChargedSpecies(tPhase);
@@ -1036,19 +1007,15 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
     size_t ne = nebase;
     size_t ns = tPhase->nSpecies();
 
-    /*
-     * Decide whether we need an extra element constraint for charge
-     * neutrality of the phase
-     */
+    // Decide whether we need an extra element constraint for charge
+    // neutrality of the phase
     bool cne = chargeNeutralityElement(tPhase);
     if (cne) {
         ChargeNeutralityElement = ne;
         ne++;
     }
 
-    /*
-     * Assign and malloc structures
-     */
+    // Assign and malloc structures
     elemResize(ne);
 
     if (ChargeNeutralityElement != npos) {
@@ -1058,15 +1025,12 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
     size_t eFound = npos;
     if (hasChargedSpecies(tPhase)) {
         if (cne) {
-            /*
-             * We need a charge neutrality constraint.
-             * We also have an Electron Element. These are
-             * duplicates of each other. To avoid trouble with
-             * possible range error conflicts, sometimes we eliminate
-             * the Electron condition. Flag that condition for elimination
-             * by toggling the ElActive variable. If we find we need it
-             * later, we will retoggle ElActive to true.
-             */
+            // We need a charge neutrality constraint. We also have an Electron
+            // Element. These are duplicates of each other. To avoid trouble
+            // with possible range error conflicts, sometimes we eliminate the
+            // Electron condition. Flag that condition for elimination by
+            // toggling the ElActive variable. If we find we need it later, we
+            // will retoggle ElActive to true.
             for (size_t eT = 0; eT < nebase; eT++) {
                 if (tPhase->elementName(eT) == "E") {
                     eFound = eT;
@@ -1132,11 +1096,9 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
         }
     }
 
-    /*
-     * Here, we figure out what is the species types are
-     * The logic isn't set in stone, and is just for a particular type
-     * of problem that I'm solving first.
-     */
+    // Here, we figure out what is the species types are The logic isn't set in
+    // stone, and is just for a particular type of problem that I'm solving
+    // first.
     if (ns == 1 && tPhase->charge(0) != 0.0) {
         m_speciesUnknownType[0] = VCS_SPECIES_TYPE_INTERFACIALVOLTAGE;
         setPhiVarIndex(0);

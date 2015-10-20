@@ -140,12 +140,10 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
 
 double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
 {
-    /*
-     *  Activity coefficients are frequently evaluated on a per phase
-     *  basis. If they are, then the currPhAC[] boolean may be used
-     *  to reduce repeated work. Just set currPhAC[iph], when the
-     *  activity coefficients for all species in the phase are reevaluated.
-     */
+    // Activity coefficients are frequently evaluated on a per phase basis. If
+    // they are, then the currPhAC[] boolean may be used to reduce repeated
+    // work. Just set currPhAC[iph], when the activity coefficients for all
+    // species in the phase are reevaluated.
     size_t kspec = IndexSpeciesPhase;
     double ac = OwningPhase->AC_calc_one(kspec);
     return ac;

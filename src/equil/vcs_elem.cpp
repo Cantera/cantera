@@ -28,14 +28,11 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
     if (ibound) {
         top = m_numElemConstraints;
     }
-    /*
-     * Require 12 digits of accuracy on non-zero constraints.
-     */
+
     for (size_t i = 0; i < top; ++i) {
+        // Require 12 digits of accuracy on non-zero constraints.
         if (m_elementActive[i] && fabs(m_elemAbundances[i] - m_elemAbundancesGoal[i]) > fabs(m_elemAbundancesGoal[i]) * 1.0e-12) {
-            /*
-             * This logic is for charge neutrality condition
-             */
+            // This logic is for charge neutrality condition
             if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY &&
                     m_elemAbundancesGoal[i] != 0.0) {
                 throw CanteraError("VCS_SOLVE::vcs_elabcheck",
@@ -43,12 +40,11 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
             }
             if (m_elemAbundancesGoal[i] == 0.0 || (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE)) {
                 double scale = VCS_DELETE_MINORSPECIES_CUTOFF;
-                /*
-                 * Find out if the constraint is a multisign constraint.
-                 * If it is, then we have to worry about roundoff error
-                 * in the addition of terms. We are limited to 13
-                 * digits of finite arithmetic accuracy.
-                 */
+
+                // Find out if the constraint is a multisign constraint. If it
+                // is, then we have to worry about roundoff error in the
+                // addition of terms. We are limited to 13 digits of finite
+                // arithmetic accuracy.
                 bool multisign = false;
                 for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
                     double eval = m_formulaMatrix(kspec,i);
@@ -69,10 +65,8 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                     }
                 }
             } else {
-                /*
-                 * For normal element balances, we require absolute compliance
-                 * even for ridiculously small numbers.
-                 */
+                // For normal element balances, we require absolute compliance
+                // even for ridiculously small numbers.
                 if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
                     return false;
                 } else {
@@ -120,12 +114,9 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     l2before = sqrt(l2before/m_numElemConstraints);
 #endif
 
-    /*
-     * Special section to take out single species, single component,
-     * moles. These are species which have non-zero entries in the
-     * formula matrix, and no other species have zero values either.
-     *
-     */
+    // Special section to take out single species, single component,
+    // moles. These are species which have non-zero entries in the
+    // formula matrix, and no other species have zero values either.
     bool changed = false;
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         int numNonZero = 0;
@@ -182,15 +173,13 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         vcs_elab();
     }
 
-    /*
-     *  Section to check for maximum bounds errors on all species
-     *  due to elements.
-     *    This may only be tried on element types which are VCS_ELEM_TYPE_ABSPOS.
-     *    This is because no other species may have a negative number of these.
-     *
-     *  Note, also we can do this over ne, the number of elements, not just
-     *  the number of components.
-     */
+    // Section to check for maximum bounds errors on all species due to
+    // elements. This may only be tried on element types which are
+    // VCS_ELEM_TYPE_ABSPOS. This is because no other species may have a
+    // negative number of these.
+    //
+    // Note, also we can do this over ne, the number of elements, not just the
+    // number of components.
     changed = false;
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         int elType = m_elType[i];
@@ -234,11 +223,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         vcs_elab();
     }
 
-    /*
-     * Ok, do the general case. Linear algebra problem is
-     * of length nc, not ne, as there may be degenerate rows when
-     * nc .ne. ne.
-     */
+    // Ok, do the general case. Linear algebra problem is of length nc, not ne,
+    // as there may be degenerate rows when nc .ne. ne.
     for (size_t i = 0; i < m_numComponents; ++i) {
         x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
         if (fabs(x[i]) > 1.0E-13) {
@@ -258,9 +244,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     }
     ct_dgetrs(ctlapack::NoTranspose, m_numComponents, 1, aa,
               m_numElemConstraints, &ipiv[0], x, m_numElemConstraints, info);
-    /*
-     * Now apply the new direction without creating negative species.
-     */
+
+    // Now apply the new direction without creating negative species.
     double par = 0.5;
     for (size_t i = 0; i < m_numComponents; ++i) {
         if (m_molNumSpecies_old[i] > 0.0) {
@@ -299,23 +284,15 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         }
     }
 
-    /*
-     *   We have changed the element abundances. Calculate them again
-     */
+    // We have changed the element abundances. Calculate them again
     vcs_elab();
-    /*
-     *   We have changed the total moles in each phase. Calculate them again
-     */
+
+    // We have changed the total moles in each phase. Calculate them again
     vcs_tmoles();
 
-    /*
-     *       Try some ad hoc procedures for fixing the problem
-     */
+    // Try some ad hoc procedures for fixing the problem
     if (retn >= 2) {
-        /*
-         *       First find a species whose adjustment is a win-win
-         *       situation.
-         */
+        // First find a species whose adjustment is a win-win situation.
         for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
             if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 continue;
@@ -358,10 +335,9 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 }
                 m_molNumSpecies_old[kspec] += xx;
                 m_molNumSpecies_old[kspec] = std::max(m_molNumSpecies_old[kspec], 1.0E-10);
-                /*
-                 *   If we are dealing with a deleted species, then
-                 *   we need to reinsert it into the active list.
-                 */
+
+                // If we are dealing with a deleted species, then we need to
+                // reinsert it into the active list.
                 if (kspec >= m_numSpeciesRdc) {
                     vcs_reinsert_deleted(kspec);
                     m_molNumSpecies_old[m_numSpeciesRdc - 1] = xx;
@@ -401,11 +377,8 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         goto L_CLEANUP;
     }
 
-    /*
-     *  For electron charges element types, we try positive deltas
-     *  in the species concentrations to match the desired
-     *  electron charge exactly.
-     */
+    // For electron charges element types, we try positive deltas in the species
+    // concentrations to match the desired electron charge exactly.
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         double dev = m_elemAbundancesGoal[i] - m_elemAbundances[i];
         if (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE && (fabs(dev) > 1.0E-300)) {
