@@ -48,10 +48,9 @@ public:
     int propertyPair;
 
     /**
-     * Continuation flag. Set true if the calculation should be
-     * initialized from the last calculation. Otherwise, the
-     * calculation will be started from scratch and the initial
-     * composition and element potentials estimated.
+     * Continuation flag. Set true if the calculation should be initialized from
+     * the last calculation. Otherwise, the calculation will be started from
+     * scratch and the initial composition and element potentials estimated.
      */
     bool contin;
 };
@@ -64,26 +63,22 @@ class PropertyCalculator;
  */
 
 /**
- *  Class ChemEquil implements a chemical equilibrium solver for
- *  single-phase solutions. It is a "non-stoichiometric" solver in
- *  the terminology of Smith and Missen, meaning that every
- *  intermediate state is a valid chemical equilibrium state, but
- *  does not necessarily satisfy the element constraints. In
- *  contrast, the solver implemented in class MultiPhaseEquil uses
- *  a "stoichiometric" algorithm, in which each intermediate state
- *  satisfies the element constraints but is not a state of
- *  chemical equilibrium. Non-stoichiometric methods are faster
- *  when they converge, but stoichiometric ones tend to be more
- *  robust and can be used also for problems with multiple
- *  condensed phases. As expected, the ChemEquil solver is faster
- *  than MultiPhaseEquil for many single-phase equilibrium
- *  problems (particularly if there are only a few elements but
- *  very many species), but can be less stable. Problem
- *  situations include low temperatures where only a few species
- *  have non-zero mole fractions, precisely stoichiometric
- *  compositions (e.g. 2 H2 + O2). In general, if speed is
- *  important, this solver should be tried first, and if it fails
- *  then use MultiPhaseEquil.
+ * Class ChemEquil implements a chemical equilibrium solver for single-phase
+ * solutions. It is a "non-stoichiometric" solver in the terminology of Smith
+ * and Missen, meaning that every intermediate state is a valid chemical
+ * equilibrium state, but does not necessarily satisfy the element constraints.
+ * In contrast, the solver implemented in class MultiPhaseEquil uses a
+ * "stoichiometric" algorithm, in which each intermediate state satisfies the
+ * element constraints but is not a state of chemical equilibrium. Non-
+ * stoichiometric methods are faster when they converge, but stoichiometric ones
+ * tend to be more robust and can be used also for problems with multiple
+ * condensed phases. As expected, the ChemEquil solver is faster than
+ * MultiPhaseEquil for many single-phase equilibrium problems (particularly if
+ * there are only a few elements but very many species), but can be less stable.
+ * Problem situations include low temperatures where only a few species have
+ * non-zero mole fractions, precisely stoichiometric compositions (e.g. 2 H2 +
+ * O2). In general, if speed is important, this solver should be tried first,
+ * and if it fails then use MultiPhaseEquil.
  * @ingroup equil
  */
 class ChemEquil
@@ -93,32 +88,33 @@ public:
 
     //! Constructor combined with the initialization function
     /*!
-     *  This constructor initializes the ChemEquil object with everything it
-     *  needs to start solving equilibrium problems.
-     *   @param s ThermoPhase object that will be used in the equilibrium calls.
+     * This constructor initializes the ChemEquil object with everything it
+     * needs to start solving equilibrium problems.
+     *
+     * @param s ThermoPhase object that will be used in the equilibrium calls.
      */
     ChemEquil(thermo_t& s);
 
     virtual ~ChemEquil();
 
     /*!
-     * Equilibrate a phase, holding the elemental composition fixed
-     * at the initial value found within the ThermoPhase object *s*.
+     * Equilibrate a phase, holding the elemental composition fixed at the
+     * initial value found within the ThermoPhase object *s*.
      *
-     * The value of 2 specified properties are obtained by querying the
-     * ThermoPhase object. The properties must be already contained
-     * within the current thermodynamic state of the system.
+     * The value of two specified properties are obtained by querying the
+     * ThermoPhase object. The properties must be already contained within the
+     * current thermodynamic state of the system.
      */
     int equilibrate(thermo_t& s, const char* XY,
                     bool useThermoPhaseElementPotentials = false, int loglevel = 0);
 
     /*!
-     * Compute the equilibrium composition for 2 specified
-     * properties and the specified element moles.
+     * Compute the equilibrium composition for two specified properties and the
+     * specified element moles.
      *
-     * The 2 specified properties are obtained by querying the
-     * ThermoPhase object. The properties must be already contained
-     * within the current thermodynamic state of the system.
+     * The two specified properties are obtained by querying the ThermoPhase
+     * object. The properties must be already contained within the current
+     * thermodynamic state of the system.
      *
      * @param s phase object to be equilibrated
      * @param XY property pair to hold constant
@@ -146,10 +142,9 @@ public:
 protected:
     //! Pointer to the ThermoPhase object used to initialize this object.
     /*!
-     *  This ThermoPhase object must be compatible with the ThermoPhase
-     *  objects input from the equilibrate function. Currently, this
-     *  means that the 2 ThermoPhases have to have consist of the same
-     *  species and elements.
+     * This ThermoPhase object must be compatible with the ThermoPhase objects
+     * input from the equilibrate function. Currently, this means that the 2
+     * ThermoPhases have to have consist of the same species and elements.
      */
     thermo_t* m_phase;
 
@@ -159,14 +154,14 @@ protected:
     }
 
     /*!
-     *  Prepare for equilibrium calculations.
-     *  @param s object representing the solution phase.
+     * Prepare for equilibrium calculations.
+     * @param s object representing the solution phase.
      */
     void initialize(thermo_t& s);
 
     /*!
-     * Set mixture to an equilibrium state consistent with specified
-     * element potentials and temperature.
+     * Set mixture to an equilibrium state consistent with specified element
+     * potentials and temperature.
      *
      * @param s mixture to be updated
      * @param x vector of non-dimensional element potentials
@@ -267,51 +262,36 @@ protected:
     size_t m_kk; //!< number of species in the phase
     size_t m_skip;
 
-    /**
-     * This is equal to the rank of the stoichiometric coefficient
-     * matrix when it is computed. It's initialized to #m_mm.
-     */
+    //! This is equal to the rank of the stoichiometric coefficient matrix when
+    //! it is computed. It's initialized to #m_mm.
     size_t m_nComponents;
 
     std::unique_ptr<PropertyCalculator<thermo_t> > m_p1, m_p2;
 
-    /**
-     * Current value of the mole fractions in the single phase.
-     * -> length = #m_kk.
-     */
+    //! Current value of the mole fractions in the single phase. length = #m_kk.
     vector_fp m_molefractions;
-    /**
-     * Current value of the dimensional element potentials
-     * -> length = #m_mm
-     */
+
+    //! Current value of the dimensional element potentials. length = #m_mm
     vector_fp m_lambda;
 
-    /*
-     * Current value of the sum of the element abundances given the
-     * current element potentials.
-     */
+    //! Current value of the sum of the element abundances given the current
+    //! element potentials.
     doublereal m_elementTotalSum;
-    /*
-     * Current value of the element mole fractions. Note these aren't
-     * the goal element mole fractions.
-     */
+
+    //! Current value of the element mole fractions. Note these aren't the goal
+    //! element mole fractions.
     vector_fp m_elementmolefracs;
     vector_fp m_reswork;
     vector_fp m_jwork1;
     vector_fp m_jwork2;
 
-    /*
-     * Storage of the element compositions
-     *      natom(k,m) = m_comp[k*m_mm+ m];
-     */
+    //! Storage of the element compositions. natom(k,m) = m_comp[k*m_mm+ m];
     vector_fp m_comp;
     doublereal m_temp, m_dens;
     doublereal m_p0;
 
-    /**
-     * Index of the element id corresponding to the electric charge of each
-     * species. Equal to -1 if there is no such element id.
-     */
+    //! Index of the element id corresponding to the electric charge of each
+    //! species. Equal to -1 if there is no such element id.
     size_t m_eloc;
 
     vector_fp m_startSoln;
@@ -319,11 +299,9 @@ protected:
     vector_fp m_grt;
     vector_fp m_mu_RT;
 
-    /**
-     * Dimensionless values of the Gibbs free energy for the
-     * standard state of each species, at the temperature and
-     * pressure of the solution (the star standard state).
-     */
+    //! Dimensionless values of the Gibbs free energy for the standard state of
+    //! each species, at the temperature and pressure of the solution (the star
+    //! standard state).
     vector_fp m_muSS_RT;
     std::vector<size_t> m_component;
 

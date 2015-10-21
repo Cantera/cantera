@@ -145,7 +145,7 @@ public:
     /*!
      * @param kGlob   global species index
      * @param mGlob   global element index
-     * @return        returns the number of atoms.
+     * @returns the number of atoms.
      */
     doublereal nAtoms(const size_t kGlob, const size_t mGlob) const;
 
@@ -176,9 +176,7 @@ public:
     //! Returns the index, given the phase name
     /*!
      * @param pName Name of the phase
-     *
-     * @return returns the index. A value of -1 means
-     *         the phase isn't in the object.
+     * @returns the index. A value of -1 means the phase isn't in the object.
      */
     int phaseIndex(const std::string& pName) const;
 
@@ -236,9 +234,10 @@ public:
      * @param speciesName    Species Name
      * @param phaseName      Phase Name
      *
-     * @return returns the global index
-     *  If the species or phase name is not recognized, this routine throws
-     *  a CanteraError.
+     * @returns the global index
+     *
+     * If the species or phase name is not recognized, this routine throws a
+     * CanteraError.
      */
     size_t speciesIndex(const std::string& speciesName, const std::string& phaseName);
 
@@ -273,14 +272,14 @@ public:
      */
     doublereal elementMoles(size_t m) const;
 
-    //!  Returns a vector of Chemical potentials.
+    //! Returns a vector of Chemical potentials.
     /*!
-     *  Write into array \a mu the chemical potentials of all species
-     *  [J/kmol]. The chemical potentials are related to the activities by
+     * Write into array \a mu the chemical potentials of all species
+     * [J/kmol]. The chemical potentials are related to the activities by
      *
-     *  \f$
+     * \f$
      *          \mu_k = \mu_k^0(T, P) + RT \ln a_k.
-     *  \f$.
+     * \f$.
      *
      * @param mu Chemical potential vector. Length = num global species. Units
      *           = J/kmol.
@@ -372,17 +371,17 @@ public:
 
     //! Set the state of the underlying ThermoPhase objects in one call
     /*!
-     *   @param T      Temperature of the system (kelvin)
-     *   @param Pres   pressure of the system (pascal)
+     * @param T      Temperature of the system (kelvin)
+     * @param Pres   pressure of the system (pascal)
      */
     void setState_TP(const doublereal T, const doublereal Pres);
 
     //! Set the state of the underlying ThermoPhase objects in one call
     /*!
-     *   @param T      Temperature of the system (kelvin)
-     *   @param Pres   pressure of the system (pascal)
-     *   @param Moles  Vector of mole numbers of all the species in all the phases
-     *                 (kmol)
+     * @param T      Temperature of the system (kelvin)
+     * @param Pres   pressure of the system (pascal)
+     * @param Moles  Vector of mole numbers of all the species in all the phases
+     *               (kmol)
      */
     void setState_TPMoles(const doublereal T, const doublereal Pres, const doublereal* Moles);
 
@@ -393,8 +392,8 @@ public:
 
     /// The total mixture volume [m^3].
     /*!
-     * Returns the cumulative sum of the volumes of all the
-     * phases in the mixture.
+     * Returns the cumulative sum of the volumes of all the phases in the
+     * mixture.
      */
     doublereal volume() const;
 
@@ -428,8 +427,8 @@ public:
         return m_np;
     }
 
-    //! Return true is species \a kGlob is a species in a
-    //! multicomponent solution phase.
+    //! Return true is species \a kGlob is a species in a multicomponent
+    //! solution phase.
     /*!
      * @param kGlob   index of the global species
      */
@@ -438,7 +437,7 @@ public:
     //! Returns the phase index of the Kth "global" species
     /*!
      * @param kGlob Global species index.
-     * @return Returns the index of the owning phase.
+     * @returns the index of the owning phase.
      */
     size_t speciesPhaseIndex(const size_t kGlob) const;
 
@@ -495,8 +494,8 @@ public:
 
     //! Adds moles of a certain species to the mixture
     /*!
-     *   @param indexS   Index of the species in the MultiPhase object
-     *   @param addedMoles   Value of the moles that are added to the species.
+     * @param indexS      Index of the species in the MultiPhase object
+     * @param addedMoles  Value of the moles that are added to the species.
      */
     void addSpeciesMoles(const int indexS, const doublereal addedMoles);
 
@@ -508,8 +507,8 @@ public:
      */
     void getElemAbundances(doublereal* elemAbundances) const;
 
-    //! Return true if the phase \a p has valid thermo data for
-    //! the current temperature.
+    //! Return true if the phase \a p has valid thermo data for the current
+    //! temperature.
     /*!
      * @param p  Index of the phase.
      */
@@ -517,31 +516,30 @@ public:
 
     // These methods are meant for internal use.
 
-    //! Update the locally-stored composition within this object
-    //! to match the current compositions of the phase objects.
+    //! Update the locally-stored composition within this object to match the
+    //! current compositions of the phase objects.
     /*!
-     *  Query the underlying ThermoPhase objects for their mole fractions and
-     *  fill in the mole fraction vector of this current object. Adjust
-     *  element compositions within this object to match.
+     * Query the underlying ThermoPhase objects for their mole fractions and
+     * fill in the mole fraction vector of this current object. Adjust element
+     * compositions within this object to match.
      *
-     *  This is an upload operation in the sense that we are taking downstream
-     *  information (ThermoPhase object info) and applying it to an upstream
-     *  object (MultiPhase object).
+     * This is an upload operation in the sense that we are taking downstream
+     * information (ThermoPhase object info) and applying it to an upstream
+     * object (MultiPhase object).
      */
     void uploadMoleFractionsFromPhases();
 
     //! Set the states of the phase objects to the locally-stored
     //! state within this MultiPhase object.
     /*!
-     *  This method sets each phase to the mixture temperature and pressure,
-     *  and sets the phase mole fractions based on the mixture mole numbers.
+     * This method sets each phase to the mixture temperature and pressure,
+     * and sets the phase mole fractions based on the mixture mole numbers.
      *
-     *  This is an download operation in the sense that we are taking
-     *  upstream object information (MultiPhase object) and
-     *  applying it to downstream objects (ThermoPhase object information)
+     * This is an download operation in the sense that we are taking upstream
+     * object information (MultiPhase object) and applying it to downstream
+     * objects (ThermoPhase object information)
      *
-     *  Therefore, the term, "update", is appropriate for a downstream
-     *  operation.
+     * Therefore, the term, "update", is appropriate for a downstream operation.
      */
     void updatePhases() const;
 
@@ -552,15 +550,14 @@ private:
     //! Set the mixture to a state of chemical equilibrium using the
     //! MultiPhaseEquil solver.
     /*!
-     *  @param XY   Integer flag specifying properties to hold fixed.
-     *  @param err  Error tolerance for \f$\Delta \mu/RT \f$ for all reactions.
-     *              Also used as the relative error tolerance for the outer
-     *              loop.
-     *  @param maxsteps Maximum number of steps to take in solving the fixed
-     *                  TP problem.
-     *  @param maxiter Maximum number of "outer" iterations for problems holding
-     *                 fixed something other than (T,P).
-     *  @param loglevel Level of diagnostic output
+     * @param XY   Integer flag specifying properties to hold fixed.
+     * @param err  Error tolerance for \f$\Delta \mu/RT \f$ for all reactions.
+     *             Also used as the relative error tolerance for the outer loop.
+     * @param maxsteps Maximum number of steps to take in solving the fixed TP
+     *                 problem.
+     * @param maxiter Maximum number of "outer" iterations for problems holding
+     *                fixed something other than (T,P).
+     * @param loglevel Level of diagnostic output
      */
     double equilibrate_MultiPhaseEquil(int XY, doublereal err, int maxsteps,
                                        int maxiter, int loglevel);
@@ -576,16 +573,14 @@ private:
 
     //! Global Stoichiometric Coefficient array
     /*!
-     *  This is a two dimensional array m_atoms(m, k). The first index is the
-     *  global element index. The second index, k, is the global species
-     *  index. The value is the number of atoms of type m in species k.
+     * This is a two dimensional array m_atoms(m, k). The first index is the
+     * global element index. The second index, k, is the global species index.
+     * The value is the number of atoms of type m in species k.
      */
     DenseMatrix m_atoms;
 
-    /**
-     * Locally stored vector of mole fractions of all species
-     * comprising the MultiPhase object.
-     */
+    //! Locally stored vector of mole fractions of all species comprising the
+    //! MultiPhase object.
     vector_fp m_moleFractions;
 
     //! Mapping between the global species number and the phase ID
@@ -603,23 +598,15 @@ private:
      */
     std::vector<size_t> m_spstart;
 
-    //! String names of the global elements
-    /*!
-     *  This has a length equal to the number of global elements.
-     */
+    //! String names of the global elements. This has a length equal to the
+    //! number of global elements.
     std::vector<std::string> m_enames;
 
-    //! Atomic number of each element
-    /*!
-     *  This is the atomic number of each global element.
-     */
+    //! Atomic number of each global element.
     vector_int m_atomicNumber;
 
-    //! Vector of species names in the problem
-    /*!
-     *   Vector is over all species defined in the object,
-     *   the global species index.
-     */
+    //! Vector of species names in the problem. Vector is over all species
+    //! defined in the object, the global species index.
     std::vector<std::string> m_snames;
 
     //! Returns the global element index, given the element string name
@@ -646,10 +633,8 @@ private:
     //! True if the init() routine has been called, and the MultiPhase frozen
     bool m_init;
 
-    //! Global ID of the element corresponding to the electronic charge.
-    /*!
-     * If there is none, then this is equal to -1
-     */
+    //! Global ID of the element corresponding to the electronic charge. If
+    //! there is none, then this is equal to -1
     size_t m_eloc;
 
     //! Vector of bools indicating whether temperatures are ok for phases.
@@ -659,17 +644,12 @@ private:
      */
     mutable std::vector<bool> m_temp_OK;
 
-    //! Minimum temperature for which thermo parameterizations are valid
-    /*!
-     *  Stoichiometric phases are ignored in this determination.
-     *  units Kelvin
-     */
+    //! Minimum temperature for which thermo parameterizations are valid.
+    //! Stoichiometric phases are ignored in this determination. units Kelvin
     doublereal m_Tmin;
 
-    //! Minimum temperature for which thermo parameterizations are valid
-    /*!
-     *  Stoichiometric phases are ignored in this determination. units Kelvin
-     */
+    //! Minimum temperature for which thermo parameterizations are valid.
+    //! Stoichiometric phases are ignored in this determination. units Kelvin
     doublereal m_Tmax;
 
     //! Vector of element abundances
@@ -711,9 +691,8 @@ inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
  * currently a linear combination of the previous components. Then, calculate
  * the stoichiometric coefficient matrix for that basis.
  *
- * Calculates the identity of the component species in the mechanism.
- * Rearranges the solution data to put the component data at the
- * front of the species list.
+ * Calculates the identity of the component species in the mechanism. Rearranges
+ * the solution data to put the component data at the front of the species list.
  *
  * Then, calculates SC(J,I) the formation reactions for all noncomponent
  * species in the mechanism.

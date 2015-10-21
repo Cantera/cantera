@@ -107,9 +107,8 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
     m_np = m_phase.size();
     m_nsp += p->nSpecies();
 
-    // determine if this phase has new elements
-    // for each new element, add an entry in the map
-    // from names to index number + 1:
+    // determine if this phase has new elements for each new element, add an
+    // entry in the map from names to index number + 1:
 
     string ename;
     // iterate over the elements in this phase
@@ -117,10 +116,9 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
     for (m = 0; m < nel; m++) {
         ename = p->elementName(m);
 
-        // if no entry is found for this element name, then
-        // it is a new element. In this case, add the name
-        // to the list of names, increment the element count,
-        // and add an entry to the name->(index+1) map.
+        // if no entry is found for this element name, then it is a new element.
+        // In this case, add the name to the list of names, increment the
+        // element count, and add an entry to the name->(index+1) map.
         if (m_enamemap.find(ename) == m_enamemap.end()) {
             m_enamemap[ename] = m_nel + 1;
             m_enames.push_back(ename);
@@ -135,22 +133,21 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
         }
     }
 
-    // If the mixture temperature hasn't been set, then set the
-    // temperature and pressure to the values for the phase being
-    // added. There is no good way to do this. However, this will be overridden later.
+    // If the mixture temperature hasn't been set, then set the temperature and
+    // pressure to the values for the phase being added. There is no good way to
+    // do this. However, this will be overridden later.
     if (m_temp == 298.15 && p->temperature() > 2.0E-3) {
         m_temp = p->temperature();
         m_press = p->pressure();
     }
 
-    // If this is a solution phase, update the minimum and maximum
-    // mixture temperatures. Stoichiometric phases are excluded,
-    // since a mixture may define multiple stoichiometric phases,
-    // each of which has thermo data valid only over a limited
-    // range. For example, a mixture might be defined to contain a
-    // phase representing water ice and one representing liquid
-    // water, only one of which should be present if the mixture
-    // represents an equilibrium state.
+    // If this is a solution phase, update the minimum and maximum mixture
+    // temperatures. Stoichiometric phases are excluded, since a mixture may
+    // define multiple stoichiometric phases, each of which has thermo data
+    // valid only over a limited range. For example, a mixture might be defined
+    // to contain a phase representing water ice and one representing liquid
+    // water, only one of which should be present if the mixture represents an
+    // equilibrium state.
     if (p->nSpecies() > 1) {
         m_Tmin = std::max(p->minTemp(), m_Tmin);
         m_Tmax = std::min(p->maxTemp(), m_Tmax);
@@ -172,8 +169,7 @@ void MultiPhase::init()
     m_elemAbundances.resize(m_nel, 0.0);
 
     // iterate over the elements
-    //   -> fill in m_atoms(m,k), m_snames(k), m_spphase(k),
-    //              m_sptart(ip)
+    //   -> fill in m_atoms(m,k), m_snames(k), m_spphase(k), m_spstart(ip)
     for (m = 0; m < m_nel; m++) {
         sym = m_enames[m];
         k = 0;
@@ -210,8 +206,8 @@ void MultiPhase::init()
         }
     }
 
-    /// set the initial composition within each phase to the
-    /// mole fractions stored in the phase objects
+    // set the initial composition within each phase to the
+    // mole fractions stored in the phase objects
     m_init = true;
     uploadMoleFractionsFromPhases();
     updatePhases();
@@ -437,9 +433,7 @@ void MultiPhase::setMolesByName(const std::string& x)
 
 void MultiPhase::getMoles(doublereal* molNum) const
 {
-    /*
-     * First copy in the mole fractions
-     */
+    // First copy in the mole fractions
     copy(m_moleFractions.begin(), m_moleFractions.end(), molNum);
     size_t ik;
     doublereal* dtmp = molNum;
@@ -605,8 +599,8 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                         Hlow = hnow;
                     }
                 } else {
-                    // the current enthalpy is greater than the target; therefore the
-                    // current temperature is too high.
+                    // the current enthalpy is greater than the target;
+                    // therefore the current temperature is too high.
                     if (m_temp < Thigh) {
                         Thigh = m_temp;
                         Hhigh = hnow;

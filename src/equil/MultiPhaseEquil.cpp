@@ -30,17 +30,15 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     m_incl_element.resize(m_nel_mix,1);
     for (m = 0; m < m_nel_mix; m++) {
         string enm = mix->elementName(m);
-        // element 'E' or 'e' represents an electron; this
-        // requires special handling, so save its index
-        // for later use
+        // element 'E' or 'e' represents an electron; this requires special
+        // handling, so save its index for later use
         if (enm == "E" || enm == "e") {
             m_eloc = m;
         }
-        // if an element other than electrons is not present in
-        // the mixture, then exclude it and all species containing
-        // it from the calculation. Electrons are a special case,
-        // since a species can have a negative number of 'atoms'
-        // of electrons (positive ions).
+        // if an element other than electrons is not present in the mixture,
+        // then exclude it and all species containing it from the calculation.
+        // Electrons are a special case, since a species can have a negative
+        // number of 'atoms' of electrons (positive ions).
         if (m_mix->elementMoles(m) <= 0.0 && m != m_eloc) {
             m_incl_element[m] = 0;
             for (k = 0; k < m_nsp_mix; k++) {
@@ -65,17 +63,15 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
         }
     }
 
-    // include pure single-constituent phases only if their thermo
-    // data are valid for this temperature. This is necessary,
-    // since some thermo polynomial fits are done only for a
-    // limited temperature range. For example, using the NASA
-    // polynomial fits for solid ice and liquid water, if this
-    // were not done the calculation would predict solid ice to be
-    // present far above its melting point, since the thermo
-    // polynomial fits only extend to 273.15 K, and give
-    // unphysical results above this temperature, leading
-    // (incorrectly) to Gibbs free energies at high temperature
-    // lower than for liquid water.
+    // include pure single-constituent phases only if their thermo data are
+    // valid for this temperature. This is necessary, since some thermo
+    // polynomial fits are done only for a limited temperature range. For
+    // example, using the NASA polynomial fits for solid ice and liquid water,
+    // if this were not done the calculation would predict solid ice to be
+    // present far above its melting point, since the thermo polynomial fits
+    // only extend to 273.15 K, and give unphysical results above this
+    // temperature, leading (incorrectly) to Gibbs free energies at high
+    // temperature lower than for liquid water.
     size_t ip;
     for (k = 0; k < m_nsp_mix; k++) {
         ip = m_mix->speciesPhaseIndex(k);
@@ -92,8 +88,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
         }
     }
 
-    // Now build the list of all species to be included in the
-    // calculation.
+    // Now build the list of all species to be included in the calculation.
     for (k = 0; k < m_nsp_mix; k++) {
         if (m_incl_species[k] ==1) {
             m_nsp++;
@@ -131,10 +126,9 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
         m_order[k] = k;
     }
 
-    // if the 'start' flag is set, estimate the initial mole
-    // numbers by doing a linear Gibbs minimization. In this case,
-    // only the elemental composition of the initial mixture state
-    // matters.
+    // if the 'start' flag is set, estimate the initial mole numbers by doing a
+    // linear Gibbs minimization. In this case, only the elemental composition
+    // of the initial mixture state matters.
     if (start) {
         setInitialMoles(loglevel-1);
     }
@@ -160,10 +154,9 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     m_force = false;
     updateMixMoles();
 
-    // At this point, the instance has been created, the species
-    // to be included have been determined, and an initial
-    // composition has been selected that has all non-zero mole
-    // numbers for the included species.
+    // At this point, the instance has been created, the species to be included
+    // have been determined, and an initial composition has been selected that
+    // has all non-zero mole numbers for the included species.
 }
 
 doublereal MultiPhaseEquil::equilibrate(int XY, doublereal err,
@@ -219,8 +212,7 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
     int iter = 0;
 
     while (redo) {
-        // choose a set of components based on the current
-        // composition
+        // choose a set of components based on the current composition
         computeN();
         redo = false;
         iter++;
@@ -331,18 +323,16 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
             }
         }
 
-        // If a pivot is zero, exchange columns.  This occurs when
-        // a species has an elemental composition that is not
-        // linearly independent of the component species that have
-        // already been assigned
+        // If a pivot is zero, exchange columns.  This occurs when a species has
+        // an elemental composition that is not linearly independent of the
+        // component species that have already been assigned
         if (m < nColumns && m_A(m,m) == 0.0) {
-            // First, we need to find a good candidate for a
-            // component species to swap in for the one that has
-            // zero pivot. It must contain element m, be linearly
-            // independent of the components processed so far
-            // (m_A(m,k) != 0), and should be a major species if
-            // possible. We'll choose the species with greatest
-            // mole fraction that satisfies these criteria.
+            // First, we need to find a good candidate for a component species
+            // to swap in for the one that has zero pivot. It must contain
+            // element m, be linearly independent of the components processed so
+            // far (m_A(m,k) != 0), and should be a major species if possible.
+            // We'll choose the species with greatest mole fraction that
+            // satisfies these criteria.
             doublereal maxmoles = -999.0;
             size_t kmax = 0;
             for (k = m+1; k < nColumns; k++) {
@@ -480,10 +470,9 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
         } else {
             FCTR = 0.9;
         }
-        // if species k is in a multi-species solution phase, then its
-        // mole number must remain positive, unless the entire phase
-        // goes away. First we'll determine an upper bound on omega,
-        // such that all
+        // if species k is in a multi-species solution phase, then its mole
+        // number must remain positive, unless the entire phase goes away. First
+        // we'll determine an upper bound on omega, such that all
         if (m_dsoln[k] == 1) {
             if ((m_moles[k] > MAJOR_THRESHOLD) || (ik < m_nel)) {
                 if (m_moles[k] < MAJOR_THRESHOLD) {
@@ -516,9 +505,9 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
 
     // now take a step with this scaled omega
     step(omegamax, m_work);
-    // compute the gradient of G at this new position in the
-    // current direction. If it is positive, then we have overshot
-    // the minimum. In this case, interpolate back.
+    // compute the gradient of G at this new position in the current direction.
+    // If it is positive, then we have overshot the minimum. In this case,
+    // interpolate back.
     doublereal not_mu = 1.0e12;
     m_mix->getValidChemPotentials(not_mu, m_mu.data());
     doublereal grad1 = 0.0;

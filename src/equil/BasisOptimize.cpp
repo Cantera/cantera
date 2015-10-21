@@ -31,20 +31,16 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     size_t j, jj, k=0, kk, l, i, jl, ml;
     std::string ename;
     std::string sname;
-    /*
-     * Get the total number of elements defined in the multiphase object
-     */
+
+    // Get the total number of elements defined in the multiphase object
     size_t ne = mphase->nElements();
-    /*
-     * Get the total number of species in the multiphase object
-     */
+
+    // Get the total number of species in the multiphase object
     size_t nspecies = mphase->nSpecies();
     doublereal tmp;
     doublereal const USEDBEFORE = -1;
 
-    /*
-     * Perhaps, initialize the element ordering
-     */
+    // Perhaps, initialize the element ordering
     if (orderVectorElements.size() < ne) {
         orderVectorElements.resize(ne);
         for (j = 0; j < ne; j++) {
@@ -52,9 +48,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         }
     }
 
-    /*
-     * Perhaps, initialize the species ordering
-     */
+    // Perhaps, initialize the species ordering
     if (orderVectorSpecies.size() != nspecies) {
         orderVectorSpecies.resize(nspecies);
         for (k = 0; k < nspecies; k++) {
@@ -101,27 +95,20 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         }
     }
 
-    /*
-     *  Calculate the maximum value of the number of components possible
-     *     It's equal to the minimum of the number of elements and the
-     *     number of total species.
-     */
+    // Calculate the maximum value of the number of components possible. It's
+    // equal to the minimum of the number of elements and the number of total
+    // species.
     size_t nComponents = std::min(ne, nspecies);
     size_t nNonComponents = nspecies - nComponents;
-    /*
-     * Set this return variable to false
-     */
+
+    // Set this return variable to false
     *usedZeroedSpecies = false;
 
-    /*
-     * Create an array of mole numbers
-     */
+    // Create an array of mole numbers
     vector_fp molNum(nspecies,0.0);
     mphase->getMoles(molNum.data());
 
-    /*
-     * Other workspace
-     */
+    // Other workspace
     vector_fp sm(ne*ne, 0.0);
     vector_fp ss(ne, 0.0);
     vector_fp sa(ne, 0.0);
@@ -129,9 +116,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         formRxnMatrix.resize(nspecies*ne, 0.0);
     }
 
-    /*
-     * For debugging purposes keep an unmodified copy of the array.
-     */
+    // For debugging purposes keep an unmodified copy of the array.
     vector_fp molNumBase;
     if (DEBUG_MODE_ENABLED) {
         molNumBase = molNum;
@@ -139,19 +124,16 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     double molSave = 0.0;
 
     size_t jr = 0;
-    /*
-     *   Top of a loop of some sort based on the index JR. JR is the
-     *   current number of component species found.
-     */
+
+    // Top of a loop of some sort based on the index JR. JR is the current
+    // number of component species found.
     while (jr < nComponents) {
         // Top of another loop point based on finding a linearly independent
         // species
         while (true) {
-            /*
-             *    Search the remaining part of the mole number vector, molNum
-             *    for the largest remaining species. Return its identity.
-             *    kk is the raw number. k is the orderVectorSpecies index.
-             */
+            // Search the remaining part of the mole number vector, molNum for
+            // the largest remaining species. Return its identity. kk is the raw
+            // number. k is the orderVectorSpecies index.
             kk = max_element(molNum.begin(), molNum.end()) - molNum.begin();
             for (j = 0; j < nspecies; j++) {
                 if (orderVectorSpecies[j] == kk) {
@@ -166,40 +148,33 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             if (molNum[kk] == 0.0) {
                 *usedZeroedSpecies = true;
             }
-            /*
-             * If the largest molNum is negative, then we are done.
-             */
+            // If the largest molNum is negative, then we are done.
             if (molNum[kk] == USEDBEFORE) {
                 nComponents = jr;
                 nNonComponents = nspecies - nComponents;
                 break;
             }
-            /*
-             *  Assign a small negative number to the component that we have
-             *  just found, in order to take it out of further consideration.
-             */
+
+            // Assign a small negative number to the component that we have
+            // just found, in order to take it out of further consideration.
 #ifdef DEBUG_MODE
             molSave = molNum[kk];
 #endif
             molNum[kk] = USEDBEFORE;
 
-            // **** CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES ******
-            /*
-             *          Modified Gram-Schmidt Method, p. 202 Dalquist
-             *          QR factorization of a matrix without row pivoting.
-             */
+            // CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES
+
+            // Modified Gram-Schmidt Method, p. 202 Dalquist
+            // QR factorization of a matrix without row pivoting.
             jl = jr;
             for (j = 0; j < ne; ++j) {
                 jj = orderVectorElements[j];
                 sm[j + jr*ne] = mphase->nAtoms(kk,jj);
             }
             if (jl > 0) {
-                /*
-                 *         Compute the coefficients of JA column of the
-                 *         the upper triangular R matrix, SS(J) = R_J_JR
-                 *         (this is slightly different than Dalquist)
-                 *         R_JA_JA = 1
-                 */
+                // Compute the coefficients of JA column of the the upper
+                // triangular R matrix, SS(J) = R_J_JR (this is slightly
+                // different than Dalquist) R_JA_JA = 1
                 for (j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
                     for (i = 0; i < ne; ++i) {
@@ -207,31 +182,31 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                     }
                     ss[j] /= sa[j];
                 }
-                /*
-                 *     Now make the new column, (*,JR), orthogonal to the
-                 *     previous columns
-                 */
+
+                // Now make the new column, (*,JR), orthogonal to the previous
+                // columns
                 for (j = 0; j < jl; ++j) {
                     for (l = 0; l < ne; ++l) {
                         sm[l + jr*ne] -= ss[j] * sm[l + j*ne];
                     }
                 }
             }
-            /*
-             *        Find the new length of the new column in Q.
-             *        It will be used in the denominator in future row calcs.
-             */
+
+            // Find the new length of the new column in Q.
+            // It will be used in the denominator in future row calcs.
             sa[jr] = 0.0;
             for (ml = 0; ml < ne; ++ml) {
                 tmp = sm[ml + jr*ne];
                 sa[jr] += tmp * tmp;
             }
-            // **** IF NORM OF NEW ROW  .LT. 1E-3 REJECT **********
+
+            // IF NORM OF NEW ROW  .LT. 1E-3 REJECT
             if (sa[jr] > 1.0e-6) {
                 break;
             }
         }
-        // **** REARRANGE THE DATA ******************
+
+        // REARRANGE THE DATA
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
                 kk = orderVectorSpecies[k];
@@ -252,38 +227,36 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         return nComponents;
     }
 
-    // **** EVALUATE THE STOICHIOMETRY **********************
-    /*
-     *  Formulate the matrix problem for the stoichiometric
-     *  coefficients. CX + B = 0
-     *      C will be an nc x nc matrix made up of the formula
-     * vectors for the components. Each component's formula
-     * vector is a column. The rows are the elements.
-     *      n RHS's will be solved for. Thus, B is an nc x n
-     * matrix.
-     *
-     * BIG PROBLEM 1/21/99:
-     *
-     *    This algorithm makes the assumption that the
-     * first nc rows of the formula matrix aren't rank deficient.
-     * However, this might not be the case. For example, assume
-     * that the first element in FormulaMatrix[] is argon. Assume that
-     * no species in the matrix problem actually includes argon.
-     * Then, the first row in sm[], below will be identically
-     * zero. bleh.
-     *    What needs to be done is to perform a rearrangement
-     * of the ELEMENTS -> i.e. rearrange, FormulaMatrix, sp, and gai, such
-     * that the first nc elements form in combination with the
-     * nc components create an invertible sm[]. not a small
-     * project, but very doable.
-     *    An alternative would be to turn the matrix problem
-     * below into an ne x nc problem, and do QR elimination instead
-     * of Gauss-Jordan elimination.
-     *    Note the rearrangement of elements need only be done once
-     * in the problem. It's actually very similar to the top of
-     * this program with ne being the species and nc being the
-     * elements!!
-     */
+    // EVALUATE THE STOICHIOMETRY
+    //
+    // Formulate the matrix problem for the stoichiometric
+    // coefficients. CX + B = 0
+    //
+    // C will be an nc x nc matrix made up of the formula vectors for the
+    // components. Each component's formula vector is a column. The rows are the
+    // elements.
+    //
+    // n RHS's will be solved for. Thus, B is an nc x n matrix.
+    //
+    // BIG PROBLEM 1/21/99:
+    //
+    // This algorithm makes the assumption that the first nc rows of the formula
+    // matrix aren't rank deficient. However, this might not be the case. For
+    // example, assume that the first element in FormulaMatrix[] is argon.
+    // Assume that no species in the matrix problem actually includes argon.
+    // Then, the first row in sm[], below will be identically zero. bleh.
+    //
+    // What needs to be done is to perform a rearrangement of the ELEMENTS ->
+    // i.e. rearrange, FormulaMatrix, sp, and gai, such that the first nc
+    // elements form in combination with the nc components create an invertible
+    // sm[]. not a small project, but very doable.
+    //
+    // An alternative would be to turn the matrix problem below into an ne x nc
+    // problem, and do QR elimination instead of Gauss-Jordan elimination.
+    //
+    // Note the rearrangement of elements need only be done once in the problem.
+    // It's actually very similar to the top of this program with ne being the
+    // species and nc being the elements!!
     for (k = 0; k < nComponents; ++k) {
         kk = orderVectorSpecies[k];
         for (j = 0; j < nComponents; ++j) {
@@ -337,9 +310,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             writelogf("   --- %3d (%3d) ", k, kk);
             writelogf("%-10.10s", mphase->speciesName(kk));
             writelogf("|%10.3g|", molNumBase[kk]);
-            /*
-             * Print the negative of formRxnMatrix[]; it's easier to interpret.
-             */
+            // Print the negative of formRxnMatrix[]; it's easier to interpret.
             for (j = 0; j < nComponents; j++) {
                 writelogf("     %6.2f", - formRxnMatrix[j + i * ne]);
             }
@@ -355,21 +326,17 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     return nComponents;
 } // basopt()
 
+/**
+ * Print a string within a given space limit. This routine limits the amount of
+ * the string that will be printed to a maximum of "space" characters.
+ *
+ * str = String -> must be null terminated.
+ * space = space limit for the printing.
+ * alignment = 0 centered
+ *             1 right aligned
+ *             2 left aligned
+ */
 static void print_stringTrunc(const char* str, int space, int alignment)
-
-/***********************************************************************
- *  vcs_print_stringTrunc():
- *
- *     Print a string within a given space limit. This routine
- *     limits the amount of the string that will be printed to a
- *     maximum of "space" characters.
- *
- *     str = String -> must be null terminated.
- *     space = space limit for the printing.
- *     alignment = 0 centered
- *           1 right aligned
- *           2 left aligned
- ***********************************************************************/
 {
     int i, ls=0, rs=0;
     int len = static_cast<int>(strlen(str));
@@ -408,9 +375,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
     size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
     size_t nelements = mphase->nElements();
     std::string ename;
-    /*
-     * Get the total number of species in the multiphase object
-     */
+    // Get the total number of species in the multiphase object
     size_t nspecies = mphase->nSpecies();
 
     double test = -1.0E10;
@@ -425,9 +390,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
         writelog("   ---    and to rearrange the element ordering once\n");
     }
 
-    /*
-     * Perhaps, initialize the element ordering
-     */
+    // Perhaps, initialize the element ordering
     if (orderVectorElements.size() < nelements) {
         orderVectorElements.resize(nelements);
         for (j = 0; j < nelements; j++) {
@@ -435,11 +398,8 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
         }
     }
 
-    /*
-     * Perhaps, initialize the species ordering. However, this is
-     * dangerous, as this ordering is assumed to yield the
-     * component species for the problem
-     */
+    // Perhaps, initialize the species ordering. However, this is dangerous, as
+    // this ordering is assumed to yield the component species for the problem
     if (orderVectorSpecies.size() != nspecies) {
         orderVectorSpecies.resize(nspecies);
         for (k = 0; k < nspecies; k++) {
@@ -447,12 +407,9 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
         }
     }
 
-    /*
-     * If the elementAbundances aren't input, just create a fake one
-     * based on summing the column of the stoich matrix.
-     * This will force elements with zero species to the
-     * end of the element ordering.
-     */
+    // If the elementAbundances aren't input, just create a fake one based on
+    // summing the column of the stoich matrix. This will force elements with
+    // zero species to the end of the element ordering.
     vector_fp eAbund(nelements,0.0);
     if (elementAbundances.size() != nelements) {
         for (j = 0; j < nelements; j++) {
@@ -470,23 +427,16 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
     vector_fp ss(nelements,0.0);
     vector_fp sm(nelements*nelements,0.0);
 
-    /*
-     *        Top of a loop of some sort based on the index JR. JR is the
-     *       current number independent elements found.
-     */
+    // Top of a loop of some sort based on the index JR. JR is the current
+    // number independent elements found.
     jr = 0;
     while (jr < nComponents) {
-        /*
-         *     Top of another loop point based on finding a linearly
-         *     independent element
-         */
+        // Top of another loop point based on finding a linearly independent
+        // element
         while (true) {
-            /*
-             *    Search the element vector. We first locate elements that
-             *    are present in any amount. Then, we locate elements that
-             *    are not present in any amount.
-             *    Return its identity in K.
-             */
+            // Search the element vector. We first locate elements that are
+            // present in any amount. Then, we locate elements that are not
+            // present in any amount. Return its identity in K.
             k = nelements;
             for (ielem = jr; ielem < nelements; ielem++) {
                 kk = orderVectorElements[ielem];
@@ -512,37 +462,30 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                 throw CanteraError("ElemRearrange", "Required number of elements not found.");
             }
 
-            /*
-             *  Assign a large negative number to the element that we have
-             *  just found, in order to take it out of further consideration.
-             */
+            // Assign a large negative number to the element that we have
+            // just found, in order to take it out of further consideration.
             eAbund[kk] = test;
 
-            // **** CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX
-            // **** LINE WITH PREVIOUS LINES OF THE FORMULA MATRIX  ******
-            /*
-             *          Modified Gram-Schmidt Method, p. 202 Dalquist
-             *          QR factorization of a matrix without row pivoting.
-             */
+            // CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX
+            // LINE WITH PREVIOUS LINES OF THE FORMULA MATRIX
+
+            // Modified Gram-Schmidt Method, p. 202 Dalquist
+            // QR factorization of a matrix without row pivoting.
             jl = jr;
-            /*
-             *   Fill in the row for the current element, k, under consideration
-             *   The row will contain the Formula matrix value for that element
-             *   with respect to the vector of component species.
-             *   (note j and k indices are flipped compared to the previous routine)
-             */
+
+            // Fill in the row for the current element, k, under consideration
+            // The row will contain the Formula matrix value for that element
+            // with respect to the vector of component species. (note j and k
+            // indices are flipped compared to the previous routine)
             for (j = 0; j < nComponents; ++j) {
                 jj = orderVectorSpecies[j];
                 kk = orderVectorElements[k];
                 sm[j + jr*nComponents] = mphase->nAtoms(jj,kk);
             }
             if (jl > 0) {
-                /*
-                 *         Compute the coefficients of JA column of the
-                 *         the upper triangular R matrix, SS(J) = R_J_JR
-                 *         (this is slightly different than Dalquist)
-                 *         R_JA_JA = 1
-                 */
+                // Compute the coefficients of JA column of the the upper
+                // triangular R matrix, SS(J) = R_J_JR (this is slightly
+                // different than Dalquist) R_JA_JA = 1
                 for (j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
                     for (i = 0; i < nComponents; ++i) {
@@ -550,10 +493,9 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                     }
                     ss[j] /= sa[j];
                 }
-                /*
-                 *     Now make the new column, (*,JR), orthogonal to the
-                 *     previous columns
-                 */
+
+                // Now make the new column, (*,JR), orthogonal to the
+                // previous columns
                 for (j = 0; j < jl; ++j) {
                     for (l = 0; l < nComponents; ++l) {
                         sm[l + jr*nComponents] -= ss[j] * sm[l + j*nComponents];
@@ -561,21 +503,19 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                 }
             }
 
-            /*
-             *        Find the new length of the new column in Q.
-             *        It will be used in the denominator in future row calcs.
-             */
+            // Find the new length of the new column in Q.
+            // It will be used in the denominator in future row calcs.
             sa[jr] = 0.0;
             for (ml = 0; ml < nComponents; ++ml) {
                 double tmp = sm[ml + jr*nComponents];
                 sa[jr] += tmp * tmp;
             }
-            // **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT **********
+            // IF NORM OF NEW ROW  .LT. 1E-6 REJECT
             if (sa[jr] > 1.0e-6) {
                 break;
             }
         }
-        // **** REARRANGE THE DATA ******************
+        // REARRANGE THE DATA
         if (jr != k) {
             if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
                 kk = orderVectorElements[k];
