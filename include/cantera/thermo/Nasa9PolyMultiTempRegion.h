@@ -18,16 +18,15 @@
 
 namespace Cantera
 {
-//! The NASA 9 polynomial parameterization for a single species
-//! encompassing multiple temperature regions.
+//! The NASA 9 polynomial parameterization for a single species encompassing
+//! multiple temperature regions.
 /*!
  * The parameterization used in each temperature range is described in the
  * documentation for class Nasa9Poly1.
  *
- * These NASA representations may have multiple temperature regions
- * through the use of this Nasa9PolyMultiTempRegion object, which uses
- * multiple copies of the Nasa9Poly1 object to handle multiple temperature
- * regions.
+ * These NASA representations may have multiple temperature regions through the
+ * use of this Nasa9PolyMultiTempRegion object, which uses multiple copies of
+ * the Nasa9Poly1 object to handle multiple temperature regions.
  *
  * @ingroup spthermo
  * @see Nasa9Poly1
@@ -40,31 +39,19 @@ public:
 
     //! Constructor used in templated instantiations
     /*!
-     * @param regionPts Vector of pointers to Nasa9Poly1 objects. These
-     *                  objects all refer to the temperature regions for the
-     *                  same species. The vector must be in increasing
-     *                  temperature region format.  Together they
-     *                  represent the reference temperature parameterization
-     *                  for a single species.
+     * @param regionPts Vector of pointers to Nasa9Poly1 objects. These objects
+     *     all refer to the temperature regions for the same species. The vector
+     *     must be in increasing temperature region format.  Together they
+     *     represent the reference temperature parameterization for a single
+     *     species.
      *
-     *  Note, after the constructor, we will own the underlying
-     *  Nasa9Poly1 objects and be responsible for owning them.
+     * Note, after the constructor, we will own the underlying Nasa9Poly1
+     * objects and be responsible for owning them.
      */
     Nasa9PolyMultiTempRegion(std::vector<Nasa9Poly1*> &regionPts);
 
-    //! Copy constructor
-    /*!
-     * @param b object to be copied
-     */
     Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b);
-
-    //! Assignment operator
-    /*!
-     * @param b object to be copied
-     */
     Nasa9PolyMultiTempRegion& operator=(const Nasa9PolyMultiTempRegion& b);
-
-    //! Destructor
     virtual ~Nasa9PolyMultiTempRegion();
 
     virtual SpeciesThermoInterpType*
@@ -75,60 +62,17 @@ public:
     virtual size_t temperaturePolySize() const { return 7; }
     virtual void updateTemperaturePoly(double T, double* T_poly) const;
 
-    //! Update the properties for this species, given a temperature polynomial
-    /*!
-     * This method is called with a pointer to an array containing the
-     * functions of temperature needed by this parameterization, and three
-     * pointers to arrays where the computed property values should be
-     * written. This method updates only one value in each array.
-     *
-     * Temperature Polynomial:
-     *  tt[0] = t;
-     *  tt[1] = t*t;
-     *  tt[2] = t*t*t;
-     *  tt[3] = t*t*t*t;
-     *  tt[4] = 1.0/t;
-     *  tt[5] = 1.0/(t*t);
-     *  tt[6] = std::log(t);
-     *
-     * @param tt      vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
-     */
+    //! @copydoc Nasa9Poly1::updateProperties
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
                                   doublereal* s_R) const;
 
-    //! Compute the reference-state property of one species
-    /*!
-     * Given temperature T in K, this method updates the values of
-     * the non-dimensional heat capacity at constant pressure,
-     * enthalpy, and entropy, at the reference pressure, Pref
-     * of one of the species. The species index is used
-     * to reference into the cp_R, h_RT, and s_R arrays.
-     *
-     * Temperature Polynomial:
-     *  tt[0] = t;
-     *  tt[1] = t*t;
-     *  tt[2] = t*t*t;
-     *  tt[3] = t*t*t*t;
-     *  tt[4] = 1.0/t;
-     *  tt[5] = 1.0/(t*t);
-     *  tt[6] = std::log(t);
-     *
-     * @param temp    Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
-     */
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const;
 
-    //!This utility function reports back the type of
-    //! parameterization and all of the parameters for the
-    //! species, index.
+    //! This utility function reports back the type of parameterization and all
+    //! of the parameters for the species, index.
     /*!
      * All parameters are output variables
      *
@@ -137,9 +81,8 @@ public:
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
-     * @param coeffs    Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     *      There are 1 + 11*nzones coefficients
+     * @param coeffs    Vector of coefficients used to set the parameters for
+     *     the standard state. There are 1 + 11*nzones coefficients.
      *      coeffs[0] is equal to nTempZones.
      *      index = 1
      *      for each zone:
@@ -152,11 +95,6 @@ public:
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
 
-    //! Modify parameters for the standard state
-    /*!
-     * @param coeffs   Vector of coefficients used to set the
-     *                 parameters for the standard state.
-     */
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:

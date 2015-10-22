@@ -15,11 +15,10 @@ namespace Cantera
 {
 
 /**
- *  A constant-heat capacity species thermodynamic property manager class.
- *  This makes the
- *  assumption that the heat capacity is a constant. Then, the following
- *  relations are used to complete the specification of the thermodynamic
- *  functions for the species.
+ * A constant-heat capacity species thermodynamic property manager class. This
+ * makes the assumption that the heat capacity is a constant. Then, the
+ * following relations are used to complete the specification of the
+ * thermodynamic functions for the species.
  *
  * \f[
  * \frac{c_p(T)}{R} = Cp0\_R
@@ -50,9 +49,9 @@ public:
      * @param tlow         Minimum temperature
      * @param thigh        Maximum temperature
      * @param pref         reference pressure (Pa).
-     * @param coeffs       Vector of coefficients used to set the
-     *                     parameters for the standard state for species n.
-     *                     There are 4 coefficients for the ConstCpPoly parameterization.
+     * @param coeffs       Vector of coefficients used to set the parameters for
+     *                     the standard state for species n. There are 4
+     *                     coefficients for the ConstCpPoly parameterization.
      *           -   c[0] = \f$ T_0 \f$(Kelvin)
      *           -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
      *           -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
@@ -67,20 +66,12 @@ public:
         return CONSTANT_CP;
     }
 
-    //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the functions of
-     * temperature needed by this parameterization, and three pointers to arrays where the
-     * computed property values should be written. This method updates only one value in
-     * each array.
+     * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Form and Length of the temperature polynomial:
      *  - m_t[0] = tt;
      *
-     * @param tt      Vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     void updateProperties(const doublereal* tt,
                           doublereal* cp_R, doublereal* h_RT,
@@ -93,11 +84,6 @@ public:
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const;
-    //! Modify parameters for the standard state
-    /*!
-     * @param coeffs   Vector of coefficients used to set the
-     *                 parameters for the standard state.
-     */
     virtual void modifyParameters(doublereal* coeffs);
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;

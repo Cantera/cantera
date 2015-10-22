@@ -17,12 +17,11 @@
 namespace Cantera
 {
 /**
- * The NASA polynomial parameterization for one temperature range.
- * This parameterization expresses the heat capacity as a
- * fourth-order polynomial. Note that this is the form used in the
- * 1971 NASA equilibrium program and by the Chemkin software
- * package, but differs from the form used in the more recent NASA
- * equilibrium program.
+ * The NASA polynomial parameterization for one temperature range. This
+ * parameterization expresses the heat capacity as a fourth-order polynomial.
+ * Note that this is the form used in the 1971 NASA equilibrium program and by
+ * the Chemkin software package, but differs from the form used in the more
+ * recent NASA equilibrium program.
  *
  * Seven coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
  * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
@@ -32,11 +31,11 @@ namespace Cantera
  * \f]
  * \f[
  * \frac{h^0(T)}{RT} = a_0 + \frac{a_1}{2} T + \frac{a_2}{3} T^2
- * + \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4  + \frac{a_5}{T}.
+ *                   + \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4  + \frac{a_5}{T}.
  * \f]
  * \f[
  * \frac{s^0(T)}{R} = a_0\ln T + a_1 T + \frac{a_2}{2} T^2
- + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
+ *                  + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
  * \f]
  *
  * @ingroup spthermo
@@ -82,12 +81,8 @@ public:
         T_poly[5] = std::log(T);
     }
 
-    //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the
-     * functions of temperature needed by this parameterization, and three
-     * pointers to arrays where the computed property values should be
-     * written. This method updates only one value in each array.
+     * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Temperature Polynomial:
      *  tt[0] = t;
@@ -96,11 +91,6 @@ public:
      *  tt[3] = m_t[2]*t;
      *  tt[4] = 1.0/t;
      *  tt[5] = std::log(t);
-     *
-     * @param tt      vector of temperature polynomials
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
@@ -143,11 +133,6 @@ public:
         std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
     }
 
-    //! Modify parameters for the standard state
-    /*!
-     * @param coeffs   Vector of coefficients used to set the
-     *                 parameters for the standard state.
-     */
     virtual void modifyParameters(doublereal* coeffs) {
         std::copy(coeffs, coeffs+7, m_coeff.begin());
     }

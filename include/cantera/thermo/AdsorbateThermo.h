@@ -1,10 +1,10 @@
 /**
- *  @file AdsorbateThermo.h
+ * @file AdsorbateThermo.h
  *
- *  Header for a single-species standard
- *  state object derived from \link Cantera::SpeciesThermoInterpType
- *  SpeciesThermoInterpType\endlink based on the expressions for the
- *  thermo properties of a species with several vibrational models.
+ * Header for a single-species standard state object derived from \link
+ * Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink based on the
+ * expressions for the thermo properties of a species with several vibrational
+ * models.
  */
 // Copyright 2007  California Institute of Technology
 
@@ -20,9 +20,9 @@ namespace Cantera
  * An adsorbed surface species.
  *
  * This class is designed specifically for use by the class
- * GeneralSpeciesThermo. It implements a model for the
- * thermodynamic properties of a molecule that can be modeled as a
- * set of independent quantum harmonic oscillators.
+ * GeneralSpeciesThermo. It implements a model for the thermodynamic properties
+ * of a molecule that can be modeled as a set of independent quantum harmonic
+ * oscillators.
  *
  * @ingroup spthermo
  */

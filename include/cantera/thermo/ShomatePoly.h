@@ -17,8 +17,8 @@
 
 namespace Cantera
 {
-//! The Shomate polynomial parameterization for one temperature range
-//! for one species
+//! The Shomate polynomial parameterization for one temperature range for one
+//! species
 /*!
  * Seven coefficients \f$(A,\dots,G)\f$ are used to represent
  * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
@@ -29,15 +29,15 @@ namespace Cantera
  * \f]
  * \f[
  * \tilde{h}^0(T) = A t + \frac{B t^2}{2} + \frac{C t^3}{3}
- + \frac{D t^4}{4}  - \frac{E}{t}  + F.
+ *                + \frac{D t^4}{4}  - \frac{E}{t} + F.
  * \f]
  * \f[
  * \tilde{s}^0(T) = A\ln t + B t + \frac{C t^2}{2}
- + \frac{D t^3}{3} - \frac{E}{2t^2}  + G.
+ *                + \frac{D t^3}{3} - \frac{E}{2t^2} + G.
  * \f]
  *
- * In the above expressions, the thermodynamic polynomials are expressed
- * in dimensional units, but the temperature,\f$ t \f$, is divided by 1000. The
+ * In the above expressions, the thermodynamic polynomials are expressed in
+ * dimensional units, but the temperature,\f$ t \f$, is divided by 1000. The
  * following dimensions are assumed in the above expressions:
  *
  *    - \f$ \tilde{c}_p^0(T)\f$ = Heat Capacity (J/gmol*K)
@@ -45,8 +45,8 @@ namespace Cantera
  *    - \f$ \tilde{s}^0(T) \f$= standard Entropy (J/gmol*K)
  *    - \f$ t \f$= temperature (K) / 1000.
  *
- *  For more information about Shomate polynomials, see the NIST website,
- *  http://webbook.nist.gov/
+ * For more information about Shomate polynomials, see the NIST website,
+ * http://webbook.nist.gov/
  *
  * Before being used within Cantera, the dimensions must be adjusted to those
  * used by Cantera (i.e., Joules and kmol).
@@ -100,13 +100,10 @@ public:
         T_poly[5] = 1.0/tt;
     }
 
-    //! Update the properties for this species, given a temperature polynomial
     /*!
-     * This method is called with a pointer to an array containing the
-     * functions of temperature needed by this parameterization, and three
-     * pointers to arrays where the computed property values should be
-     * written. This method updates only one value in each array.
+     * @copydoc SpeciesThermoInterpType::updateProperties
      *
+     * Form of the temperature polynomial:
      *   - `t` is T/1000.
      *   - `t[0] = t`
      *   - `t[1] = t*t`
@@ -114,11 +111,6 @@ public:
      *   - `t[3] = 1.0/t[1]`
      *   - `t[4] = log(t)`
      *   - `t[5] = 1.0/t;
-     *
-     * @param[in] tt           Array of evaluated temperature functions
-     * @param[out] cp_R    Dimensionless heat capacity
-     * @param[out] h_RT    Dimensionless enthalpy
-     * @param[out] s_R     Dimensionless entropy
      */
     virtual void updateProperties(const doublereal* tt,
                                   doublereal* cp_R, doublereal* h_RT,
@@ -158,11 +150,6 @@ public:
         }
     }
 
-    //! Modify parameters for the standard state
-    /*!
-     * @param coeffs   Vector of coefficients used to set the
-     *                 parameters for the standard state.
-     */
     virtual void modifyParameters(doublereal* coeffs) {
         for (size_t i = 0; i < 7; i++) {
             m_coeff[i] = coeffs[i] * 1000 / GasConstant;
@@ -186,8 +173,8 @@ protected:
     vector_fp m_coeff;
 };
 
-//! The Shomate polynomial parameterization for two temperature ranges
-//! for one species
+//! The Shomate polynomial parameterization for two temperature ranges for one
+//! species
 /*!
  * Seven coefficients \f$(A,\dots,G)\f$ are used to represent
  * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
@@ -198,11 +185,11 @@ protected:
  * \f]
  * \f[
  * \tilde{h}^0(T) = A t + \frac{B t^2}{2} + \frac{C t^3}{3}
- + \frac{D t^4}{4}  - \frac{E}{t}  + F.
+ *                + \frac{D t^4}{4}  - \frac{E}{t}  + F.
  * \f]
  * \f[
  * \tilde{s}^0(T) = A\ln t + B t + \frac{C t^2}{2}
- + \frac{D t^3}{3} - \frac{E}{2t^2}  + G.
+ *                + \frac{D t^3}{3} - \frac{E}{2t^2}  + G.
  * \f]
  *
  * In the above expressions, the thermodynamic polynomials are expressed
@@ -214,8 +201,8 @@ protected:
  *    - \f$ \tilde{s}^0(T) \f$= standard Entropy (J/gmol*K)
  *    - \f$ t \f$= temperature (K) / 1000.
  *
- *  For more information about Shomate polynomials, see the NIST website,
- *  http://webbook.nist.gov/
+ * For more information about Shomate polynomials, see the NIST website,
+ * http://webbook.nist.gov/
  *
  * Before being used within Cantera, the dimensions must be adjusted to those
  * used by Cantera (i.e., Joules and kmol).
