@@ -170,20 +170,13 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
         doublereal timeScaleOverride)
 {
     int ifunc;
-    /*
-     * set bulkFunc
-     *    -> We assume that the bulk concentrations are constant.
-     */
+    // set bulkFunc. We assume that the bulk concentrations are constant.
     int bulkFunc = BULK_ETCH;
-    /*
-     * time scale - time over which to integrate equations
-     */
+    // time scale - time over which to integrate equations
     doublereal time_scale = timeScaleOverride;
     if (!m_surfSolver) {
         m_surfSolver.reset(new solveSP(this, bulkFunc));
-        /*
-         * set ifunc, which sets the algorithm.
-         */
+        // set ifunc, which sets the algorithm.
         ifunc = SFLUX_INITIALIZE;
     } else {
         ifunc = SFLUX_RESIDUAL;
@@ -194,24 +187,20 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
         ifunc = ifuncOverride;
     }
 
-    /*
-     * Get the specifications for the problem from the values
-     * in the ThermoPhase objects for all phases.
-     *
-     *  1) concentrations of all species in all phases, m_concSpecies[]
-     *  2) Temperature and pressure
-     */
+    // Get the specifications for the problem from the values
+    // in the ThermoPhase objects for all phases.
+    //
+    //  1) concentrations of all species in all phases, m_concSpecies[]
+    //  2) Temperature and pressure
     getConcSpecies(m_concSpecies.data());
     InterfaceKinetics* ik = m_vecKinPtrs[0];
     ThermoPhase& tp = ik->thermo(0);
     doublereal TKelvin = tp.temperature();
     doublereal PGas = tp.pressure();
-    /*
-     * Make sure that there is a common temperature and
-     * pressure for all ThermoPhase objects belonging to the
-     * interfacial kinetics object, if it is required by
-     * the problem statement.
-     */
+
+    // Make sure that there is a common temperature and pressure for all
+    // ThermoPhase objects belonging to the interfacial kinetics object, if it
+    // is required by the problem statement.
     if (m_commonTempPressForPhases) {
         setCommonState_TP(TKelvin, PGas);
     }
@@ -219,11 +208,8 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     doublereal reltol = 1.0E-6;
     doublereal atol = 1.0E-20;
 
-    /*
-     * Install a filter for negative concentrations. One of the
-     * few ways solveSS can fail is if concentrations on input
-     * are below zero.
-     */
+    // Install a filter for negative concentrations. One of the few ways solveSS
+    // can fail is if concentrations on input are below zero.
     bool rset = false;
     for (size_t k = 0; k < m_nv; k++) {
         if (m_concSpecies[k] < 0.0) {

@@ -30,17 +30,13 @@ Kinetics::~Kinetics() {}
 
 Kinetics::Kinetics(const Kinetics& right)
 {
-    /*
-     * Call the assignment operator
-     */
+    // Call the assignment operator
     *this = right;
 }
 
 Kinetics& Kinetics::operator=(const Kinetics& right)
 {
-    /*
-     * Check for self assignment.
-     */
+    // Check for self assignment.
     if (this == &right) {
         return *this;
     }

@@ -38,16 +38,16 @@ public:
 
     /// Constructor.
     /// @param A pre-exponential. The unit system is
-    /// (kmol, m, s). The actual units depend on the reaction
-    /// order and the dimensionality (surface or bulk).
+    ///     (kmol, m, s). The actual units depend on the reaction
+    ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E Activation energy in temperature units. Kelvin.
     Arrhenius(doublereal A, doublereal b, doublereal E);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
-     *   For this class, there are no
-     *   concentration-dependent parts, so this method does nothing.
+     *   For this class, there are no concentration-dependent parts, so this
+     *   method does nothing.
      */
     void update_C(const doublereal* c) {
     }
@@ -62,9 +62,8 @@ public:
     /**
      * Update the value the rate constant.
      *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         return m_A * std::exp(m_b*logT - m_E*recipT);

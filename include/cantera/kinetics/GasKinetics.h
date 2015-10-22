@@ -17,9 +17,9 @@ namespace Cantera
 {
 
 /**
- * Kinetics manager for elementary gas-phase chemistry. This
- * kinetics manager implements standard mass-action reaction rate
- * expressions for low-density gases.
+ * Kinetics manager for elementary gas-phase chemistry. This kinetics manager
+ * implements standard mass-action reaction rate expressions for low-density
+ * gases.
  * @ingroup kinetics
  */
 class GasKinetics : public BulkKinetics

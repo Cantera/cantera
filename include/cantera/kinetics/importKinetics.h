@@ -21,10 +21,9 @@ namespace Cantera
 
 //!  Install information about reactions into the kinetics object, kin.
 /*!
- *  At this point, parent usually refers to the phase XML element.
- *  One of the children of this element is reactionArray,
- *  the element which determines where in the XML file to
- *  look up the reaction rate data.
+ *  At this point, parent usually refers to the phase XML element. One of the
+ *  children of this element is reactionArray, the element which determines
+ *  where in the XML file to look up the reaction rate data.
  *
  *  @param p             parent XML phase element
  *  @param kin           Kinetics object to install reactions into

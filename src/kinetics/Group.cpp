@@ -1,12 +1,9 @@
 /**
- * @file Group.cpp
- *
- *  Implementation file for the Group class used in reaction path analysis.
+ * @file Group.cpp Implementation file for the Group class used in reaction path
+ *  analysis.
  */
 
 // Copyright 2001  California Institute of Technology
-
-// reaction path analysis support
 
 #include "cantera/kinetics/Group.h"
 #include <iostream>

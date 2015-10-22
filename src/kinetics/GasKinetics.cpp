@@ -1,7 +1,5 @@
 /**
- *  @file GasKinetics.cpp
- *
- * Homogeneous kinetics in ideal gases
+ *  @file GasKinetics.cpp Homogeneous kinetics in ideal gases
  */
 
 // Copyright 2001  California Institute of Technology
@@ -271,8 +269,8 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
 
 void GasKinetics::addFalloffReaction(FalloffReaction& r)
 {
-    // install high and low rate coeff calculators
-    // and extend the high and low rate coeff value vectors
+    // install high and low rate coeff calculators and extend the high and low
+    // rate coeff value vectors
     m_falloff_high_rates.install(m_nfall, r.high_rate);
     m_rfn_high.push_back(0.0);
     m_falloff_low_rates.install(m_nfall, r.low_rate);

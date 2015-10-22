@@ -85,8 +85,7 @@ public:
     typedef std::map<size_t, doublereal> rxn_path_map;
 
     /**
-     *  Constructor. Construct a one-way path from
-     *  \c begin to \c end.
+     *  Constructor. Construct a one-way path from \c begin to \c end.
      */
     Path(SpeciesNode* begin, SpeciesNode* end);
 
@@ -194,12 +193,10 @@ public:
     /**
      *  Export the reaction path diagram. This method writes to stream
      *  \c s the commands for the 'dot' program in the \c GraphViz
-     *  package from AT&T. (GraphViz may be downloaded from
-     *  www.graphviz.org.)
+     *  package from AT&T. (GraphViz may be downloaded from www.graphviz.org.)
      *
-     *  To generate a postscript reaction path diagram from the
-     *  output of this method saved in file paths.dot, for example, give
-     *  the command:
+     *  To generate a postscript reaction path diagram from the output of this
+     *  method saved in file paths.dot, for example, give the command:
      *  \code
      *  dot -Tps paths.dot > paths.ps
      *  \endcode
@@ -302,8 +299,7 @@ public:
     int build(Kinetics& s, const std::string& element, std::ostream& output,
               ReactionPathDiagram& r, bool quiet=false);
 
-    //! Analyze a reaction to determine which reactants lead to which
-    //! products.
+    //! Analyze a reaction to determine which reactants lead to which products.
     int findGroups(std::ostream& logfile, Kinetics& s);
 
     void writeGroup(std::ostream& out, const Group& g);

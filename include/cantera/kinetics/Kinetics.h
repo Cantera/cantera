@@ -26,98 +26,84 @@ namespace Cantera
 /// @defgroup kineticsmgr Kinetics Managers
 /// @section kinmodman Models and Managers
 ///
-/// A kinetics manager is a C++ class that implements a kinetics
-/// model; a kinetics model is a set of mathematical equation
-/// describing how various kinetic quantities are to be computed --
-/// reaction rates, species production rates, etc. Many different
-/// kinetics models might be defined to handle different types of
-/// kinetic processes. For example, one kinetics model might use
-/// expressions valid for elementary reactions in ideal gas
-/// mixtures. It might, for example, require the reaction orders
-/// to be integral and equal to the forward stoichiometric
-/// coefficients, require that each reaction be reversible with a
-/// reverse rate satisfying detailed balance, include
-/// pressure-dependent unimolecular reactions, etc. Another
-/// kinetics model might be designed for heterogeneous chemistry
-/// at interfaces, and might allow empirical reaction orders,
-/// coverage-dependent activation energies, irreversible
-/// reactions, and include effects of potential differences across
+/// A kinetics manager is a C++ class that implements a kinetics model; a
+/// kinetics model is a set of mathematical equation describing how various
+/// kinetic quantities are to be computed -- reaction rates, species production
+/// rates, etc. Many different kinetics models might be defined to handle
+/// different types of kinetic processes. For example, one kinetics model might
+/// use expressions valid for elementary reactions in ideal gas mixtures. It
+/// might, for example, require the reaction orders to be integral and equal to
+/// the forward stoichiometric coefficients, require that each reaction be
+/// reversible with a reverse rate satisfying detailed balance, include
+/// pressure-dependent unimolecular reactions, etc. Another kinetics model might
+/// be designed for heterogeneous chemistry at interfaces, and might allow
+/// empirical reaction orders, coverage-dependent activation energies,
+/// irreversible reactions, and include effects of potential differences across
 /// the interface on reaction rates.
 ///
-/// A kinetics manager implements a kinetics model. Since the
-/// model equations may be complex and expensive to evaluate, a
-/// kinetics manager may adopt various strategies to 'manage' the
-/// computation and evaluate the expressions efficiently. For
-/// example, if there are rate coefficients or other quantities
-/// that depend only on temperature, a manager class may choose to
-/// store these quantities internally, and re-evaluate them only
-/// when the temperature has actually changed. Or a manager
-/// designed for use with reaction mechanisms with a few repeated
-/// activation energies might precompute the terms \f$ exp(-E/RT)
-/// \f$, instead of evaluating the exponential repeatedly for each
-/// reaction. There are many other possible 'management styles',
-/// each of which might be better suited to some reaction
-/// mechanisms than others.
+/// A kinetics manager implements a kinetics model. Since the model equations
+/// may be complex and expensive to evaluate, a kinetics manager may adopt
+/// various strategies to 'manage' the computation and evaluate the expressions
+/// efficiently. For example, if there are rate coefficients or other quantities
+/// that depend only on temperature, a manager class may choose to store these
+/// quantities internally, and re-evaluate them only when the temperature has
+/// actually changed. Or a manager designed for use with reaction mechanisms
+/// with a few repeated activation energies might precompute the terms \f$
+/// exp(-E/RT) \f$, instead of evaluating the exponential repeatedly for each
+/// reaction. There are many other possible 'management styles', each of which
+/// might be better suited to some reaction mechanisms than others.
 ///
-/// But however a manager structures the internal computation, the
-/// tasks the manager class must perform are, for the most part,
-/// the same. It must be able to compute reaction rates, species
-/// production rates, equilibrium constants, etc. Therefore, all
-/// kinetics manager classes should have a common set of public
-/// methods, but differ in how they implement these methods.
+/// But however a manager structures the internal computation, the tasks the
+/// manager class must perform are, for the most part, the same. It must be able
+/// to compute reaction rates, species production rates, equilibrium constants,
+/// etc. Therefore, all kinetics manager classes should have a common set of
+/// public methods, but differ in how they implement these methods.
 ///
-/// A kinetics manager computes reaction rates of progress,
-/// species production rates, equilibrium constants, and similar
-/// quantities for a reaction mechanism. All kinetics manager
-/// classes derive from class Kinetics, which defines a common
-/// public interface for all kinetics managers. Each derived class
-/// overloads the virtual methods of Kinetics to implement a
-/// particular kinetics model.
+/// A kinetics manager computes reaction rates of progress, species production
+/// rates, equilibrium constants, and similar quantities for a reaction
+/// mechanism. All kinetics manager classes derive from class Kinetics, which
+/// defines a common public interface for all kinetics managers. Each derived
+/// class overloads the virtual methods of Kinetics to implement a particular
+/// kinetics model.
 ///
-/// For example, class GasKinetics implements reaction rate
-/// expressions appropriate for homogeneous reactions in ideal gas
-/// mixtures, and class InterfaceKinetics implements expressions
-/// appropriate for heterogeneous mechanisms at interfaces,
-/// including how to handle reactions involving charged species of
-/// phases with different electric potentials --- something that
-/// class GasKinetics doesn't deal with at all.
+/// For example, class GasKinetics implements reaction rate expressions
+/// appropriate for homogeneous reactions in ideal gas mixtures, and class
+/// InterfaceKinetics implements expressions appropriate for heterogeneous
+/// mechanisms at interfaces, including how to handle reactions involving
+/// charged species of phases with different electric potentials --- something
+/// that class GasKinetics doesn't deal with at all.
 ///
-/// Many of the methods of class Kinetics write into arrays the
-/// values of some quantity for each species, for example the net
-/// production rate.  These methods always write the results into
-/// flat arrays, ordered by phase in the order the phase was
-/// added, and within a phase in the order the species were added
-/// to the phase (which is the same ordering as in the input
-/// file). Example: suppose a heterogeneous mechanism involves
-/// three phases -- a bulk phase 'a', another bulk phase 'b', and
-/// the surface phase 'a:b' at the a/b interface. Phase 'a'
-/// contains 12 species, phase 'b' contains 3, and at the
-/// interface there are 5 adsorbed species defined in phase
-/// 'a:b'. Then methods like getNetProductionRates(doublereal* net)
-/// will write and output array of length 20, beginning at the location
-/// pointed to by 'net'. The first 12 values will be the net production
-/// rates for all 12 species of phase 'a' (even if some do not participate
-/// in the reactions), the next 3 will be for phase 'b', and finally the
-/// net production rates for the surface species will occupy the last
-/// 5 locations.
+/// Many of the methods of class Kinetics write into arrays the values of some
+/// quantity for each species, for example the net production rate. These
+/// methods always write the results into flat arrays, ordered by phase in the
+/// order the phase was added, and within a phase in the order the species were
+/// added to the phase (which is the same ordering as in the input file).
+/// Example: suppose a heterogeneous mechanism involves three phases -- a bulk
+/// phase 'a', another bulk phase 'b', and the surface phase 'a:b' at the a/b
+/// interface. Phase 'a' contains 12 species, phase 'b' contains 3, and at the
+/// interface there are 5 adsorbed species defined in phase 'a:b'. Then methods
+/// like getNetProductionRates(doublereal* net) will write and output array of
+/// length 20, beginning at the location pointed to by 'net'. The first 12
+/// values will be the net production rates for all 12 species of phase 'a'
+/// (even if some do not participate in the reactions), the next 3 will be for
+/// phase 'b', and finally the net production rates for the surface species will
+/// occupy the last 5 locations.
 /// @ingroup chemkinetics
 
 
 //! Public interface for kinetics managers.
 /*!
- * This class serves as a base class to derive 'kinetics
- * managers', which are classes that manage homogeneous chemistry
- * within one phase, or heterogeneous chemistry at one
- * interface. The virtual methods of this class are meant to be
- * overloaded in subclasses. The non-virtual methods perform
- * generic functions and are implemented in Kinetics. They should
- * not be overloaded. Only those methods required by a subclass
- * need to be overloaded; the rest will throw exceptions if
- * called.
+ * This class serves as a base class to derive 'kinetics managers', which are
+ * classes that manage homogeneous chemistry within one phase, or heterogeneous
+ * chemistry at one interface. The virtual methods of this class are meant to be
+ * overloaded in subclasses. The non-virtual methods perform generic functions
+ * and are implemented in Kinetics. They should not be overloaded. Only those
+ * methods required by a subclass need to be overloaded; the rest will throw
+ * exceptions if called.
  *
- * When the nomenclature "kinetics species index" is used below,
- * this means that the species index ranges over all species in
- * all phases handled by the kinetics manager.
+ * When the nomenclature "kinetics species index" is used below, this means that
+ * the species index ranges over all species in all phases handled by the
+ * kinetics manager.
  *
  *  @ingroup kineticsmgr
  */
@@ -164,8 +150,9 @@ public:
      *  own the ThermoPhase objects. After a duplication, we need to point to
      *  different ThermoPhase objects.
      *
-     *  We check that the ThermoPhase objects are aligned in the same order and have
-     *  the following identical properties to the ones that they are replacing:
+     *  We check that the ThermoPhase objects are aligned in the same order and
+     *  have the following identical properties to the ones that they are
+     *  replacing:
      *
      *  - ThermoPhase::id()
      *  - ThermoPhase::eosType()
@@ -178,9 +165,8 @@ public:
 
     //!  Identifies the kinetics manager type.
     /*!
-     *   Each class derived from Kinetics should overload this method to
-     *   return a unique integer. Standard values are defined in file
-     *   mix_defs.h.
+     *   Each class derived from Kinetics should overload this method to return
+     *   a unique integer. Standard values are defined in file mix_defs.h.
      */
     virtual int type() const;
 
@@ -212,10 +198,10 @@ public:
     //@{
 
     /**
-     * The number of phases participating in the reaction
-     * mechanism. For a homogeneous reaction mechanism, this will
-     * always return 1, but for a heterogeneous mechanism it will
-     * return the total number of phases in the mechanism.
+     * The number of phases participating in the reaction mechanism. For a
+     * homogeneous reaction mechanism, this will always return 1, but for a
+     * heterogeneous mechanism it will return the total number of phases in the
+     * mechanism.
      */
     size_t nPhases() const {
         return m_thermo.size();
@@ -231,13 +217,13 @@ public:
     void checkPhaseArraySize(size_t mm) const;
 
     /**
-     * Return the phase index of a phase in the list of phases
-     * defined within the object.
+     * Return the phase index of a phase in the list of phases defined within
+     * the object.
      *
      *  @param ph std::string name of the phase
      *
-     * If a -1 is returned, then the phase is not defined in
-     * the Kinetics object.
+     * If a -1 is returned, then the phase is not defined in the Kinetics
+     * object.
      */
     size_t phaseIndex(const std::string& ph) {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
@@ -261,7 +247,7 @@ public:
      * the phases in the list of phases represents the 2D interface or 1D edge
      * at which the reactions take place. This method returns the index of the
      * phase with the smallest spatial dimension (1, 2, or 3) among the list
-     * of phases.  If there is more than one, the index of the first one is
+     * of phases. If there is more than one, the index of the first one is
      * returned. For homogeneous mechanisms, the value 0 is returned.
      */
     size_t reactionPhaseIndex() {
@@ -270,7 +256,7 @@ public:
 
     /**
      * This method returns a reference to the nth ThermoPhase object defined
-     * in this kinetics mechanism.  It is typically used so that member
+     * in this kinetics mechanism. It is typically used so that member
      * functions of the ThermoPhase object may be called. For homogeneous
      * mechanisms, there is only one object, and this method can be called
      * without an argument to access it.
@@ -294,23 +280,19 @@ public:
     }
 
     /**
-     * The location of species k of phase n in species arrays.
-     * Kinetics manager classes return species production rates in
-     * flat arrays, with the species of each phases following one
-     * another, in the order the phases were added.  This method
-     * is useful to find the value for a particular species of a
-     * particular phase in arrays returned from methods like
-     * getCreationRates that return an array of species-specific
-     * quantities.
+     * The location of species k of phase n in species arrays. Kinetics manager
+     * classes return species production rates in flat arrays, with the species
+     * of each phases following one another, in the order the phases were added.
+     * This method is useful to find the value for a particular species of a
+     * particular phase in arrays returned from methods like getCreationRates
+     * that return an array of species-specific quantities.
      *
-     * Example: suppose a heterogeneous mechanism involves three
-     * phases.  The first contains 12 species, the second 26, and
-     * the third 3.  Then species arrays must have size at least
-     * 41, and positions 0 - 11 are the values for the species in
-     * the first phase, positions 12 - 37 are the values for the
-     * species in the second phase, etc.  Then
-     * kineticsSpeciesIndex(7, 0) = 7, kineticsSpeciesIndex(4, 1)
-     * = 16, and kineticsSpeciesIndex(2, 2) = 40.
+     * Example: suppose a heterogeneous mechanism involves three phases. The
+     * first contains 12 species, the second 26, and the third 3. Then species
+     * arrays must have size at least 41, and positions 0 - 11 are the values
+     * for the species in the first phase, positions 12 - 37 are the values for
+     * the species in the second phase, etc. Then kineticsSpeciesIndex(7, 0) =
+     * 7, kineticsSpeciesIndex(4, 1) = 16, and kineticsSpeciesIndex(2, 2) = 40.
      *
      * @param k species index
      * @param n phase index for the species
@@ -323,7 +305,7 @@ public:
     /*!
      *  k is an integer from 0 to ktot - 1, where ktot is the number of
      * species in the kinetics manager, which is the sum of the number of
-     * species in all phases participating in the kinetics manager.  If k is
+     * species in all phases participating in the kinetics manager. If k is
      * out of bounds, the string "<unknown>" is returned.
      *
      * @param k species index
@@ -393,7 +375,7 @@ public:
 
     //!  Return the forward rates of progress of the reactions
     /*!
-     * Forward rates of progress.  Return the forward rates of
+     * Forward rates of progress. Return the forward rates of
      * progress in array fwdROP, which must be dimensioned at
      * least as large as the total number of reactions.
      *
@@ -413,7 +395,7 @@ public:
     virtual void getRevRatesOfProgress(doublereal* revROP);
 
     /**
-     * Net rates of progress.  Return the net (forward - reverse) rates of
+     * Net rates of progress. Return the net (forward - reverse) rates of
      * progress in array netROP, which must be dimensioned at least as large
      * as the total number of reactions.
      *
@@ -439,17 +421,15 @@ public:
     }
 
     /**
-     * Change in species properties. Given an array of molar species
-     * property values \f$ z_k, k = 1, \dots, K \f$, return the
-     * array of reaction values
+     * Change in species properties. Given an array of molar species property
+     * values \f$ z_k, k = 1, \dots, K \f$, return the array of reaction values
      * \f[
      *    \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
      * \f]
-     * For example, if this method is called with the array of
-     * standard-state molar Gibbs free energies for the species,
-     * then the values returned in array \c deltaProperty would be
-     * the standard-state Gibbs free energies of reaction for each
-     * reaction.
+     * For example, if this method is called with the array of standard-state
+     * molar Gibbs free energies for the species, then the values returned in
+     * array \c deltaProperty would be the standard-state Gibbs free energies of
+     * reaction for each reaction.
      *
      * @param property Input vector of property value. Length: m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
@@ -512,7 +492,7 @@ public:
     }
 
     /**
-     * Return the vector of values for the reactions change in entropy.  These
+     * Return the vector of values for the reactions change in entropy. These
      * values depend upon the concentration of the solution.
      *
      *  units = J kmol-1 Kelvin-1
@@ -525,9 +505,9 @@ public:
     }
 
     /**
-     * Return the vector of values for the reaction standard state
-     * Gibbs free energy change.  These values don't depend upon
-     * the concentration of the solution.
+     * Return the vector of values for the reaction standard state Gibbs free
+     * energy change. These values don't depend upon the concentration of the
+     * solution.
      *
      *  units = J kmol-1
      *
@@ -539,9 +519,9 @@ public:
     }
 
     /**
-     * Return the vector of values for the change in the standard
-     * state enthalpies of reaction.  These values don't depend
-     * upon the concentration of the solution.
+     * Return the vector of values for the change in the standard state
+     * enthalpies of reaction. These values don't depend upon the concentration
+     * of the solution.
      *
      *  units = J kmol-1
      *
@@ -553,9 +533,9 @@ public:
     }
 
     /**
-     * Return the vector of values for the change in the standard
-     * state entropies for each reaction.  These values don't
-     * depend upon the concentration of the solution.
+     * Return the vector of values for the change in the standard state
+     * entropies for each reaction. These values don't depend upon the
+     * concentration of the solution.
      *
      *  units = J kmol-1 Kelvin-1
      *
@@ -580,19 +560,19 @@ public:
     virtual void getCreationRates(doublereal* cdot);
 
     /**
-     * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the
-     * species destruction rates in array ddot, which must be dimensioned at
-     * least as large as the total number of species. @see nTotalSpecies.
+     * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
+     * destruction rates in array ddot, which must be dimensioned at least as
+     * large as the total number of species. @see nTotalSpecies.
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
     virtual void getDestructionRates(doublereal* ddot);
 
     /**
-     * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return
-     * the species net production rates (creation - destruction)
-     * in array wdot, which must be dimensioned at least as large
-     * as the total number of species. @see nTotalSpecies.
+     * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
+     * species net production rates (creation - destruction) in array wdot,
+     * which must be dimensioned at least as large as the total number of
+     * species. @see nTotalSpecies.
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
@@ -653,9 +633,8 @@ public:
     }
 
     /**
-     * Flag specifying the type of reaction. The legal values and
-     * their meaning are specific to the particular kinetics
-     * manager.
+     * Flag specifying the type of reaction. The legal values and their meaning
+     * are specific to the particular kinetics manager.
      *
      * @param i   reaction index
      */
@@ -664,9 +643,9 @@ public:
     }
 
     /**
-     * True if reaction i has been declared to be reversible. If
-     * isReversible(i) is false, then the reverse rate of progress
-     * for reaction i is always zero.
+     * True if reaction i has been declared to be reversible. If isReversible(i)
+     * is false, then the reverse rate of progress for reaction i is always
+     * zero.
      *
      * @param i   reaction index
      */
@@ -809,7 +788,7 @@ public:
     /*!
      * These methods alter reaction rates. They are designed primarily for
      * carrying out sensitivity analysis, but may be used for any purpose
-     * requiring dynamic alteration of rate constants.  For each reaction, a
+     * requiring dynamic alteration of rate constants. For each reaction, a
      * real-valued multiplier may be defined that multiplies the reaction rate
      * coefficient. The multiplier may be set to zero to completely remove a
      * reaction from the mechanism.
@@ -836,8 +815,8 @@ public:
     //@}
 
     /**
-     * Returns true if the kinetics manager has been properly
-     * initialized and finalized.
+     * Returns true if the kinetics manager has been properly initialized and
+     * finalized.
      */
     virtual bool ready() const {
         return false;
@@ -927,14 +906,12 @@ protected:
     //! m_thermo is a vector of pointers to ThermoPhase objects that are
     //! involved with this kinetics operator
     /*!
-     * For homogeneous kinetics applications, this vector
-     * will only have one entry. For interfacial reactions, this
-     * vector will consist of multiple entries; some of them will
-     * be surface phases, and the other ones will be bulk phases.
-     * The order that the objects are listed determines the order
-     * in which the species comprising each phase are listed in
-     * the source term vector, originating from the reaction
-     * mechanism.
+     * For homogeneous kinetics applications, this vector will only have one
+     * entry. For interfacial reactions, this vector will consist of multiple
+     * entries; some of them will be surface phases, and the other ones will be
+     * bulk phases. The order that the objects are listed determines the order
+     * in which the species comprising each phase are listed in the source term
+     * vector, originating from the reaction mechanism.
      *
      * Note that this kinetics object doesn't own these ThermoPhase objects
      * and is not responsible for creating or deleting them.
@@ -942,19 +919,16 @@ protected:
     std::vector<thermo_t*> m_thermo;
 
     /**
-     * m_start is a vector of integers specifying the beginning position
-     * for the species vector for the n'th phase in the kinetics
-     * class.
+     * m_start is a vector of integers specifying the beginning position for the
+     * species vector for the n'th phase in the kinetics class.
      */
     std::vector<size_t> m_start;
 
     /**
-     * Mapping of the phase id, i.e., the id attribute in the XML
-     * phase element to the position of the phase within the
-     * kinetics object.  Positions start with the value of 1. The
-     * member function, phaseIndex() decrements by one before
-     * returning the index value, so that missing phases return
-     * -1.
+     * Mapping of the phase id, i.e., the id attribute in the XML phase element
+     * to the position of the phase within the kinetics object. Positions start
+     * with the value of 1. The member function, phaseIndex() decrements by one
+     * before returning the index value, so that missing phases return -1.
      */
     std::map<std::string, size_t> m_phaseindex;
 
@@ -963,8 +937,8 @@ protected:
 
     //! Phase Index where reactions are assumed to be taking place
     /*!
-     *  We calculate this by assuming that the phase with the lowest
-     *  dimensionality is the phase where reactions are taking place.
+     * We calculate this by assuming that the phase with the lowest
+     * dimensionality is the phase where reactions are taking place.
      */
     size_t m_rxnphase;
 

@@ -47,17 +47,13 @@ InterfaceKinetics::~InterfaceKinetics()
 
 InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right)
 {
-    /*
-     * Call the assignment operator
-     */
+    // Call the assignment operator
     operator=(right);
 }
 
 InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
 {
-    /*
-     * Check for self assignment.
-     */
+    // Check for self assignment.
     if (this == &right) {
         return *this;
     }
@@ -147,8 +143,8 @@ void InterfaceKinetics::_update_rates_T()
         m_rates.update(T, m_logtemp, m_rfn.data());
         applyStickingCorrection(m_rfn.data());
 
-        //  If we need to do conversions between exchange current density formulation and regular formulation
-        //  (either way) do it here.
+        // If we need to do conversions between exchange current density
+        // formulation and regular formulation (either way) do it here.
         if (m_has_exchange_current_density_formulation) {
             convertExchangeCurrentDensityFormulation(m_rfn.data());
         }
@@ -173,18 +169,16 @@ void InterfaceKinetics::_update_rates_phi()
     }
 }
 
-// Updates the internal variables m_actConc and m_conc
 void InterfaceKinetics::_update_rates_C()
 {
     for (size_t n = 0; n < nPhases(); n++) {
         const ThermoPhase* tp = m_thermo[n];
         /*
-         * We call the getActivityConcentrations function of each
-         * ThermoPhase class that makes up this kinetics object to
-         * obtain the generalized concentrations for species within that
-         * class. This is collected in the vector m_conc. m_start[]
-         * are integer indices for that vector denoting the start of the
-         * species for each phase.
+         * We call the getActivityConcentrations function of each ThermoPhase
+         * class that makes up this kinetics object to obtain the generalized
+         * concentrations for species within that class. This is collected in
+         * the vector m_conc. m_start[] are integer indices for that vector
+         * denoting the start of the species for each phase.
          */
         tp->getActivityConcentrations(m_actConc.data() + m_start[n]);
 
@@ -206,8 +200,9 @@ void InterfaceKinetics::updateKc()
 
     if (m_nrev > 0) {
         /*
-         * Get the vector of standard state electrochemical potentials for species in the Interfacial
-         * kinetics object and store it in m_mu0[] and m_mu0_Kc[]
+         * Get the vector of standard state electrochemical potentials for
+         * species in the Interfacial kinetics object and store it in m_mu0[]
+         * and m_mu0_Kc[]
          */
         updateMu0();
         doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
@@ -235,10 +230,6 @@ void InterfaceKinetics::updateMu0()
     _update_rates_phi();
 
     updateExchangeCurrentQuantities();
-    /*
-     * Get the vector of standard state electrochemical potentials for species in the Interfacial
-     * kinetics object and store it in m_mu0[] and in m_mu0_Kc[]
-     */
     size_t nsp, ik = 0;
     size_t np = nPhases();
     for (size_t n = 0; n < np; n++) {
@@ -300,20 +291,16 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 
 void InterfaceKinetics::updateExchangeCurrentQuantities()
 {
-    /*
-     *   Calculate:
-     *     - m_StandardConc[]
-     *     - m_ProdStandConcReac[]
-     *     - m_deltaG0[]
-     *     - m_mu0[]
-     */
+    // Calculate:
+    //   - m_StandardConc[]
+    //   - m_ProdStanConcReac[]
+    //   - m_deltaG0[]
+    //   - m_mu0[]
 
-    /*
-     * First collect vectors of the standard Gibbs free energies of the
-     * species and the standard concentrations
-     *   - m_mu0
-     *   - m_StandardConc
-     */
+    // First collect vectors of the standard Gibbs free energies of the
+    // species and the standard concentrations
+    //   - m_mu0
+    //   - m_StandardConc
     size_t ik = 0;
 
     for (size_t n = 0; n < nPhases(); n++) {
@@ -346,27 +333,23 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
         }
     }
 
-    // Compute the change in electrical potential energy for each
-    // reaction. This will only be non-zero if a potential
-    // difference is present.
+    // Compute the change in electrical potential energy for each reaction. This
+    // will only be non-zero if a potential difference is present.
     getReactionDelta(m_pot.data(), deltaElectricEnergy_.data());
 
-    // Modify the reaction rates. Only modify those with a
-    // non-zero activation energy. Below we decrease the
-    // activation energy below zero but in some debug modes
-    // we print out a warning message about this.
-    /*
-     *   NOTE, there is some discussion about this point.
-     *   Should we decrease the activation energy below zero?
-     *   I don't think this has been decided in any definitive way.
-     *   The treatment below is numerically more stable, however.
-     */
+    // Modify the reaction rates. Only modify those with a non-zero activation
+    // energy. Below we decrease the activation energy below zero but in some
+    // debug modes we print out a warning message about this.
+
+    // NOTE, there is some discussion about this point. Should we decrease the
+    // activation energy below zero? I don't think this has been decided in any
+    // definitive way. The treatment below is numerically more stable, however.
     doublereal eamod;
     for (size_t i = 0; i < m_beta.size(); i++) {
         size_t irxn = m_ctrxn[i];
 
-        //   If we calculate the BV form directly, we don't add the voltage correction to the
-        //   forward reaction rate constants.
+        // If we calculate the BV form directly, we don't add the voltage
+        // correction to the forward reaction rate constants.
         if (m_ctrxn_BVform[i] == 0) {
             eamod = m_beta[i] * deltaElectricEnergy_[irxn];
             if (eamod != 0.0) {
@@ -379,18 +362,21 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
 void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* const kfwd)
 {
     updateExchangeCurrentQuantities();
-    //  Loop over all reactions which are defined to have a voltage transfer coefficient that
-    //  affects the activity energy for the reaction
+    // Loop over all reactions which are defined to have a voltage transfer
+    // coefficient that affects the activity energy for the reaction
     for (size_t i = 0; i < m_ctrxn.size(); i++) {
         size_t irxn = m_ctrxn[i];
 
-        // Determine whether the reaction rate constant is in an exchange current density formulation format.
+        // Determine whether the reaction rate constant is in an exchange
+        // current density formulation format.
         int iECDFormulation = m_ctrxn_ecdf[i];
         if (iECDFormulation) {
-            // If the BV form is to be converted into the normal form then we go through this process.
-            // If it isn't to be converted, then we don't go through this process.
+            // If the BV form is to be converted into the normal form then we go
+            // through this process. If it isn't to be converted, then we don't
+            // go through this process.
             //
-            //   We need to have the straight chemical reaction rate constant to come out of this calculation.
+            // We need to have the straight chemical reaction rate constant to
+            // come out of this calculation.
             if (m_ctrxn_BVform[i] == 0) {
                 //  Calculate the term and modify the forward reaction
                 double tmp = exp(- m_beta[i] * m_deltaG0[irxn] / thermo(0).RT());
@@ -402,12 +388,13 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
         } else {
             // kfwd[] is the chemical reaction rate constant
             //
-            // If we are to calculate the BV form directly, then we will do the reverse.
-            // We will calculate the exchange current density formulation here and
-            // substitute it.
+            // If we are to calculate the BV form directly, then we will do the
+            // reverse. We will calculate the exchange current density
+            // formulation here and substitute it.
             if (m_ctrxn_BVform[i] != 0) {
-                //  Calculate the term and modify the forward reaction rate constant so that
-                //  it's in the exchange current density formulation format
+                // Calculate the term and modify the forward reaction rate
+                // constant so that it's in the exchange current density
+                // formulation format
                 double tmp = exp(m_beta[i] * m_deltaG0[irxn] * thermo(0).RT());
                 double tmp2 = m_ProdStanConcReac[irxn];
                 tmp *= Faraday * tmp2;
@@ -443,7 +430,8 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
 
 void InterfaceKinetics::updateROP()
 {
-    // evaluate rate constants and equilibrium constants at temperature and phi (electric potential)
+    // evaluate rate constants and equilibrium constants at temperature and phi
+    // (electric potential)
     _update_rates_T();
     // get updated activities (rates updated below)
     _update_rates_C();
@@ -470,15 +458,17 @@ void InterfaceKinetics::updateROP()
     // the forward rates of progress.
     m_reactantStoich.multiply(m_actConc.data(), m_ropf.data());
 
-    // For reversible reactions, multiply ropr by the activity concentration products
+    // For reversible reactions, multiply ropr by the activity concentration
+    // products
     m_revProductStoich.multiply(m_actConc.data(), m_ropr.data());
 
-    //  Fix up these calculations for cases where the above formalism doesn't hold
+    // Fix up these calculations for cases where the above formalism doesn't hold
     double OCV = 0.0;
     for (size_t jrxn = 0; jrxn != nReactions(); ++jrxn) {
         if (reactionType(jrxn) == BUTLERVOLMER_RXN) {
-            // OK, the reaction rate constant contains the current density rate constant calculation
-            // the rxnstoich calculation contained the dependence of the current density on the activity concentrations
+            // OK, the reaction rate constant contains the current density rate
+            // constant calculation the rxnstoich calculation contained the
+            // dependence of the current density on the activity concentrations
             // We finish up with the ROP calculation
             //
             // Calculate the overpotential of the reaction
@@ -494,11 +484,10 @@ void InterfaceKinetics::updateROP()
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
 
-    /*
-     *  For reactions involving multiple phases, we must check that the phase
-     *  being consumed actually exists. This is particularly important for
-     *  phases that are stoichiometric phases containing one species with a unity activity
-     */
+    // For reactions involving multiple phases, we must check that the phase
+    // being consumed actually exists. This is particularly important for phases
+    // that are stoichiometric phases containing one species with a unity
+    // activity
     if (m_phaseExistsCheck) {
         for (size_t j = 0; j != nReactions(); ++j) {
             if ((m_ropr[j] > m_ropf[j]) && (m_ropr[j] > 0.0)) {
@@ -547,10 +536,8 @@ void InterfaceKinetics::updateROP()
 
 void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
 {
-    /*
-     * Get the chemical potentials of the species in the all of the phases used in the
-     * kinetics mechanism
-     */
+    // Get the chemical potentials of the species in the all of the phases used
+    // in the kinetics mechanism
     for (size_t n = 0; n < nPhases(); n++) {
         m_thermo[n]->getChemPotentials(m_mu.data() + m_start[n]);
     }
@@ -566,107 +553,82 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
 
 void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
 {
-    /*
-     * Get the chemical potentials of the species
-     */
+    // Get the chemical potentials of the species
     size_t np = nPhases();
     for (size_t n = 0; n < np; n++) {
         thermo(n).getElectrochemPotentials(m_grt.data() + m_start[n]);
     }
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
+
+    // Use the stoichiometric manager to find deltaG for each reaction.
     getReactionDelta(m_grt.data(), deltaM);
 }
 
 void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
 {
-    /*
-     * Get the partial molar enthalpy of all species
-     */
+    // Get the partial molar enthalpy of all species
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getPartialMolarEnthalpies(m_grt.data() + m_start[n]);
     }
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
+
+    // Use the stoichiometric manager to find deltaH for each reaction.
     getReactionDelta(m_grt.data(), deltaH);
 }
 
 void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
 {
-    /*
-     * Get the partial molar entropy of all species in all of
-     * the phases
-     */
+    // Get the partial molar entropy of all species in all of the phases
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getPartialMolarEntropies(m_grt.data() + m_start[n]);
     }
-    /*
-     * Use the stoichiometric manager to find deltaS for each
-     * reaction.
-     */
+
+    // Use the stoichiometric manager to find deltaS for each reaction.
     getReactionDelta(m_grt.data(), deltaS);
 }
 
 void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
 {
-    /*
-     *  Get the standard state chemical potentials of the species.
-     *  This is the array of chemical potentials at unit activity
-     *  We define these here as the chemical potentials of the pure
-     *  species at the temperature and pressure of the solution.
-     */
+    // Get the standard state chemical potentials of the species. This is the
+    // array of chemical potentials at unit activity We define these here as the
+    // chemical potentials of the pure species at the temperature and pressure
+    // of the solution.
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
     }
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
+
+    // Use the stoichiometric manager to find deltaG for each reaction.
     getReactionDelta(m_mu0.data(), deltaGSS);
 }
 
 void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
 {
-    /*
-     *  Get the standard state enthalpies of the species.
-     *  This is the array of chemical potentials at unit activity
-     *  We define these here as the enthalpies of the pure
-     *  species at the temperature and pressure of the solution.
-     */
+    // Get the standard state enthalpies of the species. This is the array of
+    // chemical potentials at unit activity We define these here as the
+    // enthalpies of the pure species at the temperature and pressure of the
+    // solution.
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getEnthalpy_RT(m_grt.data() + m_start[n]);
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_grt[k] *= thermo(0).RT();
     }
-    /*
-     * Use the stoichiometric manager to find deltaG for each
-     * reaction.
-     */
+
+    // Use the stoichiometric manager to find deltaH for each reaction.
     getReactionDelta(m_grt.data(), deltaH);
 }
 
 void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
 {
-    /*
-     *  Get the standard state entropy of the species.
-     *  We define these here as the entropies of the pure
-     *  species at the temperature and pressure of the solution.
-     */
+    // Get the standard state entropy of the species. We define these here as
+    // the entropies of the pure species at the temperature and pressure of the
+    // solution.
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getEntropy_R(m_grt.data() + m_start[n]);
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_grt[k] *= GasConstant;
     }
-    /*
-     * Use the stoichiometric manager to find deltaS for each
-     * reaction.
-     */
+
+    // Use the stoichiometric manager to find deltaS for each reaction.
     getReactionDelta(m_grt.data(), deltaS);
 }
 
@@ -945,9 +907,7 @@ void InterfaceKinetics::solvePseudoSteadyStateProblem(
         m_integrator->initialize();
     }
     m_integrator->setIOFlag(m_ioFlag);
-    /*
-     * New direct method to go here
-     */
+    // New direct method to go here
     m_integrator->solvePseudoSteadyStateProblem(ifuncOverride, timeScaleOverride);
 }
 
@@ -1062,9 +1022,10 @@ void InterfaceKinetics::applyStickingCorrection(double* kf)
 
 void EdgeKinetics::finalize()
 {
-    //  Note we can't call the Interface::finalize() routine because we need to check for a dimension of 1 below.
-    //  Therefore, we have to malloc room in arrays that would normally be
-    //  handled by the InterfaceKinetics::finalize() call.
+    // Note we can't call the Interface::finalize() routine because we need to
+    // check for a dimension of 1 below. Therefore, we have to malloc room in
+    // arrays that would normally be handled by the
+    // InterfaceKinetics::finalize() call.
     Kinetics::finalize();
 
     size_t safe_reaction_size = std::max<size_t>(nReactions(), 1);

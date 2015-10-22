@@ -56,10 +56,9 @@ class ImplicitSurfChem : public FuncEval
 public:
     //! Constructor for multiple surfaces.
     /*!
-     * @param k  Vector of pointers to InterfaceKinetics objects
-     *           Each object consists of a surface or an edge containing
-     *           internal degrees of freedom representing the concentration
-     *           of surface adsorbates.
+     * @param k  Vector of pointers to InterfaceKinetics objects Each object
+     *           consists of a surface or an edge containing internal degrees of
+     *           freedom representing the concentration of surface adsorbates.
      */
     ImplicitSurfChem(std::vector<InterfaceKinetics*> k);
 
@@ -101,15 +100,13 @@ public:
      *
      * @param ifuncOverride One of the values defined in @ref solvesp_methods.
      *     The default is -1, which means that the program will decide.
-     * @param timeScaleOverride When a pseudo transient is
-     *             selected this value can be used to override
-     *             the default time scale for integration which
-     *             is one.
-     *             When SFLUX_TRANSIENT is used, this is equal to the
-     *             time over which the equations are integrated.
-     *             When SFLUX_INITIALIZE is used, this is equal to the
-     *             time used in the initial transient algorithm,
-     *             before the equation system is solved directly.
+     * @param timeScaleOverride When a pseudo transient is selected this value
+     *             can be used to override the default time scale for
+     *             integration which is one. When SFLUX_TRANSIENT is used, this
+     *             is equal to the time over which the equations are integrated.
+     *             When SFLUX_INITIALIZE is used, this is equal to the time used
+     *             in the initial transient algorithm, before the equation
+     *             system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
                                        doublereal timeScaleOverride = 1.0);
@@ -138,9 +135,8 @@ public:
      *
      *  @param t0  Initial time
      *  @param leny  Length of the solution vector
-     *  @param y   Value of the solution vector to be used.
-     *            On output, this contains the initial value
-     *           of the solution.
+     *  @param y   Value of the solution vector to be used. On output, this
+     *            contains the initial value of the solution.
      *  @deprecated Use getState() instead. To be removed after Cantera 2.3.
      */
     virtual void getInitialConditions(doublereal t0,
@@ -161,9 +157,9 @@ public:
      *  1. concentrations of all species in all phases, #m_concSpecies
      *  2. Temperature and pressure
      *
-     *  @param vecConcSpecies Vector of concentrations. The phase
-     *                  concentration vectors are contiguous within the
-     *                  object, in the same order as the unknown vector.
+     *  @param vecConcSpecies Vector of concentrations. The phase concentration
+     *                  vectors are contiguous within the object, in the same
+     *                  order as the unknown vector.
      */
     void getConcSpecies(doublereal* const vecConcSpecies) const;
 
@@ -173,10 +169,9 @@ public:
      * Fills the local concentration vector for all of the species in all of
      * the phases that are unknowns in the surface problem.
      *
-     *  @param vecConcSpecies Vector of concentrations. The
-     *                  phase concentration vectors are contiguous
-     *                  within the object, in the same order as the
-     *                  unknown vector.
+     *  @param vecConcSpecies Vector of concentrations. The phase concentration
+     *                  vectors are contiguous within the object, in the same
+     *                  order as the unknown vector.
      */
     void setConcSpecies(const doublereal* const vecConcSpecies);
 
@@ -272,31 +267,27 @@ protected:
      */
     int m_mediumSpeciesStart;
     /**
-     * Index into the species vector of the kinetics manager,
-     * pointing to the first species from the condensed phase
-     * of the particles.
+     * Index into the species vector of the kinetics manager, pointing to the
+     * first species from the condensed phase of the particles.
      */
     int m_bulkSpeciesStart;
     /**
-     * Index into the species vector of the kinetics manager,
-     * pointing to the first species from the surface
-     * of the particles
+     * Index into the species vector of the kinetics manager, pointing to the
+     * first species from the surface of the particles
      */
     int m_surfSpeciesStart;
     /**
-     * Pointer to the helper method, Placid, which solves the
-     * surface problem.
+     * Pointer to the helper method, Placid, which solves the surface problem.
      */
     std::unique_ptr<solveSP> m_surfSolver;
 
-    //! If true, a common temperature and pressure for all
-    //! surface and bulk phases associated with the surface problem
-    //! is imposed
+    //! If true, a common temperature and pressure for all surface and bulk
+    //! phases associated with the surface problem is imposed
     bool m_commonTempPressForPhases;
 
-    //! We make the solveSS class a friend because we need
-    //! to access all of the above information directly.
-    //! Adding the members into the class is also a possibility.
+    //! We make the solveSS class a friend because we need to access all of
+    //! the above information directly. Adding the members into the class is
+    //! also a possibility.
     friend class solveSS;
 
 private:

@@ -1,8 +1,7 @@
 /**
  *  @file AqueousKinetics.cpp
  *
- * Homogeneous kinetics in an aqueous phase, either condensed
- * or dilute in salts
+ * Homogeneous kinetics in an aqueous phase, either condensed or dilute in salts
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
