@@ -68,7 +68,7 @@ installation instructions are for Cantera 2.2.0.
 
          c:\python34\python.exe "%USERPROFILE%\Downloads\get-pip.py"
 
-4. **Install Numpy**
+4. **Install Numpy and optional Python packages**
 
    - Go to the `Unofficial Windows Binaries for Python Extension Packages page
      <http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy>`_.
@@ -84,6 +84,12 @@ installation instructions are for Cantera 2.2.0.
      pip, e.g.::
 
          c:\python34\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl"
+
+   - If you plan on using Cantera from Python, you may also want to install
+     IPython (an advanced interactive Python interpreter) and Matplotlib (a
+     plotting library), which are also available from the above link (note that
+     you may also need to download additional dependencies for each of these
+     packages). Matplotlib is required to run some of the Python examples.
 
 5. **Remove old versions of Cantera**
 
@@ -207,10 +213,21 @@ you can skip any steps which have already been completed.
      Note that these packages are required even if you do not plan on using the
      Cantera Python 2 module.
 
+   - If you plan on using Cantera from Python, you may also want to install
+     IPython (an advanced interactive Python interpreter) and Matplotlib (a
+     plotting library). Matplotlib is required to run some of the Python
+     examples::
+
+         pip install ipython matplotlib
+
    - If you want to build the Cantera Python 3 module, run::
 
          brew install python3
          pip3 install numpy cython
+
+     and, optionally::
+
+         pip3 install ipython matplotlib
 
 3. **Compile and install Cantera**
 
@@ -331,3 +348,15 @@ To install all of the Cantera packages::
     sudo aptitude install cantera-python cantera-python3 cantera-dev
 
 or install whichever subset you need by adjusting the above command.
+
+If you plan on using Cantera from Python, you may also want to install IPython
+(an advanced interactive Python interpreter) and Matplotlib (a plotting
+library), which are also available from the above link. Matplotlib is required
+to run some of the Python examples. For Python 2, these packages can be
+installed with::
+
+    sudo aptitude install ipython python-matplotlib
+
+And for Python 3, these packages can be installed with::
+
+    sudo aptitude install ipython3 python3-matplotlib
