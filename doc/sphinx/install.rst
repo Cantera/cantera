@@ -223,6 +223,9 @@ you can skip any steps which have already been completed.
      ``--HEAD``
          Installs the current development version of Cantera.
 
+     ``--with-python3``
+         Install the Python 3 module.
+
      ``--with-matlab=/Applications/MATLAB_R2014a.app/``
          Installs the Matlab toolbox (with the path modified to match your
          installed Matlab version)
