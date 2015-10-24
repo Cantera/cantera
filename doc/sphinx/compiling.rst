@@ -37,12 +37,12 @@ Linux
 
 * Building the python module also requires::
 
-      cython python-dev python-numpy python-numpy-dev
+      cython python-dev python-numpy python-numpy-dev python-setuptools
 
 * Checking out the source code from version control requires Git (install
   ``git``).
 
-* The minimum compatible Cython version is 0.17. If your distribution does not
+* The minimum compatible Cython version is 0.19. If your distribution does not
   contain a suitable version, you may be able to install a more recent version
   using `easy_install` or `pip`.
 
@@ -441,9 +441,8 @@ Optional Programs
 
 * `Cython <http://cython.org/>`_
 
-  * Required to build the Python module
-  * Known to work with versions 0.19 and 0.20. Expected to work with
-    versions >= 0.17.
+  * Required version >=0.19 to build the Python module
+  * Known to work with versions 0.19 and 0.20.
   * Tested with Python 2.7, 3.3, and 3.4. Expected to work with versions 2.6 and
     3.1+ as well.
 
