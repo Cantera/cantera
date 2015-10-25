@@ -941,7 +941,7 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python 2 Package Settings
-cython_min_version = LooseVersion('0.17')
+cython_min_version = LooseVersion('0.19')
 env['install_python2_action'] = ''
 if env['python_package'] == 'new':
     env['python_package'] = 'full' # Allow 'new' as a synonym for 'full'
