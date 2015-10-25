@@ -174,7 +174,7 @@ public:
     }
 
 protected:
-    doublereal m_logA, m_b, m_E, m_A;
+    doublereal m_b, m_E, m_A;
     doublereal m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
