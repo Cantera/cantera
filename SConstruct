@@ -582,7 +582,7 @@ config_options = [
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
      defaults.fsLayout, ('standard','compact','debian')),
-    ('cantera_version', '', '2.2.0')
+    ('cantera_version', '', '2.3.0a1')
 ]
 
 opts.AddVariables(*config_options)
