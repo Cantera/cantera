@@ -72,12 +72,12 @@ public:
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
-    double preExponentialFactor() const {
+    doublereal preExponentialFactor() const {
         return m_A;
     }
 
     //! Return the temperature exponent *b*
-    double temperatureExponent() const {
+    doublereal temperatureExponent() const {
         return m_b;
     }
 
@@ -118,9 +118,9 @@ public:
     explicit SurfaceArrhenius(double A, double b, double Ta);
 
     //! Add a coverage dependency for species *k*, with pre-exponential
-    //! dependence *a*, temperature exponent dependence *m* and activation
-    //! energy dependence *e*, where *e* is in Kelvin, i.e. energy divided by
-    //! the molar gas constant.
+    //! dependence *a*, rate constant exponential dependency *m* on coverage
+    //! and activation energy dependence *e*, where *e* is in Kelvin,
+    //! i.e. energy divided by the molar gas constant.
     void addCoverageDependence(size_t k, doublereal a,
                                doublereal m, doublereal e);
 
@@ -153,12 +153,29 @@ public:
                               (m_E + m_ecov)*recipT + m_mcov);
     }
 
+    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order) accounting coverage dependence
+    /*! Returns reaction prexponent accounting for both *a* and *m*,
+     * since *m* is not temperature-dependent and shouldn't be included in
+     * temperature exponent
+     */
+    doublereal preExponentialFactor() const {
+        return m_A * std::exp(std::log(10.0)*m_acov + m_mcov);
+    }
+
+    //! Return effective temperature exponent
+    doublereal temperatureExponent() const {
+        return m_b;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K], accounting coverage dependence
     doublereal activationEnergy_R() const {
         return m_E + m_ecov;
     }
 
 protected:
-    doublereal m_logA, m_b, m_E, m_A;
+    doublereal m_b, m_E, m_A;
     doublereal m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;

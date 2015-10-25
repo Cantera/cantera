@@ -21,13 +21,12 @@ Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
     } else {
-        m_logA = log(m_A);
+        m_logA = std::log(m_A);
     }
 }
 
 SurfaceArrhenius::SurfaceArrhenius()
-    : m_logA(-1.0E300)
-    , m_b(0.0)
+    : m_b(0.0)
     , m_E(0.0)
     , m_A(0.0)
     , m_acov(0.0)
@@ -39,8 +38,7 @@ SurfaceArrhenius::SurfaceArrhenius()
 }
 
 SurfaceArrhenius::SurfaceArrhenius(double A, double b, double Ta)
-    : m_logA(std::log(A))
-    , m_b(b)
+    : m_b(b)
     , m_E(Ta)
     , m_A(A)
     , m_acov(0.0)
