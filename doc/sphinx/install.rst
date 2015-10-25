@@ -247,10 +247,24 @@ you can skip any steps which have already been completed.
          Installs the Matlab toolbox (with the path modified to match your
          installed Matlab version)
 
+     ``--without-sundials``
+         Do not use an external SUNDIALS version to build Cantera. Users
+         choosing this option will not be able to run sensitivity analysis
+         of Reactor Networks, but it may prevent errors when installing
+         the Matlab toolbox.
+
+     ``--without-check``
+         NOT RECOMMENDED! Disable automatic testing of Cantera during the
+         installation process.
+
    * These options are specified as additional arguments to the ``brew install``
      command, e.g.::
 
-         brew install cantera --HEAD --with-matlab=/Applications/MATLAB_R2014a.app/
+         brew install cantera --HEAD --with-python3
+
+   * If you are installing the Matlab toolbox, the recommended command is::
+
+         brew install cantera --with-matlab=/Applications/MATLAB_R2014a.app/ --without-sundials
 
    * If something goes wrong with the Homebrew install, re-run the command with
      the ``-v`` flag to get more verbose output that may help identify the
