@@ -369,6 +369,21 @@ library), which are also available from the above link. Matplotlib is required
 to run some of the Python examples. For Python 2, these packages can be
 installed with::
 
+    pip2 install ipython matplotlib
+
+And for Python 3, these packages can be installed with::
+
+    pip3 install ipython matplotlib
+
+You may need to install ``pip`` first; instructions can be found on the
+`pip installation instructions.
+<https://pip.pypa.io/en/latest/installing.html#install-pip>`_
+You may need to have superuser access to install packages into the system
+directories. Alternatively, you can add ``--user`` after ``pip install`` but
+before the package names to install into your local user directory. An
+alternative method is to use the Ubuntu repositories, but these tend to
+be very out of date. For Python 2, the command is::
+
     sudo aptitude install ipython python-matplotlib
 
 And for Python 3, these packages can be installed with::
