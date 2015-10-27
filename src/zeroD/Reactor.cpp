@@ -29,9 +29,14 @@ Reactor::Reactor() :
 
 void Reactor::getInitialConditions(double t0, size_t leny, double* y)
 {
+    getState(y);
+}
+
+void Reactor::getState(double* y)
+{
     if (m_thermo == 0) {
-        cout << "Error: reactor is empty." << endl;
-        return;
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
 
