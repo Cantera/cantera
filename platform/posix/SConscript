@@ -36,10 +36,10 @@ pc_cflags = []
 
 localenv['mak_corelibs'] = '-lcantera'
 
-localenv['mak_extra_includes'] = ['-I%s' % s for s in localenv['extra_inc_dirs']]
+localenv['mak_extra_includes'] = ' '.join('-I%s' % s for s in localenv['extra_inc_dirs'])
 pc_incdirs.extend(localenv['extra_inc_dirs'])
 
-localenv['mak_extra_libdirs'] = ['-L%s' % s for s in localenv['extra_lib_dirs']]
+localenv['mak_extra_libdirs'] = ' '.join('-L%s' % s for s in localenv['extra_lib_dirs'])
 pc_libdirs.extend(localenv['extra_lib_dirs'])
 
 if env['use_sundials'] == 'n':
