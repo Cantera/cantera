@@ -325,7 +325,7 @@ Intel Compilers
 
   Your final SCons call might then look something like::
 
-    scons build env_vars=all CC=icc CXX=icpc F90=ifort F77=ifort blas_lapack_libs=mkl_rt blas_lapack_dir=$(MKLROOT)/lib/intel64
+    scons build env_vars=all CC=icc CXX=icpc FORTRAN=ifort blas_lapack_libs=mkl_rt blas_lapack_dir=$(MKLROOT)/lib/intel64
 
   When installing Cantera after building with the Intel compiler, the normal
   method of using ``sudo`` to install Cantera will not work because ``sudo``
