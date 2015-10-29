@@ -60,6 +60,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('.sconf_temp')
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
+    removeDirectory('include/cantera/ext')
     removeFile('ext/f2c_libs/arith.h')
     removeFile('interfaces/cython/cantera/_cantera.cpp')
     removeFile('interfaces/cython/setup2.py')
