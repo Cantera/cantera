@@ -51,8 +51,7 @@ def prep_cppformat(env):
     localenv = prep_default(env)
     build(localenv.Command("#include/cantera/ext/format.h",
                            "#ext/cppformat/format.h",
-                           [Mkdir("#include/cantera/ext"),
-                            Copy('$TARGET', '$SOURCE')]))
+                           Copy('$TARGET', '$SOURCE')))
     return localenv
 
 # each element of libs is: (subdir, (file extensions), prepfunction)
