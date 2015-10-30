@@ -214,12 +214,10 @@ class defaults: pass
 if os.name == 'posix':
     defaults.prefix = '/usr/local'
     defaults.boostIncDir = ''
-    defaults.boostLibDir = ''
     env['INSTALL_MANPAGES'] = True
 elif os.name == 'nt':
     defaults.prefix = pjoin(os.environ['ProgramFiles'], 'Cantera')
     defaults.boostIncDir = ''
-    defaults.boostLibDir = ''
     env['INSTALL_MANPAGES'] = False
 else:
     print "Error: Unrecognized operating system '%s'" % os.name
@@ -542,15 +540,6 @@ config_options = [
            'f2c' program are included.  Set this to "n" if you want to
            build Cantera using the F77 sources in the ext directory.""",
         True),
-    ('F77',
-     """Compiler used to build the external Fortran 77 procedures from
-        the Fortran source code.""",
-     env.get('F77')),
-    ('F77FLAGS',
-     """Fortran 77 Compiler flags. Note that the Fortran compiler
-      flags must be set to produce object code compatible with the
-      C/C++ compiler you are using.""",
-     '-O3'),
     PathVariable(
         'stage_dir',
         """ Directory relative to the Cantera source directory to be
