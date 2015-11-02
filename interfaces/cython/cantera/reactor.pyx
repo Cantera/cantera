@@ -1006,7 +1006,7 @@ cdef class ReactorNet:
         only changes below a certain threshold. The residual is computed using
         feature scaling:
 
-        .. math:: r = \frac{x(t + \Delta t) - x(t)}{\text{max}(x) + \text{atol}}
+        .. math:: r = \left| \frac{x(t + \Delta t) - x(t)}{\text{max}(x) + \text{atol}} \right| \cdot \frac{1}{n_x}
 
         :param max_steps:
             Maximum number of steps to be taken
@@ -1046,7 +1046,7 @@ cdef class ReactorNet:
             max_state_values = np.maximum(max_state_values, state)
             # determine feature_scaled residual
             residual = np.linalg.norm((state - previous_state)
-                / (max_state_values + atol))
+                / (max_state_values + atol)) / np.sqrt(self.n_vars)
             if return_residuals:
                 residuals[step] = residual
             if residual < residual_threshold:
