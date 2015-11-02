@@ -125,19 +125,8 @@ for n in range(n_steps):
     gas2.TDY = r2.thermo.TDY
     upstream.syncState()
     # integrate the reactor forward in time until steady state is reached
-    sim2.set_initial_time(0)  # forces reinitialization
-    time = 0
-    all_done = False
-    # determine steady state from H2 mole fraction
-    X_H2_previous = r2.thermo['H2'].X
-    while not all_done:
-        time += dt
-        sim2.advance(time)
-        if np.abs(r2.thermo['H2'].X - X_H2_previous) < 1.e-10:
-            # check whether surface coverages are in steady state.
-            all_done = True
-        else:
-            X_H2_previous = r2.thermo['H2'].X
+    sim2.reinitialize()
+    sim2.advance_to_steady_state()
     # compute velocity and transform into time
     u2[n] = mass_flow_rate2 / area / r2.thermo.density
     t_r2[n] = r2.mass / mass_flow_rate2  # residence time in this reactor
