@@ -195,6 +195,8 @@ public:
                       doublereal* ydot, doublereal* p);
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
+    virtual void getState(doublereal* y);
+
     virtual size_t nparams() {
         return m_ntotpar;
     }
