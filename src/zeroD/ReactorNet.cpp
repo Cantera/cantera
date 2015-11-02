@@ -175,15 +175,12 @@ void ReactorNet::updateState(doublereal* y)
     }
 }
 
-void ReactorNet::getInitialConditions(double t0, size_t leny, double* y)
-{
-    getState(y);
-}
-    
-void ReactorNet::getState(double* y)
+void ReactorNet::getInitialConditions(doublereal t0,
+                                      size_t leny, doublereal* y)
 {
     for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getState(y + m_start[n]);
+        m_reactors[n]->getInitialConditions(t0, m_start[n+1]-m_start[n],
+                                            y + m_start[n]);
     }
 }
 

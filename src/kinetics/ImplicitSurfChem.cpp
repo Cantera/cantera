@@ -102,11 +102,6 @@ int ImplicitSurfChem::checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* t
 void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc,
         doublereal* c)
 {
-    getState(c);
-}
-
-void ImplicitSurfChem::getState(doublereal* c)
-{
     size_t loc = 0;
     for (size_t n = 0; n < m_nsurf; n++) {
         m_surf[n]->getCoverages(c + loc);

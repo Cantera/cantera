@@ -31,7 +31,6 @@ public:
 
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
-    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
     virtual void evalEqs(doublereal t, doublereal* y,

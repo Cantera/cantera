@@ -95,20 +95,12 @@ public:
 
     //! Called by ReactorNet to get the initial conditions.
     /*!
-     *  Essentially calls function getState()
-     *
      *  @param[in] t0 Time at which initial conditions are determined
      *  @param[in] leny Length of *y* (unused)
      *  @param[out] y state vector representing the initial state of the reactor
      */
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
-
-    //! Get the the current state of the reactor.
-    /*!
-     *  @param[out] y state vector representing the initial state of the reactor
-     */
-    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
 

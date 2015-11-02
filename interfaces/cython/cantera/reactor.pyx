@@ -235,48 +235,6 @@ cdef class Reactor(ReactorBase):
             raise IndexError('No such component: {!r}'.format(name))
         return k
 
-    property n_vars:
-        """
-        The number of state variables in the reactor.
-        Equal to:
-
-        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
-        internal energy or temperature).
-
-        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
-        `n_species` + 2 (mass, enthalpy or temperature).
-        """
-        def __get__(self):
-            return self.reactor.neq()
-
-    def get_state(self):
-        """
-        Get the state vector of the reactor.
-
-        The order of the variables (i.e. rows) is:
-
-        `Reactor` or `IdealGasReactor`:
-
-          - 0  - mass
-          - 1  - volume
-          - 2  - internal energy or temperature
-          - 3+ - mass fractions of the species
-
-        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
-
-          - 0  - mass
-          - 1  - enthalpy or temperature
-          - 2+ - mass fractions of the species
-          
-        You can use the function `component_index` to determine the location
-        of a specific component
-        """
-        if self.n_vars is 0:
-            raise Exception('Reactor empty or network not initialized.')
-        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
-        self.reactor.getState(&y[0])
-        return y
-
 
 cdef class Reservoir(ReactorBase):
     """
@@ -982,68 +940,6 @@ cdef class ReactorNet:
         """
         def __get__(self):
             return self.net.neq()
-
-    def get_state(self):
-        """
-        Get the combined state vector of the reactor network.
-        
-        The combined state vector consists of the concatenated state vectors of
-        all entities contained.
-        """
-        if self.n_vars is 0:
-            raise Exception('ReactorNet empty or not initialized.')
-        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
-        self.net.getState(&y[0])
-        return y
-
-    def advance_to_steady_state(self, int max_steps=10000,
-                                double residual_threshold=1e-6,
-                                double smallest_value=1e-12,
-                                pybool write_residuals=False):
-        r"""
-        Advance the reactor network in time until steady state is reached.
-        
-        The steady state is defined by requiring that the state of the system
-        only changes below a certain threshold. The residual is computed using
-        feature scaling:
-        
-        .. math:: r = \frac{x(t + \Delta t) - x(t)}{\text{max} x + \epsilon}
-        
-        :param max_steps:
-            Maximum number of steps to be taken
-        :param residual_threshold:
-            Threshold below which the feature-scaled residual should drop such
-            that the network is defines as steady state
-        :param smallest_value:
-            The smallest expected value of interest. Used for feature scaling.
-        :param write_residuals:
-            If set to `True`, this function yields the residual time series
-            as a vector with length `max_steps`.
-        
-        """
-        if write_residuals:
-            residuals = np.empty(max_steps)
-        # check if system is initialized
-        if self.n_vars is 0:
-            self.reinitialize()
-        max_state_values = self.get_state()  # denominator for feature scaling
-        for step in range(max_steps):
-            previous_state = self.get_state()
-            self.step()
-            state = self.get_state()
-            max_state_values = np.maximum(max_state_values, state)
-            # determine feature_scaled residual
-            residual = np.sqrt(np.sum(((state - previous_state)
-                / (max_state_values + smallest_value)) ** 2))
-            if write_residuals:
-                residuals[step] = residual
-            if residual < residual_threshold:
-                break
-        if step is max_steps - 1:
-            raise Exception('Maximum number of steps reached before convergence'
-                            ' below maximum residual')
-        if write_residuals:
-            return residuals
 
     def __reduce__(self):
         raise NotImplementedError('ReactorNet object is not picklable')
