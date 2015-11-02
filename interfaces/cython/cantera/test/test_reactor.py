@@ -668,6 +668,16 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         t,T = self.integrate(100.0)
         self.assertTrue(T[-1] < 910) # mixture did not ignite
 
+    def test_steady_state(self):
+        self.setup(900.0, 10*ct.one_atm, 1.0, 20.0)
+        residuals = self.net.advance_to_steady_state(return_residuals=True)
+        # test if steady state is reached
+        self.assertTrue(residuals[-1] < 10. * self.net.rtol)
+        # regression test; no external basis for these results
+        self.assertNear(self.combustor.T, 2486.14, 1e-5)
+        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103804, 1e-5)
+        self.assertNear(self.combustor.thermo['HO2'].Y[0], 7.71296e-06, 1e-5)
+
 
 class TestConstPressureReactor(utilities.CanteraTest):
     """
