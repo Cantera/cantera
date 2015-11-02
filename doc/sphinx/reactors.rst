@@ -382,6 +382,13 @@ by two methods:
   Internally, several ``step()`` calls are typically performed to reach the
   accurate state at time `t_{\rm new}`.
 
+- ``advance_to_steady_state(max_steps, residual_threshold, atol,
+  write_residuals)`` [Python interface only]: If the steady state solution of a
+  reactor network is of interest, this method can be used. Internally, the
+  steady state is approached by time stepping. The network is considered to be
+  at steady state if the feature-scaled residual of the state vector is below a
+  given threshold value (which by default is 10 times the time step rtol).
+
 The use of the ``advance`` method in a loop has the advantage that it produces
 results corresponding to a predefined time series. These are associated with a
 predefined memory consumption and well comparable between simulation runs with
