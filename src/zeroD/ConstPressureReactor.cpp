@@ -13,10 +13,16 @@ using namespace std;
 namespace Cantera
 {
 
-void ConstPressureReactor::getInitialConditions(double t0, size_t leny, double* y)
+void ConstPressureReactor::getInitialConditions(double t0, size_t leny,
+                                                double* y)
+{
+    getState(y);
+}
+    
+void ConstPressureReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getInitialConditions",
+        throw CanteraError("getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);

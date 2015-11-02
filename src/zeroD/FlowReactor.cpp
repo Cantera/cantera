@@ -26,9 +26,14 @@ FlowReactor::FlowReactor() :
 
 void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
+    getState(y);
+}
+    
+void FlowReactor::getState(double* y)
+{
     if (m_thermo == 0) {
-        writelog("Error: reactor is empty.\n");
-        return;
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
     m_thermo->getMassFractions(y+2);
