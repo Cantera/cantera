@@ -134,6 +134,8 @@ public:
 
     //! Set the initial conditions for the solution vector
     /*!
+     *  Essentially calls getState()
+     *
      *  @param t0  Initial time
      *  @param leny  Length of the solution vector
      *  @param y   Value of the solution vector to be used.
@@ -142,6 +144,14 @@ public:
      */
     virtual void getInitialConditions(doublereal t0,
                                       size_t leny, doublereal* y);
+
+    //! Get the current state of the solution vector
+    /*!
+     *  @param y   Value of the solution vector to be used.
+     *            On output, this contains the initial value
+     *           of the solution.
+     */
+    virtual void getState(doublereal* y);
 
     /*!
      * Get the specifications for the problem from the values

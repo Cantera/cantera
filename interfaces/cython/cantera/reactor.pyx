@@ -235,6 +235,48 @@ cdef class Reactor(ReactorBase):
             raise IndexError('No such component: {!r}'.format(name))
         return k
 
+    property n_vars:
+        """
+        The number of state variables in the reactor.
+        Equal to:
+
+        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
+        internal energy or temperature).
+
+        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
+        `n_species` + 2 (mass, enthalpy or temperature).
+        """
+        def __get__(self):
+            return self.reactor.neq()
+
+    def get_state(self):
+        """
+        Get the state vector of the reactor.
+
+        The order of the variables (i.e. rows) is:
+
+        `Reactor` or `IdealGasReactor`:
+
+          - 0  - mass
+          - 1  - volume
+          - 2  - internal energy or temperature
+          - 3+ - mass fractions of the species
+
+        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
+
+          - 0  - mass
+          - 1  - enthalpy or temperature
+          - 2+ - mass fractions of the species
+
+        You can use the function `component_index` to determine the location
+        of a specific component
+        """
+        if not self.n_vars:
+            raise Exception('Reactor empty or network not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.reactor.getState(&y[0])
+        return y
+
 
 cdef class Reservoir(ReactorBase):
     """
@@ -940,6 +982,19 @@ cdef class ReactorNet:
         """
         def __get__(self):
             return self.net.neq()
+
+    def get_state(self):
+        """
+        Get the combined state vector of the reactor network.
+
+        The combined state vector consists of the concatenated state vectors of
+        all entities contained.
+        """
+        if not self.n_vars:
+            raise Exception('ReactorNet empty or not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.net.getState(&y[0])
+        return y
 
     def __reduce__(self):
         raise NotImplementedError('ReactorNet object is not picklable')
