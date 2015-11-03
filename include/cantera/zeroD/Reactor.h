@@ -100,6 +100,7 @@ public:
      *  @param[in] t0 Time at which initial conditions are determined
      *  @param[in] leny Length of *y* (unused)
      *  @param[out] y state vector representing the initial state of the reactor
+     *  @deprecated Use getState instead. To be removed after Cantera 2.3.
      */
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);

@@ -200,7 +200,7 @@ void CVodeInt::initialize(double t0, FuncEval& func)
     if (m_itol == 1 && m_nabs < m_neq) {
         throw CVodeErr("not enough absolute tolerance values specified.");
     }
-    func.getInitialConditions(m_t0, m_neq, N_VDATA(m_y));
+    func.getState(N_VDATA(m_y));
 
     // set options
     m_iopt[MXSTEP] = m_maxsteps;
@@ -247,7 +247,7 @@ void CVodeInt::initialize(double t0, FuncEval& func)
 void CVodeInt::reinitialize(double t0, FuncEval& func)
 {
     m_t0 = t0;
-    func.getInitialConditions(m_t0, m_neq, N_VDATA(m_y));
+    func.getState(N_VDATA(m_y));
 
     // set options
     m_iopt[MXSTEP] = m_maxsteps;

@@ -177,6 +177,8 @@ void ReactorNet::updateState(doublereal* y)
 
 void ReactorNet::getInitialConditions(double t0, size_t leny, double* y)
 {
+    warn_deprecated("ReactorNet::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
     getState(y);
 }
 

@@ -16,6 +16,8 @@ namespace Cantera
 void ConstPressureReactor::getInitialConditions(double t0, size_t leny,
                                                 double* y)
 {
+    warn_deprecated("ConstPressureReactor::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
     getState(y);
 }
 

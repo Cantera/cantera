@@ -31,6 +31,7 @@ public:
 
     virtual void setThermoMgr(ThermoPhase& thermo);
 
+    //! @deprecated Use getState instead. To be removed after Cantera 2.3.
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
     virtual void getState(doublereal* y);

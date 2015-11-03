@@ -28,6 +28,8 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 void IdealGasConstPressureReactor::getInitialConditions(double t0, size_t leny,
                                                         double* y)
 {
+    warn_deprecated("IdealGasConstPressureReactor::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
     getState(y);
 }
 

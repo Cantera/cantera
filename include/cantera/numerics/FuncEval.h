@@ -8,6 +8,8 @@
 #define CT_FUNCEVAL_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -38,8 +40,18 @@ public:
     /**
      * Fill the solution vector with the initial conditions
      * at initial time t0.
+     * @deprecated Use getState() instead. To be removed after Cantera 2.3.
      */
-    virtual void getInitialConditions(double t0, size_t leny, double* y)=0;
+    virtual void getInitialConditions(double t0, size_t leny, double* y) {
+        warn_deprecated("FuncEval::getInitialConditions",
+            "Use getState instead. To be removed after Cantera 2.3.");
+        getState(y);
+    }
+
+    //! Fill in the vector *y* with the current state of the system
+    virtual void getState(double* y) {
+        throw NotImplementedError("FuncEval::getState");
+    }
 
     //! Number of equations.
     virtual size_t neq()=0;

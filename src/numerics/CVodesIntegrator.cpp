@@ -281,7 +281,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
         throw CVodesErr("not enough absolute tolerance values specified.");
     }
 
-    func.getInitialConditions(m_t0, m_neq, NV_DATA_S(m_y));
+    func.getState(NV_DATA_S(m_y));
 
     if (m_cvode_mem) {
         CVodeFree(&m_cvode_mem);
@@ -344,8 +344,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0 = t0;
     m_time = t0;
-    func.getInitialConditions(m_t0, static_cast<sd_size_t>(m_neq),
-                              NV_DATA_S(m_y));
+    func.getState(NV_DATA_S(m_y));
 
     int result;
     result = CVodeReInit(m_cvode_mem, m_t0, m_y);
