@@ -8,7 +8,7 @@
 #include "cantera/base/config.h"
 
 extern "C" {
-    CANTERA_CAPI int surf_setcoverages(int i, double* c);
+    CANTERA_CAPI int surf_setcoverages(int i, double* c, int norm);
     CANTERA_CAPI int surf_getcoverages(int i, double* c);
     CANTERA_CAPI int surf_setconcentrations(int i, double* c);
     CANTERA_CAPI int surf_getconcentrations(int i, double* c);

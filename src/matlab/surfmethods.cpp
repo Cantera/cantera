@@ -14,6 +14,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
     double vv;
     int job = getInt(prhs[2]);
     int iok = 0;
+    int norm = 0;
     double* ptr;
     char* str;
     size_t nsp, n, m;
@@ -28,13 +29,14 @@ void surfmethods(int nlhs, mxArray* plhs[],
             iok = surf_setsitedensity(surf, vv);
             break;
         case 3:
-            checkNArgs(4, nrhs);
+            checkNArgs(5, nrhs);
             ptr = mxGetPr(prhs[3]);
             m = mxGetM(prhs[3]);
             n = mxGetN(prhs[3]);
             nsp = phase_nSpecies(surf);
+            norm = getInt(prhs[4]);
             if ((m == nsp && n == 1) || (m == 1 && n == nsp)) {
-                iok = surf_setcoverages(surf, ptr);
+                iok = surf_setcoverages(surf, ptr, norm);
             } else {
                 mexErrMsgTxt("wrong array size for coverages");
             }
