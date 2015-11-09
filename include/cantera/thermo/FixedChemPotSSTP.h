@@ -19,67 +19,66 @@
 namespace Cantera
 {
 
-//!  Class FixedChemPotSSTP represents a stoichiometric (fixed
-//!   composition)  incompressible substance.
+//! Class FixedChemPotSSTP represents a stoichiometric (fixed composition)
+//! incompressible substance.
 /*!
- * This class internally changes the independent degree of freedom from
- * density to pressure. This is necessary because the phase is
- * incompressible. It uses a zero volume approximation.
+ * This class internally changes the independent degree of freedom from density
+ * to pressure. This is necessary because the phase is incompressible. It uses a
+ * zero volume approximation.
  *
  * <b> Specification of Species Standard State Properties </b>
  *
- *  This class inherits from SingleSpeciesTP.
- *  It uses a single value for the chemical potential which is assumed to be constant
- *  with respect to temperature and pressure.
+ * This class inherits from SingleSpeciesTP. It uses a single value for the
+ * chemical potential which is assumed to be constant with respect to
+ * temperature and pressure.
  *
- *  The reference state thermodynamics is inherited from SingleSpeciesTP. However,
- *  it's only used to set the initial chemical potential to the value
- *  of the chemical potential at the starting conditions. Thereafter,
- *  it is ignored.
+ * The reference state thermodynamics is inherited from SingleSpeciesTP.
+ * However, it's only used to set the initial chemical potential to the value of
+ * the chemical potential at the starting conditions. Thereafter, it is ignored.
  *
- *  For a zero volume material, the internal energy and the enthalpy are
- *  equal to the chemical potential. The entropy, the heat capacity, and the molar volume
- *  are equal to zero.
+ * For a zero volume material, the internal energy and the enthalpy are equal to
+ * the chemical potential. The entropy, the heat capacity, and the molar volume
+ * are equal to zero.
  *
  * <b> Specification of Solution Thermodynamic Properties </b>
  *
- *  All solution properties are obtained from the standard state
- *  species functions, since there is only one species in the phase.
+ * All solution properties are obtained from the standard state species
+ * functions, since there is only one species in the phase.
  *
  * <b> Application within Kinetics Managers </b>
  *
- * The standard concentration is equal to 1.0. This means that the
- * kinetics operator works on an (activities basis). Since this
- * is a stoichiometric substance, this means that the concentration
- * of this phase drops out of kinetics expressions.
+ * The standard concentration is equal to 1.0. This means that the kinetics
+ * operator works on an (activities basis). Since this is a stoichiometric
+ * substance, this means that the concentration of this phase drops out of
+ * kinetics expressions.
  *
- * An example of a reaction using this is a sticking coefficient
- * reaction of a substance in an ideal gas phase on a surface with a bulk phase
- * species in this phase. In this case, the rate of progress for this
- * reaction, \f$ R_s \f$, may be expressed via the following equation:
+ * An example of a reaction using this is a sticking coefficient reaction of a
+ * substance in an ideal gas phase on a surface with a bulk phase species in
+ * this phase. In this case, the rate of progress for this reaction, \f$ R_s
+ * \f$, may be expressed via the following equation:
  *   \f[
  *    R_s = k_s C_{gas}
  *   \f]
  * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
- * of kmol m-3. Therefore, the kinetic rate constant, \f$ k_s \f$, has
- * units of m s-1. Nowhere does the concentration of the bulk phase
- * appear in the rate constant expression, since it's a stoichiometric
- * phase, and the activity is always equal to 1.0.
+ * of kmol m-3. Therefore, the kinetic rate constant, \f$ k_s \f$, has units of
+ * m s-1. Nowhere does the concentration of the bulk phase appear in the rate
+ * constant expression, since it's a stoichiometric phase, and the activity is
+ * always equal to 1.0.
  *
  * <b> Instantiation of the Class </b>
  *
  * This phase may be instantiated by calling the default ThermoFactory routine
- * for %Cantera. This new FixedChemPotSSTP object must then have a standalone XML file
- * description an example of which is given below.
+ * for %Cantera. This new FixedChemPotSSTP object must then have a standalone
+ * XML file description an example of which is given below.
  *
- * It may also be created by the following code snippets. The code
- * includes the special member function setChemicalPotential( chempot), which
- * sets the chemical potential to a specific value in J / kmol.
+ * It may also be created by the following code snippets. The code includes the
+ * special member function setChemicalPotential( chempot), which sets the
+ * chemical potential to a specific value in J / kmol.
  *
  * @code
  *    XML_Node *xm = get_XML_NameID("phase", iFile + "#Li(Fixed)", 0);
  *    FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP(*xm);
-      // Set the chemical potential to -2.3E7 J/kmol
+ *    // Set the chemical potential to -2.3E7 J/kmol
  *    LiFixed->setChemicalPotential(-2.3E7.)
  * @endcode
  *
@@ -170,14 +169,9 @@ public:
      */
     FixedChemPotSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-    //! Copy constructor
-    /*!
-     * @param right Object to be copied
-     */
-    FixedChemPotSSTP(const FixedChemPotSSTP& right);
 
-    //! Special constructor for the FixecChemPotSSTP class setting an element chemical
-    //! potential directly
+    //! Special constructor for the FixecChemPotSSTP class setting an element
+    //! chemical potential directly
     /*!
      *  This will create a FixedChemPotSSTP consisting of a single species with the
      *  stoichiometry of one of the specified atom. It will have a chemical potential
@@ -188,20 +182,8 @@ public:
      */
     FixedChemPotSSTP(const std::string& Ename, doublereal chemPot);
 
-    //! Assignment operator
-    /*!
-     * @param right Object to be copied
-     */
+    FixedChemPotSSTP(const FixedChemPotSSTP& right);
     FixedChemPotSSTP& operator=(const FixedChemPotSSTP& right);
-
-    //! Duplication function
-    /*!
-     * This virtual function is used to create a duplicate of the
-     * current phase. It's used to duplicate the phase when given
-     * a ThermoPhase pointer to the phase.
-     *
-     * @return It returns a ThermoPhase pointer.
-     */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
@@ -217,39 +199,22 @@ public:
 
     //! Report the Pressure. Units: Pa.
     /*!
-     * For an incompressible substance, the density is independent
-     * of pressure. This method simply returns the stored
-     * pressure value.
+     * For an incompressible substance, the density is independent of pressure.
+     * This method simply returns the stored pressure value.
      */
     virtual doublereal pressure() const;
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
-     * For an incompressible substance, the density is
-     * independent of pressure. Therefore, this method only
-     * stores the specified pressure value. It does not
-     * modify the density.
+     * For an incompressible substance, the density is independent of pressure.
+     * Therefore, this method only stores the specified pressure value. It does
+     * not modify the density.
      *
      * @param p Pressure (units - Pa)
      */
     virtual void setPressure(doublereal p);
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
-    /*!
-     * The isothermal compressibility is defined as
-     * \f[
-     * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
-     */
     virtual doublereal isothermalCompressibility() const;
-
-    //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-    /*!
-     * The thermal expansion coefficient is defined as
-     * \f[
-     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
-     */
     virtual doublereal thermalExpansionCoeff() const;
 
     /**
@@ -261,60 +226,41 @@ public:
      * @{
      */
 
-    //! This method returns an array of generalized concentrations
-    /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-     * defined below and \f$ a_k \f$ are activities used in the
-     * thermodynamic functions.  These activity (or generalized)
-     * concentrations are used
-     * by kinetics manager classes to compute the forward and
-     * reverse rates of elementary reactions.
-     *
-     *  For a stoichiometric substance, there is
-     *  only one species, and the generalized concentration is 1.0.
-     *
-     * @param c Output array of generalized concentrations. The
-     *           units depend upon the implementation of the
-     *           reaction rate expressions within the phase.
+    //! @copydoc ThermoPhase::getActivityConcentrations
+    /*! 
+     * For a stoichiometric substance, there is only one species, and the
+     * generalized concentration is 1.0.
      */
     virtual void getActivityConcentrations(doublereal* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration.
-     * This phase assumes that the kinetics operator works on an
-     * dimensionless basis. Thus, the standard concentration is
-     * equal to 1.0.
+     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * (i.e., generalized) concentration. This phase assumes that the kinetics
+     * operator works on an dimensionless basis. Thus, the standard
+     * concentration is equal to 1.0.
      *
-     * @param k Optional parameter indicating the species. The default
-     *         is to assume this refers to species 0.
+     * @param k Optional parameter indicating the species. The default is to
+     *         assume this refers to species 0.
      * @return
      *   Returns The standard Concentration as 1.0
      */
     virtual doublereal standardConcentration(size_t k=0) const;
-
-    //! Natural logarithm of the standard concentration of the kth species.
-    /*!
-     * @param k    index of the species (defaults to zero)
-     */
     virtual doublereal logStandardConc(size_t k=0) const;
 
-    //! Get the array of chemical potentials at unit activity for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the array of chemical potentials at unit activity for the species at
+    //! their standard states at the current <I>T</I> and <I>P</I> of the
+    //! solution.
     /*!
-     * For a stoichiometric substance, there is no activity term in
-     * the chemical potential expression, and therefore the
-     * standard chemical potential and the chemical potential
-     * are both equal to the molar Gibbs function.
+     * For a stoichiometric substance, there is no activity term in the chemical
+     * potential expression, and therefore the standard chemical potential and
+     * the chemical potential are both equal to the molar Gibbs function.
      *
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
-     * \f$. The values are evaluated at the current
-     * temperature and pressure of the solution
+     * These are the standard state chemical potentials \f$ \mu^0_k(T,P) \f$.
+     * The values are evaluated at the current temperature and pressure of the
+     * solution
      *
-     * @param mu0     Output vector of chemical potentials.
-     *                Length: m_kk.
+     * @param mu0     Output vector of chemical potentials. Length: m_kk.
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
 
@@ -338,58 +284,29 @@ public:
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-    //! Get the nondimensional Enthalpy functions for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param hrt      Output vector of nondimensional standard state enthalpies.
-     *                 Length: m_kk.
-     */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
-
-    //! Get the array of nondimensional Entropy functions for the
-    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param sr   Output vector of nondimensional standard state entropies.
-     *             Length: m_kk.
-     */
     virtual void getEntropy_R(doublereal* sr) const;
-
-    //! Get the nondimensional Gibbs functions for the species
-    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param grt  Output vector of nondimensional standard state Gibbs free energies
-     *             Length: m_kk.
-     */
     virtual void getGibbs_RT(doublereal* grt) const;
-
-    //! Get the nondimensional Heat Capacities at constant
-    //! pressure for the species standard states
-    //! at the current <I>T</I> and <I>P</I> of the solution
-    /*!
-     * @param cpr   Output vector of nondimensional standard state heat capacities
-     *              Length: m_kk.
-     */
     virtual void getCp_R(doublereal* cpr) const;
 
-    //!  Returns the vector of nondimensional Internal Energies of the standard
-    //!  state species at the current <I>T</I> and <I>P</I> of the solution
+    //! Returns the vector of nondimensional Internal Energies of the standard
+    //! state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
-     *  For an incompressible,
-     * stoichiometric substance, the molar internal energy is
-     * independent of pressure. Since the thermodynamic properties
-     * are specified by giving the standard-state enthalpy, the
-     * term \f$ P_{ref} \hat v\f$ is subtracted from the specified reference molar
-     * enthalpy to compute the standard state molar internal energy.
+     * For an incompressible, stoichiometric substance, the molar internal
+     * energy is independent of pressure. Since the thermodynamic properties are
+     * specified by giving the standard-state enthalpy, the term \f$ P_{ref}
+     * \hat v\f$ is subtracted from the specified reference molar enthalpy to
+     * compute the standard state molar internal energy.
      *
      * @param urt  output vector of nondimensional standard state
      *             internal energies of the species. Length: m_kk.
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
-    //! Get the molar volumes of each species in their standard
-    //! states at the current  <I>T</I> and <I>P</I> of the solution.
+    //! Get the molar volumes of each species in their standard states at the
+    //! current  <I>T</I> and <I>P</I> of the solution.
     /*
-     *   units = m^3 / kmol
+     * units = m^3 / kmol
      *
      * We set this to zero
      *
@@ -402,81 +319,11 @@ public:
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
-    //! Returns the vector of nondimensional
-    //!  internal Energies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for each species.
-    /*!
-     * @param urt    Output vector of nondimensional reference state internal
-     *               energies of the species. Length: m_kk
-     */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-
-    /*!
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
-     *  pointer is populated and yields the reference state.
-     *
-     * @param hrt     Output vector containing the nondimensional reference state enthalpies
-     *                Length: m_kk.
-     */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-
-    /*!
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
-     *  pointer is populated and yields the reference state.
-     *
-     * @param grt     Output vector containing the nondimensional reference state
-     *                Gibbs Free energies.  Length: m_kk.
-     */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
-
-    /*!
-     *  Returns the vector of the
-     *  Gibbs function of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *  units = J/kmol
-     *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
-     *  pointer is populated and yields the reference state.
-     *
-     * @param g       Output vector containing the reference state
-     *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
-     */
     virtual void getGibbs_ref(doublereal* g) const;
-
-    /*!
-     *  Returns the vector of nondimensional
-     *  entropies of the reference state at the current temperature
-     *  of the solution and the reference pressure for each species.
-     *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
-     *  pointer is populated and yields the reference state.
-     *
-     * @param er      Output vector containing the nondimensional reference state
-     *                entropies.  Length: m_kk.
-       */
     virtual void getEntropy_R_ref(doublereal* er) const;
-
-    /*!
-     *  Returns the vector of nondimensional
-     *  constant pressure heat capacities of the reference state
-     *  at the current temperature of the solution
-     *  and reference pressure for each species.
-     *
-     *  This function is resolved in this class.  It is assumed that the m_spthermo species thermo
-     *  pointer is populated and yields the reference state.
-     *
-     * @param cprt   Output vector of nondimensional reference state
-     *               heat capacities at constant pressure for the species.
-     *               Length: m_kk
-     */
     virtual void getCp_R_ref(doublereal* cprt) const;
 
     //@}
@@ -509,11 +356,11 @@ public:
     /*!
      * This method is called by function importPhase() when processing a phase
      * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model. Note, this method is called before the phase is
-     * initialized with elements and/or species.
+     * any parameters that are specific to that particular phase model. Note,
+     * this method is called before the phase is initialized with elements
+     * and/or species.
      *
-     *  For this phase, the chemical potential is set
+     * For this phase, the chemical potential is set.
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.

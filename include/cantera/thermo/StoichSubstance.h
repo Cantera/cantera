@@ -18,12 +18,12 @@
 namespace Cantera
 {
 
-//!  Class StoichSubstance represents a stoichiometric (fixed
-//!   composition)  incompressible substance.
+//! Class StoichSubstance represents a stoichiometric (fixed composition)
+//! incompressible substance.
 /*!
  * This class internally changes the independent degree of freedom from density
- * to pressure. This is necessary because the phase is incompressible. It uses
- * a constant volume approximation.
+ * to pressure. This is necessary because the phase is incompressible. It uses a
+ * constant volume approximation.
  *
  * <b> Specification of Species Standard State Properties </b>
  *
@@ -171,26 +171,8 @@ public:
      */
     StoichSubstance(XML_Node& phaseRef, const std::string& id = "");
 
-    //! Copy constructor
-    /*!
-     * @param right Object to be copied
-     */
     StoichSubstance(const StoichSubstance& right);
-
-    //! Assignment operator
-    /*!
-     * @param right Object to be copied
-     */
     StoichSubstance& operator=(const StoichSubstance& right);
-
-    //! Duplication function
-    /*!
-     * This virtual function is used to create a duplicate of the current phase.
-     * It's used to duplicate the phase when given a ThermoPhase pointer to the
-     * phase.
-     *
-     * @return It returns a ThermoPhase pointer.
-     */
     ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
@@ -220,22 +202,7 @@ public:
      */
     virtual void setPressure(doublereal p);
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
-    /*!
-     * The isothermal compressibility is defined as
-     * \f[
-     * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
-     */
     virtual doublereal isothermalCompressibility() const;
-
-    //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-    /*!
-     * The thermal expansion coefficient is defined as
-     * \f[
-     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
-     */
     virtual doublereal thermalExpansionCoeff() const;
 
     /**
@@ -277,11 +244,6 @@ public:
      *   Returns The standard Concentration as 1.0
      */
     virtual doublereal standardConcentration(size_t k=0) const;
-
-    //! Natural logarithm of the standard concentration of the kth species.
-    /*!
-     * @param k    index of the species (defaults to zero)
-     */
     virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Get the array of chemical potentials at unit activity for the species
@@ -305,36 +267,9 @@ public:
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-    //! Get the nondimensional Enthalpy functions for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
-     *                 Length: m_kk.
-     */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
-
-    //! Get the array of nondimensional Entropy functions for the
-    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
-     *             Length: m_kk.
-     */
     virtual void getEntropy_R(doublereal* sr) const;
-
-    //! Get the nondimensional Gibbs functions for the species
-    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param grt  Output vector of nondimensional standard state Gibbs free energies
-     *             Length: m_kk.
-     */
     virtual void getGibbs_RT(doublereal* grt) const;
-
-    //! Get the nondimensional Heat Capacities at constant pressure for the
-    //! species standard states at the current <I>T</I> and <I>P</I> of the solution
-    /*!
-     * @param cpr   Output vector of nondimensional standard state heat capacities
-     *              Length: m_kk.
-     */
     virtual void getCp_R(doublereal* cpr) const;
 
     //! Returns the vector of nondimensional Internal Energies of the standard
@@ -359,30 +294,18 @@ public:
     //! state at the current temperature of the solution and the reference
     //! pressure for each species.
     /*!
-     * @param urt    Output vector of nondimensional reference state
-     *               internal energies of the species.
-     *               Length: m_kk
+     * @param urt    Output vector of nondimensional reference state internal
+     *               energies of the species. Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
     // @}
 
-    /*
-     * @internal Initialize. This method is provided to allow subclasses to
-     * perform any initialization required after all species have been added.
-     * For example, it might be used to resize internal work arrays that must
-     * have an entry for each species. The base class implementation does
-     * nothing, and subclasses that do not require initialization do not need to
-     * overload this method. When importing a CTML phase description, this
-     * method is called just prior to returning from function importPhase().
-     */
     virtual void initThermo();
-
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters
     /*!
      * @internal
-     *  The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
@@ -405,12 +328,6 @@ public:
 
     //! Set equation of state parameter values from XML entries.
     /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase model. Note,
-     * this method is called before the phase is initialized with elements
-     * and/or species.
-     *
      * For this phase, the density of the phase is specified in this block.
      *
      * @param eosdata An XML_Node object corresponding to

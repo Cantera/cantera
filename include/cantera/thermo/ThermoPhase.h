@@ -39,35 +39,31 @@ const int cSS_CONVENTION_VPSS = 1;
 const int cSS_CONVENTION_SLAVE = 2;
 //@}
 
-//!   Base class for a phase with thermodynamic properties.
+//! Base class for a phase with thermodynamic properties.
 /*!
- * Class ThermoPhase is the base class for the family of classes
- * that represent phases of matter of any type. It defines a
- * common public interface, and implements a few methods. Most of
- * the methods, however, are declared virtual and are meant to be
- * overloaded in derived classes.  The standard way used
- * throughout Cantera to compute properties of phases of matter is
- * through pointers of type ThermoPhase* that point to objects of
- * subclasses of ThermoPhase.
+ * Class ThermoPhase is the base class for the family of classes that represent
+ * phases of matter of any type. It defines a common public interface, and
+ * implements a few methods. Most of the methods, however, are declared virtual
+ * and are meant to be overloaded in derived classes.  The standard way used
+ * throughout Cantera to compute properties of phases of matter is through
+ * pointers of type ThermoPhase* that point to objects of subclasses of
+ * ThermoPhase.
  *
  * Class ThermoPhase extends class Phase by adding methods to compute
  * thermodynamic properties in addition to the ones (temperature, density,
- * composition) that class Phase provides. The distinction is that
- * the methods declared in ThermoPhase require knowing the
- * particular equation of state of the phase of interest, while
- * those of class Phase do not, since they only involve data values
- * stored within the object.
+ * composition) that class Phase provides. The distinction is that the methods
+ * declared in ThermoPhase require knowing the particular equation of state of
+ * the phase of interest, while those of class Phase do not, since they only
+ * involve data values stored within the object.
  *
- * Instances of subclasses of ThermoPhase should be created using
- * the factory class ThermoFactory, not by calling the constructor
- * directly. This allows new classes to be used with the various
- * Cantera language interfaces.
+ * Instances of subclasses of ThermoPhase should be created using the factory
+ * class ThermoFactory, not by calling the constructor directly. This allows new
+ * classes to be used with the various Cantera language interfaces.
  *
- * To implement a new equation of state, derive a class from
- * ThermoPhase and overload the virtual methods in
- * ThermoPhase. Methods that are not needed can be left
- * unimplemented, which will cause an exception to be thrown if it
- * is called.
+ * To implement a new equation of state, derive a class from ThermoPhase and
+ * overload the virtual methods in ThermoPhase. Methods that are not needed can
+ * be left unimplemented, which will cause an exception to be thrown if it is
+ * called.
  *
  * Relationship with the kinetics operator:
  *
@@ -76,21 +72,19 @@ const int cSS_CONVENTION_SLAVE = 2;
  * Describe K_a, K_p, and K_c, These are three different equilibrium
  * constants.
  *
- *   K_a is the calculation of the equilibrium constant from the
- *   standard state Gibbs free energy values. It is by definition
- *   dimensionless.
+ *   K_a is the calculation of the equilibrium constant from the standard state
+ *   Gibbs free energy values. It is by definition dimensionless.
  *
- *   K_p is the calculation of the equilibrium constant from the
- *   reference state Gibbs free energy values. It is by definition
- *   dimensionless. The pressure dependence is handled entirely
- *   on the RHS of the equilibrium expression.
+ *   K_p is the calculation of the equilibrium constant from the reference state
+ *   Gibbs free energy values. It is by definition dimensionless. The pressure
+ *   dependence is handled entirely on the RHS of the equilibrium expression.
  *
- *   K_c is the equilibrium constant calculated from the
- *   activity concentrations. The dimensions depend on the number
- *   of products and reactants.
+ *   K_c is the equilibrium constant calculated from the activity
+ *   concentrations. The dimensions depend on the number of products and
+ *   reactants.
  *
- * The kinetics manager requires the calculation of K_c for the
- * calculation of the reverse rate constant
+ * The kinetics manager requires the calculation of K_c for the calculation of
+ * the reverse rate constant
  *
  * @ingroup thermoprops
  * @ingroup phases
@@ -135,10 +129,9 @@ public:
 
     //! Equation of state type flag.
     /*!
-     *  The base class returns
-     * zero. Subclasses should define this to return a unique
-     * non-zero value. Constants defined for this purpose are
-     * listed in mix_defs.h.
+     * The base class returns zero. Subclasses should define this to return a
+     * unique non-zero value. Constants defined for this purpose are listed in
+     * mix_defs.h.
      */
     virtual int eosType() const {
         return 0;
@@ -155,38 +148,43 @@ public:
     //! Minimum temperature for which the thermodynamic data for the species
     //! or phase are valid.
     /*!
-     * If no argument is supplied, the
-     * value returned will be the lowest temperature at which the
-     * data for \e all species are valid. Otherwise, the value
-     * will be only for species \a k. This function is a wrapper
-     * that calls the species thermo minTemp function.
+     * If no argument is supplied, the value returned will be the lowest
+     * temperature at which the data for \e all species are valid. Otherwise,
+     * the value will be only for species \a k. This function is a wrapper that
+     * calls the species thermo minTemp function.
      *
-     * @param k index of the species. Default is -1, which will return the max of the min value
-     *          over all species.
+     * @param k index of the species. Default is -1, which will return the max
+     *          of the min value over all species.
      */
     virtual doublereal minTemp(size_t k = npos) const {
         return m_spthermo->minTemp(k);
     }
 
-    //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
+    //! Report the 298 K Heat of Formation of the standard state of one species
+    //! (J kmol-1)
     /*!
-     *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *  The 298K Heat of Formation is defined as the enthalpy change to create
+     *  the standard state of the species from its constituent elements in their
+     *  standard states at 298 K and 1 bar.
      *
      *   @param k    species index
-     *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
+     *   @return     Returns the current value of the Heat of Formation at 298K
+     *       and 1 bar
      */
     doublereal Hf298SS(const int k) const {
         return m_spthermo->reportOneHf298(k);
     }
 
-    //! Modify the value of the 298 K Heat of Formation of one species in the phase (J kmol-1)
+    //! Modify the value of the 298 K Heat of Formation of one species in the
+    //! phase (J kmol-1)
     /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     *  The 298K heat of formation is defined as the enthalpy change to create
+     *  the standard state of the species from its constituent elements in their
+     *  standard states at 298 K and 1 bar.
      *
      *   @param  k           Species k
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar
+     *   @param  Hf298New    Specify the new value of the Heat of Formation at
+     *       298K and 1 bar
      */
     virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
@@ -196,14 +194,13 @@ public:
     //! Maximum temperature for which the thermodynamic data for the species
     //! are valid.
     /*!
-     * If no argument is supplied, the
-     * value returned will be the highest temperature at which the
-     * data for \e all species are valid. Otherwise, the value
-     * will be only for species \a k. This function is a wrapper
-     * that calls the species thermo maxTemp function.
+     * If no argument is supplied, the value returned will be the highest
+     * temperature at which the data for \e all species are valid. Otherwise,
+     * the value will be only for species \a k. This function is a wrapper that
+     * calls the species thermo maxTemp function.
      *
-     * @param k index of the species. Default is -1, which will return the min of the max value
-     *          over all species.
+     * @param k index of the species. Default is -1, which will return the min
+     *          of the max value over all species.
      */
     virtual doublereal maxTemp(size_t k = npos) const {
         return m_spthermo->maxTemp(k);
@@ -211,10 +208,11 @@ public:
 
     //! Returns the chargeNeutralityNecessity boolean
     /*!
-     * Some phases must have zero net charge in order for their thermodynamics functions to be valid.
-     * If this is so, then the value returned from this function is true.
-     * If this is not the case, then this is false. Now, ideal gases have this parameter set to false,
-     * while solution with molality-based activity coefficients have this parameter set to true.
+     * Some phases must have zero net charge in order for their thermodynamics
+     * functions to be valid. If this is so, then the value returned from this
+     * function is true. If this is not the case, then this is false. Now, ideal
+     * gases have this parameter set to false, while solution with molality-
+     * based activity coefficients have this parameter set to true.
      */
     bool chargeNeutralityNecessary() const {
         return m_chargeNeutralityNecessary;
@@ -260,11 +258,10 @@ public:
 
     //! Return the thermodynamic pressure (Pa).
     /*!
-     *  This method must be overloaded in derived classes. Since the
-     *  mass density, temperature, and mass fractions are stored,
-     *  this method should use these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots,
-     *  Y_K) \f$.
+     *  This method must be overloaded in derived classes. Since the mass
+     *  density, temperature, and mass fractions are stored, this method should
+     *  use these values to implement the mechanical equation of state \f$ P(T,
+     *  \rho, Y_1, \dots, Y_K) \f$.
      */
     virtual doublereal pressure() const {
         throw NotImplementedError("ThermoPhase::pressure");
@@ -331,18 +328,17 @@ public:
      * @}
      * @name Activities, Standard States, and Activity Concentrations
      *
-     * The activity \f$a_k\f$ of a species in solution is related
-     * to the chemical potential by \f[ \mu_k = \mu_k^0(T,P) +
-     * \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
-     * the standard chemical potential at unit activity,
-     * which depends on temperature and pressure,
-     * but not on composition. The activity is dimensionless.
+     * The activity \f$a_k\f$ of a species in solution is related to the
+     * chemical potential by \f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. \f]
+     * The quantity \f$\mu_k^0(T,P)\f$ is the standard chemical potential at
+     * unit activity, which depends on temperature and pressure, but not on
+     * composition. The activity is dimensionless.
      * @{
      */
 
-    //! This method returns the convention used in specification
-    //! of the activities, of which there are currently two, molar-
-    //! and molality-based conventions.
+    //! This method returns the convention used in specification of the
+    //! activities, of which there are currently two, molar- and molality-based
+    //! conventions.
     /*!
      * Currently, there are two activity conventions:
      *  - Molar-based activities
@@ -360,9 +356,9 @@ public:
      */
     virtual int activityConvention() const;
 
-    //! This method returns the convention used in specification
-    //! of the standard state, of which there are currently two,
-    //! temperature based, and variable pressure based.
+    //! This method returns the convention used in specification of the standard
+    //! state, of which there are currently two, temperature based, and variable
+    //! pressure based.
     /*!
      * Currently, there are two standard state conventions:
      *  - Temperature-based activities
@@ -380,20 +376,17 @@ public:
 
     //! This method returns an array of generalized concentrations
     /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-     * defined below and \f$ a_k \f$ are activities used in the
-     * thermodynamic functions.  These activity (or generalized)
-     * concentrations are used
-     * by kinetics manager classes to compute the forward and
-     * reverse rates of elementary reactions. Note that they may
-     * or may not have units of concentration --- they might be
-     * partial pressures, mole fractions, or surface coverages,
-     * for example.
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^0_k, \f$ where
+     * \f$ C^0_k \f$ is a standard concentration defined below and \f$ a_k \f$
+     * are activities used in the thermodynamic functions. These activity (or
+     * generalized) concentrations are used by kinetics manager classes to
+     * compute the forward and reverse rates of elementary reactions. Note that
+     * they may or may not have units of concentration --- they might be partial
+     * pressures, mole fractions, or surface coverages, for example.
      *
-     * @param c Output array of generalized concentrations. The
-     *           units depend upon the implementation of the
-     *           reaction rate expressions within the phase.
+     * @param c Output array of generalized concentrations. The units depend
+     *           upon the implementation of the reaction rate expressions within
+     *           the phase.
      */
     virtual void getActivityConcentrations(doublereal* c) const {
         throw NotImplementedError("ThermoPhase::getActivityConcentrations");
@@ -401,15 +394,14 @@ public:
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration. In many cases, this quantity
-     * will be the same for all species in a phase - for example,
-     * for an ideal gas \f$ C^0_k = P/\hat R T \f$. For this
-     * reason, this method returns a single value, instead of an
-     * array.  However, for phases in which the standard
-     * concentration is species-specific (e.g. surface species of
-     * different sizes), this method may be called with an
-     * optional parameter indicating the species.
+     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * (i.e., generalized) concentration. In many cases, this quantity will be
+     * the same for all species in a phase - for example, for an ideal gas \f$
+     * C^0_k = P/\hat R T \f$. For this reason, this method returns a single
+     * value, instead of an array.  However, for phases in which the standard
+     * concentration is species-specific (e.g. surface species of different
+     * sizes), this method may be called with an optional parameter indicating
+     * the species.
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.
@@ -427,16 +419,15 @@ public:
      */
     virtual doublereal logStandardConc(size_t k=0) const;
 
-    //! Get the array of non-dimensional activities at
-    //! the current solution temperature, pressure, and solution concentration.
+    //! Get the array of non-dimensional activities at the current solution
+    //! temperature, pressure, and solution concentration.
     /*!
-     * Note, for molality based formulations, this returns the
-     * molality based activities.
+     * Note, for molality based formulations, this returns the molality based
+     * activities.
      *
-     * We resolve this function at this level by calling
-     * on the activityConcentration function. However,
-     * derived classes may want to override this default
-     * implementation.
+     * We resolve this function at this level by calling on the
+     * activityConcentration function. However, derived classes may want to
+     * override this default implementation.
      *
      * @param a   Output vector of activities. Length: m_kk.
      */
@@ -481,9 +472,9 @@ public:
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
-     * This function returns a vector of chemical potentials of the
-     * species in solution at the current temperature, pressure
-     * and mole fraction of the solution.
+     * This function returns a vector of chemical potentials of the species in
+     * solution at the current temperature, pressure and mole fraction of the
+     * solution.
      *
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
@@ -495,10 +486,9 @@ public:
     //!  Get the species electrochemical potentials.
     /*!
      *  These are partial molar quantities.  This method adds a term \f$ F z_k
-     *  \phi_p \f$ to each chemical potential.
-     *  The electrochemical potential of species k in a phase p, \f$ \zeta_k \f$,
-     *  is related to the chemical potential via
-     *  the following equation,
+     *  \phi_p \f$ to each chemical potential. The electrochemical potential of
+     *  species k in a phase p, \f$ \zeta_k \f$, is related to the chemical
+     *  potential via the following equation,
      *
      *       \f[
      *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p
@@ -570,12 +560,13 @@ public:
     /// @name Properties of the Standard State of the Species in the Solution
     //@{
 
-    //! Get the array of chemical potentials at unit activity for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the array of chemical potentials at unit activity for the species at
+    //! their standard states at the current <I>T</I> and <I>P</I> of the
+    //! solution.
     /*!
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
-     * \f$. The values are evaluated at the current
-     * temperature and pressure of the solution
+     * \f$. The values are evaluated at the current temperature and pressure of
+     * the solution
      *
      * @param mu      Output vector of chemical potentials.
      *                Length: m_kk.
@@ -584,8 +575,8 @@ public:
         throw NotImplementedError("ThermoPhase::getStandardChemPotentials");
     }
 
-    //! Get the nondimensional Enthalpy functions for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the nondimensional Enthalpy functions for the species at their
+    //! standard states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
      * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
@@ -594,8 +585,8 @@ public:
         throw NotImplementedError("ThermoPhase::getEnthalpy_RT");
     }
 
-    //! Get the array of nondimensional Entropy functions for the
-    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the array of nondimensional Entropy functions for the standard state
+    //! species at the current <I>T</I> and <I>P</I> of the solution.
     /*!
      * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
@@ -604,29 +595,29 @@ public:
         throw NotImplementedError("ThermoPhase::getEntropy_R");
     }
 
-    //! Get the nondimensional Gibbs functions for the species
-    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the nondimensional Gibbs functions for the species in their standard
+    //! states at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * @param grt  Output vector of nondimensional standard state Gibbs free energies
-     *             Length: m_kk.
+     * @param grt  Output vector of nondimensional standard state Gibbs free
+     *             energies. Length: m_kk.
      */
     virtual void getGibbs_RT(doublereal* grt) const {
         throw NotImplementedError("ThermoPhase::getGibbs_RT");
     }
 
-    //! Get the Gibbs functions for the standard
-    //! state of the species at the current <I>T</I> and <I>P</I> of the solution
+    //! Get the Gibbs functions for the standard state of the species at the
+    //! current <I>T</I> and <I>P</I> of the solution
     /*!
      * Units are Joules/kmol
-     * @param gpure  Output vector of standard state Gibbs free energies
+     * @param gpure  Output vector of standard state Gibbs free energies.
      *               Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const {
         throw NotImplementedError("ThermoPhase::getPureGibbs");
     }
 
-    //!  Returns the vector of nondimensional Internal Energies of the standard
-    //!  state species at the current <I>T</I> and <I>P</I> of the solution
+    //! Returns the vector of nondimensional Internal Energies of the standard
+    //! state species at the current <I>T</I> and <I>P</I> of the solution
     /*!
      * @param urt  output vector of nondimensional standard state internal energies
      *             of the species. Length: m_kk.
@@ -635,12 +626,12 @@ public:
         throw NotImplementedError("ThermoPhase::getIntEnergy_RT");
     }
 
-    //! Get the nondimensional Heat Capacities at constant
-    //! pressure for the species standard states
-    //! at the current <I>T</I> and <I>P</I> of the solution
+    //! Get the nondimensional Heat Capacities at constant pressure for the
+    //! species standard states at the current <I>T</I> and <I>P</I> of the
+    //! solution
     /*!
-     * @param cpr   Output vector of nondimensional standard state heat capacities
-     *              Length: m_kk.
+     * @param cpr   Output vector of nondimensional standard state heat
+     *              capacities. Length: m_kk.
      */
     virtual void getCp_R(doublereal* cpr) const {
         throw NotImplementedError("ThermoPhase::getCp_R");
@@ -662,24 +653,20 @@ public:
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
-    //!  Returns the vector of nondimensional
-    //!  enthalpies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for the species.
+    //! Returns the vector of nondimensional enthalpies of the reference state
+    //! at the current temperature of the solution and the reference pressure
+    //! for the species.
     /*!
-     *  This base function will throw a CanteraException unless
-     *  it is overwritten in a derived class.
-     *
-     * @param hrt     Output vector containing the nondimensional reference state
-     *                enthalpies
-     *                Length: m_kk.
+     * @param hrt     Output vector containing the nondimensional reference
+     *                state enthalpies. Length: m_kk.
      */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const {
         throw NotImplementedError("ThermoPhase::getEnthalpy_RT_ref");
     }
 
-    //!  Returns the vector of nondimensional
-    //!  Gibbs Free Energies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for the species.
+    //! Returns the vector of nondimensional Gibbs Free Energies of the
+    //! reference state at the current temperature of the solution and the
+    //! reference pressure for the species.
     /*!
      * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
@@ -688,46 +675,42 @@ public:
         throw NotImplementedError("ThermoPhase::getGibbs_RT_ref");
     }
 
-    //!  Returns the vector of the
-    //!  Gibbs function of the reference state at the current temperature
-    //!  of the solution and the reference pressure for the species.
+    //! Returns the vector of the Gibbs function of the reference state at the
+    //! current temperature of the solution and the reference pressure for the
+    //! species.
     /*!
-     *  units = J/kmol
-     *
      * @param g       Output vector containing the reference state
-     *                Gibbs Free energies.  Length: m_kk. Units: J/kmol.
+     *                Gibbs Free energies. Length: m_kk. Units: J/kmol.
      */
     virtual void getGibbs_ref(doublereal* g) const {
         throw NotImplementedError("ThermoPhase::getGibbs_ref");
     }
 
-    //!  Returns the vector of nondimensional
-    //!  entropies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for each species.
+    //! Returns the vector of nondimensional entropies of the reference state at
+    //! the current temperature of the solution and the reference pressure for
+    //! each species.
     /*!
-     * @param er      Output vector containing the nondimensional reference state
-     *                entropies.  Length: m_kk.
+     * @param er      Output vector containing the nondimensional reference
+     *                state entropies. Length: m_kk.
      */
     virtual void getEntropy_R_ref(doublereal* er) const {
         throw NotImplementedError("ThermoPhase::getEntropy_R_ref");
     }
 
-    //! Returns the vector of nondimensional
-    //!  internal Energies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for each species.
+    //! Returns the vector of nondimensional internal Energies of the reference
+    //! state at the current temperature of the solution and the reference
+    //! pressure for each species.
     /*!
-     * @param urt    Output vector of nondimensional reference state
-     *               internal energies of the species.
-     *               Length: m_kk
+     * @param urt    Output vector of nondimensional reference state internal
+     *               energies of the species. Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const {
         throw NotImplementedError("ThermoPhase::getIntEnergy_RT_ref");
     }
 
-    //!  Returns the vector of nondimensional
-    //!  constant pressure heat capacities of the reference state
-    //!  at the current temperature of the solution
-    //!  and reference pressure for each species.
+    //! Returns the vector of nondimensional constant pressure heat capacities
+    //! of the reference state at the current temperature of the solution and
+    //! reference pressure for each species.
     /*!
      * @param cprt   Output vector of nondimensional reference state
      *               heat capacities at constant pressure for the species.
@@ -737,8 +720,8 @@ public:
         throw NotImplementedError("ThermoPhase::getCp_R_ref()");
     }
 
-    //!  Get the molar volumes of the species reference states at the current
-    //!  <I>T</I> and <I>P_ref</I> of the solution.
+    //! Get the molar volumes of the species reference states at the current
+    //! <I>T</I> and <I>P_ref</I> of the solution.
     /*!
      * units = m^3 / kmol
      *
@@ -766,51 +749,38 @@ public:
      */
     virtual void getReferenceComposition(doublereal* const x) const;
 
-    //  The methods below are not virtual, and should not
-    //  be overloaded.
+    // The methods below are not virtual, and should not be overloaded.
 
     //@}
     //! @name Specific Properties
     //@{
 
-    /**
-     * Specific enthalpy. Units: J/kg.
-     */
+    //! Specific enthalpy. Units: J/kg.
     doublereal enthalpy_mass() const {
         return enthalpy_mole()/meanMolecularWeight();
     }
 
-    /**
-     * Specific internal energy. Units: J/kg.
-     */
+    //! Specific internal energy. Units: J/kg.
     doublereal intEnergy_mass() const {
         return intEnergy_mole()/meanMolecularWeight();
     }
 
-    /**
-     * Specific entropy. Units: J/kg/K.
-     */
+    //! Specific entropy. Units: J/kg/K.
     doublereal entropy_mass() const {
         return entropy_mole()/meanMolecularWeight();
     }
 
-    /**
-     * Specific Gibbs function. Units: J/kg.
-     */
+    //! Specific Gibbs function. Units: J/kg.
     doublereal gibbs_mass() const {
         return gibbs_mole()/meanMolecularWeight();
     }
 
-    /**
-     * Specific heat at constant pressure. Units: J/kg/K.
-     */
+    //! Specific heat at constant pressure. Units: J/kg/K.
     doublereal cp_mass() const {
         return cp_mole()/meanMolecularWeight();
     }
 
-    /**
-     * Specific heat at constant volume. Units: J/kg/K.
-     */
+    //! Specific heat at constant volume. Units: J/kg/K.
     doublereal cv_mass() const {
         return cv_mole()/meanMolecularWeight();
     }
@@ -842,16 +812,14 @@ public:
      * @{
      */
 
-    //! Set the internally stored pressure (Pa) at constant
-    //! temperature and composition
+    //! Set the internally stored pressure (Pa) at constant temperature and
+    //! composition
     /*!
-     *   This method must be reimplemented in derived classes, where it
-     *   may involve the solution of a nonlinear equation. Within %Cantera,
-     *   the independent variable is the density. Therefore, this function
-     *   solves for the density that will yield the desired input pressure.
-     *   The temperature and composition are held constant during this process.
-     *
-     *  This base class function will print an error, if not overwritten.
+     *  This method must be reimplemented in derived classes, where it may
+     *  involve the solution of a nonlinear equation. Within %Cantera, the
+     *  independent variable is the density. Therefore, this function solves for
+     *  the density that will yield the desired input pressure. The temperature
+     *  and composition are held constant during this process.
      *
      *  @param p input Pressure (Pa)
      */
@@ -890,12 +858,14 @@ public:
      *
      * @param t    Temperature (K)
      * @param p    Pressure (Pa)
-     * @param x    String containing a composition map of the mole fractions. Species not in
-     *             the composition map are assumed to have zero mole fraction
+     * @param x    String containing a composition map of the mole fractions.
+     *             Species not in the composition map are assumed to have zero
+     *             mole fraction
      */
     virtual void setState_TPX(doublereal t, doublereal p, const std::string& x);
 
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase.
+    //! Set the internally stored temperature (K), pressure (Pa), and mass
+    //! fractions of the phase.
     /*!
      * Note, the mass fractions are set first before the pressure is set.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -907,7 +877,8 @@ public:
      */
     virtual void setState_TPY(doublereal t, doublereal p, const doublereal* y);
 
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
+    //! Set the internally stored temperature (K), pressure (Pa), and mass
+    //! fractions of the phase
     /*!
      * Note, the mass fractions are set first before the pressure is set.
      * Setting the pressure may involve the solution of a nonlinear equation.
@@ -919,15 +890,17 @@ public:
      */
     virtual void setState_TPY(doublereal t, doublereal p, const compositionMap& y);
 
-    //! Set the internally stored temperature (K), pressure (Pa), and mass fractions of the phase
+    //! Set the internally stored temperature (K), pressure (Pa), and mass
+    //! fractions of the phase
     /*!
      * Note, the mass fractions are set first before the pressure is set.
      * Setting the pressure may involve the solution of a nonlinear equation.
      *
      * @param t    Temperature (K)
      * @param p    Pressure (Pa)
-     * @param y    String containing a composition map of the mass fractions. Species not in
-     *             the composition map are assumed to have zero mass fraction
+     * @param y    String containing a composition map of the mass fractions.
+     *             Species not in the composition map are assumed to have zero
+     *             mass fraction
      */
     virtual void setState_TPY(doublereal t, doublereal p, const std::string& y);
 
@@ -954,9 +927,9 @@ public:
 
     //! Set the internally stored pressure (Pa) and mass fractions.
     /*!
-     * Note, the temperature is held constant during this operation.
-     * Note, the mass fractions are set first before the pressure is set.
-     * Setting the pressure may involve the solution of a nonlinear equation.
+     * Note, the temperature is held constant during this operation. Note, the
+     * mass fractions are set first before the pressure is set. Setting the
+     * pressure may involve the solution of a nonlinear equation.
      *
      * @param p    Pressure (Pa)
      * @param y    Vector of mass fractions.
@@ -964,7 +937,8 @@ public:
      */
     virtual void setState_PY(doublereal p, doublereal* y);
 
-    //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of the phase.
+    //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of
+    //! the phase.
     /*!
      * @param h     Specific enthalpy (J/kg)
      * @param p     Pressure (Pa)
@@ -976,8 +950,9 @@ public:
 
     //! Set the specific internal energy (J/kg) and specific volume (m^3/kg).
     /*!
-     * This function fixes the internal state of the phase so that
-     * the specific internal energy and specific volume have the value of the input parameters.
+     * This function fixes the internal state of the phase so that the specific
+     * internal energy and specific volume have the value of the input
+     * parameters.
      *
      * @param u    specific internal energy (J/kg)
      * @param v    specific volume (m^3/kg).
@@ -989,8 +964,8 @@ public:
 
     //! Set the specific entropy (J/kg/K) and pressure (Pa).
     /*!
-     * This function fixes the internal state of the phase so that
-     * the specific entropy and the pressure have the value of the input parameters.
+     * This function fixes the internal state of the phase so that the specific
+     * entropy and the pressure have the value of the input parameters.
      *
      * @param s    specific entropy (J/kg/K)
      * @param p    specific pressure (Pa).
@@ -1002,8 +977,8 @@ public:
 
     //! Set the specific entropy (J/kg/K) and specific volume (m^3/kg).
     /*!
-     * This function fixes the internal state of the phase so that
-     * the specific entropy and specific volume have the value of the input parameters.
+     * This function fixes the internal state of the phase so that the specific
+     * entropy and specific volume have the value of the input parameters.
      *
      * @param s    specific entropy (J/kg/K)
      * @param v    specific volume (m^3/kg).
@@ -1013,14 +988,13 @@ public:
      */
     virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
 
-    //! Set the density (kg/m**3) and pressure (Pa) at constant
-    //! composition
+    //! Set the density (kg/m**3) and pressure (Pa) at constant composition
     /*!
-     *  This method must be reimplemented in derived classes, where it
-     *   may involve the solution of a nonlinear equation. Within %Cantera,
-     *   the independent variable is the density. Therefore, this function
-     *   solves for the temperature that will yield the desired input pressure
-     *   and density. The composition is held constant during this process.
+     *  This method must be reimplemented in derived classes, where it may
+     *  involve the solution of a nonlinear equation. Within %Cantera, the
+     *  independent variable is the density. Therefore, this function solves for
+     *  the temperature that will yield the desired input pressure and density.
+     *  The composition is held constant during this process.
      *
      *  This base class function will print an error, if not overwritten.
      *
@@ -1034,7 +1008,8 @@ public:
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
     /*!
      * Note, the mole fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear equation.
+     * are set. Setting the pressure may involve the solution of a nonlinear
+     * equation.
      *
      * @param rho  Density (kg/m^3)
      * @param p    Pressure (Pa)
@@ -1046,7 +1021,8 @@ public:
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
     /*!
      * Note, the mole fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear equation.
+     * are set. Setting the pressure may involve the solution of a nonlinear
+     * equation.
      *
      *  @param rho  Density (kg/m^3)
      *  @param p    Pressure (Pa)
@@ -1058,19 +1034,22 @@ public:
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
     /*!
      * Note, the mole fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear equation.
+     * are set. Setting the pressure may involve the solution of a nonlinear
+     * equation.
      *
      *  @param rho  Density (kg/m^3)
      *  @param p    Pressure (Pa)
-     *  @param x    String containing a composition map of the mole fractions. Species not in
-     *              the composition map are assumed to have zero mole fraction
+     *  @param x    String containing a composition map of the mole fractions.
+     *              Species not in the composition map are assumed to have zero
+     *              mole fraction
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const std::string& x);
 
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
      * Note, the mass fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear equation.
+     * are set. Setting the pressure may involve the solution of a nonlinear
+     * equation.
      *
      *  @param rho  Density (kg/m^3)
      *  @param p    Pressure (Pa)
@@ -1082,7 +1061,8 @@ public:
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
      * Note, the mass fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear equation.
+     * are set. Setting the pressure may involve the solution of a nonlinear
+     * equation.
      *
      *  @param rho Density (kg/m^3)
      *  @param p   Pressure (Pa)
@@ -1094,12 +1074,14 @@ public:
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
      * Note, the mass fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear equation.
+     * are set. Setting the pressure may involve the solution of a nonlinear
+     * equation.
      *
      *  @param rho  Density (kg/m^3)
      *  @param p    Pressure (Pa)
-     *  @param y    String containing a composition map of the mole fractions. Species not in
-     *              the composition map are assumed to have zero mole fraction
+     *  @param y    String containing a composition map of the mole fractions.
+     *              Species not in the composition map are assumed to have zero
+     *              mole fraction
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const std::string& y);
 
@@ -1206,9 +1188,8 @@ public:
 
     //!  Returns the element potentials stored in the ThermoPhase object
     /*!
-     * Returns the stored element potentials.
-     * The element potentials are retrieved from their stored
-     * dimensionless forms by multiplying by RT.
+     * Returns the stored element potentials. The element potentials are
+     * retrieved from their stored dimensionless forms by multiplying by RT.
      * @param lambda Output vector containing the element potentials.
      *        Length = nElements. Units are Joules/kmol.
      * @return bool indicating whether there are any valid stored element
@@ -1329,12 +1310,11 @@ public:
 
     //!  Install a species thermodynamic property manager.
     /*!
-     * The species thermodynamic property manager
-     * computes properties of the pure species for use in
-     * constructing solution properties. It is meant for internal
-     * use, and some classes derived from ThermoPhase may not use
-     * any species thermodynamic property manager. This method is
-     * called by function importPhase().
+     * The species thermodynamic property manager computes properties of the
+     * pure species for use in constructing solution properties. It is meant for
+     * internal use, and some classes derived from ThermoPhase may not use any
+     * species thermodynamic property manager. This method is called by function
+     * importPhase().
      *
      * @param spthermo input pointer to the species thermodynamic property
      *                 manager.
@@ -1343,8 +1323,8 @@ public:
      */
     void setSpeciesThermo(SpeciesThermo* spthermo);
 
-    //! Return a changeable reference to the calculation manager
-    //! for species reference-state thermodynamic properties
+    //! Return a changeable reference to the calculation manager for species
+    //! reference-state thermodynamic properties
     /*!
      * @param k   Species id. The default is -1, meaning return the default
      *
@@ -1356,21 +1336,18 @@ public:
      * @internal
      * Initialization of a ThermoPhase object using an ctml file.
      *
-     *   This routine is a precursor to initThermoXML(XML_Node*)
-     *   routine, which does most of the work.
-     *   Here we read extra information about the XML description
-     *   of a phase. Regular information about elements and species
-     *   and their reference state thermodynamic information
-     *   have already been read at this point.
-     *   For example, we do not need to call this function for
-     *   ideal gas equations of state.
+     * This routine is a precursor to initThermoXML(XML_Node*) routine, which
+     * does most of the work. Here we read extra information about the XML
+     * description of a phase. Regular information about elements and species
+     * and their reference state thermodynamic information have already been
+     * read at this point. For example, we do not need to call this function for
+     * ideal gas equations of state.
      *
-     * @param inputFile XML file containing the description of the
-     *        phase
+     * @param inputFile XML file containing the description of the phase
      *
-     * @param id  Optional parameter identifying the name of the
-     *            phase. If none is given, the first XML
-     *            phase element encountered will be used.
+     * @param id  Optional parameter identifying the name of the phase. If none
+     *            is given, the first XML phase element encountered will be
+     *            used.
      */
     virtual void initThermoFile(const std::string& inputFile,
                                 const std::string& id);
@@ -1379,31 +1356,25 @@ public:
     /*!
      * @internal
      *
-     *   Here we read extra information about the XML description
-     *   of a phase. Regular information about elements and species
-     *   and their reference state thermodynamic information
-     *   have already been read at this point.
-     *   For example, we do not need to call this function for
-     *   ideal gas equations of state. This function is called from importPhase()
-     *   after the elements and the species are initialized with
-     *   default ideal solution level data.
+     * Here we read extra information about the XML description of a phase.
+     * Regular information about elements and species and their reference state
+     * thermodynamic information have already been read at this point. For
+     * example, we do not need to call this function for ideal gas equations of
+     * state. This function is called from importPhase() after the elements and
+     * the species are initialized with default ideal solution level data.
      *
-     *   The default implementation in ThermoPhase calls the
-     *   virtual function initThermo() and then sets the "state" of the
-     *   phase by looking for an XML element named "state", and then
-     *   interpreting its contents by calling the virtual function
-     *   setStateFromXML().
+     * The default implementation in ThermoPhase calls the virtual function
+     * initThermo() and then sets the "state" of the phase by looking for an XML
+     * element named "state", and then interpreting its contents by calling the
+     * virtual function setStateFromXML().
      *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id.
+     * @param phaseNode This object must be the phase node of a complete XML
+     *     tree description of the phase, including all of the species data. In
+     *     other words while "phase" must point to an XML phase object, it must
+     *     have sibling nodes "speciesData" that describe the species in the
+     *     phase.
+     * @param id   ID of the phase. If nonnull, a check is done to see if
+     *             phaseNode is pointing to the phase with the correct id.
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
@@ -1411,31 +1382,28 @@ public:
     /*!
      * @internal Initialize.
      *
-     * This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called from ThermoPhase::initThermoXML(),
-     * which is called from importPhase(),
-     * just prior to returning from function importPhase().
+     * This method is provided to allow subclasses to perform any initialization
+     * required after all species have been added. For example, it might be used
+     * to resize internal work arrays that must have an entry for each species.
+     * The base class implementation does nothing, and subclasses that do not
+     * require initialization do not need to overload this method.  When
+     * importing a CTML phase description, this method is called from
+     * initThermoXML(), which is called from importPhase(), just prior to
+     * returning from function importPhase().
      */
     virtual void initThermo();
 
     //! Add in species from Slave phases
     /*!
-     *  This hook is used for cSS_CONVENTION_SLAVE phases
+     * This hook is used for cSS_CONVENTION_SLAVE phases
      *
-     *  @param phaseNode   XML Element for the phase
+     * @param phaseNode   XML Element for the phase
      */
     virtual void installSlavePhases(XML_Node* phaseNode);
 
     //! Set the equation of state parameters
     /*!
-     * @internal
-     *  The number and meaning of these depends on the subclass.
+     * @internal The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
@@ -1445,8 +1413,7 @@ public:
 
     //! Get the equation of state parameters in a vector
     /*!
-     * @internal
-     * The number and meaning of these depends on the subclass.
+     * @internal The number and meaning of these depends on the subclass.
      *
      * @param n number of parameters
      * @param c array of \a n coefficients
@@ -1458,24 +1425,23 @@ public:
     /*!
      * This method is called by function importPhase() when processing a phase
      * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model. Note, this method is called before the phase is
-     * initialized with elements and/or species.
+     * any parameters that are specific to that particular phase model. Note,
+     * this method is called before the phase is initialized with elements
+     * and/or species.
      *
      * @param eosdata An XML_Node object corresponding to
      *                the "thermo" entry for this phase in the input file.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata) {}
 
-    //! Set the initial state of the phase to the conditions
-    //! specified in the state XML element.
+    //! Set the initial state of the phase to the conditions specified in the
+    //! state XML element.
     /*!
-     * This method sets the temperature, pressure, and mole
-     * fraction vector to a set default value.
+     * This method sets the temperature, pressure, and mole fraction vector to a
+     * set default value.
      *
-     * @param state AN XML_Node object corresponding to
-     *              the "state" entry for this phase in the
-     *              input file.
+     * @param state AN XML_Node object corresponding to the "state" entry for
+     *              this phase in the input file.
      */
     virtual void setStateFromXML(const XML_Node& state);
 
@@ -1483,55 +1449,55 @@ public:
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
 
-    //! Get the change in activity coefficients wrt changes in state (temp, mole fraction, etc) along
-    //! a line in parameter space or along a line in physical space
+    //! Get the change in activity coefficients wrt changes in state (temp, mole
+    //! fraction, etc) along a line in parameter space or along a line in
+    //! physical space
     /*!
      * @param dTds           Input of temperature change along the path
-     * @param dXds           Input vector of changes in mole fraction along the path. length = m_kk
-     *                       Along the path length it must be the case that the mole fractions sum to one.
+     * @param dXds           Input vector of changes in mole fraction along the
+     *                       path. length = m_kk Along the path length it must
+     *                       be the case that the mole fractions sum to one.
      * @param dlnActCoeffds  Output vector of the directional derivatives of the
-     *                       log Activity Coefficients along the path. length = m_kk
-     *                       units are 1/units(s). if s is a physical coordinate then the units are 1/m.
+     *                       log Activity Coefficients along the path. length =
+     *                       m_kk units are 1/units(s). if s is a physical
+     *                       coordinate then the units are 1/m.
      */
     virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
                                   doublereal* dlnActCoeffds) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffds");
     }
 
-    //! Get the array of ln mole fraction derivatives of the log activity coefficients - diagonal component only
+    //! Get the array of ln mole fraction derivatives of the log activity
+    //! coefficients - diagonal component only
     /*!
-     * This function is a virtual method.  For ideal mixtures
-     * (unity activity coefficients), this can return zero.
-     * Implementations should take the derivative of the
-     * logarithm of the activity coefficient with respect to the
-     * logarithm of the mole fraction variable
-     * that represents the standard state.
-     * This quantity is to be used in conjunction with derivatives of
-     * that mole fraction variable when the derivative of the chemical
-     * potential is taken.
+     * For ideal mixtures (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the logarithm of the
+     * activity coefficient with respect to the logarithm of the mole fraction
+     * variable that represents the standard state. This quantity is to be used
+     * in conjunction with derivatives of that mole fraction variable when the
+     * derivative of the chemical potential is taken.
      *
-     *  units = dimensionless
+     * units = dimensionless
      *
-     * @param dlnActCoeffdlnX_diag    Output vector of derivatives of the
-     *                                log Activity Coefficients wrt the mole fractions. length = m_kk
+     * @param dlnActCoeffdlnX_diag    Output vector of derivatives of the log
+     *     Activity Coefficients wrt the mole fractions. length = m_kk
      */
     virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffdlnX_diag");
     }
 
-    //! Get the array of log species mole number derivatives of the log activity coefficients
+    //! Get the array of log species mole number derivatives of the log activity
+    //! coefficients
     /*!
-     *  This function is a virtual method.
-     *  For ideal mixtures  (unity activity coefficients), this can return zero.
-     *  Implementations should take the derivative of the
-     *  logarithm of the activity coefficient with respect to the
-     *  logarithm of the concentration-like variable (i.e. moles)
-     *  that represents the standard state.
-     *  This quantity is to be used in conjunction with derivatives of
-     *  that species mole number variable when the derivative of the chemical
-     *  potential is taken.
+     * For ideal mixtures  (unity activity coefficients), this can return zero.
+     * Implementations should take the derivative of the logarithm of the
+     * activity coefficient with respect to the logarithm of the concentration-
+     * like variable (i.e. moles) that represents the standard state. This
+     * quantity is to be used in conjunction with derivatives of that species
+     * mole number variable when the derivative of the chemical potential is
+     * taken.
      *
-     *  units = dimensionless
+     * units = dimensionless
      *
      * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the
      *                                log Activity Coefficients. length = m_kk
@@ -1540,22 +1506,25 @@ public:
         throw NotImplementedError("ThermoPhase::getdlnActCoeffdlnN_diag");
     }
 
-    //! Get the array of derivatives of the log activity coefficients with respect to the log of the species mole numbers
+    //! Get the array of derivatives of the log activity coefficients with
+    //! respect to the log of the species mole numbers
     /*!
-     * Implementations should take the derivative of the logarithm of the activity coefficient with respect to a
-     * species log mole number (with all other species mole numbers held constant). The default treatment in the
+     * Implementations should take the derivative of the logarithm of the
+     * activity coefficient with respect to a species log mole number (with all
+     * other species mole numbers held constant). The default treatment in the
      * ThermoPhase object is to set this vector to zero.
      *
      *  units = 1 / kmol
      *
-     *  dlnActCoeffdlnN[ ld * k  + m]  will contain the derivative of log act_coeff for the <I>m</I><SUP>th</SUP>
-     *                               species with respect to the number of moles of the <I>k</I><SUP>th</SUP> species.
+     * dlnActCoeffdlnN[ ld * k  + m] will contain the derivative of log
+     * act_coeff for the <I>m</I><SUP>th</SUP> species with respect to the
+     * number of moles of the <I>k</I><SUP>th</SUP> species.
      *
      * \f[
-     *        \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
+     *     \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
      * \f]
      *
-     * @param ld               Number of rows in the matrix
+     * @param ld                 Number of rows in the matrix
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
@@ -1578,11 +1547,11 @@ public:
                                doublereal threshold=-1e-14) const;
 
     //! returns a summary of the state of the phase to a comma separated file.
-    //! To customize the data included in the report, derived classes should
-    //! override the getCsvReportData method.
     /*!
-     * @param csvFile     ofstream file to print comma separated data for
-     *                    the phase
+     * To customize the data included in the report, derived classes should
+     * override the getCsvReportData method.
+     *
+     * @param csvFile  ofstream file to print comma separated data for the phase
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
 
@@ -1594,45 +1563,39 @@ protected:
     virtual void getCsvReportData(std::vector<std::string>& names,
                                   std::vector<vector_fp>& data) const;
 
-    //! Pointer to the calculation manager for species
-    //! reference-state thermodynamic properties
+    //! Pointer to the calculation manager for species reference-state
+    //! thermodynamic properties
     /*!
-     *   This class is called when the reference-state thermodynamic properties
-     *   of all the species in the phase needs to be evaluated.
+     * This class is called when the reference-state thermodynamic properties
+     * of all the species in the phase needs to be evaluated.
      */
     SpeciesThermo* m_spthermo;
 
     //! Vector of pointers to the species databases.
     /*!
-     * This is used to access data needed to
-     * construct the transport manager and other properties
-     * later in the initialization process.
-     * We create a copy of the XML_Node data read in here. Therefore, we own this
-     * data.
+     * This is used to access data needed to construct the transport manager and
+     * other properties later in the initialization process. We create a copy of
+     * the XML_Node data read in here. Therefore, we own this data.
      */
     std::vector<const XML_Node*> m_speciesData;
 
-    //! Stored value of the electric potential for this phase
-    /*!
-     * Units are Volts
-     */
+    //! Stored value of the electric potential for this phase. Units are Volts.
     doublereal m_phi;
 
-    /// Vector of element potentials.
-    /// Length equal to number of elements.
+    //! Vector of element potentials. Length equal to number of elements.
     vector_fp m_lambdaRRT;
 
-    //! Boolean indicating whether there is a valid set of saved element potentials
-    //! for this phase
+    //! Boolean indicating whether there is a valid set of saved element
+    //! potentials for this phase
     bool m_hasElementPotentials;
 
     //! Boolean indicating whether a charge neutrality condition is a necessity
     /*!
-     * Note, the charge neutrality condition is not a necessity for ideal gas phases. There may
-     * be a net charge in those phases, because the NASA polynomials for ionized species
-     * in Ideal gases take this condition into account.
-     * However, liquid phases usually require charge neutrality in order for their derived
-     * thermodynamics to be valid.
+     * Note, the charge neutrality condition is not a necessity for ideal gas
+     * phases. There may be a net charge in those phases, because the NASA
+     * polynomials for ionized species in Ideal gases take this condition into
+     * account. However, liquid phases usually require charge neutrality in
+     * order for their derived thermodynamics to be valid.
      */
     bool m_chargeNeutralityNecessary;
 
@@ -1641,10 +1604,10 @@ protected:
 
     //! Reference Mole Fraction Composition
     /*!
-     *  Occasionally, the need arises to find a safe mole fraction vector to initialize
-     *  the object to. This contains such a vector.
-     *  The algorithm will pick up the mole fraction vector that is applied from
-     *  the state XML file in the input file
+     *  Occasionally, the need arises to find a safe mole fraction vector to
+     *  initialize the object to. This contains such a vector. The algorithm
+     *  will pick up the mole fraction vector that is applied from the state XML
+     *  file in the input file
      *  @deprecated To be removed after Cantera 2.3.
      */
     vector_fp xMol_Ref;
