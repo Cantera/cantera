@@ -37,12 +37,8 @@ public:
      */
     VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
 
-    //! Copy Constructor
     VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& right);
-
-    //! Assignment operator
     VPSSMgr_Water_ConstVol& operator=(const VPSSMgr_Water_ConstVol& right);
-
     virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
 private:

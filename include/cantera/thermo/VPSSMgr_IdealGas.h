@@ -30,12 +30,8 @@ public:
      */
     VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
 
-    //! Copy Constructor
     VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right);
-
-    //! Assignment operator
     VPSSMgr_IdealGas& operator=(const VPSSMgr_IdealGas& right);
-
     virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
     /*! @name  Properties of the Standard State of the Species in the Solution

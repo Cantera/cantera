@@ -37,12 +37,8 @@ public:
     VPSSMgr_Water_HKFT(VPStandardStateTP* vptp_ptr,
                        SpeciesThermo* spth);
 
-    //! Copy Constructor
     VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right);
-
-    //! Assignment operator
     VPSSMgr_Water_HKFT& operator=(const VPSSMgr_Water_HKFT& right);
-
     virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
     /*! @name Thermodynamic Values for the Species Reference States
