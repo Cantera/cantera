@@ -7,48 +7,48 @@ These values are the same as those in the Cantera C++ header file ct_defs.h.
 
 .. data:: avogadro
 
-   Avogadro's Number, /kmol
+   Avogadro's Number, kmol\ :sup:`-1`
 
 .. data:: gas_constant
 
-   The ideal gas constant in J/kmol-K
+   The ideal gas constant, J kmol\ :sup:`-1` K\ :sup:`-1`
 
 .. data:: one_atm
 
-   One atmosphere in Pascals
+   One atmosphere, Pa
 
 .. data:: boltzmann
 
-   Boltzmann constant
+   Boltzmann constant, m\ :sup:`2` kg s\ :sup:`-2` K\ :sup:`-1`
 
 .. data:: planck
 
-   Planck constant (J-s)
+   Planck constant, J s
 
 .. data:: stefan_boltzmann
 
-   The Stefan-Boltzmann constant, W/m^2K^4
+   The Stefan-Boltzmann constant, W m\ :sup:`-2` K\ :sup:`-4`
 
 .. data:: electron_charge
 
-   The charge on an electron (C)
+   The charge on an electron, C
 
 .. data:: electron_mass
 
-   The mass of an electron (kg)
+   The mass of an electron, kg
 
 .. data:: faraday
 
-   Faraday constant, C/kmol
+   Faraday constant, C kmol\ :sup:`-1`
 
 .. data:: light_speed
 
-   Speed of Light (m/s).
+   Speed of Light, m s\ :sup:`-1`
 
 .. data:: permeability_0
 
-   Permeability of free space :math:`\mu_0` in N/A^2.
+   Permeability of free space, m kg s\ :sup:`-2` A\ :sup:`-2`
 
 .. data:: epsilon_0
 
-   Permittivity of free space (Farads/m = C^2/N/m^2)
+   Permittivity of free space, s\ :sup:`4` A\ :sup:`2` m\ :sup:`-3` kg\ :sup:`-1`
