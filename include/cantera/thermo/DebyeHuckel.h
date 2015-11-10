@@ -34,7 +34,7 @@ namespace Cantera
 #define DHFORM_BETAIJ 3
 #define DHFORM_PITZER_BETAIJ 4
 //@}
-/*
+/*!
  *  @name  Acceptable ways to calculate the value of A_Debye
  */
 //@{

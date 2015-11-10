@@ -96,14 +96,8 @@ class Phase
 public:
     Phase(); //!< Default constructor.
 
-    virtual ~Phase(); //!< Destructor.
-
-    //! Copy Constructor
-    //!     @param right Reference to the class to be used in the copy
+    virtual ~Phase();
     Phase(const Phase& right);
-
-    //! Assignment operator
-    //!     @param right Reference to the class to be used in the copy
     Phase& operator=(const Phase& right);
 
     //! Returns a const reference to the XML_Node that describes the phase.

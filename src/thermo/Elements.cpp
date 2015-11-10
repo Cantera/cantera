@@ -15,12 +15,12 @@ namespace Cantera
 {
 
 /*! Database for atomic molecular weights
- *  Values are taken from the 1989 Standard Atomic Weights, CRC
+ * Values are taken from the 1989 Standard Atomic Weights, CRC
  *
- *  awTable[] is a static function with scope limited to this file.
- *  It can only be referenced via the LookupWtElements() function.
+ * awTable[] is a static function with scope limited to this file.
+ * It can only be referenced via the LookupWtElements() function.
  *
- *  units = kg / kg-mol (or equivalently gm / gm-mol)
+ * units = kg / kg-mol (or equivalently gm / gm-mol)
  *
  * This structure was picked because it's simple, compact, and extensible.
  */
@@ -30,10 +30,10 @@ struct awData {
 };
 
 /*!
- *  @var static struct awData aWTable[]
- *  \brief aWTable is a vector containing the atomic weights database.
+ * @var static struct awData aWTable[]
+ * \brief aWTable is a vector containing the atomic weights database.
  *
- *  The size of the table is given by the initial instantiation.
+ * The size of the table is given by the initial instantiation.
  */
 static struct awData aWTable[] = {
     {"H",    1.00794},

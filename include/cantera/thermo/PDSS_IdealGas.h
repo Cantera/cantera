@@ -35,18 +35,6 @@ public:
      */
     PDSS_IdealGas(VPStandardStateTP* tp, int spindex);
 
-    //! Copy Constructor
-    /*!
-     * @param b Object to be copied
-     */
-    PDSS_IdealGas(const PDSS_IdealGas& b);
-
-    //! Assignment operator
-    /*!
-     * @param b Object to be copied
-     */
-    PDSS_IdealGas& operator=(const PDSS_IdealGas& b);
-
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
@@ -56,8 +44,8 @@ public:
      *  @param spindex   Species index of the species in the phase
      *  @param inputFile String name of the input file
      *  @param id        String name of the phase in the input file. The default
-     *                   is the empty string, in which case the first phase in the
-     *                   file is used.
+     *                   is the empty string, in which case the first phase in
+     *                   the file is used.
      * @deprecated To be removed after Cantera 2.3.
      */
     PDSS_IdealGas(VPStandardStateTP* tp, int spindex,
@@ -78,6 +66,8 @@ public:
     PDSS_IdealGas(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                   const XML_Node& phaseRef, bool spInstalled);
 
+    PDSS_IdealGas(const PDSS_IdealGas& b);
+    PDSS_IdealGas& operator=(const PDSS_IdealGas& b);
     virtual PDSS* duplMyselfAsPDSS() const;
 
     //! @}

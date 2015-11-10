@@ -1281,7 +1281,7 @@ public:
     virtual doublereal entropy_mole() const;
 
     /// Molar Gibbs function. Units: J/kmol.
-    /*
+    /*!
      *      (HKM -> Bump up to Parent object)
      */
     virtual doublereal gibbs_mole() const;
@@ -1289,7 +1289,7 @@ public:
     virtual doublereal cp_mole() const;
 
     /// Molar heat capacity at constant volume. Units: J/kmol/K.
-    /*
+    /*!
      *      (HKM -> Bump up to Parent object)
      */
     virtual doublereal cv_mole() const;

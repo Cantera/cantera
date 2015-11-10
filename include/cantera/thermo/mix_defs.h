@@ -6,9 +6,9 @@ namespace Cantera
 {
 
 /**
- *  This generic id is used as the default in virtual base
- *  classes that employ id's. It is used to indicate the lack
- *  of an inherited class that would define the id.
+ * This generic id is used as the default in virtual base classes that employ
+ * id's. It is used to indicate the lack of an inherited class that would define
+ * the id.
  */
 const int cNone = 0;
 
@@ -21,18 +21,16 @@ const int cHarmonicOsc = 4;
 /**
  * Equation of state types:
  *
- *  These types are used in the member function eosType() of
- *  the virtual base class ThermoPhase. They are used to
- *  distinguish different types of equation of states. Also, they
- *  may be used for upcasting from the ThermoPhase class.  Their
- *  id's should be distinct.
+ * These types are used in the member function eosType() of the virtual base
+ * class ThermoPhase. They are used to distinguish different types of equation
+ * of states. Also, they may be used for upcasting from the ThermoPhase class.
+ * Their id's should be distinct.
  *
- *  Users who wish to define their own equation of states which
- *  derive from ThermoPhase should define a unique id which
- *  doesn't conflict with those listed below. The Cantera Kernel
- *  however, will not be know about the class and will therefore
- *  not be able to initialize the class within its "factory"
- *  routines.
+ * Users who wish to define their own equation of states which derive from
+ * ThermoPhase should define a unique id which doesn't conflict with those
+ * listed below. The Cantera Kernel however, will not be know about the class
+ * and will therefore not be able to initialize the class within its "factory"
+ * routines.
  */
 const int cIdealGas = 1; // IdealGasPhase in IdealGasPhase.h
 const int cIncompressible = 2; // ConstDensityThermo in ConstDensityThermo.h
@@ -103,7 +101,8 @@ const int cVPSS_MolalSoln = 1060;
 enum SSVolume_Model_enumType {
     //! This approximation is for a constant volume
     cSSVOLUME_CONSTANT = 0,
-    //! This approximation is for a species with a quadratic polynomial in temperature
+    //! This approximation is for a species with a quadratic polynomial in
+    //! temperature
     /*!
      *       V^ss_i = ai + bi T + ci T2
      */
@@ -127,7 +126,6 @@ enum PDSS_enumType {
     cPDSS_MOLAL_HKFT,
     cPDSS_IONSFROMNEUTRAL
 };
-
 
 //! enum for VPSSMgr types that are responsible for calculating the species
 //! standard state and reference-state thermodynamic properties.
@@ -161,4 +159,3 @@ const int cAqueousKinetics = 8;
 }
 
 #endif
-

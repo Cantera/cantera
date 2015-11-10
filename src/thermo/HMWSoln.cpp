@@ -2823,9 +2823,8 @@ void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 
     // Zero the unscaled 2nd derivatives
     m_d2lnActCoeffMolaldT2_Unscaled.assign(m_kk, 0.0);
-    /*
-     * Calculate the unscaled 2nd derivatives
-     */
+
+    //! Calculate the unscaled 2nd derivatives
     s_updatePitzer_d2lnMolalityActCoeff_dT2();
 
     for (size_t k = 1; k < m_kk; k++) {

@@ -105,6 +105,11 @@ public:
     virtual void getChemPotentials(doublereal* mu) const;
     doublereal nc() const;
     doublereal nv() const;
+
+    /*!
+     * Energy at the top of the conduction band. By default, energies are
+     * referenced to this energy, and so this function simply returns zero.
+     */
     doublereal ec() const;
     doublereal ev() const;
     doublereal bandgap() const {

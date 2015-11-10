@@ -92,25 +92,12 @@ const int cSS_CONVENTION_SLAVE = 2;
 class ThermoPhase : public Phase
 {
 public:
-    //! Constructor. Note that ThermoPhase is meant to be used as
-    //! a base class, so this constructor should not be called
-    //! explicitly.
+    //! Constructor. Note that ThermoPhase is meant to be used as a base class,
+    //! so this constructor should not be called explicitly.
     ThermoPhase();
 
-    //! Destructor. Deletes the species thermo manager.
     virtual ~ThermoPhase();
-
-    //!Copy Constructor for the ThermoPhase object.
-    /*!
-     * @param right  ThermoPhase to be copied
-     */
     ThermoPhase(const ThermoPhase& right);
-
-    //! Assignment operator
-    /*!
-     * @param right    Reference to ThermoPhase object to be copied into the
-     *                 current one.
-     */
     ThermoPhase& operator=(const ThermoPhase& right);
 
     //! Duplication routine for objects which inherit from ThermoPhase.

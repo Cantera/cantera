@@ -34,21 +34,31 @@ VPSSMgrFactory* VPSSMgrFactory::s_factory = 0;
 // Defn of the static mutex variable that locks the VPSSMgr factory singleton
 std::mutex VPSSMgrFactory::vpss_species_thermo_mutex;
 
-//! Examine the types of species thermo parameterizations, and return a flag indicating the type of parameterization
-//! needed by the species.
+//! Examine the types of species thermo parameterizations, and return a flag
+//! indicating the type of parameterization needed by the species.
 /*!
  *  @param spDataNodeList            Species Data XML node. This node contains a list
  *                                     of species XML nodes underneath it.
- *  @param has_nasa_idealGas         Boolean indicating that one species has a NASA ideal gas standard state
- *  @param has_nasa_constVol         Boolean indicating that one species has a NASA ideal solution standard state
- *  @param has_shomate_idealGas      Boolean indicating that one species has a Shomate ideal gas standard state
- *  @param has_shomate_constVol      Boolean indicating that one species has a Shomate ideal solution standard state
- *  @param has_simple_idealGas       Boolean indicating that one species has a simple ideal gas standard state
- *  @param has_simple_constVol       Boolean indicating that one species has a simple ideal solution standard state
- *  @param has_water                 Boolean indicating that one species has a water standard state
- *  @param has_tpx                   Boolean indicating that one species has a tpx standard state
- *  @param has_hptx                  Boolean indicating that one species has a htpx standard state
- *  @param has_other                 Boolean indicating that one species has different standard state than the ones listed above
+ *  @param has_nasa_idealGas         Boolean indicating that one species has a
+ *      NASA ideal gas standard state
+ *  @param has_nasa_constVol         Boolean indicating that one species has a
+ *      NASA ideal solution standard state
+ *  @param has_shomate_idealGas      Boolean indicating that one species has a
+ *      Shomate ideal gas standard state
+ *  @param has_shomate_constVol      Boolean indicating that one species has a
+ *      Shomate ideal solution standard state
+ *  @param has_simple_idealGas       Boolean indicating that one species has a
+ *      simple ideal gas standard state
+ *  @param has_simple_constVol       Boolean indicating that one species has a
+ *      simple ideal solution standard state
+ *  @param has_water                 Boolean indicating that one species has a
+ *      water standard state
+ *  @param has_tpx                   Boolean indicating that one species has a
+ *      tpx standard state
+ *  @param has_hptx                  Boolean indicating that one species has a
+ *      htpx standard state
+ *  @param has_other                 Boolean indicating that one species has
+ *      different standard state than the ones listed above
  *
  * @todo Make sure that spDadta_node is species Data XML node by checking
  *      its name is speciesData
@@ -206,9 +216,8 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     std::string ssManager;
     std::string vpssManager;
 
-    // First look for any explicit instructions within the XML Database
-    // for the standard state manager and the variable pressure
-    // standard state manager
+    // First look for any explicit instructions within the XML Database for the
+    // standard state manager and the variable pressure standard state manager
     if (phaseNode_ptr && phaseNode_ptr->hasChild("thermo")) {
         const XML_Node& thermoNode = phaseNode_ptr->child("thermo");
         if (thermoNode.hasChild("standardStateManager")) {

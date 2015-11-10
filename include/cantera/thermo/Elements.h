@@ -14,13 +14,13 @@ namespace Cantera
 {
 
 /*!
-  *  @name Types of Element Constraint Equations
-  *
-  *   There may be several different types of element constraints handled
-  *   by the equilibrium program and by Cantera in other contexts.
-  *   These defines are used to assign each constraint to one category.
-  *   @{
-  */
+ * @name Types of Element Constraint Equations
+ *
+ * There may be several different types of element constraints handled by the
+ * equilibrium program and by Cantera in other contexts. These defines are used
+ * to assign each constraint to one category.
+ * @{
+ */
 
 //! An element constraint that is current turned off
 #define CT_ELEM_TYPE_TURNEDOFF -1
@@ -28,9 +28,9 @@ namespace Cantera
 //! Normal element constraint consisting of positive coefficients for the
 //! formula matrix.
 /*!
- * All species have positive coefficients within the formula matrix.
- * With this constraint, we may employ various strategies to handle
- * small values of the element number successfully.
+ * All species have positive coefficients within the formula matrix. With this
+ * constraint, we may employ various strategies to handle small values of the
+ * element number successfully.
  */
 #define CT_ELEM_TYPE_ABSPOS 0
 
@@ -48,27 +48,28 @@ namespace Cantera
 
 //! Constraint associated with maintaining a fixed lattice stoichiometry in a solid
 /*!
- * The constraint may have positive or negative values. The lattice 0 species will
- * have negative values while higher lattices will have positive values
+ * The constraint may have positive or negative values. The lattice 0 species
+ * will have negative values while higher lattices will have positive values
  */
 #define CT_ELEM_TYPE_LATTICERATIO 3
 
 //! Constraint associated with maintaining frozen kinetic equilibria in
 //! some functional groups within molecules
 /*!
- *  We seek here to say that some functional groups or ionic states should be
- *  treated as if they are separate elements given the time scale of the problem.
- *  This will be abs positive constraint. We have not implemented any examples yet.
- *  A requirement will be that we must be able to add and subtract these constraints.
+ * We seek here to say that some functional groups or ionic states should be
+ * treated as if they are separate elements given the time scale of the problem.
+ * This will be abs positive constraint. We have not implemented any examples
+ * yet. A requirement will be that we must be able to add and subtract these
+ * constraints.
  */
 #define CT_ELEM_TYPE_KINETICFROZEN 4
 
 //! Constraint associated with the maintenance of a surface phase
 /*!
- *  We don't have any examples of this yet either. However, surfaces only exist
- *  because they are interfaces between bulk layers. If we want to treat surfaces
- *  within thermodynamic systems we must come up with a way to constrain their total
- *  number.
+ * We don't have any examples of this yet either. However, surfaces only exist
+ * because they are interfaces between bulk layers. If we want to treat surfaces
+ * within thermodynamic systems we must come up with a way to constrain their
+ * total number.
  */
 #define CT_ELEM_TYPE_SURFACECONSTRAINT 5
 

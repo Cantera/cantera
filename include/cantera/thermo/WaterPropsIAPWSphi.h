@@ -110,16 +110,15 @@ public:
 
     /**
      * This function computes the reduced density, given the reduced pressure
-     * and the reduced temperature, tau. It takes an initial guess,
-     * deltaGuess. DeltaGuess is important as this is a multivalued function
-     * below the critical point.
+     * and the reduced temperature, tau. It takes an initial guess, deltaGuess.
+     * DeltaGuess is important as this is a multivalued function below the
+     * critical point.
      *
      * @param p_red       Value of the dimensionless pressure
      * @param tau         Dimensionless temperature = T_c/T
-     * @param deltaGuess Initial guess for the dimensionless density
+     * @param deltaGuess  Initial guess for the dimensionless density
      *
-     * @return
-     *   Returns the dimensionless density.
+     * @returns the dimensionless density.
      */
     doublereal dfind(doublereal p_red, doublereal tau, doublereal deltaGuess);
 

@@ -40,11 +40,6 @@ doublereal SemiconductorPhase::ev() const
     return 0.0;
 }
 
-/**
- * Energy at the top of the conduction band. By default, energies
- * are referenced to this energy, and so this function simply
- * returns zero.
- */
 doublereal SemiconductorPhase::ec() const
 {
     return ev() + bandgap();
