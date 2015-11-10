@@ -28,7 +28,7 @@ class MultiTransport : public GasTransport
 public:
     //! default constructor
     /*!
-     *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
+     * @param thermo  Optional parameter for the pointer to the ThermoPhase object
      */
     MultiTransport(thermo_t* thermo=0);
 
@@ -42,10 +42,11 @@ public:
 
     //! Return the thermal diffusion coefficients (kg/m/s)
     /*!
-     *  Eqn. (12.126) displays how they are calculated. The reference work is from
-     *  Dixon-Lewis.
+     * Eqn. (12.126) displays how they are calculated. The reference work is
+     * from Dixon-Lewis.
      *
-     *  Eqns. (12.168) shows how they are used in an expression for the species flux.
+     * Eqns. (12.168) shows how they are used in an expression for the species
+     * flux.
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
@@ -58,39 +59,35 @@ public:
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
     /*!
-     *  Units for the returned fluxes are kg m-2 s-1.
+     * Units for the returned fluxes are kg m-2 s-1.
      *
-     *  @param ndim     Number of dimensions in the flux expressions
-     *  @param grad_T   Gradient of the temperature
-     *                   (length = ndim)
-     * @param ldx       Leading dimension of the grad_X array
-     *                   (usually equal to m_nsp but not always)
-     * @param grad_X    Gradients of the mole fraction
-     *                  Flat vector with the m_nsp in the inner loop.
-     *                   length = ldx * ndim
-     * @param ldf       Leading dimension of the fluxes array
-     *                   (usually equal to m_nsp but not always)
-     * @param fluxes    Output of the diffusive mass fluxes
-     *                  Flat vector with the m_nsp in the inner loop.
-     *                   length = ldx * ndim
+     * @param ndim     Number of dimensions in the flux expressions
+     * @param grad_T   Gradient of the temperature (length = ndim)
+     * @param ldx      Leading dimension of the grad_X array. (usually equal to
+     *                 m_nsp but not always)
+     * @param grad_X   Gradients of the mole fraction. Flat vector with the
+     *                 m_nsp in the inner loop. length = ldx * ndim
+     * @param ldf      Leading dimension of the fluxes array. (usually equal to
+     *                 m_nsp but not always)
+     * @param fluxes   Output of the diffusive mass fluxes. Flat vector with the
+     *                 m_nsp in the inner loop. length = ldx * ndim
      */
     virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
                                   size_t ldx, const doublereal* const grad_X,
                                   size_t ldf, doublereal* const fluxes);
 
-    //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the thermodynamic
-    //! state at two nearby points.
+    //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the
+    //! thermodynamic state at two nearby points.
     /*!
-     * The molar diffusional fluxes are calculated with reference to the mass averaged
-     * velocity. This is a one-dimensional vector
+     * The molar diffusional fluxes are calculated with reference to the mass
+     * averaged velocity. This is a one-dimensional vector
      *
      * @param state1 Array of temperature, density, and mass
      *               fractions for state 1.
      * @param state2 Array of temperature, density, and mass
      *               fractions for state 2.
      * @param delta  Distance from state 1 to state 2 (m).
-     * @param fluxes Output molar fluxes of the species.
-     *               (length = m_nsp)
+     * @param fluxes Output molar fluxes of the species. (length = m_nsp)
      */
     virtual void getMolarFluxes(const doublereal* const state1,
                                 const doublereal* const state2,
@@ -108,8 +105,7 @@ public:
      * @param state2 Array of temperature, density, and mass
      *               fractions for state 2.
      * @param delta  Distance from state 1 to state 2 (m).
-     * @param fluxes Output mass fluxes of the species.
-     *               (length = m_nsp)
+     * @param fluxes Output mass fluxes of the species. (length = m_nsp)
      */
     virtual void getMassFluxes(const doublereal* state1,
                                const doublereal* state2, doublereal delta,
@@ -118,10 +114,12 @@ public:
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
 protected:
-    //! Update basic temperature-dependent quantities if the temperature has changed.
+    //! Update basic temperature-dependent quantities if the temperature has
+    //! changed.
     void update_T();
 
-    //! Update basic concentration-dependent quantities if the concentrations have changed.
+    //! Update basic concentration-dependent quantities if the concentrations
+    //! have changed.
     void update_C();
 
     //! Update the temperature-dependent terms needed to compute the thermal

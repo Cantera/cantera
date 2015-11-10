@@ -19,10 +19,10 @@ namespace Cantera
 ///////////////////// helper functions /////////////////////////
 
 /**
- *  The Parker temperature correction to the rotational collision number.
+ * The Parker temperature correction to the rotational collision number.
  *
- *  @param tr Reduced temperature \f$ \epsilon/kT \f$
- *  @param sqtr square root of tr.
+ * @param tr Reduced temperature \f$ \epsilon/kT \f$
+ * @param sqtr square root of tr.
  */
 inline doublereal Frot(doublereal tr, doublereal sqtr)
 {
@@ -116,28 +116,24 @@ void MultiTransport::solveLMatrixEquation()
         return;
     }
 
-    // Copy the mole fractions twice into the last two blocks of
-    // the right-hand-side vector m_b. The first block of m_b was
-    // set to zero when it was created, and is not modified so
-    // doesn't need to be reset to zero.
+    // Copy the mole fractions twice into the last two blocks of the right-hand-
+    // side vector m_b. The first block of m_b was set to zero when it was
+    // created, and is not modified so doesn't need to be reset to zero.
     for (size_t k = 0; k < m_nsp; k++) {
         m_b[k] = 0.0;
         m_b[k + m_nsp] = m_molefracs[k];
         m_b[k + 2*m_nsp] = m_molefracs[k];
     }
 
-    // Set the right-hand side vector to zero in the 3rd block for
-    // all species with no internal energy modes.  The
-    // corresponding third-block rows and columns will be set to
-    // zero, except on the diagonal of L01,01, where they are set
-    // to 1.0. This has the effect of eliminating these equations
-    // from the system, since the equation becomes: m_a[2*m_nsp +
-    // k] = 0.0.
+    // Set the right-hand side vector to zero in the 3rd block for all species
+    // with no internal energy modes.  The corresponding third-block rows and
+    // columns will be set to zero, except on the diagonal of L01,01, where they
+    // are set to 1.0. This has the effect of eliminating these equations from
+    // the system, since the equation becomes: m_a[2*m_nsp + k] = 0.0.
 
-    // Note that this differs from the Chemkin procedure, where
-    // all *monatomic* species are excluded. Since monatomic
-    // radicals can have non-zero internal heat capacities due to
-    // electronic excitation, they should be retained.
+    // Note that this differs from the Chemkin procedure, where all *monatomic*
+    // species are excluded. Since monatomic radicals can have non-zero internal
+    // heat capacities due to electronic excitation, they should be retained.
     for (size_t k = 0; k < m_nsp; k++) {
         if (!hasInternalModes(k)) {
             m_b[2*m_nsp + k] = 0.0;
@@ -158,9 +154,8 @@ void MultiTransport::solveLMatrixEquation()
     eval_L0110();
     eval_L0101(m_molefracs.data());
 
-    // Solve it using GMRES or LU decomposition. The last solution
-    // in m_a should provide a good starting guess, so convergence
-    // should be fast.
+    // Solve it using GMRES or LU decomposition. The last solution in m_a should
+    // provide a good starting guess, so convergence should be fast.
     copy(m_b.begin(), m_b.end(), m_a.begin());
     try {
         solve(m_Lmatrix, m_a.data());
@@ -252,9 +247,8 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
     size_t offset;
     doublereal pp = pressure_ig();
 
-    // multiply diffusion velocities by rho * V to create
-    // mass fluxes, and restore the gradx elements that were
-    // modified
+    // multiply diffusion velocities by rho * V to create mass fluxes, and
+    // restore the gradx elements that were modified
     for (size_t n = 0; n < ndim; n++) {
         offset = n*ldf;
         for (size_t i = 0; i < m_nsp; i++) {
@@ -323,9 +317,9 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
         m_aa(i,i) -= sum;
     }
 
-    // enforce the condition \sum Y_k V_k = 0. This is done by
-    // replacing the flux equation with the largest gradx
-    // component with the flux balance condition.
+    // enforce the condition \sum Y_k V_k = 0. This is done by replacing the
+    // flux equation with the largest gradx component with the flux balance
+    // condition.
     size_t jmax = 0;
     doublereal gradmax = -1.0;
     for (size_t j = 0; j < m_nsp; j++) {
@@ -530,8 +524,8 @@ void MultiTransport::eval_L0000(const doublereal* const x)
     doublereal prefactor = 16.0*m_temp/25.0;
     doublereal sum;
     for (size_t i = 0; i < m_nsp; i++) {
-        //  subtract-off the k=i term to account for the first delta
-        //  function in Eq. (12.121)
+        // subtract-off the k=i term to account for the first delta
+        // function in Eq. (12.121)
         sum = -x[i]/m_bdiff(i,i);
         for (size_t k = 0; k < m_nsp; k++) {
             sum += x[k]/m_bdiff(i,k);
@@ -560,8 +554,8 @@ void MultiTransport::eval_L0010(const doublereal* const x)
                                      (1.2 * m_cstar(j,i) - 1.0) /
                                      ((wj + m_mw[i]) * m_bdiff(j,i));
 
-            //  the next term is independent of "j";
-            //  need to do it for the "j,j" term
+            // the next term is independent of "j";
+            // need to do it for the "j,j" term
             sum -= m_Lmatrix(i,j+m_nsp);
         }
         m_Lmatrix(j,j+m_nsp) += sum;
@@ -622,12 +616,12 @@ void MultiTransport::eval_L1001(const doublereal* x)
     size_t n2 = 2*m_nsp;
     int npoly = 0;
     for (size_t j = 0; j < m_nsp; j++) {
-        //        collect terms that depend only on "j"
+        // collect terms that depend only on "j"
         if (hasInternalModes(j)) {
             constant = prefactor*m_mw[j]*x[j]*m_crot[j]/(m_cinternal[j]*m_rotrelax[j]);
             sum = 0.0;
             for (size_t i = 0; i < m_nsp; i++) {
-                //           see Eq. (12.127)
+                // see Eq. (12.127)
                 m_Lmatrix(i+m_nsp,j+n2) = constant * m_astar(j,i) * x[i] /
                                           ((m_mw[j] + m_mw[i]) * m_bdiff(j,i));
                 sum += m_Lmatrix(i+m_nsp,j+n2);
@@ -681,20 +675,20 @@ void MultiTransport::eval_L0101(const doublereal* x)
     doublereal constant1, constant2, diff_int, sum;
     for (size_t i = 0; i < m_nsp; i++) {
         if (hasInternalModes(i)) {
-            //        collect terms that depend only on "i"
+            // collect terms that depend only on "i"
             constant1 = prefactor*x[i]/m_cinternal[i];
             constant2 = 12.00*m_mw[i]*m_crot[i] /
                         (fivepi*m_cinternal[i]*m_rotrelax[i]);
             sum = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
-                //           see Eq. (12.131)
+                // see Eq. (12.131)
                 diff_int = m_bdiff(i,k);
                 m_Lmatrix(k+n2,i+n2) = 0.0;
                 sum += x[k]/diff_int;
                 if (k != i) sum += x[k]*m_astar(i,k)*constant2 /
                                        (m_mw[k]*diff_int);
             }
-            //        see Eq. (12.130)
+            // see Eq. (12.130)
             m_Lmatrix(i+n2,i+n2) =
                 - eightoverpi*m_mw[i]*x[i]*x[i]*m_crot[i] /
                 (m_cinternal[i]*m_cinternal[i]*GasConstant*m_visc[i]*m_rotrelax[i])

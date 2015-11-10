@@ -14,9 +14,9 @@ namespace Cantera
 
 //! Calculation of Collision integrals
 /*!
- * This class provides functions that
- * interpolate the tabulated collision integrals in Monchick and
- * Mason, "Transport Properties of Polar Gases," J. Chem. Phys. (1961)
+ * This class provides functions that interpolate the tabulated collision
+ * integrals in Monchick and Mason, "Transport Properties of Polar Gases," J.
+ * Chem. Phys. (1961)
  *
  * @ingroup tranprops
  */
@@ -60,10 +60,7 @@ private:
     //! Table of omega22 values from MM
     static doublereal omega22_table[37*8];
 
-    //! tstar
-    /*!
-     *   table of tstar values
-     */
+    //! table of tstar values
     static doublereal tstar[39];
 
     //! astar table from MM

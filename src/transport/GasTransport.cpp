@@ -408,8 +408,8 @@ void GasTransport::setupMM()
             // the effective well depth for (i,j) collisions
             m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
 
-            //  The polynomial fits of collision integrals vs. T*
-            //  will be done for the T* from tstar_min to tstar_max
+            // The polynomial fits of collision integrals vs. T*
+            // will be done for the T* from tstar_min to tstar_max
             tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
             tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
 

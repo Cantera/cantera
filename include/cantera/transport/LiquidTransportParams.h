@@ -12,8 +12,8 @@
 namespace Cantera
 {
 
-//! Class LiquidTransportParams holds transport model parameters
-//!  relevant to transport in mixtures.
+//! Class LiquidTransportParams holds transport model parameters relevant to
+//! transport in mixtures.
 /*!
  * This class is used by TransportFactory to initialize transport objects.
  */
@@ -34,23 +34,25 @@ public:
     //! Object that specifes the ionic Conductivity of the mixture
     LiquidTranInteraction* ionConductivity;
 
-    //! Vector of pointer to the LiquidTranInteraction object which handles the calculation of
-    //! the mobility ratios for the phase
+    //! Vector of pointer to the LiquidTranInteraction object which handles the
+    //! calculation of the mobility ratios for the phase
     /*!
-     *  The mobility ratio is defined via the following quantity where i and j are species indecises.
+     * The mobility ratio is defined via the following quantity where i and j
+     * are species indecises.
      *
      *   mobRat(i,j) = mu_i / mu_j
      *
-     *    It is returned in fortran-ordering format. ie. it is returned as mobRat[k], where
+     * It is returned in fortran-ordering format. ie. it is returned as
+     * mobRat[k], where
      *
      *        k = j * nsp + i
      *
-     *   Length = nsp * nsp
+     * Length = nsp * nsp
      */
     std::vector<LiquidTranInteraction*> mobilityRatio;
 
-    //! Vector of pointer to the LiquidTranInteraction object which handles
-    //! the calculation of each species' self diffusion coefficient for the phase
+    //! Vector of pointer to the LiquidTranInteraction object which handles the
+    //! calculation of each species' self diffusion coefficient for the phase
     std::vector<LiquidTranInteraction*> selfDiffusion;
 
     //! Pointer to the LiquidTranInteraction object which handles the
@@ -95,8 +97,7 @@ public:
      * This is used for either LTI_MODEL_MASSFRACS or LTI_MODEL_MOLEFRACS. The
      * overall formula for the mixture viscosity is
      *
-     * \f[ \eta_{mix} = \sum_i X_i \eta_i
-     *  + \sum_i \sum_j X_i X_j A_{i,j} \f].
+     * \f[ \eta_{mix} = \sum_i X_i \eta_i + \sum_i \sum_j X_i X_j A_{i,j} \f].
      */
     DenseMatrix thermalCond_Aij;
 

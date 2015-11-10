@@ -1,8 +1,4 @@
-/**
- *  @file TransportFactory.cpp
- *
- *  Implementation file for class TransportFactory.
- */
+//! @file TransportFactory.cpp Implementation file for class TransportFactory.
 
 // known transport models
 #include "cantera/transport/MultiTransport.h"
@@ -290,9 +286,8 @@ void TransportFactory::setupLiquidTransport(thermo_t* thermo, int log_level,
     // Note that getLiquidSpeciesTransportData just populates the pure species transport data.
     getLiquidSpeciesTransportData(species_database, log, trParam.thermo->speciesNames(), trParam);
 
-    // getLiquidInteractionsTransportData() populates the
-    // species-species  interaction models parameters
-    // like visc_Eij
+    // getLiquidInteractionsTransportData() populates the species-species
+    // interaction models parameters like visc_Eij
     if (phase_database->hasChild("transport")) {
         XML_Node& transportNode = phase_database->child("transport");
         getLiquidInteractionsTransportData(transportNode, log, trParam.thermo->speciesNames(), trParam);
@@ -319,9 +314,8 @@ void TransportFactory::setupSolidTransport(thermo_t* thermo, int log_level,
 
     XML_Node root, log;
 
-    // getSolidTransportData() populates the
-    // phase transport models like electronic conductivity
-    // thermal conductivity, interstitial diffusion
+    // getSolidTransportData() populates the phase transport models like
+    // electronic conductivity thermal conductivity, interstitial diffusion
     if (phase_database->hasChild("transport")) {
         XML_Node& transportNode = phase_database->child("transport");
         getSolidTransportData(transportNode, log, thermo->name(), trParam);
@@ -354,9 +348,8 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
         LiquidTransportParams& trParam)
 {
     std::string name;
-    /*
-      Create a map of species names versus liquid transport data parameters
-    */
+
+    // Create a map of species names versus liquid transport data parameters
     std::map<std::string, LiquidTransportData> datatable;
 
     // Store the number of species in the phase
@@ -365,16 +358,16 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
     // Store the number of off-diagonal symmetric interactions between species in the phase
     size_t nBinInt = nsp*(nsp-1)/2;
 
-    // read all entries in database into 'datatable' and check for
-    // errors. Note that this procedure validates all entries, not
-    // only those for the species listed in 'names'.
+    // read all entries in database into 'datatable' and check for errors. Note
+    // that this procedure validates all entries, not only those for the species
+    // listed in 'names'.
     for (size_t i = 0; i < nsp; i++) {
         const XML_Node& sp = *xspecies[i];
         name = sp["name"];
         vector_fp vCoeff;
 
-        // Species with no 'transport' child are skipped. However, if that species is in the list,
-        // it will throw an exception below.
+        // Species with no 'transport' child are skipped. However, if that
+        // species is in the list, it will throw an exception below.
         try {
             if (sp.hasChild("transport")) {
                 XML_Node& trNode = sp.child("transport");
@@ -457,32 +450,28 @@ void TransportFactory::getLiquidSpeciesTransportData(const std::vector<const XML
 
     trParam.LTData.clear();
     for (size_t i = 0; i < trParam.nsp_; i++) {
-        /*
-        Check to see that we have a LiquidTransportData object for all of the
-        species in the phase. If not, throw an error.
-             */
+        // Check to see that we have a LiquidTransportData object for all of the
+        // species in the phase. If not, throw an error.
         auto it = datatable.find(names[i]);
         if (it == datatable.end()) {
             throw TransportDBError(0,"No transport data found for species " + names[i]);
         }
         LiquidTransportData& trdat = it->second;
 
-        /*
-          Now, transfer these objects into LTData in the correct phase index order by
-          calling the default copy constructor for LiquidTransportData.
-        */
+        // Now, transfer these objects into LTData in the correct phase index
+        // order by calling the default copy constructor for
+        // LiquidTransportData.
         trParam.LTData.push_back(trdat);
     }
 }
 
 /*
-  Read transport property data from a file for interactions
-  between species in a liquid.
-  Given the name of a file containing transport property
-  parameters and a list of species names, this method returns an
-  instance of TransportParams containing the transport data for
-  these species read from the file.
-*/
+ * Read transport property data from a file for interactions between species in
+ * a liquid. Given the name of a file containing transport property parameters
+ * and a list of species names, this method returns an instance of
+ * TransportParams containing the transport data for these species read from the
+ * file.
+ */
 void TransportFactory::getLiquidInteractionsTransportData(const XML_Node& transportNode,
                                                           XML_Node& log,
                                                           const std::vector<std::string> &names,

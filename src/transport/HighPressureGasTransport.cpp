@@ -23,8 +23,6 @@ using namespace std;
 namespace Cantera
 {
 
-//////////////////// class HighPressureGasTransport methods //////////////
-
 HighPressureGasTransport::HighPressureGasTransport(thermo_t* thermo)
 : MultiTransport(thermo)
 {
@@ -154,7 +152,7 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
     for (size_t i = 0; i < nsp; i++) {
         for (size_t j = 0; j < nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
-            //   zero (this would lead to Pr_ij = Inf):
+            // zero (this would lead to Pr_ij = Inf):
             doublereal x_i = std::max(Tiny, molefracs[i]);
             doublereal x_j = std::max(Tiny, molefracs[j]);
 
@@ -171,18 +169,18 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
                 P_corr_ij = 1;
             }else {
                 // Otherwise, calculate the parameters for Takahashi correlation
-                //   by interpolating on Pr_ij:
+                // by interpolating on Pr_ij:
                 P_corr_ij = setPcorr(Pr_ij, Tr_ij);
 
                 // If the reduced temperature is too low, the correction factor
-                //  P_corr_ij will be < 0:
+                // P_corr_ij will be < 0:
                 if (P_corr_ij<0) {
                     P_corr_ij = Tiny;
                 }
             }
 
             // Multiply the standard low-pressure binary diffusion coefficient
-            //   (m_bdiff) by the Takahashi correction factor P_corr_ij:
+            // (m_bdiff) by the Takahashi correction factor P_corr_ij:
             d[ld*j + i] = P_corr_ij*rp * m_bdiff(i,j);
         }
     }
@@ -213,9 +211,8 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     update_T();
     // Evaluate the binary diffusion coefficients from the polynomial fits -
     // this should perhaps be preceded by a check for changes in T, P, or C.
-    //if (!m_bindiff_ok) {
     updateDiff_T();
-    //}
+
     if (ld < m_nsp) {
         throw CanteraError("HighPressureTransport::getMultiDiffCoeffs()",
                            "ld is too small");

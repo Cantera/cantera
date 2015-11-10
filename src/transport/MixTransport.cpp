@@ -139,9 +139,8 @@ void MixTransport::update_T()
 
 void MixTransport::update_C()
 {
-    // signal that concentration-dependent quantities will need to
-    // be recomputed before use, and update the local mole
-    // fractions.
+    // signal that concentration-dependent quantities will need to be recomputed
+    // before use, and update the local mole fractions.
     m_visc_ok = false;
     m_condmix_ok = false;
     m_thermo->getMoleFractions(m_molefracs.data());

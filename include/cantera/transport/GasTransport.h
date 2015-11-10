@@ -26,19 +26,19 @@ public:
     /*!
      * The viscosity is computed using the Wilke mixture rule (kg /m /s)
      *
-     *    \f[
-     *        \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
-     *    \f]
+     * \f[
+     *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
+     * \f]
      *
-     *     Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
+     * Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
      *
-     *    \f[
-     *        \Phi_{k,j} = \frac{\left[1
-     *                     + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
-     *                     {\sqrt{8}\sqrt{1 + M_k/M_j}}
-     *    \f]
+     * \f[
+     *     \Phi_{k,j} = \frac{\left[1
+     *                  + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
+     *                  {\sqrt{8}\sqrt{1 + M_k/M_j}}
+     * \f]
      *
-     *  @return   Returns the viscosity of the mixture  ( units =  Pa s  = kg /m /s)
+     * @returns the viscosity of the mixture (units =  Pa s = kg /m /s)
      *
      * @see updateViscosity_T();
      */
@@ -53,7 +53,7 @@ public:
 
     //! Returns the matrix of binary diffusion coefficients.
     /*!
-     *        d[ld*j + i] = rp * m_bdiff(i,j);
+     * d[ld*j + i] = rp * m_bdiff(i,j);
      *
      * @param ld   offset of rows in the storage
      * @param d    output vector of diffusion coefficients. Units of m**2 / s
@@ -69,14 +69,14 @@ public:
      * returns the self-diffusion coefficient. This is needed to avoid a Nan
      * result in the formula below.
      *
-     *  This is Eqn. 12.180 from "Chemically Reacting Flow"
+     * This is Eqn. 12.180 from "Chemically Reacting Flow"
      *
-     *   \f[
-     *       D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1}
-     *   \f]
+     * \f[
+     *     D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1}
+     * \f]
      *
-     *  @param[out] d  Vector of mixture diffusion coefficients, \f$ D_{km}' \f$ ,
-     *      for each species (m^2/s). length m_nsp
+     * @param[out] d  Vector of mixture diffusion coefficients, \f$ D_{km}' \f$ ,
+     *     for each species (m^2/s). length m_nsp
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
@@ -166,17 +166,17 @@ protected:
      * pairs. For more information about this correction, see Dixon-Lewis, Proc.
      * Royal Society (1968).
      *
-     *  @param i        Species one - this is a bimolecular correction routine
-     *  @param j        species two - this is a bimolecular correction routine
-     *  @param f_eps    Multiplicative correction factor to be applied to epsilon(i,j)
-     *  @param f_sigma  Multiplicative correction factor to be applied to diam(i,j)
+     * @param i        Species one - this is a bimolecular correction routine
+     * @param j        species two - this is a bimolecular correction routine
+     * @param f_eps    Multiplicative correction factor to be applied to epsilon(i,j)
+     * @param f_sigma  Multiplicative correction factor to be applied to diam(i,j)
      */
     void makePolarCorrections(size_t i, size_t j, doublereal& f_eps,
                               doublereal& f_sigma);
 
     //! Generate polynomial fits to collision integrals
     /*!
-     *     @param integrals interpolator for the collision integrals
+     * @param integrals interpolator for the collision integrals
      */
     void fitCollisionIntegrals(MMCollisionInt& integrals);
 
@@ -184,23 +184,23 @@ protected:
     //! the binary diffusion coefficients
     /*!
      * If CK_mode, then the fits are of the form
-     *     \f[
-     *          \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
-     *     \f]
-     *  and
-     *     \f[
-     *          \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
-     *     \f]
-     *  Otherwise the fits are of the form
-     *     \f[
-     *          \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
-     *     \f]
-     *  and
-     *     \f[
-     *          D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
-     *     \f]
+     * \f[
+     *      \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
+     * \f]
+     * and
+     * \f[
+     *      \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
+     * \f]
+     * Otherwise the fits are of the form
+     * \f[
+     *      \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
+     * \f]
+     * and
+     * \f[
+     *      D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
+     * \f]
      *
-     *  @param integrals interpolator for the collision integrals
+     * @param integrals interpolator for the collision integrals
      */
     void fitProperties(MMCollisionInt& integrals);
 
@@ -321,9 +321,9 @@ protected:
 
     //! Polynomial fits to the binary diffusivity of each species
     /*!
-     *  m_diffcoeff[ic] is vector of polynomial coefficients for species i
-     *  species j that fits the binary diffusion coefficient. The relationship
-     *  between i j and ic is determined from the following algorithm:
+     * m_diffcoeff[ic] is vector of polynomial coefficients for species i
+     * species j that fits the binary diffusion coefficient. The relationship
+     * between i j and ic is determined from the following algorithm:
      *
      *      int ic = 0;
      *      for (i = 0; i < m_nsp; i++) {
@@ -354,33 +354,33 @@ protected:
 
     //! Fit for omega22 collision integral
     /*!
-     *  m_omega22_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     *  (length degree+1) for the collision integral fit for the species pair
-     *  (i,j).
+     * m_omega22_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair
+     * (i,j).
      */
     std::vector<vector_fp> m_omega22_poly;
 
     //! Fit for astar collision integral
     /*!
-     *  m_astar_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     *  (length degree+1) for the collision integral fit for the species pair
-     *  (i,j).
+     * m_astar_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair
+     * (i,j).
      */
     std::vector<vector_fp> m_astar_poly;
 
     //! Fit for bstar collision integral
     /*!
-     *  m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     *  (length degree+1) for the collision integral fit for the species pair
-     *  (i,j).
+     * m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair
+     * (i,j).
      */
     std::vector<vector_fp> m_bstar_poly;
 
     //! Fit for cstar collision integral
     /*!
-     *  m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
-     *  (length degree+1) for the collision integral fit for the species pair
-     *  (i,j).
+     * m_bstar_poly[m_poly[i][j]] is the vector of polynomial coefficients
+     * (length degree+1) for the collision integral fit for the species pair
+     * (i,j).
      */
     std::vector<vector_fp> m_cstar_poly;
 
@@ -392,21 +392,21 @@ protected:
 
     //! Dimensionless rotational heat capacity of each species
     /*!
-     *  These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear
-     *  species respectively length is the number of species in the phase.
-     *  Dimensionless  (Cr / R)
+     * These values are 0, 1 and 1.5 for single-molecule, linear, and nonlinear
+     * species respectively length is the number of species in the phase.
+     * Dimensionless  (Cr / R)
      */
     vector_fp m_crot;
 
     //! Vector of booleans indicating whether a species is a polar molecule
     /*!
-     *   Length is nsp
+     * Length is nsp
      */
     std::vector<bool> m_polar;
 
     //! Polarizability of each species in the phase
     /*!
-     *  Length = nsp. Units = m^3
+     * Length = nsp. Units = m^3
      */
     vector_fp m_alpha;
 
@@ -419,8 +419,7 @@ protected:
 
     //! Lennard-Jones diameter of the species in the current phase
     /*!
-     * length is the number of species in the phase
-     * units are in meters.
+     * length is the number of species in the phase. units are in meters.
      */
     vector_fp m_sigma;
 
@@ -448,7 +447,7 @@ protected:
      *     epsilon(i,j) = sqrt(eps[i]*eps[j]);
      *     Units are Joules (note, no kmol -> this is a per molecule amount)
      *
-     *  Length nsp * nsp. This is a symmetric matrix.
+     * Length nsp * nsp. This is a symmetric matrix.
      */
     DenseMatrix m_epsilon;
 

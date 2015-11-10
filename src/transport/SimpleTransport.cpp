@@ -52,10 +52,8 @@ SimpleTransport::SimpleTransport(const SimpleTransport& right) :
     m_cond_mix_ok(false),
     m_nDim(1)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = right;
 }
 
@@ -157,10 +155,8 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_thermo = tr.thermo;
     m_nsp = m_thermo->nSpecies();
 
-    /*
-     * Read the transport block in the phase XML Node
-     * It's not an error if this block doesn't exist. Just use the defaults
-     */
+    // Read the transport block in the phase XML Node
+    // It's not an error if this block doesn't exist. Just use the defaults
     XML_Node& phaseNode = m_thermo->xml();
     if (phaseNode.hasChild("transport")) {
         XML_Node& transportNode = phaseNode.child("transport");
@@ -177,9 +173,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_mw.resize(m_nsp);
     copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
 
-    /*
-     *  Get the input Viscosities
-     */
+    // Get the input Viscosities
     m_viscSpecies.resize(m_nsp);
     m_coeffVisc_Ns.clear();
     m_coeffVisc_Ns.resize(m_nsp);
@@ -191,9 +185,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         ltd.viscosity = 0;
     }
 
-    /*
-     *  Get the input thermal conductivities
-     */
+    // Get the input thermal conductivities
     m_condSpecies.resize(m_nsp);
     m_coeffLambda_Ns.clear();
     m_coeffLambda_Ns.resize(m_nsp);
@@ -204,9 +196,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         ltd.thermalCond = 0;
     }
 
-    /*
-     *  Get the input species diffusivities
-     */
+    // Get the input species diffusivities
     useHydroRadius_ = false;
     m_diffSpecies.resize(m_nsp);
     m_coeffDiff_Ns.clear();
@@ -528,8 +518,7 @@ void SimpleTransport::getMixDiffCoeffs(doublereal* const d)
 
 bool SimpleTransport::update_C()
 {
-    // If the pressure has changed then the concentrations
-    // have changed.
+    // If the pressure has changed then the concentrations have changed.
     doublereal pres = m_thermo->pressure();
     bool qReturn = true;
     if (pres != m_press) {
@@ -622,9 +611,8 @@ bool SimpleTransport::update_T()
     // Compute various functions of temperature
     m_temp = t;
 
-    // temperature has changed, so polynomial temperature
-    // interpolations will need to be reevaluated.
-    // Set all of these flags to false
+    // temperature has changed, so polynomial temperature interpolations will
+    // need to be reevaluated. Set all of these flags to false
     m_visc_mix_ok = false;
     m_visc_temp_ok = false;
     m_cond_temp_ok = false;
