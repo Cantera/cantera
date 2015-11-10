@@ -25,9 +25,8 @@ class XML_Error : public CanteraError
 protected:
     //! Constructor
     /*!
-     * Note, we don't actually post the error in this class.
-     * Therefore, this class can't be used externally. Therefore,
-     * it's a protected constructor.
+     * Note, we don't actually post the error in this class. Therefore, this
+     * class can't be used externally. Therefore, it's a protected constructor.
      *
      * @param line Number number where the error occurred.
      */
@@ -64,11 +63,11 @@ class XML_TagMismatch : public XML_Error
 public:
     //! Constructor
     /*!
-     *  An XML element must have the same opening and closing name.
+     * An XML element must have the same opening and closing name.
      *
-     *  @param  opentag     String representing the opening of the XML bracket
-     *  @param  closetag    String representing the closing of the XML bracket
-     *  @param  line        Line number where the error occurred.
+     * @param  opentag    String representing the opening of the XML bracket
+     * @param  closetag   String representing the closing of the XML bracket
+     * @param  line       Line number where the error occurred.
      */
     XML_TagMismatch(const std::string& opentag, const std::string& closetag,
                     int line=0) :
@@ -90,12 +89,12 @@ class XML_NoChild : public XML_Error
 public:
     //! Constructor
     /*!
-     *  An XML element doesn't have the required child node
+     * An XML element doesn't have the required child node
      *
-     *  @param  p           XML_Node to write a string error message
-     *  @param  parent      Namf of the parent node
-     *  @param  child       Name of the required child node
-     *  @param  line        Line number where the error occurred.
+     * @param  p       XML_Node to write a string error message
+     * @param  parent  Namf of the parent node
+     * @param  child   Name of the required child node
+     * @param  line    Line number where the error occurred.
      */
     XML_NoChild(const XML_Node* p, const std::string& parent,
                 std::string child, int line=0) :
@@ -186,14 +185,12 @@ int XML_Reader::findQuotedString(const std::string& s, std::string& rstring) con
     if (iloc1 == string::npos) {
         return 0;
     }
-    /*
-     * Define the return string by the two endpoints.
-     * Strip the surrounding quotes as well
-     */
+
+    // Define the return string by the two endpoints. Strip the surrounding
+    // quotes as well
     rstring = s.substr(ilocStart + 1, iloc1 - 1);
-    /*
-     * Return the first character position past the quotes
-     */
+
+    // Return the first character position past the quotes
     return static_cast<int>(iloc1)+1;
 }
 
@@ -915,11 +912,9 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
 
     string indent(level, ' ');
     if (m_iscomment) {
-        /*
-         * In the comment section, we test to see if there
-         * already is a space beginning and ending the comment.
-         * If there already is one, we don't add another one.
-         */
+        // In the comment section, we test to see if there already is a space
+        // beginning and ending the comment. If there already is one, we don't
+        // add another one.
         s << endl << indent << "<!--";
         if (! isspace(m_value[0])) {
             s << " ";
@@ -996,15 +991,13 @@ void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) c
                 if (doNewLine) {
                     s << endl << indent << "  ";
                 }
-                /*
-                 * Put spaces around a raw value field for readability
-                 */
+
+                // Put spaces around a raw value field for readability
                 if (doSpace && (! isspace(m_value[0]))) {
                     s << " ";
                 }
-                /*
-                 * Write out the value
-                 */
+
+                // Write out the value
                 s << m_value;
 
                 if (doSpace && (! isspace(m_value[ll]))) {

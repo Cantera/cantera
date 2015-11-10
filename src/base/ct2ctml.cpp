@@ -27,16 +27,14 @@ namespace Cantera
  * Use the environment variable PYTHON_CMD if it is set. If not, return
  * the string 'python'.
  *
- * Note, there are hidden problems here that really direct us to use
- * a full pathname for the location of python. Basically the system
- * call will use the shell /bin/sh, in order to launch python.
- * This default shell may not be the shell that the user is employing.
- * Therefore, the default path to python may be different during
- * a system call than during the default user shell environment.
- * This is quite a headache. The answer is to always set the
- * PYTHON_CMD environmental variable in the user environment to
- * an absolute path to locate the python executable. Then this
- * issue goes away.
+ * Note, there are hidden problems here that really direct us to use a full
+ * pathname for the location of python. Basically the system call will use the
+ * shell /bin/sh, in order to launch python. This default shell may not be the
+ * shell that the user is employing. Therefore, the default path to python may
+ * be different during a system call than during the default user shell
+ * environment. This is quite a headache. The answer is to always set the
+ * PYTHON_CMD environmental variable in the user environment to an absolute path
+ * to locate the python executable. Then this issue goes away.
  */
 static string pypath()
 {
@@ -88,10 +86,8 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
     }
 
 #ifdef HAS_NO_PYTHON
-    /*
-     *  Section to bomb out if python is not
-     *  present in the computation environment.
-     */
+    //! Section to bomb out if python is not present in the computation
+    //! environment.
     throw CanteraError("ct2ctml",
                        "python cti to ctml conversion requested for file, " + file +
                        ", but not available in this computational environment");
@@ -189,10 +185,8 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
             const std::string& transport_file, const std::string& id_tag)
 {
 #ifdef HAS_NO_PYTHON
-    /*
-     *  Section to bomb out if python is not
-     *  present in the computation environment.
-     */
+    //! Section to bomb out if python is not present in the computation
+    //! environment.
     string ppath = in_file;
     throw CanteraError("ct2ctml",
                        "python ck to cti conversion requested for file, " + ppath +

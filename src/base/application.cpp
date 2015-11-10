@@ -198,10 +198,9 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
             return cache.first;
         }
     }
-    /*
-     * Check whether or not the file is XML (based on the file extension). If
-     * not, it will be first processed with the preprocessor.
-     */
+
+    // Check whether or not the file is XML (based on the file extension). If
+    // not, it will be first processed with the preprocessor.
     string::size_type idot = path.rfind('.');
     string ext;
     if (idot != string::npos) {
@@ -407,10 +406,9 @@ void Application::setDefaultDirectories()
         dirs.push_back(s.substr(start,end));
     }
 
-    // CANTERA_DATA is defined in file config.h. This file is written
-    // during the build process (unix), and points to the directory
-    // specified by the 'prefix' option to 'configure', or else to
-    // /usr/local/cantera.
+    // CANTERA_DATA is defined in file config.h. This file is written during the
+    // build process (unix), and points to the directory specified by the
+    // 'prefix' option to 'configure', or else to /usr/local/cantera.
 #ifdef CANTERA_DATA
     string datadir = string(CANTERA_DATA);
     dirs.push_back(datadir);

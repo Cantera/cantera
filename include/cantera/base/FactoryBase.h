@@ -12,9 +12,9 @@ namespace Cantera
 {
 
 //! Base class for factories.
-/*!   This class maintains a registry of
- *    all factories that derive from it, and deletes them all when
- *    its static method deleteFactories is invoked.
+/*!
+ * This class maintains a registry of all factories that derive from it, and
+ * deletes them all when its static method deleteFactories is invoked.
  */
 class FactoryBase
 {
@@ -24,8 +24,8 @@ public:
     virtual ~FactoryBase() {
     }
 
-    //! static function that deletes all factories
-    //! in the internal registry maintained in a static variable
+    //! static function that deletes all factories in the internal registry
+    //! maintained in a static variable
     static void deleteFactories() {
         for (const auto& f : s_vFactoryRegistry) {
             f->deleteFactory();

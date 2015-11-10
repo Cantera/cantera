@@ -101,10 +101,10 @@ void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
     if (type != "") {
         f.addAttribute("type",type);
     }
-    /*
-     *  Add vtype, which indicates the type of the value. Here we specify it as a list of floats separated
-     *  by commas, with a length given by size attribute.
-     */
+
+    // Add vtype, which indicates the type of the value. Here we specify it as a
+    // list of floats separated by commas, with a length given by size
+    // attribute.
     f.addAttribute("vtype", "floatArray");
 
     f.addAttribute("size", n);
@@ -324,9 +324,8 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
     v.clear();
     doublereal vmin = Undef, vmax = Undef;
     doublereal funit = 1.0;
-    /*
-     * Get the attributes field, units, from the XML node
-     */
+
+    // Get the attributes field, units, from the XML node
     std::string units = readNode->attrib("units");
     if (units != "" && convert) {
         if (unitsString == "actEnergy" && units != "") {
@@ -351,14 +350,10 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
             val = val.substr(icom+1,val.size());
             v.push_back(fpValueCheck(numstr));
         } else {
-            /*
-             * This little bit of code is to allow for the
-             * possibility of a comma being the last
-             * item in the value text. This was allowed in
-             * previous versions of Cantera, even though it
-             * would appear to be odd. So, we keep the
-             * possibility in for backwards compatibility.
-             */
+            // This little bit of code is to allow for the possibility of a
+            // comma being the last item in the value text. This was allowed in
+            // previous versions of Cantera, even though it would appear to be
+            // odd. So, we keep the possibility in for backwards compatibility.
             if (!val.empty()) {
                 v.push_back(fpValueCheck(val));
             }
@@ -429,10 +424,8 @@ void getMatrixValues(const XML_Node& node,
                            "nrow != ncol for a symmetric matrix");
     }
 
-    /*
-     * Get the attributes field, units, from the XML node
-     * and determine the conversion factor, funit.
-     */
+    // Get the attributes field, units, from the XML node and determine the
+    // conversion factor, funit.
     doublereal funit = 1.0;
     if (convert && node["units"] != "") {
         funit = toSI(node["units"]);
@@ -470,9 +463,8 @@ void getMatrixValues(const XML_Node& node,
                                + key2);
         }
         double dval = fpValueCheck(rmm.substr(icolon+1, rmm.size())) * funit;
-        /*
-         * Finally, insert the value;
-         */
+
+        // Finally, insert the value;
         retnValues(irow, icol) = dval;
         if (matrixSymmetric) {
             retnValues(icol, irow) = dval;

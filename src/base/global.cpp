@@ -169,8 +169,10 @@ string canteraRoot()
 //! split a string at a '#' sign. Used to separate a file name from an id string.
 /*!
  *   @param    src     Original string to be split up. This is unchanged.
- *   @param    file    Output string representing the first part of the string, which is the filename.
- *   @param    id      Output string representing the last part of the string, which is the id.
+ *   @param    file    Output string representing the first part of the string,
+ *       which is the filename.
+ *   @param    id      Output string representing the last part of the string,
+ *       which is the id.
  */
 static void split_at_pound(const std::string& src, std::string& file, std::string& id)
 {
