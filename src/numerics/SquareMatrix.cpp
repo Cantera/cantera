@@ -1,6 +1,4 @@
-/**
- *  @file SquareMatrix.cpp
- */
+//! @file SquareMatrix.cpp
 
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
@@ -59,9 +57,8 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
         return solveQR(b);
     }
     int info=0;
-    /*
-     * Check to see whether the matrix has been factored.
-     */
+
+    // Check to see whether the matrix has been factored.
     if (!m_factored) {
         int retn = factor();
         if (retn) {
@@ -71,9 +68,8 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     if (ldb == 0) {
         ldb = nColumns();
     }
-    /*
-     * Solve the factored system
-     */
+
+    // Solve the factored system
     ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(nRows()),
               nrhs, &*begin(), static_cast<int>(nRows()),
               ipiv().data(), b, ldb, info);
@@ -168,9 +164,8 @@ int SquareMatrix::factorQR()
 int SquareMatrix::solveQR(doublereal* b)
 {
     int info=0;
-    /*
-     * Check to see whether the matrix has been factored.
-     */
+
+    // Check to see whether the matrix has been factored.
     if (!m_factored) {
         int retn = factorQR();
         if (retn) {
@@ -184,9 +179,7 @@ int SquareMatrix::solveQR(doublereal* b)
         lwork = 8 * m_nrows;
     }
 
-    /*
-     * Solve the factored system
-     */
+    // Solve the factored system
     ct_dormqr(ctlapack::Left, ctlapack::Transpose, m_nrows, 1, m_nrows, &*begin(), m_nrows, tau.data(), b, m_nrows,
               work.data(), lwork, info);
     if (info != 0) {

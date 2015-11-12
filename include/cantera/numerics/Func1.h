@@ -50,8 +50,8 @@ public:
 
     //! Duplicate the current function.
     /*!
-     *  This duplicates the current function, returning a
-     *  reference to the new malloced function.
+     * This duplicates the current function, returning a reference to the new
+     * malloced function.
      */
     virtual Func1& duplicate() const;
 
@@ -65,17 +65,16 @@ public:
 
     //! Creates a derivative to the current function
     /*!
-     *  This will malloc a derivative function and
-     *  return a reference to the function.
+     * This will malloc a derivative function and return a reference to the
+     * function.
      */
     virtual Func1& derivative() const;
 
     //! Routine to determine if two functions are the same.
     /*!
-     *  Two functions are the same if they are the same function.
-     *  This means that the ID and stored constant is the same.
-     *  This means that the m_f1 and m_f2 are identical if they
-     *  are non-null.
+     * Two functions are the same if they are the same function. This means
+     * that the ID and stored constant is the same. This means that the m_f1
+     * and m_f2 are identical if they are non-null.
      */
     bool isIdentical(Func1& other) const;
 
@@ -987,8 +986,7 @@ protected:
 };
 
 /**
- *  Periodic function. Takes any function and makes it
- *  periodic with period T.
+ *  Periodic function. Takes any function and makes it periodic with period T.
  */
 class Periodic1 : public Func1
 {

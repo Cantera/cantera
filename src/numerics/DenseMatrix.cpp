@@ -100,7 +100,8 @@ void DenseMatrix::mult(const DenseMatrix& B, DenseMatrix& prod) const
     const doublereal* const* bcols = B.const_colPts();
     doublereal* const* prodcols = prod.colPts();
     for (size_t col=0; col < m_ncols; ++col) {
-        // Loop over ncols multiplying A*column of B and storing in corresponding prod column
+        // Loop over ncols multiplying A*column of B and storing in
+        // corresponding prod column
         mult(bcols[col], prodcols[col]);
     }
 }

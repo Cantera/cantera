@@ -44,7 +44,6 @@ enum IterType {
     Functional_Iter
 };
 
-
 //!  Abstract base class for ODE system integrators.
 /*!
  *  @ingroup odeGroup
@@ -60,7 +59,7 @@ public:
     virtual ~Integrator() {
     }
 
-    //!  Set error tolerances.
+    //! Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance
      * @param n      Number of equations
@@ -71,7 +70,7 @@ public:
         warn("setTolerances");
     }
 
-    //!  Set error tolerances.
+    //! Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
@@ -80,7 +79,7 @@ public:
         warn("setTolerances");
     }
 
-    //!  Set the sensitivity error tolerances
+    //! Set the sensitivity error tolerances
     /*!
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
@@ -88,7 +87,7 @@ public:
     virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
     { }
 
-    //!    Set the problem type.
+    //! Set the problem type.
     /*!
      * @param probtype    Type of the problem
      */
@@ -97,8 +96,8 @@ public:
     }
 
     /**
-     * Initialize the integrator for a new problem. Call after
-     * all options have been set.
+     * Initialize the integrator for a new problem. Call after all options have
+     * been set.
      * @param t0   initial time
      * @param func RHS evaluator object for system of equations.
      */

@@ -141,24 +141,22 @@ public:
     //! Calculate consistent value of the starting solution given the starting
     //! solution derivatives
     /**
-     * This method may be called if the initial conditions do not
-     * satisfy the residual equation F = 0. Given the derivatives
-     * of all variables, this method computes the initial y
-     * values.
+     * This method may be called if the initial conditions do not satisfy the
+     * residual equation F = 0. Given the derivatives of all variables, this
+     * method computes the initial y values.
      */
     virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,
                                            doublereal tout) {
         warn("correctInitial_Y_given_Yp");
     }
 
-    //! Calculate consistent value of the algebraic constraints and
-    //! derivatives at the start of the problem
+    //! Calculate consistent value of the algebraic constraints and derivatives
+    //! at the start of the problem
     /**
-     * This method may be called if the initial conditions do not
-     * satisfy the residual equation F = 0. Given the initial
-     * values of all differential variables, it computes the
-     * initial values of all algebraic variables and the initial
-     * derivatives of all differential variables.
+     * This method may be called if the initial conditions do not satisfy the
+     * residual equation F = 0. Given the initial values of all differential
+     * variables, it computes the initial values of all algebraic variables and
+     * the initial derivatives of all differential variables.
      *  @param y      Calculated value of the solution vector after the procedure ends
      *  @param yp     Calculated value of the solution derivative after the procedure
      *  @param tout   The first value of t at which a soluton will be
@@ -252,12 +250,9 @@ private:
 
 //! Factor method for choosing a DAE solver
 /*!
- *
- *     @param itype  String identifying the type
- *                   (IDA is the only option)
- *     @param f      Residual function to be solved by the DAE algorithm
- *
- *     @return       Returns a point to the instantiated DAE_Solver object
+ * @param itype  String identifying the type (IDA is the only option)
+ * @param f      Residual function to be solved by the DAE algorithm
+ * @returns a point to the instantiated DAE_Solver object
  */
 DAE_Solver* newDAE_Solver(const std::string& itype, ResidJacEval& f);
 

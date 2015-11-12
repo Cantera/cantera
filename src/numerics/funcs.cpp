@@ -1,7 +1,5 @@
-/**
- *  @file funcs.cpp file containing miscellaneous
- *                numerical functions.
- */
+//! @file funcs.cpp file containing miscellaneous numerical functions.
+
 /*
  *  Copyright 2001-2003 California Institute of Technology
  *  See file License.txt for licensing information

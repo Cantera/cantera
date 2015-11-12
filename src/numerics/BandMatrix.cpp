@@ -1,8 +1,4 @@
-/**
- *  @file BandMatrix.cpp
- *
- *  Banded matrices.
- */
+//! @file BandMatrix.cpp Banded matrices.
 
 // Copyright 2001  California Institute of Technology
 

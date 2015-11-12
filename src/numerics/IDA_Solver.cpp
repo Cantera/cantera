@@ -1,6 +1,4 @@
-/**
- *  @file IDA_Solver.cpp
- */
+//! @file IDA_Solver.cpp
 
 // Copyright 2006  California Institute of Technology
 
@@ -27,10 +25,8 @@ typedef long int sd_size_t;
 namespace Cantera
 {
 
-/**
- * A simple class to hold an array of parameter values and a pointer to
- * an instance of a subclass of ResidEval.
- */
+//! A simple class to hold an array of parameter values and a pointer to an
+//! instance of a subclass of ResidEval.
 class ResidData
 {
 public:
@@ -48,20 +44,23 @@ public:
 }
 
 extern "C" {
-    //!  Function called by IDA to evaluate the residual, given y and ydot.
+    //! Function called by IDA to evaluate the residual, given y and ydot.
     /*!
-     *  IDA allows passing in a void* pointer to access external data. Instead of requiring the user to provide a
-     *  residual function directly to IDA (which would require using
-     *  the sundials data types N_Vector, etc.), we define this function as the single function that IDA always calls. The
-     *  real evaluation of the residual is done by an instance of a subclass of ResidEval, passed in to this
-     *  function as a pointer in the parameters.
+     * IDA allows passing in a void* pointer to access external data. Instead of
+     * requiring the user to provide a residual function directly to IDA (which
+     * would require using the sundials data types N_Vector, etc.), we define
+     * this function as the single function that IDA always calls. The real
+     * evaluation of the residual is done by an instance of a subclass of
+     * ResidEval, passed in to this function as a pointer in the parameters.
      *
-     * FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its residual routines ------
-     *   A IDAResFn res should return a value of 0 if successful, a positive
-     *   value if a recoverable error occured (e.g. yy has an illegal value),
-     *   or a negative value if a nonrecoverable error occured. In the latter
-     *   case, the program halts. If a recoverable error occured, the integrator
-     *   will attempt to correct and retry.
+     * FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its
+     * residual routines:
+     *
+     * A IDAResFn res should return a value of 0 if successful, a positive value
+     * if a recoverable error occured (e.g. yy has an illegal value), or a
+     * negative value if a nonrecoverable error occured. In the latter case, the
+     * program halts. If a recoverable error occured, the integrator will
+     * attempt to correct and retry.
      */
     static int ida_resid(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
     {
@@ -90,11 +89,12 @@ extern "C" {
      *                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
      *
      * A IDADlsDenseJacFn should return
-     *     0 if successful,
-     *     a positive int if a recoverable error occurred, or
-     *     a negative int if a nonrecoverable error occurred.
-     * In the case of a recoverable error return, the integrator will
-     * attempt to recover by reducing the stepsize (which changes cj).
+     * - 0 if successful,
+     * - a positive int if a recoverable error occurred, or
+     * - a negative int if a nonrecoverable error occurred.
+     *
+     * In the case of a recoverable error return, the integrator will attempt to
+     * recover by reducing the stepsize (which changes cj).
      */
     static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j, N_Vector y, N_Vector ydot, N_Vector r,
                             DlsMat Jac, void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -371,10 +371,7 @@ void IDA_Solver::init(doublereal t0)
         }
     }
 
-    //-----------------------------------
     // set the linear solver type
-    //-----------------------------------
-
     if (m_type == 1 || m_type == 0) {
         long int N = m_neq;
         flag = IDADense(m_ida_mem, N);

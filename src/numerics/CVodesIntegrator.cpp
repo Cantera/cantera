@@ -1,6 +1,4 @@
-/**
- *  @file CVodesIntegrator.cpp
- */
+//! @file CVodesIntegrator.cpp
 
 // Copyright 2001  California Institute of Technology
 #include "cantera/numerics/CVodesIntegrator.h"
@@ -51,13 +49,12 @@ public:
 
 extern "C" {
     /**
-     *  Function called by cvodes to evaluate ydot given y.  The CVODE
-     *  integrator allows passing in a void* pointer to access
-     *  external data. This pointer is cast to a pointer to a instance
-     *  of class FuncEval. The equations to be integrated should be
-     *  specified by deriving a class from FuncEval that evaluates the
-     *  desired equations.
-     *  @ingroup odeGroup
+     * Function called by cvodes to evaluate ydot given y.  The CVODE integrator
+     * allows passing in a void* pointer to access external data. This pointer
+     * is cast to a pointer to a instance of class FuncEval. The equations to be
+     * integrated should be specified by deriving a class from FuncEval that
+     * evaluates the desired equations.
+     * @ingroup odeGroup
      */
     static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot,
                           void* f_data)
@@ -287,12 +284,9 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
         CVodeFree(&m_cvode_mem);
     }
 
-    /*
-     *  Specify the method and the iteration type:
-     *      Cantera Defaults:
-     *         CV_BDF  - Use BDF methods
-     *         CV_NEWTON - use Newton's method
-     */
+    //! Specify the method and the iteration type. Cantera Defaults:
+    //!        CV_BDF  - Use BDF methods
+    //!        CV_NEWTON - use Newton's method
     m_cvode_mem = CVodeCreate(m_method, m_iter);
     if (!m_cvode_mem) {
         throw CVodesErr("CVodeCreate failed.");

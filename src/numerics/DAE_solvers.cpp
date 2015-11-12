@@ -1,6 +1,4 @@
-/**
- *  @file DAE_solvers.cpp Factory routine for picking the DAE solver package
- */
+//! @file DAE_solvers.cpp Factory routine for picking the DAE solver package
 
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract

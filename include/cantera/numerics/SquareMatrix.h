@@ -1,7 +1,4 @@
-/**
- *  @file SquareMatrix.h
- * Dense, Square (not sparse) matrices.
- */
+//! @file SquareMatrix.h Dense, Square (not sparse) matrices.
 
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
@@ -20,8 +17,8 @@ namespace Cantera
 {
 
 /**
- *  A class for full (non-sparse) matrices with Fortran-compatible
- *  data storage. Adds matrix inversion operations to this class from DenseMatrix.
+ * A class for full (non-sparse) matrices with Fortran-compatible data storage.
+ * Adds matrix inversion operations to this class from DenseMatrix.
  */
 class SquareMatrix: public DenseMatrix, public GeneralMatrix
 {
@@ -38,10 +35,7 @@ public:
      */
     SquareMatrix(size_t n, doublereal v = 0.0);
 
-    //! Copy Constructor
     SquareMatrix(const SquareMatrix& right);
-
-    //! Assignment operator
     SquareMatrix& operator=(const SquareMatrix& right);
 
     int solve(doublereal* b, size_t nrhs=1, size_t ldb=0);
@@ -63,7 +57,8 @@ public:
 
     virtual doublereal oneNorm() const;
 
-    //! Solves the linear problem Ax=b using the QR algorithm returning x in the b spot
+    //! Solves the linear problem Ax=b using the QR algorithm returning x in the
+    //! b spot
     /*!
      *  @param b  RHS to be solved.
      */
@@ -99,10 +94,10 @@ public:
     /*!
      * This is inherited from GeneralMatrix
      *
-     * @param iStruct OUTPUT Pointer to a vector of ints that describe the structure of the matrix.
-     *    not used
+     * @param iStruct OUTPUT Pointer to a vector of ints that describe the
+     *    structure of the matrix. not used
      *
-     * @return  returns the number of rows and columns in the matrix.
+     * @returns the number of rows and columns in the matrix.
      */
     size_t nRowsAndStruct(size_t* const iStruct = 0) const;
 
@@ -125,10 +120,11 @@ public:
     //! Integer work vector for QR algorithms
     vector_int iwork_;
 protected:
-    //! 1-norm of the matrix. This is determined immediately before every factorization
+    //! 1-norm of the matrix. This is determined immediately before every
+    //! factorization
     doublereal a1norm_;
 
-    //!  Use the QR algorithm to factor and invert the matrix
+    //! Use the QR algorithm to factor and invert the matrix
     int useQR_;
 };
 }
