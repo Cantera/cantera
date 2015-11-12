@@ -59,6 +59,7 @@ cdef class Mixture:
         >>> mix()
         >>> print(mix.report())
         """
+        self.mix.updatePhases()
         s = []
         for i,phase in enumerate(self._phases):
             s.append('************ Phase {0} ************'.format(phase.name))

@@ -417,6 +417,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         CxxMultiPhase()
         void addPhase(CxxThermoPhase*, double) except +
         void init() except +
+        void updatePhases() except +
 
         void equilibrate(string, string, double, int, int, int, int) except +
 

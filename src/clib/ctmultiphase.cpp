@@ -75,6 +75,16 @@ extern "C" {
         }
     }
 
+    int mix_updatePhases(int i)
+    {
+        try {
+            mixCabinet::item(i).updatePhases();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     size_t mix_nElements(int i)
     {
         try {

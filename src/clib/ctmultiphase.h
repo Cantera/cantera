@@ -13,6 +13,7 @@ extern "C" {
     CANTERA_CAPI int mix_copy(int i);
     CANTERA_CAPI int mix_addPhase(int i, int j, double moles);
     CANTERA_CAPI int mix_init(int i);
+    CANTERA_CAPI int mix_updatePhases(int i);
     CANTERA_CAPI size_t mix_nElements(int i);
     CANTERA_CAPI size_t mix_elementIndex(int i, char* name);
     CANTERA_CAPI size_t mix_speciesIndex(int i, int k, int p);

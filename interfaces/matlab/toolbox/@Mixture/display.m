@@ -5,6 +5,7 @@ function display(self)
 %     Instance of class :mat:func:`Mixture`
 %
 
+mixturemethods(9, mix_hndl(self));
 [np nc] = size(self.phases);
 for n = 1:np
     s = [sprintf('\n*******************    Phase %d', n) ...
