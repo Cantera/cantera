@@ -349,9 +349,9 @@ int Sim1D::refine(int loglevel)
                     xnew.push_back(value(n, i, m));
                 }
 
-                // now check whether a new point is needed in the
-                // interval to the right of point m, and if so, add
-                // entries to znew and xnew for this new point
+                // now check whether a new point is needed in the interval to
+                // the right of point m, and if so, add entries to znew and xnew
+                // for this new point
                 if (r.newPointNeeded(m) && m + 1 < npnow) {
                     // add new point at midpoint
                     zmid = 0.5*(d.grid(m) + d.grid(m+1));
@@ -372,10 +372,9 @@ int Sim1D::refine(int loglevel)
         dsize.push_back(znew.size() - nstart);
     }
 
-    // At this point, the new grid znew and the new solution
-    // vector xnew have been constructed, but the domains
-    // themselves have not yet been modified.  Now update each
-    // domain with the new grid.
+    // At this point, the new grid znew and the new solution vector xnew have
+    // been constructed, but the domains themselves have not yet been modified.
+    // Now update each domain with the new grid.
 
     size_t gridstart = 0, gridsize;
     for (size_t n = 0; n < m_nd; n++) {
@@ -413,7 +412,8 @@ int Sim1D::setFixedTemperature(doublereal t)
         Domain1D& d = domain(n);
         size_t comp = d.nComponents();
 
-        // loop over points in the current grid to determine where new point is needed.
+        // loop over points in the current grid to determine where new point is
+        // needed.
         FreeFlame* d_free = dynamic_cast<FreeFlame*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
@@ -466,10 +466,9 @@ int Sim1D::setFixedTemperature(doublereal t)
         dsize.push_back(znew.size() - nstart);
     }
 
-    // At this point, the new grid znew and the new solution
-    // vector xnew have been constructed, but the domains
-    // themselves have not yet been modified.  Now update each
-    // domain with the new grid.
+    // At this point, the new grid znew and the new solution vector xnew have
+    // been constructed, but the domains themselves have not yet been modified.
+    // Now update each domain with the new grid.
     size_t gridstart = 0, gridsize;
     for (n = 0; n < m_nd; n++) {
         Domain1D& d = domain(n);

@@ -1,6 +1,4 @@
-/**
- *  @file MultiNewton.cpp Damped Newton solver for 1D multi-domain problems
- */
+//! @file MultiNewton.cpp Damped Newton solver for 1D multi-domain problems
 
 /*
  *  Copyright 2001 California Institute of Technology
@@ -83,8 +81,8 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
 }
 
 /**
- * This function computes the square of a weighted norm of a step
- * vector for one domain.
+ * This function computes the square of a weighted norm of a step vector for one
+ * domain.
  *
  * @param x     Solution vector for this domain.
  * @param step  Newton step vector for this domain.
@@ -99,10 +97,10 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
  * \f[
  *     w_n = \epsilon_{r,n} \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}.
  * \f]
- * Here \f$\epsilon_{r,n} \f$ is the relative error tolerance for
- * component n, and multiplies the average magnitude of
- * solution component n in the domain. The second term,
- * \f$\epsilon_{a,n}\f$, is the absolute error tolerance for component n.
+ * Here \f$\epsilon_{r,n} \f$ is the relative error tolerance for component n,
+ * and multiplies the average magnitude of solution component n in the domain.
+ * The second term, \f$\epsilon_{a,n}\f$, is the absolute error tolerance for
+ * component n.
  */
 doublereal norm_square(const doublereal* x,
                        const doublereal* step, Domain1D& r)
@@ -130,16 +128,12 @@ doublereal norm_square(const doublereal* x,
 
 } // end unnamed-namespace
 
-//-----------------------------------------------------------
-//                  constants
-//-----------------------------------------------------------
 
+// constants
 const doublereal DampFactor = sqrt(2.0);
 const size_t NDAMP = 7;
 
-//-----------------------------------------------------------
-//                 MultiNewton methods
-//-----------------------------------------------------------
+// ---------------- MultiNewton methods ----------------
 
 MultiNewton::MultiNewton(int sz)
     : m_maxAge(5)
@@ -237,18 +231,15 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     // compute the multiplier to keep all components in bounds
     doublereal fbound = boundStep(x0, step0, r, loglevel-1);
 
-    // if fbound is very small, then x0 is already close to the
-    // boundary and step0 points out of the allowed domain. In
-    // this case, the Newton algorithm fails, so return an error
-    // condition.
+    // if fbound is very small, then x0 is already close to the boundary and
+    // step0 points out of the allowed domain. In this case, the Newton
+    // algorithm fails, so return an error condition.
     if (fbound < 1.e-10) {
         debuglog("\nAt limits.\n", loglevel);
         return -3;
     }
 
-    //--------------------------------------------
-    //           Attempt damped step
-    //--------------------------------------------
+    // ---------- Attempt damped step ----------
 
     // damping coefficient starts at 1.0
     doublereal damp = 1.0;
@@ -262,8 +253,7 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
             x1[j] = ff*step0[j] + x0[j];
         }
 
-        // compute the next undamped step that would result if x1
-        // is accepted
+        // compute the next undamped step that would result if x1 is accepted
         step(x1, step1, r, jac, loglevel-1);
 
         // compute the weighted norm of step1
@@ -278,20 +268,19 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
                      jac.nEvals(), jac.age(), m_maxAge);
         }
 
-        // if the norm of s1 is less than the norm of s0, then
-        // accept this damping coefficient. Also accept it if this
-        // step would result in a converged solution. Otherwise,
-        // decrease the damping coefficient and try again.
+        // if the norm of s1 is less than the norm of s0, then accept this
+        // damping coefficient. Also accept it if this step would result in a
+        // converged solution. Otherwise, decrease the damping coefficient and
+        // try again.
         if (s1 < 1.0 || s1 < s0) {
             break;
         }
         damp /= DampFactor;
     }
 
-    // If a damping coefficient was found, return 1 if the
-    // solution after stepping by the damped step would represent
-    // a converged solution, and return 0 otherwise. If no damping
-    // coefficient could be found, return -2.
+    // If a damping coefficient was found, return 1 if the solution after
+    // stepping by the damped step would represent a converged solution, and
+    // return 0 otherwise. If no damping coefficient could be found, return -2.
     if (m < NDAMP) {
         if (s1 > 1.0) {
             return 0;
@@ -352,8 +341,8 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
         }
         frst = false;
 
-        // Successful step, but not converged yet. Take the damped
-        // step, and try again.
+        // Successful step, but not converged yet. Take the damped step, and try
+        // again.
         if (m == 0) {
             copy(x1, x1 + m_n, m_x.begin());
         } else if (m == 1) {
@@ -361,9 +350,9 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
             jac.setAge(0); // for efficient sensitivity analysis
             break;
         } else if (m < 0) {
-            // If dampStep fails, first try a new Jacobian if an old
-            // one was being used. If it was a new Jacobian, then
-            // return -1 to signify failure.
+            // If dampStep fails, first try a new Jacobian if an old one was
+            // being used. If it was a new Jacobian, then return -1 to signify
+            // failure.
             if (jac.age() > 1) {
                 forceNewJac = true;
                 if (nJacReeval > 3) {

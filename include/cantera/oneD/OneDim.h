@@ -57,7 +57,7 @@ public:
 
     size_t domainIndex(const std::string& name);
 
-    //! Check that the specified domain index is in range
+    //! Check that the specified domain index is in range.
     //! Throws an exception if n is greater than nDomains()-1
     void checkDomainIndex(size_t n) const {
         if (n >= m_nd) {
@@ -65,7 +65,7 @@ public:
         }
     }
 
-    //! Check that an array size is at least nDomains()
+    //! Check that an array size is at least nDomains().
     //! Throws an exception if nn is less than nDomains(). Used before calls
     //! which take an array pointer.
     void checkDomainArraySize(size_t nn) const {
@@ -99,10 +99,8 @@ public:
         return m_nvars[jg];
     }
 
-    /**
-     * Location in the solution vector of the first component of
-     *  global point jg.
-     */
+    //! Location in the solution vector of the first component of global point
+    //! jg.
     size_t loc(size_t jg) {
         return m_loc[jg];
     }
@@ -198,11 +196,12 @@ public:
     double timeStep(int nsteps, double dt, double* x,
                     double* r, int loglevel);
 
-    //! Write statistics about the number of iterations and Jacobians at each grid level
+    //! Write statistics about the number of iterations and Jacobians at each
+    //! grid level
     /*!
-     *  @param printTime  Boolean that indicates whether time should be printed out
-     *                    The default is true. It's turned off for test problems where
-     *                    we don't want to print any times
+     *  @param printTime  Boolean that indicates whether time should be printed
+     *                    out The default is true. It's turned off for test
+     *                    problems where we don't want to print any times
      */
     void writeStats(int printTime = 1);
 
@@ -233,11 +232,11 @@ public:
      * counters. Statistics are saved only if the number of Jacobian
      * evaluations is greater than zero. The statistics saved are:
      *
-     *    - number of grid points
-     *    - number of Jacobian evaluations
-     *    - CPU time spent evaluating Jacobians
-     *    - number of non-Jacobian function evaluations
-     *    - CPU time spent evaluating functions
+     * - number of grid points
+     * - number of Jacobian evaluations
+     * - CPU time spent evaluating Jacobians
+     * - number of non-Jacobian function evaluations
+     * - CPU time spent evaluating functions
      */
     void saveStats();
 
@@ -254,21 +253,22 @@ public:
 protected:
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
-    doublereal m_tmin; // minimum timestep size
-    doublereal m_tmax; // maximum timestep size
-    doublereal m_tfactor; // factor time step is multiplied by
-    // if time stepping fails ( < 1 )
+    doublereal m_tmin; //!< minimum timestep size
+    doublereal m_tmax; //!< maximum timestep size
 
-    std::unique_ptr<MultiJac> m_jac; // Jacobian evaluator
-    std::unique_ptr<MultiNewton> m_newt; // Newton iterator
-    doublereal m_rdt; // reciprocal of time step
-    bool m_jac_ok; // if true, Jacobian is current
+    //! factor time step is multiplied by  if time stepping fails ( < 1 )
+    doublereal m_tfactor;
+
+    std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
+    std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
+    doublereal m_rdt; //!< reciprocal of time step
+    bool m_jac_ok; //!< if true, Jacobian is current
 
     //! number of domains
     size_t m_nd;
 
-    size_t m_bw; // Jacobian bandwidth
-    size_t m_size; // solution vector size
+    size_t m_bw; //!< Jacobian bandwidth
+    size_t m_size; //!< solution vector size
 
     std::vector<Domain1D*> m_dom, m_connect, m_bulk;
 

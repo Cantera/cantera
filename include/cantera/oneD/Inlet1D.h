@@ -23,15 +23,14 @@ const int LeftInlet = 1;
 const int RightInlet = -1;
 
 /**
- * The base class for boundaries between one-dimensional spatial
- * domains. The boundary may have its own internal variables, such
- * as surface species coverages.
+ * The base class for boundaries between one-dimensional spatial domains. The
+ * boundary may have its own internal variables, such as surface species
+ * coverages.
  *
- * The boundary types are an inlet, an outlet, a symmetry plane,
- * and a surface.
+ * The boundary types are an inlet, an outlet, a symmetry plane, and a surface.
  *
- * The public methods are all virtual, and the base class
- * implementations throw exceptions.
+ * The public methods are all virtual, and the base class implementations throw
+ * exceptions.
  * @ingroup onedim
  */
 class Bdry1D : public Domain1D
@@ -198,8 +197,8 @@ public:
 };
 
 /**
- * A symmetry plane. The axial velocity u = 0, and all other
- * components have zero axial gradients.
+ * A symmetry plane. The axial velocity u = 0, and all other components have
+ * zero axial gradients.
  * @ingroup onedim
  */
 class Symm1D : public Bdry1D
@@ -225,7 +224,8 @@ public:
 
 
 /**
- *  An outlet.
+ * An outlet.
+ * @ingroup onedim
  */
 class Outlet1D : public Bdry1D
 {
@@ -291,10 +291,10 @@ protected:
 };
 
 /**
- * A non-reacting surface. The axial velocity is zero
- * (impermeable), as is the transverse velocity (no slip). The
- * temperature is specified, and a zero flux condition is imposed
- * for the species.
+ * A non-reacting surface. The axial velocity is zero (impermeable), as is the
+ * transverse velocity (no slip). The temperature is specified, and a zero flux
+ * condition is imposed for the species.
+ * @ingroup onedim
  */
 class Surf1D : public Bdry1D
 {

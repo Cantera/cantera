@@ -70,8 +70,7 @@ void OneDim::addDomain(Domain1D* d)
         m_bulk.push_back(d);
     }
 
-    // add it also to the global domain list, and set its
-    // container and position
+    // add it also to the global domain list, and set its container and position
     m_dom.push_back(d);
     d->setContainer(this, m_nd);
     m_nd++;
@@ -265,14 +264,13 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
     doublereal rdt_old = m_rdt;
     m_rdt = 1.0/dt;
 
-    // if the stepsize has changed, then update the transient
-    // part of the Jacobian
+    // if the stepsize has changed, then update the transient part of the
+    // Jacobian
     if (fabs(rdt_old - m_rdt) > Tiny) {
         m_jac->updateTransient(m_rdt, m_mask.data());
     }
 
-    // iterate over all domains, preparing each one to begin
-    // time stepping
+    // iterate over all domains, preparing each one to begin time stepping
     Domain1D* d = left();
     while (d) {
         d->initTimeInteg(dt, x);

@@ -1,6 +1,5 @@
-/**
- * @file boundaries1D.cpp
- */
+//! @file boundaries1D.cpp
+
 // Copyright 2002-3  California Institute of Technology
 
 #include "cantera/oneD/Inlet1D.h"
@@ -55,8 +54,7 @@ void Bdry1D::_init(size_t n)
         }
     }
 
-    // if this is not the last domain, see what is connected on
-    // the right
+    // if this is not the last domain, see what is connected on the right
     if (m_index + 1 < container().nDomains()) {
         Domain1D& r = container().domain(m_index+1);
         if (r.domainType() == cFlowType) {
@@ -73,9 +71,7 @@ void Bdry1D::_init(size_t n)
     }
 }
 
-//----------------------------------------------------------
-//   Inlet1D methods
-//----------------------------------------------------------
+// ---------------- Inlet1D methods ----------------
 
 void Inlet1D::setMoleFractions(const std::string& xin)
 {
@@ -120,10 +116,9 @@ void Inlet1D::init()
     setSteadyTolerances(1e-4, 1e-5);
     setTransientTolerances(1e-4, 1e-5);
 
-    // if a flow domain is present on the left, then this must be
-    // a right inlet. Note that an inlet object can only be a
-    // terminal object - it cannot have flows on both the left and
-    // right
+    // if a flow domain is present on the left, then this must be a right inlet.
+    // Note that an inlet object can only be a terminal object - it cannot have
+    // flows on both the left and right
     if (m_flow_left) {
         m_ilr = RightInlet;
         m_flow = m_flow_left;
@@ -173,21 +168,20 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         xb = x + 2;
         rb = r + 2;
 
-        // The first flow residual is for u. This, however, is not
-        // modified by the inlet, since this is set within the flow
-        // domain from the continuity equation.
+        // The first flow residual is for u. This, however, is not modified by
+        // the inlet, since this is set within the flow domain from the
+        // continuity equation.
 
         // spreading rate. The flow domain sets this to V(0),
         // so for finite spreading rate subtract m_V0.
         rb[1] -= m_V0;
 
-        // The third flow residual is for T, where it is set to
-        // T(0).  Subtract the local temperature to hold the flow
-        // T to the inlet T.
+        // The third flow residual is for T, where it is set to T(0).  Subtract
+        // the local temperature to hold the flow T to the inlet T.
         rb[2] -= x[1];
 
-        // The flow domain sets this to -rho*u. Add mdot to
-        // specify the mass flow rate.
+        // The flow domain sets this to -rho*u. Add mdot to specify the mass
+        // flow rate.
         rb[3] += x[0];
 
         // add the convective term to the species residual equations
@@ -195,9 +189,8 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
             rb[4+k] += x[0]*m_yin[k];
         }
 
-        // if the flow is a freely-propagating flame, mdot is not
-        // specified.  Set mdot equal to rho*u, and also set
-        // lambda to zero.
+        // if the flow is a freely-propagating flame, mdot is not specified.
+        // Set mdot equal to rho*u, and also set lambda to zero.
         if (!m_flow->fixed_mdot()) {
             m_mdot = m_flow->density(0)*xb[0];
             r[0] = m_mdot - x[0];
@@ -252,9 +245,7 @@ void Inlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(2,1);
 }
 
-//--------------------------------------------------
-//      Empty1D
-//--------------------------------------------------
+// ------------- Empty1D -------------
 
 string Empty1D::componentName(size_t n) const
 {
@@ -305,9 +296,7 @@ void Empty1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-//--------------------------------------------------
-//      Symm1D
-//--------------------------------------------------
+// -------------- Symm1D --------------
 
 string Symm1D::componentName(size_t n) const
 {
@@ -384,9 +373,7 @@ void Symm1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-//--------------------------------------------------
-//      Outlet1D
-//--------------------------------------------------
+// -------- Outlet1D --------
 
 string Outlet1D::componentName(size_t n) const
 {
@@ -477,9 +464,7 @@ void Outlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-//--------------------------------------------------
-//      OutletRes1D
-//--------------------------------------------------
+// -------- OutletRes1D --------
 
 void OutletRes1D::setMoleFractions(const std::string& xres)
 {
@@ -626,9 +611,7 @@ void OutletRes1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-//-----------------------------------------------------------
-//  Surf1D
-//-----------------------------------------------------------
+// -------- Surf1D --------
 
 string Surf1D::componentName(size_t n) const
 {
@@ -701,9 +684,7 @@ void Surf1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
-//-----------------------------------------------------------
-//  ReactingSurf1D
-//-----------------------------------------------------------
+// -------- ReactingSurf1D --------
 
 string ReactingSurf1D::componentName(size_t n) const
 {

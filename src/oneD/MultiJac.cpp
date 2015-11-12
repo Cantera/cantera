@@ -1,6 +1,4 @@
-/**
- *  @file MultiJac.cpp Implementation file for class MultiJac
- */
+//! @file MultiJac.cpp Implementation file for class MultiJac
 
 /*
  *  Copyright 2002 California Institute of Technology

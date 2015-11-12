@@ -1,6 +1,5 @@
-/**
- * @file StFlow.cpp
- */
+//! @file StFlow.cpp
+
 // Copyright 2002  California Institute of Technology
 
 #include "cantera/oneD/StFlow.h"
@@ -218,9 +217,8 @@ void StFlow::_finalize(const doublereal* x)
 void StFlow::eval(size_t jg, doublereal* xg,
                   doublereal* rg, integer* diagg, doublereal rdt)
 {
-    // if evaluating a Jacobian, and the global point is outside
-    // the domain of influence for this domain, then skip
-    // evaluating the residual
+    // if evaluating a Jacobian, and the global point is outside the domain of
+    // influence for this domain, then skip evaluating the residual
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
         return;
     }
@@ -251,9 +249,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
 
     size_t j, k;
 
-    //-----------------------------------------------------
-    //              update properties
-    //-----------------------------------------------------
+    // ------------ update properties ------------
 
     updateThermo(x, j0, j1);
     // update transport properties only if a Jacobian is not being evaluated
@@ -344,25 +340,23 @@ void StFlow::eval(size_t jg, doublereal* xg,
         if (j == 0) {
             // these may be modified by a boundary object
 
-            // Continuity. This propagates information right-to-left,
-            // since rho_u at point 0 is dependent on rho_u at point 1,
-            // but not on mdot from the inlet.
+            // Continuity. This propagates information right-to-left, since
+            // rho_u at point 0 is dependent on rho_u at point 1, but not on
+            // mdot from the inlet.
             rsd[index(c_offset_U,0)] =
                 -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
                 -(density(1)*V(x,1) + density(0)*V(x,0));
 
-            // the inlet (or other) object connected to this one
-            // will modify these equations by subtracting its values
-            // for V, T, and mdot. As a result, these residual equations
-            // will force the solution variables to the values for
-            // the boundary object
+            // the inlet (or other) object connected to this one will modify
+            // these equations by subtracting its values for V, T, and mdot. As
+            // a result, these residual equations will force the solution
+            // variables to the values for the boundary object
             rsd[index(c_offset_V,0)] = V(x,0);
             rsd[index(c_offset_T,0)] = T(x,0);
             rsd[index(c_offset_L,0)] = -rho_u(x,0);
 
-            // The default boundary condition for species is zero
-            // flux. However, the boundary object may modify
-            // this.
+            // The default boundary condition for species is zero flux. However,
+            // the boundary object may modify this.
             sum = 0.0;
             for (k = 0; k < m_nsp; k++) {
                 sum += Y(x,k,0);
@@ -694,10 +688,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 soln[index(2,j)] = x[j];
             }
 
-            // For fixed-temperature simulations, use the
-            // imported temperature profile by default.  If
-            // this is not desired, call setFixedTempProfile
-            // *after* restoring the solution.
+            // For fixed-temperature simulations, use the imported temperature
+            // profile by default.  If this is not desired, call
+            // setFixedTempProfile *after* restoring the solution.
             vector_fp zz(np);
             for (size_t jj = 0; jj < np; jj++) {
                 zz[jj] = (grid(jj) - zmin())/(zmax() - zmin());
