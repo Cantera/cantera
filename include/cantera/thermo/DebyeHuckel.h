@@ -641,26 +641,6 @@ public:
      * cause an exception to be thrown.
      */
 
-    //! Return the thermodynamic pressure (Pa).
-    /*!
-     * For this incompressible system, we return the internally stored
-     * independent value of the pressure.
-     */
-    virtual doublereal pressure() const;
-
-    //! Set the internally stored pressure (Pa) at constant temperature and
-    //! composition
-    /*!
-     *  This method sets the pressure within the object. The water model is a
-     *  completely compressible model. Also, the dielectric constant is pressure
-     *  dependent.
-     *
-     *  @param p input Pressure (Pa)
-     *
-     * @todo Implement a variable pressure capability
-     */
-    virtual void setPressure(doublereal p);
-
 protected:
     virtual void calcDensity();
 
@@ -698,17 +678,6 @@ public:
      * @param conc   Input molar density (kmol/m^3).
      */
     virtual void setMolarDensity(const doublereal conc);
-
-    //! Set the temperature (K)
-    /*!
-     * This function sets the temperature, and makes sure that the value
-     * propagates to underlying objects, such as the water standard state model.
-     *
-     * @param temp Temperature in kelvin
-     */
-    virtual void setTemperature(const doublereal temp);
-
-    virtual void setState_TP(doublereal t, doublereal p);
 
     /**
      * @}

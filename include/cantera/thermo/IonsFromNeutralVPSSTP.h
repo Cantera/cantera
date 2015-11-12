@@ -296,9 +296,7 @@ public:
      * @{
      */
 
-    virtual void setTemperature(const doublereal t);
-    virtual void setPressure(doublereal p);
-    virtual void setState_TP(doublereal t, doublereal p);
+    virtual void calcDensity();
 
     //! Calculate ion mole fractions from neutral molecule mole fractions.
     /*!

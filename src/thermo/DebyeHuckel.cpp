@@ -195,32 +195,6 @@ doublereal DebyeHuckel::cv_mole() const
 
 // ------- Mechanical Equation of State Properties ------------------------
 
-doublereal DebyeHuckel::pressure() const
-{
-    return m_Pcurrent;
-}
-
-void DebyeHuckel::setPressure(doublereal p)
-{
-    setState_TP(temperature(), p);
-}
-
-void DebyeHuckel::setState_TP(doublereal t, doublereal p)
-{
-    Phase::setTemperature(t);
-
-    // Store the current pressure
-    m_Pcurrent = p;
-
-    // update the standard state thermo. This involves calling the water
-    // function and setting the pressure
-    _updateStandardStateThermo();
-
-    // Calculate all of the other standard volumes. Note these are constant for
-    // now
-    calcDensity();
-}
-
 void DebyeHuckel::calcDensity()
 {
     if (m_waterSS) {
@@ -256,11 +230,6 @@ void DebyeHuckel::setMolarDensity(const doublereal conc)
         throw CanteraError("Idea;MolalSoln::setMolarDensity",
                            "molarDensity/density is not an independent variable");
     }
-}
-
-void DebyeHuckel::setTemperature(const doublereal temp)
-{
-    setState_TP(temp, m_Pcurrent);
 }
 
 // ------- Activities and Activity Concentrations

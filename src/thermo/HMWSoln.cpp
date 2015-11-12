@@ -482,16 +482,6 @@ doublereal HMWSoln::cv_mole() const
 
 // ------- Mechanical Equation of State Properties ------------------------
 
-doublereal HMWSoln::pressure() const
-{
-    return m_Pcurrent;
-}
-
-void HMWSoln::setPressure(doublereal p)
-{
-    setState_TP(temperature(), p);
-}
-
 void HMWSoln::calcDensity()
 {
     static const int cacheId = m_cache.getId();
@@ -500,6 +490,12 @@ void HMWSoln::calcDensity()
         return;
     }
 
+    // Store the internal density of the water SS. Note, we would have to do
+    // this for all other species if they had pressure dependent properties.
+    m_densWaterSS = m_waterSS->density();
+
+    // Calculate all of the other standard volumes. Note these are constant for
+    // now
     double* vbar = &m_pp[0];
     getPartialMolarVolumes(vbar);
     double* x = &m_tmpV[0];
@@ -510,11 +506,6 @@ void HMWSoln::calcDensity()
     }
     doublereal dd = meanMolecularWeight() / vtotal;
     Phase::setDensity(dd);
-}
-
-double HMWSoln::density() const
-{
-    return Phase::density();
 }
 
 void HMWSoln::setDensity(const doublereal rho)
@@ -530,31 +521,6 @@ void HMWSoln::setMolarDensity(const doublereal rho)
 {
     throw CanteraError("HMWSoln::setMolarDensity",
                        "Density is not an independent variable");
-}
-
-void HMWSoln::setTemperature(const doublereal temp)
-{
-    setState_TP(temp, m_Pcurrent);
-}
-
-void HMWSoln::setState_TP(doublereal temp, doublereal pres)
-{
-    Phase::setTemperature(temp);
-
-    // Store the current pressure
-    m_Pcurrent = pres;
-
-    // update the standard state thermo. This involves calling the water
-    // function and setting the pressure
-    updateStandardStateThermo();
-
-    // Store the internal density of the water SS. Note, we would have to do
-    // this for all other species if they had pressure dependent properties.
-    m_densWaterSS = m_waterSS->density();
-
-    // Calculate all of the other standard volumes. Note these are constant for
-    // now
-    calcDensity();
 }
 
 // ------- Activities and Activity Concentrations

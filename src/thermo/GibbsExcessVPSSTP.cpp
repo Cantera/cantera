@@ -84,11 +84,6 @@ void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
 
 // ------------ Mechanical Properties ------------------------------
 
-void GibbsExcessVPSSTP::setPressure(doublereal p)
-{
-    setState_TP(temperature(), p);
-}
-
 void GibbsExcessVPSSTP::calcDensity()
 {
     vector_fp vbar = getPartialMolarVolumesVector();
@@ -98,21 +93,6 @@ void GibbsExcessVPSSTP::calcDensity()
     }
     doublereal dd = meanMolecularWeight() / vtotal;
     Phase::setDensity(dd);
-}
-
-void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
-{
-    Phase::setTemperature(t);
-
-    // Store the current pressure
-    m_Pcurrent = p;
-
-    // update the standard state thermo. This involves calling the water
-    // function and setting the pressure
-    updateStandardStateThermo();
-
-    // Calculate the partial molar volumes, and then the density of the fluid
-    calcDensity();
 }
 
 // - Activities, Standard States, Activity Concentrations -----------

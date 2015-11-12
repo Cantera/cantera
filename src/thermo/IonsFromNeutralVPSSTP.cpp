@@ -406,22 +406,11 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnA
     }
 }
 
-void IonsFromNeutralVPSSTP::setTemperature(const doublereal temp)
-{
-    IonsFromNeutralVPSSTP::setState_TP(temp, pressure());
-}
-
-void IonsFromNeutralVPSSTP::setPressure(doublereal p)
-{
-    IonsFromNeutralVPSSTP::setState_TP(temperature(), p);
-}
-
-void IonsFromNeutralVPSSTP::setState_TP(doublereal t, doublereal p)
+void IonsFromNeutralVPSSTP::calcDensity()
 {
     // This is a two phase process. First, we calculate the standard states
     // within the neutral molecule phase.
-    neutralMoleculePhase_->setState_TP(t, p);
-    VPStandardStateTP::setState_TP(t,p);
+    neutralMoleculePhase_->setState_TP(temperature(), pressure());
 
     // Calculate the partial molar volumes, and then the density of the fluid
     Phase::setDensity(neutralMoleculePhase_->density());

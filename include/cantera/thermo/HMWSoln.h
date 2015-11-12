@@ -1305,26 +1305,6 @@ public:
      */
     //!@{
 
-    /**
-     * Pressure. Units: Pa.
-     * For this incompressible system, we return the internally stored
-     * independent value of the pressure.
-     */
-    virtual doublereal pressure() const;
-
-    //! Set the internally stored pressure (Pa) at constant temperature and
-    //! composition
-    /*!
-     * This method sets the pressure within the object. The water model is a
-     * completely compressible model. Also, the dielectric constant is pressure
-     * dependent.
-     *
-     *  @param p input Pressure (Pa)
-     *
-     * @todo Implement a variable pressure capability
-     */
-    virtual void setPressure(doublereal p);
-
 protected:
     /**
      * Calculate the density of the mixture using the partial
@@ -1350,8 +1330,6 @@ protected:
     void calcDensity();
 
 public:
-    virtual doublereal density() const;
-
     //! Set the internally stored density (kg/m^3) of the phase.
     /*!
      * Overwritten setDensity() function is necessary because the density is not
@@ -1385,17 +1363,6 @@ public:
      * @param conc   Input molar density (kmol/m^3).
      */
     void setMolarDensity(const doublereal conc);
-
-    //! Set the temperature (K)
-    /*!
-     * This function sets the temperature, and makes sure that the value
-     * propagates to underlying objects, such as the water standard state model.
-     *
-     * @param temp Temperature in kelvin
-     */
-    virtual void setTemperature(const doublereal temp);
-
-    virtual void setState_TP(doublereal t, doublereal p);
 
     /**
      * @}

@@ -168,11 +168,6 @@ doublereal IdealMolalSoln::cv_mole() const
 
 // ------- Mechanical Equation of State Properties ------------------------
 
-void IdealMolalSoln::setPressure(doublereal p)
-{
-    setState_TP(temperature(), p);
-}
-
 void IdealMolalSoln::calcDensity()
 {
     double* vbar = &m_pp[0];
@@ -211,14 +206,6 @@ void IdealMolalSoln::setMolarDensity(const doublereal conc)
         throw CanteraError("IdealMolalSoln::setMolarDensity",
                            "molarDensity/denisty is not an independent variable");
     }
-}
-
-void IdealMolalSoln::setState_TP(doublereal temp, doublereal pres)
-{
-    Phase::setTemperature(temp);
-    m_Pcurrent = pres;
-    updateStandardStateThermo();
-    calcDensity();
 }
 
 // ------- Activities and Activity Concentrations

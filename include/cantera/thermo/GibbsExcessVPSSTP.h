@@ -103,19 +103,6 @@ public:
     //! @name Mechanical Properties
     //! @{
 
-    //! Set the internally stored pressure (Pa) at constant temperature and
-    //! composition
-    /*!
-     * This method sets the pressure within the object. The water model is a
-     * completely compressible model. Also, the dielectric constant is pressure
-     * dependent.
-     *
-     * @param p input Pressure (Pa)
-     *
-     * @todo Implement a variable pressure capability
-     */
-    virtual void setPressure(doublereal p);
-
 protected:
     /**
      * Calculate the density of the mixture using the partial molar volumes and
@@ -252,7 +239,6 @@ public:
      * @{
      */
 
-    virtual void setState_TP(doublereal t, doublereal p);
     virtual void setMassFractions(const doublereal* const y);
     virtual void setMassFractions_NoNorm(const doublereal* const y);
     virtual void setMoleFractions(const doublereal* const x);

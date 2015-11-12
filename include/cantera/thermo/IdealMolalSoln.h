@@ -202,15 +202,6 @@ public:
      */
     //@{
 
-    /**
-     * Set the pressure at constant temperature. Units: Pa. This method sets a
-     * constant within the object. The mass density is not a function of
-     * pressure.
-     *
-     * @param p   Input Pressure
-     */
-    virtual void setPressure(doublereal p);
-
 protected:
     /**
      * Calculate the density of the mixture using the partial molar volumes and
@@ -256,8 +247,6 @@ public:
      * @param rho   Input Density
      */
     void setMolarDensity(const doublereal rho);
-
-    virtual void setState_TP(doublereal t, doublereal p);
 
     //! The isothermal compressibility. Units: 1/Pa.
     /*!
