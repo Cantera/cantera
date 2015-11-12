@@ -126,8 +126,6 @@ public:
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    void getChemPotentials_RT(doublereal* mu) const;
-
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
     virtual void getPartialMolarEntropies(doublereal* sbar) const;

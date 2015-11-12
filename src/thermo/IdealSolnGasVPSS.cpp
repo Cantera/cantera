@@ -193,14 +193,6 @@ void IdealSolnGasVPSS::getActivityCoefficients(doublereal* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void IdealSolnGasVPSS::getChemPotentials_RT(doublereal* muRT) const
-{
-    getChemPotentials(muRT);
-    for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= 1.0 / RT();
-    }
-}
-
 void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
 {
     getStandardChemPotentials(mu);
