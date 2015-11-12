@@ -1,6 +1,4 @@
-/**
- *  @file FlowReactor.h
- */
+//! @file FlowReactor.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -12,9 +10,7 @@
 namespace Cantera
 {
 
-/**
- * Adiabatic flow in a constant-area duct.
- */
+//! Adiabatic flow in a constant-area duct.
 class FlowReactor : public Reactor
 {
 public:

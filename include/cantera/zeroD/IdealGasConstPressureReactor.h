@@ -1,6 +1,4 @@
-/**
- *  @file ConstPressureReactor.h
- */
+//! @file ConstPressureReactor.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -14,11 +12,10 @@ namespace Cantera
 
 /**
  * Class ConstPressureReactor is a class for constant-pressure reactors. The
- * reactor may have an arbitrary number of inlets and outlets, each of which
- * may be connected to a "flow device" such as a mass flow controller, a
- * pressure regulator, etc. Additional reactors may be connected to the other
- * end of the flow device, allowing construction of arbitrary reactor
- * networks.
+ * reactor may have an arbitrary number of inlets and outlets, each of which may
+ * be connected to a "flow device" such as a mass flow controller, a pressure
+ * regulator, etc. Additional reactors may be connected to the other end of the
+ * flow device, allowing construction of arbitrary reactor networks.
  */
 class IdealGasConstPressureReactor : public ConstPressureReactor
 {

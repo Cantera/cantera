@@ -1,6 +1,4 @@
-/**
- *  @file IdealGasReactor.cpp A zero-dimensional reactor
- */
+//! @file IdealGasReactor.cpp A zero-dimensional reactor
 
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/FlowDevice.h"

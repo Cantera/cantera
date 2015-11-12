@@ -1,6 +1,4 @@
-/**
- *  @file Reactor.h
- */
+//! @file Reactor.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -45,9 +43,8 @@ public:
     }
 
     /**
-     * Insert something into the reactor. The 'something' must
-     * belong to a class that is a subclass of both ThermoPhase
-     * and Kinetics.
+     * Insert something into the reactor. The 'something' must belong to a class
+     * that is a subclass of both ThermoPhase and Kinetics.
      */
     template<class G>
     void insert(G& contents) {
@@ -168,13 +165,13 @@ protected:
     //! specific reactor implementations.
     virtual size_t speciesIndex(const std::string& nm) const;
 
-    //! Evaluate terms related to Walls
-    //! Calculates #m_vdot and #m_Q based on wall movement and heat transfer
+    //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Q based on
+    //! wall movement and heat transfer.
     //! @param t     the current time
     virtual void evalWalls(double t);
 
-    //! Evaluate terms related to surface reactions
-    //! Calculates #m_sdot and rate of change in surface species coverages
+    //! Evaluate terms related to surface reactions. Calculates #m_sdot and rate
+    //! of change in surface species coverages.
     //! @param t          the current time
     //! @param[out] ydot  array of d(coverage)/dt for surface species
     //! @returns          Net mass flux from surfaces

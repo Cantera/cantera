@@ -1,7 +1,4 @@
-/**
- *  @file ConstPressureReactor.cpp A constant pressure zero-dimensional
- *      reactor
- */
+//! @file ConstPressureReactor.cpp A constant pressure zero-dimensional reactor
 
 // Copyright 2001  California Institute of Technology
 

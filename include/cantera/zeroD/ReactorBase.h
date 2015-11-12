@@ -1,6 +1,5 @@
-/**
- *  @file ReactorBase.h
- */
+//! @file ReactorBase.h
+
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_REACTORBASE_H
@@ -51,19 +50,14 @@ public:
     //! @name Methods to set up a simulation.
     //@{
 
-    /**
-     * Set the initial reactor volume. By default, the volume is
-     * 1.0 m^3.
-     */
+    //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
     void setInitialVolume(doublereal vol) {
         m_vol = vol;
     }
 
-    /**
-     * Specify the mixture contained in the reactor. Note that
-     * a pointer to this substance is stored, and as the integration
-     * proceeds, the state of the substance is modified.
-     */
+    //! Specify the mixture contained in the reactor. Note that a pointer to
+    //! this substance is stored, and as the integration proceeds, the state of
+    //! the substance is modified.
     virtual void setThermoMgr(thermo_t& thermo);
 
     //! Connect an inlet FlowDevice to this reactor
@@ -80,8 +74,7 @@ public:
     //! reactor.
     FlowDevice& outlet(size_t n = 0);
 
-    //! Return the number of inlet FlowDevice objects connected to this
-    //! reactor.
+    //! Return the number of inlet FlowDevice objects connected to this reactor.
     size_t nInlets() {
         return m_inlet.size();
     }

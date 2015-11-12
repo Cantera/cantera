@@ -1,6 +1,4 @@
-/**
- *  @file Reactor.cpp A zero-dimensional reactor
- */
+//! @file Reactor.cpp A zero-dimensional reactor
 
 // Copyright 2001  California Institute of Technology
 
@@ -229,13 +227,10 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
         dYdt[k] -= Y[k] * mdot_surf / m_mass;
     }
 
-    /*
-     *  Energy equation.
-     *  \f[
-     *  \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in}
-     * - \dot m_{out} h.
-     * \f]
-     */
+    // Energy equation.
+    // \f[
+    //     \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in} - \dot m_{out} h.
+    // \f]
     if (m_energy) {
         ydot[2] = - m_thermo->pressure() * m_vdot - m_Q;
     } else {

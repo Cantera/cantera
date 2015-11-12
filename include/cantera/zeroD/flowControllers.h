@@ -1,8 +1,4 @@
-/**
- *  @file flowControllers.h
- *
- *  Some flow devices derived from class FlowDevice.
- */
+//! @file flowControllers.h Some flow devices derived from class FlowDevice.
 
 // Copyright 2001  California Institute of Technology
 

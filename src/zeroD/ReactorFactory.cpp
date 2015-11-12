@@ -1,6 +1,5 @@
-/**
- *  @file ReactorFactory.cpp
- */
+//! @file ReactorFactory.cpp
+
 // Copyright 2006  California Institute of Technology
 
 #include "cantera/zeroD/ReactorFactory.h"
@@ -30,9 +29,6 @@ static int _itypes[] = {ReservoirType, ReactorType, ConstPressureReactorType,
                         IdealGasConstPressureReactorType
                        };
 
-/**
- * This method returns a new instance of a subclass of ThermoPhase
- */
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
     int ir=-1;

@@ -1,6 +1,4 @@
-/**
- *  @file IdealGasReactor.h
- */
+//! @file IdealGasReactor.h
 
 // Copyright 2001  California Institute of Technology
 

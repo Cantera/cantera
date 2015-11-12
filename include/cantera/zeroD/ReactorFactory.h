@@ -1,6 +1,5 @@
-/**
- *  @file ReactorFactory.h
- */
+//! @file ReactorFactory.h
+
 // Copyright 2001  California Institute of Technology
 
 #ifndef REACTOR_FACTORY_H

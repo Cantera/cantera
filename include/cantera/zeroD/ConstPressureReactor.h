@@ -1,6 +1,4 @@
-/**
- *  @file ConstPressureReactor.h
- */
+//! @file ConstPressureReactor.h
 
 // Copyright 2001  California Institute of Technology
 
