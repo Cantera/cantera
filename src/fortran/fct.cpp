@@ -26,12 +26,12 @@ typedef Cabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 
-inline XML_Node* _xml(const integer* n)
+XML_Node* _xml(const integer* n)
 {
     return &XmlCabinet::item(*n);
 }
 
-inline ThermoPhase* _fph(const integer* n)
+ThermoPhase* _fph(const integer* n)
 {
     return &ThermoCabinet::item(*n);
 }
@@ -41,12 +41,12 @@ static Kinetics* _fkin(const integer* n)
     return &KineticsCabinet::item(*n);
 }
 
-inline ThermoPhase* _fth(const integer* n)
+ThermoPhase* _fth(const integer* n)
 {
     return &ThermoCabinet::item(*n);
 }
 
-inline Transport* _ftrans(const integer* n)
+Transport* _ftrans(const integer* n)
 {
     return &TransportCabinet::item(*n);
 }

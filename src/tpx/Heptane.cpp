@@ -95,7 +95,7 @@ double Heptane::C(int j,double Tinverse, double T2inverse, double T3inverse, dou
     }
 }
 
-inline double Heptane::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
+double Heptane::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
     case 0:
@@ -115,7 +115,7 @@ inline double Heptane::Cprime(int j, double T2inverse, double T3inverse, double 
     }
 }
 
-inline double Heptane::I(int j, double ergho, double Gamma)
+double Heptane::I(int j, double ergho, double Gamma)
 {
     switch (j) {
     case 0:

@@ -116,7 +116,7 @@ double CarbonDioxide::C(int j,double Tinverse, double T2inverse, double T3invers
     }
 }
 
-inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
+double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
     case 0:
@@ -148,7 +148,7 @@ inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, d
     }
 }
 
-inline double CarbonDioxide::I(int j, double ergho, double Gamma)
+double CarbonDioxide::I(int j, double ergho, double Gamma)
 {
     switch (j) {
     case 0:

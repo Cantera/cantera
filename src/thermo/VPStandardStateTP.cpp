@@ -123,7 +123,6 @@ void VPStandardStateTP::getStandardChemPotentials(doublereal* g) const
     }
 }
 
-inline
 void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
 {
     updateStandardStateThermo();
@@ -142,14 +141,12 @@ void VPStandardStateTP::getEntropy_R(doublereal* srt) const
     m_VPSS_ptr->getEntropy_R(srt);
 }
 
-inline
 void VPStandardStateTP::getGibbs_RT(doublereal* grt) const
 {
     updateStandardStateThermo();
     m_VPSS_ptr->getGibbs_RT(grt);
 }
 
-inline
 void VPStandardStateTP::getPureGibbs(doublereal* g) const
 {
     updateStandardStateThermo();

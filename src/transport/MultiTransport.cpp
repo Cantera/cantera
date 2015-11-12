@@ -24,7 +24,7 @@ namespace Cantera
  * @param tr Reduced temperature \f$ \epsilon/kT \f$
  * @param sqtr square root of tr.
  */
-inline doublereal Frot(doublereal tr, doublereal sqtr)
+doublereal Frot(doublereal tr, doublereal sqtr)
 {
     const doublereal c1 = 0.5*sqrt(Pi)*Pi;
     const doublereal c2 = 0.25*Pi*Pi + 2.0;

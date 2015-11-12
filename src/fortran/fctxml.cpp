@@ -23,7 +23,7 @@ template<> XmlCabinet* XmlCabinet::s_storage = 0;
 
 typedef integer status_t;
 
-inline XML_Node* _xml(const integer* i)
+XML_Node* _xml(const integer* i)
 {
     return &XmlCabinet::item(*i);
 }
