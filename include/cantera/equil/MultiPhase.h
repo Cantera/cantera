@@ -14,6 +14,8 @@
 namespace Cantera
 {
 
+//! @defgroup equilfunctions
+
 //! A class for multiphase mixtures. The mixture can contain any
 //! number of phases of any type.
 /*!

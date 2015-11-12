@@ -118,17 +118,8 @@ public:
     /// Default constructor.
     Kinetics();
 
-    /// Destructor.
     virtual ~Kinetics();
-
-    //!Copy Constructor for the Kinetics object.
     Kinetics(const Kinetics&);
-
-    //! Assignment operator
-    /*!
-     * @param right    Reference to Kinetics object to be copied into the
-     *                 current one.
-     */
     Kinetics& operator=(const Kinetics& right);
 
     //! Duplication routine for objects which inherit from Kinetics

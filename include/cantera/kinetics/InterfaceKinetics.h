@@ -67,15 +67,9 @@ public:
      */
     InterfaceKinetics(thermo_t* thermo = 0);
 
-    /// Destructor.
     virtual ~InterfaceKinetics();
-
-    //! Copy Constructor
     InterfaceKinetics(const InterfaceKinetics& right);
-
-    //! Assignment operator
     InterfaceKinetics& operator=(const InterfaceKinetics& right);
-
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     virtual int type() const;

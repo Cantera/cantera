@@ -479,9 +479,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     // view of the vprob object.
     m_vprob.prob_report(m_printLvl);
 
-    /*
-     * Call the thermo Program
-     */
+    //! Call the thermo Program
     int ip1 = m_printLvl;
     int ipr = std::max(0, m_printLvl-1);
     if (m_printLvl >= 3) {
