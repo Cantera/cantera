@@ -668,7 +668,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             }
         }
 
-        copy(x.begin(), x.end(), oldx.begin());
+        oldx = x;
         oldf = f;
         scale(res_trial.begin(), res_trial.end(), res_trial.begin(), -1.0);
 
@@ -913,12 +913,11 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
     vector_fp n_i(m_kk,0.0);
     vector_fp n_i_calc(m_kk,0.0);
     vector_fp actCoeff(m_kk, 1.0);
-    vector_fp Xmol_i_calc(m_kk,0.0);
     double beta = 1.0;
 
     s.getMoleFractions(n_i.data());
     double pressureConst = s.pressure();
-    copy(n_i.begin(), n_i.end(), Xmol_i_calc.begin());
+    vector_fp Xmol_i_calc = n_i;
 
     vector_fp x_old(m_mm+1, 0.0);
     vector_fp resid(m_mm+1, 0.0);

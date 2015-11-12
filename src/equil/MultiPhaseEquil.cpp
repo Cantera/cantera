@@ -408,7 +408,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
 
 void MultiPhaseEquil::unsort(vector_fp& x)
 {
-    copy(x.begin(), x.end(), m_work2.begin());
+    m_work2 = x;
     size_t k;
     for (k = 0; k < m_nsp; k++) {
         x[m_order[k]] = m_work2[k];

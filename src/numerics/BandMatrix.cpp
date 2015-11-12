@@ -229,7 +229,7 @@ void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) con
 int BandMatrix::factor()
 {
     int info=0;
-    copy(data.begin(), data.end(), ludata.begin());
+    ludata = data;
     ct_dgbtrf(nRows(), nColumns(), nSubDiagonals(), nSuperDiagonals(),
               ludata.data(), ldim(), ipiv().data(), info);
 

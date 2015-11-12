@@ -224,13 +224,13 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     m_surfSolver->m_ioflag = m_ioFlag;
 
     // Save the current solution
-    copy(m_concSpecies.begin(), m_concSpecies.end(), m_concSpeciesSave.begin());
+    m_concSpeciesSave = m_concSpecies;
 
     int retn = m_surfSolver->solveSurfProb(ifunc, time_scale, TKelvin, PGas,
                                            reltol, atol);
     if (retn != 1) {
         // reset the concentrations
-        copy(m_concSpeciesSave.begin(), m_concSpeciesSave.end(), m_concSpecies.begin());
+        m_concSpecies = m_concSpeciesSave;
         setConcSpecies(m_concSpeciesSave.data());
         ifunc = SFLUX_INITIALIZE;
         retn = m_surfSolver->solveSurfProb(ifunc, time_scale, TKelvin, PGas,

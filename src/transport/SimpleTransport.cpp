@@ -170,8 +170,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     }
 
     // make a local copy of the molecular weights
-    m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
+    m_mw = m_thermo->molecularWeights();
 
     // Get the input Viscosities
     m_viscSpecies.resize(m_nsp);

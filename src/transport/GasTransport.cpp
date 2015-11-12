@@ -351,8 +351,7 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_bdiff.resize(m_nsp, m_nsp);
 
     // make a local copy of the molecular weights
-    m_mw.assign(m_thermo->molecularWeights().begin(),
-                m_thermo->molecularWeights().end());
+    m_mw = m_thermo->molecularWeights();
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);

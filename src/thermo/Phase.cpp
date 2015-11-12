@@ -498,11 +498,7 @@ doublereal Phase::molecularWeight(size_t k) const
 
 void Phase::getMolecularWeights(vector_fp& weights) const
 {
-    const vector_fp& mw = molecularWeights();
-    if (weights.size() < mw.size()) {
-        weights.resize(mw.size());
-    }
-    copy(mw.begin(), mw.end(), weights.begin());
+    weights = molecularWeights();
 }
 
 void Phase::getMolecularWeights(doublereal* weights) const

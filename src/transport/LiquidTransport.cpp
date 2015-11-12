@@ -244,7 +244,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_radiusTempDep_Ns.resize(m_nsp, 0);
 
     //  Make a local copy of the molecular weights
-    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
+    m_mw = m_thermo->molecularWeights();
 
     // First populate mixing rules and indices (NOTE, we transfer pointers of
     // malloced quantities. We zero out pointers so that we only have one copy

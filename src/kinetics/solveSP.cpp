@@ -158,7 +158,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
         }
     }
 
-    std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), m_CSolnSPInit.begin());
+    m_CSolnSPInit = m_CSolnSP;
 
     // Calculate the largest species in each phase
     evalSurfLarge(m_CSolnSP.data());
@@ -177,7 +177,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     while (not_converged && iter < iter_max) {
         iter++;
         // Store previous iteration's solution in the old solution vector
-        std::copy(m_CSolnSP.begin(), m_CSolnSP.end(), m_CSolnSPOld.begin());
+        m_CSolnSPOld = m_CSolnSP;
 
         // Evaluate the largest surface species for each surface phase every
         // 5 iterations.

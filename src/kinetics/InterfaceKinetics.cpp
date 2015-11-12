@@ -441,13 +441,13 @@ void InterfaceKinetics::updateROP()
     }
 
     // Copy the reaction rate coefficients, m_rfn, into m_ropf
-    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
+    m_ropf = m_rfn;
 
     // Multiply by the perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     // Copy the forward rate constants to the reverse rate constants
-    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
+    m_ropr = m_ropf;
 
     // For reverse rates computed from thermochemistry, multiply
     // the forward rates copied into m_ropr by the reciprocals of

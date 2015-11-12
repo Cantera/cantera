@@ -194,7 +194,7 @@ int Sim1D::newtonSolve(int loglevel)
 {
     int m = OneDim::solve(m_x.data(), m_xnew.data(), loglevel);
     if (m >= 0) {
-        copy(m_xnew.begin(), m_xnew.end(), m_x.begin());
+        m_x = m_xnew;
         return 0;
     } else if (m > -10) {
         return -1;
@@ -385,8 +385,7 @@ int Sim1D::refine(int loglevel)
     }
 
     // Replace the current solution vector with the new one
-    m_x.resize(xnew.size());
-    copy(xnew.begin(), xnew.end(), m_x.begin());
+    m_x = xnew;
 
     // resize the work array
     m_xnew.resize(xnew.size());
@@ -478,12 +477,10 @@ int Sim1D::setFixedTemperature(doublereal t)
     }
 
     // Replace the current solution vector with the new one
-    m_x.resize(xnew.size());
-    copy(xnew.begin(), xnew.end(), m_x.begin());
+    m_x = xnew;
 
     // resize the work array
-    m_xnew.resize(xnew.size());
-    copy(xnew.begin(), xnew.end(), m_xnew.begin());
+    m_xnew = xnew;
     resize();
     finalize();
     return np;

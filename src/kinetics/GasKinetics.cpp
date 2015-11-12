@@ -168,7 +168,7 @@ void GasKinetics::updateROP()
     }
 
     // copy rate coefficients into ropf
-    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
+    m_ropf = m_rfn;
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
@@ -183,7 +183,7 @@ void GasKinetics::updateROP()
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     // copy the forward rates to the reverse rates
-    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
+    m_ropr = m_ropf;
 
     // for reverse rates computed from thermochemistry, multiply the forward
     // rates copied into m_ropr by the reciprocals of the equilibrium constants
@@ -216,7 +216,7 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
     update_rates_T();
 
     // copy rate coefficients into ropf
-    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
+    m_ropf = m_rfn;
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {

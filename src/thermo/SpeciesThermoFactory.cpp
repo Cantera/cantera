@@ -125,8 +125,7 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
             getFloatArray(nodes[1]->child("floatArray"), c1, false);
         } else {
             // if there is no higher range data, then copy c0 to c1.
-            c1.resize(7,0.0);
-            copy(c0.begin(), c0.end(), c1.begin());
+            c1 = c0;
         }
     } else if (fabs(tmax1 - tmin0) < 0.01) {
         // f1 has the lower T data, and f0 the higher T data
