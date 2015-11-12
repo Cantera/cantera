@@ -406,12 +406,6 @@ void IdealMolalSoln::initThermo()
 
 void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    // Find the Thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IdealMolalSoln::initThermoXML",
-                           "no thermo XML node");
-    }
-
     // Initialize the whole thermo object, using a virtual function.
     initThermo();
 
