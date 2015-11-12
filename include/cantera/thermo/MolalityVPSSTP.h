@@ -458,16 +458,6 @@ public:
     void getElectrochemPotentials(doublereal* mu) const;
 
     //@}
-    /**
-     * @name Chemical Equilibrium
-     * Routines that implement the Chemical equilibrium capability
-     * for a single phase, based on the element-potential method.
-     * @{
-     */
-
-    virtual void setToEquilState(const doublereal* lambda_RT);
-
-    //@}
 
     //! Set equation of state parameter values from XML entries.
     /*!

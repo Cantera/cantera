@@ -425,14 +425,6 @@ public:
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-    //!@}
-    //! @name Chemical Equilibrium
-    //! @{
-
-    virtual void setToEquilState(const doublereal* lambda_RT) {
-        throw NotImplementedError("IdealMolalSoln::setToEquilState");
-    }
-
     //@}
 
     // -------------- Utilities -------------------------------

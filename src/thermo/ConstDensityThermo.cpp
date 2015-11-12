@@ -120,12 +120,6 @@ void ConstDensityThermo::initThermo()
     m_pp.resize(m_kk);
 }
 
-
-void ConstDensityThermo::setToEquilState(const doublereal* lambda_RT)
-{
-    throw CanteraError("setToEquilState","not yet impl.");
-}
-
 void ConstDensityThermo::_updateThermo() const
 {
     doublereal tnow = temperature();

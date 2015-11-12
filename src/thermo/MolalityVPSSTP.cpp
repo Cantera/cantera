@@ -300,12 +300,6 @@ void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-void MolalityVPSSTP::setToEquilState(const doublereal* lambda_RT)
-{
-    updateStandardStateThermo();
-    throw NotImplementedError("MolalityVPSSTP::setToEquilState");
-}
-
 void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
 {
     VPStandardStateTP::setStateFromXML(state);

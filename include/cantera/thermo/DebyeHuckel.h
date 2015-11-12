@@ -857,17 +857,6 @@ public:
 
     //@}
 
-    /**
-     * @name Chemical Equilibrium
-     * @{
-     */
-
-    virtual void setToEquilState(const doublereal* lambda_RT) {
-        throw NotImplementedError("DebyeHuckel::setToEquilState");
-    }
-
-    //@}
-
     /*
      *  -------------- Utilities -------------------------------
      */

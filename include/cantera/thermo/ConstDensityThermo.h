@@ -123,8 +123,6 @@ public:
 
     virtual void initThermo();
 
-    virtual void setToEquilState(const doublereal* lambda_RT);
-
     virtual void setParameters(int n, doublereal* const c) {
         setDensity(c[0]);
     }

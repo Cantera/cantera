@@ -1645,15 +1645,6 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
 public:
-    //! @}
-    //! @name Chemical Equilibrium
-    //! @{
-
-    virtual void setToEquilState(const doublereal* lambda_RT) {
-        updateStandardStateThermo();
-        throw NotImplementedError("HMWSoln::setToEquilState");
-    }
-
     //@}
 
     //! Get the saturation pressure for a given temperature.
