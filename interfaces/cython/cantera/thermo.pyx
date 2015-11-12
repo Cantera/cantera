@@ -1202,3 +1202,51 @@ cdef class PureFluid(ThermoPhase):
             P = values[0] if values[0] is not None else self.P
             X = values[1] if values[1] is not None else self.X
             self.thermo.setState_Psat(P, X)
+
+    property TDX:
+        """
+        Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
+        fraction.
+        """
+        def __get__(self):
+            return self.T, self.density, self.X
+
+    property TPX:
+        """Get the temperature [K], pressure [Pa], and vapor fraction."""
+        def __get__(self):
+            return self.T, self.P, self.X
+
+    property UVX:
+        """
+        Get the internal energy [J/kg or J/kmol], specific volume
+        [m^3/kg or m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.u, self.v, self.X
+
+    property DPX:
+        """Get the density [kg/m^3], pressure [Pa], and vapor fraction."""
+        def __get__(self):
+            return self.density, self.P, self.X
+
+    property HPX:
+        """
+        Get the enthalpy [J/kg or J/kmol], pressure [Pa] and vapor fraction.
+        """
+        def __get__(self):
+            return self.h, self.P, self.X
+
+    property SPX:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.P, self.X
+
+    property SVX:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
+        m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.v, self.X

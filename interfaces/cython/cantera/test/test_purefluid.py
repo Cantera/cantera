@@ -76,6 +76,14 @@ class TestPureFluid(utilities.CanteraTest):
         self.check_fd_properties(self.water.max_temp*(1-1e-5), 101325,
                               self.water.max_temp*(1-1e-4), 101325, 1e-2)
 
+    def test_TPX(self):
+        self.water.TX = 400, 0.8
+        T,P,X = self.water.TPX
+        self.assertNear(T, 400)
+        self.assertNear(X, 0.8)
+        with self.assertRaises(AttributeError):
+            self.water.TPX = 500, 101325, 0.3
+
 
 # To minimize errors when transcribing tabulated data, the input units here are:
 # T: K, P: MPa, rho: kg/m3, v: m3/kg, (u,h): kJ/kg, s: kJ/kg-K
