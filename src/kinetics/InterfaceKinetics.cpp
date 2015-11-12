@@ -205,7 +205,7 @@ void InterfaceKinetics::updateKc()
          * and m_mu0_Kc[]
          */
         updateMu0();
-        doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
+        doublereal rrt = 1.0 / thermo(0).RT();
 
         // compute Delta mu^0 for all reversible reactions
         getRevReactionDelta(m_mu0_Kc.data(), m_rkcn.data());
@@ -281,7 +281,7 @@ void InterfaceKinetics::checkPartialEquil()
 void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
 {
     updateMu0();
-    doublereal rrt = 1.0 / (GasConstant * thermo(0).temperature());
+    doublereal rrt = 1.0 / thermo(0).RT();
     std::fill(kc, kc + nReactions(), 0.0);
     getReactionDelta(m_mu0_Kc.data(), kc);
     for (size_t i = 0; i < nReactions(); i++) {

@@ -115,7 +115,7 @@ doublereal MineralEQ3::logStandardConc(size_t k) const
 void MineralEQ3::getStandardChemPotentials(doublereal* mu0) const
 {
     getGibbs_RT(mu0);
-    mu0[0] *= GasConstant * temperature();
+    mu0[0] *= RT();
 }
 
 void MineralEQ3::getEnthalpy_RT(doublereal* hrt) const

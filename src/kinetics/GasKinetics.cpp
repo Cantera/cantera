@@ -103,7 +103,7 @@ void GasKinetics::updateKc()
     // compute Delta G^0 for all reversible reactions
     getRevReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0/(GasConstant * thermo().temperature());
+    doublereal rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
@@ -124,7 +124,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     // compute Delta G^0 for all reactions
     getReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0/(GasConstant * thermo().temperature());
+    doublereal rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-m_rkcn[i]*rrt + m_dn[i]*m_logStandConc);
     }

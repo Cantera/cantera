@@ -84,7 +84,7 @@ int IdealSolnGasVPSS::eosType() const
 doublereal IdealSolnGasVPSS::enthalpy_mole() const
 {
     updateStandardStateThermo();
-    return GasConstant * temperature() * mean_X(m_VPSS_ptr->enthalpy_RT());
+    return RT() * mean_X(m_VPSS_ptr->enthalpy_RT());
 }
 
 doublereal IdealSolnGasVPSS::entropy_mole() const
@@ -115,8 +115,7 @@ void IdealSolnGasVPSS::calcDensity()
 {
     // Calculate the molarVolume of the solution (m**3 kmol-1)
     if (m_idealGas) {
-        double dens = (m_Pcurrent * meanMolecularWeight()
-                       /(GasConstant * temperature()));
+        double dens = m_Pcurrent * meanMolecularWeight() / RT();
         Phase::setDensity(dens);
     } else {
         const doublereal* const dtmp = moleFractdivMMW();
@@ -168,8 +167,7 @@ void IdealSolnGasVPSS::getActivityConcentrations(doublereal* c) const
 doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
 {
     if (m_idealGas) {
-        double p = pressure();
-        return p/(GasConstant * temperature());
+        return pressure() / RT();
     } else {
         const vector_fp& vss = m_VPSS_ptr->getStandardVolumes();
         switch (m_formGC) {
@@ -205,7 +203,7 @@ void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
 void IdealSolnGasVPSS::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
-    scale(hbar, hbar+m_kk, hbar, GasConstant * temperature());
+    scale(hbar, hbar+m_kk, hbar, RT());
 }
 
 void IdealSolnGasVPSS::getPartialMolarEntropies(doublereal* sbar) const
@@ -221,7 +219,7 @@ void IdealSolnGasVPSS::getPartialMolarEntropies(doublereal* sbar) const
 void IdealSolnGasVPSS::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     getIntEnergy_RT(ubar);
-    scale(ubar, ubar+m_kk, ubar, GasConstant * temperature());
+    scale(ubar, ubar+m_kk, ubar, RT());
 }
 
 void IdealSolnGasVPSS::getPartialMolarCp(doublereal* cpbar) const

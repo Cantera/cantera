@@ -65,7 +65,7 @@ ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
 
 doublereal LatticePhase::enthalpy_mole() const
 {
-    return GasConstant * temperature() * mean_X(enthalpy_RT_ref()) +
+    return RT() * mean_X(enthalpy_RT_ref()) +
             (pressure() - m_Pref)/molarDensity();
 }
 
@@ -162,7 +162,7 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
 void LatticePhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    scale(_h.begin(), _h.end(), hbar, GasConstant * temperature());
+    scale(_h.begin(), _h.end(), hbar, RT());
 }
 
 void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
@@ -230,7 +230,7 @@ void LatticePhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
-        g[k] *= GasConstant * temperature();
+        g[k] *= RT();
     }
 }
 

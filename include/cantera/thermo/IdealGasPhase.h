@@ -346,7 +346,7 @@ public:
      * \see SpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
-        return GasConstant * temperature() * mean_X(enthalpy_RT_ref());
+        return RT() * mean_X(enthalpy_RT_ref());
     }
 
     /**
@@ -404,7 +404,7 @@ public:
      * @param p Pressure (Pa)
      */
     virtual void setPressure(doublereal p) {
-        setDensity(p * meanMolecularWeight() / (GasConstant * temperature()));
+        setDensity(p * meanMolecularWeight() / RT());
     }
 
     //! Set the density and pressure at constant composition.

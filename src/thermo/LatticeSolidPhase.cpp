@@ -320,7 +320,7 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
-        g[k] *= GasConstant * temperature();
+        g[k] *= RT();
     }
 }
 

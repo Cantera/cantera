@@ -240,7 +240,7 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
         chemPot_ = val;
     } else {
         _updateThermo();
-        chemPot_ = (m_h0_RT[0] - m_s0_R[0]) * GasConstant * temperature();
+        chemPot_ = (m_h0_RT[0] - m_s0_R[0]) * RT();
     }
 }
 

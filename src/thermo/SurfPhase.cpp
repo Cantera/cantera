@@ -146,8 +146,7 @@ void SurfPhase::getChemPotentials(doublereal* mu) const
     copy(m_mu0.begin(), m_mu0.end(), mu);
     getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += GasConstant * temperature() *
-                 (log(m_work[k]) - logStandardConc(k));
+        mu[k] += RT() * (log(m_work[k]) - logStandardConc(k));
     }
 }
 
@@ -184,13 +183,13 @@ void SurfPhase::getPureGibbs(doublereal* g) const
 void SurfPhase::getGibbs_RT(doublereal* grt) const
 {
     _updateThermo();
-    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/(GasConstant*temperature()));
+    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/RT());
 }
 
 void SurfPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     _updateThermo();
-    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/(GasConstant*temperature()));
+    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/RT());
 }
 
 void SurfPhase::getEntropy_R(doublereal* sr) const

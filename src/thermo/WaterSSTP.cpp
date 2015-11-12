@@ -154,7 +154,7 @@ void WaterSSTP::setParametersFromXML(const XML_Node& eosdata)
 
 void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
-    *hrt = (m_sub.enthalpy() + EW_Offset)/(GasConstant*temperature());
+    *hrt = (m_sub.enthalpy() + EW_Offset) / RT();
 }
 
 void WaterSSTP::getIntEnergy_RT(doublereal* ubar) const
@@ -169,8 +169,7 @@ void WaterSSTP::getEntropy_R(doublereal* sr) const
 
 void WaterSSTP::getGibbs_RT(doublereal* grt) const
 {
-    double T = temperature();
-    *grt = (m_sub.Gibbs() + EW_Offset - SW_Offset*T) / (GasConstant * T);
+    *grt = (m_sub.Gibbs() + EW_Offset) / RT() - SW_Offset / GasConstant;
     if (!m_ready) {
         throw CanteraError("waterSSTP::", "Phase not ready");
     }
@@ -209,7 +208,7 @@ void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
         throw CanteraError("setPressure", "error");
     }
     doublereal h = m_sub.enthalpy();
-    *hrt = (h + EW_Offset) / (GasConstant * T);
+    *hrt = (h + EW_Offset) / RT();
     dd = m_sub.density(T, p, waterState, dens);
 }
 
@@ -229,7 +228,7 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
     }
     m_sub.setState_TR(T, dd);
     doublereal g = m_sub.Gibbs();
-    *grt = (g + EW_Offset - SW_Offset*T)/ (GasConstant * T);
+    *grt = (g + EW_Offset - SW_Offset*T)/ RT();
     dd = m_sub.density(T, p, waterState, dens);
 }
 

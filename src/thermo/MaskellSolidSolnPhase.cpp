@@ -71,7 +71,7 @@ void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 doublereal MaskellSolidSolnPhase::enthalpy_mole() const
 {
     _updateThermo();
-    const doublereal h0 = GasConstant * temperature() * mean_X(m_h0_RT);
+    const doublereal h0 = RT() * mean_X(m_h0_RT);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
     return h0 + r * fmval * h_mixing;
@@ -145,7 +145,7 @@ void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
         const doublereal rfm = r * fm(r);
         const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval)) /
                              (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
-        const doublereal B = pval * h_mixing / (GasConstant * temperature());
+        const doublereal B = pval * h_mixing / RT();
         cached.value[product_species_index] = A * std::exp(B);
         cached.value[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
     }
@@ -159,7 +159,7 @@ void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
     const doublereal pval = p(r);
     const doublereal rfm = r * fm(r);
     const doublereal DgbarDr = pval * h_mixing +
-                               GasConstant * temperature() *
+                               RT() *
                                std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r) /
                                (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
     mu[product_species_index] = RT() * m_g0_RT[product_species_index] + DgbarDr;
@@ -199,9 +199,8 @@ void MaskellSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 void MaskellSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
     _updateThermo();
-    const doublereal RT = GasConstant * temperature();
     for (size_t sp=0; sp < m_kk; ++sp) {
-        gpure[sp] = RT * m_g0_RT[sp];
+        gpure[sp] = RT() * m_g0_RT[sp];
     }
 }
 
@@ -285,7 +284,7 @@ void MaskellSolidSolnPhase::_updateThermo() const
 
 doublereal MaskellSolidSolnPhase::s() const
 {
-    return 1 + std::exp(h_mixing / (GasConstant * temperature()));
+    return 1 + std::exp(h_mixing / RT());
 }
 
 doublereal MaskellSolidSolnPhase::fm(const doublereal r) const

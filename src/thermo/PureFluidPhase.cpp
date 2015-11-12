@@ -249,7 +249,7 @@ void PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
 void PureFluidPhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
-    g[0] *= (GasConstant * temperature());
+    g[0] *= RT();
 }
 
 void PureFluidPhase::getEntropy_R_ref(doublereal* er) const

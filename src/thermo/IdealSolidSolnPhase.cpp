@@ -112,7 +112,7 @@ int IdealSolidSolnPhase::eosType() const
 
 doublereal IdealSolidSolnPhase::enthalpy_mole() const
 {
-    doublereal htp = GasConstant * temperature() * mean_X(enthalpy_RT_ref());
+    doublereal htp = RT() * mean_X(enthalpy_RT_ref());
     return htp + (pressure() - m_Pref)/molarDensity();
 }
 
@@ -123,7 +123,7 @@ doublereal IdealSolidSolnPhase::entropy_mole() const
 
 doublereal IdealSolidSolnPhase::gibbs_mole() const
 {
-    return GasConstant * temperature() * (mean_X(gibbs_RT_ref()) + sum_xlogx());
+    return RT() * (mean_X(gibbs_RT_ref()) + sum_xlogx());
 }
 
 doublereal IdealSolidSolnPhase::cp_mole() const
@@ -304,7 +304,7 @@ void IdealSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 void IdealSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    scale(_h.begin(), _h.end(), hbar, GasConstant * temperature());
+    scale(_h.begin(), _h.end(), hbar, RT());
 }
 
 void IdealSolidSolnPhase::getPartialMolarEntropies(doublereal* sbar) const
@@ -367,7 +367,7 @@ void IdealSolidSolnPhase::getEntropy_R(doublereal* sr) const
 void IdealSolidSolnPhase::getIntEnergy_RT(doublereal* urt) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal prefrt = m_Pref / (GasConstant * temperature());
+    doublereal prefrt = m_Pref / RT();
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - prefrt * m_speciesMolarVolume[k];
     }
@@ -405,7 +405,7 @@ void IdealSolidSolnPhase::getGibbs_RT_ref(doublereal* grt) const
 void IdealSolidSolnPhase::getGibbs_ref(doublereal* g) const
 {
     _updateThermo();
-    double tmp = GasConstant * temperature();
+    double tmp = RT();
     for (size_t k = 0; k != m_kk; k++) {
         g[k] = tmp * m_g0_RT[k];
     }
@@ -414,7 +414,7 @@ void IdealSolidSolnPhase::getGibbs_ref(doublereal* g) const
 void IdealSolidSolnPhase::getIntEnergy_RT_ref(doublereal* urt) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal prefrt = m_Pref / (GasConstant * temperature());
+    doublereal prefrt = m_Pref / RT();
     for (size_t k = 0; k < m_kk; k++) {
         urt[k] = _h[k] - prefrt * m_speciesMolarVolume[k];
     }
@@ -566,7 +566,7 @@ void IdealSolidSolnPhase::_updateThermo() const
         // Update the thermodynamic functions of the reference state.
         m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         m_tlast = tnow;
-        doublereal rrt = 1.0 / (GasConstant * tnow);
+        doublereal rrt = 1.0 / RT();
         for (size_t k = 0; k < m_kk; k++) {
             double deltaE = rrt * m_pe[k];
             m_h0_RT[k] += deltaE;

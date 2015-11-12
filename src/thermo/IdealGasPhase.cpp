@@ -83,7 +83,7 @@ doublereal IdealGasPhase::cv_mole() const
 
 doublereal IdealGasPhase::standardConcentration(size_t k) const
 {
-    return pressure() / (GasConstant * temperature());
+    return pressure() / RT();
 }
 
 void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
@@ -97,8 +97,7 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), muStar, RT());
-    double tmp = log(pressure() / m_spthermo->refPressure());
-    tmp *= GasConstant * temperature();
+    double tmp = log(pressure() / m_spthermo->refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         muStar[k] += tmp; // add RT*ln(P/P_0)
     }
@@ -317,7 +316,7 @@ void IdealGasPhase::_updateThermo() const
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        m_logc0 = log(m_p0 / (GasConstant * tnow));
+        m_logc0 = log(m_p0 / RT());
     }
 }
 }

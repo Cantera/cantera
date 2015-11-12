@@ -102,14 +102,14 @@ doublereal StoichSubstance::logStandardConc(size_t k) const
 void StoichSubstance::getStandardChemPotentials(doublereal* mu0) const
 {
     getGibbs_RT(mu0);
-    mu0[0] *= GasConstant * temperature();
+    mu0[0] *= RT();
 }
 
 void StoichSubstance::getEnthalpy_RT(doublereal* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
     doublereal presCorrect = (m_press - m_p0) / molarDensity();
-    hrt[0] += presCorrect / (GasConstant * temperature());
+    hrt[0] += presCorrect / RT();
 }
 
 void StoichSubstance::getEntropy_R(doublereal* sr) const
@@ -132,7 +132,7 @@ void StoichSubstance::getCp_R(doublereal* cpr) const
 void StoichSubstance::getIntEnergy_RT(doublereal* urt) const
 {
     _updateThermo();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / (GasConstant * temperature());
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
 // ---- Thermodynamic Values for the Species Reference States ----
@@ -140,7 +140,7 @@ void StoichSubstance::getIntEnergy_RT(doublereal* urt) const
 void StoichSubstance::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / (GasConstant * temperature());
+    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
 }
 
 // ---- Initialization and Internal functions

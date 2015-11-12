@@ -128,7 +128,7 @@ void SingleSpeciesTP::getChemPotentials(doublereal* mu) const
 void SingleSpeciesTP::getChemPotentials_RT(doublereal* murt) const
 {
     getStandardChemPotentials(murt);
-    murt[0] /= GasConstant * temperature();
+    murt[0] /= RT();
 }
 
 void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const
@@ -139,13 +139,13 @@ void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const
 void SingleSpeciesTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
-    hbar[0] *= GasConstant * temperature();
+    hbar[0] *= RT();
 }
 
 void SingleSpeciesTP::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     getIntEnergy_RT(ubar);
-    ubar[0] *= GasConstant * temperature();
+    ubar[0] *= RT();
 }
 
 void SingleSpeciesTP::getPartialMolarEntropies(doublereal* sbar) const
@@ -170,7 +170,7 @@ void SingleSpeciesTP::getPartialMolarVolumes(doublereal* vbar) const
 void SingleSpeciesTP::getPureGibbs(doublereal* gpure) const
 {
     getGibbs_RT(gpure);
-    gpure[0] *= GasConstant * temperature();
+    gpure[0] *= RT();
 }
 
 void SingleSpeciesTP::getStandardVolumes(doublereal* vbar) const
@@ -195,7 +195,7 @@ void SingleSpeciesTP::getGibbs_RT_ref(doublereal* grt) const
 void SingleSpeciesTP::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
-    g[0] *= GasConstant * temperature();
+    g[0] *= RT();
 }
 
 void SingleSpeciesTP::getEntropy_R_ref(doublereal* er) const

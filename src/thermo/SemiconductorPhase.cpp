@@ -16,8 +16,8 @@ SemiconductorPhase::SemiconductorPhase(std::string infile,
 void SemiconductorPhase::getChemPotentials(doublereal* mu) const
 {
     getActivityConcentrations(m_work.data());
-    mu[0] = ec() + GasConstant*temperature()*(JoyceDixon(m_work[0]/nc()));
-    mu[1] = ev() + GasConstant*temperature()*(log(m_work[1]/nv()));
+    mu[0] = ec() + RT()*(JoyceDixon(m_work[0]/nc()));
+    mu[1] = ev() + RT()*(log(m_work[1]/nv()));
 }
 
 // units: kmol/m^3

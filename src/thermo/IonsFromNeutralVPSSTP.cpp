@@ -288,15 +288,13 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
     // Get the standard chemical potentials of netural molecules
     neutralMoleculePhase_->getStandardChemPotentials(muNeutralMolecule_.data());
 
-    doublereal RT_ = GasConstant * temperature();
-
     switch (ionSolnType_) {
     case cIonSolnType_PASSTHROUGH:
         neutralMoleculePhase_->getChemPotentials(mu);
         break;
     case cIonSolnType_SINGLEANION:
         neutralMoleculePhase_->getLnActivityCoefficients(lnActCoeff_NeutralMolecule_.data());
-        fact2 = 2.0 * RT_ * log(2.0);
+        fact2 = 2.0 * RT() * log(2.0);
 
         // Do the cation list
         for (size_t k = 0; k < cationList_.size(); k++) {
@@ -304,21 +302,21 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
             icat = cationList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             xx = std::max(SmallNumber, moleFractions_[icat]);
-            mu[icat] = muNeutralMolecule_[jNeut] + fact2 + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
+            mu[icat] = muNeutralMolecule_[jNeut] + fact2 + RT() * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
         }
 
         // Do the anion list
         icat = anionList_[0];
         jNeut = fm_invert_ionForNeutral[icat];
         xx = std::max(SmallNumber, moleFractions_[icat]);
-        mu[icat] = RT_ * log(xx);
+        mu[icat] = RT() * log(xx);
 
         // Do the list of neutral molecules
         for (size_t k = 0; k < passThroughList_.size(); k++) {
             icat = passThroughList_[k];
             jNeut = fm_invert_ionForNeutral[icat];
             xx = std::max(SmallNumber, moleFractions_[icat]);
-            mu[icat] = muNeutralMolecule_[jNeut] + RT_ * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
+            mu[icat] = muNeutralMolecule_[jNeut] + RT() * (lnActCoeff_NeutralMolecule_[jNeut] + log(xx));
         }
         break;
 

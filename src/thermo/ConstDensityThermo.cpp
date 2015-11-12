@@ -47,8 +47,7 @@ int ConstDensityThermo::eosType() const
 doublereal ConstDensityThermo::enthalpy_mole() const
 {
     doublereal p0 = m_spthermo->refPressure();
-    return GasConstant * temperature() *
-           mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
+    return RT() * mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
 }
 
 doublereal ConstDensityThermo::entropy_mole() const
