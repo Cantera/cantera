@@ -149,21 +149,12 @@ running 'scons build'. The format of this file is:
     Command to use for building the Sphinx documentation.
     - default: 'sphinx-build'
 
-* use_sundials: [ default | y | n ]
-    Cantera uses the CVODE or CVODES ODE integrator to time-integrate
-    reactor network ODE's and for various other purposes. An older
-    version of CVODE comes with Cantera, but it is possible to use the
-    latest version as well, which now supports sensitivity analysis
-    (CVODES). CVODES is a part of the 'sundials' package from Lawrence
-    Livermore National Laboratory. Sundials is not distributed with
-    Cantera, but it is free software that may be downloaded and
-    installed separately. If you leave USE_SUNDIALS = 'default', then it
-    will be used if you have it, and if not the older CVODE will be
-    used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
-    Note that sensitivity analysis with Cantera requires use of
-    sundials. See: http://www.llnl.gov/CASC/sundials.
+* system_sundials: [ default | y | n ]
+    Select whether to use Sundials from a system installation ('y'),
+    from a git submodule ('n'), or to decide automatically ('default').
+    Specifying 'sundials_include' or 'sundials_libdir' changes the
+    default to 'y'.
     - default: 'default'
-    - actual: 'y'
 
 * sundials_include: [ /path/to/sundials_include ]
     The directory where the Sundials header files are installed. This
@@ -177,16 +168,6 @@ running 'scons build'. The format of this file is:
     needed if the libraries are installed in a standard location, e.g.
     /usr/lib.
     - default: ''
-
-* sundials_license: [ /path/to/sundials_license ]
-    Path to the sundials LICENSE file. Needed so that it can be included
-    when bundling Sundials.
-    - default: ''
-
-* install_sundials: [ yes | no ]
-    Determines whether Sundials library and header files are installed
-    alongside Cantera. Intended for use when installing on Windows.
-    - default: 'yes'
 
 * blas_lapack_libs: [ string ]
     Cantera comes with Fortran (or C) versions of those parts of BLAS

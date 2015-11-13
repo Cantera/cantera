@@ -26,10 +26,7 @@ def add_directory(directory):
     """ Add a directory to search for Cantera data files. """
     CxxAddDirectory(stringify(directory))
 
-if get_sundials_version():
-    __sundials_version__ = '.'.join(str(get_sundials_version()))
-else:
-    __sundials_version__ = None
+__sundials_version__ = '.'.join(str(get_sundials_version()))
 
 __version__ = pystr(get_cantera_version())
 

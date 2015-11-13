@@ -10,8 +10,6 @@
 
 #include "DAE_Solver.h"
 
-#if HAS_SUNDIALS
-
 #include "sundials/sundials_nvector.h"
 
 // These constants are defined internally in the IDA package, ida.c
@@ -304,5 +302,4 @@ protected:
 
 }
 
-#endif
 #endif

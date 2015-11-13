@@ -42,11 +42,7 @@ pc_incdirs.extend(localenv['extra_inc_dirs'])
 localenv['mak_extra_libdirs'] = ' '.join('-L%s' % s for s in localenv['extra_lib_dirs'])
 pc_libdirs.extend(localenv['extra_lib_dirs'])
 
-if env['use_sundials'] == 'n':
-    localenv['mak_sundials_libs'] = '-lcvode'
-    localenv['mak_sundials_libdir'] = ''
-    localenv['mak_sundials_include'] = ''
-else:
+if localenv['system_sundials']:
     # Add links to the sundials environment
     localenv['mak_sundials_libs'] = ' '.join('-l%s' % s
                                              for s in localenv['sundials_libs'])

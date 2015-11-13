@@ -189,7 +189,7 @@ you can skip any steps which have already been completed.
 
          brew tap homebrew/science
          brew update
-         brew install python scons sundials
+         brew install python scons
 
    - Verify that your path is set up to use Homebrew's version of Python by
      running::

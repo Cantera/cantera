@@ -5,7 +5,6 @@
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"
 
-#if HAS_SUNDIALS
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "ida/ida.h"
@@ -583,4 +582,3 @@ doublereal IDA_Solver::getOutputParameter(int flag) const
 }
 
 }
-#endif

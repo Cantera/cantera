@@ -505,8 +505,8 @@ Optional Programs
 
 * Sundials
 
-  * Required to enable some features such as sensitivity analysis.
-  * Strongly recommended if using reactor network or 1D simulation capabilities.
+  * Optional. If Sundials is not installed, it will be automatically downloaded
+    and the necessary portions will be compiled and installed with Cantera.
   * https://computation.llnl.gov/casc/sundials/download/download.html
   * Known to work with versions 2.4, 2.5 and 2.6.
   * To use Sundials with Cantera on a Linux/Unix system, it must be compiled

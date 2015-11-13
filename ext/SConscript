@@ -34,12 +34,6 @@ def prep_f2c(env):
     return localenv
 
 
-def prep_sundials(env):
-    localenv = prep_default(env)
-    localenv.Prepend(CPPPATH=Dir('#ext/cvode/include'))
-    return localenv
-
-
 def prep_gtest(env):
     localenv = prep_default(env)
     localenv.Prepend(CPPPATH=[Dir('#ext/googletest'),
@@ -85,13 +79,37 @@ else:
         libs.append(('blas', ['f'], prep_default))
         libs.append(('lapack', ['f'], prep_default))
 
-if env['use_sundials'] == 'n':
-    libs.append(('cvode/source', ['c'], prep_sundials))
-
 for subdir, extensions, prepFunction in libs:
     localenv = prepFunction(env)
     objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
     libraryTargets.extend(objects)
+
+if env['system_sundials'] == 'n':
+    localenv = prep_default(env)
+    localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
+
+    # Generate sundials_config.h
+    sundials_configh = {}
+    if env['OS'] != 'Windows':
+        sundials_configh['SUNDIALS_USE_GENERIC_MATH'] = 1
+    if not env['BUILD_BLAS_LAPACK']:
+        sundials_configh['SUNDIALS_BLAS_LAPACK'] = 1
+    localenv.AlwaysBuild(env.Command('#include/cantera/ext/sundials/sundials_config.h',
+                                     'sundials_config.h.in',
+                                     ConfigBuilder(sundials_configh)))
+
+    # Copy sundials header files into common include directory
+    for subdir in ('sundials', 'nvector', 'cvodes', 'ida'):
+        for header in mglob(env, 'sundials/include/'+subdir, 'h'):
+            build(localenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
+                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
+                                   Copy('$TARGET', '$SOURCE')))
+
+    # Compile Sundials source files
+    for subdir in ('sundials', 'nvec_ser', 'cvodes', 'ida'):
+        libraryTargets.extend(localenv.SharedObject(
+            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')
+            if '_klu' not in f.name and '_superlumt' not in f.name]))
 
 # Google Test: Used internally for Cantera unit tests.
 if not env['system_googletest']:

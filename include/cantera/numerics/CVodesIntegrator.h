@@ -9,8 +9,6 @@
 #include "cantera/numerics/Integrator.h"
 #include "cantera/base/ctexceptions.h"
 
-#ifdef HAS_SUNDIALS
-
 #include "sundials/sundials_nvector.h"
 
 namespace Cantera
@@ -30,7 +28,7 @@ public:
 /**
  * Wrapper class for 'cvodes' integrator from LLNL.
  *
- * @see FuncEval.h. Classes that use CVodeInt:
+ * @see FuncEval.h. Classes that use CVodesIntegrator:
  * ImplicitChem, ImplicitSurfChem, Reactor
  */
 class CVodesIntegrator : public Integrator
@@ -119,11 +117,5 @@ private:
 };
 
 } // namespace
-
-#else
-
-#error No sundials!
-
-#endif
 
 #endif

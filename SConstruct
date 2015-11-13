@@ -408,19 +408,11 @@ config_options = [
         """Command to use for building the Sphinx documentation.""",
         'sphinx-build', PathVariable.PathAccept),
     EnumVariable(
-        'use_sundials',
-        """Cantera uses the CVODE or CVODES ODE integrator to time-integrate
-           reactor network ODE's and for various other purposes. An older
-           version of CVODE comes with Cantera, but it is possible to use the
-           latest version as well, which now supports sensitivity analysis
-           (CVODES). CVODES is a part of the 'sundials' package from Lawrence
-           Livermore National Laboratory. Sundials is not distributed with
-           Cantera, but it is free software that may be downloaded and
-           installed separately. If you leave USE_SUNDIALS = 'default', then it
-           will be used if you have it, and if not the older CVODE will be
-           used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
-           Note that sensitivity analysis with Cantera requires use of
-           sundials. See: http://www.llnl.gov/CASC/sundials.""",
+        'system_sundials',
+        """Select whether to use Sundials from a system installation ('y'), from
+           a git submodule ('n'), or to decide automatically ('default').
+           Specifying 'sundials_include' or 'sundials_libdir' changes the
+           default to 'y'.""",
         'default', ('default', 'y', 'n')),
     PathVariable(
         'sundials_include',
@@ -435,16 +427,6 @@ config_options = [
            Not needed if the libraries are installed in a standard location,
            e.g. /usr/lib.""",
         '', PathVariable.PathAccept),
-    PathVariable(
-        'sundials_license',
-        """Path to the sundials LICENSE file. Needed so that it can be included
-           when bundling Sundials.""",
-        '', PathVariable.PathAccept),
-    BoolVariable(
-        'install_sundials',
-        """Determines whether Sundials library and header files are installed
-           alongside Cantera. Intended for use when installing on Windows.""",
-        os.name == 'nt'),
     ('blas_lapack_libs',
      """Cantera comes with Fortran (or C) versions of those parts of BLAS and
         LAPACK it requires. But performance may be better if you use a version
@@ -662,16 +644,13 @@ if env['boost_inc_dir']:
 if env['blas_lapack_dir']:
     env.Append(LIBPATH=[env['blas_lapack_dir']])
 
-if (env['use_sundials'] == 'default' and
-    (env['sundials_include'] or env['sundials_libdir'])):
-    env['use_sundials'] = 'y'
-
-if env['use_sundials'] in ('y','default'):
+if env['system_sundials'] in ('y','default'):
     if env['sundials_include']:
         env.Append(CPPPATH=[env['sundials_include']])
+        env['system_sundials'] = 'y'
     if env['sundials_libdir']:
         env.Append(LIBPATH=[env['sundials_libdir']])
-
+        env['system_sundials'] = 'y'
 
 # BLAS / LAPACK configuration
 if env['blas_lapack_libs'] != '':
@@ -821,12 +800,42 @@ ret = SCons.Conftest.CheckLib(context,
                               call='CVodeCreate(CV_BDF, CV_NEWTON);',
                               autoadd=False,
                               extra_libs=env['blas_lapack_libs'])
-env['HAS_SUNDIALS'] = not ret # CheckLib returns False to indicate success
+if ret:
+    # CheckLib returns False to indicate success
+    if env['system_sundials'] == 'default':
+        env['system_sundials'] = 'n'
+    elif env['system_sundials'] == 'y':
+        config_error('Expected system installation of Sundials, but it could '
+                     'not be found.')
+elif env['system_sundials'] == 'default':
+    env['system_sundials'] = 'y'
+
+
+# Checkout Sundials submodule if needed
+if (env['system_sundials'] == 'n' and
+    not os.path.exists('ext/sundials/include/cvodes/cvodes.h')):
+    if not os.path.exists('.git'):
+        config_error('Sundials is missing. Install source in ext/sundials.')
+
+    try:
+        code = subprocess.call(['git','submodule','update','--init',
+                                '--recursive','ext/sundials'])
+    except Exception:
+        code = -1
+    if code:
+        config_error('Sundials not found and submodule checkout failed.\n'
+                     'Try manually checking out the submodule with:\n\n'
+                     '    git submodule update --init --recursive ext/sundials\n')
+
+
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
 env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
-if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
+if env['system_sundials'] == 'y':
+    for subdir in ('sundials','nvector','cvodes','ida'):
+        removeDirectory('include/cantera/ext/'+subdir)
+
     # Determine Sundials version
     sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
                                                    'QUOTE(SUNDIALS_PACKAGE_VERSION)')
@@ -837,7 +846,10 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    print """INFO: Using Sundials version %s.""" % sundials_version
+    if env['sundials_version'] not in ('2.4','2.5','2.6'):
+        print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
+        sys.exit(1)
+    print """INFO: Using system installation of Sundials version %s.""" % sundials_version
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
     if LooseVersion(env['sundials_version']) < LooseVersion('2.6'):
@@ -858,6 +870,11 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
         print ('WARNING: External BLAS/LAPACK has been specified for Cantera '
                'but Sundials was built without this support.')
+else: # env['system_sundials'] == 'n'
+    print """INFO: Using private installation of Sundials version 2.6."""
+    env['sundials_version'] = '2.6'
+    env['has_sundials_lapack'] = int(not env['BUILD_BLAS_LAPACK'])
+
 
 # Try to find a working Fortran compiler:
 env['FORTRANSYSLIBS'] = []
@@ -1073,19 +1090,6 @@ if env['matlab_toolbox'] == 'y':
         sys.exit(1)
 
 
-# Sundials Settings
-if env['use_sundials'] == 'default':
-    if env['HAS_SUNDIALS']:
-        env['use_sundials'] = 'y'
-    else:
-        print "INFO: Sundials was not found. Building with minimal ODE solver capabilities."
-        env['use_sundials'] = 'n'
-elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
-    config_error("Unable to find Sundials headers and / or libraries.")
-elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.4','2.5','2.6'):
-    print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
-    sys.exit(1)
-
 # **********************************************
 # *** Set additional configuration variables ***
 # **********************************************
@@ -1206,11 +1210,7 @@ if env['python_package'] == 'none' and env['python3_package'] == 'n':
 else:
     configh['HAS_NO_PYTHON'] = None
 
-cdefine('HAS_SUNDIALS', 'use_sundials', 'y')
-if env['use_sundials'] == 'y':
-    configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
-else:
-    configh['SUNDIALS_VERSION'] = 0
+configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
 if env.get('has_sundials_lapack') and not env['BUILD_BLAS_LAPACK']:
     configh['SUNDIALS_USE_LAPACK'] = 1
@@ -1295,18 +1295,6 @@ if addInstallActions:
     # Data files
     install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
 
-    # Copy sundials library and header files
-    if env['install_sundials']:
-        for subdir in ['cvode','cvodes','ida','idas','kinsol','nvector','sundials']:
-            if os.path.exists(pjoin(env['sundials_include'], subdir)):
-                install(env.RecursiveInstall, pjoin('$inst_incdir', '..', subdir),
-                        pjoin(env['sundials_include'], subdir))
-        if os.path.exists(env['sundials_license']):
-            install('$inst_incdir/../sundials', env['sundials_license'])
-        libprefix = '' if os.name == 'nt' else 'lib'
-        install('$inst_libdir', mglob(env, env['sundials_libdir'],
-                                      '^{0}sundials_*'.format(libprefix)))
-
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
@@ -1314,7 +1302,7 @@ linkLibs = ['cantera']
 ### List of shared libraries needed to link applications to Cantera
 linkSharedLibs = ['cantera_shared']
 
-if env['use_sundials'] == 'y':
+if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
     linkLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
     linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))

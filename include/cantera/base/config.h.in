@@ -33,7 +33,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(FTN_TRAILING_UNDERSCORE)s
 
 
-%(HAS_SUNDIALS)s
 %(SUNDIALS_VERSION)s
 
 //-------- LAPACK / BLAS ---------
