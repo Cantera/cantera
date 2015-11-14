@@ -80,13 +80,13 @@ def install_module(prefix, python_version):
             extra += ' --prefix=""'
     elif prefix:
         # A specific location for the Cantera python module has been given
-        extra = '--user'
         if localenv['OS'] == 'Darwin':
-            extra += ' --prefix=""'
-        localenv.AppendENVPath(
-            'PYTHONUSERBASE',
-            normpath(localenv.subst('$python%s_prefix' % ver))
-        )
+            extra = localenv.subst(' --prefix=${python%s_prefix}' % ver)
+        else:
+            extra = '--user'
+            localenv.AppendENVPath(
+                'PYTHONUSERBASE',
+                normpath(localenv.subst('$python%s_prefix' % ver)))
     else:
         # Install Python module in the default location
         extra = ''
