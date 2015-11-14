@@ -1167,34 +1167,34 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
 
     // CHECK FOR OPTIMUM BASIS
     for (size_t i = 0; i < m_numRxnRdc; ++i) {
-        size_t l = m_indexRxnToSpecies[i];
-        if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+        size_t k = m_indexRxnToSpecies[i];
+        if (m_speciesUnknownType[k] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             continue;
         }
         for (size_t j = 0; j < m_numComponents; ++j) {
             bool doSwap = false;
             if (m_SSPhase[j]) {
-                doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) >
+                doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
                          (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
-                if (!m_SSPhase[l] && doSwap) {
-                    doSwap = m_molNumSpecies_old[l] > (m_molNumSpecies_old[j] * 1.01);
+                if (!m_SSPhase[k] && doSwap) {
+                    doSwap = m_molNumSpecies_old[k] > (m_molNumSpecies_old[j] * 1.01);
                 }
             } else {
-                if (m_SSPhase[l]) {
-                    doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) >
+                if (m_SSPhase[k]) {
+                    doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
                              (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
                     if (!doSwap) {
-                        doSwap = m_molNumSpecies_old[l] > (m_molNumSpecies_old[j] * 1.01);
+                        doSwap = m_molNumSpecies_old[k] > (m_molNumSpecies_old[j] * 1.01);
                     }
                 } else {
-                    doSwap = (m_molNumSpecies_old[l] * m_spSize[l]) >
+                    doSwap = (m_molNumSpecies_old[k] * m_spSize[k]) >
                              (m_molNumSpecies_old[j] * m_spSize[j] * 1.01);
                 }
             }
             if (doSwap && m_stoichCoeffRxnMatrix(j,i) != 0.0) {
                 if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
                     plogf("   --- Get a new basis because ");
-                    plogf("%s", m_speciesName[l]);
+                    plogf("%s", m_speciesName[k]);
                     plogf(" is better than comp ");
                     plogf("%s", m_speciesName[j]);
                     plogf(" and share nonzero stoic: %-9.1f",
@@ -2396,8 +2396,8 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
                 // Now make the new column, (*,JR), orthogonal to the previous
                 // columns
                 for (size_t j = 0; j < jl; ++j) {
-                    for (size_t l = 0; l < m_numElemConstraints; ++l) {
-                        sm[l + jr*m_numElemConstraints] -= ss[j] * sm[l + j*m_numElemConstraints];
+                    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+                        sm[i + jr*m_numElemConstraints] -= ss[j] * sm[i + j*m_numElemConstraints];
                     }
                 }
             }
@@ -3432,7 +3432,7 @@ bool VCS_SOLVE::vcs_evaluate_speciesType()
     return (m_numRxnMinorZeroed >= m_numRxnRdc);
 }
 
-void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
+void VCS_SOLVE::vcs_deltag(const int L, const bool doDeleted,
                            const int vcsState, const bool alterZeroedPhases)
 {
     int icase = 0;
@@ -3461,16 +3461,16 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
 
     if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
         plogf("   --- Subroutine vcs_deltag called for ");
-        if (l < 0) {
+        if (L < 0) {
             plogf("major noncomponents\n");
-        } else if (l == 0) {
+        } else if (L == 0) {
             plogf("all noncomponents\n");
         } else {
             plogf("minor noncomponents\n");
         }
     }
 
-    if (l < 0) {
+    if (L < 0) {
         // MAJORS and ZEROED SPECIES ONLY
         for (size_t irxn = 0; irxn < m_numRxnRdc; ++irxn) {
             size_t kspec = irxn + m_numComponents;
@@ -3489,7 +3489,7 @@ void VCS_SOLVE::vcs_deltag(const int l, const bool doDeleted,
                 }
             }
         }
-    } else if (l == 0) {
+    } else if (L == 0) {
         // ALL REACTIONS
         for (size_t irxn = 0; irxn < irxnl; ++irxn) {
             icase = 0;

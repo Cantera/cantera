@@ -453,8 +453,8 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublere
     s_update_dlnActCoeff_dX_();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffds[k] = dlnActCoeffdT_Scaled_[k] * dTds;
-        for (size_t l = 0; l < m_kk; l++) {
-            dlnActCoeffds[k] += dlnActCoeff_dX_(k, l) * dXds[l];
+        for (size_t j = 0; j < m_kk; j++) {
+            dlnActCoeffds[k] += dlnActCoeff_dX_(k, j) * dXds[j];
         }
     }
 }
@@ -462,10 +462,10 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublere
 void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dX_();
-    for (size_t l = 0; l < m_kk; l++) {
-        dlnActCoeffdlnN_diag[l] = dlnActCoeff_dX_(l, l);
+    for (size_t j = 0; j < m_kk; j++) {
+        dlnActCoeffdlnN_diag[j] = dlnActCoeff_dX_(j, j);
         for (size_t k = 0; k < m_kk; k++) {
-            dlnActCoeffdlnN_diag[k] -= dlnActCoeff_dX_(l, k) * moleFractions_[k];
+            dlnActCoeffdlnN_diag[k] -= dlnActCoeff_dX_(j, k) * moleFractions_[k];
         }
     }
 }

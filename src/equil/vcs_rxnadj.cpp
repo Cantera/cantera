@@ -543,18 +543,18 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
 
     // Next, the other terms. Note this only a loop over the components So, it's
     // not too expensive to calculate.
-    for (size_t l = 0; l < m_numComponents; l++) {
-        if (!m_SSPhase[l]) {
+    for (size_t j = 0; j < m_numComponents; j++) {
+        if (!m_SSPhase[j]) {
             for (size_t k = 0; k < m_numComponents; ++k) {
-                if (m_phaseID[k] == m_phaseID[l]) {
+                if (m_phaseID[k] == m_phaseID[j]) {
                     double np = m_tPhaseMoles_old[m_phaseID[k]];
                     if (np > 0.0) {
-                        s += sc_irxn[k] * sc_irxn[l] * m_np_dLnActCoeffdMolNum(l,k) / np;
+                        s += sc_irxn[k] * sc_irxn[j] * m_np_dLnActCoeffdMolNum(j,k) / np;
                     }
                 }
             }
-            if (kph == m_phaseID[l]) {
-                s += sc_irxn[l] * (m_np_dLnActCoeffdMolNum(l,kspec) + m_np_dLnActCoeffdMolNum(kspec,l)) / np_kspec;
+            if (kph == m_phaseID[j]) {
+                s += sc_irxn[j] * (m_np_dLnActCoeffdMolNum(j,kspec) + m_np_dLnActCoeffdMolNum(kspec,j)) / np_kspec;
             }
         }
     }

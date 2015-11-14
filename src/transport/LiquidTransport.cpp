@@ -187,11 +187,11 @@ LiquidTransport::~LiquidTransport()
     for (size_t k = 0; k < m_nsp; k++) {
         delete m_viscTempDep_Ns[k];
         delete m_ionCondTempDep_Ns[k];
-        for (size_t l = 0; l < m_nsp; l++) {
-            delete m_selfDiffTempDep_Ns[l][k];
+        for (size_t j = 0; j < m_nsp; j++) {
+            delete m_selfDiffTempDep_Ns[j][k];
         }
-        for (size_t l=0; l < m_nsp2; l++) {
-            delete m_mobRatTempDep_Ns[l][k];
+        for (size_t j=0; j < m_nsp2; j++) {
+            delete m_mobRatTempDep_Ns[j][k];
         }
         delete m_lambdaTempDep_Ns[k];
         delete m_radiusTempDep_Ns[k];

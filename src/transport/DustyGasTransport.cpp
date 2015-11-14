@@ -151,8 +151,8 @@ void DustyGasTransport::eval_H_matrix()
     doublereal sum;
     for (size_t k = 0; k < m_nsp; k++) {
         // evaluate off-diagonal terms
-        for (size_t l = 0; l < m_nsp; l++) {
-            m_multidiff(k,l) = -m_x[k]/m_d(k,l);
+        for (size_t j = 0; j < m_nsp; j++) {
+            m_multidiff(k,j) = -m_x[k]/m_d(k,j);
         }
 
         // evaluate diagonal term

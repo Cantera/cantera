@@ -21,9 +21,9 @@ int VCS_SOLVE::vcs_rearrange()
         // Find the index of I in the index vector m_speciesIndexVector[]. Call
         // it k1 and continue.
         for (size_t j = 0; j < m_numSpeciesTot; ++j) {
-            size_t l = m_speciesMapIndex[j];
+            size_t n = m_speciesMapIndex[j];
             k1 = j;
-            if (l == i) {
+            if (n == i) {
                 break;
             }
         }

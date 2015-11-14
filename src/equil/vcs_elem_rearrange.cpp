@@ -103,8 +103,8 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                 // Now make the new column, (*,JR), orthogonal to the previous
                 // columns
                 for (size_t j = 0; j < jl; ++j) {
-                    for (size_t l = 0; l < ncomponents; ++l) {
-                        sm[l + jr*ncomponents] -= ss[j] * sm[l + j*ncomponents];
+                    for (size_t i = 0; i < ncomponents; ++i) {
+                        sm[i + jr*ncomponents] -= ss[j] * sm[i + j*ncomponents];
                     }
                 }
             }

@@ -716,9 +716,9 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
                      const std::vector<size_t>& slist, const Kinetics& s)
 {
     string label = "";
-    for (size_t l = 0; l < nr; l++) {
-        if (l != kr) {
-            label += " + "+ s.kineticsSpeciesName(slist[l]);
+    for (size_t j = 0; j < nr; j++) {
+        if (j != kr) {
+            label += " + "+ s.kineticsSpeciesName(slist[j]);
         }
     }
     if (s.reactionType(i) == THREE_BODY_RXN) {
@@ -775,9 +775,9 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                 for (size_t kp = 0; kp < np; kp++) {
                     size_t kkp = m_prod[i][kp];
                     revlabel = "";
-                    for (size_t l = 0; l < np; l++) {
-                        if (l != kp) {
-                            revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][l]);
+                    for (size_t j = 0; j < np; j++) {
+                        if (j != kp) {
+                            revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][j]);
                         }
                     }
                     if (s.reactionType(i) == THREE_BODY_RXN) {

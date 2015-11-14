@@ -27,11 +27,11 @@ int VCS_SOLVE::vcs_report(int iconv)
 
     // Sort the XY vector, the mole fraction vector, and the sort index vector,
     // sortindex, according to the magnitude of the mole fraction vector.
-    for (size_t l = m_numComponents; l < m_numSpeciesRdc; ++l) {
-        size_t k = vcs_optMax(&xy[0], 0, l, m_numSpeciesRdc);
-        if (k != l) {
-            std::swap(xy[k], xy[l]);
-            std::swap(sortindex[k], sortindex[l]);
+    for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
+        size_t k = vcs_optMax(&xy[0], 0, i, m_numSpeciesRdc);
+        if (k != i) {
+            std::swap(xy[k], xy[i]);
+            std::swap(sortindex[k], sortindex[i]);
         }
     }
 
@@ -90,17 +90,17 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf("\n");
     }
     for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
-        size_t l = sortindex[i];
-        plogf(" %-12.12s", m_speciesName[l]);
+        size_t j = sortindex[i];
+        plogf(" %-12.12s", m_speciesName[j]);
         writeline(' ', 13, false);
 
-        if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
-            plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l] * molScale,
-                  m_molNumSpecies_new[l] * molScale, m_feSpecies_old[l]);
+        if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_MOLNUM) {
+            plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[j] * molScale,
+                  m_molNumSpecies_new[j] * molScale, m_feSpecies_old[j]);
             plogf("  KMolNum ");
-        } else if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_old[l]);
-            plogf("   Voltage = %14.7E", m_molNumSpecies_old[l] * molScale);
+        } else if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_old[j]);
+            plogf("   Voltage = %14.7E", m_molNumSpecies_old[j] * molScale);
         } else {
             throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
         }
@@ -261,43 +261,43 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("|  (MolNum ChemPot)|");
     writeline('-', 147, true, true);
     for (size_t i = 0; i < nspecies; ++i) {
-        size_t l = sortindex[i];
-        size_t pid = m_phaseID[l];
-        plogf(" %-12.12s", m_speciesName[l]);
-        plogf(" %14.7E ", m_molNumSpecies_old[l]*molScale);
-        plogf("%14.7E  ", m_SSfeSpecies[l]);
-        plogf("%14.7E  ", log(m_actCoeffSpecies_old[l]));
+        size_t j = sortindex[i];
+        size_t pid = m_phaseID[j];
+        plogf(" %-12.12s", m_speciesName[j]);
+        plogf(" %14.7E ", m_molNumSpecies_old[j]*molScale);
+        plogf("%14.7E  ", m_SSfeSpecies[j]);
+        plogf("%14.7E  ", log(m_actCoeffSpecies_old[j]));
         double tpmoles = m_tPhaseMoles_old[pid];
         double phi = m_phasePhi[pid];
-        double eContrib = phi * m_chargeSpecies[l] * m_Faraday_dim;
+        double eContrib = phi * m_chargeSpecies[j] * m_Faraday_dim;
         double lx = 0.0;
-        if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+        if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             lx = 0.0;
         } else {
-            if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {
-                double tmp = std::max(VCS_DELETE_MINORSPECIES_CUTOFF, m_molNumSpecies_old[l]);
+            if (tpmoles > 0.0 && m_molNumSpecies_old[j] > 0.0) {
+                double tmp = std::max(VCS_DELETE_MINORSPECIES_CUTOFF, m_molNumSpecies_old[j]);
                 lx = log(tmp) - log(tpmoles);
             } else {
-                lx = m_feSpecies_old[l] - m_SSfeSpecies[l]
-                     - log(m_actCoeffSpecies_old[l]) + m_lnMnaughtSpecies[l];
+                lx = m_feSpecies_old[j] - m_SSfeSpecies[j]
+                     - log(m_actCoeffSpecies_old[j]) + m_lnMnaughtSpecies[j];
             }
         }
         plogf("%14.7E  |", lx);
         plogf("%14.7E | ", eContrib);
-        double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l])
-                     + lx - m_lnMnaughtSpecies[l] + eContrib;
-        if (fabs(m_feSpecies_old[l] - tmp) > 1.0E-7) {
+        double tmp = m_SSfeSpecies[j] + log(m_actCoeffSpecies_old[j])
+                     + lx - m_lnMnaughtSpecies[j] + eContrib;
+        if (fabs(m_feSpecies_old[j] - tmp) > 1.0E-7) {
             throw CanteraError("VCS_SOLVE::vcs_report",
                                "we have a problem - doesn't add up");
         }
-        plogf(" %12.4E |", m_feSpecies_old[l]);
-        if (m_lnMnaughtSpecies[l] != 0.0) {
-            plogf("(%11.5E)", - m_lnMnaughtSpecies[l]);
+        plogf(" %12.4E |", m_feSpecies_old[j]);
+        if (m_lnMnaughtSpecies[j] != 0.0) {
+            plogf("(%11.5E)", - m_lnMnaughtSpecies[j]);
         } else {
             plogf("             ");
         }
 
-        plogf("|  %20.9E |", m_feSpecies_old[l] * m_molNumSpecies_old[l] * molScale);
+        plogf("|  %20.9E |", m_feSpecies_old[j] * m_molNumSpecies_old[j] * molScale);
         plogf("\n");
     }
     for (size_t i = 0; i < 125; i++) {

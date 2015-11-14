@@ -28,7 +28,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                      std::vector<size_t>& orderVectorElements,
                      vector_fp& formRxnMatrix)
 {
-    size_t j, jj, k=0, kk, l, i, jl, ml;
+    size_t j, jj, k=0, kk, i, jl, ml;
     std::string ename;
     std::string sname;
 
@@ -186,8 +186,8 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                 // Now make the new column, (*,JR), orthogonal to the previous
                 // columns
                 for (j = 0; j < jl; ++j) {
-                    for (l = 0; l < ne; ++l) {
-                        sm[l + jr*ne] -= ss[j] * sm[l + j*ne];
+                    for (size_t i = 0; i < ne; ++i) {
+                        sm[i + jr*ne] -= ss[j] * sm[i + j*ne];
                     }
                 }
             }
@@ -372,7 +372,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                    std::vector<size_t>& orderVectorSpecies,
                    std::vector<size_t>& orderVectorElements)
 {
-    size_t j, k, l, i, jl, ml, jr, ielem, jj, kk=0;
+    size_t j, k, i, jl, ml, jr, ielem, jj, kk=0;
     size_t nelements = mphase->nElements();
     std::string ename;
     // Get the total number of species in the multiphase object
@@ -497,8 +497,8 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                 // Now make the new column, (*,JR), orthogonal to the
                 // previous columns
                 for (j = 0; j < jl; ++j) {
-                    for (l = 0; l < nComponents; ++l) {
-                        sm[l + jr*nComponents] -= ss[j] * sm[l + j*nComponents];
+                    for (size_t i = 0; i < nComponents; ++i) {
+                        sm[i + jr*nComponents] -= ss[j] * sm[i + j*nComponents];
                     }
                 }
             }

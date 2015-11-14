@@ -522,7 +522,7 @@ public:
      * coefficients for these reactions. A stoichiometric coefficient of
      * one is assumed for species irxn in this reaction.
      *
-     * @param l
+     * @param L
      *    - `L < 0`: Calculate reactions corresponding to major noncomponent
      *      and zeroed species only
      *    - `L = 0`: Do all noncomponent reactions, i, between
@@ -542,7 +542,7 @@ public:
      * condition feeds back into the algorithm in several places, and leads
      * to a infinite loop in at least one case.
      */
-    void vcs_deltag(const int l, const bool doDeleted, const int vcsState,
+    void vcs_deltag(const int L, const bool doDeleted, const int vcsState,
                     const bool alterZeroedPhases = true);
 
     void vcs_printDeltaG(const int stateCalc);
