@@ -161,11 +161,6 @@ doublereal IdealMolalSoln::cp_mole() const
     return mean_X(m_tmpV);
 }
 
-doublereal IdealMolalSoln::cv_mole() const
-{
-    throw NotImplementedError("IdealMolalSoln::cv_mole");
-}
-
 // ------- Mechanical Equation of State Properties ------------------------
 
 void IdealMolalSoln::calcDensity()

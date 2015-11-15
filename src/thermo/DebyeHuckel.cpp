@@ -188,11 +188,6 @@ doublereal DebyeHuckel::cp_mole() const
     return mean_X(m_tmpV);
 }
 
-doublereal DebyeHuckel::cv_mole() const
-{
-    throw NotImplementedError("DebyeHuckel::cv_mole");
-}
-
 // ------- Mechanical Equation of State Properties ------------------------
 
 void DebyeHuckel::calcDensity()

@@ -185,12 +185,6 @@ public:
      */
     virtual doublereal cp_mole() const;
 
-    //! Molar heat capacity of the solution at constant volume. Units: J/kmol/K.
-    /*!
-     * NOT IMPLEMENTED.
-     */
-    virtual doublereal cv_mole() const;
-
     //@}
     /** @name Mechanical Equation of State Properties
      *

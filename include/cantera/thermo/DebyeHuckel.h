@@ -629,7 +629,6 @@ public:
 
     virtual doublereal gibbs_mole() const;
     virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
 
     //@}
     /** @name Mechanical Equation of State Properties
