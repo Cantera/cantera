@@ -69,8 +69,8 @@ int main(int argc, char** argv)
 
         Cantera::appdelete();
         return 0;
-    } catch (CanteraError) {
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         return -1;
     }
 }

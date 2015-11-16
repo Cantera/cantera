@@ -1026,7 +1026,7 @@ extern "C" {
     {
         try {
             std::string e;
-            e = lastErrorMessage();
+            e = Application::Instance()->lastErrorMessage();
             int n = std::min((int) e.size(), buflen-1);
             copy(e.begin(), e.begin() + n, buf);
             for (int nn = n; nn < buflen; nn++) {

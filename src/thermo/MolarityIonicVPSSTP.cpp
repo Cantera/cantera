@@ -401,13 +401,12 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) 
             try {
                 b.write(" heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-            } catch (CanteraError& e) {
-                e.save();
+            } catch (NotImplementedError& e) {
                 b.write(" heat capacity c_v    <not implemented>\n");
             }
         }
     } catch (CanteraError& e) {
-        e.save();
+        return b.str() + e.what();
     }
     return b.str();
 }

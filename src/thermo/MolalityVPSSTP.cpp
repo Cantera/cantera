@@ -478,8 +478,7 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
             try {
                 b.write(" heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-            } catch (CanteraError& e) {
-                e.save();
+            } catch (NotImplementedError& e) {
                 b.write(" heat capacity c_v    <not implemented>\n");
             }
         }
@@ -527,7 +526,7 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
             b.write("     [{:+5d} minor] {:12.6g}\n", nMinor, xMinor);
         }
     } catch (CanteraError& err) {
-        err.save();
+        return b.str() + err.what();
     }
     return b.str();
 }

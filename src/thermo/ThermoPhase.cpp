@@ -914,8 +914,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             try {
                 b.write(" heat capacity c_v    {:12.5g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-            } catch (CanteraError& err) {
-                err.save();
+            } catch (NotImplementedError& err) {
                 b.write(" heat capacity c_v    <not implemented>       \n");
             }
         }
@@ -969,7 +968,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                     nMinor, xMinor, yMinor);
         }
     } catch (CanteraError& err) {
-        err.save();
+        return b.str() + err.what();
     }
     return b.str();
 }

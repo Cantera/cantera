@@ -188,45 +188,37 @@ void ChemEquil::update(const thermo_t& s)
 int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
                                int loglevel)
 {
-    int iok = 0;
-    try {
-        MultiPhase mp;
-        mp.addPhase(&s, 1.0);
-        mp.init();
-        MultiPhaseEquil e(&mp, true, loglevel-1);
-        e.setInitialMixMoles(loglevel-1);
+    MultiPhase mp;
+    mp.addPhase(&s, 1.0);
+    mp.init();
+    MultiPhaseEquil e(&mp, true, loglevel-1);
+    e.setInitialMixMoles(loglevel-1);
 
-        // store component indices
-        m_nComponents = std::min(m_nComponents, m_kk);
-        for (size_t m = 0; m < m_nComponents; m++) {
-            m_component[m] = e.componentIndex(m);
-        }
-
-        // Update the current values of the temp, density, and mole fraction,
-        // and element abundance vectors kept within the ChemEquil object.
-        update(s);
-
-        if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
-            writelog("setInitialMoles:   Estimated Mole Fractions\n");
-            writelogf("  Temperature = %g\n", s.temperature());
-            writelogf("  Pressure = %g\n", s.pressure());
-            for (size_t k = 0; k < m_kk; k++) {
-                writelogf("         %-12s % -10.5g\n",
-                          s.speciesName(k), s.moleFraction(k));
-            }
-            writelog("      Element_Name   ElementGoal  ElementMF\n");
-            for (size_t m = 0; m < m_mm; m++) {
-                writelogf("      %-12s % -10.5g% -10.5g\n",
-                          s.elementName(m), elMoleGoal[m], m_elementmolefracs[m]);
-            }
-        }
-
-        iok = 0;
-    } catch (CanteraError& err) {
-        err.save();
-        iok = -1;
+    // store component indices
+    m_nComponents = std::min(m_nComponents, m_kk);
+    for (size_t m = 0; m < m_nComponents; m++) {
+        m_component[m] = e.componentIndex(m);
     }
-    return iok;
+
+    // Update the current values of the temp, density, and mole fraction,
+    // and element abundance vectors kept within the ChemEquil object.
+    update(s);
+
+    if (DEBUG_MODE_ENABLED && ChemEquil_print_lvl > 0) {
+        writelog("setInitialMoles:   Estimated Mole Fractions\n");
+        writelogf("  Temperature = %g\n", s.temperature());
+        writelogf("  Pressure = %g\n", s.pressure());
+        for (size_t k = 0; k < m_kk; k++) {
+            writelogf("         %-12s % -10.5g\n",
+                      s.speciesName(k), s.moleFraction(k));
+        }
+        writelog("      Element_Name   ElementGoal  ElementMF\n");
+        for (size_t m = 0; m < m_mm; m++) {
+            writelogf("      %-12s % -10.5g% -10.5g\n",
+                      s.elementName(m), elMoleGoal[m], m_elementmolefracs[m]);
+        }
+    }
+    return 0;
 }
 
 int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
@@ -676,13 +668,11 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         try {
             info = solve(jac, res_trial.data());
         } catch (CanteraError& err) {
-            err.save();
             s.restoreState(state);
-
             throw CanteraError("equilibrate",
                                "Jacobian is singular. \nTry adding more species, "
                                "changing the elemental composition slightly, \nor removing "
-                               "unused elements.");
+                               "unused elements.\n\n" + err.getMessage());
         }
 
         // find the factor by which the Newton step can be multiplied
@@ -1320,15 +1310,11 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             try {
                 solve(a1, resid.data());
             } catch (CanteraError& err) {
-                err.save();
-                if (DEBUG_MODE_ENABLED) {
-                    debuglog("Matrix is SINGULAR.ERROR\n", ChemEquil_print_lvl);
-                }
                 s.restoreState(state);
                 throw CanteraError("equilibrate:estimateEP_Brinkley()",
                                    "Jacobian is singular. \nTry adding more species, "
                                    "changing the elemental composition slightly, \nor removing "
-                                   "unused elements.");
+                                   "unused elements.\n\n" + err.getMessage());
             }
 
             // Figure out the damping coefficient: Use a delta damping

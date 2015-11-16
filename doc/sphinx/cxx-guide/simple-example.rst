@@ -50,9 +50,7 @@ The entire body of the program is put inside a function that is invoked within
 a ``try`` block in the main program. In this way, exceptions thrown in the
 function or in any procedure it calls may be caught. In this program, a
 ``catch`` block is defined for exceptions of type :ct:`CanteraError`. Cantera
-throws exceptions of this type, so it is always a good idea to catch them. In
-the ``catch`` block, function :ct:`showErrors` may be called to print the error
-message associated with the exception.
+throws exceptions of this type, so it is always a good idea to catch them.
 
 The ``report`` function
 =======================

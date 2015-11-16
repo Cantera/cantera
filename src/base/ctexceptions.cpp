@@ -1,6 +1,7 @@
 //! @file ctexceptions.cpp
 #include "cantera/base/ctexceptions.h"
 #include "application.h"
+#include "cantera/base/global.h"
 
 #include <sstream>
 
@@ -15,12 +16,11 @@ CanteraError::CanteraError(const std::string& procedure) :
     procedure_(procedure),
     saved_(false)
 {
-    // Save the error in the global list of errors so that showError() can work
-    save();
 }
 
 void CanteraError::save()
 {
+    warn_deprecated("CanteraError::save", "To be removed after Cantera 2.3.");
     if (!saved_) {
         Application::Instance()->addError(procedure_, getMessage());
         saved_ = true;

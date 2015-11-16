@@ -93,21 +93,25 @@ void close_XML_File(const std::string& file)
 
 int nErrors()
 {
+    warn_deprecated("nErrors", "To be removed after Cantera 2.3");
     return app()->getErrorCount();
 }
 
 void popError()
 {
+    warn_deprecated("popError", "To be removed after Cantera 2.3");
     app()->popError();
 }
 
 string lastErrorMessage()
 {
+    warn_deprecated("lastErrorMessage", "To be removed after Cantera 2.3");
     return app()->lastErrorMessage();
 }
 
 void showErrors(std::ostream& f)
 {
+    warn_deprecated("showErrors", "To be removed after Cantera 2.3");
     app()->getErrors(f);
 }
 

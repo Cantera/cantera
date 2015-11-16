@@ -257,7 +257,6 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
                         isimpleIG, isimpleCV, iwater, itpx, ihptx, iother);
     } catch (UnknownVPSSMgrModel) {
         iother = 1;
-        popError();
     }
 
     if (iwater == 1) {

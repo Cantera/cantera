@@ -1374,7 +1374,7 @@ extern "C" {
     int getCanteraError(int buflen, char* buf)
     {
         try {
-            string e = lastErrorMessage();
+            string e = Application::Instance()->lastErrorMessage();
             copyString(e, buf, buflen);
             return int(e.size());
         } catch (...) {

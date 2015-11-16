@@ -35,9 +35,6 @@ namespace Cantera
  *
  * \include demo1a.cpp
  *
- * The function showErrors() will print out the fatal error condition to
- * standard output.
- *
  * A group of defines may be used during debugging to assert conditions which
  * should be true. These are named AssertTrace(), AssertThrow(), and
  * AssertThrowMsg(). Examples of their usage is given below.
@@ -69,9 +66,6 @@ class CanteraError : public std::exception
 public:
     //! Normal Constructor for the CanteraError base class
     /*!
-     * In the constructor, a call to the Application class is made to store
-     * the strings associated with the generated error condition.
-     *
      * @param procedure String name for the function within which the error was
      *             generated.
      * @param msg  Descriptive string describing the type of error message.
@@ -87,9 +81,6 @@ public:
         } else {
             msg_ = fmt::format(msg, args...);
         }
-        // Save the error in the global list of errors so that showError()
-        // can work
-        save();
     }
 
     //! Destructor for base class does nothing
@@ -99,6 +90,7 @@ public:
     const char* what() const throw();
 
     //! Function to put this error onto Cantera's error stack
+    //! @deprecated Unused. To be removed after Cantera 2.3.
     void save();
 
     //! Method overridden by derived classes to format the error message

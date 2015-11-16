@@ -157,13 +157,7 @@ void MultiTransport::solveLMatrixEquation()
     // Solve it using GMRES or LU decomposition. The last solution in m_a should
     // provide a good starting guess, so convergence should be fast.
     m_a = m_b;
-    try {
-        solve(m_Lmatrix, m_a.data());
-    } catch (CanteraError& err) {
-        err.save();
-        throw CanteraError("MultiTransport::solveLMatrixEquation",
-                           "error in solving L matrix.");
-    }
+    solve(m_Lmatrix, m_a.data());
     m_lmatrix_soln_ok = true;
     m_molefracs_last = m_molefracs;
     // L matrix is overwritten with LU decomposition

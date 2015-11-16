@@ -60,8 +60,7 @@ Application::Messages::Messages()
 }
 
 Application::Messages::Messages(const Messages& r) :
-    errorMessage(r.errorMessage),
-    errorRoutine(r.errorRoutine)
+    errorMessage(r.errorMessage)
 {
     // install a default logwriter that writes to standard
     // output / standard error
@@ -74,15 +73,22 @@ Application::Messages& Application::Messages::operator=(const Messages& r)
         return *this;
     }
     errorMessage = r.errorMessage;
-    errorRoutine = r.errorRoutine;
     logwriter.reset(new Logger(*r.logwriter));
     return *this;
 }
 
 void Application::Messages::addError(const std::string& r, const std::string& msg)
 {
-    errorMessage.push_back(msg);
-    errorRoutine.push_back(r);
+    if (msg.size() != 0) {
+        errorMessage.push_back(
+            "\n\n************************************************\n"
+            "                Cantera Error!                  \n"
+            "************************************************\n\n"
+            "Procedure: " + r +
+            "\nError:     " + msg + "\n");
+    } else {
+        errorMessage.push_back(msg);
+    }
 }
 
 int Application::Messages::getErrorCount()
@@ -289,7 +295,6 @@ long int Application::readStringRegistryKey(const std::string& keyName, const st
 void Application::Messages::popError()
 {
     if (!errorMessage.empty()) {
-        errorRoutine.pop_back();
         errorMessage.pop_back();
     }
 }
@@ -297,12 +302,7 @@ void Application::Messages::popError()
 std::string Application::Messages::lastErrorMessage()
 {
     if (!errorMessage.empty()) {
-        string head =
-            "\n\n************************************************\n"
-            "                Cantera Error!                  \n"
-            "************************************************\n\n";
-        return head+string("\nProcedure: ")+errorRoutine.back()
-               +string("\nError:   ")+errorMessage.back();
+        return errorMessage.back();
     } else  {
         return "<no Cantera error>";
     }
@@ -310,43 +310,19 @@ std::string Application::Messages::lastErrorMessage()
 
 void Application::Messages::getErrors(std::ostream& f)
 {
-    size_t i = errorMessage.size();
-    if (i == 0) {
-        return;
+    for (size_t j = 0; j < errorMessage.size(); j++) {
+        f << errorMessage[j] << endl;
     }
-    f << endl << endl;
-    f << "************************************************" << endl;
-    f << "                   Cantera Error!                  " << endl;
-    f << "************************************************" << endl
-      << endl;
-    for (size_t j = 0; j < i; j++) {
-        f << endl;
-        f << "Procedure: " << errorRoutine[j] << endl;
-        f << "Error:     " << errorMessage[j] << endl;
-    }
-    f << endl << endl;
     errorMessage.clear();
-    errorRoutine.clear();
 }
 
 void Application::Messages::logErrors()
 {
-    size_t i = errorMessage.size();
-    if (i == 0) {
-        return;
+    for (size_t j = 0; j < errorMessage.size(); j++) {
+        writelog(errorMessage[j]);
+        writelogendl();
     }
-    writelog("\n\n");
-    writelog("************************************************\n");
-    writelog("                   Cantera Error!                  \n");
-    writelog("************************************************\n\n");
-    for (size_t j = 0; j < i; j++) {
-        writelog("\n");
-        writelog(string("Procedure: ")+ errorRoutine[j]+" \n");
-        writelog(string("Error:     ")+ errorMessage[j]+" \n");
-    }
-    writelog("\n\n");
     errorMessage.clear();
-    errorRoutine.clear();
 }
 
 void Application::setDefaultDirectories()

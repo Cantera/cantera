@@ -569,13 +569,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
     if (XY == TP) {
         // create an equilibrium manager
         MultiPhaseEquil e(this);
-        try {
-            e.equilibrate(XY, err, maxsteps, loglevel);
-        } catch (CanteraError& err) {
-            err.save();
-            throw err;
-        }
-        return err;
+        return e.equilibrate(XY, err, maxsteps, loglevel);
     } else if (XY == HP) {
         h0 = enthalpy();
         Tlow = 0.5*m_Tmin; // lower bound on T
@@ -637,7 +631,6 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                 }
 
             } catch (CanteraError& err) {
-                err.save();
                 if (!strt) {
                     strt = true;
                 } else {
@@ -685,7 +678,6 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                     strt = false;
                 }
             } catch (CanteraError& err) {
-                err.save();
                 if (!strt) {
                     strt = true;
                 } else {

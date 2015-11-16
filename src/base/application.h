@@ -54,9 +54,12 @@ protected:
          * that Cantera accumulates in the Application class.
          * @param r    Procedure name which is generating the error condition
          * @param msg  Descriptive message of the error condition.
+         *
+         * If only one argument is specified, that string is used as the
+         * entire message.
          * @ingroup errorhandling
          */
-        void addError(const std::string& r, const std::string& msg);
+        void addError(const std::string& r, const std::string& msg="");
 
         //! Return the number of errors that have been encountered so far.
         /*!
@@ -141,9 +144,6 @@ protected:
         //! Current list of error messages
         std::vector<std::string> errorMessage;
 
-        //! Current error Routine
-        std::vector<std::string> errorRoutine;
-
         //! Current pointer to the logwriter
         std::unique_ptr<Logger> logwriter;
     };
@@ -198,7 +198,7 @@ public:
     static void ApplicationDestroy();
 
     //! @copydoc Messages::addError
-    void addError(const std::string& r, const std::string& msg) {
+    void addError(const std::string& r, const std::string& msg="") {
         pMessenger->addError(r, msg);
     }
 
