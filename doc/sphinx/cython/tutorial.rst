@@ -227,19 +227,7 @@ surface reactions must also be passed as arguments to `Interface`.
 Converting CK-format files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Many existing reaction mechanism files are in "CK format," by which we mean
-the input file format developed for use with the Chemkin-II software package.
-[See R. J. Kee, F. M. Rupley, and J. A. Miller, Sandia National Laboratories
-Report SAND89-8009 (1989).]
-
-Cantera comes with a converter utility program ``ck2cti`` (or ``ck2cti.py``)
-that converts CK format into Cantera format. This program should be run from
-the command line first to convert any CK files you plan to use into Cantera
-format. Here's an example of how to use it. The command::
-
-    $python ck2cti.py --input=mech.inp --thermo=therm.dat --transport=tran.dat
-
-will produce the file ``mech.cti`` in the current directory.
+See :ref:`sec-ck-format-conversion` in the Working with Input Files documentation.
 
 
 Getting Help
