@@ -59,17 +59,4 @@ must also be passed as arguments to importInterface.
 Converting CK-format files
 --------------------------
 
-Many existing reaction mechanism files are in "CK format," by which we mean the
-input file format developed for use with the Chemkin-II software package.  [See
-R. J. Kee, F. M. Rupley, and J. A. Miller, Sandia National Laboratories Report
-SAND89-8009 (1989).]
-
-Cantera comes with a converter utility program ``ck2cti`` (or ``ck2cti.exe``)
-that converts CK format into Cantera format. This program should be run from the
-command line first to convert any CK files you plan to use into Cantera format.
-
-Here's an example of how to use it:
-
-.. code-block:: bash
-
-    ck2cti -i mech.inp -t therm.dat -tr tran.dat -id mymech > mech.cti
+See :ref:`sec-ck-format-conversion` in the Working with Input Files documentation.
