@@ -6,10 +6,6 @@
 #ifndef CT_CTLAPACK_H
 #define CT_CTLAPACK_H
 
-#ifdef DARWIN
-#undef NO_FTN_STRING_LEN_AT_END
-#endif
-
 #include "cantera/base/ct_defs.h"
 
 // map BLAS names to names with or without a trailing underscore.
@@ -225,17 +221,12 @@ inline void ct_dgemv(ctlapack::storage_t storage,
     integer f_m = m, f_n = n, f_lda = lda, f_incX = incX, f_incY = incY;
     doublereal f_alpha = alpha, f_beta = beta;
     ftnlen trsize = 1;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGEMV_(&no_yes[trans], &f_m, &f_n, &f_alpha, a,
-            &f_lda, x, &f_incX, &f_beta, y, &f_incY);
-#else
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGEMV_(&no_yes[trans], &f_m, &f_n, &f_alpha, a,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY, trsize);
 #else
     _DGEMV_(&no_yes[trans], trsize, &f_m, &f_n, &f_alpha, a,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY);
-#endif
 #endif
 }
 
@@ -296,10 +287,6 @@ inline void ct_dgbtrs(ctlapack::transpose_t trans, size_t n,
     integer f_ldb = (int) ldb;
     integer f_info = 0;
     char tr = no_yes[trans];
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGBTRS_(&tr, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv,
-             b, &f_ldb, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGBTRS_(&tr, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv,
@@ -307,7 +294,6 @@ inline void ct_dgbtrs(ctlapack::transpose_t trans, size_t n,
 #else
     _DGBTRS_(&tr, trsize, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv,
              b, &f_ldb, &f_info);
-#endif
 #endif
     info = f_info;
 }
@@ -333,17 +319,11 @@ inline void ct_dgetrs(ctlapack::transpose_t trans, size_t n,
     integer f_ldb = (int) ldb;
     integer f_info = 0;
     char tr = no_yes[trans];
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb,
-             &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, &f_info, trsize);
 #else
     _DGETRS_(&tr, trsize, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, &f_info);
-#endif
 #endif
     info = f_info;
 }
@@ -386,15 +366,11 @@ inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, size
     integer f_lda = static_cast<integer>(lda);
     integer f_ldc = static_cast<integer>(ldc);
     integer f_info = 0;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DORMQR_(&side, &tr, &f_m, &f_n, &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DORMQR_(&side, &tr, &f_m, &f_n, &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info, trsize, trsize);
 #else
     _DORMQR_(&side, trsize, &tr, trsize, &f_m, &f_n, &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
-#endif
 #endif
     info = f_info;
 }
@@ -413,15 +389,11 @@ inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans,
     integer f_lda = static_cast<integer>(lda);
     integer f_ldb = static_cast<integer>(ldb);
     integer f_info = 0;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DTRTRS_(&uplo, &tr, &dd, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DTRTRS_(&uplo, &tr, &dd, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info, trsize, trsize, trsize);
 #else
     _DTRTRS_(&uplo, trsize, &tr, trsize, &dd, trsize, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
-#endif
 #endif
     info = f_info;
 }
@@ -446,15 +418,11 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot, cons
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
     doublereal rcond;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info, trsize, trsize, trsize);
 #else
     _DTRCON_(&nn, trsize, &uplo, trsize, &dd, trsize, &f_n, a, &f_lda, &rcond, work, iwork, &f_info);
-#endif
 #endif
     info = f_info;
     return rcond;
@@ -466,16 +434,11 @@ inline void ct_dpotrf(ctlapack::upperlower_t uplot, size_t n, doublereal* a, siz
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DPOTRF_(&uplo, &f_n, a, &f_lda, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DPOTRF_(&uplo, &f_n, a, &f_lda, &f_info, trsize);
 #else
     _DPOTRF_(&uplo, trsize, &f_n, a, &f_lda, &f_info);
-#endif
 #endif
     info = f_info;
     return;
@@ -490,16 +453,11 @@ inline void ct_dpotrs(ctlapack::upperlower_t uplot, size_t n, size_t nrhs, doubl
     integer f_lda = static_cast<integer>(lda);
     integer f_ldb = static_cast<integer>(ldb);
     integer f_info = 0;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DPOTRS_(&uplo, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DPOTRS_(&uplo, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info, trsize);
 #else
     _DPOTRS_(&uplo, trsize, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
-#endif
 #endif
     info = f_info;
     return;
@@ -516,16 +474,11 @@ inline doublereal ct_dgecon(const char norm, size_t n, doublereal* a, size_t lda
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
     doublereal rcond;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGECON_(&cnorm, &f_n a, &f_lda, &anorm, &rcond, work, iwork, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGECON_(&cnorm, &f_n, a, &f_lda, &anorm, &rcond, work, iwork, &f_info, trsize);
 #else
     _DGECON_(&cnorm, trsize, &f_n, a, &f_lda, &anorm, &rcond, work, iwork, &f_info);
-#endif
 #endif
     info = f_info;
     return rcond;
@@ -545,16 +498,11 @@ inline doublereal ct_dgbcon(const char norm, size_t n, size_t kl, size_t ku,
     integer f_ldab = static_cast<integer>(ldab);
     integer f_info = 0;
     doublereal rcond;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGBCON_(&cnorm, &f_n , &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGBCON_(&cnorm, &f_n, &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info, trsize);
 #else
     _DGBCON_(&cnorm, trsize, &f_n, &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info);
-#endif
 #endif
     info = f_info;
     return rcond;
@@ -571,16 +519,11 @@ inline doublereal ct_dlange(const char norm, size_t m, size_t n, doublereal* a, 
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     doublereal anorm;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    anorm = _DLANGE_(&cnorm, &f_m, &f_n a, &f_lda, work);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     anorm = _DLANGE_(&cnorm, &f_m, &f_n, a, &f_lda, work, trsize);
 #else
     anorm = _DLANGE_(&cnorm, trsize, &f_m, &f_n, a, &f_lda, work);
-#endif
 #endif
     return anorm;
 }
