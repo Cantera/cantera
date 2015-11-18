@@ -509,9 +509,8 @@ public:
      * flags with total moles in each phase.
      */
     double vcs_tmoles();
-#ifdef DEBUG_MODE
+
     void check_tmoles() const;
-#endif
 
     //! This subroutine calculates reaction free energy changes for
     //! all noncomponent formation reactions.
@@ -1291,11 +1290,8 @@ private:
      */
     double l2normdg(double dg[]) const;
 
-#ifdef DEBUG_MODE
-
     //! Print out and check the elemental abundance vector
     void prneav() const;
-#endif
 
     void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
 
@@ -1895,8 +1891,6 @@ public:
      *     * 5  each iteration in solve_TP gets a report with one line per species
      *     * 6  Each decision in solve_TP gets a line per species in addition to 4
      *     * 10 Additionally Hessian matrix is printed out
-     *
-     *   Levels of printing above 4 are only accessible when DEBUG_MODE is turned on
      */
     int m_debug_print_lvl;
 

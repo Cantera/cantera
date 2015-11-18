@@ -205,13 +205,11 @@ doublereal PDSS_HKFT::enthalpy_mole() const
     return h;
 }
 
-#ifdef DEBUG_MODE
 doublereal PDSS_HKFT::enthalpy_mole2() const
 {
     double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * 1.0E3 * 4.184;
     return deltaH() + enthTRPR;
 }
-#endif
 
 doublereal PDSS_HKFT::intEnergy_mole() const
 {
@@ -634,7 +632,6 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 
-#ifdef DEBUG_MODE
 doublereal PDSS_HKFT::deltaH() const
 {
     doublereal pbar = m_pres * 1.0E-5;
@@ -683,7 +680,6 @@ doublereal PDSS_HKFT::deltaH() const
     // Convert to Joules / kmol
     return deltaH_calgmol * 1.0E3 * 4.184;
 }
-#endif
 
 doublereal PDSS_HKFT::deltaG() const
 {

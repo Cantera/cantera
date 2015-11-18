@@ -205,24 +205,18 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
     doublereal FephaseMax = -1.0E30;
     doublereal Fephase = -1.0E30;
 
-#ifdef DEBUG_MODE
     char anote[128];
     if (m_debug_print_lvl >= 2) {
         plogf("   --- vcs_popPhaseID() called\n");
         plogf("   ---   Phase                 Status       F_e        MoleNum\n");
         plogf("   --------------------------------------------------------------------------\n");
     }
-#else
-    char* anote;
-#endif
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         int existence = Vphase->exists();
-        if (DEBUG_MODE_ENABLED) {
-            strcpy(anote, "");
-        }
+        strcpy(anote, "");
         if (existence > 0) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf("  ---    %18s %5d           NA       %11.3e\n",
                       Vphase->PhaseName, existence, m_tPhaseMoles_old[iph]);
             }
@@ -234,24 +228,20 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                 doublereal deltaGRxn = m_deltaGRxn_old[irxn];
                 Fephase = exp(-deltaGRxn) - 1.0;
                 if (Fephase > 0.0) {
-                    if (DEBUG_MODE_ENABLED) {
-                        strcpy(anote," (ready to be birthed)");
-                    }
+                    strcpy(anote," (ready to be birthed)");
                     if (Fephase > FephaseMax) {
                         iphasePop = iph;
                         FephaseMax = Fephase;
-                        if (DEBUG_MODE_ENABLED) {
-                            strcpy(anote," (chosen to be birthed)");
-                        }
+                        strcpy(anote," (chosen to be birthed)");
                     }
                 }
-                if (DEBUG_MODE_ENABLED && Fephase < 0.0) {
+                if (Fephase < 0.0) {
                     strcpy(anote," (not stable)");
                     AssertThrowMsg(m_tPhaseMoles_old[iph] <= 0.0,
                         "VCS_SOLVE::vcs_popPhaseID", "shouldn't be here");
                 }
 
-                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                if (m_debug_print_lvl >= 2) {
                     plogf("  ---    %18s %5d %10.3g %10.3g %s\n",
                           Vphase->PhaseName, existence, Fephase,
                           m_tPhaseMoles_old[iph], anote);
@@ -268,13 +258,13 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                     } else {
                         FephaseMax = std::max(FephaseMax, Fephase);
                     }
-                    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                    if (m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d  %11.3g %11.3g\n",
                               Vphase->PhaseName, existence, Fephase,
                               m_tPhaseMoles_old[iph]);
                     }
                 } else {
-                    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                    if (m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d   blocked  %11.3g\n",
                               Vphase->PhaseName,
                               existence, m_tPhaseMoles_old[iph]);
@@ -290,7 +280,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 
     // Insert logic here to figure out if phase pops are linked together. Only
     // do one linked pop at a time.
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("   ---------------------------------------------------------------------\n");
     }
     return iphasePop;
@@ -312,7 +302,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 
     AssertThrowMsg(!Vphase->exists(), "VCS_SOLVE::vcs_popPhaseRxnStepSizes",
                    "called for a phase that exists!");
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("  ---  vcs_popPhaseRxnStepSizes() called to pop phase %s %d into existence\n",
               Vphase->PhaseName, iphasePop);
     }
@@ -494,13 +484,13 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 
     if (doSuccessiveSubstitution) {
         int KP = 0;
-        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        if (m_debug_print_lvl >= 2) {
             plogf("   --- vcs_phaseStabilityTest() called\n");
             plogf("   ---  Its   X_old[%2d]  FracDel_old[%2d]  deltaF[%2d] FracDel_new[%2d]"
                   "  normUpdate     damp     FuncPhaseStability\n", KP, KP, KP, KP);
             plogf("   --------------------------------------------------------------"
                   "--------------------------------------------------------\n");
-        } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
+        } else if (m_debug_print_lvl == 1) {
             plogf("   --- vcs_phaseStabilityTest() called for phase %d\n", iph);
         }
 
@@ -679,7 +669,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 fracDelta_new[k] = fracDelta_old[k] + damp * delFrac[k];
             }
 
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf("  --- %3d %12g %12g %12g %12g %12g %12g %12g\n", its, X_est[KP], fracDelta_old[KP],
                       delFrac[KP], fracDelta_new[KP], normUpdate, damp, funcPhaseStability);
             }
@@ -703,10 +693,10 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     } else {
         throw CanteraError("VCS_SOLVE::vcs_phaseStabilityTest", "not done yet");
     }
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("  ------------------------------------------------------------"
               "-------------------------------------------------------------\n");
-    } else if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
+    } else if (m_debug_print_lvl == 1) {
         if (funcPhaseStability > 0.0) {
             plogf("  --- phase %d with func = %g is to be born\n", iph, funcPhaseStability);
         } else {

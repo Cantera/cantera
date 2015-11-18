@@ -105,7 +105,7 @@ void VCS_SOLVE::vcs_nondim_TP()
 
         if (m_totalMoleScale != 1.0) {
             if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                if (m_debug_print_lvl >= 2) {
                     plogf("  --- vcs_nondim_TP() called: USING A MOLE SCALE OF %g until further notice", m_totalMoleScale);
                     plogendl();
                 }
@@ -149,7 +149,7 @@ void VCS_SOLVE::vcs_redim_TP()
     }
     if (m_totalMoleScale != 1.0) {
         if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf("  --- vcs_redim_TP() called: getting rid of mole scale of %g", m_totalMoleScale);
                 plogendl();
             }

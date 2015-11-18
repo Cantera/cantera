@@ -34,7 +34,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     size_t ik, irxn;
     double test = -1.0E-10;
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("   --- call setInitialMoles\n");
     }
 
@@ -59,13 +59,13 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     }
 
     while (redo) {
         if (!vcs_elabcheck(0)) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
                 plogf(" --- seMolesLinProg  Call vcs_elcorr to attempt fix\n");
             }
@@ -88,7 +88,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             return retn;
         }
 
-        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        if (m_debug_print_lvl >= 2) {
             plogf("iteration %d\n", iter);
         }
         redo = false;
@@ -124,7 +124,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                     // if a component has nearly zero moles, redo
                     // with a new set of components
                     if (!redo && delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
-                        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                        if (m_debug_print_lvl >= 2) {
                             plogf("   --- Component too small: %s\n", m_speciesName[jcomp]);
                         }
                         redo = true;
@@ -152,12 +152,12 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             }
         }
 
-        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        if (m_debug_print_lvl >= 2) {
             printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
+    if (m_debug_print_lvl == 1) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         plogf("   --- setInitialMoles end\n");
     }

@@ -432,7 +432,6 @@ private:
      */
     void s_update_dlnActCoeff_dX_() const;
 
-#ifdef DEBUG_MODE
 public:
     //! Utility routine that calculates a literature expression
     /*!
@@ -442,7 +441,6 @@ public:
      *      nonideal term and mf term
      */
     void Vint(double& VintOut, double& voltsOut);
-#endif
 
 protected:
     //! number of binary interaction expressions

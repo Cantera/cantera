@@ -453,15 +453,13 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
     for (size_t k = 0; k < numNeutralMoleculeSpecies_; k++) {
         NeutralMolecMoleFractions_[k] = 0.0;
     }
-    if (DEBUG_MODE_ENABLED) {
-        sum = -1.0;
-        for (size_t k = 0; k < m_kk; k++) {
-            sum += moleFractions_[k];
-        }
-        if (fabs(sum) > 1.0E-11) {
-            throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
-                               "molefracts don't sum to one: {}", sum);
-        }
+    sum = -1.0;
+    for (size_t k = 0; k < m_kk; k++) {
+        sum += moleFractions_[k];
+    }
+    if (fabs(sum) > 1.0E-11) {
+        throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
+                           "molefracts don't sum to one: {}", sum);
     }
 
     switch (ionSolnType_) {
@@ -494,28 +492,26 @@ void IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions() const
             NeutralMolecMoleFractions_[jNeut] += moleFractions_[icat] / fmij;
         }
 
-        if (DEBUG_MODE_ENABLED) {
+        for (size_t k = 0; k < m_kk; k++) {
+            moleFractionsTmp_[k] = moleFractions_[k];
+        }
+        for (jNeut = 0; jNeut < numNeutralMoleculeSpecies_; jNeut++) {
             for (size_t k = 0; k < m_kk; k++) {
-                moleFractionsTmp_[k] = moleFractions_[k];
+                fmij = fm_neutralMolec_ions_[k + jNeut * m_kk];
+                moleFractionsTmp_[k] -= fmij * NeutralMolecMoleFractions_[jNeut];
             }
-            for (jNeut = 0; jNeut < numNeutralMoleculeSpecies_; jNeut++) {
-                for (size_t k = 0; k < m_kk; k++) {
-                    fmij = fm_neutralMolec_ions_[k + jNeut * m_kk];
-                    moleFractionsTmp_[k] -= fmij * NeutralMolecMoleFractions_[jNeut];
-                }
-            }
-            for (size_t k = 0; k < m_kk; k++) {
-                if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
-                    // Check to see if we have in fact found the inverse.
-                    if (anionList_[0] != k) {
+        }
+        for (size_t k = 0; k < m_kk; k++) {
+            if (fabs(moleFractionsTmp_[k]) > 1.0E-13) {
+                // Check to see if we have in fact found the inverse.
+                if (anionList_[0] != k) {
+                    throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
+                                       "neutral molecule calc error");
+                } else {
+                    // For the single anion case, we will allow some slippage
+                    if (fabs(moleFractionsTmp_[k]) > 1.0E-5) {
                         throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
-                                           "neutral molecule calc error");
-                    } else {
-                        // For the single anion case, we will allow some slippage
-                        if (fabs(moleFractionsTmp_[k]) > 1.0E-5) {
-                            throw CanteraError("IonsFromNeutralVPSSTP::calcNeutralMoleculeMoleFractions",
-                                               "neutral molecule calc error - anion");
-                        }
+                                           "neutral molecule calc error - anion");
                     }
                 }
             }

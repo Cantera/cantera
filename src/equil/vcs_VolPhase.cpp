@@ -430,9 +430,10 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
             molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_old[0];
         } else if (stateCalc == VCS_STATECALC_NEW) {
             molesSpeciesVCS = &m_owningSolverObject->m_molNumSpecies_new[0];
-        } else if (DEBUG_MODE_ENABLED) {
-            throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");        }
-    } else if (DEBUG_MODE_ENABLED && m_owningSolverObject) {
+        } else {
+            throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
+        }
+    } else if (m_owningSolverObject) {
         if (stateCalc == VCS_STATECALC_OLD) {
             if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_old[0]) {
                 throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
@@ -890,20 +891,16 @@ void vcs_VolPhase::setExistence(const int existence)
 {
     if (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE) {
         if (v_totalMoles != 0.0) {
-            if (DEBUG_MODE_ENABLED) {
-                throw CanteraError("vcs_VolPhase::setExistence",
-                                   "setting false existence for phase with moles");
-            } else {
-                v_totalMoles = 0.0;
-            }
+            throw CanteraError("vcs_VolPhase::setExistence",
+                               "setting false existence for phase with moles");
         }
-    } else if (DEBUG_MODE_ENABLED && m_totalMolesInert == 0.0) {
+    } else if (m_totalMolesInert == 0.0) {
         if (v_totalMoles == 0.0 && (!m_singleSpecies || m_phiVarIndex != 0)) {
             throw CanteraError("vcs_VolPhase::setExistence",
                     "setting true existence for phase with no moles");
         }
     }
-    if (DEBUG_MODE_ENABLED && m_singleSpecies && m_phiVarIndex == 0 && (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE)) {
+    if (m_singleSpecies && m_phiVarIndex == 0 && (existence == VCS_PHASE_EXIST_NO || existence == VCS_PHASE_EXIST_ZEROEDPHASE)) {
         throw CanteraError("vcs_VolPhase::setExistence",
                 "Trying to set existence of an electron phase to false");
     }

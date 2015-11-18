@@ -579,9 +579,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     double Temp = m_mix->temperature();
     double pres = m_mix->pressure();
     vector_fp& mf = m_vprob.mf;
-#ifdef DEBUG_MODE
     double* fe = &m_vprob.m_gibbsSpecies[0];
-#endif
     vector_fp VolPM;
     vector_fp activity;
     vector_fp ac;
@@ -692,7 +690,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
             }
         }
 
-#ifdef DEBUG_MODE
         // Check consistency: These should be equal
         tref.getChemPotentials(fe+istart);
         for (size_t k = 0; k < nSpecies; k++) {
@@ -702,7 +699,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                 throw CanteraError("vcs_MultiPhaseEquil::reportCSV", "incompatibility!");
             }
         }
-#endif
 
     }
     fclose(FP);

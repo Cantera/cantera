@@ -440,23 +440,15 @@ void GasTransport::setupMM()
     }
 
     // initialize the collision integral calculator for the desired T* range
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** collision_integrals ***\n");
-    }
+    debuglog("*** collision_integrals ***\n", m_log_level);
     MMCollisionInt integrals;
     integrals.init(tstar_min, tstar_max, m_log_level);
     fitCollisionIntegrals(integrals);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** end of collision_integrals ***\n");
-    }
+    debuglog("*** end of collision_integrals ***\n", m_log_level);
     // make polynomial fits
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** property fits ***\n");
-    }
+    debuglog("*** property fits ***\n", m_log_level);
     fitProperties(integrals);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** end of property fits ***\n");
-    }
+    debuglog("*** end of property fits ***\n", m_log_level);
 }
 
 void GasTransport::getTransportData()
@@ -514,7 +506,7 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
 
     // Chemkin fits to sixth order polynomials
     int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelog("tstar_fits\n"
                  "fits to A*, B*, and C* vs. log(T*).\n"
                  "These are done only for the required dstar(j,k) values.\n\n");
@@ -578,13 +570,13 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     vector_fp c(degree + 1), c2(degree + 1);
 
     // fit the pure-species viscosity and thermal conductivity for each species
-    if (DEBUG_MODE_ENABLED && m_log_level && m_log_level < 2) {
+    if (m_log_level && m_log_level < 2) {
         writelog("*** polynomial coefficients not printed (log_level < 2) ***\n");
     }
     double sqrt_T, visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelog("Polynomial fits for viscosity:\n");
         if (m_mode == CK_Mode) {
             writelog("log(viscosity) fit to cubic polynomial in log(T)\n");
@@ -695,11 +687,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         m_visccoeffs.push_back(c);
         m_condcoeffs.push_back(c2);
 
-        if (DEBUG_MODE_ENABLED && m_log_level >= 2) {
+        if (m_log_level >= 2) {
             writelog(m_thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
         }
     }
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
         writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
         writelog("\nPolynomial fits for conductivity:\n");
@@ -775,13 +767,13 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
             m_diffcoeffs.push_back(c);
-            if (DEBUG_MODE_ENABLED && m_log_level >= 2) {
+            if (m_log_level >= 2) {
                 writelog(m_thermo->speciesName(k) + "__" +
                          m_thermo->speciesName(j) + ": [" + vec2str(c) + "]\n");
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelogf("Maximum binary diffusion coefficient absolute error:"
                  "  %12.6g\n", mxerr);
         writelogf("Maximum binary diffusion coefficient relative error:"

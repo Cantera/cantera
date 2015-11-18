@@ -230,13 +230,11 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
 
         // At this point we can check against the mole fraction vector of the
         // underlying LatticePhase objects and get the same answer.
-        if (DEBUG_MODE_ENABLED) {
-            m_lattice[n]->getMoleFractions(&m_x[strt]);
-            for (size_t k = 0; k < nsp; k++) {
-                if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
-                    throw CanteraError("LatticeSolidPhase::getMoleFractions()",
-                                       "internal error");
-                }
+        m_lattice[n]->getMoleFractions(&m_x[strt]);
+        for (size_t k = 0; k < nsp; k++) {
+            if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
+                throw CanteraError("LatticeSolidPhase::getMoleFractions()",
+                                   "internal error");
             }
         }
         strt += nsp;

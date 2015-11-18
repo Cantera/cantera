@@ -94,7 +94,6 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 {
     int retn = 0;
 
-#ifdef DEBUG_MODE
     vector_fp ga_save(m_elemAbundances);
     if (m_debug_print_lvl >= 2) {
         plogf("   --- vcsc_elcorr: Element abundances correction routine");
@@ -112,7 +111,6 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         l2before += x[i] * x[i];
     }
     l2before = sqrt(l2before/m_numElemConstraints);
-#endif
 
     // Special section to take out single species, single component,
     // moles. These are species which have non-zero entries in the
@@ -190,7 +188,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                     if (atomComp > 0.0) {
                         double maxPermissible = m_elemAbundancesGoal[i] / atomComp;
                         if (m_molNumSpecies_old[kspec] > maxPermissible) {
-                            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 3) {
+                            if (m_debug_print_lvl >= 3) {
                                 plogf("  ---  vcs_elcorr: Reduced species %s from %g to %g "
                                       "due to %s max bounds constraint\n",
                                       m_speciesName[kspec], m_molNumSpecies_old[kspec],
@@ -205,7 +203,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                                 } else {
                                     m_speciesStatus[kspec] = VCS_SPECIES_ACTIVEBUTZERO;
                                 }
-                                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                                if (m_debug_print_lvl >= 2) {
                                     plogf("  ---  vcs_elcorr: Zeroed species %s and changed "
                                           "status to %d due to max bounds constraint\n",
                                           m_speciesName[kspec], m_speciesStatus[kspec]);
@@ -422,7 +420,6 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 L_CLEANUP:
     ;
     vcs_tmoles();
-#ifdef DEBUG_MODE
     double l2after = 0.0;
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         l2after += pow(m_elemAbundances[i] - m_elemAbundancesGoal[i], 2);
@@ -439,7 +436,6 @@ L_CLEANUP:
         plogf("   ---            Diff_Norm:         %20.12E %20.12E\n",
               l2before, l2after);
     }
-#endif
     return retn;
 }
 

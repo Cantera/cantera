@@ -56,7 +56,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         }
     }
 
-    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
+    if (BasisOptimize_print_lvl >= 1) {
         writelog("   ");
         for (i=0; i<77; i++) {
             writelog("-");
@@ -118,9 +118,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 
     // For debugging purposes keep an unmodified copy of the array.
     vector_fp molNumBase;
-    if (DEBUG_MODE_ENABLED) {
-        molNumBase = molNum;
-    }
+    molNumBase = molNum;
     double molSave = 0.0;
 
     size_t jr = 0;
@@ -157,9 +155,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 
             // Assign a small negative number to the component that we have
             // just found, in order to take it out of further consideration.
-#ifdef DEBUG_MODE
             molSave = molNum[kk];
-#endif
             molNum[kk] = USEDBEFORE;
 
             // CHECK LINEAR INDEPENDENCE WITH PREVIOUS SPECIES
@@ -208,7 +204,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 
         // REARRANGE THE DATA
         if (jr != k) {
-            if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
+            if (BasisOptimize_print_lvl >= 1) {
                 kk = orderVectorSpecies[k];
                 writelogf("   ---   %-12.12s", mphase->speciesName(kk));
                 jj = orderVectorSpecies[jr];
@@ -283,7 +279,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     ct_dgetrs(ctlapack::NoTranspose, nComponents, nNonComponents, &sm[0], ne,
               &ipiv[0], &formRxnMatrix[0], ne, info);
 
-    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl >= 1) {
+    if (BasisOptimize_print_lvl >= 1) {
         writelog("   ---\n");
         writelogf("   ---  Number of Components = %d\n", nComponents);
         writelog("   ---  Formula Matrix:\n");
@@ -379,7 +375,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
     size_t nspecies = mphase->nSpecies();
 
     double test = -1.0E10;
-    if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
+    if (BasisOptimize_print_lvl > 0) {
         writelog("   ");
         for (i=0; i<77; i++) {
             writelog("-");
@@ -456,7 +452,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
             if (k == nelements) {
                 // When we are here, there is an error usually.
                 // We haven't found the number of elements necessary.
-                if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
+                if (BasisOptimize_print_lvl > 0) {
                     writelogf("Error exit: returning with nComponents = %d\n", jr);
                 }
                 throw CanteraError("ElemRearrange", "Required number of elements not found.");
@@ -517,7 +513,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
         }
         // REARRANGE THE DATA
         if (jr != k) {
-            if (DEBUG_MODE_ENABLED && BasisOptimize_print_lvl > 0) {
+            if (BasisOptimize_print_lvl > 0) {
                 kk = orderVectorElements[k];
                 writelog("   ---   ");
                 writelogf("%-2.2s", mphase->elementName(kk));

@@ -362,11 +362,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     // NPhase = number of phases
     m_numPhases = nph;
 
-#ifdef DEBUG_MODE
     m_debug_print_lvl = pub->vcs_debug_print_lvl;
-#else
-    m_debug_print_lvl = std::min(2, pub->vcs_debug_print_lvl);
-#endif
 
     // FormulaMatrix[] -> Copy the formula matrix over
     for (size_t i = 0; i < nspecies; i++) {

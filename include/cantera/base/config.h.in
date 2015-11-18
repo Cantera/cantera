@@ -8,19 +8,6 @@
 // Just the major + minor version (i.e. 2.2 instead of 2.2.0)
 %(CANTERA_SHORT_VERSION)s
 
-//------------------------ Development flags ------------------//
-//
-// Compile in additional debug printing where available.
-// Note, the printing may need to be turned on via a switch.
-// This just compiles in the code.
-%(DEBUG_MODE)s
-
-#ifdef DEBUG_MODE
-#define DEBUG_MODE_ENABLED 1
-#else
-#define DEBUG_MODE_ENABLED 0
-#endif
-
 //------------------------ Fortran settings -------------------//
 
 // define types doublereal, integer, and ftnlen to match the

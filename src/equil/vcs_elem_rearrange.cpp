@@ -21,7 +21,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                                   double* const sm, double* const ss)
 {
     size_t ncomponents = m_numComponents;
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("   ");
         for (size_t i=0; i<77; i++) {
             plogf("-");
@@ -122,7 +122,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         }
         // REARRANGE THE DATA
         if (jr != k) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf("   ---   ");
                 plogf("%-2.2s", m_elementName[k]);
                 plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);

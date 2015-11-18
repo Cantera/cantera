@@ -571,7 +571,6 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     resizeNumInteractions(numBinaryInteractions_);
 }
 
-#ifdef DEBUG_MODE
 void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
     double XA;
@@ -612,5 +611,5 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     VintOut = Volts;
     voltsOut = Volts + termp;
 }
-#endif
+
 }

@@ -391,11 +391,6 @@ config_options = [
      'Compilation options for the Fortran (90) compiler.',
      '-O3'),
     BoolVariable(
-        'debug_verbose',
-        """Enable extra printing to aid in debugging. This code is marked
-            by the preprocessor macros DEBUG_MODE and DEBUG_MODE_ENABLED.""",
-        False),
-    BoolVariable(
         'coverage',
         """Enable collection of code coverage information with gcov.
            Available only when compiling with gcc.""",
@@ -1200,8 +1195,6 @@ def cdefine(definevar, configvar, comp=True, value=1):
         configh[definevar] = value
     else:
         configh[definevar] = None
-
-cdefine('DEBUG_MODE', 'debug_verbose')
 
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None

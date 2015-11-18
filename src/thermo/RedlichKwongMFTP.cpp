@@ -169,7 +169,6 @@ doublereal RedlichKwongMFTP::cv_mole() const
 
 doublereal RedlichKwongMFTP::pressure() const
 {
-#ifdef DEBUG_MODE
     _updateReferenceStateThermo();
 
     //  Get a copy of the private variables stored in the State object
@@ -179,7 +178,7 @@ doublereal RedlichKwongMFTP::pressure() const
     if (fabs(pp -m_Pcurrent) > 1.0E-5 * fabs(m_Pcurrent)) {
         throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
     }
-#endif
+
     return m_Pcurrent;
 }
 

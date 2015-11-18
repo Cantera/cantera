@@ -86,7 +86,6 @@ public:
 
     virtual doublereal enthalpy_mole() const;
 
-#ifdef DEBUG_MODE
     //! Return the molar enthalpy in units of J kmol-1
     /*!
      * Returns the species standard state enthalpy in J kmol-1 at the
@@ -97,7 +96,6 @@ public:
      * @return returns the species standard state enthalpy in J kmol-1
      */
     doublereal enthalpy_mole2() const;
-#endif
 
     virtual doublereal intEnergy_mole() const;
     virtual doublereal entropy_mole() const;
@@ -221,14 +219,12 @@ private:
      */
     doublereal deltaS() const;
 
-#ifdef DEBUG_MODE
     //! Routine that actually calculates the enthalpy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is an extra routine that was added to check the arithmetic
      */
     doublereal deltaH() const;
-#endif
 
     //! Internal formula for the calculation of a_g()
     /*!

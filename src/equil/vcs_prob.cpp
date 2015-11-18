@@ -460,16 +460,6 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
             }
         }
 
-        if (DEBUG_MODE_ENABLED) {
-            // Check consistency: These should be equal
-            tp->getChemPotentials(&m_gibbsSpecies[0]+istart);
-            for (size_t k = 0; k < nSpeciesPhase; k++) {
-                if (!vcs_doubleEqual(m_gibbsSpecies[istart+k], mu[k])) {
-                    fclose(FP);
-                    throw CanteraError("VCS_PROB::reportCSV", "incompatibility");
-                }
-            }
-        }
         iK += nSpeciesPhase;
     }
     fclose(FP);

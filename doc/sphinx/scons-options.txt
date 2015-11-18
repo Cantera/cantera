@@ -132,11 +132,6 @@ running 'scons build'. The format of this file is:
     Compilation options for the Fortran (90) compiler.
     - default: '-O3'
 
-* debug_verbose: [ yes | no ]
-    Enable extra printing to aid in debugging. This code is marked by
-    the preprocessor macros DEBUG_MODE and DEBUG_MODE_ENABLED.
-    - default: 'no'
-
 * coverage: [ yes | no ]
     Enable collection of code coverage information with gcov. Available
     only when compiling with gcc.

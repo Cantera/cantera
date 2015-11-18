@@ -216,9 +216,7 @@ double MMCollisionInt::cstar_table[39*8] = {
 void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
 {
     m_loglevel = log_level;
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
-        writelog("Collision Integral Polynomial Fits\n");
-    }
+    debuglog("Collision Integral Polynomial Fits\n", m_loglevel > 0);
     m_nmin = -1;
     m_nmax = -1;
 
@@ -234,14 +232,14 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
         m_nmin = 0;
         m_nmax = 36;
     }
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
+    if (m_loglevel > 0) {
         writelogf("T*_min = %g\n", tstar[m_nmin + 1]);
         writelogf("T*_max = %g\n", tstar[m_nmax + 1]);
     }
     m_logTemp.resize(37);
     doublereal rmserr, e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
+    if (m_loglevel > 0) {
         writelog("Collision integral fits at each tabulated T* vs. delta*.\n"
                  "These polynomial fits are used to interpolate between "
                  "columns (delta*)\n in the Monchick and Mason tables."
@@ -256,7 +254,7 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
         vector_fp c(DeltaDegree+1);
 
         rmserr = fitDelta(0, i, DeltaDegree, c.data());
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        if (log_level > 3) {
             writelogf("\ndelta* fit at T* = %.6g\n", tstar[i+1]);
             writelog("omega22 = [" + vec2str(c) + "]\n");
         }
@@ -265,26 +263,26 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
 
         rmserr = fitDelta(1, i, DeltaDegree, c.data());
         m_apoly.push_back(c);
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        if (log_level > 3) {
             writelog("A* = [" + vec2str(c) + "]\n");
         }
         ea = std::max(ea, rmserr);
 
         rmserr = fitDelta(2, i, DeltaDegree, c.data());
         m_bpoly.push_back(c);
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        if (log_level > 3) {
             writelog("B* = [" + vec2str(c) + "]\n");
         }
         eb = std::max(eb, rmserr);
 
         rmserr = fitDelta(3, i, DeltaDegree, c.data());
         m_cpoly.push_back(c);
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        if (log_level > 3) {
             writelog("C* = [" + vec2str(c) + "]\n");
         }
         ec = std::max(ec, rmserr);
 
-        if (DEBUG_MODE_ENABLED && log_level > 0) {
+        if (log_level > 0) {
             writelogf("max RMS errors in fits vs. delta*:\n"
                       "      omega_22 =     %12.6g \n"
                       "      A*       =     %12.6g \n"
@@ -433,7 +431,7 @@ void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
     }
     w[0]= -1.0;
     rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, o22);
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0 && rmserr > 0.01) {
+    if (m_loglevel > 0 && rmserr > 0.01) {
         writelogf("Warning: RMS error = %12.6g in omega_22 fit"
                   "with delta* = %12.6g\n", rmserr, deltastar);
     }
@@ -477,7 +475,7 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
     }
     w[0]= -1.0;
     rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, c);
-    if (DEBUG_MODE_ENABLED && m_loglevel > 2) {
+    if (m_loglevel > 2) {
         writelogf("\nT* fit at delta* = %.6g\n", deltastar);
 
         writelog("astar = [" + vec2str(vector_fp(a, a+degree+1))+ "]\n");
