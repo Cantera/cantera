@@ -489,7 +489,7 @@ config_options = [
         'optimize',
         """Enable extra compiler optimizations specified by the
            "optimize_flags" variable, instead of the flags specified by the
-           "debug_flags" variable.""",
+           "no_optimize_flags" variable.""",
         True),
     ('optimize_flags',
      'Additional compiler flags passed to the C/C++ compiler when optimize=yes.',

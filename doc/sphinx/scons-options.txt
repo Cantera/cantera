@@ -235,7 +235,7 @@ running 'scons build'. The format of this file is:
 * optimize: [ yes | no ]
     Enable extra compiler optimizations specified by the
     "optimize_flags" variable, instead of the flags specified by the
-    "debug_flags" variable.
+    "no_optimize_flags" variable.
     - default: 'yes'
 
 * optimize_flags: [ string ]
