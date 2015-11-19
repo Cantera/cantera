@@ -33,10 +33,7 @@ else:
 localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
 # Add build/lib in order to find Cantera shared library
-if localenv['ENV'].get('LD_LIBRARY_PATH'):
-    localenv['ENV']['LD_LIBRARY_PATH'] += os.pathsep + Dir('#build/lib').abspath
-else:
-    localenv['ENV']['LD_LIBRARY_PATH'] = Dir('#build/lib').abspath
+localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
 PASSED_FILES = {}
 
