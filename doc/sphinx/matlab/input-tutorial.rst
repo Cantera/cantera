@@ -59,4 +59,4 @@ must also be passed as arguments to importInterface.
 Converting CK-format files
 --------------------------
 
-See :ref:`sec-ck-format-conversion` in the Working with Input Files documentation.
+See :ref:`sec-ck-format-conversion` in the :ref:`sec-input-files` documentation.

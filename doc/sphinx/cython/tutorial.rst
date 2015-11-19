@@ -227,7 +227,7 @@ surface reactions must also be passed as arguments to `Interface`.
 Converting CK-format files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See :ref:`sec-ck-format-conversion` in the Working with Input Files documentation.
+See :ref:`sec-ck-format-conversion` in the :ref:`sec-input-files` documentation.
 
 
 Getting Help
