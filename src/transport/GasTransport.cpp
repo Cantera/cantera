@@ -465,23 +465,28 @@ void GasTransport::getTransportData()
 {
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         shared_ptr<Species> s = m_thermo->species(m_thermo->speciesName(k));
-        const GasTransportData& sptran =
-            dynamic_cast<GasTransportData&>(*s->transport.get());
-        if (sptran.geometry == "atom") {
+        const GasTransportData* sptran =
+            dynamic_cast<GasTransportData*>(s->transport.get());
+        if (!sptran) {
+            throw CanteraError("GasTransport::getTransportData",
+                "Missing gas-phase transport data for species '" + s->name + "'");
+        }
+
+        if (sptran->geometry == "atom") {
             m_crot[k] = 0.0;
-        } else if (sptran.geometry == "linear") {
+        } else if (sptran->geometry == "linear") {
             m_crot[k] = 1.0;
-        } else if (sptran.geometry == "nonlinear") {
+        } else if (sptran->geometry == "nonlinear") {
             m_crot[k] = 1.5;
         }
 
-        m_sigma[k] = sptran.diameter;
-        m_eps[k] = sptran.well_depth;
-        m_dipole(k,k) = sptran.dipole;
-        m_polar[k] = (sptran.dipole > 0);
-        m_alpha[k] = sptran.polarizability;
-        m_zrot[k] = sptran.rotational_relaxation;
-        m_w_ac[k] = sptran.acentric_factor;
+        m_sigma[k] = sptran->diameter;
+        m_eps[k] = sptran->well_depth;
+        m_dipole(k,k) = sptran->dipole;
+        m_polar[k] = (sptran->dipole > 0);
+        m_alpha[k] = sptran->polarizability;
+        m_zrot[k] = sptran->rotational_relaxation;
+        m_w_ac[k] = sptran->acentric_factor;
     }
 }
 
