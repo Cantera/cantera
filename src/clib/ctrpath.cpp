@@ -235,7 +235,6 @@ extern "C" {
             } else {
                 DiagramCabinet::item(i).writeData(f);
             }
-            f.close();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

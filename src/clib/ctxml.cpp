@@ -95,7 +95,6 @@ extern "C" {
                                    "file "+string(file)+" not found.");
             }
             XmlCabinet::item(i).build(f);
-            f.close();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

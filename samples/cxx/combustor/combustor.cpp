@@ -129,7 +129,6 @@ void runexample()
         }
         f << std::endl;
     }
-    f.close();
 }
 
 int main()

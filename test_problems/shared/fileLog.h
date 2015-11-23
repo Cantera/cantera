@@ -18,10 +18,6 @@ public:
         m_fs << std::endl;
     }
 
-    virtual ~fileLog() {
-        m_fs.close();
-    }
-
     std::string m_fName;
     std::fstream m_fs;
 };

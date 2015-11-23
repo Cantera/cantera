@@ -435,7 +435,6 @@ std::string Application::findInputFile(const std::string& name)
             inname = dirs[i] + "/" + name;
             std::ifstream fin(inname);
             if (fin) {
-                fin.close();
                 return inname;
             }
         }

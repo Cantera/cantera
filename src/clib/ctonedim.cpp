@@ -554,7 +554,6 @@ extern "C" {
             } else {
                 ofstream fout(fname);
                 SimCabinet::item(i).showSolution(fout);
-                fout.close();
             }
             return 0;
         } catch (...) {

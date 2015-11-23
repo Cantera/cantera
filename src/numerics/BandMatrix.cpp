@@ -240,7 +240,6 @@ int BandMatrix::factor()
         m_factored = false;
         ofstream fout("bandmatrix.csv");
         fout << *this << endl;
-        fout.close();
     }
     return info;
 }
@@ -270,7 +269,6 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     if (info != 0) {
         ofstream fout("bandmatrix.csv");
         fout << *this << endl;
-        fout.close();
     }
     return info;
 }
