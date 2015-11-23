@@ -375,50 +375,6 @@ WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
     }
 }
 
-void WaterPropsIAPWSphi::intCheck(doublereal tau, doublereal delta)
-{
-    tdpolycalc(tau, delta);
-    doublereal nau = phi0();
-    doublereal res = phiR();
-    doublereal res_d = phiR_d();
-    doublereal nau_d = phi0_d();
-    doublereal res_dd = phiR_dd();
-    doublereal nau_dd = phi0_dd();
-    doublereal res_t = phiR_t();
-    doublereal nau_t = phi0_t();
-    doublereal res_tt = phiR_tt();
-    doublereal nau_tt = phi0_tt();
-    doublereal res_dt = phiR_dt();
-    doublereal nau_dt = phi0_dt();
-
-    writelogf("nau    = %20.12e\t\tres    = %20.12e\n", nau, res);
-    writelogf("nau_d  = %20.12e\t\tres_d  = %20.12e\n", nau_d, res_d);
-    writelogf("nau_dd = %20.12e\t\tres_dd = %20.12e\n", nau_dd, res_dd);
-    writelogf("nau_t  = %20.12e\t\tres_t  = %20.12e\n", nau_t, res_t);
-    writelogf("nau_tt = %20.12e\t\tres_tt = %20.12e\n", nau_tt, res_tt);
-    writelogf("nau_dt = %20.12e\t\tres_dt = %20.12e\n", nau_dt, res_dt);
-}
-
-void WaterPropsIAPWSphi::check1()
-{
-    doublereal T = 500.;
-    doublereal rho = 838.025;
-    doublereal tau = T_c/T;
-    doublereal delta = rho / Rho_c;
-    writelog(" T = 500 K, rho = 838.025 kg m-3\n");
-    intCheck(tau, delta);
-}
-
-void WaterPropsIAPWSphi::check2()
-{
-    doublereal T = 647;
-    doublereal rho = 358.0;
-    doublereal tau = T_c/T;
-    doublereal delta = rho / Rho_c;
-    writelog(" T = 647 K, rho = 358.0 kg m-3\n");
-    intCheck(tau, delta);
-}
-
 void WaterPropsIAPWSphi::tdpolycalc(doublereal tau, doublereal delta)
 {
     if ((tau != TAUsave) || 1) {
