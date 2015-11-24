@@ -155,13 +155,12 @@ void ImplicitSurfChem::eval(doublereal time, doublereal* y,
 {
     updateState(y);   // synchronize the surface state(s) with y
     doublereal rs0, sum;
-    size_t loc, kstart;
+    size_t loc = 0, kstart;
     for (size_t n = 0; n < m_nsurf; n++) {
         rs0 = 1.0/m_surf[n]->siteDensity();
         m_vecKinPtrs[n]->getNetProductionRates(DATA_PTR(m_work));
         kstart = m_vecKinPtrs[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
         sum = 0.0;
-        loc = 0;
         for (size_t k = 1; k < m_nsp[n]; k++) {
             ydot[k + loc] = m_work[kstart + k] * rs0 * m_surf[n]->size(k);
             sum -= ydot[k];
