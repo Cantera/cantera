@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "cantera/base/ct_defs.h"
 #include "cantera/thermo/WaterPropsIAPWSphi.h"
 #include "cantera/thermo/WaterPropsIAPWS.h"
 
@@ -51,6 +52,16 @@ TEST_F(WaterPropsIAPWSphi_Test, check2) {
 class WaterPropsIAPWS_Test : public testing::Test
 {
 public:
+    double dPdT(double T, double P) {
+        double rho = water.density(T, P);
+        water.setState_TR(T, rho);
+        double P1 = water.pressure();
+        double T2 = T + 0.001;
+        water.setState_TR(T2, rho);
+        double P2 = water.pressure();
+        return (P2 - P1) / 0.001;
+    }
+
     WaterPropsIAPWS water;
 };
 
@@ -80,4 +91,53 @@ TEST_F(WaterPropsIAPWS_Test, triple_point_gas)
     EXPECT_NEAR(water.Gibbs(), 11.0214, 2e-4);
     EXPECT_NEAR(water.cv(), 25552.6, 2e-1);
     EXPECT_NEAR(water.cp(), 33947.1, 2e-1);
+}
+
+TEST_F(WaterPropsIAPWS_Test, normal_boiling_point)
+{
+    double T = 373.124;
+    double P = water.psat(T);
+    EXPECT_NEAR(P, 101324., 1e0);
+    double rho = water.density(T, P, WATER_LIQUID);
+    EXPECT_NEAR(rho, 958.368, 2e-3);
+    EXPECT_NEAR(water.isothermalCompressibility(), 4.901779037782e-10, 2e-21);
+
+    water.density(T, 1.001 * P, WATER_LIQUID);
+    EXPECT_NEAR(water.isothermalCompressibility(), 4.901777340771e-10, 2e-21);
+
+    rho = water.density(T, P, WATER_GAS);
+    EXPECT_NEAR(rho, 0.597651, 2e-6);
+    EXPECT_NEAR(water.isothermalCompressibility(), 1.003322591472e-05, 2e-17);
+
+    rho = water.density(T, P * 0.999, WATER_GAS);
+    EXPECT_NEAR(rho, 0.597043, 2e-6);
+    EXPECT_NEAR(water.isothermalCompressibility(), 1.004308000545e-05, 2e-17);
+}
+
+TEST_F(WaterPropsIAPWS_Test, saturation_pressure_estimate)
+{
+    vector_fp TT{273.15, 313.9999, 314.0001, 373.15, 647.25};
+    vector_fp psat{611.212, 7722.3, 7675.46, 101007, 2.2093e+07};
+
+    for (size_t i = 0; i < TT.size(); i++) {
+        double P = water.psat_est(TT[i]);
+        EXPECT_NEAR(P, psat[i], 2e-6 * psat[i]);
+    }
+}
+
+TEST_F(WaterPropsIAPWS_Test, expansion_coeffs)
+{
+    vector_fp TT{300.0, 300.0, 700.0};
+    vector_fp PP{10.0, 10.0e6, 10.0e6};
+    vector_fp alpha{0.003333433139236, -0.02277763412159, 0.002346416555069};
+    vector_fp beta{1.000020308917, 1265.572840683, 1.240519813089};
+    vector_fp beta_num{1.0000203087, 1265.46651311, 1.240519294};
+    for (size_t i = 0; i < TT.size(); i++) {
+        double rho = water.density(TT[i], PP[i], WATER_GAS);
+        water.setState_TR(TT[i], rho);
+        EXPECT_NEAR(water.coeffThermExp(), alpha[i], 2e-14);
+        EXPECT_NEAR(water.coeffPresExp(), beta[i], beta[i] * 2e-12);
+        EXPECT_NEAR(dPdT(TT[i], PP[i]) * 18.015268 / (8.314371E3 * rho),
+                    beta_num[i], 2e-10 * beta_num[i]);
+    }
 }
