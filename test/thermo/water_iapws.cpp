@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/WaterPropsIAPWSphi.h"
+#include "cantera/thermo/WaterPropsIAPWS.h"
 
 using namespace Cantera;
 
@@ -45,4 +46,38 @@ TEST_F(WaterPropsIAPWSphi_Test, check2) {
     EXPECT_NEAR(phiR_tt(), -9.960295065593e+00, 1e-11);
     EXPECT_NEAR(phi0_dt(), 0.000000000000e+00, 1e-11);
     EXPECT_NEAR(phiR_dt(), -1.332147204361e+00, 1e-11);
+}
+
+class WaterPropsIAPWS_Test : public testing::Test
+{
+public:
+    WaterPropsIAPWS water;
+};
+
+// See values on p. 395 of Wagner & Pruss.
+TEST_F(WaterPropsIAPWS_Test, triple_point_liquid)
+{
+    double T = 273.16;
+    double pres = water.psat(T);
+    EXPECT_NEAR(pres, 611.655, 2e-3);
+    EXPECT_NEAR(water.density(T, pres, WATER_LIQUID), 999.793, 2e-3);
+    EXPECT_NEAR(water.intEnergy(), 0.0, 5e-7);
+    EXPECT_NEAR(water.entropy(), 0.0, 5e-9);
+    EXPECT_NEAR(water.enthalpy(), 11.0214, 2e-4);
+    EXPECT_NEAR(water.Gibbs(), 11.0214, 2e-4);
+    EXPECT_NEAR(water.cv(), 75978.2, 2e-1);
+    EXPECT_NEAR(water.cp(), 76022.8, 2e-1);
+}
+
+TEST_F(WaterPropsIAPWS_Test, triple_point_gas)
+{
+    double T = 273.16;
+    double pres = water.psat(T);
+    EXPECT_NEAR(water.density(T, pres, WATER_GAS), 4.85458e-3, 2e-8);
+    EXPECT_NEAR(water.intEnergy(), 4.27848e7, 2e2);
+    EXPECT_NEAR(water.entropy(), 164939., 2e0);
+    EXPECT_NEAR(water.enthalpy(), 4.50547e7, 2e2);
+    EXPECT_NEAR(water.Gibbs(), 11.0214, 2e-4);
+    EXPECT_NEAR(water.cv(), 25552.6, 2e-1);
+    EXPECT_NEAR(water.cp(), 33947.1, 2e-1);
 }

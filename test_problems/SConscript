@@ -205,8 +205,6 @@ CompileAndTest('stoichSub', 'cathermo/stoichSub',
                'stoichSub', 'output_blessed.txt')
 CompileAndTest('IAPWSPres', 'cathermo/testIAPWSPres',
                'testIAPWSPres', 'output_blessed.txt')
-CompileAndTest('IAPWSTripP', 'cathermo/testIAPWSTripP',
-               'testIAPWSTripP', 'output_blessed.txt')
 CompileAndTest('WaterPDSS', 'cathermo/testWaterPDSS',
                'testWaterPDSS', 'output_blessed.txt')
 CompileAndTest('WaterSSTP', 'cathermo/testWaterTP',
