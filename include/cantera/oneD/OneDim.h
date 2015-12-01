@@ -47,7 +47,7 @@ public:
 
     /// Number of domains.
     size_t nDomains() const {
-        return m_nd;
+        return m_dom.size();
     }
 
     /// Return a reference to domain i.
@@ -60,8 +60,8 @@ public:
     //! Check that the specified domain index is in range.
     //! Throws an exception if n is greater than nDomains()-1
     void checkDomainIndex(size_t n) const {
-        if (n >= m_nd) {
-            throw IndexError("checkDomainIndex", "domains", n, m_nd-1);
+        if (n >= m_dom.size()) {
+            throw IndexError("checkDomainIndex", "domains", n, m_dom.size()-1);
         }
     }
 
@@ -69,8 +69,8 @@ public:
     //! Throws an exception if nn is less than nDomains(). Used before calls
     //! which take an array pointer.
     void checkDomainArraySize(size_t nn) const {
-        if (m_nd > nn) {
-            throw ArraySizeError("checkDomainArraySize", nn, m_nd);
+        if (m_dom.size() > nn) {
+            throw ArraySizeError("checkDomainArraySize", nn, m_dom.size());
         }
     }
 
@@ -263,9 +263,6 @@ protected:
     std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
     doublereal m_rdt; //!< reciprocal of time step
     bool m_jac_ok; //!< if true, Jacobian is current
-
-    //! number of domains
-    size_t m_nd;
 
     size_t m_bw; //!< Jacobian bandwidth
     size_t m_size; //!< solution vector size

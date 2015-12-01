@@ -17,7 +17,6 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // store some mixture parameters locally
     m_nel_mix = mix->nElements();
     m_nsp_mix = mix->nSpecies();
-    m_np = mix->nPhases();
     m_press = mix->pressure();
     m_temp = mix->temperature();
 
@@ -580,7 +579,7 @@ doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
 
             // sum over solution phases
             doublereal sum = 0.0, psum;
-            for (ip = 0; ip < m_np; ip++) {
+            for (ip = 0; ip < m_mix->nPhases(); ip++) {
                 ThermoPhase& p = m_mix->phase(ip);
                 if (p.nSpecies() > 1) {
                     psum = 0.0;
@@ -691,7 +690,6 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     size_t nSpecies;
     double vol = 0.0;
     string sName;
-    size_t nphase = m_np;
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
         throw CanteraError("MultiPhaseEquil::reportCSV", "Failure to open file");
@@ -708,7 +706,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     vector_fp molalities;
 
     vol = 0.0;
-    for (size_t iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < m_mix->nPhases(); iphase++) {
         istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         nSpecies = tref.nSpecies();
@@ -730,7 +728,7 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fprintf(FP,"Pressure     = %11.5g Pascal\n", pres);
     fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
 
-    for (size_t iphase = 0; iphase < nphase; iphase++) {
+    for (size_t iphase = 0; iphase < m_mix->nPhases(); iphase++) {
         istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         ThermoPhase* tp = &tref;

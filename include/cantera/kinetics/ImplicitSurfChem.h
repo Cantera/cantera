@@ -227,22 +227,12 @@ protected:
 
     std::vector<size_t> m_specStartIndex;
 
-    //! Total number of surface phases.
-    /*!
-     * This is also equal to the number of InterfaceKinetics objects
-     * as there is a 1-1 correspondence between InterfaceKinetics objects
-     * and surface phases.
-     */
-    size_t m_nsurf;
-
     //! Total number of surface species in all surface phases
     /*!
      * This is the total number of unknowns in m_mode 0 problem
      */
     size_t m_nv;
 
-    size_t m_numBulkPhases;
-    std::vector<size_t> m_nspBulkPhases;
     size_t m_numTotalBulkSpecies;
     size_t m_numTotalSpecies;
 

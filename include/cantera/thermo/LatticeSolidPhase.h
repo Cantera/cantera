@@ -453,9 +453,6 @@ protected:
     //! Current value of the molar density
     doublereal m_molar_density;
 
-    //! Number of sublattice phases
-    size_t m_nlattice;
-
     //! Vector of sublattic ThermoPhase objects
     std::vector<LatticePhase*> m_lattice;
 

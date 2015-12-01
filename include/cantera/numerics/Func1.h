@@ -820,9 +820,8 @@ class Poly1 : public Func1
 public:
     Poly1(size_t n, doublereal* c) :
         Func1() {
-        m_n = n+1;
         m_cpoly.resize(n+1);
-        std::copy(c, c+m_n, m_cpoly.begin());
+        std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
 
     Poly1(const Poly1& b) :
@@ -836,7 +835,6 @@ public:
         }
         Func1::operator=(right);
         m_cpoly = right.m_cpoly;
-        m_n = right.m_n;
         m_parent = 0;
         return *this;
     }
@@ -847,16 +845,15 @@ public:
     }
 
     virtual doublereal eval(doublereal t) const {
-        doublereal r = m_cpoly[m_n-1];
-        for (size_t n = 1; n < m_n; n++) {
+        doublereal r = m_cpoly[m_cpoly.size()-1];
+        for (size_t n = 1; n < m_cpoly.size(); n++) {
             r *= t;
-            r += m_cpoly[m_n - n - 1];
+            r += m_cpoly[m_cpoly.size() - n - 1];
         }
         return r;
     }
 
 protected:
-    size_t m_n;
     vector_fp m_cpoly;
 };
 
@@ -875,7 +872,6 @@ public:
     Fourier1(size_t n, doublereal omega, doublereal a0,
              doublereal* a, doublereal* b) :
         Func1() {
-        m_n = n;
         m_omega = omega;
         m_a0_2 = 0.5*a0;
         m_ccos.resize(n);
@@ -898,7 +894,6 @@ public:
         m_a0_2 = right.m_a0_2;
         m_ccos = right.m_ccos;
         m_csin = right.m_csin;
-        m_n = right.m_n;
         m_parent = 0;
         return *this;
     }
@@ -911,7 +906,7 @@ public:
     virtual doublereal eval(doublereal t) const {
         size_t n, nn;
         doublereal sum = m_a0_2;
-        for (n = 0; n < m_n; n++) {
+        for (n = 0; n < m_ccos.size(); n++) {
             nn = n + 1;
             sum += m_ccos[n]*std::cos(m_omega*nn*t)
                    + m_csin[n]*std::sin(m_omega*nn*t);
@@ -920,7 +915,6 @@ public:
     }
 
 protected:
-    size_t m_n;
     doublereal m_omega, m_a0_2;
     vector_fp m_ccos, m_csin;
 };
@@ -937,7 +931,6 @@ class Arrhenius1 : public Func1
 public:
     Arrhenius1(size_t n, doublereal* c) :
         Func1() {
-        m_n = n;
         m_A.resize(n);
         m_b.resize(n);
         m_E.resize(n);
@@ -959,7 +952,6 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_n = right.m_n;
         m_A = right.m_A;
         m_b = right.m_b;
         m_E = right.m_E;
@@ -974,14 +966,13 @@ public:
 
     virtual doublereal eval(doublereal t) const {
         doublereal sum = 0.0;
-        for (size_t n = 0; n < m_n; n++) {
+        for (size_t n = 0; n < m_A.size(); n++) {
             sum += m_A[n]*std::pow(t,m_b[n])*std::exp(-m_E[n]/t);
         }
         return sum;
     }
 
 protected:
-    size_t m_n;
     vector_fp m_A, m_b, m_E;
 };
 

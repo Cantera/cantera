@@ -98,9 +98,6 @@ public:
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:
-    //! Number of temperature regions
-    size_t m_numTempRegions;
-
     //! Lower boundaries of each temperature regions
     vector_fp m_lowerTempBounds;
 

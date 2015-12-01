@@ -426,7 +426,7 @@ public:
 
     //! Number of phases.
     size_t nPhases() const {
-        return m_np;
+        return m_phase.size();
     }
 
     //! Return true is species \a kGlob is a species in a multicomponent
@@ -616,9 +616,6 @@ private:
      * -> used in the construction. However, wonder if it needs to be global.
      */
     std::map<std::string, size_t> m_enamemap;
-
-    //! Number of phases in the MultiPhase object
-    size_t m_np;
 
     //! Current value of the temperature (kelvin)
     doublereal m_temp;

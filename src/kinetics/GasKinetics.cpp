@@ -12,7 +12,6 @@ namespace Cantera
 {
 GasKinetics::GasKinetics(thermo_t* thermo) :
     BulkKinetics(thermo),
-    m_nfall(0),
     m_logp_ref(0.0),
     m_logc_ref(0.0),
     m_logStandConc(0.0),
@@ -139,7 +138,7 @@ void GasKinetics::processFalloffReactions()
     // use m_ropr for temporary storage of reduced pressure
     vector_fp& pr = m_ropr;
 
-    for (size_t i = 0; i < m_nfall; i++) {
+    for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
         pr[i] = concm_falloff_values[i] * m_rfn_low[i] / (m_rfn_high[i] + SmallNumber);
         AssertFinite(pr[i], "GasKinetics::processFalloffReactions",
                      "pr[{}] is not finite.", i);
@@ -147,7 +146,7 @@ void GasKinetics::processFalloffReactions()
 
     m_falloffn.pr_to_falloff(pr.data(), falloff_work.data());
 
-    for (size_t i = 0; i < m_nfall; i++) {
+    for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
         if (reactionType(m_fallindx[i]) == FALLOFF_RXN) {
             pr[i] *= m_rfn_high[i];
         } else { // CHEMACT_RXN
@@ -155,7 +154,7 @@ void GasKinetics::processFalloffReactions()
         }
     }
 
-    scatter_copy(pr.begin(), pr.begin() + m_nfall,
+    scatter_copy(pr.begin(), pr.begin() + m_falloff_low_rates.nReactions(),
                  m_ropf.begin(), m_fallindx.begin());
 }
 
@@ -175,7 +174,7 @@ void GasKinetics::updateROP()
         m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
     }
 
-    if (m_nfall) {
+    if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
     }
 
@@ -223,7 +222,7 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
         m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
     }
 
-    if (m_nfall) {
+    if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
     }
 
@@ -271,14 +270,15 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
 {
     // install high and low rate coeff calculators and extend the high and low
     // rate coeff value vectors
-    m_falloff_high_rates.install(m_nfall, r.high_rate);
+    size_t nfall = m_falloff_high_rates.nReactions();
+    m_falloff_high_rates.install(nfall, r.high_rate);
     m_rfn_high.push_back(0.0);
-    m_falloff_low_rates.install(m_nfall, r.low_rate);
+    m_falloff_low_rates.install(nfall, r.low_rate);
     m_rfn_low.push_back(0.0);
 
     // add this reaction number to the list of falloff reactions
     m_fallindx.push_back(nReactions()-1);
-    m_rfallindx[nReactions()-1] = m_nfall;
+    m_rfallindx[nReactions()-1] = nfall;
 
     // install the enhanced third-body concentration calculator
     map<size_t, double> efficiencies;
@@ -292,14 +292,11 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
                 "' while adding reaction '" + r.equation() + "'");
         }
     }
-    m_falloff_concm.install(m_nfall, efficiencies,
+    m_falloff_concm.install(nfall, efficiencies,
                             r.third_body.default_efficiency);
 
     // install the falloff function calculator for this reaction
-    m_falloffn.install(m_nfall, r.reaction_type, r.falloff);
-
-    // increment the falloff reaction counter
-    ++m_nfall;
+    m_falloffn.install(nfall, r.reaction_type, r.falloff);
 }
 
 void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)

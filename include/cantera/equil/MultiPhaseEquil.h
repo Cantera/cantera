@@ -161,7 +161,7 @@ protected:
         return (m_nsp > m_nel) ? m_nsp - m_nel : 0;
     }
 
-    size_t m_nel_mix, m_nsp_mix, m_np;
+    size_t m_nel_mix, m_nsp_mix;
     size_t m_nel, m_nsp;
     size_t m_eloc;
     int m_iter;

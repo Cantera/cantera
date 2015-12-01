@@ -15,7 +15,7 @@ namespace Cantera
 OneDim::OneDim()
     : m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
       m_rdt(0.0), m_jac_ok(false),
-      m_nd(0), m_bw(0), m_size(0),
+      m_bw(0), m_size(0),
       m_init(false), m_pts(0), m_solve_time(0.0),
       m_ss_jac_age(10), m_ts_jac_age(20),
       m_interrupt(0), m_nevals(0), m_evaltime(0.0)
@@ -26,7 +26,7 @@ OneDim::OneDim()
 OneDim::OneDim(vector<Domain1D*> domains) :
     m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
     m_rdt(0.0), m_jac_ok(false),
-    m_nd(0), m_bw(0), m_size(0),
+    m_bw(0), m_size(0),
     m_init(false), m_solve_time(0.0),
     m_ss_jac_age(10), m_ts_jac_age(20),
     m_interrupt(0), m_nevals(0), m_evaltime(0.0)
@@ -46,7 +46,7 @@ OneDim::~OneDim()
 
 size_t OneDim::domainIndex(const std::string& name)
 {
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_dom.size(); n++) {
         if (domain(n).id() == name) {
             return n;
         }
@@ -72,8 +72,7 @@ void OneDim::addDomain(Domain1D* d)
 
     // add it also to the global domain list, and set its container and position
     m_dom.push_back(d);
-    d->setContainer(this, m_nd);
-    m_nd++;
+    d->setContainer(this, m_dom.size()-1);
     resize();
 }
 
@@ -140,7 +139,7 @@ void OneDim::resize()
     // save the statistics for the last grid
     saveStats();
     m_pts = 0;
-    for (size_t i = 0; i < m_nd; i++) {
+    for (size_t i = 0; i < nDomains(); i++) {
         Domain1D* d = m_dom[i];
 
         size_t np = d->nPoints();
@@ -181,7 +180,7 @@ void OneDim::resize()
     m_jac.reset(new MultiJac(*this));
     m_jac_ok = false;
 
-    for (size_t i = 0; i < m_nd; i++) {
+    for (size_t i = 0; i < nDomains(); i++) {
         m_dom[i]->setJac(m_jac.get());
     }
 }

@@ -129,12 +129,12 @@ public:
         m_mcov = 0.0;
         size_t k;
         doublereal th;
-        for (size_t n = 0; n < m_ncov; n++) {
+        for (size_t n = 0; n < m_ac.size(); n++) {
             k = m_sp[n];
             m_acov += m_ac[n] * theta[k];
             m_ecov += m_ec[n] * theta[k];
         }
-        for (size_t n = 0; n < m_nmcov; n++) {
+        for (size_t n = 0; n < m_mc.size(); n++) {
             k = m_msp[n];
             th = std::max(theta[k], Tiny);
             m_mcov += m_mc[n]*std::log(th);
@@ -177,7 +177,6 @@ protected:
     doublereal m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
-    size_t m_ncov, m_nmcov;
 };
 
 

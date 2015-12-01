@@ -30,9 +30,7 @@ class Adsorbate : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
-    Adsorbate() :
-        m_nFreqs(0) {
-    }
+    Adsorbate() {}
 
     //! Full Constructor
     /*!
@@ -43,10 +41,9 @@ public:
     Adsorbate(double tlow, double thigh, double pref, const double* coeffs)
         : SpeciesThermoInterpType(tlow, thigh, pref)
     {
-        m_nFreqs = int(coeffs[0]);
+        m_freq.resize(int(coeffs[0]));
         m_be = coeffs[1];
-        m_freq.resize(m_nFreqs);
-        std::copy(coeffs+2, coeffs + 2 + m_nFreqs, m_freq.begin());
+        std::copy(coeffs+2, coeffs + 2 + m_freq.size(), m_freq.begin());
     }
 
     virtual SpeciesThermoInterpType*
@@ -76,15 +73,14 @@ public:
         tlow = m_lowT;
         thigh = m_highT;
         pref = m_Pref;
-        coeffs[0] = static_cast<double>(m_nFreqs);
+        coeffs[0] = static_cast<double>(m_freq.size());
         coeffs[1] = m_be;
-        for (size_t i = 2; i < m_nFreqs+2; i++) {
+        for (size_t i = 2; i < m_freq.size()+2; i++) {
             coeffs[i] = m_freq[i-2];
         }
     }
 
 protected:
-    size_t m_nFreqs;
     //! array of vib frequencies
     vector_fp m_freq;
     doublereal m_be;
@@ -92,7 +88,7 @@ protected:
     doublereal _energy_RT(double T) const {
         doublereal x, hnu_kt, hnu, sum = 0.0;
         doublereal kt = T*Boltzmann;
-        for (size_t i = 0; i < m_nFreqs; i++) {
+        for (size_t i = 0; i < m_freq.size(); i++) {
             hnu = Planck * m_freq[i];
             hnu_kt = hnu/kt;
             x = exp(-hnu_kt);
@@ -104,7 +100,7 @@ protected:
     doublereal _free_energy_RT(double T) const {
         doublereal x, hnu_kt, sum = 0.0;
         doublereal kt = T*Boltzmann;
-        for (size_t i = 0; i < m_nFreqs; i++) {
+        for (size_t i = 0; i < m_freq.size(); i++) {
             hnu_kt = Planck * m_freq[i] / kt;
             x = exp(-hnu_kt);
             sum += log(1.0 - x);

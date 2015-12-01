@@ -19,8 +19,6 @@ namespace Cantera
 
 InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_redo_rates(false),
-    m_nirrev(0),
-    m_nrev(0),
     m_surf(0),
     m_integrator(0),
     m_logp0(0.0),
@@ -65,8 +63,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_rates = right.m_rates;
     m_redo_rates = right.m_redo_rates;
     m_irrev = right.m_irrev;
-    m_nirrev = right.m_nirrev;
-    m_nrev = right.m_nrev;
     m_conc = right.m_conc;
     m_actConc = right.m_actConc;
     m_mu0 = right.m_mu0;
@@ -198,7 +194,7 @@ void InterfaceKinetics::updateKc()
 {
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
-    if (m_nrev > 0) {
+    if (m_revindex.size() > 0) {
         /*
          * Get the vector of standard state electrochemical potentials for
          * species in the Interfacial kinetics object and store it in m_mu0[]
@@ -210,7 +206,7 @@ void InterfaceKinetics::updateKc()
         // compute Delta mu^0 for all reversible reactions
         getRevReactionDelta(m_mu0_Kc.data(), m_rkcn.data());
 
-        for (size_t i = 0; i < m_nrev; i++) {
+        for (size_t i = 0; i < m_revindex.size(); i++) {
             size_t irxn = m_revindex[i];
             if (irxn == npos || irxn >= nReactions()) {
                 throw CanteraError("InterfaceKinetics", "illegal value: irxn = {}", irxn);
@@ -218,7 +214,7 @@ void InterfaceKinetics::updateKc()
             // WARNING this may overflow HKM
             m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
         }
-        for (size_t i = 0; i != m_nirrev; ++i) {
+        for (size_t i = 0; i != m_irrev.size(); ++i) {
             m_rkcn[ m_irrev[i] ] = 0.0;
         }
     }
@@ -250,7 +246,7 @@ void InterfaceKinetics::checkPartialEquil()
 
     vector_fp dmu(nTotalSpecies(), 0.0);
     vector_fp rmu(std::max<size_t>(nReactions(), 1), 0.0);
-    if (m_nrev > 0) {
+    if (m_revindex.size() > 0) {
         cout << "T = " << thermo(0).temperature() << " " << thermo(0).RT() << endl;
         size_t nsp, ik=0;
         doublereal delta;
@@ -267,7 +263,7 @@ void InterfaceKinetics::checkPartialEquil()
         // compute Delta mu^ for all reversible reactions
         getRevReactionDelta(dmu.data(), rmu.data());
         updateROP();
-        for (size_t i = 0; i < m_nrev; i++) {
+        for (size_t i = 0; i < m_revindex.size(); i++) {
             size_t irxn = m_revindex[i];
             writelog("Reaction {} {}\n",
                      reactionString(irxn), rmu[irxn]/thermo(0).RT());
@@ -695,10 +691,8 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
 
     if (r.reversible) {
         m_revindex.push_back(i);
-        m_nrev++;
     } else {
         m_irrev.push_back(i);
-        m_nirrev++;
     }
 
     m_rxnPhaseIsReactant.emplace_back(nPhases(), false);

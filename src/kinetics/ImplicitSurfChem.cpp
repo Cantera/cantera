@@ -16,9 +16,7 @@ namespace Cantera
 {
 
 ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
-    m_nsurf(0),
     m_nv(0),
-    m_numBulkPhases(0),
     m_numTotalBulkSpecies(0),
     m_numTotalSpecies(0),
     m_atol(1.e-14),
@@ -30,12 +28,11 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
     m_commonTempPressForPhases(true),
     m_ioFlag(0)
 {
-    m_nsurf = k.size();
     size_t ns, nsp;
     size_t nt, ntmax = 0;
     size_t kinSpIndex = 0;
     // Loop over the number of surface kinetics objects
-    for (size_t n = 0; n < m_nsurf; n++) {
+    for (size_t n = 0; n < k.size(); n++) {
         InterfaceKinetics* kinPtr = k[n];
         m_vecKinPtrs.push_back(kinPtr);
         ns = k[n]->surfacePhaseIndex();
@@ -60,9 +57,7 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
                 ThermoPhase* thPtr = & kinPtr->thermo(ip);
                 if ((imatch = checkMatch(m_bulkPhases, thPtr)) == npos) {
                     m_bulkPhases.push_back(thPtr);
-                    m_numBulkPhases++;
                     nsp = thPtr->nSpecies();
-                    m_nspBulkPhases.push_back(nsp);
                     m_numTotalBulkSpecies += nsp;
                     imatch = m_bulkPhases.size() - 1;
                 }
@@ -110,7 +105,7 @@ void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc,
 void ImplicitSurfChem::getState(doublereal* c)
 {
     size_t loc = 0;
-    for (size_t n = 0; n < m_nsurf; n++) {
+    for (size_t n = 0; n < m_surf.size(); n++) {
         m_surf[n]->getCoverages(c + loc);
         loc += m_nsp[n];
     }
@@ -139,7 +134,7 @@ void ImplicitSurfChem::integrate0(doublereal t0, doublereal t1)
 void ImplicitSurfChem::updateState(doublereal* c)
 {
     size_t loc = 0;
-    for (size_t n = 0; n < m_nsurf; n++) {
+    for (size_t n = 0; n < m_surf.size(); n++) {
         m_surf[n]->setCoverages(c + loc);
         loc += m_nsp[n];
     }
@@ -151,7 +146,7 @@ void ImplicitSurfChem::eval(doublereal time, doublereal* y,
     updateState(y); // synchronize the surface state(s) with y
     doublereal rs0, sum;
     size_t loc = 0, kstart;
-    for (size_t n = 0; n < m_nsurf; n++) {
+    for (size_t n = 0; n < m_surf.size(); n++) {
         rs0 = 1.0/m_surf[n]->siteDensity();
         m_vecKinPtrs[n]->getNetProductionRates(m_work.data());
         kstart = m_vecKinPtrs[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
@@ -244,13 +239,13 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
 void ImplicitSurfChem::getConcSpecies(doublereal* const vecConcSpecies) const
 {
     size_t kstart;
-    for (size_t ip = 0; ip < m_nsurf; ip++) {
+    for (size_t ip = 0; ip < m_surf.size(); ip++) {
         ThermoPhase* TP_ptr = m_surf[ip];
         kstart = m_specStartIndex[ip];
         TP_ptr->getConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
-    for (size_t ip = 0; ip < m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip < m_bulkPhases.size(); ip++) {
         ThermoPhase* TP_ptr = m_bulkPhases[ip];
         TP_ptr->getConcentrations(vecConcSpecies + kstart);
         kstart += TP_ptr->nSpecies();
@@ -260,13 +255,13 @@ void ImplicitSurfChem::getConcSpecies(doublereal* const vecConcSpecies) const
 void ImplicitSurfChem::setConcSpecies(const doublereal* const vecConcSpecies)
 {
     size_t kstart;
-    for (size_t ip = 0; ip < m_nsurf; ip++) {
+    for (size_t ip = 0; ip < m_surf.size(); ip++) {
         ThermoPhase* TP_ptr = m_surf[ip];
         kstart = m_specStartIndex[ip];
         TP_ptr->setConcentrations(vecConcSpecies + kstart);
     }
     kstart = m_nv;
-    for (size_t ip = 0; ip < m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip < m_bulkPhases.size(); ip++) {
         ThermoPhase* TP_ptr = m_bulkPhases[ip];
         TP_ptr->setConcentrations(vecConcSpecies + kstart);
         kstart += TP_ptr->nSpecies();
@@ -275,11 +270,11 @@ void ImplicitSurfChem::setConcSpecies(const doublereal* const vecConcSpecies)
 
 void ImplicitSurfChem::setCommonState_TP(doublereal TKelvin, doublereal PresPa)
 {
-    for (size_t ip = 0; ip < m_nsurf; ip++) {
+    for (size_t ip = 0; ip < m_surf.size(); ip++) {
         ThermoPhase* TP_ptr = m_surf[ip];
         TP_ptr->setState_TP(TKelvin, PresPa);
     }
-    for (size_t ip = 0; ip < m_numBulkPhases; ip++) {
+    for (size_t ip = 0; ip < m_bulkPhases.size(); ip++) {
         ThermoPhase* TP_ptr = m_bulkPhases[ip];
         TP_ptr->setState_TP(TKelvin, PresPa);
     }

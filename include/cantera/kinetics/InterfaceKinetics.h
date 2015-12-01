@@ -404,12 +404,6 @@ protected:
      */
     std::vector<size_t> m_irrev;
 
-    //! Number of irreversible reactions in the mechanism
-    size_t m_nirrev;
-
-    //! Number of reversible reactions in the mechanism
-    size_t m_nrev;
-
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
      * An array of generalized concentrations \f$ C_k \f$ that are defined

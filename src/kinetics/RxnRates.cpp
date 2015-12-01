@@ -32,8 +32,6 @@ SurfaceArrhenius::SurfaceArrhenius()
     , m_acov(0.0)
     , m_ecov(0.0)
     , m_mcov(0.0)
-    , m_ncov(0)
-    , m_nmcov(0)
 {
 }
 
@@ -44,22 +42,18 @@ SurfaceArrhenius::SurfaceArrhenius(double A, double b, double Ta)
     , m_acov(0.0)
     , m_ecov(0.0)
     , m_mcov(0.0)
-    , m_ncov(0)
-    , m_nmcov(0)
 {
 }
 
 void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
                                doublereal m, doublereal e)
 {
-    m_ncov++;
     m_sp.push_back(k);
     m_ac.push_back(a);
     m_ec.push_back(e);
     if (m != 0.0) {
         m_msp.push_back(k);
         m_mc.push_back(m);
-        m_nmcov++;
     }
 }
 

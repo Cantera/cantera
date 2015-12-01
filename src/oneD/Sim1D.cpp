@@ -22,7 +22,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     // domain-specific initialization of the solution vector.
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._getInitialSoln(&m_x[start(n)]);
     }
 
@@ -33,7 +33,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
 
 void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vector_fp& vals)
 {
-    for (size_t dom=0; dom<m_nd; dom++) {
+    for (size_t dom=0; dom<nDomains(); dom++) {
         Domain1D& d = domain(dom);
         size_t ncomp = d.nComponents();
         for (size_t comp=0; comp<ncomp; comp++) {
@@ -116,13 +116,13 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     }
 
     vector<XML_Node*> xd = f->getChildren("domain");
-    if (xd.size() != m_nd) {
+    if (xd.size() != nDomains()) {
         throw CanteraError("Sim1D::restore", "Solution does not contain the "
             " correct number of domains. Found {} expected {}.\n",
-            xd.size(), m_nd);
+            xd.size(), nDomains());
     }
     size_t sz = 0;
-    for (size_t m = 0; m < m_nd; m++) {
+    for (size_t m = 0; m < nDomains(); m++) {
         if (loglevel > 0 && xd[m]->attrib("id") != domain(m).id()) {
             writelog("Warning: domain names do not match: '" +
                      (*xd[m])["id"] + + "' and '" + domain(m).id() + "'\n");
@@ -131,7 +131,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     }
     m_x.resize(sz);
     m_xnew.resize(sz);
-    for (size_t m = 0; m < m_nd; m++) {
+    for (size_t m = 0; m < nDomains(); m++) {
         domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
     }
     resize();
@@ -149,7 +149,7 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
 
 void Sim1D::showSolution(ostream& s)
 {
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         if (domain(n).domainType() != cEmptyType) {
             domain(n).showSolution_s(s, &m_x[start(n)]);
         }
@@ -158,7 +158,7 @@ void Sim1D::showSolution(ostream& s)
 
 void Sim1D::showSolution()
 {
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         if (domain(n).domainType() != cEmptyType) {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
@@ -169,14 +169,14 @@ void Sim1D::showSolution()
 
 void Sim1D::getInitialSoln()
 {
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._getInitialSoln(&m_x[start(n)]);
     }
 }
 
 void Sim1D::finalize()
 {
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._finalize(&m_x[start(n)]);
     }
 }
@@ -319,7 +319,7 @@ int Sim1D::refine(int loglevel)
     doublereal xmid, zmid;
     std::vector<size_t> dsize;
 
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
         Refiner& r = d.refiner();
 
@@ -377,7 +377,7 @@ int Sim1D::refine(int loglevel)
     // Now update each domain with the new grid.
 
     size_t gridstart = 0, gridsize;
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
         gridsize = dsize[n];
         d.setupGrid(gridsize, &znew[gridstart]);
@@ -406,7 +406,7 @@ int Sim1D::setFixedTemperature(doublereal t)
     size_t m1 = 0;
     std::vector<size_t> dsize;
 
-    for (n = 0; n < m_nd; n++) {
+    for (n = 0; n < nDomains(); n++) {
         bool addnewpt=false;
         Domain1D& d = domain(n);
         size_t comp = d.nComponents();
@@ -469,7 +469,7 @@ int Sim1D::setFixedTemperature(doublereal t)
     // been constructed, but the domains themselves have not yet been modified.
     // Now update each domain with the new grid.
     size_t gridstart = 0, gridsize;
-    for (n = 0; n < m_nd; n++) {
+    for (n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
         gridsize = dsize[n];
         d.setupGrid(gridsize, &znew[gridstart]);
@@ -493,7 +493,7 @@ void Sim1D::setRefineCriteria(int dom, doublereal ratio,
         Refiner& r = domain(dom).refiner();
         r.setCriteria(ratio, slope, curve, prune);
     } else {
-        for (size_t n = 0; n < m_nd; n++) {
+        for (size_t n = 0; n < nDomains(); n++) {
             Refiner& r = domain(n).refiner();
             r.setCriteria(ratio, slope, curve, prune);
         }
@@ -506,7 +506,7 @@ void Sim1D::setGridMin(int dom, double gridmin)
         Refiner& r = domain(dom).refiner();
         r.setGridMin(gridmin);
     } else {
-        for (size_t n = 0; n < m_nd; n++) {
+        for (size_t n = 0; n < nDomains(); n++) {
             Refiner& r = domain(n).refiner();
             r.setGridMin(gridmin);
         }
@@ -519,7 +519,7 @@ void Sim1D::setMaxGridPoints(int dom, int npoints)
         Refiner& r = domain(dom).refiner();
         r.setMaxPoints(npoints);
     } else {
-        for (size_t n = 0; n < m_nd; n++) {
+        for (size_t n = 0; n < nDomains(); n++) {
             Refiner& r = domain(n).refiner();
             r.setMaxPoints(npoints);
         }

@@ -70,8 +70,6 @@ public:
     virtual void update_rates_C();
 
 protected:
-    size_t m_nfall;
-
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
 
