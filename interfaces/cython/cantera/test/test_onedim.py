@@ -92,15 +92,12 @@ class TestFreeFlame(utilities.CanteraTest):
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
 
     def create_sim(self, p, Tin, reactants, mech='h2o2.xml'):
-
-        initial_grid = [0.0, 0.001, 0.01, 0.02, 0.029, 0.03]  # m
-
         # IdealGasMix object used to compute mixture properties
         self.gas = ct.Solution(mech)
         self.gas.TPX = Tin, p, reactants
 
         # Flame object
-        self.sim = ct.FreeFlame(self.gas, initial_grid)
+        self.sim = ct.FreeFlame(self.gas, width=0.05)
         self.sim.flame.set_steady_tolerances(default=self.tol_ss)
         self.sim.flame.set_transient_tolerances(default=self.tol_ts)
 

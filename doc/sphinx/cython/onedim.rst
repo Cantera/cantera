@@ -13,7 +13,7 @@ Composite Domains
 
 FreeFlame
 ^^^^^^^^^
-.. autoclass:: FreeFlame(gas, grid=None)
+.. autoclass:: FreeFlame(gas, grid=None, width=None)
 
 BurnerFlame
 ^^^^^^^^^^^

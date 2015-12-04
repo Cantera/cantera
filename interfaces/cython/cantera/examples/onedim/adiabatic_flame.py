@@ -11,7 +11,7 @@ p = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
 reactants = 'H2:1.1, O2:1, AR:5'  # premixed gas composition
 
-initial_grid = np.linspace(0.0, 0.03, 7)  # m
+width = 0.03  # m
 tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-4, 1.0e-13]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 8)
@@ -23,7 +23,7 @@ gas = ct.Solution('h2o2.xml')
 gas.TPX = Tin, p, reactants
 
 # Flame object
-f = ct.FreeFlame(gas, initial_grid)
+f = ct.FreeFlame(gas, width=width)
 f.flame.set_steady_tolerances(default=tol_ss)
 f.flame.set_transient_tolerances(default=tol_ts)
 
