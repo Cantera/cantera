@@ -533,9 +533,9 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
 
         gas = ct.Solution('h2o2.xml')
         gas.TPX = T_in, 0.05 * ct.one_atm, comp
-        initial_grid = np.linspace(0.0, 0.2, 12)  # m
+        width = 0.2 # m
 
-        sim = ct.CounterflowPremixedFlame(gas=gas, grid=initial_grid)
+        sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
 
         # set the properties at the inlets
         sim.reactants.mdot = 0.12  # kg/m^2/s

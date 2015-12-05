@@ -25,7 +25,7 @@ CounterflowDiffusionFlame
 
 CounterflowPremixedFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: CounterflowPremixedFlame(gas, grid=None)
+.. autoclass:: CounterflowPremixedFlame(gas, grid=None, width=None)
 
 ImpingingJet
 ^^^^^^^^^^^^

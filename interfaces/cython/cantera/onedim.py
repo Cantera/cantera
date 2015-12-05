@@ -834,13 +834,17 @@ class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
 
-    def __init__(self, gas, grid=None):
+    def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
             evaluate all gas properties and reaction rates.
         :param grid:
-            Array of initial grid points
+            Array of initial grid points. Not recommended unless solving only on
+            a fixed grid; Use the `width` parameter instead.
+        :param width:
+            Defines a grid on the interval [0, width] with internal points
+            determined automatically by the solver.
 
         A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
         be created to represent the flame. The three domains comprising the
@@ -854,6 +858,10 @@ class CounterflowPremixedFlame(FlameBase):
         self.products.T = gas.T
 
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+
+        if width is not None:
+            # Create grid points aligned with initial guess profile
+            grid = np.array([0.0, 0.3, 0.5, 0.7, 1.0]) * width
 
         super(CounterflowPremixedFlame, self).__init__(
                 (self.reactants, self.flame, self.products), gas, grid)

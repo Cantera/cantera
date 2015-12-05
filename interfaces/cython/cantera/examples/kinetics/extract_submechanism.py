@@ -58,7 +58,7 @@ def solve_flame(gas):
     gas.TPX = 373, 0.05*ct.one_atm, 'H2:0.4, CO:0.6, O2:1, N2:3.76'
 
     # Create the flame simulation object
-    sim = ct.CounterflowPremixedFlame(gas=gas, grid=np.linspace(0.0, 0.2, 10))
+    sim = ct.CounterflowPremixedFlame(gas=gas, width=0.2)
 
     sim.reactants.mdot = 0.12 # kg/m^2/s
     sim.products.mdot = 0.06 # kg/m^2/s

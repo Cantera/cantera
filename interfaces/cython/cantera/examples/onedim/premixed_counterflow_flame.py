@@ -17,7 +17,7 @@ mdot_products = 0.06  # kg/m^2/s
 rxnmech = 'h2o2.cti'  # reaction mechanism file
 comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
-initial_grid = np.linspace(0.0, 0.2, 12)  # m
+width = 0.2 # m
 tol_ss = [1.0e-7, 1.0e-13]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-7, 1.0e-11]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 5)
@@ -35,7 +35,7 @@ gas = ct.Solution(rxnmech)
 gas.TPX = T_in, p, comp
 
 # Create the flame simulation object
-sim = ct.CounterflowPremixedFlame(gas=gas, grid=initial_grid)
+sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
 
 # set the boundary flow rates
 sim.reactants.mdot = mdot_reactants
