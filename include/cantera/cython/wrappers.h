@@ -25,10 +25,12 @@ public:
         for (size_t i = 0; i < s.size(); i+=N) {
             PySys_WriteStdout("%s", s.substr(i, N).c_str());
         }
+        std::cout.flush();
     }
 
     virtual void writeendl() {
         PySys_WriteStdout("%s", "\n");
+        std::cout.flush();
     }
 
     virtual void error(const std::string& msg) {
