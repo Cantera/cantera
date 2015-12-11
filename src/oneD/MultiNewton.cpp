@@ -349,7 +349,9 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
             copy(x1, x1 + m_n, m_x.begin());
         } else if (m == 1) {
             // convergence
-            jac.setAge(0); // for efficient sensitivity analysis
+            if (rdt == 0) {
+                jac.setAge(0); // for efficient sensitivity analysis
+            }
             break;
         } else if (m < 0) {
             // If dampStep fails, first try a new Jacobian if an old one was
