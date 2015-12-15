@@ -272,7 +272,8 @@ cdef class ThermoPhase(_SolutionBase):
             elif value == 'molar':
                 self.thermo_basis = molar_basis
             else:
-                raise ValueError("Valid choices are 'mass' or 'molar'.")
+                raise ValueError("Valid choices are 'mass' or 'molar'."
+                                 " Got {!r}.".format(value))
 
     cdef double _mass_factor(self):
         """ Conversion factor from current basis to kg """
@@ -349,10 +350,11 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(element, (int, float)):
             index = <int>element
         else:
-            raise TypeError("'element' must be a string or a number")
+            raise TypeError("'element' must be a string or a number."
+                            " Got {!r}.".format(element))
 
         if not 0 <= index < self.n_elements:
-            raise ValueError('No such element.')
+            raise ValueError('No such element {!r}.'.format(element))
 
         return index
 
@@ -403,10 +405,11 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(species, (int, float)):
             index = <int>species
         else:
-            raise TypeError("'species' must be a string or a number")
+            raise TypeError("'species' must be a string or a number."
+                            " Got {!r}.".format(species))
 
         if not 0 <= index < self.n_species:
-            raise ValueError('No such species.')
+            raise ValueError('No such species {!r}.'.format(species))
 
         return index
 
@@ -425,7 +428,8 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(k, (int, float)):
             s._assign(self.thermo.species(<int>k))
         else:
-            raise TypeError("Argument must be a string or a number")
+            raise TypeError("Argument must be a string or a number."
+                            " Got {!r}.".format(k))
         return s
 
     def n_atoms(self, species, element):
@@ -457,7 +461,9 @@ cdef class ThermoPhase(_SolutionBase):
             for i,k in enumerate(self._selected_species):
                 data[k] = values[i]
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                " Got {}. Expected {} or {}.".format(
+                    len(values), self.n_species, len(self._selected_species)))
         method(self.thermo, &data[0])
 
     property molecular_weights:
@@ -570,7 +576,8 @@ cdef class ThermoPhase(_SolutionBase):
         if len(Y) == self.n_species:
             data = np.ascontiguousarray(Y, dtype=np.double)
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                 " Got {}, expected {}.".format(len(Y), self.n_species))
         self.thermo.setMassFractions_NoNorm(&data[0])
 
     def set_unnormalized_mole_fractions(self, X):
@@ -583,7 +590,8 @@ cdef class ThermoPhase(_SolutionBase):
         if len(X) == self.n_species:
             data = np.ascontiguousarray(X, dtype=np.double)
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                " Got {}, expected {}.".format(len(X), self.n_species))
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
     def mass_fraction_dict(self, double threshold=0.0):
@@ -1177,7 +1185,8 @@ cdef class InterfacePhase(ThermoPhase):
                 return
 
             if len(theta) != self.n_species:
-                raise ValueError("Array has incorrect length")
+                raise ValueError("Array has incorrect length."
+                    " Got {}, expected {}".format(len(theta), self.n_species))
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(theta, dtype=np.double)
             self.surf.setCoverages(&data[0])
