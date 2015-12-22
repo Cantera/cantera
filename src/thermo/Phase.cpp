@@ -688,7 +688,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 {
     // Look up the atomic weight if not given
     if (weight == -12345.0) {
-        weight = LookupWtElements(symbol);
+        weight = getElementWeight(symbol);
         if (weight < 0.0) {
             throw CanteraError("Phase::addElement",
                                "No atomic weight found for element: " + symbol);

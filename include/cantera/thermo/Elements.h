@@ -1,6 +1,6 @@
 /**
  *  @file Elements.h
- *  Contains the LookupWtElements function and the definitions of element
+ *  Contains the getElementWeight function and the definitions of element
  *  constraint types.
  */
 //  Copyright 2001  California Institute of Technology
@@ -85,16 +85,29 @@ namespace Cantera
 #define ENTROPY298_UNKNOWN -123456789.
 
 //! Function to look up an atomic weight
-//! This function looks up the argument string in the database above and
-//! returns the associated molecular weight.
-//! The data are from the periodic table.
-//!
-//! Note: The idea behind this function is to provide a unified source for the
-//! element atomic weights. This helps to ensure that mass is conserved.
-//!     @param ename  String, Only the first 3 characters are significant
-//!     @return The atomic weight of the element
-//!     @exception CanteraError If a match is not found, throws a CanteraError
+/*!
+ * @deprecated Replaced with getElementWeight(). To be removed after Cantera 2.3
+ */
 double LookupWtElements(const std::string& ename);
+
+//! Get the atomic weight of an element.
+/*!
+ * Get the atomic weight of an element defined in Cantera by its symbol
+ * or by its name. This includes the named isotopes defined in Cantera.
+ *
+ * @param ename String, name or symbol of the element
+ * @return The atomic weight of the element
+ * @exception CanteraError If a match is not found, throws a CanteraError
+ */
+double getElementWeight(const std::string& ename);
+
+//! Get the number of named elements defined in Cantera.
+//! This array excludes named isotopes
+int numElementsDefined();
+
+//! Get the number of named isotopes defined in Cantera.
+//! This array excludes the named elements
+int numIsotopesDefined();
 
 } // namespace
 

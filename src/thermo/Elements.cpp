@@ -14,138 +14,193 @@ using namespace std;
 namespace Cantera
 {
 
-/*! Database for atomic molecular weights
+/*! Database for atomic weights
  * Values are taken from the 1989 Standard Atomic Weights, CRC
- *
- * awTable[] is a static function with scope limited to this file.
- * It can only be referenced via the LookupWtElements() function.
  *
  * units = kg / kg-mol (or equivalently gm / gm-mol)
  *
  * This structure was picked because it's simple, compact, and extensible.
  */
-struct awData {
-    char name[4]; //!< Null Terminated name, First letter capitalized
-    double atomicWeight; //!< atomic weight in kg / kg-mol
+struct atomicWeightData {
+    string symbol; //!< Element symbol, first letter capitalized
+    string fullName; //!< Element full name, first letter lowercase
+    double atomicWeight; //!< Element atomic weight in kg / kg-mol
+};
+
+/*! Database for named isotopic weights
+ * Values are taken from the 1989 Standard Atomic Weights, CRC
+ *
+ * units = kg / kg-mol (or equivalently gm / gm-mol)
+ *
+ * This structure was picked because it's simple, compact, and extensible.
+ */
+struct isotopeWeightData {
+    string symbol; //!< Isotope symbol, first letter capitalized
+    string fullName; //!< Isotope full name, first letter lowercase
+    double atomicWeight; //!< Isotope atomic weight in kg / kg-mol
+    int atomicNumber; //!< Isotope atomic number
 };
 
 /*!
- * @var static struct awData aWTable[]
- * \brief aWTable is a vector containing the atomic weights database.
+ * @var static struct atomicWeightData atomicWeightTable[]
+ * \brief atomicWeightTable is a vector containing the atomic weights database.
+ *
+ * atomicWeightTable[] is a static function with scope limited to this file.
+ * It can only be referenced via the functions in this file.
  *
  * The size of the table is given by the initial instantiation.
  */
-static struct awData aWTable[] = {
-    {"H",    1.00794},
-    {"D",    2.0    },
-    {"Tr",   3.0    },
-    {"He",   4.002602},
-    {"Li",   6.941  },
-    {"Be",   9.012182},
-    {"B",   10.811  },
-    {"C",   12.011  },
-    {"N",   14.00674},
-    {"O",   15.9994 },
-    {"F",   18.9984032},
-    {"Ne",  20.1797 },
-    {"Na",  22.98977},
-    {"Mg",  24.3050 },
-    {"Al",  26.98154},
-    {"Si",  28.0855 },
-    {"P",   30.97376},
-    {"S",   32.066  },
-    {"Cl",  35.4527 },
-    {"Ar",  39.948  },
-    {"K",   39.0983 },
-    {"Ca",  40.078  },
-    {"Sc",  44.95591},
-    {"Ti",  47.88   },
-    {"V",   50.9415 },
-    {"Cr",  51.9961 },
-    {"Mn",  54.9381 },
-    {"Fe",  55.847  },
-    {"Co",  58.9332 },
-    {"Ni",  58.69   },
-    {"Cu",  63.546  },
-    {"Zn",  65.39   },
-    {"Ga",  69.723  },
-    {"Ge",  72.61   },
-    {"As",  74.92159},
-    {"Se",  78.96   },
-    {"Br",  79.904  },
-    {"Kr",  83.80   },
-    {"Rb",  85.4678 },
-    {"Sr",  87.62   },
-    {"Y",   88.90585},
-    {"Zr",  91.224  },
-    {"Nb",  92.90638},
-    {"Mo",  95.94   },
-    {"Tc",  97.9072 },
-    {"Ru", 101.07   },
-    {"Rh", 102.9055 },
-    {"Pd", 106.42   },
-    {"Ag", 107.8682 },
-    {"Cd", 112.411  },
-    {"In", 114.82   },
-    {"Sn", 118.710  },
-    {"Sb", 121.75   },
-    {"Te", 127.6    },
-    {"I",  126.90447},
-    {"Xe", 131.29   },
-    {"Cs", 132.90543},
-    {"Ba", 137.327  },
-    {"La", 138.9055 },
-    {"Ce", 140.115  },
-    {"Pr", 140.90765},
-    {"Nd", 144.24   },
-    {"Pm", 144.9127 },
-    {"Sm", 150.36   },
-    {"Eu", 151.965  },
-    {"Gd", 157.25   },
-    {"Tb", 158.92534},
-    {"Dy", 162.50   },
-    {"Ho", 164.93032},
-    {"Er", 167.26   },
-    {"Tm", 168.93421},
-    {"Yb", 173.04   },
-    {"Lu", 174.967  },
-    {"Hf", 178.49   },
-    {"Ta", 180.9479 },
-    {"W",  183.85   },
-    {"Re", 186.207  },
-    {"Os", 190.2    },
-    {"Ir", 192.22   },
-    {"Pt", 195.08   },
-    {"Au", 196.96654},
-    {"Hg", 200.59   },
-    {"Ti", 204.3833 },
-    {"Pb", 207.2    },
-    {"Bi", 208.98037},
-    {"Po", 208.9824 },
-    {"At", 209.9871 },
-    {"Rn", 222.0176 },
-    {"Fr", 223.0197 },
-    {"Ra", 226.0254 },
-    {"Ac", 227.0279 },
-    {"Th", 232.0381 },
-    {"Pa", 231.03588},
-    {"U",  238.0508 },
-    {"Np", 237.0482 },
-    {"Pu", 244.0482 }
+static struct atomicWeightData atomicWeightTable[] = {
+    {"H",  "hydrogen",       1.00794},
+    {"He", "helium",         4.002602},
+    {"Li", "lithium",        6.941  },
+    {"Be", "beryllium",      9.012182},
+    {"B",  "boron",         10.811  },
+    {"C",  "carbon",        12.011  },
+    {"N",  "nitrogen",      14.00674},
+    {"O",  "oxygen",        15.9994 },
+    {"F",  "fluorine",      18.9984032},
+    {"Ne", "neon",          20.1797 },
+    {"Na", "sodium",        22.98977},
+    {"Mg", "magnesium",     24.3050 },
+    {"Al", "aluminum",      26.98154},
+    {"Si", "silicon",       28.0855 },
+    {"P",  "phosphorus",    30.97376},
+    {"S",  "sulfur",        32.066  },
+    {"Cl", "chlorine",      35.4527 },
+    {"Ar", "argon",         39.948  },
+    {"K",  "potassium",     39.0983 },
+    {"Ca", "calcium",       40.078  },
+    {"Sc", "scandium",      44.95591},
+    {"Ti", "titanium",      47.88   },
+    {"V",  "vanadium",      50.9415 },
+    {"Cr", "chromium",      51.9961 },
+    {"Mn", "manganese",     54.9381 },
+    {"Fe", "iron",          55.847  },
+    {"Co", "cobalt",        58.9332 },
+    {"Ni", "nickel",        58.69   },
+    {"Cu", "copper",        63.546  },
+    {"Zn", "zinc",          65.39   },
+    {"Ga", "gallium",       69.723  },
+    {"Ge", "germanium",     72.61   },
+    {"As", "arsenic",       74.92159},
+    {"Se", "selenium",      78.96   },
+    {"Br", "bromine",       79.904  },
+    {"Kr", "krypton",       83.80   },
+    {"Rb", "rubidium",      85.4678 },
+    {"Sr", "strontium",     87.62   },
+    {"Y",  "yttrium",       88.90585},
+    {"Zr", "zirconium",     91.224  },
+    {"Nb", "nobelium",      92.90638},
+    {"Mo", "molybdenum",    95.94   },
+    {"Tc", "technetium",    97.9072 },
+    {"Ru", "ruthenium",    101.07   },
+    {"Rh", "rhodium",      102.9055 },
+    {"Pd", "palladium",    106.42   },
+    {"Ag", "silver",       107.8682 },
+    {"Cd", "cadmium",      112.411  },
+    {"In", "indium",       114.82   },
+    {"Sn", "tin",          118.710  },
+    {"Sb", "antimony",     121.75   },
+    {"Te", "tellurium",    127.6    },
+    {"I",  "iodine",       126.90447},
+    {"Xe", "xenon",        131.29   },
+    {"Cs", "cesium",       132.90543},
+    {"Ba", "barium",       137.327  },
+    {"La", "lanthanum",    138.9055 },
+    {"Ce", "cerium",       140.115  },
+    {"Pr", "praseodymium", 140.90765},
+    {"Nd", "neodymium",    144.24   },
+    {"Pm", "promethium",   144.9127 },
+    {"Sm", "samarium",     150.36   },
+    {"Eu", "europium",     151.965  },
+    {"Gd", "gadolinium",   157.25   },
+    {"Tb", "terbium",      158.92534},
+    {"Dy", "dysprosium",   162.50   },
+    {"Ho", "holmium",      164.93032},
+    {"Er", "erbium",       167.26   },
+    {"Tm", "thulium",      168.93421},
+    {"Yb", "ytterbium",    173.04   },
+    {"Lu", "lutetium",     174.967  },
+    {"Hf", "hafnium",      178.49   },
+    {"Ta", "tantalum",     180.9479 },
+    {"W",  "tungsten",     183.85   },
+    {"Re", "rhenium",      186.207  },
+    {"Os", "osmium",       190.2    },
+    {"Ir", "iridium",      192.22   },
+    {"Pt", "platinum",     195.08   },
+    {"Au", "gold",         196.96654},
+    {"Hg", "mercury",      200.59   },
+    {"Tl", "thallium",     204.3833 },
+    {"Pb", "lead",         207.2    },
+    {"Bi", "bismuth",      208.98037},
+    {"Po", "polonium",     208.9824 },
+    {"At", "astatine",     209.9871 },
+    {"Rn", "radon",        222.0176 },
+    {"Fr", "francium",     223.0197 },
+    {"Ra", "radium",       226.0254 },
+    {"Ac", "actinium",     227.0279 },
+    {"Th", "thorium",      232.0381 },
+    {"Pa", "protactinium", 231.03588},
+    {"U",  "uranium",      238.0508 },
+    {"Np", "neptunium",    237.0482 },
+    {"Pu", "plutonium",    244.0482 },
 };
 
+/*!
+ * @var static struct isotopeWeightData isotopeWeightTable[]
+ * \brief isotopeWeightTable is a vector containing the atomic weights database.
+ *
+ * isotopeWeightTable[] is a static function with scope limited to this file.
+ * It can only be referenced via the functions in this file.
+ *
+ * The size of the table is given by the initial instantiation.
+ */
+static struct isotopeWeightData isotopeWeightTable[] = {
+    {"D",  "deuterium", 2.0, 1},
+    {"Tr", "tritium",   3.0, 1},
+};
 
-doublereal LookupWtElements(const std::string& ename)
+double LookupWtElements(const std::string& ename)
 {
-    int num = sizeof(aWTable) / sizeof(struct awData);
-    string s3 = ename.substr(0,3);
-    for (int i = 0; i < num; i++) {
-        if (s3 == aWTable[i].name) {
-            return aWTable[i].atomicWeight;
+    warn_deprecated("LookupWtElements",
+    "Use getElementWeight instead. To be removed after Cantera 2.3");
+    return getElementWeight(ename);
+}
+
+double getElementWeight(const std::string& ename)
+{
+    int numElements = numElementsDefined();
+    int numIsotopes = numIsotopesDefined();
+    string sym = ename.substr(0,2);
+    for (int i = 0; i < numElements; i++) {
+        if (sym == atomicWeightTable[i].symbol) {
+            return atomicWeightTable[i].atomicWeight;
+        }
+        else if (ename == atomicWeightTable[i].fullName) {
+            return atomicWeightTable[i].atomicWeight;
         }
     }
-    throw CanteraError("LookupWtElements", "element not found");
+    for (int i = 0; i < numIsotopes; i++) {
+        if (sym == isotopeWeightTable[i].symbol) {
+            return isotopeWeightTable[i].atomicWeight;
+        }
+        else if (ename == isotopeWeightTable[i].fullName) {
+            return isotopeWeightTable[i].atomicWeight;
+        }
+    }
+    throw CanteraError("getElementWeight", "element not found: " + ename);
     return -1.0;
+}
+
+int numElementsDefined()
+{
+    return sizeof(atomicWeightTable) / sizeof(struct atomicWeightData);
+}
+
+int numIsotopesDefined()
+{
+    return sizeof(isotopeWeightTable) / sizeof(struct isotopeWeightData);
 }
 
 }
