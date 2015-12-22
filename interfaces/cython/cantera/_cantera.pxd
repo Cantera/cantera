@@ -995,3 +995,13 @@ cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction)
+
+cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
+    double getElementWeight(string ename) except +
+    double getElementWeight(int atomicNumber) except +
+    int numElementsDefined()
+    int getAtomicNumber(string ename) except +
+    string getElementSymbol(string ename) except +
+    string getElementSymbol(int atomicNumber) except +
+    string getElementName(string ename) except +
+    string getElementName(int atomicNumber) except +

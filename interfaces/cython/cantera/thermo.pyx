@@ -1267,3 +1267,99 @@ cdef class PureFluid(ThermoPhase):
         """
         def __get__(self):
             return self.s, self.v, self.X
+
+
+class Element(object):
+    """
+    An element or a named isotope defined in Cantera.
+
+    Class `Element` gets data for the elements and isotopes defined in
+    `src/thermo/Elements.cpp`. This class can be used in two ways. The
+    first way is to get information about all of the elements stored in
+    Cantera. The three attributes `num_elements_defined`,
+    `element_symbols`, and `element_names` can be accessed by::
+
+        >>> ct.Element.num_elements_defined
+        >>> ct.Element.element_symbols
+        >>> ct.Element.element_names
+
+    Otherwise, if the class `Element` is called with an argument, it
+    stores the data about that particular element. For example::
+
+        >>> ar_sym = ct.Element('Ar')
+        >>> ar_name = ct.Element('argon')
+        >>> ar_num = ct.Element(18)
+
+    would all create instances with the information for argon. The
+    available argument options to create an instance of the `Element`
+    class with the element information are the `name`, `symbol`, and
+    `atomic_number`. Once an instance of the class is made, the `name`,
+    `atomic_number`, `symbol`, and atomic `weight` can be accessed as
+    attributes of the instance of the `Element` class.
+
+        >>> ar_sym.name
+        'argon'
+        >>> ar_sym.weight
+        39.948
+        >>> ar_sym.atomic_number
+        18
+        >>> ar_sym.symbol
+        'Ar'
+
+    The elements available are listed below, in the `element_symbols`
+    and `element_names` attribute documentation.
+    """
+
+    #: The number of named elements (not isotopes) defined in Cantera
+    num_elements_defined = numElementsDefined()
+
+    #: A list of the symbols of all the elements (not isotopes) defined
+    #: in Cantera
+    element_symbols = [getElementSymbol(<int>(m+1))
+                       for m in range(num_elements_defined)]
+
+    #: A list of the names of all the elements (not isotopes) defined
+    #: in Cantera
+    element_names = [getElementName(<int>m+1)
+                     for m in range(num_elements_defined)]
+
+    def __init__(self, arg):
+        if isinstance(arg, (str, unicode, bytes)):
+            try:
+                self._name = getElementName(stringify(arg))
+            except RuntimeError:
+                self._symbol = getElementSymbol(stringify(arg))
+                self._name = arg
+            else:
+                self._symbol = arg
+
+            self._atomic_number = getAtomicNumber(stringify(arg))
+            self._weight = getElementWeight(stringify(arg))
+        elif isinstance(arg, int):
+            self._atomic_number = arg
+            self._name = getElementName(<int>arg)
+            self._symbol = getElementSymbol(<int>arg)
+            self._weight = getElementWeight(<int>arg)
+        else:
+            raise TypeError('The input argument to Element must be a string '
+                            'or an integer')
+
+    @property
+    def name(self):
+        """The name of the element or isotope."""
+        return self._name
+
+    @property
+    def atomic_number(self):
+        """The atomic number of the element or isotope."""
+        return self._atomic_number
+
+    @property
+    def symbol(self):
+        """The symbol of the element or isotope."""
+        return self._symbol
+
+    @property
+    def weight(self):
+        """The atomic weight of the element or isotope."""
+        return self._weight
