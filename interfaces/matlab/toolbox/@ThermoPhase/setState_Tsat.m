@@ -4,6 +4,7 @@ function setState_Tsat(tp, tx)
 % The fluid state will be set to a saturated liquid-vapor state using the
 % input temperature and vapor fraction (quality) as the independent,
 % intensive variables.
+%
 % :param tp:
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     class derived from ThermoPhase)
