@@ -14,4 +14,4 @@ function o = Oxygen()
 %     Instance of class :mat:func:`Solution`
 %
 
-o = Solution('liquidvapor.cti', 'oxygen');
+o = Solution('liquidvapor.xml', 'oxygen');
