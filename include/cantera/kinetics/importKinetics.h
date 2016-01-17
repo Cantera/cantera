@@ -21,6 +21,10 @@
 namespace Cantera
 {
 
+class Kinetics;
+class SpeciesThermoFactory;
+class XML_Node;
+
 //! Rules for parsing and installing reactions
 struct ReactionRules {
     ReactionRules();

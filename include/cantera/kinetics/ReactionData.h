@@ -103,6 +103,12 @@ public:
     //! depends on #falloffType.
     vector_fp falloffParameters;
 
+    //! Values used in the BOLSIG fit.
+    vector_fp bolsigParameters;
+
+    //! Energy release by the electron impact reaction.
+    double deltaE;
+
     int error; //!< @deprecated unused. To be removed after Cantera 2.2.
 
     //! The reaction equation. Used only for display purposes.

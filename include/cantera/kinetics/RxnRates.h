@@ -127,6 +127,135 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
+//! Te-Dependent Arrhenius reaction rate type depends only on electron temperature
+/**
+ * A reaction rate coefficient of the following form.
+ *
+ *   \f[
+ *        k_f =  A T_{e}^{b} \exp (-sum_{i}^{4}p_{i}f(T_{e}^{i})
+ *   \f]
+ *
+ */
+class BolsigArrhenius
+{
+public:
+    //! return the rate coefficient type.
+    static int type() {
+        return BOLSIG_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+    }
+
+    //! Default constructor.
+    BolsigArrhenius() :
+        m_logA(-1.0E300),
+        m_b(0.0),
+        m_E(0.0),
+	m_A(0.0),
+	m_E1(0.0),
+	m_E2(0.0),
+	m_E3(0.0),
+	m_E4(0.0) {}
+
+    //! Constructor from ReactionData.
+    explicit BolsigArrhenius(const ReactionData& rdata) :
+        m_b(rdata.rateCoeffParameters[1]),
+        m_E(rdata.rateCoeffParameters[2]),
+	m_A(rdata.rateCoeffParameters[0]),
+	  m_E1(rdata.bolsigParameters[0]),
+	  m_E2(rdata.bolsigParameters[1]),
+	  m_E3(rdata.bolsigParameters[2]),
+	  m_E4(rdata.bolsigParameters[3]) {	  
+        if (m_A  <= 0.0) {
+            m_logA = -1.0E300;
+        } else {
+            m_logA = std::log(m_A);
+        }
+	if (m_E != 0.0) {
+	  m_E = 0.0;
+	}
+    }
+
+    /// Constructor.
+    /// @param A pre-exponential. The unit system is
+    /// (kmol, m, s). The actual units depend on the reaction
+    /// order and the dimensionality (surface or bulk).
+    /// @param b Temperature exponent. Non-dimensional.
+    /// @param E Activation energy in temperature units. Kelvin.
+    BolsigArrhenius(doublereal A, doublereal b, doublereal E, vector_fp coeff) :
+        m_b(b),
+        m_E(E),
+	m_A(A),
+	m_E1(coeff[0]),
+	m_E2(coeff[1]),
+	m_E3(coeff[2]),
+	m_E4(coeff[3]) {	  
+        if (m_A  <= 0.0) {
+            m_logA = -1.0E300;
+        } else {
+            m_logA = log(m_A);
+        }
+	if (m_E != 0.0) {
+	  m_E = 0.0;
+	}
+    }
+
+    //! Update concentration-dependent parts of the rate coefficient.
+    /*!
+     *   For this class, there are no
+     *   concentration-dependent parts, so this method does  nothing.
+     */
+    void update_C(const doublereal* c) {
+    }
+
+    /**
+     * Update the value of the logarithm of the rate constant.
+     *
+     * Note, this function should never be called for negative A values.
+     * If it does then it will produce a negative overflow result, and
+     * a zero net forwards reaction rate, instead of a negative reaction
+     * rate constant that is the expected result.
+     */
+    doublereal update(doublereal logTe, doublereal recipTe) const {
+      return m_logA + m_b*logTe +
+	log(m_E1*recipTe +
+	    m_E2*pow(recipTe,2.0) +
+	    m_E3*pow(recipTe,3.0) +
+	    m_E4*pow(recipTe,4.0));
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant.
+     * It can be safely called for negative values of the pre-exponential
+     * factor.
+     */
+    doublereal updateRC(doublereal logTe, doublereal recipTe) const {
+      return m_A * std::exp(m_b*logTe +
+			    (m_E1*recipTe +
+			     m_E2*pow(recipTe,2.0) +
+			     m_E3*pow(recipTe,3.0) +
+			     m_E4*pow(recipTe,4.0)));
+    }
+
+
+    void writeUpdateRHS(std::ostream& s) const {
+        s << " exp(" << m_logA;
+        if (m_b != 0.0) {
+            s << " + " << m_b << " * telog";
+        }
+        if (m_E != 0.0) {
+            s << " - " << m_E << " * rte";
+        }
+        s << ");" << std::endl;
+    }
+
+    static bool alwaysComputeRate() {
+        return false;
+    }
+
+protected:
+    doublereal m_logA, m_b, m_E, m_A, m_E1, m_E2, m_E3, m_E4;
+};
 
 /**
  * An Arrhenius rate with coverage-dependent terms.

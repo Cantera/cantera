@@ -159,6 +159,8 @@ const int cLineKinetics = 5;
 const int cEdgeKinetics = 6;
 const int cSolidKinetics = 7;
 const int cAqueousKinetics = 8;
+const int cTwoTempGasKinetics = 9;
+ 
 }
 
 #endif

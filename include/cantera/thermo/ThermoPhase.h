@@ -942,6 +942,24 @@ public:
      * @{
      */
 
+    //! Set the etemperatue (K), temperature (K), pressure (Pa), and mole fractions. 
+    /*!
+     * Note, the mole fractions are set first before the pressure is set.
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param te   Electron Temperature (K)
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     * @param x    Vector of mole fractions.
+     *             Length is equal to m_kk.
+     */
+    virtual void setState_TeTPX(doublereal te, doublereal t, doublereal p,
+				const doublereal* x);
+    virtual void setState_TeTPX(doublereal te, doublereal t, doublereal p,
+				compositionMap& x);
+    virtual void setState_TeTPX(doublereal te, doublereal t, doublereal p,
+				const std::string& x);
+
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
      * Note, the mole fractions are set first before the pressure is set.
@@ -1022,6 +1040,16 @@ public:
      * @param p    Pressure (Pa)
      */
     virtual void setState_TP(doublereal t, doublereal p);
+
+    //! Set the etemperature (K), temperature (K) and pressure (Pa)
+    /*!
+     * Setting the pressure may involve the solution of a nonlinear equation.
+     *
+     * @param te   Electron Temperature(K)
+     * @param t    Temperature (K)
+     * @param p    Pressure (Pa)
+     */
+    virtual void setState_TeTP(doublereal te, doublereal t, doublereal p);
 
     //! Set the pressure (Pa) and mole fractions.
     /*!

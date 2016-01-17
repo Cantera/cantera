@@ -71,6 +71,10 @@ const doublereal logGasConstant = std::log(GasConstant);
 const doublereal OneAtm = 1.01325e5;
 const doublereal OneBar = 1.0E5;
 
+//! One electron volt [K]
+const doublereal eVolt = 1.1604505e4;
+const doublereal OneEV = 1.1604505e4;
+
 //! Universal gas constant in cal/mol/K
 const doublereal GasConst_cal_mol_K = GasConstant / 4184.0;
 

@@ -60,6 +60,12 @@ const int CHEBYSHEV_RXN = 6;
 const int CHEMACT_RXN    = 8;
 
 /**
+ * An electron impact reaction. The rate coefficient consists of an 
+ * Arrhenius term followed by a third-degree polynomial
+ */
+const int TEDEP_RXN    = 7;
+
+/**
  * A reaction occurring on a surface.
  */
 const int SURFACE_RXN    = 20;
@@ -96,6 +102,7 @@ const int ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE = 5;
 const int EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE = 6;
 const int PLOG_REACTION_RATECOEFF_TYPE = 7;
 const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
+const int BOLSIG_ARRHENIUS_REACTION_RATECOEFF_TYPE = 9;
 
 //@}
 

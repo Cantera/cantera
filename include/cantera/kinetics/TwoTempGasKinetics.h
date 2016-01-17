@@ -1,13 +1,13 @@
 /**
- * @file GasKinetics.h
+ * @file TwoTempGasKinetics.h
  *
  * @ingroup chemkinetics
  */
 
 // Copyright 2001  California Institute of Technology
 
-#ifndef CT_GASKINETICS_H
-#define CT_GASKINETICS_H
+#ifndef CT_TWOTEMPGASKINETICS_H
+#define CT_TWOTEMPGASKINETICS_H
 
 #include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
@@ -32,7 +32,7 @@ class ReactionData;
  * expressions for low-density gases.
  * @ingroup kinetics
  */
-class GasKinetics : public Kinetics
+class TwoTempGasKinetics : public Kinetics
 {
 public:
     //! @name Constructors and General Information
@@ -42,18 +42,18 @@ public:
     /*!
      *  @param thermo  Pointer to the gas ThermoPhase (optional)
      */
-    GasKinetics(thermo_t* thermo = 0);
+    TwoTempGasKinetics(thermo_t* thermo = 0);
 
     //! Copy Constructor
-    GasKinetics(const GasKinetics& right);
+    TwoTempGasKinetics(const TwoTempGasKinetics& right);
 
     //! Assignment operator
-    GasKinetics& operator=(const GasKinetics& right);
+    TwoTempGasKinetics& operator=(const TwoTempGasKinetics& right);
 
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     virtual int type() const {
-        return cGasKinetics;
+        return cTwoTempGasKinetics;
     }
 
     virtual doublereal reactantStoichCoeff(size_t k, size_t i) const {
@@ -91,6 +91,8 @@ public:
     virtual void getDeltaSSGibbs(doublereal* deltaG);
     virtual void getDeltaSSEnthalpy(doublereal* deltaH);
     virtual void getDeltaSSEntropy(doublereal* deltaS);
+
+    virtual void getDeltaEPlasma(doublereal* deltaE);
 
     //! @}
     //! @name Species Production Rates
@@ -152,6 +154,9 @@ public:
         return m_pgroups[i];
     }
 
+    //! Update electron temperature-dependent portions of reaction rates.
+    virtual void update_rates_Te();
+
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
     virtual void update_rates_T();
@@ -164,12 +169,15 @@ public:
 
 protected:
     size_t m_nfall;
+    size_t m_ntedep;
 
     std::vector<size_t> m_fallindx;
+    std::vector<size_t> m_tedepindx;
 
     Rate1<Arrhenius>                    m_falloff_low_rates;
     Rate1<Arrhenius>                    m_falloff_high_rates;
     Rate1<Arrhenius>                    m_rates;
+    Rate1<BolsigArrhenius>              m_tedep_rates;
 
     mutable std::map<size_t, std::pair<int, size_t> > m_index;
 
@@ -219,17 +227,21 @@ protected:
     vector_fp m_ropf;
     vector_fp m_ropr;
     vector_fp m_ropnet;
+    vector_fp m_tedep_rfn;
     vector_fp m_rfn_low;
     vector_fp m_rfn_high;
     bool m_ROP_ok;
 
     doublereal m_temp;
+    doublereal m_etemp;
     doublereal m_pres; //!< Last pressure at which rates were evaluated
     vector_fp m_rfn;
     vector_fp falloff_work;
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
     vector_fp m_rkcn;
+
+    vector_fp m_deltaE;
     //!@}
 
     vector_fp m_conc;
@@ -244,6 +256,7 @@ private:
 
     void addElementaryReaction(ReactionData& r);
     void addThreeBodyReaction(ReactionData& r);
+    void addTeDependentReaction(ReactionData& r);
     void addFalloffReaction(ReactionData& r);
     void addPlogReaction(ReactionData& r);
     void addChebyshevReaction(ReactionData& r);
