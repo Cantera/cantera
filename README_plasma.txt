@@ -6,6 +6,8 @@ New capabilities:
 - equilibrium composition of ionized mixtures
 - transpost properties of ionized mixtures (rigorous derivation from Chapman-Enskog theory)
 - updated interaction potentials also for neutral-neutral interactions
+- rate constants for non-Boltzman effects (curve fits from Bolsig++)
+- 2-Temperatures kinetics (non-equilibrium kinetics)
 
 External Files:
 - It has been decided to not hard-code coefficients needed for transport properties (i.e. collsion integrals, etc).
@@ -24,7 +26,6 @@ External Files:
   inside the list, Cantera will read the coefficients for transport properties from heavy.dat, otherwise Cantera will use the (old) data hard-coded.
  
 Future Work:
-- Cantera extension to Multi-Temperatures
 - Introduction of negative ions
 
 User:

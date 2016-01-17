@@ -1265,6 +1265,8 @@ class reaction(object):
             self._kf = [self._kf]
             self.mdim += 1
             self.ldim -= 3
+        elif self._type == 'TeDependent':
+            self._kf = [self._kf]
         elif self._type == 'chebyshev':
             self._kf = []
 
@@ -1301,6 +1303,50 @@ class reaction(object):
 
 #-------------------
 
+class electron_impact_reaction(reaction):
+    """
+    Electron-temperature-dependent rate calculated in terms of a modified Arrhenius expression.
+
+    :param equation:
+        A string specifying the chemical equation.
+    :param rate_coeff:
+        The Arrhenius rate coefficient. If a sequence of
+        three numbers is given, these will be interpreted as [A,n,E] in
+        the modified Arrhenius function. 
+    :param coeffs:
+        An array of the coefficients defining the modified rate expression.
+    :param exci:
+        The energy released by the reaction.
+    :param id:
+        An optional identification string. If omitted, it defaults to a
+        four-digit numeric string beginning with 0001 for the first
+        reaction in the file.
+    :param options:
+        Processing options, as described in :ref:`sec-phase-options`.
+    """
+    def __init__(self,
+                 equation   = '',
+                 kf         = None, 
+                 fit_coeffs = [[]],
+                 exci       = None,
+                 id         = '',
+                 options    = [],
+                 **kwargs):
+        reaction.__init__(self, equation, kf, id, '', options)
+        self._type      = 'TeDependent'
+        self.fit_coeffs = fit_coeffs
+        self.exci       = exci
+
+    def build(self, p):
+        r         = reaction.build(self, p)
+        kfNode    = r.child('rateCoeff')
+        if self.fit_coeffs:
+            s = ''
+            for num in self.fit_coeffs:
+                s += '%g ' % num
+            f = kfNode.addChild('fit_coeffs', s)
+            #coeffs = kfNode.addChild('fit_coeffs',self.fit_coeffs)
+        exciNode  = r.addChild('exci', self.exci)
 
 class three_body_reaction(reaction):
     """
