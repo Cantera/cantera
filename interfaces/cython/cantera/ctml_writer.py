@@ -942,13 +942,13 @@ class gas_transport(transport):
     """
     Species-specific Transport coefficients for gas-phase transport models.
     """
-    def __init__(self, geom = 'nonlin',
+    def __init__(self, geom = 'nonlinear',
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
                  polar = 0.0, rot_relax = 0.0, acentric_factor = None):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
-            ``linear``, or ``nonlin``. Required.
+            ``linear``, or ``nonlinear``. Required.
         :param diam:
             The Lennard-Jones collision diameter in Angstroms. Required.
         :param well_depth:
