@@ -105,6 +105,10 @@ public:
         return m_loc[jg];
     }
 
+    //! Return the domain, local point index, and component name for the i-th
+    //! component of the global solution vector
+    std::tuple<std::string, size_t, std::string> component(size_t i);
+
     /// Jacobian bandwidth.
     size_t bandwidth() const {
         return m_bw;

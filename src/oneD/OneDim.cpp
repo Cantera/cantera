@@ -54,6 +54,20 @@ size_t OneDim::domainIndex(const std::string& name)
     throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
 }
 
+std::tuple<std::string, size_t, std::string> OneDim::component(size_t i) {
+    size_t n;
+    for (n = nDomains()-1; n != npos; n--) {
+        if (i >= start(n)) {
+            break;
+        }
+    }
+    Domain1D& dom = domain(n);
+    size_t offset = i - start(n);
+    size_t pt = offset / dom.nComponents();
+    size_t comp = offset - pt*dom.nComponents();
+    return make_tuple(dom.id(), pt, dom.componentName(comp));
+}
+
 void OneDim::addDomain(Domain1D* d)
 {
     // if 'd' is not the first domain, link it to the last domain
