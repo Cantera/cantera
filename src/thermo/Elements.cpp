@@ -164,7 +164,7 @@ static struct isotopeWeightData isotopeWeightTable[] = {
 double LookupWtElements(const std::string& ename)
 {
     warn_deprecated("LookupWtElements",
-    "Use getElementWeight instead. To be removed after Cantera 2.3");
+        "Use getElementWeight instead. To be removed after Cantera 2.3");
     return getElementWeight(ename);
 }
 
@@ -172,25 +172,23 @@ double getElementWeight(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
-    string sym = ename.substr(0,2);
+    string symbol = stripws(ename);
+    string name = lowercase(stripws(ename));
     for (int i = 0; i < numElements; i++) {
-        if (sym == atomicWeightTable[i].symbol) {
+        if (symbol == atomicWeightTable[i].symbol) {
             return atomicWeightTable[i].atomicWeight;
-        }
-        else if (ename == atomicWeightTable[i].fullName) {
+        } else if (name == atomicWeightTable[i].fullName) {
             return atomicWeightTable[i].atomicWeight;
         }
     }
     for (int i = 0; i < numIsotopes; i++) {
-        if (sym == isotopeWeightTable[i].symbol) {
+        if (symbol == isotopeWeightTable[i].symbol) {
             return isotopeWeightTable[i].atomicWeight;
-        }
-        else if (ename == isotopeWeightTable[i].fullName) {
+        } else if (name == isotopeWeightTable[i].fullName) {
             return isotopeWeightTable[i].atomicWeight;
         }
     }
     throw CanteraError("getElementWeight", "element not found: " + ename);
-    return -1.0;
 }
 
 double getElementWeight(int atomicNumber)
@@ -206,13 +204,14 @@ string getElementSymbol(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
+    string name = lowercase(stripws(ename));
     for (int i = 0; i < numElements; i++) {
-        if (ename == atomicWeightTable[i].fullName) {
+        if (name == atomicWeightTable[i].fullName) {
             return atomicWeightTable[i].symbol;
         }
     }
     for (int i = 0; i < numIsotopes; i++) {
-        if (ename == isotopeWeightTable[i].fullName) {
+        if (name == isotopeWeightTable[i].fullName) {
             return isotopeWeightTable[i].symbol;
         }
     }
@@ -233,14 +232,14 @@ string getElementName(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
-    string sym = ename.substr(0,2);
+    string symbol = stripws(ename);
     for (int i = 0; i < numElements; i++) {
-        if (sym == atomicWeightTable[i].symbol) {
+        if (symbol == atomicWeightTable[i].symbol) {
             return atomicWeightTable[i].fullName;
         }
     }
     for (int i = 0; i < numIsotopes; i++) {
-        if (sym == isotopeWeightTable[i].symbol) {
+        if (symbol == isotopeWeightTable[i].symbol) {
             return isotopeWeightTable[i].fullName;
         }
     }
@@ -252,7 +251,7 @@ string getElementName(int atomicNumber)
     int num = numElementsDefined();
     if (atomicNumber > num || atomicNumber < 1) {
         throw IndexError("getElementName", "atomicWeightTable", atomicNumber,
-        num);
+                         num);
     }
     return atomicWeightTable[atomicNumber - 1].fullName;
 }
@@ -261,25 +260,23 @@ int getAtomicNumber(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
-    string sym = ename.substr(0,2);
+    string symbol = stripws(ename);
+    string name = lowercase(stripws(ename));
     for (int i = 0; i < numElements; i++) {
-        if (sym == atomicWeightTable[i].symbol) {
+        if (symbol == atomicWeightTable[i].symbol) {
             return i+1;
-        }
-        else if (ename == atomicWeightTable[i].fullName) {
+        } else if (name == atomicWeightTable[i].fullName) {
             return i+1;
         }
     }
     for (int i = 0; i < numIsotopes; i++) {
-        if (sym == isotopeWeightTable[i].symbol) {
+        if (symbol == isotopeWeightTable[i].symbol) {
             return isotopeWeightTable[i].atomicNumber;
-        }
-        else if (ename == isotopeWeightTable[i].fullName) {
+        } else if (name == isotopeWeightTable[i].fullName) {
             return isotopeWeightTable[i].atomicNumber;
         }
     }
     throw CanteraError("getAtomicNumber", "element not found: " + ename);
-    return -1.0;
 }
 
 int numElementsDefined()
