@@ -1326,10 +1326,12 @@ class Element(object):
     def __init__(self, arg):
         if isinstance(arg, (str, unicode, bytes)):
             try:
+                # Assume the argument is the element symbol and try to get the name
                 self._name = getElementName(stringify(arg))
             except RuntimeError:
+                # If getting the name failed, the argument must be the name
                 self._symbol = getElementSymbol(stringify(arg))
-                self._name = arg
+                self._name = arg.lower()
             else:
                 self._symbol = arg
 
