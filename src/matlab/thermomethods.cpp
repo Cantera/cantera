@@ -61,6 +61,27 @@ static void thermoset(int nlhs, mxArray* plhs[],
             case 26:
                 ierr = th_set_RP(th,ptr);
                 break;
+            case 27:
+                ierr = th_set_ST(th,ptr);
+                break;
+            case 28:
+                ierr = th_set_TV(th,ptr);
+                break;
+            case 29:
+                ierr = th_set_PV(th,ptr);
+                break;
+            case 30:
+                ierr = th_set_UP(th,ptr);
+                break;
+            case 31:
+                ierr = th_set_VH(th,ptr);
+                break;
+            case 32:
+                ierr = th_set_TH(th,ptr);
+                break;
+            case 33:
+                ierr = th_set_SH(th,ptr);
+                break;
             default:
                 mexErrMsgTxt("unknown pair attribute.");
             }
