@@ -115,14 +115,14 @@ double Substance::Tsat(double p)
     return tsat;
 }
 
-// absolute tolerances
-static const double TolAbsH = 0.0001; // J/kg
-static const double TolAbsU = 0.0001;
+// property tolerances
+static const double TolAbsH = 1.e-4; // J/kg
+static const double TolAbsU = 1.e-4;
 static const double TolAbsS = 1.e-7;
-static const double TolAbsP = 0.000; // Pa
+static const double TolAbsP = 0.0; // Pa, this is supposed to be zero
 static const double TolAbsV = 1.e-8;
 static const double TolAbsT = 1.e-3;
-static const double TolRel = 3.e-8;
+static const double TolRel = 1.e-8;
 
 void Substance::Set(PropertyPair::type XY, double x0, double y0)
 {
