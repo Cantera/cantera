@@ -974,6 +974,118 @@ public:
      */
     virtual void setState_SV(doublereal s, doublereal v, doublereal tol = 1.e-4);
 
+    //! Set the specific entropy (J/kg/K) and temperature (K).
+    /*!
+     * This function fixes the internal state of the phase so that the specific
+     * entropy and temperature have the value of the input parameters.
+     * This base class function will print an error if not overwritten.
+     *
+     * @param s    specific entropy (J/kg/K)
+     * @param t    temperature (K)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     */
+    virtual void setState_ST(double s, double t, double tol = 1.e-4) {
+        throw NotImplementedError("ThermoPhase::setState_ST");
+    }
+
+    //! Set the temperature (K) and specific volume (m^3/kg).
+    /*!
+     * This function fixes the internal state of the phase so that the
+     * temperature and specific volume have the value of the input parameters.
+     * This base class function will print an error if not overwritten.
+     *
+     * @param t    temperature (K)
+     * @param v    specific volume (m^3/kg)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     */
+    virtual void setState_TV(double t, double v, double tol = 1.e-4) {
+        throw NotImplementedError("ThermoPhase::setState_TV");
+    }
+
+    //! Set the pressure (Pa) and specific volume (m^3/kg).
+    /*!
+     * This function fixes the internal state of the phase so that the
+     * pressure and specific volume have the value of the input parameters.
+     * This base class function will print an error if not overwritten.
+     *
+     * @param p    pressure (Pa)
+     * @param v    specific volume (m^3/kg)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     */
+    virtual void setState_PV(double p, double v, double tol = 1.e-4) {
+        throw NotImplementedError("ThermoPhase::setState_PV");
+    }
+
+    //! Set the specific internal energy (J/kg) and pressure (Pa).
+    /*!
+     * This function fixes the internal state of the phase so that the specific
+     * internal energy and pressure have the value of the input parameters.
+     * This base class function will print an error if not overwritten.
+     *
+     * @param u    specific internal energy (J/kg)
+     * @param p    pressure (Pa)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     */
+    virtual void setState_UP(double u, double p, double tol = 1.e-4) {
+        throw NotImplementedError("ThermoPhase::setState_UP");
+    }
+
+    //! Set the specific volume (m^3/kg) and the specific enthalpy (J/kg)
+    /*!
+     * This function fixes the internal state of the phase so that the specific
+     * volume and the specific enthalpy have the value of the input parameters.
+     * This base class function will print an error if not overwritten.
+     *
+     * @param v    specific volume (m^3/kg)
+     * @param h    specific enthalpy (J/kg)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     */
+    virtual void setState_VH(double v, double h, double tol = 1.e-4) {
+        throw NotImplementedError("ThermoPhase::setState_VH");
+    }
+
+    //! Set the temperature (K) and the specific enthalpy (J/kg)
+    /*!
+     * This function fixes the internal state of the phase so that the
+     * temperature and specific enthalpy have the value of the input parameters.
+     * This base class function will print an error if not overwritten.
+     *
+     * @param t    temperature (K)
+     * @param h    specific enthalpy (J/kg)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     */
+    virtual void setState_TH(double t, double h, double tol = 1.e-4) {
+        throw NotImplementedError("ThermoPhase::setState_TH");
+    }
+
+    //! Set the specific entropy (J/kg/K) and the specific enthalpy (J/kg)
+    /*!
+     * This function fixes the internal state of the phase so that the
+     * temperature and pressure have the value of the input parameters.
+     * This base class function will print an error if not overwritten.
+     *
+     * @param s    specific entropy (J/kg/K)
+     * @param h    specific enthalpy (J/kg)
+     * @param tol   Optional parameter setting the tolerance of the calculation.
+     *              Defaults to 1.0E-4. Important for some applications where
+     *              numerical Jacobians are being calculated.
+     */
+    virtual void setState_SH(double s, double h, double tol = 1.e-4) {
+        throw NotImplementedError("ThermoPhase::setState_SH");
+    }
+
     //! Set the density (kg/m**3) and pressure (Pa) at constant composition
     /*!
      * This method must be reimplemented in derived classes, where it may

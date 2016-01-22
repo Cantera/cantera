@@ -126,6 +126,13 @@ public:
     virtual void setState_UV(double u, double v, double tol = 1.e-8);
     virtual void setState_SV(double s, double v, double tol = 1.e-8);
     virtual void setState_SP(double s, double p, double tol = 1.e-8);
+    virtual void setState_ST(double s, double t, double tol = 1.e-8);
+    virtual void setState_TV(double t, double v, double tol = 1.e-8);
+    virtual void setState_PV(double p, double v, double tol = 1.e-8);
+    virtual void setState_UP(double u, double p, double tol = 1.e-8);
+    virtual void setState_VH(double v, double h, double tol = 1.e-8);
+    virtual void setState_TH(double t, double h, double tol = 1.e-8);
+    virtual void setState_SH(double s, double h, double tol = 1.e-8);
     //@}
 
     //! @name Critical State Properties
