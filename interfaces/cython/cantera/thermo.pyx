@@ -1220,6 +1220,87 @@ cdef class PureFluid(ThermoPhase):
             X = values[1] if values[1] is not None else self.X
             self.thermo.setState_Psat(P, X)
 
+    property ST:
+        """Get/Set the entropy [J/kg/K] and temperature [K] of a PureFluid."""
+        def __get__(self):
+            return self.s, self.T
+        def __set__(self, values):
+            S = values[0] if values[0] is not None else self.s
+            T = values[1] if values[1] is not None else self.T
+            self.thermo.setState_ST(S / self._mass_factor(), T)
+
+    property TV:
+        """
+        Get/Set the temperature [K] and specific volume [m^3/kg] of
+        a PureFluid.
+        """
+        def __get__(self):
+            return self.T, self.v
+        def __set__(self, values):
+            T = values[0] if values[0] is not None else self.T
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_TV(T, V / self._mass_factor())
+
+    property PV:
+        """
+        Get/Set the pressure [Pa] and specific volume [m^3/kg] of
+        a PureFluid.
+        """
+        def __get__(self):
+            return self.p, self.v
+        def __set__(self, values):
+            P = values[0] if values[0] is not None else self.P
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_PV(P, V / self._mass_factor())
+
+    property UP:
+        """
+        Get/Set the specific internal energy [J/kg] and the
+        pressure [Pa] of a PureFluid.
+        """
+        def __get__(self):
+            return self.u, self.P
+        def __set__(self, values):
+            U = values[0] if values[0] is not None else self.u
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_UP(U / self._mass_factor(), P)
+
+    property VH:
+        """
+        Get/Set the specfic volume [m^3/kg] and the specific
+        enthalpy [J/kg] of a PureFluid.
+        """
+        def __get__(self):
+            return self.v, self.h
+        def __set__(self, values):
+            V = values[0] if values[0] is not None else self.v
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_VH(V/self._mass_factor(), H/self._mass_factor())
+
+    property TH:
+        """
+        Get/Set the temperature [K] and the specific enthalpy [J/kg]
+        of a PureFluid.
+        """
+        def __get__(self):
+            return self.T, self.h
+        def __set__(self, values):
+            T = values[0] if values[0] is not None else self.T
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_TH(T, H / self._mass_factor())
+
+    property SH:
+        """
+        Get/Set the specific entropy [J/kg/K] and the specific
+        enthalpy [J/kg] of a PureFluid.
+        """
+        def __get__(self):
+            return self.s, self.h
+        def __set__(self, values):
+            S = values[0] if values[0] is not None else self.s
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_SH(S/self._mass_factor(), H/self._mass_factor())
+
     property TDX:
         """
         Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor

@@ -181,6 +181,13 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_SP(double, double) except +
         void setState_SV(double, double) except +
         void setState_RP(double, double) except +
+        void setState_ST(double, double) except +
+        void setState_TV(double, double) except +
+        void setState_PV(double, double) except +
+        void setState_UP(double, double) except +
+        void setState_VH(double, double) except +
+        void setState_TH(double, double) except +
+        void setState_SH(double, double) except +
 
         # molar thermodynamic properties:
         double enthalpy_mole() except +
