@@ -1332,7 +1332,7 @@ protected:
 public:
     //! Set the internally stored density (kg/m^3) of the phase.
     /*!
-     * Overwritten setDensity() function is necessary because the density is not
+     * Overridden setDensity() function is necessary because the density is not
      * an independent variable.
      *
      * This function will now throw an error condition.
@@ -1354,7 +1354,7 @@ public:
 
     //! Set the internally stored molar density (kmol/m^3) for the phase.
     /**
-     * Overwritten setMolarDensity() function is necessary because of the
+     * Overridden setMolarDensity() function is necessary because of the
      * underlying water model.
      *
      * This function will now throw an error condition if the input isn't
@@ -1790,7 +1790,7 @@ public:
     //!  pressure, and solution concentration.
     /*!
      *  See Denbigh p. 278 for a thorough discussion. This class must be
-     *  overwritten in classes which derive from MolalityVPSSTP. This function
+     *  overridden in classes which derive from MolalityVPSSTP. This function
      *  takes over from the molar-based activity coefficient calculation,
      *  getActivityCoefficients(), in derived classes.
      *

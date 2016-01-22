@@ -224,7 +224,7 @@ public:
     void calcDensity();
 
     /**
-     * Overwritten setDensity() function is necessary because the density is not
+     * Overridden setDensity() function is necessary because the density is not
      * an independent variable.
      *
      * This function will now throw an error condition
@@ -238,7 +238,7 @@ public:
     virtual void setDensity(const doublereal rho);
 
     /**
-     * Overwritten setMolarDensity() function is necessary because the density
+     * Overridden setMolarDensity() function is necessary because the density
      * is not an independent variable.
      *
      * This function will now throw an error condition.

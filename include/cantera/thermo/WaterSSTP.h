@@ -241,7 +241,7 @@ public:
 
 protected:
     /**
-     * @internal This internal routine must be overwritten because it is not
+     * @internal This internal routine must be overridden because it is not
      *        applicable.
      */
     void _updateThermo() const;

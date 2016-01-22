@@ -978,7 +978,7 @@ public:
     /*!
      * This function fixes the internal state of the phase so that the specific
      * entropy and temperature have the value of the input parameters.
-     * This base class function will print an error if not overwritten.
+     * This base class function will throw an exception if not overridden.
      *
      * @param s    specific entropy (J/kg/K)
      * @param t    temperature (K)
@@ -994,7 +994,7 @@ public:
     /*!
      * This function fixes the internal state of the phase so that the
      * temperature and specific volume have the value of the input parameters.
-     * This base class function will print an error if not overwritten.
+     * This base class function will throw an exception if not overridden.
      *
      * @param t    temperature (K)
      * @param v    specific volume (m^3/kg)
@@ -1010,7 +1010,7 @@ public:
     /*!
      * This function fixes the internal state of the phase so that the
      * pressure and specific volume have the value of the input parameters.
-     * This base class function will print an error if not overwritten.
+     * This base class function will throw an exception if not overridden.
      *
      * @param p    pressure (Pa)
      * @param v    specific volume (m^3/kg)
@@ -1026,7 +1026,7 @@ public:
     /*!
      * This function fixes the internal state of the phase so that the specific
      * internal energy and pressure have the value of the input parameters.
-     * This base class function will print an error if not overwritten.
+     * This base class function will throw an exception if not overridden.
      *
      * @param u    specific internal energy (J/kg)
      * @param p    pressure (Pa)
@@ -1042,7 +1042,7 @@ public:
     /*!
      * This function fixes the internal state of the phase so that the specific
      * volume and the specific enthalpy have the value of the input parameters.
-     * This base class function will print an error if not overwritten.
+     * This base class function will throw an exception if not overridden.
      *
      * @param v    specific volume (m^3/kg)
      * @param h    specific enthalpy (J/kg)
@@ -1058,7 +1058,7 @@ public:
     /*!
      * This function fixes the internal state of the phase so that the
      * temperature and specific enthalpy have the value of the input parameters.
-     * This base class function will print an error if not overwritten.
+     * This base class function will throw an exception if not overridden.
      *
      * @param t    temperature (K)
      * @param h    specific enthalpy (J/kg)
@@ -1074,7 +1074,7 @@ public:
     /*!
      * This function fixes the internal state of the phase so that the
      * temperature and pressure have the value of the input parameters.
-     * This base class function will print an error if not overwritten.
+     * This base class function will throw an exception if not overridden.
      *
      * @param s    specific entropy (J/kg/K)
      * @param h    specific enthalpy (J/kg)
@@ -1094,7 +1094,7 @@ public:
      * the temperature that will yield the desired input pressure and density.
      * The composition is held constant during this process.
      *
-     * This base class function will print an error, if not overwritten.
+     * This base class function will print an error, if not overridden.
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)

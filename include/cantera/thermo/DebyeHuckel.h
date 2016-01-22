@@ -646,7 +646,7 @@ protected:
 public:
     //! Set the internally stored density (gm/m^3) of the phase.
     /*!
-     * Overwritten setDensity() function is necessary because the density is not
+     * Overridden setDensity() function is necessary because the density is not
      * an independent variable.
      *
      * This function will now throw an error condition
@@ -668,7 +668,7 @@ public:
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     /**
-     * Overwritten setMolarDensity() function is necessary because the density
+     * Overridden setMolarDensity() function is necessary because the density
      * is not an independent variable.
      *
      * This function will now throw an error condition if the input isn't

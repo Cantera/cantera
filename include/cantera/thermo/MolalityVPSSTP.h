@@ -409,7 +409,7 @@ public:
     //! the current solution temperature, pressure, and solution concentration.
     /*!
      * See Denbigh p. 278 for a thorough discussion. This class must be
-     * overwritten in classes which derive from MolalityVPSSTP. This function
+     * overridden in classes which derive from MolalityVPSSTP. This function
      * takes over from the molar-based activity coefficient calculation,
      * getActivityCoefficients(), in derived classes.
      *
@@ -540,7 +540,7 @@ protected:
     //! concentration.
     /*!
      * See Denbigh p. 278 for a thorough discussion. This class must be
-     * overwritten in classes which derive from MolalityVPSSTP. This function
+     * overridden in classes which derive from MolalityVPSSTP. This function
      * takes over from the molar-based activity coefficient calculation,
      * getActivityCoefficients(), in derived classes.
      *

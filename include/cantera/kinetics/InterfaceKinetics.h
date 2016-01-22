@@ -273,7 +273,7 @@ public:
     //! Update the standard state chemical potentials and species equilibrium
     //! constant entries
     /*!
-     *  Virtual because it is overwritten when dealing with experimental open
+     *  Virtual because it is overridden when dealing with experimental open
      *  circuit voltage overrides
      */
     virtual void updateMu0();
