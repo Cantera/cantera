@@ -1018,6 +1018,11 @@ class TestElement(utilities.CanteraTest):
         cls.ar_name = ct.Element('argon')
         cls.ar_num = ct.Element(18)
 
+    def test_element_multiple_possibilities(self):
+        carbon = ct.Element('Carbon')
+        self.assertEqual(carbon.name, 'carbon')
+        self.assertEqual(carbon.symbol, 'C')
+
     def test_element_weight(self):
         self.assertNear(self.ar_sym.weight, 39.948)
         self.assertNear(self.ar_name.weight, 39.948)
