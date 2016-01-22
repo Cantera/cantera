@@ -284,29 +284,25 @@ doublereal PureFluidPhase::satTemperature(doublereal p) const
     return m_sub->Tsat(p);
 }
 
-void PureFluidPhase::setState_HP(doublereal h, doublereal p,
-                                 doublereal tol)
+void PureFluidPhase::setState_HP(double h, double p, double tol)
 {
     Set(tpx::PropertyPair::HP, h, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-void PureFluidPhase::setState_UV(doublereal u, doublereal v,
-                                 doublereal tol)
+void PureFluidPhase::setState_UV(double u, double v, double tol)
 {
     Set(tpx::PropertyPair::UV, u, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-void PureFluidPhase::setState_SV(doublereal s, doublereal v,
-                                 doublereal tol)
+void PureFluidPhase::setState_SV(double s, double v, double tol)
 {
     Set(tpx::PropertyPair::SV, s, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-void PureFluidPhase::setState_SP(doublereal s, doublereal p,
-                                 doublereal tol)
+void PureFluidPhase::setState_SP(double s, double p, double tol)
 {
     Set(tpx::PropertyPair::SP, s, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());

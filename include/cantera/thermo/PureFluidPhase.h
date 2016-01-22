@@ -27,7 +27,7 @@ namespace Cantera
  *
  * @ingroup thermoprops
  */
-class PureFluidPhase  : public ThermoPhase
+class PureFluidPhase : public ThermoPhase
 {
 public:
     //! Empty Base Constructor
@@ -122,17 +122,10 @@ public:
      * @{
      */
 
-    virtual void setState_HP(doublereal h, doublereal p,
-                             doublereal tol = 1.e-8);
-
-    virtual void setState_UV(doublereal u, doublereal v,
-                             doublereal tol = 1.e-8);
-
-    virtual void setState_SV(doublereal s, doublereal v,
-                             doublereal tol = 1.e-8);
-
-    virtual void setState_SP(doublereal s, doublereal p,
-                             doublereal tol = 1.e-8);
+    virtual void setState_HP(double h, double p, double tol = 1.e-8);
+    virtual void setState_UV(double u, double v, double tol = 1.e-8);
+    virtual void setState_SV(double s, double v, double tol = 1.e-8);
+    virtual void setState_SP(double s, double p, double tol = 1.e-8);
     //@}
 
     //! @name Critical State Properties
