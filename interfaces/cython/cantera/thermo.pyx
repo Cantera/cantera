@@ -1203,7 +1203,7 @@ cdef class PureFluid(ThermoPhase):
             self.thermo.setState_Psat(self.P, X)
 
     property TX:
-        """Get/Set the temperature and vapor fraction of a two-phase state."""
+        """Get/Set the temperature [K] and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.T, self.X
         def __set__(self, values):
@@ -1212,7 +1212,7 @@ cdef class PureFluid(ThermoPhase):
             self.thermo.setState_Tsat(T, X)
 
     property PX:
-        """Get/Set the pressure and vapor fraction of a two-phase state."""
+        """Get/Set the pressure [Pa] and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.P, self.X
         def __set__(self, values):
