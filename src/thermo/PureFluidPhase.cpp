@@ -284,6 +284,11 @@ doublereal PureFluidPhase::satTemperature(doublereal p) const
     return m_sub->Tsat(p);
 }
 
+/* The next several functions set the state. They run the Substance::Set
+ * function, followed by setting the state of the ThermoPhase object
+ * to the newly computed temperature and density of the Substance.
+ */
+
 void PureFluidPhase::setState_HP(double h, double p, double tol)
 {
     Set(tpx::PropertyPair::HP, h, p);
