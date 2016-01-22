@@ -1243,7 +1243,7 @@ public:
 
     //! Return the fraction of vapor at the current conditions
     virtual doublereal vaporFraction() const {
-        throw NotImplementedError("ThermoPhase::vaprFraction");
+        throw NotImplementedError("ThermoPhase::vaporFraction");
     }
 
     //! Set the state to a saturated system at a particular temperature
