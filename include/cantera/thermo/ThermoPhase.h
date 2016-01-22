@@ -909,7 +909,6 @@ public:
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
-
     virtual void setState_PX(doublereal p, doublereal* x);
 
     //! Set the internally stored pressure (Pa) and mass fractions.
@@ -977,16 +976,16 @@ public:
 
     //! Set the density (kg/m**3) and pressure (Pa) at constant composition
     /*!
-     *  This method must be reimplemented in derived classes, where it may
-     *  involve the solution of a nonlinear equation. Within %Cantera, the
-     *  independent variable is the density. Therefore, this function solves for
-     *  the temperature that will yield the desired input pressure and density.
-     *  The composition is held constant during this process.
+     * This method must be reimplemented in derived classes, where it may
+     * involve the solution of a nonlinear equation. Within %Cantera, the
+     * independent variable is the density. Therefore, this function solves for
+     * the temperature that will yield the desired input pressure and density.
+     * The composition is held constant during this process.
      *
-     *  This base class function will print an error, if not overwritten.
+     * This base class function will print an error, if not overwritten.
      *
-     *  @param rho Density (kg/m^3)
-     *  @param p   Pressure (Pa)
+     * @param rho Density (kg/m^3)
+     * @param p   Pressure (Pa)
      */
     virtual void setState_RP(doublereal rho, doublereal p) {
         throw NotImplementedError("ThermoPhase::setState_RP");
@@ -1011,9 +1010,9 @@ public:
      * are set. Setting the pressure may involve the solution of a nonlinear
      * equation.
      *
-     *  @param rho  Density (kg/m^3)
-     *  @param p    Pressure (Pa)
-     *  @param x    Composition map of mole fractions. Species not in
+     * @param rho  Density (kg/m^3)
+     * @param p    Pressure (Pa)
+     * @param x    Composition map of mole fractions. Species not in
      *              the composition map are assumed to have zero mole fraction
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const compositionMap& x);
@@ -1024,9 +1023,9 @@ public:
      * are set. Setting the pressure may involve the solution of a nonlinear
      * equation.
      *
-     *  @param rho  Density (kg/m^3)
-     *  @param p    Pressure (Pa)
-     *  @param x    String containing a composition map of the mole fractions.
+     * @param rho  Density (kg/m^3)
+     * @param p    Pressure (Pa)
+     * @param x    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
      */
@@ -1038,9 +1037,9 @@ public:
      * are set. Setting the pressure may involve the solution of a nonlinear
      * equation.
      *
-     *  @param rho  Density (kg/m^3)
-     *  @param p    Pressure (Pa)
-     *  @param y    Vector of mole fractions.
+     * @param rho  Density (kg/m^3)
+     * @param p    Pressure (Pa)
+     * @param y    Vector of mole fractions.
      *              Length is equal to m_kk.
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const doublereal* y);
@@ -1051,9 +1050,9 @@ public:
      * are set. Setting the pressure may involve the solution of a nonlinear
      * equation.
      *
-     *  @param rho Density (kg/m^3)
-     *  @param p   Pressure (Pa)
-     *  @param y   Composition map of mole fractions. Species not in
+     * @param rho Density (kg/m^3)
+     * @param p   Pressure (Pa)
+     * @param y   Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const compositionMap& y);
@@ -1064,9 +1063,9 @@ public:
      * are set. Setting the pressure may involve the solution of a nonlinear
      * equation.
      *
-     *  @param rho  Density (kg/m^3)
-     *  @param p    Pressure (Pa)
-     *  @param y    String containing a composition map of the mole fractions.
+     * @param rho  Density (kg/m^3)
+     * @param p    Pressure (Pa)
+     * @param y    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
      */
