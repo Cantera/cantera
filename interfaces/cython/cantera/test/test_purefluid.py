@@ -26,6 +26,35 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(self.water.T, 500)
         self.assertNear(self.water.X, 0.8)
 
+    def test_substance_set(self):
+        self.water.TV = 400, 1.45
+        self.assertNear(self.water.T, 400)
+        self.assertNear(self.water.v, 1.45)
+
+        self.water.PV = 101325, 1.45
+        self.assertNear(self.water.P, 101325)
+        self.assertNear(self.water.v, 1.45)
+
+        self.water.UP = -1.45e7, 101325
+        self.assertNear(self.water.u, -1.45e7)
+        self.assertNear(self.water.P, 101325)
+
+        self.water.VH = 1.45, -1.45e7
+        self.assertNear(self.water.v, 1.45)
+        self.assertNear(self.water.h, -1.45e7)
+
+        self.water.TH = 400, -1.45e7
+        self.assertNear(self.water.T, 400)
+        self.assertNear(self.water.h, -1.45e7)
+
+        self.water.SH = 5000, -1.45e7
+        self.assertNear(self.water.s, 5000)
+        self.assertNear(self.water.h, -1.45e7)
+
+        self.water.ST = 5000, 400
+        self.assertNear(self.water.s, 5000)
+        self.assertNear(self.water.T, 400)
+
     def test_set_X(self):
         self.water.TX = 500, 0.0
         p = self.water.P
