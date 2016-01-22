@@ -70,11 +70,11 @@ class TestPureFluid(utilities.CanteraTest):
 
     def test_properties_near_min(self):
         self.check_fd_properties(self.water.min_temp*(1+1e-5), 101325,
-                              self.water.min_temp*(1+1e-4), 101325, 1e-2)
+                                 self.water.min_temp*(1+1e-4), 101325, 1e-2)
 
     def test_properties_near_max(self):
         self.check_fd_properties(self.water.max_temp*(1-1e-5), 101325,
-                              self.water.max_temp*(1-1e-4), 101325, 1e-2)
+                                 self.water.max_temp*(1-1e-4), 101325, 1e-2)
 
     def test_TPX(self):
         self.water.TX = 400, 0.8
@@ -160,7 +160,7 @@ class PureFluidTestCases(object):
             a2 = self.a(state.T, 1/(V+0.5*dV))
 
             # dP/drho is high for liquids, so relax tolerances
-            tol = 100 *self.tol.dAdV if state.phase == 'liquid' else self.tol.dAdV
+            tol = 100*self.tol.dAdV if state.phase == 'liquid' else self.tol.dAdV
 
             # At constant temperature, dA = - p dV
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
@@ -198,7 +198,7 @@ class PureFluidTestCases(object):
         for state in self.states:
             self.fluid.TD = state.T, state.rho
             # dP/drho is high for liquids, so relax tolerances
-            tol = 50 *self.tol.p if state.phase == 'liquid' else self.tol.p
+            tol = 50*self.tol.p if state.phase == 'liquid' else self.tol.p
             tol *= state.tolMod
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
             self.assertNear(self.fluid.P, state.p, tol, msg=msg)
@@ -219,10 +219,10 @@ class PureFluidTestCases(object):
                             state.s - self.refState.s,
                             self.tol.s * state.tolMod, msg=msg)
 
+
 # Reference values for HFC134a taken from NIST Chemistry WebBook, which
 # implements the same EOS from Tillner-Roth and Baehr as Cantera, so close
 # agreement is expected.
-
 class HFC134a(PureFluidTestCases, utilities.CanteraTest):
     states = [
         StateData('liquid', 175.0, 0.1, rho=1577.6239, u=77.534586, s=0.44788182),
@@ -239,6 +239,7 @@ class HFC134a(PureFluidTestCases, utilities.CanteraTest):
         PureFluidTestCases.__init__(self, 'hfc134a', refState)
         utilities.CanteraTest.__init__(self, *args, **kwargs)
 
+
 # Reference values for the following substances are taken from the tables in
 # W.C. Reynolds, "Thermodynamic Properties in SI", which is the source of
 # Cantera's equations of state for these substances. Agreement is limited by
@@ -249,12 +250,11 @@ class HFC134a(PureFluidTestCases, utilities.CanteraTest):
 # different methods for satisfying the phase equilibrium condition g_l = g_v.
 # Cantera uses the actual equation of state, while the tabulated values given
 # by Reynolds are based on the given P_sat(T_sat) relations.
-
 class CarbonDioxide(PureFluidTestCases, utilities.CanteraTest):
     states = [
         StateData('liquid', 230.0, 2.0, rho=1132.4, h=28.25, s=0.1208),
         StateData('liquid', 270.0, 10.0, rho=989.97, h=110.59, s=0.4208),
-        StateData('vapor', 250.0, 1.788, v=0.02140, h=358.59, s=1.4500, relax=True), #sat
+        StateData('vapor', 250.0, 1.788, v=0.02140, h=358.59, s=1.4500, relax=True),  # sat
         StateData('vapor', 300.0, 2.0, v=0.02535, h=409.41, s=1.6174),
         StateData('super', 500.0, 1.0, v=0.09376, h=613.22, s=2.2649),
         StateData('super', 600.0, 20.0, v=0.00554, h=681.94, s=1.8366)]
@@ -269,9 +269,9 @@ class CarbonDioxide(PureFluidTestCases, utilities.CanteraTest):
 
 class Heptane(PureFluidTestCases, utilities.CanteraTest):
     states = [
-        StateData('liquid', 300.0, 0.006637, v=0.001476, h=0.0, s=0.0, relax=True), #sat
-        StateData('liquid', 400.0, 0.2175, v=0.001712, h=248.01, s=0.709, relax=True), #sat
-        StateData('vapor', 490.0, 1.282, v=0.02222, h=715.64, s=1.7137, relax=True), #sat
+        StateData('liquid', 300.0, 0.006637, v=0.001476, h=0.0, s=0.0, relax=True),  # sat
+        StateData('liquid', 400.0, 0.2175, v=0.001712, h=248.01, s=0.709, relax=True),  # sat
+        StateData('vapor', 490.0, 1.282, v=0.02222, h=715.64, s=1.7137, relax=True),  # sat
         StateData('vapor', 480.0, 0.70, v=0.04820, h=713.04, s=1.7477),
         StateData('super', 600.0, 2.0, v=0.01992, h=1014.87, s=2.2356),
         StateData('super', 680.0, 0.2, v=0.2790, h=1289.29, s=2.8450)]
@@ -287,9 +287,9 @@ class Heptane(PureFluidTestCases, utilities.CanteraTest):
 # para-hydrogen
 class Hydrogen(PureFluidTestCases, utilities.CanteraTest):
     states = [
-        StateData('liquid', 18.0, 0.04807, v=0.013660, h=30.1, s=1.856, relax=True), #sat
-        StateData('liquid', 26.0, 0.4029, v=0.015911, h=121.2, s=5.740, relax=True), #sat
-        StateData('vapor', 30.0, 0.8214, v=0.09207, h=487.4, s=17.859, relax=True), #sat
+        StateData('liquid', 18.0, 0.04807, v=0.013660, h=30.1, s=1.856, relax=True),  # sat
+        StateData('liquid', 26.0, 0.4029, v=0.015911, h=121.2, s=5.740, relax=True),  # sat
+        StateData('vapor', 30.0, 0.8214, v=0.09207, h=487.4, s=17.859, relax=True),  # sat
         StateData('super', 100.0, 0.20, v=2.061, h=1398.3, s=39.869),
         StateData('super', 200.0, 20.0, v=0.04795, h=3015.9, s=31.274),
         StateData('super', 300.0, 0.50, v=2.482, h=4511.6, s=53.143),
@@ -309,7 +309,7 @@ class Methane(PureFluidTestCases, utilities.CanteraTest):
         StateData('liquid', 100.0, 0.50, rho=439.39, h=31.65, s=0.3206),
         StateData('liquid', 140.0, 2.0, rho=379.51, h=175.48, s=1.4963),
         StateData('vapor', 150.0, 0.20, v=0.3772, h=660.72, s=5.5435),
-        StateData('vapor', 160.0, 1.594, v=0.03932, h=627.96, s=4.3648, relax=True), #sat
+        StateData('vapor', 160.0, 1.594, v=0.03932, h=627.96, s=4.3648, relax=True),  # sat
         StateData('vapor', 175.0, 1.0, v=0.08157, h=692.55, s=4.9558),
         StateData('super', 200.0, 0.2, v=0.5117, h=767.37, s=6.1574),
         StateData('super', 300.0, 0.5, v=0.3083, h=980.87, s=6.5513)]
@@ -324,8 +324,8 @@ class Methane(PureFluidTestCases, utilities.CanteraTest):
 
 class Nitrogen(PureFluidTestCases, utilities.CanteraTest):
     states = [
-        StateData('liquid', 80.0, 0.1370, v=0.001256, h=33.50, s=0.4668, relax=True), #sat
-        StateData('vapor', 110.0, 1.467, v=0.01602, h=236.28, s=2.3896, relax=True), #sat
+        StateData('liquid', 80.0, 0.1370, v=0.001256, h=33.50, s=0.4668, relax=True),  # sat
+        StateData('vapor', 110.0, 1.467, v=0.01602, h=236.28, s=2.3896, relax=True),  # sat
         StateData('super', 200.0, 0.5, v=0.1174, h=355.05, s=3.5019),
         StateData('super', 300.0, 10.0, v=0.00895, h=441.78, s=2.9797),
         StateData('super', 500.0, 5.0, v=0.03031, h=668.48, s=3.7722),
@@ -341,9 +341,9 @@ class Nitrogen(PureFluidTestCases, utilities.CanteraTest):
 
 class Oxygen(PureFluidTestCases, utilities.CanteraTest):
     states = [
-        StateData('liquid', 80.0, 0.03009, v=0.000840, h=42.56, s=0.6405, relax=True), #sat
-        StateData('liquid', 125.0, 1.351, v=0.001064, h=123.24, s=1.4236, relax=True), #sat
-        StateData('vapor', 145.0, 3.448, v=0.006458, h=276.45, s=2.4852, relax=True), #sat
+        StateData('liquid', 80.0, 0.03009, v=0.000840, h=42.56, s=0.6405, relax=True),  # sat
+        StateData('liquid', 125.0, 1.351, v=0.001064, h=123.24, s=1.4236, relax=True),  # sat
+        StateData('vapor', 145.0, 3.448, v=0.006458, h=276.45, s=2.4852, relax=True),  # sat
         StateData('super', 200.0, 0.050, v=1.038, h=374.65, s=4.1275),
         StateData('super', 300.0, 1.0, v=0.07749, h=463.76, s=3.7135),
         StateData('super', 600.0, 0.20, v=0.7798, h=753.38, s=4.7982),
@@ -395,7 +395,7 @@ class PureFluidConvergence(utilities.CanteraTest):
 
         errors = ''
         nErrors = 0
-        for T,P in itertools.product(TT,PP):
+        for T,P in itertools.product(TT, PP):
             try:
                 self.fluid.TP = T, P
                 self.assertNear(self.fluid.T, T, 1e-6)
@@ -413,7 +413,7 @@ class PureFluidConvergence(utilities.CanteraTest):
         VV = [0.001, 0.002, 0.005, 0.010, 0.10, 0.5, 1.0, 1.5, 2.0]
         errors = ''
         nErrors = 0
-        for u,v in itertools.product(UU,VV):
+        for u,v in itertools.product(UU, VV):
             try:
                 self.fluid.UV = u, v
                 self.assertNear(self.fluid.u, u, 1e-6)
@@ -431,7 +431,7 @@ class PureFluidConvergence(utilities.CanteraTest):
         PP = [1234.0, 101325.0, 5e5, 22.0e6, 22.08e6, 22.09e6, 10001000.0]
         errors = ''
         nErrors = 0
-        for h,P in itertools.product(HH,PP):
+        for h,P in itertools.product(HH, PP):
             try:
                 self.fluid.HP = h, P
                 self.assertNear(self.fluid.h, h, 1e-6)
