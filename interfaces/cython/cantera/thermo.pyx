@@ -1315,22 +1315,22 @@ class Element(object):
 
     #: A list of the symbols of all the elements (not isotopes) defined
     #: in Cantera
-    element_symbols = [getElementSymbol(<int>(m+1))
+    element_symbols = [pystr(getElementSymbol(<int>(m+1)))
                        for m in range(num_elements_defined)]
 
     #: A list of the names of all the elements (not isotopes) defined
     #: in Cantera
-    element_names = [getElementName(<int>m+1)
+    element_names = [pystr(getElementName(<int>m+1))
                      for m in range(num_elements_defined)]
 
     def __init__(self, arg):
         if isinstance(arg, (str, unicode, bytes)):
             try:
                 # Assume the argument is the element symbol and try to get the name
-                self._name = getElementName(stringify(arg))
+                self._name = pystr(getElementName(stringify(arg)))
             except RuntimeError:
                 # If getting the name failed, the argument must be the name
-                self._symbol = getElementSymbol(stringify(arg))
+                self._symbol = pystr(getElementSymbol(stringify(arg)))
                 self._name = arg.lower()
             else:
                 self._symbol = arg
@@ -1339,8 +1339,8 @@ class Element(object):
             self._weight = getElementWeight(stringify(arg))
         elif isinstance(arg, int):
             self._atomic_number = arg
-            self._name = getElementName(<int>arg)
-            self._symbol = getElementSymbol(<int>arg)
+            self._name = pystr(getElementName(<int>arg))
+            self._symbol = pystr(getElementSymbol(<int>arg))
             self._weight = getElementWeight(<int>arg)
         else:
             raise TypeError('The input argument to Element must be a string '
