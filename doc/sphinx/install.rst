@@ -14,7 +14,7 @@ Windows
 =======
 
 Windows installers are provided for stable versions of Cantera. These
-installation instructions are for Cantera 2.2.0.
+installation instructions are for Cantera 2.2.1.
 
 1. **Choose your Python version and architecture**
 
@@ -75,7 +75,7 @@ installation instructions are for Cantera 2.2.0.
 
    - Download the most recent release (distributed as a "wheel" archive) of the
      1.x series for Python *X.Y* that matches your Python architecture. The
-     binaries for Cantera 2.2.0 require Numpy 1.8.0 or newer, e.g. In the
+     binaries for Cantera 2.2.1 require Numpy 1.8.0 or newer, e.g. In the
      filename, the digits after "cp" indicate the Python version, e.g.
      ``numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl`` is the installer for 64-bit
      Python 3.4.
@@ -104,10 +104,10 @@ installation instructions are for Cantera 2.2.0.
    - Go to the `Cantera Releases <https://github.com/Cantera/cantera/releases>`_
      page.
 
-     - *64-bit*: Download **Cantera-2.2.0-x64.msi** and
-       **Cantera-Python-2.2.0-x64-pyX.Y.msi**.
-     - *32-bit*: Download **Cantera-2.2.0-x86.msi** and
-       **Cantera-Python-2.2.0-x86-pyX.Y.msi**.
+     - *64-bit*: Download **Cantera-2.2.1-x64.msi** and
+       **Cantera-Python-2.2.1-x64-pyX.Y.msi**.
+     - *32-bit*: Download **Cantera-2.2.1-x86.msi** and
+       **Cantera-Python-2.2.1-x86-pyX.Y.msi**.
 
    - If you are only using the Python module, you do not need to download and
      install the base package.
@@ -337,7 +337,7 @@ Ubuntu
 ======
 
 Ubuntu packages are provided for recent versions of Ubuntu using a Personal
-Package Archive (PPA). As of Cantera 2.2.0, packages are available for Ubuntu
+Package Archive (PPA). As of Cantera 2.2.1, packages are available for Ubuntu
 Ubuntu 14.04 LTS (Trusty Tahr), Ubuntu 14.10 (Utopic Unicorn), and Ubuntu 15.04
 (Vivid Vervet). To see which Ubuntu releases and Cantera versions are currently
 available, visit https://launchpad.net/~speth/+archive/ubuntu/cantera
