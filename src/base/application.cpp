@@ -87,7 +87,7 @@ void Application::Messages::addError(const std::string& r, const std::string& ms
             "Procedure: " + r +
             "\nError:     " + msg + "\n");
     } else {
-        errorMessage.push_back(msg);
+        errorMessage.push_back(r);
     }
 }
 
