@@ -126,7 +126,7 @@ Stable Release
 
     git clone https://github.com/Cantera/cantera.git
     cd cantera
-    git checkout 2.1
+    git checkout 2.2
 
 Development Version
 -------------------
