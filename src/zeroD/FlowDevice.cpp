@@ -19,10 +19,6 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
     // construct adapters between inlet and outlet species
     ThermoPhase* mixin = &m_in->contents();
     ThermoPhase* mixout = &m_out->contents();
-    if (mixin == 0 || mixout == 0) {
-        throw CanteraError("FlowDevice::install", "Can't install flow device "
-            "until reactor contents have been assigned.");
-    }
 
     m_nspin = mixin->nSpecies();
     m_nspout = mixout->nSpecies();
