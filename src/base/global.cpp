@@ -77,8 +77,7 @@ void thread_complete()
 
 XML_Node* get_XML_File(const std::string& file, int debug)
 {
-    XML_Node* xtmp = app()->get_XML_File(file, debug);
-    return xtmp;
+    return app()->get_XML_File(file, debug);
 }
 
 XML_Node* get_XML_from_string(const std::string& text)
@@ -157,8 +156,7 @@ doublereal actEnergyToSI(const std::string& unit)
 
 string canteraRoot()
 {
-    char* ctroot = 0;
-    ctroot = getenv("CANTERA_ROOT");
+    char* ctroot = getenv("CANTERA_ROOT");
     if (ctroot != 0) {
         return string(ctroot);
     }
@@ -193,7 +191,7 @@ static void split_at_pound(const std::string& src, std::string& file, std::strin
 XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root)
 {
     std::string fname, idstr;
-    XML_Node* db, *doc;
+    XML_Node* db;
     split_at_pound(file_ID, fname, idstr);
     if (fname == "") {
         if (!root) throw CanteraError("get_XML_Node",
@@ -216,7 +214,7 @@ XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root)
                 throw err;
             }
         }
-        doc = get_XML_File(fname);
+        XML_Node* doc = get_XML_File(fname);
         if (!doc) throw CanteraError("get_XML_Node",
                                          "get_XML_File failed trying to open "+fname);
         db = doc->findID(idstr, 3);
@@ -233,7 +231,7 @@ XML_Node* get_XML_NameID(const std::string& nameTarget,
                          XML_Node* root)
 {
     string fname, idTarget;
-    XML_Node* db, *doc;
+    XML_Node* db;
     split_at_pound(file_ID, fname, idTarget);
     if (fname == "") {
         if (!root) {
@@ -241,7 +239,7 @@ XML_Node* get_XML_NameID(const std::string& nameTarget,
         }
         db = root->findNameID(nameTarget, idTarget);
     } else {
-        doc = get_XML_File(fname);
+        XML_Node* doc = get_XML_File(fname);
         if (!doc) {
             return 0;
         }

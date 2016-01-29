@@ -192,8 +192,7 @@ void Application::thread_complete()
 XML_Node* Application::get_XML_File(const std::string& file, int debug)
 {
     std::unique_lock<std::mutex> xmlLock(xml_mutex);
-    std::string path = "";
-    path = findInputFile(file);
+    std::string path = findInputFile(file);
     int mtime = get_modified_time(path);
 
     if (xmlfiles.find(path) != xmlfiles.end()) {
@@ -327,10 +326,8 @@ void Application::Messages::logErrors()
 
 void Application::setDefaultDirectories()
 {
-    std::vector<string>& dirs = inputDirs;
-
     // always look in the local directory first
-    dirs.push_back(".");
+    inputDirs.push_back(".");
 
 #ifdef _WIN32
     // Under Windows, the Cantera setup utility records the installation
@@ -340,7 +337,7 @@ void Application::setDefaultDirectories()
     readStringRegistryKey("SOFTWARE\\Cantera\\Cantera " CANTERA_SHORT_VERSION,
                           "InstallDir", installDir, "");
     if (installDir != "") {
-        dirs.push_back(installDir + "data");
+        inputDirs.push_back(installDir + "data");
 
         // Scripts for converting mechanisms to CTI and CMTL are installed in
         // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
@@ -357,7 +354,7 @@ void Application::setDefaultDirectories()
 
 #ifdef DARWIN
     // add a default data location for Mac OS X
-    dirs.push_back("/Applications/Cantera/data");
+    inputDirs.push_back("/Applications/Cantera/data");
 #endif
 
     // if environment variable CANTERA_DATA is defined, then add it to the
@@ -375,11 +372,11 @@ void Application::setDefaultDirectories()
         size_t start = 0;
         size_t end = s.find(pathsep);
         while(end != npos) {
-            dirs.push_back(s.substr(start, end-start));
+            inputDirs.push_back(s.substr(start, end-start));
             start = end + 1;
             end = s.find(pathsep, start);
         }
-        dirs.push_back(s.substr(start,end));
+        inputDirs.push_back(s.substr(start,end));
     }
 
     // CANTERA_DATA is defined in file config.h. This file is written during the
@@ -387,7 +384,7 @@ void Application::setDefaultDirectories()
     // 'prefix' option to 'configure', or else to /usr/local/cantera.
 #ifdef CANTERA_DATA
     string datadir = string(CANTERA_DATA);
-    dirs.push_back(datadir);
+    inputDirs.push_back(datadir);
 #endif
 }
 
@@ -414,7 +411,6 @@ std::string Application::findInputFile(const std::string& name)
     std::unique_lock<std::mutex> dirLock(dir_mutex);
     string::size_type islash = name.find('/');
     string::size_type ibslash = name.find('\\');
-    string inname;
     std::vector<string>& dirs = inputDirs;
 
     // Expand "~/" to user's home directory, if possible
@@ -430,17 +426,14 @@ std::string Application::findInputFile(const std::string& name)
 
     if (islash == string::npos && ibslash == string::npos) {
         size_t nd = dirs.size();
-        inname = "";
         for (size_t i = 0; i < nd; i++) {
-            inname = dirs[i] + "/" + name;
+            string inname = dirs[i] + "/" + name;
             std::ifstream fin(inname);
             if (fin) {
                 return inname;
             }
         }
-        string msg;
-        msg = "\nInput file " + name
-              + " not found in director";
+        string msg = "\nInput file " + name + " not found in director";
         msg += (nd == 1 ? "y " : "ies ");
         for (size_t i = 0; i < nd; i++) {
             msg += "\n'" + dirs[i] + "'";

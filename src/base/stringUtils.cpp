@@ -252,13 +252,12 @@ std::string wrapString(const std::string& s, const int len)
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
     std::string s = stripws(nameStr);
-    std::string::size_type ibegin, iend, icolon;
     phaseName = "";
-    ibegin = s.find_first_not_of(" ;\n\t");
+    size_t ibegin = s.find_first_not_of(" ;\n\t");
     if (ibegin != std::string::npos) {
         s = s.substr(ibegin,s.size());
-        icolon = s.find(':');
-        iend = s.find_first_of(" ;\n\t");
+        size_t icolon = s.find(':');
+        size_t iend = s.find_first_of(" ;\n\t");
         if (icolon != std::string::npos) {
             phaseName = s.substr(0, icolon);
             s = s.substr(icolon+1, s.size());

@@ -139,17 +139,15 @@ void XML_Reader::getchr(char& ch)
 static string::size_type findUnbackslashed(const std::string& s, const char q,
         std::string::size_type istart = 0)
 {
-    string::size_type iloc, icurrent, len;
-    icurrent = istart;
-    len = s.size();
+    size_t icurrent = istart;
     while (true) {
-        iloc = s.find(q, icurrent);
+        size_t iloc = s.find(q, icurrent);
         if (iloc == string::npos || iloc == 0) {
             return iloc;
         }
         char cm1 = s[iloc-1];
         if (cm1 == '\\') {
-            if (iloc >= (len -1)) {
+            if (iloc >= (s.size() -1)) {
                 return string::npos;
             }
             icurrent = iloc + 1;
@@ -197,10 +195,8 @@ int XML_Reader::findQuotedString(const std::string& s, std::string& rstring) con
 void XML_Reader::parseTag(const std::string& tag, std::string& name,
                           std::map<std::string, std::string>& attribs) const
 {
-    string::size_type iloc;
-    string attr, val;
     string s = stripws(tag);
-    iloc = s.find(' ');
+    size_t iloc = s.find(' ');
     if (iloc != string::npos) {
         name = s.substr(0, iloc);
         s = stripws(s.substr(iloc+1,s.size()));
@@ -214,11 +210,12 @@ void XML_Reader::parseTag(const std::string& tag, std::string& name,
             if (iloc == string::npos) {
                 break;
             }
-            attr = stripws(s.substr(0,iloc));
+            string attr = stripws(s.substr(0,iloc));
             if (attr == "") {
                 break;
             }
             s = stripws(s.substr(iloc+1,s.size()));
+            string val;
             iloc = findQuotedString(s, val);
             attribs[attr] = val;
             if (iloc != string::npos) {
@@ -236,7 +233,7 @@ void XML_Reader::parseTag(const std::string& tag, std::string& name,
 
 std::string XML_Reader::readTag(std::map<std::string, std::string>& attribs)
 {
-    string name, tag = "";
+    string tag = "";
     bool incomment = false;
     char ch = '-';
     while (true) {
@@ -275,6 +272,7 @@ std::string XML_Reader::readTag(std::map<std::string, std::string>& attribs)
         attribs.clear();
         return tag;
     } else {
+        string name;
         parseTag(tag, name, attribs);
         return name;
     }
@@ -283,14 +281,13 @@ std::string XML_Reader::readTag(std::map<std::string, std::string>& attribs)
 std::string XML_Reader::readValue()
 {
     string tag = "";
-    char ch, lastch;
-    ch = '\n';
+    char ch = '\n';
     bool front = true;
     while (true) {
         if (m_s.eof()) {
             break;
         }
-        lastch = ch;
+        char lastch = ch;
         getchr(ch);
         if (ch == '\n') {
             front = true;
@@ -593,13 +590,12 @@ XML_Node* XML_Node::findNameID(const std::string& nameTarget,
                                const std::string& idTarget) const
 {
     XML_Node* scResult = 0;
-    XML_Node* sc;
     std::string idattrib = id();
     if (name() == nameTarget && (idTarget == "" || idTarget == idattrib)) {
         return const_cast<XML_Node*>(this);
     }
     for (size_t n = 0; n < m_children.size(); n++) {
-        sc = m_children[n];
+        XML_Node* sc = m_children[n];
         if (sc->name() == nameTarget) {
             if (idTarget == "") {
                 return sc;
@@ -611,7 +607,7 @@ XML_Node* XML_Node::findNameID(const std::string& nameTarget,
         }
     }
     for (size_t n = 0; n < m_children.size(); n++) {
-        sc = m_children[n];
+        XML_Node* sc = m_children[n];
         scResult = sc->findNameID(nameTarget, idTarget);
         if (scResult) {
             return scResult;
@@ -624,7 +620,6 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
                                     const std::string& idTarget, const int index_i) const
 {
     XML_Node* scResult = 0;
-    XML_Node* sc;
     std::string idattrib = id();
     std::string ii = attrib("index");
     std::string index_s = int2str(index_i);
@@ -633,7 +628,7 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
         return const_cast<XML_Node*>(this);
     }
     for (size_t n = 0; n < m_children.size(); n++) {
-        sc = m_children[n];
+        XML_Node* sc = m_children[n];
         if (sc->name() == nameTarget) {
             ii = sc->attrib("index");
             int indexR = atoi(ii.c_str());
@@ -656,9 +651,8 @@ XML_Node* XML_Node::findID(const std::string& id_, const int depth) const
         return const_cast<XML_Node*>(this);
     }
     if (depth > 0) {
-        XML_Node* r = 0;
         for (size_t i = 0; i < nChildren(); i++) {
-            r = m_children[i]->findID(id_, depth-1);
+            XML_Node* r = m_children[i]->findID(id_, depth-1);
             if (r != 0) {
                 return r;
             }
@@ -674,10 +668,9 @@ XML_Node* XML_Node::findByAttr(const std::string& attr,
         return const_cast<XML_Node*>(this);
     }
     if (depth > 0) {
-        XML_Node* r = 0;
         size_t n = nChildren();
         for (size_t i = 0; i < n; i++) {
-            r = m_children[i]->findByAttr(attr, val, depth - 1);
+            XML_Node* r = m_children[i]->findByAttr(attr, val, depth - 1);
             if (r != 0) {
                 return r;
             }
@@ -692,9 +685,8 @@ XML_Node* XML_Node::findByName(const std::string& nm, int depth)
         return this;
     }
     if (depth > 0) {
-        XML_Node* r = 0;
         for (size_t i = 0; i < nChildren(); i++) {
-            r = m_children[i]->findByName(nm);
+            XML_Node* r = m_children[i]->findByName(nm);
             if (r != 0) {
                 return r;
             }
@@ -709,9 +701,8 @@ const XML_Node* XML_Node::findByName(const std::string& nm, int depth) const
         return const_cast<XML_Node*>(this);
     }
     if (depth > 0) {
-        const XML_Node* r = 0;
         for (size_t i = 0; i < nChildren(); i++) {
-            r = m_children[i]->findByName(nm);
+            XML_Node* r = m_children[i]->findByName(nm);
             if (r != 0) {
                 return r;
             }
@@ -728,13 +719,11 @@ void XML_Node::writeHeader(std::ostream& s)
 void XML_Node::build(std::istream& f)
 {
     XML_Reader r(f);
-    string nm, nm2, val;
     XML_Node* node = this;
-    map<string, string> node_attribs;
     bool first = true;
     while (!f.eof()) {
-        node_attribs.clear();
-        nm = r.readTag(node_attribs);
+        map<string, string> node_attribs;
+        string nm = r.readTag(node_attribs);
 
         if (nm == "EOF") {
             break;
@@ -744,7 +733,7 @@ void XML_Node::build(std::istream& f)
         }
         int lnum = r.m_line;
         if (nm[nm.size() - 1] == '/') {
-            nm2 = nm.substr(0,nm.size()-1);
+            string nm2 = nm.substr(0,nm.size()-1);
             if (first) {
                 node->setName(nm2);
                 first = false;
@@ -763,8 +752,7 @@ void XML_Node::build(std::istream& f)
                 } else {
                     node = &node->addChild(nm);
                 }
-                val = r.readValue();
-                node->addValue(val);
+                node->addValue(r.readValue());
                 node->attribs() = node_attribs;
                 node->setLineNumber(lnum);
             } else if (nm.substr(0,2) == "--") {
@@ -783,7 +771,6 @@ void XML_Node::build(std::istream& f)
 
 void XML_Node::copyUnion(XML_Node* const node_dest) const
 {
-    XML_Node* sc, *dc;
     node_dest->addValue(m_value);
     if (m_name == "") {
         return;
@@ -795,9 +782,9 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
     }
     const vector<XML_Node*> &vsc = node_dest->children();
     for (size_t n = 0; n < m_children.size(); n++) {
-        sc = m_children[n];
+        XML_Node* sc = m_children[n];
         size_t ndc = node_dest->nChildren();
-        dc = 0;
+        XML_Node* dc = 0;
         if (! sc->m_iscomment) {
             for (size_t idc = 0; idc < ndc; idc++) {
                 XML_Node* dcc = vsc[idc];
@@ -828,7 +815,6 @@ void XML_Node::copyUnion(XML_Node* const node_dest) const
 
 void XML_Node::copy(XML_Node* const node_dest) const
 {
-    XML_Node* sc, *dc;
     node_dest->addValue(m_value);
     node_dest->setName(m_name);
     node_dest->setLineNumber(m_linenum);
@@ -841,11 +827,11 @@ void XML_Node::copy(XML_Node* const node_dest) const
     const vector<XML_Node*> &vsc = node_dest->children();
 
     for (size_t n = 0; n < m_children.size(); n++) {
-        sc = m_children[n];
+        XML_Node* sc = m_children[n];
         size_t ndc = node_dest->nChildren();
         // Here is where we do a malloc of the child node.
         node_dest->addChild(sc->name());
-        dc = vsc[ndc];
+        XML_Node* dc = vsc[ndc];
         sc->copy(dc);
     }
 }
@@ -879,13 +865,11 @@ std::vector<XML_Node*> XML_Node::getChildren(const std::string& nm) const
 
 XML_Node& XML_Node::child(const std::string& aloc) const
 {
-    string::size_type iloc;
-    string cname;
     string loc = aloc;
     while (true) {
-        iloc = loc.find('/');
+        size_t iloc = loc.find('/');
         if (iloc != string::npos) {
-            cname = loc.substr(0,iloc);
+            string cname = loc.substr(0,iloc);
             loc = loc.substr(iloc+1, loc.size());
             auto i = m_childindex.find(cname);
             if (i != m_childindex.end()) {
@@ -1044,37 +1028,32 @@ XML_Node* findXMLPhase(XML_Node* root,
                        const std::string& idtarget)
 {
     XML_Node* scResult = 0;
-    XML_Node* sc;
     if (!root) {
         return 0;
     }
-    string idattrib;
-    string rname = root->name();
-    if (rname == "phase") {
+    if (root->name() == "phase") {
         if (idtarget == "") {
             return root;
         }
-        idattrib = root->id();
-        if (idtarget == idattrib) {
+        if (idtarget == root->id()) {
             return root;
         }
     }
 
     const vector<XML_Node*> &vsc = root->children();
     for (size_t n = 0; n < root->nChildren(); n++) {
-        sc = vsc[n];
+        XML_Node* sc = vsc[n];
         if (sc->name() == "phase") {
             if (idtarget == "") {
                 return sc;
             }
-            idattrib = sc->id();
-            if (idtarget == idattrib) {
+            if (idtarget == sc->id()) {
                 return sc;
             }
         }
     }
     for (size_t n = 0; n < root->nChildren(); n++) {
-        sc = vsc[n];
+        XML_Node* sc = vsc[n];
         scResult = findXMLPhase(sc, idtarget);
         if (scResult) {
             return scResult;
