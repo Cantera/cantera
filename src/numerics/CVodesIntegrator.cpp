@@ -30,8 +30,6 @@ typedef int sd_size_t;
 typedef long int sd_size_t;
 #endif
 
-#include <sstream>
-
 namespace Cantera
 {
 
@@ -460,10 +458,10 @@ string CVodesIntegrator::getErrorInfo(int N)
 
     N = std::min(N, static_cast<int>(m_neq));
     sort(weightedErrors.begin(), weightedErrors.end());
-    stringstream s;
+    fmt::MemoryWriter s;
     for (int i=0; i<N; i++) {
-        s << get<2>(weightedErrors[i]) << ": "
-          << get<1>(weightedErrors[i]) << endl;
+        s.write("{}: {}\n",
+                get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
     }
     return s.str();
 }

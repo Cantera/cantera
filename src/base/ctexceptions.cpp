@@ -54,17 +54,14 @@ std::string CanteraError::getMessage() const
 
 std::string ArraySizeError::getMessage() const
 {
-    std::stringstream ss;
-    ss << "Array size (" << sz_ << ") too small. Must be at least " << reqd_ << ".";
-    return ss.str();
+    return fmt::format("Array size ({}) too small. Must be at least {}.",
+                       sz_, reqd_);
 }
 
 std::string IndexError::getMessage() const
 {
-    std::stringstream ss;
-    ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
-       " outside valid range of 0 to " << (mmax_) << ".";
-    return ss.str();
+    return fmt::format("IndexError: {}[{}] outside valid range of 0 to {}.",
+                       arrayName_, m_, mmax_);
 }
 
 } // namespace Cantera
