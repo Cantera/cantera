@@ -494,7 +494,7 @@ class CounterflowDiffusionFlame(FlameBase):
         super(CounterflowDiffusionFlame, self).__init__(
                 (self.fuel_inlet, self.flame, self.oxidizer_inlet), gas, grid)
 
-    def set_initial_guess(self, fuel, oxidizer='O2', stoich=None):
+    def set_initial_guess(self, fuel, oxidizer=None, stoich=None):
         """
         Set the initial guess for the solution. The fuel species must be
         specified:
@@ -509,7 +509,14 @@ class CounterflowDiffusionFlame(FlameBase):
         super(CounterflowDiffusionFlame, self).set_initial_guess()
 
         if stoich is None:
-            if oxidizer == 'O2':
+            if oxidizer is None:
+                if 'O2' in self.gas.species_names:
+                    oxidizer = 'O2'
+                elif 'o2' in self.gas.species_names:
+                    oxidizer = 'o2'
+                else:
+                    raise Exception("Can't identify default oxidizer species.")
+            if oxidizer.upper() == 'O2':
                 stoich = 0.0
                 if 'H' in self.gas.element_names:
                     stoich += 0.25 * self.gas.n_atoms(fuel, 'H')
