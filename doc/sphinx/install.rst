@@ -56,19 +56,7 @@ installation instructions are for Cantera 2.2.0.
      and will include Numpy as well as many other packages useful for scientific
      users.
 
-3. **Install pip**
-
-   - Go to the `pip installation instructions
-     <https://pip.pypa.io/en/latest/installing.html#install-pip>`_ and download
-     `get-pip.py` (You may need to right click the link and select *Save target
-     as...*).
-
-   - From a administrative command prompt, run `get-pip.py` with the copy of
-     Python you plan on use with Cantera, e.g.::
-
-         c:\python34\python.exe "%USERPROFILE%\Downloads\get-pip.py"
-
-4. **Install Numpy and optional Python packages**
+3. **Install Numpy and optional Python packages**
 
    - Go to the `Unofficial Windows Binaries for Python Extension Packages page
      <http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy>`_.
@@ -91,7 +79,7 @@ installation instructions are for Cantera 2.2.0.
      you may also need to download additional dependencies for each of these
      packages). Matplotlib is required to run some of the Python examples.
 
-5. **Remove old versions of Cantera**
+4. **Remove old versions of Cantera**
 
    - Use The Windows "Add/Remove Programs" interface
 
@@ -99,7 +87,7 @@ installation instructions are for Cantera 2.2.0.
 
    - The Python module will be listed as "Python *X.Y* Cantera ..."
 
-6. **Install Cantera**
+5. **Install Cantera**
 
    - Go to the `Cantera Releases <https://github.com/Cantera/cantera/releases>`_
      page.
@@ -114,7 +102,7 @@ installation instructions are for Cantera 2.2.0.
 
    - Run the installer(s).
 
-7. **Configure Matlab** (optional)
+6. **Configure Matlab** (optional)
 
    - Set the environment variable ``PYTHON_CMD``
 
@@ -137,7 +125,7 @@ installation instructions are for Cantera 2.2.0.
 
    - Select *Save*, then *Close*.
 
-8. **Test the installation**
+7. **Test the installation**
 
    - Python::
 
