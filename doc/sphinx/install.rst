@@ -18,9 +18,9 @@ installation instructions are for Cantera 2.2.0.
 
 1. **Choose your Python version and architecture**
 
-   - On Windows, Cantera supports Python 2.7 and Python 3.3, and Python 3.4.
-     Python 3.4 is recommended unless you need to use legacy code that does not
-     work with Python 3. You can install multiple Cantera Python modules
+   - On Windows, Cantera supports Python 2.7, Python 3.3, Python 3.4, and Python
+     3.5. Python 3.5 is recommended unless you need to use legacy code that does
+     not work with Python 3. You can install multiple Cantera Python modules
      simultaneously.
 
    - Cantera supports both 32- and 64- bit Python installations.
@@ -40,7 +40,7 @@ installation instructions are for Cantera 2.2.0.
    - Go to `python.org <https://www.python.org/>`_.
 
      - *64-bit*: Download the most recent "Windows X86-64 MSI Installer" for
-       Python *X.Y* (i.e. prefer 3.4.3 to 3.4.2, but not 3.5.0).
+       Python *X.Y*.
      - *32-bit*: Download the most recent "Windows x86 MSI Installer" for
        Python *X.Y*.
 
@@ -65,13 +65,13 @@ installation instructions are for Cantera 2.2.0.
      1.x series for Python *X.Y* that matches your Python architecture. The
      binaries for Cantera 2.2.0 require Numpy 1.8.0 or newer, e.g. In the
      filename, the digits after "cp" indicate the Python version, e.g.
-     ``numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl`` is the installer for 64-bit
-     Python 3.4.
+     ``numpy‑1.8.2+mkl‑cp35‑none‑win_amd64.whl`` is the installer for 64-bit
+     Python 3.5.
 
    - From an administrative command prompt, install the downloaded wheel using
      pip, e.g.::
 
-         c:\python34\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl"
+         c:\python35\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp35‑none‑win_amd64.whl"
 
    - If you plan on using Cantera from Python, you may also want to install
      IPython (an advanced interactive Python interpreter) and Matplotlib (a
@@ -110,7 +110,7 @@ installation instructions are for Cantera 2.2.0.
        "edit environment" and select "Edit environment variables for your
        account".
      - Add a *New* variable with ``PYTHON_CMD`` as the *name* and the full path
-       to the Python executable (e.g. ``C:\python27\python.exe``) as the
+       to the Python executable (e.g. ``C:\python35\python.exe``) as the
        *value*.
      - Setting ``PYTHON_CMD`` is not necessary if the path to ``python.exe`` is
        in your ``PATH`` (which can be set from the same configuration dialog).
@@ -325,9 +325,9 @@ Ubuntu
 ======
 
 Ubuntu packages are provided for recent versions of Ubuntu using a Personal
-Package Archive (PPA). As of Cantera 2.2.0, packages are available for Ubuntu
-Ubuntu 14.04 LTS (Trusty Tahr), Ubuntu 14.10 (Utopic Unicorn), and Ubuntu 15.04
-(Vivid Vervet). To see which Ubuntu releases and Cantera versions are currently
+Package Archive (PPA). As of Cantera 2.2.1, packages are available for Ubuntu
+Ubuntu 14.04 LTS (Trusty Tahr), Ubuntu 15.04 (Vivid Vervet), and Ubuntu 15.10
+(Wily Werewolf). To see which Ubuntu releases and Cantera versions are currently
 available, visit https://launchpad.net/~speth/+archive/ubuntu/cantera
 
 The available packages are:
