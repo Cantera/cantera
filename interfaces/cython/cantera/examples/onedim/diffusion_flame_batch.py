@@ -70,7 +70,6 @@ def interrupt_extinction(t):
 f.set_interrupt(interrupt_extinction)
 
 # Initialize and solve
-f.set_initial_guess(fuel='H2')
 print('Creating the initial solution')
 f.solve(loglevel=0, refine_grid=refine)
 

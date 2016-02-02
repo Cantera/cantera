@@ -412,7 +412,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.oxidizer_inlet.X = oxidizer
         self.sim.oxidizer_inlet.T = T_ox
 
-        self.sim.set_initial_guess(fuel='H2')
+        self.sim.set_initial_guess()
 
     def solve_fixed_T(self):
         # Solve with the energy equation disabled
