@@ -579,10 +579,6 @@ void SimpleTransport::updateDiff_T()
     m_diff_mix_ok = false;
 }
 
-void SimpleTransport::updateViscosities_C()
-{
-}
-
 void SimpleTransport::updateViscosity_T()
 {
     if (compositionDepType_ == LTI_MODEL_SOLVENT) {

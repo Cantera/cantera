@@ -458,13 +458,6 @@ protected:
     //! thermal conductivity.
     void updateCond_T();
 
-    //! Update the concentration parts of the viscosities
-    /*!
-     * Internal routine is run whenever the update_boolean is false. This
-     * routine will calculate internal values for the species viscosities.
-     */
-    void updateViscosities_C();
-
     //! Update the binary diffusion coefficients wrt T.
     /*!
      * These are evaluated from the polynomial fits at unit pressure (1 Pa).
