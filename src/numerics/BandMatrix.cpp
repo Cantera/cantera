@@ -141,10 +141,7 @@ doublereal BandMatrix::value(size_t i, size_t j) const
 
 size_t BandMatrix::index(size_t i, size_t j) const
 {
-    int jj = static_cast<int>(j);
-    int ii = static_cast<int>(i);
-    size_t rw = (int) m_kl + (int) m_ku + (int) ii - jj;
-    return (2*m_kl + m_ku + 1)*j + rw;
+    return (2*m_kl + m_ku)*j + m_kl + m_ku + i;
 }
 
 doublereal BandMatrix::_value(size_t i, size_t j) const
@@ -193,16 +190,12 @@ vector_int& BandMatrix::ipiv()
 
 void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 {
-    int kl = static_cast<int>(m_kl);
-    int ku = static_cast<int>(m_ku);
-    int nr = static_cast<int>(nRows());
-    doublereal sum = 0.0;
-    for (int m = 0; m < nr; m++) {
-        sum = 0.0;
-        for (int j = m - kl; j <= m + ku; j++) {
-            if (j >= 0 && j < (int) m_n) {
-                sum += _value(m,j) * b[j];
-            }
+    for (size_t m = 0; m < m_n; m++) {
+        double sum = 0.0;
+        size_t start = (m >= m_kl) ? m - m_kl : 0;
+        size_t stop = std::min(m + m_ku + 1, m_n);
+        for (size_t j = start; j < stop; j++) {
+            sum += _value(m,j) * b[j];
         }
         prod[m] = sum;
     }
@@ -210,17 +203,12 @@ void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 
 void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) const
 {
-    int kl = static_cast<int>(m_kl);
-    int ku = static_cast<int>(m_ku);
-    int nc = static_cast<int>(nColumns());
-    doublereal sum = 0.0;
-    for (int n = 0; n < nc; n++) {
-        sum = 0.0;
-        for (int i = n - ku; i <= n + kl; i++) {
-            if (i >= 0 && i < (int) m_n) {
-                size_t ii = i;
-                sum += _value(ii,n) * b[ii];
-            }
+    for (size_t n = 0; n < m_n; n++) {
+        double sum = 0.0;
+        size_t start = (n >= m_ku) ? n - m_ku : 0;
+        size_t stop = std::min(n + m_kl + 1, m_n);
+        for (size_t i = start; i < stop; i++) {
+            sum += _value(i,n) * b[i];
         }
         prod[n] = sum;
     }
@@ -345,14 +333,13 @@ int BandMatrix::factorAlgorithm() const
 
 doublereal BandMatrix::oneNorm() const
 {
-    int ku = static_cast<int>(m_ku);
-    int kl = static_cast<int>(m_kl);
-    doublereal value = 0.0;
-    for (int j = 0; j < (int) m_n; j++) {
-        doublereal sum = 0.0;
-        doublereal* colP = m_colPtrs[j];
-        for (int i = j - ku; i <= j + kl; i++) {
-            sum += fabs(colP[kl + ku + i - j]);
+    double value = 0.0;
+    for (size_t j = 0; j < m_n; j++) {
+        double sum = 0.0;
+        size_t start = (j >= m_ku) ? j - m_ku : 0;
+        size_t stop = std::min(j + m_kl + 1, m_n);
+        for (size_t i = start; i < stop; i++) {
+            sum += std::abs(_value(i,j));
         }
         value = std::max(sum, value);
     }
@@ -363,12 +350,12 @@ size_t BandMatrix::checkRows(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
     size_t iSmall = npos;
-    for (int i = 0; i < (int) m_n; i++) {
+    for (size_t i = 0; i < m_n; i++) {
         double valueS = 0.0;
-        for (int j = i - (int) m_kl; j <= i + (int) m_ku; j++) {
-            if (j >= 0 && j < (int) m_n) {
-                valueS = std::max(fabs(value(i,j)), valueS);
-            }
+        size_t start = (i > m_kl) ? i - m_kl : 0;
+        size_t stop = std::min(i + m_ku + 1, m_n);
+        for (size_t j = start; j < stop; j++) {
+            valueS = std::max(fabs(_value(i,j)), valueS);
         }
         if (valueS < valueSmall) {
             iSmall = i;
@@ -385,12 +372,12 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
 {
     valueSmall = 1.0E300;
     size_t jSmall = npos;
-    for (int j = 0; j < (int) m_n; j++) {
+    for (size_t j = 0; j < m_n; j++) {
         double valueS = 0.0;
-        for (int i = j - (int) m_ku; i <= j + (int) m_kl; i++) {
-            if (i >= 0 && i < (int) m_n) {
-                valueS = std::max(fabs(value(i,j)), valueS);
-            }
+        size_t start = (j > m_ku) ? j - m_ku : 0;
+        size_t stop = std::min(j + m_kl + 1, m_n);
+        for (size_t i = start; i < stop; i++) {
+            valueS = std::max(fabs(_value(i,j)), valueS);
         }
         if (valueS < valueSmall) {
             jSmall = j;
