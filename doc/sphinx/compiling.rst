@@ -68,11 +68,6 @@ the full list of dependencies.
   you need to compile Cantera in 64-bit mode. For simplicity, it is highly
   recommended that you use a 64-bit version of Python to handle this
   automatically.
-* There is no 64-bit installer for SCons under Windows, so you will need to
-  download the ZIP version. After extracting it, start a command prompt in the
-  unzipped folder and run::
-
-     python setup.py install
 
 * It is generally helpful to have SCons and Python in your PATH. This can
   usually be accomplished by adding the top-level Python directory
@@ -446,7 +441,7 @@ Other Required Software
 
 * SCons:
 
-  * http://www.scons.org/download.php
+  * http://scons.org/tag/releases.html
   * Linux & OS X: Known to work with SCons 2.3.0; Expected to work with versions >= 1.0.0
   * Version 2.3.6 or newer is required to use Visual Studio 2015.
 
