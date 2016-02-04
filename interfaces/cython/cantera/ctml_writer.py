@@ -1110,7 +1110,8 @@ class reaction(object):
             e.g. ``"CH4:0.25 O2:1.5"``.
         :param options: Processing options, as described in
             :ref:`sec-reaction-options`. May be one or more (as a list) of the
-            following: 'skip', 'duplicate', 'negative_A', 'negative_orders'.
+            following: 'skip', 'duplicate', 'negative_A', 'negative_orders',
+            'nonreactant_orders'.
         """
         self._id = id
         self._e = equation
@@ -1140,7 +1141,8 @@ class reaction(object):
                 if o in self._rxnorder:
                     self._rxnorder[o] = order[o]
                 else:
-                    raise CTI_Error("order specified for non-reactant: "+o)
+                    if 'nonreactant_orders' not in self._options:
+                        raise CTI_Error("order specified for non-reactant: "+o)
 
         self._kf = kf
         self._igspecies = []
@@ -1211,6 +1213,8 @@ class reaction(object):
             r['negative_A'] = 'yes'
         if 'negative_orders' in self._options:
             r['negative_orders'] = 'yes'
+        if 'nonreactant_orders' in self._options:
+            r['nonreactant_orders'] = 'yes'
 
         ee = self._e.replace('<','[').replace('>',']')
         r.addChild('equation',ee)
