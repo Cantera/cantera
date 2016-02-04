@@ -158,8 +158,8 @@ double water::Psat()
 {
     double log, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("water::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("water::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=1; i<=8; i++) {
         sum += F[i-1]*pow(aww*(T-Tp),double(i-1)); // DGG mod
@@ -173,8 +173,8 @@ double water::ldens()
     double sum=0;
     int i;
     if ((T < Tmn) || (T >= Tc)) {
-        throw TPX_Error("water::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("water::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     for (i=0; i<8; i++) {
         sum+=D[i]*pow(1.0 - T/Tc, double(i+1)/3.0);

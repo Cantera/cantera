@@ -216,8 +216,8 @@ double hydrogen::Pp()
 double hydrogen::ldens()
 {
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("hydrogen::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("hydrogen::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     double x=1-T/Tc;
     double sum;
@@ -233,8 +233,8 @@ double hydrogen::Psat()
     double x = (1.0 - Tt/T)/(1.0 - Tt/Tc);
     double result;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("hydrogen::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("hydrogen::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     result = Fhydro[0]*x + Fhydro[1]*x*x + Fhydro[2]*x*x*x +
              Fhydro[3]*x*pow(1-x, alpha);

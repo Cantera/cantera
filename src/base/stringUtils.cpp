@@ -28,6 +28,8 @@ namespace Cantera
 
 std::string fp2str(const double x, const std::string& fmt)
 {
+    warn_deprecated("fp2str", "Unused. To be removed after Cantera 2.3. "
+                    "Use fmt::format instead.");
     char buf[64];
     int n = SNPRINTF(buf, 63, fmt.c_str(), x);
     if (n > 0) {

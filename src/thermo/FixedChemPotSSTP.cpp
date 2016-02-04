@@ -71,8 +71,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     ss.addAttribute("Tmin", "100.");
     ss.addChild("t0", "298.15");
     ss.addChild("cp0", "0.0");
-    std::string sval = fp2str(val);
-    ss.addChild("h", sval);
+    ss.addChild("h", fmt::format("{}", val));
     ss.addChild("s", "0.0");
     saveSpeciesData(0, &s);
 }

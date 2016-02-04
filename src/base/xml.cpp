@@ -446,7 +446,7 @@ void XML_Node::addValue(const std::string& val)
 
 void XML_Node::addValue(const doublereal val, const std::string& fmt)
 {
-    m_value = stripws(fp2str(val, fmt));
+    m_value = stripws(fmt::sprintf(fmt, val));
 }
 
 std::string XML_Node::value() const
@@ -482,7 +482,7 @@ void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
 void XML_Node::addAttribute(const std::string& attrib,
                             const doublereal vvalue, const std::string& fmt)
 {
-    m_attribs[attrib] = fp2str(vvalue, fmt);
+    m_attribs[attrib] = fmt::sprintf(fmt, vvalue);
 }
 
 void XML_Node::addAttribute(const std::string& aattrib, const int vvalue)

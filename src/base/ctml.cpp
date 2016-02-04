@@ -55,7 +55,7 @@ void addFloatArray(XML_Node& node, const std::string& title, const size_t n,
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
-        v += fp2str(vals[i],FP_Format);
+        v += fmt::sprintf(FP_Format, vals[i]);
         if (i == n-1) {
             v += "\n";
         } else if (i > 0 && (i+1) % 3 == 0) {
@@ -88,7 +88,7 @@ void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
-        v += fp2str(vals[i],FP_Format);
+        v += fmt::sprintf(FP_Format, vals[i]);
         if (i == n-1) {
             v += "\n";
         } else if (i > 0 && (i+1) % 3 == 0) {

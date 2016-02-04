@@ -366,7 +366,9 @@ int Sim1D::refine(int loglevel)
                     }
                 }
             } else {
-                debuglog("refine: discarding point at "+fp2str(d.grid(m))+"\n", loglevel);
+                if (loglevel > 0) {
+                    writelog("refine: discarding point at {}\n", d.grid(m));
+                }
             }
         }
         dsize.push_back(znew.size() - nstart);

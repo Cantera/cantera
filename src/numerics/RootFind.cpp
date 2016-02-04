@@ -399,7 +399,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         // If the slope can't be trusted using a different strategy for picking
         // the next point
         if (useNextStrat) {
-            rfT.reasoning += "Using DeltaXnorm, " + fp2str(DeltaXnorm_) + " and FuncIsGenerallyIncreasing hints. ";
+            rfT.reasoning += fmt::format("Using DeltaXnorm, {} and FuncIsGenerallyIncreasing hints. ", DeltaXnorm_);
             if (f2 < 0.0) {
                 if (FuncIsGenerallyIncreasing_) {
                     if (slopePointingToHigher) {
@@ -563,8 +563,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 sgn = -1.0;
             }
             deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
-            rfT.reasoning += "Enforcing minimum stepsize from " + fp2str(xnew - x2) +
-                             " to " + fp2str(deltaXnew);
+            rfT.reasoning += fmt::format("Enforcing minimum stepsize from {} to {}",
+                                         xnew - x2, deltaXnew);
             xnew = x2 + deltaXnew;
         }
 
@@ -573,7 +573,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             topBump++;
             if (topBump < 3) {
                 xnew = x2 + (xmax - x2) / 2.0;
-                rfT.reasoning += ("xval reduced to " + fp2str(xnew) + " because predicted xnew was above max value of " + fp2str(xmax));
+                rfT.reasoning += fmt::format("xval reduced to {} because predicted xnew was above max value of {}", xnew, xmax);
             } else {
                 if (x2 == xmax || x1 == xmax) {
                     // we are here when we are bumping against the top limit.
@@ -581,10 +581,10 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     retn = ROOTFIND_SOLNHIGHERTHANXMAX;
                     *xbest = xnew;
                     rfT.slope = slope;
-                    rfT.reasoning += "Giving up because we're at xmax and xnew point higher: " + fp2str(xnew);
+                    rfT.reasoning += fmt::format("Giving up because we're at xmax and xnew point higher: {}", xnew);
                     goto done;
                 } else {
-                    rfT.reasoning += "xval reduced from " + fp2str(xnew) + " to the max value, " + fp2str(xmax);
+                    rfT.reasoning += fmt::format("xval reduced from {} to the max value, {}", xnew, xmax);
                     xnew = xmax;
                 }
             }
@@ -595,8 +595,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         if (xnew < xmin) {
             bottomBump++;
             if (bottomBump < 3) {
-                rfT.reasoning += ("xnew increased from " + fp2str(xnew) +"  to " + fp2str(x2 - (x2 - xmin) / 2.0) +
-                                  " because above min value of " + fp2str(xmin));
+                rfT.reasoning += fmt::format("xnew increased from {} to {} because above min value of {}",
+                    xnew, x2 - (x2 - xmin) / 2.0, xmin);
                 xnew = x2 - (x2 - xmin) / 2.0;
             } else {
                 if (x2 == xmin || x1 == xmin) {
@@ -605,10 +605,10 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     retn = ROOTFIND_SOLNLOWERTHANXMIN;
                     *xbest = xnew;
                     rfT.slope = slope;
-                    rfT.reasoning = "Giving up because we're already at xmin and xnew points lower: " + fp2str(xnew);
+                    rfT.reasoning = fmt::format("Giving up because we're already at xmin and xnew points lower: {}", xnew);
                     goto done;
                 } else {
-                    rfT.reasoning += "xval increased from " + fp2str(xnew) + " to the min value, " + fp2str(xmin);
+                    rfT.reasoning += fmt::format("xval increased from {} to the min value, {}", xnew, xmin);
                     xnew = xmin;
                 }
             }
@@ -951,12 +951,12 @@ done:
             if (printLvl >= 1) {
                 writelogf("RootFind ERROR: Soln probably lies higher than xmax, %g: best guess = %g\n", xmax, *xbest);
             }
-            rfT.reasoning += "Soln probably lies higher than xmax, " + fp2str(xmax) + ": best guess = " + fp2str(*xbest);
+            rfT.reasoning += fmt::format("Soln probably lies higher than xmax, {}: best guess = {}", xmax, *xbest);
         } else if (retn == ROOTFIND_SOLNLOWERTHANXMIN) {
             if (printLvl >= 1) {
                 writelogf("RootFind ERROR: Soln probably lies lower than xmin, %g: best guess = %g\n", xmin, *xbest);
             }
-            rfT.reasoning += "Soln probably lies lower than xmin, " + fp2str(xmin) + ": best guess = " + fp2str(*xbest);
+            rfT.reasoning += fmt::format("Soln probably lies lower than xmin, {}: best guess = {}", xmin, *xbest);
         } else {
             retn = ROOTFIND_FAILEDCONVERGENCE;
             if (printLvl >= 1) {

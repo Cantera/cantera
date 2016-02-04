@@ -19,6 +19,7 @@ namespace Cantera
 /*!
  * @param x double to be converted
  * @param fmt   Format to be used (printf style)
+ * @deprecated Unused. To be removed after Cantera 2.3. Use fmt::format instead
  */
 std::string fp2str(const double x, const std::string& fmt="%g");
 

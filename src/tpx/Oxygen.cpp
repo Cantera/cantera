@@ -190,8 +190,8 @@ double oxygen::Psat()
     double lnp;
     int i;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("oxygen::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("oxygen::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     for (i=0, lnp=0; i<=7; i++) {
         if (i==3) {
@@ -208,8 +208,8 @@ double oxygen::ldens()
 {
     double xx=1-T/Tc, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("oxygen::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("oxygen::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=0; i<=5; i++) {
         sum+=Doxy[i]*pow(xx,double(i)/3.0);

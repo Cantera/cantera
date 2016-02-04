@@ -197,8 +197,8 @@ double nitrogen::Psat()
     double lnp;
     int i;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("nitrogen::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("nitrogen::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     for (i=0, lnp=0; i<=7; i++) {
         if (i==3) {
@@ -215,8 +215,8 @@ double nitrogen::ldens()
 {
     double xx=1-T/Tc, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("nitrogen::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("nitrogen::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=0; i<=5; i++) {
         sum+=Dnn[i]*pow(xx,double(i)/3.0);

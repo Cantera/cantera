@@ -35,8 +35,7 @@ void checkFinite(const std::string& name, double* values, size_t N)
             std::string message = name + " contains non-finite elements:\n\n";
             for (size_t j = 0; j < N; j++) {
                 if (!std::isfinite(values[j])) {
-                    message += name + "[" + int2str(j) + "] = " +
-                               fp2str(values[j]) + "\n";
+                    message += fmt::format("{}[{}] = {}\n", name, j, values[j]);
                 }
             }
             throw CanteraError("checkFinite", message);
