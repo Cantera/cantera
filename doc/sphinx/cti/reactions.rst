@@ -483,6 +483,8 @@ This reaction could be defined as::
 Special care is required in this case since the units of the pre-exponential
 factor depend on the sum of the reaction orders, which may not be an integer.
 
+Note that you can change reaction orders only for irreversible reactions.
+
 Normally, reaction orders are required to be positive. However, in some cases
 negative reaction orders are found to be better fits for experimental data. In
 these cases, the default behavior may be overridden by adding
@@ -490,6 +492,13 @@ these cases, the default behavior may be overridden by adding
 
     reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
              order="C8H18:-0.25 O2:1.75", options=['negative_orders'])
+
+Some global reactions could have reactions orders for non-reactant species. One
+should add ``nonreactant_orders`` to the reaction options to use this feature::
+
+    reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
+             order="C8H18:-0.25 CO:0.15",
+             options=['negative_orders', 'nonreactant_orders'])
 
 
 .. rubric:: References
