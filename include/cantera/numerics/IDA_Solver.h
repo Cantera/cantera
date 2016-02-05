@@ -25,11 +25,14 @@ namespace Cantera
 
 /**
  * Exception thrown when a IDA error is encountered.
+ * @deprecated Unused. To be removed after Cantera 2.3.
  */
 class IDA_Err : public CanteraError
 {
 public:
-    explicit IDA_Err(const std::string& msg) : CanteraError("IDA_Solver", msg) {}
+    explicit IDA_Err(const std::string& msg) : CanteraError("IDA_Solver", msg) {
+        warn_deprecated("class IDA_Err", "To be removed after Cantera 2.3.");
+    }
 };
 
 

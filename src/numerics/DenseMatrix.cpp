@@ -132,7 +132,7 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
         if (A.m_printLevel) {
             writelogf("solve(DenseMatrix& A, double* b): Can only solve a square matrix\n");
         }
-        throw CELapackError("solve(DenseMatrix& A, double* b)", "Can only solve a square matrix");
+        throw CanteraError("solve(DenseMatrix& A, double* b)", "Can only solve a square matrix");
     }
     ct_dgetrf(A.nRows(), A.nColumns(), A.ptrColumn(0),
               A.nRows(), &A.ipiv()[0], info);

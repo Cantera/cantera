@@ -182,7 +182,7 @@ void CVodesIntegrator::setMethod(MethodType t)
     } else if (t == Adams_Method) {
         m_method = CV_ADAMS;
     } else {
-        throw CVodesErr("unknown method");
+        throw CanteraError("CVodesIntegrator::setMethod", "unknown method");
     }
 }
 
@@ -225,7 +225,7 @@ void CVodesIntegrator::setIterator(IterType t)
     } else if (t == Functional_Iter) {
         m_iter = CV_FUNCTIONAL;
     } else {
-        throw CVodesErr("unknown iterator");
+        throw CanteraError("CVodesIntegrator::setIterator", "unknown iterator");
     }
 }
 
@@ -250,7 +250,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
 
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("Error in CVodeSensMalloc");
+        throw CanteraError("CVodesIntegrator::sensInit", "Error in CVodeSensMalloc");
     }
     vector_fp atol(m_np, m_abstolsens);
     double rtol = m_reltolsens;
@@ -273,7 +273,8 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
     // check abs tolerance array size
     if (m_itol == CV_SV && m_nabs < m_neq) {
-        throw CVodesErr("not enough absolute tolerance values specified.");
+        throw CanteraError("CVodesIntegrator::initialize",
+                           "not enough absolute tolerance values specified.");
     }
 
     func.getState(NV_DATA_S(m_y));
@@ -287,17 +288,21 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     //!        CV_NEWTON - use Newton's method
     m_cvode_mem = CVodeCreate(m_method, m_iter);
     if (!m_cvode_mem) {
-        throw CVodesErr("CVodeCreate failed.");
+        throw CanteraError("CVodesIntegrator::initialize",
+                           "CVodeCreate failed.");
     }
 
     int flag = CVodeInit(m_cvode_mem, cvodes_rhs, m_t0, m_y);
     if (flag != CV_SUCCESS) {
         if (flag == CV_MEM_FAIL) {
-            throw CVodesErr("Memory allocation failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Memory allocation failed.");
         } else if (flag == CV_ILL_INPUT) {
-            throw CVodesErr("Illegal value for CVodeInit input argument.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Illegal value for CVodeInit input argument.");
         } else {
-            throw CVodesErr("CVodeInit failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "CVodeInit failed.");
         }
     }
     CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
@@ -309,11 +314,14 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
     if (flag != CV_SUCCESS) {
         if (flag == CV_MEM_FAIL) {
-            throw CVodesErr("Memory allocation failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Memory allocation failed.");
         } else if (flag == CV_ILL_INPUT) {
-            throw CVodesErr("Illegal value for CVodeInit input argument.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Illegal value for CVodeInit input argument.");
         } else {
-            throw CVodesErr("CVodeInit failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "CVodeInit failed.");
         }
     }
 
@@ -322,7 +330,8 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
 
     flag = CVodeSetUserData(m_cvode_mem, m_fdata.get());
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("CVodeSetUserData failed.");
+        throw CanteraError("CVodesIntegrator::initialize",
+                           "CVodeSetUserData failed.");
     }
     if (func.nparams() > 0) {
         sensInit(t0, func);
@@ -370,7 +379,8 @@ void CVodesIntegrator::applyOptions()
             CVBand(m_cvode_mem, N, nu, nl);
         #endif
     } else {
-        throw CVodesErr("unsupported option");
+        throw CanteraError("CVodesIntegrator::applyOptions",
+                           "unsupported option");
     }
 
     if (m_maxord > 0) {

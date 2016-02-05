@@ -219,7 +219,7 @@ doublereal SquareMatrix::rcond(doublereal anorm)
     }
     doublereal rcond = 0.0;
     if (m_factored != 1) {
-        throw CELapackError("SquareMatrix::rcond()", "matrix isn't factored correctly");
+        throw CanteraError("SquareMatrix::rcond()", "matrix isn't factored correctly");
     }
 
     int rinfo = 0;
@@ -251,7 +251,7 @@ doublereal SquareMatrix::rcondQR()
     }
     doublereal rcond = 0.0;
     if (m_factored != 2) {
-        throw CELapackError("SquareMatrix::rcondQR()", "matrix isn't factored correctly");
+        throw CanteraError("SquareMatrix::rcondQR()", "matrix isn't factored correctly");
     }
 
     int rinfo = 0;

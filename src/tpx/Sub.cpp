@@ -77,7 +77,7 @@ double Substance::x()
 double Substance::Tsat(double p)
 {
     if (p <= 0.0 || p > Pcrit()) {
-        throw TPX_Error("Substance::Tsat", "illegal pressure value");
+        throw CanteraError("Substance::Tsat", "illegal pressure value");
     }
     int LoopCount = 0;
     double tol = 1.e-6*p;
@@ -107,7 +107,7 @@ double Substance::Tsat(double p)
         LoopCount++;
         if (LoopCount > 100) {
             T = Tsave;
-            throw TPX_Error("Substance::Tsat", "No convergence");
+            throw CanteraError("Substance::Tsat", "No convergence");
         }
     }
     double tsat = T;
@@ -236,7 +236,7 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         }
         break;
     default:
-        throw TPX_Error("Substance::Set", "Invalid input.");
+        throw CanteraError("Substance::Set", "Invalid input.");
     }
 }
 
@@ -339,7 +339,7 @@ void Substance::update_sat()
         }
 
         if (i >= 20) {
-            throw TPX_Error("substance::update_sat","no convergence");
+            throw CanteraError("substance::update_sat","no convergence");
         } else {
             Pst = pp;
             Tslast = T;
@@ -362,7 +362,7 @@ double Substance::vprop(propertyFlag::type ijob)
     case propertyFlag::P:
         return Pp();
     default:
-        throw TPX_Error("Substance::vprop", "invalid job index");
+        throw CanteraError("Substance::vprop", "invalid job index");
     }
 }
 
@@ -384,14 +384,14 @@ int Substance::Lever(int itp, double sat, double val, propertyFlag::type ifunc)
         psat = sat;
         try {
             T = Tsat(psat);
-        } catch (TPX_Error&) {
+        } catch (CanteraError&) {
             // Failure to converge here is not an error
             T = Tsave;
             Rho = Rhosave;
             return 0;
         }
     } else {
-        throw TPX_Error("Substance::Lever","general error");
+        throw CanteraError("Substance::Lever","general error");
     }
     Set(PropertyPair::TX, T, 1.0);
     double Valg = vprop(ifunc);
@@ -507,7 +507,7 @@ void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
             } else if (t_here == Tmax()) {
                 msg += fmt::format("\nAt temperature limit (Tmax = {})", Tmax());
             }
-            throw TPX_Error("Substance::set_xy", msg);
+            throw CanteraError("Substance::set_xy", msg);
         }
     }
 }
@@ -600,7 +600,7 @@ void Substance::set_TPp(double Temp, double Pressure)
                     Pmax = P_here;
                 }
                 if (Vmin >= Vmax) {
-                    throw TPX_Error("Substance::set_TPp","Vmin >= Vmax");
+                    throw CanteraError("Substance::set_TPp","Vmin >= Vmax");
                 } else if ((Vmin > 0.0) && (Vmax < Big)) {
                     kbr = 1;
                 }
@@ -632,7 +632,7 @@ void Substance::set_TPp(double Temp, double Pressure)
         }
         v_here += dv;
         if (dv == 0.0) {
-            throw TPX_Error("Substance::set_TPp","dv = 0 and no convergence");
+            throw CanteraError("Substance::set_TPp","dv = 0 and no convergence");
         }
         Set(PropertyPair::TV, Temp, v_here);
         LoopCount++;

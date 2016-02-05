@@ -38,9 +38,12 @@ public:
     /*!
      * @param routine  Name of calling routine
      * @param msg      Informative message
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     CELapackError(const std::string& routine, const std::string& msg) :
         CanteraError(routine + " LAPACK ERROR", msg) {
+            warn_deprecated("class CELapackError",
+                            "To be removed after Cantera 2.3.");
     }
 };
 
@@ -52,9 +55,8 @@ public:
  *
  * Error handling from BLAS and LAPACK are handled via the following
  * formulation. Depending on a variable, a singular matrix or other terminal
- * error condition from LAPACK is handled by either throwing an exception of
- * type, CELapackError, or by returning the error code condition to the calling
- * routine.
+ * error condition from LAPACK is handled by either throwing an exception or
+ * by returning the error code condition to the calling routine.
  *
  * The int variable, m_useReturnErrorCode, determines which method is used. The
  * default value of zero means that an exception is thrown. A value of 1 means

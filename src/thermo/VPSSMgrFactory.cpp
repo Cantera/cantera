@@ -107,8 +107,9 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                                ssModel == "constant") {
                         has_other++;
                     } else {
-                        throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
-                                                  spNode->attrib("name"));
+                        throw CanteraError("getVPSSMgrTypes",
+                            "Specified VPSSMgr model {} does not match any known type.",
+                            spNode->attrib("name"));
                     }
                     ifound = true;
                 }
@@ -123,8 +124,9 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                                ssModel == "constant") {
                         has_other++;
                     } else {
-                        throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
-                                                  spNode->attrib("name"));
+                        throw CanteraError("getVPSSMgrTypes",
+                            "Specified VPSSMgr model {} does not match any known type.",
+                            spNode->attrib("name"));
                     }
                     ifound = true;
                 }
@@ -139,8 +141,9 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                                ssModel == "constant") {
                         has_other++;
                     } else {
-                        throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
-                                                  spNode->attrib("name"));
+                        throw CanteraError("getVPSSMgrTypes",
+                            "Specified VPSSMgr model {} does not match any known type.",
+                            spNode->attrib("name"));
                     }
                     ifound = true;
                 }
@@ -172,8 +175,9 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
                     ifound = true;
                 }
             } else {
-                throw UnknownVPSSMgrModel("getVPSSMgrTypes:",
-                                          spNode->attrib("name"));
+                throw CanteraError("getVPSSMgrTypes",
+                    "Specified VPSSMgr model {} does not match any known type.",
+                    spNode->attrib("name"));
             }
         }
     }
@@ -255,7 +259,7 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     try {
         getVPSSMgrTypes(spDataNodeList, inasaIG, inasaCV, ishomateIG, ishomateCV,
                         isimpleIG, isimpleCV, iwater, itpx, ihptx, iother);
-    } catch (UnknownVPSSMgrModel) {
+    } catch (CanteraError) {
         iother = 1;
     }
 

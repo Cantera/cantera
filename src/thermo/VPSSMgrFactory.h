@@ -30,6 +30,7 @@ public:
     /*!
      * @param proc                    Function name error occurred.
      * @param VPSSMgrModel            Unrecognized species thermo calculator name
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     UnknownVPSSMgrModel(const std::string& proc,
                         const std::string& VPSSMgrModel) :

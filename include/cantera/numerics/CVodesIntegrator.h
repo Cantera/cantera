@@ -18,11 +18,14 @@ class FuncData;
 
 /**
  * Exception thrown when a CVODES error is encountered.
+ * @deprecated Unused. To be removed after Cantera 2.3.
  */
 class CVodesErr : public CanteraError
 {
 public:
-    explicit CVodesErr(const std::string& msg) : CanteraError("CVodesIntegrator", msg) {}
+    explicit CVodesErr(const std::string& msg) : CanteraError("CVodesIntegrator", msg) {
+        warn_deprecated("class CVodesErr", "To be removed after Cantera 2.3.");
+    }
 };
 
 /**
