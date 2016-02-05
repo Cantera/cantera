@@ -3,7 +3,7 @@
 CANTERA
 *******
 
-Version 2.3.0a1 (development)
+Version 2.3.0a2 (development)
 
 License Information
 ===================

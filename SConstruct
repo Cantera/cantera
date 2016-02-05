@@ -596,7 +596,7 @@ for arg in ARGUMENTS:
         sys.exit(1)
 
 # Require a StrictVersion-compatible version
-env['cantera_version'] = "2.3.0a1"
+env['cantera_version'] = "2.3.0a2"
 ctversion = StrictVersion(env['cantera_version'])
 # MSI versions do not support pre-release tags
 env['cantera_msi_version'] = '.'.join(str(x) for x in ctversion.version)
