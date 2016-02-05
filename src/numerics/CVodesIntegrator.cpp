@@ -341,7 +341,8 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     int result;
     result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     if (result != CV_SUCCESS) {
-        throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
+        throw CanteraError("CVodesIntegrator::reinitialize",
+                           "CVodeReInit failed. result = {}", result);
     }
     applyOptions();
 }
@@ -393,8 +394,10 @@ void CVodesIntegrator::integrate(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
-                        "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
+        throw CanteraError("CVodesIntegrator::integrate",
+            "CVodes error encountered. Error code: {}\n{}\n"
+            "Components with largest weighted error estimates:\n{}",
+            flag, m_error_message, getErrorInfo(10));
     }
     m_sens_ok = false;
 }
@@ -403,8 +406,10 @@ double CVodesIntegrator::step(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
-                        "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
+        throw CanteraError("CVodesIntegrator::step",
+            "CVodes error encountered. Error code: {}\n{}\n"
+            "Components with largest weighted error estimates:\n{}",
+            flag, m_error_message, getErrorInfo(10));
 
     }
     m_sens_ok = false;
@@ -427,16 +432,19 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
     if (!m_sens_ok && m_np) {
         int flag = CVodeGetSens(m_cvode_mem, &m_time, m_yS);
         if (flag != CV_SUCCESS) {
-            throw CVodesErr("CVodeGetSens failed. Error code: " + int2str(flag));
+            throw CanteraError("CVodesIntegrator::sensitivity",
+                               "CVodeGetSens failed. Error code: {}", flag);
         }
         m_sens_ok = true;
     }
 
     if (k >= m_neq) {
-        throw CVodesErr("sensitivity: k out of range ("+int2str(p)+")");
+        throw CanteraError("CVodesIntegrator::sensitivity",
+                           "sensitivity: k out of range ({})", k);
     }
     if (p >= m_np) {
-        throw CVodesErr("sensitivity: p out of range ("+int2str(p)+")");
+        throw CanteraError("CVodesIntegrator::sensitivity",
+                           "sensitivity: p out of range ({})", p);
     }
     return NV_Ith_S(m_yS[p],k);
 }

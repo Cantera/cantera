@@ -34,7 +34,7 @@ protected:
         m_line(line),
         m_msg("Error in XML file") {
         if (line > 0) {
-            m_msg += " at line " + int2str(line+1);
+            m_msg += fmt::format(" at line {}", line+1);
         }
         m_msg += ".\n";
     }
@@ -487,12 +487,12 @@ void XML_Node::addAttribute(const std::string& attrib,
 
 void XML_Node::addAttribute(const std::string& aattrib, const int vvalue)
 {
-    m_attribs[aattrib] = int2str(vvalue);
+    m_attribs[aattrib] = fmt::format("{}", vvalue);
 }
 
 void XML_Node::addAttribute(const std::string& aattrib, const size_t vvalue)
 {
-    m_attribs[aattrib] = int2str(vvalue);
+    m_attribs[aattrib] = fmt::format("{}", vvalue);
 }
 
 std::string XML_Node::operator[](const std::string& attr) const
@@ -622,7 +622,7 @@ XML_Node* XML_Node::findNameIDIndex(const std::string& nameTarget,
     XML_Node* scResult = 0;
     std::string idattrib = id();
     std::string ii = attrib("index");
-    std::string index_s = int2str(index_i);
+    std::string index_s = fmt::format("{}", index_i);
     int iMax = -1000000;
     if (name() == nameTarget && (idTarget == "" || idTarget == idattrib) && index_s == ii) {
         return const_cast<XML_Node*>(this);

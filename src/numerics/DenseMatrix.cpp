@@ -143,10 +143,10 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
                       "it is used to solve a system of equations.\n", info);
         }
         if (!A.m_useReturnErrorCode) {
-            throw CELapackError("solve(DenseMatrix& A, double* b)",
-                                "DGETRF returned INFO = "+int2str(info) + ".   U(i,i) is exactly zero. The factorization has"
+            throw CanteraError("solve(DenseMatrix& A, double* b)",
+                                "DGETRF returned INFO = {}. U(i,i) is exactly zero. The factorization has"
                                 " been completed, but the factor U is exactly singular, and division by zero will occur if "
-                                "it is used to solve a system of equations.");
+                                "it is used to solve a system of equations.", info);
         }
         return info;
     } else if (info < 0) {
@@ -154,8 +154,8 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
             writelogf("solve(DenseMatrix& A, double* b): DGETRF returned INFO = %d. The argument i has an illegal value\n", info);
         }
 
-        throw CELapackError("solve(DenseMatrix& A, double* b)",
-                            "DGETRF returned INFO = "+int2str(info) + ". The argument i has an illegal value");
+        throw CanteraError("solve(DenseMatrix& A, double* b)",
+                           "DGETRF returned INFO = {}. The argument i has an illegal value", info);
     }
 
     if (ldb == 0) {
@@ -168,7 +168,7 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
             writelogf("solve(DenseMatrix& A, double* b): DGETRS returned INFO = %d\n", info);
         }
         if (info < 0 || !A.m_useReturnErrorCode) {
-            throw CELapackError("solve(DenseMatrix& A, double* b)", "DGETRS returned INFO = "+int2str(info));
+            throw CanteraError("solve(DenseMatrix& A, double* b)", "DGETRS returned INFO = {}", info);
         }
     }
     return info;
@@ -204,7 +204,7 @@ int invert(DenseMatrix& A, size_t nn)
             writelogf("invert(DenseMatrix& A, int nn): DGETRS returned INFO = %d\n", info);
         }
         if (! A.m_useReturnErrorCode) {
-            throw CELapackError("invert(DenseMatrix& A, int nn)", "DGETRS returned INFO = "+int2str(info));
+            throw CanteraError("invert(DenseMatrix& A, int nn)", "DGETRS returned INFO = {}", info);
         }
         return info;
     }
@@ -218,7 +218,7 @@ int invert(DenseMatrix& A, size_t nn)
             writelogf("invert(DenseMatrix& A, int nn): DGETRS returned INFO = %d\n", info);
         }
         if (! A.m_useReturnErrorCode) {
-            throw CELapackError("invert(DenseMatrix& A, int nn)", "DGETRI returned INFO="+int2str(info));
+            throw CanteraError("invert(DenseMatrix& A, int nn)", "DGETRI returned INFO={}", info);
         }
     }
     return info;

@@ -256,7 +256,9 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     saveResidual("debug_sim1d.xml", "residual",
                                  "After unsuccessful Newton solve");
                 }
-                debuglog("Take "+int2str(nsteps)+" timesteps   ", loglevel);
+                if (loglevel > 0) {
+                    writelog("Take {} timesteps   ", nsteps);
+                }
                 dt = timeStep(nsteps, dt, m_x.data(), m_xnew.data(),
                               loglevel-1);
                 if (loglevel > 6) {

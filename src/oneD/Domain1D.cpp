@@ -111,10 +111,10 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         getFloatArray(*nodes[i], values, false);
         if (values.size() != nComponents()) {
             if (loglevel > 0) {
-                writelog("Warning: Domain1D::restore: Got an array of length " +
-                         int2str(values.size()) + " when one of length " +
-                         int2str(nComponents()) + " was expected. " +
-                         "Tolerances for individual species may not be preserved.\n");
+                writelog("Warning: Domain1D::restore: Got an array of length {}"
+                    " when one of length {} was expected. "
+                    "Tolerances for individual species may not be preserved.\n",
+                    values.size(), nComponents());
             }
             // The number of components will differ when restoring from a
             // mechanism with a different number of species. Assuming that

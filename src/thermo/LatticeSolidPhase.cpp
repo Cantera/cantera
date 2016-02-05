@@ -343,7 +343,7 @@ void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
         }
         // Add in the lattice stoichiometry constraint
         if (n > 0) {
-            string econ = "LC_" + int2str(n) + "_" + id();
+            string econ = fmt::format("LC_{}_{}", n, id());
             size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
             size_t mm = nElements();
             size_t nsp0 = m_lattice[0]->nSpecies();

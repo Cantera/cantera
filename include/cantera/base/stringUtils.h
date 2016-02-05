@@ -27,12 +27,14 @@ std::string fp2str(const double x, const std::string& fmt="%g");
 /*!
  * @param n    int to be converted
  * @param fmt  format converter for an int int the printf command
+ * @deprecated Unused. To be removed after Cantera 2.3. Use fmt::format instead
  */
 std::string int2str(const int n, const std::string& fmt="%d");
 
 //! Convert an unsigned integer to a string
 /*!
  * @param n  int to be converted
+ * @deprecated Unused. To be removed after Cantera 2.3. Use fmt::format instead
  */
 std::string int2str(const size_t n);
 

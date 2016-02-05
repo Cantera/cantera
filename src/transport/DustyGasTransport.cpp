@@ -237,7 +237,7 @@ void DustyGasTransport::updateMultiDiffCoeffs()
     int ierr = invert(m_multidiff);
     if (ierr != 0) {
         throw CanteraError("DustyGasTransport::updateMultiDiffCoeffs",
-                           "invert returned ierr = "+int2str(ierr));
+                           "invert returned ierr = {}", ierr);
     }
 }
 

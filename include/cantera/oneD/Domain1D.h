@@ -203,7 +203,7 @@ public:
         if (m_name[n] != "") {
             return m_name[n];
         } else {
-            return "component " + int2str(n);
+            return fmt::format("component {}", n);
         }
     }
 
@@ -480,7 +480,7 @@ public:
         if (m_id != "") {
             return m_id;
         } else {
-            return std::string("domain ") + int2str(m_index);
+            return fmt::format("domain {}", m_index);
         }
     }
 

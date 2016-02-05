@@ -305,7 +305,8 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type,
         return new VPSSMgr_General(vp_ptr, &spthermoRef);
     case cVPSSMGR_UNDEF:
     default:
-        throw UnknownVPSSMgrModel("VPSSMgrFactory::newVPSSMgr", int2str(type));
+        throw CanteraError("VPSSMgrFactory::newVPSSMgr",
+            "Specified VPSSMgr model {} does not match any known type.", type);
         return 0;
     }
 }

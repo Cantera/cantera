@@ -152,7 +152,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         // Add a new point if the ratio with left interval is too large
         if (dz[j] > m_ratio*dz[j-1]) {
             m_loc[j] = 1;
-            m_c["point "+int2str(j)] = 1;
+            m_c[fmt::format("point {}", j)] = 1;
             m_keep[j-1] = 1;
             m_keep[j] = 1;
             m_keep[j+1] = 1;
@@ -162,7 +162,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         // Add a point if the ratio with right interval is too large
         if (dz[j] < dz[j-1]/m_ratio) {
             m_loc[j-1] = 1;
-            m_c["point "+int2str(j-1)] = 1;
+            m_c[fmt::format("point {}", j-1)] = 1;
             m_keep[j-2] = 1;
             m_keep[j-1] = 1;
             m_keep[j] = 1;

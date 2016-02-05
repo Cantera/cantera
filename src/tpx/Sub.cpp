@@ -214,8 +214,8 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
         } else if (temp >= Tcrit()) {
-            throw TPX_Error("Substance::Set",
-                            "Can't set vapor fraction above the critical point");
+            throw CanteraError("Substance::Set",
+                               "Can't set vapor fraction above the critical point");
         } else {
             set_T(temp);
             update_sat();
@@ -227,8 +227,8 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
             throw CanteraError("Substance::Set",
                                "Invalid vapor fraction, {}", y0);
         } else if (x0 >= Tcrit()) {
-            throw TPX_Error("Substance::Set",
-                            "Can't set vapor fraction above the critical point");
+            throw CanteraError("Substance::Set",
+                               "Can't set vapor fraction above the critical point");
         } else {
             set_T(x0);
             update_sat();

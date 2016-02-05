@@ -78,7 +78,7 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
             writelogf("SquareMatrix::solve(): DGETRS returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::solve()", "DGETRS returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::solve()", "DGETRS returned INFO = {}", info);
         }
     }
     return info;
@@ -124,7 +124,7 @@ int SquareMatrix::factor()
             writelogf("SquareMatrix::factor(): DGETRS returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::factor()", "DGETRS returned INFO = "+int2str(info));
+            throw CanteraError("SquareMatrix::factor()", "DGETRS returned INFO = {}", info);
         }
     }
     return info;
@@ -151,7 +151,7 @@ int SquareMatrix::factorQR()
             writelogf("SquareMatrix::factorQR(): DGEQRF returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::factorQR()", "DGEQRF returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::factorQR()", "DGEQRF returned INFO = {}", info);
         }
     }
     size_t lworkOpt = static_cast<size_t>(work[0]);
@@ -187,7 +187,7 @@ int SquareMatrix::solveQR(doublereal* b)
             writelogf("SquareMatrix::solveQR(): DORMQR returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::solveQR()", "DORMQR returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::solveQR()", "DORMQR returned INFO = {}", info);
         }
     }
     size_t lworkOpt = static_cast<size_t>(work[0]);
@@ -203,7 +203,7 @@ int SquareMatrix::solveQR(doublereal* b)
             writelogf("SquareMatrix::solveQR(): DTRTRS returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::solveQR()", "DTRTRS returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::solveQR()", "DTRTRS returned INFO = {}", info);
         }
     }
     return info;
@@ -230,7 +230,7 @@ doublereal SquareMatrix::rcond(doublereal anorm)
             writelogf("SquareMatrix::rcond(): DGECON returned INFO = %d\n", rinfo);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::rcond()", "DGECON returned INFO = " + int2str(rinfo));
+            throw CanteraError("SquareMatrix::rcond()", "DGECON returned INFO = {}", rinfo);
         }
     }
     return rcond;
@@ -262,7 +262,7 @@ doublereal SquareMatrix::rcondQR()
             writelogf("SquareMatrix::rcondQR(): DTRCON returned INFO = %d\n", rinfo);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::rcondQR()", "DTRCON returned INFO = " + int2str(rinfo));
+            throw CanteraError("SquareMatrix::rcondQR()", "DTRCON returned INFO = {}", rinfo);
         }
     }
     return rcond;

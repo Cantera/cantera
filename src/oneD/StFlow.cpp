@@ -643,7 +643,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         if (nm == "z") {
             getFloatArray(fa,x,false);
             np = x.size();
-            debuglog("Grid contains "+int2str(np)+" points.\n", loglevel >= 2);
+            if (loglevel >= 2) {
+                writelog("Grid contains {} points.\n", np);
+            }
             readgrid = true;
             setupGrid(np, x.data());
         }

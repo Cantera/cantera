@@ -41,6 +41,8 @@ std::string fp2str(const double x, const std::string& fmt)
 
 std::string int2str(const int n, const std::string& fmt)
 {
+    warn_deprecated("int2str", "Unused. To be removed after Cantera 2.3. "
+                    "Use fmt::format instead.");
     char buf[30];
     int m = SNPRINTF(buf, 30, fmt.c_str(), n);
     if (m > 0) {
@@ -52,6 +54,8 @@ std::string int2str(const int n, const std::string& fmt)
 
 std::string int2str(const size_t n)
 {
+    warn_deprecated("int2str", "Unused. To be removed after Cantera 2.3. "
+                    "Use fmt::format instead.");
     std::stringstream ss;
     ss << n;
     return ss.str();

@@ -130,7 +130,7 @@ public:
         m_refiner->setActive(n, c.refine);
         // set a default name if one has not been entered
         if (c.name == "") {
-            c.name = "Component "+Cantera::int2str(n);
+            c.name = fmt::format("Component {}", n);
         }
         setComponentName(n, c.name);
     }

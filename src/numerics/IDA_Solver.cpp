@@ -465,12 +465,14 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, double
 
     int flag = IDACalcIC(m_ida_mem, icopt, tout1);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDACalcIC failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_Y_given_Yp",
+                           "IDACalcIC failed: error = {}", flag);
     }
 
     flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_Y_given_Yp",
+                           "IDAGetSolution failed: error = {}", flag);
     }
     doublereal* yy = NV_DATA_S(m_y);
     doublereal* yyp = NV_DATA_S(m_ydot);
@@ -495,12 +497,14 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
 
     int flag = IDACalcIC(m_ida_mem, icopt, tout1);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDACalcIC failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_YaYp_given_Yd",
+                           "IDACalcIC failed: error = {}", flag);
     }
 
     flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_YaYp_given_Yd",
+                           "IDAGetSolution failed: error = {}", flag);
     }
     doublereal* yy = NV_DATA_S(m_y);
     doublereal* yyp = NV_DATA_S(m_ydot);
