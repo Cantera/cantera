@@ -549,7 +549,6 @@ config_options = [
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
      defaults.fsLayout, ('standard','compact','debian')),
-    ('cantera_version', '', '2.3.0a1')
 ]
 
 opts.AddVariables(*config_options)
@@ -597,6 +596,7 @@ for arg in ARGUMENTS:
         sys.exit(1)
 
 # Require a StrictVersion-compatible version
+env['cantera_version'] = "2.3.0a1"
 ctversion = StrictVersion(env['cantera_version'])
 # MSI versions do not support pre-release tags
 env['cantera_msi_version'] = '.'.join(str(x) for x in ctversion.version)
@@ -781,8 +781,6 @@ def get_expression_value(includes, expression):
               '    return 0;',
               '}\n'))
     return '\n'.join(s)
-
-configh = {}
 
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
@@ -1189,6 +1187,8 @@ else:
 # **************************************
 # *** Set options needed in config.h ***
 # **************************************
+
+configh = {}
 
 configh['CANTERA_VERSION'] = quoted(env['cantera_version'])
 configh['CANTERA_SHORT_VERSION'] = quoted(env['cantera_short_version'])
