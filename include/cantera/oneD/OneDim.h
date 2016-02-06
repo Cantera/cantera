@@ -162,7 +162,7 @@ public:
     /**
      * Evaluate the multi-domain residual function
      *
-     * @param j       if j > 0, only evaluate residual for points j-1, j,
+     * @param j       if j != npos, only evaluate residual for points j-1, j,
      *                and j + 1; otherwise, evaluate at all grid points.
      * @param x       solution vector
      * @param r       on return, contains the residual vector

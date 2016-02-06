@@ -268,10 +268,10 @@ public:
 
     /*!
      *  Evaluate the residual function for axisymmetric stagnation flow. If
-     *  jpt is less than zero, the residual function is evaluated at all grid
-     *  points. If jpt >= 0, then the residual function is only evaluated at
-     *  grid points jpt-1, jpt, and jpt+1. This option is used to efficiently
-     *  evaluate the Jacobian numerically.
+     *  j == npos, the residual function is evaluated at all grid points.
+     *  Otherwise, the residual function is only evaluated at grid points
+     *  j-1, j, and j+1. This option is used to efficiently evaluate the
+     *  Jacobian numerically.
      */
     virtual void eval(size_t j, doublereal* x, doublereal* r,
                       integer* mask, doublereal rdt);
